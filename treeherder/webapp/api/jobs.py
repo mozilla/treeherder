@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
+from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
 from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
                                          oauth_required, get_option)
@@ -144,6 +145,20 @@ class JobsViewSet(viewsets.ViewSet):
         if job:
             jm.retrigger(request.user.email, job[0])
             return Response({"message": "retriggered job '{0}'".format(job[0]['job_guid'])})
+        else:
+            return Response("No job with id: {0}".format(pk), 404)
+
+    @detail_route(methods=['post'], permission_classes=[IsStaffOrReadOnly])
+    @with_jobs
+    def backfill(self, request, project, jm, pk=None):
+        """
+        Issue a "backfill" to the underlying build_system_type by scheduling a
+        pulse message.
+        """
+        job = jm.get_job(pk)
+        if job:
+            jm.backfill(request.user.email, job[0])
+            return Response({"message": "backfilled job '{0}'".format(job[0]['job_guid'])})
         else:
             return Response("No job with id: {0}".format(pk), 404)
 

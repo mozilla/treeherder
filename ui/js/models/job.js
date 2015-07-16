@@ -94,6 +94,14 @@ treeherder.factory('ThJobModel', [
         });
     };
 
+    ThJobModel.backfill = function(repoName, pk, config) {
+        config = config || {};
+        var timeout = config.timeout || null;
+
+        return $http.post(ThJobModel.get_uri(repoName)+pk+"/backfill/",
+            {timeout:timeout});
+    };
+
     ThJobModel.cancel = function(repoName, pk, config) {
         config = config || {};
         var timeout = config.timeout || null;
