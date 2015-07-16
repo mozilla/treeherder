@@ -102,6 +102,7 @@ perf.controller('GraphsCtrl', [
         $scope.tooltipContent = {
           project: _.findWhere($scope.projects,
                                { name: phSeries.projectName }),
+          revisionUrl: thServiceDomain + '#/jobs?repo=' + phSeries.projectName,
           test: phSeries.name,
           platform: phSeries.platform,
           machine: phSeries.machine || 'mean',
