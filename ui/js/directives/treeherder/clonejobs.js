@@ -75,7 +75,17 @@ treeherder.directive('thCloneJobs', [
             };
         }
 
-        jobs = $(jobNavSelector.selector).filter(":visible, .selected-job");
+        // Filter the list of possible jobs down to ONLY ones in the .th-view-content
+        // div (excluding pinboard) and then to the specific selector passed
+        // in.  And then to only VISIBLE (not filtered away) jobs.  The exception
+        // is for the .selected-job.  If that's not visible, we still want to
+        // include it, because it is the anchor from which we find
+        // the next/previous job.
+        //
+        // The .selected-job can be invisible, for instance, when filtered to
+        // unclassified failures only, and you then classify the selected job.
+        // It's still selected, but no longer visible.
+        jobs = $(".th-view-content").filter(jobNavSelector.selector).filter(":visible, .selected-job");
         if (jobs.length) {
             var selIdx = jobs.index(jobs.filter(".selected-job"));
             var idx = getIndex(selIdx, jobs);
