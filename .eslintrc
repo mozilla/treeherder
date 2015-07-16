@@ -27,7 +27,6 @@
         "no-unused-vars": 0,
         "no-use-before-define": 0,
         "quotes": 0,
-        "semi": 0,
         "semi-spacing": 0,
         "space-infix-ops": 0,
         "space-unary-ops": 0
