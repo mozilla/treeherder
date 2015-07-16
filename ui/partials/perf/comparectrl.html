@@ -41,8 +41,7 @@
             <td ng-if="compareResult.delta" width="20%"><div ng-class="getCompareClasses(compareResult, 'bar')" style="margin-{{compareResult.marginDirection}}: {{compareResult.barGraphMargin}}%;"></div></td>
             <td ng-if="!compareResult.delta"></td>
             <td>
-              <ph-confidence value="{{compareResult.confidence}}"
-                             text="{{compareResult.confidenceText}}"/>
+              <ph-confidence result="compareResult"/>
             </td>
           </tr>
         </tbody>

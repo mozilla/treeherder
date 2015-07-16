@@ -20,8 +20,7 @@ treeherder.directive(
     return {
       templateUrl: 'partials/perf/compareconfidence.html',
       scope: {
-          text: '@',
-          value: '@'
+          result: '='
       }
     }
   });
