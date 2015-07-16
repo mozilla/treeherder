@@ -48,6 +48,11 @@ treeherder.directive('thWatchedRepo', [
             icon: "fa-spinner",
             color: "treeUnavailable",
             btnClass: "btn-view-nav"
+        },
+        "error": {
+            icon: "fa-question",
+            color: "treeUnavailable",
+            btnClass: "btn-view-nav"
         }
     };
 

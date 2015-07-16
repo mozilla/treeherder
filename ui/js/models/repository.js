@@ -231,6 +231,19 @@ treeherder.factory('ThRepositoryModel', [
     };
 
     /**
+     * if there's an error fetching data from treestatus, make that obvious
+     * in the treestatus field in treeherder
+     */
+    var getErrorTreeStatus = function(repoName) {
+        return {
+            status: "error",
+            message_of_the_day: 'Error reaching <a href="https://treestatus.mozilla.org">treestatus.mozilla.org</a>',
+            reason: 'Error reaching <a href="https://treestatus.mozilla.org">treestatus.mozilla.org</a>',
+            tree: repoName
+        };
+    };
+
+    /**
      * Update the status for ``repoName``.  If it's not passed in,
      * then update all ``watchedRepos`` status.
      * @param repoName
@@ -259,7 +272,11 @@ treeherder.factory('ThRepositoryModel', [
                     newStatuses[repo] = data.data;
                     updateStatusesIfDone();
                 }, function(data) {
-                    newStatuses[repo] = getUnsupportedTreeStatus(repo);
+                    if (data.data != null) {
+                        newStatuses[repo] = getUnsupportedTreeStatus(repo);
+                    } else {
+                        newStatuses[repo] = getErrorTreeStatus(repo);
+                    }
                     updateStatusesIfDone();
                 });
 
