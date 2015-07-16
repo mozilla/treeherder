@@ -6,6 +6,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from rest_framework.reverse import reverse
+from rest_framework.exceptions import ParseError
 from rest_framework.permissions import IsAuthenticated
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 from treeherder.model.derived import DatasetNotFoundError
@@ -146,6 +147,26 @@ class ResultSetViewSet(viewsets.ViewSet):
         try:
             jm.trigger_missing_resultset_jobs(request.user.email, pk, project)
             return Response({"message": "Missing jobs triggered for push '{0}'".format(pk)})
+
+        except Exception as ex:
+            return Response("Exception: {0}".format(ex), 404)
+
+    @detail_route(methods=['post'], permission_classes=[IsStaffOrReadOnly])
+    @with_jobs
+    def trigger_all_talos_jobs(self, request, project, jm, pk=None):
+        """
+        Trigger all the talos jobs in a resultset.
+        """
+        if not pk:
+            return Response({"message": "resultset id required"}, status=400)
+
+        times = int(request.QUERY_PARAMS.get('times', None))
+        if not times:
+            raise ParseError(detail="The 'times' parameter is mandatory for this endpoint")
+
+        try:
+            jm.trigger_all_talos_jobs(request.user.email, pk, project, times)
+            return Response({"message": "Talos jobs triggered for push '{0}'".format(pk)})
 
         except Exception as ex:
             return Response("Exception: {0}".format(ex), 404)

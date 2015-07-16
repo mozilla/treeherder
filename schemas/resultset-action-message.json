@@ -2,7 +2,7 @@
   "id":           "https://treeherder.mozilla.org/schemas/v1/resultset-action-message.json#",
   "$schema":      "http://json-schema.org/draft-04/schema#",
   "title":        "Notification of triggering jobs in a resultset",
-  "description":  "Event is dispatched when user/service issues a trigger_missing_jobs on a resultset",
+  "description":  "Event is dispatched when user/service issues a (trigger_missing_jobs, trigger_all_talos_jobs) action on a resultset",
   "type":         "object",
   "properties": {
     "version": {
@@ -19,10 +19,15 @@
       "description":          "Project unique identifier for a resultset",
       "type":                 "string"
     },
+    "times": {
+      "title":                "Times",
+      "description":          "Number of times to execute the command for a resultset.",
+      "type":                 "number"
+    },
     "action": {
       "title":                "Action",
       "description":          "Type of action issued on task",
-      "enum":                 ["trigger_missing_jobs"],
+      "enum":                 ["trigger_missing_jobs", "trigger_all_talos_jobs"],
       "type":                 "string"
     },
     "requester": {
