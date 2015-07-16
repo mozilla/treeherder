@@ -198,6 +198,11 @@ treeherder.factory(
              triggerMissingJobs: function(resultset_id, repoName) {
                  var uri = resultset_id + '/trigger_missing_jobs/';
                  return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri);
+             },
+
+             triggerAllTalosJobs: function(resultset_id, repoName, times) {
+                 var uri = resultset_id + '/trigger_all_talos_jobs/?times=' + times;
+                 return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri);
              }
          };
      }]);
