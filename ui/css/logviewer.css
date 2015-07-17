@@ -47,13 +47,14 @@ body {
     background: #fff;
 }
 
-.lv-log-line {
-    padding: 0 18px;
+/* Equal weight selector needs to follow the above nth-child() */
+.lv-log-container > div.text-danger {
+    color: #db0000;
+    background: #fbe3e3;
 }
 
-.text-danger {
-    color: #db0000;
-    background: #fbe3e3 !important;
+.lv-log-line {
+    padding: 0 18px;
 }
 
 .lv-line-highlight {
