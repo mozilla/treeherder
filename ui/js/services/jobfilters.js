@@ -331,14 +331,15 @@ treeherder.factory('thJobFilters', [
     };
 
     var toggleInProgress = function() {
-        var rsValues = _toArray($location.search()[QS_RESULT_STATUS]);
-        var pendRun = ['pending', 'running'];
-        if (_.difference(pendRun, rsValues).length === 0) {
-            rsValues = _.without(rsValues, 'pending', 'running');
+        if (_isInProgressShown()) {
+            $log.debug("removing in progress filters");
+            removeFilter('filter-resultStatus', 'pending');
+            removeFilter('filter-resultStatus', 'running');
         } else {
-            rsValues = _.uniq(_.flatten(rsValues, pendRun));
+            $log.debug("adding in progress filters");
+            addFilter('filter-resultStatus', 'pending');
+            addFilter('filter-resultStatus', 'running');
         }
-        $location.search(QS_RESULT_STATUS, rsValues);
     };
 
     var toggleUnclassifiedFailures = function() {
@@ -475,6 +476,11 @@ treeherder.factory('thJobFilters', [
         return (_.isEqual(_toArray($location.search()[QS_RESULT_STATUS]), thFailureResults) &&
                 _.isEqual(_toArray($location.search()[QS_CLASSIFIED_STATE]), ['unclassified']));
     };
+
+    var _isInProgressShown = function() {
+        return (_.contains(_getFiltersOrDefaults('filter-resultStatus'), 'pending') || 
+                _.contains(_getFiltersOrDefaults('filter-resultStatus'), 'running'))
+    }
 
     var _matchesDefaults = function(field, values) {
         $log.debug("_matchesDefaults", field, values);
