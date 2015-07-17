@@ -50,4 +50,4 @@ perf.config(function($compileProvider, $stateProvider, $urlRouterProvider) {
 
     // Configures $urlRouter's listener *after* custom listener
     $urlRouter.listen();
-  })
+  });

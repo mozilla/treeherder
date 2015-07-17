@@ -78,13 +78,13 @@ treeherder.factory('ThPaginator', function(){
 
     ThPaginator.prototype.get_page = function(n){
         return this.data.slice(n * limit - limit, n * limit);
-    }
-
-    ThPaginator.prototype.get_all = function(){
-        return data
     };
 
-    return ThPaginator
+    ThPaginator.prototype.get_all = function(){
+        return data;
+    };
+
+    return ThPaginator;
 
 });
 
@@ -126,7 +126,7 @@ treeherder.factory('BrowserId', [
                 navigator.id.logout();
                 return browserid.logoutDeferred.promise.then(function(){
                     return $http.post(response.data.logoutUrl);
-                })
+                });
             });
         },
         /*
@@ -159,7 +159,7 @@ treeherder.factory('BrowserId', [
         transform_data: function(data){
             return $.param(data);
         }
-    }
+    };
     return browserid;
 }]);
 
@@ -215,9 +215,9 @@ treeherder.factory('thNotify', [
         * remove an arbitrary element from the notifications queue
         */
         remove: function(index){
-            thNotify.notifications.splice(index, 1)
+            thNotify.notifications.splice(index, 1);
         }
-    }
+    };
     return thNotify;
 
 }]);

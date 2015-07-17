@@ -53,7 +53,7 @@ perf.controller('GraphsCtrl', [
 
     function showTooltip(dataPoint) {
       if ($scope.showToolTipTimeout){
-        window.clearTimeout($scope.showToolTipTimeout)
+        window.clearTimeout($scope.showToolTipTimeout);
       }
 
       $scope.showToolTipTimeout = window.setTimeout(function() {
@@ -168,7 +168,7 @@ perf.controller('GraphsCtrl', [
     function hideTooltip(now) {
       var tip = $('#graph-tooltip');
       if ($scope.showToolTipTimeout){
-        window.clearTimeout($scope.showToolTipTimeout)
+        window.clearTimeout($scope.showToolTipTimeout);
       }
 
       if (!$scope.ttHideTimer && tip.css('visibility') == 'visible') {
@@ -225,7 +225,7 @@ perf.controller('GraphsCtrl', [
       $scope.overviewPlot = $.plot($("#overview-plot"),
                               $scope.seriesList.map(
                                 function(series) {
-                                 return series.flotSeries }),
+                                 return series.flotSeries; }),
                                  {
                                    xaxis: { mode: 'time' },
                                    selection: { mode: 'xy', color: '#97c6e5' },
@@ -332,11 +332,12 @@ perf.controller('GraphsCtrl', [
                 return ThResultSetModel.getResultSetsFromRevision(
                   series.projectName, rev).then(
                     function(resultSets) {
-                      var resultSetId = resultSets[0].id
+                      var resultSetId = resultSets[0].id;
                       var j = series.flotSeries.resultSetData.indexOf(resultSetId);
                       var seriesToaddHighlight = _.find(
                         $scope.seriesList, function(sr) {
-                          return sr.signature == series.signature });
+                          return sr.signature == series.signature;
+                      });
                       seriesToaddHighlight.highlightedPoints.push(j);
                     });
               }
@@ -349,7 +350,7 @@ perf.controller('GraphsCtrl', [
         // plot the actual graph
         $scope.plot = $.plot($("#graph"),
                              $scope.seriesList.map(
-                               function(series) { return series.flotSeries }),
+                               function(series) { return series.flotSeries; }),
                              {
                                xaxis: { mode: 'time' },
                                series: { shadowSize: 0 },
@@ -436,7 +437,7 @@ perf.controller('GraphsCtrl', [
       $q.all($scope.seriesList.map(getSeriesData)).then(function() {
         plotGraph();
       });
-    }
+    };
 
     $scope.myMeasureChanged = function() {
       $scope.zoom = {};
@@ -446,7 +447,7 @@ perf.controller('GraphsCtrl', [
       $q.all($scope.seriesList.map(getSeriesData)).then(function() {
             plotGraph();
       });
-    }
+    };
 
     $scope.repoName = $stateParams.projectId;
 
@@ -454,7 +455,7 @@ perf.controller('GraphsCtrl', [
       $state.transitionTo('graphs', {
         timerange: $scope.myTimerange.value,
         series: $scope.seriesList.map(function(series) {
-          return "[" + series.projectName + "," + series.signature + "," + (series.visible ? 1 : 0) + "]"
+          return "[" + series.projectName + "," + series.signature + "," + (series.visible ? 1 : 0) + "]";
         }),
         highlightedRevisions: _.filter($scope.highlightedRevisions,
                                        function(highlight) {
@@ -467,11 +468,11 @@ perf.controller('GraphsCtrl', [
               && ($scope.zoom.x != 0 && $scope.zoom.y != 0)) {
             var modifiedZoom = ("[" + ($scope.zoom['x'].toString()
                     + ',' + $scope.zoom['y'].toString()) + "]").replace(/[\[\{\}\]"]+/g, '');
-            return modifiedZoom
+            return modifiedZoom;
           }
           else {
-            $scope.zoom = []
-            return $scope.zoom
+            $scope.zoom = [];
+            return $scope.zoom;
           }
         })(),
       }, {location: true, inherit: true,
@@ -504,7 +505,7 @@ perf.controller('GraphsCtrl', [
                              data: [],
                              resultSetData: [],
                              thSeries: jQuery.extend({}, series)
-                           }
+                           };
                            response.data[0].blob.forEach(function(dataPoint) {
                              var measure = dataPoint.mean;
                              if ($scope.myMeasure === "min") {
@@ -532,7 +533,7 @@ perf.controller('GraphsCtrl', [
     }
 
     function addSeriesList(partialSeriesList) {
-      var propsHash = {}
+      var propsHash = {};
       return $q.all(partialSeriesList.map(
         function(partialSeries) {
           return $http.get(thServiceDomain + '/api/project/' +
@@ -601,12 +602,12 @@ perf.controller('GraphsCtrl', [
     $scope.showHideSeries = function(signature) {
       updateDocument();
       plotGraph();
-    }
+    };
 
     $scope.resetHighlight = function(i) {
-      $scope.highlightedRevisions[i] = ''
+      $scope.highlightedRevisions[i] = '';
       $scope.updateHighlightedRevisions();
-    }
+    };
 
     $scope.updateHighlightedRevisions = function() {
       // update url
@@ -619,13 +620,13 @@ perf.controller('GraphsCtrl', [
         optionCollectionMap = _optionCollectionMap;
 
         if ($stateParams.zoom) {
-          var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '')
-          var zoomArray = zoomString.split(",")
+          var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '');
+          var zoomArray = zoomString.split(",");
           var zoomObject = {
             "x": zoomArray.slice(0,2),
             "y": zoomArray.slice(2,4)
-          }
-          $scope.zoom = (zoomString) ? zoomObject : []
+          };
+          $scope.zoom = (zoomString) ? zoomObject : [];
         } else {
           $scope.zoom = [];
         }
@@ -654,7 +655,7 @@ perf.controller('GraphsCtrl', [
                 "project":  partialSeriesArray[0],
                 "signature":  partialSeriesArray[1],
                 "visible": (partialSeriesArray[2] == 0) ? false : true
-            }
+            };
             return partialSeriesObject;
           });
           addSeriesList(partialSeriesList);
@@ -752,11 +753,11 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
   };
 
   var addTestToGraph = function () {
-      $scope.selectedSeriesList = $scope.addedTestList
+      $scope.selectedSeriesList = $scope.addedTestList;
       $scope.selectedSeriesList.forEach(function(selectedSeries, i) {
         series[i] = _.clone(selectedSeries);
         series[i].projectName = selectedSeries.projectName;
-      })
+      });
       $modalInstance.close(series);
   };
 
@@ -823,10 +824,10 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
             return (series.platform === $scope.selectedPlatform);
           }).sort(function(a, b) { return a.name > b.name; });
         testArray = filteredSeriesList;
-        $scope.testList = _.map(filteredSeriesList, function(series) { return series.name });
+        $scope.testList = _.map(filteredSeriesList, function(series) { return series.name; });
 
         testInputCreated = true;
-      }
+      };
       $scope.updateTestSelector();
 
       $scope.loadingTestData = false;

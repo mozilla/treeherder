@@ -38,6 +38,6 @@ treeherder.factory('ThModelErrors', [function() {
                     return message + ':' + e.data.detail;
             }
         }
-    }
+    };
 }]);
 
