@@ -3,6 +3,7 @@
         "browser": 1
     },
     "rules": {
+        "indent": 2,
         // Default rules we've disabled until the failures are fixed.
         // Remove a line (or change the value to "2") to enable the rule.
         "camelcase": 0,
