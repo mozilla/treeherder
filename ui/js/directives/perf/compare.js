@@ -5,22 +5,22 @@
 'use strict';
 
 treeherder.directive(
-  'phAverage', function() {
-    return {
-      templateUrl: 'partials/perf/average.html',
-      scope: {
-          value: '@',
-          replicates: '='
-      }
-    };
-  });
+    'phAverage', function() {
+        return {
+            templateUrl: 'partials/perf/average.html',
+            scope: {
+                value: '@',
+                replicates: '='
+            }
+        };
+    });
 
 treeherder.directive(
-  'phConfidence', function() {
-    return {
-      templateUrl: 'partials/perf/compareconfidence.html',
-      scope: {
-          result: '='
-      }
-    };
-  });
+    'phConfidence', function() {
+        return {
+            templateUrl: 'partials/perf/compareconfidence.html',
+            scope: {
+                result: '='
+            }
+        };
+    });

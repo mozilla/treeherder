@@ -7,35 +7,34 @@
 treeherder.factory('treeStatus', [
     '$http', '$q',
     function($http, $q) {
+        var urlBase = "https://treestatus.mozilla.org/";
 
-    var urlBase = "https://treestatus.mozilla.org/";
+        var getTreeStatusName = function(name) {
+            // the thunderbird names in treestatus.mozilla.org don't match what
+            // we use, so translate them.  pretty hacky, yes...
+            // TODO: Move these to the repository fixture in the service.
+            if (name.indexOf("comm-") >= 0 && name !== "try-comm-central") {
+                return name + "-thunderbird";
+            }
+            return name;
+        };
 
-    var getTreeStatusName = function(name) {
-        // the thunderbird names in treestatus.mozilla.org don't match what
-        // we use, so translate them.  pretty hacky, yes...
-        // TODO: Move these to the repository fixture in the service.
-        if (name.indexOf("comm-") >= 0 && name !== "try-comm-central") {
-            return name + "-thunderbird";
-        }
-        return name;
-    };
+        // the inverse of getTreeStatusName.  Seems like overhead to put this one
+        // line here, but it keeps the logic to do/undo all in one place.
+        var getRepoName = function(name) {
+            return name.replace("-thunderbird", "");
+        };
 
-    // the inverse of getTreeStatusName.  Seems like overhead to put this one
-    // line here, but it keeps the logic to do/undo all in one place.
-    var getRepoName = function(name) {
-        return name.replace("-thunderbird", "");
-    };
+        var get = function(repoName) {
+            var url = urlBase + getTreeStatusName(repoName);
 
-    var get = function(repoName) {
-        var url = urlBase + getTreeStatusName(repoName);
+            return $http.get(url, {params: {format: "json"}});
+        };
 
-        return $http.get(url, {params: {format: "json"}});
-    };
-
-    return {
-        get: get,
-        getTreeStatusName: getTreeStatusName,
-        getRepoName: getRepoName
-    };
-}]);
+        return {
+            get: get,
+            getTreeStatusName: getTreeStatusName,
+            getRepoName: getRepoName
+        };
+    }]);
 

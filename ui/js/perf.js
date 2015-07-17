@@ -8,515 +8,515 @@ var perf = angular.module("perf", ['ui.router', 'ui.bootstrap', 'treeherder']);
 
 perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceDomain) {
 
-  var _getSeriesSummary = function(signature, signatureProps, optionCollectionMap) {
-      var platform = signatureProps.machine_platform;
-      var testName = signatureProps.test;
-      var subtestSignatures;
-      if (testName === undefined) {
-        testName = "summary";
-        subtestSignatures = signatureProps.subtest_signatures;
-      }
-      var name = signatureProps.suite + " " + testName;
-      var options = [ optionCollectionMap[signatureProps.option_collection_hash] ];
-      if (signatureProps.test_options) {
-        options = options.concat(signatureProps.test_options);
-      }
-      name = name + " " + options.join(" ");
-
-      return { name: name, signature: signature, platform: platform,
-               options: options, subtestSignatures: subtestSignatures };
-  };
-
-  var _getAllSeries = function(projectName, timeRange, optionMap) {
-    var signatureURL = thServiceDomain + '/api/project/' + projectName +
-      '/performance-data/get_performance_series_summary/?interval=' +
-      timeRange;
-
-    return $http.get(signatureURL).then(function(response) {
-      var seriesList = [];
-      var platformList = [];
-      var testList = [];
-
-      Object.keys(response.data).forEach(function(signature) {
-        var seriesSummary = _getSeriesSummary(signature,
-                                             response.data[signature],
-                                             optionMap);
-
-        seriesList.push(seriesSummary);
-
-        // add test/platform to lists if not yet present
-        if (!_.contains(platformList, seriesSummary.platform)) {
-          platformList.push(seriesSummary.platform);
+    var _getSeriesSummary = function(signature, signatureProps, optionCollectionMap) {
+        var platform = signatureProps.machine_platform;
+        var testName = signatureProps.test;
+        var subtestSignatures;
+        if (testName === undefined) {
+            testName = "summary";
+            subtestSignatures = signatureProps.subtest_signatures;
         }
-        if (!_.contains(testList, seriesSummary.name)) {
-          testList.push(seriesSummary.name);
+        var name = signatureProps.suite + " " + testName;
+        var options = [ optionCollectionMap[signatureProps.option_collection_hash] ];
+        if (signatureProps.test_options) {
+            options = options.concat(signatureProps.test_options);
         }
-      });
+        name = name + " " + options.join(" ");
 
-      return {
-        seriesList: seriesList,
-        platformList: platformList,
-        testList: testList
-      };
-    });
-  };
+        return { name: name, signature: signature, platform: platform,
+                 options: options, subtestSignatures: subtestSignatures };
+    };
 
-  return {
-    getSeriesSummary: function(signature, signatureProps, optionCollectionMap) {
-      return _getSeriesSummary(signature, signatureProps, optionCollectionMap);
-    },
+    var _getAllSeries = function(projectName, timeRange, optionMap) {
+        var signatureURL = thServiceDomain + '/api/project/' + projectName +
+            '/performance-data/get_performance_series_summary/?interval=' +
+            timeRange;
 
-    getSubtestSummaries: function(projectName, timeRange, optionMap, targetSignature) {
-      return _getAllSeries(projectName, timeRange, optionMap).then(function(lists) {
-        var seriesList = [];
-        var platformList = [];
-        var subtestSignatures = [];
-        var suiteName;
+        return $http.get(signatureURL).then(function(response) {
+            var seriesList = [];
+            var platformList = [];
+            var testList = [];
 
-        //Given a signature, find the series and get subtest signatures
-        var series = _.find(lists.seriesList,
-          function(series) {
-            return series.signature == targetSignature;
-          });
+            Object.keys(response.data).forEach(function(signature) {
+                var seriesSummary = _getSeriesSummary(signature,
+                                                      response.data[signature],
+                                                      optionMap);
 
-        if (series) {
-          // if it is not a summary series, then find the summary series
-          // corresponding to it (could be more than one) and use that
-          if (!series.subtestSignatures) {
-            series = _.filter(lists.seriesList,
-              function(s) {
-                return _.find(s.subtestSignatures, function(signature) {
-                  return signature == targetSignature;
-                });
-              });
-          } else {
-            // make this a list of series to work with _.map below
-            series = [series];
-          }
-          subtestSignatures = _.union(_.map(series, 'subtestSignatures' ))[0];
-          suiteName = _.union(_.map(series, 'name'))[0];
-        }
+                seriesList.push(seriesSummary);
 
-        //For each subtest, find the matching series in the list and store it
-        subtestSignatures.forEach(function(signature) {
-          var seriesSubtest = _.find(lists.seriesList, function(series) {
-                                      return series.signature == signature;
-                                    });
-          seriesList.push(seriesSubtest);
+                // add test/platform to lists if not yet present
+                if (!_.contains(platformList, seriesSummary.platform)) {
+                    platformList.push(seriesSummary.platform);
+                }
+                if (!_.contains(testList, seriesSummary.name)) {
+                    testList.push(seriesSummary.name);
+                }
+            });
 
-          // add platform to lists if not yet present
-          if (!_.contains(platformList, seriesSubtest.platform)) {
-            platformList.push(seriesSubtest.platform);
-          }
+            return {
+                seriesList: seriesList,
+                platformList: platformList,
+                testList: testList
+            };
         });
+    };
 
-        var testList = [];
-        if (suiteName) {
-          testList = [suiteName];
-        }
+    return {
+        getSeriesSummary: function(signature, signatureProps, optionCollectionMap) {
+            return _getSeriesSummary(signature, signatureProps, optionCollectionMap);
+        },
 
-        return {
-          seriesList: seriesList,
-          platformList: platformList,
-          testList: testList
-        };
-      });
-    },
+        getSubtestSummaries: function(projectName, timeRange, optionMap, targetSignature) {
+            return _getAllSeries(projectName, timeRange, optionMap).then(function(lists) {
+                var seriesList = [];
+                var platformList = [];
+                var subtestSignatures = [];
+                var suiteName;
 
-    getAllSeries: function(projectName, timeRange, optionMap) {
-      return _getAllSeries(projectName, timeRange, optionMap);
-    },
+                //Given a signature, find the series and get subtest signatures
+                var series = _.find(lists.seriesList,
+                                    function(series) {
+                                        return series.signature == targetSignature;
+                                    });
 
-    getSeriesSummaries: function(projectName, timeRange, optionMap, userOptions) {
-      var seriesList = [];
-      var platformList = [];
-      var testList = [];
+                if (series) {
+                    // if it is not a summary series, then find the summary series
+                    // corresponding to it (could be more than one) and use that
+                    if (!series.subtestSignatures) {
+                        series = _.filter(lists.seriesList,
+                                          function(s) {
+                                              return _.find(s.subtestSignatures, function(signature) {
+                                                  return signature == targetSignature;
+                                              });
+                                          });
+                    } else {
+                        // make this a list of series to work with _.map below
+                        series = [series];
+                    }
+                    subtestSignatures = _.union(_.map(series, 'subtestSignatures' ))[0];
+                    suiteName = _.union(_.map(series, 'name'))[0];
+                }
 
-      return _getAllSeries(projectName, timeRange, optionMap).then(function(lists) {
-        lists.seriesList.forEach(function(seriesSummary) {
-          // Only keep summary signatures, filter in/out e10s
+                //For each subtest, find the matching series in the list and store it
+                subtestSignatures.forEach(function(signature) {
+                    var seriesSubtest = _.find(lists.seriesList, function(series) {
+                        return series.signature == signature;
+                    });
+                    seriesList.push(seriesSubtest);
 
-          if (!seriesSummary.subtestSignatures ||
-              (userOptions.e10s && !_.contains(seriesSummary.options, 'e10s')) ||
-              (!userOptions.e10s && _.contains(seriesSummary.options, 'e10s'))) {
-              return;
-          } else {
-            // We don't generate number for tp5n, this is xperf and we collect counters
-            if (_.contains(seriesSummary.name, "tp5n"))
-              return;
+                    // add platform to lists if not yet present
+                    if (!_.contains(platformList, seriesSubtest.platform)) {
+                        platformList.push(seriesSubtest.platform);
+                    }
+                });
 
-            seriesList.push(seriesSummary);
+                var testList = [];
+                if (suiteName) {
+                    testList = [suiteName];
+                }
 
-            // add test/platform to lists if not yet present
-            if (!_.contains(platformList, seriesSummary.platform)) {
-              platformList.push(seriesSummary.platform);
-            }
-            if (!_.contains(testList, seriesSummary.name)) {
-              testList.push(seriesSummary.name);
-            }
-          } //if/else
-        }); //lists.serieslist.forEach
+                return {
+                    seriesList: seriesList,
+                    platformList: platformList,
+                    testList: testList
+                };
+            });
+        },
 
-        return {
-          seriesList: seriesList,
-          platformList: platformList,
-          testList: testList
-        };
-      }); //_getAllSeries
-    },
+        getAllSeries: function(projectName, timeRange, optionMap) {
+            return _getAllSeries(projectName, timeRange, optionMap);
+        },
 
-  };
-  }]);
+        getSeriesSummaries: function(projectName, timeRange, optionMap, userOptions) {
+            var seriesList = [];
+            var platformList = [];
+            var testList = [];
+
+            return _getAllSeries(projectName, timeRange, optionMap).then(function(lists) {
+                lists.seriesList.forEach(function(seriesSummary) {
+                    // Only keep summary signatures, filter in/out e10s
+
+                    if (!seriesSummary.subtestSignatures ||
+                        (userOptions.e10s && !_.contains(seriesSummary.options, 'e10s')) ||
+                        (!userOptions.e10s && _.contains(seriesSummary.options, 'e10s'))) {
+                        return;
+                    } else {
+                        // We don't generate number for tp5n, this is xperf and we collect counters
+                        if (_.contains(seriesSummary.name, "tp5n"))
+                            return;
+
+                        seriesList.push(seriesSummary);
+
+                        // add test/platform to lists if not yet present
+                        if (!_.contains(platformList, seriesSummary.platform)) {
+                            platformList.push(seriesSummary.platform);
+                        }
+                        if (!_.contains(testList, seriesSummary.name)) {
+                            testList.push(seriesSummary.name);
+                        }
+                    } //if/else
+                }); //lists.serieslist.forEach
+
+                return {
+                    seriesList: seriesList,
+                    platformList: platformList,
+                    testList: testList
+                };
+            }); //_getAllSeries
+        },
+
+    };
+}]);
 
 perf.factory('isReverseTest', [ function() {
-  return function(testName) {
-    var reverseTests = ['dromaeo_dom', 'dromaeo_css', 'v8_7', 'canvasmark'];
-    var found = false;
-    reverseTests.forEach(function(rt) {
-      if (testName.indexOf(rt) >= 0) {
-        found = true;
-      }
-    });
-    return found;
-  };
+    return function(testName) {
+        var reverseTests = ['dromaeo_dom', 'dromaeo_css', 'v8_7', 'canvasmark'];
+        var found = false;
+        reverseTests.forEach(function(rt) {
+            if (testName.indexOf(rt) >= 0) {
+                found = true;
+            }
+        });
+        return found;
+    };
 }]);
 
 
 perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
-             'math', 'isReverseTest', 'phTimeRanges',
-  function($q, $http, thServiceDomain, PhSeries, math, isReverseTest, phTimeRanges) {
+                            'math', 'isReverseTest', 'phTimeRanges',
+                            function($q, $http, thServiceDomain, PhSeries, math, isReverseTest, phTimeRanges) {
 
-  // Used for t_test: default stddev if both sets have only a single value - 15%.
-  // Should be rare case and it's unreliable, but at least have something.
-  var STDDEV_DEFAULT_FACTOR = 0.15;
+                                // Used for t_test: default stddev if both sets have only a single value - 15%.
+                                // Should be rare case and it's unreliable, but at least have something.
+                                var STDDEV_DEFAULT_FACTOR = 0.15;
 
-  var RATIO_CARE_MIN = 1.015; // We don't care about less than ~1.5% diff
-  var T_VALUE_CARE_MIN = 0.5; // Observations
-  var T_VALUE_CONFIDENT = 1; // Observations. Weirdly nice that ended up as 0.5 and 1...
+                                var RATIO_CARE_MIN = 1.015; // We don't care about less than ~1.5% diff
+                                var T_VALUE_CARE_MIN = 0.5; // Observations
+                                var T_VALUE_CONFIDENT = 1; // Observations. Weirdly nice that ended up as 0.5 and 1...
 
-  function getClassName(newIsBetter, oldVal, newVal, abs_t_value) {
-    // NOTE: we care about general ratio rather than how much is new compared
-    // to old - this could end up with slightly higher or lower threshold
-    // in practice than indicated by DIFF_CARE_MIN. E.g.:
-    // - If old is 10 and new is 5, then new = old -50%
-    // - If old is 5 and new is 10, then new = old + 100%
-    // And if the threshold was 75% then one would matter and the other wouldn't.
-    // Instead, we treat both cases as 2.0 (general ratio), and both would matter
-    // if our threshold was 75% (i.e. DIFF_CARE_MIN = 1.75).
-    var ratio = newVal / oldVal;
-    if (ratio < 1) {
-      ratio = 1 / ratio; // Direction agnostic and always >= 1.
-    }
+                                function getClassName(newIsBetter, oldVal, newVal, abs_t_value) {
+                                    // NOTE: we care about general ratio rather than how much is new compared
+                                    // to old - this could end up with slightly higher or lower threshold
+                                    // in practice than indicated by DIFF_CARE_MIN. E.g.:
+                                    // - If old is 10 and new is 5, then new = old -50%
+                                    // - If old is 5 and new is 10, then new = old + 100%
+                                    // And if the threshold was 75% then one would matter and the other wouldn't.
+                                    // Instead, we treat both cases as 2.0 (general ratio), and both would matter
+                                    // if our threshold was 75% (i.e. DIFF_CARE_MIN = 1.75).
+                                    var ratio = newVal / oldVal;
+                                    if (ratio < 1) {
+                                        ratio = 1 / ratio; // Direction agnostic and always >= 1.
+                                    }
 
-    if (ratio < RATIO_CARE_MIN || abs_t_value < T_VALUE_CARE_MIN) {
-      return "";
-    }
+                                    if (ratio < RATIO_CARE_MIN || abs_t_value < T_VALUE_CARE_MIN) {
+                                        return "";
+                                    }
 
-    if (abs_t_value < T_VALUE_CONFIDENT) {
-      // Since we (currently) have only one return value to indicate uncertainty,
-      // let's use it for regressions only. (Improvement would just not be marked).
-      return newIsBetter ? "" : "compare-notsure";
-    }
+                                    if (abs_t_value < T_VALUE_CONFIDENT) {
+                                        // Since we (currently) have only one return value to indicate uncertainty,
+                                        // let's use it for regressions only. (Improvement would just not be marked).
+                                        return newIsBetter ? "" : "compare-notsure";
+                                    }
 
-    return newIsBetter ? "compare-improvement" : "compare-regression";
-  }
+                                    return newIsBetter ? "compare-improvement" : "compare-regression";
+                                }
 
-  return {
-    getCompareClasses: function(cr, type) {
-      if (cr.hideMinorChanges && !cr.isMeaningful) return 'subtest-empty';
-      if (cr.isEmpty) return 'subtest-empty';
-      if (type == 'row' && cr.highlightedTest) return 'active subtest-highlighted';
-      if (type == 'row') return '';
-      if (type == 'bar' && cr.isRegression) return 'bar-regression';
-      if (type == 'bar' && cr.isImprovement) return 'bar-improvement';
-      if (type == 'bar') return '';
-      return cr.className;
-    },
+                                return {
+                                    getCompareClasses: function(cr, type) {
+                                        if (cr.hideMinorChanges && !cr.isMeaningful) return 'subtest-empty';
+                                        if (cr.isEmpty) return 'subtest-empty';
+                                        if (type == 'row' && cr.highlightedTest) return 'active subtest-highlighted';
+                                        if (type == 'row') return '';
+                                        if (type == 'bar' && cr.isRegression) return 'bar-regression';
+                                        if (type == 'bar' && cr.isImprovement) return 'bar-improvement';
+                                        if (type == 'bar') return '';
+                                        return cr.className;
+                                    },
 
-    // Aggregates two sets of values into a "comparison object" which is later used
-    // to display a single line of comparison.
-    // The result object has the following properties:
-    // - .isEmpty: true if no data for either side.
-    // If !isEmpty, for originalData/newData (if the data exists)
-    // - .[original|new]GeoMean    // Average of the values (where each is a geomean)
-    // - .[original|new]Stddev     // stddev
-    // - .[original|new]StddevPct  // stddev as percentage of the average
-    // - .[original|new]Runs       // Display data: number of runs and their values
-    // If both originalData/newData exist, comparison data:
-    // - .isImprovement
-    // - .isRegression
-    // - .delta
-    // - .deltaPercentage
-    // - .confidence               // t-test value
-    // - .confidenceText           // 'low'/'med'/'high'
-    // - .isMeaningful             // for highlighting - bool over t-test threshold
-    // And some data to help formatting of the comparison:
-    // - .className
-    // - .barGraphMargin
-    // - .marginDirection
-    getCounterMap: function getDisplayLineData(testName, originalData, newData) {
+                                    // Aggregates two sets of values into a "comparison object" which is later used
+                                    // to display a single line of comparison.
+                                    // The result object has the following properties:
+                                    // - .isEmpty: true if no data for either side.
+                                    // If !isEmpty, for originalData/newData (if the data exists)
+                                    // - .[original|new]GeoMean    // Average of the values (where each is a geomean)
+                                    // - .[original|new]Stddev     // stddev
+                                    // - .[original|new]StddevPct  // stddev as percentage of the average
+                                    // - .[original|new]Runs       // Display data: number of runs and their values
+                                    // If both originalData/newData exist, comparison data:
+                                    // - .isImprovement
+                                    // - .isRegression
+                                    // - .delta
+                                    // - .deltaPercentage
+                                    // - .confidence               // t-test value
+                                    // - .confidenceText           // 'low'/'med'/'high'
+                                    // - .isMeaningful             // for highlighting - bool over t-test threshold
+                                    // And some data to help formatting of the comparison:
+                                    // - .className
+                                    // - .barGraphMargin
+                                    // - .marginDirection
+                                    getCounterMap: function getDisplayLineData(testName, originalData, newData) {
 
-      function removeZeroes(values) {
-        return _.filter(values, function(v){
-          return !!v;
-        });
-      }
+                                        function removeZeroes(values) {
+                                            return _.filter(values, function(v){
+                                                return !!v;
+                                            });
+                                        }
 
-      function numericCompare(a, b) {
-        return a < b ? -1 : a > b ? 1 : 0;
-      }
+                                        function numericCompare(a, b) {
+                                            return a < b ? -1 : a > b ? 1 : 0;
+                                        }
 
-      // Some statistics for a single set of values
-      function analyzeSet(values) {
-        var average = math.average(values),
-            stddev = math.stddev(values, average);
+                                        // Some statistics for a single set of values
+                                        function analyzeSet(values) {
+                                            var average = math.average(values),
+                                                stddev = math.stddev(values, average);
 
-        return {
-          // Called 'geomeans' because each value is a geomean (of the subtests)
-          // but we then average those values plainly.
-          geomean: average,
-          stddev: stddev,
-          stddevPct: math.percentOf(stddev, average),
+                                            return {
+                                                // Called 'geomeans' because each value is a geomean (of the subtests)
+                                                // but we then average those values plainly.
+                                                geomean: average,
+                                                stddev: stddev,
+                                                stddevPct: math.percentOf(stddev, average),
 
-          // We use slice to keep the original values at their original order
-          // in case the order is important elsewhere.
-          runs: values.slice().sort(numericCompare)
-        };
-      }
+                                                // We use slice to keep the original values at their original order
+                                                // in case the order is important elsewhere.
+                                                runs: values.slice().sort(numericCompare)
+                                            };
+                                        }
 
-      // Eventually the result object, after setting properties as required.
-      var cmap = { isEmpty: true };
+                                        // Eventually the result object, after setting properties as required.
+                                        var cmap = { isEmpty: true };
 
-      // Talos tests may output 0 as an indication of failure. Ignore those results.
-      if (originalData) {
-        originalData.values = removeZeroes(originalData.values);
-      }
-      if (newData) {
-        newData.values = removeZeroes(newData.values);
-      }
+                                        // Talos tests may output 0 as an indication of failure. Ignore those results.
+                                        if (originalData) {
+                                            originalData.values = removeZeroes(originalData.values);
+                                        }
+                                        if (newData) {
+                                            newData.values = removeZeroes(newData.values);
+                                        }
 
-      // It's possible to get an object with empty values, so check for that too.
-      var hasOrig = originalData && originalData.values.length;
-      var hasNew  = newData && newData.values.length;
+                                        // It's possible to get an object with empty values, so check for that too.
+                                        var hasOrig = originalData && originalData.values.length;
+                                        var hasNew  = newData && newData.values.length;
 
-      if (!hasOrig && !hasNew)
-        return cmap; // No data for either side
+                                        if (!hasOrig && !hasNew)
+                                            return cmap; // No data for either side
 
-      cmap.isEmpty = false;
+                                        cmap.isEmpty = false;
 
-      if (hasOrig) {
-        var orig = analyzeSet(originalData.values);
-        cmap.originalGeoMean = orig.geomean;
-        cmap.originalRuns = orig.runs;
-        cmap.originalStddev = orig.stddev;
-        cmap.originalStddevPct = orig.stddevPct;
-      }
-      if (hasNew) {
-        var newd = analyzeSet(newData.values);
-        cmap.newGeoMean = newd.geomean;
-        cmap.newRuns = newd.runs;
-        cmap.newStddev = newd.stddev;
-        cmap.newStddevPct = newd.stddevPct;
-      }
+                                        if (hasOrig) {
+                                            var orig = analyzeSet(originalData.values);
+                                            cmap.originalGeoMean = orig.geomean;
+                                            cmap.originalRuns = orig.runs;
+                                            cmap.originalStddev = orig.stddev;
+                                            cmap.originalStddevPct = orig.stddevPct;
+                                        }
+                                        if (hasNew) {
+                                            var newd = analyzeSet(newData.values);
+                                            cmap.newGeoMean = newd.geomean;
+                                            cmap.newRuns = newd.runs;
+                                            cmap.newStddev = newd.stddev;
+                                            cmap.newStddevPct = newd.stddevPct;
+                                        }
 
-      if (!hasOrig || !hasNew)
-        return cmap; // No comparison, just display for one side.
+                                        if (!hasOrig || !hasNew)
+                                            return cmap; // No comparison, just display for one side.
 
-      // Compare the sides.
-      // "Normal" tests are "lower is better". Reversed is.. reversed.
-      cmap.delta = (cmap.newGeoMean - cmap.originalGeoMean);
-      var newIsBetter = cmap.delta < 0; // New value is lower than orig value
-      if (isReverseTest(testName))
-        newIsBetter = !newIsBetter;
+                                        // Compare the sides.
+                                        // "Normal" tests are "lower is better". Reversed is.. reversed.
+                                        cmap.delta = (cmap.newGeoMean - cmap.originalGeoMean);
+                                        var newIsBetter = cmap.delta < 0; // New value is lower than orig value
+                                        if (isReverseTest(testName))
+                                            newIsBetter = !newIsBetter;
 
-      cmap.deltaPercentage = math.percentOf(cmap.delta, cmap.originalGeoMean);
+                                        cmap.deltaPercentage = math.percentOf(cmap.delta, cmap.originalGeoMean);
 
-      cmap.barGraphMargin = 50 - Math.min(50, Math.abs(Math.round(cmap.deltaPercentage) / 2));
-      cmap.marginDirection = newIsBetter ? 'right' : 'left';
+                                        cmap.barGraphMargin = 50 - Math.min(50, Math.abs(Math.round(cmap.deltaPercentage) / 2));
+                                        cmap.marginDirection = newIsBetter ? 'right' : 'left';
 
-      var abs_t_value = Math.abs(math.t_test(originalData.values, newData.values, STDDEV_DEFAULT_FACTOR));
-      cmap.className = getClassName(newIsBetter, cmap.originalGeoMean, cmap.newGeoMean, abs_t_value);
-      cmap.confidence = abs_t_value;
-      cmap.confidenceText = abs_t_value < T_VALUE_CARE_MIN ? "low" :
-                            abs_t_value < T_VALUE_CONFIDENT ? "med" :
-                            "high";
+                                        var abs_t_value = Math.abs(math.t_test(originalData.values, newData.values, STDDEV_DEFAULT_FACTOR));
+                                        cmap.className = getClassName(newIsBetter, cmap.originalGeoMean, cmap.newGeoMean, abs_t_value);
+                                        cmap.confidence = abs_t_value;
+                                        cmap.confidenceText = abs_t_value < T_VALUE_CARE_MIN ? "low" :
+                                            abs_t_value < T_VALUE_CONFIDENT ? "med" :
+                                            "high";
 
-      cmap.isRegression = (cmap.className == 'compare-regression');
-      cmap.isImprovement = (cmap.className == 'compare-improvement');
-      cmap.isMeaningful = (cmap.className != "");
+                                        cmap.isRegression = (cmap.className == 'compare-regression');
+                                        cmap.isImprovement = (cmap.className == 'compare-improvement');
+                                        cmap.isMeaningful = (cmap.className != "");
 
-      return cmap;
-    },
+                                        return cmap;
+                                    },
 
-    getInterval: function(oldTimestamp, newTimestamp) {
-      var now = (new Date()).getTime() / 1000;
-      var timeRange = Math.min(oldTimestamp, newTimestamp);
-      timeRange = Math.round(now - timeRange);
+                                    getInterval: function(oldTimestamp, newTimestamp) {
+                                        var now = (new Date()).getTime() / 1000;
+                                        var timeRange = Math.min(oldTimestamp, newTimestamp);
+                                        timeRange = Math.round(now - timeRange);
 
-      //now figure out which predefined set of data we can query from
-      var timeRange = _.find(phTimeRanges, function(i) { return timeRange <= i.value; });
-      return timeRange.value;
-    },
+                                        //now figure out which predefined set of data we can query from
+                                        var timeRange = _.find(phTimeRanges, function(i) { return timeRange <= i.value; });
+                                        return timeRange.value;
+                                    },
 
-    validateInput: function(originalProject, newProject,
-                            originalRevision, newRevision,
-                            originalSignature, newSignature) {
+                                    validateInput: function(originalProject, newProject,
+                                                            originalRevision, newRevision,
+                                                            originalSignature, newSignature) {
 
-      var errors = [];
-      if (!originalProject) errors.push('Missing input: originalProject');
-      if (!newProject) errors.push('Missing input: newProject');
-      if (!originalRevision) errors.push('Missing input: originalRevision');
-      if (!newRevision) errors.push('Missing input: newRevision');
+                                        var errors = [];
+                                        if (!originalProject) errors.push('Missing input: originalProject');
+                                        if (!newProject) errors.push('Missing input: newProject');
+                                        if (!originalRevision) errors.push('Missing input: originalRevision');
+                                        if (!newRevision) errors.push('Missing input: newRevision');
 
-      if (originalSignature && newSignature) {
-        if (!originalSignature) errors.push('Missing input: originalSignature');
-        if (!newSignature) errors.push('Missing input: newSignature');
-      }
+                                        if (originalSignature && newSignature) {
+                                            if (!originalSignature) errors.push('Missing input: originalSignature');
+                                            if (!newSignature) errors.push('Missing input: newSignature');
+                                        }
 
-      $http.get(thServiceDomain + '/api/repository/').then(function(response) {
-        if (!_.find(response.data, {'name': originalProject}))
-          errors.push("Invalid project, doesn't exist: " + originalProject);
+                                        $http.get(thServiceDomain + '/api/repository/').then(function(response) {
+                                            if (!_.find(response.data, {'name': originalProject}))
+                                                errors.push("Invalid project, doesn't exist: " + originalProject);
 
-        if (!_.find(response.data, {'name': newProject}))
-          errors.push("Invalid project, doesn't exist: " + newProject);
-      });
-      return errors;
-    },
+                                            if (!_.find(response.data, {'name': newProject}))
+                                                errors.push("Invalid project, doesn't exist: " + newProject);
+                                        });
+                                        return errors;
+                                    },
 
-    getResultsMap: function(projectName, seriesList, timeRange, resultSetIds) {
-      var baseURL = thServiceDomain + '/api/project/' +
-        projectName + '/performance-data/' +
-        'get_performance_data/?interval_seconds=' + timeRange;
+                                    getResultsMap: function(projectName, seriesList, timeRange, resultSetIds) {
+                                        var baseURL = thServiceDomain + '/api/project/' +
+                                            projectName + '/performance-data/' +
+                                            'get_performance_data/?interval_seconds=' + timeRange;
 
-      var resultsMap = {};
-      return $q.all(_.chunk(seriesList, 20).map(function(seriesChunk) {
-        var signatures = "";
-        seriesChunk.forEach(function(series) {
-            signatures += "&signatures=" + series.signature;
-        });
-        return $http.get(baseURL + signatures).then(
-          function(response) {
-            resultSetIds.forEach(function(resultSetId) {
-              if (resultsMap[resultSetId] === undefined) {
-                resultsMap[resultSetId] = {};
-              }
-              response.data.forEach(function(data) {
-                // Aggregates data from the server on a single group of values which
-                // will be compared later to another group. Ends up with an object
-                // with description (name/platform) and values.
-                // The values are later processed at getCounterMap as the data arguments.
-                var values = [];
-                _.where(data.blob, { result_set_id: resultSetId }).forEach(function(pdata) {
-                  //summary series have geomean, individual pages have mean
-                  if (pdata.geomean === undefined) {
-                    values.push(pdata.mean);
-                  } else {
-                    values.push(pdata.geomean);
-                  }
-                });
+                                        var resultsMap = {};
+                                        return $q.all(_.chunk(seriesList, 20).map(function(seriesChunk) {
+                                            var signatures = "";
+                                            seriesChunk.forEach(function(series) {
+                                                signatures += "&signatures=" + series.signature;
+                                            });
+                                            return $http.get(baseURL + signatures).then(
+                                                function(response) {
+                                                    resultSetIds.forEach(function(resultSetId) {
+                                                        if (resultsMap[resultSetId] === undefined) {
+                                                            resultsMap[resultSetId] = {};
+                                                        }
+                                                        response.data.forEach(function(data) {
+                                                            // Aggregates data from the server on a single group of values which
+                                                            // will be compared later to another group. Ends up with an object
+                                                            // with description (name/platform) and values.
+                                                            // The values are later processed at getCounterMap as the data arguments.
+                                                            var values = [];
+                                                            _.where(data.blob, { result_set_id: resultSetId }).forEach(function(pdata) {
+                                                                //summary series have geomean, individual pages have mean
+                                                                if (pdata.geomean === undefined) {
+                                                                    values.push(pdata.mean);
+                                                                } else {
+                                                                    values.push(pdata.geomean);
+                                                                }
+                                                            });
 
-                var seriesData = _.find(seriesChunk, {'signature': data.series_signature});
+                                                            var seriesData = _.find(seriesChunk, {'signature': data.series_signature});
 
-                resultsMap[resultSetId][data.series_signature] = {
-                                               platform: seriesData.platform,
-                                               name: seriesData.name,
-                                               values: values
-                };
-              });
-            });
-          });
-      })).then(function() {
-        return resultsMap;
-      });
-    },
-  };
-}]);
+                                                            resultsMap[resultSetId][data.series_signature] = {
+                                                                platform: seriesData.platform,
+                                                                name: seriesData.name,
+                                                                values: values
+                                                            };
+                                                        });
+                                                    });
+                                                });
+                                        })).then(function() {
+                                            return resultsMap;
+                                        });
+                                    },
+                                };
+                            }]);
 
 
 perf.factory('math', [ function() {
 
-  function percentOf(a, b) {
-    return b ? 100 * a / b : 0;
-  }
-
-  function average(values) {
-    if (values.length < 1) {
-      return 0;
+    function percentOf(a, b) {
+        return b ? 100 * a / b : 0;
     }
 
-    return _.sum(values) / values.length;
+    function average(values) {
+        if (values.length < 1) {
+            return 0;
+        }
 
-  }
+        return _.sum(values) / values.length;
 
-  function stddev(values, avg) {
-    if (values.length < 2) {
-      return 0;
     }
 
-    if (!avg)
-      avg = average(values);
+    function stddev(values, avg) {
+        if (values.length < 2) {
+            return 0;
+        }
 
-    return Math.sqrt(
-      values.map(function (v) { return Math.pow(v - avg, 2); })
-        .reduce(function (a, b) { return a + b; }) / (values.length - 1));
-  }
+        if (!avg)
+            avg = average(values);
 
-  // If a set has only one value, assume average-ish-plus sddev, which
-  // will manifest as smaller t-value the less items there are at the group
-  // (so quite small for 1 value). This default value is a parameter.
-  // C/T mean control/test group (in our case original/new data).
-  function t_test(valuesC, valuesT, stddev_default_factor) {
-    var lenC = valuesC.length,
-        lenT = valuesT.length;
-
-    // We must have at least one value at each set
-    if (lenC < 1 || lenT < 1) {
-      return 0;
+        return Math.sqrt(
+            values.map(function (v) { return Math.pow(v - avg, 2); })
+                .reduce(function (a, b) { return a + b; }) / (values.length - 1));
     }
 
-    var avgC = average(valuesC);
-    var avgT = average(valuesT);
+    // If a set has only one value, assume average-ish-plus sddev, which
+    // will manifest as smaller t-value the less items there are at the group
+    // (so quite small for 1 value). This default value is a parameter.
+    // C/T mean control/test group (in our case original/new data).
+    function t_test(valuesC, valuesT, stddev_default_factor) {
+        var lenC = valuesC.length,
+            lenT = valuesT.length;
 
-    // Use actual stddev if possible, or stddev_default_factor if one sample
-    var stddevC = (lenC > 1 ? stddev(valuesC, avgC) : stddev_default_factor * avgC),
-        stddevT = (lenT > 1 ? stddev(valuesT, avgT) : stddev_default_factor * avgT);
+        // We must have at least one value at each set
+        if (lenC < 1 || lenT < 1) {
+            return 0;
+        }
 
-    // If one of the sets has only a single sample, assume its stddev is
-    // the same as that of the other set (in percentage). If both sets
-    // have only one sample, both will use stddev_default_factor.
-    if (lenC == 1) {
-      stddevC = valuesC[0] * stddevT / avgT;
-    } else if (lenT == 1) {
-      stddevT = valuesT[0] * stddevC / avgC;
+        var avgC = average(valuesC);
+        var avgT = average(valuesT);
+
+        // Use actual stddev if possible, or stddev_default_factor if one sample
+        var stddevC = (lenC > 1 ? stddev(valuesC, avgC) : stddev_default_factor * avgC),
+            stddevT = (lenT > 1 ? stddev(valuesT, avgT) : stddev_default_factor * avgT);
+
+        // If one of the sets has only a single sample, assume its stddev is
+        // the same as that of the other set (in percentage). If both sets
+        // have only one sample, both will use stddev_default_factor.
+        if (lenC == 1) {
+            stddevC = valuesC[0] * stddevT / avgT;
+        } else if (lenT == 1) {
+            stddevT = valuesT[0] * stddevC / avgC;
+        }
+
+        var delta = avgT - avgC;
+        var stdDiffErr = (
+            Math.sqrt(
+                stddevC * stddevC / lenC // control-variance / control-size
+                    +
+                    stddevT * stddevT / lenT // ...
+            )
+        );
+
+        return delta / stdDiffErr;
     }
 
-    var delta = avgT - avgC;
-    var stdDiffErr = (
-      Math.sqrt(
-        stddevC * stddevC / lenC // control-variance / control-size
-        +
-        stddevT * stddevT / lenT // ...
-      )
-    );
-
-    return delta / stdDiffErr;
-  }
-
-  return {
-    percentOf: percentOf,
-    average: average,
-    stddev: stddev,
-    t_test: t_test
-  }; // 'math'
+    return {
+        percentOf: percentOf,
+        average: average,
+        stddev: stddev,
+        t_test: t_test
+    }; // 'math'
 }]);
 
 
 perf.filter('displayPrecision', function() {
-  return function(input) {
-    if (isNaN(input)) {
-      return "N/A";
-    }
+    return function(input) {
+        if (isNaN(input)) {
+            return "N/A";
+        }
 
-    return parseFloat(input).toFixed(2);
-  };
+        return parseFloat(input).toFixed(2);
+    };
 });

@@ -21,12 +21,12 @@ treeherder.filter('platformName', ['thPlatformNameMap', function(thPlatformNameM
     // fix the platform name from the raw name in the db, with the more
     // "human read-able" one
     return function(input, name) {
-            var newName = platformNameMap[name];
-            if (newName) {
-                return newName;
-            }
-            // if it's not found, then return it unchanged.
-            return name;
+        var newName = platformNameMap[name];
+        if (newName) {
+            return newName;
+        }
+        // if it's not found, then return it unchanged.
+        return name;
     };
 }]);
 
@@ -111,12 +111,12 @@ treeherder.filter('highlightCommonTerms', function(){
 treeherder.filter('escapeHTML', function() {
     return function(text){
         if (text) {
-        return text.
-            replace(/&/g, '&amp;').
-            replace(/</g, '&lt;').
-            replace(/>/g, '&gt;').
-            replace(/'/g, '&#39;').
-            replace(/"/g, '&quot;');
+            return text.
+                replace(/&/g, '&amp;').
+                replace(/</g, '&lt;').
+                replace(/>/g, '&gt;').
+                replace(/'/g, '&#39;').
+                replace(/"/g, '&quot;');
         }
         return '';
     };

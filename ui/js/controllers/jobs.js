@@ -62,13 +62,13 @@ treeherderApp.controller('JobsCtrl', [
         $scope.getSearchParamValue = function(param) {
             var params = $location.search();
             var searchParamValue = params[param];
-                // in the event the user manually strips off the search
-                // parameter and its = sign, which would return true
-                if (searchParamValue === true) {
-                    return "";
-                } else {
-                    return searchParamValue;
-                }
+            // in the event the user manually strips off the search
+            // parameter and its = sign, which would return true
+            if (searchParamValue === true) {
+                return "";
+            } else {
+                return searchParamValue;
+            }
         };
 
         if(ThResultSetStore.isNotLoaded($scope.repoName)){
@@ -90,19 +90,19 @@ treeherderApp.controller('JobsCtrl', [
             if(classification.who !== $scope.user.email){
                 // get a fresh version of the job
                 ThJobModel.get($scope.repoName, classification.id)
-                .then(function(job){
-                    // get the list of jobs we know about
-                    var jobMap  = ThResultSetStore.getJobMap(classification.branch);
-                    var map_key = "key"+job.id;
-                    if(jobMap.hasOwnProperty(map_key)){
-                        // update the old job with the new info
-                        _.extend(jobMap[map_key].job_obj,job);
-                        var params = { jobs: {}};
-                        params.jobs[job.id] = jobMap[map_key].job_obj;
-                        // broadcast the job classification event
-                        $rootScope.$emit(thEvents.jobsClassified, params);
-                    }
-                });
+                    .then(function(job){
+                        // get the list of jobs we know about
+                        var jobMap  = ThResultSetStore.getJobMap(classification.branch);
+                        var map_key = "key"+job.id;
+                        if(jobMap.hasOwnProperty(map_key)){
+                            // update the old job with the new info
+                            _.extend(jobMap[map_key].job_obj,job);
+                            var params = { jobs: {}};
+                            params.jobs[job.id] = jobMap[map_key].job_obj;
+                            // broadcast the job classification event
+                            $rootScope.$emit(thEvents.jobsClassified, params);
+                        }
+                    });
             }
         };
     }
@@ -156,11 +156,11 @@ treeherderApp.controller('ResultSetCtrl', [
 
             ThResultSetStore.loadRevisions(
                 $rootScope.repoName, $scope.resultset.id
-                );
+            );
 
             $rootScope.$emit(
                 thEvents.toggleRevisions, $scope.resultset
-                );
+            );
 
         };
 
@@ -221,15 +221,15 @@ treeherderApp.controller('ResultSetCtrl', [
         };
 
         $scope.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
-                                            $scope.repoName + "&revision=" +
-                                            $scope.resultset.revision;
+            $scope.repoName + "&revision=" +
+            $scope.resultset.revision;
 
         $scope.resultsetDateStr = dateFilter($scope.resultset.push_timestamp*1000,
                                              thDateFormat);
 
         $scope.authorResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
-                                          $scope.repoName + "&author=" +
-                                          encodeURIComponent($scope.resultset.author);
+            $scope.repoName + "&author=" +
+            encodeURIComponent($scope.resultset.author);
 
         $rootScope.$on(thEvents.jobContextMenu, function(event, job){
             $log.debug("caught", thEvents.jobContextMenu);
