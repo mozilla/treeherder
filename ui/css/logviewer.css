@@ -53,6 +53,7 @@ body {
 
 .text-danger {
     color: #db0000;
+    background: #fbe3e3 !important;
 }
 
 .lv-line-highlight {
