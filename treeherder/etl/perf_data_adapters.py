@@ -7,6 +7,7 @@ from simplejson import encoder
 
 from hashlib import sha1
 import math
+import statistics
 import zlib
 
 from jsonschema import validate
@@ -91,13 +92,25 @@ class PerformanceDataAdapter(object):
 
     @staticmethod
     def _calculate_summary_data(job_id, result_set_id, push_timestamp, results):
-        values = []
-        for test in results:
-            values += results[test]
+        # to calculate the summary geometric mean, we drop the first 5
+        # replicates from a performance series, and take the median of the
+        # rest
+        NUM_REPLICATES_TO_DROP = 5
 
-        if values:
+        page_medians = []
+        for test in results:
+            num_replicates = len(results[test])
+            if num_replicates > (NUM_REPLICATES_TO_DROP + 1):
+                page_medians.append(statistics.median(
+                    results[test][NUM_REPLICATES_TO_DROP:]))
+            else:
+                logger.warning("Talos test %s only has %s replicates, can't "
+                               "incorporate into summary", test,
+                               num_replicates)
+
+        if page_medians:
             geomean = math.exp(sum(map(lambda v: math.log(v+1),
-                                       values))/len(values))-1
+                                       page_medians))/len(page_medians))-1
         else:
             geomean = 0.0
 
