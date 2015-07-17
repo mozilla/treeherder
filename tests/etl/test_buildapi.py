@@ -102,6 +102,7 @@ def mock_buildapi_builds4h_missing_branch_url(monkeypatch):
 
 
 def test_ingest_pending_jobs(jm, initial_data,
+                             mock_extract,
                              mock_buildapi_pending_url,
                              mock_post_json_data,
                              mock_log_parser,
@@ -123,6 +124,7 @@ def test_ingest_pending_jobs(jm, initial_data,
 
 
 def test_ingest_running_jobs(jm, initial_data,
+                             mock_extract,
                              mock_buildapi_running_url,
                              mock_post_json_data,
                              mock_log_parser,
@@ -144,6 +146,7 @@ def test_ingest_running_jobs(jm, initial_data,
 
 
 def test_ingest_builds4h_jobs(jm, initial_data,
+                              mock_extract,
                               mock_buildapi_builds4h_url,
                               mock_post_json_data,
                               mock_log_parser,
@@ -165,6 +168,7 @@ def test_ingest_builds4h_jobs(jm, initial_data,
 
 
 def test_ingest_running_to_complete_job(jm, initial_data,
+                                        mock_extract,
                                         mock_buildapi_running_url,
                                         mock_buildapi_builds4h_url,
                                         mock_post_json_data,
@@ -205,6 +209,7 @@ def test_ingest_running_to_complete_job(jm, initial_data,
 
 
 def test_ingest_running_job_fields(jm, initial_data,
+                                   mock_extract,
                                    mock_buildapi_running_url,
                                    mock_post_json_data,
                                    mock_log_parser,
@@ -230,7 +235,7 @@ def test_ingest_running_job_fields(jm, initial_data,
 #####################
 
 
-def test_ingest_pending_jobs_1_missing_resultset(jm, initial_data,
+def test_ingest_pending_jobs_1_missing_resultset(jm, initial_data, mock_extract,
                                                  sample_resultset, test_repository, mock_buildapi_pending_missing1_url,
                                                  mock_post_json_data, mock_get_resultset, mock_get_remote_content,
                                                  activate_responses):
@@ -242,7 +247,7 @@ def test_ingest_pending_jobs_1_missing_resultset(jm, initial_data,
     _do_missing_resultset_test(jm, etl_process)
 
 
-def test_ingest_running_jobs_1_missing_resultset(jm, initial_data,
+def test_ingest_running_jobs_1_missing_resultset(jm, initial_data, mock_extract,
                                                  sample_resultset, test_repository, mock_buildapi_running_missing1_url,
                                                  mock_post_json_data, mock_get_resultset, mock_get_remote_content,
                                                  activate_responses):
@@ -254,7 +259,7 @@ def test_ingest_running_jobs_1_missing_resultset(jm, initial_data,
     _do_missing_resultset_test(jm, etl_process)
 
 
-def test_ingest_builds4h_jobs_1_missing_resultset(jm, initial_data,
+def test_ingest_builds4h_jobs_1_missing_resultset(jm, initial_data, mock_extract,
                                                   sample_resultset, test_repository, mock_buildapi_builds4h_missing1_url,
                                                   mock_post_json_data, mock_log_parser, mock_get_resultset,
                                                   mock_get_remote_content, activate_responses):
@@ -266,7 +271,7 @@ def test_ingest_builds4h_jobs_1_missing_resultset(jm, initial_data,
     _do_missing_resultset_test(jm, etl_process)
 
 
-def test_ingest_builds4h_jobs_missing_branch(jm, initial_data,
+def test_ingest_builds4h_jobs_missing_branch(jm, initial_data, mock_extract,
                                              sample_resultset, test_repository, mock_buildapi_builds4h_missing_branch_url,
                                              mock_post_json_data, mock_log_parser, mock_get_resultset,
                                              mock_get_remote_content):

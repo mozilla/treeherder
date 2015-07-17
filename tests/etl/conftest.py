@@ -6,10 +6,12 @@ import pytest
 import json
 from webtest.app import TestApp
 from urllib2 import HTTPError
+import urllib
 
 from treeherder.webapp.wsgi import application
 
 from treeherder import client
+from treeherder import etl
 
 
 @pytest.fixture
@@ -37,3 +39,14 @@ def mock_post_json_data(monkeypatch, set_oauth_credentials):
                             jsondata)
 
     monkeypatch.setattr(client.TreeherderClient, "_post_json", _mock_post_json)
+
+
+@pytest.fixture
+def mock_extract(monkeypatch):
+
+    def _mock_extract(thisone, url):
+        opener = urllib.FancyURLopener({})
+        f = opener.open(url)
+        return json.loads(f.read())
+
+    monkeypatch.setattr(etl.mixins.JsonExtractorMixin, "extract", _mock_extract)
