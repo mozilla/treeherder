@@ -42,13 +42,17 @@ class JobExclusionSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.JobExclusion
 
-    # We need to override create because ModelSerializer raises an error
+    # We need to override .create and .update because ModelSerializer raises an error
     # if it finds nested resources. A JSONField instance is either a dict or a list
     # which makes it look like a nested relationship.
     def create(self, validated_data):
-        info = validated_data.pop('info')
         instance = models.JobExclusion.objects.create(**validated_data)
-        instance.info = info
+        instance.save()
+        return instance
+
+    def update(self, instance, validated_data):
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
         instance.save()
         return instance
 
