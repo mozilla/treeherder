@@ -358,11 +358,6 @@ treeherder.controller('PluginCtrl', [
             }
         };
 
-        $scope.cancelAll = function(resultsetId) {
-            var rs = ThResultSetModel.getResultSet($scope.repoName, resultsetId);
-            thBuildApi.cancelAllJobs($scope.repoName, rs.revision);
-        };
-
         // Test to expose the reftest button in the job details navbar
         $scope.isReftest = function() {
             if ($scope.selectedJob) {
