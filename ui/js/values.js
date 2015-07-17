@@ -112,8 +112,9 @@ treeherder.value("thOptionOrder", {
     "opt": 0,
     "pgo": 1,
     "asan": 2,
-    "debug": 3,
-    "cc": 4,
+    "tsan": 3,
+    "debug": 4,
+    "cc": 5,
 });
 
 treeherder.value("thFailureResults", ["testfailed", "busted", "exception"]);
