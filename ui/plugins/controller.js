@@ -334,6 +334,29 @@ treeherder.controller('PluginCtrl', [
             }
         };
 
+        $scope.retriggerJobs = function(jobs) {
+            if($scope.user.loggedin) {
+                if(jobs.length > 5) {
+                    if (!window.confirm('This will trigger ' + jobs.length + ' jobs! Are you sure?')) {
+                        return;
+                    }
+                }
+
+                // Initial promise for sequential execution.
+                var jobPromise = Promise.resolve();
+                jobs.forEach(function(job) {
+                    jobPromise = jobPromise.then(function() {
+                        return selectJob(job.id);
+                    });
+                    jobPromise.then(function() {
+                        $scope.retriggerJob();
+                    });
+                });
+            } else {
+                thNotify.send("Must be logged in to retrigger a job", 'danger');
+            }
+        };
+
         $scope.cancelJob = function() {
             if ($scope.user.loggedin) {
                 // See note in retrigger logic.
