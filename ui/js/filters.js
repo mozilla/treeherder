@@ -121,3 +121,15 @@ treeherder.filter('escapeHTML', function() {
         return '';
     };
 });
+
+treeherder.filter('getRevisionUrl',['thServiceDomain', function(thServiceDomain) {
+    return function(revision, projectName) {
+        if (revision) {
+            var resultsetUrl = thServiceDomain + '#/jobs?repo=' + projectName;
+            resultsetUrl = resultsetUrl + '&revision=' + revision;
+            console.log(resultsetUrl);
+            return resultsetUrl;
+        }
+        return '';
+    };
+}]);

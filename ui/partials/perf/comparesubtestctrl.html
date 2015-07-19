@@ -7,8 +7,8 @@
   <div id="subtest-summary" ng-if="!dataLoading && !errors.length">
     <h1>{{subtestTitle}} subtest summary</h1>
     <ul class="list-inline push-information">
-      <li><strong>Base</strong> - <a href="{{originalProject.getRevisionHref(originalRevision)}}">{{originalRevision}}</a> ({{originalProject.name}})</li>
-      <li><strong>New</strong> - <a href="{{newProject.getRevisionHref(newRevision)}}">{{newRevision}}</a> ({{newProject.name}})</li>
+      <li><strong>Base</strong> - <a href="{{originalRevision|getRevisionUrl:originalProject.name}}">{{originalRevision}}</a> ({{originalProject.name}})</li>
+      <li><strong>New</strong> - <a href="{{newRevision|getRevisionUrl:newProject.name}}">{{newRevision}}</a> ({{newProject.name}})</li>
     </ul>
     <p><a href="perf.html#/compare?originalProject={{originalProject.name}}&originalRevision={{originalRevision}}&newProject={{newProject.name}}&newRevision={{newRevision}}">Show all tests and platforms</a></p>
     <div id="error" ng-if="!dataLoading && errors.length" ng-repeat="error in errors">
