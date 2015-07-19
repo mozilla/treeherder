@@ -4,7 +4,7 @@
 
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
@@ -134,19 +134,22 @@ class JobsViewSet(viewsets.ViewSet):
         else:
             return Response("No job with id: {0}".format(pk), 404)
 
-    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
+    @list_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
-    def retrigger(self, request, project, jm, pk=None):
+    def retrigger(self, request, project, jm):
         """
         Issue a "retrigger" to the underlying build_system_type by scheduling a
         pulse message.
         """
-        job = jm.get_job(pk)
-        if job:
-            jm.retrigger(request.user.email, job[0])
-            return Response({"message": "retriggered job '{0}'".format(job[0]['job_guid'])})
-        else:
-            return Response("No job with id: {0}".format(pk), 404)
+        job_ids = request.data["job_ids"]
+        for pk in job_ids:
+            job = jm.get_job(pk)
+            if job:
+                jm.retrigger(request.user.email, job[0])
+                return Response({"message": "retriggered job '{0}'".format(job[0]['job_guid'])})
+            else:
+                return Response("No job with id: {0}".format(pk), 404)
+
 
     @detail_route(methods=['post'], permission_classes=[IsStaffOrReadOnly])
     @with_jobs
