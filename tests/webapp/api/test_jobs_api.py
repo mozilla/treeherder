@@ -133,9 +133,10 @@ def test_job_retrigger_unauthorized(webapp, eleven_jobs_stored, jm):
     Validate that only authenticated users can hit this endpoint.
     """
     job = jm.get_job_list(0, 1)[0]
+    job_id_list = [job["id"]]
     url = reverse("jobs-retrigger",
-                  kwargs={"project": jm.project, "pk": job["id"]})
-    webapp.post(url, status=403)
+                  kwargs={"project": jm.project})
+    webapp.post(url, {"job_id_list": job_id_list}, status=403)
 
 
 def test_job_retrigger_authorized(webapp, eleven_jobs_stored, jm,
@@ -149,9 +150,10 @@ def test_job_retrigger_authorized(webapp, eleven_jobs_stored, jm,
     client.force_authenticate(user=user)
 
     job = jm.get_job_list(0, 1)[0]
+    job_id_list = [job["id"]]
     url = reverse("jobs-retrigger",
-                  kwargs={"project": jm.project, "pk": job["id"]})
-    client.post(url)
+                  kwargs={"project": jm.project})
+    client.post(url, {"job_id_list": job_id_list})
 
     message = pulse_action_consumer.get(block=True, timeout=2)
     content = json.loads(message.body)

@@ -278,37 +278,34 @@ treeherder.controller('PluginCtrl', [
             }
         };
 
-        $scope.retriggerJob = function() {
+        $scope.retriggerJob = function(jobs) {
             if ($scope.user.loggedin) {
-                // Only enter a retrigger if we have a valid loaded job, if the user
-                // tries to retrigger eg. via shortcut before the load we warn them
-                if ($scope.job.id) {
-                    // The logic here is somewhat complicated because we need to support
-                    // two use cases the first is the case where we notify a system
-                    // other then buildbot that a retrigger has been requested. The
-                    // second is when we have the buildapi id and need to send a request
-                    // to the self serve api (which does not listen over pulse!).
-                    ThJobModel.retrigger($scope.repoName, $scope.job.id).then(function() {
-                        // XXX: Bug 1170839 disables buildapi retrigger requests for the ash branch
-                        if($scope.repoName === "ash") {
-                            return;
-                        }
-                        // XXX: Remove this after 1134929 is resolved.
-                        var requestId = getBuildbotRequestId();
-                        if (requestId) {
-                            return thBuildApi.retriggerJob($scope.repoName, requestId);
-                        }
-                    }).then(function() {
-                        thNotify.send("Retriggered job: " + $scope.jobSearchStr,
-                                      'success');
-                    }).catch(function(e) {
-                        // Generic error eg. the user doesn't have LDAP access
-                        thNotify.send(
-                            ThModelErrors.format(e, "Unable to send retrigger"), 'danger');
-                    });
-                } else {
-                    thNotify.send("Job not yet loaded for retrigger", 'warning');
-                }
+                var job_id_list = _.pluck(jobs, 'id');
+                // The logic here is somewhat complicated because we need to support
+                // two use cases the first is the case where we notify a system
+                // other then buildbot that a retrigger has been requested. The
+                // second is when we have the buildapi id and need to send a request
+                // to the self serve api (which does not listen over pulse!).
+                ThJobModel.retrigger($scope.repoName, job_id_list).then(function() {
+                    // XXX: Bug 1170839 disables buildapi retrigger requests for the ash branch
+                    if($scope.repoName === "ash") {
+                        return;
+                    }
+                    // XXX: Remove this after 1134929 is resolved.
+                    return ThJobArtifactModel.get_list({"name": "buildapi", "type": "json", "job_id__in": job_id_list.join(',')})
+                        .then(function(data) {
+                            var request_id_list = _.pluck(_.pluck(data, 'blob'), 'request_id');
+                            _.each(request_id_list, function(request_id) {
+                                thBuildApi.retriggerJob($scope.repoName, request_id);
+                            });
+                        });
+                }).then(function() {
+                    thNotify.send("Retrigger request sent", "success");
+                }, function(e) {
+                    // Generic error eg. the user doesn't have LDAP access
+                    thNotify.send(
+                        ThModelErrors.format(e, "Unable to send retrigger"), 'danger');
+                });
             } else {
                 thNotify.send("Must be logged in to retrigger a job", 'danger');
             }
@@ -424,7 +421,7 @@ treeherder.controller('PluginCtrl', [
         });
 
         $rootScope.$on(thEvents.jobRetrigger, function(event, job) {
-            $scope.retriggerJob();
+            $scope.retriggerJob([job]);
         });
 
         $rootScope.$on(thEvents.jobsClassified, function(event, job) {
