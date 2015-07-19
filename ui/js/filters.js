@@ -121,3 +121,15 @@ treeherder.filter('escapeHTML', function() {
         return '';
     };
 });
+
+treeherder.filter('getRevisionUrl', function() {
+    return function(revision, projectName) {
+        if (revision) {
+            var resultsetUrl = 'https://treeherder.mozilla.org' + '#/jobs?repo=' + projectName;
+            resultsetUrl = resultsetUrl + revision;
+            console.log(resultsetUrl);
+            return resultsetUrl;
+        }
+        return '';
+    };
+});
