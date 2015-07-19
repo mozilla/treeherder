@@ -334,6 +334,19 @@ treeherder.controller('PluginCtrl', [
             }
         };
 
+        $scope.retriggerJobs = function(jobs) {
+            // Initial promise for sequential execution.
+            var jobPromise = Promise.resolve();
+            jobs.forEach(function(job) {
+                jobPromise = jobPromise.then(function() {
+                    return selectJob(job.id);
+                });
+                jobPromise.then(function() {
+                    $scope.retriggerJob();
+                });
+            });
+        };
+
         $scope.cancelJob = function() {
             if ($scope.user.loggedin) {
                 // See note in retrigger logic.
