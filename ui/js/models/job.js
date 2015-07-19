@@ -83,12 +83,12 @@ treeherder.factory('ThJobModel', [
                 });
         };
 
-        ThJobModel.retrigger = function(repoName, pk, config) {
+        ThJobModel.retrigger = function(repoName, job_id_list, config) {
             config = config || {};
             var timeout = config.timeout || null;
 
-            return $http.post(ThJobModel.get_uri(repoName)+pk+"/retrigger/",
-                              {timeout:timeout})
+            return $http.post(ThJobModel.get_uri(repoName)+"retrigger/",
+                              {job_id_list:job_id_list, timeout:timeout})
                 .then(function(response) {
                     return new ThJobModel(response.data);
                 });

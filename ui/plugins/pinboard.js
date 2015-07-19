@@ -101,6 +101,11 @@ treeherder.controller('PinboardCtrl', [
             }
         };
 
+        $scope.retriggerAllPinnedJobs = function() {
+            // pushing pinned jobs to a list.
+            $scope.retriggerJob(_.values($scope.pinnedJobs));
+        };
+
         $scope.hasPinnedJobs = function() {
             return thPinboard.hasPinnedJobs();
         };
