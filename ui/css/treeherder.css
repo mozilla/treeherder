@@ -236,11 +236,11 @@ th-watched-repo {
     padding-right: 20px;
 }
 
-#quick-filter:valid + #filter-clear-button {
+#quick-filter:valid + #quick-filter-clear-button {
     display: inherit;
 }
 
-#filter-clear-button {
+#quick-filter-clear-button {
     color: #bababa;
     font-size: 13px;
     cursor: pointer;
