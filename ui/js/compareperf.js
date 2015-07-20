@@ -13,6 +13,16 @@ perf.controller('CompareChooserCtrl', [
             $scope.originalProject = $scope.newProject = projects[0];
             $scope.originalTipList = [];
             $scope.newTipList = [];
+            if ($stateParams.originalProject || $stateParams.newProject) {
+                $scope.originalProject = projects.filter(function (project) {
+                    return project.name === $stateParams.originalProject;
+                })[0];
+                $scope.newProject = projects.filter(function (project) {
+                    return project.name === $stateParams.originalProject;
+                })[0];
+                $scope.originalRevision = $stateParams.originalRevision ? $stateParams.originalRevision : '';
+                $scope.newRevision = $stateParams.newRevision ? $stateParams.newRevision : '';
+            }
             var getRevisionTips = function(projectName, list) {
                 // due to we push the revision data into list,
                 // so we need clear the data before we push new data into it.
