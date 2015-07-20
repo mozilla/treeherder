@@ -4,7 +4,7 @@
 
 from django.conf.urls import patterns, include, url
 from treeherder.webapp.api import (refdata, objectstore, jobs, resultset,
-                                   artifact, note, revision, bug, logslice,
+                                   artifact, note, bug, logslice,
                                    performance_data, job_log_url,
                                    performance_artifact, projects)
 
@@ -48,12 +48,6 @@ project_bound_router.register(
     r'note',
     note.NoteViewSet,
     base_name='note',
-)
-
-project_bound_router.register(
-    r'revision-lookup',
-    revision.RevisionLookupSetViewSet,
-    base_name='revision-lookup',
 )
 
 project_bound_router.register(

@@ -7,7 +7,6 @@ import urllib2
 import simplejson as json
 import time
 
-from django.core.urlresolvers import reverse
 from django.conf import settings
 
 
@@ -93,21 +92,17 @@ def lookup_revisions(revision_dict):
     """
     Retrieve a list of revision->resultset lookups
     """
+    from treeherder.model.derived import JobsModel
+
     lookup = dict()
     for project, revisions in revision_dict.items():
-        revision_set = set(revisions)
-        endpoint = reverse('revision-lookup-list', kwargs={"project": project})
-        # build the query string as a comma separated list of revisions
-        q = ','.join(revision_set)
-        url = "{0}/{1}/?revision={2}".format(
-            settings.API_HOSTNAME.strip('/'),
-            endpoint.strip('/'),
-            q
-        )
+        revision_list = list(set(revisions))
 
-        content = get_remote_content(url)
-        if content:
-            lookup[project] = content
+        with JobsModel(project) as jm:
+            lookup_content = jm.get_revision_resultset_lookup(revision_list)
+
+        if lookup_content:
+            lookup[project] = lookup_content
     return lookup
 
 
