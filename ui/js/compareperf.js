@@ -10,9 +10,12 @@ perf.controller('CompareChooserCtrl', [
                                 ThRepositoryModel, ThResultSetModel) {
         ThRepositoryModel.get_list().success(function(projects) {
             $scope.projects = projects;
-            $scope.originalProject = $scope.newProject = projects[0];
             $scope.originalTipList = [];
             $scope.newTipList = [];
+            $scope.originalProject = _.findWhere(projects, { name: $stateParams.originalProject }) || projects[0];
+            $scope.newProject = _.findWhere(projects, { name: $stateParams.newProject }) || projects[0];
+            $scope.originalRevision = $stateParams.originalRevision ? $stateParams.originalRevision : '';
+            $scope.newRevision = $stateParams.newRevision ? $stateParams.newRevision : '';
             var getRevisionTips = function(projectName, list) {
                 // due to we push the revision data into list,
                 // so we need clear the data before we push new data into it.
