@@ -75,5 +75,6 @@ class NoteViewSet(viewsets.ViewSet):
         objs = jm.get_job_note(pk)
         if objs:
             jm.delete_job_note(pk, objs[0]['job_id'])
+            return Response({"message": "Note deleted"})
         else:
             return Response("No note with id: {0}".format(pk), 404)
