@@ -228,7 +228,7 @@ treeherderApp.controller('SearchCtrl', [
             if (ev.keyCode === 13) {
                 var filterVal = $scope.searchQueryStr === ""? null: $scope.searchQueryStr;
                 thJobFilters.replaceFilter("searchStr", filterVal);
-                $rootScope.$broadcast('blur-this', "platform-job-text-search-field");
+                $rootScope.$broadcast('blur-this', "quick-filter");
             }
         };
     }

@@ -219,24 +219,24 @@ th-watched-repo {
     color: lightgray;
 }
 
-#platform-job-text-search-field {
+#quick-filter {
     height:28px;
     width: 150px;
     display: inherit;
     transition: width 0.2s;
 }
 
-#platform-job-text-search-field-parent {
+#quick-filter-parent {
     position: relative;
 }
 
-#platform-job-text-search-field:focus,
-#platform-job-text-search-field:valid {
+#quick-filter:focus,
+#quick-filter:valid {
     width: 300px !important;
     padding-right: 20px;
 }
 
-#platform-job-text-search-field:valid + #filter-clear-button {
+#quick-filter:valid + #filter-clear-button {
     display: inherit;
 }
 
