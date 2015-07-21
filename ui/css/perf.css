@@ -191,6 +191,7 @@ to { opacity: 0; }
 .push-information {
     font-size: 18px;
     color: #777;
+    margin-left: -4px;
 }
 
 .vertical-box {
