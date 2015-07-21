@@ -10,8 +10,14 @@
     <div id="subtest-summary" ng-if="!dataLoading && !errors.length">
       <h1>Perfherder Compare Revisions</h1>
       <ul class="list-inline push-information">
-        <li><strong>Base</strong> - <a href="{{originalProject.getRevisionHref(originalRevision)}}">{{originalRevision}}</a> ({{originalProject.name}})</li>
-        <li><strong>New</strong> - <a href="{{newProject.getRevisionHref(newRevision)}}">{{newRevision}}</a> ({{newProject.name}})</li>
+        <li>
+          <strong>Base</strong> - <a href="{{originalProject.getRevisionHref(originalRevision)}}">{{originalRevision}}</a> ({{originalProject.name}})
+           - {{originalAuthor}} - {{originalComments}}
+        </li>
+        <li>
+          <strong>New</strong> - <a href="{{newProject.getRevisionHref(newRevision)}}">{{newRevision}}</a> ({{newProject.name}})
+          - {{newAuthor}} - {{newComments}}
+        </li>
       </ul>
       <div class="alert alert-warning" role="alert" ng-if="testNoResults">
         <strong>tests with no results:</strong>
