@@ -1,19 +1,19 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
+import gzip
+import json
+import urllib2
 
 from rest_framework import viewsets
 from rest_framework.response import Response
 from django.core.cache import caches
 from django.utils.six import BytesIO
-
-from treeherder.webapp.api.utils import (with_jobs)
-from treeherder.webapp.api.exceptions import ResourceNotFoundException
 from django.conf import settings
 
-import urllib2
-import gzip
-import json
+from treeherder.webapp.api.utils import with_jobs
+from treeherder.webapp.api.exceptions import ResourceNotFoundException
+
 
 filesystem = caches['filesystem']
 

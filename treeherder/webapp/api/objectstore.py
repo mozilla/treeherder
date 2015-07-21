@@ -4,8 +4,8 @@
 
 from rest_framework import viewsets
 from rest_framework.response import Response
-from treeherder.webapp.api.utils import (with_jobs,
-                                         oauth_required)
+from treeherder.webapp.api.utils import with_jobs
+from treeherder.webapp.api import permissions
 
 
 class ObjectstoreViewSet(viewsets.ViewSet):
@@ -17,9 +17,9 @@ class ObjectstoreViewSet(viewsets.ViewSet):
     a conditional create and then an update.
     """
     throttle_scope = 'jobs'
+    permission_classes = (permissions.HasLegacyOauthPermissionsOrReadOnly,)
 
     @with_jobs
-    @oauth_required
     def create(self, request, project, jm):
         """
         ::DEPRECATED:: POST method implementation
