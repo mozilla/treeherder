@@ -8,7 +8,8 @@ var perf = angular.module("perf", ['ui.router', 'ui.bootstrap', 'treeherder']);
 
 perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceDomain) {
 
-    var _getSeriesSummary = function(signature, signatureProps, optionCollectionMap) {
+    var _getSeriesSummary = function(projectName, signature, signatureProps,
+                                     optionCollectionMap) {
         var platform = signatureProps.machine_platform;
         var testName = signatureProps.test;
         var subtestSignatures;
@@ -23,8 +24,9 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
         }
         name = name + " " + options.join(" ");
 
-        return { name: name, signature: signature, platform: platform,
-                 options: options, subtestSignatures: subtestSignatures };
+        return { name: name, projectName: projectName, signature: signature,
+                 platform: platform, options: options,
+                 subtestSignatures: subtestSignatures };
     };
 
     var _getAllSeries = function(projectName, timeRange, optionMap) {
@@ -38,7 +40,7 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
             var testList = [];
 
             Object.keys(response.data).forEach(function(signature) {
-                var seriesSummary = _getSeriesSummary(signature,
+                var seriesSummary = _getSeriesSummary(projectName, signature,
                                                       response.data[signature],
                                                       optionMap);
 
@@ -62,9 +64,7 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
     };
 
     return {
-        getSeriesSummary: function(signature, signatureProps, optionCollectionMap) {
-            return _getSeriesSummary(signature, signatureProps, optionCollectionMap);
-        },
+        getSeriesSummary: _getSeriesSummary,
 
         getSubtestSummaries: function(projectName, timeRange, optionMap, targetSignature) {
             return _getAllSeries(projectName, timeRange, optionMap).then(function(lists) {

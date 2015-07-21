@@ -690,8 +690,8 @@ perf.controller('GraphsCtrl', [
                                 timeRange: function() {
                                     return $scope.myTimerange.value;
                                 },
-                                numTestsDisplayed: function() {
-                                    return $scope.seriesList.length;
+                                testsDisplayed: function() {
+                                    return $scope.seriesList;
                                 },
                                 defaultProjectName: function() { return defaultProjectName; },
                                 defaultPlatform: function() { return defaultPlatform; }
@@ -729,7 +729,7 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
                                             projects, optionCollectionMap,
                                             timeRange, thServiceDomain,
                                             PhSeries, defaultProjectName,
-                                            defaultPlatform, numTestsDisplayed) {
+                                            defaultPlatform, testsDisplayed) {
     $scope.timeRange = timeRange;
     $scope.projects = projects;
     if (defaultProjectName) {
@@ -739,11 +739,9 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
     }
     $scope.loadingTestData = false;
 
-    var testInputCreated = false;
-    var testArray = [];
     var series = [];
     $scope.addTestData = function () {
-        if ($scope.addedTestList.length + numTestsDisplayed > 6) {
+        if (($scope.testsToAdd.length + testsDisplayed.length) > 6) {
             var a = window.confirm('WARNING: Displaying more than 6 graphs at the same time is not supported in the UI. Do it anyway?');
             if (a == true) {
                 addTestToGraph();
@@ -754,7 +752,7 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
     };
 
     var addTestToGraph = function () {
-        $scope.selectedSeriesList = $scope.addedTestList;
+        $scope.selectedSeriesList = $scope.testsToAdd;
         $scope.selectedSeriesList.forEach(function(selectedSeries, i) {
             series[i] = _.clone(selectedSeries);
             series[i].projectName = selectedSeries.projectName;
@@ -765,45 +763,41 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
-    $scope.selectedTestList = [];
-    $scope.unselectedTestList = [];
-    $scope.addedTestList = [];
+
+    $scope.unselectedTestList = []; // tests in the "tests" list
+    $scope.selectedTestSignatures = []; // tests in the "tests" list that have been selected by the user
+    $scope.testsToAdd = []; // tests in the "tests to add" list
+    $scope.selectedTestsToAdd = []; // tests in the "to add" test list that have been selected by the user
 
     $scope.unselectTest = function () {
-        $scope.unselectedTestList.forEach(function(test) {
-            test = JSON.parse(test);
-            var selected = -1;
-            $scope.addedTestList.forEach(function(obj, i){
-                if (obj.name === test.name) {
-                    selected = i;
-                }
-            });
-            if (selected !== -1) {
-                if (test.platform === $scope.selectedPlatform &&
-                    test.projectName === $scope.selectedProject.name) {
-                    var temp = ($scope.addedTestList.splice(selected, 1))[0].name;
-                    $scope.testList.push(temp);
-                } else {
-                    // just remove the item because testlist will refresh when change platform or project
-                    $scope.addedTestList.splice(selected, 1);
-                }
+        $scope.selectedTestsToAdd.forEach(function(testValue) {
+            // selectedTestsToAdd is stored in JSON format, need to convert
+            // it back to an object and get the actual value
+            var test = _.findWhere($scope.testsToAdd, JSON.parse(testValue));
+
+            // add test back to unselected test list if we're browsing for
+            // the current project/platform, otherwise just discard it
+            if (test.projectName === $scope.selectedProject.name &&
+                test.platform == $scope.selectedPlatform) {
+                $scope.unselectedTestList.push(test);
             }
+
+            // unconditionally remove it from the current list
+            _.remove($scope.testsToAdd, test);
         });
+        // resort unselected test list
+        $scope.unselectedTestList = _.sortBy($scope.unselectedTestList,
+                                             'name');
     };
 
     $scope.selectTest = function () {
-        var selected;
-        $scope.selectedTestList.forEach(function(test) {
-            selected = $scope.testList.indexOf(test);
-            if (selected !== -1) {
-                var series = $scope.testList.splice(selected, 1)[0];
-                var result = testArray.filter(function (obj) {
-                    return obj.name == series;
-                });
-                selected = _.clone(result[0]);
-                selected.projectName = $scope.selectedProject.name;
-                $scope.addedTestList.push(selected);
-            }
+        $scope.selectedTestSignatures.forEach(function(signature) {
+            // Add the selected tests to the selected test list
+            $scope.testsToAdd.push(_.clone(
+                _.findWhere($scope.unselectedTestList, { signature: signature })));
+
+            // Remove the added tests from the unselected test list
+            _.remove($scope.unselectedTestList, { signature: signature });
         });
     };
 
@@ -812,7 +806,8 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
         $scope.loadingTestData = true;
         $scope.platformList = [];
 
-        PhSeries.getAllSeries($scope.selectedProject.name, $scope.timeRange, optionCollectionMap).then(
+        PhSeries.getAllSeries($scope.selectedProject.name,
+                              $scope.timeRange, optionCollectionMap).then(
             function(seriesData) {
                 $scope.platformList = seriesData.platformList;
                 $scope.platformList.sort();
@@ -820,17 +815,22 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
                     $scope.platformList[0];
 
                 $scope.updateTestSelector = function() {
-                    var filteredSeriesList = seriesData.seriesList.filter(
-                        function(series) {
-                            return (series.platform === $scope.selectedPlatform);
-                        }).sort(function(a, b) { return a.name > b.name; });
-                    testArray = filteredSeriesList;
-                    $scope.testList = _.map(filteredSeriesList, function(series) { return series.name; });
+                    $scope.unselectedTestList = _.sortBy(
+                        _.filter(seriesData.seriesList,
+                               { platform: $scope.selectedPlatform }),
+                        'name');
 
-                    testInputCreated = true;
+                    // filter out tests which are already displayed or are
+                    // already selected
+                    _.forEach(_.union(testsDisplayed, $scope.testsToAdd),
+                              function(test) {
+                                  _.remove($scope.unselectedTestList, {
+                                      projectName: test.projectName,
+                                      signature: test.signature });
+                              });
                 };
-                $scope.updateTestSelector();
 
+                $scope.updateTestSelector();
                 $scope.loadingTestData = false;
             });
     };

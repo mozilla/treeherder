@@ -16,9 +16,9 @@
       <input class="form-control input-sm" type="text" ng-model="testFilter" placeholder="Filter tests"/>
     </div>
     <div id="choose-test-list" class="form-group">
-      <select multiple class="form-control"  ng-model="selectedTestList">
-        <option value="{{::testElem}}" ng-repeat="testElem in testList| filter: testFilter track by $id(testElem)">
-            {{::testElem}}
+      <select multiple class="form-control" ng-model="selectedTestSignatures">
+        <option value="{{::testElem.signature}}" ng-repeat="testElem in unselectedTestList| filter: testFilter track by testElem.signature">
+            {{::testElem.name}}
         </option>
       </select>
     </div>
@@ -34,15 +34,15 @@
   <div class="test-list-container">
     <h4>Tests to add</h4>
     <div id="added-test-list" class="form-group">
-      <select class="form-control" multiple ng-model="unselectedTestList">
-        <option value="{{addedTest}}" ng-repeat="addedTest in addedTestList">
-           {{addedTest.projectName}} {{addedTest.platform}}
-           {{addedTest.name}}
+      <select multiple class="form-control" ng-model="selectedTestsToAdd">
+        <option value="{{testToAdd}}" ng-repeat="testToAdd in testsToAdd">
+           {{testToAdd.projectName}} {{testToAdd.platform}}
+           {{testToAdd.name}}
         </option>
       </select>
     </div>
   </div>
 </div>
 <div class="modal-footer">
-  <button class="btn btn-primary" ng-click="addTestData()" ng-disabled="!addedTestList.length" ng-model="rightList"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add</button>
+  <button class="btn btn-primary" ng-click="addTestData()" ng-disabled="!testsToAdd.length" ng-model="rightList"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add</button>
 </div>
