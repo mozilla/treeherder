@@ -24,3 +24,17 @@ treeherder.directive(
             }
         };
     });
+
+treeherder.directive(
+    'revisionDescribe', function() {
+        return {
+            restrict: 'E',
+            templateUrl: 'partials/perf/revisiondescribe.html',
+            scope: {
+                project: '=',
+                projectRevision: '=',
+                author: '=',
+                comment: '='
+            }
+        };
+    });
