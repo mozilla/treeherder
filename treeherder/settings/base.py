@@ -283,7 +283,11 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'jobs': '220/minute',
         'resultset': '220/minute'
-    }
+    },
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'treeherder.webapp.api.auth.TwoLeggedOauthAuthentication',
+    )
 }
 
 SITE_URL = os.environ.get("TREEHERDER_SITE_URL", "http://local.treeherder.mozilla.org")

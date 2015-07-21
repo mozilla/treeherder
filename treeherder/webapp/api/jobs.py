@@ -1,16 +1,15 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
-
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
-from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
-from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
-                                         oauth_required, get_option)
+from treeherder.webapp.api.permissions import (IsStaffOrReadOnly)
+from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs, get_option)
+from treeherder.webapp.api import permissions
 from treeherder.model.derived import ArtifactsModel
 
 
@@ -21,6 +20,7 @@ class JobsViewSet(viewsets.ViewSet):
 
     """
     throttle_scope = 'jobs'
+    permission_classes = (permissions.HasLegacyOauthPermissionsOrReadOnly,)
 
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
@@ -92,7 +92,7 @@ class JobsViewSet(viewsets.ViewSet):
 
         return Response(response_body)
 
-    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
+    @detail_route(methods=['post'])
     @with_jobs
     def update_state(self, request, project, jm, pk=None):
         """
@@ -163,7 +163,6 @@ class JobsViewSet(viewsets.ViewSet):
             return Response("No job with id: {0}".format(pk), 404)
 
     @with_jobs
-    @oauth_required
     def create(self, request, project, jm):
         """
         This method adds a job to a given resultset.

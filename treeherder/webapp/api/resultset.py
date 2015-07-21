@@ -7,11 +7,11 @@ from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
-from treeherder.webapp.api.permissions import IsStaffOrReadOnly
+
+from treeherder.webapp.api.permissions import (IsStaffOrReadOnly,
+                                               HasLegacyOauthPermissionsOrReadOnly)
 from treeherder.model.derived import DatasetNotFoundError
-from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
-                                         oauth_required,
-                                         to_timestamp)
+from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs, to_timestamp)
 
 
 class ResultSetViewSet(viewsets.ViewSet):
@@ -22,6 +22,7 @@ class ResultSetViewSet(viewsets.ViewSet):
     ``result sets`` are synonymous with ``pushes`` in the ui
     """
     throttle_scope = 'resultset'
+    permission_classes = (HasLegacyOauthPermissionsOrReadOnly,)
 
     @with_jobs
     def list(self, request, project, jm):
@@ -151,7 +152,6 @@ class ResultSetViewSet(viewsets.ViewSet):
             return Response("Exception: {0}".format(ex), 404)
 
     @with_jobs
-    @oauth_required
     def create(self, request, project, jm):
         """
         POST method implementation
