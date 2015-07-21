@@ -1,0 +1,12 @@
+<li>
+    <strong>Base</strong> - <a href="{{originalProject.getRevisionHref(originalRevision)}}">{{originalRevision}}</a> ({{originalProject.name}}) - {{originalResultSet.author}} -
+    <span>{{originalResultSet.comments.substring(0, 60)}}</span>
+    <span collapse="originalIsHidden"> {{originalResultSet.comments.substring(60)}}</span><a ng-show="originalIsHidden" ng-click="originalIsHidden = false">....more</a>
+    <a ng-show="!originalIsHidden" ng-click="originalIsHidden = true">hide</a></span>
+</li>
+<li>
+    <strong>New</strong> - <a href="{{newProject.getRevisionHref(originalRevision)}}">{{newRevision}}</a> ({{newProject.name}}) - {{newResultSet.author}} -
+    <span>{{newResultSet.comments.substring(0, 60)}}</span>
+    <span collapse="newIsHidden"> {{newResultSet.comments.substring(60)}}</span><a ng-show="newIsHidden" ng-click="newIsHidden = false">....more</a>
+    <a ng-show="!newIsHidden" ng-click="newIsHidden = true">hide</a></span>
+</li>

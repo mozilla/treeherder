@@ -91,12 +91,12 @@ perf.controller('CompareResultsCtrl', [
             $scope.testList = [];
             $scope.platformList = [];
 
-            var timeRange = PhCompare.getInterval($scope.originalTimestamp, $scope.newTimestamp);
-            var resultSetIds = [$scope.originalResultSetID];
+            var timeRange = PhCompare.getInterval($scope.originalResultSet.push_timestamp, $scope.newResultSet.push_timestamp);
+            var resultSetIds = [$scope.originalResultSet.id];
 
             // Optimization - if old/new branches are the same collect data in one pass
             if (_.isEqual($scope.originalProject, $scope.newProject)) {
-                resultSetIds = [$scope.originalResultSetID, $scope.newResultSetID];
+                resultSetIds = [$scope.originalResultSet.id, $scope.newResultSetID];
             }
 
             PhSeries.getSeriesSummaries(
@@ -112,7 +112,7 @@ perf.controller('CompareResultsCtrl', [
                                                        timeRange,
                                                        resultSetIds);
                     }).then(function(resultMaps) {
-                        var originalResultsMap = resultMaps[$scope.originalResultSetID];
+                        var originalResultsMap = resultMaps[$scope.originalResultSet.id];
                         var newResultsMap = resultMaps[$scope.newResultSetID];
 
                         // Optimization - we collected all data in a single pass
@@ -199,11 +199,9 @@ perf.controller('CompareResultsCtrl', [
                     var resultSet = resultSets[0];
                     //TODO: this is a bit hacky to pass in 'original' as a text string
                     if (rsid == 'original') {
-                        $scope.originalResultSetID = resultSet.id;
-                        $scope.originalTimestamp = resultSet.push_timestamp;
+                        $scope.originalResultSet = resultSet;
                     } else {
-                        $scope.newResultSetID = resultSet.id;
-                        $scope.newTimestamp = resultSet.push_timestamp;
+                        $scope.newResultSet = resultSet;
                     }
                 }, function(error) {
                     $scope.errors.push(error);
@@ -269,11 +267,9 @@ perf.controller('CompareSubtestResultsCtrl', [
                     var resultSet = resultSets[0];
                     //TODO: this is a bit hacky to pass in 'original' as a text string
                     if (rsid == 'original') {
-                        $scope.originalResultSetID = resultSet.id;
-                        $scope.originalTimestamp = resultSet.push_timestamp;
+                        $scope.originalResultSet = resultSet;
                     } else {
-                        $scope.newResultSetID = resultSet.id;
-                        $scope.newTimestamp = resultSet.push_timestamp;
+                        $scope.newResultSet = resultSet;
                     }
                 }, function(error) {
                     $scope.errors.push(error);
@@ -383,12 +379,12 @@ perf.controller('CompareSubtestResultsCtrl', [
                             return;
                         }
 
-                        var timeRange = PhCompare.getInterval($scope.originalTimestamp, $scope.newTimestamp);
-                        var resultSetIds = [$scope.originalResultSetID];
+                        var timeRange = PhCompare.getInterval($scope.originalResultSet.push_timestamp, $scope.newResultSet.push_timestamp);
+                        var resultSetIds = [$scope.originalResultSet.id];
 
                         // Optimization - if old/new branches are the same collect data in one pass
                         if ($scope.originalProject == $scope.newProject) {
-                            resultSetIds = [$scope.originalResultSetID, $scope.newResultSetID];
+                            resultSetIds = [$scope.originalResultSet.id, $scope.newResultSet.id];
                         }
 
                         PhSeries.getSubtestSummaries(
@@ -404,7 +400,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                                                    timeRange,
                                                                    resultSetIds);
                                 }).then(function(seriesMaps) {
-                                    var originalSeriesMap = seriesMaps[$scope.originalResultSetID];
+                                    var originalSeriesMap = seriesMaps[$scope.originalResultSet.id];
                                     var newSeriesMap = seriesMaps[$scope.newResultSetID];
                                     [originalSeriesMap, newSeriesMap].forEach(function (seriesMap) {
                                         // If there is no data for a given signature, handle it gracefully
