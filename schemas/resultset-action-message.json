@@ -27,7 +27,7 @@
     "action": {
       "title":                "Action",
       "description":          "Type of action issued on task",
-      "enum":                 ["trigger_missing_jobs", "trigger_all_talos_jobs"],
+      "enum":                 ["cancel_all", "trigger_missing_jobs", "trigger_all_talos_jobs"],
       "type":                 "string"
     },
     "requester": {
