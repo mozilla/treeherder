@@ -22,8 +22,7 @@ class Command(BaseCommand):
             raise CommandError("Credentials file not found: %s" % args[0])
         with open(args[0]) as credentials_file:
             credentials = json.loads(credentials_file.read())
-            ds_list = Datasource.objects.filter(project__in=credentials.keys(),
-                                                contenttype='jobs')
+            ds_list = Datasource.objects.filter(project__in=credentials.keys())
             datasource_dict = dict((ds.project, ds) for ds in ds_list)
             for project, cred in credentials.items():
                 if project in datasource_dict:

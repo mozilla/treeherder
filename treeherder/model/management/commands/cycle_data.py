@@ -58,9 +58,7 @@ class Command(BaseCommand):
 
         self.debug("cycle interval... jobs: {}".format(cycle_interval))
 
-        projects = Datasource.objects\
-            .filter(contenttype='jobs')\
-            .values_list('project', flat=True)
+        projects = Datasource.objects.values_list('project', flat=True)
         for project in projects:
             self.debug("Cycling Database: {0}".format(project))
             with JobsModel(project) as jm:

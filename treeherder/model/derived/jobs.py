@@ -42,14 +42,7 @@ class JobsModel(TreeherderModelBase):
 
     """
     Represent a job repository
-
-    content-types:
-        jobs
-
     """
-
-    # content types that every project will have
-    CT_JOBS = "jobs"
 
     INCOMPLETE_STATES = ["running", "pending"]
     STATES = INCOMPLETE_STATES + ["completed", "coalesced"]
@@ -145,10 +138,7 @@ class JobsModel(TreeherderModelBase):
 
         """
 
-        source = Datasource(
-            project=project,
-            contenttype=cls.CT_JOBS,
-        )
+        source = Datasource(project=project)
         source.save()
 
         return cls(project=project)

@@ -178,8 +178,7 @@ class DatasourceManager(models.Manager):
 @python_2_unicode_compatible
 class Datasource(models.Model):
     id = models.AutoField(primary_key=True)
-    project = models.CharField(max_length=50L)
-    contenttype = models.CharField(max_length=25L)
+    project = models.CharField(max_length=50L, unique=True)
     name = models.CharField(max_length=128L, unique=True)
     oauth_consumer_key = models.CharField(max_length=45L, blank=True, null=True)
     oauth_consumer_secret = models.CharField(max_length=45L, blank=True, null=True)
@@ -188,9 +187,6 @@ class Datasource(models.Model):
 
     class Meta:
         db_table = 'datasource'
-        unique_together = (
-            ("project", "contenttype"),
-        )
 
     @classmethod
     def reset_cache(cls):
@@ -200,8 +196,8 @@ class Datasource(models.Model):
 
     @property
     def key(self):
-        """Unique key for a data source is the project and contenttype."""
-        return "{} - {}".format(self.project, self.contenttype)
+        """Unique key for a data source is the project."""
+        return self.project
 
     def __str__(self):
         """Unicode representation is the project's unique key."""
@@ -213,10 +209,7 @@ class Datasource(models.Model):
         # a pk, set force_insert=True when you save
         if inserting or kwargs.get('force_insert', False):
             if not self.name:
-                self.name = "{}_{}".format(
-                    self.project.replace("-", "_"),
-                    self.contenttype,
-                )
+                self.name = self.project
 
             # a database name cannot contain the dash character
             if '-' in self.name:
@@ -285,17 +278,12 @@ class Datasource(models.Model):
         Create the database for this source, using given SQL schema file.
 
         If schema file is not given, defaults to
-        "template_schema/schema_<contenttype>.sql.tmpl".
+        "template_schema/project.sql.tmpl".
         """
         import MySQLdb
 
         if schema_file is None:
-            schema_file = path(
-                "model",
-                "sql",
-                "template_schema",
-                "project_{}.sql.tmpl".format(self.contenttype),
-            )
+            schema_file = path("model", "sql", "template_schema", "project.sql.tmpl")
 
         filterwarnings('ignore', category=MySQLdb.Warning)
         with connection.cursor() as cursor:

@@ -10,18 +10,12 @@ def create_datasource(model, **kwargs):
 
     defaults = {
         "project": "foo",
-        "contenttype": "jobs",
     }
 
     defaults.update(kwargs)
 
     if "name" not in defaults:
-        defaults["name"] = "_".join(
-            [
-                defaults["project"],
-                defaults["contenttype"],
-            ]
-        )
+        defaults["name"] = defaults["project"]
 
     return model.objects.create(**defaults)
 
