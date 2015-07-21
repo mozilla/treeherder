@@ -149,7 +149,7 @@ class TreeherderModelBase(object):
         """Find the datasource in the cache."""
         try:
             return next(source for source in Datasource.objects.cached()
-                        if source.project == self.project and source.contenttype == 'jobs')
+                        if source.project == self.project)
         except StopIteration:
             raise DatasetNotFoundError(self.project)
 

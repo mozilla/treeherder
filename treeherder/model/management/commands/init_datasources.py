@@ -34,5 +34,5 @@ Type 'yes' to continue, or 'no' to cancel: """)
 
         projects = Repository.objects.filter(active_status='active').values_list('name', flat=True)
         for project in projects:
-            Datasource.objects.get_or_create(contenttype="jobs", project=project)
+            Datasource.objects.get_or_create(project=project)
         Datasource.reset_cache()

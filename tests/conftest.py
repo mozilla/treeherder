@@ -159,11 +159,7 @@ def add_test_procs_file(dhub, key, filename):
 def jobs_ds():
     from django.conf import settings
     from treeherder.model.models import Datasource
-    return Datasource.objects.create(
-        project=settings.DATABASES["default"]["TEST_NAME"],
-        # TODO: remove contenttype from the database/model
-        contenttype="jobs"
-    )
+    return Datasource.objects.create(project=settings.DATABASES["default"]["TEST_NAME"])
 
 
 @pytest.fixture(scope='session')

@@ -52,8 +52,7 @@ class Migration(migrations.Migration):
             name='Datasource',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('project', models.CharField(max_length=50L)),
-                ('contenttype', models.CharField(max_length=25L)),
+                ('project', models.CharField(unique=True, max_length=50L)),
                 ('name', models.CharField(unique=True, max_length=128L)),
                 ('oauth_consumer_key', models.CharField(max_length=45L, null=True, blank=True)),
                 ('oauth_consumer_secret', models.CharField(max_length=45L, null=True, blank=True)),
@@ -285,9 +284,5 @@ class Migration(migrations.Migration):
             name='exclusions',
             field=models.ManyToManyField(related_name='profiles', to='model.JobExclusion'),
             preserve_default=True,
-        ),
-        migrations.AlterUniqueTogether(
-            name='datasource',
-            unique_together=set([('project', 'contenttype')]),
         ),
     ]

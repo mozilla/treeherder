@@ -40,12 +40,7 @@ DROP TABLE IF EXISTS `datasource`;
  *              try, alder, holly, mozilla-aurora, treeherder in treeherder_reference_1.sql.tmpl
  *            This string becomes the location field in the url for related web service methods.
  *
- *  contenttype - A string describing the content type associated with the database.
- *              jobs in project_jobs.sql.tmpl, reference in treeherder_reference_1.sql.tmpl
- *              A project can have any number of contenttypes associated with it.
- *
- *  name - Name of the database. Can be anything but typically project_contenttype. So,
- *         try_jobs or mozillaaurora_jobs.
+ *  name - Name of the database. Can be anything but typically `project`. Eg, `try` or `mozilla_aurora`.
  *
  *  oauth_consumer_key - The OAuth consumer key. This is automatically added when a new datasource
                          is added.
@@ -55,13 +50,11 @@ DROP TABLE IF EXISTS `datasource`;
  **************************/
 CREATE TABLE `datasource` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `project` varchar(50) COLLATE utf8_bin NOT NULL,
-  `contenttype` varchar(25) COLLATE utf8_bin NOT NULL,
+  `project` varchar(50) COLLATE utf8_bin NOT NULL UNIQUE,
   `name` varchar(128) COLLATE utf8_bin NOT NULL UNIQUE,
   `oauth_consumer_key` varchar(45) COLLATE utf8_bin DEFAULT NULL,
   `oauth_consumer_secret` varchar(45) COLLATE utf8_bin DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `project` (`project`,`contenttype`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

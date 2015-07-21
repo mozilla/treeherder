@@ -54,7 +54,7 @@ class Command(BaseCommand):
 
         self.stdout.write("SQL command: {}".format(sql_code))
 
-        datasources = Datasource.objects.filter(contenttype='jobs')
+        datasources = Datasource.objects.all()
         if options['datasources'] != 'all':
             if ',' in options['datasources']:
                 datasources = datasources.filter(
