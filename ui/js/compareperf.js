@@ -201,9 +201,11 @@ perf.controller('CompareResultsCtrl', [
                     if (rsid == 'original') {
                         $scope.originalResultSetID = resultSet.id;
                         $scope.originalTimestamp = resultSet.push_timestamp;
+                        $scope.originalResultSet = resultSet;
                     } else {
                         $scope.newResultSetID = resultSet.id;
                         $scope.newTimestamp = resultSet.push_timestamp;
+                        $scope.newResultSet = resultSet;
                     }
                 }, function(error) {
                     $scope.errors.push(error);
