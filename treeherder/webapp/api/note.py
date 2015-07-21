@@ -5,16 +5,13 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
-
-from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from treeherder.webapp.api.utils import with_jobs
 
 
 class NoteViewSet(viewsets.ViewSet):
-    authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     """
     This viewset is responsible for the note endpoint.
