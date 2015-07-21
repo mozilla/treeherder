@@ -198,9 +198,13 @@ perf.controller('CompareResultsCtrl', [
                     if (rsid == 'original') {
                         $scope.originalResultSetID = resultSet.id;
                         $scope.originalTimestamp = resultSet.push_timestamp;
+                        $scope.originalauthor = resultSet.author;
+                        $scope.originalcomments = resultSet.comments;
                     } else {
                         $scope.newResultSetID = resultSet.id;
                         $scope.newTimestamp = resultSet.push_timestamp;
+                        $scope.newauthor = resultSet.author;
+                        $scope.newcomments = resultSet.comments;
                     }
                 }, function(error) {
                     $scope.errors.push(error);
