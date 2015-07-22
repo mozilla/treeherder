@@ -103,7 +103,7 @@ treeherder.directive('thCloneJobs', [
                     if ($(".selected-job").css('display') === 'none') {
                         $rootScope.closeJob();
                     }
-                    thNotify.send("No more " + jobNavSelector.name + " to select", "warning");
+                    thNotify.send("No " + jobNavSelector.name + " to select", "warning");
                 }, 0);
             });
 
