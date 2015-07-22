@@ -3,12 +3,12 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import logging
-import simplejson as json
-
 from collections import defaultdict
-from django.conf import settings
-from treeherder.client import TreeherderJobCollection
 
+import simplejson as json
+from django.conf import settings
+
+from treeherder.client import TreeherderJobCollection
 from treeherder.etl import common, buildbot
 from treeherder.etl.mixins import JsonExtractorMixin, OAuthLoaderMixin
 from treeherder.model.models import Datasource
