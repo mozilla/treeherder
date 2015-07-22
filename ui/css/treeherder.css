@@ -23,6 +23,10 @@ input:focus::-moz-placeholder {
     color: transparent;
 }
 
+.checkbox {
+    min-height: 20px; /* override bootstrap 3.3.5's new behaviour - similar jobs panel look wrong without this*/
+}
+
 #global-container {
     display: -webkit-flex;
     display:         flex;
@@ -83,6 +87,10 @@ input:focus::-moz-placeholder {
     margin-top: 10px;
     padding-left: 8px;
     padding-bottom: 8px;
+}
+
+.navbar-right {
+    margin-right: 0px; /* override boostrap 3.3.5 behaviour -- doesn't work with the way we align our navbar */
 }
 
 #th-global-navbar-top {
