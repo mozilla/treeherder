@@ -283,7 +283,10 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'jobs': '220/minute',
         'resultset': '220/minute'
-    }
+    },
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
+    'DEFAULT_VERSION': '1.0',
+    'ALLOWED_VERSIONS': ('1.0',)
 }
 
 SITE_URL = os.environ.get("TREEHERDER_SITE_URL", "http://local.treeherder.mozilla.org")

@@ -600,6 +600,8 @@ class TreeherderClient(object):
     """
 
     PROTOCOLS = {'http', 'https'}  # supported protocols
+    API_VERSION = '1.0'
+    ACCEPT_HEADER = 'application/json; version={0}'.format(API_VERSION)
 
     UPDATE_ENDPOINT = 'job-log-url/{}/update_parse_status'
     RESULTSET_ENDPOINT = 'resultset'
@@ -651,7 +653,7 @@ class TreeherderClient(object):
             uri = self._get_project_uri(project, endpoint)
 
         resp = requests.get(uri, timeout=timeout, params=params,
-                            headers={'Accept': 'application/json'})
+                            headers={'Accept': self.ACCEPT_HEADER})
         resp.raise_for_status()
         return resp.json()
 
@@ -665,8 +667,10 @@ class TreeherderClient(object):
         uri = self._get_project_uri(project, endpoint)
 
         resp = requests.post(uri, json=data,
-                             headers={'Content-Type': 'application/json'},
+                             headers={'Content-Type': 'application/json',
+                                      'Accept': self.ACCEPT_HEADER},
                              timeout=timeout, auth=auth)
+
         resp.raise_for_status()
 
     def get_option_collection_hash(self):
