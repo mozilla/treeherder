@@ -266,6 +266,13 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
+        # Sending 'cancel_all' action to pulse. Right now there is no listener
+        # for this, so we cannot remove 'cancel' action for each job below.
+        publish_resultset_action.apply_async(
+            args=[self.project, 'cancel_all', resultset_id, requester],
+            routing_key='publish_to_pulse'
+        )
+
         # Notify the build systems which created these jobs...
         for job in jobs:
             self._job_action_event(job, 'cancel', requester)
