@@ -3,7 +3,7 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 from django.conf.urls import patterns, include, url
-from treeherder.webapp.api import (refdata, objectstore, jobs, resultset,
+from treeherder.webapp.api import (refdata, jobs, resultset,
                                    artifact, note, bug, logslice,
                                    performance_data, job_log_url,
                                    performance_artifact, projects)
@@ -13,12 +13,6 @@ from rest_framework import routers
 # router for views that are bound to a project
 # i.e. all those views that don't involve reference data
 project_bound_router = routers.SimpleRouter()
-
-project_bound_router.register(
-    r'objectstore',
-    objectstore.ObjectstoreViewSet,
-    base_name='objectstore',
-)
 
 project_bound_router.register(
     r'jobs',

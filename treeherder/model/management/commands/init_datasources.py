@@ -24,7 +24,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options["reset"]:
             confirm = input("""You have requested an init of the datasources.
-This will IRREVERSIBLY DESTROY all data in the jobs database.
+This will IRREVERSIBLY DESTROY all data in the per-project databases.
 Are you sure you want to do this?
 
 Type 'yes' to continue, or 'no' to cancel: """)

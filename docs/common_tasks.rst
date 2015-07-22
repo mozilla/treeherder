@@ -127,11 +127,10 @@ Examples:
      > ./manage.py run_sql -s <sql-statement>
      > ./manage.py run_sql -f <path-to-sql-file>
 
-By default, this will run the sql against the `jobs` database for each
-project. If you want to run against the object store or only against a
-specific datasource, you can do that with that `--datasources` and
-`--data-type` options. Run `./manage.py run_sql --help` for more
-details.
+This will run the sql against the database of every project. If you want to run
+against a specific project, you can do that with the `--datasources` option.
+Run `./manage.py run_sql --help` for more details.
+
 
 Running multiple Vagrant VMs
 ----------------------------

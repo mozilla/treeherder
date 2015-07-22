@@ -45,8 +45,7 @@ def test_completed_job_available(jm, initial_data, completed_jobs_stored):
 def test_pending_stored_to_running_loaded(jm, initial_data, pending_jobs_stored, running_jobs_stored):
     """
     tests a job transition from pending to running
-    given a pending job loaded in the objects store
-    if I store and load the same job with status running,
+    given a loaded pending job, if I store and load the same job with status running,
     the latter is shown in the jobs endpoint
     """
     webapp = TestApp(application)
