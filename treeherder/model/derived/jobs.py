@@ -283,6 +283,12 @@ class JobsModel(TreeherderModelBase):
             routing_key='publish_to_pulse'
         )
 
+    def trigger_all_talos_jobs(self, requester, resultset_id, project, times):
+        publish_resultset_action.apply_async(
+            args=[self.project, "trigger_all_talos_jobs", resultset_id, requester, times],
+            routing_key='publish_to_pulse'
+        )
+
     def _job_action_event(self, job, action, requester):
         """
         Helper for issuing an 'action' for a given job (such as

@@ -110,7 +110,7 @@ def publish_job_action(project, action, job_id, requester):
 
 
 @task(name='publish-resultset-action')
-def publish_resultset_action(project, action, resultset_id, requester):
+def publish_resultset_action(project, action, resultset_id, requester, times=1):
     publisher = pulse_connection.get_publisher()
     if not publisher:
         return
@@ -120,7 +120,8 @@ def publish_resultset_action(project, action, resultset_id, requester):
         project=project,
         action=action,
         requester=requester,
-        resultset_id=resultset_id
+        resultset_id=resultset_id,
+        times=times
     )
 
 
