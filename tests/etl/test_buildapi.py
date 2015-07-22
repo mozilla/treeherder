@@ -8,10 +8,12 @@ import responses
 import json
 
 from django.conf import settings
+from django.core.cache import cache
 
 from treeherder.etl.buildapi import (PendingJobsProcess,
                                      RunningJobsProcess,
-                                     Builds4hJobsProcess)
+                                     Builds4hJobsProcess,
+                                     CACHE_KEYS)
 
 
 @pytest.fixture
@@ -115,7 +117,13 @@ def test_ingest_pending_jobs(jm, initial_data,
     a new buildapi pending job creates a new obj in the job table
     """
     etl_process = PendingJobsProcess()
-    etl_process.run()
+
+    new_jobs_were_added = etl_process.run()
+    assert new_jobs_were_added is True
+    assert cache.get(CACHE_KEYS['pending']) == set([24575179])
+
+    new_jobs_were_added = etl_process.run()
+    assert new_jobs_were_added is False
 
     stored_obj = jm.get_dhub().execute(proc="jobs_test.selects.jobs")
     jm.disconnect()
@@ -132,7 +140,13 @@ def test_ingest_running_jobs(jm, initial_data,
     a new buildapi running job creates a new obj in the job table
     """
     etl_process = RunningJobsProcess()
-    etl_process.run()
+
+    new_jobs_were_added = etl_process.run()
+    assert new_jobs_were_added is True
+    assert cache.get(CACHE_KEYS['running']) == set([24767134])
+
+    new_jobs_were_added = etl_process.run()
+    assert new_jobs_were_added is False
 
     stored_obj = jm.get_dhub().execute(proc="jobs_test.selects.jobs")
     jm.disconnect()
@@ -149,7 +163,13 @@ def test_ingest_builds4h_jobs(jm, initial_data,
     a new buildapi completed job creates a new obj in the job table
     """
     etl_process = Builds4hJobsProcess()
-    etl_process.run()
+
+    new_jobs_were_added = etl_process.run()
+    assert new_jobs_were_added is True
+    assert len(cache.get(CACHE_KEYS['complete'])) == 32
+
+    new_jobs_were_added = etl_process.run()
+    assert new_jobs_were_added is False
 
     stored_obj = jm.get_dhub().execute(proc="jobs_test.selects.jobs")
     jm.disconnect()
