@@ -417,14 +417,13 @@ class Builds4hJobsProcess(JsonExtractorMixin,
     def run(self, filter_to_revision=None, filter_to_project=None,
             filter_to_job_group=None):
         extracted_content = self.extract(settings.BUILDAPI_BUILDS4H_URL)
-        if extracted_content:
-            self.load(
-                self.transform(extracted_content,
-                               filter_to_revision=filter_to_revision,
-                               filter_to_project=filter_to_project,
-                               filter_to_job_group=filter_to_job_group),
-                chunk_size=settings.BUILDAPI_BUILDS4H_CHUNK_SIZE
-            )
+        self.load(
+            self.transform(extracted_content,
+                           filter_to_revision=filter_to_revision,
+                           filter_to_project=filter_to_project,
+                           filter_to_job_group=filter_to_job_group),
+            chunk_size=settings.BUILDAPI_BUILDS4H_CHUNK_SIZE
+        )
 
 
 class PendingJobsProcess(JsonExtractorMixin,
@@ -434,15 +433,14 @@ class PendingJobsProcess(JsonExtractorMixin,
     def run(self, filter_to_revision=None, filter_to_project=None,
             filter_to_job_group=None):
         extracted_content = self.extract(settings.BUILDAPI_PENDING_URL)
-        if extracted_content:
-            self.load(
-                self.transform(extracted_content,
-                               'pending',
-                               filter_to_revision=filter_to_revision,
-                               filter_to_project=filter_to_project,
-                               filter_to_job_group=filter_to_job_group),
-                chunk_size=settings.BUILDAPI_PENDING_CHUNK_SIZE
-            )
+        self.load(
+            self.transform(extracted_content,
+                           'pending',
+                           filter_to_revision=filter_to_revision,
+                           filter_to_project=filter_to_project,
+                           filter_to_job_group=filter_to_job_group),
+            chunk_size=settings.BUILDAPI_PENDING_CHUNK_SIZE
+        )
 
 
 class RunningJobsProcess(JsonExtractorMixin,
@@ -452,12 +450,11 @@ class RunningJobsProcess(JsonExtractorMixin,
     def run(self, filter_to_revision=None, filter_to_project=None,
             filter_to_job_group=None):
         extracted_content = self.extract(settings.BUILDAPI_RUNNING_URL)
-        if extracted_content:
-            self.load(
-                self.transform(extracted_content,
-                               'running',
-                               filter_to_revision=filter_to_revision,
-                               filter_to_project=filter_to_project,
-                               filter_to_job_group=filter_to_job_group),
-                chunk_size=settings.BUILDAPI_RUNNING_CHUNK_SIZE
-            )
+        self.load(
+            self.transform(extracted_content,
+                           'running',
+                           filter_to_revision=filter_to_revision,
+                           filter_to_project=filter_to_project,
+                           filter_to_job_group=filter_to_job_group),
+            chunk_size=settings.BUILDAPI_RUNNING_CHUNK_SIZE
+        )
