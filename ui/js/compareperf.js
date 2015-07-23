@@ -435,7 +435,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                                 $scope.testList = _.union($scope.testList,
                                                                           newSeriesData.testList).sort();
 
-                                                return PhCompare.getResultsMap($scope.newProject,
+                                                return PhCompare.getResultsMap($scope.newProject.name,
                                                                                newSeriesData.seriesList,
                                                                                timeRange,
                                                                                [$scope.newResultSetID]);
