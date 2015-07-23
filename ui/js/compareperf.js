@@ -230,7 +230,7 @@ perf.controller('CompareResultsCtrl', [
                 return;
             }
 
-            $stateParams.e10s = Boolean($stateParams.e10s);
+            $scope.e10s = Boolean($stateParams.e10s);
             $scope.hideMinorChanges = Boolean($stateParams.hideMinorChanges);
             $scope.originalProject = ThRepositoryModel.getRepo(
                 $stateParams.originalProject);
