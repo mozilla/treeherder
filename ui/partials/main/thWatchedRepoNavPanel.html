@@ -38,15 +38,15 @@
                     </span>
                 </span>
 
-                <!--Search Field-->
-                <span ng-controller="SearchCtrl" class="form-group form-inline" id="platform-job-text-search-field-parent">
-                    <input id="platform-job-text-search-field"
+                <!--Quick Filter Field-->
+                <span ng-controller="SearchCtrl" class="form-group form-inline" id="quick-filter-parent">
+                    <input id="quick-filter"
                            title="Click to enter filter values"
                            ng-model="searchQueryStr" ng-keydown="search($event)" type="text"
                            class="form-control input-sm" required
                            placeholder="Filter platforms & jobs"
                            blur-this>
-                    <span id="filter-clear-button" class="fa fa-times-circle"
+                    <span id="quick-filter-clear-button" class="fa fa-times-circle"
                           ng-click="clearFilterBox()" title="Clear this filter"></span>
                 </span>
             </form>
