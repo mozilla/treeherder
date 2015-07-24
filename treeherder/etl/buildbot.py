@@ -440,7 +440,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'talos remote-trobocheck2$'), "name": "Talos robocheck2"},
     {"regex": re.compile(r'talos (?:remote-t)?svg[rx]?(-osx)?-e10s$'), "name": "Talos svg e10s"},
     {"regex": re.compile(r'talos (?:remote-t)?svg[rx]?(-osx)?$'), "name": "Talos svg"},
-    {"regex": re.compile(r'talos tp5o-e10s$'), "name": "Talos tp e10s"},
+    {"regex": re.compile(r'talos tp5o(-osx)?-e10s$'), "name": "Talos tp e10s"},
     {"regex": re.compile(r'talos remote-tp4m_nochrome$'), "name": "Talos tp nochrome"},
     {"regex": re.compile(r'talos (?:remote-)?tp'), "name": "Talos tp"},
     {"regex": re.compile(r'talos remote-tspaint$'), "name": "Talos tspaint"},
