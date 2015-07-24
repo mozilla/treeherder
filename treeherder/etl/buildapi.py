@@ -274,12 +274,11 @@ class Builds4hTransformerMixin(object):
         if missing_resultsets and not filter_to_revision:
             common.fetch_missing_resultsets("builds4h", missing_resultsets, logger)
 
-        cache.set(CACHE_KEYS['complete'], job_ids_seen_now)
         num_new_jobs = len(job_ids_seen_now.difference(job_ids_seen_last_time))
         logger.info("Imported %d completed jobs, skipped %d previously seen",
                     num_new_jobs, len(job_ids_seen_now) - num_new_jobs)
 
-        return th_collections
+        return th_collections, job_ids_seen_now
 
 
 class PendingRunningTransformerMixin(object):
@@ -441,12 +440,11 @@ class PendingRunningTransformerMixin(object):
         if missing_resultsets and not filter_to_revision:
             common.fetch_missing_resultsets(source, missing_resultsets, logger)
 
-        cache.set(CACHE_KEYS[source], job_ids_seen_now)
         num_new_jobs = len(job_ids_seen_now.difference(job_ids_seen_last_time))
         logger.info("Imported %d %s jobs, skipped %d previously seen",
                     num_new_jobs, source, len(job_ids_seen_now) - num_new_jobs)
 
-        return th_collections
+        return th_collections, job_ids_seen_now
 
 
 class Builds4hJobsProcess(JsonExtractorMixin,
@@ -457,14 +455,14 @@ class Builds4hJobsProcess(JsonExtractorMixin,
             filter_to_job_group=None):
         """ Returns True if new completed jobs were loaded, False otherwise. """
         extracted_content = self.extract(settings.BUILDAPI_BUILDS4H_URL)
-        job_collections = self.transform(extracted_content,
-                                         filter_to_revision=filter_to_revision,
-                                         filter_to_project=filter_to_project,
-                                         filter_to_job_group=filter_to_job_group)
+        job_collections, job_ids_seen = self.transform(extracted_content,
+                                                       filter_to_revision=filter_to_revision,
+                                                       filter_to_project=filter_to_project,
+                                                       filter_to_job_group=filter_to_job_group)
         if job_collections:
             self.load(job_collections, chunk_size=settings.BUILDAPI_BUILDS4H_CHUNK_SIZE)
-            return True
-        return False
+        cache.set(CACHE_KEYS['complete'], job_ids_seen)
+        return bool(job_collections)
 
 
 class PendingJobsProcess(JsonExtractorMixin,
@@ -475,15 +473,15 @@ class PendingJobsProcess(JsonExtractorMixin,
             filter_to_job_group=None):
         """ Returns True if new pending jobs were loaded, False otherwise. """
         extracted_content = self.extract(settings.BUILDAPI_PENDING_URL)
-        job_collections = self.transform(extracted_content,
-                                         'pending',
-                                         filter_to_revision=filter_to_revision,
-                                         filter_to_project=filter_to_project,
-                                         filter_to_job_group=filter_to_job_group)
+        job_collections, job_ids_seen = self.transform(extracted_content,
+                                                       'pending',
+                                                       filter_to_revision=filter_to_revision,
+                                                       filter_to_project=filter_to_project,
+                                                       filter_to_job_group=filter_to_job_group)
         if job_collections:
             self.load(job_collections, chunk_size=settings.BUILDAPI_PENDING_CHUNK_SIZE)
-            return True
-        return False
+        cache.set(CACHE_KEYS['pending'], job_ids_seen)
+        return bool(job_collections)
 
 
 class RunningJobsProcess(JsonExtractorMixin,
@@ -494,12 +492,12 @@ class RunningJobsProcess(JsonExtractorMixin,
             filter_to_job_group=None):
         """ Returns True if new running jobs were loaded, False otherwise. """
         extracted_content = self.extract(settings.BUILDAPI_RUNNING_URL)
-        job_collections = self.transform(extracted_content,
-                                         'running',
-                                         filter_to_revision=filter_to_revision,
-                                         filter_to_project=filter_to_project,
-                                         filter_to_job_group=filter_to_job_group)
+        job_collections, job_ids_seen = self.transform(extracted_content,
+                                                       'running',
+                                                       filter_to_revision=filter_to_revision,
+                                                       filter_to_project=filter_to_project,
+                                                       filter_to_job_group=filter_to_job_group)
         if job_collections:
             self.load(job_collections, chunk_size=settings.BUILDAPI_RUNNING_CHUNK_SIZE)
-            return True
-        return False
+        cache.set(CACHE_KEYS['running'], job_ids_seen)
+        return bool(job_collections)
