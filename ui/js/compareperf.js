@@ -243,6 +243,17 @@ perf.controller('CompareResultsCtrl', [
                 verifyRevision($scope.newProject, $scope.newRevision, "new").then(function () {
                     if ($scope.errors.length > 0) {
                         $scope.dataLoading = false;
+                        $scope.countdown = 5;
+                        var redirect = setInterval(function() {
+                            if ($scope.countdown > 0) {
+                                $scope.$apply(function() {
+                                    $scope.countdown = $scope.countdown - 1;
+                                });
+                            } else {
+                                $state.go('comparechooser');
+                                clearInterval(redirect);
+                            }
+                        }, 1000);
                         return;
                     }
                     displayComparison();
