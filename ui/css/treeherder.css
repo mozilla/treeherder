@@ -440,8 +440,12 @@ th-watched-repo {
     margin-top: 2px;
     white-space: normal;
     width: 100%;
-    border-top: 1px solid lightgrey;
     position: relative;
+}
+
+.result-set-body-divider {
+    margin-left: 34px;
+    border-bottom: 1px solid lightgrey;
 }
 
 .result-set-body {
@@ -475,7 +479,7 @@ th-watched-repo {
 
 .result-set-bar {
     border-top: 1px solid black;
-    padding: 2px 0px 0px 14px;
+    padding: 2px 0px 0px 34px;
     white-space: nowrap;
     display: flex;
     display: -webkit-flex;
@@ -573,7 +577,7 @@ th-watched-repo {
 }
 
 .result-set .job-list-nopad {
-    padding-left: 0;
+    padding-left: 20px;
     padding-right: 0;
     display: block;
 }
