@@ -1,6 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
+
 from rest_framework import permissions
 
 
@@ -32,18 +33,3 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 
         # Instance must have an attribute named `user`.
         return obj.user == request.user
-
-
-class HasLegacyOauthPermissions(permissions.BasePermission):
-
-    def has_permission(self, request, view):
-        return hasattr(request, 'legacy_oauth_authenticated')
-
-
-class HasLegacyOauthPermissionsOrReadOnly(permissions.BasePermission):
-
-    def has_permission(self, request, view):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-
-        return hasattr(request, 'legacy_oauth_authenticated')

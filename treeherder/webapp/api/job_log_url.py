@@ -3,14 +3,12 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import logging
-
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
 from rest_framework.decorators import detail_route
 
-from treeherder.webapp.api import permissions
-from treeherder.webapp.api.utils import with_jobs
+from treeherder.webapp.api.utils import with_jobs, oauth_required
 
 logger = logging.getLogger(__name__)
 
@@ -49,9 +47,9 @@ class JobLogUrlViewSet(viewsets.ViewSet):
 
         return Response(job_log_url_list)
 
-    @detail_route(methods=['post'],
-                  permission_classes=(permissions.HasLegacyOauthPermissions,))
+    @detail_route(methods=['post'])
     @with_jobs
+    @oauth_required
     def update_parse_status(self, request, project, jm, pk=None):
         """
         Change the state of a job.

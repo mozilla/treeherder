@@ -3,17 +3,18 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 from time import time
-
+from treeherder.model.derived.jobs import JobDataIntegrityError
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from treeherder.model.derived.jobs import JobDataIntegrityError
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs)
 
 
 class BugJobMapViewSet(viewsets.ViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsAuthenticatedOrReadOnly, )
 
     @with_jobs
     def create(self, request, project, jm):

@@ -4,15 +4,13 @@
 
 from rest_framework import viewsets
 from rest_framework.response import Response
-from treeherder.webapp.api.utils import UrlQueryFilter
-from treeherder.webapp.api import permissions
+from treeherder.webapp.api.utils import UrlQueryFilter, oauth_required
 from treeherder.model.derived import JobsModel, ArtifactsModel
 from treeherder.model.tasks import populate_error_summary
 from treeherder.model.error_summary import get_artifacts_that_need_bug_suggestions
 
 
 class ArtifactViewSet(viewsets.ViewSet):
-    permission_classes = (permissions.HasLegacyOauthPermissionsOrReadOnly,)
 
     """
     This viewset is responsible for the artifact endpoint.
@@ -56,6 +54,7 @@ class ArtifactViewSet(viewsets.ViewSet):
             )
             return Response(objs)
 
+    @oauth_required
     def create(self, request, project):
         artifacts = ArtifactsModel.serialize_artifact_json_blobs(request.DATA)
 

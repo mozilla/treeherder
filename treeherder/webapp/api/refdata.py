@@ -4,7 +4,9 @@
 
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.authentication import SessionAuthentication
 from rest_framework_extensions.mixins import CacheResponseAndETAGMixin
+
 from django.contrib.auth.models import User
 
 from treeherder.model import models
@@ -128,6 +130,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     Used by Treeherder's UI to inspect user properties like the exclusion profile
     """
     serializer_class = th_serializers.UserSerializer
+    authentication_classes = (SessionAuthentication,)
 
     def get_queryset(self):
         return User.objects.filter(id=self.request.user.id)
@@ -135,12 +138,14 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 class UserExclusionProfileViewSet(viewsets.ModelViewSet):
     queryset = models.UserExclusionProfile.objects.all()
+    authentication_classes = (SessionAuthentication,)
     permission_classes = (IsOwnerOrReadOnly,)
     serializer_class = th_serializers.UserExclusionProfileSerializer
 
 
 class JobExclusionViewSet(viewsets.ModelViewSet):
     queryset = models.JobExclusion.objects.all()
+    authentication_classes = (SessionAuthentication,)
     permission_classes = (IsStaffOrReadOnly,)
     serializer_class = th_serializers.JobExclusionSerializer
 
@@ -160,6 +165,7 @@ class ExclusionProfileViewSet(viewsets.ModelViewSet):
 
     """
     queryset = models.ExclusionProfile.objects.all()
+    authentication_classes = (SessionAuthentication,)
     permission_classes = (IsStaffOrReadOnly,)
     serializer_class = th_serializers.ExclusionProfileSerializer
 

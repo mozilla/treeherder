@@ -286,11 +286,7 @@ REST_FRAMEWORK = {
     },
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'DEFAULT_VERSION': '1.0',
-    'ALLOWED_VERSIONS': ('1.0',),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
-        'treeherder.webapp.api.auth.TwoLeggedOauthAuthentication',
-    )
+    'ALLOWED_VERSIONS': ('1.0',)
 }
 
 SITE_URL = os.environ.get("TREEHERDER_SITE_URL", "http://local.treeherder.mozilla.org")

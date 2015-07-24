@@ -7,7 +7,13 @@ import time
 import datetime
 import functools
 
+import simplejson as json
+import oauth2 as oauth
+from django.conf import settings
+from rest_framework.response import Response
+
 from treeherder.model.derived import JobsModel
+from treeherder.etl.oauth_utils import OAuthCredentials
 
 
 class UrlQueryFilter(object):
@@ -92,6 +98,91 @@ class UrlQueryFilter(object):
             if default is not None:
                 return default
             raise e
+
+
+def oauth_required(func):
+
+    @functools.wraps(func)
+    def wrap_oauth(cls, *args, **kwargs):
+
+        # First argument must be request object
+        request = args[0]
+
+        # Get the project keyword argumet
+        project = kwargs.get('project', None)
+
+        # Get the project credentials
+        project_credentials = OAuthCredentials.get_credentials(project)
+
+        if not project_credentials:
+            msg = {
+                'response': "invalid_request",
+                'detail': "project, {0}, has no OAuth credentials".format(project)
+            }
+            return Response(msg, 500)
+
+        parameters = OAuthCredentials.get_parameters(request.QUERY_PARAMS)
+
+        oauth_body_hash = parameters.get('oauth_body_hash', None)
+        oauth_signature = parameters.get('oauth_signature', None)
+        oauth_consumer_key = parameters.get('oauth_consumer_key', None)
+
+        if not oauth_body_hash or not oauth_signature or not oauth_consumer_key:
+
+            msg = {
+                'response': "invalid_request",
+                'detail': "Required oauth parameters not provided in the uri"
+            }
+
+            return Response(msg, 500)
+
+        if oauth_consumer_key != project_credentials['consumer_key']:
+            msg = {
+                'response': "access_denied",
+                'detail': "oauth_consumer_key does not match project, {0}, credentials".format(project)
+            }
+
+            return Response(msg, 403)
+
+        uri = '{0}://{1}{2}'.format(
+            settings.TREEHERDER_REQUEST_PROTOCOL, request.get_host(),
+            request.path
+        )
+
+        # Construct the OAuth request based on the django request object
+        req_obj = oauth.Request(
+            method=request.method,
+            url=uri,
+            parameters=parameters,
+            body=json.dumps(request.DATA),
+        )
+
+        server = oauth.Server()
+        token = oauth.Token(key='', secret='')
+
+        # Get the consumer object
+        cons_obj = oauth.Consumer(
+            oauth_consumer_key,
+            project_credentials['consumer_secret']
+        )
+
+        # Set the signature method
+        server.add_signature_method(oauth.SignatureMethod_HMAC_SHA1())
+
+        try:
+            # verify oauth django request and consumer object match
+            server.verify_request(req_obj, cons_obj, token)
+        except oauth.Error:
+            msg = {
+                'response': "invalid_client",
+                'detail': "Client authentication failed for project, {0}".format(project)
+            }
+
+            return Response(msg, 403)
+
+        return func(request, *args, **kwargs)
+
+    return wrap_oauth
 
 
 def with_jobs(model_func):
