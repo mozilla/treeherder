@@ -9,9 +9,32 @@ body {
     bottom: 0;
     left: 0;
     min-width: 240px;
-    padding-top: 10px;
     display: flex;
     flex-flow: column;
+}
+
+.navbar {
+    margin-bottom: 10px;
+}
+
+.navbar-nav > li > a {
+    padding: 10px 15px;
+    font-size: 12px;
+}
+
+.navbar-nav > li > div {
+    padding: 10px 15px;
+    line-height: 20px;
+}
+
+.navbar-nav > li > span {
+    line-height: 20px;
+}
+
+#lv-logo {
+    padding: 10px 15px;
+    border: none;
+    background: #f8f8f8;
 }
 
 /* Suppress selected angular templates until they compile */
@@ -81,6 +104,7 @@ body {
     hyphens: auto;
 }
 .run-data .steps-data {
+    margin-bottom: 10px;
     max-height: 210px;
     min-width: 400px;
     overflow: auto;
@@ -114,17 +138,6 @@ body {
     border-color: #d58512;
 }
 
-.logviewer-actionbar {
-    min-width: 410px;
-}
-
-.logviewer-actionbtn {
-    display: inline-block;
-    margin: 8px 8px 8px 0px;
-    padding: 6px 8px;
-    border: 1px solid #dddddd;
-}
-
 .logviewer-actionbtn span {
     color: #9fa3a5;
 }
@@ -136,10 +149,6 @@ body {
 
 .logviewer-actionbtn .actionbtn-icon {
     padding-right: 5px;
-}
-
-.logviewer-actionbtn input[type="checkbox"] {
-    margin: 0;
 }
 
 .lv-line-no.label {

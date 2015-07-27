@@ -12,14 +12,68 @@
         <link id="favicon" type="image/png" rel="shortcut icon" href="img/logviewerIcon.png">
     </head>
     <body class="body-logviewer">
+
+  <!-- Logviewer navbar -->
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+      <ul class="nav navbar-nav">
+        <li>
+          <span class="dropdown">
+            <button id="lv-logo" title="Treeherder services" role="button"
+                    href="#" data-toggle="dropdown" data-target="#">Logviewer
+              <span class="fa fa-angle-down"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="lv-logo">
+              <li><a href="/">Treeherder</a></li>
+              <li><a href="perf.html">Perfherder</a></li>
+            </ul>
+          </span>
+        </li>
+
+        <!-- Job status -->
+        <li class="{{::resultStatusShading}}">
+          <div><span ng-cloak><strong>{{result.label}}: </strong></span>
+            <span ng-cloak class="break-word">{{result.value}}</span>
+          </div>
+        </li>
+
+        <!-- Raw log button -->
+        <li class="logviewer-actionbtn">
+          <a target="_blank"
+             href="{{::artifact.logurl}}">
+            <span class="fa fa-file-text-o actionbtn-icon"></span>
+            <span>open raw log</span>
+          </a>
+        </li>
+
+        <!-- Ref test button -->
+        <li ng-if="isReftest()"
+            class="logviewer-actionbtn">
+          <a title="Launch the Reftest Analyser in a new window"
+             target="_blank"
+             href="http://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl={{::artifact.logurl}}&only_show_unexpected=1">
+              <span class="fa fa-bar-chart-o actionbtn-icon"></span>
+              <span>open analyser</span>
+          </a>
+        </li>
+
+        <!-- Show successful steps button -->
+        <li ng-if="artifact && hasFailedSteps()"
+            class="logviewer-actionbtn">
+          <div><input type="checkbox"
+                ng-model="showSuccessful"
+                ng-change="toggleSuccessfulSteps()" />
+          <span>show successful steps</span></div>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+        <!-- Job information and Steps buttons -->
         <div class="run-data">
             <div class="col-md-6" >
                 <div class="job-header">
                     <table class="table table-condensed" >
-                        <tr class="{{::resultStatusShading}}">
-                            <th ng-cloak>{{result.label}}</th>
-                            <td ng-cloak class="break-word">{{result.value}}</td>
-                        </tr>
                         <tr ng-repeat="property in logProperties">
                             <th ng-cloak>{{property.label}}</th>
                             <td ng-if="property.label == 'Revision'" class="break-word">
@@ -46,6 +100,7 @@
             <div class="col-md-6" lv-log-steps></div>
         </div>
 
+        <!-- Log lines -->
         <div class="lv-log-container"
              lv-infinite-scroll
              lv-log-lines="displayedLogLines">
