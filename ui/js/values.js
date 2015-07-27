@@ -167,3 +167,7 @@ treeherder.value("thJobNavSelectors",
         }
     }
 );
+
+treeherder.value("theBranchedAboutPerform", [
+    "mozilla-inbound", "mozilla-central", "fx-team", "b2g-inbound"
+]);

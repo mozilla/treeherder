@@ -669,12 +669,23 @@ perf.controller('GraphsCtrl', [
                 ThRepositoryModel.get_list().then(function(response) {
 
                     $scope.projects = response.data;
-                    $scope.addTestData = function() {
+                    $scope.addRelatedPlatforms = function(seriSignature) {
+                        $scope.addTestData("addRelatedPlatforms", seriSignature);
+                    };
+                    $scope.addRelatedBranchs = function(seriSignature) {
+                        $scope.addTestData("addRelatedBranchs", seriSignature);
+                    };
+                    $scope.addTestData = function(option, seriSignature) {
                         var defaultProjectName, defaultPlatform;
+                        var options = {};
                         if ($scope.seriesList.length > 0) {
                             var lastSeries = $scope.seriesList.slice(-1)[0];
                             defaultProjectName = lastSeries.projectName;
                             defaultPlatform = lastSeries.platform;
+                        }
+                        if (option !== undefined) {
+                            var series = _.findWhere($scope.seriesList, {"signature": seriSignature});
+                            options = { option: option, relatedSeries: series };
                         }
 
                         var modalInstance = $modal.open({
@@ -695,7 +706,8 @@ perf.controller('GraphsCtrl', [
                                     return $scope.seriesList;
                                 },
                                 defaultProjectName: function() { return defaultProjectName; },
-                                defaultPlatform: function() { return defaultPlatform; }
+                                defaultPlatform: function() { return defaultPlatform; },
+                                options: function() { return options;}
                             }
                         });
 
@@ -729,14 +741,18 @@ perf.controller('GraphsCtrl', [
 perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
                                             projects, optionCollectionMap,
                                             timeRange, thServiceDomain,
-                                            thDefaultRepo, PhSeries,
-                                            defaultProjectName, defaultPlatform,
-                                            testsDisplayed) {
+                                            PhSeries, defaultProjectName,
+                                            defaultPlatform, testsDisplayed, options, theBranchedAboutPerform, $q) {
     $scope.timeRange = timeRange;
     $scope.projects = projects;
     $scope.selectedProject = _.findWhere(projects, {
         name: defaultProjectName ? defaultProjectName : thDefaultRepo
     });
+    if (defaultProjectName) {
+        $scope.selectedProject = _.findWhere(projects, {name: defaultProjectName});
+    } else {
+        $scope.selectedProject = projects[0];
+    }
     $scope.loadingTestData = false;
 
     var series = [];
@@ -764,11 +780,73 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
         $modalInstance.dismiss('cancel');
     };
 
+    $scope.testsToAdd = []; // tests in the "tests to add" list
     $scope.unselectedTestList = []; // tests in the "tests" list
     $scope.selectedTestSignatures = []; // tests in the "tests" list that have been selected by the user
-    $scope.testsToAdd = []; // tests in the "tests to add" list
     $scope.selectedTestsToAdd = []; // tests in the "to add" test list that have been selected by the user
 
+    var relateSeries = options.relatedSeries;
+    // if we choose to add all related platforms, firstly we need
+    // to obtain all the platform of this project, then pick out the
+    // specific test by platform and project.
+    var addRelatePlaform = function(relateSeries) {
+        PhSeries.getAllSeries(relateSeries.projectName,
+            $scope.timeRange, optionCollectionMap).then(
+            function(seriesData) {
+                var platformList = seriesData.platformList;
+                platformList.forEach(function(platform) {
+                    var testList = _.sortBy(_.filter(seriesData.seriesList,
+                        { platform: platform }), 'name');
+                    var temp = _.findWhere(testList, {"name": relateSeries.name});
+                    // if found something different from the series we already have,
+                    // then we push it into the testsToAdd list.
+                    if (temp !== undefined && temp.signature !== relateSeries.signature) {
+                        $scope.testsToAdd.push(_.clone(temp));
+                    }
+                });
+            }
+        );
+        return $scope.testsToAdd.length;
+    };
+    // if we choose to add all related branches, we should
+    // to find out all the branches of specific platform. Then query
+    // the test data one by one.
+    var addRelateBranches = function(options, relateSeries) {
+        var branchList = [];
+        var counter = 0;
+        theBranchedAboutPerform.forEach(function(branch) {
+            if (branch !== options.relatedSeries.projectName) {
+                branchList.push(_.findWhere($scope.projects,
+                    {name: branch}));
+            }
+        });
+        branchList.forEach(function(project) {
+            PhSeries.getAllSeries(project,
+                $scope.timeRange, optionCollectionMap).then(
+                function(seriesData) {
+                    var testList = _.sortBy(_.filter(seriesData.seriesList,
+                        {platform: relateSeries.platform}), 'name');
+                    var temp = _.findWhere(testList, {"name": relateSeries.name});
+                    if (temp !== undefined && temp.signature !== relateSeries.signature) {
+                        $scope.testsToAdd.push(_.clone(temp));
+                        counter ++;
+                    }
+                }
+            );
+        });
+        return counter;
+    };
+    $scope.addRelated = function() {
+        var length = 0;
+        if(options.option === "addRelatedPlatforms") {
+            length = addRelatePlaform(relateSeries);
+        } else if(options.option === "addRelatedBranchs") {
+            length =  addRelateBranches(options, relateSeries);
+        }
+    };
+    $modalInstance.opened.then(function() {
+        $scope.addRelated();
+    });
     $scope.unselectTest = function () {
         $scope.selectedTestsToAdd.forEach(function(testValue) {
             // selectedTestsToAdd is stored in JSON format, need to convert
