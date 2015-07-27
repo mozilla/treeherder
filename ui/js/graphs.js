@@ -551,6 +551,7 @@ perf.controller('GraphsCtrl', [
                     // create a new seriesList in the correct order
                     partialSeriesList.forEach(function(partialSeries) {
                         var seriesSummary = PhSeries.getSeriesSummary(
+                            partialSeries.project,
                             partialSeries.signature,
                             propsHash[partialSeries.project][partialSeries.signature],
                             optionCollectionMap);
