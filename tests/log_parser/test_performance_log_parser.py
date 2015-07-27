@@ -13,6 +13,8 @@ def test_valid_talosdata():
     assert parser.artifact[0].keys()[0] == 'json'
 
 
+# Disabled because of bug 1188132.
+@pytest.mark.xfail
 def test_invalid_talosdata():
     invalid_line = '10:27:39     INFO -  INFO : TALOSDATA: [ { "json"'
     parser = TalosParser()

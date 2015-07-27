@@ -346,4 +346,5 @@ class TalosParser(ParserBase):
                 # that's the behaviour we want
                 self.artifact = json.loads(match.group(1))
             else:
-                raise ValueError('Invalid TALOSDATA: %s' % line)
+                # probably a line which just happens to contain talosdata, ignore
+                pass
