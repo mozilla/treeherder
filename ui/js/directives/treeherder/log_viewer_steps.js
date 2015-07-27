@@ -27,7 +27,7 @@ treeherder.directive('lvLogSteps', ['$timeout', '$q', function ($timeout, $q) {
                     $timeout(function () {
                         var raw = $('.lv-log-container')[0];
                         var line = $('.lv-log-line[line="' + linenumber + '"]');
-                        raw.scrollTop += line.offset().top - $('.run-data').outerHeight() - 15 ;
+                        raw.scrollTop += line.offset().top - $('.run-data').outerHeight() - 50;
                     });
                 }, function () {
                     // there is an error so bomb out
@@ -66,7 +66,7 @@ treeherder.directive('lvLogSteps', ['$timeout', '$q', function ($timeout, $q) {
                     $timeout(function () {
                         var raw = $('.lv-log-container')[0];
                         var line = $('.lv-log-line[line="' + step.started_linenumber + '"]');
-                        raw.scrollTop += line.offset().top - $('.run-data').outerHeight() - 15 ;
+                        raw.scrollTop += line.offset().top - $('.run-data').outerHeight() - 50;
                     });
                 });
             };
