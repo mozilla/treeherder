@@ -669,12 +669,23 @@ perf.controller('GraphsCtrl', [
                 ThRepositoryModel.get_list().then(function(response) {
 
                     $scope.projects = response.data;
-                    $scope.addTestData = function() {
+                    $scope.addRelatedPlatforms = function(seriesSignature) {
+                        $scope.addTestData("addRelatedPlatforms", seriesSignature);
+                    };
+                    $scope.addRelatedBranches = function(seriesSignature) {
+                        $scope.addTestData("addRelatedBranches", seriesSignature);
+                    };
+                    $scope.addTestData = function(option, seriesSignature) {
                         var defaultProjectName, defaultPlatform;
+                        var options = {};
                         if ($scope.seriesList.length > 0) {
                             var lastSeries = $scope.seriesList.slice(-1)[0];
                             defaultProjectName = lastSeries.projectName;
                             defaultPlatform = lastSeries.platform;
+                        }
+                        if (option !== undefined) {
+                            var series = _.findWhere($scope.seriesList, {"signature": seriesSignature});
+                            options = { option: option, relatedSeries: series };
                         }
 
                         var modalInstance = $modal.open({
@@ -695,7 +706,8 @@ perf.controller('GraphsCtrl', [
                                     return $scope.seriesList;
                                 },
                                 defaultProjectName: function() { return defaultProjectName; },
-                                defaultPlatform: function() { return defaultPlatform; }
+                                defaultPlatform: function() { return defaultPlatform; },
+                                options: function() { return options;}
                             }
                         });
 
@@ -726,17 +738,22 @@ perf.controller('GraphsCtrl', [
             });
     }]);
 
-perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
+perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http, $timeout,
                                             projects, optionCollectionMap,
-                                            timeRange, thServiceDomain,
-                                            thDefaultRepo, PhSeries,
-                                            defaultProjectName, defaultPlatform,
-                                            testsDisplayed) {
+                                            timeRange, thServiceDomain, thDefaultRepo,
+                                            PhSeries, defaultProjectName, $q,
+                                            defaultPlatform, testsDisplayed, options, thPerformanceBranches) {
     $scope.timeRange = timeRange;
     $scope.projects = projects;
+    $scope.loadingRelatedSignatures = true;
     $scope.selectedProject = _.findWhere(projects, {
         name: defaultProjectName ? defaultProjectName : thDefaultRepo
     });
+    if (defaultProjectName) {
+        $scope.selectedProject = _.findWhere(projects, {name: defaultProjectName});
+    } else {
+        $scope.selectedProject = projects[0];
+    }
     $scope.loadingTestData = false;
 
     var series = [];
@@ -768,6 +785,77 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
     $scope.selectedTestSignatures = []; // tests in the "tests" list that have been selected by the user
     $scope.testsToAdd = []; // tests in the "tests to add" list
     $scope.selectedTestsToAdd = []; // tests in the "to add" test list that have been selected by the user
+
+    var resolvePromise = $q.defer();
+    var relatedSeries = options.relatedSeries;
+    // if we choose to add all related platforms, firstly we need
+    // to obtain all the platform of this project, then pick out the
+    // specific test by platform and project.
+    var addRelatedPlatforms = function(relatedSeries) {
+        PhSeries.getAllSeries(relatedSeries.projectName,
+            $scope.timeRange, optionCollectionMap).then(
+            function(seriesData) {
+                var platformList = seriesData.platformList;
+                platformList.forEach(function(platform) {
+                    var testList = _.sortBy(_.filter(seriesData.seriesList,
+                        { platform: platform }), 'name');
+                    var temp = _.findWhere(testList, {"name": relatedSeries.name});
+                    // if found something different from the series we already have,
+                    // then we push it into the testsToAdd list.
+                    if (temp !== undefined && temp.signature !== relatedSeries.signature) {
+                        $scope.testsToAdd.push(_.clone(temp));
+                    }
+                });
+            }
+        ).then(function() {
+                resolvePromise.resolve("Done");
+            });
+    };
+    // if we choose to add all related branches, we should
+    // to find out all the branches of specific platform. Then query
+    // the test data one by one.
+    var addRelatedBranches = function(options, relatedSeries) {
+        var branchList = [];
+        thPerformanceBranches.forEach(function(branch) {
+            if (branch !== options.relatedSeries.projectName) {
+                branchList.push(_.findWhere($scope.projects,
+                    {name: branch}));
+            }
+        });
+        branchList.forEach(function(project) {
+            PhSeries.getAllSeries(project.name,
+                $scope.timeRange, optionCollectionMap).then(
+                function(seriesData) {
+                    var testList = _.sortBy(_.filter(seriesData.seriesList,
+                        {platform: relatedSeries.platform}), 'name');
+                    var temp = _.findWhere(testList, {"name": relatedSeries.name});
+                    $scope.testsToAdd.push(_.clone(temp));
+                }
+            ).then(function() {
+                    resolvePromise.resolve("Done");
+                });
+        });
+    };
+
+    if (options.option) {
+        $scope.loadingRelatedSignatures = false;
+        if (options.option === "addRelatedPlatforms") {
+            addRelatedPlatforms(relatedSeries);
+        } else if (options.option === "addRelatedBranches") {
+            addRelatedBranches(options, relatedSeries);
+        }
+        resolvePromise.promise.then(function(){
+            $scope.$watch(function() {return $scope.testsToAdd.length;},
+                function(newValue, oldValue) {
+                    if(newValue !== 0) {
+                        $scope.loadingRelatedSignatures = true;
+                    }
+                });
+            if ($scope.testsToAdd.length === 0) {
+                window.alert("Oops, no related platforms or branches have been found.");
+            }
+        });
+    }
 
     $scope.unselectTest = function () {
         $scope.selectedTestsToAdd.forEach(function(testValue) {
