@@ -668,12 +668,26 @@ perf.controller('GraphsCtrl', [
                 ThRepositoryModel.get_list().then(function(response) {
 
                     $scope.projects = response.data;
-                    $scope.addTestData = function() {
+                    $scope.addRelatedPlatforms = function(seriSignature) {
+                        $scope.addTestData("addRelatedPlatforms", seriSignature);
+                    };
+                    $scope.addRelatedBranchs = function(seriSignature) {
+                        $scope.addTestData("addRelatedBranchs", seriSignature);
+                    };
+                    $scope.addTestData = function(option, seriSignature) {
                         var defaultProjectName, defaultPlatform;
+                        var relateSeries = {};
                         if ($scope.seriesList.length > 0) {
                             var lastSeries = $scope.seriesList.slice(-1)[0];
                             defaultProjectName = lastSeries.projectName;
                             defaultPlatform = lastSeries.platform;
+                        }
+                        if (option !== undefined) {
+                            var series = _.findWhere($scope.seriesList, {"signature": seriSignature});
+                            relateSeries.relateProjectName = series.projectName;
+                            relateSeries.relatePlatform = series.platform;
+                            relateSeries.relateTest = series.name;
+                            relateSeries.signature = series.signature;
                         }
 
                         var modalInstance = $modal.open({
@@ -694,7 +708,9 @@ perf.controller('GraphsCtrl', [
                                     return $scope.seriesList;
                                 },
                                 defaultProjectName: function() { return defaultProjectName; },
-                                defaultPlatform: function() { return defaultPlatform; }
+                                defaultPlatform: function() { return defaultPlatform; },
+                                option: function() { return option;},
+                                relateSeries: function() { return relateSeries;}
                             }
                         });
 
@@ -729,7 +745,7 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
                                             projects, optionCollectionMap,
                                             timeRange, thServiceDomain,
                                             PhSeries, defaultProjectName,
-                                            defaultPlatform, testsDisplayed) {
+                                            defaultPlatform, testsDisplayed, option, relateSeries) {
     $scope.timeRange = timeRange;
     $scope.projects = projects;
     if (defaultProjectName) {
@@ -738,8 +754,53 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
         $scope.selectedProject = projects[0];
     }
     $scope.loadingTestData = false;
-
     var series = [];
+    // if we choose to add all related platforms, firstly we need
+    // to obtain all the platform of this project, then pick out the
+    // specific test by platform and project.
+    if(option === "addRelatedPlatforms") {
+        PhSeries.getAllSeries(relateSeries.relateProjectName,
+            $scope.timeRange, optionCollectionMap).then(
+            function(seriesData) {
+                var platformList = seriesData.platformList;
+                platformList.forEach(function(platform) {
+                    var testList = _.sortBy(_.filter(seriesData.seriesList,
+                    { platform: platform }), 'name');
+                    var temp = _.findWhere(testList, {"name": relateSeries.relateTest});
+                    // if found something different from the series we already have,
+                    // then we push it into the testsToAdd list.
+                    if (temp !== undefined && temp.signature !== relateSeries.signature) {
+                        $scope.testsToAdd.push(_.clone(temp));
+                    }
+                });
+                // tell people we find no related series on other platforms
+                if ($scope.testsToAdd.length === 0) {
+                    window.alert('Oops, there seems no other related platform about this series.');
+                    $modalInstance.close();
+                }
+            }
+        );
+    }
+    // if we choose to add all related branches, we should
+    // to find out all the branches of specific platform. Then query
+    // the test data one by one.
+    if(option === "addRelatedBranchs") {
+        $scope.projects.forEach(function(project) {
+            PhSeries.getAllSeries(project.name, $scope.timeRange, optionCollectionMap).then(
+                function(seriesData) {
+                    var testList = _.sortBy(_.filter(seriesData.seriesList,
+                        {platform: relateSeries.relatePlatform}), 'name');
+                    var temp = _.findWhere(testList, {"name": relateSeries.relateTest});
+                    if (temp !== undefined && temp.signature !== relateSeries.signature) {
+                        $scope.testsToAdd.push(_.clone(temp));
+                    }
+                });
+        });
+    //    if ($scope.testsToAdd.length === 0) {
+    //        window.alert('Oops, there seems no other related platform about this series.');
+    //        $modalInstance.close();
+    //    }
+    }
     $scope.addTestData = function () {
         if (($scope.testsToAdd.length + testsDisplayed.length) > 6) {
             var a = window.confirm('WARNING: Displaying more than 6 graphs at the same time is not supported in the UI. Do it anyway?');
@@ -768,7 +829,6 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
     $scope.selectedTestSignatures = []; // tests in the "tests" list that have been selected by the user
     $scope.testsToAdd = []; // tests in the "tests to add" list
     $scope.selectedTestsToAdd = []; // tests in the "to add" test list that have been selected by the user
-
     $scope.unselectTest = function () {
         $scope.selectedTestsToAdd.forEach(function(testValue) {
             // selectedTestsToAdd is stored in JSON format, need to convert
@@ -795,7 +855,6 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
             // Add the selected tests to the selected test list
             $scope.testsToAdd.push(_.clone(
                 _.findWhere($scope.unselectedTestList, { signature: signature })));
-
             // Remove the added tests from the unselected test list
             _.remove($scope.unselectedTestList, { signature: signature });
         });

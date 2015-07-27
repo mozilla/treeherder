@@ -19,6 +19,8 @@
                   {{series.projectName}}<br/>
                   {{series.platform}}<br/>
                   <div class="signature"><small>{{series.signature}}</small></div>
+                  <div><a ng-click="addRelatedPlatforms(series.signature)">Add all related platforms</a></div>
+                  <div><a ng-click="addRelatedBranchs(series.signature)">Add all related branchs</a></div>
                 </td>
               </tr>
             </table>
