@@ -643,7 +643,7 @@
         "dvcs_type": "hg",
         "name": "mozilla-b2g32_v2_0",
         "url": "https://hg.mozilla.org/releases/mozilla-b2g32_v2_0",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 2,
         "description": ""
@@ -695,7 +695,7 @@
         "dvcs_type": "hg",
         "name": "mozilla-b2g34_v2_1",
         "url": "https://hg.mozilla.org/releases/mozilla-b2g34_v2_1",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 2,
         "description": ""
