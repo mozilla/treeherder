@@ -23,7 +23,7 @@ body {
 
 .navbar-nav > li > a {
     padding: 10px 15px;
-    font-size: 12px; /* Actionbar contents smaller size */
+    font-size: 12px; /* Actionbar contents */
 }
 
 .navbar-nav > li > div {
@@ -36,7 +36,7 @@ body {
 }
 
 .container-fluid {
-    padding-left: 5px; /* Align logo vertically to our run-data content */
+    padding-left: 5px; /* Align logo vertically to run-data table */
 }
 
 /* Suppress selected angular templates until they compile */
@@ -53,7 +53,7 @@ body {
 }
 
 #lv-successful-steps {
-    font-size: 12px; /* Actionbar contents smaller size */
+    font-size: 12px; /* Actionbar contents */
 }
 
 #lv-successful-steps > input {
