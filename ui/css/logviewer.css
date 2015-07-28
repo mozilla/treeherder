@@ -13,13 +13,17 @@ body {
     flex-flow: column;
 }
 
+/* Boostrap navbar overrides for logviewer */
 .navbar {
-    margin-bottom: 10px;
+    min-height: 41px; /* 40 for contained elements + lower bootstrap border */
+    border-top: 0; /* Shut off the top border */
+    border-radius: 0; /* Straight navbar */
+    margin-bottom: 10px; /* Breathing space for run-data */
 }
 
 .navbar-nav > li > a {
     padding: 10px 15px;
-    font-size: 12px;
+    font-size: 12px; /* Actionbar contents smaller size */
 }
 
 .navbar-nav > li > div {
@@ -31,10 +35,8 @@ body {
     line-height: 20px;
 }
 
-#lv-logo {
-    padding: 10px 15px;
-    border: none;
-    background: #f8f8f8;
+.container-fluid {
+    padding-left: 5px; /* Align logo vertically to our run-data content */
 }
 
 /* Suppress selected angular templates until they compile */
@@ -42,7 +44,21 @@ body {
     display: none !important;
 }
 
-/*Log Viewer*/
+/* Log Viewer */
+
+#lv-logo {
+    padding: 10px 15px;
+    border: none;
+    background: #f8f8f8;
+}
+
+#lv-successful-steps {
+    font-size: 12px; /* Actionbar contents smaller size */
+}
+
+#lv-successful-steps > input {
+    margin: 0;
+}
 
 .lv-line-no {
     width: 3em;

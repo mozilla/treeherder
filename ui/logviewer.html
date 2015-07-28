@@ -32,14 +32,16 @@
 
         <!-- Job status -->
         <li class="{{::resultStatusShading}}">
-          <div><span ng-cloak><strong>{{result.label}}: </strong></span>
+          <div>
+            <span ng-cloak><strong>{{result.label}}: </strong></span>
             <span ng-cloak class="break-word">{{result.value}}</span>
           </div>
         </li>
 
         <!-- Raw log button -->
         <li class="logviewer-actionbtn">
-          <a target="_blank"
+          <a title="Open the raw log in a new window"
+             target="_blank"
              href="{{::artifact.logurl}}">
             <span class="fa fa-file-text-o actionbtn-icon"></span>
             <span>open raw log</span>
@@ -49,7 +51,7 @@
         <!-- Ref test button -->
         <li ng-if="isReftest()"
             class="logviewer-actionbtn">
-          <a title="Launch the Reftest Analyser in a new window"
+          <a title="Open the Reftest Analyser in a new window"
              target="_blank"
              href="http://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl={{::artifact.logurl}}&only_show_unexpected=1">
               <span class="fa fa-bar-chart-o actionbtn-icon"></span>
@@ -60,7 +62,7 @@
         <!-- Show successful steps button -->
         <li ng-if="artifact && hasFailedSteps()"
             class="logviewer-actionbtn">
-          <div><input type="checkbox"
+          <div id="lv-successful-steps"><input type="checkbox"
                 ng-model="showSuccessful"
                 ng-change="toggleSuccessfulSteps()" />
           <span>show successful steps</span></div>
