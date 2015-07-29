@@ -1,0 +1,70 @@
+<table class="table compare-table" style="table-layout: fixed;"  ng-repeat="testName in testList">
+  <tbody>
+    <tr class="subtest-header">
+      <!-- Manually specify table widths because it's just easier this way -->
+      <td class="test-title"><span style=" word-wrap: break-word;">{{titles[testName]}}</span></td>
+      <td style="width: 140px;">Base</td>
+      <td style="width: 30px;"><!-- less than / greater than --></td>
+      <td style="width: 140px;">New</td>
+      <td style="width: 80px;">Delta</td>
+      <td><!-- Graphical difference --></td>
+      <td style="width: 100px;">Confidence</td>
+      <td class="num-runs" style="width: 80px"># Runs</td>
+      <td class="test-warning" style="width: 30px"><!-- warning if not enough --></td>
+    </tr>
+    <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults[testName]">
+      <td class="test-title">{{compareResult.name}}
+        <span ng-if="compareResult.detailsLink">
+          (<a ng-href="{{compareResult.detailsLink}}">subtests</a>)
+        </span>
+      </td>
+      <td>
+        <ph-average value="{{compareResult.originalGeoMean}}"
+                    stddev="{{compareResult.originalStddev}}"
+                    stddevpct="{{compareResult.originalStddevPct}}"
+                    replicates="compareResult.originalRuns"></ph-average>
+      </td>
+      <td>
+        <span ng-class="getCompareClasses(compareResult)" ng-if="compareResult.originalGeoMean < compareResult.newGeoMean">
+          &lt;
+        </span>
+        <span ng-class="getCompareClasses(compareResult)" ng-if="compareResult.originalGeoMean > compareResult.newGeoMean">
+          &gt;
+        </span>
+      </td>
+      <td>
+        <ph-average value="{{compareResult.newGeoMean}}"
+                    stddev="{{compareResult.newStddev}}"
+                    stddevpct="{{compareResult.newStddevPct}}"
+                    replicates="compareResult.newRuns"></ph-average>
+      </td>
+      <td ng-if="compareResult.delta" ng-class="getCompareClasses(compareResult)">
+        <span class="detail-hint" tooltip="Mean difference: {{compareResult.delta|displayPrecision}} (= {{compareResult.deltaPercentage|displayPrecision}}%)">
+          {{compareResult.deltaPercentage|displayPrecision}}%
+        </span>
+      </td>
+      <td><div ng-class="getCompareClasses(compareResult, 'bar')" style="margin-{{compareResult.marginDirection}}: {{compareResult.barGraphMargin}}%;"></div></td>
+      <td ng-if="!compareResult.delta"></td>
+      <td>
+        <span ng-if="compareResult.confidenceText && compareResult.confidence">
+          {{compareResult.confidence|displayPrecision}} (<abbr title="Result of running t-test on base versus new result distribution: higher values indicate greater confidence that the indicated performance difference is statistically meaningful">{{compareResult.confidenceText}}</abbr>)</span>&nbsp;
+      </td>
+      <td class="num-runs">
+        <span class="detail-hint"
+              tooltip="{{compareResult.originalRuns.length}} base /  {{compareResult.newRuns.length}} new">
+          {{compareResult.originalRuns.length}} /
+          {{compareResult.newRuns.length}}</span>
+      </td>
+      <td class="test-warning">
+        <span ng-if="compareResult.originalRuns.length && compareResult.newRuns.length &&
+                     (compareResult.originalRuns.length < 2 ||
+                      compareResult.newRuns.length < 2 ||
+                      compareResult.confidenceText !== 'high')"
+                class="glyphicon glyphicon-warning-sign text-warning"
+                tooltip="More base / new runs recommended for increased confidence in comparison"
+                tooltip-placement="left"
+                style="cursor:default"></span>
+      </td>
+    </tr>
+  </tbody>
+</table>

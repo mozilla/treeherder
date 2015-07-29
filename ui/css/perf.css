@@ -110,8 +110,8 @@ to { opacity: 0; }
 }
 
 .subtest-header {
-  background-image: linear-gradient(to bottom, #6A7B86, #424F5A);
-  color: white;
+  background-image: linear-gradient(to bottom, #EAEFF2, #D4DDE4);
+  color: #CCC;
   font-weight: bold;
 }
 
@@ -242,16 +242,56 @@ to { opacity: 0; }
   width: 10px;
 }
 
-.compare-improvement {
+.compare-table td {
+    text-align: center;
+    cursor: default;
+}
+
+.compare-table td.test-title {
+    text-align: left;
+}
+
+.compare-table .subtest-header > td {
+    color: transparent;
+    transition: color 150ms ease-in-out;
+}
+
+.compare-table:first-child .subtest-header > td,
+.compare-table:hover .subtest-header > td,
+.compare-table .subtest-header > td.test-title {
+    color: #333;
+}
+
+.compare-table .subtest-header > td.test-title {
+    text-align: left;
+}
+
+.compare-table td.num-runs {
+    text-align: right;
+}
+
+.compare-table td.test-warning {
+    text-align: left;
+}
+
+td.compare-improvement {
   background-image: linear-gradient(to bottom, #80BB2E, #547D1C);
   color: white;
   font-weight: bold;
 }
 
-.compare-regression {
+td.compare-regression {
   background-image: linear-gradient(to bottom, #B20000, #940000);
   color: white;
   font-weight: bold;
+}
+
+span.compare-improvement {
+    color: #80BB2E;
+}
+
+span.compare-regression {
+    color: #B20000;
 }
 
 .compare-notsure {
@@ -271,10 +311,6 @@ to { opacity: 0; }
   margin-bottom: 5px;
 }
 
-.run-detail {
+.detail-hint {
     border-bottom: 1px dotted #777;
-    color: #999;
-    cursor: default;
-    vertical-align: top;
-    font-size: 80%;
 }

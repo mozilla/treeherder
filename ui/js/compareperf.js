@@ -289,7 +289,8 @@ perf.controller('CompareSubtestResultsCtrl', [
             window.document.title = $scope.subtestTitle + " subtest comparison";
 
             $scope.testList.forEach(function(testName) {
-                $scope.titles[testName] = testName.replace('summary ', '');
+                $scope.titles[testName] = $scope.platformList[0] + ': ' +
+                    testName.replace('summary ', '');
                 $scope.compareResults[testName] = [];
 
                 $scope.pageList.sort();
@@ -319,21 +320,6 @@ perf.controller('CompareSubtestResultsCtrl', [
                         cmap.highlightedTest = true;
                     }
 
-                    var originalSeries = "[" + $scope.originalProject.name + "," +
-                        oldSig + ",1]";
-                    var newSeries = "[" + $scope.newProject.name + "," +
-                        newSig + ",1]";
-
-                    var detailsLink = 'perf.html#/graphs?timerange=' +
-                        timeRange + '&series=' + newSeries;
-
-                    if (oldSig != newSig) {
-                        detailsLink += '&series=' + originalSeries;
-                    }
-                    detailsLink += '&highlightedRevisions=' + $scope.originalRevision;
-                    detailsLink += '&highlightedRevisions=' + $scope.newRevision;
-
-                    cmap.detailsLink = detailsLink;
                     cmap.name = page;
                     cmap.hideMinorChanges = $scope.hideMinorChanges;
                     $scope.compareResults[testName].push(cmap);

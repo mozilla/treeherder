@@ -1,3 +1,14 @@
-<span ng-if="replicates.length > 0">
-  {{value|displayPrecision}}&nbsp;<span class="run-detail" tooltip="Runs: < {{replicates.join(' ')}} >">{{replicates.length}}</span>
+<!-- Show standard deviation if >1 run -->
+<span class="detail-hint" ng-if="replicates.length > 1"
+      tooltip="Runs: &lt; {{replicates.join(' ')}} &gt;
+        ({{stddev|displayPrecision}} = {{stddevpct|displayPrecision}}% standard deviation)">
+  {{value|displayPrecision}} &#177; {{stddevpct|displayPrecision}}%
+</span>
+<!-- View for only 1 run (no stddev) -->
+<span class="detail-hint" ng-if="replicates.length === 1"
+      tooltip="Only one run (consider more for greater confidence)">
+  {{value|displayPrecision}}
+</span>
+<span class="text-muted" ng-if="!replicates || replicates.length == 0">
+  No results
 </span>

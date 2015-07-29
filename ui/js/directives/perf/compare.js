@@ -5,22 +5,30 @@
 'use strict';
 
 treeherder.directive(
+    'phCompareTable',
+    ['PhCompare', function(PhCompare) {
+        return {
+            templateUrl: 'partials/perf/comparetable.html',
+            scope: {
+                titles: '=',
+                compareResults: '=',
+                testList: '='
+            },
+            link: function(scope, element, attrs) {
+                scope.getCompareClasses = PhCompare.getCompareClasses;
+            }
+        };
+    }]);
+
+treeherder.directive(
     'phAverage', function() {
         return {
             templateUrl: 'partials/perf/average.html',
             scope: {
                 value: '@',
+                stddev: '@',
+                stddevpct: '@',
                 replicates: '='
-            }
-        };
-    });
-
-treeherder.directive(
-    'phConfidence', function() {
-        return {
-            templateUrl: 'partials/perf/compareconfidence.html',
-            scope: {
-                result: '='
             }
         };
     });

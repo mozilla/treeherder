@@ -310,6 +310,8 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                             cmap.originalRuns = orig.runs;
                                             cmap.originalStddev = orig.stddev;
                                             cmap.originalStddevPct = orig.stddevPct;
+                                        } else {
+                                            cmap.originalRuns = [];
                                         }
                                         if (hasNew) {
                                             var newd = analyzeSet(newData.values);
@@ -317,6 +319,8 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                             cmap.newRuns = newd.runs;
                                             cmap.newStddev = newd.stddev;
                                             cmap.newStddevPct = newd.stddevPct;
+                                        } else {
+                                            cmap.newRuns = [];
                                         }
 
                                         if (!hasOrig || !hasNew)
@@ -450,7 +454,7 @@ perf.factory('math', [ function() {
 
     function stddev(values, avg) {
         if (values.length < 2) {
-            return 0;
+            return undefined;
         }
 
         if (!avg)
