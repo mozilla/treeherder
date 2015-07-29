@@ -692,7 +692,7 @@
         "get_job_note_list":{
             "sql":"SELECT * from `job_note`
                    WHERE `job_id` = ?
-                   ORDER BY `note_timestamp` DESC
+                   ORDER BY `note_timestamp` DESC, id DESC
                    ",
             "host_type": "read_host"
         },

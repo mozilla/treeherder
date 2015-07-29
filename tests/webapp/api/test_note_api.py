@@ -41,14 +41,14 @@ def test_note_list(webapp, sample_notes, jm):
     exp_notes = [
         {
             "job_id": job_id,
-            "failure_classification_id": 0,
+            "failure_classification_id": 1,
             "who": "kellyclarkson",
             "note": "you look like a man-o-lantern",
             "active_status": "active",
         },
         {
             "job_id": job_id,
-            "failure_classification_id": 1,
+            "failure_classification_id": 0,
             "who": "kellyclarkson",
             "note": "you look like a man-o-lantern",
             "active_status": "active",
