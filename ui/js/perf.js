@@ -450,7 +450,7 @@ perf.factory('math', [ function() {
 
     function stddev(values, avg) {
         if (values.length < 2) {
-            return 0;
+            return undefined;
         }
 
         if (!avg)

@@ -17,35 +17,11 @@
         <strong>tests with no results:</strong>
         {{testNoResults}}
       </div>
-      <table class="table">
-        <tbody ng-repeat="testName in testList">
-          <tr class="subtest-header">
-            <td>{{titles[testName]}}</td><td>Base Geomean</td><td>Base StdDev</td><td>New Geomean</td><td>New StdDev</td><td>Delta</td><td>Delta %</td><td></td><td>Confidence</td>
-          </tr>
-          <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults[testName]">
-            <td>{{compareResult.name}} (<a ng-href="{{compareResult.detailsLink}}">subtests</a>)</td>
-            <td>
-              <ph-average value="{{compareResult.originalGeoMean}}"
-                          replicates="compareResult.originalRuns"/>
-            </td>
-            <td ng-if="compareResult.originalStddev">+/-{{compareResult.originalStddev|displayPrecision}} ({{compareResult.originalStddevPct|displayPrecision}}%)</td>
-            <td ng-if="!compareResult.originalStddev">N/A</td>
-            <td>
-              <ph-average value="{{compareResult.newGeoMean}}"
-                          replicates="compareResult.newRuns"/>
-            </td>
-            <td ng-if="compareResult.newStddev">+/-{{compareResult.newStddev|displayPrecision}} ({{compareResult.newStddevPct|displayPrecision}}%)</td>
-            <td ng-if="!compareResult.newStddev">N/A</td>
-            <td ng-class="getCompareClasses(compareResult)">{{compareResult.delta|displayPrecision}}</td>
-            <td ng-class="getCompareClasses(compareResult)">{{compareResult.deltaPercentage|displayPrecision}}%</td>
-            <td ng-if="compareResult.delta" width="20%"><div ng-class="getCompareClasses(compareResult, 'bar')" style="margin-{{compareResult.marginDirection}}: {{compareResult.barGraphMargin}}%;"></div></td>
-            <td ng-if="!compareResult.delta"></td>
-            <td>
-              <ph-confidence result="compareResult"/>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <ph-compare-table
+         titles="titles"
+         test-list="testList"
+         compare-results="compareResults">
+      </ph-compare-table>
     </div>
   </div>
 </div>
