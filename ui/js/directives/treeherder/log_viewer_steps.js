@@ -59,7 +59,7 @@ treeherder.directive('lvLogSteps', ['$timeout', '$q', function ($timeout, $q) {
                 });
             };
 
-            scope.displayLog = function(step) {
+            scope.displayLog = function(step, state) {
                 scope.displayedStep = step;
                 scope.currentLineNumber = step.started_linenumber;
 
@@ -67,8 +67,10 @@ treeherder.directive('lvLogSteps', ['$timeout', '$q', function ($timeout, $q) {
                     $timeout(function () {
                         var raw = $('.lv-log-container')[0];
                         var line = $('.lv-log-line[line="' + step.started_linenumber + '"]');
-                        raw.scrollTop += line.offset().top - $('.run-data').outerHeight() -
-                                         $('.navbar').outerHeight() - 9;
+                        if (state !== 'initialLoad') {
+                            raw.scrollTop += line.offset().top - $('.run-data').outerHeight() -
+                                             $('.navbar').outerHeight() - 9;
+                        }
                     });
                 });
             };

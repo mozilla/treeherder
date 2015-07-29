@@ -177,14 +177,6 @@ body {
     font-size: 11px;
 }
 
-.lv-log-msg-step {
-    padding: 2px 5px;
-    background: #fff;
-    border-style: solid;
-    border-width: 4px 2px 2px;
-    border-radius: 2px;
-}
-
 .lv-log-overlay {
     padding: 6px;
     border: 2px solid #4cae4c;
