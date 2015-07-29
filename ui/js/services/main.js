@@ -21,6 +21,12 @@ treeherder.factory('thUrl', [
             },
             getLogViewerUrl: function(job_id) {
                 return "logviewer.html#?job_id=" + job_id + "&repo=" + $rootScope.repoName;
+            },
+            getBugUrl: function(bug_id) {
+                return "https://bugzilla.mozilla.org/show_bug.cgi?id=" + bug_id;
+            },
+            getSlaveHealthUrl: function(machine_name) {
+                return "https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name=" + machine_name;
             }
         };
         return thUrl;
