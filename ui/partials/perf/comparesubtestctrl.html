@@ -12,7 +12,7 @@
     </ul>
     <p><a href="perf.html#/compare?originalProject={{originalProject.name}}&originalRevision={{originalRevision}}&newProject={{newProject.name}}&newRevision={{newRevision}}">Show all tests and platforms</a></p>
     <div id="error" ng-if="!dataLoading && errors.length" ng-repeat="error in errors">
-      <div>{{error}}</div>
+      <compare-error errors="errors" original-revision="originalRevision" original-project="originalProject" new-revision="newRevision" new-project="newProject"></compare-error>
     </div>
     <table class="table">
       <tbody ng-repeat="testName in testList">
