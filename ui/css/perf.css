@@ -193,6 +193,10 @@ to { opacity: 0; }
     color: #777;
 }
 
+.revision-holder {
+    font: 11px "Lucida Console",Monaco,monospace;
+}
+
 .vertical-box {
   display: flex;
   flex-flow: column;
