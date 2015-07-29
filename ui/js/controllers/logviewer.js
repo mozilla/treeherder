@@ -210,11 +210,26 @@ logViewerApp.controller('LogviewerCtrl', [
                 });
             });
 
+            // Make the log and job artifacts available
             ThJobArtifactModel.get_list({job_id: $scope.job_id, name__in: 'text_log_summary,Job Info'})
             .then(function(artifactList) {
                 artifactList.forEach(function(artifact) {
                     if (artifact.name === 'text_log_summary') {
                         $scope.artifact = artifact.blob;
+                        $scope.step_data = artifact.blob.step_data;
+
+                        // If the log contains no errors load the head otherwise
+                        // load the first failure step line in the artifact
+                        if ($scope.step_data.all_errors.length == 0) {
+                            angular.element(document).ready(function () {
+                                $scope.displayLog($scope.artifact.step_data.steps[0], 'initialLoad');
+                            });
+                        } else {
+                            $timeout(function() {
+                                angular.element('.lv-error-line').first().trigger('click');
+                            }, 100);
+                        }
+
                     } else if (artifact.name === 'Job Info') {
                         $scope.job_details = artifact.blob.job_details;
                     }
