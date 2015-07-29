@@ -439,5 +439,9 @@ treeherder.controller('PluginCtrl', [
 
         // expose the tab service properties on the scope
         $scope.tabService = thTabs;
+
+        //fetch URLs
+        $scope.getBugIdUrl = thUrl.getBugIdUrl;
+        $scope.getMachineNameUrl = thUrl.getMachineNameUrl;
     }
 ]);
