@@ -9,7 +9,7 @@
     <revision-information original-project="originalProject" original-revision="originalRevision" original-result-set="originalResultSet" new-project="newProject" new-revision="newRevision" new-result-set="newResultSet"></revision-information>
     <p><a href="perf.html#/compare?originalProject={{originalProject.name}}&originalRevision={{originalRevision}}&newProject={{newProject.name}}&newRevision={{newRevision}}">Show all tests and platforms</a></p>
     <div id="error" ng-if="!dataLoading && errors.length" ng-repeat="error in errors">
-      <div>{{error}}</div>
+      <compare-error errors="errors" original-revision="originalRevision" original-project="originalProject" new-revision="newRevision" new-project="newProject"></compare-error>
     </div>
     <ph-compare-table
        titles="titles"
