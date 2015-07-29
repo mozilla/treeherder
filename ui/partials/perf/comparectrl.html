@@ -4,8 +4,9 @@
       Loading all results, please wait a minute...
       <img src="img/dancing_cat.gif" />
     </div>
-    <div id="error" ng-if="!dataLoading && errors.length" ng-repeat="error in errors">
-      <div>{{error}}</div>
+    <div id="error" ng-if="!dataLoading && errors.length">
+      <p ng-repeat="error in errors" class="bg-danger">{{error}}</p>
+      <a href="#/comparechooser?originalProject={{originalProject}}&originalRevision={{originalRevision}}&newProject={{newProject}}&newRevision={{newRevision}}">Modify choice</a>
     </div>
     <div id="subtest-summary" ng-if="!dataLoading && !errors.length">
       <h1>Perfherder Compare Revisions</h1>

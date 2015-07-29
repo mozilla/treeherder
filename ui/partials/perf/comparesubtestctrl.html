@@ -12,7 +12,8 @@
     </ul>
     <p><a href="perf.html#/compare?originalProject={{originalProject.name}}&originalRevision={{originalRevision}}&newProject={{newProject.name}}&newRevision={{newRevision}}">Show all tests and platforms</a></p>
     <div id="error" ng-if="!dataLoading && errors.length" ng-repeat="error in errors">
-      <div>{{error}}</div>
+      <p class="bg-danger">{{error}}</p>
+      <a href="#/comparechooser?originalProject={{originalProject}}&originalRevision={{originalRevision}}&newProject={{newProject}}&newRevision={{newRevision}}">Modify choice</a>
     </div>
     <table class="table">
       <tbody ng-repeat="testName in testList">
