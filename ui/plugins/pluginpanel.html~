@@ -1,22 +1,21 @@
-<div id="info-panel-resizer"
+<div id="bottom-panel-resizer"
      resizer="horizontal"
      resizer-height="6"
-     resizer-bottom="#info-panel">
+     resizer-bottom="#bottom-panel">
 </div>
 <div ng-controller="PinboardCtrl"
      id="pinboard-panel"
      ng-show="isPinboardVisible"
      ng-include src="'partials/main/thPinboardPanel.html'">
 </div>
-<div id="info-panel-content">
-  <div id="job-details-panel">
-    <div id="job-details-actionbar">
+<div id="bottom-panel-content">
+  <div id="bottom-left-panel">
+    <div id="bottom-left-top">
       <nav class="navbar navbar-dark">
         <ul class="nav navbar-nav">
 
           <li ng-repeat="job_log_url in job_log_urls">
             <a ng-if="job_log_url.parse_status == 'parsed'"
-               id="logviewer-btn"
                title="Open the log viewer in a new window"
                target="_blank"
                href="{{::lvUrl}}"
@@ -26,14 +25,12 @@
                    class="logviewer-icon"><img>
             </a>
             <a ng-if="job_log_url.parse_status == 'failed'"
-               id="logviewer-btn"
                title="Log parsing has failed"
                class="disabled" >
               <img src="./img/logviewerIcon.svg"
                    class="logviewer-icon"><img>
             </a>
             <a ng-if="job_log_url.parse_status == 'pending'"
-               id="logviewer-btn"
                class="disabled"
                title="Log parsing in progress">
               <img src="./img/logviewerIcon.svg"
@@ -42,7 +39,6 @@
           </li>
           <li>
             <a ng-if="!job_log_urls.length"
-               id="logviewer-btn"
                class="disabled"
                title="No logs available for this job">
               <img src="./img/logviewerIcon.svg"
@@ -84,7 +80,7 @@
           </li>
           <li ng-show="canCancel()">
             <a title="Cancel this job"
-               class="hover-warning"
+               class="icon-red"
                href="" prevent-default-on-left-click
                target="_blank"
                ng-click="cancelJob()">
@@ -100,8 +96,8 @@
               <span class="fa fa-repeat"></span>
             </a>
           </li>
-          <li ng-if="isReftest()" ng-repeat="job_log_url in job_log_urls">
-            <a title="Launch the Reftest Analyser in a new window"
+          <li ng-show="isReftest()" ng-repeat="job_log_url in job_log_urls">
+            <a title="Launch the Reftest Analyser in a new page"
                target="_blank"
                href="http://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl={{::job_log_url.url}}&only_show_unexpected=1">
               <span class="fa fa-bar-chart-o"></span>
@@ -110,15 +106,15 @@
         </ul>
       </nav>
     </div>
-    <div id="job-details-pane">
+    <div id="bottom-left-bottom">
       <ul ng-if="classifications.length > 0 || bugs.length > 0"
           class="list-unstyled content-spacer">
         <li ng-if="classifications.length > 0">
           <span th-failure-classification failure-id="classifications[0].failure_classification_id"></span>
-          <div ng-app="thURLs" ng-controller="MainCtrl">
+
           <a target="_blank" ng-repeat="bug in bugs"
-             href="{{getBugIdUrl()}}"
-             title="View bug {{bug.bug_id}}"><em> {{bug.bug_id}}</em></a></div>
+             href="{{bug_id_url2}}"
+             title="Bug {{bug.bug_id}}"><em> {{bug.bug_id}}</em></a>
         </li>
         <li ng-if="classifications[0].note.length > 0"><em>{{classifications[0].note}}</em></li>
         <li class="revision-comment">
@@ -136,13 +132,10 @@
             <label>State:</label>
             <span>{{ job.state }}</span>
           </div>
-          <div ng-if="job.state =='running'">
+          <div ng-if="job.state =='pending' || job.state =='running'">
             <span ng-if="eta < 0">ETA to completed: ~ {{eta_abs}} minutes</span>
             <span ng-if="eta > 0">{{eta}} mins overdue, typically takes ~ {{typical_eta}} mins</span>
             <span ng-if="eta == 0">ETA any minute now, typically takes ~ {{typical_eta}} mins</span>
-          </div>
-          <div ng-if="job.state =='pending'">
-            <span>Typically takes ~ {{typical_eta}} mins once started</span>
           </div>
         </li>
       </ul>
@@ -164,16 +157,14 @@
             {{jobSearchStr}}</a>
         </li>
         <li class="small">
-          <label>Machine:</label>
+          <label>Machine name:</label>
           <span ng-switch on="job.machine_name">
             <span ng-switch-when='unknown'>{{job.machine_name}}</span>
-            <div ng-app="thURLs" ng-controller="MainCtrl">
             <a title="Open buildbot slave health report" target="_blank"
-               href="{{getMachineNameUrl()}}"
+               href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{job.machine_name}}"
                ng-switch-default>
                {{job.machine_name}}
             </a>
-            </div>
           </span>
         </li>
         <li class="small" ng-repeat="(label, value) in visibleFields">
@@ -208,28 +199,17 @@
           <label>Log parsing status:</label>
           <span>No logs</span>
         </li>
-        <li class="small" ng-repeat="line in job_details" ng-if="line.value == 'Inspect Task'">
-          <label>Taskcluster:</label>
-          <span><a href="{{line.url}}" target="_blank">{{line.value}}</a></span>
-        </li>
-        <li class="small" ng-click="backfillJob()" ng-show="user.is_staff">
-          <label>
-            <a title="Trigger this jobtype on previous pushes.">
-                Backfill this job
-            </a>
-          </label>
-        </li>
       </ul>
 
       <div ng-if="job_detail_loading" class="overlay">
         <div>
-          <span class="fa fa-spinner fa-pulse th-spinner-lg"></span>
+          <span class="fa fa-refresh fa-spin"></span>
         </div>
       </div>
     </div>
   </div>
-  <div id="job-tabs-panel">
-    <div id="job-tabs-navbar">
+  <div id="bottom-center-panel">
+    <div id="bottom-center-top">
       <nav class="navbar navbar-dark">
         <ul class="nav navbar-nav tab-headers">
           <li ng-class="{'active': tabService.selectedTab == 'jobDetails'}">
@@ -292,7 +272,7 @@
         </ul>
       </nav>
     </div>
-    <div id="job-tabs-pane">
+    <div id="bottom-center-bottom">
       <div ng-repeat="(tabId, tab) in tabService.tabs"
            ng-show="tabId == tabService.selectedTab"
            class="job-tabs-divider">

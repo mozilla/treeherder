@@ -15,14 +15,12 @@
                        title="add to list of bugs to associate with all pinned jobs">
                       <i class="glyphicon glyphicon-pushpin"></i>
                     </a>
-                    <div ng-app="thURLs" ng-controller="MainCtrl">
-                    <a href="{{getBugUrl()}}"
+                    <a href="{{bug_id_url1}}"
                        target="_blank">{{::bug.id}}
                         <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:suggestion.search"
                               title="{{::bug.summary}}">{{::bug.summary}}
                         </span>
                     </a>
-                    </div>
                 </li>
             </ul>
 
@@ -41,16 +39,15 @@
                        title="add to list of bugs to associate with all pinned jobs">
                       <i class="glyphicon glyphicon-pushpin"></i>
                     </a>
-                    <div ng-app="thURLs" ng-controller="MainCtrl">
                     <a ng-if="bug.resolution === ''"
-                       href="{{getBugUrl()}}"
+                       href="https://bugzilla.mozilla.org/show_bug.cgi?id={{::bug.id}}"
                        target="_blank">{{::bug.id}}
                         <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:suggestion.search"
                               title="{{::bug.summary}}">{{::bug.summary}}
                         </span>
                     </a>
                     <a ng-if="bug.resolution !== ''"
-                       href="{{getBugUrl()}}"
+                       href="https://bugzilla.mozilla.org/show_bug.cgi?id={{::bug.id}}"
                        target="_blank"
                        class="deleted">{{::bug.id}}
                         <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:suggestion.search"
@@ -58,7 +55,6 @@
                               class="deleted">{{::bug.summary}}
                         </span>
                     </a>
-                    </div>
                 </li>
             </ul>
 
@@ -98,7 +94,7 @@
     </ul>
     <div ng-if="tabs.failureSummary.is_loading" class="overlay">
         <div>
-            <span class="fa fa-spinner fa-pulse th-spinner-lg"></span>
+            <span class="fa fa-refresh fa-spin"></span>
         </div>
     </div>
 </div>

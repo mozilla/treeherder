@@ -9,17 +9,29 @@ treeherderApp.controller('MainCtrl', [
     'ThRepositoryModel', 'thPinboard', 'thNotify',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
-    'thDefaultRepo', 'thJobNavSelectors',
+    'thDefaultRepo', 'thJobNavSelectors', 'thURLs'
     function MainController(
         $scope, $rootScope, $routeParams, $location, ThLog,
         ThRepositoryModel, thPinboard, thNotify,
         thClassificationTypes, thEvents, $interval, $window,
         ThExclusionProfileModel, thJobFilters, ThResultSetStore,
-        thDefaultRepo, thJobNavSelectors) {
+        thDefaultRepo, thJobNavSelectors, thURLs) {
 
         var $log = new ThLog("MainCtrl");
 
         thClassificationTypes.load();
+
+        $rootScope.getBugUrl = function() {
+            return BUG_URL;
+        };
+        
+        $rootScope.getBugIdUrl = function() {
+            return BUG_ID_URL;
+        };
+
+        $rootScope.getMachineNameUrl = function() {
+            return MACHINE_NAME_URL;
+        };
 
         $rootScope.getWindowTitle = function() {
             var ufc = $scope.getUnclassifiedFailureCount($rootScope.repoName);
