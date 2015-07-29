@@ -148,6 +148,17 @@ treeherder.value("phTimeRanges", [
       { "value":7776000, "text": "Last 90 days" },
       { "value":31536000, "text": "Last year" } ]);
 
+treeherder.value("thURLs",
+    {
+        BUG_URL:"https://bugzilla.mozilla.org/show_bug.cgi?id={{::bug.id}}",
+            
+        BUG_ID_URL:"https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.bug_id}}",
+
+        MACHINE_NAME_URL:"https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{job.machine_name}}"
+           
+    }
+);
+
 treeherder.value("thJobNavSelectors",
     {
         ALL_JOBS: {

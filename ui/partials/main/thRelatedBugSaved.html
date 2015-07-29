@@ -1,9 +1,10 @@
 <span class="btn-group pinboard-related-bugs-btn">
+    <div ng-app="thURLs" ng-controller="MainCtrl">
     <a class="btn btn-xs annotations-bug related-bugs-link"
-       href="https://bugzilla.mozilla.org/show_bug.cgi?id={{::bug.bug_id}}"
+       href="{{getBugIdUrl()}}"
        target="_blank"
        title="View bug {{::bug.bug_id}}"
-       ><em>{{::bug.bug_id}}</em></a>
+       ><em>{{::bug.bug_id}}</em></a></div>
     <span class="btn classification-delete-icon hover-warning btn-xs
                  pinned-job-close-btn annotations-bug"
           ng-click="deleteBug(bug)"
