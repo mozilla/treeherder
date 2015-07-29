@@ -115,10 +115,10 @@
           class="list-unstyled content-spacer">
         <li ng-if="classifications.length > 0">
           <span th-failure-classification failure-id="classifications[0].failure_classification_id"></span>
-
+          <div ng-app="thURLs">
           <a target="_blank" ng-repeat="bug in bugs"
-             href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.bug_id}}"
-             title="View bug {{bug.bug_id}}"><em> {{bug.bug_id}}</em></a>
+             href="{{getBugIdUrl}}"
+             title="View bug {{bug.bug_id}}"><em> {{bug.bug_id}}</em></a></div>
         </li>
         <li ng-if="classifications[0].note.length > 0"><em>{{classifications[0].note}}</em></li>
         <li class="revision-comment">
@@ -167,11 +167,12 @@
           <label>Machine:</label>
           <span ng-switch on="job.machine_name">
             <span ng-switch-when='unknown'>{{job.machine_name}}</span>
+            <div ng-app="thURLs">
             <a title="Open buildbot slave health report" target="_blank"
-               href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{job.machine_name}}"
+               href="{{getMachineNameUrl}}"
                ng-switch-default>
                {{job.machine_name}}
-            </a>
+            </a></div>
           </span>
         </li>
         <li class="small" ng-repeat="(label, value) in visibleFields">

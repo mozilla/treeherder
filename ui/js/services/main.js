@@ -27,6 +27,27 @@ treeherder.factory('thUrl', [
 
     }]);
 
+treeherder.factory('thURLs', [
+    
+     getBugUrl:function() {
+           
+            return "https://bugzilla.mozilla.org/show_bug.cgi?id={{::bug.id}}";
+            
+            },
+            
+     getBugIdUrl:function() {
+           
+            return "https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.bug_id}}";
+            
+            },
+     getMachineNameUrl:function() {
+           
+            return "https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{job.machine_name}}";
+            
+            },
+    ]);
+
+
 treeherder.factory('thCloneHtml', [
     '$interpolate',
     function($interpolate) {
