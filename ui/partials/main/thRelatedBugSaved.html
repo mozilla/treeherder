@@ -1,6 +1,6 @@
 <span class="btn-group pinboard-related-bugs-btn">
     <a class="btn btn-xs annotations-bug related-bugs-link"
-       href="https://bugzilla.mozilla.org/show_bug.cgi?id={{::bug.bug_id}}"
+       href="{{ getBugUrl(bug.bug_id) }}"
        target="_blank"
        title="View bug {{::bug.bug_id}}"
        ><em>{{::bug.bug_id}}</em></a>
