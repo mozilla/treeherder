@@ -91,9 +91,9 @@
                     ng-cloak class="break-word">{{property.value}}</td>
               </tr>
               <tr ng-repeat="line in job_details | orderBy:'title'">
-                <th>{{line.title}}:</th>
+                <th ng-cloak>{{line.title}}:</th>
                 <td ng-switch on="line.content_type">
-                  <a ng-switch-when="link" title="{{line.value}}"
+                  <a ng-cloak ng-switch-when="link" title="{{line.value}}"
                      href="{{line.url}}" target="_blank">{{line.value}}</a>
                     <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
                 <td/>
