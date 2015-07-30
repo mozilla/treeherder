@@ -15,6 +15,7 @@ body {
 
 /* Boostrap navbar overrides for logviewer */
 .navbar {
+    flex: none;
     min-height: 41px; /* 40 for contained elements + lower bootstrap border */
     border-top: 0; /* Shut off the top border */
     border-radius: 0; /* Straight navbar */
