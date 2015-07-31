@@ -56,10 +56,20 @@
           {{compareResult.newRuns.length}}</span>
       </td>
       <td class="test-warning">
+        <!-- Show a hint that people should trigger more runs if:
+             * we only have 1 result for either base/new (can't draw any
+               strong conclusions from one result)
+             * we have less than 6 runs for either base/new AND our
+               confidence level isn't 'high' (6 runs is our gold standard
+               for confidence -- if we've done that many and we're still
+               not confident in a change, more are unlikely to help)
+          -->
         <span ng-if="compareResult.originalRuns.length && compareResult.newRuns.length &&
-                     (compareResult.originalRuns.length < 2 ||
-                      compareResult.newRuns.length < 2 ||
-                      compareResult.confidenceText !== 'high')"
+                     ((compareResult.originalRuns.length < 2 ||
+                       compareResult.newRuns.length < 2) ||
+                      (compareResult.originalRuns.length < 6 &&
+                       compareResult.newRuns.length < 6 &&
+                       compareResult.confidenceText !== 'high'))"
                 class="glyphicon glyphicon-warning-sign text-warning"
                 tooltip="More base / new runs recommended for increased confidence in comparison"
                 tooltip-placement="left"
