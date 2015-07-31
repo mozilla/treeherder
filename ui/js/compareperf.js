@@ -6,16 +6,30 @@
 
 perf.controller('CompareChooserCtrl', [
     '$state', '$stateParams', '$scope', 'ThRepositoryModel', 'ThResultSetModel',
+    'phCompareDefaultNewRepo', 'phCompareDefaultOriginalRepo',
     function CompareChooserCtrl($state, $stateParams, $scope,
-                                ThRepositoryModel, ThResultSetModel) {
+                                ThRepositoryModel, ThResultSetModel,
+                                phCompareDefaultNewRepo,
+                                phCompareDefaultOriginalRepo) {
         ThRepositoryModel.get_list().success(function(projects) {
             $scope.projects = projects;
             $scope.originalTipList = [];
             $scope.newTipList = [];
-            $scope.originalProject = _.findWhere(projects, { name: $stateParams.originalProject }) || projects[0];
-            $scope.newProject = _.findWhere(projects, { name: $stateParams.newProject }) || projects[0];
-            $scope.originalRevision = $stateParams.originalRevision ? $stateParams.originalRevision : '';
-            $scope.newRevision = $stateParams.newRevision ? $stateParams.newRevision : '';
+
+            $scope.originalProject = _.findWhere(projects, {
+                name: ($stateParams.originalProject ?
+                       $stateParams.originalProject : phCompareDefaultOriginalRepo)
+            }) || projects[0];
+            $scope.newProject = _.findWhere(projects, {
+                name: ($stateParams.newProject ?
+                       $stateParams.newProject : phCompareDefaultNewRepo)
+            }) || projects[0];
+
+            $scope.originalRevision = ($stateParams.originalRevision ?
+                                       $stateParams.originalRevision : '');
+            $scope.newRevision = ($stateParams.newRevision ?
+                                  $stateParams.newRevision : '');
+
             var getRevisionTips = function(projectName, list) {
                 // due to we push the revision data into list,
                 // so we need clear the data before we push new data into it.

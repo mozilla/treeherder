@@ -729,15 +729,14 @@ perf.controller('GraphsCtrl', [
 perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
                                             projects, optionCollectionMap,
                                             timeRange, thServiceDomain,
-                                            PhSeries, defaultProjectName,
-                                            defaultPlatform, testsDisplayed) {
+                                            thDefaultRepo, PhSeries,
+                                            defaultProjectName, defaultPlatform,
+                                            testsDisplayed) {
     $scope.timeRange = timeRange;
     $scope.projects = projects;
-    if (defaultProjectName) {
-        $scope.selectedProject = _.findWhere(projects, {name: defaultProjectName});
-    } else {
-        $scope.selectedProject = projects[0];
-    }
+    $scope.selectedProject = _.findWhere(projects, {
+        name: defaultProjectName ? defaultProjectName : thDefaultRepo
+    });
     $scope.loadingTestData = false;
 
     var series = [];
