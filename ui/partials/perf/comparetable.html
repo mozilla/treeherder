@@ -57,9 +57,11 @@
       </td>
       <td class="test-warning">
         <span ng-if="compareResult.originalRuns.length && compareResult.newRuns.length &&
-                     (compareResult.originalRuns.length < 2 ||
-                      compareResult.newRuns.length < 2 ||
-                      compareResult.confidenceText !== 'high')"
+                     ((compareResult.originalRuns.length < 2 ||
+                       compareResult.newRuns.length < 2) ||
+                      (compareResult.originalRuns.length < 6 &&
+                       compareResult.newRuns.length < 6 &&
+                       compareResult.confidenceText !== 'high'))"
                 class="glyphicon glyphicon-warning-sign text-warning"
                 tooltip="More base / new runs recommended for increased confidence in comparison"
                 tooltip-placement="left"
