@@ -63,3 +63,18 @@ treeherder.directive(
             }
         };
     });
+
+treeherder.directive(
+    'compareError', function() {
+        return {
+            templateUrl: 'partials/perf/comparerror.html',
+            restrict: 'E',
+            scope: {
+                errors: '=',
+                originalProject: '=',
+                originalRevision: '=',
+                newProject: '=',
+                newRevision: '='
+            }
+        };
+    });
