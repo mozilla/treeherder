@@ -531,6 +531,10 @@ th-watched-repo {
     opacity: 0.9;
 }
 
+.raw-log-icon {
+    font-size: 14px;
+}
+
 .cancel-job-icon {
     font-size: 13px;
 }
