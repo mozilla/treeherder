@@ -40,7 +40,7 @@
             </li>
 
             <!-- Raw log button -->
-            <li class="logviewer-actionbtn">
+            <li>
               <a title="Open the raw log in a new window"
                  target="_blank"
                  href="{{::artifact.logurl}}">
@@ -50,8 +50,7 @@
             </li>
 
             <!-- Ref test button -->
-            <li ng-if="isReftest()"
-                class="logviewer-actionbtn">
+            <li ng-if="isReftest()">
               <a title="Open the Reftest Analyser in a new window"
                  target="_blank"
                  href="http://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl={{::artifact.logurl}}&only_show_unexpected=1">

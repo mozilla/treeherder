@@ -59,6 +59,7 @@ body {
 
 #lv-successful-steps > input {
     margin: 0;
+    vertical-align: middle;
 }
 
 .lv-line-no {
@@ -156,15 +157,10 @@ body {
 }
 
 .logviewer-actionbtn span {
-    color: #9fa3a5;
+    color: #777;
 }
 
-.logviewer-actionbtn a:hover,
-.logviewer-actionbtn a:focus {
-    text-decoration: none;
-}
-
-.logviewer-actionbtn .actionbtn-icon {
+.actionbtn-icon {
     padding-right: 5px;
 }
 
