@@ -47,11 +47,8 @@ blessings==1.6
 
 # python-memcached v1.54 has a performance regression, don't update until
 # https://github.com/linsomniac/python-memcached/issues/71 is fixed.
-# (also don't use the default package name on pypi because they
-# overwrote the wheel package with 1.55 -- argh!
-# https://github.com/linsomniac/python-memcached/issues/72#issuecomment-125750705)
 # sha256: vPcTcdmXu0ajFop7Y6rma1bMyswCWvkxDbQxVoHviGg
-https://pypi.python.org/packages/source/p/python-memcached/python-memcached-1.53.tar.gz#egg=python-memcached==1.53
+python-memcached==1.53
 
 # sha256: ceezvPn8pAi8tlu2CJLzddOr3S5PKW7uuP4Lu_zeWY4
 jsonschema==2.5.1
