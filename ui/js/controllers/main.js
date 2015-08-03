@@ -326,7 +326,7 @@ treeherderApp.controller('MainCtrl', [
         $scope.groupState = $scope.getGroupState();
 
         $scope.toggleGroupState = function() {
-            var newGroupState = $scope.groupState === "collapsed" ? "expanded" : "collapsed";
+            var newGroupState = $scope.groupState === "collapsed" ? "expanded" : null;
             $location.search("group_state", newGroupState);
         };
 
