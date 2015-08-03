@@ -72,45 +72,37 @@ treeherder.provider('thResultStatusInfo', function() {
                 jobButtonIcon: ""
             };
 
-            // handle if a job is classified
-            var classifiedSuffix = "";
-            var classifiedPrefix = "";
-            if(parseInt(failure_classification_id, 10) > 1){
-                classifiedSuffix = "-classified";
-                classifiedPrefix = "classified ";
-            }
-
             switch (resultState) {
                 case "busted":
                     resultStatusInfo = {
                         severity: 1,
-                        btnClass: "btn-red" + classifiedSuffix,
+                        btnClass: "btn-red",
                         jobButtonIcon: "glyphicon glyphicon-fire",
-                        countText: classifiedPrefix + "busted"
+                        countText: "busted"
                     };
                     break;
                 case "exception":
                     resultStatusInfo = {
                         severity: 2,
-                        btnClass: "btn-purple" + classifiedSuffix,
+                        btnClass: "btn-purple",
                         jobButtonIcon: "glyphicon glyphicon-fire",
-                        countText: classifiedPrefix + "exception"
+                        countText: "exception"
                     };
                     break;
                 case "testfailed":
                     resultStatusInfo = {
                         severity: 3,
-                        btnClass: "btn-orange" + classifiedSuffix,
+                        btnClass: "btn-orange",
                         jobButtonIcon: "glyphicon glyphicon-warning-sign",
-                        countText: classifiedPrefix + "failed"
+                        countText: "failed"
                     };
                     break;
                 case "unknown":
                     resultStatusInfo = {
                         severity: 4,
-                        btnClass: "btn-black" + classifiedSuffix,
+                        btnClass: "btn-black",
                         jobButtonIcon: "",
-                        countText: classifiedPrefix + "unknown"
+                        countText: "unknown"
                     };
                     break;
                 case "usercancel":
@@ -163,6 +155,11 @@ treeherder.provider('thResultStatusInfo', function() {
                     break;
             }
 
+            // handle if a job is classified
+            if(parseInt(failure_classification_id, 10) > 1){
+                resultStatusInfo.btnClass = resultStatusInfo.btnClass + "-classified";
+                resultStatusInfo.countText = "classified " + resultStatusInfo.countText;
+            }
             return resultStatusInfo;
         };
 

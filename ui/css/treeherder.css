@@ -1295,6 +1295,18 @@ ul.failure-summary-list li .btn-xs {
 .btn-red-classified-count::after,
 .btn-black-classified::after,
 .btn-black-classified-count::after,
+.btn-green-classified::after,
+.btn-green-classified-count::after,
+.btn-dkblue-classified::after,
+.btn-dkblue-classified-count::after,
+.btn-dkgray-classified::after,
+.btn-dkgray-classified-count::after,
+.btn-ltgray-classified::after,
+.btn-ltgray-classified-count::after,
+.btn-yellow-classified::after,
+.btn-yellow-classified-count::after,
+.btn-pink-classified::after,
+.btn-pink-classified-count::after,
 .btn-purple-classified::after,
 .btn-purple-classified-count::after {
     content: "*";
@@ -1525,7 +1537,9 @@ fieldset[disabled] .btn-red-classified.active {
 }
 
 .btn-dkblue,
-.btn-dkblue-count {
+.btn-dkblue-count,
+.btn-dkblue-classified,
+.btn-dkblue-classified-count {
   color: #283aa2;
   font-weight: bold;
 }
@@ -1555,7 +1569,9 @@ fieldset[disabled] .btn-dkblue.active {
 }
 
 .btn-green,
-.btn-green-count {
+.btn-green-count,
+.btn-green-classified,
+.btn-green-classified-count {
   color: rgba(2, 130, 51, 0.75);
   font-weight: bold;
 }
@@ -1582,7 +1598,8 @@ fieldset[disabled] .btn-green.active {
   border-color: #02c238;
 }
 
-.btn-purple {
+.btn-purple
+.btn-purple-count {
   background-color: #9a7da6;
   border-color: #6f0296;
   color: white;
@@ -1642,7 +1659,9 @@ fieldset[disabled] .btn-purple-classified.active {
 }
 
 .btn-yellow,
-.btn-yellow-count {
+.btn-yellow-count,
+.btn-yellow-classified,
+.btn-yellow-classified-count {
   color: #cdce1d;
   font-weight: bold;
 }
@@ -1669,7 +1688,9 @@ fieldset[disabled] .btn-yellow.active {
 }
 
 .btn-ltgray,
-.btn-ltgray-count {
+.btn-ltgray-count,
+.btn-ltgray-classified,
+.btn-ltgray-classified-count {
   color: #e0e0e0;
 }
 .btn-ltgray:hover,
@@ -1696,7 +1717,10 @@ fieldset[disabled] .btn-ltgray.active {
 }
 
 .btn-mdgray,
-.btn-mdgray-count {
+.btn-mdgray-count,
+.btn-mdgray-classified,
+.btn-mdgray-classified-count
+ {
   background-color: #bfbfbf;
   border-color: #bfbfbf;
 }
@@ -1744,7 +1768,9 @@ fieldset[disabled] .btn-resultset:hover {
 }
 
 .btn-dkgray,
-.btn-dkgray-count {
+.btn-dkgray-count,
+.btn-dkgray-classified,
+.btn-dkgray-classified-count {
   color: #7c7a7d;
 }
 .btn-dkgray:hover,
@@ -1772,7 +1798,10 @@ fieldset[disabled] .btn-dkgray.active {
   color: white;
 }
 
-.btn-black {
+.btn-black
+.btn-black-count,
+.btn-black-classified,
+.btn-black-classified-count {
   background-color: #4a4a4a;
   border-color: #000000;
   color: white;
@@ -1825,7 +1854,10 @@ fieldset[disabled] .btn-black.active {
   border-color: #000000;
 }
 
-.btn-pink {
+.btn-pink
+.btn-pink-count,
+.btn-pink-classified,
+.btn-pink-classified-count {
   color: #ff40d9;
   font-weight: bold;
 }
