@@ -281,7 +281,7 @@ treeherder.directive('thCloneJobs', [
             jobList.empty();
             countList.empty();
 
-            for(l = 0; l < jgObj.jobs.length; l++) {
+            for (l = 0; l < jgObj.jobs.length; l++) {
 
                 job = jgObj.jobs[l];
                 job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' +

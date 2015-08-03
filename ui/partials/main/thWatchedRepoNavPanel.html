@@ -41,10 +41,15 @@
                 <!--Toggle Group State Button-->
                 <span class="btn-group">
                     <span class="btn btn-view-nav btn-sm btn-toggle-group-state"
-                          ng-class="{'toggle-groups-collapsed': groupState==='collapsed', 'toggle-groups-expanded': groupState==='expanded'}"
-                          title="Collapse/Expand all group counts"
                           tabindex="0" role="button"
-                          ng-click="toggleGroupState()">G</span>
+                          ng-click="toggleGroupState()">(
+                        <span ng-if="groupState==='collapsed'"
+                              class="group-state-nav-icon"
+                              title="Expand all group counts">+</span>
+                        <span ng-if="groupState!=='collapsed'"
+                              class="group-state-nav-icon"
+                              title="Collapse all groups to counts">-</span>
+                    )</span>
                 </span>
 
                 <!--Search Field-->

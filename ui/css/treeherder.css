@@ -582,11 +582,9 @@ th-watched-repo {
     display: block;
 }
 
-.toggle-groups-expanded::before {
-    content: "-";
-}
-.toggle-groups-collapsed::before {
-    content: "+";
+.group-state-nav-icon {
+    width: 7px;
+    display: inline-block;
 }
 
 .job-group {
@@ -1440,7 +1438,7 @@ fieldset[disabled] .btn-orange.active {
 }
 
 .btn-orange-classified,
-.btn-orange-classified-count{
+.btn-orange-classified-count {
   color: #dd6602;
 }
 .btn-orange-classified:hover,
