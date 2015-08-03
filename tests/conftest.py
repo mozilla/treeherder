@@ -368,12 +368,9 @@ def mock_post_json(monkeypatch, set_oauth_credentials):
 
 @pytest.fixture
 def mock_get_remote_content(monkeypatch):
-    def _get_remote_content(url):
-        response = TestApp(application).get(url)
-        if response.status_int != 200:
-            return None
-        else:
-            return response.json
+    def _get_remote_content(url, params=None):
+        response = TestApp(application).get(url, params=params, status=200)
+        return response.json
 
     import treeherder.etl.common
     monkeypatch.setattr(treeherder.etl.common,

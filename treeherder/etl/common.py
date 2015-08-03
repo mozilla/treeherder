@@ -3,10 +3,10 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import hashlib
-import urllib2
 import simplejson as json
 import time
 
+import requests
 from django.conf import settings
 
 
@@ -56,25 +56,14 @@ class JobData(dict):
         return value
 
 
-def get_remote_content(url):
-    """A thin layer of abstraction over urllib. """
-    req = urllib2.Request(url)
-    req.add_header('Accept', 'application/json')
-    req.add_header('Content-Type', 'application/json')
-    conn = urllib2.urlopen(
-        req,
-        timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
-
-    if not conn.getcode() == 200:
-        return None
-    try:
-        content = json.loads(conn.read())
-    except:
-        content = None
-    finally:
-        conn.close()
-
-    return content
+def get_remote_content(url, params=None):
+    """A thin layer of abstraction over requests. """
+    resp = requests.get(url,
+                        params=params,
+                        headers={'Accept': 'application/json'},
+                        timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
+    resp.raise_for_status()
+    return resp.json()
 
 
 def lookup_revisions(revision_dict):
