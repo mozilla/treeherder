@@ -56,17 +56,6 @@ class JobData(dict):
         return value
 
 
-def retrieve_api_content(url):
-    req = urllib2.Request(url)
-    req.add_header('Content-Type', 'application/json')
-    conn = urllib2.urlopen(
-        req,
-        timeout=settings.TREEHERDER_REQUESTS_TIMEOUT
-    )
-    if conn.getcode() == 404:
-        return None
-
-
 def get_remote_content(url):
     """A thin layer of abstraction over urllib. """
     req = urllib2.Request(url)
