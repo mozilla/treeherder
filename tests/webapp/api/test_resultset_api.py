@@ -263,8 +263,7 @@ def test_resultset_with_bad_secret(sample_resultset, jm, initial_data):
     )
 
     assert resp.status_int == 403
-    assert resp.json['detail'] == "Client authentication failed for project, {0}".format(jm.project)
-    assert resp.json['response'] == "invalid_client"
+    assert resp.json['detail'] == "Client authentication failed for project {0}".format(jm.project)
 
 
 def test_resultset_with_bad_key(sample_resultset, jm, initial_data):
@@ -279,8 +278,7 @@ def test_resultset_with_bad_key(sample_resultset, jm, initial_data):
     )
 
     assert resp.status_int == 403
-    assert resp.json['response'] == "access_denied"
-    assert resp.json['detail'] == "oauth_consumer_key does not match project, {0}, credentials".format(jm.project)
+    assert resp.json['detail'] == 'oauth_consumer_key does not match credentials for project {0}'.format(jm.project)
 
 
 def test_resultset_cancel_all(jm, resultset_with_three_jobs, pulse_action_consumer):
