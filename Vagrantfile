@@ -5,6 +5,9 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# We require 1.5+ due to specifying only the box name and not config.vm.box_url.
+Vagrant.require_version ">= 1.5.0"
+
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 

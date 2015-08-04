@@ -9,7 +9,7 @@ Cloning the Repo
 Setting up Vagrant
 ------------------
 
-* Install Virtualbox_ and Vagrant_ if not present.
+* Install Virtualbox_ and Vagrant_ 1.5+ if not present (recent versions of both is strongly recommended).
 
 * Open a shell, cd into the root of the project you just cloned and type
 
