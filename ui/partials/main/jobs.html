@@ -55,7 +55,7 @@
               !isLoadingJobs && locationHasSearchParam('revision') && currentRepo.url"
               class="result-set-body unknown-message-body">
   <span ng-init="revision=getSearchParamValue('revision')">
-      <span ng-if=" revision === 'undefined' ">
+    <span ng-if="revision!=='undefined'">
         <span>Waiting for a push with revision <strong>{{revision}}</strong></span>
         <a href="{{currentRepo.getPushLogHref(revision)}}"
             target="_blank"
@@ -64,9 +64,9 @@
         <div>If the push exists, it will appear in a few minutes once it has been processed.
         </div>
       </span>
-      <span ng-if="revision==='undefined'">
-        <span>This is an invalid revision. Please change it, or click <a href="">here</a> to reload page.</span>
-      </span>
+    <span ng-if="revision==='undefined'">
+        <span>This is an invalid revision.  Please change it, or click <a href="{{::currentRepo.url}}">here</a> to reload page.</span>
+    </span>
   </span>
 </div>
 
