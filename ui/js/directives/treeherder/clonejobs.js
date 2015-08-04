@@ -537,7 +537,7 @@ treeherder.directive('thCloneJobs', [
                 showHideElement($(this), show);
             });
 
-            renderGroups(element);
+            renderGroups(element, false);
 
             // hide platforms and groups where all jobs are hidden
             element.find(".platform").each(function internalFilterPlatform() {
@@ -552,7 +552,20 @@ treeherder.directive('thCloneJobs', [
             return singleGroupState === "expanded";
         };
 
-        var renderGroups = function(element) {
+        /**
+         * Render all the job groups for a resultset.  Make decisions on whether
+         * to render all the jobs in the group, or to collapse them as counts.
+         *
+         * If ``resetGroupState`` is set to true, then clear the ``groupState``
+         * for each group that may have been set when a user clicked on it.
+         * If false, then honor the choice to expand or collapse an individual
+         * group and ignore the global setting.
+         *
+         * @param element The resultset for which to render the groups.
+         * @param resetGroupState Whether to reset groups individual expanded
+         *                        or collapsed states.
+         */
+        var renderGroups = function(element, resetGroupState) {
             var groupMap =  ThResultSetStore.getGroupMap($rootScope.repoName);
             // with items in the group, it's not as simple as just hiding or
             // showing a job or count.  Since there can be lots of criteria for whether to show
@@ -562,6 +575,10 @@ treeherder.directive('thCloneJobs', [
                 var gi = getGroupInfo(el, groupMap);
                 gi.grpJobList.empty();
                 gi.grpCountList.empty();
+
+                if (resetGroupState) {
+                    delete gi.jgObj.groupState;
+                }
 
                 if (isGroupExpanded(gi.jgObj)) {
                     addJobBtnEls(gi.jgObj, gi.platformGroupEl.find(".group-job-list"));
@@ -737,7 +754,7 @@ treeherder.directive('thCloneJobs', [
 
             $rootScope.$on(
                 thEvents.groupStateChanged, function(ev, filterData){
-                    _.bind(renderGroups, scope, element)();
+                    _.bind(renderGroups, scope, element, true)();
                 });
 
             $rootScope.$on(
