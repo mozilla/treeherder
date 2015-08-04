@@ -7,7 +7,7 @@
       <td style="width: 30px;"><!-- less than / greater than --></td>
       <td style="width: 140px;">New</td>
       <td style="width: 80px;">Delta</td>
-      <td><!-- Graphical difference --></td>
+      <td style="width: 160px"><!-- Graphical difference --></td>
       <td style="width: 100px;">Confidence</td>
       <td class="num-runs" style="width: 80px"># Runs</td>
       <td class="test-warning" style="width: 30px"><!-- warning if not enough --></td>
@@ -43,8 +43,31 @@
           {{compareResult.deltaPercentage|displayPrecision}}%
         </span>
       </td>
-      <td><div ng-class="getCompareClasses(compareResult, 'bar')" style="margin-{{compareResult.marginDirection}}: {{compareResult.barGraphMargin}}%;"></div></td>
-      <td ng-if="!compareResult.delta"></td>
+      <td ng-if="!compareResult.delta">
+      </td>
+      <td ng-if="compareResult.delta && compareResult.barPercentage >= 1">
+        <div ng-if="!compareResult.newIsBetter" style="margin: auto; width: 80%;">
+          <div class="bar bar-scale"
+               ng-class="{'bar-regression-scale': compareResult.isRegression}"
+               style="width: {{100 - compareResult.barPercentage}}%; height: 1em; float: left;">
+          </div>
+          <div class="bar"
+               ng-class="{'bar-regression': compareResult.isRegression}"
+               style="width: {{compareResult.barPercentage}}%; float: left;">
+          </div>
+        </div>
+        <div ng-if="compareResult.newIsBetter" style="margin: auto; width: 80%;">
+          <div class="bar"
+               ng-class="{'bar-improvement': compareResult.isImprovement}"
+               style="width: {{compareResult.barPercentage}}%; float: left;">
+          </div>
+          <div class="bar bar-scale"
+               ng-class="{'bar-improvement-scale': compareResult.isImprovement}"
+               style="width: {{100 - compareResult.barPercentage}}%; float: left; ">
+          </div>
+        </div>
+      </td>
+      <td ng-if="!compareResult.delta || compareResult.barPercentage < 1"></td>
       <td>
         <span ng-if="compareResult.confidenceText && compareResult.confidence">
           {{compareResult.confidence|displayPrecision}} (<abbr title="Result of running t-test on base versus new result distribution: higher values indicate greater confidence that the indicated performance difference is statistically meaningful">{{compareResult.confidenceText}}</abbr>)</span>&nbsp;

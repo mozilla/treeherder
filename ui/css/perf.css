@@ -299,17 +299,31 @@ span.compare-regression {
   background-image: linear-gradient(to bottom, #FF9500, #FFCB00);
 }
 
+.bar {
+  height: 1em;
+  margin-top: 0.25em;
+  margin-bottom: 5px;
+  background-color: #bbb;
+}
+
+.bar-scale {
+    background-color: #eee;
+}
+
 .bar-improvement {
   background-color: green;
-  margin-left: 50%;
-  height: 1em;
-  margin-bottom: 5px;
 }
+
+.bar-improvement-scale {
+  background-color: #dfd;
+}
+
 .bar-regression {
   background-color: red;
-  margin-right: 50%;
-  height: 1em;
-  margin-bottom: 5px;
+}
+
+.bar-regression-scale {
+  background-color: #fdd;
 }
 
 .detail-hint {
