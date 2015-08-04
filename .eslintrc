@@ -18,6 +18,7 @@
         "key-spacing": 0,
         "no-alert": 0,
         "no-console": 0,
+        "no-catch-shadow": 0,
         "no-extra-semi": 0,
         "no-loop-func": 0,
         "no-multi-spaces": 0,
