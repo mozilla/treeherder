@@ -71,6 +71,10 @@ treeherderApp.controller('JobsCtrl', [
             }
         };
 
+        if($location.search().revision === 'undefined'){
+            thNotify.send("Revision Undefined");
+        }
+
         if(ThResultSetStore.isNotLoaded($scope.repoName)){
             // get our first set of resultsets
             ThResultSetStore.fetchResultSets(
@@ -236,4 +240,3 @@ treeherderApp.controller('ResultSetCtrl', [
         });
     }
 ]);
-
