@@ -116,9 +116,10 @@ the jobs associated with any single push generated in the last 4 hours
 
   .. code-block:: bash
 
-     (venv)vagrant@local:~/treeherder$ ./manage.py ingest_push mozilla-central 63f8a47cfdf5
+     (venv)vagrant@local:~/treeherder$ ./manage.py ingest_push mozilla-inbound 63f8a47cfdf5
 
-If running this locally, replace `63f8a47cfdf5` with a recent revision on mozilla-central.
+If running this locally, replace `63f8a47cfdf5` with a recent revision (= pushed within 
+the last four hours) on mozilla-inbound.
 
 You can further restrict the amount of data to a specific type of job
 with the "--filter-job-group" parameter. For example, to process only
@@ -126,7 +127,7 @@ talos jobs for a particular push, try:
 
   .. code-block:: bash
 
-     (venv)vagrant@local:~/treeherder$ ./manage.py ingest_push --filter-job-group T mozilla-central 63f8a47cfdf
+     (venv)vagrant@local:~/treeherder$ ./manage.py ingest_push --filter-job-group T mozilla-inbound 63f8a47cfdf
 
 Note that some types of data (e.g. performance) are not processed immediately, and you
 will thus need to start a celery worker to handle them. You don't need
