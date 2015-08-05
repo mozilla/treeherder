@@ -243,8 +243,9 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                     // - .[original|new]StddevPct  // stddev as percentage of the average
                                     // - .[original|new]Runs       // Display data: number of runs and their values
                                     // If both originalData/newData exist, comparison data:
-                                    // - .isImprovement
-                                    // - .isRegression
+                                    // - .newIsBetter              // is new result better or worse (even if unsure)
+                                    // - .isImprovement            // is new result better + we're confident about it
+                                    // - .isRegression             // is new result worse + we're confident about it
                                     // - .delta
                                     // - .deltaPercentage
                                     // - .confidence               // t-test value
@@ -252,7 +253,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                     // - .isMeaningful             // for highlighting - bool over t-test threshold
                                     // And some data to help formatting of the comparison:
                                     // - .className
-                                    // - .barGraphMargin
+                                    // - .magnitude
                                     // - .marginDirection
                                     getCounterMap: function getDisplayLineData(testName, originalData, newData) {
 
@@ -335,8 +336,10 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
 
                                         cmap.deltaPercentage = math.percentOf(cmap.delta, cmap.originalGeoMean);
 
-                                        cmap.barGraphMargin = 50 - Math.min(50, Math.abs(Math.round(cmap.deltaPercentage) / 2));
-                                        cmap.marginDirection = newIsBetter ? 'right' : 'left';
+                                        // arbitrary scale from 0-20% multiplied by 5, capped
+                                        // at 100 (so 20% regression == 100% bad)
+                                        cmap.magnitude = Math.min(Math.abs(cmap.deltaPercentage)*5, 100);
+                                        cmap.newIsBetter = newIsBetter;
 
                                         var abs_t_value = Math.abs(math.t_test(originalData.values, newData.values, STDDEV_DEFAULT_FACTOR));
                                         cmap.className = getClassName(newIsBetter, cmap.originalGeoMean, cmap.newGeoMean, abs_t_value);
