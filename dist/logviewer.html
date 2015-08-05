@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <title ng-bind="::logViewerTitle">Log viewer</title>
-        <link rel="stylesheet" href="css/logviewer.min-2d422b7c6f9bd7950da2d1561044384e.css" media="screen">
+        <link rel="stylesheet" href="css/logviewer.min-b8bfa4ff617ea5f5003df482e6c4b244.css" media="screen">
         <link id="favicon" type="image/png" rel="shortcut icon" href="img/logviewerIcon.png">
     </head>
     <body class="body-logviewer">
@@ -35,7 +35,7 @@
             </li>
 
             <!-- Raw log button -->
-            <li class="logviewer-actionbtn">
+            <li>
               <a title="Open the raw log in a new window"
                  target="_blank"
                  href="{{::artifact.logurl}}">
@@ -45,8 +45,7 @@
             </li>
 
             <!-- Ref test button -->
-            <li ng-if="isReftest()"
-                class="logviewer-actionbtn">
+            <li ng-if="isReftest()">
               <a title="Open the Reftest Analyser in a new window"
                  target="_blank"
                  href="http://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl={{::artifact.logurl}}&only_show_unexpected=1">
@@ -86,9 +85,9 @@
                     ng-cloak class="break-word">{{property.value}}</td>
               </tr>
               <tr ng-repeat="line in job_details | orderBy:'title'">
-                <th>{{line.title}}:</th>
+                <th ng-cloak>{{line.title}}:</th>
                 <td ng-switch on="line.content_type">
-                  <a ng-switch-when="link" title="{{line.value}}"
+                  <a ng-cloak ng-switch-when="link" title="{{line.value}}"
                      href="{{line.url}}" target="_blank">{{line.value}}</a>
                     <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
                 <td/>
@@ -105,7 +104,7 @@
              lv-log-lines="displayedLogLines">
         </div>
 
-        <script src="js/logviewer.min-7f3c72e10761425c8fb9fe266e8eca22.js"></script>
+        <script src="js/logviewer.min-bf12924d398192a3927325b0afc6d81b.js"></script>
 
         <script src="js/config/local.conf.js"></script>
 
