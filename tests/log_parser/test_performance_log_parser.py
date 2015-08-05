@@ -14,9 +14,8 @@ def test_valid_talosdata():
 
 
 # Disabled because of bug 1188132.
-@pytest.mark.xfail
 def test_invalid_talosdata():
-    invalid_line = '10:27:39     INFO -  INFO : TALOSDATA: [ { "json"'
+    invalid_line = '10:27:39     INFO -  INFO : TALOSDATA: [ { "json" ]'
     parser = TalosParser()
     with pytest.raises(ValueError):
         parser.parse_line(invalid_line, 1)
