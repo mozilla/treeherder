@@ -101,6 +101,7 @@ def post_log_artifacts(project,
         if isinstance(e, urllib2.HTTPError) and e.code in (403, 404):
             logger.warning("Unable to retrieve log for %s: %s",
                            log_description, e)
+            return
         # possibly recoverable http error (e.g. problems on our end)
         elif isinstance(e, urllib2.URLError):
             logger.error("Failed to download log for %s: %s",
