@@ -23,9 +23,10 @@ class PerformanceDataViewSet(viewsets.ViewSet):
                         request, args, kwargs):
         project, interval = (kwargs.get('project'),
                              request.QUERY_PARAMS.get('interval'))
+        machine_platform = request.QUERY_PARAMS.get('machine_platform')
         if project and interval:
             return cache.get(JobsModel.get_performance_series_cache_key(
-                project, interval, hash=True))
+                project, interval, machine_platform, hash=True))
 
         return None
 
@@ -36,16 +37,16 @@ class PerformanceDataViewSet(viewsets.ViewSet):
         """
         GET method implementation for listing signatures
 
-        Input: time interval
+        Input: time interval, machine_platform
         Output: all series signatures and their properties
         """
         try:
-            interval = int(request.QUERY_PARAMS.get('interval'))
+            interval_second = int(request.QUERY_PARAMS.get('interval'))
+            machine_platform = request.QUERY_PARAMS.get('machine_platform')
         except:
             return Response("incorrect parameters", 400)
 
-        summary = jm.get_performance_series_summary(interval)
-
+        summary = jm.get_performance_series_summary(interval_second, machine_platform)
         return Response(summary)
 
     @list_route()
