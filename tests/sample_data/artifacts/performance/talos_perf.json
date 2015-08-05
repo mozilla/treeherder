@@ -26,6 +26,13 @@
                 "rss": false
             }
         },
+        "summary": {
+            "suite": 3141.00,
+            "subtests": {
+                "dhtml.html": {"min": 1, "max": 100, "std": 0.75, "mean": 50, "median": 50},
+                "tablemutation.html": {"min": 1, "max": 100, "std": 0.75, "mean": 50, "median": 50}
+            }
+        },
         "results": {
             "dhtml.html": [
                 1273,

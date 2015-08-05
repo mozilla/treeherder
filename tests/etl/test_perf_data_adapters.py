@@ -3,6 +3,7 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import json
+import zlib
 
 from tests.sampledata import SampleData
 from treeherder.etl.perf_data_adapters import TalosDataAdapter
@@ -49,5 +50,24 @@ def test_adapt_and_load():
         # when the web service receives them
         datum['blob'] = json.dumps({'talos_data': [datum['blob']]})
         tda.adapt_and_load(reference_data, job_data, datum)
+
+        # we upload a summary with a suite and subtest values, +1 for suite
+        if 'summary' in datum['blob']:
+            results = json.loads(zlib.decompress(tda.performance_artifact_placeholders[-1][4]))
+            data = json.loads(datum['blob'])['talos_data'][0]
+            assert results["blob"]["performance_series"]["geomean"] == data['summary']['suite']
+
+            # deal with the subtests now
+            subtests = len(data['summary']['subtests'])
+            for iter in range(0, subtests):
+                subresults = json.loads(zlib.decompress(tda.performance_artifact_placeholders[-1 - iter][4]))
+                if 'subtest_signatures' in subresults["blob"]['signature_properties']:
+                    # ignore summary signatures
+                    continue
+
+                subdata = data['summary']['subtests'][subresults["blob"]['signature_properties']['test']]
+                for datatype in ['min', 'max', 'mean', 'median', 'std']:
+                    print datatype
+                    assert subdata[datatype] == subresults["blob"]["performance_series"][datatype]
 
     assert result_count == len(tda.performance_artifact_placeholders)
