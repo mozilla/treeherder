@@ -217,7 +217,6 @@ treeherder.factory('ThResultSetStore', [
                     // maps to help finding objects to update/add
                     rsMap:{},
                     jobMap:{},
-                    grpMap:{},
                     unclassifiedFailureMap: {},
                     //used as the offset in paging
                     rsMapOldestTimestamp:null,
@@ -254,6 +253,11 @@ treeherder.factory('ThResultSetStore', [
             _.detect(getJobMap(repoName), addIfShown);
 
             return shownJobs;
+        };
+
+        var getJobMapKey = function(job) {
+            //Build string key for jobMap entires
+            return 'key' + job.id;
         };
 
         var getSelectedJob = function(repoName){
@@ -326,7 +330,6 @@ treeherder.factory('ThResultSetStore', [
                 // groups
                 for (var gp_i = 0; gp_i < pl_obj.groups.length; gp_i++) {
                     var gr_obj = pl_obj.groups[gp_i];
-                    gr_obj.mapKey = thAggregateIds.getGroupMapKey(rs_obj.id, gr_obj.name, pl_obj.name, pl_obj.option);
 
                     var grMapElement = {
                         grp_obj: gr_obj,
@@ -335,21 +338,10 @@ treeherder.factory('ThResultSetStore', [
                     };
                     plMapElement.groups[gr_obj.name] = grMapElement;
 
-                    // check if we need to copy groupState from an existing group
-                    // object.  This would be set if a user explicitly clicked
-                    // a group to toggle it expanded/collapsed.
-                    // This value will have been overwritten by the _.extend
-                    // in mapResultSetJobs.
-                    var oldGroup = repositories[repoName].grpMap[gr_obj.mapKey];
-                    if (oldGroup) {
-                        gr_obj.groupState = oldGroup.grp_obj.groupState;
-                    }
-                    repositories[repoName].grpMap[gr_obj.mapKey] = grMapElement;
-
                     // jobs
                     for (var j_i = 0; j_i < gr_obj.jobs.length; j_i++) {
                         var job_obj = gr_obj.jobs[j_i];
-                        var key = thAggregateIds.getJobMapKey(job_obj);
+                        var key = getJobMapKey(job_obj);
 
                         var jobMapElement = {
                             job_obj: job_obj,
@@ -450,7 +442,6 @@ treeherder.factory('ThResultSetStore', [
                     var grp_obj = {
                         symbol: groupInfo.symbol,
                         name: groupInfo.name,
-                        mapKey: groupInfo.mapKey,
                         jobs: []
                     };
 
@@ -629,7 +620,7 @@ treeherder.factory('ThResultSetStore', [
          */
         var updateJob = function(repoName, newJob) {
 
-            var key = thAggregateIds.getJobMapKey(newJob);
+            var key = getJobMapKey(newJob);
             var loadedJobMap = repositories[repoName].jobMap[key];
             var loadedJob = loadedJobMap? loadedJobMap.job_obj: null;
             var rsMapElement = repositories[repoName].rsMap[newJob.result_set_id];
@@ -794,9 +785,6 @@ treeherder.factory('ThResultSetStore', [
             // this is a "watchable" for jobs
             return repositories[repoName].jobMap;
         };
-        var getGroupMap = function(repoName){
-            return repositories[repoName].grpMap;
-        };
         var getLoadingStatus = function(repoName){
             return repositories[repoName].loadingStatus;
         };
@@ -908,8 +896,6 @@ treeherder.factory('ThResultSetStore', [
 
             var name = job.job_group_name;
             var symbol = job.job_group_symbol;
-            var mapKey = thAggregateIds.getGroupMapKey(job.result_set_id, name, job.platform, job.platform_option);
-
             if (job.tier && job.tier !== 1) {
                 if (symbol === "?") {
                     symbol = "";
@@ -919,7 +905,7 @@ treeherder.factory('ThResultSetStore', [
                 symbol = tierLabel;
             }
 
-            return {name: name, symbol: symbol, mapKey: mapKey};
+            return {name: name, symbol: symbol};
         };
 
         /*
@@ -1048,7 +1034,6 @@ treeherder.factory('ThResultSetStore', [
             fetchResultSets: fetchResultSets,
             getAllShownJobs: getAllShownJobs,
             getJobMap: getJobMap,
-            getGroupMap: getGroupMap,
             getLoadingStatus: getLoadingStatus,
             getPlatformKey: getPlatformKey,
             getResultSet: getResultSet,

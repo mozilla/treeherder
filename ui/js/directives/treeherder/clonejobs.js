@@ -10,13 +10,13 @@ treeherder.directive('thCloneJobs', [
     'thServiceDomain', 'thResultStatusInfo', 'thEvents', 'thAggregateIds',
     'thJobFilters', 'thResultStatusObject', 'ThResultSetStore',
     'ThJobModel', 'linkifyBugsFilter', 'thResultStatus', 'thPlatformName',
-    'thJobSearchStr', 'thNotify', '$timeout', '$location',
+    'thJobSearchStr', 'thNotify', '$timeout',
     function(
         $rootScope, $http, ThLog, thUrl, thCloneHtml,
         thServiceDomain, thResultStatusInfo, thEvents, thAggregateIds,
         thJobFilters, thResultStatusObject, ThResultSetStore,
         ThJobModel, linkifyBugsFilter, thResultStatus, thPlatformName,
-        thJobSearchStr, thNotify, $timeout, $location){
+        thJobSearchStr, thNotify, $timeout){
 
         var $log = new ThLog("thCloneJobs");
 
@@ -31,11 +31,8 @@ treeherder.directive('thCloneJobs', [
         var jobListNoPadCls = 'job-list-nopad';
         var jobListPadCls = 'job-list-pad';
 
-        var failResults = ["testfailed", "busted", "exception"];
-
         // Custom Attributes
         var jobKeyAttr = 'data-jmkey';
-        var groupKeyAttr = 'data-grkey';
 
         var tableInterpolator = thCloneHtml.get('resultsetClone').interpolator;
 
@@ -43,10 +40,7 @@ treeherder.directive('thCloneJobs', [
         var platformInterpolator = thCloneHtml.get('platformClone').interpolator;
 
         //Instantiate job group interpolator
-        var jobGroupInterpolator = thCloneHtml.get('jobGroupClone').interpolator;
-
-        //Instantiate job group count interpolator
-        var jobGroupCountInterpolator = thCloneHtml.get('jobGroupCountClone').interpolator;
+        var jobGroupInterpolator = thCloneHtml.get('jobGroupBeginClone').interpolator;
 
         //Instantiate job btn interpolator
         var jobBtnInterpolator = thCloneHtml.get('jobBtnClone').interpolator;
@@ -172,170 +166,87 @@ treeherder.directive('thCloneJobs', [
             }, 200);
         };
 
-        /**
-         * Clicking a group will expand or collapse it.  Expanded shows all
-         * jobs.  Collapsed shows counts and failed jobs.
-         */
-        var clickGroupCb = function(el) {
-            var groupMap =  ThResultSetStore.getGroupMap($rootScope.repoName);
-            var gi = getGroupInfo(el, groupMap);
-            if (gi) {
-                if (isGroupExpanded(gi.jgObj)) {
-                    gi.jgObj.groupState = "collapsed";
-                    addGroupJobsAndCounts(gi.jgObj, gi.platformGroupEl);
-                } else {
-                    gi.grpCountList.empty();
-                    gi.jgObj.groupState = "expanded";
-                    addJobBtnEls(gi.jgObj, gi.grpJobList);
-                }
-            }
-        };
-
         var togglePinJobCb = function(ev, el, job){
             $rootScope.$emit(thEvents.jobPin, job);
         };
 
-        var addJobBtnEls = function(jgObj, jobList) {
-            var lastJobSelected = ThResultSetStore.getSelectedJob($rootScope.repoName);
-            var job, l;
+        var addJobBtnEls = function(
+            jgObj, jobBtnInterpolator, jobTdEl){
+
+            var jobsShown = 0;
+
+            var lastJobSelected = ThResultSetStore.getSelectedJob(
+                $rootScope.repoName
+            );
+
+            var hText, key, resultState, job, jobStatus, jobBtn, l;
             var jobBtnArray = [];
-            jobList.empty();
 
             for(l=0; l<jgObj.jobs.length; l++){
 
                 job = jgObj.jobs[l];
 
-
-                job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' +
-                    job.signature;
-
-                //Keep track of visibility with this property. This
-                //way down stream job consumers don't need to repeatedly
-                //call showJob
-                job.visible = thJobFilters.showJob(job);
-
-                addJobBtnToArray(job, lastJobSelected, jobBtnArray);
-            }
-            jobList.append(jobBtnArray);
-        };
-
-        var addJobBtnToArray = function(job, lastJobSelected, jobBtnArray) {
-            var hText, key, resultState, jobStatus, jobBtn, l;
-
-            hText = getHoverText(job);
-            key = getJobMapKey(job);
-            //Set the resultState
-            resultState = thResultStatus(job);
-
-            jobStatus = thResultStatusInfo(resultState, job.failure_classification_id);
-            jobStatus.key = key;
-            jobStatus.value = job.job_type_symbol;
-            jobStatus.title = hText;
-            jobBtn = $(jobBtnInterpolator(jobStatus));
-
-            //If the job is currently selected make sure to re-apply
-            //the job selection styles
-            if( !_.isEmpty(lastJobSelected.job) &&
-                (lastJobSelected.job.id === job.id)){
-
-                setSelectJobStyles(jobBtn);
-
-                //Update the selected job element to the current one
-                ThResultSetStore.setSelectedJob(
-                    $rootScope.repoName, jobBtn, job);
-            }
-            showHideElement(jobBtn, job.visible);
-
-            jobBtnArray.push(jobBtn);
-            // add a zero-width space between spans so they can wrap
-            jobBtnArray.push(' ');
-        };
-
-        var getGroupInfo = function(el, groupMap) {
-            var gi = {};
-            try {
-                gi.platformGroupEl = $(el).closest(".platform-group");
-                gi.grpJobList = gi.platformGroupEl.find(".group-job-list");
-                gi.grpCountList = gi.platformGroupEl.find(".group-count-list");
-                gi.key = gi.platformGroupEl.find(".job-group").attr(groupKeyAttr);
-                gi.jgObj = groupMap[gi.key].grp_obj;
-                return gi;
-            } catch(TypeError) {
-                return null;
-            }
-        };
-
-        /**
-         * Group most resultStates as just counts.  Keep "failed" as job-btns
-         */
-        var addGroupJobsAndCounts = function(jgObj, platformGroup) {
-            var ct, job, jobCountBtn, l;
-            var countAdded = false;
-            var jobCountBtnArray = [];
-            var jobBtnArray = [];
-            var stateCounts = {};
-            var lastJobSelected = ThResultSetStore.getSelectedJob($rootScope.repoName);
-
-            var jobList = platformGroup.find(".group-job-list");
-            var countList = platformGroup.find(".group-count-list");
-            jobList.empty();
-            countList.empty();
-
-            for (l = 0; l < jgObj.jobs.length; l++) {
-
-                job = jgObj.jobs[l];
-                job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' +
-                    job.signature;
-
                 //Set the resultState
-                var resultStatus = thResultStatus(job);
-                var countInfo = thResultStatusInfo(resultStatus,
-                                                job.failure_classification_id);
+                resultState = thResultStatus(job);
+
+                job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' +
+                    job.signature;
 
                 //Make sure that filtering doesn't effect the resultset counts
                 //displayed
-                if (thJobFilters.showJob(job)) {
-                    job.visible = true;
-
-                    if (_.contains(failResults, resultStatus) && job.failure_classification_id === 1) {
-                        // render the job itself, not a count
-                        addJobBtnToArray(job, lastJobSelected, jobBtnArray);
-                    } else {
-                        ct = _.get(_.get(stateCounts, countInfo.btnClass, countInfo),
-                                   "count", 0);
-                        countInfo.count = ct+1;
-                        // keep a reference to the job.  If there ends up being
-                        // only one for this status, then just add the job itself
-                        // rather than a count.
-                        countInfo.lastJob = job;
-                        stateCounts[countInfo.btnClass] = countInfo;
-                    }
-                }
-            }
-
-            _.forEach(stateCounts, function(countInfo) {
-                if (countInfo.count === 1) {
-                    // if there is only 1 job for this status, then just add
-                    // the job, rather than the count
-                    addJobBtnToArray(countInfo.lastJob, lastJobSelected, jobBtnArray);
+                if(thJobFilters.showJob(job) === false){
+                    //Keep track of visibility with this property. This
+                    //way down stream job consumers don't need to repeatedly
+                    //call showJob
+                    job.visible = false;
                 } else {
-                    // with more than 1 job for the status, add it as a count
-                    countAdded = true;
-                    countInfo.value = countInfo.count;
-                    countInfo.title = countInfo.count + " " + countInfo.countText + " jobs in group";
-                    countInfo.btnClass = countInfo.btnClass + "-count";
-                    jobCountBtn = $(jobGroupCountInterpolator(countInfo));
-                    jobCountBtnArray.push(jobCountBtn);
-                    jobCountBtnArray.push(' ');
-                    showHideElement(jobCountBtn, true);
+                    jobsShown++;
+                    job.visible = true;
                 }
-            });
 
-            jobList.append(jobBtnArray);
+                hText = getHoverText(job);
+                key = getJobMapKey(job);
 
-            if (countAdded) {
-                countList.append(jobCountBtnArray);
+                jobStatus = thResultStatusInfo(resultState);
+
+                //Add a visual indicator for a failure classification
+                jobStatus.key = key;
+                if(parseInt(job.failure_classification_id, 10) > 1){
+                    jobStatus.value = job.job_type_symbol + '*';
+                    if (jobStatus.btnClassClassified) {
+                        // For result types that are displayed more prominently
+                        // when unclassified, switch to the more subtle classified
+                        // style.
+                        jobStatus.btnClass = jobStatus.btnClassClassified;
+                    }
+                } else {
+                    jobStatus.value = job.job_type_symbol;
+                }
+
+                jobStatus.title = hText;
+
+                jobBtn = $( jobBtnInterpolator(jobStatus));
+                jobBtnArray.push(jobBtn);
+                // add a zero-width space between spans so they can wrap
+                jobBtnArray.push(' ');
+
+                showHideJob(jobBtn, job.visible);
+
+                //If the job is currently selected make sure to re-apply
+                //the job selection styles
+                if( !_.isEmpty(lastJobSelected.job) &&
+                    (lastJobSelected.job.id === job.id)){
+
+                    setSelectJobStyles(jobBtn);
+
+                    //Update the selected job element to the current one
+                    ThResultSetStore.setSelectedJob(
+                        $rootScope.repoName, jobBtn, job);
+                }
             }
+            jobTdEl.append(jobBtnArray);
+
+            return jobsShown;
         };
 
         var jobMouseDown = function(ev){
@@ -381,8 +292,6 @@ treeherder.directive('thCloneJobs', [
 
                 ThResultSetStore.setSelectedJob($rootScope.repoName, el, job);
 
-            } else {
-                _.bind(clickGroupCb, this, el)();
             }
         };
 
@@ -491,26 +400,29 @@ treeherder.directive('thCloneJobs', [
             //Empty the job column before populating it
             jobTdEl.empty();
 
-            var jgObj, jobGroup, i;
-            for(i=0; i<jobGroups.length; i++) {
+            var jgObj, jobGroup, jobsShown, i;
+            for(i=0; i<jobGroups.length; i++){
 
                 jgObj = jobGroups[i];
 
-                if (jgObj.symbol !== '?') {
+                jobsShown = 0;
+                if(jgObj.symbol !== '?'){
                     // Job group detected, add job group symbols
-                    jobGroups[i].grkey = jgObj.mapKey;
-                    jobGroups[i].collapsed = true;
-                    jobGroup = $(jobGroupInterpolator(jobGroups[i]));
+                    jobGroup = $( jobGroupInterpolator(jobGroups[i]) );
+
                     jobTdEl.append(jobGroup);
 
-                    if (isGroupExpanded(jgObj)) {
-                        addJobBtnEls(jgObj, jobGroup.find(".group-job-list"));
-                    } else {
-                        addGroupJobsAndCounts(jgObj, jobGroup);
-                    }
-                } else {
                     // Add the job btn spans
-                    addJobBtnEls(jgObj, jobTdEl);
+                    jobsShown = addJobBtnEls(
+                        jgObj, jobBtnInterpolator, jobGroup.find(".job-group-list"));
+                    jobGroup.css("display", jobsShown? "inline": "none");
+
+                }else{
+
+                    // Add the job btn spans
+                    jobsShown = addJobBtnEls(
+                        jgObj, jobBtnInterpolator, jobTdEl);
+
                 }
             }
             row.append(jobTdEl);
@@ -534,10 +446,9 @@ treeherder.directive('thCloneJobs', [
                 job = jobMap[jmKey].job_obj;
                 show = thJobFilters.showJob(job);
                 job.visible = show;
-                showHideElement($(this), show);
-            });
 
-            renderGroups(element, false);
+                showHideJob($(this), show);
+            });
 
             // hide platforms and groups where all jobs are hidden
             element.find(".platform").each(function internalFilterPlatform() {
@@ -546,52 +457,7 @@ treeherder.directive('thCloneJobs', [
             });
 
         };
-
-        var isGroupExpanded = function(group) {
-            var singleGroupState = group.groupState || $scope.groupState;
-            return singleGroupState === "expanded";
-        };
-
-        /**
-         * Render all the job groups for a resultset.  Make decisions on whether
-         * to render all the jobs in the group, or to collapse them as counts.
-         *
-         * If ``resetGroupState`` is set to true, then clear the ``groupState``
-         * for each group that may have been set when a user clicked on it.
-         * If false, then honor the choice to expand or collapse an individual
-         * group and ignore the global setting.
-         *
-         * @param element The resultset for which to render the groups.
-         * @param resetGroupState Whether to reset groups individual expanded
-         *                        or collapsed states.
-         */
-        var renderGroups = function(element, resetGroupState) {
-            var groupMap =  ThResultSetStore.getGroupMap($rootScope.repoName);
-            // with items in the group, it's not as simple as just hiding or
-            // showing a job or count.  Since there can be lots of criteria for whether to show
-            // or hide a job, and any job hidden or shown will change the counts,
-            // the counts must be re-created each time.
-            element.find(".group-job-list").each(function internalFilterGroup(idx, el) {
-                var gi = getGroupInfo(el, groupMap);
-                gi.grpJobList.empty();
-                gi.grpCountList.empty();
-
-                if (resetGroupState) {
-                    delete gi.jgObj.groupState;
-                }
-
-                if (isGroupExpanded(gi.jgObj)) {
-                    addJobBtnEls(gi.jgObj, gi.platformGroupEl.find(".group-job-list"));
-                } else {
-                    addGroupJobsAndCounts(gi.jgObj, gi.platformGroupEl);
-                }
-            });
-        };
-
-        /**
-         * Can be used to show/hide a job or a count of jobs
-         */
-        var showHideElement = function(el, show) {
+        var showHideJob = function(job, show) {
             // Note: I was using
             //     jobEl.style.display = "inline";
             //     jobEl.className += " filter-shown";
@@ -602,9 +468,9 @@ treeherder.directive('thCloneJobs', [
             //
             // It would be great to be able to do this without adding/removing a class
             if (show) {
-                el[0].classList.add("filter-shown");
+                job[0].classList.add("filter-shown");
             } else {
-                el[0].classList.remove("filter-shown");
+                job[0].classList.remove("filter-shown");
             }
         };
 
@@ -616,7 +482,7 @@ treeherder.directive('thCloneJobs', [
                 platform[0].style.display ="table-row";
                 platform.find(".platform-group").each(function internalFilterGroup() {
                     var grp = $(this);
-                    showGrp = grp.find('.group-job-list .filter-shown, .group-count-list .filter-shown').length !== 0;
+                    showGrp = grp.find('.job-group-list .filter-shown').length !== 0;
                     grp[0].style.display = showGrp ? "inline" : "none";
                 });
 
@@ -753,11 +619,6 @@ treeherder.directive('thCloneJobs', [
                 });
 
             $rootScope.$on(
-                thEvents.groupStateChanged, function(ev, filterData){
-                    _.bind(renderGroups, scope, element, true)();
-                });
-
-            $rootScope.$on(
                 thEvents.searchPage, function(ev, searchData){
                     _.bind(filterJobs, scope, element)();
                 });
@@ -873,10 +734,7 @@ treeherder.directive('thCloneJobs', [
             }
         };
 
-        var $scope = null;
         var linker = function(scope, element, attrs){
-
-            $scope = scope;
 
             //Remove any jquery on() bindings
             element.off();

@@ -319,17 +319,6 @@ treeherderApp.controller('MainCtrl', [
 
         };
 
-        $scope.getGroupState = function() {
-            return $location.search().group_state || "collapsed";
-        };
-
-        $scope.groupState = $scope.getGroupState();
-
-        $scope.toggleGroupState = function() {
-            var newGroupState = $scope.groupState === "collapsed" ? "expanded" : null;
-            $location.search("group_state", newGroupState);
-        };
-
         var getNewReloadTriggerParams = function() {
             return _.pick(
                 $location.search(),
@@ -375,13 +364,6 @@ treeherderApp.controller('MainCtrl', [
             }
             $rootScope.skipNextPageReload = false;
 
-            // handle a change in the groupState whether it was by the button
-            // or directly in the url.
-            var newGroupState = $scope.getGroupState();
-            if (newGroupState !== $scope.groupState) {
-                $scope.groupState = newGroupState;
-                $rootScope.$emit(thEvents.groupStateChanged);
-            }
         });
 
         $scope.changeRepo = function(repo_name) {

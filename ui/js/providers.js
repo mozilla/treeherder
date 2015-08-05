@@ -64,7 +64,7 @@ treeherder.provider('thResultStatusObject', function() {
 
 treeherder.provider('thResultStatusInfo', function() {
     this.$get = function() {
-        return function(resultState, failure_classification_id) {
+        return function(resultState) {
             // default if there is no match, used for pending
             var resultStatusInfo = {
                 severity: 100,
@@ -77,6 +77,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 1,
                         btnClass: "btn-red",
+                        btnClassClassified: "btn-red-classified",
                         jobButtonIcon: "glyphicon glyphicon-fire",
                         countText: "busted"
                     };
@@ -85,6 +86,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 2,
                         btnClass: "btn-purple",
+                        btnClassClassified: "btn-purple-classified",
                         jobButtonIcon: "glyphicon glyphicon-fire",
                         countText: "exception"
                     };
@@ -93,6 +95,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 3,
                         btnClass: "btn-orange",
+                        btnClassClassified: "btn-orange-classified",
                         jobButtonIcon: "glyphicon glyphicon-warning-sign",
                         countText: "failed"
                     };
@@ -101,6 +104,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 4,
                         btnClass: "btn-black",
+                        btnClassClassified: "btn-black-classified",
                         jobButtonIcon: "",
                         countText: "unknown"
                     };
@@ -155,11 +159,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     break;
             }
 
-            // handle if a job is classified
-            if(parseInt(failure_classification_id, 10) > 1){
-                resultStatusInfo.btnClass = resultStatusInfo.btnClass + "-classified";
-                resultStatusInfo.countText = "classified " + resultStatusInfo.countText;
-            }
             return resultStatusInfo;
         };
 
@@ -207,8 +206,6 @@ treeherder.provider('thEvents', function() {
 
             // fired when a global filter has changed
             globalFilterChanged: "status-filter-changed-EVT",
-
-            groupStateChanged: "group-state-changed-EVT",
 
             toggleRevisions: "toggle-revisions-EVT",
 
@@ -260,23 +257,10 @@ treeherder.provider('thAggregateIds', function() {
         return escape(repoName + resultsetId + revision);
     };
 
-    var getGroupMapKey = function(result_set_id, grName, plName, plOpt) {
-        //Build string key for groupMap entires
-        return escape(result_set_id + grName + plName + plOpt);
-    };
-
-    var getJobMapKey = function(job) {
-        //Build string key for jobMap entires
-        return 'key' + job.id;
-    };
-
     this.$get = function() {
         return {
             getPlatformRowId:getPlatformRowId,
-            getResultsetTableId:getResultsetTableId,
-            getJobMapKey: getJobMapKey,
-            getGroupMapKey: getGroupMapKey,
-            escape: escape
+            getResultsetTableId:getResultsetTableId
             };
     };
 });
