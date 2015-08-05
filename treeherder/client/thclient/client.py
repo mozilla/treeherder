@@ -8,6 +8,7 @@ import requests
 import logging
 import json
 
+__version__ = '1.6.0'
 
 logger = logging.getLogger(__name__)
 

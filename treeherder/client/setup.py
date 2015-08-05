@@ -2,12 +2,34 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import io
+import os
+import re
+
 from setuptools import setup
 
-version = '1.6'
+
+def read(*names, **kwargs):
+    # Taken from https://packaging.python.org/en/latest/single_source_version.html
+    with io.open(
+        os.path.join(os.path.dirname(__file__), *names),
+        encoding=kwargs.get("encoding", "utf8")
+    ) as fp:
+        return fp.read()
+
+
+def find_version(*file_paths):
+    # Taken from https://packaging.python.org/en/latest/single_source_version.html
+    version_file = read(*file_paths)
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                              version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
+
 
 setup(name='treeherder-client',
-      version=version,
+      version=find_version('thclient', 'client.py'),
       description="Python library to retrieve and submit data to the Treeherder API",
       long_description="""\
 """,
