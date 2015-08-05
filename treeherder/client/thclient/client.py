@@ -604,6 +604,7 @@ class TreeherderClient(object):
     API_VERSION = '1.0'
     REQUEST_HEADERS = {
         'Accept': 'application/json; version={}'.format(API_VERSION),
+        'User-Agent': 'treeherder-pyclient/{}'.format(__version__),
     }
 
     UPDATE_ENDPOINT = 'job-log-url/{}/update_parse_status'
