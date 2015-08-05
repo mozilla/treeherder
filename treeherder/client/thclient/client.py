@@ -611,6 +611,7 @@ class TreeherderClient(object):
     REPOSITORY_ENDPOINT = 'repository'
     JOBGROUP_ENDPOINT = 'jobgroup'
     JOBTYPE_ENDPOINT = 'jobtype'
+    MAX_COUNT = 2000
 
     def __init__(
             self, protocol='https', host='treeherder.mozilla.org',
@@ -642,6 +643,25 @@ class TreeherderClient(object):
             self.protocol, self.host, endpoint)
 
         return uri
+
+    def _get_json_list(self, endpoint, timeout,  project=None, **params):
+        if "count" in params and (params["count"] is None or params["count"] > self.MAX_COUNT):
+            total = None if params["count"] is None else params["count"]
+            count = self.MAX_COUNT
+            offset = 0
+            data = []
+            while True:
+                params["count"] = count
+                params["offset"] = offset
+                new_data = self._get_json(endpoint, timeout, project=project, **params)["results"]
+                data += new_data
+                if len(new_data) < self.MAX_COUNT:
+                    return data
+                offset += count
+                if total is not None:
+                    count = min(total-offset, self.MAX_COUNT)
+        else:
+            return self._get_json(endpoint, timeout, project=project, **params)["results"]
 
     def _get_json(self, endpoint, timeout, project=None, **params):
         if timeout is None:
@@ -746,8 +766,7 @@ class TreeherderClient(object):
         :param project: project (repository name) to query data for
         :param params: keyword arguments to filter results
         """
-        response = self._get_json(self.RESULTSET_ENDPOINT, None, project, **params)
-        return response["results"]
+        return self._get_json_list(self.RESULTSET_ENDPOINT, None, project, **params)
 
     def get_jobs(self, project, **params):
         """
@@ -756,8 +775,7 @@ class TreeherderClient(object):
         :param project: project (repository name) to query data for
         :param params: keyword arguments to filter results
         """
-        response = self._get_json(self.JOBS_ENDPOINT, None, project, **params)
-        return response["results"]
+        return self._get_json_list(self.JOBS_ENDPOINT, None, project, **params)
 
     def get_artifacts(self, project, **params):
         """
