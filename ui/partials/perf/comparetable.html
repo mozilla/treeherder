@@ -7,7 +7,7 @@
       <td style="width: 30px;"><!-- less than / greater than --></td>
       <td style="width: 140px;">New</td>
       <td style="width: 80px;">Delta</td>
-      <td><!-- Graphical difference --></td>
+      <td style="width: 120px"><!-- Graphical difference --></td>
       <td style="width: 100px;">Confidence</td>
       <td class="num-runs" style="width: 80px"># Runs</td>
       <td class="test-warning" style="width: 30px"><!-- warning if not enough --></td>
@@ -43,7 +43,28 @@
           {{compareResult.deltaPercentage|displayPrecision}}%
         </span>
       </td>
-      <td><div ng-class="getCompareClasses(compareResult, 'bar')" style="margin-{{compareResult.marginDirection}}: {{compareResult.barGraphMargin}}%;"></div></td>
+      <td ng-if="compareResult.delta">
+        <div ng-if="!compareResult.newIsBetter" style="margin: auto; width: 80%;"
+             tooltip="Relative magnitude of change (scale from 0 - 20%+)">
+          <div class="bar bar-scale"
+               style="width: {{100 - compareResult.magnitude}}%; height: 1em; float: left;">
+          </div>
+          <div class="bar"
+               ng-class="{'bar-regression': compareResult.isRegression}"
+               style="width: {{compareResult.magnitude}}%; float: left;">
+          </div>
+        </div>
+        <div ng-if="compareResult.newIsBetter" style="margin: auto; width: 80%;"
+             tooltip="Relative magnitude of change (scale from 0 - 20%+)">
+          <div class="bar"
+               ng-class="{'bar-improvement': compareResult.isImprovement}"
+               style="width: {{compareResult.magnitude}}%; float: left;">
+          </div>
+          <div class="bar bar-scale"
+               style="width: {{100 - compareResult.magnitude}}%; float: left; ">
+          </div>
+        </div>
+      </td>
       <td ng-if="!compareResult.delta"></td>
       <td>
         <span ng-if="compareResult.confidenceText && compareResult.confidence">
