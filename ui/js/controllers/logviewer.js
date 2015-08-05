@@ -217,17 +217,20 @@ logViewerApp.controller('LogviewerCtrl', [
                     if (artifact.name === 'text_log_summary') {
                         $scope.artifact = artifact.blob;
                         $scope.step_data = artifact.blob.step_data;
+                        var initialStep = $scope.artifact.step_data.steps[0];
 
                         // If the log contains no errors load the head otherwise
                         // load the first failure step line in the artifact
-                        if ($scope.step_data.all_errors.length == 0) {
-                            angular.element(document).ready(function () {
-                                $scope.displayLog($scope.artifact.step_data.steps[0], 'initialLoad');
-                            });
-                        } else {
-                            $timeout(function() {
-                                angular.element('.lv-error-line').first().trigger('click');
-                            }, 100);
+                        if (initialStep) {
+                            if ($scope.step_data.all_errors.length == 0) {
+                                angular.element(document).ready(function () {
+                                    $scope.displayLog(initialStep, 'initialLoad');
+                                });
+                            } else {
+                                $timeout(function() {
+                                    angular.element('.lv-error-line').first().trigger('click');
+                                }, 100);
+                            }
                         }
 
                     } else if (artifact.name === 'Job Info') {
