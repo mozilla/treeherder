@@ -36,16 +36,17 @@ class PerformanceDataViewSet(viewsets.ViewSet):
         """
         GET method implementation for listing signatures
 
-        Input: time interval
+        Input: time interval, machine_platform
         Output: all series signatures and their properties
         """
         try:
-            interval = int(request.QUERY_PARAMS.get('interval'))
+            parameter = {}
+            parameter['interval_second'] = int(request.QUERY_PARAMS.get('interval'))
+            parameter['machine_platform'] = request.QUERY_PARAMS.get('machine_platform')
         except:
             return Response("incorrect parameters", 400)
 
-        summary = jm.get_performance_series_summary(interval)
-
+        summary = jm.get_performance_series_summary(parameter)
         return Response(summary)
 
     @list_route()
