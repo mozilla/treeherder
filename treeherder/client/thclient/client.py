@@ -8,6 +8,9 @@ import requests
 import logging
 import json
 
+# When releasing a new version to PyPI please also file a bug to request
+# that it is uploaded to http://pypi.pub.build.mozilla.org/pub/ too.
+# See bug 1191498 for an example of this.
 __version__ = '1.6.0'
 
 logger = logging.getLogger(__name__)
