@@ -97,7 +97,8 @@ def post_log_artifacts(project,
         client.update_parse_status(project, job_log_url['id'], 'failed')
         # unrecoverable http error (doesn't exist or permission denied)
         # (apparently this can happen somewhat often with taskcluster if
-        # the job fails, so just warn about it)
+        # the job fails, so just warn about it -- see
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=1154248)
         if isinstance(e, urllib2.HTTPError) and e.code in (403, 404):
             logger.warning("Unable to retrieve log for %s: %s",
                            log_description, e)
