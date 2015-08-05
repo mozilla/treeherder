@@ -90,16 +90,19 @@ class PerformanceDataAdapter(object):
         return round(num, 2)
 
     @staticmethod
-    def _calculate_summary_data(job_id, result_set_id, push_timestamp, results):
+    def _calculate_summary_data(job_id, result_set_id, push_timestamp,
+                                results, summary):
         values = []
-        for test in results:
-            values += results[test]
-
-        if values:
-            geomean = math.exp(sum(map(lambda v: math.log(v+1),
-                                       values))/len(values))-1
+        geomean = 0.0
+        if summary:
+            geomean = summary["suite"]
         else:
-            geomean = 0.0
+            for test in results:
+                values += results[test]
+
+            if values:
+                geomean = math.exp(sum(map(lambda v: math.log(v+1),
+                                           values))/len(values))-1
 
         return {
             "job_id": job_id,
@@ -110,7 +113,7 @@ class PerformanceDataAdapter(object):
 
     @staticmethod
     def _calculate_test_data(job_id, result_set_id, push_timestamp,
-                             replicates):
+                             replicates, summary):
         replicates.sort()
         r = replicates
         r_len = len(replicates)
@@ -127,22 +130,60 @@ class PerformanceDataAdapter(object):
             def avg(s):
                 return float(sum(r)) / r_len
 
-            mean = float(sum(r))/r_len
-            series_data["mean"] = PerformanceDataAdapter._round(mean)
+            """
+              NOTE: in the future (November 2015) we will be able to assume
+              all data has existing summary and values
+            """
+            if isinstance(summary, dict) and "mean" in summary:
+                series_data["mean"] = PerformanceDataAdapter._round(
+                    summary["mean"])
+            else:
+                mean = float(sum(r))/r_len
+                series_data["mean"] = PerformanceDataAdapter._round(mean)
 
             if r_len > 1:
-                variance = map(lambda x: (x - mean)**2, replicates)
-                series_data["min"] = PerformanceDataAdapter._round(min(r))
-                series_data["max"] = PerformanceDataAdapter._round(max(r))
-                series_data["std"] = PerformanceDataAdapter._round(
-                    math.sqrt(avg(variance)))
+                if isinstance(summary, dict) and "min" in summary:
+                    series_data["min"] = PerformanceDataAdapter._round(
+                        summary["min"])
+                else:
+                    series_data["min"] = PerformanceDataAdapter._round(min(r))
 
-                if len(r) % 2 == 1:
+                if isinstance(summary, dict) and "max" in summary:
+                    series_data["max"] = PerformanceDataAdapter._round(
+                        summary["max"])
+                else:
+                    series_data["max"] = PerformanceDataAdapter._round(max(r))
+
+                if isinstance(summary, dict) and "std" in summary:
+                    series_data["std"] = PerformanceDataAdapter._round(
+                        summary["std"])
+                else:
+                    variance = map(lambda x: (x - mean)**2, replicates)
+                    series_data["std"] = PerformanceDataAdapter._round(
+                        math.sqrt(avg(variance)))
+
+                if isinstance(summary, dict) and "median" in summary:
+                    series_data["median"] = PerformanceDataAdapter._round(
+                        summary["median"])
+                elif len(r) % 2 == 1:
                     series_data["median"] = PerformanceDataAdapter._round(
                         r[int(math.floor(len(r)/2))])
                 else:
                     series_data["median"] = PerformanceDataAdapter._round(
                         avg([r[(len(r)/2) - 1], r[len(r)/2]]))
+        elif summary:
+            if isinstance(summary, dict) and "min" in summary:
+                series_data["min"] = PerformanceDataAdapter._round(
+                    summary["min"])
+            if isinstance(summary, dict) and "max" in summary:
+                series_data["max"] = PerformanceDataAdapter._round(
+                    summary["min"])
+            if isinstance(summary, dict) and "std" in summary:
+                series_data["std"] = PerformanceDataAdapter._round(
+                    summary["std"])
+            if isinstance(summary, dict) and "median" in summary:
+                series_data["median"] = PerformanceDataAdapter._round(
+                    summary["median"])
 
         return series_data
 
@@ -326,10 +367,15 @@ class TalosDataAdapter(PerformanceDataAdapter):
                     signature_properties)
                 subtest_signatures.append(series_signature)
 
+                # NOTE: remove this when all talos jobs produce proper structure
+                summary_set = None
+                if "summary" in talos_datum and talos_datum["summary"]["subtests"][_test]:
+                    summary_set = talos_datum["summary"]["subtests"][_test]
+
                 series_data = self._calculate_test_data(
                     job_id, result_set_id, push_timestamp,
-                    talos_datum["results"][_test]
-                )
+                    talos_datum["results"][_test],
+                    summary_set)
 
                 obj = self._get_base_perf_obj(_job_guid, _name, _type,
                                               talos_datum,
@@ -354,8 +400,14 @@ class TalosDataAdapter(PerformanceDataAdapter):
                 summary_signature = self.get_series_signature(
                     summary_properties)
 
+                # NOTE: remove this when all talos jobs produce proper structure
+                summary_suite = None
+                if "summary" in talos_datum and "suite" in talos_datum["summary"]:
+                    summary_suite = talos_datum["summary"]
+
                 summary_data = self._calculate_summary_data(
-                    job_id, result_set_id, push_timestamp, talos_datum["results"])
+                    job_id, result_set_id, push_timestamp,
+                    talos_datum["results"], summary_suite)
 
                 obj = self._get_base_perf_obj(_job_guid, _name, _type,
                                               talos_datum,
