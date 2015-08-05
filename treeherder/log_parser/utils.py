@@ -95,11 +95,24 @@ def post_log_artifacts(project,
                                              job_guid, check_errors)
     except Exception as e:
         client.update_parse_status(project, job_log_url['id'], 'failed')
+        # unrecoverable http error (doesn't exist or permission denied)
+        # (apparently this can happen somewhat often with taskcluster if
+        # the job fails, so just warn about it)
         if isinstance(e, urllib2.HTTPError) and e.code in (403, 404):
-            logger.debug("Unable to retrieve log for %s: %s", log_description, e)
-            return
-        logger.error("Failed to download/parse log for %s: %s", log_description, e)
-        _retry(e)
+            logger.warning("Unable to retrieve log for %s: %s",
+                           log_description, e)
+        # possibly recoverable http error (e.g. problems on our end)
+        elif isinstance(e, urllib2.URLError):
+            logger.error("Failed to download log for %s: %s",
+                         log_description, e)
+            _retry(e)
+        # parse error or other unrecoverable error
+        else:
+            logger.error("Failed to download/parse log for %s: %s",
+                         log_description, e)
+        # re-raise exception if we're not retrying, so new relic sees the
+        # error
+        raise
 
     # store the artifacts generated
     tac = TreeherderArtifactCollection()

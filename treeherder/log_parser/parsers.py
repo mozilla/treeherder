@@ -339,12 +339,8 @@ class TalosParser(ParserBase):
     def parse_line(self, line, lineno):
         """check each line for TALOSDATA"""
 
-        if "TALOSDATA" in line:
-            match = self.RE_TALOSDATA.match(line)
-            if match:
-                # this will throw an exception if the parsing breaks, but
-                # that's the behaviour we want
-                self.artifact = json.loads(match.group(1))
-            else:
-                # probably a line which just happens to contain talosdata, ignore
-                pass
+        match = self.RE_TALOSDATA.match(line)
+        if match:
+            # this will throw an exception if the json parsing breaks, but
+            # that's the behaviour we want
+            self.artifact = json.loads(match.group(1))
