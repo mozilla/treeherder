@@ -274,10 +274,9 @@ treeherder.directive('thCloneJobs', [
                     ev.preventDefault();
                     //Middle mouse button pressed
                     ThJobModel.get(this.repoName, job.id).then(function(data){
-                        //Retrieve the job reference data and open a new
-                        //window on the job's log file
-                        if(data.logs.length > 0){
-                            window.open(data.logs[0].url, "Log");
+                        // Open the logviewer in a new window
+                        if (data.logs.length > 0) {
+                            window.open(location.origin + "/" + thUrl.getLogViewerUrl(job.id));
                         }
                     });
 
