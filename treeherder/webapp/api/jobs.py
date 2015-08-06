@@ -142,13 +142,17 @@ class JobsViewSet(viewsets.ViewSet):
         pulse message.
         """
         job_id_list = request.data["job_id_list"]
+        success = False
         for pk in job_id_list:
             job = jm.get_job(pk)
             if job:
                 jm.retrigger(request.user.email, job[0])
-                return Response({"message": "retriggered job '{0}'".format(job[0]['job_guid'])})
-            else:
-                return Response("No job with id: {0}".format(pk), 404)
+                success = True
+
+        if success:
+            return Response({"message": "retriggered job(s)"})
+        else:
+            return Response("No job(s) id found", 404)
 
     @detail_route(methods=['post'], permission_classes=[IsStaffOrReadOnly])
     @with_jobs
