@@ -560,20 +560,25 @@ Authentication handling
 Authentication in the client is handled by the TreeherderAuth class.
 To create a TreeherderAuth instance you have to provide your oauth key, secret and the repository you want to post data to
 (e.g. mozilla-central).
-```python
-from thclient import TreeherderAuth
 
-auth = TreeherderAuth('my-key', 'my-secret', 'mozilla-central')
-```
+.. code-block:: python
+
+    from thclient import TreeherderAuth
+
+    auth = TreeherderAuth('my-key', 'my-secret', 'mozilla-central')
+
 You can either pass the auth instance directly to the client if you want to use them globally:
-```python
-auth = TreeherderAuth('my-key', 'my-secret', 'mozilla-central')
-client = TreeherderClient(protocol='https', host='treeherder.mozilla.org', auth=auth)
-client.post_collection('mozilla-central', tac)
-```
+
+.. code-block:: python
+
+    auth = TreeherderAuth('my-key', 'my-secret', 'mozilla-central')
+    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org', auth=auth)
+    client.post_collection('mozilla-central', tac)
+
 or to the post_collection method if you want to use the same client to submit data to different repositories:
-```python
-auth = TreeherderAuth('my-key', 'my-secret', 'mozilla-central')
-client = TreeherderClient(protocol='https', host='treeherder.mozilla.org')
-client.post_collection('mozilla-central', tac, auth=auth)
-```
+
+.. code-block:: python
+
+    auth = TreeherderAuth('my-key', 'my-secret', 'mozilla-central')
+    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org')
+    client.post_collection('mozilla-central', tac, auth=auth)
