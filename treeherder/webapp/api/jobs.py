@@ -3,7 +3,7 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
 
@@ -134,19 +134,21 @@ class JobsViewSet(viewsets.ViewSet):
         else:
             return Response("No job with id: {0}".format(pk), 404)
 
-    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
+    @list_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
-    def retrigger(self, request, project, jm, pk=None):
+    def retrigger(self, request, project, jm):
         """
         Issue a "retrigger" to the underlying build_system_type by scheduling a
         pulse message.
         """
-        job = jm.get_job(pk)
-        if job:
-            jm.retrigger(request.user.email, job[0])
-            return Response({"message": "retriggered job '{0}'".format(job[0]['job_guid'])})
-        else:
-            return Response("No job with id: {0}".format(pk), 404)
+        job_id_list = request.data["job_id_list"]
+        for pk in job_id_list:
+            job = jm.get_job(pk)
+            if job:
+                jm.retrigger(request.user.email, job[0])
+                return Response({"message": "retriggered job '{0}'".format(job[0]['job_guid'])})
+            else:
+                return Response("No job with id: {0}".format(pk), 404)
 
     @detail_route(methods=['post'], permission_classes=[IsStaffOrReadOnly])
     @with_jobs
