@@ -38,8 +38,8 @@
                     stddevpct="{{compareResult.newStddevPct}}"
                     replicates="compareResult.newRuns"></ph-average>
       </td>
-      <td ng-if="compareResult.delta" ng-class="getCompareClasses(compareResult)">
-        <span class="detail-hint" tooltip="Mean difference: {{compareResult.delta|displayPrecision}} (= {{compareResult.deltaPercentage|displayPrecision}}%)">
+      <td ng-class="getCompareClasses(compareResult)">
+        <span ng-if="compareResult.delta" class="detail-hint" tooltip="Mean difference: {{compareResult.delta|displayPrecision}} (= {{compareResult.deltaPercentage|displayPrecision}}%)">
           {{compareResult.deltaPercentage|displayPrecision}}%
         </span>
       </td>
