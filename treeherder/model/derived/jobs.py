@@ -1453,9 +1453,16 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             tls_list = error_summary.get_artifacts_that_need_bug_suggestions(
                 artifacts)
             async_artifact_list.extend(tls_list)
-            ArtifactsModel.populate_placeholders(artifacts,
-                                                 artifact_placeholders,
-                                                 job_guid)
+
+            # need to add job guid to artifacts, since they likely weren't
+            # present in the beginning
+            for artifact in artifacts:
+                if not all(k in artifact for k in ("name", "type", "blob")):
+                    raise JobDataError(
+                        "Artifact missing properties: {}".format(artifact))
+                artifact_placeholder = artifact.copy()
+                artifact_placeholder['job_guid'] = job_guid
+                artifact_placeholders.append(artifact_placeholder)
 
             has_text_log_summary = any(x for x in artifacts
                                        if x['name'] == 'text_log_summary')
