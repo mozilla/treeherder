@@ -219,6 +219,14 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
+        'regex': re.compile(r'Windows 10 64-bit', re.IGNORECASE),
+        'attributes': {
+            'os': 'win',
+            'os_platform': 'windows10-64',
+            'arch': 'x86_64',
+        }
+    },
+    {
         'regex': re.compile(r'win64_vm', re.IGNORECASE),
         'attributes': {
             'os': 'win',
@@ -239,6 +247,14 @@ PLATFORMS_BUILDERNAME = [
         'attributes': {
             'os': 'win',
             'os_platform': 'windows8-32',
+            'arch': 'x86',
+        }
+    },
+    {
+        'regex': re.compile(r'Windows 10 32-bit', re.IGNORECASE),
+        'attributes': {
+            'os': 'win',
+            'os_platform': 'windows10-32',
             'arch': 'x86',
         }
     },
