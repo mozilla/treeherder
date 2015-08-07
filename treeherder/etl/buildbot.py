@@ -250,6 +250,14 @@ PLATFORMS_BUILDERNAME = [
             'arch': 'x86',
         }
     },
+    {
+        'regex': re.compile(r'Windows 10 32-bit', re.IGNORECASE),
+        'attributes': {
+            'os': 'win',
+            'os_platform': 'windows10-32',
+            'arch': 'x86',
+        }
+    },
 
     # ** Android **
 
