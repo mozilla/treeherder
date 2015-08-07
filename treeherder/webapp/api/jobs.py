@@ -142,13 +142,18 @@ class JobsViewSet(viewsets.ViewSet):
         pulse message.
         """
         job_id_list = request.data["job_id_list"]
+        failure = []
         for pk in job_id_list:
             job = jm.get_job(pk)
             if job:
                 jm.retrigger(request.user.email, job[0])
-                return Response({"message": "retriggered job '{0}'".format(job[0]['job_guid'])})
             else:
-                return Response("No job with id: {0}".format(pk), 404)
+                failure.append(pk)
+
+        if failure:
+            return Response("Jobs with id(s): '{0}' were not retriggered.".format(failure), 404)
+        else:
+            return Response({"message": "All jobs successfully retriggered."})
 
     @detail_route(methods=['post'], permission_classes=[IsStaffOrReadOnly])
     @with_jobs
