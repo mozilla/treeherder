@@ -90,6 +90,11 @@ class PerformanceDataAdapter(object):
         return round(num, 2)
 
     @staticmethod
+    def _extract_summary_data(suite_data, summary):
+        suite_data["geomean"] = summary["suite"]
+        return suite_data
+
+    @staticmethod
     def _calculate_summary_data(job_id, result_set_id, push_timestamp, results):
         values = []
         for test in results:
@@ -107,6 +112,19 @@ class PerformanceDataAdapter(object):
             "push_timestamp": push_timestamp,
             "geomean": PerformanceDataAdapter._round(geomean)
         }
+
+    @staticmethod
+    def _extract_test_data(series_data, summary):
+        if not isinstance(summary, dict):
+            return series_data
+
+        series_data["min"] = PerformanceDataAdapter._round(summary["min"])
+        series_data["max"] = PerformanceDataAdapter._round(summary["max"])
+        series_data["std"] = PerformanceDataAdapter._round(summary["std"])
+        series_data["median"] = PerformanceDataAdapter._round(summary["median"])
+        series_data["mean"] = PerformanceDataAdapter._round(summary["mean"])
+
+        return series_data
 
     @staticmethod
     def _calculate_test_data(job_id, result_set_id, push_timestamp,
@@ -328,8 +346,12 @@ class TalosDataAdapter(PerformanceDataAdapter):
 
                 series_data = self._calculate_test_data(
                     job_id, result_set_id, push_timestamp,
-                    talos_datum["results"][_test]
-                )
+                    talos_datum["results"][_test])
+
+                if "summary" in talos_datum and talos_datum["summary"]["subtests"][_test]:
+                    summary_data = talos_datum["summary"]["subtests"][_test]
+                    series_data = self._extract_test_data(series_data,
+                                                          summary_data)
 
                 obj = self._get_base_perf_obj(_job_guid, _name, _type,
                                               talos_datum,
@@ -356,6 +378,10 @@ class TalosDataAdapter(PerformanceDataAdapter):
 
                 summary_data = self._calculate_summary_data(
                     job_id, result_set_id, push_timestamp, talos_datum["results"])
+
+                if "summary" in talos_datum and "suite" in talos_datum["summary"]:
+                    summary_data = self._extract_summary_data(summary_data,
+                                                              talos_datum["summary"])
 
                 obj = self._get_base_perf_obj(_job_guid, _name, _type,
                                               talos_datum,
