@@ -23,9 +23,10 @@ class PerformanceDataViewSet(viewsets.ViewSet):
                         request, args, kwargs):
         project, interval = (kwargs.get('project'),
                              request.QUERY_PARAMS.get('interval'))
-        if project and interval:
+        machine_platform = request.QUERY_PARAMS.get('machine_platform')
+        if project and interval and machine_platform:
             return cache.get(JobsModel.get_performance_series_cache_key(
-                project, interval, hash=True))
+                project, interval, machine_platform, hash=True))
 
         return None
 
@@ -110,3 +111,22 @@ class PerformanceDataViewSet(viewsets.ViewSet):
         data = jm.get_performance_series_from_signatures(signatures, interval_seconds)
 
         return Response(data)
+
+    @list_route()
+    @with_jobs
+    def platforms(self, request, project, jm, pk=None):
+        """
+
+        :param request:
+        :param project:
+        :param jm:
+        :param pk:
+        :return:
+        """
+        try:
+            interval_second = request.QUERY_PARAMS.get("interval_second")
+        except:
+            return Response("incorrect parameters", 400)
+
+        platforms = jm.get_plaforms(interval_second)
+        return Response(platforms)
