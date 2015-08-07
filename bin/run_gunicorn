@@ -8,6 +8,12 @@ cd $SRC_DIR
 PROJECT_ROOT=$(readlink -f ../)
 PATH=$PROJECT_ROOT/venv/bin:$PATH
 
+source /etc/profile.d/treeherder.sh
+
+if [[ ${NEW_RELIC_LICENSE_KEY+isset} = isset ]]; then
+    NEWRELIC_ADMIN="newrelic-admin run-program"
+fi
+
 LOGDIR=/var/log/gunicorn
 ACCESS_LOGFILE=$LOGDIR/treeherder_access.log
 ERROR_LOGFILE=$LOGDIR/treeherder_error.log
@@ -22,9 +28,7 @@ fi
 
 NUM_WORKERS=5
 
-source /etc/profile.d/treeherder.sh
-
-exec gunicorn -w $NUM_WORKERS \
+exec $NEWRELIC_ADMIN gunicorn -w $NUM_WORKERS \
     --max-requests=150 \
     --access-logfile=$ACCESS_LOGFILE \
     --error-logfile=$ERROR_LOGFILE treeherder.webapp.wsgi:application \
