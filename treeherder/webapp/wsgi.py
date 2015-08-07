@@ -17,6 +17,14 @@ middleware here, or combine a Django application with an application of another
 framework.
 
 """
+try:
+    import newrelic.agent
+except ImportError:
+    newrelic = False
+
+if newrelic:
+    newrelic.agent.initialize()
+
 import os
 
 # We defer to a DJANGO_SETTINGS_MODULE already in the environment. This breaks
@@ -27,14 +35,6 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "treeherder.settings")
 
 from django.core.wsgi import get_wsgi_application
 from treeherder.webapp.whitenoise_custom import CustomWhiteNoise
-
-try:
-    import newrelic.agent
-except ImportError:
-    newrelic = False
-
-if newrelic:
-    newrelic.agent.initialize()
 
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION
@@ -48,7 +48,7 @@ application = get_wsgi_application()
 application = CustomWhiteNoise(application)
 
 if newrelic:
-    application = newrelic.agent.wsgi_application()(application)
+    application = newrelic.agent.WSGIApplicationWrapper(application)
 
 # Fix django closing connection to MemCachier after every request:
 # https://code.djangoproject.com/ticket/11331
