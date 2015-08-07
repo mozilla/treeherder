@@ -83,6 +83,9 @@ futures==3.0.3
 # sha256: Vsi_w_4K-L4pRwKWLo2Gcj1RN8ldLbFkQel1BWZF6Xs
 https://github.com/jeads/datasource/archive/v0.9.tar.gz#egg=datasource==0.9
 
+# sha256: LcN5uAsHvy3dVIjK0GsrlTHaTdMe2wTcnsDcImSGwTg
+statistics==1.0.3.5
+
 # Required by jsonschema
 # sha256: ajt0IEMrCBfvGSrvNBzXZuGZgBqQyn_jGfnV_KQO3aI
 functools32==3.2.3.post1
@@ -106,3 +109,7 @@ fancy-tag==0.2.0
 # Required by oauth2
 # sha256: vGM5kZpSNbnRqu4BHKVGQYQJjwxHyQmAAfkclxdlg_U
 httplib2==0.9.1
+
+# Required by statistics
+# sha256: x9txeBCraWX2bIzwOYqYydjfmC2jm0zX8WKRHriVlvo
+docutils==0.12
