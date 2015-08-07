@@ -118,11 +118,16 @@ class PerformanceDataAdapter(object):
         if not isinstance(summary, dict):
             return series_data
 
-        series_data["min"] = PerformanceDataAdapter._round(summary["min"])
-        series_data["max"] = PerformanceDataAdapter._round(summary["max"])
-        series_data["std"] = PerformanceDataAdapter._round(summary["std"])
-        series_data["median"] = PerformanceDataAdapter._round(summary["median"])
-        series_data["mean"] = PerformanceDataAdapter._round(summary["mean"])
+        for measure in ["min", "max", "std", "median", "mean"]:
+            series_data[measure] = PerformanceDataAdapter._round(
+                summary[measure])
+
+        # some subtests (e.g. Dromaeo) have a custom "value" property which is
+        # used to weigh the values of the replicates differently (dropping
+        # some, etc.). we should use it where available
+        if summary.get("value"):
+            series_data["value"] = PerformanceDataAdapter._round(
+                summary["value"])
 
         return series_data
 

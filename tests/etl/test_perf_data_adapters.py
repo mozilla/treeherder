@@ -58,17 +58,17 @@ def test_adapt_and_load():
             assert results["blob"]["performance_series"]["geomean"] == data['summary']['suite']
 
             # deal with the subtests now
-            subtests = len(data['summary']['subtests'])
-            for iter in range(0, subtests):
-                subresults = json.loads(zlib.decompress(tda.performance_artifact_placeholders[-1 - iter][4]))
+            for i in range(0, len(data['summary']['subtests'])):
+                subresults = json.loads(zlib.decompress(tda.performance_artifact_placeholders[-1 - i][4]))
                 if 'subtest_signatures' in subresults["blob"]['signature_properties']:
                     # ignore summary signatures
                     continue
 
                 subdata = data['summary']['subtests'][subresults["blob"]['signature_properties']['test']]
                 for datatype in ['min', 'max', 'mean', 'median', 'std']:
-                    print datatype
                     assert subdata[datatype] == subresults["blob"]["performance_series"][datatype]
+                if 'value' in subdata.keys():
+                    assert subdata['value'] == subresults["blob"]["performance_series"]['value']
         else:
             # FIXME: the talos data blob we're currently using contains datums with summaries and those without
             # we should probably test non-summarized data as well
