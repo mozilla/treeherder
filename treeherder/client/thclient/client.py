@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 
 import requests
+from requests.exceptions import HTTPError
 import logging
 import json
 
@@ -681,7 +682,16 @@ class TreeherderClient(object):
 
         resp = requests.get(uri, timeout=timeout, params=params,
                             headers=self.REQUEST_HEADERS)
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except HTTPError as e:
+            response = e.response
+            logger.error("Error submitting data to %s" % response.request.url)
+            logger.error("Request headers: %s" % response.request.headers)
+            logger.error("Response headers: %s" % response.headers)
+            logger.error("Response body: %s" % response.content)
+            raise
+
         return resp.json()
 
     def _post_json(self, project, endpoint, data,
@@ -697,7 +707,16 @@ class TreeherderClient(object):
                              headers=self.REQUEST_HEADERS,
                              timeout=timeout, auth=auth)
 
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except HTTPError as e:
+            response = e.response
+            logger.error("Error submitting data to %s" % response.request.url)
+            logger.error("Request headers: %s" % response.request.headers)
+            logger.error("Request body: %s" % response.request.body)
+            logger.error("Response headers: %s" % response.headers)
+            logger.error("Response body: %s" % response.content)
+            raise
 
     def get_option_collection_hash(self):
         """
