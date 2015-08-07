@@ -51,7 +51,9 @@ logViewerApp.controller('LogviewerCtrl', [
                 // so we have to check the results property is present.
                 // TODO: Remove this when the old data has expired, so long as
                 // other data submitters also provide a step result.
-                if ('result' in steps[i] && steps[i].result !== "success") {
+                if ('result' in steps[i] && steps[i].result !== 'success' &&
+                    steps[i].result !== 'skipped') {
+
                     return true;
                 }
             }
