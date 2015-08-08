@@ -431,6 +431,20 @@ class JobsModel(TreeherderModelBase):
 
         return series_summary
 
+    def get_platforms(self, interval_seconds):
+        last_updated_limit = utils.get_now_timestamp() - interval_seconds
+        data = self.get_dhub().execute(
+            proc="jobs.selects.get_perf_series_properties",
+            placeholders=[last_updated_limit, interval_seconds],
+            debug_show=self.DEBUG,
+        )
+        platforms = []
+        for datum in data:
+            if datum['property'] == 'machine_platform':
+                if datum['value'] not in platforms:
+                    platforms.append(datum['value'])
+        return platforms
+
     def get_job_note(self, id):
         """Return the job note by id."""
         data = self.execute(

@@ -110,3 +110,21 @@ class PerformanceDataViewSet(viewsets.ViewSet):
         data = jm.get_performance_series_from_signatures(signatures, interval_seconds)
 
         return Response(data)
+
+    @list_route()
+    @with_jobs
+    def platforms(self, request, project, jm, pk=None):
+        """
+        Get method implementation for platforms
+
+        Input: time interval
+        Output: list of platforms
+        """
+        try:
+            interval_second = int(request.QUERY_PARAMS.get('interval'))
+        except:
+            return Response("incorrect parameters", 400)
+
+        platforms = jm.get_platforms(interval_second)
+
+        return Response(platforms)
