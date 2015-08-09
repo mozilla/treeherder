@@ -2,20 +2,19 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import urllib2
 import logging
+import urllib2
 
 import simplejson as json
 from django.conf import settings
 
+from treeherder.client import (TreeherderArtifactCollection, TreeherderAuth,
+                               TreeherderClient)
+from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.log_parser.artifactbuildercollection import \
     ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import MozlogArtifactBuilder
-
 from treeherder.model.error_summary import get_error_summary_artifacts
-from treeherder.client import (TreeherderClient, TreeherderArtifactCollection,
-                               TreeherderAuth)
-from treeherder.etl.oauth_utils import OAuthCredentials
 
 logger = logging.getLogger(__name__)
 

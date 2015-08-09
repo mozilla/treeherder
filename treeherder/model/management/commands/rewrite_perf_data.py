@@ -3,14 +3,15 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import copy
+from optparse import make_option
 
 from django.core.management.base import BaseCommand
-from optparse import make_option
+
 from treeherder.client import PerformanceTimeInterval
+from treeherder.etl.perf_data_adapters import TalosDataAdapter
 from treeherder.model import utils
 from treeherder.model.derived.jobs import JobsModel
 from treeherder.model.models import Datasource
-from treeherder.etl.perf_data_adapters import TalosDataAdapter
 
 
 class Command(BaseCommand):

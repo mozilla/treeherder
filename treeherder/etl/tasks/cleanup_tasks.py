@@ -2,12 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import urllib
 import logging
+import urllib
 
 from celery import task
-from treeherder.model.derived import RefDataManager
+
 from treeherder.etl.pushlog import MissingHgPushlogProcess
+from treeherder.model.derived import RefDataManager
 
 logger = logging.getLogger(__name__)
 

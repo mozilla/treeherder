@@ -6,6 +6,7 @@
 This module contains
 """
 from celery import task
+
 from treeherder.etl.bugzilla import BzApiBugProcess
 
 

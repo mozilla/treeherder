@@ -2,11 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import simplejson as json
-import os
-from treeherder import path
 import copy
 import logging
+import os
+
+import simplejson as json
+
+from treeherder import path
 
 logger = logging.getLogger(__name__)
 

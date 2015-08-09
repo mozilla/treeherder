@@ -8,6 +8,7 @@ from datetime import timedelta
 
 import dj_database_url
 from kombu import Exchange, Queue
+
 from treeherder import path
 
 # These settings can all be optionally set via env vars, or in local.py:

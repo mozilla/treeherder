@@ -4,19 +4,20 @@
 
 from __future__ import unicode_literals
 
-import unittest
-import os
 import json
+import os
+import unittest
 
-from mock import patch
 import requests
+from mock import patch
 
-from treeherder.client import (TreeherderJob, TreeherderJobCollection,
-                               TreeherderRevision, TreeherderResultSet,
-                               TreeherderResultSetCollection,
+from treeherder.client import (TreeherderArtifact,
+                               TreeherderArtifactCollection, TreeherderAuth,
                                TreeherderClient, TreeherderClientError,
-                               TreeherderArtifact, TreeherderAuth,
-                               TreeherderArtifactCollection)
+                               TreeherderJob, TreeherderJobCollection,
+                               TreeherderResultSet,
+                               TreeherderResultSetCollection,
+                               TreeherderRevision)
 
 
 class DataSetup(unittest.TestCase):

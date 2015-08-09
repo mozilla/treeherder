@@ -3,7 +3,9 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 from optparse import make_option
+
 from django.core.management.base import BaseCommand
+
 from treeherder.model.tasks import calculate_eta
 
 

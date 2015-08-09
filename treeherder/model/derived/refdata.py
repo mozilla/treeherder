@@ -2,14 +2,15 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import os
 import logging
-from hashlib import sha1
+import os
 import time
-from datetime import timedelta, datetime
-from django.conf import settings
+from datetime import datetime, timedelta
+from hashlib import sha1
+
 from datasource.bases.BaseHub import BaseHub
 from datasource.DataHub import DataHub
+from django.conf import settings
 
 from treeherder.model import utils
 

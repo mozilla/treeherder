@@ -2,11 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import pytest
-from django.conf import settings
 import MySQLdb
-from django.core.cache import cache
+import pytest
 from celery import current_app
+from django.conf import settings
+from django.core.cache import cache
 
 
 @pytest.fixture

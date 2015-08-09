@@ -3,8 +3,9 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 from django.contrib import admin
-from treeherder.model.models import *
 from django_browserid.admin import site as browserid_admin
+
+from treeherder.model.models import *
 
 
 class JobTypeAdmin(admin.ModelAdmin):

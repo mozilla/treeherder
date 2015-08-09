@@ -3,11 +3,13 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import json
-from treeherder.webapp import wsgi
-from treeherder.model.derived import ArtifactsModel
-from tests.sample_data_generator import job_data
+
 import pytest
 from webtest.app import TestApp
+
+from tests.sample_data_generator import job_data
+from treeherder.model.derived import ArtifactsModel
+from treeherder.webapp import wsgi
 
 
 @pytest.fixture

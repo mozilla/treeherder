@@ -4,13 +4,12 @@
 
 from django.core.cache import cache
 from rest_framework import viewsets
-from rest_framework.response import Response
 from rest_framework.decorators import list_route
+from rest_framework.response import Response
 from rest_framework_extensions.etag.decorators import etag
 
-
 from treeherder.model.derived.jobs import JobsModel
-from treeherder.webapp.api.utils import (with_jobs)
+from treeherder.webapp.api.utils import with_jobs
 
 
 class PerformanceDataViewSet(viewsets.ViewSet):

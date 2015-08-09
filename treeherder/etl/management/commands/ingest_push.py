@@ -2,16 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
+from cProfile import Profile
 from optparse import make_option
+
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
+from treeherder.etl.buildapi import (Builds4hJobsProcess, PendingJobsProcess,
+                                     RunningJobsProcess)
 from treeherder.etl.pushlog import HgPushlogProcess
 from treeherder.model.derived import RefDataManager
-from treeherder.etl.buildapi import (RunningJobsProcess,
-                                     PendingJobsProcess,
-                                     Builds4hJobsProcess)
-from cProfile import Profile
 
 
 class Command(BaseCommand):

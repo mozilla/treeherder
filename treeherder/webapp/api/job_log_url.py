@@ -5,9 +5,9 @@
 import logging
 
 from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework.exceptions import ParseError
 from rest_framework.decorators import detail_route
+from rest_framework.exceptions import ParseError
+from rest_framework.response import Response
 
 from treeherder.webapp.api import permissions
 from treeherder.webapp.api.utils import with_jobs

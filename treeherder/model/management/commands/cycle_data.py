@@ -2,12 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-from optparse import make_option
 import datetime
+from optparse import make_option
+
+from django.conf import settings
 from django.core.management.base import BaseCommand
+
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import Datasource
-from django.conf import settings
 
 
 class Command(BaseCommand):

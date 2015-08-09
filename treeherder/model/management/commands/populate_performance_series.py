@@ -2,11 +2,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import simplejson as json
 import sys
-
 from optparse import make_option
+
+import simplejson as json
 from django.core.management.base import BaseCommand
+
 from treeherder.model.tasks import populate_performance_series
 
 

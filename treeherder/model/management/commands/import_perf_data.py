@@ -2,13 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
-from treeherder.client import PerfherderClient, PerformanceTimeInterval
-from treeherder.model.derived.jobs import JobsModel
 from urlparse import urlparse
 
 import concurrent.futures
+from django.core.management.base import BaseCommand, CommandError
+
+from treeherder.client import PerfherderClient, PerformanceTimeInterval
+from treeherder.model.derived.jobs import JobsModel
 
 
 def _add_series(server_params, project, time_intervals, signature_hash,

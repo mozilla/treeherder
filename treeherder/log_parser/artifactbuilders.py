@@ -3,15 +3,14 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import logging
-import requests
 from contextlib import closing
 
-from django.utils.six import BytesIO
+import requests
 from django.conf import settings
-
+from django.utils.six import BytesIO
 from mozlog.structured import reader
 
-from .parsers import TinderboxPrintParser, StepParser, TalosParser
+from .parsers import StepParser, TalosParser, TinderboxPrintParser
 
 logger = logging.getLogger(__name__)
 

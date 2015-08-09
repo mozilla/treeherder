@@ -2,14 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-from django.core.management.base import BaseCommand, CommandError
+import time
 from optparse import make_option
+
+import simplejson as json
+from django.core.management.base import BaseCommand, CommandError
 
 from treeherder.log_parser.artifactbuildercollection import \
     ArtifactBuilderCollection
-
-import simplejson as json
-import time
 
 
 class Command(BaseCommand):

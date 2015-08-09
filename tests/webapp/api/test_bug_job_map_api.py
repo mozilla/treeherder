@@ -2,12 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
+import json
+import random
+from time import time
+
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
-from django.contrib.auth.models import User
-import random
-import json
-from time import time
 
 
 def test_create_bug_job_map_no_auth(eleven_jobs_stored, jm):

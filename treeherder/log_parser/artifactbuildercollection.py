@@ -6,10 +6,11 @@ import io
 import urllib2
 import zlib
 from contextlib import closing
+
 from django.conf import settings
 
-from .artifactbuilders import (BuildbotLogViewArtifactBuilder,
-                               BuildbotJobArtifactBuilder,
+from .artifactbuilders import (BuildbotJobArtifactBuilder,
+                               BuildbotLogViewArtifactBuilder,
                                BuildbotPerformanceDataArtifactBuilder)
 
 

@@ -2,8 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-from treeherder.log_parser.parsers import StepParser
 from datetime import datetime
+
+from treeherder.log_parser.parsers import StepParser
 
 
 def test_date_with_milliseconds():

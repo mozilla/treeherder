@@ -2,18 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
+import json
 import os
+
 import pytest
 import responses
-import json
-
 from django.conf import settings
 from django.core.cache import cache
 
-from treeherder.etl.buildapi import (PendingJobsProcess,
-                                     RunningJobsProcess,
-                                     Builds4hJobsProcess,
-                                     CACHE_KEYS)
+from treeherder.etl.buildapi import (CACHE_KEYS, Builds4hJobsProcess,
+                                     PendingJobsProcess, RunningJobsProcess)
 
 
 @pytest.fixture

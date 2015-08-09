@@ -2,13 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, patterns, url
 from django.contrib import admin
+from django_browserid.admin import site as browserid_admin
 
-from .api import urls as api_urls
 from treeherder.embed import urls as embed_urls
 
-from django_browserid.admin import site as browserid_admin
+from .api import urls as api_urls
+
 browserid_admin.copy_registry(admin.site)
 
 urlpatterns = patterns('',

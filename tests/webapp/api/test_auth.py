@@ -1,11 +1,11 @@
-from django.core.urlresolvers import resolve, reverse
 import oauth2 as oauth
+from django.core.urlresolvers import resolve, reverse
 from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory
 
-from treeherder.webapp.api.auth import TwoLeggedOauthAuthentication
 from treeherder.etl.oauth_utils import OAuthCredentials
+from treeherder.webapp.api.auth import TwoLeggedOauthAuthentication
 
 
 class AuthenticatedView(APIView):

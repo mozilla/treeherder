@@ -9,8 +9,9 @@ Functions for flexible generation of sample input job JSON.
 import json
 import os
 import time
-from django.conf import settings
 from datetime import timedelta
+
+from django.conf import settings
 
 
 def ref_data_json():

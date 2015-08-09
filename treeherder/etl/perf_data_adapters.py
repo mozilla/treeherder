@@ -2,16 +2,15 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import simplejson as json
-from simplejson import encoder
-
-from hashlib import sha1
+import logging
 import math
 import zlib
+from hashlib import sha1
 
+import simplejson as json
 from jsonschema import validate
+from simplejson import encoder
 
-import logging
 logger = logging.getLogger(__name__)
 
 encoder.FLOAT_REPR = lambda o: format(o, '.2f')

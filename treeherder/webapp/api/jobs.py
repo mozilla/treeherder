@@ -2,15 +2,15 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 from rest_framework import viewsets
-from rest_framework.response import Response
 from rest_framework.decorators import detail_route, list_route
-from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
-from treeherder.webapp.api.permissions import (IsStaffOrReadOnly)
-from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs, get_option)
-from treeherder.webapp.api import permissions
 from treeherder.model.derived import ArtifactsModel
+from treeherder.webapp.api import permissions
+from treeherder.webapp.api.permissions import IsStaffOrReadOnly
+from treeherder.webapp.api.utils import UrlQueryFilter, get_option, with_jobs
 
 
 class JobsViewSet(viewsets.ViewSet):

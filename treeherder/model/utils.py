@@ -2,11 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import time
-import simplejson as json
 import random
+import time
 import zlib
 
+import simplejson as json
 from _mysql_exceptions import OperationalError
 
 

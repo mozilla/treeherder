@@ -14,8 +14,8 @@ import os
 import sys
 import urllib
 import urllib2
-from commander.deploy import task, hostgroups
 
+from commander.deploy import hostgroups, task
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import commander_settings as settings  # noqa

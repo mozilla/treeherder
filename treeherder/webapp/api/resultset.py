@@ -3,16 +3,16 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 from rest_framework import viewsets
-from rest_framework.response import Response
 from rest_framework.decorators import detail_route
-from rest_framework.reverse import reverse
 from rest_framework.exceptions import ParseError
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
-from treeherder.webapp.api.permissions import (IsStaffOrReadOnly,
-                                               HasLegacyOauthPermissionsOrReadOnly)
 from treeherder.model.derived import DatasetNotFoundError
-from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs, to_timestamp)
+from treeherder.webapp.api.permissions import (HasLegacyOauthPermissionsOrReadOnly,
+                                               IsStaffOrReadOnly)
+from treeherder.webapp.api.utils import UrlQueryFilter, to_timestamp, with_jobs
 
 
 class ResultSetViewSet(viewsets.ViewSet):

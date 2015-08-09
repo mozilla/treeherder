@@ -4,10 +4,11 @@
 
 from __future__ import unicode_literals
 
+import json
+import logging
+
 import requests
 from requests.exceptions import HTTPError
-import logging
-import json
 
 # When releasing a new version to PyPI please also file a bug to request
 # that it is uploaded to http://pypi.pub.build.mozilla.org/pub/ too.

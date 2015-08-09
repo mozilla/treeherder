@@ -3,8 +3,8 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import pytest
-from treeherder.log_parser.parsers import TinderboxPrintParser
 
+from treeherder.log_parser.parsers import TinderboxPrintParser
 
 # a list of test cases for the tinderbox printlines parser
 # every test case is composed by (input, output), where

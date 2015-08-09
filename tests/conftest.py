@@ -2,17 +2,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import os
-from os.path import dirname
-import sys
-
 import json
+import os
+import sys
+from os.path import dirname
+
 import kombu
 import pytest
-from django.core.management import call_command
-from webtest.app import TestApp
-from requests import Request
 import responses
+from django.core.management import call_command
+from requests import Request
+from webtest.app import TestApp
 
 from tests.sampledata import SampleData
 from treeherder.etl.oauth_utils import OAuthCredentials

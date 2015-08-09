@@ -2,20 +2,20 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import time
-import json
-import pytest
 import copy
+import json
 import threading
+import time
 import zlib
 
+import pytest
 from django.conf import settings
 from django.core.management import call_command
 
+from tests import test_utils
+from tests.sample_data_generator import job_data, result_set
 from treeherder.model.derived import ArtifactsModel
 from treeherder.model.derived.jobs import JobsModel
-from tests.sample_data_generator import job_data, result_set
-from tests import test_utils
 
 slow = pytest.mark.slow
 xfail = pytest.mark.xfail

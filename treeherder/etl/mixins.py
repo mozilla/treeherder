@@ -2,18 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-from StringIO import StringIO
 import gzip
-import urllib2
 import logging
+import urllib2
+from StringIO import StringIO
 
 import simplejson as json
-
-from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from treeherder.etl import th_publisher
-
 
 logger = logging.getLogger(__name__)
 

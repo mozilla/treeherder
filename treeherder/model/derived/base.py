@@ -12,8 +12,8 @@ import logging
 from django.conf import settings
 from django.utils.encoding import python_2_unicode_compatible
 
-from treeherder.model.models import Datasource
 from treeherder.model.derived.refdata import RefDataManager
+from treeherder.model.models import Datasource
 
 
 @python_2_unicode_compatible

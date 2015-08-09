@@ -2,8 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
 import oauth2 as oauth
+from django.conf import settings
 from rest_framework import exceptions
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.renderers import JSONRenderer

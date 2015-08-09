@@ -2,11 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-from django.http import HttpResponse, HttpResponseNotFound
-from treeherder.model.derived import DatasetNotFoundError
 import simplejson as json
+from django.http import HttpResponse, HttpResponseNotFound
 
-from treeherder.model.derived import JobsModel, ArtifactsModel
+from treeherder.model.derived import ArtifactsModel, DatasetNotFoundError, JobsModel
 
 
 def project_info(request, project):

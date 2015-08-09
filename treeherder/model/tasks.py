@@ -3,15 +3,15 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import os
+
 from celery import task
-from django.core.management import call_command
 from django.conf import settings
+from django.core.management import call_command
 
-from treeherder.model.models import Repository
-from treeherder.model.exchanges import TreeherderPublisher
-from treeherder.model.pulse_publisher import load_schemas
 from treeherder.model.error_summary import load_error_summary
-
+from treeherder.model.exchanges import TreeherderPublisher
+from treeherder.model.models import Repository
+from treeherder.model.pulse_publisher import load_schemas
 
 # Load schemas for validation of messages published on pulse
 SOURCE_FOLDER = os.path.dirname(os.path.realpath(__file__))

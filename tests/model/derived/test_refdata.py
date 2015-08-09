@@ -2,14 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
+import json
 import os
 import time
-import json
 from datetime import datetime, timedelta
 
 import pytest
 
-from treeherder.model.models import RepositoryGroup, Repository
+from treeherder.model.models import Repository, RepositoryGroup
 
 
 @pytest.fixture

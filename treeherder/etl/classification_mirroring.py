@@ -2,13 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-from datetime import datetime
 import logging
+from datetime import datetime
 
-import simplejson as json
 import requests
-from treeherder.model.derived import JobsModel, ArtifactsModel
+import simplejson as json
 from django.conf import settings
+
+from treeherder.model.derived import ArtifactsModel, JobsModel
 
 logger = logging.getLogger(__name__)
 

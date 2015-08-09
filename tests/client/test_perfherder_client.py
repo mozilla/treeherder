@@ -5,6 +5,7 @@
 import unittest
 
 from mock import patch
+
 from treeherder.client import PerfherderClient, TreeherderClientError
 
 

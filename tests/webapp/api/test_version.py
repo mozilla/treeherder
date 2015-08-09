@@ -1,8 +1,8 @@
+from django.conf import settings
 from rest_framework.decorators import APIView
+from rest_framework.exceptions import NotAcceptable
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory
-from rest_framework.exceptions import NotAcceptable
-from django.conf import settings
 
 
 class RequestVersionView(APIView):

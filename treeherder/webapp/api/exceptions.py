@@ -2,14 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
+import logging
+
+from django.conf import settings
 from rest_framework import exceptions
 from rest_framework.response import Response
 from rest_framework.views import exception_handler as drf_exc_handler
-from django.conf import settings
 
 from treeherder.model.derived import DatasetNotFoundError, ObjectNotFoundException
-import logging
-
 
 logger = logging.getLogger(__name__)
 

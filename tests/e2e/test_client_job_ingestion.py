@@ -2,16 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import pytest
-from mock import MagicMock
 import json
 
-from treeherder.client.thclient import client, TreeherderAuth
+import pytest
+from mock import MagicMock
 
+from treeherder.client.thclient import TreeherderAuth, client
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.log_parser.parsers import StepParser
-from treeherder.model.derived import JobsModel, ArtifactsModel
 from treeherder.model import error_summary
+from treeherder.model.derived import ArtifactsModel, JobsModel
 
 
 @pytest.fixture

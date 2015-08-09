@@ -2,11 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import os
 import json
+import os
+
 import responses
-from treeherder.etl.pushlog import HgPushlogProcess, MissingHgPushlogProcess
 from django.core.cache import cache
+
+from treeherder.etl.pushlog import HgPushlogProcess, MissingHgPushlogProcess
 
 
 def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,

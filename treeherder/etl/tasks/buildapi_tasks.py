@@ -6,11 +6,11 @@
 This module contains
 """
 from celery import task
-from treeherder.model.derived import RefDataManager
-from treeherder.etl.buildapi import (RunningJobsProcess,
-                                     PendingJobsProcess,
-                                     Builds4hJobsProcess)
+
+from treeherder.etl.buildapi import (Builds4hJobsProcess, PendingJobsProcess,
+                                     RunningJobsProcess)
 from treeherder.etl.pushlog import HgPushlogProcess
+from treeherder.model.derived import RefDataManager
 
 
 @task(name='fetch-buildapi-pending', time_limit=3 * 60)

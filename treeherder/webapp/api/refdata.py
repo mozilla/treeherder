@@ -2,16 +2,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
+from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import CacheResponseAndETAGMixin
-from django.contrib.auth.models import User
 
 from treeherder.model import models
 from treeherder.model.derived import RefDataManager
 from treeherder.webapp.api import serializers as th_serializers
-from treeherder.webapp.api.permissions import (IsStaffOrReadOnly,
-                                               IsOwnerOrReadOnly)
+from treeherder.webapp.api.permissions import (IsOwnerOrReadOnly,
+                                               IsStaffOrReadOnly)
+
 
 #####################
 # Refdata ViewSets

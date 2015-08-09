@@ -3,15 +3,15 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import json
-from webtest.app import TestApp
+
 from requests import Request
+from webtest.app import TestApp
 
-from treeherder.model.derived.refdata import RefDataManager
-from treeherder.etl.oauth_utils import OAuthCredentials
-from treeherder.webapp.wsgi import application
-
-from treeherder.client import TreeherderClient, TreeherderAuth
 from tests.sampledata import SampleData
+from treeherder.client import TreeherderAuth, TreeherderClient
+from treeherder.etl.oauth_utils import OAuthCredentials
+from treeherder.model.derived.refdata import RefDataManager
+from treeherder.webapp.wsgi import application
 
 
 def post_collection(

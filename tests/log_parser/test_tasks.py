@@ -2,18 +2,18 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import pytest
-import simplejson as json
-import urllib2
-from django.conf import settings
 import gzip
+import urllib2
 import zlib
 
+import pytest
+import simplejson as json
+from django.conf import settings
 from django.utils.six import BytesIO
 
-from ..sampledata import SampleData
-
 from treeherder.model.derived import ArtifactsModel
+
+from ..sampledata import SampleData
 
 
 @pytest.fixture

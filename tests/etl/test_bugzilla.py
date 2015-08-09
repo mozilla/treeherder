@@ -2,9 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import pytest
-import os
 import json
+import os
+
+import pytest
 
 from treeherder.etl.bugzilla import BzApiBugProcess
 

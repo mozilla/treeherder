@@ -2,10 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-from django.core.management import call_command
 import pytest
+from django.core.management import call_command
 
-from treeherder.model.models import Repository, RepositoryGroup, Datasource
+from treeherder.model.models import Datasource, Repository, RepositoryGroup
 
 
 @pytest.fixture

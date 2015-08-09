@@ -10,10 +10,9 @@ from django.conf import settings
 from django.core.cache import cache
 
 from treeherder.client import TreeherderJobCollection
-from treeherder.etl import common, buildbot
+from treeherder.etl import buildbot, common
 from treeherder.etl.mixins import JsonExtractorMixin, OAuthLoaderMixin
 from treeherder.model.models import Datasource
-
 
 logger = logging.getLogger(__name__)
 CACHE_KEYS = {

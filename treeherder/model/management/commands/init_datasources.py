@@ -3,9 +3,10 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 from optparse import make_option
-from django.utils.six.moves import input
 
 from django.core.management.base import BaseCommand
+from django.utils.six.moves import input
+
 from treeherder.model.models import Datasource, Repository
 
 

@@ -3,9 +3,10 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import json
+
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
-from django.contrib.auth.models import User
 
 
 def test_note_list(webapp, sample_notes, jm):

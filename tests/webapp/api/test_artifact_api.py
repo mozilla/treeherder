@@ -3,15 +3,13 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import json
-import pytest
 
+import pytest
 from django.core.urlresolvers import reverse
 
-from treeherder.client.thclient import client, TreeherderAuth
-
+from treeherder.client.thclient import TreeherderAuth, client
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.model.derived import ArtifactsModel, JobsModel
-
 
 xfail = pytest.mark.xfail
 

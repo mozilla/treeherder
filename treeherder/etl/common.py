@@ -3,10 +3,10 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import hashlib
-import simplejson as json
 import time
 
 import requests
+import simplejson as json
 from django.conf import settings
 
 

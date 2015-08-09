@@ -3,7 +3,8 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 from celery import task
-from treeherder.etl.classification_mirroring import ElasticsearchDocRequest, BugzillaCommentRequest
+
+from treeherder.etl.classification_mirroring import BugzillaCommentRequest, ElasticsearchDocRequest
 
 
 @task(name="submit-elasticsearch-doc", max_retries=10, time_limit=30)

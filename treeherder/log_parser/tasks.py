@@ -7,11 +7,9 @@ import logging
 
 from celery import task
 
-from treeherder.log_parser.utils import (extract_text_log_artifacts,
-                                         extract_json_log_artifacts,
-                                         post_log_artifacts,
-                                         is_parsed
-                                         )
+from treeherder.log_parser.utils import (extract_json_log_artifacts,
+                                         extract_text_log_artifacts, is_parsed,
+                                         post_log_artifacts)
 
 logger = logging.getLogger(__name__)
 

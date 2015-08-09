@@ -7,7 +7,6 @@ import time
 import oauth2 as oauth
 from requests.auth import AuthBase
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -3,13 +3,12 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import os
-import simplejson as json
-
 from optparse import make_option
+
+import simplejson as json
 from django.core.management.base import BaseCommand
 
 from treeherder.model.derived.base import TreeherderModelBase
-
 
 DEFAULT_CREDENTIALS_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(__file__))),

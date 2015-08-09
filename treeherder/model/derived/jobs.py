@@ -2,38 +2,30 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import simplejson as json
-import time
 import logging
+import time
 import zlib
 from collections import defaultdict
 from datetime import datetime
 from hashlib import sha1
-
 from operator import itemgetter
 
+import simplejson as json
 from _mysql_exceptions import IntegrityError
-
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 
-from treeherder.model.models import (Datasource,
-                                     ExclusionProfile)
-
-from treeherder.model import utils, error_summary
-from treeherder.model.tasks import (publish_resultset,
-                                    publish_job_action,
-                                    publish_resultset_action,
-                                    populate_error_summary)
-
-from treeherder.events.publisher import JobStatusPublisher
-
 from treeherder.etl.common import get_guid_root
+from treeherder.events.publisher import JobStatusPublisher
+from treeherder.model import error_summary, utils
+from treeherder.model.models import Datasource, ExclusionProfile
+from treeherder.model.tasks import (populate_error_summary, publish_job_action,
+                                    publish_resultset,
+                                    publish_resultset_action)
 
-from .base import TreeherderModelBase, ObjectNotFoundException
 from .artifacts import ArtifactsModel
-
+from .base import ObjectNotFoundException, TreeherderModelBase
 
 logger = logging.getLogger(__name__)
 

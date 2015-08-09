@@ -2,16 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import simplejson as json
 import logging
 import zlib
 
-from treeherder.model import utils
-
-from .base import TreeherderModelBase
+import simplejson as json
 
 from treeherder.etl.perf_data_adapters import (PerformanceDataAdapter,
                                                TalosDataAdapter)
+from treeherder.model import utils
+
+from .base import TreeherderModelBase
 
 logger = logging.getLogger(__name__)
 

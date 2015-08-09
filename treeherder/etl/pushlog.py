@@ -2,16 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-from django.core.cache import cache
-from django.conf import settings
-import requests
 import logging
 
-from treeherder.client import TreeherderResultSetCollection
+import requests
+from django.conf import settings
+from django.core.cache import cache
 
-from .mixins import JsonExtractorMixin, OAuthLoaderMixin
+from treeherder.client import TreeherderResultSetCollection
 from treeherder.etl.common import generate_revision_hash, get_not_found_onhold_push
 
+from .mixins import JsonExtractorMixin, OAuthLoaderMixin
 
 logger = logging.getLogger(__name__)
 

@@ -5,15 +5,14 @@ import gzip
 import json
 import urllib2
 
-from rest_framework import viewsets
-from rest_framework.response import Response
+from django.conf import settings
 from django.core.cache import caches
 from django.utils.six import BytesIO
-from django.conf import settings
+from rest_framework import viewsets
+from rest_framework.response import Response
 
-from treeherder.webapp.api.utils import with_jobs
 from treeherder.webapp.api.exceptions import ResourceNotFoundException
-
+from treeherder.webapp.api.utils import with_jobs
 
 filesystem = caches['filesystem']
 

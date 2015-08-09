@@ -3,9 +3,9 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 from rest_framework import viewsets
-from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
 
 from treeherder.webapp.api.utils import with_jobs
 

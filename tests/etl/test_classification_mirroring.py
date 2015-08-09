@@ -4,8 +4,8 @@
 
 import json
 from time import time
-from datadiff import diff
 
+from datadiff import diff
 from django.conf import settings
 from treeherder.etl.classification_mirroring import ElasticsearchDocRequest, BugzillaCommentRequest
 from treeherder.model.derived import ArtifactsModel

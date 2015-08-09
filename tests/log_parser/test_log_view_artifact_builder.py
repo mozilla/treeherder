@@ -5,11 +5,11 @@
 import pytest
 from mock import MagicMock
 
+from tests import test_utils
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import BuildbotLogViewArtifactBuilder
 from treeherder.log_parser.parsers import ErrorParser
 
-from tests import test_utils
 from ..sampledata import SampleData
 
 slow = pytest.mark.slow
