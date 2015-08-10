@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import jsonfield.fields
 from django.conf import settings
 from django.db import migrations, models
+import treeherder.model.fields
 
 
 class Migration(migrations.Migration):
@@ -28,7 +29,6 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'bugscache',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='BuildPlatform',
@@ -42,7 +42,18 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'build_platform',
             },
-            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ClassifiedFailure',
+            fields=[
+                ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
+                ('bug_number', models.PositiveIntegerField(null=True, blank=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('modified', models.DateTimeField(auto_now=True)),
+            ],
+            options={
+                'db_table': 'classified_failure',
+            },
         ),
         migrations.CreateModel(
             name='Datasource',
@@ -56,7 +67,6 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'datasource',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='ExclusionProfile',
@@ -70,7 +80,6 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'exclusion_profile',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='FailureClassification',
@@ -83,7 +92,43 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'failure_classification',
             },
-            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='FailureLine',
+            fields=[
+                ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
+                ('job_guid', models.CharField(max_length=50)),
+                ('action', models.CharField(max_length=11, choices=[('test_result', 'test_result'), ('log', 'log'), ('crash', 'crash')])),
+                ('line', models.PositiveIntegerField()),
+                ('test', models.CharField(max_length=255, null=True, blank=True)),
+                ('subtest', models.CharField(max_length=255, null=True, blank=True)),
+                ('status', models.CharField(max_length=7, choices=[('PASS', 'PASS'), ('FAIL', 'FAIL'), ('OK', 'OK'), ('ERROR', 'ERROR'), ('TIMEOUT', 'TIMEOUT'), ('CRASH', 'CRASH'), ('ASSERT', 'ASSERT'), ('SKIP', 'SKIP'), ('NOTRUN', 'NOTRUN')])),
+                ('expected', models.CharField(blank=True, max_length=7, null=True, choices=[('PASS', 'PASS'), ('FAIL', 'FAIL'), ('OK', 'OK'), ('ERROR', 'ERROR'), ('TIMEOUT', 'TIMEOUT'), ('CRASH', 'CRASH'), ('ASSERT', 'ASSERT'), ('SKIP', 'SKIP'), ('NOTRUN', 'NOTRUN')])),
+                ('message', models.CharField(max_length=255, null=True, blank=True)),
+                ('signature', models.CharField(max_length=255, null=True, blank=True)),
+                ('level', models.CharField(blank=True, max_length=8, null=True, choices=[('PASS', 'PASS'), ('FAIL', 'FAIL'), ('OK', 'OK'), ('ERROR', 'ERROR'), ('TIMEOUT', 'TIMEOUT'), ('CRASH', 'CRASH'), ('ASSERT', 'ASSERT'), ('SKIP', 'SKIP'), ('NOTRUN', 'NOTRUN')])),
+                ('stack', models.TextField(null=True, blank=True)),
+                ('stackwalk_stdout', models.TextField(null=True, blank=True)),
+                ('stackwalk_stderr', models.TextField(null=True, blank=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('modified', models.DateTimeField(auto_now=True)),
+            ],
+            options={
+                'db_table': 'failure_line',
+            },
+        ),
+        migrations.CreateModel(
+            name='FailureMatch',
+            fields=[
+                ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
+                ('score', models.PositiveSmallIntegerField(null=True, blank=True)),
+                ('is_best', models.BooleanField(default=False)),
+                ('classified_failure', treeherder.model.fields.FlexibleForeignKey(to='model.ClassifiedFailure')),
+                ('failure_line', treeherder.model.fields.FlexibleForeignKey(to='model.FailureLine')),
+            ],
+            options={
+                'db_table': 'failure_match',
+            },
         ),
         migrations.CreateModel(
             name='JobExclusion',
@@ -97,7 +142,6 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'job_exclusion',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='JobGroup',
@@ -111,7 +155,6 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'job_group',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='JobType',
@@ -126,7 +169,6 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'job_type',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Machine',
@@ -140,7 +182,6 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'machine',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='MachinePlatform',
@@ -154,7 +195,16 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'machine_platform',
             },
-            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Matcher',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(unique=True, max_length=50)),
+            ],
+            options={
+                'db_table': 'matcher',
+            },
         ),
         migrations.CreateModel(
             name='Option',
@@ -167,7 +217,6 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'option',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='OptionCollection',
@@ -179,7 +228,6 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'option_collection',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Product',
@@ -192,7 +240,6 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'product',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='ReferenceDataSignatures',
@@ -221,7 +268,6 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'reference_data_signatures',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Repository',
@@ -237,7 +283,6 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'repository',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='RepositoryGroup',
@@ -250,7 +295,6 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'repository_group',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='UserExclusionProfile',
@@ -263,22 +307,42 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'user_exclusion_profile',
             },
-            bases=(models.Model,),
         ),
         migrations.AddField(
             model_name='repository',
             name='repository_group',
             field=models.ForeignKey(to='model.RepositoryGroup'),
-            preserve_default=True,
         ),
-        migrations.AlterUniqueTogether(
-            name='optioncollection',
-            unique_together=set([('option_collection_hash', 'option')]),
+        migrations.AddField(
+            model_name='failurematch',
+            name='matcher',
+            field=models.ForeignKey(to='model.Matcher'),
+        ),
+        migrations.AddField(
+            model_name='failureline',
+            name='repository',
+            field=models.ForeignKey(to='model.Repository'),
         ),
         migrations.AddField(
             model_name='exclusionprofile',
             name='exclusions',
             field=models.ManyToManyField(related_name='profiles', to='model.JobExclusion'),
-            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='classifiedfailure',
+            name='failure_lines',
+            field=models.ManyToManyField(related_name='intermittent_failures', through='model.FailureMatch', to='model.FailureLine'),
+        ),
+        migrations.AlterUniqueTogether(
+            name='optioncollection',
+            unique_together=set([('option_collection_hash', 'option')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='failurematch',
+            unique_together=set([('failure_line', 'classified_failure', 'matcher')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='failureline',
+            unique_together=set([('job_guid', 'line')]),
         ),
     ]
