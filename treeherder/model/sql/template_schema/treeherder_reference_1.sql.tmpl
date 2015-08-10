@@ -670,6 +670,52 @@ CREATE TABLE `exclusion_profile_exclusions` (
 
 
 
+
+
+DROP TABLE IF EXISTS `failure`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+/**************************
+ * Table: failure
+ *
+ * A list of test failures
+ *
+ * Population Method: dynamic from incoming data
+ *
+ **************************/
+
+CREATE TABLE `failure` (
+	`id` BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY
+	,`job_guid` VARCHAR(50) NOT NULL
+	,`action` VARCHAR(11) NOT NULL
+	,`line` INT UNSIGNED NOT NULL
+	,`test` VARCHAR(255) NULL
+	,`subtest` VARCHAR(255) NULL
+	,`status` VARCHAR(7) NOT NULL
+	,`expected` VARCHAR(7) NULL
+	,`message` VARCHAR(255) NULL
+	,`signature` VARCHAR(255) NULL
+	,`level` VARCHAR(8) NULL
+	,`stack` longtext NOT NULL
+	,`stackwalk_stdout` longtext NOT NULL
+	,`stackwalk_stderr` longtext NOT NULL
+	,`created` DATETIME NOT NULL
+	,`modified` DATETIME NOT NULL
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+ALTER TABLE `failure` ADD COLUMN `auto_classification_id` integer NULL;
+ALTER TABLE `failure` ALTER COLUMN `auto_classification_id` DROP DEFAULT;
+ALTER TABLE `failure` ADD COLUMN `manual_classification_id` integer NULL;
+ALTER TABLE `failure` ALTER COLUMN `manual_classification_id` DROP DEFAULT;
+ALTER TABLE `failure` ADD COLUMN `master_failure_id` integer NULL;
+ALTER TABLE `failure` ALTER COLUMN `master_failure_id` DROP DEFAULT;
+ALTER TABLE `failure` ADD COLUMN `repository_id` integer NOT NULL;
+ALTER TABLE `failure` ALTER COLUMN `repository_id` DROP DEFAULT;
+ALTER TABLE `failure` ADD CONSTRAINT `failure_job_guid_6a91d840_uniq` UNIQUE (`job_guid`, `line`);
+
+
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
@@ -678,7 +724,3 @@ CREATE TABLE `exclusion_profile_exclusions` (
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
-
-
--- Dump completed on 2013-02-27  8:55:49

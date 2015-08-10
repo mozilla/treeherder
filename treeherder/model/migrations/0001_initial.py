@@ -1,13 +1,10 @@
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, you can obtain one at http://mozilla.org/MPL/2.0/.
-
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 import jsonfield.fields
 from django.conf import settings
 from django.db import migrations, models
+import treeherder.model.fields
 
 
 class Migration(migrations.Migration):
@@ -73,6 +70,31 @@ class Migration(migrations.Migration):
             ],
             options={
                 'db_table': 'exclusion_profile',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Failure',
+            fields=[
+                ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
+                ('job_guid', models.CharField(max_length=50)),
+                ('action', models.CharField(max_length=11, choices=[('test_result', 'test_result'), ('log', 'log'), ('crash', 'crash')])),
+                ('line', models.PositiveIntegerField()),
+                ('test', models.CharField(max_length=255, null=True, blank=True)),
+                ('subtest', models.CharField(max_length=255, null=True, blank=True)),
+                ('status', models.CharField(max_length=7, choices=[('PASS', 'PASS'), ('FAIL', 'FAIL'), ('OK', 'OK'), ('ERROR', 'ERROR'), ('TIMEOUT', 'TIMEOUT'), ('CRASH', 'CRASH'), ('ASSERT', 'ASSERT'), ('SKIP', 'SKIP'), ('NOTRUN', 'NOTRUN')])),
+                ('expected', models.CharField(blank=True, max_length=7, null=True, choices=[('PASS', 'PASS'), ('FAIL', 'FAIL'), ('OK', 'OK'), ('ERROR', 'ERROR'), ('TIMEOUT', 'TIMEOUT'), ('CRASH', 'CRASH'), ('ASSERT', 'ASSERT'), ('SKIP', 'SKIP'), ('NOTRUN', 'NOTRUN')])),
+                ('message', models.CharField(max_length=255, null=True, blank=True)),
+                ('signature', models.CharField(max_length=255, null=True, blank=True)),
+                ('level', models.CharField(blank=True, max_length=8, null=True, choices=[('PASS', 'PASS'), ('FAIL', 'FAIL'), ('OK', 'OK'), ('ERROR', 'ERROR'), ('TIMEOUT', 'TIMEOUT'), ('CRASH', 'CRASH'), ('ASSERT', 'ASSERT'), ('SKIP', 'SKIP'), ('NOTRUN', 'NOTRUN')])),
+                ('stack', models.TextField()),
+                ('stackwalk_stdout', models.TextField()),
+                ('stackwalk_stderr', models.TextField()),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('modified', models.DateTimeField(auto_now=True)),
+            ],
+            options={
+                'db_table': 'failure',
             },
             bases=(models.Model,),
         ),
@@ -278,6 +300,34 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name='optioncollection',
             unique_together=set([('option_collection_hash', 'option')]),
+        ),
+        migrations.AddField(
+            model_name='failure',
+            name='auto_classification',
+            field=models.ForeignKey(related_name='automatic_assignements', blank=True, to='model.FailureClassification', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='failure',
+            name='manual_classification',
+            field=models.ForeignKey(related_name='manual_assignements', blank=True, to='model.FailureClassification', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='failure',
+            name='master_failure',
+            field=models.ForeignKey(blank=True, to='model.Failure', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='failure',
+            name='repository',
+            field=models.ForeignKey(to='model.Repository'),
+            preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='failure',
+            unique_together=set([('job_guid', 'line')]),
         ),
         migrations.AddField(
             model_name='exclusionprofile',
