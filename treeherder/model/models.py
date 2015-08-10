@@ -20,6 +20,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
 from treeherder import path
+from .fields import BigAutoField, FlexibleForeignKey
 
 # the cache key is specific to the database name we're pulling the data from
 SOURCES_CACHE_KEY = "treeherder-datasources"
@@ -530,3 +531,78 @@ class ReferenceDataSignatures(models.Model):
 
     class Meta:
         db_table = 'reference_data_signatures'
+
+
+class Failure(models.Model):
+
+    STATUS_LIST = ('PASS', 'FAIL', 'OK', 'ERROR', 'TIMEOUT', 'CRASH', 'ASSERT', 'SKIP', 'NOTRUN')
+    ACTION_LIST = ("test_result", "log", "crash")
+    LEVEL_LIST = ("critical", "error", "warning", "info", "debug")
+
+    ACTION_CHOICES = zip(ACTION_LIST, ACTION_LIST)
+    STATUS_CHOICES = zip(STATUS_LIST, STATUS_LIST)
+    LEVEL_CHOICES = zip(LEVEL_LIST, LEVEL_LIST)
+
+    id = BigAutoField(primary_key=True)
+    job_guid = models.CharField(max_length=50)
+    repository = models.ForeignKey(Repository)
+    action = models.CharField(max_length=11, choices=ACTION_CHOICES)
+    line = models.PositiveIntegerField()
+    test = models.CharField(max_length=255, blank=True, null=True)
+    subtest = models.CharField(max_length=255, blank=True, null=True)
+    status = models.CharField(max_length=7, choices=STATUS_CHOICES)
+    expected = models.CharField(max_length=7, choices=STATUS_CHOICES, blank=True, null=True)
+    message = models.CharField(max_length=255, blank=True, null=True)
+    signature = models.CharField(max_length=255, blank=True, null=True)
+    level = models.CharField(max_length=8, choices=STATUS_CHOICES, blank=True, null=True)
+    stack = models.TextField(blank=True, null=True)
+    stackwalk_stdout = models.TextField(blank=True, null=True)
+    stackwalk_stderr = models.TextField(blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    # TODO: add indexes once we know which queries will be typically executed
+
+    class Meta:
+        db_table = 'failure'
+        unique_together = (
+            ('job_guid', 'line')
+        )
+
+
+class KnownIntermittentFailure(models.Model):
+    id = BigAutoField(primary_key=True)
+    failures = models.ManyToManyField(Failure, through='FailureMatch',
+                                      related_name='known_intermittent_failures')
+    bug_number = models.PositiveIntegerField(blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    # TODO: add indexes once we know which queries will be typically executed
+
+    class Meta:
+        db_table = 'known_intermittent_failure'
+
+
+class Matcher(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    class Meta:
+        db_table = 'matcher'
+
+
+class FailureMatch(models.Model):
+    id = BigAutoField(primary_key=True)
+    failure = FlexibleForeignKey(Failure)
+    known_intermittent_failure = FlexibleForeignKey(KnownIntermittentFailure)
+    matcher = models.ForeignKey(Matcher)
+    score = models.PositiveSmallIntegerField(blank=True, null=True)
+    is_best = models.BooleanField(default=False)
+
+    # TODO: add indexes once we know which queries will be typically executed
+
+    class Meta:
+        db_table = 'failure_match'
+        unique_together = (
+            ('failure', 'known_intermittent_failure', 'matcher')
+        )
