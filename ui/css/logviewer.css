@@ -62,6 +62,20 @@ body {
     vertical-align: middle;
 }
 
+.unknown-step-warning {
+    margin-bottom: 2px;
+    margin-right: 6px;
+    padding: 0 4px;
+    background-color: #fcf8e3;
+    border: 1px solid #fbd890;
+    border-radius: 2px;
+    color: #8a6d3b;
+}
+
+.step-title-unknown {
+    padding-top: 1px;
+}
+
 .lv-line-no {
     width: 3em;
 }

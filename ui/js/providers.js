@@ -103,8 +103,8 @@ treeherder.provider('thResultStatusInfo', function() {
                 case "unknown":
                     resultStatusInfo = {
                         severity: 4,
-                        btnClass: "btn-black",
-                        btnClassClassified: "btn-black-classified",
+                        btnClass: "btn-yellow",
+                        btnClassClassified: "btn-yellow-classified",
                         jobButtonIcon: "",
                         countText: "unknown"
                     };

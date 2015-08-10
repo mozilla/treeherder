@@ -1221,7 +1221,14 @@ ul.failure-summary-list li .btn-xs {
     border-color: rgba(70, 70, 70, 0.25);
 }
 
-.result-status-shading-coalesced {background-color: white;}
+.result-status-shading-unknown {
+    background-color: rgb(252, 248, 227);
+    border-color: rgb(251, 216, 144);
+}
+
+.result-status-shading-coalesced {
+    background-color: white;
+}
 
 .click-able-icon, .nav-tabs li {
     cursor: pointer;
@@ -1728,57 +1735,33 @@ fieldset[disabled] .btn-dkgray.active {
   color: white;
 }
 
-.btn-black {
-  background-color: #4a4a4a;
-  border-color: #000000;
-  color: white;
+.btn-yellow {
+  background-color: #fcf8e3;
+  border-color: #fbd890;
+  color: #8a6d3b;
 }
-.btn-black:hover,
-.btn-black:focus,
-.btn-black:active,
-.btn-black.active {
-  background-color: #000000;
-  border-color: #000000;
-  color: white;
+.btn-yellow:hover,
+.btn-yellow:focus,
+.btn-yellow:active,
+.btn-yellow.active {
+  background-color: #fcf8e3;
+  border-color: #fbd890;
+  color: #8a6d3b;
 }
-.btn-black.disabled:hover,
-.btn-black.disabled:focus,
-.btn-black.disabled:active,
-.btn-black.disabled.active,
-.btn-black[disabled]:hover,
-.btn-black[disabled]:focus,
-.btn-black[disabled]:active,
-.btn-black[disabled].active,
-fieldset[disabled] .btn-black:hover,
-fieldset[disabled] .btn-black:focus,
-fieldset[disabled] .btn-black:active,
-fieldset[disabled] .btn-black.active {
-  background-color: #000000;
-  border-color: #000000;
-}
-
-.btn-black:hover,
-.btn-black:focus,
-.btn-black:active,
-.btn-black.active {
-  background-color: #000000;
-  border-color: #000000;
-  color: white;
-}
-.btn-black.disabled:hover,
-.btn-black.disabled:focus,
-.btn-black.disabled:active,
-.btn-black.disabled.active,
-.btn-black[disabled]:hover,
-.btn-black[disabled]:focus,
-.btn-black[disabled]:active,
-.btn-black[disabled].active,
-fieldset[disabled] .btn-black:hover,
-fieldset[disabled] .btn-black:focus,
-fieldset[disabled] .btn-black:active,
-fieldset[disabled] .btn-black.active {
-  background-color: #000000;
-  border-color: #000000;
+.btn-yellow.disabled:hover,
+.btn-yellow.disabled:focus,
+.btn-yellow.disabled:active,
+.btn-yellow.disabled.active,
+.btn-yellow[disabled]:hover,
+.btn-yellow[disabled]:focus,
+.btn-yellow[disabled]:active,
+.btn-yellow[disabled].active,
+fieldset[disabled] .btn-yellow:hover,
+fieldset[disabled] .btn-yellow:focus,
+fieldset[disabled] .btn-yellow:active,
+fieldset[disabled] .btn-yellow.active {
+  background-color: #fcf8e3;
+  border-color: #fbd890;
 }
 
 .btn-pink {
@@ -1962,8 +1945,8 @@ fieldset[disabled] .btn-repo.active {
     border-color: #a1020e;
 }
 
-.help-btn-black {
-    border-color: #000000;
+.help-btn-yellow {
+    border-color: #fbd890;
 }
 
 .help-btn-bg {
