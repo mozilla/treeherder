@@ -92,7 +92,7 @@ treeherder.provider('thResultStatusInfo', function() {
                 case "unknown":
                     resultStatusInfo = {
                         severity: 4,
-                        btnClass: "btn-black",
+                        btnClass: "btn-yellow",
                         countText: "unknown"
                     };
                     break;
@@ -134,7 +134,7 @@ treeherder.provider('thResultStatusInfo', function() {
                 case "coalesced":
                     resultStatusInfo = {
                         severity: 101,
-                        btnClass: "btn-yellow",
+                        btnClass: "btn-ltblue",
                         countText: "coalesced"
                     };
                     break;
