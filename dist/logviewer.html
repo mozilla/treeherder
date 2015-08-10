@@ -1,112 +1,112 @@
 <!DOCTYPE html>
 <html ng-controller="LogviewerCtrl" ng-init="init()" ng-app="logviewer">
-    <head>
-        <meta charset="utf-8">
-        <title ng-bind="::logViewerTitle">Log viewer</title>
-        <link rel="stylesheet" href="css/logviewer.min-b8bfa4ff617ea5f5003df482e6c4b244.css" media="screen">
-        <link id="favicon" type="image/png" rel="shortcut icon" href="img/logviewerIcon.png">
-    </head>
-    <body class="body-logviewer">
-      <!-- Logviewer navbar -->
-      <nav class="navbar navbar-default" role="navigation">
-        <div class="container-fluid">
-          <ul class="nav navbar-nav">
+  <head>
+    <meta charset="utf-8">
+    <title ng-bind="::logViewerTitle">Log viewer</title>
+    <link rel="stylesheet" href="css/logviewer.min-8fa2bdd88d4990d8299698fae2057a46.css" media="screen">
+    <link id="favicon" type="image/png" rel="shortcut icon" href="img/logviewerIcon.png">
+  </head>
+  <body class="body-logviewer">
+    <!-- Logviewer navbar -->
+    <nav class="navbar navbar-default" role="navigation">
+      <div class="container-fluid">
+        <ul class="nav navbar-nav">
 
-            <!-- Logo menu button -->
-            <li>
-              <span class="dropdown">
-                <button id="lv-logo" title="Treeherder services" role="button"
-                        href="#" data-toggle="dropdown" data-target="#">Logviewer
-                  <span class="fa fa-angle-down"></span>
-                </button>
-                <ul class="dropdown-menu" role="menu" aria-labelledby="lv-logo">
-                  <li><a href="/">Treeherder</a></li>
-                  <li><a href="perf.html">Perfherder</a></li>
-                </ul>
-              </span>
-            </li>
+          <!-- Logo menu button -->
+          <li>
+            <span class="dropdown">
+              <button id="lv-logo" title="Treeherder services" role="button"
+                      href="#" data-toggle="dropdown" data-target="#">Logviewer
+                <span class="fa fa-angle-down"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu" aria-labelledby="lv-logo">
+                <li><a href="/">Treeherder</a></li>
+                <li><a href="perf.html">Perfherder</a></li>
+              </ul>
+            </span>
+          </li>
 
-            <!-- Job status -->
-            <li class="{{::resultStatusShading}}">
-              <div>
-                <span ng-cloak><strong>{{result.label}}: </strong></span>
-                <span ng-cloak class="break-word">{{result.value}}</span>
-              </div>
-            </li>
+          <!-- Job status -->
+          <li class="{{::resultStatusShading}}">
+            <div>
+              <span ng-cloak><strong>{{result.label}}: </strong></span>
+              <span ng-cloak class="break-word">{{result.value}}</span>
+            </div>
+          </li>
 
-            <!-- Raw log button -->
-            <li>
-              <a title="Open the raw log in a new window"
-                 target="_blank"
-                 href="{{::artifact.logurl}}">
-                <span class="fa fa-file-text-o actionbtn-icon"></span>
-                <span>open raw log</span>
-              </a>
-            </li>
+          <!-- Raw log button -->
+          <li>
+            <a title="Open the raw log in a new window"
+               target="_blank"
+               href="{{::artifact.logurl}}">
+              <span class="fa fa-file-text-o actionbtn-icon"></span>
+              <span>open raw log</span>
+            </a>
+          </li>
 
-            <!-- Ref test button -->
-            <li ng-if="isReftest()">
-              <a title="Open the Reftest Analyser in a new window"
-                 target="_blank"
-                 href="http://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl={{::artifact.logurl}}&only_show_unexpected=1">
-                <span class="fa fa-bar-chart-o actionbtn-icon"></span>
-                <span>open analyser</span>
-              </a>
-            </li>
+          <!-- Ref test button -->
+          <li ng-if="isReftest()">
+            <a title="Open the Reftest Analyser in a new window"
+               target="_blank"
+               href="http://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl={{::artifact.logurl}}&only_show_unexpected=1">
+              <span class="fa fa-bar-chart-o actionbtn-icon"></span>
+              <span>open analyser</span>
+            </a>
+          </li>
 
-            <!-- Show successful steps button -->
-            <li ng-if="artifact && hasFailedSteps()"
-                class="logviewer-actionbtn">
-              <div id="lv-successful-steps">
-                <input type="checkbox"
-                       ng-model="showSuccessful"
-                       ng-change="toggleSuccessfulSteps()" />
-                <span>show successful steps</span>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </nav>
+          <!-- Show successful steps button -->
+          <li ng-if="artifact && hasFailedSteps()"
+              class="logviewer-actionbtn">
+            <div id="lv-successful-steps">
+              <input type="checkbox"
+                     ng-model="showSuccessful"
+                     ng-change="toggleSuccessfulSteps()" />
+              <span>show successful steps</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
 
-      <!-- Job header and steps navigation -->
-      <div class="run-data">
-        <div class="col-md-6" >
-          <div class="job-header">
-            <table class="table table-condensed" >
-              <tr ng-repeat="property in logProperties">
-                <th ng-cloak>{{property.label}}</th>
-                <td ng-if="property.label == 'Revision'" class="break-word">
-                  <a href="{{::logRevisionFilterUrl}}"
-                     title="Open resultset"
-                     class="repo-link"
-                     ng-cloak>{{property.value}}</a>
-                </td>
-                <td ng-if="property.label != 'Revision'"
-                    ng-cloak class="break-word">{{property.value}}</td>
-              </tr>
-              <tr ng-repeat="line in job_details | orderBy:'title'">
+    <!-- Job header and steps navigation -->
+    <div class="run-data">
+      <div class="col-md-6" >
+        <div class="job-header">
+          <table class="table table-condensed" >
+            <tr ng-repeat="property in logProperties">
+              <th ng-cloak>{{property.label}}</th>
+              <td ng-if="property.label == 'Revision'" class="break-word">
+                <a href="{{::logRevisionFilterUrl}}"
+                   title="Open resultset"
+                   class="repo-link"
+                   ng-cloak>{{property.value}}</a>
+              </td>
+              <td ng-if="property.label != 'Revision'"
+                  ng-cloak class="break-word">{{property.value}}</td>
+            </tr>
+            <tr ng-repeat="line in job_details | orderBy:'title'">
                 <th ng-cloak>{{line.title}}:</th>
                 <td ng-switch on="line.content_type">
                   <a ng-cloak ng-switch-when="link" title="{{line.value}}"
                      href="{{line.url}}" target="_blank">{{line.value}}</a>
                     <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
                 <td/>
-              </tr>
-            </table>
-          </div>
+            </tr>
+          </table>
         </div>
-        <div class="col-md-6" lv-log-steps></div>
       </div>
+      <div class="col-md-6" lv-log-steps></div>
+    </div>
 
-        <!-- Log lines -->
-        <div class="lv-log-container"
-             lv-infinite-scroll
-             lv-log-lines="displayedLogLines">
-        </div>
+    <!-- Log lines -->
+    <div class="lv-log-container"
+         lv-infinite-scroll
+         lv-log-lines="displayedLogLines">
+    </div>
 
-        <script src="js/logviewer.min-06549e2cd1f887675be9e22575b2272a.js"></script>
+    <script src="js/logviewer.min-3e9efec9559890afcfd679974c255cfe.js"></script>
 
-        <script src="js/config/local.conf.js"></script>
+    <script src="js/config/local.conf.js"></script>
 
-    </body>
+  </body>
 </html>
