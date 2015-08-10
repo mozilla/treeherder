@@ -1,13 +1,10 @@
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, you can obtain one at http://mozilla.org/MPL/2.0/.
-
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 import jsonfield.fields
 from django.conf import settings
 from django.db import migrations, models
+import treeherder.model.fields
 
 
 class Migration(migrations.Migration):
@@ -77,6 +74,31 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
+            name='Failure',
+            fields=[
+                ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
+                ('job_guid', models.CharField(max_length=50)),
+                ('action', models.CharField(max_length=11, choices=[('test_result', 'test_result'), ('log', 'log'), ('crash', 'crash')])),
+                ('line', models.PositiveIntegerField()),
+                ('test', models.CharField(max_length=255, null=True, blank=True)),
+                ('subtest', models.CharField(max_length=255, null=True, blank=True)),
+                ('status', models.CharField(max_length=7, choices=[('PASS', 'PASS'), ('FAIL', 'FAIL'), ('OK', 'OK'), ('ERROR', 'ERROR'), ('TIMEOUT', 'TIMEOUT'), ('CRASH', 'CRASH'), ('ASSERT', 'ASSERT'), ('SKIP', 'SKIP'), ('NOTRUN', 'NOTRUN')])),
+                ('expected', models.CharField(blank=True, max_length=7, null=True, choices=[('PASS', 'PASS'), ('FAIL', 'FAIL'), ('OK', 'OK'), ('ERROR', 'ERROR'), ('TIMEOUT', 'TIMEOUT'), ('CRASH', 'CRASH'), ('ASSERT', 'ASSERT'), ('SKIP', 'SKIP'), ('NOTRUN', 'NOTRUN')])),
+                ('message', models.CharField(max_length=255, null=True, blank=True)),
+                ('signature', models.CharField(max_length=255, null=True, blank=True)),
+                ('level', models.CharField(blank=True, max_length=8, null=True, choices=[('PASS', 'PASS'), ('FAIL', 'FAIL'), ('OK', 'OK'), ('ERROR', 'ERROR'), ('TIMEOUT', 'TIMEOUT'), ('CRASH', 'CRASH'), ('ASSERT', 'ASSERT'), ('SKIP', 'SKIP'), ('NOTRUN', 'NOTRUN')])),
+                ('stack', models.TextField()),
+                ('stackwalk_stdout', models.TextField()),
+                ('stackwalk_stderr', models.TextField()),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('modified', models.DateTimeField(auto_now=True)),
+            ],
+            options={
+                'db_table': 'failure',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
             name='FailureClassification',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
@@ -86,6 +108,33 @@ class Migration(migrations.Migration):
             ],
             options={
                 'db_table': 'failure_classification',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='FailureMatch',
+            fields=[
+                ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
+                ('bug_number', models.PositiveIntegerField(null=True, blank=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('modified', models.DateTimeField(auto_now=True)),
+            ],
+            options={
+                'db_table': 'failure_match',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='FailureMatchFailure',
+            fields=[
+                ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
+                ('score', models.PositiveSmallIntegerField(null=True, blank=True)),
+                ('is_best', models.BooleanField(default=False)),
+                ('failure', treeherder.model.fields.FlexibleForeignKey(to='model.Failure')),
+                ('failure_match', treeherder.model.fields.FlexibleForeignKey(to='model.FailureMatch')),
+            ],
+            options={
+                'db_table': 'failure_match_failure',
             },
             bases=(models.Model,),
         ),
@@ -157,6 +206,17 @@ class Migration(migrations.Migration):
             ],
             options={
                 'db_table': 'machine_platform',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Matcher',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(unique=True, max_length=50)),
+            ],
+            options={
+                'db_table': 'matcher',
             },
             bases=(models.Model,),
         ),
@@ -278,6 +338,32 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name='optioncollection',
             unique_together=set([('option_collection_hash', 'option')]),
+        ),
+        migrations.AddField(
+            model_name='failurematchfailure',
+            name='matcher',
+            field=models.ForeignKey(to='model.Matcher'),
+            preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='failurematchfailure',
+            unique_together=set([('failure', 'failure_match', 'matcher')]),
+        ),
+        migrations.AddField(
+            model_name='failurematch',
+            name='failures',
+            field=models.ManyToManyField(related_name='matches', through='model.FailureMatchFailure', to='model.Failure'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='failure',
+            name='repository',
+            field=models.ForeignKey(to='model.Repository'),
+            preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='failure',
+            unique_together=set([('job_guid', 'line')]),
         ),
         migrations.AddField(
             model_name='exclusionprofile',
