@@ -1,9 +1,5 @@
 #! /usr/bin/env python
 
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, you can obtain one at http://mozilla.org/MPL/2.0/.
-
 # In many cases you want to hit treeherder services but it is difficult
 # particularly in tests if you don't know the oauth credentials. This file
 # rewrites the credentials for all projects so both user/pass are the same (the

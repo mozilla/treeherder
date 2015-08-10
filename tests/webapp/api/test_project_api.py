@@ -1,8 +1,3 @@
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, you can obtain one at http://mozilla.org/MPL/2.0/.
-
-
 def test_project_endpoint(webapp, eleven_jobs_stored, jm):
     """
     tests the project endpoint
