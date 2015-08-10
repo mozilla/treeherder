@@ -665,6 +665,117 @@ CREATE TABLE `exclusion_profile_exclusions` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
+DROP TABLE IF EXISTS `failure_line`;
+/*!40101 SET @saved_cs_client = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+/**************************
+ * Table: failure_line
+ *
+ * A list of log lines indicating a test failures/crash/error
+ *
+ * Population Method: dynamic from incoming data
+ *
+ **************************/
+
+ CREATE TABLE `failure_line` (
+     `id` bigint AUTO_INCREMENT NOT NULL PRIMARY KEY,
+     `job_guid` varchar(50) NOT NULL,
+     `repository_id` integer NOT NULL,
+     `action` varchar(11) NOT NULL,
+     `line` integer UNSIGNED NOT NULL,
+     `test` longtext NULL,
+     `subtest` longtext NULL,
+     `status` varchar(7) NOT NULL,
+     `expected` varchar(7) NULL,
+     `message` longtext NULL,
+     `signature` varchar(255) NULL,
+     `level` varchar(8) NULL,
+     `stack` longtext NULL,
+     `stackwalk_stdout` longtext NULL,
+     `stackwalk_stderr` longtext NULL,
+     `created` datetime NOT NULL,
+     `modified` datetime NOT NULL
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+ALTER TABLE `failure_line` ADD CONSTRAINT `failure_line_job_guid_7d547076_uniq` UNIQUE (`job_guid`, `line`);
+CREATE INDEX `failure_line_81ee1a31` ON `failure_line` (`repository_id`);
+ALTER TABLE `failure_line` ADD CONSTRAINT `failure_line_repository_id_1d15a55d_fk_repository_id` FOREIGN KEY (`repository_id`) REFERENCES `repository` (`id`);
+
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+DROP TABLE IF EXISTS `classified_failure`;
+/*!40101 SET @saved_cs_client = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+/**************************
+ * Table: classified_failure
+ *
+ * Failure match represents a group of intermittent failures
+ * that can eventually have a bug number assigned
+ *
+ * Population Method: dynamic from incoming data
+ *
+ **************************/
+
+CREATE TABLE `classified_failure` (
+    `id` bigint AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `bug_number` integer UNSIGNED NULL,
+    `created` datetime NOT NULL,
+    `modified` datetime NOT NULL
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
+DROP TABLE IF EXISTS `matcher`;
+/*!40101 SET @saved_cs_client = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+/**************************
+ * Table: matcher
+ *
+ * A list of matcher to run on the failures
+ *
+ * Population Method: dynamic from incoming data
+ *
+ **************************/
+
+CREATE TABLE `matcher` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `name` varchar(50) NOT NULL UNIQUE
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
+DROP TABLE IF EXISTS `failure_match`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+/**************************
+ * Table: failure_match
+ *
+ * This table represents the relationship between a failure, a known intermittent failure and a matcher
+ *
+ * Population Method: dynamic from incoming data
+ *
+ **************************/
+
+CREATE TABLE `failure_match` (
+    `id` bigint AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `score` smallint UNSIGNED NULL,
+    `is_best` bool NOT NULL,
+    `failure_line_id` bigint NOT NULL,
+    `classified_failure_id` bigint NOT NULL,
+    `matcher_id` integer NOT NULL
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+ALTER TABLE `failure_match` ADD CONSTRAINT `failure_match_failure_line_id_7aeee577_uniq` UNIQUE (`failure_line_id`, `classified_failure_id`, `matcher_id`);
+ALTER TABLE `failure_match` ADD CONSTRAINT `failure_match_failure_line_id_66c79baa_fk_failure_id` FOREIGN KEY (`failure_line_id`) REFERENCES `failure_line` (`id`);
+CREATE INDEX `failure_match_4b7d144b` ON `failure_match` (`failure_line_id`);
+CREATE INDEX `failure_match_3172ccd0` ON `failure_match` (`classified_failure_id`);
+ALTER TABLE `failure_match` ADD CONSTRAINT `da2a7f93f2c7705b917a81c5aed77017` FOREIGN KEY (`classified_failure_id`) REFERENCES `classified_failure` (`id`);
+CREATE INDEX `failure_match_c724f956` ON `failure_match` (`matcher_id`);
+ALTER TABLE `failure_match` ADD CONSTRAINT `failure_match_matcher_id_2c1e8bf2_fk_matcher_id` FOREIGN KEY (`matcher_id`) REFERENCES `matcher` (`id`);
+
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -674,7 +785,3 @@ CREATE TABLE `exclusion_profile_exclusions` (
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
-
-
--- Dump completed on 2013-02-27  8:55:49
