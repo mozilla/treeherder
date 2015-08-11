@@ -6,7 +6,7 @@
 
 treeherder.directive('lvLogSteps', ['$timeout', '$q', function ($timeout, $q) {
     function getOffsetOfStep (order) {
-        var el = $('.logviewer-step[order="' + order + '"]');
+        var el = $('.lv-step[order="' + order + '"]');
         var parentOffset = el.parent().offset();
 
         return el.offset().top -

@@ -136,7 +136,11 @@ body {
     border-style: solid none;
 }
 
-.logviewer-step {
+div.lv-step {
+    padding: 6px;
+}
+
+.lv-step {
     border-radius: 2px;
     overflow: hidden;
     -webkit-user-select: text;
@@ -148,20 +152,11 @@ body {
     font-size: 11px;
 }
 
-.logviewer-step.selected {
-    color: #232323;
+.lv-step.selected {
     background-color: #FFF;
 }
 
-.logviewer-step.btn-success.selected {
-    border-color: #398439;
-}
-
-.logviewer-step.btn-warning.selected {
-    border-color: #d58512;
-}
-
-.logviewer-actionbtn span {
+.lv-actionbtn span {
     color: #777;
 }
 

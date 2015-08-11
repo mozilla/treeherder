@@ -2082,8 +2082,6 @@ div.similar_jobs .left_panel table tr { cursor: default; }
     text-overflow: ellipsis;
 }
 
-div.logviewer-step{ padding:6px 6px;}
-
 div.talos-panel {
   display: block !important; /* the important can be removed if/when bug 1094466 is fixed */
 }
