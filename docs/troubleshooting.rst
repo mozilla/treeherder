@@ -33,6 +33,14 @@ Errors during Vagrant setup
 
   .. _guide: http://www.sysprobs.com/disable-enable-virtualization-technology-bios
 
+* On Windows, if upon running ``vagrant ssh`` you see the error *"/home/vagrant/.bash_aliases: line 1: syntax error near unexpected token `$'{\r''"* - it means your global Git line endings configuration is not correct. On the host machine run:
+
+  .. code-block:: bash
+
+    git config --global core.autocrlf input
+
+  You will then need to delete and reclone the repo (or else do a force checkout).
+
 Using supervisord for development
 ---------------------------------
 
