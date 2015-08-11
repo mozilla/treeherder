@@ -12,15 +12,13 @@ Prerequisites
 Setting up Vagrant
 ------------------
 
-* Open a shell, cd into the root of the project you just cloned and type
+* Open a shell, cd into the root of the Treeherder repository, and type:
 
   .. code-block:: bash
 
-     >vagrant up
+     > vagrant up
 
-  If you experience any errors, see the :ref:`troubleshooting page <troubleshooting-vagrant>`.
-
-* It will typically take 5 to 30 minutes for the vagrant up to complete, depending on your network performance.
+  It will typically take 5 to 30 minutes for the vagrant up to complete, depending on your network performance. If you experience any errors, see the :ref:`troubleshooting page <troubleshooting-vagrant>`.
 
 * While the previous command is running, use the time to add this line to your **host** machine's /etc/hosts:
 
@@ -29,22 +27,22 @@ Setting up Vagrant
      # Copy this line verbatim (do not adjust the IP)
      192.168.33.10    local.treeherder.mozilla.org
 
-* Once the virtual machine is set up, log into it with
+* Once the virtual machine is set up, connect to it using:
 
   .. code-block:: bash
 
-     >vagrant ssh
+     > vagrant ssh
 
   A python virtual environment will be activated on login, and the working directory will be the treeherder source directory shared from the host machine.
 
-  For the full list of available Vagrant commands, please see their command line documentation_.
+* For the full list of available Vagrant commands (for example, suspending the VM when you are finished for the day), see their `command line documentation`_.
 
-  .. _documentation: http://docs.vagrantup.com/v2/cli/
+  .. _`command line documentation`: http://docs.vagrantup.com/v2/cli/
 
-* If you just wish to :ref:`run the tests <running-tests>`, you can stop now without performing the remaining steps below.
+* If you just wish to :ref:`run the tests <running-tests>`, you can stop now without performing the remaining steps.
 
-Viewing the local server
-------------------------
+Starting a local Treeherder instance
+------------------------------------
 
 * Start a gunicorn instance inside the Vagrant VM, to serve the static UI and API requests:
 
@@ -52,7 +50,7 @@ Viewing the local server
 
      (venv)vagrant@local:~/treeherder$ ./bin/run_gunicorn
 
-* Or for development you can use the django runserver instead of gunicorn:
+  Or for development you can use the django runserver instead of gunicorn:
 
   .. code-block:: bash
 
@@ -67,7 +65,7 @@ Running the ingestion tasks
 
 Ingestion tasks populate the database with version control push logs, queued/running/completed buildbot jobs & output from log parsing, as well as maintain a list of job etas and cache of intermittent failure bugs. To run these:
 
-* Ensure the django runserver or gunicorn instance is running first (see "Viewing the local server" above).
+* Ensure the django runserver or gunicorn instance is running first (see "Starting a local Treeherder instance" above).
 
 * In another Vagrant SSH session, start up a celery worker to process async tasks:
 
