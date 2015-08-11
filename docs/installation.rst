@@ -17,36 +17,7 @@ Setting up Vagrant
 
      >vagrant up
 
-  **Troubleshooting**: The Vagrant provisioning process during ``vagrant up`` assumes the presence of a stable internet connection. In the event of a connection interruption during provision, you may see errors similar to *"Temporary failure resolving.."* or *"E: Unable to fetch some archives.."* after the process has completed. In that situation, you can attempt to re-provision using the command:
-
-  .. code-block:: bash
-
-     >vagrant provision
-
-  If that is still unsuccessful, you should attempt a ``vagrant destroy`` followed by another ``vagrant up``.
-
-  **Troubleshooting**: If you encounter an error saying *"It appears your machine doesn't support NFS, or there is not an adapter to enable NFS on this machine for Vagrant."*, then you need to install ``nfs-kernel-server`` using the command:
-
-  .. code-block:: bash
-
-    apt-get install nfs-kernel-server
-
-  **Troubleshooting**: If you encounter an error saying *"mount.nfs: requested NFS version or transport protocol is not supported"*, you should restart the kernel server service using this sequence of commands:
-
-  .. code-block:: bash
-
-    systemctl stop nfs-kernel-server.service
-    systemctl disable nfs-kernel-server.service
-    systemctl enable nfs-kernel-server.service
-    systemctl start nfs-kernel-server.service
-
-  **Troubleshooting**: If you encounter an error saying *"The guest machine entered an invalid state while waiting for it to boot. Valid states are 'starting, running'. The machine is in the 'poweroff' state. Please verify everything is configured properly and try again."* you should should check your host machine's virtualization technology (vt-x) is enabled in the BIOS (see this guide_), then continue with ``vagrant up``.
-
-  .. _guide: http://www.sysprobs.com/disable-enable-virtualization-technology-bios
-
-  For the full list of available Vagrant commands, please see their command line documentation_.
-
-  .. _documentation: http://docs.vagrantup.com/v2/cli/
+  If you experience any errors, see the :ref:`troubleshooting page <troubleshooting-vagrant>`.
 
 * It will typically take 5 to 30 minutes for the vagrant up to complete, depending on your network performance.
 
@@ -57,6 +28,10 @@ Setting up Vagrant
      >vagrant ssh
 
   A python virtual environment will be activated on login, and the working directory will be the treeherder source directory shared from the host machine.
+
+  For the full list of available Vagrant commands, please see their command line documentation_.
+
+  .. _documentation: http://docs.vagrantup.com/v2/cli/
 
 * If you just wish to :ref:`run the tests <running-tests>`, you can stop now without performing the remaining steps below.
 
