@@ -38,6 +38,8 @@ treeherder.controller('AnnotationsPluginCtrl', [
             var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
             var job = jobMap[key].job_obj;
 
+            // this $evalAsync will be sure that the * is added or removed in
+            // the job in the jobs view area when this change takes place.
             $scope.$evalAsync(function() {job.failure_classification_id = 1;});
             ThResultSetStore.updateUnclassifiedFailureMap($rootScope.repoName, job);
 
