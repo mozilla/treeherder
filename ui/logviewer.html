@@ -41,10 +41,12 @@
 
           <!-- Raw log button -->
           <li>
-            <a title="Open the raw log in a new window"
+            <a title="{{logError ? 'Raw log link no longer exists or has expired (click for link)' :
+                      'Open the raw log in a new window'}}"
                target="_blank"
                href="{{::artifact.logurl}}">
-              <span class="fa fa-file-text-o actionbtn-icon"></span>
+              <span ng-show="!logError" class="fa fa-file-text-o actionbtn-icon"></span>
+              <span ng-show="logError" class="fa fa-warning actionbar-warning"></span>
               <span>open raw log</span>
             </a>
           </li>
@@ -109,6 +111,8 @@
          lv-log-lines="displayedLogLines">
     </div>
 
+    <th-notification-box></th-notification-box>
+
     <!-- build:js js/logviewer.min.js -->
     <script src="vendor/jquery-2.1.3.js"></script>
     <script src="vendor/angular/angular.js"></script>
@@ -131,6 +135,7 @@
     <script src="js/directives/treeherder/log_viewer_infinite_scroll.js"></script>
     <script src="js/directives/treeherder/log_viewer_lines.js"></script>
     <script src="js/directives/treeherder/log_viewer_steps.js"></script>
+    <script src="js/directives/treeherder/main.js"></script>
 
     <!-- Main services -->
     <script src="js/services/main.js"></script>

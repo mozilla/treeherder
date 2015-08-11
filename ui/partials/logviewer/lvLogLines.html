@@ -1,9 +1,6 @@
 <div class="lv-log-msg lv-log-overlay"
      ng-if="loading"> Loading... </div>
 
-<div class="lv-log-msg lv-log-overlay lv-log-error"
-     ng-if="logError"> Log could not be found </div>
-
 <div ng-repeat="lv_line in displayedLogLines"
      ng-class="{'text-danger': (lv_line.hasError == true),
                 'lv-selected-lines': (displayedStep.order === lv_line.index)}"
