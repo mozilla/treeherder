@@ -181,6 +181,7 @@ CELERY_QUEUES = (
     # parse a log on demand
     Queue('log_parser_hp', Exchange('default'), routing_key='parse_log.high_priority'),
     Queue('log_parser_json', Exchange('default'), routing_key='parse_log.json'),
+    Queue('store_error_summary', Exchange('default'), routing_key='store_error_summary'),
     # Queue for mirroring the failure classification activity to Bugzilla/Elasticsearch
     Queue('classification_mirroring', Exchange('default'), routing_key='classification_mirroring'),
     Queue('error_summary', Exchange('default'), routing_key='error_summary'),
