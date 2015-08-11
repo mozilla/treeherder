@@ -22,6 +22,13 @@ Setting up Vagrant
 
 * It will typically take 5 to 30 minutes for the vagrant up to complete, depending on your network performance.
 
+* While the previous command is running, use the time to add this line to your **host** machine's /etc/hosts:
+
+  .. code-block:: bash
+
+     # Copy this line verbatim (do not adjust the IP)
+     192.168.33.10    local.treeherder.mozilla.org
+
 * Once the virtual machine is set up, log into it with
 
   .. code-block:: bash
@@ -35,16 +42,6 @@ Setting up Vagrant
   .. _documentation: http://docs.vagrantup.com/v2/cli/
 
 * If you just wish to :ref:`run the tests <running-tests>`, you can stop now without performing the remaining steps below.
-
-Setting up a local Treeherder instance
---------------------------------------
-
-* And this line to your **host** machine's /etc/hosts so that you can point your browser to local.treeherder.mozilla.org to reach the VM
-
-  .. code-block:: bash
-
-     # Copy this line verbatim (do not adjust the IP)
-     192.168.33.10    local.treeherder.mozilla.org
 
 Viewing the local server
 ------------------------
