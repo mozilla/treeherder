@@ -6,11 +6,11 @@
 
 logViewerApp.controller('LogviewerCtrl', [
     '$anchorScroll', '$http', '$location', '$q', '$rootScope', '$scope',
-    '$timeout', 'ThJobArtifactModel', 'ThLog', 'ThLogSliceModel', 'ThJobModel',
+    '$timeout', 'ThJobArtifactModel', 'ThLog', 'ThLogSliceModel', 'ThJobModel', 'thNotify',
     'dateFilter', 'thJobSearchStr', 'ThResultSetModel', 'thDateFormat', 'thReftestStatus',
     function Logviewer(
         $anchorScroll, $http, $location, $q, $rootScope, $scope,
-        $timeout, ThJobArtifactModel, ThLog, ThLogSliceModel, ThJobModel,
+        $timeout, ThJobArtifactModel, ThLog, ThLogSliceModel, ThJobModel, thNotify,
         dateFilter, thJobSearchStr, ThResultSetModel, thDateFormat, thReftestStatus) {
 
         var $log = new ThLog('LogviewerCtrl');
@@ -148,6 +148,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 }, function (error) {
                     $scope.loading = false;
                     $scope.logError = true;
+                    thNotify.send("The log no longer exists or has expired", 'warning', 'true');
                     deferred.reject();
                 });
             } else {
