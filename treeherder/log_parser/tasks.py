@@ -6,6 +6,7 @@
 import logging
 
 from celery import task
+from django.core.management import call_command
 
 from treeherder.log_parser.utils import (extract_json_log_artifacts,
                                          extract_text_log_artifacts, is_parsed,
@@ -53,3 +54,13 @@ def parse_json_log(project, job_log_url, job_guid):
                        parse_json_log,
                        extract_json_log_artifacts,
                        )
+
+
+@task(name='store-error-summary', max_retries=10)
+def store_error_summary(project, job_log_url, job_guid):
+    """This task is a wrapper for the store_error_summary command."""
+    try:
+        logger.info('Running store_error_summary')
+        call_command('store_error_summary', job_log_url, job_guid, project)
+    except Exception, e:
+        store_error_summary.retry(exc=e, countdown=(1 + store_error_summary.request.retries) * 60)
