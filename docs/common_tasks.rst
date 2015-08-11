@@ -17,7 +17,7 @@ In order to make the various services aware of a change in the code you need to 
 Running the tests
 -----------------
 
-* You can run flake8 and the py.test suite using
+* You can run flake8 and the py.test suite inside the Vagrant instance, using
 
   .. code-block:: bash
 
