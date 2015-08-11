@@ -308,22 +308,24 @@ class ErrorParser(ParserBase):
 
     def parse_line(self, line, lineno):
         """Check a single line for an error.  Keeps track of the linenumber"""
+        if self.is_error_line(line):
+            self.add(line, lineno)
+
+    def is_error_line(self, line):
         if self.RE_EXCLUDE_1_SEARCH.search(line):
-            return
+            return False
 
         if self.RE_ERR_1_MATCH.match(line):
-            self.add(line, lineno)
-            return
+            return True
 
         # Remove mozharness prefixes prior to matching
         trimline = re.sub(self.RE_MOZHARNESS_PREFIX, "", line)
 
         if self.RE_EXCLUDE_2_SEARCH.search(trimline):
-            return
+            return False
 
-        if any(term for term in self.IN_SEARCH_TERMS if term in trimline) or \
-                self.RE_ERR_MATCH.match(trimline) or self.RE_ERR_SEARCH.search(trimline):
-            self.add(line, lineno)
+        return bool(any(term for term in self.IN_SEARCH_TERMS if term in trimline) or
+                    self.RE_ERR_MATCH.match(trimline) or self.RE_ERR_SEARCH.search(trimline))
 
 
 class TalosParser(ParserBase):
