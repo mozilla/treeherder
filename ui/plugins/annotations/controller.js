@@ -27,10 +27,6 @@ treeherder.controller('AnnotationsPluginCtrl', [
                 for (var i = 0; i < $scope.bugs.length; i++) {
                     $scope.deleteBug($scope.bugs[i]);
                 }
-
-                // We reselect job in place ensuring a correct state for other actions
-                // Potential update with follow up 1181271
-                $rootScope.$emit(thEvents.selectJob, $rootScope.selectedJob, 'passive');
             } else {
                 thNotify.send("No classification on this job to delete", 'warning');
             }
@@ -42,7 +38,9 @@ treeherder.controller('AnnotationsPluginCtrl', [
             var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
             var job = jobMap[key].job_obj;
 
-            job.failure_classification_id = 1;
+            // this $evalAsync will be sure that the * is added or removed in
+            // the job in the jobs view area when this change takes place.
+            $scope.$evalAsync(function() {job.failure_classification_id = 1;});
             ThResultSetStore.updateUnclassifiedFailureMap($rootScope.repoName, job);
 
             classification.delete()

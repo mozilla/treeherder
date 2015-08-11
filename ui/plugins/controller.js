@@ -48,12 +48,7 @@ treeherder.controller('PluginCtrl', [
         var selectJobPromise = null;
         var selectJobRetryPromise = null;
 
-        var selectJob = function(job_id, job_selection_type) {
-            // All interactive selection in treeherder is 'active'
-            // by definition but we set it here
-            if (typeof job_selection_type == 'undefined') {
-                job_selection_type = 'active';
-            }
+        var selectJob = function(job_id) {
             // set the scope variables needed for the job detail panel
             if (job_id) {
                 $scope.job_detail_loading = true;
@@ -97,27 +92,22 @@ treeherder.controller('PluginCtrl', [
                     $scope.eta_abs = Math.abs($scope.job.get_current_eta());
                     $scope.typical_eta = $scope.job.get_typical_eta();
 
-                    // During save or delete classification we reselect the same
-                    // job to update correct tab contents and job state, but we
-                    // don't want to trigger this tab switch in that scenario
-                    if (job_selection_type !== 'passive') {
-                        // we handle which tab gets presented in the job details panel
-                        // and a special set of rules for talos
-                        if ($scope.job.job_group_name.indexOf('Talos') !== -1) {
-                            $scope.tabService.tabs.talos.enabled = true;
-                            if (thResultStatus($scope.job) === 'success') {
-                                $scope.tabService.selectedTab = 'talos';
-                            } else {
-                                $scope.tabService.selectedTab = 'failureSummary';
-                            }
+                    // we handle which tab gets presented in the job details panel
+                    // and a special set of rules for talos
+                    if ($scope.job.job_group_name.indexOf('Talos') !== -1) {
+                        $scope.tabService.tabs.talos.enabled = true;
+                        if (thResultStatus($scope.job) === 'success') {
+                            $scope.tabService.selectedTab = 'talos';
                         } else {
-                            // tab presentation for any other (non-talos) job
-                            $scope.tabService.tabs.talos.enabled = false;
-                            if (thResultStatus($scope.job) === 'success') {
-                                $scope.tabService.selectedTab = 'jobDetails';
-                            } else {
-                                $scope.tabService.selectedTab = 'failureSummary';
-                            }
+                            $scope.tabService.selectedTab = 'failureSummary';
+                        }
+                    } else {
+                        // tab presentation for any other (non-talos) job
+                        $scope.tabService.tabs.talos.enabled = false;
+                        if (thResultStatus($scope.job) === 'success') {
+                            $scope.tabService.selectedTab = 'jobDetails';
+                        } else {
+                            $scope.tabService.selectedTab = 'failureSummary';
                         }
                     }
 
@@ -362,15 +352,15 @@ treeherder.controller('PluginCtrl', [
             }
         };
 
-        var selectJobAndRender = function(job_id, job_selection_type){
-            $scope.jobLoadedPromise = selectJob(job_id, job_selection_type);
+        var selectJobAndRender = function(job_id){
+            $scope.jobLoadedPromise = selectJob(job_id);
             $scope.jobLoadedPromise.then(function(){
                 thTabs.showTab(thTabs.selectedTab, job_id);
             });
         };
 
-        $rootScope.$on(thEvents.jobClick, function(event, job, job_selection_type) {
-            selectJobAndRender(job.id, job_selection_type);
+        $rootScope.$on(thEvents.jobClick, function(event, job) {
+            selectJobAndRender(job.id);
             $rootScope.selectedJob = job;
         });
 
@@ -425,7 +415,10 @@ treeherder.controller('PluginCtrl', [
         });
 
         $rootScope.$on(thEvents.jobsClassified, function(event, job) {
-            $scope.updateClassifications();
+            // use $timeout here so that all the other $digest operations related to
+            // the event of ``jobsClassified`` will be done.  This will then
+            // be a new $digest cycle.
+            $timeout($scope.updateClassifications);
         });
 
         $rootScope.$on(thEvents.bugsAssociated, function(event, job) {
