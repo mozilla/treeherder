@@ -249,7 +249,7 @@ treeherder.directive('thCloneJobs', [
             return jobsShown;
         };
 
-        var jobMouseDown = function(ev){
+        var jobMouseDown = function(resultset, ev){
 
             var el = $(ev.target);
             var key = el.attr(jobKeyAttr);
@@ -258,6 +258,7 @@ treeherder.directive('thCloneJobs', [
 
                 var job = this.job_map[key].job_obj;
 
+                job.revision = resultset.revision;
                 //NOTE: scope is set to "this" by _.bind
                 switch (ev.which) {
                 case 1:
@@ -739,7 +740,7 @@ treeherder.directive('thCloneJobs', [
             element.off();
 
             //Register events callback
-            element.on('mousedown', _.bind(jobMouseDown, scope));
+            element.on('mousedown', _.bind(jobMouseDown, scope, scope.resultset));
 
             registerCustomEventCallbacks(scope, element);
 

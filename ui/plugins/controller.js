@@ -10,14 +10,14 @@ treeherder.controller('PluginCtrl', [
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'thTabs',
-    '$timeout', 'thJobSearchStr', 'thReftestStatus',
+    '$timeout', 'thJobSearchStr', 'thReftestStatus', 'ThResultSetStore',
     function PluginCtrl(
         $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
         numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
         thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs,
-        $timeout, thJobSearchStr, thReftestStatus) {
+        $timeout, thJobSearchStr, thReftestStatus, ThResultSetStore) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -96,6 +96,7 @@ treeherder.controller('PluginCtrl', [
                     $scope.eta = $scope.job.get_current_eta();
                     $scope.eta_abs = Math.abs($scope.job.get_current_eta());
                     $scope.typical_eta = $scope.job.get_typical_eta();
+                    $scope.jobRevision = ThResultSetStore.getSelectedJob($scope.repoName).job.revision
 
                     // During save or delete classification we reselect the same
                     // job to update correct tab contents and job state, but we
