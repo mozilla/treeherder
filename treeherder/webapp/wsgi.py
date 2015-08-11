@@ -9,13 +9,6 @@ This module contains the WSGI application used by Django's development server
 and any production WSGI deployments. It should expose a module-level variable
 named ``application``. Django's ``runserver`` and ``runfcgi`` commands discover
 this application via the ``WSGI_APPLICATION`` setting.
-
-Usually you will have the standard Django WSGI application here, but it also
-might make sense to replace the whole Django WSGI application with a custom one
-that later delegates to the Django one. For example, you could introduce WSGI
-middleware here, or combine a Django application with an application of another
-framework.
-
 """
 try:
     import newrelic.agent
@@ -33,7 +26,9 @@ import os
 # os.environ["DJANGO_SETTINGS_MODULE"] = "webapp.settings"
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "treeherder.settings")
 
+from django.core.cache.backends.memcached import BaseMemcachedCache
 from django.core.wsgi import get_wsgi_application
+
 from treeherder.webapp.whitenoise_custom import CustomWhiteNoise
 
 # This application object is used by any WSGI server configured to use this
@@ -53,5 +48,4 @@ if newrelic:
 # Fix django closing connection to MemCachier after every request:
 # https://code.djangoproject.com/ticket/11331
 # Remove when https://github.com/django/django/pull/4866 fixed.
-from django.core.cache.backends.memcached import BaseMemcachedCache
 BaseMemcachedCache.close = lambda self, **kwargs: None
