@@ -355,15 +355,20 @@ class JobsModel(TreeherderModelBase):
 
     @staticmethod
     def get_performance_series_cache_key(project, interval_seconds,
-                                         hash=False):
-        key = 'performance-series-summary-%s-%s' % (project,
-                                                    interval_seconds)
+                                         machine_platform=None, hash=False):
+        if machine_platform is None:
+            key = 'performance-series-summary-%s-%s' % (project,
+                                                        interval_seconds)
+        else:
+            key = 'performance-series-summary-%s-%s-%s' % (project,
+                                                           interval_seconds,
+                                                           machine_platform)
         if hash:
             key += '-hash'
 
         return key
 
-    def get_performance_series_summary(self, interval_seconds):
+    def get_performance_series_summary(self, interval_seconds, machine_platform=None):
         """
         Retrieve a summary of all of the property/value list pairs found
         in the series_signature table, organized by the signature summaries
@@ -391,8 +396,8 @@ class JobsModel(TreeherderModelBase):
         # received data for the time interval requested
         last_updated_limit = utils.get_now_timestamp() - interval_seconds
 
-        cache_key = self.get_performance_series_cache_key(self.project,
-                                                          interval_seconds)
+        cache_key = self.get_performance_series_cache_key(self.project, interval_seconds,
+                                                          machine_platform)
 
         series_summary = cache.get(cache_key, None)
         if series_summary:
@@ -410,6 +415,9 @@ class JobsModel(TreeherderModelBase):
                 if key in self.PERFORMANCE_SERIES_JSON_KEYS:
                     val = json.loads(val)
                 series_summary[datum['signature']][key] = val
+            if machine_platform:
+                series_summary = dict((key, val) for key, val in series_summary.items()
+                                      if val['machine_platform'] == machine_platform)
 
             # HACK: take this out when we're using pylibmc and can use
             # compression automatically
@@ -418,7 +426,8 @@ class JobsModel(TreeherderModelBase):
             sha = sha1()
             sha.update(series_summary_json)
             hash_cache_key = self.get_performance_series_cache_key(
-                self.project, interval_seconds, hash=True)
+                self.project, interval_seconds, machine_platform,
+                hash=True)
             cache.set(hash_cache_key, sha.hexdigest())
 
         return series_summary

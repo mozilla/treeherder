@@ -22,9 +22,10 @@ class PerformanceDataViewSet(viewsets.ViewSet):
                         request, args, kwargs):
         project, interval = (kwargs.get('project'),
                              request.QUERY_PARAMS.get('interval'))
+        machine_platform = request.QUERY_PARAMS.get('machine_platform')
         if project and interval:
             return cache.get(JobsModel.get_performance_series_cache_key(
-                project, interval, hash=True))
+                project, interval, machine_platform, hash=True))
 
         return None
 
@@ -35,16 +36,16 @@ class PerformanceDataViewSet(viewsets.ViewSet):
         """
         GET method implementation for listing signatures
 
-        Input: time interval
+        Input: time interval, machine_platform
         Output: all series signatures and their properties
         """
         try:
-            interval = int(request.QUERY_PARAMS.get('interval'))
+            interval_seconds = int(request.QUERY_PARAMS.get('interval'))
+            platform = request.QUERY_PARAMS.get('machine_platform')
         except:
             return Response("incorrect parameters", 400)
 
-        summary = jm.get_performance_series_summary(interval)
-
+        summary = jm.get_performance_series_summary(interval_seconds, platform)
         return Response(summary)
 
     @list_route()
@@ -99,13 +100,13 @@ class PerformanceDataViewSet(viewsets.ViewSet):
 
         try:
             signatures = request.QUERY_PARAMS.getlist("signatures")
-            interval_seconds = abs(int(request.QUERY_PARAMS.get("interval_seconds", 0)))
+            interval = abs(int(request.QUERY_PARAMS.get("interval_seconds", 0)))
         except Exception:
             return Response("incorrect parameters", 400)
 
         if not signatures:
             return Response("no signatures provided", 400)
 
-        data = jm.get_performance_series_from_signatures(signatures, interval_seconds)
+        data = jm.get_performance_series_from_signatures(signatures, interval)
 
         return Response(data)
