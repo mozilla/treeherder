@@ -6,10 +6,10 @@
 
 treeherder.controller('AnnotationsPluginCtrl', [
     '$scope', '$rootScope', 'ThLog', 'ThJobClassificationModel', 'thNotify',
-    'thEvents', 'ThResultSetStore', 'ThBugJobMapModel', 'thTabs', '$timeout',
+    'thEvents', 'ThResultSetStore', 'ThBugJobMapModel', 'thTabs',
     function AnnotationsPluginCtrl(
         $scope, $rootScope, ThLog, ThJobClassificationModel,
-        thNotify, thEvents, ThResultSetStore, ThBugJobMapModel, thTabs, $timeout) {
+        thNotify, thEvents, ThResultSetStore, ThBugJobMapModel, thTabs) {
 
         var $log = new ThLog(this.constructor.name);
 
