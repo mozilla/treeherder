@@ -594,6 +594,11 @@ th-watched-repo {
     display: block;
 }
 
+.group-state-nav-icon {
+    width: 7px;
+    display: inline-block;
+}
+
 .job-group {
     margin: 0 -3px 0 3px;
 }
@@ -606,8 +611,49 @@ th-watched-repo {
   display: none;
 }
 
+.group-btn {
+  background: transparent;
+  padding: 0 2px 0 2px;
+  vertical-align: 0;
+  line-height: 1.32;
+  cursor: pointer;
+}
+.group-btn::before {
+    content: "+";
+}
+
+.group-symbol:hover {
+    background-color: rgba(208, 228, 250, 0.51);
+    cursor: pointer;
+}
+
+.group-content {
+    margin-left: -3px;
+    cursor: pointer;
+}
+
+.group-content::before {
+    content: "("
+}
+
+.group-content::after {
+    content: ")"
+}
+
+.group-count-list:hover {
+    background-color: rgba(208, 228, 250, 0.51);
+}
+
+.group-job-list {
+    margin-left: -3px;
+}
+
 .selected-job {
     border: 4px solid;
+    background-color: #fff;
+}
+
+.selected-count.btn-lg-xform {
     background-color: #fff;
 }
 
@@ -1255,7 +1301,14 @@ ul.failure-summary-list li .btn-xs {
  .job-btn.btn-ltgray,
  .job-btn.btn-green,
  .job-btn.btn-dkblue,
- .job-btn.btn-pink {
+ .job-btn.btn-yellow,
+ .job-btn.btn-pink,
+ .group-btn.btn-dkgray-count,
+ .group-btn.btn-ltgray-count,
+ .group-btn.btn-green-count,
+ .group-btn.btn-dkblue-count,
+ .group-btn.btn-yellow-count,
+ .group-btn.btn-pink-count {
     margin: 0 -5px 0 -1px;
  }
 
@@ -1264,6 +1317,29 @@ ul.failure-summary-list li .btn-xs {
  .job-btn.btn-purple {
     margin: 0 -3px 1px 0;
  }
+
+.btn-orange-classified::after,
+.btn-orange-classified-count::after,
+.btn-red-classified::after,
+.btn-red-classified-count::after,
+.btn-black-classified::after,
+.btn-black-classified-count::after,
+.btn-green-classified::after,
+.btn-green-classified-count::after,
+.btn-dkblue-classified::after,
+.btn-dkblue-classified-count::after,
+.btn-dkgray-classified::after,
+.btn-dkgray-classified-count::after,
+.btn-ltgray-classified::after,
+.btn-ltgray-classified-count::after,
+.btn-yellow-classified::after,
+.btn-yellow-classified-count::after,
+.btn-pink-classified::after,
+.btn-pink-classified-count::after,
+.btn-purple-classified::after,
+.btn-purple-classified-count::after {
+    content: "*";
+}
 
 .btn-view-nav {
   background-color: transparent;
@@ -1402,10 +1478,12 @@ fieldset[disabled] .btn-orange.active {
   border-color: #dd6602;
 }
 
-.btn-orange-classified {
+.btn-orange-classified,
+.btn-orange-classified-count {
   color: #dd6602;
 }
 .btn-orange-classified:hover,
+.btn-orange-classified-count:hover,
 .btn-orange-classified:focus,
 .btn-orange-classified:active,
 .btn-orange-classified.active {
@@ -1459,10 +1537,12 @@ fieldset[disabled] .btn-red.active {
   border-color: #c2020e;
 }
 
-.btn-red-classified {
+.btn-red-classified,
+.btn-red-classified-count {
   color: #90010a;
 }
 .btn-red-classified:hover,
+.btn-red-classified-count:hover,
 .btn-red-classified:focus,
 .btn-red-classified:active,
 .btn-red-classified.active {
@@ -1487,11 +1567,17 @@ fieldset[disabled] .btn-red-classified.active {
   color: white;
 }
 
-.btn-dkblue {
+.btn-dkblue,
+.btn-dkblue-count,
+.btn-dkblue-classified,
+.btn-dkblue-classified-count {
   color: #283aa2;
   font-weight: bold;
 }
 .btn-dkblue:hover,
+.btn-dkblue-count:hover,
+.btn-dkblue-classified:hover,
+.btn-dkblue-classified-count:hover,
 .btn-dkblue:focus,
 .btn-dkblue:active,
 .btn-dkblue.active {
@@ -1516,11 +1602,17 @@ fieldset[disabled] .btn-dkblue.active {
   border-color: #2d48d6;
 }
 
-.btn-green {
+.btn-green,
+.btn-green-count,
+.btn-green-classified,
+.btn-green-classified-count {
   color: rgba(2, 130, 51, 0.75);
   font-weight: bold;
 }
 .btn-green:hover,
+.btn-green-count:hover,
+.btn-green-classified:hover,
+.btn-green-classified-count:hover,
 .btn-green:focus,
 .btn-green:active,
 .btn-green.active {
@@ -1573,10 +1665,12 @@ fieldset[disabled] .btn-purple.active {
   color: white;
 }
 
-.btn-purple-classified {
+.btn-purple-classified,
+.btn-purple-classified-count {
   color: #6f0296;
 }
 .btn-purple-classified:hover,
+.btn-purple-classified-count:hover,
 .btn-purple-classified:focus,
 .btn-purple-classified:active,
 .btn-purple-classified.active {
@@ -1601,11 +1695,17 @@ fieldset[disabled] .btn-purple-classified.active {
   color: white;
 }
 
-.btn-yellow {
+.btn-yellow,
+.btn-yellow-count,
+.btn-yellow-classified,
+.btn-yellow-classified-count {
   color: #cdce1d;
   font-weight: bold;
 }
 .btn-yellow:hover,
+.btn-yellow-count:hover,
+.btn-yellow-classified:hover,
+.btn-yellow-classified-count:hover,
 .btn-yellow:focus,
 .btn-yellow:active,
 .btn-yellow.active {
@@ -1627,10 +1727,16 @@ fieldset[disabled] .btn-yellow.active {
   border-color: #cdce1d;
 }
 
-.btn-ltgray {
+.btn-ltgray,
+.btn-ltgray-count,
+.btn-ltgray-classified,
+.btn-ltgray-classified-count {
   color: #e0e0e0;
 }
 .btn-ltgray:hover,
+.btn-ltgray-count:hover,
+.btn-ltgray-classified:hover,
+.btn-ltgray-classified-count:hover,
 .btn-ltgray:focus,
 .btn-ltgray:active,
 .btn-ltgray.active {
@@ -1653,11 +1759,18 @@ fieldset[disabled] .btn-ltgray.active {
   border-color: #e0e0e0;
 }
 
-.btn-mdgray {
+.btn-mdgray,
+.btn-mdgray-count,
+.btn-mdgray-classified,
+.btn-mdgray-classified-count
+ {
   background-color: #bfbfbf;
   border-color: #bfbfbf;
 }
 .btn-mdgray:hover,
+.btn-mdgray-count:hover,
+.btn-mdgray-classified:hover,
+.btn-mdgray-classified-count:hover,
 .btn-mdgray:focus,
 .btn-mdgray:active,
 .btn-mdgray.active {
@@ -1700,10 +1813,16 @@ fieldset[disabled] .btn-resultset:hover {
   color: white;
 }
 
-.btn-dkgray {
+.btn-dkgray,
+.btn-dkgray-count,
+.btn-dkgray-classified,
+.btn-dkgray-classified-count {
   color: #7c7a7d;
 }
 .btn-dkgray:hover,
+.btn-dkgray-count:hover,
+.btn-dkgray-classified:hover,
+.btn-dkgray-classified-count:hover,
 .btn-dkgray:focus,
 .btn-dkgray:active,
 .btn-dkgray.active {
@@ -1728,12 +1847,18 @@ fieldset[disabled] .btn-dkgray.active {
   color: white;
 }
 
-.btn-black {
+.btn-black
+.btn-black-count,
+.btn-black-classified,
+.btn-black-classified-count {
   background-color: #4a4a4a;
   border-color: #000000;
   color: white;
 }
 .btn-black:hover,
+.btn-black-count:hover,
+.btn-black-classified:hover,
+.btn-black-classified-count:hover,
 .btn-black:focus,
 .btn-black:active,
 .btn-black.active {
@@ -1781,11 +1906,17 @@ fieldset[disabled] .btn-black.active {
   border-color: #000000;
 }
 
-.btn-pink {
+.btn-pink,
+.btn-pink-count,
+.btn-pink-classified,
+.btn-pink-classified-count {
   color: #ff40d9;
   font-weight: bold;
 }
 .btn-pink:hover,
+.btn-pink-count:hover,
+.btn-pink-classified:hover,
+.btn-pink-classified-count:hover,
 .btn-pink:focus,
 .btn-pink:active,
 .btn-pink.active {
