@@ -56,7 +56,7 @@ def update(ctx):
         execfile(activate_script, dict(__file__=activate_script))
         # Install requirements using peep, so hashes are verified.
         with ctx.lcd(th_service_src):
-            ctx.local('python2.7 bin/peep.py install -r requirements/common.txt -r requirements/prod.txt')
+            ctx.local('python2.7 bin/peep.py install -r requirements/common.txt')
         # Make the virtualenv relocatable since paths are hard-coded by default.
         ctx.local('virtualenv --relocatable venv')
         # Fix lib64 symlink to be relative instead of absolute.

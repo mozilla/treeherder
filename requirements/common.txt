@@ -25,6 +25,9 @@ kombu==3.0.26
 # sha256: Y9f3sUog8p90Mlpp5ttFkl6vbjoAPqtGwCNP0FCoyT8
 simplejson==3.7.3
 
+# sha256: WbUVu327zdMH-BesOIVOgIOev6M8XbeX9lRQeTyUXA0
+newrelic==2.52.0.40
+
 # Required by datasource
 # sha256: gRBAtkfl1WhvhNtBXv1pfmJQAIsRK2kJunesBZ4UDHQ
 MySQL-python==1.2.5

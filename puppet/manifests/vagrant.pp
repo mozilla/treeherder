@@ -38,6 +38,7 @@ export DATABASE_URL='mysql://${DB_USER}:${DB_PASS}@localhost/treeherder'
 export DATABASE_URL_RO='mysql://${DB_USER}:${DB_PASS}@localhost/treeherder'
 export TREEHERDER_DEBUG='1'
 export TREEHERDER_DJANGO_SECRET_KEY='${DJANGO_SECRET_KEY}'
+export NEW_RELIC_DEVELOPER_MODE='True'
 "
 }
 

@@ -5,7 +5,6 @@
 # HEROKU REQUIREMENTS
 
 -r requirements/common.txt
--r requirements/prod.txt
 
 # Pylibmc must be in this file so that heroku knows it has to install
 # libmemcached when bootstrapping the containers.

@@ -10,13 +10,10 @@ and any production WSGI deployments. It should expose a module-level variable
 named ``application``. Django's ``runserver`` and ``runfcgi`` commands discover
 this application via the ``WSGI_APPLICATION`` setting.
 """
-try:
-    import newrelic.agent
-except ImportError:
-    newrelic = False
+import newrelic.agent
 
-if newrelic:
-    newrelic.agent.initialize()
+# The New Relic agent must be initialised before anything else is imported.
+newrelic.agent.initialize()
 
 import os
 
@@ -42,8 +39,8 @@ application = get_wsgi_application()
 # referenced by WHITENOISE_ROOT at the site root.
 application = CustomWhiteNoise(application)
 
-if newrelic:
-    application = newrelic.agent.WSGIApplicationWrapper(application)
+# Wrap with the New Relic agent.
+application = newrelic.agent.WSGIApplicationWrapper(application)
 
 # Fix django closing connection to MemCachier after every request:
 # https://code.djangoproject.com/ticket/11331
