@@ -8,6 +8,7 @@ import urllib2
 import simplejson as json
 from django.conf import settings
 
+from treeherder import celery_app
 from treeherder.client import (TreeherderArtifactCollection, TreeherderAuth,
                                TreeherderClient)
 from treeherder.etl.oauth_utils import OAuthCredentials
@@ -25,7 +26,7 @@ def is_parsed(job_log_url):
     return parse_status == "parsed"
 
 
-def extract_text_log_artifacts(log_url, job_guid, check_errors):
+def extract_text_log_artifacts(project, log_url, job_guid, check_errors):
     """Generate a summary artifact for the raw text log."""
 
     # parse a log given its url
@@ -35,6 +36,14 @@ def extract_text_log_artifacts(log_url, job_guid, check_errors):
 
     artifact_list = []
     for name, artifact in artifact_bc.artifacts.items():
+        if name == 'Job Info':
+            for detail in artifact['job_details']:
+                if ('title' in detail and detail['title'] == 'artifact uploaded'
+                        and detail['value'].endswith('_errorsummary.log')):
+                    # using .send_task to avoid an import loop.
+                    celery_app.send_task('store-error-summary',
+                                         [project, detail['url'], job_guid],
+                                         routing_key='store_error_summary')
         artifact_list.append({
             "job_guid": job_guid,
             "name": name,
@@ -47,7 +56,7 @@ def extract_text_log_artifacts(log_url, job_guid, check_errors):
     return artifact_list
 
 
-def extract_json_log_artifacts(log_url, job_guid, check_errors):
+def extract_json_log_artifacts(project, log_url, job_guid, check_errors):
     """ Generate a summary artifact for the mozlog json log. """
     logger.debug("Parsing JSON log at url: {0}".format(log_url))
 
@@ -90,7 +99,7 @@ def post_log_artifacts(project,
     )
 
     try:
-        artifact_list = extract_artifacts_cb(job_log_url['url'],
+        artifact_list = extract_artifacts_cb(project, job_log_url['url'],
                                              job_guid, check_errors)
     except Exception as e:
         client.update_parse_status(project, job_log_url['id'], 'failed')
