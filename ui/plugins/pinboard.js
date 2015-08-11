@@ -76,9 +76,6 @@ treeherder.controller('PinboardCtrl', [
                 $scope.completeClassification();
                 $scope.classification = thPinboard.createNewClassification();
 
-                // We reselect job in place ensuring a correct state for other actions
-                // Potential update with follow up 1181271
-                $rootScope.$emit(thEvents.selectJob, $rootScope.selectedJob, 'passive');
             } else {
                 thNotify.send("Must be logged in to save job classifications", "danger");
             }
