@@ -6,10 +6,10 @@
 
 treeherder.controller('AnnotationsPluginCtrl', [
     '$scope', '$rootScope', 'ThLog', 'ThJobClassificationModel', 'thNotify',
-    'thEvents', 'ThResultSetStore', 'ThBugJobMapModel', 'thTabs',
+    'thEvents', 'ThResultSetStore', 'ThBugJobMapModel', 'thTabs', '$timeout',
     function AnnotationsPluginCtrl(
         $scope, $rootScope, ThLog, ThJobClassificationModel,
-        thNotify, thEvents, ThResultSetStore, ThBugJobMapModel, thTabs) {
+        thNotify, thEvents, ThResultSetStore, ThBugJobMapModel, thTabs, $timeout) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -27,10 +27,6 @@ treeherder.controller('AnnotationsPluginCtrl', [
                 for (var i = 0; i < $scope.bugs.length; i++) {
                     $scope.deleteBug($scope.bugs[i]);
                 }
-
-                // We reselect job in place ensuring a correct state for other actions
-                // Potential update with follow up 1181271
-                $rootScope.$emit(thEvents.selectJob, $rootScope.selectedJob, 'passive');
             } else {
                 thNotify.send("No classification on this job to delete", 'warning');
             }
@@ -42,7 +38,7 @@ treeherder.controller('AnnotationsPluginCtrl', [
             var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
             var job = jobMap[key].job_obj;
 
-            job.failure_classification_id = 1;
+            $scope.$evalAsync(function() {job.failure_classification_id = 1;});
             ThResultSetStore.updateUnclassifiedFailureMap($rootScope.repoName, job);
 
             classification.delete()
