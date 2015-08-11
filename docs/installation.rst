@@ -1,15 +1,15 @@
 Installation
 ================
 
-Cloning the Repo
-----------------
+Prerequisites
+-------------
 
+* If you are new to Mozilla or the A-Team, read the `A-Team Bootcamp`_.
+* Install Git_, Virtualbox_ and Vagrant_ 1.5+ (recent versions recommended).
 * Clone the `treeherder repo`_ from Github.
 
 Setting up Vagrant
 ------------------
-
-* Install Virtualbox_ and Vagrant_ 1.5+ if not present (recent versions of both is strongly recommended).
 
 * Open a shell, cd into the root of the project you just cloned and type
 
@@ -112,6 +112,9 @@ to enable the beat service for this though, so you can omit the "-B":
 
      (venv)vagrant@local:~/treeherder$ celery -A treeherder worker
 
-.. _treeherder repo: https://github.com/mozilla/treeherder
+
+.. _A-Team Bootcamp: https://ateam-bootcamp.readthedocs.org
+.. _Git: https://git-scm.com
 .. _Vagrant: https://www.vagrantup.com
 .. _Virtualbox: https://www.virtualbox.org
+.. _treeherder repo: https://github.com/mozilla/treeherder
