@@ -161,3 +161,18 @@ ports will clash.
 
 If you do not provide a machine name for `up` or `ssh`, the command will
 apply to the `default` machine only.
+
+Building the docs locally
+-------------------------
+
+* Either ``vagrant ssh`` into the VM, or else activate a virtualenv on the host machine.
+
+* From the root of the Treeherder repo, run:
+
+  .. code-block:: bash
+
+     > pip install -r requirements/docs.txt
+     > cd docs
+     > make html
+
+* The built docs can then be found inside docs/_build/html/
