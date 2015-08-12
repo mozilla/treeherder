@@ -620,6 +620,7 @@ class TreeherderClient(object):
     REPOSITORY_ENDPOINT = 'repository'
     JOBGROUP_ENDPOINT = 'jobgroup'
     JOBTYPE_ENDPOINT = 'jobtype'
+    MACHINE_PLATFORM_ENDPOINT = 'machineplatform'
     MAX_COUNT = 2000
 
     def __init__(
@@ -782,6 +783,22 @@ class TreeherderClient(object):
             }
         """
         return self._get_json(self.JOBTYPE_ENDPOINT, None)
+
+    def get_machine_platforms(self):
+        """
+        Gets a list of machine platforms stored inside Treeherder
+
+        Returns a list of dictionaries with the following properties:
+
+            {
+              id: <id>
+              os_name: <os_name>
+              platform: <platform>,
+              architecture: <architecture>,
+              active_status: <active_status>
+            }
+        """
+        return self._get_json(self.MACHINE_PLATFORM_ENDPOINT, None)
 
     def get_resultsets(self, project, **params):
         """
