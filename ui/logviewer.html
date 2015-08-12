@@ -45,8 +45,8 @@
                       'Open the raw log in a new window'}}"
                target="_blank"
                href="{{::artifact.logurl}}">
-              <span ng-show="!logError" class="fa fa-file-text-o actionbtn-icon"></span>
-              <span ng-show="logError" class="fa fa-warning actionbar-warning"></span>
+              <span ng-class="logError ? 'fa-warning actionbtn-warning' : 'fa-file-text-o actionbtn-icon'"
+                    class="fa"></span>
               <span>open raw log</span>
             </a>
           </li>

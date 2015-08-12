@@ -148,7 +148,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 }, function (error) {
                     $scope.loading = false;
                     $scope.logError = true;
-                    thNotify.send("The log no longer exists or has expired", 'warning');
+                    thNotify.send("The log no longer exists or has expired", 'warning', 'true');
                     deferred.reject();
                 });
             } else {

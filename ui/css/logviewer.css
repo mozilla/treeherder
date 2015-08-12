@@ -62,13 +62,9 @@ body {
     vertical-align: middle;
 }
 
-.actionbar-warning {
-    margin-right: 1px;
-    padding: 2px;
-    background-color: #fcf8e3;
-    border: 1px solid #fbd890;
-    border-radius: 2px;
-    color: #8a6d3b;
+/* Override the position of the shared notification partial */
+#notification-box {
+    top: 285px;
 }
 
 .lv-line-no {
@@ -171,6 +167,15 @@ body {
 
 .actionbtn-icon {
     padding-right: 5px;
+}
+
+.actionbtn-warning {
+    margin-right: 1px;
+    padding: 2px;
+    background-color: #fcf8e3;
+    border: 1px solid #fbd890;
+    border-radius: 2px;
+    color: #8a6d3b;
 }
 
 .lv-line-no.label {
