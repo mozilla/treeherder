@@ -347,3 +347,6 @@ class TalosParser(ParserBase):
             # this will throw an exception if the json parsing breaks, but
             # that's the behaviour we want
             self.artifact = json.loads(match.group(1))
+            # Mark this parser as complete, so we don't continue to run
+            # it against every remaining line in the log.
+            self.complete = True

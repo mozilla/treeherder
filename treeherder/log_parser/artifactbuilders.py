@@ -55,6 +55,9 @@ class ArtifactBuilderBase(object):
             line = line[:self.MAX_LINE_LENGTH]
 
         for parser in self.parsers:
+            # Some parsers only need to run until they've seen a specific line.
+            # Once that's occurred, they mark themselves as complete, to save
+            # being included in the set of parsers run against later log lines.
             if not parser.complete:
                 parser.parse_line(line, self.lineno)
 
