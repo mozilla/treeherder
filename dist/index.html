@@ -31,7 +31,7 @@
 
         <th-notification-box></th-notification-box>
 
-        <script src="js/index.min-3420d6cb999e5430f4fd92e74486c519.js"></script>
+        <script src="js/index.min-19491268e3b40b1e86671835095b7a10.js"></script>
 
         <script src="js/config/local.conf.js"></script>
         <script src="https://login.persona.org/include.js"></script>
@@ -126,7 +126,7 @@
                     <tr>
                         <th class="small">Machine name</th>
                         <td class="small">
-                            <a target="_blank" href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ job.machine_name }}">{{ job.machine_name }}</a>
+                            <a target="_blank" href="{{ getSlaveHealthUrl(job.machine_name) }}">{{ job.machine_name }}</a>
                         </td>
                     </tr>
                     <tr ng-repeat="(label, value) in visibleFields"><th>{{label}}</th><td>{{ value }}</td></tr>
