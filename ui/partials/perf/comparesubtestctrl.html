@@ -4,13 +4,13 @@
     <img src="img/dancing_cat.gif" />
     <img src="img/dancing_cat.gif" ng-repeat="x in [0,1,2,3]" style="transform:scale(0.5); margin-left:-40px; margin-top:40px;"/>
   </div>
+  <div id="error" ng-if="!dataLoading && errors.length">
+    <compare-error errors="errors" original-revision="originalRevision" original-project="originalProject" new-revision="newRevision" new-project="newProject"></compare-error>
+  </div>
   <div id="subtest-summary" ng-if="!dataLoading && !errors.length">
     <h1>{{subtestTitle}} subtest summary</h1>
     <revision-information original-project="originalProject" original-revision="originalRevision" original-result-set="originalResultSet" new-project="newProject" new-revision="newRevision" new-result-set="newResultSet"></revision-information>
     <p><a href="perf.html#/compare?originalProject={{originalProject.name}}&originalRevision={{originalRevision}}&newProject={{newProject.name}}&newRevision={{newRevision}}">Show all tests and platforms</a></p>
-    <div id="error" ng-if="!dataLoading && errors.length" ng-repeat="error in errors">
-      <compare-error errors="errors" original-revision="originalRevision" original-project="originalProject" new-revision="newRevision" new-project="newProject"></compare-error>
-    </div>
     <ph-compare-table
        titles="titles"
        test-list="testList"
