@@ -176,3 +176,31 @@ Building the docs locally
      > make html
 
 * The built docs can then be found inside docs/_build/html/
+
+Sharing UI-only changes with others using GitHub Pages
+------------------------------------------------------
+
+It's possible to share UI-only changes with others (for prototyping/testing) using
+GitHub Pages. This is recommended over pushing a custom branch to stage, unless the
+feature requires that you be logged into Treeherder using Persona (which won't work
+cross-domain).
+
+To do this:
+
+* Fork the Treeherder repository to your own Github account.
+
+* Create a gh-pages branch locally based on the feature branch you wish to test, that is configured to point at production's API. eg:
+
+  .. code-block:: bash
+
+     git checkout (your feature branch)
+     git checkout -b gh-pages
+     cp ui/js/config/sample.local.conf.js ui/js/config/local.conf.js
+     git add -f ui/js/config/local.conf.js
+     git commit -m "Add temp config file to make the UI use prod's API"
+
+* Push the ``gh-pages`` branch to your Treeherder fork.
+
+* Tell people to visit: ``https://<your-username>.github.io/treeherder/ui/``
+
+There is no need to perform a ``grunt build`` prior. After switching away from the local gh-pages branch, you will need to recreate ``ui/js/config/local.conf.js`` if desired, due to the ``git add -f``.
