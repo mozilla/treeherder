@@ -57,16 +57,20 @@ project_bound_router.register(
 )
 
 project_bound_router.register(
-    r'performance-data',
-    performance_data.PerformanceDataViewSet,
-    base_name='performance-data',
-)
-
-project_bound_router.register(
     r'job-log-url',
     job_log_url.JobLogUrlViewSet,
     base_name='job-log-url',
 )
+
+project_bound_router.register(
+    r'performance/datum',
+    performance_data.PerformanceDatumViewSet,
+    base_name='performance-datum')
+
+project_bound_router.register(
+    r'performance/signatures',
+    performance_data.PerformanceSignatureViewSet,
+    base_name='performance-signatures')
 
 # this is the default router for plain restful endpoints
 
@@ -86,7 +90,6 @@ default_router.register(r'failureclassification', refdata.FailureClassificationV
 default_router.register(r'user', refdata.UserViewSet, base_name='user')
 default_router.register(r'exclusion-profile', refdata.ExclusionProfileViewSet)
 default_router.register(r'job-exclusion', refdata.JobExclusionViewSet)
-
 
 urlpatterns = patterns(
     '',

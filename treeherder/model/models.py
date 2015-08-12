@@ -533,3 +533,56 @@ class ReferenceDataSignatures(models.Model):
 
     class Meta:
         db_table = 'reference_data_signatures'
+
+
+@python_2_unicode_compatible
+class PerformanceFramework(models.Model):
+    name = models.SlugField(max_length=255L)
+
+    class Meta:
+        db_table = 'performance_framework'
+
+    def __str__(self):
+        return "Performance Framework"
+
+
+@python_2_unicode_compatible
+class PerformanceSignature(models.Model):
+
+    #id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    # FIXME: use django 1.8 to make this the primary key?
+    uuid = models.CharField(max_length=40L)
+
+    framework = models.ForeignKey(PerformanceFramework)
+    platform = models.ForeignKey(MachinePlatform)
+    option_collection = models.ForeignKey(OptionCollection)
+    suite = models.CharField(max_length=80L) # maybe break this out into own model
+    test = models.CharField(max_length=80L, blank=True) # maybe break this out into own model
+
+    # should be *only* what is needed to uniquely identify the
+    # performance signature
+    extra_properties = JSONField()
+
+    class Meta:
+        db_table = 'performance_signature'
+
+    def __str__(self):
+        return "Performance Signature"
+
+
+@python_2_unicode_compatible
+class PerformanceDatum(models.Model):
+
+    repository = models.ForeignKey(Repository)
+    result_set_id = models.PositiveIntegerField()
+    job_id = models.PositiveIntegerField()
+    signature = models.ForeignKey(PerformanceSignature)
+    datum = JSONField()
+    push_timestamp = models.DateTimeField()
+
+    class Meta:
+        db_table = 'performance_datum'
+
+    def __str__(self):
+        return "Performance Datum"

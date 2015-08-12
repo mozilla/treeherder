@@ -5,29 +5,70 @@
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 from treeherder.client import PerfherderClient, PerformanceTimeInterval
-from treeherder.model.derived.jobs import JobsModel
 from urlparse import urlparse
+from treeherder.model.models import (MachinePlatform,
+                                     OptionCollection,
+                                     PerformanceFramework,
+                                     PerformanceSignature,
+                                     PerformanceDatum, Repository)
 
 import concurrent.futures
+import datetime
 
+def _add_series(server_params, project_name, signature_hash, signature_props, verbose):
+    if not PerformanceSignature.objects.filter(uuid=signature_hash):
+        try:
+            option_collection = OptionCollection.objects.filter(
+                option_collection_hash=signature_props['option_collection_hash'])[0]
+            platform = MachinePlatform.objects.filter(
+                platform=signature_props['machine_platform'])[0]
+        except:
+            print "Platform or object collection for %s (%s) does not exist" % (signature_hash,
+                                                                                signature_props)
+            return
 
-def _add_series(server_params, project, time_intervals, signature_hash,
-                signature_props, mysql_debug, verbose):
-    with JobsModel(project) as jm:
-        jm.DEBUG = mysql_debug
-        if verbose:
-            print(signature_hash)
+        try:
+            framework = PerformanceFramework.objects.get(
+                name='talos')
+        except:
+            framework = PerformanceFramework.objects.create(name='talos')
+            framework.save()
 
-        jm.set_series_signature(signature_hash, signature_props)
-        for time_interval in time_intervals:
-            pc = PerfherderClient(protocol=server_params.scheme,
-                                  host=server_params.netloc)
-            series = pc.get_performance_series(project, signature_hash,
-                                               time_interval=time_interval)
-            jm.store_performance_series(time_interval, 'talos_data',
-                                        str(signature_hash),
-                                        series)
+        extra_properties = {}
+        for k in signature_props.keys():
+            if k not in ['option_collection_hash', 'machine_platform',
+                         'test', 'suite']:
+                extra_properties[k] = signature_props[k]
 
+        s = PerformanceSignature.objects.create(
+            uuid=signature_hash,
+            test=signature_props.get('test'),
+            suite=signature_props['suite'],
+            option_collection=option_collection,
+            platform=platform,
+            framework=framework,
+            extra_properties=extra_properties)
+        s.save()
+
+    pc = PerfherderClient(protocol=server_params.scheme,
+                          host=server_params.netloc)
+    series = pc.get_performance_series(project_name, signature_hash,
+                                       time_interval=PerformanceTimeInterval.ONE_YEAR)
+    repository = Repository.objects.get(name=project_name)
+    signature = PerformanceSignature.objects.get(uuid=signature_hash)
+    for datum in series:
+        perfdatum = {}
+        for k in datum.keys():
+            if k not in ['result_set_id', 'job_id', 'push_timestamp']:
+                perfdatum[k] = datum[k]
+        d = PerformanceDatum.objects.create(
+            repository=repository,
+            result_set_id=datum['result_set_id'],
+            job_id=datum['job_id'],
+            signature=signature,
+            datum=perfdatum,
+            push_timestamp=datetime.datetime.fromtimestamp(datum['push_timestamp']))
+        d.save()
 
 class Command(BaseCommand):
 
@@ -40,10 +81,6 @@ class Command(BaseCommand):
                     dest='server',
                     default='https://treeherder.mozilla.org',
                     help='Server to get data from, default https://treeherder.mozilla.org'),
-        make_option('--mysql-debug',
-                    action='store_true',
-                    dest='mysql_debug',
-                    default=False),
         make_option('--num-workers',
                     action='store',
                     dest='num_workers',
@@ -52,11 +89,6 @@ class Command(BaseCommand):
         make_option('--verbose',
                     action='store_true',
                     default=False),
-        make_option('--time-interval',
-                    action='store',
-                    default=None,
-                    type='int',
-                    help="Time interval to fetch (defaults to all)"),
         make_option('--filter-props',
                     action='append',
                     dest="filter_props",
@@ -87,11 +119,6 @@ class Command(BaseCommand):
                 k, v = kv.split(':')
                 signatures = signatures.filter((k, v))
 
-        if options['time_interval'] is None:
-            time_intervals = PerformanceTimeInterval.all_valid_time_intervals()
-        else:
-            time_intervals = [options['time_interval']]
-
         with concurrent.futures.ProcessPoolExecutor(
                 options['num_workers']) as executor:
             futures = []
@@ -99,10 +126,8 @@ class Command(BaseCommand):
             for signature_hash in signatures.get_signature_hashes():
                 futures.append(executor.submit(_add_series, server_params,
                                                project,
-                                               time_intervals,
                                                signature_hash,
                                                signatures[signature_hash],
-                                               options['mysql_debug'],
                                                options['verbose']))
             for future in futures:
                 try:

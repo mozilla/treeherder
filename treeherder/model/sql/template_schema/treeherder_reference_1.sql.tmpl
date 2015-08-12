@@ -668,7 +668,47 @@ CREATE TABLE `exclusion_profile_exclusions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+DROP TABLE IF EXISTS `performance_framework`;
 
+CREATE TABLE `performance_framework` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `name` varchar(255) NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+CREATE INDEX `performance_framework_b068931c` ON `performance_framework` (`name`);
+
+DROP TABLE IF EXISTS `performance_signature`;
+
+CREATE TABLE `performance_signature` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `uuid` varchar(40) NOT NULL,
+    `suite` varchar(80) NOT NULL,
+    `test` varchar(80),
+    `extra_properties` longtext NOT NULL,
+    `framework_id` integer NOT NULL,
+    `option_collection_id` int(10) unsigned NOT NULL,
+    `platform_id` int(10) unsigned NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+ALTER TABLE `performance_signature` ADD CONSTRAINT `performance_sig_framework_id_ab852e1_fk_performance_framework_id` FOREIGN KEY (`framework_id`) REFERENCES `performance_framework` (`id`);
+ALTER TABLE `performance_signature` ADD CONSTRAINT `performanc_option_collection_id_5c26993b_fk_option_collection_id` FOREIGN KEY (`option_collection_id`) REFERENCES `option_collection` (`id`);
+ALTER TABLE `performance_signature` ADD CONSTRAINT `performance_signature_platform_id_1f9ab43_fk_machine_platform_id` FOREIGN KEY (`platform_id`) REFERENCES `machine_platform` (`id`);
+CREATE INDEX `performance_signature_01591224` ON `performance_signature` (`framework_id`);
+CREATE INDEX `performance_signature_dad2da07` ON `performance_signature` (`option_collection_id`);
+CREATE INDEX `performance_signature_cb857215` ON `performance_signature` (`platform_id`);
+
+DROP TABLE IF EXISTS `performance_datum`;
+
+CREATE TABLE `performance_datum` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `result_set_id` integer UNSIGNED NOT NULL,
+    `job_id` integer UNSIGNED NOT NULL,
+    `datum` longtext NOT NULL,
+    `push_timestamp` datetime NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+ALTER TABLE `performance_datum` ADD COLUMN `repository_id` int(10) unsigned NOT NULL;
+ALTER TABLE `performance_datum` ALTER COLUMN `repository_id` DROP DEFAULT;
+ALTER TABLE `performance_datum` ADD COLUMN `signature_id` integer NOT NULL;
+ALTER TABLE `performance_datum` ALTER COLUMN `signature_id` DROP DEFAULT;
+CREATE INDEX `performance_datum_81ee1a31` ON `performance_datum` (`repository_id`);
+ALTER TABLE `performance_datum` ADD CONSTRAINT `performance_datum_repository_id_63e56275_fk_repository_id` FOREIGN KEY (`repository_id`) REFERENCES `repository` (`id`);
+CREATE INDEX `performance_datum_edb74c98` ON `performance_datum` (`signature_id`);
+ALTER TABLE `performance_datum` ADD CONSTRAINT `performance_da_signature_id_2be72806_fk_performance_signature_id` FOREIGN KEY (`signature_id`) REFERENCES `performance_signature` (`id`);
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

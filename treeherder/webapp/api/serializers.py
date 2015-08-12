@@ -124,3 +124,8 @@ class BugscacheSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Bugscache
+
+class PerformanceSignatureSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.PerformanceSignature
