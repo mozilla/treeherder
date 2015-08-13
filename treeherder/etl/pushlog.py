@@ -79,27 +79,29 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
 
         # get the last object seen from cache. this will
         # reduce the number of pushes processed every time
-        last_push = cache.get("{0}:last_push".format(repository))
-        if not changeset and last_push:
+        last_push_id = cache.get("{0}:last_push_id".format(repository))
+        if not changeset and last_push_id:
             logger.info("Extracted last push for '%s', '%s', from cache, "
                         "attempting to get changes only from that point" %
-                        (repository, last_push))
-            try:
-                # make an attempt to use the last revision cached
-                extracted_content = self.extract(
-                    source_url + "&fromchange=" + last_push
-                )
-            except requests.exceptions.HTTPError as e:
-                # in case of a 404 error, delete the cache key
-                # and try it without any parameter
-                if e.response.status_code == 404:
-                    logger.warning("Got a 404 fetching changes since '%s', "
-                                   "getting all changes for '%s' instead" %
-                                   (last_push, repository))
-                    cache.delete("{0}:last_push".format(repository))
-                    extracted_content = self.extract(source_url)
-                else:
-                    raise e
+                        (repository, last_push_id))
+            # make an attempt to use the last revision cached
+            extracted_content = self.extract(
+                "{}&startID={}".format(source_url, last_push_id)
+            )
+
+            if extracted_content['lastpushid'] < last_push_id:
+                # the repo was reset, we need to retry without
+                # the startID param.
+                logger.warning(("Got a ``lastpushid`` value of {} later than "
+                                "the cached value of {}.  "
+                                "Getting all changes for '{}' instead").format(
+                                    extracted_content['lastpushid'],
+                                    last_push_id,
+                                    repository
+                                    )
+                               )
+                cache.delete("{0}:last_push_id".format(repository))
+                extracted_content = self.extract(source_url)
         else:
             if changeset:
                 logger.info("Getting all pushes for '%s' corresponding to "
@@ -112,12 +114,10 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
                 extracted_content = self.extract(source_url)
 
         if extracted_content:
-            last_push_id = max(map(lambda x: int(x), extracted_content.keys()))
-            last_push = extracted_content[str(last_push_id)]
-            top_revision = last_push["changesets"][-1]["node"]
+            last_push_id = extracted_content['lastpushid']
 
             transformed = self.transform(
-                extracted_content,
+                extracted_content['pushes'],
                 repository
             )
             self.load(transformed)
@@ -125,9 +125,9 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
             if not changeset:
                 # only cache the last push if we're not fetching a specific
                 # changeset
-                cache.set("{0}:last_push".format(repository), top_revision)
+                cache.set("{0}:last_push_id".format(repository), last_push_id)
 
-            return top_revision
+            return last_push_id
 
         return None
 
