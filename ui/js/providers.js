@@ -64,12 +64,11 @@ treeherder.provider('thResultStatusObject', function() {
 
 treeherder.provider('thResultStatusInfo', function() {
     this.$get = function() {
-        return function(resultState) {
+        return function(resultState, failure_classification_id) {
             // default if there is no match, used for pending
             var resultStatusInfo = {
                 severity: 100,
-                btnClass: "btn-default",
-                jobButtonIcon: ""
+                btnClass: "btn-default"
             };
 
             switch (resultState) {
@@ -77,8 +76,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 1,
                         btnClass: "btn-red",
-                        btnClassClassified: "btn-red-classified",
-                        jobButtonIcon: "glyphicon glyphicon-fire",
                         countText: "busted"
                     };
                     break;
@@ -86,8 +83,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 2,
                         btnClass: "btn-purple",
-                        btnClassClassified: "btn-purple-classified",
-                        jobButtonIcon: "glyphicon glyphicon-fire",
                         countText: "exception"
                     };
                     break;
@@ -95,8 +90,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 3,
                         btnClass: "btn-orange",
-                        btnClassClassified: "btn-orange-classified",
-                        jobButtonIcon: "glyphicon glyphicon-warning-sign",
                         countText: "failed"
                     };
                     break;
@@ -104,8 +97,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 4,
                         btnClass: "btn-black",
-                        btnClassClassified: "btn-black-classified",
-                        jobButtonIcon: "",
                         countText: "unknown"
                     };
                     break;
@@ -113,7 +104,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 5,
                         btnClass: "btn-pink",
-                        jobButtonIcon: "",
                         countText: "cancel"
                     };
                     break;
@@ -121,7 +111,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 6,
                         btnClass: "btn-dkblue",
-                        jobButtonIcon: "",
                         countText: "retry"
                     };
                     break;
@@ -129,7 +118,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 7,
                         btnClass: "btn-green",
-                        jobButtonIcon: "",
                         countText: "success"
                     };
                     break;
@@ -137,7 +125,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 8,
                         btnClass: "btn-dkgray",
-                        jobButtonIcon: "",
                         countText: "running"
                     };
                     break;
@@ -145,7 +132,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 100,
                         btnClass: "btn-ltgray",
-                        jobButtonIcon: "",
                         countText: "pending"
                     };
                     break;
@@ -153,12 +139,16 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 101,
                         btnClass: "btn-yellow",
-                        jobButtonIcon: "",
                         countText: "coalesced"
                     };
                     break;
             }
 
+            // handle if a job is classified
+            if(parseInt(failure_classification_id, 10) > 1){
+                resultStatusInfo.btnClass = resultStatusInfo.btnClass + "-classified";
+                resultStatusInfo.countText = "classified " + resultStatusInfo.countText;
+            }
             return resultStatusInfo;
         };
 
@@ -206,6 +196,8 @@ treeherder.provider('thEvents', function() {
 
             // fired when a global filter has changed
             globalFilterChanged: "status-filter-changed-EVT",
+
+            groupStateChanged: "group-state-changed-EVT",
 
             toggleRevisions: "toggle-revisions-EVT",
 
@@ -257,10 +249,23 @@ treeherder.provider('thAggregateIds', function() {
         return escape(repoName + resultsetId + revision);
     };
 
+    var getGroupMapKey = function(result_set_id, grName, grSymbol, plName, plOpt) {
+        //Build string key for groupMap entires
+        return escape(result_set_id + grName + grSymbol + plName + plOpt);
+    };
+
+    var getJobMapKey = function(job) {
+        //Build string key for jobMap entires
+        return 'key' + job.id;
+    };
+
     this.$get = function() {
         return {
             getPlatformRowId:getPlatformRowId,
-            getResultsetTableId:getResultsetTableId
+            getResultsetTableId:getResultsetTableId,
+            getJobMapKey: getJobMapKey,
+            getGroupMapKey: getGroupMapKey,
+            escape: escape
             };
     };
 });
