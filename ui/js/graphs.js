@@ -669,12 +669,24 @@ perf.controller('GraphsCtrl', [
                 ThRepositoryModel.get_list().then(function(response) {
 
                     $scope.projects = response.data;
-                    $scope.addTestData = function() {
+                    $scope.addRelatedPlatform = function(seriesSignature) {
+                        $scope.addTestData("addRelatedPlatform", seriesSignature);
+                    };
+                    $scope.addRelatedBranches = function(seriesSignature) {
+                        $scope.addTestData("addRelatedBranches", seriesSignature);
+                    };
+                    $scope.addTestData = function(option, seriesSignature) {
                         var defaultProjectName, defaultPlatform;
+                        var options = {};
                         if ($scope.seriesList.length > 0) {
                             var lastSeries = $scope.seriesList.slice(-1)[0];
                             defaultProjectName = lastSeries.projectName;
                             defaultPlatform = lastSeries.platform;
+                        }
+
+                        if (option !== undefined) {
+                            var series = _.findWhere($scope.seriesList, {"signature": seriesSignature});
+                            options = { option: option, relatedSeries: series };
                         }
 
                         var modalInstance = $modal.open({
@@ -695,7 +707,8 @@ perf.controller('GraphsCtrl', [
                                     return $scope.seriesList;
                                 },
                                 defaultProjectName: function() { return defaultProjectName; },
-                                defaultPlatform: function() { return defaultPlatform; }
+                                defaultPlatform: function() { return defaultPlatform; },
+                                options: function() { return options; }
                             }
                         });
 
@@ -730,15 +743,15 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
                                             projects, optionCollectionMap,
                                             timeRange, thServiceDomain,
                                             thDefaultRepo, PhSeries,
-                                            defaultProjectName, defaultPlatform,
-                                            testsDisplayed) {
+                                            defaultProjectName, defaultPlatform, $q,
+                                            testsDisplayed, options, thPerformanceBranches) {
     $scope.timeRange = timeRange;
     $scope.projects = projects;
     $scope.selectedProject = _.findWhere(projects, {
         name: defaultProjectName ? defaultProjectName : thDefaultRepo
     });
     $scope.loadingTestData = false;
-
+    $scope.loadingRelatedSignatures = true;
     var series = [];
     $scope.addTestData = function () {
         if (($scope.testsToAdd.length + testsDisplayed.length) > 6) {
@@ -800,6 +813,71 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
             _.remove($scope.unselectedTestList, { signature: signature });
         });
     };
+
+    var resolvePromise = $q.defer();
+    var addRelatedPlatforms = function(relatedSeries) {
+        PhSeries.getAllSeries(relatedSeries.projectName,
+            $scope.timeRange, optionCollectionMap).then(
+            function(seriesData) {
+                var platformList = seriesData.platformList;
+                platformList.forEach(function(platform) {
+                    // query all the tests with specific platform, then find
+                    // out the test which has same with the existed test
+                    var testList = _.sortBy(_.filter(seriesData.seriesList,
+                        { platform: platform }), 'name');
+                    var temp = _.findWhere(testList, {"name": relatedSeries.name});
+                    // if found something different from the series we already have,
+                    // then we push it into the testsToAdd list.
+                    if (temp !== undefined && temp.signature !== relatedSeries.signature) {
+                        $scope.testsToAdd.push(_.clone(temp));
+                    }
+                });
+            }
+        ).then(function() {
+                // resolve the testsToAdd's length after every thing was done
+                // so we don't need timeout here
+                resolvePromise.resolve($scope.testsToAdd.length);
+            });
+    };
+
+    var addRelatedBranches = function(relatedSeries) {
+        var branchList = [];
+        thPerformanceBranches.forEach(function (branch) {
+            if (branch !== relatedSeries.projectName) {
+                branchList.push(_.findWhere($scope.projects, {name: branch}));
+            }
+        });
+        // get each project's series data from remote and use promise to
+        // ensure each step will be executed after last on has finished
+        $q.all(branchList.map(function (project) {
+            return PhSeries.getAllSeries(project.name,
+                $scope.timeRange, optionCollectionMap);
+        })).then(function (seriesList) {
+            seriesList.forEach(function (series) {
+                var testList = _.sortBy(_.filter(series.seriesList,
+                    {platform: relatedSeries.platform}), 'name');
+                var temp = _.findWhere(testList, {"name": relatedSeries.name});
+                $scope.testsToAdd.push(_.clone(temp));
+            });
+        }).then(function () {
+            resolvePromise.resolve($scope.testsToAdd.length);
+        });
+    };
+    if (options.option !== undefined) {
+        $scope.loadingRelatedSignatures = false;
+        if (options.option === "addRelatedPlatform") {
+            addRelatedPlatforms(options.relatedSeries);
+        } else if (options.option === "addRelatedBranches") {
+            addRelatedBranches(options.relatedSeries);
+        }
+        resolvePromise.promise.then(function(length){
+            if (length > 0) {
+                $scope.loadingRelatedSignatures = true;
+            } else {
+                window.alert("Oops, no related platforms or branches have been found.");
+            }
+        });
+    }
 
     $scope.updateTestInput = function() {
         $scope.addTestDataDisabled = true;

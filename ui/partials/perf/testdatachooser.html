@@ -2,7 +2,10 @@
   <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
   <h3 class="modal-title">Add test data</h3>
 </div>
-<div class="modal-body">
+<div class="modal-body" ng-show="!loadingRelatedSignatures">
+    <p class="blink" >Getting related test information ...</p>
+</div>
+<div class="modal-body" ng-show="loadingRelatedSignatures">
   <div class="test-chooser">
     <h4>Project</h4>
     <select class="form-control" ng-change="updateTestInput()" ng-model="selectedProject" ng-options="project.name for project in projects">

@@ -16,8 +16,8 @@
                 <td width="10px" class="graph-legend" style="padding: 4px; background-color: {{series.blockColor}}" ></td>
                 <td class="graph-legend" ng-class="{'series-inactive':!series.active}">
                   <b>{{series.name}}</b><br/>
-                  {{series.projectName}}<br/>
-                  {{series.platform}}<br/>
+                  <a ng-click="addRelatedBranches(series.signature)" tooltip="click here to add related branch.">{{series.projectName}}</a><br/>
+                  <a ng-click="addRelatedPlatform(series.signature)" tooltip="click here to add related platforms.">{{series.platform}}</a><br/>
                   <div class="signature"><small>{{series.signature}}</small></div>
                 </td>
               </tr>
