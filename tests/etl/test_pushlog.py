@@ -33,7 +33,7 @@ def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
     assert len(pushes_stored) == push_num
 
     rev_to_push = set()
-    for push in json.loads(pushlog_content).values():
+    for push in json.loads(pushlog_content)['pushes'].values():
         # Add each rev to the set remember we shorten them all down to 12 chars
         rev_to_push.add(push['changesets'][-1]['node'][0:12])
 
@@ -62,13 +62,13 @@ def test_ingest_hg_pushlog_already_stored(jm, initial_data, test_base_dir,
     pushlog_path = os.path.join(test_base_dir, 'sample_data', 'hg_pushlog.json')
     with open(pushlog_path) as f:
         pushlog_content = f.read()
-    pushes = json.loads(pushlog_content).values()
+    pushes = json.loads(pushlog_content)['pushes'].values()
     first_push, second_push = pushes[0:2]
 
-    pushlog_fake_url = "http://www.thisismypushlog.com/?full=1"
+    pushlog_fake_url = "http://www.thisismypushlog.com/?full=1&version=2"
 
     # store the first push only
-    first_push_json = json.dumps({"1": first_push})
+    first_push_json = json.dumps({"lastpushid": 1, "pushes": {"1": first_push}})
     responses.add(responses.GET, pushlog_fake_url,
                   body=first_push_json, status=200,
                   content_type='application/json',
@@ -87,12 +87,12 @@ def test_ingest_hg_pushlog_already_stored(jm, initial_data, test_base_dir,
 
     # store both first and second push
     first_and_second_push_json = json.dumps(
-        {"1": first_push, "2": second_push}
+        {"lastpushid": 2, "pushes": {"1": first_push, "2": second_push}}
     )
-    second_push
+
     responses.add(
         responses.GET,
-        pushlog_fake_url + "&fromchange=2c25d2bbbcd6ddbd45962606911fd429e366b8e1",
+        pushlog_fake_url + "&startID=1",
         body=first_and_second_push_json,
         status=200, content_type='application/json',
         match_querystring=True)
@@ -110,7 +110,8 @@ def test_ingest_hg_pushlog_already_stored(jm, initial_data, test_base_dir,
 
 
 def test_ingest_hg_pushlog_not_found_in_json_pushes(jm, initial_data, test_base_dir,
-                                                    test_repository, mock_post_json, activate_responses):
+                                                    test_repository, mock_post_json,
+                                                    activate_responses):
     """
     Ingest a pushlog that is not found in json-pushes.  So we ingest a
     resultset that is "onhold"
@@ -161,8 +162,36 @@ def test_ingest_hg_pushlog_cache_last_push(jm, initial_data, test_repository,
     process.run(pushlog_fake_url, jm.project)
 
     pushlog_dict = json.loads(pushlog_content)
-    max_push_id = max([int(k) for k in pushlog_dict.keys()])
-    last_push = pushlog_dict[str(max_push_id)]
-    last_push_revision = last_push["changesets"][0]["node"]
+    pushes = pushlog_dict['pushes']
+    max_push_id = max([int(k) for k in pushes.keys()])
 
-    assert cache.get("test_treeherder:last_push") == last_push_revision
+    assert cache.get("test_treeherder:last_push_id") == max_push_id
+
+
+def test_empty_json_pushes(jm, initial_data, test_base_dir,
+                           test_repository, mock_post_json,
+                           activate_responses):
+    """
+    Gracefully handle getting an empty list of pushes from json-pushes
+
+    """
+
+    pushlog_fake_url = "http://www.thisismypushlog.com/?full=1&version=2"
+
+    # store the first push only
+    empty_push_json = json.dumps({"lastpushid": 123, "pushes": {}})
+    responses.add(responses.GET, pushlog_fake_url,
+                  body=empty_push_json, status=200,
+                  content_type='application/json',
+                  match_querystring=True,
+                  )
+
+    process = HgPushlogProcess()
+    process.run(pushlog_fake_url, jm.project)
+
+    pushes_stored = jm.get_dhub().execute(
+        proc="jobs_test.selects.result_set_ids",
+        return_type='tuple'
+    )
+
+    assert len(pushes_stored) == 0
