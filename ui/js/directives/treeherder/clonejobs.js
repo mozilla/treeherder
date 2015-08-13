@@ -10,13 +10,13 @@ treeherder.directive('thCloneJobs', [
     'thServiceDomain', 'thResultStatusInfo', 'thEvents', 'thAggregateIds',
     'thJobFilters', 'thResultStatusObject', 'ThResultSetStore',
     'ThJobModel', 'linkifyBugsFilter', 'thResultStatus', 'thPlatformName',
-    'thJobSearchStr', 'thNotify', '$timeout', '$location',
+    'thJobSearchStr', 'thNotify', '$timeout',
     function(
         $rootScope, $http, ThLog, thUrl, thCloneHtml,
         thServiceDomain, thResultStatusInfo, thEvents, thAggregateIds,
         thJobFilters, thResultStatusObject, ThResultSetStore,
         ThJobModel, linkifyBugsFilter, thResultStatus, thPlatformName,
-        thJobSearchStr, thNotify, $timeout, $location){
+        thJobSearchStr, thNotify, $timeout){
 
         var $log = new ThLog("thCloneJobs");
 
@@ -225,17 +225,12 @@ treeherder.directive('thCloneJobs', [
         };
 
         var addJobBtnToArray = function(job, lastJobSelected, jobBtnArray) {
-            var hText, key, resultState, jobStatus, jobBtn, l;
+            var jobStatus, jobBtn;
 
-            hText = getHoverText(job);
-            key = getJobMapKey(job);
-            //Set the resultState
-            resultState = thResultStatus(job);
-
-            jobStatus = thResultStatusInfo(resultState, job.failure_classification_id);
-            jobStatus.key = key;
+            jobStatus = thResultStatusInfo(thResultStatus(job), job.failure_classification_id);
+            jobStatus.key = getJobMapKey(job);
             jobStatus.value = job.job_type_symbol;
-            jobStatus.title = hText;
+            jobStatus.title = getHoverText(job);
             jobBtn = $(jobBtnInterpolator(jobStatus));
 
             //If the job is currently selected make sure to re-apply
@@ -246,8 +241,7 @@ treeherder.directive('thCloneJobs', [
                 setSelectJobStyles(jobBtn);
 
                 //Update the selected job element to the current one
-                ThResultSetStore.setSelectedJob(
-                    $rootScope.repoName, jobBtn, job);
+                ThResultSetStore.setSelectedJob($rootScope.repoName, jobBtn, job);
             }
             showHideElement(jobBtn, job.visible);
 
