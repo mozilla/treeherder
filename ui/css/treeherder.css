@@ -1608,6 +1608,8 @@ fieldset[disabled] .btn-purple-classified.active {
   color: white;
 }
 
+/* duplicate btn-yellow? */
+/*
 .btn-yellow {
   color: #cdce1d;
   font-weight: bold;
@@ -1633,6 +1635,7 @@ fieldset[disabled] .btn-yellow:active,
 fieldset[disabled] .btn-yellow.active {
   border-color: #cdce1d;
 }
+*/
 
 .btn-ltgray {
   color: #e0e0e0;
@@ -1735,10 +1738,13 @@ fieldset[disabled] .btn-dkgray.active {
   color: white;
 }
 
+/* real btn yellow for unknown */
+/*
 .btn-yellow {
   background-color: #fcf8e3;
   border-color: #fbd890;
   color: #8a6d3b;
+  font-weight: bold;
 }
 .btn-yellow:hover,
 .btn-yellow:focus,
@@ -1762,6 +1768,37 @@ fieldset[disabled] .btn-yellow:active,
 fieldset[disabled] .btn-yellow.active {
   background-color: #fcf8e3;
   border-color: #fbd890;
+}
+*/
+
+/* will be btn-ltblue and mapped to coalesced */
+.btn-yellow {
+  /* background-color: #d9edf7;
+  border-color: #bce8f1;
+  color: #31708f; */
+  color: #81b8ed;
+  font-weight: bold;
+}
+.btn-yellow:hover,
+.btn-yellow:focus,
+.btn-yellow:active,
+.btn-yellow.active {
+  border-color: #499ae9;
+  color: #499ae9;
+}
+.btn-yellow.disabled:hover,
+.btn-yellow.disabled:focus,
+.btn-yellow.disabled:active,
+.btn-yellow.disabled.active,
+.btn-yellow[disabled]:hover,
+.btn-yellow[disabled]:focus,
+.btn-yellow[disabled]:active,
+.btn-yellow[disabled].active,
+fieldset[disabled] .btn-yellow:hover,
+fieldset[disabled] .btn-yellow:focus,
+fieldset[disabled] .btn-yellow:active,
+fieldset[disabled] .btn-yellow.active {
+  border-color: #499a89;
 }
 
 .btn-pink {
