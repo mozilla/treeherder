@@ -38,7 +38,21 @@
                     </span>
                 </span>
 
-                <!--Quick Filter Field-->
+                <!--Toggle Group State Button-->
+                <span class="btn-group">
+                    <span class="btn btn-view-nav btn-sm btn-toggle-group-state"
+                          tabindex="0" role="button"
+                          ng-click="toggleGroupState()">(
+                        <span ng-if="groupState==='collapsed'"
+                              class="group-state-nav-icon"
+                              title="Expand job groups">+</span>
+                        <span ng-if="groupState!=='collapsed'"
+                              class="group-state-nav-icon"
+                              title="Collapse job groups">-</span>
+                    )</span>
+                </span>
+
+                <!--Search Field-->
                 <span ng-controller="SearchCtrl" class="form-group form-inline" id="quick-filter-parent">
                     <input id="quick-filter"
                            title="Click to enter filter values"
