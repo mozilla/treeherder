@@ -175,18 +175,20 @@ def get_resultset(project, revisions_lookup, revision, missing_resultsets, logge
 
 def get_not_found_onhold_push(url, revision):
     return {
-        "00001": {
-            "date": int(time.time()),
-            "changesets": [
-                {
-                    "node": revision,
-                    "tags": [],
-                    "author": "Unknown",
-                    "branch": "default",
-                    "desc": "Pushlog not found at {0}".format(url)
-                }
-            ],
-            "user": "Unknown",
-            "active_status": "onhold"
+        "pushes": {
+            "00001": {
+                "date": int(time.time()),
+                "changesets": [
+                    {
+                        "node": revision,
+                        "tags": [],
+                        "author": "Unknown",
+                        "branch": "default",
+                        "desc": "Pushlog not found at {0}".format(url)
+                    }
+                ],
+                "user": "Unknown",
+                "active_status": "onhold"
+            }
         }
     }
