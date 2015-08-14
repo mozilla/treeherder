@@ -622,6 +622,14 @@ th-watched-repo {
     content: "+";
 }
 
+.group-btn.btn.job-group-count:hover {
+    background-color: rgba(208, 228, 250, 0.51);
+}
+
+.group-btn.btn.job-group-count.selected-count:hover {
+    background-color: rgb(208, 228, 250);
+}
+
 .group-symbol:hover {
     background-color: rgba(208, 228, 250, 0.51);
     cursor: pointer;
@@ -638,10 +646,6 @@ th-watched-repo {
 
 .group-content::after {
     content: ")"
-}
-
-.group-count-list:hover {
-    background-color: rgba(208, 228, 250, 0.51);
 }
 
 .group-job-list {
@@ -1490,6 +1494,9 @@ fieldset[disabled] .btn-orange.active {
   border-color: #aa4f02;
   color: white;
 }
+.btn-orange-classified-count:hover {
+  color: #aa4f02;
+}
 .btn-orange-classified.disabled:hover,
 .btn-orange-classified.disabled:focus,
 .btn-orange-classified.disabled:active,
@@ -1537,7 +1544,8 @@ fieldset[disabled] .btn-red.active {
 }
 
 .btn-red-classified,
-.btn-red-classified-count {
+.btn-red-classified-count,
+.btn-red-classified-count:hover {
   color: #90010a;
 }
 .btn-red-classified:hover,
@@ -1568,11 +1576,14 @@ fieldset[disabled] .btn-red-classified.active {
 .btn-dkblue,
 .btn-dkblue-count,
 .btn-dkblue-classified,
-.btn-dkblue-classified-count {
+.btn-dkblue-classified-count,
+.btn-dkblue-count:hover,
+.btn-dkblue-classified-count:hover {
   color: #283aa2;
   font-weight: bold;
 }
 .btn-dkblue:hover,
+.btn-dkblue-classified:hover,
 .btn-dkblue:focus,
 .btn-dkblue:active,
 .btn-dkblue.active {
@@ -1600,11 +1611,14 @@ fieldset[disabled] .btn-dkblue.active {
 .btn-green,
 .btn-green-count,
 .btn-green-classified,
-.btn-green-classified-count {
+.btn-green-classified-count,
+.btn-green-count:hover,
+.btn-green-classified-count:hover {
   color: rgba(2, 130, 51, 0.75);
   font-weight: bold;
 }
 .btn-green:hover,
+.btn-green-classified:hover,
 .btn-green:focus,
 .btn-green:active,
 .btn-green.active {
@@ -1627,8 +1641,7 @@ fieldset[disabled] .btn-green.active {
   border-color: #02c238;
 }
 
-.btn-purple
-.btn-purple-count {
+.btn-purple {
   background-color: #9a7da6;
   border-color: #6f0296;
   color: white;
@@ -1659,7 +1672,8 @@ fieldset[disabled] .btn-purple.active {
 }
 
 .btn-purple-classified,
-.btn-purple-classified-count {
+.btn-purple-classified-count,
+.btn-purple-classified-count:hover {
   color: #6f0296;
 }
 .btn-purple-classified:hover,
@@ -1690,11 +1704,14 @@ fieldset[disabled] .btn-purple-classified.active {
 .btn-yellow,
 .btn-yellow-count,
 .btn-yellow-classified,
-.btn-yellow-classified-count {
+.btn-yellow-classified-count,
+.btn-yellow-count:hover,
+.btn-yellow-classified-count:hover {
   color: #cdce1d;
   font-weight: bold;
 }
 .btn-yellow:hover,
+.btn-yellow-classified:hover,
 .btn-yellow:focus,
 .btn-yellow:active,
 .btn-yellow.active {
@@ -1722,7 +1739,12 @@ fieldset[disabled] .btn-yellow.active {
 .btn-ltgray-classified-count {
   color: #e0e0e0;
 }
+.btn-ltgray-count:hover,
+.btn-ltgray-classified-count:hover {
+  color: #808080;
+}
 .btn-ltgray:hover,
+.btn-ltgray-classified:hover,
 .btn-ltgray:focus,
 .btn-ltgray:active,
 .btn-ltgray.active {
@@ -1748,12 +1770,14 @@ fieldset[disabled] .btn-ltgray.active {
 .btn-mdgray,
 .btn-mdgray-count,
 .btn-mdgray-classified,
-.btn-mdgray-classified-count
- {
+.btn-mdgray-classified-count,
+.btn-mdgray-count:hover,
+.btn-mdgray-classified-count:hover {
   background-color: #bfbfbf;
   border-color: #bfbfbf;
 }
 .btn-mdgray:hover,
+.btn-mdgray-classified:hover,
 .btn-mdgray:focus,
 .btn-mdgray:active,
 .btn-mdgray.active {
@@ -1799,10 +1823,13 @@ fieldset[disabled] .btn-resultset:hover {
 .btn-dkgray,
 .btn-dkgray-count,
 .btn-dkgray-classified,
-.btn-dkgray-classified-count {
+.btn-dkgray-classified-count,
+.btn-dkgray-count:hover,
+.btn-dkgray-classified-count:hover {
   color: #7c7a7d;
 }
 .btn-dkgray:hover,
+.btn-dkgray-classified:hover,
 .btn-dkgray:focus,
 .btn-dkgray:active,
 .btn-dkgray.active {
@@ -1835,7 +1862,12 @@ fieldset[disabled] .btn-dkgray.active {
   border-color: #000000;
   color: white;
 }
+.btn-black-count:hover,
+.btn-black-classified-count:hover {
+  color: #000000;
+}
 .btn-black:hover,
+.btn-black-classified:hover,
 .btn-black:focus,
 .btn-black:active,
 .btn-black.active {
@@ -1859,38 +1891,17 @@ fieldset[disabled] .btn-black.active {
   border-color: #000000;
 }
 
-.btn-black:hover,
-.btn-black:focus,
-.btn-black:active,
-.btn-black.active {
-  background-color: #000000;
-  border-color: #000000;
-  color: white;
-}
-.btn-black.disabled:hover,
-.btn-black.disabled:focus,
-.btn-black.disabled:active,
-.btn-black.disabled.active,
-.btn-black[disabled]:hover,
-.btn-black[disabled]:focus,
-.btn-black[disabled]:active,
-.btn-black[disabled].active,
-fieldset[disabled] .btn-black:hover,
-fieldset[disabled] .btn-black:focus,
-fieldset[disabled] .btn-black:active,
-fieldset[disabled] .btn-black.active {
-  background-color: #000000;
-  border-color: #000000;
-}
-
-.btn-pink
+.btn-pink,
 .btn-pink-count,
 .btn-pink-classified,
-.btn-pink-classified-count {
+.btn-pink-classified-count,
+.btn-pink-count:hover,
+.btn-pink-classified-count:hover {
   color: #ff40d9;
   font-weight: bold;
 }
 .btn-pink:hover,
+.btn-pink-classified:hover,
 .btn-pink:focus,
 .btn-pink:active,
 .btn-pink.active {
