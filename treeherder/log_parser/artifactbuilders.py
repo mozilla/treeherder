@@ -44,18 +44,19 @@ class ArtifactBuilderBase(object):
 
     def parse_line(self, line):
         """Parse a single line of the log."""
+        # The parser may only need to run until it has seen a specific line.
+        # Once that's occurred, it can mark itself as complete, to save
+        # being run against later log lines.
+        if self.parser.complete:
+            return
+
         # Talos data is stored in a json structure contained in a single line,
         # if the MAX_LINE_LENGTH is applied the data structure could be truncated,
         # preventing it from being ingested.
         if "TALOSDATA" not in line and 'TalosResult' not in line:
             line = line[:self.MAX_LINE_LENGTH]
 
-        # The parser may only need to run until it has seen a specific line.
-        # Once that's occurred, it can mark itself as complete, to save
-        # being run against later log lines.
-        if not self.parser.complete:
-            self.parser.parse_line(line, self.lineno)
-
+        self.parser.parse_line(line, self.lineno)
         self.lineno += 1
 
     def get_artifact(self):
