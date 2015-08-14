@@ -59,10 +59,14 @@ class StepParser(ParserBase):
     PATTERN = r' (?P<name>.*?) \(results: (?P<result_code>\d+), elapsed: .*?\) \(at (?P<timestamp>.*?)\)'
     RE_STEP_START = re.compile(r'={9} Started' + PATTERN)
     RE_STEP_FINISH = re.compile(r'={9} Finished' + PATTERN)
-    # after having started any section
-    ST_STARTED = "started"
-    # after having finished any section
-    ST_FINISHED = "finished"
+    STATES = {
+        # The initial state until we record the first step.
+        "awaiting_first_step": 0,
+        # We've started a step, but not yet seen the end of it.
+        "step_in_progress": 1,
+        # We've seen the end of the previous step.
+        "step_finished": 2,
+    }
     # date format in a step started/finished header
     DATE_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
@@ -76,12 +80,12 @@ class StepParser(ParserBase):
             "errors_truncated": False
         }
         self.sub_parser = ErrorParser()
-        self.state = None
+        self.state = self.STATES['awaiting_first_step']
 
     def parse_line(self, line, lineno):
         """Parse a single non-header line of the log"""
         # Check if we're waiting for a step start line.
-        if not self.state == self.ST_STARTED:
+        if self.state != self.STATES['step_in_progress']:
             match = self.RE_STEP_START.match(line)
             if match:
                 self.start_step(lineno,
@@ -102,7 +106,7 @@ class StepParser(ParserBase):
 
     def start_step(self, lineno, name="Unnamed step", timestamp=None):
         """Create a new step and update the state to reflect we're now in the middle of a step."""
-        self.state = self.ST_STARTED
+        self.state = self.STATES['step_in_progress']
         self.stepnum += 1
         self.steps.append({
             "name": name,
@@ -114,7 +118,7 @@ class StepParser(ParserBase):
 
     def end_step(self, lineno, timestamp=None, result_code=None):
         """Fill in the current step's summary and update the state to show the current step has ended."""
-        self.state = self.ST_FINISHED
+        self.state = self.STATES['step_finished']
         step_errors = self.sub_parser.get_artifact()
         step_error_count = len(step_errors)
         if step_error_count > settings.PARSER_MAX_STEP_ERROR_LINES:
