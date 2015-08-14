@@ -253,3 +253,15 @@ def test_too_many_error_lines_truncation(initial_data):
     do_test(
         "large-number-of-error-lines"
     )
+
+
+def test_taskcluster_missing_finish_marker(initial_data):
+    """
+    A log from a Taskcluster job, where there was an infrastructure problem,
+    and so the final step finish marker is missing. There is also log content
+    between the step markers that should result in unnamed steps being created
+    to house any errors within them.
+    """
+    do_test(
+        "taskcluster-missing-finish-step-marker"
+    )
