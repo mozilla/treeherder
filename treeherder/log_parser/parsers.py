@@ -147,9 +147,16 @@ class StepParser(ParserBase):
 
     def set_duration(self):
         """Sets duration for the step in seconds."""
-        start = self.parsetime(self.current_step["started"])
-        finish = self.parsetime(self.current_step["finished"])
-        td = finish - start
+        started_string = self.current_step["started"]
+        finished_string = self.current_step["finished"]
+        if not (started_string and finished_string):
+            # Handle the dummy steps (created to hold Taskcluster log content that
+            # is between step markers), which have no recorded start/finish time.
+            self.current_step["duration"] = None
+            return
+        start_time = self.parsetime(started_string)
+        finish_time = self.parsetime(finished_string)
+        td = finish_time - start_time
         secs = (
             td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6
         ) / 10.0**6
