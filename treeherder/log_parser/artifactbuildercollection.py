@@ -61,7 +61,7 @@ BuildbotPerformanceDataArtifactBuilder
 * TalosParser
 """
 
-    def __init__(self, url, builders=None, check_errors=True):
+    def __init__(self, url, builders=None):
         """
         ``url`` - url of the log to be parsed
         ``builders`` - ArtifactBuilder instances to generate artifacts.
@@ -81,12 +81,9 @@ BuildbotPerformanceDataArtifactBuilder
         else:
             # use the defaults
             self.builders = [
-                BuildbotLogViewArtifactBuilder(
-                    url=self.url,
-                    check_errors=check_errors,
-                    ),
-                BuildbotJobArtifactBuilder(self.url),
-                BuildbotPerformanceDataArtifactBuilder(self.url)
+                BuildbotLogViewArtifactBuilder(url=self.url),
+                BuildbotJobArtifactBuilder(url=self.url),
+                BuildbotPerformanceDataArtifactBuilder(url=self.url)
             ]
 
     def get_log_handle(self, url):

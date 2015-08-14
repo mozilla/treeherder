@@ -89,11 +89,11 @@ class BuildbotJobArtifactBuilder(ArtifactBuilderBase):
 class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
     """Makes the artifact for the structured log viewer."""
 
-    def __init__(self, url=None, check_errors=True):
+    def __init__(self, url=None):
         """Construct artifact builder for the log viewer"""
         super(BuildbotLogViewArtifactBuilder, self).__init__(url)
         self.parsers = [
-            StepParser(check_errors=check_errors)
+            StepParser()
         ]
         self.name = "text_log_summary"
 
@@ -101,7 +101,7 @@ class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
 class BuildbotPerformanceDataArtifactBuilder(ArtifactBuilderBase):
     """Makes the artifact for performance data."""
 
-    def __init__(self, url=None, check_errors=True):
+    def __init__(self, url=None):
         """Construct artifact builder for the log viewer"""
         super(BuildbotPerformanceDataArtifactBuilder, self).__init__(url)
         self.parsers = [

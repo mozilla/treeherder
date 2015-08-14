@@ -1723,7 +1723,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     task['job_guid'] = job_guid
                     task['log_url'] = log_ref[2]
                     task['result_set_id'] = result_set_id
-                    task['check_errors'] = True
                     tasks.append(task)
 
             # Store the log references
@@ -1758,7 +1757,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                         log_url_lookup[task['log_url']],
                         task['job_guid'],
                     ],
-                    kwargs={'check_errors': task['check_errors']},
                     routing_key=task['routing_key']
                 )
 

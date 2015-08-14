@@ -25,12 +25,11 @@ def is_parsed(job_log_url):
     return parse_status == "parsed"
 
 
-def extract_text_log_artifacts(log_url, job_guid, check_errors):
+def extract_text_log_artifacts(log_url, job_guid):
     """Generate a summary artifact for the raw text log."""
 
     # parse a log given its url
-    artifact_bc = ArtifactBuilderCollection(log_url,
-                                            check_errors=check_errors)
+    artifact_bc = ArtifactBuilderCollection(log_url)
     artifact_bc.parse()
 
     artifact_list = []
@@ -47,7 +46,7 @@ def extract_text_log_artifacts(log_url, job_guid, check_errors):
     return artifact_list
 
 
-def extract_json_log_artifacts(log_url, job_guid, check_errors):
+def extract_json_log_artifacts(log_url, job_guid):
     """ Generate a summary artifact for the mozlog json log. """
     logger.debug("Parsing JSON log at url: {0}".format(log_url))
 
@@ -66,8 +65,7 @@ def post_log_artifacts(project,
                        job_guid,
                        job_log_url,
                        retry_task,
-                       extract_artifacts_cb,
-                       check_errors=False):
+                       extract_artifacts_cb):
     """Post a list of artifacts to a job."""
     def _retry(e):
         # Initially retry after 1 minute, then for each subsequent retry
@@ -90,8 +88,7 @@ def post_log_artifacts(project,
     )
 
     try:
-        artifact_list = extract_artifacts_cb(job_log_url['url'],
-                                             job_guid, check_errors)
+        artifact_list = extract_artifacts_cb(job_log_url['url'], job_guid)
     except Exception as e:
         client.update_parse_status(project, job_log_url['id'], 'failed')
         # unrecoverable http error (doesn't exist or permission denied)

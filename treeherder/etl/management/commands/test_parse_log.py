@@ -41,8 +41,7 @@ class Command(BaseCommand):
         times = []
         for i in range(num_runs):
             start = time.time()
-            artifact_bc = ArtifactBuilderCollection(args[0],
-                                                    check_errors=True)
+            artifact_bc = ArtifactBuilderCollection(args[0])
             artifact_bc.parse()
             times.append(time.time() - start)
 
