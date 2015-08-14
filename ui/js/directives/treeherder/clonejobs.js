@@ -265,7 +265,10 @@ treeherder.directive('thCloneJobs', [
         };
 
         /**
-         * Group most resultStates as just counts.  Keep "failed" as job-btns
+         * Group non-failed jobs as '+n' counts in the UI by default,
+         * and failed jobs as individual buttons.
+         * Each job receives a corresponding resultState which determines its
+         * display.
          */
         var addGroupJobsAndCounts = function(jgObj, platformGroup) {
             var ct, job, jobCountBtn, l;
@@ -301,7 +304,7 @@ treeherder.directive('thCloneJobs', [
                         addJobBtnToArray(job, lastJobSelected, jobBtnArray);
                     } else {
                         _.extend(countInfo, stateCounts[countInfo.btnClass]);
-                        if( !_.isEmpty(lastJobSelected.job) &&
+                        if (!_.isEmpty(lastJobSelected.job) &&
                             (lastJobSelected.job.id === job.id)) {
                             // these clases are applied in the interpolator
                             // to designate this count as having one of its
@@ -407,7 +410,7 @@ treeherder.directive('thCloneJobs', [
 
                 var revision, revisionHtml, userTokens, i;
 
-                for(i=0; i<resultset.revisions.length; i++){
+                for (i=0; i<resultset.revisions.length; i++) {
 
                     revision = resultset.revisions[i];
 
@@ -452,13 +455,13 @@ treeherder.directive('thCloneJobs', [
             var rowEl = revisionsEl.parent();
             rowEl.css('display', 'block');
 
-            if(on) {
+            if (on) {
 
                 ThResultSetStore.loadRevisions(
                     $rootScope.repoName, this.resultset.id
                 );
 
-                if(jobsElDisplayState === 'block'){
+                if (jobsElDisplayState === 'block'){
                     toggleRevisionsSpanOnWithJobs(revisionsEl);
                     //Make sure the jobs span has correct styles
                     toggleJobsSpanOnWithRevisions(jobsEl);
@@ -500,7 +503,7 @@ treeherder.directive('thCloneJobs', [
             jobTdEl.empty();
 
             var jgObj, jobGroup, i;
-            for(i=0; i<jobGroups.length; i++) {
+            for (i=0; i<jobGroups.length; i++) {
 
                 jgObj = jobGroups[i];
 

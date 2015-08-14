@@ -145,7 +145,7 @@ treeherder.provider('thResultStatusInfo', function() {
             }
 
             // handle if a job is classified
-            if(parseInt(failure_classification_id, 10) > 1){
+            if (parseInt(failure_classification_id, 10) > 1) {
                 resultStatusInfo.btnClass = resultStatusInfo.btnClass + "-classified";
                 resultStatusInfo.countText = "classified " + resultStatusInfo.countText;
             }
