@@ -30,17 +30,17 @@ def do_test(log, check_errors=True):
     lpc = ArtifactBuilderCollection(url, builders=builder)
     lpc.parse()
     act = lpc.artifacts[builder.name]
-
-    # we can't compare the "logurl" field, because it's a fully qualified url,
-    # so it will be different depending on the config it's run in.
-    assert "logurl" in act
-    del(act["logurl"])
-
     exp = test_utils.load_exp("{0}.logview.json".format(log))
 
-    # :: use to create the ``exp`` files, if you're making a lot of them
+    # :: Uncomment to create the ``exp`` files, if you're making a lot of them
+    # import json
     # with open(SampleData().get_log_path("{0}.logview.json".format(log)), "w") as f:
     #     f.write(json.dumps(act, indent=4))
+
+    # we can't compare the "logurl" field, because it's a fully qualified url,
+    # so it will be different depending on the machine it's run on.
+    assert "logurl" in act
+    del(act["logurl"])
 
     # log urls won't match in tests, since they're machine specific
     # but leave it in the exp file as an example of what the real structure
