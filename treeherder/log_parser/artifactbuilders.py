@@ -59,6 +59,13 @@ class ArtifactBuilderBase(object):
         self.parser.parse_line(line, self.lineno)
         self.lineno += 1
 
+    def finish_parse(self):
+        """Run any clean-up/summary actions associated with the parser."""
+        # The last lineno seen is one less than ``lineno`` since it's
+        # pre-emptively incremented at the end of the parse_line() call.
+        last_lineno_seen = self.lineno - 1
+        self.parser.finish_parse(last_lineno_seen)
+
     def get_artifact(self):
         """Return the job artifact built by the parser."""
         self.artifact[self.parser.name] = self.parser.get_artifact()

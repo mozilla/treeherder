@@ -136,6 +136,9 @@ BuildbotPerformanceDataArtifactBuilder
 
         # gather the artifacts from all builders
         for builder in self.builders:
+            # Run end-of-parsing actions for this parser,
+            # in case the artifact needs clean-up/summarising.
+            builder.finish_parse()
             name = builder.name
             artifact = builder.get_artifact()
             if name == 'talos_data' and not artifact[name]:
