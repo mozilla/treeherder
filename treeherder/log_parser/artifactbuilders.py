@@ -39,40 +39,34 @@ class ArtifactBuilderBase(object):
             "logurl": url
         }
         self.lineno = 0
-        self.parsers = []
+        self.parser = None
         self.name = "Generic Artifact"
 
     def parse_line(self, line):
         """Parse a single line of the log."""
-
-        """
-        Talos data is stored in a json structure contained in
-        a single line, if the MAX_LINE_LENGTH is applied the
-        data structure could be truncated preventing it from
-        being ingested.
-        """
+        # Talos data is stored in a json structure contained in a single line,
+        # if the MAX_LINE_LENGTH is applied the data structure could be truncated,
+        # preventing it from being ingested.
         if "TALOSDATA" not in line and 'TalosResult' not in line:
             line = line[:self.MAX_LINE_LENGTH]
 
-        for parser in self.parsers:
-            # Some parsers only need to run until they've seen a specific line.
-            # Once that's occurred, they mark themselves as complete, to save
-            # being included in the set of parsers run against later log lines.
-            if not parser.complete:
-                parser.parse_line(line, self.lineno)
+        # The parser may only need to run until it has seen a specific line.
+        # Once that's occurred, it can mark itself as complete, to save
+        # being run against later log lines.
+        if not self.parser.complete:
+            self.parser.parse_line(line, self.lineno)
 
         self.lineno += 1
 
     def get_artifact(self):
-        """Return the job artifact built from all parsers."""
-        for sp in self.parsers:
-            self.artifact[sp.name] = sp.get_artifact()
+        """Return the job artifact built by the parser."""
+        self.artifact[self.parser.name] = self.parser.get_artifact()
         return self.artifact
 
 
 class BuildbotJobArtifactBuilder(ArtifactBuilderBase):
     """
-    Gather error and details for this job.
+    Gather properties for this job.
 
     This parser gathers the data that shows in the job details panel.
     """
@@ -80,9 +74,7 @@ class BuildbotJobArtifactBuilder(ArtifactBuilderBase):
     def __init__(self, url=None):
         """Construct a job artifact builder."""
         super(BuildbotJobArtifactBuilder, self).__init__(url)
-        self.parsers = [
-            TinderboxPrintParser()
-        ]
+        self.parser = TinderboxPrintParser()
         self.name = "Job Info"
 
 
@@ -92,9 +84,7 @@ class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
     def __init__(self, url=None):
         """Construct artifact builder for the log viewer"""
         super(BuildbotLogViewArtifactBuilder, self).__init__(url)
-        self.parsers = [
-            StepParser()
-        ]
+        self.parser = StepParser()
         self.name = "text_log_summary"
 
 
@@ -104,9 +94,7 @@ class BuildbotPerformanceDataArtifactBuilder(ArtifactBuilderBase):
     def __init__(self, url=None):
         """Construct artifact builder for the log viewer"""
         super(BuildbotPerformanceDataArtifactBuilder, self).__init__(url)
-        self.parsers = [
-            TalosParser()
-        ]
+        self.parser = TalosParser()
         self.name = "talos_data"
 
 

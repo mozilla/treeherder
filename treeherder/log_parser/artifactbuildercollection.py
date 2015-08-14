@@ -38,8 +38,8 @@ ArtifactBuilderBase
 * Manages:
 * artifact
 * line number
-* parsers
-* Passes lines into each ``Parser``
+* parser
+* Passes lines the ``Parser``
 
 BuildbotLogViewArtifactBuilder
 -------------
@@ -51,7 +51,6 @@ BuildbotJobArtifactBuilder
 -------------
 * Builds an artifact for the Treeherder job details panel
 * Parsers:
-* ErrorParser
 * TinderboxPrintParser
 
 BuildbotPerformanceDataArtifactBuilder
