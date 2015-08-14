@@ -7,7 +7,7 @@
         <link id="favicon" type="image/png" rel="shortcut icon" href="img/tree_open.png">
         <th-favicon-link></th-favicon-link>
 
-        <link rel="stylesheet" href="css/index.min-af02a215ac75616889875483344d9963.css" media="screen">
+        <link rel="stylesheet" href="css/index.min-cf5febe439d58ea08c739e8f93165c86.css" media="screen">
 
     </head>
     <body ng-controller="MainCtrl" ng-keydown="processKeyboardInput($event)">
@@ -31,7 +31,7 @@
 
         <th-notification-box></th-notification-box>
 
-        <script src="js/index.min-19491268e3b40b1e86671835095b7a10.js"></script>
+        <script src="js/index.min-f639a67ce7384f6ed93911ec3ca95630.js"></script>
 
         <script src="js/config/local.conf.js"></script>
         <script src="https://login.persona.org/include.js"></script>
@@ -95,11 +95,24 @@
         </script>
 
         <!-- Start span for job groups -->
-        <script type="'text/ng-template'" id="jobGroupBeginClone.html">
+        <script type="'text/ng-template'" id="jobGroupClone.html">
             <span class="platform-group">
-                <span class="disabled job-group" title="{{ name }}">{{ symbol }}(</span>
-                <span class="job-group-list"></span>)
+                <span class="disabled job-group" title="{{ name }}"
+                      data-grkey="{{ grkey }}">
+                    <span class="group-symbol"
+                          ignore-job-clear-on-click>{{ symbol }}</span>
+                    <span class="group-content">
+                        <span class="group-job-list"></span>
+                        <span class="group-count-list"></span>
+                    </span>
+                </span>
             </span>
+        </script>
+
+        <!-- Job group count span for each count item -->
+        <script type="'text/ng-template'" id="jobGroupCountClone.html">
+            <button class="btn {{ selectedClasses }} group-btn btn-xs job-group-count {{ btnClass }}"
+                    title="{{ title }}">{{ value }}</button>
         </script>
 
         <!-- Job Btn span -->
