@@ -48,8 +48,7 @@ def test_all_builders_complete():
         url,
     )
     for builder in lpc.builders:
-        for parser in builder.parsers:
-            parser.complete = True
+        builder.parser.complete = True
 
     lpc.parse()
     exp = {
