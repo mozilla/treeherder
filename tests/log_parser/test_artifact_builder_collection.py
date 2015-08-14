@@ -39,16 +39,6 @@ def test_default_builders():
     assert len(lpc.builders) == 3
 
 
-def test_check_errors_false():
-    """test for check errors disabled case"""
-    abc = ArtifactBuilderCollection(
-        "foo-url",
-        check_errors=False
-    )
-
-    assert abc.builders[0].parsers[0].check_errors is False
-
-
 def test_all_builders_complete():
     """test when parse.complete is true creates correct structure"""
     log = "mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50"

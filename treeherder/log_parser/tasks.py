@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 @task(name='parse-log', max_retries=10)
-def parse_log(project, job_log_url, job_guid, check_errors=False):
+def parse_log(project, job_log_url, job_guid):
     """
     Call ArtifactBuilderCollection on the given job.
     """
@@ -29,12 +29,11 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
                        job_log_url,
                        parse_log,
                        extract_text_log_artifacts,
-                       check_errors
                        )
 
 
 @task(name='parse-json-log', max_retries=10)
-def parse_json_log(project, job_log_url, job_guid, check_errors=False):
+def parse_json_log(project, job_log_url, job_guid):
     """
     Apply the Structured Log Fault Formatter to the structured log for a job.
     """
@@ -53,5 +52,4 @@ def parse_json_log(project, job_log_url, job_guid, check_errors=False):
                        job_log_url,
                        parse_json_log,
                        extract_json_log_artifacts,
-                       check_errors
                        )

@@ -78,7 +78,6 @@ class JobLogUrlViewSet(viewsets.ViewSet):
         from treeherder.log_parser.tasks import parse_log
         parse_log.apply_async(
             args=[project, log_obj, job["job_guid"]],
-            kwargs={'check_errors': True},
             routing_key='parse_log.high_priority'
         )
 

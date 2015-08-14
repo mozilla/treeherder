@@ -55,7 +55,6 @@ class StepParser(ParserBase):
         },
         ...
     ]
-
     """
     PATTERN = r' (?P<name>.*?) \(results: (?P<result>\d+), elapsed: .*?\) \(at (?P<timestamp>.*?)\)'
     RE_STEP_START = re.compile(r'={9} Started' + PATTERN)
@@ -67,7 +66,7 @@ class StepParser(ParserBase):
     # date format in a step started/finished header
     DATE_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
-    def __init__(self, check_errors=True):
+    def __init__(self):
         """Setup the artifact to hold the header lines."""
         super(StepParser, self).__init__("step_data")
         self.stepnum = -1
@@ -76,11 +75,6 @@ class StepParser(ParserBase):
             "all_errors": [],
             "errors_truncated": False
         }
-        self.check_errors = check_errors
-        # even if ``check_errors`` is false, we still want to instantiate
-        # the ErrorParser because we rely on the artifact to contain its
-        # results.  We will just skip calling it to parse.  Then it will create
-        # all the right empty fields we expect.
         self.sub_parser = ErrorParser()
         self.state = None
 
@@ -125,8 +119,7 @@ class StepParser(ParserBase):
             return
 
         # Otherwise just parse the line, since we're in the middle of a step.
-        if self.check_errors:
-            self.sub_parser.parse_line(line, lineno)
+        self.sub_parser.parse_line(line, lineno)
 
     def parsetime(self, match):
         """Convert a string date into a datetime."""

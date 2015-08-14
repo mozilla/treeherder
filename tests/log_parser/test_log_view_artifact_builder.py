@@ -3,19 +3,17 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import pytest
-from mock import MagicMock
 
 from tests import test_utils
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import BuildbotLogViewArtifactBuilder
-from treeherder.log_parser.parsers import ErrorParser
 
 from ..sampledata import SampleData
 
 slow = pytest.mark.slow
 
 
-def do_test(log, check_errors=True):
+def do_test(log):
     """
     Test a single log.
 
@@ -26,7 +24,7 @@ def do_test(log, check_errors=True):
     url = "file://{0}".format(
         SampleData().get_log_path("{0}.txt.gz".format(log)))
 
-    builder = BuildbotLogViewArtifactBuilder(url, check_errors=check_errors)
+    builder = BuildbotLogViewArtifactBuilder(url)
     lpc = ArtifactBuilderCollection(url, builders=builder)
     lpc.parse()
     act = lpc.artifacts[builder.name]
@@ -255,29 +253,3 @@ def test_too_many_error_lines_truncation(initial_data):
     do_test(
         "large-number-of-error-lines"
     )
-
-
-@slow
-def test_check_errors_false(initial_data, monkeypatch):
-    """ensure that parse_line is not called on the error parser."""
-
-    mock_pl = MagicMock(name="parse_line")
-    monkeypatch.setattr(ErrorParser, 'parse_line', mock_pl)
-
-    do_test(
-        "mozilla-central_mountainlion_test-mochitest-2-bm77-tests1-macosx-build141",
-        check_errors=False
-    )
-    assert mock_pl.called is False
-
-
-def test_check_errors_true(initial_data, monkeypatch):
-    """ensure that parse_line is called on the error parser."""
-
-    mock_pl = MagicMock(name="parse_line")
-    monkeypatch.setattr(ErrorParser, 'parse_line', mock_pl)
-
-    do_test(
-        "mozilla-central_mountainlion_test-mochitest-2-bm77-tests1-macosx-build141"
-    )
-    assert mock_pl.called is True
