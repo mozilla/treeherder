@@ -84,15 +84,9 @@ class StepParser(ParserBase):
         if not self.state == self.ST_STARTED:
             match = self.RE_STEP_START.match(line)
             if match:
-                self.state = self.ST_STARTED
-                self.stepnum += 1
-                self.steps.append({
-                    "name": match.group('name'),
-                    "started": match.group('timestamp'),
-                    "started_linenumber": lineno,
-                    "order": self.stepnum,
-                    "errors": [],
-                })
+                self.start_step(lineno,
+                                name=match.group('name'),
+                                timestamp=match.group('timestamp'))
             return
 
         # Check if it's the end of a step.
@@ -120,6 +114,18 @@ class StepParser(ParserBase):
 
         # Otherwise just parse the line, since we're in the middle of a step.
         self.sub_parser.parse_line(line, lineno)
+
+    def start_step(self, lineno, name="Unnamed step", timestamp=None):
+        """Create a new step and update the state to reflect we're now in the middle of a step."""
+        self.state = self.ST_STARTED
+        self.stepnum += 1
+        self.steps.append({
+            "name": name,
+            "started": timestamp,
+            "started_linenumber": lineno,
+            "order": self.stepnum,
+            "errors": [],
+        })
 
     def parsetime(self, match):
         """Convert a string date into a datetime."""
