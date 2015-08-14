@@ -260,9 +260,9 @@ treeherder.provider('thAggregateIds', function() {
         return escape(repoName + resultsetId + revision);
     };
 
-    var getGroupMapKey = function(result_set_id, grName, plName, plOpt) {
+    var getGroupMapKey = function(result_set_id, grName, grSymbol, plName, plOpt) {
         //Build string key for groupMap entires
-        return escape(result_set_id + grName + plName + plOpt);
+        return escape(result_set_id + grName + grSymbol + plName + plOpt);
     };
 
     var getJobMapKey = function(job) {

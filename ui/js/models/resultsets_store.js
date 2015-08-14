@@ -326,7 +326,7 @@ treeherder.factory('ThResultSetStore', [
                 // groups
                 for (var gp_i = 0; gp_i < pl_obj.groups.length; gp_i++) {
                     var gr_obj = pl_obj.groups[gp_i];
-                    gr_obj.mapKey = thAggregateIds.getGroupMapKey(rs_obj.id, gr_obj.name, pl_obj.name, pl_obj.option);
+                    gr_obj.mapKey = thAggregateIds.getGroupMapKey(rs_obj.id, gr_obj.name, gr_obj.symbol, pl_obj.name, pl_obj.option);
 
                     var grMapElement = {
                         grp_obj: gr_obj,

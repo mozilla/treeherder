@@ -23,6 +23,7 @@ treeherder.directive('thCloneJobs', [
         // CSS classes
         var btnCls = 'btn-xs';
         var selectedBtnCls = 'selected-job';
+        var selectedCountCls = 'selected-count';
         var largeBtnCls = 'btn-lg-xform';
 
         var col5Cls = 'col-xs-5';
@@ -30,6 +31,8 @@ treeherder.directive('thCloneJobs', [
         var col12Cls = 'col-xs-12';
         var jobListNoPadCls = 'job-list-nopad';
         var jobListPadCls = 'job-list-pad';
+
+        var viewContentSel = ".th-view-content";
 
         var failResults = ["testfailed", "busted", "exception"];
 
@@ -91,9 +94,9 @@ treeherder.directive('thCloneJobs', [
                 // The .selected-job can be invisible, for instance, when filtered to
                 // unclassified failures only, and you then classify the selected job.
                 // It's still selected, but no longer visible.
-                jobs = $(".th-view-content").find(jobNavSelector.selector).filter(":visible, .selected-job");
+                jobs = $(viewContentSel).find(jobNavSelector.selector).filter(":visible, .selected-job, .selected-count");
                 if (jobs.length) {
-                    var selIdx = jobs.index(jobs.filter(".selected-job"));
+                    var selIdx = jobs.index(jobs.filter(".selected-job, .selected-count").first());
                     var idx = getIndex(selIdx, jobs);
 
                     el = $(jobs[idx]);
@@ -132,20 +135,12 @@ treeherder.directive('thCloneJobs', [
         };
 
         var setSelectJobStyles = function(el){
-
-            var lastJobSelected = ThResultSetStore.getSelectedJob(
-                $rootScope.repoName);
-
-            if(!_.isEmpty(lastJobSelected.el)){
-                lastJobSelected.el.removeClass(selectedBtnCls);
-                lastJobSelected.el.removeClass(largeBtnCls);
-                lastJobSelected.el.addClass(btnCls);
-            }
+            // clear the styles from the previously selected job, if any.
+            clearSelectJobStyles();
 
             el.removeClass(btnCls);
             el.addClass(largeBtnCls);
             el.addClass(selectedBtnCls);
-
         };
 
         var clearSelectJobStyles = function() {
@@ -156,6 +151,16 @@ treeherder.directive('thCloneJobs', [
                 lastJobSelected.el.removeClass(selectedBtnCls);
                 lastJobSelected.el.removeClass(largeBtnCls);
                 lastJobSelected.el.addClass(btnCls);
+            }
+
+            // if a job was previously selected that is now inside a count,
+            // then the count will have the ``.selected-count`` class.  Since
+            // we are now selecting a job, we need to remove that class from the
+            // count.
+            var selectedCount = $(viewContentSel).find("."+selectedCountCls);
+            if (selectedCount.length) {
+                selectedCount.removeClass(selectedCountCls);
+                selectedCount.removeClass(largeBtnCls);
             }
         };
 
@@ -220,17 +225,12 @@ treeherder.directive('thCloneJobs', [
         };
 
         var addJobBtnToArray = function(job, lastJobSelected, jobBtnArray) {
-            var hText, key, resultState, jobStatus, jobBtn, l;
+            var jobStatus, jobBtn;
 
-            hText = getHoverText(job);
-            key = getJobMapKey(job);
-            //Set the resultState
-            resultState = thResultStatus(job);
-
-            jobStatus = thResultStatusInfo(resultState, job.failure_classification_id);
-            jobStatus.key = key;
+            jobStatus = thResultStatusInfo(thResultStatus(job), job.failure_classification_id);
+            jobStatus.key = getJobMapKey(job);
             jobStatus.value = job.job_type_symbol;
-            jobStatus.title = hText;
+            jobStatus.title = getHoverText(job);
             jobBtn = $(jobBtnInterpolator(jobStatus));
 
             //If the job is currently selected make sure to re-apply
@@ -301,6 +301,15 @@ treeherder.directive('thCloneJobs', [
                         // render the job itself, not a count
                         addJobBtnToArray(job, lastJobSelected, jobBtnArray);
                     } else {
+                        _.extend(countInfo, stateCounts[countInfo.btnClass]);
+                        if( !_.isEmpty(lastJobSelected.job) &&
+                            (lastJobSelected.job.id === job.id)) {
+                            // these clases are applied in the interpolator
+                            // to designate this count as having one of its
+                            // jobs selected.
+                            countInfo.selectedClasses = selectedCountCls + " " + largeBtnCls;
+                        }
+
                         ct = _.get(_.get(stateCounts, countInfo.btnClass, countInfo),
                                    "count", 0);
                         countInfo.count = ct+1;
@@ -715,10 +724,12 @@ treeherder.directive('thCloneJobs', [
             }, this);
         };
 
-        var scrollToElement = function(el){
-
+        var scrollToElement = function(el, duration){
+            if (_.isUndefined(duration)) {
+                duration = 50;
+            }
             if(el.position() !== undefined){
-                $('.th-global-content').scrollTo(el, 100, {offset: -40});
+                $('.th-global-content').scrollTo(el, duration, {offset: -40});
             }
 
         };
@@ -755,6 +766,7 @@ treeherder.directive('thCloneJobs', [
             $rootScope.$on(
                 thEvents.groupStateChanged, function(ev, filterData){
                     _.bind(renderGroups, scope, element, true)();
+                    scrollToElement($(viewContentSel).find(".selected-job, .selected-count"), 1);
                 });
 
             $rootScope.$on(

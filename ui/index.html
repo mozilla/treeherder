@@ -175,7 +175,8 @@
             <span class="platform-group">
                 <span class="disabled job-group" title="{{ name }}"
                       data-grkey="{{ grkey }}">
-                    <span class="group-symbol">{{ symbol }}</span>
+                    <span class="group-symbol"
+                          ignore-job-clear-on-click>{{ symbol }}</span>
                     <span class="group-content">
                         <span class="group-job-list"></span>
                         <span class="group-count-list"></span>
@@ -186,8 +187,7 @@
 
         <!-- Job group count span for each count item -->
         <script type="'text/ng-template'" id="jobGroupCountClone.html">
-            <button class="btn group-btn btn-xs job-group-count {{ btnClass }}"
-                    ignore-job-clear-on-click
+            <button class="btn {{ selectedClasses }} group-btn btn-xs job-group-count {{ btnClass }}"
                     title="{{ title }}">{{ value }}</button>
         </script>
 

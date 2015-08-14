@@ -653,6 +653,10 @@ th-watched-repo {
     background-color: #fff;
 }
 
+.selected-count.btn-lg-xform {
+    background-color: #fff;
+}
+
 .filter-shown {
     display: inline-block;
 }
