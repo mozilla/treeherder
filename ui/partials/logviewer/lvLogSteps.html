@@ -2,7 +2,7 @@
   <div ng-repeat="step in artifact.step_data.steps"
        ng-click="displayLog(step)"
        ng-class="{'selected': (displayedStep.order === step.order)}"
-       ng-if="showSuccessful === true || step.result !== 'success'"
+       ng-show="showSuccessful === true || step.result !== 'success'"
        class="btn btn-block lv-step clearfix {{::getShadingClass(step.result)}}"
        order="{{step.order}}">
     <span class="pull-left clearfix text-left">
