@@ -439,7 +439,7 @@ treeherder.directive('thCloneJobs', [
             }
         };
 
-        var toggleRevisions = function(element, expand){
+        var toggleRevisions = function(element, expand) {
 
             var revisionsEl = element.find('ul').parent();
             var jobsEl = element.find('table').parent();
@@ -461,7 +461,7 @@ treeherder.directive('thCloneJobs', [
                     $rootScope.repoName, this.resultset.id
                 );
 
-                if (jobsElDisplayState === 'block'){
+                if (jobsElDisplayState === 'block') {
                     toggleRevisionsSpanOnWithJobs(revisionsEl);
                     //Make sure the jobs span has correct styles
                     toggleJobsSpanOnWithRevisions(jobsEl);
@@ -474,22 +474,22 @@ treeherder.directive('thCloneJobs', [
 
         };
 
-        var toggleRevisionsSpanOnWithJobs = function(el){
+        var toggleRevisionsSpanOnWithJobs = function(el) {
             el.css('display', 'block');
             el.addClass(col5Cls);
         };
-        var toggleRevisionsSpanOff = function(el){
+        var toggleRevisionsSpanOff = function(el) {
             el.css('display', 'none');
             el.removeClass(col5Cls);
         };
-        var toggleJobsSpanOnWithRevisions = function(el){
+        var toggleJobsSpanOnWithRevisions = function(el) {
             el.css('display', 'block');
             el.removeClass(jobListNoPadCls);
             el.removeClass(col12Cls);
             el.addClass(col7Cls);
             el.addClass(jobListPadCls);
         };
-        var toggleJobsSpanOnWithoutRevisions = function(el){
+        var toggleJobsSpanOnWithoutRevisions = function(el) {
             el.css('display', 'block');
             el.removeClass(col7Cls);
             el.removeClass(jobListPadCls);
@@ -636,7 +636,7 @@ treeherder.directive('thCloneJobs', [
             }
         };
 
-        var appendPlatformRow = function(tableEl, rowEl, platformName){
+        var appendPlatformRow = function(tableEl, rowEl, platformName) {
 
             var tableRows = $(tableEl).find('tr');
 
@@ -674,7 +674,7 @@ treeherder.directive('thCloneJobs', [
         };
 
         var updateJobs = function(platformData){
-            angular.forEach(platformData, function(value, platformId){
+            angular.forEach(platformData, function(value, platformId) {
 
                 if(value.resultsetId !== this.resultset.id){
                     //Confirm we are the correct result set
@@ -703,9 +703,9 @@ treeherder.directive('thCloneJobs', [
                     option = value.platformOption;
 
                     //Add platforms
-                    platformTdEl = $( platformInterpolator(
-                        {'name':platformName, 'option':option, 'id':platformId }
-                    ) );
+                    platformTdEl = $(platformInterpolator(
+                        {'name':platformName, 'option':option, 'id':platformId}
+                    ));
 
                     rowEl.append(platformTdEl);
 
@@ -730,7 +730,7 @@ treeherder.directive('thCloneJobs', [
             if (_.isUndefined(duration)) {
                 duration = 50;
             }
-            if(el.position() !== undefined){
+            if (el.position() !== undefined){
                 $('.th-global-content').scrollTo(el, duration, {offset: -40});
             }
 
@@ -790,7 +790,7 @@ treeherder.directive('thCloneJobs', [
                     for(jid in pinnedJobs.jobs){
                         if (pinnedJobs.jobs.hasOwnProperty(jid)) {
                             //Only update the target resultset id
-                            if(pinnedJobs.jobs[jid].result_set_id === scope.resultset.id){
+                            if (pinnedJobs.jobs[jid].result_set_id === scope.resultset.id) {
                                 ThResultSetStore.aggregateJobPlatform(
                                     $rootScope.repoName, pinnedJobs.jobs[jid], platformData
                                 );
@@ -827,8 +827,7 @@ treeherder.directive('thCloneJobs', [
                 });
         };
 
-        var generateJobElements = function(
-            resultsetAggregateId, resultset){
+        var generateJobElements = function(resultsetAggregateId, resultset) {
 
             var tableEl = $('#' + resultsetAggregateId);
 
@@ -836,7 +835,7 @@ treeherder.directive('thCloneJobs', [
             $(waitSpanEl).css('display', 'none');
 
             var name, option, platformId, platformKey, row, platformTd, jobTdEl, j;
-            for(j=0; j<resultset.platforms.length; j++){
+            for (j=0; j<resultset.platforms.length; j++) {
 
                 platformId = thAggregateIds.getPlatformRowId(
                     $rootScope.repoName,
@@ -888,7 +887,7 @@ treeherder.directive('thCloneJobs', [
         };
 
         var $scope = null;
-        var linker = function(scope, element, attrs){
+        var linker = function(scope, element, attrs) {
 
             $scope = scope;
 
@@ -913,10 +912,10 @@ treeherder.directive('thCloneJobs', [
 
             element.append(targetEl);
 
-            if(scope.resultset.platforms !== undefined){
+            if (scope.resultset.platforms !== undefined) {
                 generateJobElements(
                     resultsetAggregateId, scope.resultset);
-            }else{
+            } else {
                 // Hide the job wait span, resultset has no jobs
                 var tableEl = $('#' + resultsetAggregateId);
                 var waitSpanEl = $(tableEl).prev();
