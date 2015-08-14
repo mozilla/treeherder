@@ -56,7 +56,7 @@ class StepParser(ParserBase):
         ...
     ]
     """
-    PATTERN = r' (?P<name>.*?) \(results: (?P<result>\d+), elapsed: .*?\) \(at (?P<timestamp>.*?)\)'
+    PATTERN = r' (?P<name>.*?) \(results: (?P<result_code>\d+), elapsed: .*?\) \(at (?P<timestamp>.*?)\)'
     RE_STEP_START = re.compile(r'={9} Started' + PATTERN)
     RE_STEP_FINISH = re.compile(r'={9} Finished' + PATTERN)
     # after having started any section
@@ -107,7 +107,7 @@ class StepParser(ParserBase):
             self.current_step.update({
                 "finished": match.group('timestamp'),
                 "finished_linenumber": lineno,
-                "result": RESULT_DICT.get(int(match.group('result')), "unknown"),
+                "result": RESULT_DICT.get(int(match.group('result_code')), "unknown"),
                 "errors": step_errors,
                 "error_count": step_error_count
             })
