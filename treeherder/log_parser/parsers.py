@@ -30,6 +30,10 @@ class ParserBase(object):
         """Parse a single line of the log"""
         raise NotImplementedError  # pragma no cover
 
+    def finish_parse(self, last_lineno_seen):
+        """Clean-up/summary tasks run at the end of parsing."""
+        pass
+
     def get_artifact(self):
         """By default, just return the artifact as-is."""
         return self.artifact
@@ -127,7 +131,8 @@ class StepParser(ParserBase):
         As can be seen above, Taskcluster logs can have (a) log output that falls between
         step markers, and (b) content at the end of the log, that is not followed by a
         final finish step marker. We handle this by creating generic placeholder steps to
-        hold the log output that is not enclosed by step markers.
+        hold the log output that is not enclosed by step markers, and then by cleaning up
+        the final step in finish_parse() once all lines have been parsed.
         """
         if not line.strip():
             # Skip whitespace-only lines, since they will never contain an error line,
@@ -222,6 +227,17 @@ class StepParser(ParserBase):
         self.artifact["all_errors"].extend(step_errors)
         # reset the sub_parser for the next step
         self.sub_parser.clear()
+
+    def finish_parse(self, last_lineno_seen):
+        """Clean-up/summary tasks run at the end of parsing."""
+        if self.state == self.STATES['step_in_progress']:
+            # We've reached the end of the log without seeing the final "step finish"
+            # marker, which would normally have triggered updating the step. As such we
+            # must manually close out the current step, so things like all_errors,
+            # result, finish time and duration are set for it. This ensures that the
+            # error summary for Taskcluster infra failures actually lists the error
+            # that occurs at the end of the log.
+            self.end_step(last_lineno_seen)
 
     def parsetime(self, match):
         """Convert a string date into a datetime."""
