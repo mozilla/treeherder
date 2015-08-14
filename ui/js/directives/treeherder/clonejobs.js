@@ -289,7 +289,7 @@ treeherder.directive('thCloneJobs', [
                 job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' +
                     job.signature;
 
-                //Set the resultState
+                // Set the resultState
                 var resultStatus = thResultStatus(job);
                 var countInfo = thResultStatusInfo(resultStatus,
                                                 job.failure_classification_id);
