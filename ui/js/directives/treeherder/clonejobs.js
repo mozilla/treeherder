@@ -10,13 +10,13 @@ treeherder.directive('thCloneJobs', [
     'thServiceDomain', 'thResultStatusInfo', 'thEvents', 'thAggregateIds',
     'thJobFilters', 'thResultStatusObject', 'ThResultSetStore',
     'ThJobModel', 'linkifyBugsFilter', 'thResultStatus', 'thPlatformName',
-    'thJobSearchStr', 'thNotify', '$timeout', '$location',
+    'thJobSearchStr', 'thNotify', '$timeout',
     function(
         $rootScope, $http, ThLog, thUrl, thCloneHtml,
         thServiceDomain, thResultStatusInfo, thEvents, thAggregateIds,
         thJobFilters, thResultStatusObject, ThResultSetStore,
         ThJobModel, linkifyBugsFilter, thResultStatus, thPlatformName,
-        thJobSearchStr, thNotify, $timeout, $location){
+        thJobSearchStr, thNotify, $timeout){
 
         var $log = new ThLog("thCloneJobs");
 
@@ -241,8 +241,7 @@ treeherder.directive('thCloneJobs', [
                 setSelectJobStyles(jobBtn);
 
                 //Update the selected job element to the current one
-                ThResultSetStore.setSelectedJob(
-                    $rootScope.repoName, jobBtn, job);
+                ThResultSetStore.setSelectedJob($rootScope.repoName, jobBtn, job);
             }
             showHideElement(jobBtn, job.visible);
 

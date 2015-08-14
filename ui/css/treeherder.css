@@ -1483,6 +1483,7 @@ fieldset[disabled] .btn-orange.active {
   color: #dd6602;
 }
 .btn-orange-classified:hover,
+.btn-orange-classified-count:hover,
 .btn-orange-classified:focus,
 .btn-orange-classified:active,
 .btn-orange-classified.active {
@@ -1541,6 +1542,7 @@ fieldset[disabled] .btn-red.active {
   color: #90010a;
 }
 .btn-red-classified:hover,
+.btn-red-classified-count:hover,
 .btn-red-classified:focus,
 .btn-red-classified:active,
 .btn-red-classified.active {
@@ -1573,6 +1575,9 @@ fieldset[disabled] .btn-red-classified.active {
   font-weight: bold;
 }
 .btn-dkblue:hover,
+.btn-dkblue-count:hover,
+.btn-dkblue-classified:hover,
+.btn-dkblue-classified-count:hover,
 .btn-dkblue:focus,
 .btn-dkblue:active,
 .btn-dkblue.active {
@@ -1605,6 +1610,9 @@ fieldset[disabled] .btn-dkblue.active {
   font-weight: bold;
 }
 .btn-green:hover,
+.btn-green-count:hover,
+.btn-green-classified:hover,
+.btn-green-classified-count:hover,
 .btn-green:focus,
 .btn-green:active,
 .btn-green.active {
@@ -1627,8 +1635,7 @@ fieldset[disabled] .btn-green.active {
   border-color: #02c238;
 }
 
-.btn-purple
-.btn-purple-count {
+.btn-purple {
   background-color: #9a7da6;
   border-color: #6f0296;
   color: white;
@@ -1663,6 +1670,7 @@ fieldset[disabled] .btn-purple.active {
   color: #6f0296;
 }
 .btn-purple-classified:hover,
+.btn-purple-classified-count:hover,
 .btn-purple-classified:focus,
 .btn-purple-classified:active,
 .btn-purple-classified.active {
@@ -1695,6 +1703,9 @@ fieldset[disabled] .btn-purple-classified.active {
   font-weight: bold;
 }
 .btn-yellow:hover,
+.btn-yellow-count:hover,
+.btn-yellow-classified:hover,
+.btn-yellow-classified-count:hover,
 .btn-yellow:focus,
 .btn-yellow:active,
 .btn-yellow.active {
@@ -1723,6 +1734,9 @@ fieldset[disabled] .btn-yellow.active {
   color: #e0e0e0;
 }
 .btn-ltgray:hover,
+.btn-ltgray-count:hover,
+.btn-ltgray-classified:hover,
+.btn-ltgray-classified-count:hover,
 .btn-ltgray:focus,
 .btn-ltgray:active,
 .btn-ltgray.active {
@@ -1754,6 +1768,9 @@ fieldset[disabled] .btn-ltgray.active {
   border-color: #bfbfbf;
 }
 .btn-mdgray:hover,
+.btn-mdgray-count:hover,
+.btn-mdgray-classified:hover,
+.btn-mdgray-classified-count:hover,
 .btn-mdgray:focus,
 .btn-mdgray:active,
 .btn-mdgray.active {
@@ -1803,6 +1820,9 @@ fieldset[disabled] .btn-resultset:hover {
   color: #7c7a7d;
 }
 .btn-dkgray:hover,
+.btn-dkgray-count:hover,
+.btn-dkgray-classified:hover,
+.btn-dkgray-classified-count:hover,
 .btn-dkgray:focus,
 .btn-dkgray:active,
 .btn-dkgray.active {
@@ -1836,6 +1856,9 @@ fieldset[disabled] .btn-dkgray.active {
   color: white;
 }
 .btn-black:hover,
+.btn-black-count:hover,
+.btn-black-classified:hover,
+.btn-black-classified-count:hover,
 .btn-black:focus,
 .btn-black:active,
 .btn-black.active {
@@ -1883,7 +1906,7 @@ fieldset[disabled] .btn-black.active {
   border-color: #000000;
 }
 
-.btn-pink
+.btn-pink,
 .btn-pink-count,
 .btn-pink-classified,
 .btn-pink-classified-count {
@@ -1891,6 +1914,9 @@ fieldset[disabled] .btn-black.active {
   font-weight: bold;
 }
 .btn-pink:hover,
+.btn-pink-count:hover,
+.btn-pink-classified:hover,
+.btn-pink-classified-count:hover,
 .btn-pink:focus,
 .btn-pink:active,
 .btn-pink.active {

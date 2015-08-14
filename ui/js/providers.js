@@ -68,8 +68,7 @@ treeherder.provider('thResultStatusInfo', function() {
             // default if there is no match, used for pending
             var resultStatusInfo = {
                 severity: 100,
-                btnClass: "btn-default",
-                jobButtonIcon: ""
+                btnClass: "btn-default"
             };
 
             switch (resultState) {
@@ -77,7 +76,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 1,
                         btnClass: "btn-red",
-                        jobButtonIcon: "glyphicon glyphicon-fire",
                         countText: "busted"
                     };
                     break;
@@ -85,7 +83,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 2,
                         btnClass: "btn-purple",
-                        jobButtonIcon: "glyphicon glyphicon-fire",
                         countText: "exception"
                     };
                     break;
@@ -93,7 +90,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 3,
                         btnClass: "btn-orange",
-                        jobButtonIcon: "glyphicon glyphicon-warning-sign",
                         countText: "failed"
                     };
                     break;
@@ -101,7 +97,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 4,
                         btnClass: "btn-black",
-                        jobButtonIcon: "",
                         countText: "unknown"
                     };
                     break;
@@ -109,7 +104,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 5,
                         btnClass: "btn-pink",
-                        jobButtonIcon: "",
                         countText: "cancel"
                     };
                     break;
@@ -117,7 +111,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 6,
                         btnClass: "btn-dkblue",
-                        jobButtonIcon: "",
                         countText: "retry"
                     };
                     break;
@@ -125,7 +118,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 7,
                         btnClass: "btn-green",
-                        jobButtonIcon: "",
                         countText: "success"
                     };
                     break;
@@ -133,7 +125,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 8,
                         btnClass: "btn-dkgray",
-                        jobButtonIcon: "",
                         countText: "running"
                     };
                     break;
@@ -141,7 +132,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 100,
                         btnClass: "btn-ltgray",
-                        jobButtonIcon: "",
                         countText: "pending"
                     };
                     break;
@@ -149,7 +139,6 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 101,
                         btnClass: "btn-yellow",
-                        jobButtonIcon: "",
                         countText: "coalesced"
                     };
                     break;
