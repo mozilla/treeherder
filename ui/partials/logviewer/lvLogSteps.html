@@ -13,7 +13,7 @@
           ng-mouseover="time=displayTime(step.started, step.finished)"
           ng-mouseleave="time=(step.duration !== null ? formatTime(step.duration) : 'Duration unknown')"
           class="pull-right clearfix">
-      {{::time}}
+      {{time}}
     </span>
 
     <div ng-if="(step.error_count > 0)">
