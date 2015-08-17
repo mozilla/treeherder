@@ -9,9 +9,9 @@
       {{::step.order+1}}. {{::step.name}}
     </span>
 
-    <span ng-init="time=formatTime(step.duration)"
+    <span ng-init="time=(step.duration !== null ? formatTime(step.duration) : 'Duration unknown')"
           ng-mouseover="time=displayTime(step.started, step.finished)"
-          ng-mouseleave="time=formatTime(step.duration)"
+          ng-mouseleave="time=(step.duration !== null ? formatTime(step.duration) : 'Duration unknown')"
           class="pull-right clearfix">
       {{::time}}
     </span>
