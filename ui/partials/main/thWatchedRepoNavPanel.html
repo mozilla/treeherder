@@ -10,7 +10,8 @@
                       title="Loaded failures / Toggle filtering for unclassified failures"
                       tabindex="0" role="button"
                       ng-class="{'btn-unclassified-failures': getUnclassifiedFailureCount(repoName), 'btn-view-nav': getUnclassifiedFailureCount(repoName)===0}">
-                    <span>{{ getUnclassifiedFailureCount(repoName) }}</span> unclassified
+                    <span id="unclassified-failure-count">
+                        {{getUnclassifiedFailureCount(repoName)}}</span> unclassified
                 </span>
 
                 <!--Toggle Tier-1 jobs only Button-->
