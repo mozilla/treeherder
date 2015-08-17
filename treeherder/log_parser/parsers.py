@@ -83,9 +83,29 @@ class StepParser(ParserBase):
         self.state = self.STATES['awaiting_first_step']
 
     def parse_line(self, line, lineno):
-        """Parse a single non-header line of the log"""
+        """Parse a single line of the log.
+
+        Buildbot log format:
+
+            builder: ...
+            slave: ...
+            starttime: ...
+            results: ...
+            buildid: ...
+            builduid: ...
+            revision: ...
+
+            ======= <step START marker> =======
+            <step log output>
+            ======= <step FINISH marker> =======
+
+            ======= <step START marker> =======
+            <step log output>
+            ======= <step FINISH marker> =======
+        """
         # Check if we're waiting for a step start line.
         if self.state != self.STATES['step_in_progress']:
+            # Start a new step using the extracted step metadata.
             match = self.RE_STEP_START.match(line)
             if match:
                 self.start_step(lineno,
@@ -96,12 +116,14 @@ class StepParser(ParserBase):
         # Check if it's the end of a step.
         match = self.RE_STEP_FINISH.match(line)
         if match:
+            # Close out the current step using the extracted step metadata.
             self.end_step(lineno,
                           timestamp=match.group('timestamp'),
                           result_code=int(match.group('result_code')))
             return
 
-        # Otherwise just parse the line, since we're in the middle of a step.
+        # This is a normal log line, rather than a step marker. (The common case.)
+        # Parse the line for errors, which if found, will be associated with the current step.
         self.sub_parser.parse_line(line, lineno)
 
     def start_step(self, lineno, name="Unnamed step", timestamp=None):
@@ -127,6 +149,10 @@ class StepParser(ParserBase):
         self.current_step.update({
             "finished": timestamp,
             "finished_linenumber": lineno,
+            # Whilst the result code is present on both the start and end buildbot-style step
+            # markers, for Taskcluster logs the start marker line lies about the result, since
+            # the log output is unbuffered, so Taskcluster does not know the real result at
+            # that point. As such, we only set the result when ending a step.
             "result": RESULT_DICT.get(result_code, "unknown"),
             "errors": step_errors,
             "error_count": step_error_count
