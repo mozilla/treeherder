@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title ng-bind="::logViewerTitle">Log viewer</title>
-    <link rel="stylesheet" href="css/logviewer.min-d78f7f962bb1299294c850f6b917a20e.css" media="screen">
+    <link rel="stylesheet" href="css/logviewer.min-07659b9cf6c2f98b9dddef40861bf3e0.css" media="screen">
     <link id="favicon" type="image/png" rel="shortcut icon" href="img/logviewerIcon.png">
   </head>
   <body class="body-logviewer">
@@ -36,10 +36,12 @@
 
           <!-- Raw log button -->
           <li>
-            <a title="Open the raw log in a new window"
+            <a title="{{logError ? 'Raw log link no longer exists or has expired (click for path)' :
+                      'Open the raw log in a new window'}}"
                target="_blank"
                href="{{::artifact.logurl}}">
-              <span class="fa fa-file-text-o actionbtn-icon"></span>
+              <span ng-class="logError ? 'fa-warning actionbtn-warning' : 'fa-file-text-o actionbtn-icon'"
+                    class="fa"></span>
               <span>open raw log</span>
             </a>
           </li>
@@ -56,7 +58,7 @@
 
           <!-- Show successful steps button -->
           <li ng-if="artifact && hasFailedSteps()"
-              class="logviewer-actionbtn">
+              class="lv-actionbtn">
             <div id="lv-successful-steps">
               <input type="checkbox"
                      ng-model="showSuccessful"
@@ -104,7 +106,9 @@
          lv-log-lines="displayedLogLines">
     </div>
 
-    <script src="js/logviewer.min-fab18f5e0a98cf342a55d2c9b96b4ea2.js"></script>
+    <th-notification-box></th-notification-box>
+
+    <script src="js/logviewer.min-08a4062db0262b5cfeaf8742ac468d33.js"></script>
 
     <script src="js/config/local.conf.js"></script>
 
