@@ -56,9 +56,12 @@ class StepParser(ParserBase):
         ...
     ]
     """
-    PATTERN = r' (?P<name>.*?) \(results: (?P<result_code>\d+), elapsed: .*?\) \(at (?P<timestamp>.*?)\)'
-    RE_STEP_START = re.compile(r'={9} Started' + PATTERN)
-    RE_STEP_FINISH = re.compile(r'={9} Finished' + PATTERN)
+    # Step marker lines, eg:
+    # ========= Started foo (results: 0, elapsed: 0 secs) (at 2015-08-17 02:33:56.353866) =========
+    # ========= Finished foo (results: 0, elapsed: 0 secs) (at 2015-08-17 02:33:56.354301) =========
+    RE_STEP_MARKER = re.compile(r'={9} (?P<marker_type>Started|Finished) (?P<name>.*?) '
+                                r'\(results: (?P<result_code>\d+), elapsed: .*?\) '
+                                r'\(at (?P<timestamp>.*?)\)')
     STATES = {
         # The initial state until we record the first step.
         "awaiting_first_step": 0,
@@ -103,23 +106,23 @@ class StepParser(ParserBase):
             <step log output>
             ======= <step FINISH marker> =======
         """
+        step_marker_match = self.RE_STEP_MARKER.match(line)
+
         # Check if we're waiting for a step start line.
         if self.state != self.STATES['step_in_progress']:
             # Start a new step using the extracted step metadata.
-            match = self.RE_STEP_START.match(line)
-            if match:
+            if step_marker_match and step_marker_match.group('marker_type') == 'Started':
                 self.start_step(lineno,
-                                name=match.group('name'),
-                                timestamp=match.group('timestamp'))
+                                name=step_marker_match.group('name'),
+                                timestamp=step_marker_match.group('timestamp'))
             return
 
         # Check if it's the end of a step.
-        match = self.RE_STEP_FINISH.match(line)
-        if match:
+        if step_marker_match and step_marker_match.group('marker_type') == 'Finished':
             # Close out the current step using the extracted step metadata.
             self.end_step(lineno,
-                          timestamp=match.group('timestamp'),
-                          result_code=int(match.group('result_code')))
+                          timestamp=step_marker_match.group('timestamp'),
+                          result_code=int(step_marker_match.group('result_code')))
             return
 
         # This is a normal log line, rather than a step marker. (The common case.)
