@@ -170,8 +170,8 @@ logViewerApp.controller('LogviewerCtrl', [
         };
 
         $scope.displayTime = function(started, finished) {
-            var start = started.substr(started.indexOf(" ")+1, 8);
-            var end = finished.substr(finished.indexOf(" ")+1, 8);
+            var start = started ? started.substr(started.indexOf(" ")+1, 8) : '?';
+            var end = finished ? finished.substr(finished.indexOf(" ")+1, 8) : '?';
             return start + "-" + end;
         };
 
