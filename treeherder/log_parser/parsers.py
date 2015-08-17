@@ -108,26 +108,31 @@ class StepParser(ParserBase):
         """
         step_marker_match = self.RE_STEP_MARKER.match(line)
 
+        if not step_marker_match:
+            # This is a normal log line, rather than a step marker. (The common case.)
+            # Parse the line for errors, which if found, will be associated with the current step.
+            self.sub_parser.parse_line(line, lineno)
+            return
+
+        # This is either a "step started" or "step finished" marker line, eg:
+        # ========= Started foo (results: 0, elapsed: 0 secs) (at 2015-08-17 02:33:56.353866) =========
+        # ========= Finished foo (results: 0, elapsed: 0 secs) (at 2015-08-17 02:33:56.354301) =========
+
         # Check if we're waiting for a step start line.
         if self.state != self.STATES['step_in_progress']:
             # Start a new step using the extracted step metadata.
-            if step_marker_match and step_marker_match.group('marker_type') == 'Started':
+            if step_marker_match.group('marker_type') == 'Started':
                 self.start_step(lineno,
                                 name=step_marker_match.group('name'),
                                 timestamp=step_marker_match.group('timestamp'))
             return
 
         # Check if it's the end of a step.
-        if step_marker_match and step_marker_match.group('marker_type') == 'Finished':
+        if step_marker_match.group('marker_type') == 'Finished':
             # Close out the current step using the extracted step metadata.
             self.end_step(lineno,
                           timestamp=step_marker_match.group('timestamp'),
                           result_code=int(step_marker_match.group('result_code')))
-            return
-
-        # This is a normal log line, rather than a step marker. (The common case.)
-        # Parse the line for errors, which if found, will be associated with the current step.
-        self.sub_parser.parse_line(line, lineno)
 
     def start_step(self, lineno, name="Unnamed step", timestamp=None):
         """Create a new step and update the state to reflect we're now in the middle of a step."""
