@@ -1934,6 +1934,13 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             resultset_status_dict['coalesced'] = num_coalesced
         return resultset_status_dict
 
+    def get_job_repeats(self, ref_job_guid):
+        job_list = self.execute(
+            proc='jobs.selects.get_job_retriggers',
+            placeholders=[ref_job_guid],
+            debug_show=self.DEBUG)
+        return job_list
+
 
 class JobDataError(ValueError):
     pass

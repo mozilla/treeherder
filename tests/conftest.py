@@ -437,3 +437,67 @@ def mock_error_summary(monkeypatch):
     monkeypatch.setattr(error_summary, "get_error_summary", _get_error_summary)
 
     return bs_obj
+
+
+@pytest.fixture
+def failure_lines(jm, eleven_jobs_stored, initial_data):
+    from treeherder.model.models import RepositoryGroup, Repository
+    from tests.autoclassify.utils import test_line, create_failure_lines
+
+    job = jm.get_job(1)[0]
+
+    repository_group = RepositoryGroup.objects.create(name="repo_group")
+    repository = Repository.objects.create(name=jm.project,
+                                           repository_group=repository_group)
+
+    return create_failure_lines(repository,
+                                job["job_guid"],
+                                [(test_line, {}),
+                                 (test_line, {"subtest": "subtest2"})])
+
+
+@pytest.fixture
+def classified_failures(request, jm, eleven_jobs_stored, initial_data, failure_lines):
+    from treeherder.model.models import ClassifiedFailure, FailureMatch, Matcher
+    from treeherder.autoclassify import detectors
+
+    job_1 = jm.get_job(1)[0]
+
+    class TreeherderUnitTestDetector(detectors.Detector):
+        def __call__(self, failure_lines):
+            pass
+
+    test_matcher = Matcher.objects.register_detector(TreeherderUnitTestDetector)
+
+    def finalize():
+        Matcher._detector_funcs = {}
+        Matcher._matcher_funcs = {}
+    request.addfinalizer(finalize)
+
+    classified_failures = []
+
+    for failure_line in failure_lines:
+        if failure_line.job_guid == job_1["job_guid"]:
+            classified_failure = ClassifiedFailure()
+            classified_failure.save()
+            match = FailureMatch(failure_line=failure_line,
+                                 classified_failure=classified_failure,
+                                 matcher=test_matcher.db_object,
+                                 score=1.0,
+                                 is_best=True)
+            match.save()
+            classified_failures.append(classified_failure)
+
+    return classified_failures
+
+
+@pytest.fixture
+def retriggers(jm, eleven_jobs_stored):
+    original = jm.get_job(2)[0]
+    retrigger = original.copy()
+    retrigger['job_guid'] = "f1c75261017c7c5ce3000931dce4c442fe0a1298"
+
+    jm.execute(proc="jobs_test.inserts.duplicate_job",
+               placeholders=[retrigger['job_guid'], original['job_guid']])
+
+    return [retrigger]
