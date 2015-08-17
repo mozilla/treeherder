@@ -137,6 +137,7 @@ INSTALLED_APPS = [
     'treeherder.etl',
     'treeherder.workers',
     'treeherder.embed',
+    'treeherder.autostar'
 ]
 
 LOCAL_APPS = []
@@ -186,6 +187,8 @@ CELERY_QUEUES = (
     Queue('log_parser_hp', Exchange('default'), routing_key='parse_log.high_priority'),
     Queue('log_parser_json', Exchange('default'), routing_key='parse_log.json'),
     Queue('store_error_summary', Exchange('default'), routing_key='store_error_summary'),
+    Queue('autostar', Exchange('default'), routing_key='autostar'),
+    Queue('detect_intermittents', Exchange('default'), routing_key='detect_intermittents'),
     # Queue for mirroring the failure classification activity to Bugzilla/Elasticsearch
     Queue('classification_mirroring', Exchange('default'), routing_key='classification_mirroring'),
     Queue('error_summary', Exchange('default'), routing_key='error_summary'),

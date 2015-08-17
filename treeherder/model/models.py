@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import os
 import uuid
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from warnings import filterwarnings, resetwarnings
 
 from datasource.bases.BaseHub import BaseHub
@@ -530,8 +530,24 @@ class ReferenceDataSignatures(models.Model):
         db_table = 'reference_data_signatures'
 
 
-class FailureLine(models.Model):
+class FailureLineManager(models.Manager):
+    def unmatched_for_job(self, repository, job_guid):
+        return FailureLine.objects.filter(
+            job_guid=job_guid,
+            repository__name=repository,
+            classified_failures=None,
+        )
 
+    def for_jobs(self, *jobs):
+        failures = FailureLine.objects.filter(job_guid__in=[item["job_guid"] for item in jobs])
+        failures_by_job = defaultdict(list)
+        for item in failures:
+            failures_by_job[item.job_guid].append(item)
+        return failures_by_job
+
+
+
+class FailureLine(models.Model):
     STATUS_LIST = ('PASS', 'FAIL', 'OK', 'ERROR', 'TIMEOUT', 'CRASH', 'ASSERT', 'SKIP', 'NOTRUN')
     ACTION_LIST = ("test_result", "log", "crash")
     LEVEL_LIST = ("critical", "error", "warning", "info", "debug")
@@ -558,6 +574,7 @@ class FailureLine(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
+    objects = FailureLineManager()
     # TODO: add indexes once we know which queries will be typically executed
 
     class Meta:
@@ -566,11 +583,38 @@ class FailureLine(models.Model):
             ('job_guid', 'line')
         )
 
+    def add_match(self, matcher, classified_failure, score):
+        new_match = FailureMatch(
+            failure_line=self,
+            classified_failure=classified_failure,
+            score=score,
+            matcher=matcher)
+        new_match.save()
+
+    def best_match(self, min_score=0):
+        matches = FailureMatch.objects.filter(failure_line_id=self.id).order_by(
+            "-score",
+            "-classified_failure__modified")
+
+        if matches and matches[0].score > min_score:
+            return matches[0]
+
+    def create_new_classification(self, matcher):
+        new_classification = ClassifiedFailure()
+        new_classification.save()
+
+        new_link = FailureMatch(
+            failure_line=self,
+            classified_failure=new_classification,
+            matcher=Matcher.objects.filter(name=matcher.name).get(),
+            score=1,
+            is_best=True)
+        new_link.save()
 
 class ClassifiedFailure(models.Model):
     id = BigAutoField(primary_key=True)
     failure_lines = models.ManyToManyField(FailureLine, through='FailureMatch',
-                                           related_name='intermittent_failures')
+                                           related_name='classified_failures')
     bug_number = models.PositiveIntegerField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
@@ -581,19 +625,56 @@ class ClassifiedFailure(models.Model):
         db_table = 'classified_failure'
 
 
+class MatcherManager(models.Manager):
+    def register_matcher(self, cls):
+        self._register(cls, Matcher._matcher_funcs)
+
+    def register_creator(self, cls):
+        self._register(cls, Matcher._creator_funcs)
+
+    def _register(self, cls, dest):
+        if cls.__name__ in dest:
+            return
+
+        try:
+            obj = Matcher.objects.filter(name=cls.__name__).get()
+        except Matcher.DoesNotExist:
+            obj = Matcher(name=cls.__name__)
+            obj.save()
+
+        dest[cls.__name__] = cls(obj)
+
+    def auto_matchers(self):
+        for matcher in Matcher._matcher_funcs.values():
+            yield matcher
+
+    def auto_creators(self):
+        for matcher in Matcher._creator_funcs.values():
+            yield matcher
+
 class Matcher(models.Model):
     name = models.CharField(max_length=50, unique=True)
+
+    _creator_funcs = OrderedDict()
+    _matcher_funcs = OrderedDict()
+
+    objects = MatcherManager()
 
     class Meta:
         db_table = 'matcher'
 
+    def match(self, *args, **kwargs):
+        if self.name in _matcher_funcs:
+            return self._matcher_funcs(*args, **kwargs)
+        raise ValueError
+
 
 class FailureMatch(models.Model):
     id = BigAutoField(primary_key=True)
-    failure_line = FlexibleForeignKey(FailureLine)
+    failure_line = FlexibleForeignKey(FailureLine, related_name="matches")
     classified_failure = FlexibleForeignKey(ClassifiedFailure)
     matcher = models.ForeignKey(Matcher)
-    score = models.PositiveSmallIntegerField(blank=True, null=True)
+    score = models.FloatField(blank=True, null=True)
     is_best = models.BooleanField(default=False)
 
     # TODO: add indexes once we know which queries will be typically executed
