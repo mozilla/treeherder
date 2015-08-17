@@ -37,7 +37,7 @@ class ParserBase(object):
 
 class StepParser(ParserBase):
     """
-    Parse out buildbot steps.
+    Parse out individual job steps within a log.
 
     Step format:
         "steps": [
@@ -56,6 +56,10 @@ class StepParser(ParserBase):
         ...
     ]
     """
+    # Matches the half-dozen 'key: value' header lines printed at the start of each
+    # Buildbot job log. The list of keys are taken from:
+    # https://hg.mozilla.org/build/buildbotcustom/file/644c3860300a/bin/log_uploader.py#l126
+    RE_HEADER_LINE = re.compile(r'(?:builder|slave|starttime|results|buildid|builduid|revision): .*')
     # Step marker lines, eg:
     # ========= Started foo (results: 0, elapsed: 0 secs) (at 2015-08-17 02:33:56.353866) =========
     # ========= Finished foo (results: 0, elapsed: 0 secs) (at 2015-08-17 02:33:56.354301) =========
@@ -88,7 +92,11 @@ class StepParser(ParserBase):
     def parse_line(self, line, lineno):
         """Parse a single line of the log.
 
-        Buildbot log format:
+        We have to handle both buildbot style logs as well as Taskcluster logs. The latter
+        attempt to emulate the buildbot logs, but don't accurately do so, partly due
+        to the way logs are generated in Taskcluster (ie: on the workers themselves).
+
+        Buildbot logs:
 
             builder: ...
             slave: ...
@@ -105,11 +113,46 @@ class StepParser(ParserBase):
             ======= <step START marker> =======
             <step log output>
             ======= <step FINISH marker> =======
+
+        Taskcluster logs (a worst-case example):
+
+            <log output outside a step>
+            ======= <step START marker> =======
+            <step log output>
+            ======= <step FINISH marker> =======
+            <log output outside a step>
+            ======= <step START marker> =======
+            <step log output with no following finish marker>
+
+        As can be seen above, Taskcluster logs can have (a) log output that falls between
+        step markers, and (b) content at the end of the log, that is not followed by a
+        final finish step marker. We handle this by creating generic placeholder steps to
+        hold the log output that is not enclosed by step markers.
         """
+        if not line.strip():
+            # Skip whitespace-only lines, since they will never contain an error line,
+            # so are not of interest. This also avoids creating spurious unnamed steps
+            # (which occurs when we find content outside of step markers) for the
+            # newlines that separate the steps in Buildbot logs.
+            return
+
+        if self.state == self.STATES['awaiting_first_step'] and self.RE_HEADER_LINE.match(line):
+            # The "key: value" job metadata header lines that appear at the top of
+            # Buildbot logs would result in the creation of an unnamed step at the
+            # start of the job, unless we skip them. (Which is not desired, since
+            # the lines are metadata and not test/build output.)
+            return
+
         step_marker_match = self.RE_STEP_MARKER.match(line)
 
         if not step_marker_match:
             # This is a normal log line, rather than a step marker. (The common case.)
+            if self.state != self.STATES['step_in_progress']:
+                # We don't have an in-progress step, so need to start one, even though this
+                # isn't a "step started" marker line. We therefore create a new generic step,
+                # since we have no way of finding out the step metadata. This case occurs
+                # for the Taskcluster logs where content can fall between step markers.
+                self.start_step(lineno)
             # Parse the line for errors, which if found, will be associated with the current step.
             self.sub_parser.parse_line(line, lineno)
             return
@@ -118,21 +161,30 @@ class StepParser(ParserBase):
         # ========= Started foo (results: 0, elapsed: 0 secs) (at 2015-08-17 02:33:56.353866) =========
         # ========= Finished foo (results: 0, elapsed: 0 secs) (at 2015-08-17 02:33:56.354301) =========
 
-        # Check if we're waiting for a step start line.
-        if self.state != self.STATES['step_in_progress']:
+        if step_marker_match.group('marker_type') == 'Started':
+            if self.state == self.STATES['step_in_progress']:
+                # We're partway through a step (ie: haven't seen a "step finished" marker line),
+                # but have now reached the "step started" marker for the next step. Before we
+                # can start the new step, we have to clean up the previous one - albeit using
+                # generic step metadata, since there was no "step finished" marker. This occurs
+                # in Taskcluster's logs when content falls between the step marker lines.
+                self.end_step(lineno)
             # Start a new step using the extracted step metadata.
-            if step_marker_match.group('marker_type') == 'Started':
-                self.start_step(lineno,
-                                name=step_marker_match.group('name'),
-                                timestamp=step_marker_match.group('timestamp'))
+            self.start_step(lineno,
+                            name=step_marker_match.group('name'),
+                            timestamp=step_marker_match.group('timestamp'))
             return
 
-        # Check if it's the end of a step.
-        if step_marker_match.group('marker_type') == 'Finished':
-            # Close out the current step using the extracted step metadata.
-            self.end_step(lineno,
-                          timestamp=step_marker_match.group('timestamp'),
-                          result_code=int(step_marker_match.group('result_code')))
+        # This is a "step finished" marker line.
+
+        if self.state != self.STATES['step_in_progress']:
+            # We're not in the middle of a step, so can't finish one. Just ignore the marker line.
+            return
+
+        # Close out the current step using the extracted step metadata.
+        self.end_step(lineno,
+                      timestamp=step_marker_match.group('timestamp'),
+                      result_code=int(step_marker_match.group('result_code')))
 
     def start_step(self, lineno, name="Unnamed step", timestamp=None):
         """Create a new step and update the state to reflect we're now in the middle of a step."""
