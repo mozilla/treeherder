@@ -26,12 +26,16 @@ treeherder.factory('ThJobModel', [
         ThJobModel.get_uri = function(repoName){return thUrl.getProjectUrl("/jobs/", repoName);};
 
         ThJobModel.get_list = function(repoName, options, config) {
+            return ThJobModel.get_list_by_uri(ThJobModel.get_uri(repoName), options, config);
+        };
+
+        ThJobModel.get_list_by_uri = function(uri, options, config) {
             // a static method to retrieve a list of ThJobModel
             config = config || {};
             var timeout = config.timeout || null;
             var fetch_all = config.fetch_all || false;
 
-            return $http.get(ThJobModel.get_uri(repoName),{
+            return $http.get(uri, {
                 params: options,
                 timeout: timeout
             }).
@@ -45,7 +49,7 @@ treeherder.factory('ThJobModel', [
                         var new_options = angular.copy(options);
                         new_options.offset = page_size + current_offset;
                         new_options.count = page_size;
-                        next_pages_jobs = ThJobModel.get_list(repoName, new_options, config);
+                        next_pages_jobs = ThJobModel.get_list_by_uri(uri, new_options, config);
                     }
                     if(_.has(response.data, 'job_property_names')){
                         // the results came as list of fields
