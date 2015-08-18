@@ -33,6 +33,18 @@ treeherder.factory('thUrl', [
 
     }]);
 
+treeherder.factory('theResultset', ['$http', 'thServiceDomain',
+    function($http, thServiceDomain) {
+        var theResultset = {
+            getRevisionTimestamp: function(projectName, revision) {
+                var resultSet = $https.get(thServiceDomain + '/api/project/' + projectName +
+                '/resultset/?revision__in=' + revision);
+                return resultSet.results['push_timestamp'];
+            }
+        };
+        return theResultset;
+    }]);
+
 treeherder.factory('thCloneHtml', [
     '$interpolate',
     function($interpolate) {

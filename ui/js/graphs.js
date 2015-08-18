@@ -8,11 +8,11 @@ perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$location', '$modal',
     'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries',
     'ThRepositoryModel', 'ThOptionCollectionModel', 'ThResultSetModel',
-    'phTimeRanges',
+    'phTimeRanges', 'theResultset',
     function GraphsCtrl($state, $stateParams, $scope, $rootScope, $location,
                         $modal, thServiceDomain, $http, $q, $timeout, PhSeries,
                         ThRepositoryModel, ThOptionCollectionModel,
-                        ThResultSetModel, phTimeRanges) {
+                        ThResultSetModel, phTimeRanges, theResultset) {
 
         var availableColors = [ 'red', 'green', 'blue', 'orange', 'purple' ];
         var optionCollectionMap = null;
@@ -308,6 +308,16 @@ perf.controller('GraphsCtrl', [
                     $scope.plot.draw();
                 }
             }
+        }
+        // the url will be passed to like zoomTorevision = [project, revision1, revision2]
+        var zoomRevision = $stateParams.zoomToRevision;
+        if (zoomRevision) {
+            var timestampStart = theResultset.getRevisionTimestamp(zoomRevision[0],
+                zoomRevision[1]);
+            var timestampEnd = theResultset.getRevisionTimestamp(zoomRevision[0],
+                zoomRevision[2]);
+            // $scope.zoom = {'x': [timestampStart, timestampEnd, 'y': "what should I do in here?"};
+            zoomGraph();
         }
 
         function plotGraph() {

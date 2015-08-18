@@ -12,7 +12,7 @@ perf.config(function($compileProvider, $stateProvider, $urlRouterProvider) {
 
     $stateProvider.state('graphs', {
         templateUrl: 'partials/perf/graphsctrl.html',
-        url: '/graphs?timerange&series&highlightedRevisions&zoom',
+        url: '/graphs?timerange&series&highlightedRevisions&zoom&zoomToRevision',
         controller: 'GraphsCtrl'
     }).state('compare', {
         templateUrl: 'partials/perf/comparectrl.html',
