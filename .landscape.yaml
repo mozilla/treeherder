@@ -10,7 +10,6 @@ uses:
   - celery
 requirements:
   - requirements/common.txt
-  - requirements/prod.txt
   - requirements/dev.txt
 ignore-paths:
   - .git
