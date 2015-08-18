@@ -555,12 +555,6 @@ th-watched-repo {
     opacity: 0.75;
 }
 
-.revision-text {
-    display: inline-block;
-    vertical-align: middle;
-    font: 12px "Lucida Console",Monaco,monospace;
-}
-
 .revision-button {
     flex: 0 0 60px;
     margin-right: 4px;
