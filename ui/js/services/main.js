@@ -45,7 +45,6 @@ treeherder.factory('thCloneHtml', [
             'jobGroupClone.html',
             'jobGroupCountClone.html',
             'jobBtnClone.html',
-            'revisionUrlClone.html',
             'pushlogRevisionsClone.html'
         ];
 
