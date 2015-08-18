@@ -272,6 +272,20 @@ treeherder.factory('ThResultSetStore', [
             return key;
         };
 
+        var getPossibleJobs = function(repoName, resultSet){
+            var uri = ThJobModel.get_uri(repoName)+"list_possible";
+
+            return ThJobModel.get_list_by_uri(uri).then(function(jobList) {
+                var id = resultSet.id;
+                _.each(jobList, function(job) {
+                    job.result_set_id = id;
+                    job.id = thAggregateIds.escape(job.result_set_id + job.ref_data_name);
+                });
+
+                mapResultSetJobs(repoName, jobList);
+            });
+        };
+
         /******
          * Build the Job and Resultset object mappings to make it faster and
          * easier to find and update jobs and resultsets
@@ -786,6 +800,29 @@ treeherder.factory('ThResultSetStore', [
             return repositories[repoName].rsMap[resultsetId].rs_obj;
         };
 
+        var getSelectedPossibleJobs = function(repoName, resultsetId){
+            if (!repositories[repoName].rsMap[resultsetId].selected_possible_jobs)
+                repositories[repoName].rsMap[resultsetId].selected_possible_jobs = [];
+            return repositories[repoName].rsMap[resultsetId].selected_possible_jobs;
+        };
+
+        var toggleSelectedPossibleJob = function(repoName, resultsetId, buildername){
+            var selectedPossibleJobs = getSelectedPossibleJobs(repoName, resultsetId);
+            var jobIndex = selectedPossibleJobs.indexOf(buildername);
+
+            if (jobIndex === -1){
+                selectedPossibleJobs.push(buildername);
+            } else {
+                selectedPossibleJobs.splice(jobIndex, 1);
+            }
+        };
+
+        var isPossibleJobSelected = function(repoName, resultsetId, buildername){
+            var selectedPossibleJobs = getSelectedPossibleJobs(repoName, resultsetId);
+            var jobIndex = selectedPossibleJobs.indexOf(buildername);
+            return jobIndex !== -1;
+        };
+
         var getJobMap = function(repoName){
             // this is a "watchable" for jobs
             return repositories[repoName].jobMap;
@@ -1047,6 +1084,10 @@ treeherder.factory('ThResultSetStore', [
             getGroupMap: getGroupMap,
             getLoadingStatus: getLoadingStatus,
             getPlatformKey: getPlatformKey,
+            getPossibleJobs: getPossibleJobs,
+            isPossibleJobSelected: isPossibleJobSelected,
+            getSelectedPossibleJobs: getSelectedPossibleJobs,
+            toggleSelectedPossibleJob: toggleSelectedPossibleJob,
             getResultSet: getResultSet,
             getResultSetsArray: getResultSetsArray,
             getResultSetsMap: getResultSetsMap,
