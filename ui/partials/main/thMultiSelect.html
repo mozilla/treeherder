@@ -12,26 +12,26 @@
         </option>
       </select>
     </div>
-  </div>
 
-  <div class="btn-group-vertical ">
-    <button ng-click="move_left()"
-            type="button"
-            class="btn btn-xs btn-default">
-      <span class="glyphicon glyphicon-chevron-left"></span>
-    </button>
-    <button ng-click="move_right()" type="button"
-            class="btn btn-xs btn-default">
-      <span class="glyphicon glyphicon-chevron-right"></span>
-    </button>
-  </div>
+    <div class="btn-group-vertical ">
+      <button ng-click="move_left()"
+              type="button"
+              class="btn btn-xs btn-default">
+        <span class="glyphicon glyphicon-chevron-left"></span>
+      </button>
+      <button ng-click="move_right()" type="button"
+              class="btn btn-xs btn-default">
+        <span class="glyphicon glyphicon-chevron-right"></span>
+      </button>
+    </div>
 
-  <div class="form-group">
-    <select class="form-control" ng-model="rightSelected" multiple>
-      <option value="{{ ::right_elem }}"
-              ng-repeat="right_elem in rightList">
-        {{ ::right_elem }}
-      </option>
-    </select>
+    <div class="form-group">
+      <select class="form-control" ng-model="rightSelected" multiple>
+        <option value="{{ ::right_elem }}"
+                ng-repeat="right_elem in rightList">
+          {{ ::right_elem }}
+        </option>
+      </select>
+    </div>
   </div>
 </div>
