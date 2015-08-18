@@ -168,6 +168,23 @@ class ResultSetViewSet(viewsets.ViewSet):
         except Exception as ex:
             return Response("Exception: {0}".format(ex), 404)
 
+    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
+    @with_jobs
+    def trigger_new_jobs(self, request, project, jm, pk=None):
+        """
+        Add new jobs to a resultset.
+        """
+        if not pk:
+            return Response({"message": "resultset id required"}, status=400)
+
+        try:
+            buildernames = request.data['buildernames']
+            jm.trigger_new_jobs(request.user.email, pk, project, buildernames)
+            return Response({"message": "New jobs added for push '{0}'".format(pk)})
+
+        except Exception as ex:
+            return Response("Exception: {0}".format(ex), 404)
+
     @with_jobs
     def create(self, request, project, jm):
         """
