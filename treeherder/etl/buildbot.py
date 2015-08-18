@@ -1,4 +1,5 @@
 import re
+import requests
 
 RESULT_DICT = {
     0: "success",
@@ -1078,3 +1079,46 @@ def get_device_or_unknown(job_name, vm):
         return "vm"
     else:
         return "unknown"
+
+
+def get_all_possible_jobs_for_project(project):
+    """Return a list with all buildbot jobs that can be triggered on a project."""
+    all_builders = requests.get(
+        'http://explique.me/all_builders.json').json()
+
+    buildernames = filter(lambda x: " %s " % project in x, all_builders) + \
+        filter(lambda x: "_%s_" % project in x, all_builders) + \
+        filter(lambda x: "-%s-" % project in x, all_builders)
+
+    results = []
+
+    for index, buildername in enumerate(buildernames):
+        platform_info = extract_platform_info(buildername)
+        job_name_info = extract_name_info(buildername)
+
+        device_name = get_device_or_unknown(
+            job_name_info.get('name', ''),
+            platform_info['vm']
+        )
+
+        job = {
+            'job_type_name': job_name_info.get('name', ''),
+            'job_type_symbol': job_name_info.get('job_symbol', ''),
+            'job_group_name': job_name_info.get('group_name', ''),
+            'job_group_symbol': job_name_info.get('group_symbol', ''),
+            'ref_data_name': buildername,
+            'state': 'possible',
+            'result': 'possible',
+            'build_platform': platform_info.get('os_platform', ''),
+            'build_os': platform_info.get('os', ''),
+            'build_architecture': platform_info.get('arch', ''),
+            'device_name': device_name,
+            'machine_platform_architeture': platform_info.get('arch', ''),
+            'machine_platform_os': platform_info.get('os', ''),
+            'platform_option': extract_build_type(buildername),
+            'platform': platform_info.get('os_platform', ''),
+            'job_coalesced_to_guid': None
+        }
+        results.append(job)
+
+    return results

@@ -206,6 +206,15 @@
                   title="{{ title }}">{{ value }}</button>
         </script>
 
+        <!-- Possible Job Btn span -->
+        <script type="'text/ng-template'" id="possibleJobBtnClone.html">
+            <button class="btn possible-job-btn btn-xs {{ btnClass }} {{ key }}"
+                  data-jmkey="{{ key }}"
+                  data-buildername="{{ buildername }}"
+                  ignore-job-clear-on-click
+                  title="{{ title }}">{{ value }}</button>
+        </script>
+
         <!-- revision url window -->
         <script type="'text/ng-template'" id="revisionUrlClone.html">
             <div>{{revisionUrl}}</div>
