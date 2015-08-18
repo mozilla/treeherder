@@ -274,6 +274,13 @@ class JobsModel(TreeherderModelBase):
             routing_key='publish_to_pulse'
         )
 
+    def trigger_new_jobs(self, requester, resultset_id, project, buildernames):
+        publish_resultset_action.apply_async(
+            args=[self.project, "trigger_new_jobs", resultset_id, requester,
+                  1, buildernames],
+            routing_key='publish_to_pulse'
+        )
+
     def _job_action_event(self, job, action, requester):
         """
         Helper for issuing an 'action' for a given job (such as

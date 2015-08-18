@@ -27,14 +27,20 @@
     "action": {
       "title":                "Action",
       "description":          "Type of action issued on task",
-      "enum":                 ["cancel_all", "trigger_missing_jobs", "trigger_all_talos_jobs"],
+      "enum":                 ["cancel_all", "trigger_missing_jobs", "trigger_all_talos_jobs", "trigger_new_jobs"],
       "type":                 "string"
     },
     "requester": {
       "title":                "Requester",
       "description":          "The requester of the action (usually an email)",
       "type":                 "string"
+    },
+    "buildernames": {
+      "title":                "Buildernames",
+      "description":          "The buildernames that should be added to a job.",
+      "type":                 "array"
     }
+
   },
   "additionalProperties":     true,
   "required": ["version", "resultset_id", "project", "action", "requester"]

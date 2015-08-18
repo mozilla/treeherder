@@ -34,6 +34,7 @@ treeherder.directive('thCloneJobs', [
 
         // Custom Attributes
         var jobKeyAttr = 'data-jmkey';
+        var possibleJobBuildernameAttr = 'data-buildername';
         var groupKeyAttr = 'data-grkey';
 
         var tableInterpolator = thCloneHtml.get('resultsetClone').interpolator;
@@ -49,6 +50,9 @@ treeherder.directive('thCloneJobs', [
 
         //Instantiate job btn interpolator
         var jobBtnInterpolator = thCloneHtml.get('jobBtnClone').interpolator;
+
+        //Instantiate job btn interpolator
+        var possibleJobBtnInterpolator = thCloneHtml.get('possibleJobBtnClone').interpolator;
 
         var getJobMapKey = function(job){
             return 'key' + job.id;
@@ -192,6 +196,12 @@ treeherder.directive('thCloneJobs', [
             }
         };
 
+        var clickPossibleJobCb = function(el, resultset_id) {
+            var buildername = el.attr(possibleJobBuildernameAttr);
+            ThResultSetStore.toggleSelectedPossibleJob($rootScope.repoName, resultset_id, buildername);
+            el.toggleClass("result-status-shading-possible-selected");
+        };
+
         var togglePinJobCb = function(ev, el, job){
             $rootScope.$emit(thEvents.jobPin, job);
         };
@@ -227,7 +237,19 @@ treeherder.directive('thCloneJobs', [
             jobStatus.key = getJobMapKey(job);
             jobStatus.value = job.job_type_symbol;
             jobStatus.title = getHoverText(job);
-            jobBtn = $(jobBtnInterpolator(jobStatus));
+
+            if (thResultStatus(job) === "possible"){
+                jobStatus.buildername = job.ref_data_name;
+                jobBtn = $(possibleJobBtnInterpolator(jobStatus));
+
+                if (ThResultSetStore.isPossibleJobSelected($rootScope.repoName,
+                                                            job.result_set_id,
+                                                            jobStatus.buildername))
+                    jobBtn.addClass("result-status-shading-possible-selected");
+            }
+            else{
+                jobBtn = $(jobBtnInterpolator(jobStatus));
+            }
 
             // If the job is currently selected make sure to re-apply
             // the job selection styles
@@ -353,8 +375,11 @@ treeherder.directive('thCloneJobs', [
 
             var el = $(ev.target);
             var key = el.attr(jobKeyAttr);
+            var buildername = el.attr(possibleJobBuildernameAttr);
             //Confirm user selected a job
-            if(key && !_.isEmpty(this.job_map[key])){
+            if (buildername) {
+                _.bind(clickPossibleJobCb, this, el, resultset.id)();
+            } else if(key && !_.isEmpty(this.job_map[key])){
 
                 var job = this.job_map[key].job_obj;
 
@@ -538,15 +563,16 @@ treeherder.directive('thCloneJobs', [
             var job, jmKey, show;
             var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
 
-            element.find('.job-list .job-btn').each(function internalFilterJob() {
-                // using jquery to do these things was quite a bit slower,
-                // so just using raw JS for speed.
-                jmKey = this.dataset.jmkey;
-                job = jobMap[jmKey].job_obj;
-                show = thJobFilters.showJob(job);
-                job.visible = show;
-                showHideElement($(this), show);
-            });
+            element.find('.job-list .job-btn, .job-list .possible-job-btn').each(
+                function internalFilterJob() {
+                    // using jquery to do these things was quite a bit slower,
+                    // so just using raw JS for speed.
+                    jmKey = this.dataset.jmkey;
+                    job = jobMap[jmKey].job_obj;
+                    show = thJobFilters.showJob(job);
+                    job.visible = show;
+                    showHideElement($(this), show);
+                });
 
             renderGroups(element, false);
 
@@ -823,6 +849,18 @@ treeherder.directive('thCloneJobs', [
                             generateJobElements,
                             resultsetAggregateId,
                             rsMap[resultSetId].rs_obj);
+                    }
+                });
+
+            // Show possible jobs when users press '+'
+            $rootScope.$on(
+                thEvents.showPossibleJobs, function(ev, rs){
+                    if(scope.resultset.id === rs.id){
+                        var resultSetAggregateId = thAggregateIds.getResultsetTableId(
+                            $rootScope.repoName, scope.resultset.id, scope.resultset.revision
+                        );
+
+                        ThResultSetStore.getPossibleJobs($rootScope.repoName, rs);
                     }
                 });
         };
