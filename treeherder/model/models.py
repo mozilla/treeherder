@@ -20,6 +20,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
 from treeherder import path
+
 from .fields import BigAutoField, FlexibleForeignKey
 
 # the cache key is specific to the database name we're pulling the data from
@@ -533,7 +534,7 @@ class ReferenceDataSignatures(models.Model):
         db_table = 'reference_data_signatures'
 
 
-class Failure(models.Model):
+class FailureLine(models.Model):
 
     STATUS_LIST = ('PASS', 'FAIL', 'OK', 'ERROR', 'TIMEOUT', 'CRASH', 'ASSERT', 'SKIP', 'NOTRUN')
     ACTION_LIST = ("test_result", "log", "crash")
@@ -564,16 +565,16 @@ class Failure(models.Model):
     # TODO: add indexes once we know which queries will be typically executed
 
     class Meta:
-        db_table = 'failure'
+        db_table = 'failure_line'
         unique_together = (
             ('job_guid', 'line')
         )
 
 
-class KnownIntermittentFailure(models.Model):
+class IntermittentFailure(models.Model):
     id = BigAutoField(primary_key=True)
-    failures = models.ManyToManyField(Failure, through='FailureMatch',
-                                      related_name='known_intermittent_failures')
+    failure_lines = models.ManyToManyField(FailureLine, through='FailureMatch',
+                                           related_name='intermittent_failures')
     bug_number = models.PositiveIntegerField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
@@ -581,7 +582,7 @@ class KnownIntermittentFailure(models.Model):
     # TODO: add indexes once we know which queries will be typically executed
 
     class Meta:
-        db_table = 'known_intermittent_failure'
+        db_table = 'intermittent_failure'
 
 
 class Matcher(models.Model):
@@ -593,8 +594,8 @@ class Matcher(models.Model):
 
 class FailureMatch(models.Model):
     id = BigAutoField(primary_key=True)
-    failure = FlexibleForeignKey(Failure)
-    known_intermittent_failure = FlexibleForeignKey(KnownIntermittentFailure)
+    failure_line = FlexibleForeignKey(FailureLine)
+    intermittent_failure = FlexibleForeignKey(IntermittentFailure)
     matcher = models.ForeignKey(Matcher)
     score = models.PositiveSmallIntegerField(blank=True, null=True)
     is_best = models.BooleanField(default=False)
@@ -604,5 +605,5 @@ class FailureMatch(models.Model):
     class Meta:
         db_table = 'failure_match'
         unique_together = (
-            ('failure', 'known_intermittent_failure', 'matcher')
+            ('failure_line', 'intermittent_failure', 'matcher')
         )

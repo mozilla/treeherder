@@ -669,19 +669,19 @@ CREATE TABLE `exclusion_profile_exclusions` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
-DROP TABLE IF EXISTS `failure`;
+DROP TABLE IF EXISTS `failure_line`;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 /**************************
- * Table: failure
+ * Table: failure_line
  *
- * A list of test failures
+ * A list of log lines indicating a test failures/crash/error
  *
  * Population Method: dynamic from incoming data
  *
  **************************/
 
-CREATE TABLE `failure` (
+CREATE TABLE `failure_line` (
     `id` bigint AUTO_INCREMENT NOT NULL PRIMARY KEY,
     `repository_id` int(10) unsigned NOT NULL,
     `job_guid` varchar(50) NOT NULL,
@@ -701,17 +701,17 @@ CREATE TABLE `failure` (
     `modified` datetime NOT NULL
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-CREATE INDEX `failure_81ee1a31` ON `failure` (`repository_id`);
-ALTER TABLE `failure` ADD CONSTRAINT `failure_repository_id_65e64a6d_fk_repository_id` FOREIGN KEY (`repository_id`) REFERENCES `repository` (`id`);
-ALTER TABLE `failure` ADD CONSTRAINT `failure_job_guid_6a91d840_uniq` UNIQUE (`job_guid`, `line`);
+CREATE INDEX `failure_line_81ee1a31` ON `failure_line` (`repository_id`);
+ALTER TABLE `failure_line` ADD CONSTRAINT `failure_line_repository_id_65e64a6d_fk_repository_id` FOREIGN KEY (`repository_id`) REFERENCES `repository` (`id`);
+ALTER TABLE `failure_line` ADD CONSTRAINT `failure_line_job_guid_6a91d840_uniq` UNIQUE (`job_guid`, `line`);
 
 /*!40101 SET character_set_client = @saved_cs_client */;
 
-DROP TABLE IF EXISTS `known_intermittent_failure`;
+DROP TABLE IF EXISTS `intermittent_failure`;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 /**************************
- * Table: known_intermittent_failure
+ * Table: intermittent_failure
  *
  * Failure match represents a group of intermittent failures
  * that can eventually have a bug number assigned
@@ -720,7 +720,7 @@ DROP TABLE IF EXISTS `known_intermittent_failure`;
  *
  **************************/
 
-CREATE TABLE `known_intermittent_failure` (
+CREATE TABLE `intermittent_failure` (
     `id` bigint AUTO_INCREMENT NOT NULL PRIMARY KEY,
     `bug_number` integer UNSIGNED NULL,
     `created` datetime NOT NULL,
@@ -765,16 +765,16 @@ CREATE TABLE `failure_match` (
     `id` bigint AUTO_INCREMENT NOT NULL PRIMARY KEY,
     `score` smallint UNSIGNED NULL,
     `is_best` bool NOT NULL,
-    `failure_id` bigint NOT NULL,
-    `known_intermittent_failure_id` bigint NOT NULL,
+    `failure_line_id` bigint NOT NULL,
+    `intermittent_failure_id` bigint NOT NULL,
     `matcher_id` integer NOT NULL
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-ALTER TABLE `failure_match` ADD CONSTRAINT `failure_match_failure_id_7aeee577_uniq` UNIQUE (`failure_id`, `known_intermittent_failure_id`, `matcher_id`);
-ALTER TABLE `failure_match` ADD CONSTRAINT `failure_match_failure_id_66c79baa_fk_failure_id` FOREIGN KEY (`failure_id`) REFERENCES `failure` (`id`);
-CREATE INDEX `failure_match_4b7d144b` ON `failure_match` (`failure_id`);
-CREATE INDEX `failure_match_3172ccd0` ON `failure_match` (`known_intermittent_failure_id`);
-ALTER TABLE `failure_match` ADD CONSTRAINT `da2a7f93f2c7705b917a81c5aed77017` FOREIGN KEY (`known_intermittent_failure_id`) REFERENCES `known_intermittent_failure` (`id`);
+ALTER TABLE `failure_match` ADD CONSTRAINT `failure_match_failure_line_id_7aeee577_uniq` UNIQUE (`failure_line_id`, `intermittent_failure_id`, `matcher_id`);
+ALTER TABLE `failure_match` ADD CONSTRAINT `failure_match_failure_line_id_66c79baa_fk_failure_id` FOREIGN KEY (`failure_line_id`) REFERENCES `failure_line` (`id`);
+CREATE INDEX `failure_match_4b7d144b` ON `failure_match` (`failure_line_id`);
+CREATE INDEX `failure_match_3172ccd0` ON `failure_match` (`intermittent_failure_id`);
+ALTER TABLE `failure_match` ADD CONSTRAINT `da2a7f93f2c7705b917a81c5aed77017` FOREIGN KEY (`intermittent_failure_id`) REFERENCES `intermittent_failure` (`id`);
 CREATE INDEX `failure_match_c724f956` ON `failure_match` (`matcher_id`);
 ALTER TABLE `failure_match` ADD CONSTRAINT `failure_match_matcher_id_2c1e8bf2_fk_matcher_id` FOREIGN KEY (`matcher_id`) REFERENCES `matcher` (`id`);
 

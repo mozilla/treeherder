@@ -74,7 +74,20 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='Failure',
+            name='FailureClassification',
+            fields=[
+                ('id', models.AutoField(serialize=False, primary_key=True)),
+                ('name', models.CharField(max_length=50L)),
+                ('description', models.TextField(default='fill me', blank=True)),
+                ('active_status', models.CharField(default='active', max_length=7L, blank=True)),
+            ],
+            options={
+                'db_table': 'failure_classification',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='FailureLine',
             fields=[
                 ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
                 ('job_guid', models.CharField(max_length=50)),
@@ -99,28 +112,29 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='FailureClassification',
-            fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('name', models.CharField(max_length=50L)),
-                ('description', models.TextField(default='fill me', blank=True)),
-                ('active_status', models.CharField(default='active', max_length=7L, blank=True)),
-            ],
-            options={
-                'db_table': 'failure_classification',
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
             name='FailureMatch',
             fields=[
                 ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
                 ('score', models.PositiveSmallIntegerField(null=True, blank=True)),
                 ('is_best', models.BooleanField(default=False)),
-                ('failure', treeherder.model.fields.FlexibleForeignKey(to='model.Failure')),
+                ('failure_line', treeherder.model.fields.FlexibleForeignKey(to='model.FailureLine')),
             ],
             options={
                 'db_table': 'failure_match',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='IntermittentFailure',
+            fields=[
+                ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
+                ('bug_number', models.PositiveIntegerField(null=True, blank=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('modified', models.DateTimeField(auto_now=True)),
+                ('failure_lines', models.ManyToManyField(related_name='intermittent_failures', through='model.FailureMatch', to='model.FailureLine')),
+            ],
+            options={
+                'db_table': 'known_intermittent_failure',
             },
             bases=(models.Model,),
         ),
@@ -164,20 +178,6 @@ class Migration(migrations.Migration):
             ],
             options={
                 'db_table': 'job_type',
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='KnownIntermittentFailure',
-            fields=[
-                ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
-                ('bug_number', models.PositiveIntegerField(null=True, blank=True)),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('modified', models.DateTimeField(auto_now=True)),
-                ('failures', models.ManyToManyField(related_name='known_intermittent_failures', through='model.FailureMatch', to='model.Failure')),
-            ],
-            options={
-                'db_table': 'known_intermittent_failure',
             },
             bases=(models.Model,),
         ),
@@ -341,8 +341,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='failurematch',
-            name='known_intermittent_failure',
-            field=treeherder.model.fields.FlexibleForeignKey(to='model.KnownIntermittentFailure'),
+            name='intermittent_failure',
+            field=treeherder.model.fields.FlexibleForeignKey(to='model.IntermittentFailure'),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -353,16 +353,16 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='failurematch',
-            unique_together=set([('failure', 'known_intermittent_failure', 'matcher')]),
+            unique_together=set([('failure_line', 'intermittent_failure', 'matcher')]),
         ),
         migrations.AddField(
-            model_name='failure',
+            model_name='failureline',
             name='repository',
             field=models.ForeignKey(to='model.Repository'),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
-            name='failure',
+            name='failureline',
             unique_together=set([('job_guid', 'line')]),
         ),
         migrations.AddField(

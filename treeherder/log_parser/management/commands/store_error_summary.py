@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand, CommandError
 from mozlog import reader
 
 from treeherder.model.derived import JobsModel
-from treeherder.model.models import Failure, Repository
+from treeherder.model.models import FailureLine, Repository
 
 
 class Command(BaseCommand):
@@ -34,7 +34,7 @@ class Command(BaseCommand):
                 if not job_id:
                     raise CommandError('No job found with guid %s in the %s repository' % (args[1], args[2]))
 
-            Failure.objects.bulk_create(
-                [Failure(repository=repository, job_guid=args[1], **failure)
-                 for failure in log_iter]
+            FailureLine.objects.bulk_create(
+                [FailureLine(repository=repository, job_guid=args[1], **failure_line)
+                 for failure_line in log_iter]
             )
