@@ -1,27 +1,28 @@
 <span class="btn-group">
-    <button ng-class="{'active': name===repoName}"
-            ng-click="changeRepo(name)"
-            type="button"
-            title="{{titleText|stripHtml}}"
-            class="watched-repo-main-btn btn btn-sm {{btnClass}}">
-        <i class="fa {{statusIcon}} {{statusColor}}"></i> {{::name}}
-    </button>
-    <button class="watched-repo-info-btn btn btn-sm {{btnClass}} dropdown-toggle"
-            ng-class="{'active': name===repoName}"
-            data-toggle="dropdown"
-            title="{{::name}} info"
-            type="button"
-            ng-click="setDropDownPull($event)">
-        <span class="fa fa-info-circle"></span>
-    </button>
-    <button class="watched-repo-unwatch-btn btn btn-sm {{btnClass}}"
-            ng-class="{'active': name===repoName}"
-            ng-hide="name===repoName"
-            ng-click="repoModel.unwatchRepo(name)"
-            title="unwatch {{::name}}"><span class="fa fa-times"></span></button>
-    <th-watched-repo-info-drop-down name="{{::name}}"
-                       reason="{{repoData.treeStatus.reason}}"
-                       message_of_the_day="{{repoData.treeStatus.message_of_the_day}}">
-    </th-watched-repo-info-drop-down>
+  <button class="watched-repo-main-btn btn btn-sm {{btnClass}}"
+          ng-class="{'active': name===repoName}"
+          ng-click="changeRepo(name)"
+          type="button"
+          title="{{titleText|stripHtml}}">
+    <i class="fa {{statusIcon}} {{statusColor}}"></i> {{::name}}
+  </button>
+  <button class="watched-repo-info-btn btn btn-sm {{btnClass}} dropdown-toggle"
+          ng-class="{'active': name===repoName}"
+          ng-click="setDropDownPull($event)"
+          type="button"
+          title="{{::name}} info"
+          data-toggle="dropdown">
+    <span class="fa fa-info-circle"></span>
+  </button>
+  <button class="watched-repo-unwatch-btn btn btn-sm {{btnClass}}"
+          ng-class="{'active': name===repoName}"
+          ng-click="repoModel.unwatchRepo(name)"
+          ng-hide="name===repoName"
+          title="unwatch {{::name}}">
+    <span class="fa fa-times"></span>
+  </button>
+  <th-watched-repo-info-drop-down name="{{::name}}"
+                                  reason="{{repoData.treeStatus.reason}}"
+                                  message_of_the_day="{{repoData.treeStatus.message_of_the_day}}">
+  </th-watched-repo-info-drop-down>
 </span>
-

@@ -1,12 +1,14 @@
 <span class="btn-group pinboard-related-bugs-btn">
-    <a class="btn btn-xs annotations-bug related-bugs-link"
-       href="{{:: getBugUrl(bug.bug_id) }}"
-       target="_blank"
-       title="View bug {{::bug.bug_id}}"
-       ><em>{{::bug.bug_id}}</em></a>
-    <span class="btn classification-delete-icon hover-warning btn-xs
-                 pinned-job-close-btn annotations-bug"
-          ng-click="deleteBug(bug)"
-          title="Delete relation to bug {{::bug.bug_id}}">
-      <i class="fa fa-times-circle"></i></span>
+  <a class="btn btn-xs annotations-bug related-bugs-link"
+     href="{{:: getBugUrl(bug.bug_id) }}"
+     target="_blank"
+     title="View bug {{::bug.bug_id}}">
+    <em>{{::bug.bug_id}}</em>
+  </a>
+  <span class="btn classification-delete-icon hover-warning btn-xs
+               pinned-job-close-btn annotations-bug"
+        ng-click="deleteBug(bug)"
+        title="Delete relation to bug {{::bug.bug_id}}">
+    <i class="fa fa-times-circle"></i>
+  </span>
 </span>
