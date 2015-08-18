@@ -1,14 +1,12 @@
 <span class="btn-group">
-    <span class="btn pinned-job {{ ::job.display.btnClass }}"
-          ng-class="{'btn-lg selected-job': (selectedJob==job), 'btn-xs': (selectedJob!=job)}"
-          title="{{ hoverText }}"
-          ng-click="viewJob(job)"
-          ng-right-click="viewLog(job.resource_uri)"
-          data-job-id="{{ job.job_id }}">
-          {{ job.job_type_symbol }}
-    </span>
-    <span class="btn btn-ltgray pinned-job-close-btn"
-          ng-class="{'btn-lg selected-job': (selectedJob==job), 'btn-xs': (selectedJob!=job)}"
-          ng-click="unPinJob(job.id)"
-          title="un-pin this job"><i class="fa fa-times"></i></span>
+  <span class="btn pinned-job {{ ::job.display.btnClass }}"
+        ng-class="{'btn-lg selected-job': (selectedJob==job), 'btn-xs': (selectedJob!=job)}"
+        title="{{ hoverText }}"
+        ng-click="viewJob(job)"
+        ng-right-click="viewLog(job.resource_uri)"
+        data-job-id="{{ job.job_id }}">{{ job.job_type_symbol }}</span>
+  <span class="btn btn-ltgray pinned-job-close-btn"
+        ng-class="{'btn-lg selected-job': (selectedJob==job), 'btn-xs': (selectedJob!=job)}"
+        ng-click="unPinJob(job.id)"
+        title="un-pin this job"><i class="fa fa-times"></i></span>
 </span>

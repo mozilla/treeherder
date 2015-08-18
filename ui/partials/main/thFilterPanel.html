@@ -1,116 +1,120 @@
 <div id="filter"
      class="th-top-nav-options-panel model-body"
      ng-controller="FilterPanelCtrl">
-    <div class="nav-panel-help-text">Specify which jobs to show based on this filter criteria.
-        <span class="pull-right">
-            <span class="btn btn-default btn-xs"
-                  title="pin all jobs that pass the global filters"
-                  ng-click="pinAllShownJobs()"><i class="glyphicon glyphicon-pushpin"></i> pin all showing</span>
-            <span class="btn btn-default btn-xs"
-                  title="show only coalesced jobs"
-                  ng-click="thJobFilters.setOnlyCoalesced()">coalesced only</span>
-            <span class="btn btn-default btn-xs"
-                  title="reset to default status filters"
-                  ng-click="thJobFilters.resetNonFieldFilters()">reset</span>
-        </span>
-    </div>
-
-    <!-- result status filters -->
-    <span ng-repeat="group in filterGroups"
-          class="panel panel-default th-option-group th-inline-option-group">
-
-        <!--heading for each group-->
-        <div class="panel-heading th-option-heading">{{::group.name}}
-            <span class="pull-right">
-            <input type="checkbox"
-                   ng-model="group.allChecked"
-                   ng-change="toggleResultStatusGroup(group)"> all
-            </span>
-        </div>
-        <!--content for each group-->
-        <div class="panel-body">
-            <span ng-repeat="filterName in group.resultStatuses">
-                <th-filter-checkbox></th-filter-checkbox>
-            </span>
-        </div>
+  <div class="nav-panel-help-text">Specify which jobs to show based on this filter criteria.
+    <span class="pull-right">
+      <span class="btn btn-default btn-xs"
+            title="Pin all jobs that pass the global filters"
+            ng-click="pinAllShownJobs()"><i class="glyphicon glyphicon-pushpin"></i> pin all showing</span>
+      <span class="btn btn-default btn-xs"
+            title="Show only coalesced jobs"
+            ng-click="thJobFilters.setOnlyCoalesced()">coalesced only</span>
+      <span class="btn btn-default btn-xs"
+            title="Reset to default status filters"
+            ng-click="thJobFilters.resetNonFieldFilters()">reset</span>
     </span>
+  </div>
 
-    <!-- classified / unclassified -->
-    <span class="panel panel-default th-option-group th-inline-option-group">
-        <div class="panel-heading th-option-heading">classified</div>
-        <div class="panel-body">
-            <label class="checkbox-inline">
-                <input type="checkbox"
-                       id="classified"
-                       ng-model="classifiedFilter"
-                       ng-click="toggleClassifiedFilter()"> classified
-            </label>
-            <label class="checkbox-inline">
-                <input type="checkbox"
-                       id="unclassified"
-                       ng-model="unClassifiedFilter"
-                       ng-click="toggleUnClassifiedFilter()"> un-classified
-            </label>
-        </div>
-    </span>
-    <div class="panel panel-default th-option-group">
-        <div class="panel-heading th-option-heading">field filters
-            <span class="pull-right">
-                 <a ng-click="createFieldFilter()"
-                    title="create new field filter">new</a>
-                <span ng-show="fieldFilters.length"> | <a ng-click="removeAllFieldFilters()"
-                       title="delete all field filters">remove all</a>
-                </span>
-            </span>
-        </div>
-        <div class="panel-body">
-            <span class="field-filter-placeholder" ng-hide="fieldFilters.length">click <a ng-click="createFieldFilter()"
-                title="create new field filter">new</a> to filter by a specific job field</span>
-            <h4>
-                <div class="label label-default field-filter"
-                     ng-repeat="filter in fieldFilters">{{::fieldChoices[filter.field].name}}: "{{::getFilterValue(filter.field, filter.value)}}"
-                     <a ng-click="removeFilter($index)"
-                        title="delete this filter"><i class="glyphicon glyphicon-remove"></i></a>
-                </div>
-            </h4>
-        </div>
-        <div class="field-filter-form" ng-show="newFieldFilter">
-            <form novalidate class="form-inline" role="form">
-                <div class="form-group input-group-sm">
-                    <label class="sr-only" for="jobFilterField">Field</label>
-                    <select id="jobFilterField"
-                            class="form-control"
-                            ng-model="newFieldFilter.field"
-                            ng-change="setFieldMatchType()"
-                            placeholder="filter field"
-                            required>
-                        <option value="" disabled selected>select filter field</option>
-                        <option ng-repeat="(field, obj) in fieldChoices"
-                                value="{{::field}}">{{::obj.name}}</option>
-                    </select>
-                    <label class="sr-only" for="jobFilterValue">Value</label>
-                    <input ng-show="newFieldFilter.matchType!=='choice'"
-                           class="form-control"
-                           ng-model="newFieldFilter.value"
-                           id="jobFilterValue"
-                           type="text"
-                           placeholder="filter value">
-                    <label class="sr-only" for="jobFilterChoiceValue">Value</label>
-                    <select ng-show="newFieldFilter.matchType==='choice'"
-                            class="form-control"
-                            ng-model="newFieldFilter.value"
-                            id="jobFilterChoiceValue">
-                        <option value="" disabled selected>select value</option>
-                        <option ng-repeat="(fci, fci_obj) in newFieldFilter.choices"
-                                value="{{::fci}}">{{::fci_obj.name}}</option>
-                    </select>
-                    <button type="submit"
-                            class="btn btn-default btn-sm"
-                            ng-click="addFieldFilter()">add</button>
-                    <button class="btn btn-default btn-sm"
-                            ng-click="cancelFieldFilter()">cancel</button>
-                </div>
-            </form>
-        </div>
+  <!-- Result status filters -->
+  <span ng-repeat="group in filterGroups"
+        class="panel panel-default th-option-group th-inline-option-group">
+
+    <!-- Group heading -->
+    <div class="panel-heading th-option-heading">{{::group.name}}
+      <span class="pull-right">
+      <input type="checkbox"
+             ng-model="group.allChecked"
+             ng-change="toggleResultStatusGroup(group)"> all
+      </span>
     </div>
+    <!-- Group content -->
+    <div class="panel-body">
+      <span ng-repeat="filterName in group.resultStatuses">
+        <th-filter-checkbox></th-filter-checkbox>
+      </span>
+    </div>
+  </span>
+
+  <!-- Classified/Unclassified filters -->
+  <span class="panel panel-default th-option-group th-inline-option-group">
+    <div class="panel-heading th-option-heading">classified</div>
+    <div class="panel-body">
+      <label class="checkbox-inline">
+        <input type="checkbox"
+               id="classified"
+               ng-model="classifiedFilter"
+               ng-click="toggleClassifiedFilter()"> classified
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox"
+               id="unclassified"
+               ng-model="unClassifiedFilter"
+               ng-click="toggleUnClassifiedFilter()"> un-classified
+      </label>
+    </div>
+  </span>
+
+  <!-- Field filters -->
+  <div class="panel panel-default th-option-group">
+    <div class="panel-heading th-option-heading">field filters
+      <span class="pull-right">
+        <a ng-click="createFieldFilter()"
+           title="Create new field filter">new</a>
+        <span ng-show="fieldFilters.length"> | <a ng-click="removeAllFieldFilters()"
+              title="Delete all field filters">remove all</a></span>
+      </span>
+    </div>
+    <div class="panel-body">
+      <span class="field-filter-placeholder"
+            ng-hide="fieldFilters.length">click
+        <a ng-click="createFieldFilter()"
+           title="Create new field filter">new</a> to filter by a specific job field
+      </span>
+      <h4>
+        <div class="label label-default field-filter"
+             ng-repeat="filter in fieldFilters">{{::fieldChoices[filter.field].name}}: "{{::getFilterValue(filter.field, filter.value)}}"
+          <a ng-click="removeFilter($index)"
+             title="Delete this filter"><i class="glyphicon glyphicon-remove"></i></a>
+        </div>
+      </h4>
+    </div>
+    <div class="field-filter-form" ng-show="newFieldFilter">
+      <form novalidate class="form-inline" role="form">
+        <div class="form-group input-group-sm">
+          <label class="sr-only" for="jobFilterField">Field</label>
+          <select id="jobFilterField"
+                  class="form-control"
+                  ng-model="newFieldFilter.field"
+                  ng-change="setFieldMatchType()"
+                  placeholder="filter field"
+                  required>
+            <option value="" disabled selected>select filter field</option>
+            <option ng-repeat="(field, obj) in fieldChoices"
+                    value="{{::field}}">{{::obj.name}}</option>
+          </select>
+          <label class="sr-only" for="jobFilterValue">Value</label>
+          <input ng-show="newFieldFilter.matchType!=='choice'"
+                 class="form-control"
+                 ng-model="newFieldFilter.value"
+                 id="jobFilterValue"
+                 type="text"
+                 placeholder="filter value">
+          <label class="sr-only" for="jobFilterChoiceValue">Value</label>
+          <select ng-show="newFieldFilter.matchType==='choice'"
+                  class="form-control"
+                  ng-model="newFieldFilter.value"
+                  id="jobFilterChoiceValue">
+            <option value="" disabled selected>select value</option>
+            <option ng-repeat="(fci, fci_obj) in newFieldFilter.choices"
+                    value="{{::fci}}">{{::fci_obj.name}}</option>
+          </select>
+          <button type="submit"
+                  class="btn btn-default btn-sm"
+                  ng-click="addFieldFilter()">add</button>
+          <button class="btn btn-default btn-sm"
+                  ng-click="cancelFieldFilter()">cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>

@@ -1,99 +1,100 @@
 <nav id="th-global-navbar" class="navbar navbar-inverse">
-    <div id="th-global-navbar-top" class="navbar-collapse collapse">
-        <!-- Logo Menu -->
-        <span class="dropdown">
-            <button id="th-logo" title="Treeherder services" role="button"
-                    href="#" data-toggle="dropdown" data-target="#"
-                    class="btn btn-view-nav">Treeherder
-              <span class="fa fa-angle-down lightgray"></span>
-            </button>
-            <ul class="dropdown-menu" role="menu" aria-labelledby="th-logo">
-              <li><a href="perf.html">Perfherder</a></li>
-            </ul>
+  <div id="th-global-navbar-top" class="navbar-collapse collapse">
+
+    <!-- Logo Menu -->
+    <span class="dropdown">
+      <button id="th-logo" title="Treeherder services" role="button"
+              href="#" data-toggle="dropdown" data-target="#"
+              class="btn btn-view-nav">Treeherder
+        <span class="fa fa-angle-down lightgray"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu" aria-labelledby="th-logo">
+        <li><a href="perf.html">Perfherder</a></li>
+      </ul>
+    </span>
+
+    <span class="navbar-right">
+      <!-- Sheriffing Button -->
+      <span ng-show="user.is_staff">
+        <span class="btn btn-view-nav btn-right-navbar nav-menu-btn"
+             ng-class="{'active': (isSheriffPanelShowing)}"
+             ng-click="setSheriffPanelShowing(!isSheriffPanelShowing)"
+             tabindex="0"
+             role="button"><span>Sheriffing</span>
+          <i class="fa fa-angle-down lightgray"
+             ng-hide="isSheriffPanelShowing"></i>
+          <i class="fa fa-angle-up lightgray"
+             ng-show="isSheriffPanelShowing"></i>
         </span>
-        <span class="navbar-right">
-            <!-- Sheriffing Button -->
-            <span ng-show="user.is_staff">
-                <span class="btn btn-view-nav btn-right-navbar nav-menu-btn"
-                      ng-class="{'active': (isSheriffPanelShowing)}"
-                      ng-click="setSheriffPanelShowing(!isSheriffPanelShowing)"
-                      tabindex="0"
-                      role="button"><span>Sheriffing</span>
-                    <i class="fa fa-angle-down lightgray"
-                       ng-hide="isSheriffPanelShowing"></i>
-                    <i class="fa fa-angle-up lightgray"
-                       ng-show="isSheriffPanelShowing"></i>
-                </span>
+      </span>
+
+      <!-- Infra Menu -->
+      <span class="repo-menu dropdown">
+        <button id="infraLabel" title="Infrastructure status" role="button"
+                href="#" data-toggle="dropdown" data-target="#"
+                class="btn btn-view-nav btn-right-navbar nav-repo-btn">Infra
+          <span class="fa fa-angle-down lightgray"></span>
+        </button>
+        <ul class="dropdown-menu repo-dropdown-menu" role="menu" aria-labelledby="infraLabel"
+            ng-include="'partials/main/thInfraMenu.html'">
+        </ul>
+      </span>
+
+      <!-- Repos Menu -->
+      <span ng-controller="RepositoryMenuCtrl" >
+        <span th-repo-dropdown-container class="repo-menu dropdown">
+          <button id="repoLabel" title="Watch a repo" role="button"
+                  href="#" data-toggle="dropdown" data-target="#"
+                  class="btn btn-view-nav btn-right-navbar nav-repo-btn">Repos
+            <span class="fa fa-angle-down lightgray"></span>
+          </button>
+          <ul class="dropdown-menu repo-dropdown-menu" role="menu" aria-labelledby="repoLabel">
+            <span ng-repeat="(group_order, group) in groupedRepos()">
+              <li role="presentation" class="divider" ng-hide="$first"></li>
+              <li role="presentation" class="dropdown-header">{{::group.name}}</li>
+              <th-repo-menu-item ng-repeat="repo in group.repos | orderBy : 'name'" ></th-repo-menu-item>
             </span>
-
-            <!-- Infra Menu -->
-            <span class="repo-menu dropdown">
-                <button id="infraLabel" title="Infrastructure status" role="button"
-                        href="#" data-toggle="dropdown" data-target="#"
-                        class="btn btn-view-nav btn-right-navbar nav-repo-btn">Infra
-                    <span class="fa fa-angle-down lightgray"></span>
-                </button>
-                <ul class="dropdown-menu repo-dropdown-menu" role="menu" aria-labelledby="infraLabel"
-                    ng-include="'partials/main/thInfraMenu.html'">
-                </ul>
-            </span>
-
-            <!-- Repos Menu -->
-            <span ng-controller="RepositoryMenuCtrl" >
-                <!--<span class="repo-menu dropdown keep-open">-->
-                <span th-repo-dropdown-container class="repo-menu dropdown">
-                    <button id="repoLabel" title="Watch a repo" role="button"
-                            href="#" data-toggle="dropdown" data-target="#"
-                            class="btn btn-view-nav btn-right-navbar nav-repo-btn">Repos
-                        <span class="fa fa-angle-down lightgray"></span>
-                    </button>
-                    <ul class="dropdown-menu repo-dropdown-menu" role="menu" aria-labelledby="repoLabel">
-                        <span ng-repeat="(group_order, group) in groupedRepos()">
-                            <li role="presentation" class="divider" ng-hide="$first"></li>
-                            <li role="presentation" class="dropdown-header">{{::group.name}}</li>
-                            <th-repo-menu-item ng-repeat="repo in group.repos | orderBy : 'name'" ></th-repo-menu-item>
-                        </span>
-                    </ul>
-                </span>
-            </span>
-
-            <!-- Global Filter Button -->
-            <span class="btn btn-view-nav btn-right-navbar nav-menu-btn"
-                  title="Global job filters"
-                  ng-class="{'active': (isFilterPanelShowing)}"
-                  ng-click="setFilterPanelShowing(!isFilterPanelShowing)"
-                  tabindex="0"
-                  role="button"><span>Filters</span>
-                <i class="fa fa-angle-down lightgray"
-                   ng-hide="isFilterPanelShowing"></i>
-                <i class="fa fa-angle-up lightgray"
-                   ng-show="isFilterPanelShowing"></i>
-            </span>
-
-            <!-- Help Button -->
-            <a class="btn btn-view-nav nav-help-btn"
-               title="Treeherder help" href="help.html" target="_blank">
-                <span class="fa fa-question-circle lightgray nav-help-icon"></span></a>
-
-            <!-- Settings Button - currently suppressed -->
-            <span ng-show="false"
-                  class="btn btn-view-nav btn-right-navbar nav-menu-btn"
-                  ng-class="{'active': (isSettingsPanelShowing)}"
-                  ng-click="setSettingsPanelShowing(!isSettingsPanelShowing)"
-                  tabindex="0"
-                  role="button"><span>Settings</span>
-                <i class="fa fa-angle-down lightgray"
-                   ng-hide="isSettingsPanelShowing"></i>
-                <i class="fa fa-angle-up lightgray"
-                   ng-show="isSettingsPanelShowing"></i>
-            </span>
-
-            <!-- Login/Register Button -->
-            <persona-buttons></persona-buttons>
+          </ul>
         </span>
+      </span>
 
-    </div>
-    <ng-include class="watched-repo-navbar" src="'partials/main/thWatchedRepoNavPanel.html'" ng-show="locationPath==='jobs'"></ng-include>
-    <ng-include src="'partials/main/thSheriffPanel.html'" ng-show="isSheriffPanelShowing"></ng-include>
-    <ng-include src="'partials/main/thFilterPanel.html'" ng-show="isFilterPanelShowing"></ng-include>
+      <!-- Global Filter Button -->
+      <span class="btn btn-view-nav btn-right-navbar nav-menu-btn"
+            title="Global job filters"
+            ng-class="{'active': (isFilterPanelShowing)}"
+            ng-click="setFilterPanelShowing(!isFilterPanelShowing)"
+            tabindex="0"
+            role="button"><span>Filters</span>
+        <i class="fa fa-angle-down lightgray"
+           ng-hide="isFilterPanelShowing"></i>
+        <i class="fa fa-angle-up lightgray"
+           ng-show="isFilterPanelShowing"></i>
+      </span>
+
+      <!-- Help Button -->
+      <a class="btn btn-view-nav nav-help-btn"
+         title="Treeherder help" href="help.html" target="_blank">
+        <span class="fa fa-question-circle lightgray nav-help-icon"></span></a>
+
+      <!-- Settings Button - currently suppressed -->
+      <span ng-show="false"
+            class="btn btn-view-nav btn-right-navbar nav-menu-btn"
+            ng-class="{'active': (isSettingsPanelShowing)}"
+            ng-click="setSettingsPanelShowing(!isSettingsPanelShowing)"
+            tabindex="0"
+            role="button"><span>Settings</span>
+        <i class="fa fa-angle-down lightgray"
+           ng-hide="isSettingsPanelShowing"></i>
+        <i class="fa fa-angle-up lightgray"
+           ng-show="isSettingsPanelShowing"></i>
+      </span>
+
+      <!-- Login/Register Button -->
+      <persona-buttons></persona-buttons>
+    </span>
+
+  </div>
+  <ng-include class="watched-repo-navbar" src="'partials/main/thWatchedRepoNavPanel.html'" ng-show="locationPath==='jobs'"></ng-include>
+  <ng-include src="'partials/main/thSheriffPanel.html'" ng-show="isSheriffPanelShowing"></ng-include>
+  <ng-include src="'partials/main/thFilterPanel.html'" ng-show="isFilterPanelShowing"></ng-include>
 </nav>

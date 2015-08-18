@@ -1,180 +1,211 @@
 <div class="th-top-nav-options-panel" id="sheriff_panel" ng-controller="SheriffCtrl">
-    <ul class="list-inline">
-        <li>
-            <a href="" prevent-default-on-left-click  ng-if="view != 'exclusion_profile_list'" ng-click="switchView('exclusion_profile_list')">Exclusion profiles</a>
-            <span ng-if="view =='exclusion_profile_list'">Exclusion profiles</span>
-        </li>
-        <li>
-            <a href="" prevent-default-on-left-click  ng-if="view != 'job_exclusion_list'" ng-click="switchView('job_exclusion_list')">Job exclusions</a>
-            <span ng-if="view =='job_exclusion_list'">Job exclusions</span>
-        </li>
-    </ul>
+  <ul class="list-inline">
+    <li>
+      <a href="" prevent-default-on-left-click
+         ng-if="view != 'exclusion_profile_list'"
+         ng-click="switchView('exclusion_profile_list')">Exclusion profiles</a>
+      <span ng-if="view =='exclusion_profile_list'">Exclusion profiles</span>
+    </li>
+    <li>
+      <a href="" prevent-default-on-left-click
+         ng-if="view != 'job_exclusion_list'"
+         ng-click="switchView('job_exclusion_list')">Job exclusions</a>
+      <span ng-if="view =='job_exclusion_list'">Job exclusions</span>
+    </li>
+  </ul>
 
-    <div ng-if="view == 'exclusion_profile_list'" class="panel panel-default th-option-group th-inline-option-group add-new-exclusion">
-        <div class="panel-heading th-option-heading">
-            Exclusion Profile list
-        </div>
-        <div class="panel-body">
-            <p ng-if="profiles.length==0">No profile available.</p>
-            <table ng-if="profiles.length>0" class="table table-condensed table-bordered">
-                <tr>
-                    <th>Profile name</th><th>Default</th><th>Exclusions</th><th>Actions</th>
-                </tr>
-                <tr ng-repeat="profile in profiles">
-                    <td>{{::profile.name}}</td>
-                    <td class="text-center">
-                        <span ng-if="profile.is_default" class="glyphicon glyphicon-ok-sign text-success">
-                        </span>
-                    </td>
-                    <td>
-                        <a ng-click="init_exclusion_update(exclusions_map[exclusion])" ng-repeat="exclusion in profile.exclusions">
-                            {{ ::exclusions_map[exclusion].name }}
-                        </a>
-                    </td>
-                    <td>
-                        <button ng-click="init_profile_update(profile)" type="button" class="btn btn-default btn-xs">
-                          <span class="glyphicon glyphicon-pencil"></span> Change
-                        </button>
-                        <button ng-click="delete_profile(profile)" type="button" class="btn btn-default btn-xs">
-                          <span class="glyphicon glyphicon-remove"></span> Delete
-                        </button>
-                        <button ng-click="set_default_profile(profile)" type="button" class="btn btn-default btn-xs">
-                          <span class="glyphicon  glyphicon glyphicon-ok-sign"></span> Make default
-                        </button>
-                    </td>
-                </tr>
-
-            </table>
-            <button ng-click="init_profile_add()" type="button" class="btn btn-sm btn-default">Add new</button>
-        </div>
+  <!-- Exclusion profiles -->
+  <div ng-if="view == 'exclusion_profile_list'"
+       class="panel panel-default th-option-group
+              th-inline-option-group add-new-exclusion">
+    <div class="panel-heading th-option-heading">
+      Exclusion Profile list
     </div>
+    <div class="panel-body">
+      <p ng-if="profiles.length == 0">No profile available</p>
+      <table ng-if="profiles.length > 0" class="table table-condensed table-bordered">
+        <tr>
+          <th>Profile name</th><th>Default</th><th>Exclusions</th><th>Actions</th>
+        </tr>
+        <tr ng-repeat="profile in profiles">
+          <td>{{::profile.name}}</td>
+          <td class="text-center">
+            <span ng-if="profile.is_default"
+                  class="glyphicon glyphicon-ok-sign text-success"></span>
+          </td>
+          <td>
+            <a ng-click="init_exclusion_update(exclusions_map[exclusion])"
+               ng-repeat="exclusion in profile.exclusions">
+              {{ ::exclusions_map[exclusion].name }}</a>
+          </td>
+          <td>
+            <button ng-click="init_profile_update(profile)"
+                    type="button" class="btn btn-default btn-xs">
+              <span class="glyphicon glyphicon-pencil"></span> Change
+            </button>
+            <button ng-click="delete_profile(profile)"
+                    type="button" class="btn btn-default btn-xs">
+              <span class="glyphicon glyphicon-remove"></span> Delete
+            </button>
+            <button ng-click="set_default_profile(profile)"
+                    type="button" class="btn btn-default btn-xs">
+              <span class="glyphicon glyphicon glyphicon-ok-sign"></span> Make default
+            </button>
+          </td>
+        </tr>
+      </table>
+      <button ng-click="init_profile_add()" type="button"
+              class="btn btn-sm btn-default">Add new</button>
+    </div>
+  </div>
 
-
-    <div ng-if="view == 'exclusion_profile_add'" class="panel panel-default th-option-group th-inline-option-group add-new-exclusion">
-        <div class="panel-heading th-option-heading">
-            Create/Update Exclusion Profile
+  <!-- Create/Update profile -->
+  <div ng-if="view == 'exclusion_profile_add'"
+       class="panel panel-default th-option-group
+              th-inline-option-group add-new-exclusion">
+    <div class="panel-heading th-option-heading">
+      Create/Update Exclusion Profile
+    </div>
+    <div class="panel-body">
+      <div class="form-group">
+        <label>Name</label>
+        <input class="form-control input-sm" type="text"
+               ng-model="form_profile.name" placeholder="Enter a name"/>
+      </div>
+      <form class="form">
+        <label>Select one or more exclusions to enable in your new profile</label>
+        <div ng-repeat="exclusion in exclusions" class="form-group">
+          <input type="checkbox" ng-model="form_profile_choices[exclusion.id]" />
+          <span title="{{::exclusion.description}}">{{::exclusion.name}}</span>
         </div>
-        <div class="panel-body">
-            <div class="form-group">
-                <label>Name</label><input class="form-control input-sm" type="text" ng-model="form_profile.name" placeholder="Enter a name"/>
-            </div>
-            <form class="form">
-                <label>Select one or more exclusions to enable in your new profile</label>
-                    <div ng-repeat="exclusion in exclusions" class="form-group">
-                            <input type="checkbox" ng-model="form_profile_choices[exclusion.id]" />
-                            <span title="{{::exclusion.description}}">
-                                {{::exclusion.name}}
-                            </span>
-                    </div>
-            </form>
+      </form>
+      <div class="form-group-inline">
+        <div class="form-group">
+          <button ng-click="reset_profile()" type="submit"
+                  class="btn btn-sm btn-default pull right">Reset</button>
+        </div>
+        <div class="form-group">
+          <button ng-click="save_profile(form_profile)" type="submit"
+                  class="btn btn-sm btn-default pull right">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exclusion list -->
+  <div ng-if="view == 'job_exclusion_list'"
+       class="panel panel-default th-option-group
+              th-inline-option-group add-new-exclusion">
+    <div class="panel-heading th-option-heading">
+      Job Exclusion list
+    </div>
+    <div class="panel-body">
+      <p ng-if="exclusions.length == 0">No exclusion available</p>
+      <table ng-if="exclusions.length>0"
+             class="table table-condensed table-bordered">
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Repositories</th>
+          <th>Platform</th>
+          <th>Option Collections</th>
+          <th>Job Type</th>
+          <th>Actions</th>
+        </tr>
+        <tr ng-repeat="exclusion in exclusions">
+          <td>{{::exclusion.name}}</td>
+          <td>{{::exclusion.description}}</td>
+          <td><th-truncated-list numvisible="2" elements="exclusion.info.repos" /></td>
+          <td><th-truncated-list numvisible="2" elements="exclusion.info.platforms" /></td>
+          <td><th-truncated-list numvisible="2" elements="exclusion.info.option_collections" /></td>
+          <td><th-truncated-list numvisible="2" elements="exclusion.info.job_types" /></td>
+          <td>
+            <button ng-click="init_exclusion_update(exclusion)"
+                    type="button" class="btn btn-default btn-xs">
+              <span class="glyphicon glyphicon-pencil"></span> Change
+            </button>
+            <button ng-click="delete_exclusion(exclusion)"
+                    type="button" class="btn btn-default btn-xs">
+              <span class="glyphicon glyphicon-remove"></span> Delete
+            </button>
+          </td>
+        </tr>
+      </table>
+      <button ng-click="init_exclusion_add()" type="button"
+              class="btn btn-sm btn-default">Add new</button>
+    </div>
+  </div>
+
+
+  <!-- Create/Update exclusion -->
+  <div ng-if="view == 'job_exclusion_add'"
+       class="panel panel-default th-option-group
+              th-inline-option-group add-new-exclusion">
+    <div class="panel-heading th-option-heading">
+      Create/Update Job Exclusion
+    </div>
+    <div class="panel-body">
+      <form class="form" name="thJobExclusionsForm">
+        <div class="form-group">
+          <label>Name</label> <span class="text-danger">(required)</span>
+          <input class="form-control input-sm"
+                 type="text"
+                 ng-model="form_exclusion.name"
+                 placeholder="Enter a name"
+                 required/>
+        </div>
+        <div class="form-group">
+          <label class="sr-only control-label">Description</label>
+          <textarea class="form-control input-sm"
+                    ng-model="form_exclusion.description"
+                    placeholder="Enter a description"></textarea>
+        </div>
+        <div class="form-group-inline">
+
+          <div class="form-group">
+            <label>Repositories</label>
+            <th-multi-select left-list="form_repos"
+                             right-list="form_exclusion.info.repos">
+            </th-multi-select>
+          </div>
+          <div class="form-group">
+            <label>Platforms</label>
+            <th-multi-select left-list="form_platforms"
+                             right-list="form_exclusion.info.platforms">
+            </th-multi-select>
+          </div>
+          <div class="form-group">
+            <label>Option Collections</label>
+            <th-multi-select left-list="form_option_collections"
+                             right-list="form_exclusion.info.option_collections">
+            </th-multi-select>
+          </div>
+          <div class="form-group">
+            <label>Job Types</label>
+            <th-multi-select left-list="form_job_types"
+                             right-list="form_exclusion.info.job_types">
+            </th-multi-select>
+          </div>
+
+          <div class="form-group">
             <div class="form-group-inline">
-                <div class="form-group">
-                    <button ng-click="reset_profile()" type="submit" class="btn btn-sm btn-default pull right">reset</button>
-                </div>
-                <div class="form-group">
-                    <button ng-click="save_profile(form_profile)" type="submit" class="btn btn-sm btn-default pull right">Save</button>
-                </div>
+              <div class="form-group">
+                <a ng-click="switchView('job_exclusion_list')"
+                   class="btn btn-sm btn-default pull right">Back</a>
+              </div>
+              <div class="form-group">
+                <button ng-click="reset_exclusion()" type="submit"
+                        class="btn btn-sm btn-default pull right">Reset</button>
+              </div>
+              <div class="form-group">
+                <button ng-click="thJobExclusionsForm.$valid && save_exclusion(form_exclusion)"
+                        type="submit"
+                        class="btn btn-sm btn-default pull right">Save</button>
+              </div>
             </div>
+          </div>
         </div>
+      </form>
     </div>
-
-    <div ng-if="view == 'job_exclusion_list'" class="panel panel-default th-option-group th-inline-option-group add-new-exclusion">
-        <div class="panel-heading th-option-heading">
-            Job Exclusion list
-        </div>
-        <div class="panel-body">
-            <p ng-if="exclusions.length == 0">
-                No exclusion available
-            </p>
-            <table ng-if="exclusions.length>0" class="table table-condensed table-bordered">
-                <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Repositories</th>
-                    <th>Platform</th>
-                    <th>Option Collections</th>
-                    <th>Job Type</th>
-                    <th>Actions</th>
-                </tr>
-                <tr ng-repeat="exclusion in exclusions">
-                    <td>{{::exclusion.name}}</td>
-                    <td>{{::exclusion.description}}</td>
-                    <td><th-truncated-list numvisible="2" elements="exclusion.info.repos" /></td>
-                    <td><th-truncated-list numvisible="2" elements="exclusion.info.platforms" /></td>
-                    <td><th-truncated-list numvisible="2" elements="exclusion.info.option_collections" /></td>
-                    <td><th-truncated-list numvisible="2" elements="exclusion.info.job_types" /></td>
-                    <td>
-                        <button ng-click="init_exclusion_update(exclusion)" type="button" class="btn btn-default btn-xs">
-                          <span class="glyphicon glyphicon-pencil"></span> Change
-                        </button>
-                        <button ng-click="delete_exclusion(exclusion)" type="button" class="btn btn-default btn-xs">
-                          <span class="glyphicon glyphicon-remove"></span> Delete
-                        </button>
-                    </td>
-
-                </tr>
-            </table>
-            <button ng-click="init_exclusion_add()" type="button" class="btn btn-sm btn-default">Add new</button>
-        </div>
-    </div>
-
-
-    <div ng-if="view == 'job_exclusion_add'" class="panel panel-default th-option-group th-inline-option-group add-new-exclusion">
-        <div class="panel-heading th-option-heading">
-            Create/Update Job Exclusion
-        </div>
-        <div class="panel-body">
-            <form class="form" name="thJobExclusionsForm">
-                <div class="form-group">
-                    <label>Name</label> <span class="text-danger">(required)</span>
-                    <input class="form-control input-sm"
-                           type="text"
-                           ng-model="form_exclusion.name"
-                           placeholder="Enter a name"
-                           required/>
-                </div>
-                <div class="form-group">
-                    <label class="sr-only control-label">Description</label>
-                    <textarea class="form-control input-sm" ng-model="form_exclusion.description" placeholder="Enter a description"></textarea>
-                </div>
-
-                <div class="form-group-inline">
-                    <div class="form-group">
-                        <label>Repositories</label>
-                        <th-multi-select left-list="form_repos" right-list="form_exclusion.info.repos"></th-multi-select>
-                    </div>
-                    <div class="form-group">
-                        <label>Platforms</label>
-                        <th-multi-select left-list="form_platforms" right-list="form_exclusion.info.platforms"></th-multi-select>
-                    </div>
-                    <div class="form-group">
-                        <label>Option Collections</label>
-                        <th-multi-select left-list="form_option_collections" right-list="form_exclusion.info.option_collections"></th-multi-select>
-                    </div>
-                    <div class="form-group">
-                        <label>Job Types</label>
-                        <th-multi-select left-list="form_job_types" right-list="form_exclusion.info.job_types"></th-multi-select>
-                    </div>
-                    <div class="form-group">
-                        <div class="form-group-inline">
-                            <div class="form-group">
-                                <a
-                                    ng-click="switchView('job_exclusion_list')"
-                                    class="btn btn-sm btn-default pull right">Back</a>
-                            </div>
-                            <div class="form-group">
-                                <button ng-click="reset_exclusion()" type="submit" class="btn btn-sm btn-default pull right">Reset</button>
-                            </div>
-                            <div class="form-group">
-                                <button ng-click="thJobExclusionsForm.$valid && save_exclusion(form_exclusion)"
-                                        type="submit"
-                                        class="btn btn-sm btn-default pull right"
-                                        >Save</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+  </div>
 </div>

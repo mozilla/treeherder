@@ -1,67 +1,66 @@
+<!-- Load progress bar -->
 <div class="progress progress-striped active"
      ng-show="isLoadingRsBatch.prepending && result_sets.length === 0">
-    <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
+  <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
 </div>
 
+<!-- Main resultset template -->
 <div ng-repeat="resultset in result_sets track by resultset.id | orderBy:'-push_timestamp'"
      ng-controller="ResultSetCtrl"
      class="result-set"
      data-id="{{::resultset.id}}">
 
-    <div class="result-set-bar">
-      <span class="result-set-left">
-        <span class="result-set-title-left">
-          <span class="btn btn-default btn-sm glyphicon glyphicon-download" ng-show="isLoadingJobs"></span>
-          <span>
-            <a href="{{::revisionResultsetFilterUrl}}"
-               title="View only this resultset"
-               ignore-job-clear-on-click>{{::resultsetDateStr}}
-              <span class="fa fa-external-link icon-superscript"></span></a> - </span>
-          <th-author author="{{::resultset.author}}"></th-author>
-        </span>
+  <div class="result-set-bar">
+    <span class="result-set-left">
+      <span class="result-set-title-left">
+        <span class="btn btn-default btn-sm glyphicon glyphicon-download" ng-show="isLoadingJobs"></span>
+        <span>
+          <a href="{{::revisionResultsetFilterUrl}}"
+             title="View only this resultset"
+             ignore-job-clear-on-click>{{::resultsetDateStr}}
+            <span class="fa fa-external-link icon-superscript"></span></a> - </span>
+        <th-author author="{{::resultset.author}}"></th-author>
       </span>
-      <th-result-counts class="result-counts"></th-result-counts>
-      <span class="result-set-buttons">
-
-        <span class="btn btn-sm btn-resultset"
-              tabindex="0" role="button"
-              title="Cancel all jobs in this resultset"
-              ng-show="currentRepo.repository_group.name == 'try' || user.is_staff"
-              ignore-job-clear-on-click
-              ng-click="cancelAllJobs(resultset.revision)">
-          <span class="fa fa-times-circle cancel-job-icon dim-quarter"
-                ignore-job-clear-on-click></span>
-        </span>
-
-        <span class="btn btn-sm btn-resultset"
-              tabindex="0" role="button"
-              title="Pin all available jobs in this resultset"
-              ignore-job-clear-on-click
-              ng-click="pinAllShownJobs()">
-          <span class="glyphicon glyphicon-pushpin"
-                ignore-job-clear-on-click></span>
-        </span>
-
-        <th-action-button ng-hide="isLoadingJobs"></th-action-button>
-
+    </span>
+    <th-result-counts class="result-counts"></th-result-counts>
+    <span class="result-set-buttons">
+      <span class="btn btn-sm btn-resultset"
+            tabindex="0" role="button"
+            title="Cancel all jobs in this resultset"
+            ng-show="currentRepo.repository_group.name == 'try' || user.is_staff"
+            ignore-job-clear-on-click
+            ng-click="cancelAllJobs(resultset.revision)">
+        <span class="fa fa-times-circle cancel-job-icon dim-quarter"
+              ignore-job-clear-on-click></span>
       </span>
+      <span class="btn btn-sm btn-resultset"
+            tabindex="0" role="button"
+            title="Pin all available jobs in this resultset"
+            ignore-job-clear-on-click
+            ng-click="pinAllShownJobs()">
+        <span class="glyphicon glyphicon-pushpin"
+              ignore-job-clear-on-click></span>
+      </span>
+      <th-action-button ng-hide="isLoadingJobs"></th-action-button>
+    </span>
+  </div>
 
-    </div>
-    <div class="result-set-body-divider"></div>
-    <div class="result-set-body" th-clone-jobs ></div>
+  <div class="result-set-body-divider"></div>
+  <!-- Job table -->
+  <div class="result-set-body" th-clone-jobs ></div>
 </div>
 
+<!-- Resultset load errors -->
 <div ng-show="result_sets.length == 0 && !isLoadingRsBatch.appending &&
               !isLoadingJobs && locationHasSearchParam('revision') && currentRepo.url"
               class="result-set-body unknown-message-body">
   <span ng-init="revision=getSearchParamValue('revision')">
-      <span>Waiting for a push with revision <strong>{{revision}}</strong></span>
-      <a href="{{currentRepo.getPushLogHref(revision)}}"
-         target="_blank"
-         title="open revision {{revision}} on {{currentRepo.url}}">(view pushlog)</a>
+    <span>Waiting for a push with revision <strong>{{revision}}</strong></span>
+    <a href="{{currentRepo.getPushLogHref(revision)}}"
+       target="_blank"
+       title="open revision {{revision}} on {{currentRepo.url}}">(view pushlog)</a>
     <span class="fa fa-spinner fa-pulse th-spinner"></span>
-    <div>If the push exists, it will appear in a few minutes once it has been processed.
-    </div>
+    <div>If the push exists, it will appear in a few minutes once it has been processed.</div>
   </span>
 </div>
 
@@ -88,21 +87,20 @@
     </span>
   </span>
 </div>
+<!-- End resultset clone target -->
 
-<!-- END Revision clone target -->
-
+<!-- New resultsets progress bar -->
 <div class="progress progress-striped active"
      ng-show="isLoadingRsBatch.appending">
-    <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
+  <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
 </div>
 
 <!-- Get next resultsets footer -->
 <div class="well">
      get next:
-    <div class="btn-group">
-        <div class="btn btn-default btn-sm"
-             ng-click="getNextResultSets(count, true)"
-             ng-repeat="count in [10, 20, 50]">{{::count}}</div>
-        </div>
-    </div>
+  <div class="btn-group">
+    <div class="btn btn-default btn-sm"
+         ng-click="getNextResultSets(count, true)"
+         ng-repeat="count in [10, 20, 50]">{{::count}}</div>
+  </div>
 </div>

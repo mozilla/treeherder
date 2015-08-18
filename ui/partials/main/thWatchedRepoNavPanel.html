@@ -1,70 +1,75 @@
 <div id="watched-repo-navbar" class="th-context-navbar watched-repo-navbar clearfix">
-    <th-watched-repo ng-repeat="(name, repoData) in repoModel.watchedRepos"></th-watched-repo>
-    <div class="navbar-right">
-        <span>
-            <form role="search" class="form-inline">
+  <th-watched-repo ng-repeat="(name, repoData) in repoModel.watchedRepos"></th-watched-repo>
+  <div class="navbar-right">
+    <span>
+      <form role="search" class="form-inline">
 
-                <!--Unclassified Failures Button-->
-                <span class="btn btn-sm"
-                      ng-click="toggleUnclassifiedFailures()"
-                      title="Loaded failures / Toggle filtering for unclassified failures"
-                      tabindex="0" role="button"
-                      ng-class="{'btn-unclassified-failures': getUnclassifiedFailureCount(repoName), 'btn-view-nav': getUnclassifiedFailureCount(repoName)===0}">
-                    <span id="unclassified-failure-count">
-                        {{getUnclassifiedFailureCount(repoName)}}</span> unclassified
-                </span>
-
-                <!--Toggle Tier-1 jobs only Button-->
-                <span class="btn btn-view-nav btn-sm"
-                      title="Toggle Tier-1 jobs only mode"
-                      tabindex="0" role="button"
-                      ng-click="toggleTier1Only()">1</span>
-
-                <!--Hidden Jobs Button-->
-                <span class="btn btn-view-nav btn-sm btn-right-navbar"
-                      title="Show/hide excluded jobs"
-                      tabindex="0" role="button"
-                      ng-click="toggleExcludedJobs()">
-                    <i class="fa"
-                       th-exclusion-state
-                       ng-class="::exclusionStateClass"></i>
-                </span>
-
-                <!--Toggle Revisions Button-->
-                <span class="btn-group">
-                    <span class="btn btn-view-nav btn-sm btn-collapse-resultsets"
-                          title="Show/hide revision list"
-                          tabindex="0" role="button"
-                          ng-click="toggleAllRevisions()"><i class="fa fa-code-fork"></i>
-                    </span>
-                </span>
-
-                <!--Toggle Group State Button-->
-                <span class="btn-group">
-                    <span class="btn btn-view-nav btn-sm btn-toggle-group-state"
-                          tabindex="0" role="button"
-                          ng-click="toggleGroupState()">(
-                        <span ng-if="groupState==='collapsed'"
-                              class="group-state-nav-icon"
-                              title="Expand job groups">+</span>
-                        <span ng-if="groupState!=='collapsed'"
-                              class="group-state-nav-icon"
-                              title="Collapse job groups">-</span>
-                    )</span>
-                </span>
-
-                <!--Quick Filter Field-->
-                <span ng-controller="SearchCtrl" class="form-group form-inline" id="quick-filter-parent">
-                    <input id="quick-filter"
-                           title="Click to enter filter values"
-                           ng-model="searchQueryStr" ng-keydown="search($event)" type="text"
-                           class="form-control input-sm" required
-                           placeholder="Filter platforms & jobs"
-                           blur-this>
-                    <span id="quick-filter-clear-button" class="fa fa-times-circle"
-                          ng-click="clearFilterBox()" title="Clear this filter"></span>
-                </span>
-            </form>
+        <!--Unclassified Failures Button-->
+        <span class="btn btn-sm"
+              title="Loaded failures / Toggle filtering for unclassified failures"
+              tabindex="0" role="button"
+              ng-class="{'btn-unclassified-failures': getUnclassifiedFailureCount(repoName),
+                         'btn-view-nav': getUnclassifiedFailureCount(repoName)===0}"
+              ng-click="toggleUnclassifiedFailures()">
+          <span id="unclassified-failure-count">
+            {{getUnclassifiedFailureCount(repoName)}}</span> unclassified
         </span>
-    </div>
+
+        <!--Toggle Tier-1 jobs only Button-->
+        <span class="btn btn-view-nav btn-sm"
+              title="Toggle Tier-1 jobs only mode"
+              tabindex="0" role="button"
+              ng-click="toggleTier1Only()">1</span>
+
+        <!--Hidden Jobs Button-->
+        <span class="btn btn-view-nav btn-sm btn-right-navbar"
+              title="Show/hide excluded jobs"
+              tabindex="0" role="button"
+              ng-click="toggleExcludedJobs()">
+          <i class="fa"
+             th-exclusion-state
+             ng-class="::exclusionStateClass"></i>
+        </span>
+
+        <!--Toggle Revisions Button-->
+        <span class="btn-group">
+          <span class="btn btn-view-nav btn-sm btn-collapse-resultsets"
+                title="Show/hide revision list"
+                tabindex="0" role="button"
+                ng-click="toggleAllRevisions()"><i class="fa fa-code-fork"></i>
+          </span>
+        </span>
+
+        <!--Toggle Group State Button-->
+        <span class="btn-group">
+          <span class="btn btn-view-nav btn-sm btn-toggle-group-state"
+                tabindex="0" role="button"
+                ng-click="toggleGroupState()">(
+            <span ng-if="groupState === 'collapsed'"
+                  class="group-state-nav-icon"
+                  title="Expand job groups">+</span>
+            <span ng-if="groupState !== 'collapsed'"
+                  class="group-state-nav-icon"
+                  title="Collapse job groups">-</span>
+          )</span>
+        </span>
+
+        <!--Quick Filter Field-->
+        <span ng-controller="SearchCtrl"
+              id="quick-filter-parent"
+              class="form-group form-inline">
+          <input id="quick-filter"
+                 class="form-control input-sm" required
+                 title="Click to enter filter values"
+                 ng-model="searchQueryStr" ng-keydown="search($event)" type="text"
+                 placeholder="Filter platforms & jobs"
+                 blur-this>
+          <span id="quick-filter-clear-button"
+                class="fa fa-times-circle"
+                title="Clear this filter"
+                ng-click="clearFilterBox()"></span>
+        </span>
+      </form>
+    </span>
+  </div>
 </div>

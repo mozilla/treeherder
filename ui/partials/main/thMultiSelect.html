@@ -1,35 +1,37 @@
 <div class="th-multi-select">
-    <div class="form-group">
-        <input class="form-control input-sm" type="text" ng-model="query" placeholder="filter"/>
-    </div>
-    <div class="form-group-inline">
-        <div class="form-group">
-            <select class="form-control" multiple ng-model="leftSelected">
-                <option value="{{ ::left_elem }}"
-                        ng-repeat="left_elem in leftList| filter: query track by $id(left_elem)">
-                    {{ ::left_elem }}
-                </option>
-            </select>
-        </div>
-        <div class="btn-group-vertical ">
-            <button ng-click="move_left()"
-                    type="button"
-                    class="btn btn-xs btn-default">
-                <span class="glyphicon glyphicon-chevron-left"></span>
-            </button>
-            <button ng-click="move_right()" type="button"
-                    class="btn btn-xs btn-default">
-                <span class="glyphicon glyphicon-chevron-right"></span>
-            </button>
-        </div>
-        <div class="form-group">
-            <select class="form-control" ng-model="rightSelected" multiple>
-                <option value="{{ ::right_elem }}"
-                        ng-repeat="right_elem in rightList">
-                    {{ ::right_elem }}
-                </option>
-            </select>
-        </div>
-    </div>
-</div>
+  <div class="form-group">
+    <input class="form-control input-sm" type="text" ng-model="query" placeholder="filter"/>
+  </div>
 
+  <div class="form-group-inline">
+    <div class="form-group">
+      <select class="form-control" multiple ng-model="leftSelected">
+        <option value="{{ ::left_elem }}"
+                ng-repeat="left_elem in leftList| filter: query track by $id(left_elem)">
+          {{ ::left_elem }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div class="btn-group-vertical ">
+    <button ng-click="move_left()"
+            type="button"
+            class="btn btn-xs btn-default">
+      <span class="glyphicon glyphicon-chevron-left"></span>
+    </button>
+    <button ng-click="move_right()" type="button"
+            class="btn btn-xs btn-default">
+      <span class="glyphicon glyphicon-chevron-right"></span>
+    </button>
+  </div>
+
+  <div class="form-group">
+    <select class="form-control" ng-model="rightSelected" multiple>
+      <option value="{{ ::right_elem }}"
+              ng-repeat="right_elem in rightList">
+        {{ ::right_elem }}
+      </option>
+    </select>
+  </div>
+</div>

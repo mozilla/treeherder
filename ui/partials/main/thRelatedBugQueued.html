@@ -1,10 +1,9 @@
 <span class="btn-group pinboard-related-bugs-btn">
-    <a class="btn btn-xs related-bugs-link"
-       title="{{::bug.summary}}"
-       href="{{:: getBugUrl(bug.id) }}"
-       target="_blank"
-       ><em>{{::bug.id}}</em></a>
-    <span class="btn btn-ltgray btn-xs pinned-job-close-btn"
-          ng-click="removeBug(bug.id)"
-          title="remove this bug"><i class="fa fa-times"></i></span>
+  <a class="btn btn-xs related-bugs-link"
+     title="{{::bug.summary}}"
+     href="{{:: getBugUrl(bug.id) }}"
+     target="_blank"><em>{{::bug.id}}</em></a>
+  <span class="btn btn-ltgray btn-xs pinned-job-close-btn"
+        ng-click="removeBug(bug.id)"
+        title="remove this bug"><i class="fa fa-times"></i></span>
 </span>
