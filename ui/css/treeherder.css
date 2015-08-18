@@ -1251,6 +1251,15 @@ ul.failure-summary-list li .btn-xs {
     border-color: rgba(250, 115, 172, 0.25);
 }
 
+.result-status-shading-possible {
+    background-color: rgba(250, 115, 172, 0.25);
+    border-color: rgba(250, 115, 172, 0.25);
+}
+
+.result-status-shading-possible-selected {
+    border: 4px solid;
+}
+
 .result-status-shading-pending {
     background-color: rgba(160, 160, 160, 0.2);
     border-color: rgba(160, 160, 160, 0.2);

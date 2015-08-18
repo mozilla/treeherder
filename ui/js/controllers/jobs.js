@@ -169,6 +169,12 @@ treeherderApp.controller('ResultSetCtrl', [
 
         };
 
+        $scope.showPossibleJobs = function() {
+            $rootScope.$emit(
+                thEvents.showPossibleJobs, $scope.resultset
+            );
+        };
+
         $scope.cancelAllJobs = function(revision) {
             if (!window.confirm('This will cancel all pending and running jobs for revision ' + revision + '!\n\nAre you sure?')) {
                 return;
@@ -217,6 +223,30 @@ treeherderApp.controller('ResultSetCtrl', [
                     'danger', true
                 );
             });
+        };
+
+        $scope.showTriggerButton = function() {
+            var buildernames = ThResultSetStore.getSelectedPossibleJobs($rootScope.repoName, $scope.resultset.id);
+            return buildernames.length > 0;
+        };
+
+        $scope.triggerNewJobs = function(){
+            if (!window.confirm(
+                'This will trigger all selected jobs. Do you want to proceed?')) {
+                return;
+            }
+            if ($scope.user.loggedin){
+                var buildernames = ThResultSetStore.getSelectedPossibleJobs($rootScope.repoName, $scope.resultset.id);
+                ThResultSetModel.triggerNewJobs($scope.repoName, $scope.resultset.id, buildernames).then(function() {
+                    thNotify.send("Trigger request sent", "success");
+                }, function(e) {
+                    // Generic error eg. the user doesn't have permission
+                    thNotify.send(
+                        ThModelErrors.format(e, "Unable to send trigger"), 'danger');
+                });
+            } else {
+                thNotify.send("Must be logged in to trigger a job", 'danger');
+            }
         };
 
         $scope.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
