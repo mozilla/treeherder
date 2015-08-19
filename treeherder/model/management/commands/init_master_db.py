@@ -67,7 +67,7 @@ Type 'yes' to continue, or 'no' to cancel: """ % connection.settings_dict['NAME'
                 print "Sql files executed successfully."
 
             # safely apply all migrations
-            call_command("migrate", interactive=interactive)
+            call_command("migrate", fake_initial=True, interactive=interactive)
             # load initial fixtures for reference data
             # the order of this list of fixtures is important
             # to avoid integrity errors

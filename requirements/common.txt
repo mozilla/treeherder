@@ -6,8 +6,8 @@ gunicorn==19.3.0
 # sha256: VYVza7U0XcnLcEwSkq997IUSZmqw-RbG8mduDwYCMeg
 whitenoise==2.0.2
 
-# sha256: TVjkUnRLdodtgZnKRBRKJSwlTokUk5JArjUnxOqhiC8
-Django==1.7.9
+# sha256: I3bD2MX0lbMCsRLXIyyEdhEwxDDhhAwFoqArKPF91ZY
+Django==1.8.4
 
 # sha256: ygF2j97N4TQwHzFwdDIm9g7f9cOTXxJDc3jr2RFQY1M
 dj_database_url==0.3.0

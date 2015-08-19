@@ -19,8 +19,8 @@ def create_datasource(model, **kwargs):
 @contextmanager
 def assert_num_queries(queries):
     from django.db import connection
-    _old_debug_cursor = connection.use_debug_cursor
-    connection.use_debug_cursor = True
+    _old_debug_cursor = connection.force_debug_cursor
+    connection.force_debug_cursor = True
     start_queries = len(connection.queries)
     try:
         yield
@@ -28,7 +28,7 @@ def assert_num_queries(queries):
         msg = "Expected {0} queries, executed {1}".format(queries, total)
         assert total == queries, msg
     finally:
-        connection.use_debug_cursor = _old_debug_cursor
+        connection.force_debug_cursor = _old_debug_cursor
 
 
 def pytest_funcarg__DataSource(request):
