@@ -97,6 +97,7 @@
                   <a ng-cloak ng-switch-when="link" title="{{line.value}}"
                      href="{{line.url}}" target="_blank">{{line.value}}</a>
                     <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
+                    <span ng-switch-default>{{line.value}}</span>
                 <td/>
             </tr>
           </table>
