@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title ng-bind="::logViewerTitle">Log viewer</title>
-    <link rel="stylesheet" href="css/logviewer.min-0f10863283a2a29d8fdcf4ea81710b97.css" media="screen">
+    <link rel="stylesheet" href="css/logviewer.min-26c9b5f74f238b3cfb6c581ea58caa1c.css" media="screen">
     <link id="favicon" type="image/png" rel="shortcut icon" href="img/logviewerIcon.png">
   </head>
   <body class="body-logviewer">
@@ -92,6 +92,7 @@
                   <a ng-cloak ng-switch-when="link" title="{{line.value}}"
                      href="{{line.url}}" target="_blank">{{line.value}}</a>
                     <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
+                    <span ng-switch-default>{{line.value}}</span>
                 <td/>
             </tr>
           </table>
@@ -108,9 +109,8 @@
 
     <th-notification-box></th-notification-box>
 
-    <script src="js/logviewer.min-cc5df265185470c3b293da4cb60a1472.js"></script>
+    <script src="js/logviewer.min-78d1750442d1b435ecc41b39df543edd.js"></script>
 
-    <script src="js/config/local.conf.js"></script>
 
   </body>
 </html>
