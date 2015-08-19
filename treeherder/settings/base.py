@@ -206,7 +206,7 @@ CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
 CELERY_DEFAULT_ROUTING_KEY = 'default'
 
 CELERYBEAT_SCHEDULE = {
-    'fetch-push-logs-every-minute': {
+    'fetch-push-logs-every-10-seconds': {
         'task': 'fetch-push-logs',
         'schedule': timedelta(seconds=10),
         'relative': True,
