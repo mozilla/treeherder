@@ -105,3 +105,9 @@ fancy-tag==0.2.0
 # Required by oauth2
 # sha256: vGM5kZpSNbnRqu4BHKVGQYQJjwxHyQmAAfkclxdlg_U
 httplib2==0.9.1
+
+# sha256: KuY89HXwvQSbci-sIIE9Yq7cFJV91aO_ANEg0rVARGA
+python-dateutil==2.4.2
+
+# sha256: NC1e3GO3wz4xngnvWcgN6jYrN-Mj3RmmTJf1X08i5ZY
+mozillapulse==1.2.1

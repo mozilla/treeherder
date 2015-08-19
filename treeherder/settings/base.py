@@ -357,6 +357,36 @@ PULSE_URI = os.environ.get("PULSE_URI", "amqps://guest:guest@pulse.mozilla.org/"
 # set this normally is your pulse username.
 PULSE_EXCHANGE_NAMESPACE = None
 
+# Override these values in local.py with your own pulse config information
+PULSE_DATA_INGESTION_CONFIG = {
+    "hostname": "pulse.mozilla.org",
+    "port": 5672,
+    "userid": "treeherder-test",
+    "password": "",
+    "ssl": False,
+}
+
+PULSE_DATA_INGESTION_EXCHANGES = [
+    # {
+    #     "name": "exchanges/taskcluster-treeherder/jobs",
+    #     "projects": [
+    #         'mozilla-central',
+    #         'mozilla-inbound'
+    #         # other repos TC can submit to
+    #     ],
+    #     "allowedSources": [
+    #        "taskcluster"
+    #     ]
+    # },
+    {
+        "name": "exchange/treeherder-test/jobs",
+        "projects": [
+            'mozilla-inbound'
+        ]
+    }
+    # ... other CI systems
+]
+
 # Note: All the configs below this import will take precedence over what is
 # defined in local.py!
 try:
