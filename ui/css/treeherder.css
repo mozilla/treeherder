@@ -551,12 +551,6 @@ th-watched-repo {
     opacity: 0.75;
 }
 
-.revision-button {
-    flex: 0 0 60px;
-    margin-right: 4px;
-    margin-left: 4px;
-}
-
 .revision-list {
     overflow: hidden;
     white-space: nowrap;
