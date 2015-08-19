@@ -65,7 +65,7 @@
         </div>
       </span>
     <span ng-if="revision==='undefined'">
-        <span>This is an invalid revision.  Please change it, or click <a href="{{::currentRepo.url}}">here</a> to reload page.</span>
+        <span>This is an invalid revision.  Please change it, or click <a ng-click="changeRepo(repoName)" href="{{::repoName.URL}}">here</a> to reload page.</span>
     </span>
   </span>
 </div>
