@@ -611,6 +611,7 @@ class TreeherderClient(object):
     UPDATE_ENDPOINT = 'job-log-url/{}/update_parse_status'
     RESULTSET_ENDPOINT = 'resultset'
     JOBS_ENDPOINT = 'jobs'
+    JOB_LOG_URL_ENDPOINT = 'job-log-url'
     ARTIFACTS_ENDPOINT = 'artifact'
     OPTION_COLLECTION_HASH_ENDPOINT = 'optioncollectionhash'
     REPOSITORY_ENDPOINT = 'repository'
@@ -815,6 +816,16 @@ class TreeherderClient(object):
         :param params: keyword arguments to filter results
         """
         return self._get_json_list(self.JOBS_ENDPOINT, None, project, **params)
+
+    def get_job_log_url(self, project, **params):
+        """
+        Gets job log url, filtered by parameters
+
+        :param project: project (repository name) to query data for
+        :param params: keyword arguments to filter results
+        """
+        return self._get_json(self.JOB_LOG_URL_ENDPOINT, None, project,
+                              **params)
 
     def get_artifacts(self, project, **params):
         """
