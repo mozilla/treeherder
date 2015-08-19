@@ -282,7 +282,7 @@
                 `start_timestamp` = ?,
                 `end_timestamp` = ?
                 WHERE
-                    `state` != 'completed'
+                    (`state` != 'completed' OR ? = 'retry')
                 AND ? <> 'pending'
                 AND `id` = ?",
 

@@ -1590,6 +1590,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 job_state,
                 start_timestamp,
                 end_timestamp,
+                result,
                 job_state,
                 get_guid_root(job_guid)
             ])
