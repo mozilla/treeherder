@@ -203,9 +203,6 @@ logViewerApp.controller('LogviewerCtrl', [
                 ThResultSetModel.getResultSet($scope.repoName, job.result_set_id).then(function(data){
                     var revision = data.data.revision;
                     $scope.logProperties.push({label: "Revision", value: revision});
-                    $scope.logRevisionFilterUrl = $scope.urlBasePath +
-                        "#/jobs?repo=" + $scope.repoName + "&revision=" +
-                        revision;
                 });
             });
 

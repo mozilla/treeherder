@@ -83,7 +83,7 @@
             <tr ng-repeat="property in logProperties">
               <th ng-cloak>{{property.label}}</th>
               <td ng-if="property.label == 'Revision'" class="break-word">
-                <a href="{{::logRevisionFilterUrl}}"
+                <a href="{{::property.value|getRevisionUrl:repoName}}"
                    title="Open resultset"
                    class="repo-link"
                    ng-cloak>{{property.value}}</a>
@@ -147,6 +147,9 @@
     <script src="js/models/job.js"></script>
     <script src="js/models/resultset.js"></script>
     <script src="js/models/log_slice.js"></script>
+
+    <!-- Filter -->
+    <script src="js/filters.js"></script>
 
     <!-- Controllers -->
     <script src="js/controllers/logviewer.js"></script>
