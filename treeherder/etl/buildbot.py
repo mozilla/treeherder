@@ -514,7 +514,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'marionette-webapi$'), "name": "Marionette WebAPI Tests"},
     {"regex": re.compile(r'marionette$'), "name": "Marionette Framework Unit Tests"},
     {"regex": re.compile(r'marionette-e10s$'), "name": "Marionette Framework Unit Tests e10s"},
-    {"regex": re.compile(r'cpp_gtest$'), "name": "CPP and GTest Unit Tests"},
+    {"regex": re.compile(r'gtest$'), "name": "GTest Unit Tests"},
     {"regex": re.compile(r'androidx86-set'), "name": "Android x86 Test Set"},
     {"regex": re.compile(r'instrumentation-background'), "name": "Android Instrumentation Background"},
     {"regex": re.compile(r'instrumentation-browser'), "name": "Android Instrumentation Browser"},
@@ -902,7 +902,7 @@ SYMBOLS = {
 
     # All other unit tests, sorted alphabetically by symbol.
     "CPP Unit Tests": "Cpp",
-    "CPP and GTest Unit Tests": "Cpp-G",
+    "GTest Unit Tests": "GTest",
     "JIT Tests": "Jit",
     "Jetpack SDK Test": "JP",
     "Gaia Build Test": "Gb",
