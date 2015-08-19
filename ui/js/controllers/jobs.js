@@ -67,11 +67,11 @@ treeherderApp.controller('JobsCtrl', [
             }
         };
 
-        if($location.search().revision === 'undefined'){
-            thNotify.send("Revision Undefined", "danger");
+        if ($location.search().revision === 'undefined') {
+            thNotify.send("Revision Undefined", 'danger');
         }
 
-        if(ThResultSetStore.isNotLoaded($scope.repoName)){
+        if (ThResultSetStore.isNotLoaded($scope.repoName)) {
             // get our first set of resultsets
             ThResultSetStore.fetchResultSets(
                 $scope.repoName,
