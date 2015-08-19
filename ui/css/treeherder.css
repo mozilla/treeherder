@@ -1608,35 +1608,6 @@ fieldset[disabled] .btn-purple-classified.active {
   color: white;
 }
 
-/* duplicate btn-yellow? */
-/*
-.btn-yellow {
-  color: #cdce1d;
-  font-weight: bold;
-}
-.btn-yellow:hover,
-.btn-yellow:focus,
-.btn-yellow:active,
-.btn-yellow.active {
-  border-color: #cdce1d;
-  color: #cdce1d;
-}
-.btn-yellow.disabled:hover,
-.btn-yellow.disabled:focus,
-.btn-yellow.disabled:active,
-.btn-yellow.disabled.active,
-.btn-yellow[disabled]:hover,
-.btn-yellow[disabled]:focus,
-.btn-yellow[disabled]:active,
-.btn-yellow[disabled].active,
-fieldset[disabled] .btn-yellow:hover,
-fieldset[disabled] .btn-yellow:focus,
-fieldset[disabled] .btn-yellow:active,
-fieldset[disabled] .btn-yellow.active {
-  border-color: #cdce1d;
-}
-*/
-
 .btn-ltgray {
   color: #e0e0e0;
 }
@@ -1738,8 +1709,6 @@ fieldset[disabled] .btn-dkgray.active {
   color: white;
 }
 
-/* real btn yellow for unknown */
-/*
 .btn-yellow {
   background-color: #fcf8e3;
   border-color: #fbd890;
@@ -1750,9 +1719,9 @@ fieldset[disabled] .btn-dkgray.active {
 .btn-yellow:focus,
 .btn-yellow:active,
 .btn-yellow.active {
-  background-color: #fcf8e3;
+  background-color: #8a6d3b;
   border-color: #fbd890;
-  color: #8a6d3b;
+  color: white;
 }
 .btn-yellow.disabled:hover,
 .btn-yellow.disabled:focus,
@@ -1766,38 +1735,37 @@ fieldset[disabled] .btn-yellow:hover,
 fieldset[disabled] .btn-yellow:focus,
 fieldset[disabled] .btn-yellow:active,
 fieldset[disabled] .btn-yellow.active {
-  background-color: #fcf8e3;
+  background-color: #8a6d3b;
   border-color: #fbd890;
 }
-*/
 
 /* will be btn-ltblue and mapped to coalesced */
-.btn-yellow {
+.btn-ltblue {
   /* background-color: #d9edf7;
   border-color: #bce8f1;
   color: #31708f; */
   color: #81b8ed;
   font-weight: bold;
 }
-.btn-yellow:hover,
-.btn-yellow:focus,
-.btn-yellow:active,
-.btn-yellow.active {
+.btn-ltblue:hover,
+.btn-ltblue:focus,
+.btn-ltblue:active,
+.btn-ltblue.active {
   border-color: #499ae9;
   color: #499ae9;
 }
-.btn-yellow.disabled:hover,
-.btn-yellow.disabled:focus,
-.btn-yellow.disabled:active,
-.btn-yellow.disabled.active,
-.btn-yellow[disabled]:hover,
-.btn-yellow[disabled]:focus,
-.btn-yellow[disabled]:active,
-.btn-yellow[disabled].active,
-fieldset[disabled] .btn-yellow:hover,
-fieldset[disabled] .btn-yellow:focus,
-fieldset[disabled] .btn-yellow:active,
-fieldset[disabled] .btn-yellow.active {
+.btn-ltblue.disabled:hover,
+.btn-ltblue.disabled:focus,
+.btn-ltblue.disabled:active,
+.btn-ltblue.disabled.active,
+.btn-ltblue[disabled]:hover,
+.btn-ltblue[disabled]:focus,
+.btn-ltblue[disabled]:active,
+.btn-ltblue[disabled].active,
+fieldset[disabled] .btn-ltblue:hover,
+fieldset[disabled] .btn-ltblue:focus,
+fieldset[disabled] .btn-ltblue:active,
+fieldset[disabled] .btn-ltblue.active {
   border-color: #499a89;
 }
 
