@@ -22,7 +22,7 @@ treeherder.factory('ThUserModel', [
                     if(response.data.length > 0){
                         return new ThUserModel(response.data[0]);
                     }else{
-                        return $q.reject({"data": "User not found"});
+                        return {};
                     }
                 }, function(reason){
                     thNotify.send(reason.data,"danger");
