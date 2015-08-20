@@ -40,7 +40,7 @@ def fetch_missing_hg_push_logs(repo_name, repo_url, resultset):
     process = MissingHgPushlogProcess()
 
     changesetParam = urllib.urlencode({"changeset": resultset}, True)
-    url_str = repo_url + '/json-pushes/?full=1&' + changesetParam
+    url_str = repo_url + '/json-pushes/?version=2&full=1&' + changesetParam
 
     logger.info("fetching missing resultsets: {0}".format(url_str))
     process.run(url_str, repo_name, resultset)

@@ -174,7 +174,7 @@ class MissingHgPushlogProcess(HgPushlogTransformerMixin,
             if extracted_content:
 
                 transformed = self.transform(
-                    extracted_content,
+                    extracted_content['pushes'],
                     repository
                 )
 
