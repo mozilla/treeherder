@@ -83,10 +83,9 @@
                 `submit_timestamp`,
                 `start_timestamp`,
                 `end_timestamp`,
-                `pending_eta`,
                 `running_eta`,
                 `tier`)
-                SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+                SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
                 FROM DUAL WHERE NOT EXISTS (
                     SELECT `job_guid`
                     FROM `job`

@@ -52,8 +52,7 @@ class JobsModel(TreeherderModelBase):
     JOB_PH_STATE = 14
     JOB_PH_START_TIMESTAMP = 16
     JOB_PH_END_TIMESTAMP = 17
-    JOB_PH_PENDING_AVG = 18
-    JOB_PH_RUNNING_AVG = 19
+    JOB_PH_RUNNING_AVG = 18
 
     # list of searchable columns, i.e. those who have an index
     # it would be nice to get this directly from the db and cache it
@@ -1444,8 +1443,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             self.get_number(job.get('submit_timestamp')),
             self.get_number(job.get('start_timestamp')),
             self.get_number(job.get('end_timestamp')),
-            0,                      # idx:18, replace with pending_avg_sec
-            0,                      # idx:19, replace with running_avg_sec
+            0,                      # idx:18, replace with running_avg_sec
             tier,
             job_guid,
             get_guid_root(job_guid)  # will be the same except for ``retry`` jobs
@@ -1592,10 +1590,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             job_guid_list.append(job_guid_root)
 
         reference_data_signature = job_placeholders[index][1]
-        pending_avg_sec = job_eta_times.get(reference_data_signature, {}).get('pending', 0)
         running_avg_sec = job_eta_times.get(reference_data_signature, {}).get('running', 0)
 
-        job_placeholders[index][self.JOB_PH_PENDING_AVG] = pending_avg_sec
         job_placeholders[index][self.JOB_PH_RUNNING_AVG] = running_avg_sec
 
         # Load job_update_placeholders

@@ -95,7 +95,6 @@ DROP TABLE IF EXISTS `job`;
  *  start_timestamp - Time the job was started.
  *  end_timestamp - Time the job completed.
  *  last_modified - The last time the job was modified
- *  pending_eta - ETA to a running state. A rolling average over a 6 hr window of start_timestamp - submit_timestamp, recomputed every 30 min.
  *  running_eta - ETA to a completed state. A rolling average over a 6 hr window of end_timestamp - start_timestamp, recomputed every 30 min.
  **************************/
 CREATE TABLE `job` (
@@ -120,7 +119,6 @@ CREATE TABLE `job` (
   `start_timestamp` int(10) unsigned DEFAULT NULL,
   `end_timestamp` int(10) unsigned DEFAULT NULL,
   `last_modified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `pending_eta` int(10) unsigned DEFAULT NULL,
   `running_eta` int(10) unsigned DEFAULT NULL,
   `tier` int(10) unsigned DEFAULT 1,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
@@ -145,7 +143,6 @@ CREATE TABLE `job` (
   KEY `idx_start_timestamp` (`start_timestamp`),
   KEY `idx_end_timestamp` (`end_timestamp`),
   KEY `idx_last_modified` (`last_modified`),
-  KEY `idx_pending_eta` (`pending_eta`),
   KEY `idx_running` (`running_eta`),
   KEY `idx_tier` (`tier`),
   KEY `idx_active_status` (`active_status`),
