@@ -102,7 +102,6 @@ treeherder.factory('BrowserId', [
          * This is mostly inspired by the django_browserid jquery implementation.
          */
         var browserid = {
-            info: $http.get(thServiceDomain+'/browserid/info/'),
             requestDeferred: null,
             logoutDeferred: null,
 
@@ -116,7 +115,6 @@ treeherder.factory('BrowserId', [
                     .then(function(response) {
                         return browserid.verifyAssertion(response);
                     });
-
             },
             /*
              * Logout from persona and notify treeherder of the change
@@ -124,12 +122,10 @@ treeherder.factory('BrowserId', [
              * of navigator.id.watch
              */
             logout: function(){
-                return browserid.info.then(function(response){
-                    browserid.logoutDeferred = $q.defer();
-                    navigator.id.logout();
-                    return browserid.logoutDeferred.promise.then(function(){
-                        return $http.post(response.data.logoutUrl);
-                    });
+                browserid.logoutDeferred = $q.defer();
+                navigator.id.logout();
+                return browserid.logoutDeferred.promise.then(function(){
+                    return $http.post('/browserid/logout/');
                 });
             },
             /*
@@ -138,24 +134,20 @@ treeherder.factory('BrowserId', [
              * of navigator.id.watch.
              */
             getAssertion: function(requestArgs){
-                return browserid.info.then(function(response){
-                    requestArgs = _.extend({}, response.data.requestArgs, requestArgs);
-                    browserid.requestDeferred = $q.defer();
-                    navigator.id.request(requestArgs);
-                    return browserid.requestDeferred.promise;
-                });
+                requestArgs = {};
+                browserid.requestDeferred = $q.defer();
+                navigator.id.request(requestArgs);
+                return browserid.requestDeferred.promise;
             },
             /*
              * Verify the assertion provided by persona against the treeherder verification endpoint.
              * The django_browserid endpoint accept a post request with form-urlencoded fields.
              */
             verifyAssertion: function(assertion){
-                return browserid.info.then(function(response){
-                    return $http.post(
-                        response.data.loginUrl, {assertion: assertion},{
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
-                            transformRequest: browserid.transform_data
-                        });
+                return $http.post(
+                    '/browserid/login/', {assertion: assertion},{
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+                        transformRequest: browserid.transform_data
                 });
             },
 

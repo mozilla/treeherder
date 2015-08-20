@@ -10,16 +10,14 @@ treeherder.directive('personaButtons', [
         return {
             restrict: "E",
             link: function(scope, element, attrs) {
-                BrowserId.info.then(function(response){
+                scope.initialized = ThUserModel.get().then(function(user){
                     $rootScope.user = {};
                     // if the user.email value is null, it means that he's not logged in
-                    $rootScope.user.email = response.data.userEmail || null;
+                    $rootScope.user.email = user.email || null;
                     $rootScope.user.loggedin = $rootScope.user.email !== null;
 
                     if ($rootScope.user.loggedin) {
-                        ThUserModel.get().then(function(user){
-                            angular.extend($rootScope.user, user);
-                        }, null);
+                        angular.extend($rootScope.user, user);
                     }
                 }).then(function(){
                     navigator.id.watch({
@@ -57,22 +55,26 @@ treeherder.directive('personaButtons', [
                      * BrowserID.login returns a promise of the verification.
                      * If successful, we will find the user email in the response
                      */
-                    BrowserId.login()
-                        .then(function(response){
-                            $rootScope.user.loggedin = true;
-                            $rootScope.user.email = response.data.email;
-                            // retrieve the current user's info from the api
-                            ThUserModel.get().then(function(user){
-                                angular.extend($rootScope.user, user);
-                            }, null);
-                        },function(){
-                            // logout if the verification failed
-                            scope.logout();
-                        });
+                    scope.initialized.then(function(){
+                        BrowserId.login()
+                            .then(function(response){
+                                $rootScope.user.loggedin = true;
+                                $rootScope.user.email = response.data.email;
+                                // retrieve the current user's info from the api
+                                ThUserModel.get().then(function(user){
+                                    angular.extend($rootScope.user, user);
+                                }, null);
+                            },function(){
+                                // logout if the verification failed
+                                scope.logout();
+                            });
+                    });
                 };
                 scope.logout = function(){
-                    BrowserId.logout().then(function(response){
-                        $rootScope.user = {loggedin: false, email:null};
+                    scope.initialized.then(function(){
+                        BrowserId.logout().then(function(response){
+                            $rootScope.user = {loggedin: false, email:null};
+                        });
                     });
                 };
             },
