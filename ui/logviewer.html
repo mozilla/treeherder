@@ -32,15 +32,20 @@
           </li>
 
           <!-- Job status -->
-          <li class="{{::resultStatusShading}}">
+          <li ng-if="jobExists" class="{{::resultStatusShading}}">
             <div>
               <span ng-cloak><strong>{{result.label}}: </strong></span>
-              <span ng-cloak class="break-word">{{result.value}}</span>
+              <span ng-cloak>{{result.value}}</span>
+            </div>
+          </li>
+          <li ng-if="!jobExists" class="alert-danger">
+            <div>
+              <span title="The job does not exist or has expired">Unavailable</span>
             </div>
           </li>
 
           <!-- Raw log button -->
-          <li>
+          <li ng-if="jobExists">
             <a title="{{logError ? 'Raw log link no longer exists or has expired (click for path)' :
                       'Open the raw log in a new window'}}"
                target="_blank"

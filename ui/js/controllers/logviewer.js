@@ -29,6 +29,7 @@ logViewerApp.controller('LogviewerCtrl', [
         $scope.displayedLogLines = [];
         $scope.loading = false;
         $scope.logError = false;
+        $scope.jobExists = true;
         $scope.currentLineNumber = 0;
         $scope.highestLine = 0;
         $scope.showSuccessful = true;
@@ -207,6 +208,11 @@ logViewerApp.controller('LogviewerCtrl', [
                         "#/jobs?repo=" + $scope.repoName + "&revision=" +
                         revision;
                 });
+
+            }, function (error) {
+                $scope.loading = false;
+                $scope.jobExists = false;
+                thNotify.send("The job does not exist or has expired", 'danger', 'true');
             });
 
             // Make the log and job artifacts available
