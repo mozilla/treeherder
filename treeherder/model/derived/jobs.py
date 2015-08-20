@@ -586,32 +586,12 @@ class JobsModel(TreeherderModelBase):
             submit_timestamp = int(time.time())
             for signature in eta_groups:
 
-                pending_samples = map(
-                    lambda x: int(x or 0),
-                    eta_groups[signature]['pending_samples'].split(','))
-
-                pending_median = self.get_median_from_sorted_list(
-                    sorted(pending_samples))
-
                 running_samples = map(
                     lambda x: int(x or 0),
                     eta_groups[signature]['running_samples'].split(','))
 
                 running_median = self.get_median_from_sorted_list(
                     sorted(running_samples))
-
-                placeholders.append(
-                    [
-                        signature,
-                        'pending',
-                        eta_groups[signature]['pending_avg_sec'],
-                        pending_median,
-                        eta_groups[signature]['pending_min_sec'],
-                        eta_groups[signature]['pending_max_sec'],
-                        eta_groups[signature]['pending_std'],
-                        len(pending_samples),
-                        submit_timestamp
-                    ])
 
                 placeholders.append(
                     [

@@ -428,17 +428,6 @@
 
             "sql":"SELECT signature,
                           CAST(
-                            ROUND( AVG(start_timestamp - submit_timestamp) )
-                            AS UNSIGNED) AS 'pending_avg_sec',
-
-                          MIN(start_timestamp - submit_timestamp) AS 'pending_min_sec',
-                          MAX(start_timestamp - submit_timestamp) AS 'pending_max_sec',
-
-                          CAST(
-                            ROUND( STD(start_timestamp - submit_timestamp))
-                            AS UNSIGNED) AS 'pending_std',
-
-                          CAST(
                             ROUND( AVG(end_timestamp - start_timestamp) )
                             AS UNSIGNED) AS 'running_avg_sec',
 
@@ -448,9 +437,6 @@
                           CAST(
                             ROUND( STD(end_timestamp - start_timestamp) )
                             AS SIGNED) AS 'running_std',
-
-                          GROUP_CONCAT(start_timestamp - submit_timestamp SEPARATOR ',')
-                            AS 'pending_samples',
 
                           GROUP_CONCAT(end_timestamp - start_timestamp SEPARATOR ',')
                             AS 'running_samples'
