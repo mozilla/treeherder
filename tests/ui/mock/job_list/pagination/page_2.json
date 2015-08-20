@@ -23,7 +23,6 @@
     "platform",
     "state",
     "running_eta",
-    "pending_eta",
     "build_os",
     "option_collection_hash",
     "who",
