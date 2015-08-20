@@ -29,6 +29,7 @@ logViewerApp.controller('LogviewerCtrl', [
         $scope.displayedLogLines = [];
         $scope.loading = false;
         $scope.logError = false;
+        $scope.jobExists = true;
         $scope.currentLineNumber = 0;
         $scope.highestLine = 0;
         $scope.showSuccessful = true;
@@ -144,7 +145,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 }, function (error) {
                     $scope.loading = false;
                     $scope.logError = true;
-                    thNotify.send("The log no longer exists or has expired", 'warning', 'true');
+                    thNotify.send("The log no longer exists or has expired", 'warning', true);
                     deferred.reject();
                 });
             } else {
@@ -204,6 +205,11 @@ logViewerApp.controller('LogviewerCtrl', [
                     var revision = data.data.revision;
                     $scope.logProperties.push({label: "Revision", value: revision});
                 });
+
+            }, function (error) {
+                $scope.loading = false;
+                $scope.jobExists = false;
+                thNotify.send("The job does not exist or has expired", 'danger', true);
             });
 
             // Make the log and job artifacts available
