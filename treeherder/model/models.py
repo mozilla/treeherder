@@ -448,7 +448,7 @@ class ExclusionProfile(models.Model):
             return list1, list2
 
         query = None
-        for exclusion in self.exclusions.all().select_related("info"):
+        for exclusion in self.exclusions.all():
             info = exclusion.info
             option_collection_hashes = info['option_collection_hashes']
             job_type_names, job_type_symbols = split_combo(info['job_types'])
