@@ -100,7 +100,6 @@ logViewerApp.controller('LogviewerCtrl', [
                 LogSlice.get_line_range(lineRangeParams, {
                     buffer_size: LINE_BUFFER_SIZE
                 }).then(function(data) {
-                    var slicedData, length;
 
                     drawErrorLines(data);
 
@@ -247,7 +246,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
         function logFileLineCount () {
             var steps = $scope.artifact.step_data.steps;
-            return steps[ steps.length - 1 ].finished_linenumber;
+            return steps[ steps.length - 1 ].finished_linenumber + 1;
         }
 
         function moveLineNumber (bounds) {
