@@ -33,13 +33,5 @@ treeherderApp.config(function($compileProvider, $routeProvider, $httpProvider, $
             templateUrl: 'partials/main/jobs.html',
             reloadOnSearch: false
         }).
-        when('/timeline', {
-            controller: 'TimelineCtrl',
-            templateUrl: 'partials/main/timeline.html'
-        }).
-        when('/machines', {
-            controller: 'MachinesCtrl',
-            templateUrl: 'partials/main/machines.html'
-        }).
         otherwise({redirectTo: '/jobs'});
 });
