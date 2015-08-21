@@ -617,7 +617,11 @@ class TreeherderClient(object):
     REPOSITORY_ENDPOINT = 'repository'
     JOBGROUP_ENDPOINT = 'jobgroup'
     JOBTYPE_ENDPOINT = 'jobtype'
+    PRODUCT_ENDPOINT = 'product'
+    MACHINE_ENDPOINT = 'machine'
     MACHINE_PLATFORM_ENDPOINT = 'machineplatform'
+    FAILURE_CLASSIFICATION_ENDPOINT = 'failureclassification'
+    BUILD_PLATFORM_ENDPOINT = 'buildplatform'
     MAX_COUNT = 2000
 
     def __init__(
@@ -749,6 +753,21 @@ class TreeherderClient(object):
         """
         return self._get_json(self.REPOSITORY_ENDPOINT, None)
 
+    def get_products(self):
+        """
+        Get a list of valid treeherder products.
+
+        Returns a list with the following structure:
+
+            {
+              id: <id>,
+              name: <name>,
+              description: <description>,
+              active_status: <active_status>
+            }
+        """
+        return self._get_json(self.PRODUCT_ENDPOINT, None)
+
     def get_job_groups(self):
         """
         Gets a list of job groups stored inside Treeherder
@@ -756,13 +775,44 @@ class TreeherderClient(object):
         Returns a list of dictionaries with the following properties:
 
             {
-              id: <id>
-              symbol: <symbol>
+              id: <id>,
+              symbol: <symbol>,
               name: <name>
               ...
             }
         """
         return self._get_json(self.JOBGROUP_ENDPOINT, None)
+
+    def get_failure_classifications(self):
+        """
+        Gets a list of failure classification stored inside Treeherder
+
+        Returns a list of dictionaries with the following properties:
+
+            {
+              id: <id>,
+              name: <name>,
+              description: <description>,
+              active_status: <active_status>
+            }
+        """
+        return self._get_json(self.FAILURE_CLASSIFICATION_ENDPOINT, None)
+
+    def get_build_platforms(self):
+        """
+        Gets a list of build platforms stored inside Treeherder
+
+        Returns a list of dictionaries with the following properties:
+
+            {
+              id: <id>,
+              os_name: <os_name>,
+              platform: <platform>,
+              architecture: <architecture>
+              active_status: <active_status
+            }
+        """
+        return self._get_json(self.BUILD_PLATFORM_ENDPOINT, None)
 
     def get_job_types(self):
         """
@@ -780,6 +830,22 @@ class TreeherderClient(object):
             }
         """
         return self._get_json(self.JOBTYPE_ENDPOINT, None)
+
+    def get_machines(self):
+        """
+        Gets a list of machines stored inside Treeherder
+
+        Returns a list of dictionaries with the following properties:
+
+            {
+              id: <id>,
+              name: <name>,
+              first_timestamp: <first_timestamp>,
+              last_timestamp: <last_timestamp>,
+              active_status: <active_status>
+            }
+        """
+        return self._get_json(self.MACHINE_ENDPOINT, None)
 
     def get_machine_platforms(self):
         """
