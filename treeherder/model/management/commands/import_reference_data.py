@@ -4,7 +4,7 @@ from urlparse import urlparse
 from django.core.management.base import BaseCommand
 
 from treeherder.client import TreeherderClient
-from treeherder.model.models import Option, OptionCollection, MachinePlatform
+from treeherder.model.models import Option, OptionCollection, MachinePlatform, Machine
 
 
 class Command(BaseCommand):
@@ -40,6 +40,18 @@ class Command(BaseCommand):
                     defaults={
                         'active_status': machine_platform['active_status']
                     })
+
+        # machine
+        for machine in c.get_machines():
+            Machine.objects.get_or_create(
+                    id=machine['id'],
+                    name=machine['name'],
+                    first_timestamp=machine['first_timestamp'],
+                    last_timestamp=machine['last_timestamp'],
+                    defaults={
+                        'active_status' : machine['active_status']
+                    })
+
 
         # TODO: Implement other types: product, build platform, repository groups,
         # repositories, machine, job group, job type, failure classification
