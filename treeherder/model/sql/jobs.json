@@ -97,6 +97,21 @@
 
             "host_type":"master_host"
         },
+        "set_possible_job_data":{
+            "sql":"INSERT INTO `possible_job` (
+                    `build_platform_id`,
+                    `machine_platform_id`,
+                    `device_id`,
+                    `job_type_id`,
+                    `state`,
+                    `result`,
+                    `reference_data_name`,
+                    `repository_id`)
+                   VALUES (?,?,?,?,?,?,?,?)",
+
+            "host_type":"master_host"
+        },
+
         "set_result_set":{
 
             "sql":"INSERT INTO `result_set` (`author`, `revision_hash`,`push_timestamp`, `active_status`)

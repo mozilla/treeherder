@@ -147,7 +147,8 @@ class RefDataManager(object):
 
         # This is not really an id lookup but a list of unique reference
         # data signatures that can be used for subsequent queries
-        self.id_lookup['reference_data_signatures'] = self.process_reference_data_signatures()
+        if self.build_signature_placeholders:
+            self.id_lookup['reference_data_signatures'] = self.process_reference_data_signatures()
 
         # id lookup structure
         self.id_lookup['build_platforms'] = self.process_build_platforms()
