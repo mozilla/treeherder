@@ -153,6 +153,33 @@ CREATE TABLE `job` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `possible_job`
+--
+
+DROP TABLE IF EXISTS `possible_job`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: possible_job
+ * TODO
+ **************************/
+CREATE TABLE `possible_job` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `build_platform_id` int(10) unsigned NOT NULL,
+  `machine_platform_id` int(10) unsigned NOT NULL,
+  `device_id` int(10) unsigned DEFAULT NULL,
+  `job_type_id` int(10) unsigned NOT NULL,
+  `state` varchar(25) COLLATE utf8_bin NOT NULL,
+  `result` varchar(25) COLLATE utf8_bin DEFAULT NULL,
+  `reference_data_name` varchar(120) COLLATE utf8_bin DEFAULT NULL,
+  `repository_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_repository_id` (`repository_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 DROP TABLE IF EXISTS `job_eta`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;

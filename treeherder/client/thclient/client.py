@@ -349,6 +349,17 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
             }
 
 
+class TreeherderPossibleJob(TreeherderData, ValidatorMixin):
+    def __init__(self, data):
+        super(TreeherderPossibleJob, self).__init__(data)
+
+        self.required_properties = {
+            'branch': {'cb': self.validate_existence},
+            'ref_data_name': {'cb': self.validate_existence},
+            'job_type_symbol': {'cb': self.validate_existence}
+        }
+
+
 class TreeherderRevision(TreeherderData, ValidatorMixin):
     """
     Supports building a revision structure that is contained in
@@ -496,13 +507,15 @@ class TreeherderCollection(object):
     Base class for treeherder data collections
     """
 
-    def __init__(self, endpoint_base, data=[]):
+    def __init__(self, endpoint_base="", data=[]):
 
         self.data = []
-        self.endpoint_base = endpoint_base
+        self.endpoint_base = ""
 
         if data:
             self.data = data
+        if endpoint_base:
+            self.endpoint_base = endpoint_base
 
     def get_collection_data(self):
         """
@@ -549,7 +562,7 @@ class TreeherderCollection(object):
             # collection.  In the case of a TreeherderJobCollection,
             # this is determined in the constructor.
 
-            chunk = self.__class__(self.data[i:i + chunk_size])
+            chunk = self.__class__(data=self.data[i:i + chunk_size])
             chunk.endpoint_base = self.endpoint_base
             yield chunk
 

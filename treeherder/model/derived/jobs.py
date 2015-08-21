@@ -1257,6 +1257,81 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 placeholders=coalesced_job_guid_placeholders,
                 executemany=True)
 
+    def store_possible_job_data(self, data, raise_errors=False):
+        """
+        Store possible data instances into possible_job db
+        """
+        # Ensure that we have job data to process
+        if not data:
+            return
+
+        job_placeholders = []
+        repository_lookup = {}
+
+        for datum in data:
+            build_os_name = datum['build_os']
+            build_platform = datum['build_platform']
+            build_architecture = datum['build_architecture']
+            build_platform_key = self.refdata_model.add_build_platform(
+                build_os_name, build_platform, build_architecture
+            )
+            machine_os_name = datum['machine_platform_os']
+            machine_platform = datum['platform']
+            machine_architecture = datum['machine_platform_architecture']
+            machine_platform_key = self.refdata_model.add_machine_platform(
+                machine_os_name, machine_platform, machine_architecture
+            )
+
+            device_name = datum['device_name']
+            self.refdata_model.add_device(device_name)
+
+            job_type = datum['job_type_name']
+            job_symbol = datum['job_type_symbol']
+
+            group_name = datum['job_group_name']
+            group_symbol = datum['job_group_symbol']
+
+            job_type_key = self.refdata_model.add_job_type(
+                job_type, job_symbol, group_name, group_symbol
+            )
+
+            state = datum['state']
+            result = datum['result']
+
+            # Buildername
+            reference_data_name = datum['ref_data_name']
+
+            repository = datum['branch']
+            if repository not in repository_lookup:
+                repository_lookup[repository] = self.refdata_model.get_repository_id(repository)
+            repository_key = repository_lookup[repository]
+
+            job_placeholders.append([
+                build_platform_key,
+                machine_platform_key,
+                device_name,
+                job_type_key,
+                state,
+                result,
+                reference_data_name,
+                repository_key
+            ])
+
+        # Store all reference data and retrieve associated ids
+        id_lookups = self.refdata_model.set_all_reference_data()
+
+        for datum in job_placeholders:
+            datum[0] = id_lookups['build_platforms'][datum[0]]['id']
+            datum[1] = id_lookups['machine_platforms'][datum[1]]['id']
+            datum[2] = id_lookups['devices'][datum[2]]['id']
+            datum[3] = id_lookups['job_types'][datum[3]]['id']
+
+        self.execute(
+            proc='jobs.inserts.set_possible_job_data',
+            debug_show=self.DEBUG,
+            placeholders=job_placeholders,
+            executemany=True)
+
     def _remove_existing_jobs(self, data):
         """
         Remove jobs from data where we already have them in the same state.
