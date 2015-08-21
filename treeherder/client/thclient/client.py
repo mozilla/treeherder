@@ -617,6 +617,7 @@ class TreeherderClient(object):
     REPOSITORY_ENDPOINT = 'repository'
     JOBGROUP_ENDPOINT = 'jobgroup'
     JOBTYPE_ENDPOINT = 'jobtype'
+    MACHINE_ENDPOINT = 'machine'
     MACHINE_PLATFORM_ENDPOINT = 'machineplatform'
     MAX_COUNT = 2000
 
@@ -780,6 +781,22 @@ class TreeherderClient(object):
             }
         """
         return self._get_json(self.JOBTYPE_ENDPOINT, None)
+
+    def get_machines(self):
+        """
+        Gets a list of machines stored inside Treeherder
+
+        Returns a list of dictionaries with the following properties:
+
+            {
+            id: <id>,
+            name: <name>,
+            first_timestamp: <first_timestamp>,
+            last_timestamp: <last_timestamp>,
+            active_status: <active_status>
+            }
+        """
+        return self._get_json(self.MACHINE_ENDPOINT, None)
 
     def get_machine_platforms(self):
         """
