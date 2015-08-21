@@ -5,6 +5,7 @@ from celery import task
 
 from treeherder.etl.buildapi import (Builds4hJobsProcess, PendingJobsProcess,
                                      RunningJobsProcess)
+from treeherder.etl.allthethings import PossibleJobsProcess
 from treeherder.etl.pushlog import HgPushlogProcess
 from treeherder.model.derived import RefDataManager
 
@@ -31,6 +32,14 @@ def fetch_buildapi_build4h():
     Fetches the buildapi running jobs api and load them
     """
     Builds4hJobsProcess().run()
+
+
+@task(name='fetch-allthethings', time_limit=3 * 60)
+def fetch_allthethings():
+    """
+    Fetches possible jobs from allthethings and load them
+    """
+    PossibleJobsProcess().run()
 
 
 @task(name='fetch-push-logs')
