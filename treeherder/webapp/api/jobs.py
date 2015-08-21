@@ -174,16 +174,3 @@ class JobsViewSet(viewsets.ViewSet):
         jm.store_job_data(request.DATA)
 
         return Response({'message': 'Job successfully updated'})
-
-    @list_route(methods=['get'])
-    def list_possible(self, request, project):
-        """
-        GET method implementation for list of all possible buildbot jobs
-        """
-        from treeherder.etl.buildbot import get_all_possible_jobs_for_project
-
-        results = get_all_possible_jobs_for_project(project)
-
-        response_body = dict(meta={"repository": project, "count": len(results)},
-                             results=results)
-        return Response(response_body)
