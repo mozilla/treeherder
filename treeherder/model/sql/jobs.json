@@ -476,8 +476,7 @@
                           MAX(submit_timestamp)
                     FROM job_eta
                     WHERE signature IN (REP0)
-                    AND state = 'running'
-                    GROUP BY signature
+                    GROUP BY signature, state
                     ORDER BY submit_timestamp DESC",
             "host_type":"read_host"
         },
