@@ -126,7 +126,7 @@ DROP TABLE IF EXISTS `bugscache`;
  *  modified - ?
  **************************/
 CREATE TABLE `bugscache` (
-  `id` int(10) unsigned NOT NULL,
+  `id` integer NOT NULL,
   `status` varchar(64) COLLATE utf8_bin DEFAULT NULL,
   `resolution` varchar(64) COLLATE utf8_bin DEFAULT NULL,
   `summary` varchar(255) COLLATE utf8_bin NOT NULL,
@@ -166,7 +166,7 @@ DROP TABLE IF EXISTS `build_platform`;
  *  architecture - x86 | x86_64 etc...
  **************************/
 CREATE TABLE `build_platform` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` integer NOT NULL AUTO_INCREMENT,
   `os_name` varchar(25) COLLATE utf8_bin NOT NULL,
   `platform` varchar(25) COLLATE utf8_bin NOT NULL,
   `architecture` varchar(25) COLLATE utf8_bin DEFAULT NULL,
@@ -199,7 +199,7 @@ DROP TABLE IF EXISTS `failure_classification`;
  *  name - broken | clobber-needed | infrastructure | intermittent | needs-filing | other | ...
  **************************/
 CREATE TABLE `failure_classification` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` integer NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
   `description` text COLLATE utf8_bin,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
@@ -230,7 +230,7 @@ DROP TABLE IF EXISTS `job_group`;
  *  name - mochitest | build | reftest | ...
  **************************/
 CREATE TABLE `job_group` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` integer NOT NULL AUTO_INCREMENT,
   `symbol` char(25) COLLATE utf8_bin DEFAULT '?',
   `name` varchar(100) COLLATE utf8_bin NOT NULL,
   `description` text COLLATE utf8_bin,
@@ -270,8 +270,8 @@ DROP TABLE IF EXISTS `job_type`;
  *  name - mochitest-1 | mochitest-2 | tresize | tp5o | ...
  **************************/
 CREATE TABLE `job_type` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `job_group_id` int(10) unsigned DEFAULT NULL,
+  `id` integer NOT NULL AUTO_INCREMENT,
+  `job_group_id` integer DEFAULT NULL,
   `symbol` char(25) COLLATE utf8_bin DEFAULT '?',
   `name` varchar(100) COLLATE utf8_bin NOT NULL,
   `description` text COLLATE utf8_bin,
@@ -308,7 +308,7 @@ DROP TABLE IF EXISTS `machine`;
  *  last_timestamp - timestamp associated with machine's last data entry
  **************************/
 CREATE TABLE `machine` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` integer NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
   `first_timestamp` int(10) unsigned NOT NULL,
   `last_timestamp` int(10) unsigned NOT NULL,
@@ -343,7 +343,7 @@ DROP TABLE IF EXISTS `machine_platform`;
  *  architecture - x86 | x86_64 etc...
  **************************/
 CREATE TABLE `machine_platform` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` integer NOT NULL AUTO_INCREMENT,
   `os_name` varchar(25) COLLATE utf8_bin NOT NULL,
   `platform` varchar(25) COLLATE utf8_bin NOT NULL,
   `architecture` varchar(25) COLLATE utf8_bin DEFAULT NULL,
@@ -372,7 +372,7 @@ DROP TABLE IF EXISTS `device`;
  *  name - tarako | hamachi | inari | VM ...
  **************************/
 CREATE TABLE `device` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` integer NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
   `description` text COLLATE utf8_bin,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
@@ -403,7 +403,7 @@ DROP TABLE IF EXISTS `option`;
  *
  **************************/
 CREATE TABLE `option` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` integer NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
   `description` text COLLATE utf8_bin,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
@@ -434,9 +434,9 @@ DROP TABLE IF EXISTS `option_collection`;
  *  option_id - References option.id
  **************************/
 CREATE TABLE `option_collection` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` integer NOT NULL AUTO_INCREMENT,
   `option_collection_hash` varchar(40) COLLATE utf8_bin NOT NULL,
-  `option_id` int(10) unsigned NOT NULL,
+  `option_id` integer NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uni_option_collection` (`option_collection_hash`,`option_id`),
   KEY `idx_option` (`option_id`),
@@ -465,7 +465,7 @@ DROP TABLE IF EXISTS `product`;
  *  name - Firefox | Fennec | Firefox OS | Thunderbird | Seamonkey | ...
  **************************/
 CREATE TABLE `product` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` integer NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
   `description` text COLLATE utf8_bin,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
@@ -500,8 +500,8 @@ DROP TABLE IF EXISTS `repository`;
  *
  **************************/
 CREATE TABLE `repository` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `repository_group_id` int(10) unsigned NOT NULL,
+  `id` integer NOT NULL AUTO_INCREMENT,
+  `repository_group_id` integer NOT NULL,
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
   `dvcs_type` varchar(25) COLLATE utf8_bin NOT NULL,
   `url` varchar(255) COLLATE utf8_bin NOT NULL,
@@ -538,7 +538,7 @@ DROP TABLE IF EXISTS `repository_group`;
  *  name - train | development | ...
  **************************/
 CREATE TABLE `repository_group` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` integer NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
   `description` text COLLATE utf8_bin,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
