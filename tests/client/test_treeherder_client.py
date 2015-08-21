@@ -403,6 +403,17 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
         setattr(ret, 'raise_for_status', lambda: None)
         return ret
 
+    def _get_mock_response(self, response_struct):
+        class MockResponse(object):
+
+            def json(self):
+                return response_struct
+
+            def raise_for_status(self):
+                pass
+
+        return MockResponse()
+
     @patch("treeherder.client.client.requests.post")
     def test_post_job_collection(self, mock_post):
         """Can add a treeherder collections to a TreeherderRequest."""
@@ -510,6 +521,44 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
                                                "oauth_token=&"
                                                "user=project&"
                                                "oauth_signature=DJe%2F%2FJtw7s2XUrciG%2Bl1tfJJen8%3D"))
+
+    @patch("treeherder.client.client.requests.get")
+    def test_get_job(self, mock_get):
+
+        mock_get.return_value = self._get_mock_response({
+            "meta": {"count": 3,
+                     "repository": "mozilla-inbound",
+                     "offset": 0},
+            "results": [{"jobDetail1": 1},
+                        {"jobDetail2": 2},
+                        {"jobDetail3": 3}
+                        ]})
+        tdc = TreeherderClient()
+        jobs = tdc.get_jobs("mozilla-inbound")
+        self.assertEqual(len(jobs), 3)
+        self.assertEqual(jobs, [{"jobDetail1": 1},
+                                {"jobDetail2": 2},
+                                {"jobDetail3": 3}
+                                ])
+
+    @patch("treeherder.client.client.requests.get")
+    def test_get_results(self, mock_get):
+
+        mock_get.return_value = self._get_mock_response({
+            "meta": {"count": 3, "repository": "mozilla-inbound",
+                     "offset": 0},
+            "results": [{"resultSet1": 1},
+                        {"resultSet2": 2},
+                        {"resultSet3": 3}
+                        ]})
+
+        tdc = TreeherderClient()
+        resultSets = tdc.get_resultsets("mozilla-inbound")
+        self.assertEqual(len(resultSets), 3)
+        self.assertEqual(resultSets, [{"resultSet1": 1},
+                                      {"resultSet2": 2},
+                                      {"resultSet3": 3}
+                                      ])
 
 if __name__ == '__main__':
     unittest.main()
