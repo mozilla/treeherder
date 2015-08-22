@@ -273,7 +273,7 @@ treeherder.factory('ThResultSetStore', [
         };
 
         var getPossibleJobs = function(repoName, resultSet){
-            var uri = ThJobModel.get_uri(repoName)+"list_possible";
+            var uri = ThJobModel.get_possible_uri(repoName);
 
             return ThJobModel.get_list_by_uri(uri).then(function(jobList) {
                 var id = resultSet.id;

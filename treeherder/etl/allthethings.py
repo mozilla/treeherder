@@ -1,14 +1,19 @@
 from django.conf import settings
+import logging
 
 from treeherder.client import TreeherderCollection, TreeherderPossibleJob
 from treeherder.etl.mixins import JsonExtractorMixin, OAuthLoaderMixin
 from treeherder.etl.buildbot import get_symbols_and_platforms
 from treeherder.etl.oauth_utils import OAuthCredentials
 
+logger = logging.getLogger(__name__)
+
 
 class AllthethingsTransformerMixin:
 
     def transform(self, extracted_content):
+        logger.info('About to import allthethings.json builder data.')
+
         th_collections = {}
 
         for builder, content in extracted_content['builders'].iteritems():

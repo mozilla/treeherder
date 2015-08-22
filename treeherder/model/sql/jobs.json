@@ -142,10 +142,9 @@
                     `machine_platform_id`,
                     `device_id`,
                     `job_type_id`,
-                    `state`,
-                    `result`,
-                    `reference_data_name`)
-                   VALUES (?,?,?,?,?,?,?)",
+                    `option_collection_hash`,
+                    `signature`)
+                   VALUES (?,?,?,?,?,?)",
 
             "host_type":"master_host"
         },
@@ -634,6 +633,47 @@
                   GROUP BY j.id
                   ORDER BY
                     rs.push_timestamp DESC
+                  ",
+
+            "host_type":"read_host"
+        },
+        "get_possible_job_list":{
+            "sql":"SELECT
+                    pj.`build_platform_id`,
+                    pj.`machine_platform_id`,
+                    pj.`device_id`,
+                    pj.`job_type_id`,
+                    pj.`signature`,
+                    pj.`option_collection_hash`,
+                    d.`name` as device_name,
+                    mp.`platform` as platform,
+                    mp.`os_name` as machine_platform_os,
+                    mp.`architecture` as machine_platform_architecture,
+                    bp.`platform` as build_platform,
+                    bp.`os_name` as build_os,
+                    bp.`architecture` as build_architecture,
+                    jt.`name` as job_type_name,
+                    jt.`symbol` as job_type_symbol,
+                    jt.`description` as job_type_description,
+                    jg.`name` as job_group_name,
+                    jt.`job_group_id` as job_group_id,
+                    jg.`symbol` as job_group_symbol,
+                    jg.`description` as job_group_description,
+                    rds.`name` as ref_data_name,
+                    rds.`build_system_type` as build_system_type
+                  FROM `possible_job` as pj
+                  LEFT JOIN `REP0`.`machine_platform` as mp
+                    ON pj.`machine_platform_id` = mp.id
+                  LEFT JOIN `REP0`.`build_platform` as bp
+                    ON pj.`build_platform_id` = bp.id
+                  LEFT JOIN `REP0`.`job_type` as jt
+                    ON pj.`job_type_id` = jt.id
+                  LEFT JOIN `REP0`.`job_group` as jg
+                    ON jt.`job_group_id` = jg.id
+                  LEFT JOIN `REP0`.`device` as d
+                    ON pj.device_id = d.id
+                  LEFT JOIN `REP0`.reference_data_signatures rds
+                    ON pj.signature = rds.signature
                   ",
 
             "host_type":"read_host"

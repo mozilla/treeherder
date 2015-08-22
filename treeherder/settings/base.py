@@ -288,6 +288,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_THROTTLE_RATES': {
         'jobs': '220/minute',
+        'possible_jobs': '220/minute',
         'resultset': '220/minute'
     },
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
