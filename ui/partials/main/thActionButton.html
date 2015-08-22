@@ -10,6 +10,10 @@
   <!-- Menu contents -->
   <ul class="dropdown-menu pull-right">
     <li><a target="_blank" ignore-job-clear-on-click
+           title="Add new jobs to this resultset"
+           href="" prevent-default-on-left-click
+           ng-click="showPossibleJobs()">Add new Jobs</a></li>
+    <li><a target="_blank" ignore-job-clear-on-click
            href="https://mcmerge.paas.allizom.org/?cset={{::resultset.revision}}&amp;tree={{::repoName}}"
            title="Use Bugherder to mark the bugs in this push">Mark with Bugherder</a></li>
     <li><a target="_blank" ignore-job-clear-on-click

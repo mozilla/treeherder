@@ -273,7 +273,7 @@ treeherder.factory('ThResultSetStore', [
         };
 
         var getPossibleJobs = function(repoName, resultSet){
-            var uri = ThJobModel.get_uri(repoName)+"list_possible";
+            var uri = ThJobModel.get_possible_uri(repoName);
 
             return ThJobModel.get_list_by_uri(uri).then(function(jobList) {
                 var id = resultSet.id;
@@ -284,6 +284,16 @@ treeherder.factory('ThResultSetStore', [
 
                 mapResultSetJobs(repoName, jobList);
             });
+        };
+
+        /* TODO: This doesn't clean jobs correctly. Fix it. */
+        var deletePossibleJobs = function(repoName, resultSet){
+            resultSet.jobList = _.filter(resultSet.jobList, function(job) {
+                return job.state !== 'possible';
+            });
+
+            repositories[repoName].rsMap[resultSet.id].selected_possible_jobs = [];
+            mapResultSetJobs(repoName, resultSet.jobList);
         };
 
         /******
@@ -1076,6 +1086,7 @@ treeherder.factory('ThResultSetStore', [
 
             addRepository: addRepository,
             aggregateJobPlatform: aggregateJobPlatform,
+            deletePossibleJobs: deletePossibleJobs,
             fetchJobs: fetchJobs,
             fetchResultSets: fetchResultSets,
             getAllShownJobs: getAllShownJobs,

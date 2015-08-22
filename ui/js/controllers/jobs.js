@@ -239,6 +239,7 @@ treeherderApp.controller('ResultSetCtrl', [
                 var buildernames = ThResultSetStore.getSelectedPossibleJobs($rootScope.repoName, $scope.resultset.id);
                 ThResultSetModel.triggerNewJobs($scope.repoName, $scope.resultset.id, buildernames).then(function() {
                     thNotify.send("Trigger request sent", "success");
+                    ThResultSetStore.deletePossibleJobs($scope.repoName, $scope.resultset);
                 }, function(e) {
                     // Generic error eg. the user doesn't have permission
                     thNotify.send(

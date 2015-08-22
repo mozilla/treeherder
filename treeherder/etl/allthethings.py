@@ -1,40 +1,60 @@
 from django.conf import settings
+import collections
+import logging
 
-from treeherder.client import TreeherderCollection, TreeherderPossibleJob
-from treeherder.etl.mixins import JsonExtractorMixin, OAuthLoaderMixin
+from treeherder.etl.mixins import JsonExtractorMixin
 from treeherder.etl.buildbot import get_symbols_and_platforms
-from treeherder.etl.oauth_utils import OAuthCredentials
+from treeherder.model.derived.jobs import JobsModel
+from treeherder.model.models import Repository
+
+
+logger = logging.getLogger(__name__)
 
 
 class AllthethingsTransformerMixin:
 
     def transform(self, extracted_content):
-        th_collections = {}
+        logger.info('About to import allthethings.json builder data.')
+
+        jobs_per_branch = collections.defaultdict(list)
 
         for builder, content in extracted_content['builders'].iteritems():
             job = get_symbols_and_platforms(builder)
 
             branch = content['properties']['branch']
             job.update({'branch': branch})
+            jobs_per_branch[branch].append(job)
 
-            # allthethings.json contains some projects like 'release-mozilla-beta',
-            # which should be ignored.
-            if not OAuthCredentials.get_credentials(branch):
-                continue
-
-            if branch not in th_collections:
-                th_collections[branch] = TreeherderCollection('possible_jobs')
-            th_collections[branch].add(TreeherderPossibleJob(job))
-
-        return th_collections
+        return jobs_per_branch
 
 
 class PossibleJobsProcess(JsonExtractorMixin,
-                          AllthethingsTransformerMixin,
-                          OAuthLoaderMixin):
+                          AllthethingsTransformerMixin):
+
+    def load(self, jobs_per_branch):
+        active_projects = Repository.objects.filter(
+            active_status='active').values_list('name', flat=True)
+
+        # We clean the possible_job table on every active repository
+        # to avoid keeping old data when a branch moves away from
+        # Buildbot
+        for project in active_projects:
+            with JobsModel(project) as jm:
+                jm.clean_possible_job_data()
+
+        for project, data in jobs_per_branch.iteritems():
+            # There are some branches in allthethings.json, e.g,
+            # release/mozilla-beta that do not correspond to any
+            # active project, we need to skip those
+            if project not in active_projects:
+                continue
+
+            with JobsModel(project) as jm:
+                jm.store_possible_job_data(data)
+
     def run(self):
         extracted_content = self.extract(settings.ALLTHETHINGS_URL)
-        possible_job_collections = self.transform(extracted_content)
-        self.load(possible_job_collections, chunk_size=settings.ALLTHETHINGS_CHUNK_SIZE)
+        jobs_per_branch = self.transform(extracted_content)
+        self.load(jobs_per_branch)
 
         return True
