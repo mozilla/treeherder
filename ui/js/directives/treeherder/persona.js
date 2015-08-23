@@ -2,10 +2,10 @@
 
 treeherder.directive('personaButtons', [
     '$http', '$q', '$log', '$rootScope',
-    'thServiceDomain', 'BrowserId', 'ThUserModel',
+    'thServiceDomain', 'BrowserId', 'ThUserModel', 'thNotify',
     function(
         $http, $q, $log, $rootScope, thServiceDomain,
-        BrowserId, ThUserModel) {
+        BrowserId, ThUserModel, thNotify) {
 
         return {
             restrict: "E",
@@ -64,7 +64,10 @@ treeherder.directive('personaButtons', [
                                 ThUserModel.get().then(function(user){
                                     angular.extend($rootScope.user, user);
                                 }, null);
-                            },function(){
+                            },function(response){
+                                var message = "Login failed: " + response.status + " " + response.statusText;
+                                thNotify.send(message, "danger", true);
+
                                 // logout if the verification failed
                                 scope.logout();
                             });
