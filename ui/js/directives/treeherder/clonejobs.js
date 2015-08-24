@@ -187,6 +187,7 @@ treeherder.directive('thCloneJobs', [
                 } else {
                     gi.grpCountList.empty();
                     gi.jgObj.groupState = "expanded";
+                    gi.grpJobList.empty();
                     addJobBtnEls(gi.jgObj, gi.grpJobList);
                 }
             }
@@ -200,7 +201,6 @@ treeherder.directive('thCloneJobs', [
             var lastJobSelected = ThResultSetStore.getSelectedJob($rootScope.repoName);
             var job, l;
             var jobBtnArray = [];
-            jobList.empty();
 
             for(l=0; l<jgObj.jobs.length; l++){
 
