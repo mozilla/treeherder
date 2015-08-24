@@ -65,6 +65,9 @@ class HgPushlogTransformerMixin(object):
 
 class HgPushlogProcess(HgPushlogTransformerMixin,
                        OAuthLoaderMixin):
+    # For more info on Mercurial Pushes, see:
+    #   https://mozilla-version-control-tools.readthedocs.org/en/latest/hgmo/pushlog.html
+
 
     def extract(self, url):
         response = requests.get(url, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
@@ -84,17 +87,23 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
             logger.info("Extracted last push for '%s', '%s', from cache, "
                         "attempting to get changes only from that point" %
                         (repository, last_push_id))
-            # make an attempt to use the last revision cached
+            # Use the cached ``last_push_id`` value (saved from the last time
+            # this API was called) for this repo.  Use that value as the
+            # ``startID`` to get all new pushes from that point forward.
             extracted_content = self.extract(
                 "{}&startID={}".format(source_url, last_push_id)
             )
 
             if extracted_content['lastpushid'] < last_push_id:
-                # the repo was reset, we need to retry without
-                # the startID param.
+                # Push IDs from Mercurial are incremental.  If we cached a value
+                # from one call to this API, and a subsequent call told us that
+                # the ``lastpushid`` is LOWER than the one we have cached, then
+                # the Mercurial IDs were reset.
+                # In this circumstance, we can't rely on the cached id, so must
+                # throw it out and get the latest 10.
                 logger.warning(("Got a ``lastpushid`` value of {} later than "
-                                "the cached value of {}.  "
-                                "Getting all changes for '{}' instead").format(
+                                "the cached value of {} due to Mercurial repo reset.  "
+                                "Getting latest changes for '{}' instead").format(
                                     extracted_content['lastpushid'],
                                     last_push_id,
                                     repository
