@@ -84,15 +84,14 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
         # reduce the number of pushes processed every time
         last_push_id = cache.get("{0}:last_push_id".format(repository))
         if not changeset and last_push_id:
+            startid_url = "{}&startID={}".format(source_url, last_push_id)
             logger.info("Extracted last push for '%s', '%s', from cache, "
-                        "attempting to get changes only from that point" %
-                        (repository, last_push_id))
+                        "attempting to get changes only from that point at: %s" %
+                        (repository, last_push_id, startid_url))
             # Use the cached ``last_push_id`` value (saved from the last time
             # this API was called) for this repo.  Use that value as the
             # ``startID`` to get all new pushes from that point forward.
-            extracted_content = self.extract(
-                "{}&startID={}".format(source_url, last_push_id)
-            )
+            extracted_content = self.extract(startid_url)
 
             if extracted_content['lastpushid'] < last_push_id:
                 # Push IDs from Mercurial are incremental.  If we cached a value
@@ -100,7 +99,7 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
                 # the ``lastpushid`` is LOWER than the one we have cached, then
                 # the Mercurial IDs were reset.
                 # In this circumstance, we can't rely on the cached id, so must
-                # throw it out and get the latest 10.
+                # throw it out and get the latest 10 pushes.
                 logger.warning(("Got a ``lastpushid`` value of {} later than "
                                 "the cached value of {} due to Mercurial repo reset.  "
                                 "Getting latest changes for '{}' instead").format(
@@ -122,7 +121,9 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
                                "getting all pushes" % repository)
                 extracted_content = self.extract(source_url)
 
-        if extracted_content:
+        # ``pushes`` could be empty if there are no new ones since we last
+        # fetched
+        if extracted_content['pushes']:
             pushes = extracted_content['pushes']
             last_push_id = max(map(lambda x: int(x), pushes.keys()))
             last_push = pushes[str(last_push_id)]
