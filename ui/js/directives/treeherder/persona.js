@@ -10,16 +10,19 @@ treeherder.directive('personaButtons', [
         return {
             restrict: "E",
             link: function(scope, element, attrs) {
-                scope.initialized = ThUserModel.get().then(function(user){
-                    $rootScope.user = {};
-                    // if the user.email value is null, it means that he's not logged in
-                    $rootScope.user.email = user.email || null;
-                    $rootScope.user.loggedin = $rootScope.user.email !== null;
+                scope.initialized = $q.all([
+                    ThUserModel.get().then(function(user){
+                        $rootScope.user = {};
+                        // if the user.email value is null, it means that he's not logged in
+                        $rootScope.user.email = user.email || null;
+                        $rootScope.user.loggedin = $rootScope.user.email !== null;
 
-                    if ($rootScope.user.loggedin) {
-                        angular.extend($rootScope.user, user);
-                    }
-                }).then(function(){
+                        if ($rootScope.user.loggedin) {
+                            angular.extend($rootScope.user, user);
+                        }
+                    }),
+                    $http.get('/browserid/csrf/')
+                ]).then(function(){
                     navigator.id.watch({
                         /*
                          * loggedinUser is all that we know about the user before
