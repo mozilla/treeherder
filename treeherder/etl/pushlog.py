@@ -68,7 +68,6 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
     # For more info on Mercurial Pushes, see:
     #   https://mozilla-version-control-tools.readthedocs.org/en/latest/hgmo/pushlog.html
 
-
     def extract(self, url):
         response = requests.get(url, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
         try:
@@ -123,22 +122,23 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
 
         # ``pushes`` could be empty if there are no new ones since we last
         # fetched
-        if extracted_content['pushes']:
-            pushes = extracted_content['pushes']
-            last_push_id = max(map(lambda x: int(x), pushes.keys()))
-            last_push = pushes[str(last_push_id)]
-            top_revision = last_push["changesets"][-1]["node"]
-            transformed = self.transform(pushes, repository)
-            self.load(transformed)
+        pushes = extracted_content['pushes']
 
-            if not changeset:
-                # only cache the last push if we're not fetching a specific
-                # changeset
-                cache.set("{0}:last_push_id".format(repository), last_push_id)
+        if not pushes:
+            return None
 
-            return top_revision
+        last_push_id = max(map(lambda x: int(x), pushes.keys()))
+        last_push = pushes[str(last_push_id)]
+        top_revision = last_push["changesets"][-1]["node"]
+        transformed = self.transform(pushes, repository)
+        self.load(transformed)
 
-        return None
+        if not changeset:
+            # only cache the last push if we're not fetching a specific
+            # changeset
+            cache.set("{0}:last_push_id".format(repository), last_push_id)
+
+        return top_revision
 
 
 class MissingHgPushlogProcess(HgPushlogTransformerMixin,
