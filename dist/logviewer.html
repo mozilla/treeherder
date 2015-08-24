@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title ng-bind="::logViewerTitle">Log viewer</title>
-    <link rel="stylesheet" href="css/logviewer.min-26c9b5f74f238b3cfb6c581ea58caa1c.css" media="screen">
+    <link rel="stylesheet" href="css/logviewer.min-9ba02f9bafae77d1c1ecb425a7c84cb0.css" media="screen">
     <link id="favicon" type="image/png" rel="shortcut icon" href="img/logviewerIcon.png">
   </head>
   <body class="body-logviewer">
@@ -78,7 +78,7 @@
             <tr ng-repeat="property in logProperties">
               <th ng-cloak>{{property.label}}</th>
               <td ng-if="property.label == 'Revision'" class="break-word">
-                <a href="{{::logRevisionFilterUrl}}"
+                <a href="{{::property.value|getRevisionUrl:repoName}}"
                    title="Open resultset"
                    class="repo-link"
                    ng-cloak>{{property.value}}</a>
@@ -109,7 +109,7 @@
 
     <th-notification-box></th-notification-box>
 
-    <script src="js/logviewer.min-d1f8b0324ad549dd1fe2ab8131850e8b.js"></script>
+    <script src="js/logviewer.min-7c0668a8be0b42cea0ffb0fa5e07205d.js"></script>
 
 
   </body>
