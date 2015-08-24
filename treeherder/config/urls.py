@@ -4,7 +4,7 @@ from django_browserid.admin import site as browserid_admin
 
 from treeherder.embed import urls as embed_urls
 
-from .api import urls as api_urls
+from treeherder.webapp.api import urls as api_urls
 
 browserid_admin.copy_registry(admin.site)
 
