@@ -43,10 +43,10 @@ htmlcov/
 dist/revision.txt
 
 #static files in deployment
-treeherder/webapp/static/
+treeherder/static/
 
 #media files in deployment
-treeherder/webapp/media/*
+treeherder/media/
 
 #etl data files
 treeherder/etl/data/credentials.json

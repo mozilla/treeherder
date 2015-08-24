@@ -54,10 +54,10 @@ USE_TZ = False
 SERVE_MINIFIED_UI = os.environ.get("SERVE_MINIFIED_UI") == "True"
 WHITENOISE_ROOT = path("..", "dist" if SERVE_MINIFIED_UI else "ui")
 
-STATIC_ROOT = path("webapp", "static")
+STATIC_ROOT = path("static")
 STATIC_URL = "/static/"
 
-MEDIA_ROOT = path("webapp", "media")
+MEDIA_ROOT = path("media")
 MEDIA_URL = "/media/"
 
 # Additional locations of static files
