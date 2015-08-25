@@ -81,7 +81,6 @@ input:focus::-moz-placeholder {
     max-height: 600px;
     overflow: auto;
     margin-top: 10px;
-    padding-left: 8px;
     padding-bottom: 8px;
 }
 
@@ -110,6 +109,12 @@ th-watched-repo {
 
 .repo-dropdown-menu {
     margin-right: 4px;
+    padding-left: 6px;
+}
+
+/* Spacing for all menu entries with adjacent icons */
+.icon-menu li a span {
+    padding-right: 8px;
 }
 
 /* Override bootstrap for flush right navbar menus */
@@ -141,6 +146,7 @@ th-watched-repo {
 
 .nav-help-icon {
     font-size: 18px;
+    margin-right: 2px;
 }
 
 .nav-user-icon {
@@ -1987,20 +1993,20 @@ fieldset[disabled] .btn-repo.active {
     color: gray;
 }
 
-#help {
+#userguide {
     padding: 10px 10px 0px;
     overflow: auto;
 }
 
-#help.dt, #help.dd {
+#userguide.dt, #userguide.dd {
     text-align: center;
 }
 
-#help.panel {
+#userguide.panel {
     padding: 5px;
 }
 
-.help-footer {
+.userguide-footer {
     overflow: auto;
 }
 
