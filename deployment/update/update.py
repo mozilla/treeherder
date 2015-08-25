@@ -38,8 +38,6 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
         ctx.local('find . -type f -name "*.pyc" -delete')
         ctx.local('git status -s')
         ctx.local('git rev-parse HEAD > dist/revision.txt')
-        # Remove me once IRC pushbot configs and What's Deployed link updated.
-        ctx.local('git rev-parse HEAD > treeherder/webapp/media/revision')
 
 
 @task
