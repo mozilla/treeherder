@@ -17,6 +17,8 @@ ERROR_TEST_CASES = (
     "[taskcluster] Error: Task run time exceeded 7200 seconds.",
     "foo.js: line 123, col 321, Error - ESLint bar",
     "2014-04-04 06:37:57 ERROR 403: Forbidden.",
+    "[taskcluster:error] Could not upload artifact",
+    "[taskcluster-vcs:error] Could not extract archive"
 )
 
 NON_ERROR_TEST_CASES = (
@@ -24,6 +26,8 @@ NON_ERROR_TEST_CASES = (
     "07:42:02     INFO -  Exception:",
     "07:51:08     INFO -  Caught Exception: Remote Device Error: unable to connect to panda-0501 after 5 attempts",
     "06:21:18     INFO -  I/GeckoDump(  730): 110 INFO TEST-UNEXPECTED-FAIL | foo | bar",
+    "[taskcluster:info] Starting task",
+    "[taskcluster] Starting task"
 )
 
 
