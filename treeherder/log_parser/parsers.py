@@ -388,6 +388,7 @@ class ErrorParser(ParserBase):
         r"|^The web-page 'stop build' button was pressed"
         r"|.*\.js: line \d+, col \d+, Error -"
         r"|^\[taskcluster\] Error:"
+        r"|^\[[\w-]+:(?:error|exception)\]"
     ))
 
     RE_ERR_SEARCH = re.compile((
