@@ -39,6 +39,9 @@ ui/js/config/local.conf.js
 
 htmlcov/
 
+# Deployed revision file.
+dist/revision.txt
+
 #static files in deployment
 treeherder/webapp/static/
 
