@@ -50,7 +50,7 @@ class Command(BaseCommand):
         settings.CELERY_ALWAYS_EAGER = True
 
         # get hg pushlog
-        pushlog_url = '%s/json-pushes/?full=1' % repo['url']
+        pushlog_url = '%s/json-pushes/?full=1&version=2' % repo['url']
 
         # ingest this particular revision for this project
         process = HgPushlogProcess()

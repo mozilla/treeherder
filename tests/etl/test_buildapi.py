@@ -279,21 +279,24 @@ def test_ingest_builds4h_jobs_missing_branch(jm, initial_data,
 def _do_missing_resultset_test(jm, etl_process):
     new_revision = '222222222222'
     pushlog_content = json.dumps(
-        {"33270": {
-            "date": 1378288232,
-            "changesets": [
-                {
-                    "node": new_revision + "b344655ed7be9a408d2970a736c4",
-                    "tags": [],
-                    "author": "John Doe <jdoe@mozilla.com>",
-                    "branch": "default",
-                    "desc": "bug 909264 - control characters"
-                }
-            ],
-            "user": "jdoe@mozilla.com"
-        }}
+        {
+            "pushes":
+                {"33270": {
+                    "date": 1378288232,
+                    "changesets": [
+                        {
+                            "node": new_revision + "b344655ed7be9a408d2970a736c4",
+                            "tags": [],
+                            "author": "John Doe <jdoe@mozilla.com>",
+                            "branch": "default",
+                            "desc": "bug 909264 - control characters"
+                        }
+                    ],
+                    "user": "jdoe@mozilla.com"
+                }}
+        }
     )
-    pushlog_fake_url = "https://hg.mozilla.org/mozilla-central/json-pushes/?full=1&changeset=" + new_revision
+    pushlog_fake_url = "https://hg.mozilla.org/mozilla-central/json-pushes/?full=1&version=2&changeset=" + new_revision
     responses.add(responses.GET, pushlog_fake_url,
                   body=pushlog_content, status=200,
                   match_querystring=True,

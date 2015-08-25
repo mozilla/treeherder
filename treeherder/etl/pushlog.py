@@ -65,6 +65,8 @@ class HgPushlogTransformerMixin(object):
 
 class HgPushlogProcess(HgPushlogTransformerMixin,
                        OAuthLoaderMixin):
+    # For more info on Mercurial Pushes, see:
+    #   https://mozilla-version-control-tools.readthedocs.org/en/latest/hgmo/pushlog.html
 
     def extract(self, url):
         response = requests.get(url, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
@@ -79,27 +81,34 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
 
         # get the last object seen from cache. this will
         # reduce the number of pushes processed every time
-        last_push = cache.get("{0}:last_push".format(repository))
-        if not changeset and last_push:
+        last_push_id = cache.get("{0}:last_push_id".format(repository))
+        if not changeset and last_push_id:
+            startid_url = "{}&startID={}".format(source_url, last_push_id)
             logger.info("Extracted last push for '%s', '%s', from cache, "
-                        "attempting to get changes only from that point" %
-                        (repository, last_push))
-            try:
-                # make an attempt to use the last revision cached
-                extracted_content = self.extract(
-                    source_url + "&fromchange=" + last_push
-                )
-            except requests.exceptions.HTTPError as e:
-                # in case of a 404 error, delete the cache key
-                # and try it without any parameter
-                if e.response.status_code == 404:
-                    logger.warning("Got a 404 fetching changes since '%s', "
-                                   "getting all changes for '%s' instead" %
-                                   (last_push, repository))
-                    cache.delete("{0}:last_push".format(repository))
-                    extracted_content = self.extract(source_url)
-                else:
-                    raise e
+                        "attempting to get changes only from that point at: %s" %
+                        (repository, last_push_id, startid_url))
+            # Use the cached ``last_push_id`` value (saved from the last time
+            # this API was called) for this repo.  Use that value as the
+            # ``startID`` to get all new pushes from that point forward.
+            extracted_content = self.extract(startid_url)
+
+            if extracted_content['lastpushid'] < last_push_id:
+                # Push IDs from Mercurial are incremental.  If we cached a value
+                # from one call to this API, and a subsequent call told us that
+                # the ``lastpushid`` is LOWER than the one we have cached, then
+                # the Mercurial IDs were reset.
+                # In this circumstance, we can't rely on the cached id, so must
+                # throw it out and get the latest 10 pushes.
+                logger.warning(("Got a ``lastpushid`` value of {} lower than "
+                                "the cached value of {} due to Mercurial repo reset.  "
+                                "Getting latest changes for '{}' instead").format(
+                                    extracted_content['lastpushid'],
+                                    last_push_id,
+                                    repository
+                                    )
+                               )
+                cache.delete("{0}:last_push_id".format(repository))
+                extracted_content = self.extract(source_url)
         else:
             if changeset:
                 logger.info("Getting all pushes for '%s' corresponding to "
@@ -111,25 +120,25 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
                                "getting all pushes" % repository)
                 extracted_content = self.extract(source_url)
 
-        if extracted_content:
-            last_push_id = max(map(lambda x: int(x), extracted_content.keys()))
-            last_push = extracted_content[str(last_push_id)]
-            top_revision = last_push["changesets"][-1]["node"]
+        # ``pushes`` could be empty if there are no new ones since we last
+        # fetched
+        pushes = extracted_content['pushes']
 
-            transformed = self.transform(
-                extracted_content,
-                repository
-            )
-            self.load(transformed)
+        if not pushes:
+            return None
 
-            if not changeset:
-                # only cache the last push if we're not fetching a specific
-                # changeset
-                cache.set("{0}:last_push".format(repository), top_revision)
+        last_push_id = max(map(lambda x: int(x), pushes.keys()))
+        last_push = pushes[str(last_push_id)]
+        top_revision = last_push["changesets"][-1]["node"]
+        transformed = self.transform(pushes, repository)
+        self.load(transformed)
 
-            return top_revision
+        if not changeset:
+            # only cache the last push if we're not fetching a specific
+            # changeset
+            cache.set("{0}:last_push_id".format(repository), last_push_id)
 
-        return None
+        return top_revision
 
 
 class MissingHgPushlogProcess(HgPushlogTransformerMixin,
@@ -174,7 +183,7 @@ class MissingHgPushlogProcess(HgPushlogTransformerMixin,
             if extracted_content:
 
                 transformed = self.transform(
-                    extracted_content,
+                    extracted_content['pushes'],
                     repository
                 )
 

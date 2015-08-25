@@ -54,4 +54,4 @@ def fetch_hg_push_log(repo_name, repo_url):
     Run a HgPushlog etl process
     """
     process = HgPushlogProcess()
-    process.run(repo_url + '/json-pushes/?full=1', repo_name)
+    process.run(repo_url + '/json-pushes/?full=1&version=2', repo_name)
