@@ -12,7 +12,7 @@
       <td class="num-runs" style="width: 80px"># Runs</td>
       <td class="test-warning" style="width: 30px"><!-- warning if not enough --></td>
     </tr>
-    <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults[testName]">
+    <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults[testName] | orderBy: 'name'">
       <td class="test-title">{{compareResult.name}}
         <span ng-if="compareResult.detailsLink">
           (<a ng-href="{{compareResult.detailsLink}}">subtests</a>)
