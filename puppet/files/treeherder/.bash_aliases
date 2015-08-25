@@ -2,12 +2,14 @@ function thelp {
     echo "
     Treeherder-specific helpful aliases:
 
-    thlogs        - Open several top-priority logs in succession using \"less\"
-    thlogsdelete  - Delete all the top-priority logs
-    thqueues      - Output the status of the Treeherder celery queues
-    thqueuespurge - Empty all the treeherder celery queues
-    thresetall    - Delete logs, purge queues and reset memcached
-    tabname       - Set the title text of the current shell tab
+    thlogs             - Open several top-priority logs in succession using \"less\"
+    thlogsdelete       - Delete all the top-priority logs
+    thqueues           - Output the status of the Treeherder celery queues
+    thqueuespurge      - Empty all the treeherder celery queues
+    threstartmemcached - Restart memcached
+    threstartrabbitmq  - Restart rabbitmq
+    thresetall         - Delete logs, purge queues and reset memcached
+    tabname            - Set the title text of the current shell tab
     "
 }
 
@@ -63,6 +65,16 @@ function thqueuespurge {
     celery -A treeherder purge
 }
 
+function threstartmemcached {
+    echo "Restarting memcache"
+    sudo service memcached restart
+}
+
+function threstartrabbitmq {
+    echo "Restarting rabbitmq"
+    sudo service rabbitmq-server restart
+}
+
 function thresetall {
     echo "Deleting logs"
     thlogsdelete
@@ -72,11 +84,8 @@ function thresetall {
         rm ~/treeherder/celerybeat-schedule
     fi
 
-    echo "Restarting memcache"
-    sudo service memcached restart
-
-    echo "Restarting rabbitmq"
-    sudo service rabbitmq-server restart
+    threstartmemcached
+    threstartrabbitmq
 
     echo "Purging queues"
     thqueuespurge
