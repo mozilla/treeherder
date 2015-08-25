@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title ng-bind="::logViewerTitle">Log viewer</title>
-    <link rel="stylesheet" href="css/logviewer.min-9ba02f9bafae77d1c1ecb425a7c84cb0.css" media="screen">
+    <link rel="stylesheet" href="css/logviewer.min-c970e18f05fc87f9f11e08cfc3b87f30.css" media="screen">
     <link id="favicon" type="image/png" rel="shortcut icon" href="img/logviewerIcon.png">
   </head>
   <body class="body-logviewer">
@@ -27,15 +27,20 @@
           </li>
 
           <!-- Job status -->
-          <li class="{{::resultStatusShading}}">
+          <li ng-if="jobExists" class="{{::resultStatusShading}}">
             <div>
               <span ng-cloak><strong>{{result.label}}: </strong></span>
-              <span ng-cloak class="break-word">{{result.value}}</span>
+              <span ng-cloak>{{result.value}}</span>
+            </div>
+          </li>
+          <li ng-if="!jobExists" class="alert-danger">
+            <div>
+              <span title="The job does not exist or has expired">Unavailable</span>
             </div>
           </li>
 
           <!-- Raw log button -->
-          <li>
+          <li ng-if="jobExists">
             <a title="{{logError ? 'Raw log link no longer exists or has expired (click for path)' :
                       'Open the raw log in a new window'}}"
                target="_blank"
@@ -109,7 +114,7 @@
 
     <th-notification-box></th-notification-box>
 
-    <script src="js/logviewer.min-7c0668a8be0b42cea0ffb0fa5e07205d.js"></script>
+    <script src="js/logviewer.min-76441ddd2b6878ff597b751e5d076a5f.js"></script>
 
 
   </body>
