@@ -5,7 +5,8 @@ from whitenoise.django import DjangoWhiteNoise
 
 class CustomWhiteNoise(DjangoWhiteNoise):
 
-    IMMUTABLE_FILE_RE = r'\.min-[a-f0-9]{6,}\.(js|css)$'
+    # Matches grunt-cache-busting's style of hash filenames.
+    IMMUTABLE_FILE_RE = re.compile(r'\.min-[a-f0-9]{32}\.(js|css)$')
     INDEX_NAME = 'index.html'
 
     def add_files(self, *args, **kwargs):
@@ -28,8 +29,11 @@ class CustomWhiteNoise(DjangoWhiteNoise):
         return super(CustomWhiteNoise, self).find_file(url)
 
     def is_immutable_file(self, path, url):
-        # The default method only works with Django static files that use the
-        # CachedStaticFilesStorage naming scheme, whereas grunt-cache-busting
-        # uses a different scheme (eg index.min-feae259e2c205af67b0e91306f9363fa.js).
-        match = re.search(self.IMMUTABLE_FILE_RE, url)
-        return True if match else False
+        # Support grunt-cache-busting's style of hash filenames. eg:
+        #   index.min-feae259e2c205af67b0e91306f9363fa.js
+        if self.IMMUTABLE_FILE_RE.search(url):
+            return True
+        # Otherwise fall back to the default method, so we catch filenames in the
+        # style output by GzipManifestStaticFilesStorage during collectstatic. eg:
+        #   bootstrap.min.abda843684d0.js
+        return super(CustomWhiteNoise, self).is_immutable_file(path, url)
