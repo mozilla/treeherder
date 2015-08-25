@@ -31,8 +31,8 @@ module.exports = function(grunt) {
                     dest:'dist'
                 }
             },
-            help: {
-                src:'ui/help.html',
+            userguide: {
+                src:'ui/userguide.html',
                 nonull: true,
                 options:{
                     dest:'dist'
@@ -54,7 +54,7 @@ module.exports = function(grunt) {
             },
         },
 
-        usemin:{ html:['dist/index.html', 'dist/help.html', 'dist/logviewer.html',
+        usemin:{ html:['dist/index.html', 'dist/userguide.html', 'dist/logviewer.html',
                        'dist/perf.html'] },
 
         'cache-busting': {
@@ -94,10 +94,10 @@ module.exports = function(grunt) {
                 file: 'dist/css/perf.min.css',
                 cleanup: true
             },
-            helpcss: {
+            userguidecss: {
                 replace: ['dist/**/*.html'],
-                replacement: 'help.min.css',
-                file: 'dist/css/help.min.css',
+                replacement: 'userguide.min.css',
+                file: 'dist/css/userguide.min.css',
                 cleanup: true
             }
         },
@@ -108,7 +108,7 @@ module.exports = function(grunt) {
                 files: [
                     { src:'ui/robots.txt', dest:'dist/robots.txt', nonull: true },
                     { src:'ui/index.html', dest:'dist/index.html', nonull: true },
-                    { src:'ui/help.html', dest:'dist/help.html', nonull: true },
+                    { src:'ui/userguide.html', dest:'dist/userguide.html', nonull: true },
                     { src:'ui/logviewer.html', dest:'dist/logviewer.html', nonull: true },
                     { src:'ui/perf.html', dest:'dist/perf.html', nonull: true }
                 ]

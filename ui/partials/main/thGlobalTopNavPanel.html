@@ -35,7 +35,7 @@
                 class="btn btn-view-nav btn-right-navbar nav-repo-btn">Infra
           <span class="fa fa-angle-down lightgray"></span>
         </button>
-        <ul class="dropdown-menu repo-dropdown-menu" role="menu" aria-labelledby="infraLabel"
+        <ul class="dropdown-menu" role="menu" aria-labelledby="infraLabel"
             ng-include="'partials/main/thInfraMenu.html'">
         </ul>
       </span>
@@ -71,10 +71,18 @@
            ng-show="isFilterPanelShowing"></i>
       </span>
 
-      <!-- Help Button -->
-      <a class="btn btn-view-nav nav-help-btn"
-         title="Treeherder help" href="help.html" target="_blank">
-        <span class="fa fa-question-circle lightgray nav-help-icon"></span></a>
+      <!-- Help Menu -->
+      <span class="repo-menu dropdown">
+        <button id="helpLabel" title="Treeherder help" role="button"
+                href="#" data-toggle="dropdown" data-target="#"
+                class="btn btn-view-nav btn-right-navbar nav-help-btn">
+          <span class="fa fa-question-circle lightgray nav-help-icon"></span>
+          <span class="fa fa-angle-down lightgray"></span>
+        </button>
+        <ul class="dropdown-menu icon-menu" role="menu" aria-labelledby="helpLabel"
+            ng-include="'partials/main/thHelpMenu.html'">
+        </ul>
+      </span>
 
       <!-- Settings Button - currently suppressed -->
       <span ng-show="false"
