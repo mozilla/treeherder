@@ -36,6 +36,8 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
         ctx.local('git fetch --quiet origin %s' % ref)
         ctx.local('git reset --hard FETCH_HEAD')
         ctx.local('find . -type f -name "*.pyc" -delete')
+        # Remove gzipped UI assets in case the uncompressed original no longer exists.
+        ctx.local('find dist/ -type f -name "*.gz" -delete')
         ctx.local('git status -s')
         ctx.local('git rev-parse HEAD > dist/revision.txt')
 
@@ -65,6 +67,11 @@ def update(ctx):
         # collectstatic should be performed on one of the stage/prod specific
         # nodes at the end of the deploy, rather than on the admin node.
 
+        # Generate gzipped versions of files that would benefit from compression, that
+        # WhiteNoise can then serve in preference to the originals. This is required
+        # since WhiteNoise's Django storage backend only gzips assets handled by
+        # collectstatic, and so does not affect files in the `dist/` directory.
+        ctx.local("python2.7 -m whitenoise.gzip dist")
         # Collect the static files (eg for the Persona or Django admin UI)
         run_local_with_env(ctx, "python2.7 manage.py collectstatic --noinput")
         # Update the database schema, if necessary.

@@ -42,6 +42,9 @@ htmlcov/
 # Deployed revision file.
 dist/revision.txt
 
+# Gzipped UI files created during deployment, for use with WhiteNoise.
+dist/**/*.gz
+
 #static files in deployment
 treeherder/static/
 

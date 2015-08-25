@@ -1,0 +1,8 @@
+#!/bin/bash -e
+# Tasks run by the Heroku Python buildpack after the compile step.
+
+# Generate gzipped versions of files that would benefit from compression, that
+# WhiteNoise can then serve in preference to the originals. This is required
+# since WhiteNoise's Django storage backend only gzips assets handled by
+# collectstatic, and so does not affect files in the `dist/` directory.
+python -m whitenoise.gzip dist

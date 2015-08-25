@@ -68,6 +68,10 @@ STATICFILES_FINDERS = [
     # "django.contrib.staticfiles.finders.DefaultStorageFinder",
 ]
 
+# Create hashed+gzipped versions of assets during collectstatic,
+# which will then be served by WhiteNoise with a suitable max-age.
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+
 TEMPLATE_LOADERS = [
     "django.template.loaders.filesystem.Loader",
     "django.template.loaders.app_directories.Loader",
