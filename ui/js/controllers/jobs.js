@@ -4,11 +4,11 @@ treeherderApp.controller('JobsCtrl', [
     '$scope', '$http', '$rootScope', '$routeParams', 'ThLog',
     'thUrl', 'ThRepositoryModel', 'thDefaultRepo',
     'ThResultSetStore', 'thResultStatusList', '$location', 'thEvents',
-    'ThJobModel',
+    'ThJobModel', 'thNotify',
     function JobsCtrl(
         $scope, $http, $rootScope, $routeParams, ThLog,
         thUrl, ThRepositoryModel, thDefaultRepo,
-        ThResultSetStore, thResultStatusList, $location, thEvents, ThJobModel) {
+        ThResultSetStore, thResultStatusList, $location, thEvents, ThJobModel, thNotify) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -67,7 +67,11 @@ treeherderApp.controller('JobsCtrl', [
             }
         };
 
-        if(ThResultSetStore.isNotLoaded($scope.repoName)){
+        if ($location.search().revision === 'undefined') {
+            thNotify.send("Invalid value for revision parameter.", 'danger');
+        }
+
+        if (ThResultSetStore.isNotLoaded($scope.repoName)) {
             // get our first set of resultsets
             ThResultSetStore.fetchResultSets(
                 $scope.repoName,
@@ -232,4 +236,3 @@ treeherderApp.controller('ResultSetCtrl', [
         });
     }
 ]);
-
