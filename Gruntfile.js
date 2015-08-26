@@ -180,7 +180,7 @@ module.exports = function(grunt) {
             },
             logviewer: {
                 cwd: 'ui',
-                src: 'partials/logviewer/*.html',
+                src: ['partials/main/thNotificationsBox.html', 'partials/logviewer/*.html'],
                 dest: 'dist/js/logviewer.min.js',
                 options: {
                     usemin: 'dist/js/logviewer.min.js',
