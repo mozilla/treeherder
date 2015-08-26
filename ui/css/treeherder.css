@@ -276,7 +276,7 @@ th-watched-repo {
 /* Options drop-downs*/
 
 .th-top-nav-options-panel {
-    background-color: lightgray;
+    background-color: white;
     padding: 10px;
     border: 1px solid black;
     max-height: 400px;
@@ -343,9 +343,34 @@ th-watched-repo {
 }
 
 /**
-  sheriff panel
+  Sheriff panel
 */
-.add-new-exclusion input.ng-invalid.ng-dirty{border-color: #B94A48;}
+
+.add-new-exclusion input.ng-invalid.ng-dirty {
+    border-color: #B94A48;
+}
+
+.exclusion-tabs {
+    border-bottom: none;
+}
+
+.sheriff-panel-delete-icon {
+  padding-right: 25px;
+  font-size: 12px;
+  color: #bababa;
+}
+
+.sheriff-panel-excluded-job {
+  margin-right: 20px;
+}
+
+.sheriff-panel-exclusion-profiles-row td:first-child {
+  width: 133px;
+}
+
+.sheriff-panel-job-exclusions-row td:first-child {
+  width: 155px;
+}
 
 /**
   Failures
@@ -1270,7 +1295,7 @@ ul.failure-summary-list li .btn-xs {
     background-color: white;
 }
 
-.click-able-icon, .nav-tabs li {
+.pointable, .nav-tabs li {
     cursor: pointer;
 }
 
@@ -1983,6 +2008,10 @@ fieldset[disabled] .btn-repo.active {
 
 .white, .white a {
     color: white;
+}
+
+.xlightgray, .xlightgray a {
+    color: #e6e6e6;
 }
 
 .lightgray, .lightgray a {
