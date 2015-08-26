@@ -234,46 +234,6 @@ CREATE TABLE `job_artifact` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
-DROP TABLE IF EXISTS `performance_artifact`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-
-/**************************
- * Table: performance_artifact
- *
- *  Holds any kind of performance related data associated with a job. Data can be structured
- *  JSON data or binary in the case of an image.
- *
- * Population Method: dynamic from incoming data
- *
- * Example Data:
- *
- *  job_id - References job.id
- *  series_signature - References series_signature.signature. A hash of the property values defining a series.
- *  name - Name of artifact data.
- *  type - json | img | ...
- *  blob - Artifact data
- **************************/
-CREATE TABLE `performance_artifact` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `job_id` bigint(20) unsigned NOT NULL,
-  `failure_classification_id` int(10) unsigned DEFAULT NULL,
-  `series_signature` varchar(50) COLLATE utf8_bin NOT NULL,
-  `name` varchar(50) COLLATE utf8_bin NOT NULL,
-  `type` varchar(50) COLLATE utf8_bin NOT NULL,
-  `blob` mediumblob NOT NULL,
-  `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
-  PRIMARY KEY (`id`),
-  KEY `idx_job_id` (`job_id`),
-  KEY `idx_failure_classification_id` (`failure_classification_id`),
-  KEY `idx_series_signature` (`series_signature`),
-  KEY `idx_name` (`name`),
-  KEY `idx_type` (`type`),
-  KEY `idx_active_status` (`active_status`),
-  CONSTRAINT `fk_performance_artifact` FOREIGN KEY (`job_id`) REFERENCES `job` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
 DROP TABLE IF EXISTS `series_signature`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;

@@ -55,11 +55,6 @@
 
             "sql":"DELETE FROM result_set WHERE id IN (REP0)",
             "host_type": "master_host"
-        },
-        "cycle_performance_artifact":{
-
-            "sql":"DELETE FROM performance_artifact WHERE job_id IN (REP0)",
-            "host_type": "master_host"
         }
     },
     "inserts":{
@@ -92,12 +87,6 @@
                     WHERE `job_guid` = ?
                     OR `job_guid` = ?
                 )",
-
-            "host_type":"master_host"
-        },
-        "set_performance_artifact":{
-            "sql":"INSERT INTO `performance_artifact` (`job_id`, `series_signature`, `name`, `type`, `blob`)
-                   VALUES (?,?,?,?,?)",
 
             "host_type":"master_host"
         },
@@ -370,30 +359,6 @@
                     WHERE `series_signature` IN (REP0) AND `interval_seconds` = ?",
 
              "host_type":"read_host"
-
-        },
-        "get_performance_artifact":{
-
-            "sql":"SELECT `id`, `job_id`, `series_signature`, `name`, `type`, `blob`
-                   FROM `performance_artifact`
-                   WHERE `job_id` IN (REP0) AND `active_status` = 'active'",
-
-            "host_type":"read_host"
-
-        },
-        "get_max_performance_artifact_id":{
-            "sql":"SELECT max(`id`) as max_id from `performance_artifact`",
-            "host_type": "read_host"
-        },
-        "get_performance_artifact_list": {
-
-            "sql":"SELECT `id`, `job_id`, `series_signature`, `name`, `type`, `blob`
-                   FROM `performance_artifact`
-                   WHERE `active_status` = 'active'
-                   REP0
-                   ORDER BY id DESC, name",
-
-            "host_type":"read_host"
 
         },
         "get_performance_series": {

@@ -7,8 +7,6 @@ import simplejson as json
 from django.conf import settings
 from django.utils.six import BytesIO
 
-from treeherder.model.derived import ArtifactsModel
-
 from ..sampledata import SampleData
 
 
@@ -150,24 +148,6 @@ def test_parse_mozlog_log(jm, initial_data, jobs_with_local_mozlog_log,
 
     assert len(warnings) == 106
     assert len(fails) == 3
-
-
-def test_parse_talos_log(jm, test_project, initial_data, jobs_with_local_talos_log,
-                         sample_resultset, mock_post_json,
-                         mock_get_remote_content):
-    """
-    check that performance job_artifacts get inserted when running
-    a parse_log task for a talos job
-    """
-
-    jm.store_result_set_data(sample_resultset)
-
-    jobs = jobs_with_local_talos_log
-    jm.store_job_data(jobs)
-
-    with ArtifactsModel(test_project) as artifacts_model:
-        artifact_list = artifacts_model.get_performance_artifact_list(0, 10)
-    assert len(artifact_list) >= 1  # should parse out at least one perf artifact
 
 
 def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
