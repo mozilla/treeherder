@@ -103,7 +103,6 @@ class JobsModel(TreeherderModelBase):
     # to their ids.
     JOBS_CYCLE_TARGETS = [
         "jobs.deletes.cycle_job_artifact",
-        "jobs.deletes.cycle_performance_artifact",
         "jobs.deletes.cycle_job_log_url",
         "jobs.deletes.cycle_job_note",
         "jobs.deletes.cycle_bug_job_map",

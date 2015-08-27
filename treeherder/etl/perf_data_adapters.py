@@ -1,6 +1,5 @@
 import logging
 import math
-import zlib
 from hashlib import sha1
 
 import simplejson as json
@@ -180,9 +179,9 @@ class PerformanceDataAdapter(object):
 
         return sha.hexdigest()
 
-    def _add_performance_artifact(self, job_id, series_signature,
-                                  signature_properties, obj,
-                                  name, testname, testdata):
+    def _add_performance_placeholder(self, series_signature,
+                                     signature_properties,
+                                     testdata):
         if series_signature not in self.signatures:
             self.signatures[series_signature] = []
 
@@ -196,13 +195,6 @@ class PerformanceDataAdapter(object):
                     signature_properties[signature_property],
                 ])
 
-        self.performance_artifact_placeholders.append([
-            job_id,
-            series_signature,
-            name,
-            testname,
-            zlib.compress(json.dumps(obj))
-        ])
         self.signatures[series_signature].append(testdata)
 
 
@@ -219,7 +211,6 @@ class TalosDataAdapter(PerformanceDataAdapter):
         self.adapted_data = []
 
         self.signatures = {}
-        self.performance_artifact_placeholders = []
         self.signature_property_placeholders = []
 
     @staticmethod
@@ -325,9 +316,8 @@ class TalosDataAdapter(PerformanceDataAdapter):
                                                   series_data)
                     obj['test'] = _test
                     validate(obj, self.treeherder_perf_test_schema)
-                    self._add_performance_artifact(job_id, series_signature,
-                                                   signature_properties, obj,
-                                                   _name, _test, series_data)
+                    self._add_performance_placeholder(
+                        series_signature, signature_properties, series_data)
 
             subtest_signatures = []
 
@@ -362,9 +352,8 @@ class TalosDataAdapter(PerformanceDataAdapter):
                 obj['replicates'] = talos_datum["results"][_test]
 
                 validate(obj, self.treeherder_perf_test_schema)
-                self._add_performance_artifact(job_id, series_signature,
-                                               signature_properties, obj,
-                                               _name, _test, series_data)
+                self._add_performance_placeholder(
+                    series_signature, signature_properties, series_data)
 
             if subtest_signatures:
                 # summary series
@@ -390,9 +379,9 @@ class TalosDataAdapter(PerformanceDataAdapter):
                                               summary_data)
 
                 validate(obj, self.treeherder_perf_test_schema)
-                self._add_performance_artifact(job_id, summary_signature,
-                                               summary_properties, obj,
-                                               _name, 'summary', summary_data)
+                self._add_performance_placeholder(
+                    summary_signature, summary_properties,
+                    summary_data)
 
     def submit_tasks(self, project):
 
