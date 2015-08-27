@@ -38,18 +38,13 @@ RABBITMQ_PORT = os.environ.get("TREEHERDER_RABBITMQ_PORT", "5672")
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = os.environ.get("TREEHERDER_DJANGO_SECRET_KEY")
 
-ADMINS = []  # TBD
-MANAGERS = ADMINS
-
 SITE_ID = 1
 ROOT_URLCONF = "treeherder.webapp.urls"
 WSGI_APPLICATION = 'treeherder.webapp.wsgi.application'
 
 TIME_ZONE = "America/Los_Angeles"
-LANGUAGE_CODE = "en-us"
 USE_I18N = False
 USE_L10N = True
-USE_TZ = False
 
 SERVE_MINIFIED_UI = os.environ.get("SERVE_MINIFIED_UI") == "True"
 WHITENOISE_ROOT = path("..", "dist" if SERVE_MINIFIED_UI else "ui")
@@ -59,14 +54,6 @@ STATIC_URL = "/static/"
 
 MEDIA_ROOT = path("media")
 MEDIA_URL = "/media/"
-
-# Additional locations of static files
-STATICFILES_DIRS = []
-STATICFILES_FINDERS = [
-    "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-    # "django.contrib.staticfiles.finders.DefaultStorageFinder",
-]
 
 # Create hashed+gzipped versions of assets during collectstatic,
 # which will then be served by WhiteNoise with a suitable max-age.
@@ -172,8 +159,6 @@ LOGGING = {
         }
     }
 }
-
-TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 CELERY_QUEUES = (
     Queue('default', Exchange('default'), routing_key='default'),
