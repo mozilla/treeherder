@@ -10,6 +10,7 @@ env:
   global:
     - DATABASE_URL='mysql://root@localhost/treeherder'
     - DATABASE_URL_RO='mysql://root@localhost/treeherder'
+    - TREEHERDER_DJANGO_SECRET_KEY='secretkey-1234'
 services:
   - rabbitmq
   - memcached

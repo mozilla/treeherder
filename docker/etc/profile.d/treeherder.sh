@@ -1,6 +1,6 @@
 # Mapping is taken from docker link assumptions
 export TREEHERDER_DEBUG='1'
-export TREEHERDER_DJANGO_SECRET_KEY='5up3r53cr3t'
+export TREEHERDER_DJANGO_SECRET_KEY='secretkey-1234'
 # Allow any host to be hit when running in development mode
 export TREEHERDER_ALLOWED_HOSTS='*'
 

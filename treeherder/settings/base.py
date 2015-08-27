@@ -36,7 +36,7 @@ RABBITMQ_HOST = os.environ.get("TREEHERDER_RABBITMQ_HOST", "localhost")
 RABBITMQ_PORT = os.environ.get("TREEHERDER_RABBITMQ_PORT", "5672")
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = os.environ.get("TREEHERDER_DJANGO_SECRET_KEY", "my-secret-key")
+SECRET_KEY = os.environ.get("TREEHERDER_DJANGO_SECRET_KEY")
 
 ADMINS = []  # TBD
 MANAGERS = ADMINS
