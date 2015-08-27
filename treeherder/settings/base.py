@@ -428,7 +428,6 @@ if "IS_HEROKU" in os.environ:
 
 if "CLOUDAMQP_URL" in os.environ:
     BROKER_URL = os.environ["CLOUDAMQP_URL"]
-    BROKER_POOL_LIMIT = 1
 
 CELERY_IGNORE_RESULT = True
 
