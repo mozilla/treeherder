@@ -11,15 +11,16 @@
     <select class="form-control" ng-change="updateTestInput()" ng-model="selectedProject" ng-options="project.name for project in projects">
     </select>
     <h4>Platform</h4>
-    <p class="blink" ng-show="loadingTestData">Loading series data...</p>
-    <select ng-hide="loadingTestData" ng-change="updateTestSelector()" ng-model="selectedPlatform" ng-options="platform for platform in platformList">
+    <p class="blink" ng-show="loadingPlatformList">Loading platform list...</p>
+    <select ng-hide="loadingPlatformList" ng-change="updateTestSelector()" ng-model="selectedPlatform" ng-options="platform for platform in platformList">
     </select>
     <h4>Tests</h4>
     <div class="form-group">
       <input class="form-control input-sm" type="text" ng-model="testFilter" placeholder="Filter tests"/>
     </div>
     <div id="choose-test-list" class="form-group">
-      <select multiple class="form-control" ng-model="selectedTestSignatures">
+      <p class="blink" ng-show="loadingTestData">Loading series data...</p>
+      <select multiple class="form-control" ng-model="selectedTestSignatures" ng-hide="loadingTestData">
         <option value="{{::testElem.signature}}" ng-repeat="testElem in unselectedTestList| filter: testFilter track by testElem.signature">
             {{::testElem.name}}
         </option>

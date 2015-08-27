@@ -59,6 +59,47 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
         });
     };
 
+    var _getPlatformList = function(projectName, timeRange) {
+        var platformURL = thServiceDomain + '/api/project/' + projectName +
+            '/performance-data/platforms/?interval=' +
+            timeRange;
+        return $http.get(platformURL).then(function(response) {
+            return {
+                platformList: response.data
+            };
+        });
+
+    };
+
+    var _getSeriesByPlatform = function(projectName, timeRange, platform, optionMap) {
+        var specifyPlatformURL = thServiceDomain + '/api/project/' + projectName +
+            '/performance-data/get_performance_series_summary/?interval=' +
+            timeRange + '&machine_platform=' + platform;
+
+        return $http.get(specifyPlatformURL).then(function(response) {
+            var seriesList = [];
+            var testList = [];
+
+            Object.keys(response.data).forEach(function(signature){
+                var seriesSummary = _getSeriesSummary(projectName, signature,
+                    response.data[signature], optionMap);
+                seriesList.push(seriesSummary);
+
+
+                // add test/platform to lists if not yet present
+                if (!_.contains(testList, seriesSummary.name)) {
+                    testList.push(seriesSummary.name);
+                }
+            });
+
+            return {
+                platform: platform,
+                seriesList: seriesList,
+                testList: testList
+            };
+        });
+    };
+
     return {
         getSeriesSummary: _getSeriesSummary,
 
@@ -161,6 +202,13 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
             }); //_getAllSeries
         },
 
+        getPlatformList: function(projectName, timeRange) {
+            return _getPlatformList(projectName, timeRange);
+        },
+
+        getSeriesByPlatform: function(prjectName, timeRange, platform, optionMap) {
+            return _getSeriesByPlatform(prjectName, timeRange, platform, optionMap);
+        },
     };
 }]);
 
