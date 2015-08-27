@@ -16,6 +16,8 @@ source $BIN_DIR/utils
 # Only variables that are rarely changed and not site-specific should
 # be set here. Set everything else using Heroku's CLI / dashboard.
 
+set-env IS_HEROKU 1
+
 # Override the hostname that is displayed in New Relic, so the Dyno name
 # (eg "web.1") is shown, rather than "Dynamic Hostname". $DYNO is quoted
 # so that it's expanded at runtime on each dyno, rather than now.
