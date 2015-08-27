@@ -70,7 +70,7 @@
       </div>
       <div>
         <p ng-show="tooltipContent.revision">
-          <a id="tt-cset" ng-href="{{tooltipContent.revision|getRevisionUrl:tooltipContent.project.name}}" target="_blank"><span ng-bind="tooltipContent.revision"></span></a>
+          <a id="tt-cset" ng-href="{{tooltipContent.revision | getRevisionUrl:tooltipContent.project.name}}" target="_blank"><span ng-bind="tooltipContent.revision"></span></a>
           <span ng-show="tooltipContent.prevRevision && tooltipContent.revision">
             (<a id="tt-cset" ng-href="{{tooltipContent.project.url}}/pushloghtml?fromchange={{tooltipContent.prevRevision}}&tochange={{tooltipContent.revision}}" target="_blank">pushlog</a>,
             <a ng-href="#/comparesubtest?originalProject={{tooltipContent.project.name}}&newProject={{tooltipContent.project.name}}&originalRevision={{tooltipContent.prevRevision}}&newRevision={{tooltipContent.revision}}&originalSignature={{selectedDataPoint.signature}}&newSignature={{selectedDataPoint.signature}}" target="_blank">compare</a>)
