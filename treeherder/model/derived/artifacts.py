@@ -25,13 +25,6 @@ class ArtifactsModel(TreeherderModelBase):
             "job_id": "job_id",
             "name": "name",
             "type": "type"
-        },
-        "performance_artifact": {
-            "id": "id",
-            "job_id": "job_id",
-            "series_signature": "series_signature",
-            "name": "name",
-            "type": "type"
         }
     }
 
@@ -85,48 +78,6 @@ class ArtifactsModel(TreeherderModelBase):
 
         return data
 
-    def get_performance_artifact_list(self, offset, limit, conditions=None):
-        """
-        Retrieve a list of performance artifacts. The conditions parameter is a
-        dict containing a set of conditions for each key. e.g.:
-        {
-            'job_id': set([('IN', (1, 2))])
-        }
-        """
-
-        replace_str, placeholders = self._process_conditions(
-            conditions, self.INDEXED_COLUMNS['performance_artifact']
-        )
-
-        repl = [replace_str]
-
-        proc = "jobs.selects.get_performance_artifact_list"
-
-        data = self.execute(
-            proc=proc,
-            replace=repl,
-            placeholders=placeholders,
-            limit=limit,
-            offset=offset,
-            debug_show=self.DEBUG,
-        )
-
-        for artifact in data:
-            artifact["blob"] = utils.decompress_if_needed(artifact["blob"])
-
-            # performance artifacts are always json encoded
-            artifact["blob"] = json.loads(artifact["blob"])
-
-        return data
-
-    def get_max_performance_artifact_id(self):
-        """Get the maximum performance artifact id."""
-        data = self.execute(
-            proc="jobs.selects.get_max_performance_artifact_id",
-            debug_show=self.DEBUG,
-        )
-        return int(data[0]['max_id'] or 0)
-
     def store_job_artifact(self, artifact_placeholders):
         """
         Store a list of job_artifacts given a list of placeholders
@@ -170,12 +121,6 @@ class ArtifactsModel(TreeherderModelBase):
 
             # adapt and load data into placeholder structures
             tda.adapt_and_load(ref_data, job_data, perf_data)
-
-        self.execute(
-            proc="jobs.inserts.set_performance_artifact",
-            debug_show=self.DEBUG,
-            placeholders=tda.performance_artifact_placeholders,
-            executemany=True)
 
         self.execute(
             proc='jobs.inserts.set_series_signature',

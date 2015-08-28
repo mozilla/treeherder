@@ -385,44 +385,6 @@ def test_get_job_data(jm, test_project, refdata, sample_data, initial_data,
     assert len(job_data) is target_len
 
 
-def test_store_performance_artifact(
-        jm, test_project, refdata, sample_data, sample_resultset, initial_data,
-        mock_log_parser):
-
-    tp_data = test_utils.ingest_talos_performance_data(
-        jm, refdata, sample_data, sample_resultset
-    )
-
-    job_ids = tp_data['job_ids']
-    perf_data = tp_data['perf_data']
-
-    for index, d in enumerate(perf_data):
-        perf_data[index]['blob'] = json.dumps({'talos_data': [d['blob']]})
-
-    with ArtifactsModel(test_project) as artifacts_model:
-        artifacts_model.store_performance_artifact(job_ids, perf_data)
-
-    replace = [','.join(['%s'] * len(job_ids))]
-
-    performance_artifact_signatures = jm.get_dhub().execute(
-        proc="jobs.selects.get_performance_artifact",
-        debug_show=jm.DEBUG,
-        placeholders=job_ids,
-        replace=replace,
-        return_type='set',
-        key_column='series_signature')
-
-    series_signatures = jm.get_dhub().execute(
-        proc="jobs.selects.get_all_series_signatures",
-        return_type='set',
-        key_column='signature',
-        debug_show=jm.DEBUG)
-
-    jm.disconnect()
-
-    assert performance_artifact_signatures == series_signatures
-
-
 def test_store_performance_series(jm, test_project):
 
     # basic case: everything works as expected

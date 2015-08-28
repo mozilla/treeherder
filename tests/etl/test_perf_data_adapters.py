@@ -1,73 +1,106 @@
+import copy
 import json
-import zlib
+import unittest
 
 from tests.sampledata import SampleData
 from treeherder.etl.perf_data_adapters import TalosDataAdapter
 
 
-def test_adapt_and_load():
+class TalosDataAdapterTest(unittest.TestCase):
 
-    talos_perf_data = SampleData.get_talos_perf_data()
+    def test_adapt_and_load(self):
 
-    tda = TalosDataAdapter()
+        talos_perf_data = SampleData.get_talos_perf_data()
 
-    result_count = 0
-    for datum in talos_perf_data:
+        for talos_datum in talos_perf_data:
 
-        datum = {
-            "job_guid": 'oqiwy0q847365qiu',
-            "name": "test",
-            "type": "test",
-            "blob": datum
-        }
-
-        job_data = {
-            "oqiwy0q847365qiu": {
-                "id": 1,
-                "result_set_id": 1,
-                "push_timestamp": 1402692388
+            datum = {
+                "job_guid": 'oqiwy0q847365qiu',
+                "name": "test",
+                "type": "test",
+                "blob": talos_datum
             }
-        }
 
-        reference_data = {
-            "property1": "value1",
-            "property2": "value2",
-            "property3": "value3"
-        }
+            job_data = {
+                "oqiwy0q847365qiu": {
+                    "id": 1,
+                    "result_set_id": 1,
+                    "push_timestamp": 1402692388
+                }
+            }
 
-        # one extra result for the summary series
-        result_count += len(datum['blob']["results"]) + 1
+            reference_data = {
+                "property1": "value1",
+                "property2": "value2",
+                "property3": "value3"
+            }
 
-        # we create one performance series per counter
-        if 'talos_counters' in datum['blob']:
-            result_count += len(datum['blob']["talos_counters"])
+            # Mimic production environment, the blobs are serialized
+            # when the web service receives them
+            datum['blob'] = json.dumps({'talos_data': [datum['blob']]})
+            tda = TalosDataAdapter()
+            tda.adapt_and_load(reference_data, job_data, datum)
 
-        # Mimic production environment, the blobs are serialized
-        # when the web service receives them
-        datum['blob'] = json.dumps({'talos_data': [datum['blob']]})
-        tda.adapt_and_load(reference_data, job_data, datum)
+            # base: subtests + one extra result for the summary series
+            expected_result_count = len(talos_datum["results"]) + 1
 
-        # we upload a summary with a suite and subtest values, +1 for suite
-        if 'summary' in datum['blob']:
-            results = json.loads(zlib.decompress(tda.performance_artifact_placeholders[-1][4]))
-            data = json.loads(datum['blob'])['talos_data'][0]
-            assert results["blob"]["performance_series"]["geomean"] == data['summary']['suite']
+            # we create one performance series per counter
+            if 'talos_counters' in talos_datum:
+                expected_result_count += len(talos_datum["talos_counters"])
 
-            # deal with the subtests now
-            for i in range(0, len(data['summary']['subtests'])):
-                subresults = json.loads(zlib.decompress(tda.performance_artifact_placeholders[-1 - i][4]))
-                if 'subtest_signatures' in subresults["blob"]['signature_properties']:
-                    # ignore summary signatures
-                    continue
+            # result count == number of signatures
+            self.assertEqual(expected_result_count, len(tda.signatures.keys()))
 
-                subdata = data['summary']['subtests'][subresults["blob"]['signature_properties']['test']]
-                for datatype in ['min', 'max', 'mean', 'median', 'std']:
-                    assert subdata[datatype] == subresults["blob"]["performance_series"][datatype]
-                if 'value' in subdata.keys():
-                    assert subdata['value'] == subresults["blob"]["performance_series"]['value']
-        else:
-            # FIXME: the talos data blob we're currently using contains datums with summaries and those without
-            # we should probably test non-summarized data as well
-            pass
+            # verify that we have signatures for the subtests
+            signature_placeholders = copy.copy(
+                tda.signature_property_placeholders)
+            for (testname, results) in talos_datum["results"].iteritems():
+                signature_placeholder = filter(
+                    lambda p: p[2] == testname, signature_placeholders)
+                self.assertEqual(len(signature_placeholder), 1)
+                signature_hash = signature_placeholder[0][0]
+                perfdata = tda.signatures[signature_hash][0]
+                if talos_datum.get('summary'):
+                    # if we have a summary, ensure the subtest summary values made
+                    # it in
+                    for measure in ['min', 'max', 'std', 'mean', 'median']:
+                        self.assertEqual(
+                            round(talos_datum['summary']['subtests'][testname][measure], 2),
+                            perfdata[measure])
+                else:
+                    # this is an old style talos blob without a summary. these are going
+                    # away, so I'm not going to bother testing the correctness. however
+                    # let's at least verify that some values are being generated here
+                    for measure in ['min', 'max', 'std', 'mean', 'median']:
+                        self.assertTrue(perfdata[measure])
 
-    assert result_count == len(tda.performance_artifact_placeholders)
+                # filter out this signature from data to process
+                signature_placeholders = filter(
+                    lambda p: p[0] != signature_hash, signature_placeholders)
+
+            # if we have counters, verify that the series for them is as expected
+            for (counter, results) in talos_datum.get('talos_counters',
+                                                      {}).iteritems():
+                signature_placeholder = filter(
+                    lambda p: p[2] == counter, signature_placeholders)
+                self.assertEqual(len(signature_placeholder), 1)
+                signature_hash = signature_placeholder[0][0]
+                perfdata = tda.signatures[signature_hash][0]
+                for measure in ['max', 'mean']:
+                    self.assertEqual(round(float(results[measure]), 2),
+                                     perfdata[measure])
+                # filter out this signature from data to process
+                signature_placeholders = filter(
+                    lambda p: p[0] != signature_hash, signature_placeholders)
+
+            # we should be left with just summary signature placeholders
+            self.assertEqual(len(signature_placeholders), 2)
+            perfdata = tda.signatures[signature_placeholders[0][0]][0]
+            if talos_datum.get('summary'):
+                self.assertEqual(round(talos_datum['summary']['suite'], 2),
+                                 perfdata['geomean'])
+            else:
+                # old style talos blob without summary. again, going away,
+                # but let's at least test that we have the 'geomean' value
+                # generated
+                self.assertTrue(perfdata['geomean'])
