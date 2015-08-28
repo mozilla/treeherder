@@ -69,7 +69,7 @@
   <div class="btn-group">
     <span class="btn btn-default btn-xs save-btn"
           title="Save all classification data"
-          ng-click="save()"
+          ng-click="!hasPinnedJobs() || save()"
           ng-disabled="!hasPinnedJobs()">save
     </span>
     <span class="btn btn-default btn-xs dropdown-toggle save-btn-dropdown"
