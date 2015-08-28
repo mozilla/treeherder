@@ -1023,7 +1023,8 @@ treeherder.factory('ThResultSetStore', [
                             });
                         });
                         platform.groups = _.sortBy(platform.groups, function(group){
-                            return jobGroupOrder[group.symbol];
+                            //remove all visual additions for Tier during sort
+                            return jobGroupOrder[group.symbol.split("[",1)];
                         });
                     });
                     groupedJobs.platforms = _.sortBy(groupedJobs.platforms, function(platform){
