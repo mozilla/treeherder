@@ -84,6 +84,16 @@ input:focus::-moz-placeholder {
     padding-bottom: 8px;
 }
 
+/* Spacing for menus with adjacent checkboxes */
+.checkbox-dropdown-menu {
+    padding-left: 8px;
+}
+
+/* Spacing for menus with adjacent icons */
+.icon-menu li a span {
+    width: 20px;
+}
+
 .navbar-right {
     margin-right: 0px; /* override boostrap 3.3.5 behaviour -- doesn't work with the way we align our navbar */
 }
@@ -103,35 +113,9 @@ th-watched-repo {
     float: left;
 }
 
-.repo-menu {
-    margin-right: -4px;
-}
-
-.repo-dropdown-menu {
-    margin-right: 4px;
-    padding-left: 6px;
-}
-
-/* Spacing for all menu entries with adjacent icons */
-.icon-menu li a span {
-    width: 20px;
-}
-
 /* Override bootstrap for flush right navbar menus */
 .navbar-collapse {
     padding-right: 0;
-}
-
-.navbar .repo-menu-form {
-    padding: 5px 10px 0;
-    overflow-y: scroll;
-    top: inherit;
-    right: auto;
-}
-
-.nav-repo-btn {
-    padding-left: 14px;
-    padding-right: 14px;
 }
 
 .nav-menu-btn {
