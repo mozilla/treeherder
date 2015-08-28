@@ -29,10 +29,10 @@
       </span>
 
       <!-- Infra Menu -->
-      <span class="repo-menu dropdown">
+      <span class="dropdown">
         <button id="infraLabel" title="Infrastructure status" role="button"
                 href="#" data-toggle="dropdown" data-target="#"
-                class="btn btn-view-nav btn-right-navbar nav-repo-btn">Infra
+                class="btn btn-view-nav btn-right-navbar nav-menu-btn">Infra
           <span class="fa fa-angle-down lightgray"></span>
         </button>
         <ul class="dropdown-menu" role="menu" aria-labelledby="infraLabel"
@@ -42,13 +42,14 @@
 
       <!-- Repos Menu -->
       <span ng-controller="RepositoryMenuCtrl" >
-        <span th-repo-dropdown-container class="repo-menu dropdown">
+        <span th-repo-dropdown-container class="dropdown">
           <button id="repoLabel" title="Watch a repo" role="button"
                   href="#" data-toggle="dropdown" data-target="#"
-                  class="btn btn-view-nav btn-right-navbar nav-repo-btn">Repos
+                  class="btn btn-view-nav btn-right-navbar nav-menu-btn">Repos
             <span class="fa fa-angle-down lightgray"></span>
           </button>
-          <ul class="dropdown-menu repo-dropdown-menu" role="menu" aria-labelledby="repoLabel">
+          <ul class="dropdown-menu checkbox-dropdown-menu"
+              role="menu" aria-labelledby="repoLabel">
             <span ng-repeat="(group_order, group) in groupedRepos()">
               <li role="presentation" class="divider" ng-hide="$first"></li>
               <li role="presentation" class="dropdown-header">{{::group.name}}</li>
@@ -72,7 +73,7 @@
       </span>
 
       <!-- Help Menu -->
-      <span class="repo-menu dropdown">
+      <span class="dropdown">
         <button id="helpLabel" title="Treeherder help" role="button"
                 href="#" data-toggle="dropdown" data-target="#"
                 class="btn btn-view-nav btn-right-navbar nav-help-btn">
