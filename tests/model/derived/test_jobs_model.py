@@ -1,17 +1,12 @@
 import copy
-import json
-import threading
 import time
-import zlib
 
 import pytest
-from django.conf import settings
 from django.core.management import call_command
 
 from tests import test_utils
 from tests.sample_data_generator import job_data, result_set
 from treeherder.model.derived import ArtifactsModel
-from treeherder.model.derived.jobs import JobsModel
 
 slow = pytest.mark.slow
 xfail = pytest.mark.xfail
@@ -383,104 +378,6 @@ def test_get_job_data(jm, test_project, refdata, sample_data, initial_data,
         job_data = artifacts_model.get_job_signatures_from_ids(range(1, 11))
 
     assert len(job_data) is target_len
-
-
-def test_store_performance_series(jm, test_project):
-
-    # basic case: everything works as expected
-    jm.store_performance_series(FakePerfData.TIME_INTERVAL,
-                                FakePerfData.SERIES_TYPE,
-                                FakePerfData.SIGNATURE,
-                                FakePerfData.SERIES)
-    stored_series = jm.get_dhub().execute(
-        proc="jobs.selects.get_performance_series",
-        placeholders=[FakePerfData.TIME_INTERVAL, FakePerfData.SIGNATURE])
-    blob = json.loads(zlib.decompress(stored_series[0]['blob']))
-    assert len(blob) == 1
-    assert blob[0] == FakePerfData.SERIES[0]
-
-    jm.disconnect()
-
-
-def test_store_duplicate_performance_series(jm, test_project):
-    # if we store the same data twice, we should only have
-    # one entry in the series
-    for i in [0, 1, 1]:
-        # because of the internals of store_performance_series, we
-        # need to store two *different* duplicates after the initial
-        # duplicate to test the de-duplication code (this test should still
-        # be valid in case that ever changes)
-        series_copy = copy.deepcopy(FakePerfData.SERIES)
-        series_copy[0]['result_set_id'] += i
-        jm.store_performance_series(FakePerfData.TIME_INTERVAL,
-                                    FakePerfData.SERIES_TYPE,
-                                    FakePerfData.SIGNATURE,
-                                    series_copy)
-    stored_series = jm.get_dhub().execute(
-        proc="jobs.selects.get_performance_series",
-        placeholders=[FakePerfData.TIME_INTERVAL, FakePerfData.SIGNATURE])
-    blob = json.loads(zlib.decompress(stored_series[0]['blob']))
-    assert len(blob) == 2
-    assert blob[0] == FakePerfData.SERIES[0]
-
-    jm.disconnect()
-
-
-def test_store_performance_series_timeout_recover(jm, test_project):
-    # timeout case 1: a lock is on our series, but it will expire
-
-    # use a thread to simulate locking and then unlocking the table
-    # FIXME: this is rather fragile and depends on the thread being
-    # run more or less immediately so that the lock is engaged
-    def _lock_unlock():
-        with JobsModel(test_project) as jm2:
-            jm2.get_dhub().execute(
-                proc='generic.locks.get_lock',
-                placeholders=[FakePerfData.get_fake_lock_string()])
-            time.sleep(1)
-            jm2.get_dhub().execute(
-                proc='generic.locks.release_lock',
-                placeholders=[FakePerfData.get_fake_lock_string()])
-    t = threading.Thread(target=_lock_unlock)
-    t.start()
-
-    # will fail at first due to lock, but we should recover and insert
-    jm.store_performance_series(FakePerfData.TIME_INTERVAL,
-                                FakePerfData.SERIES_TYPE,
-                                FakePerfData.SIGNATURE,
-                                FakePerfData.SERIES)
-    t.join()
-    stored_series = jm.get_dhub().execute(
-        proc="jobs.selects.get_performance_series",
-        placeholders=[FakePerfData.TIME_INTERVAL, FakePerfData.SIGNATURE])
-
-    blob = json.loads(zlib.decompress(stored_series[0]['blob']))
-    assert len(blob) == 1
-    assert blob[0] == FakePerfData.SERIES[0]
-
-    jm.disconnect()
-
-
-def test_store_performance_series_timeout_fail(jm, test_project):
-    # timeout case 2: a lock is on our series, but it will not expire in time
-
-    jm.get_dhub().execute(
-        proc='generic.locks.get_lock',
-        placeholders=[FakePerfData.get_fake_lock_string()])
-    old_timeout = settings.PERFHERDER_UPDATE_SERIES_LOCK_TIMEOUT
-    settings.PERFHERDER_UPDATE_SERIES_LOCK_TIMEOUT = 1
-    # this should fail -- we'll timeout before we're able to insert
-    jm.store_performance_series(FakePerfData.TIME_INTERVAL,
-                                FakePerfData.SERIES_TYPE,
-                                FakePerfData.SIGNATURE,
-                                FakePerfData.SERIES)
-    stored_series = jm.get_dhub().execute(
-        proc="jobs.selects.get_performance_series",
-        placeholders=[FakePerfData.TIME_INTERVAL, FakePerfData.SIGNATURE])
-    assert not stored_series
-
-    settings.PERFHERDER_UPDATE_SERIES_LOCK_TIMEOUT = old_timeout
-    jm.disconnect()
 
 
 def test_remove_existing_jobs_single_existing(jm, sample_data, initial_data, refdata,

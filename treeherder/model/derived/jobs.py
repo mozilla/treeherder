@@ -4,7 +4,6 @@ import zlib
 from collections import defaultdict
 from datetime import datetime
 from hashlib import sha1
-from operator import itemgetter
 
 import simplejson as json
 from _mysql_exceptions import IntegrityError
@@ -1865,125 +1864,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             debug_show=self.DEBUG,
             placeholders=signature_property_placeholders,
             executemany=True)
-
-    def store_performance_series(
-            self, t_range, series_type, signature, series_data):
-
-        # Use MySQL GETLOCK function to guard against concurrent celery tasks
-        # overwriting each other's blobs. The lock incorporates the time
-        # interval and signature combination and is specific to a single
-        # json blob.
-        lock_string = "sps_{0}_{1}_{2}".format(
-            t_range, series_type, signature)
-        lock_timeout = settings.PERFHERDER_UPDATE_SERIES_LOCK_TIMEOUT
-
-        # first, wait for lock to become free
-        started = time.time()
-        while time.time() < (started + lock_timeout):
-            is_lock_free = bool(self.execute(
-                proc='generic.locks.is_free_lock',
-                debug_show=self.DEBUG,
-                placeholders=[lock_string])[0]['lock'])
-            if is_lock_free:
-                break
-            time.sleep(0.1)
-        if not is_lock_free:
-            logger.error(
-                'store_performance_series lock_string, '
-                '{0}, timed out!'.format(lock_string)
-            )
-            return
-
-        # now, acquire the lock
-        self.execute(
-            proc='generic.locks.get_lock',
-            debug_show=self.DEBUG,
-            placeholders=[lock_string])
-
-        try:
-            now_timestamp = int(time.time())
-
-            # If we don't have this t_range/signature combination create it
-            series_data_json = json.dumps(series_data)
-            insert_placeholders = [
-                t_range, signature,
-                series_type,
-                now_timestamp,
-                zlib.compress(series_data_json),
-                t_range,
-                signature,
-            ]
-
-            self.execute(
-                proc='jobs.inserts.set_performance_series',
-                debug_show=self.DEBUG,
-                placeholders=insert_placeholders)
-
-            # delete any previous instance of the cached copy of the perf
-            # series summary, since it's now out of date
-            cache.delete(self.get_performance_series_cache_key(self.project,
-                                                               t_range))
-
-            # Retrieve and update the series
-            performance_series = self.execute(
-                proc='jobs.selects.get_performance_series',
-                debug_show=self.DEBUG,
-                placeholders=[t_range, signature])
-
-            db_series_json = utils.decompress_if_needed(performance_series[0]['blob'])
-
-            # If they're equal this was the first time the t_range
-            # and signature combination was stored, so there's nothing to
-            # do
-            if series_data_json != db_series_json:
-
-                series = json.loads(db_series_json)
-                series.extend(series_data)
-
-                # expire any entries which are too old
-                push_timestamp_limit = now_timestamp - int(t_range)
-                series = filter(
-                    lambda d: d['push_timestamp'] >= push_timestamp_limit,
-                    series
-                )
-
-                if series:
-                    # in case the same data was submitted to be added to the
-                    # db twice (with our setup as of 2015/07, this can happen
-                    # if we parse the same talos log more than once), remove any
-                    # duplicate entries.
-                    # technique from: http://stackoverflow.com/a/9427216
-                    series = [dict(t) for t in set([tuple(sorted(d.items())) for d in
-                                                    series])]
-
-                    # sort the series by result set id
-                    series = sorted(
-                        series, key=itemgetter('result_set_id'),
-                    )
-
-                    update_placeholders = [
-                        now_timestamp,
-                        zlib.compress(json.dumps(series)),
-                        t_range,
-                        signature,
-                    ]
-
-                    self.execute(
-                        proc='jobs.updates.update_performance_series',
-                        debug_show=self.DEBUG,
-                        placeholders=update_placeholders)
-
-        except Exception as e:
-
-            raise e
-
-        finally:
-            # Make sure we release the lock no matter what errors
-            # are generated
-            self.execute(
-                proc='generic.locks.release_lock',
-                debug_show=self.DEBUG,
-                placeholders=[lock_string])
 
     def _get_last_insert_id(self):
         """Return last-inserted ID."""
