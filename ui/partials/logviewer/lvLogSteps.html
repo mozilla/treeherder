@@ -1,22 +1,17 @@
 <div class="steps-data">
   <div ng-repeat="step in artifact.step_data.steps"
        ng-click="displayLog(step)"
-       ng-class="{'selected': (displayedStep.order === step.order)}"
        ng-show="showSuccessful === true || step.result !== 'success'"
-       class="btn btn-block lv-step clearfix {{::getShadingClass(step.result)}}"
+       class="btn btn-block lv-step clearfix {{::getStepShadingClass(step.result)}}"
+       ng-class="{'selected': (displayedStep.order === step.order)}"
        order="{{step.order}}">
-    <span ng-if="(step.result === 'unknown')"
-          class="pull-left clearfix text-left unknown-step-warning"
-          title="Log artifact result property is 'unknown'">
-      unknown step result (!)</span>
-    <span ng-class="{'step-title-unknown': step.result === 'unknown'}"
-          class="pull-left clearfix text-left">
-      {{::step.order+1}}. {{::step.name}}</span>
+    <span class="pull-left clearfix text-left">
+      {{::step.order+1}}. {{::step.name}}
+    </span>
 
     <span ng-init="time=(step.duration !== null ? formatTime(step.duration) : 'Duration unknown')"
           ng-mouseover="time=displayTime(step.started, step.finished)"
           ng-mouseleave="time=(step.duration !== null ? formatTime(step.duration) : 'Duration unknown')"
-          ng-class="{'step-title-unknown': step.result === 'unknown'}"
           class="pull-right clearfix">
       {{time}}
     </span>

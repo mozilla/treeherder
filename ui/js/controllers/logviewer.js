@@ -57,10 +57,21 @@ logViewerApp.controller('LogviewerCtrl', [
             return false;
         };
 
-        // get the css class for the result color
-        // used for the whole job, as well as for each step
+        // Get the css class for the navbar "Result" and other general use
         $scope.getShadingClass = function(result) {
             return "result-status-shading-" + result;
+        };
+
+        // Get the css class for for the steps container. This handles
+        // Taskcluster jobs whose step.result properties are all unknown at
+        // this time. This prevents us from styling the steps yellow, as we
+        // (correctly) do with unknown jobs in Treeherder. If Taskcluster provides
+        // a suitable log format in future, we could revert to just using
+        // getShadingClass() above.
+        $scope.getStepShadingClass = function(result) {
+            if (result !== 'unknown') {
+                return "result-status-shading-" + result;
+            }
         };
 
         $scope.loadMore = function(bounds, element) {
