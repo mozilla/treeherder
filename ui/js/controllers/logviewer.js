@@ -57,8 +57,7 @@ logViewerApp.controller('LogviewerCtrl', [
             return false;
         };
 
-        // get the css class for the result color
-        // used for the whole job, as well as for each step
+        // Get the css class for the result, step buttons and other general use
         $scope.getShadingClass = function(result) {
             return "result-status-shading-" + result;
         };
