@@ -435,7 +435,6 @@ th-watched-repo {
     display: table-cell;
     white-space: normal;
     word-break: normal;
-
 }
 
 .icon-superscript {
@@ -590,7 +589,7 @@ th-watched-repo {
 }
 
 .job-group {
-    margin: 0 -3px 0 3px;
+    margin-left: 3px;
 }
 
 .job-btn {
@@ -636,10 +635,6 @@ th-watched-repo {
 
 .group-content::after {
     content: ")"
-}
-
-.group-job-list {
-    margin-left: -3px;
 }
 
 .selected-job {
@@ -1322,7 +1317,7 @@ ul.failure-summary-list li .btn-xs {
  .group-btn.btn-ltblue-count,
  .group-btn.btn-yellow-count,
  .group-btn.btn-pink-count {
-    margin: 0 -5px 0 -1px;
+    margin: 0 -1px 0 -5px;
  }
 
  .job-btn.btn-red,
@@ -1331,6 +1326,23 @@ ul.failure-summary-list li .btn-xs {
  .job-btn.btn-purple {
     margin: 0 -3px 1px 0;
  }
+
+.platform-group {
+    margin-left: -4px;
+}
+
+.group-job-list button:first-child {
+    margin-left: -4px;
+}
+
+.group-job-list button:last-child {
+    margin-right: -1px;
+}
+
+.group-count-list {
+    margin-left: 1px;
+    margin-right: -4px;
+}
 
 .btn-orange-classified::after,
 .btn-orange-classified-count::after,
