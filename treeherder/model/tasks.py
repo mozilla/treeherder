@@ -58,19 +58,6 @@ def calculate_eta(sample_window_seconds=21600, debug=False):
             jm.calculate_eta(sample_window_seconds, debug)
 
 
-@task(name='populate-performance-series')
-def populate_performance_series(project, series_type, series_data):
-    from treeherder.model.derived.jobs import JobsModel
-
-    with JobsModel(project) as jm:
-        for t_range in settings.TREEHERDER_PERF_SERIES_TIME_RANGES:
-            for signature in series_data:
-                jm.store_performance_series(
-                    t_range['seconds'], series_type, signature,
-                    series_data[signature]
-                )
-
-
 @task(name='publish-job-action')
 def publish_job_action(project, action, job_id, requester):
     """

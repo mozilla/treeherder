@@ -1,126 +1,104 @@
-from django.core.cache import cache
+import datetime
+import json
+import time
+
+from collections import defaultdict
+from rest_framework import exceptions
 from rest_framework import viewsets
-from rest_framework.decorators import list_route
 from rest_framework.response import Response
-from rest_framework_extensions.etag.decorators import etag
 
-from treeherder.model.derived.jobs import JobsModel
-from treeherder.webapp.api.utils import with_jobs
+from treeherder.model import models
+from treeherder.perf.models import (PerformanceSignature, PerformanceDatum)
 
 
-class PerformanceDataViewSet(viewsets.ViewSet):
+class PerformanceSignatureViewSet(viewsets.ViewSet):
 
+    def list(self, request, project):
+
+        repository = models.Repository.objects.get(name=project)
+
+        signature_data = PerformanceDatum.objects.filter(
+            repository=repository).select_related(
+                'signature', 'signature__option_collection',
+                'signature__platform')
+
+        # filter based on signature hashes, if asked
+        signature_hashes = request.QUERY_PARAMS.getlist("signature")
+        if signature_hashes:
+            signature_ids = PerformanceSignature.objects.filter(
+                signature_hash__in=signature_hashes).values_list('id', flat=True)
+            signature_data = signature_data.filter(signature_id__in=list(
+                signature_ids))
+
+        interval = request.QUERY_PARAMS.get('interval')
+        if interval:
+            signature_data = signature_data.filter(
+                push_timestamp__gte=datetime.datetime.fromtimestamp(
+                    int(time.time() - int(interval))))
+        ret = {}
+        for (signature_hash, option_collection_hash, platform, suite, test,
+             extra_properties) in signature_data.values_list(
+                 'signature__signature_hash',
+                 'signature__option_collection__option_collection_hash',
+                 'signature__platform__platform', 'signature__suite',
+                 'signature__test', 'signature__extra_properties').distinct():
+            ret[signature_hash] = {
+                'option_collection_hash': option_collection_hash,
+                'machine_platform': platform,
+                'suite': suite
+            }
+            if test:
+                # test may be empty in case of a summary test, leave it empty then
+                ret[signature_hash]['test'] = test
+            ret[signature_hash].update(json.loads(extra_properties))
+
+        return Response(ret)
+
+
+class PerformancePlatformViewSet(viewsets.ViewSet):
     """
-    This view serves performance charts data
+    All platforms for a particular branch that have performance data
     """
+    def list(self, request, project):
+        repository = models.Repository.objects.get(name=project)
+        return Response(PerformanceDatum.objects.filter(
+            repository=repository).values_list(
+                'signature__platform__platform', flat=True).distinct())
 
-    def _calculate_etag(view_instance, view_method,
-                        request, args, kwargs):
-        project, interval = (kwargs.get('project'),
-                             request.QUERY_PARAMS.get('interval'))
-        machine_platform = request.QUERY_PARAMS.get('machine_platform')
-        if project and interval:
-            return cache.get(JobsModel.get_performance_series_cache_key(
-                project, interval, machine_platform, hash=True))
 
-        return None
+class PerformanceDatumViewSet(viewsets.ViewSet):
+    """
+    This view serves performance test result data
+    """
+    def list(self, request, project):
+        repository = models.Repository.objects.get(name=project)
 
-    @list_route()
-    @etag(etag_func=_calculate_etag)
-    @with_jobs
-    def get_performance_series_summary(self, request, project, jm, pk=None):
-        """
-        GET method implementation for listing signatures
-
-        Input: time interval, machine_platform
-        Output: all series signatures and their properties
-        """
         try:
-            interval_seconds = int(request.QUERY_PARAMS.get('interval'))
-            platform = request.QUERY_PARAMS.get('machine_platform')
+            signature_hashes = request.QUERY_PARAMS.getlist("signatures")
         except:
-            return Response("incorrect parameters", 400)
+            raise exceptions.ValidationError('need signature list')
 
-        summary = jm.get_performance_series_summary(interval_seconds, platform)
-        return Response(summary)
+        signature_ids = PerformanceSignature.objects.filter(
+            signature_hash__in=signature_hashes).values_list('id', flat=True)
+        datums = PerformanceDatum.objects.filter(
+            repository=repository, signature_id__in=list(signature_ids))
 
-    @list_route()
-    @with_jobs
-    def get_signatures_from_properties(self, request, project, jm, pk=None):
-        """
-        GET method implementation for signature data
+        interval = request.QUERY_PARAMS.get('interval')
+        if interval:
+            print "filtering by interval"
+            datums = datums.filter(
+                push_timestamp__gt=datetime.datetime.fromtimestamp(
+                    int(time.time() - int(interval))))
 
-        Input: property/value pairs
-        Output: unique signatures
-        """
+        ret = defaultdict(list)
+        for datum in datums.select_related('signature__signature_hash').order_by(
+                'push_timestamp'):
+            d = {
+                'job_id': datum.job_id,
+                'result_set_id': datum.result_set_id,
+                'push_timestamp': int(time.mktime(datum.push_timestamp.timetuple()))
+            }
+            d.update(datum.datum)
+            ret[datum.signature.signature_hash].append(d)
 
-        try:
-            props = request.QUERY_PARAMS.dict()
-        except Exception:
-            return Response("incorrect parameters", 400)
-
-        signatures = jm.get_signatures_from_properties(props)
-
-        return Response(signatures)
-
-    @list_route()
-    @with_jobs
-    def get_signature_properties(self, request, project, jm, pk=None):
-        """
-        GET method for signature
-
-        Input: Signature SHA1's
-        Output: List of signature properties
-        """
-        try:
-            signatures = request.QUERY_PARAMS.getlist("signatures")
-        except Exception:
-            return Response("incorrect parameters", 400)
-
-        if not signatures:
-            return Response("no signatures provided", 400)
-
-        data = jm.get_signature_properties(signatures)
-
-        return Response(data)
-
-    @list_route()
-    @with_jobs
-    def get_performance_data(self, request, project, jm, pk=None):
-        """
-        GET method implementation for performance data
-
-        Input: list of series signatures
-        Output: performance charting data
-        """
-
-        try:
-            signatures = request.QUERY_PARAMS.getlist("signatures")
-            interval = abs(int(request.QUERY_PARAMS.get("interval_seconds", 0)))
-        except Exception:
-            return Response("incorrect parameters", 400)
-
-        if not signatures:
-            return Response("no signatures provided", 400)
-
-        data = jm.get_performance_series_from_signatures(signatures, interval)
-
-        return Response(data)
-
-    @list_route()
-    @with_jobs
-    def platforms(self, request, project, jm, pk=None):
-        """
-        Return list of platforms for which we have performance data
-
-        Input: time interval
-        Output: list of platforms
-        """
-        try:
-            interval = int(request.QUERY_PARAMS.get('interval'))
-        except:
-            return Response("incorrect parameters", 400)
-
-        platforms = jm.get_performance_platforms(interval)
-
-        return Response(platforms)
+        return Response(ret)

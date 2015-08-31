@@ -490,7 +490,7 @@ perf.controller('GraphsCtrl', [
         function getSeriesData(series) {
             return $http.get(thServiceDomain + '/api/project/' +
                              series.projectName +
-                             '/performance-data/get_performance_data/' +
+                             '/performance/data/' +
                              '?interval_seconds=' + $scope.myTimerange.value +
                              '&signatures=' + series.signature).then(
                                  function(response) {
@@ -503,7 +503,7 @@ perf.controller('GraphsCtrl', [
                                          resultSetData: [],
                                          thSeries: jQuery.extend({}, series)
                                      };
-                                     response.data[0].blob.forEach(function(dataPoint) {
+                                     response.data[series.signature].forEach(function(dataPoint) {
                                          var measure = dataPoint.mean;
                                          if ($scope.myMeasure === "min") {
                                              measure = dataPoint.min;
@@ -534,14 +534,14 @@ perf.controller('GraphsCtrl', [
             return $q.all(partialSeriesList.map(
                 function(partialSeries) {
                     return $http.get(thServiceDomain + '/api/project/' +
-                                     partialSeries.project + '/performance-data/' +
-                                     'get_signature_properties/?signatures=' +
+                                     partialSeries.project + '/performance/' +
+                                     'signatures/?signature=' +
                                      partialSeries.signature).then(function(response) {
                                          var data = response.data;
                                          if (!propsHash[partialSeries.project]) {
                                              propsHash[partialSeries.project] = {};
                                          }
-                                         propsHash[partialSeries.project][partialSeries.signature] = data[0];
+                                         propsHash[partialSeries.project][partialSeries.signature] = data[partialSeries.signature];
                                      });
                 })).then(function() {
                     // create a new seriesList in the correct order
