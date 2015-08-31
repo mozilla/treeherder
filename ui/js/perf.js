@@ -27,7 +27,7 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
 
     var _getAllSeries = function(projectName, timeRange, optionMap) {
         var signatureURL = thServiceDomain + '/api/project/' + projectName +
-            '/performance-data/get_performance_series_summary/?interval=' +
+            '/performance/signatures/?interval=' +
             timeRange;
 
         return $http.get(signatureURL).then(function(response) {
@@ -50,7 +50,6 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
                     testList.push(seriesSummary.name);
                 }
             });
-
             return {
                 seriesList: seriesList,
                 platformList: platformList,
@@ -435,8 +434,8 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
 
                                     getResultsMap: function(projectName, seriesList, timeRange, resultSetIds) {
                                         var baseURL = thServiceDomain + '/api/project/' +
-                                            projectName + '/performance-data/' +
-                                            'get_performance_data/?interval_seconds=' + timeRange;
+                                            projectName + '/performance/' +
+                                            'data/?interval=' + timeRange;
 
                                         var resultsMap = {};
                                         return $q.all(_.chunk(seriesList, 20).map(function(seriesChunk) {
@@ -450,13 +449,13 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                                         if (resultsMap[resultSetId] === undefined) {
                                                             resultsMap[resultSetId] = {};
                                                         }
-                                                        response.data.forEach(function(data) {
+                                                        _.forIn(response.data, function(data, signature) {
                                                             // Aggregates data from the server on a single group of values which
                                                             // will be compared later to another group. Ends up with an object
                                                             // with description (name/platform) and values.
                                                             // The values are later processed at getCounterMap as the data arguments.
                                                             var values = [];
-                                                            _.where(data.blob, { result_set_id: resultSetId }).forEach(function(pdata) {
+                                                            _.where(data, { result_set_id: resultSetId }).forEach(function(pdata) {
                                                                 //summary series have geomean, individual pages have mean
                                                                 if (pdata.geomean === undefined) {
                                                                     values.push(pdata.mean);
@@ -465,9 +464,9 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                                                 }
                                                             });
 
-                                                            var seriesData = _.find(seriesChunk, {'signature': data.series_signature});
+                                                            var seriesData = _.find(seriesChunk, {'signature': signature});
 
-                                                            resultsMap[resultSetId][data.series_signature] = {
+                                                            resultsMap[resultSetId][signature] = {
                                                                 platform: seriesData.platform,
                                                                 name: seriesData.name,
                                                                 values: values
