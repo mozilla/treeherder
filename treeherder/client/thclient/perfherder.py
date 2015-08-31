@@ -22,7 +22,8 @@ class PerformanceTimeInterval(object):
                 PerformanceTimeInterval.WEEK,
                 PerformanceTimeInterval.TWO_WEEKS,
                 PerformanceTimeInterval.SIXTY_DAYS,
-                PerformanceTimeInterval.NINETY_DAYS]
+                PerformanceTimeInterval.NINETY_DAYS,
+                PerformanceTimeInterval.ONE_YEAR]
 
 
 class PerformanceSignatureCollection(dict):
@@ -103,62 +104,34 @@ class PerformanceSeries(list):
 
 class PerfherderClient(TreeherderClient):
 
-    PERFORMANCE_SERIES_SUMMARY_ENDPOINT = 'performance-data/get_performance_series_summary'
-    SIGNATURE_PROPERTIES_ENDPOINT = 'performance-data/get_signature_properties'
-    PERFORMANCE_DATA_ENDPOINT = 'performance-data/get_performance_data'
+    PERFORMANCE_SIGNATURES_ENDPOINT = 'performance/signatures'
+    PERFORMANCE_DATA_ENDPOINT = 'performance/data'
 
-    def get_performance_signatures(self, project,
-                                   time_interval=PerformanceTimeInterval.WEEK,
-                                   timeout=None):
+    def get_performance_signatures(self, project, **params):
         '''
         Gets a set of performance signatures associated with a project and time range
         '''
         return PerformanceSignatureCollection(self._get_json(
-            self.PERFORMANCE_SERIES_SUMMARY_ENDPOINT, timeout, project,
-            interval=time_interval))
+            self.PERFORMANCE_SIGNATURES_ENDPOINT, None, project, **params))
 
-    def get_performance_signature_properties(self, project, signature,
-                                             timeout=None):
-        '''
-        Gets the set of properties associated with a specific signature
-        '''
-        property_list = self._get_json(self.SIGNATURE_PROPERTIES_ENDPOINT,
-                                       timeout, project, signatures=signature)
-        if len(property_list) != 1:
-            raise TreeherderClientError(
-                "Expected 1 result for call to '{0}', got '{1}'".format(
-                    self.SIGNATURE_PROPERTIES_ENDPOINT, len(property_list)),
-                [])
-
-        return property_list[0]
-
-    def get_performance_series_list(self, project, signature_list,
-                                    time_interval=PerformanceTimeInterval.WEEK,
-                                    timeout=None):
+    def get_performance_series_list(self, project, signature_list, **params):
         '''
         Gets a list of series objects associated with a set of signatures
         '''
-        results = self._get_json(self.PERFORMANCE_DATA_ENDPOINT, timeout, project,
-                                 signatures=signature_list,
-                                 interval_seconds=time_interval)
+        results = self._get_json(self.PERFORMANCE_DATA_ENDPOINT, None, project,
+                                 signatures=signature_list, **params)
         if len(results) != len(signature_list):
             raise TreeherderClientError(
                 "Expected {0} results for call to '{1}', got '{2}'".format(
-                    len(signature_list),
-                    self.PERFORMANCE_DATA_ENDPOINT, len(results)), [])
-        result_map = {}
-        for dict in results:
-            result_map[dict['series_signature']] = dict['blob']
+                    len(signature_list), self.PERFORMANCE_DATA_ENDPOINT,
+                    len(results)), [])
 
-        return [PerformanceSeries(result_map[signature]) for signature in
+        return [PerformanceSeries(results[signature]) for signature in
                 signature_list]
 
-    def get_performance_series(self, project, signature,
-                               time_interval=PerformanceTimeInterval.WEEK,
-                               timeout=None):
+    def get_performance_series(self, project, signature, **params):
         '''
         Gets the performance series corresponding to a particular signature
         '''
-        return self.get_performance_series_list(
-            project, [signature], time_interval=time_interval,
-            timeout=timeout)[0]
+        return self.get_performance_series_list(project, [signature],
+                                                **params)[0]

@@ -120,15 +120,7 @@ class ArtifactsModel(TreeherderModelBase):
                 del ref_data['signature']
 
             # adapt and load data into placeholder structures
-            tda.adapt_and_load(ref_data, job_data, perf_data)
-
-        self.execute(
-            proc='jobs.inserts.set_series_signature',
-            debug_show=self.DEBUG,
-            placeholders=tda.signature_property_placeholders,
-            executemany=True)
-
-        tda.submit_tasks(self.project)
+            tda.adapt_and_load(self.project, ref_data, job_data, perf_data)
 
     def load_job_artifacts(self, artifact_data, job_id_lookup):
         """

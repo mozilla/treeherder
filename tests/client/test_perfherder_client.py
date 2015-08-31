@@ -36,25 +36,6 @@ class PerfherderClientTest(unittest.TestCase):
         self.assertEqual(sigs.get_property_values('cheezburgers'), set([1, 2]))
 
     @patch("treeherder.client.client.requests.get")
-    def test_get_performance_signature_properties(self, mock_get):
-        mock_get.return_value = self._get_mock_response(
-            [{'cheezburgers': 1, 'hamburgers': 2}])
-        pc = PerfherderClient()
-        propdict = pc.get_performance_signature_properties('mozilla-central',
-                                                           'signature1')
-        self.assertEqual({'cheezburgers': 1, 'hamburgers': 2},
-                         propdict)
-
-    @patch("treeherder.client.client.requests.get")
-    def test_get_performance_signature_properties_no_results(self, mock_get):
-        mock_get.return_value = self._get_mock_response(
-            [])
-        pc = PerfherderClient()
-        self.assertRaises(TreeherderClientError,
-                          pc.get_performance_signature_properties,
-                          'mozilla-central', 'signature1')
-
-    @patch("treeherder.client.client.requests.get")
     def test_get_performance_series_list(self, mock_get):
 
         mock_get.return_value = self._get_mock_response(
