@@ -697,7 +697,7 @@ buildernames = [
       'platform': {'arch': 'x86_64',
                    'os': 'linux',
                    'os_platform': 'linux64',
-                   'vm': False}}),               
+                   'vm': False}}),
     ('Linux x86-64 mozilla-inbound debug static analysis build',
      {'build_type': 'debug',
       'job_type': 'build',
