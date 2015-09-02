@@ -19,21 +19,21 @@
         </span>
       </td>
       <td>
-        <ph-average value="{{compareResult.originalGeoMean}}"
+        <ph-average value="{{compareResult.originalValue}}"
                     stddev="{{compareResult.originalStddev}}"
                     stddevpct="{{compareResult.originalStddevPct}}"
                     replicates="compareResult.originalRuns"></ph-average>
       </td>
       <td>
-        <span ng-class="getCompareClasses(compareResult)" ng-if="compareResult.originalGeoMean < compareResult.newGeoMean">
+        <span ng-class="getCompareClasses(compareResult)" ng-if="compareResult.originalValue < compareResult.newValue">
           &lt;
         </span>
-        <span ng-class="getCompareClasses(compareResult)" ng-if="compareResult.originalGeoMean > compareResult.newGeoMean">
+        <span ng-class="getCompareClasses(compareResult)" ng-if="compareResult.originalValue > compareResult.newValue">
           &gt;
         </span>
       </td>
       <td>
-        <ph-average value="{{compareResult.newGeoMean}}"
+        <ph-average value="{{compareResult.newValue}}"
                     stddev="{{compareResult.newStddev}}"
                     stddevpct="{{compareResult.newStddevPct}}"
                     replicates="compareResult.newRuns"></ph-average>
