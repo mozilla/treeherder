@@ -117,6 +117,7 @@ treeherder.value("thOptionOrder", {
     "tsan": 3,
     "debug": 4,
     "cc": 5,
+    "addon": 6,
 });
 
 treeherder.value("thFailureResults", ["testfailed", "busted", "exception"]);
