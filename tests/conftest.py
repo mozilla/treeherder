@@ -12,7 +12,7 @@ from webtest.app import TestApp
 
 from tests.sampledata import SampleData
 from treeherder.etl.oauth_utils import OAuthCredentials
-from treeherder.webapp.wsgi import application
+from treeherder.config.wsgi import application
 
 
 def pytest_addoption(parser):
@@ -31,7 +31,7 @@ def pytest_sessionstart(session):
 
     """
     sys.path.append(dirname(dirname(__file__)))
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "treeherder.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "treeherder.config.settings")
     from django.conf import settings
     from django.test.runner import DiscoverRunner
 

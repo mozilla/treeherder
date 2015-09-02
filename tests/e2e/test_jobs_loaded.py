@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
 from webtest import TestApp
 
-from treeherder.webapp.wsgi import application
+from treeherder.config.wsgi import application
 
 
 def test_pending_job_available(jm, initial_data, pending_jobs_stored):

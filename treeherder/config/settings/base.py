@@ -1,4 +1,3 @@
-# Django settings for webapp project.
 import os
 from datetime import timedelta
 
@@ -42,8 +41,8 @@ ADMINS = []  # TBD
 MANAGERS = ADMINS
 
 SITE_ID = 1
-ROOT_URLCONF = "treeherder.webapp.urls"
-WSGI_APPLICATION = 'treeherder.webapp.wsgi.application'
+ROOT_URLCONF = "treeherder.config.urls"
+WSGI_APPLICATION = 'treeherder.config.wsgi.application'
 
 TIME_ZONE = "America/Los_Angeles"
 LANGUAGE_CODE = "en-us"
@@ -78,7 +77,7 @@ TEMPLATE_LOADERS = [
     "django.template.loaders.eggs.Loader",
 ]
 TEMPLATE_DIRS = [
-    path("webapp", "templates")
+    path("templates")
 ]
 
 TEMPLATE_CONTEXT_PROCESSORS = (

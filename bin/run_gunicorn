@@ -31,7 +31,7 @@ NUM_WORKERS=5
 exec $NEWRELIC_ADMIN gunicorn -w $NUM_WORKERS \
     --max-requests=150 \
     --access-logfile=$ACCESS_LOGFILE \
-    --error-logfile=$ERROR_LOGFILE treeherder.webapp.wsgi:application \
+    --error-logfile=$ERROR_LOGFILE treeherder.config.wsgi:application \
     --keep-alive=3 \
     --log-level error \
     --timeout=120
