@@ -414,6 +414,10 @@ BUILD_TYPE_BUILDERNAME = [
     {
         'type': 'debug',
         'regex': re.compile(WORD_BOUNDARY_RE + r'(?:debug|leak test)', re.IGNORECASE),
+    },
+    {
+        'type': 'addon',
+        'regex': re.compile(WORD_BOUNDARY_RE + r'add-on-devel', re.IGNORECASE),
     }
     # defaults to "opt" if not found
 ]
