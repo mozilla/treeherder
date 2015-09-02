@@ -32,12 +32,6 @@
     <div id="data-display">
       <select ng-model="myTimerange" ng-options="timerange.text for timerange in timeranges track by timerange.value" ng-change="timeRangeChanged()" ng-disabled="seriesList.length == 0">
       </select>
-      <select ng-model="myMeasure" ng-change="myMeasureChanged()" ng-disabled="seriesList.length == 0">
-        <option value="mean">Mean</option>
-        <option value="median">Median</option>
-        <option value="min">Minimum</option>
-        <option value="max">Maximum</option>
-      </select>
       <hr/>
       <div id="overview-plot"></div>
       <div id="graph"></div>
@@ -60,8 +54,7 @@
       <div>
         <p id="tt-series"><span ng-bind="tooltipContent.test"/>
           (<span ng-bind="tooltipContent.project.name"/>)</p>
-        <p id="tt-series2" class="small"><span ng-bind="tooltipContent.platform"/>
-          (<span ng-bind="tooltipContent.machine"/>)</p>
+        <p id="tt-series2" class="small"><span ng-bind="tooltipContent.platform"/></p>
       </div>
       <div>
         <p id="tt-v" ng-bind="tooltipContent.value"></p>
