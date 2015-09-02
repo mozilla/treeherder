@@ -63,16 +63,14 @@ class TalosDataAdapterTest(unittest.TestCase):
                 if talos_datum.get('summary'):
                     # if we have a summary, ensure the subtest summary values made
                     # it in
-                    for measure in ['min', 'max', 'std', 'mean', 'median']:
-                        self.assertEqual(
-                            round(talos_datum['summary']['subtests'][testname][measure], 2),
-                            perfdata[measure])
+                    self.assertEqual(
+                        round(talos_datum['summary']['subtests'][testname]['filtered'], 2),
+                        perfdata['value'])
                 else:
                     # this is an old style talos blob without a summary. these are going
                     # away, so I'm not going to bother testing the correctness. however
                     # let's at least verify that some values are being generated here
-                    for measure in ['min', 'max', 'std', 'mean', 'median']:
-                        self.assertTrue(perfdata[measure])
+                    self.assertTrue(perfdata['value'])
 
                 # filter out this signature from data to process
                 signature_placeholders = filter(
@@ -86,9 +84,8 @@ class TalosDataAdapterTest(unittest.TestCase):
                 self.assertEqual(len(signature_placeholder), 1)
                 signature_hash = signature_placeholder[0][0]
                 perfdata = tda.signatures[signature_hash][0]
-                for measure in ['max', 'mean']:
-                    self.assertEqual(round(float(results[measure]), 2),
-                                     perfdata[measure])
+                self.assertEqual(round(float(results['mean']), 2),
+                                 perfdata['value'])
                 # filter out this signature from data to process
                 signature_placeholders = filter(
                     lambda p: p[0] != signature_hash, signature_placeholders)
@@ -98,9 +95,9 @@ class TalosDataAdapterTest(unittest.TestCase):
             perfdata = tda.signatures[signature_placeholders[0][0]][0]
             if talos_datum.get('summary'):
                 self.assertEqual(round(talos_datum['summary']['suite'], 2),
-                                 perfdata['geomean'])
+                                 perfdata['value'])
             else:
                 # old style talos blob without summary. again, going away,
                 # but let's at least test that we have the 'geomean' value
                 # generated
-                self.assertTrue(perfdata['geomean'])
+                self.assertTrue(perfdata['value'])
