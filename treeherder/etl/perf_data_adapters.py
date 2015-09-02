@@ -50,7 +50,7 @@ class PerformanceDataAdapter(object):
 
     @staticmethod
     def _extract_summary_data(suite_data, summary):
-        suite_data["geomean"] = summary["suite"]
+        suite_data["value"] = summary["suite"]
         return suite_data
 
     @staticmethod
@@ -69,7 +69,7 @@ class PerformanceDataAdapter(object):
             "job_id": job_id,
             "result_set_id": result_set_id,
             "push_timestamp": push_timestamp,
-            "geomean": PerformanceDataAdapter._round(geomean)
+            "value": PerformanceDataAdapter._round(geomean)
         }
 
     @staticmethod
@@ -77,16 +77,10 @@ class PerformanceDataAdapter(object):
         if not isinstance(summary, dict):
             return series_data
 
-        for measure in ["min", "max", "std", "median", "mean"]:
-            series_data[measure] = PerformanceDataAdapter._round(
-                summary[measure])
-
-        # some subtests (e.g. Dromaeo) have a custom "value" property which is
-        # used to weigh the values of the replicates differently (dropping
-        # some, etc.). we should use it where available
-        if summary.get("value"):
-            series_data["value"] = PerformanceDataAdapter._round(
-                summary["value"])
+        # "filtered" currently means the fully calculated subtest
+        # value
+        series_data["value"] = PerformanceDataAdapter._round(
+            summary["filtered"])
 
         return series_data
 
@@ -101,8 +95,7 @@ class PerformanceDataAdapter(object):
             "job_id": job_id,
             "result_set_id": result_set_id,
             "push_timestamp": push_timestamp,
-            "total_replicates": r_len,
-            "mean": 0
+            "value": 0
         }
 
         if r_len > 0:
@@ -110,20 +103,14 @@ class PerformanceDataAdapter(object):
                 return float(sum(r)) / r_len
 
             mean = float(sum(r))/r_len
-            series_data["mean"] = PerformanceDataAdapter._round(mean)
+            series_data["value"] = PerformanceDataAdapter._round(mean)
 
             if r_len > 1:
-                variance = map(lambda x: (x - mean)**2, replicates)
-                series_data["min"] = PerformanceDataAdapter._round(min(r))
-                series_data["max"] = PerformanceDataAdapter._round(max(r))
-                series_data["std"] = PerformanceDataAdapter._round(
-                    math.sqrt(avg(variance)))
-
                 if len(r) % 2 == 1:
-                    series_data["median"] = PerformanceDataAdapter._round(
+                    series_data["value"] = PerformanceDataAdapter._round(
                         r[int(math.floor(len(r)/2))])
                 else:
-                    series_data["median"] = PerformanceDataAdapter._round(
+                    series_data["value"] = PerformanceDataAdapter._round(
                         avg([r[(len(r)/2) - 1], r[len(r)/2]]))
 
         return series_data
@@ -254,23 +241,21 @@ class TalosDataAdapter(PerformanceDataAdapter):
                     series_signature = self.get_series_signature(
                         signature_properties)
 
-                    series_data = {
-                        "job_id": job_id,
-                        "result_set_id": result_set_id,
-                        "push_timestamp": push_timestamp,
-                    }
-                    for stat in ['min', 'max', 'mean', 'median', 'std', 'total_replicates']:
-                        if stat in talos_datum["talos_counters"][_test]:
-                            # in case we have non int/float data, lets ignore it
-                            try:
-                                series_data[stat] = float(talos_datum["talos_counters"][_test][stat])
-                            except:
-                                logger.warning("Talos counters for job %s, "
-                                               "result_set %s, and counter named %s "
-                                               "have an unknown value: %s" %
-                                               (job_id, result_set_id, _test,
-                                                talos_datum["talos_counters"][_test]))
-                                continue
+                    try:
+                        series_data = {
+                            "job_id": job_id,
+                            "result_set_id": result_set_id,
+                            "push_timestamp": push_timestamp,
+                            "value": float(
+                                talos_datum["talos_counters"][_test]["mean"])
+                        }
+                    except:
+                        logger.warning("Talos counters for job %s, "
+                                       "result_set %s, and counter named %s "
+                                       "have an unexpected value: %s" %
+                                       (job_id, result_set_id, _test,
+                                        talos_datum["talos_counters"][_test]))
+                        continue
 
                     self._add_performance_placeholder(
                         series_signature, signature_properties, series_data)

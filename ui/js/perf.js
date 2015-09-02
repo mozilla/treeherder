@@ -281,7 +281,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                     // The result object has the following properties:
                                     // - .isEmpty: true if no data for either side.
                                     // If !isEmpty, for originalData/newData (if the data exists)
-                                    // - .[original|new]GeoMean    // Average of the values (where each is a geomean)
+                                    // - .[original|new]Value      // Average of the values
                                     // - .[original|new]Stddev     // stddev
                                     // - .[original|new]StddevPct  // stddev as percentage of the average
                                     // - .[original|new]Runs       // Display data: number of runs and their values
@@ -316,9 +316,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                                 stddev = math.stddev(values, average);
 
                                             return {
-                                                // Called 'geomeans' because each value is a geomean (of the subtests)
-                                                // but we then average those values plainly.
-                                                geomean: average,
+                                                average: average,
                                                 stddev: stddev,
                                                 stddevPct: math.percentOf(stddev, average),
 
@@ -350,7 +348,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
 
                                         if (hasOrig) {
                                             var orig = analyzeSet(originalData.values);
-                                            cmap.originalGeoMean = orig.geomean;
+                                            cmap.originalValue = orig.average;
                                             cmap.originalRuns = orig.runs;
                                             cmap.originalStddev = orig.stddev;
                                             cmap.originalStddevPct = orig.stddevPct;
@@ -359,7 +357,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                         }
                                         if (hasNew) {
                                             var newd = analyzeSet(newData.values);
-                                            cmap.newGeoMean = newd.geomean;
+                                            cmap.newValue = newd.average;
                                             cmap.newRuns = newd.runs;
                                             cmap.newStddev = newd.stddev;
                                             cmap.newStddevPct = newd.stddevPct;
@@ -372,12 +370,12 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
 
                                         // Compare the sides.
                                         // "Normal" tests are "lower is better". Reversed is.. reversed.
-                                        cmap.delta = (cmap.newGeoMean - cmap.originalGeoMean);
+                                        cmap.delta = (cmap.newValue - cmap.originalValue);
                                         var newIsBetter = cmap.delta < 0; // New value is lower than orig value
                                         if (isReverseTest(testName))
                                             newIsBetter = !newIsBetter;
 
-                                        cmap.deltaPercentage = math.percentOf(cmap.delta, cmap.originalGeoMean);
+                                        cmap.deltaPercentage = math.percentOf(cmap.delta, cmap.originalValue);
 
                                         // arbitrary scale from 0-20% multiplied by 5, capped
                                         // at 100 (so 20% regression == 100% bad)
@@ -385,7 +383,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                         cmap.newIsBetter = newIsBetter;
 
                                         var abs_t_value = Math.abs(math.t_test(originalData.values, newData.values, STDDEV_DEFAULT_FACTOR));
-                                        cmap.className = getClassName(newIsBetter, cmap.originalGeoMean, cmap.newGeoMean, abs_t_value);
+                                        cmap.className = getClassName(newIsBetter, cmap.originalValue, cmap.newValue, abs_t_value);
                                         cmap.confidence = abs_t_value;
                                         cmap.confidenceText = abs_t_value < T_VALUE_CARE_MIN ? "low" :
                                             abs_t_value < T_VALUE_CONFIDENT ? "med" :
@@ -457,12 +455,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                                             // The values are later processed at getCounterMap as the data arguments.
                                                             var values = [];
                                                             _.where(data.blob, { result_set_id: resultSetId }).forEach(function(pdata) {
-                                                                //summary series have geomean, individual pages have mean
-                                                                if (pdata.geomean === undefined) {
-                                                                    values.push(pdata.mean);
-                                                                } else {
-                                                                    values.push(pdata.geomean);
-                                                                }
+                                                                values.push(pdata.value);
                                                             });
 
                                                             var seriesData = _.find(seriesChunk, {'signature': data.series_signature});
