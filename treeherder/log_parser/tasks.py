@@ -59,7 +59,7 @@ def store_error_summary(project, job_log_url, job_guid):
         logger.info('Running store_error_summary')
         call_command('store_error_summary', job_log_url, job_guid, project)
         celery_app.send_task('autostar',
-                             [detail['url'], job_guid],
+                             [project, job_guid],
                              routing_key='autostar')
     except Exception, e:
         store_error_summary.retry(exc=e, countdown=(1 + store_error_summary.request.retries) * 60)

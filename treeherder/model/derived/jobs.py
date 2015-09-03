@@ -2261,6 +2261,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             debug_show=self.DEBUG)
         return job_list
 
+
 class JobDataError(ValueError):
     pass
 
