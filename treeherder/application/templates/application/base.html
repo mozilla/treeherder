@@ -1,0 +1,27 @@
+{% load browserid %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Treeherder Application management</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        {% browserid_css %}
+    </head>
+    <body>
+        {% browserid_info %}
+        <div class="container-fluid">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        {% block header %}Treeherder Application management{% endblock %}
+                    </h3>
+                </div>
+                <div class="panel-body">
+                {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

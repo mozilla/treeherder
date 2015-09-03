@@ -1,0 +1,21 @@
+{% extends "application/base.html" %}
+
+{% block content %}
+    <h2>Application detail</h2>
+    <dl class="dl-horizontal">
+        <dt>App ID</dt><dd>{{ object.app_id}}</dd>
+        <dt>Secret</dt><dd><code>{{ object.secret}}</code></dd>
+        <dt>Authorization</dt>
+        <dd>
+            {% if object.authorized %}
+                <span class="label label-success">Authorized</span>
+            {% else %}
+                <span class="label label-danger">Not Authorized</span>
+            {% endif %}
+        </dd>
+        <dt>Description</dt><dd>{{ object.description}}</dd>
+        <dt>Created on</dt><dd>{{ object.created}}</dd>
+    </dl>
+    <a class="btn btn-sm btn-default" href="{% url 'application-list' %}">Back</a>
+    <a class="btn btn-sm btn-danger" href="{% url 'application-delete' application.id %}">Delete</a>
+{% endblock %}

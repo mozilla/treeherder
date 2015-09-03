@@ -1,0 +1,44 @@
+{% extends "application/base.html" %}
+
+{% block content %}
+    <h2>Application list</h2>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>
+                    App ID
+                </th>
+                <th>
+                    Authorized
+                </th>
+                <th>
+                    Created on
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for application in object_list %}
+            <tr>
+                <td>
+                    <a href="{% url 'application-detail' application.id %}">
+                        {{ application.app_id }}
+                    </a>
+                </td>
+                <td>
+                    {% if application.authorized %}
+                        <span class="label label-success">Authorized</span>
+                    {% else %}
+                        <span class="label label-danger">Not Authorized</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ application.created }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <a class="btn btn-success btn-default" href="{% url 'application-create' %}" role="button">
+        Add new application
+    </a>
+{% endblock %}

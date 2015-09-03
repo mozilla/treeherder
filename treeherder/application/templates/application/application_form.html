@@ -1,0 +1,24 @@
+{% extends "application/base.html" %}
+
+{% block content %}
+    <h2>Application detail</h2>
+    <form class="form" action="{% url 'application-create' %}" method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            {{ form.app_id.errors }}
+            {{ form.app_id.label_tag }}
+            {{ form.app_id }}
+        </div>
+
+        <div class="form-group">
+            {{ form.description.errors }}
+            {{ form.description.label_tag }}
+            {{ form.description }}
+        </div>
+
+        <a class="btn btn-sm btn-default" href="{% url 'application-list' %}">Back</a>
+        <input class="btn btn-sm btn-success" type="submit" value="Create" />
+    </form>
+
+{% endblock %}
