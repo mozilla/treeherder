@@ -178,17 +178,20 @@ treeherder.directive('thCloneJobs', [
          * jobs.  Collapsed shows counts and failed jobs.
          */
         var clickGroupCb = function(el) {
-            var groupMap =  ThResultSetStore.getGroupMap($rootScope.repoName);
-            var gi = getGroupInfo(el, groupMap);
-            if (gi) {
-                if (isGroupExpanded(gi.jgObj)) {
-                    gi.jgObj.groupState = "collapsed";
-                    addGroupJobsAndCounts(gi.jgObj, gi.platformGroupEl);
-                } else {
-                    gi.grpCountList.empty();
-                    gi.jgObj.groupState = "expanded";
-                    gi.grpJobList.empty();
-                    addJobBtnEls(gi.jgObj, gi.grpJobList);
+            var clickedEl = $(el);
+            if (clickedEl.hasClass('group-symbol') || clickedEl.hasClass('job-group-count')) {
+                var groupMap =  ThResultSetStore.getGroupMap($rootScope.repoName);
+                var gi = getGroupInfo(el, groupMap);
+                if (gi) {
+                    if (isGroupExpanded(gi.jgObj)) {
+                        gi.jgObj.groupState = "collapsed";
+                        addGroupJobsAndCounts(gi.jgObj, gi.platformGroupEl);
+                    } else {
+                        gi.grpCountList.empty();
+                        gi.jgObj.groupState = "expanded";
+                        gi.grpJobList.empty();
+                        addJobBtnEls(gi.jgObj, gi.grpJobList);
+                    }
                 }
             }
         };
