@@ -9,6 +9,9 @@ from treeherder.webapp.api import serializers as th_serializers
 from treeherder.webapp.api.permissions import (IsOwnerOrReadOnly,
                                                IsStaffOrReadOnly)
 
+from treeherder.webapp.api.projects import project_info
+
+import simplejson as json
 
 #####################
 # Refdata ViewSets
@@ -45,6 +48,17 @@ class RepositoryViewSet(CacheResponseAndETAGMixin,
 
     def list_cache_key_func(self, **kwargs):
         return models.REPOSITORY_LIST_CACHE_KEY
+
+    """
+    Overrides the retrieve method to get the extra information from the Jobs model
+    """
+    def retrieve(self, request, *args, **kwargs):
+        request = th_serializers.RepositorySerializer(self.queryset.get(pk=kwargs['pk']))
+        new_request = request.data.copy()
+        new_dict = json.loads(project_info(self.queryset, request.data['name']).content)
+        new_request.update(new_dict)
+
+        return Response(new_request)
 
 
 class MachinePlatformViewSet(viewsets.ReadOnlyModelViewSet):
