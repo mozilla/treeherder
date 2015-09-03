@@ -67,6 +67,10 @@ body {
     width: 3em;
 }
 
+.lv-line-text {
+    white-space: pre;
+}
+
 .lv-error-line {
     background-color: white;
     color: #333333;
