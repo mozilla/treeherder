@@ -1,0 +1,29 @@
+{% load browserid %}
+<html>
+  <head>
+    {% browserid_css %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  </head>
+  <body>
+    {% browserid_info %}
+    <div class="container">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Treeherder Login</h3>
+        </div>
+        <div class="panel-body">
+          <p class="text-center">
+            {% if user.is_authenticated %}
+                Current user: {{ user.email }}
+                {% browserid_logout text='Logout' %}
+            {% else %}
+                {% browserid_login text='Login with email' color='dark' next=next %}
+            {% endif %}
+          </p>
+        </div>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+    {% browserid_js %}
+  </body>
+</html>
