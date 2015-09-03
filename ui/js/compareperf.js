@@ -113,7 +113,8 @@ perf.controller('CompareResultsCtrl', [
                 $scope.originalProject.name,
                 timeRange,
                 optionCollectionMap,
-                {e10s: $scope.e10s}).then(
+                {e10s: $scope.e10s,
+                 excludedPlatforms: $scope.excludedPlatforms }).then(
                     function(originalSeriesData) {
                         $scope.platformList = originalSeriesData.platformList;
                         $scope.testList = originalSeriesData.testList;
@@ -239,6 +240,8 @@ perf.controller('CompareResultsCtrl', [
             }
 
             $scope.e10s = Boolean($stateParams.e10s);
+            $scope.excludedPlatforms = Boolean($stateParams.showExcludedPlatforms) ?
+                [] : [ 'osx-10-10' ];
             $scope.hideMinorChanges = Boolean($stateParams.hideMinorChanges);
             $scope.originalProject = ThRepositoryModel.getRepo(
                 $stateParams.originalProject);

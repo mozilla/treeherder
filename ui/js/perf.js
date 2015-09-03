@@ -180,6 +180,8 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
                         // We don't generate number for tp5n, this is xperf and we collect counters
                         if (_.contains(seriesSummary.name, "tp5n"))
                             return;
+                        if (_.contains(userOptions.excludedPlatforms, seriesSummary.platform))
+                            return;
 
                         seriesList.push(seriesSummary);
 
