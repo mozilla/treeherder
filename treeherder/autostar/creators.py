@@ -3,6 +3,7 @@ from treeherder.model import models
 
 logger = logging.getLogger(__name__)
 
+
 class Creator(object):
     name = None
 

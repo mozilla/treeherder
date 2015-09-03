@@ -1,17 +1,16 @@
 import logging
-from collections import defaultdict
 
 from django.core.management.base import BaseCommand, CommandError
 
 from treeherder.autostar import creators
 from treeherder.model.derived import JobsModel
-from treeherder.model.models import FailureLine, Repository, FailureMatch, Matcher
-
+from treeherder.model.models import FailureLine, Matcher
 from autostar import match_errors
 
 logger = logging.getLogger(__name__)
 
 creators.register()
+
 
 class Command(BaseCommand):
     args = '<job_guid>, <repository>'
@@ -25,6 +24,7 @@ class Command(BaseCommand):
         jobs = JobsModel(repository).get_job_repeats(job_guid)
 
         add_new_intermittents(repository, jobs)
+
 
 def add_new_intermittents(repository, jobs):
     # The approach here is currently to look for new intermittents to add, one at a time
@@ -77,4 +77,3 @@ def add_new_intermittents(repository, jobs):
                     continue
                 logger.debug("Trying rematch on job %s" % (rematch_job["job_guid"]))
                 match_errors(repository, rematch_job["job_guid"])
-
