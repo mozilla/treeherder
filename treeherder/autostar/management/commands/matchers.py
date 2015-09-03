@@ -2,7 +2,6 @@ from django.core.management.base import BaseCommand, make_option
 
 from treeherder.model.models import Matcher
 
-from autostar import match_errors
 
 class Command(BaseCommand):
     help = 'Add new matchers or list existing ones'
@@ -17,7 +16,6 @@ class Command(BaseCommand):
                     default=None,
                     help="Remove matcher with the specified name")
     )
-
 
     def handle(self, *args, **options):
         if not (options["add"] or options["remove"]):

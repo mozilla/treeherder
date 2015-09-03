@@ -17,7 +17,7 @@ def autostar(project, job_guid):
         logger.info('Running autostar')
         call_command('autostar', job_guid, project)
         celery_app.send_task('detect-intermittents',
-                             [detail['url'], job_guid],
+                             [project, job_guid],
                              routing_key='autostar')
     except Exception, e:
         autostar.retry(exc=e, countdown=(1 + autostar.request.retries) * 60)
@@ -27,7 +27,8 @@ def autostar(project, job_guid):
 def detect_intermittents(project, job_guid):
     try:
         logger.info('Running detect intermittents')
-        if project != "try":
+        # TODO: Make this list configurable
+        if project == "mozilla-inbound":
             call_command('detect_intermittents', job_guid, project)
     except Exception, e:
         detect_intermittents.retry(exc=e, countdown=(1 + detect_intermittents.request.retries) * 60)

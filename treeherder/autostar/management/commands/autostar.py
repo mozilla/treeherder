@@ -3,7 +3,7 @@ import logging
 from django.core.management.base import BaseCommand, CommandError
 
 from treeherder.autostar import matchers
-from treeherder.model.models import FailureLine, Repository, Matcher
+from treeherder.model.models import FailureLine, Matcher
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +12,7 @@ AUTOSTAR_CUTOFF_RATIO = 0.8
 
 # Initialisation needed to associate matcher functions with the matcher objects
 matchers.register()
+
 
 class Command(BaseCommand):
     args = '<job_guid>, <repository>'
@@ -51,10 +52,10 @@ def match_errors(repository, job_guid):
             best_match.is_best = True
             best_match.save()
 
+
 def all_lines_matched(job_failures):
     if any(not failure_line.matches.all() or
            all(match.score < 1 for match in failure_line.matches.all())
            for failure_line in job_failures):
         return False
     return True
-

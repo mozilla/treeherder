@@ -546,7 +546,6 @@ class FailureLineManager(models.Manager):
         return failures_by_job
 
 
-
 class FailureLine(models.Model):
     STATUS_LIST = ('PASS', 'FAIL', 'OK', 'ERROR', 'TIMEOUT', 'CRASH', 'ASSERT', 'SKIP', 'NOTRUN')
     # Truncated is a special action that we use to indicate that the list of failure lines
@@ -613,6 +612,7 @@ class FailureLine(models.Model):
             is_best=True)
         new_link.save()
 
+
 class ClassifiedFailure(models.Model):
     id = BigAutoField(primary_key=True)
     failure_lines = models.ManyToManyField(FailureLine, through='FailureMatch',
@@ -654,6 +654,7 @@ class MatcherManager(models.Manager):
         for matcher in Matcher._creator_funcs.values():
             yield matcher
 
+
 class Matcher(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
@@ -666,7 +667,7 @@ class Matcher(models.Model):
         db_table = 'matcher'
 
     def match(self, *args, **kwargs):
-        if self.name in _matcher_funcs:
+        if self.name in self._matcher_funcs:
             return self._matcher_funcs(*args, **kwargs)
         raise ValueError
 

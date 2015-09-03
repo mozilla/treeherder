@@ -1,9 +1,9 @@
 import logging
 from treeherder.model import models
-
-from treeherder.model.models import Repository, FailureMatch, Matcher
+from treeherder.model.models import FailureMatch
 
 logger = logging.getLogger(__name__)
+
 
 class Matcher(object):
     def __init__(self, db_object):
@@ -25,7 +25,7 @@ class PreciseTestMatcher(Matcher):
                     failure_line__expected=failure.expected,
                     failure_line__message=failure.message).exclude(
                         failure_line__id=failure.id).order_by("-score",
-                                                          "-classified_failure__modified")
+                                                              "-classified_failure__modified")
 
                 if matching_failures:
                     logger.debug("Found %i matching rows" % len(matching_failures))
@@ -47,7 +47,7 @@ class PreciseLogMatcher(Matcher):
                     failure_line__level=failure.level,
                     failure_line__message=failure.message).exclude(
                         failure_line__id=failure.id).order_by("-score",
-                                                          "-classified_failure__modified")
+                                                              "-classified_failure__modified")
 
                 if matching_failures:
                     logger.debug("Found %i matching rows" % len(matching_failures))
