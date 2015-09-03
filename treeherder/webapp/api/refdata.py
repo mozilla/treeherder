@@ -4,11 +4,10 @@ from rest_framework.response import Response
 from rest_framework_extensions.mixins import CacheResponseAndETAGMixin
 
 from treeherder.model import models
-from treeherder.model.derived import RefDataManager
+from treeherder.model.derived import RefDataManager, JobsModel
 from treeherder.webapp.api import serializers as th_serializers
 from treeherder.webapp.api.permissions import (IsOwnerOrReadOnly,
                                                IsStaffOrReadOnly)
-
 
 #####################
 # Refdata ViewSets
@@ -45,6 +44,17 @@ class RepositoryViewSet(CacheResponseAndETAGMixin,
 
     def list_cache_key_func(self, **kwargs):
         return models.REPOSITORY_LIST_CACHE_KEY
+
+    """
+    Overrides the retrieve method to get the extra information from the Jobs model
+    """
+    def retrieve(self, request, *args, **kwargs):
+        request = th_serializers.RepositorySerializer(self.queryset.get(pk=kwargs['pk']))
+        new_request = request.data.copy()
+        with JobsModel(request.data['name']) as jobs_model:
+            new_request.update({'max_job_id': jobs_model.get_max_job_id()})
+
+        return Response(new_request)
 
 
 class MachinePlatformViewSet(viewsets.ReadOnlyModelViewSet):
