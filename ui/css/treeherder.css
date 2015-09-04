@@ -345,6 +345,11 @@ th-watched-repo {
     border-bottom: none;
 }
 
+/* Preserve bootstrap unvisited link color */
+.exclusion-tabs li a:visited {
+    color: #337ab7;
+}
+
 .sheriff-panel-delete-icon {
   padding-right: 25px;
   font-size: 12px;
