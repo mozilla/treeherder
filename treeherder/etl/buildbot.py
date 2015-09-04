@@ -482,6 +482,8 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'mochitest'), "name": "Mochitest"},
     {"regex": re.compile(r'webapprt-chrome$'), "name": "Webapprt Chrome"},
     {"regex": re.compile(r'webapprt-content$'), "name": "Webapprt Content"},
+    {"regex": re.compile(r'web-platform-tests-reftests-e10s$'), "name": "W3C Web Platform Reftests e10s"},
+    {"regex": re.compile(r'web-platform-tests-e10s'), "name": "W3C Web Platform Tests e10s"},
     {"regex": re.compile(r'web-platform-tests-reftests$'), "name": "W3C Web Platform Reftests"},
     {"regex": re.compile(r'web-platform-tests'), "name": "W3C Web Platform Tests"},
     {"regex": re.compile(r'robocop'), "name": "Robocop"},
@@ -718,6 +720,8 @@ GROUP_NAMES = {
     "SpiderMonkey Compacting GC Shell Build": "SpiderMonkey",
     "SpiderMonkey Hazard Analysis Build": "SpiderMonkey",
     "SpiderMonkey Root Analysis Build": "SpiderMonkey",
+    "W3C Web Platform Tests e10s": "W3C Web Platform Tests e10s",
+    "W3C Web Platform Reftests e10s": "W3C Web Platform Tests e10s",
     "W3C Web Platform Tests": "W3C Web Platform Tests",
     "W3C Web Platform Reftests": "W3C Web Platform Tests",
     "Android Instrumentation Background": "Android Instrumentation Tests",
@@ -898,6 +902,8 @@ SYMBOLS = {
     "Reftest OMTC": "Ro",
     "Reftest Sanity": "Rs",
     "Reftest Unaccelerated": "Ru",
+    "W3C Web Platform Tests e10s": "W-e10s",
+    "W3C Web Platform Reftests e10s": "Wr-e10s",
     "W3C Web Platform Tests": "W",
     "W3C Web Platform Reftests": "Wr",
     "Android Instrumentation Tests": "I",
@@ -1053,7 +1059,7 @@ def get_symbol(name, bn):
 
     # For multi-part Mochitest, Mochitest-e10s, Mochitest OOP & W3C Web Platform
     # jobs, display only the job part number and not the letters.
-    if n and s in ["M", "M-e10s", "M-csb", "M-oop", "Gij", "Gij-oop", "W"]:
+    if n and s in ["M", "M-e10s", "M-csb", "M-oop", "Gij", "Gij-oop", "W", "W-e10s"]:
         return n
 
     return "{0}{1}".format(s, n)
