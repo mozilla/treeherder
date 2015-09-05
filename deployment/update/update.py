@@ -39,6 +39,7 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
         # Remove gzipped UI assets in case the uncompressed original no longer exists.
         ctx.local('find dist/ -type f -name "*.gz" -delete')
         ctx.local('git status -s')
+        # Make the current Git revision accessible at <site-root>/revision.txt
         ctx.local('git rev-parse HEAD > dist/revision.txt')
 
 
