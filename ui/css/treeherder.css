@@ -31,13 +31,6 @@ input:focus::-moz-placeholder {
     height: 100%;
 }
 
-#global-navbar-container {
-    background-color: #273038;
-    margin-bottom: 0px;
-    flex: none;
-    -webkit-flex: none;
-}
-
 .pagination, .carousel, .panel-title a {
     cursor: pointer;
 }
@@ -72,18 +65,6 @@ input:focus::-moz-placeholder {
     color: rgba(145, 164, 221, 0.3);
 }
 
-.navbar {
-    min-height: 36px;
-    margin-bottom: 0px;
-}
-
-.navbar .dropdown-menu {
-    max-height: 600px;
-    overflow: auto;
-    margin-top: 10px;
-    padding-bottom: 8px;
-}
-
 /* Spacing for menus with adjacent checkboxes */
 .checkbox-dropdown-menu {
     padding-left: 8px;
@@ -94,164 +75,6 @@ input:focus::-moz-placeholder {
     width: 20px;
 }
 
-.navbar-right {
-    margin-right: 0px; /* override boostrap 3.3.5 behaviour -- doesn't work with the way we align our navbar */
-}
-
-#th-global-navbar-top {
-    padding-left: 0;
-    border-bottom: 1px solid black;
-}
-
-#th-logo {
-    padding-left: 14px;
-    border-left: 0;
-}
-
-th-watched-repo {
-    display: block;
-    float: left;
-}
-
-/* Override bootstrap for flush right navbar menus */
-.navbar-collapse {
-    padding-right: 0;
-}
-
-.nav-menu-btn {
-    margin-right: -4px;
-    padding-left: 14px;
-    padding-right: 14px;
-}
-
-.nav-help-btn {
-    margin-right: -4px;
-    padding-left: 12px;
-    padding-right: 8px;
-}
-
-.nav-help-icon {
-    font-size: 18px;
-    margin-right: 2px;
-}
-
-.nav-user-icon {
-    display: inline-block;
-    margin-right: 4px;
-    padding: 3px 4px;
-    vertical-align: text-bottom;
-    border-radius: 1px;
-    background: linear-gradient(#44adf3, #287cc2);
-}
-
-.nav-user-icon span:first-child {
-    margin: 0 auto;
-    font-size: 12px;
-    color: #fff;
-}
-
-.nav-login-btn {
-    padding-left: 22px;
-    padding-right: 27px;
-}
-
-.nav-persona-btn {
-    padding-left: 14px;
-    padding-right: 14px;
-}
-
-.watched-repo-main-btn {
-    border-right: 0;
-    padding-right: 5px;
-}
-
-.watched-repo-spacer {
-    padding-right: 7px;
-}
-
-.watched-repo-info-btn {
-    border-right: 0
-}
-
-.watched-repo-unwatch-btn {
-}
-
-.watched-repo-dropdown-item {
-    margin: 0px 10px;
-}
-.watched-repo-dropdown-item > a {
-    white-space: normal;
-}
-
-.watched-repo-navbar {
-    overflow: visible;
-}
-
-/* Unique navbar username styles */
-.th-username, th-username:hover {
-    padding-left: 18px;
-    cursor: default;
-    color: #777 !important;
-    border-color: #373d40;
-    border-radius: 0;
-    border-top: 0;
-    border-bottom: 0;
-    border-right: 0;
-}
-
-.th-context-navbar {
-    background-color: #354048;
-    overflow: visible;
-}
-
-.treeClosed {
-    color: rgb(161, 52, 53);
-}
-
-.treeOpen {
-    color: green;
-}
-
-.treeApproval {
-    color: #fb9910;
-}
-
-.treeUnavailable {
-    color: lightgray;
-}
-
-#quick-filter {
-    height:28px;
-    width: 150px;
-    display: inherit;
-    transition: width 0.2s;
-}
-
-#quick-filter-parent {
-    position: relative;
-}
-
-#quick-filter:focus,
-#quick-filter:valid {
-    width: 300px !important;
-    padding-right: 20px;
-}
-
-#quick-filter:valid + #quick-filter-clear-button {
-    display: inherit;
-}
-
-#quick-filter-clear-button {
-    color: #bababa;
-    font-size: 13px;
-    cursor: pointer;
-    position: absolute;
-    display: none;
-    top: 7px;
-    right: 5px;
-    height: 16px;
-}
-
 .th-global-content {
     flex: 1; /* Not using auto because it causes unnecessary reflows, see https://bugzilla.mozilla.org/show_bug.cgi?id=1162725 */
     -webkit-flex: auto;
@@ -259,12 +82,9 @@ th-watched-repo {
     overflow-y: auto;
 }
 
-.nav-panel-help-text {
-    color: #2b393f;
-    margin-bottom: 10px;
-}
-
-/* Options drop-downs*/
+/*
+ * General panels
+ */
 
 .th-top-nav-options-panel {
     background-color: white;
@@ -386,15 +206,6 @@ th-watched-repo {
 }
 .th-failures-box li a{
     color: #428bca;
-}
-
-.view-nav {
-    background-color: #353f47;
-}
-
-.view-nav a {
-    color: lightgray;
-
 }
 
 /*
@@ -603,11 +414,6 @@ th-watched-repo {
     padding-left: 20px;
     padding-right: 0;
     display: block;
-}
-
-.group-state-nav-icon {
-    width: 7px;
-    display: inline-block;
 }
 
 .job-group {
@@ -1299,21 +1105,6 @@ ul.failure-summary-list li .btn-xs {
  * CUSTOM BUTTONS
  */
 
-.btn-right-navbar {
-   font-size: 13px;
-}
-
-.btn-collapse-resultsets {
-   margin-top: -1px;
-   margin-bottom: -1px;
-   font-size: 14px;
-}
-
-.btn-jobs-revisions {
-   padding-left: 14px !important;
-   padding-right: 18px !important;
-}
-
 .btn-similar-jobs {
     background: #fff;
     cursor: default;
@@ -1378,104 +1169,6 @@ ul.failure-summary-list li .btn-xs {
     content: "*";
 }
 
-.btn-view-nav {
-  background-color: transparent;
-  border-color: #373d40;
-  color: lightgray;
-  border-radius: 0;
-  border-bottom: 0;
-  border-top: 0;
-  border-right: 0;
-}
-
-.btn-view-nav:hover,
-.btn-view-nav:focus,
-.btn-view-nav:active,
-.btn-view-nav.active {
-  background-color: #2c3133;
-  border-color: #1a1d20;
-  color: white;
-}
-.btn-view-nav.disabled:hover,
-.btn-view-nav.disabled:focus,
-.btn-view-nav.disabled:active,
-.btn-view-nav.disabled.active,
-.btn-view-nav[disabled]:hover,
-.btn-view-nav[disabled]:focus,
-.btn-view-nav[disabled]:active,
-.btn-view-nav[disabled].active,
-fieldset[disabled] .btn-view-nav:hover,
-fieldset[disabled] .btn-view-nav:focus,
-fieldset[disabled] .btn-view-nav:active,
-fieldset[disabled] .btn-view-nav.active {
-  color: #e0e0e0;
-  border-color: #e0e0e0;
-}
-
-.btn-view-nav-closed {
-  background-color: rgba(107, 4, 4, 0.53);
-  border-color: #22282d;
-  color: lightgray;
-  border-radius: 0;
-  border-bottom: 0;
-  border-top: 0;
-  border-left: 0;
-}
-.btn-view-nav-closed:hover,
-.btn-view-nav-closed:focus,
-.btn-view-nav-closed:active,
-.btn-view-nav-closed.active {
-  background-color: rgba(107, 4, 4, 0.53);
-  border-color: #1a1d20;
-  color: white;
-}
-.btn-view-nav-closed.disabled:hover,
-.btn-view-nav-closed.disabled:focus,
-.btn-view-nav-closed.disabled:active,
-.btn-view-nav-closed.disabled.active,
-.btn-view-nav-closed[disabled]:hover,
-.btn-view-nav-closed[disabled]:focus,
-.btn-view-nav-closed[disabled]:active,
-.btn-view-nav-closed[disabled].active,
-fieldset[disabled] .btn-view-nav-closed:hover,
-fieldset[disabled] .btn-view-nav-closed:focus,
-fieldset[disabled] .btn-view-nav-closed:active,
-fieldset[disabled] .btn-view-nav-closed.active {
-  color: #e0e0e0;
-  border-color: #e0e0e0;
-}
-
-.btn-unclassified-failures {
-  margin-top: 1px;
-  padding: 3px 10px;
-  background-color: rgba(78, 93, 21, 0.56);
-  border-color: #9fa01d;
-  color: lightgray;
-}
-.btn-unclassified-failures:hover,
-.btn-unclassified-failures:focus,
-.btn-unclassified-failures:active,
-.btn-unclassified-failures.active {
-  background-color: #25292b;
-  border-color: #cdce1d;
-  color: white;
-}
-.btn-unclassified-failures.disabled:hover,
-.btn-unclassified-failures.disabled:focus,
-.btn-unclassified-failures.disabled:active,
-.btn-unclassified-failures.disabled.active,
-.btn-unclassified-failures[disabled]:hover,
-.btn-unclassified-failures[disabled]:focus,
-.btn-unclassified-failures[disabled]:active,
-.btn-unclassified-failures[disabled].active,
-fieldset[disabled] .btn-unclassified-failures:hover,
-fieldset[disabled] .btn-unclassified-failures:focus,
-fieldset[disabled] .btn-unclassified-failures:active,
-fieldset[disabled] .btn-unclassified-failures.active {
-  color: #e0e0e0;
-  border-color: #e0e0e0;
-}
-
 /* Transformed job buttons for main job block */
 .btn-lg-xform {
     margin: -2px !important;
@@ -1484,7 +1177,6 @@ fieldset[disabled] .btn-unclassified-failures.active {
     font-size: 12px;
     transform: scale(1.7, 1.7);
 }
-
 
 .btn-orange {
   background-color: #eba870;
