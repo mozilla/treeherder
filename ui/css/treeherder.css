@@ -1710,23 +1710,6 @@ fieldset[disabled] .btn-repo.active {
     color: gray;
 }
 
-#userguide {
-    padding: 10px 10px 0px;
-    overflow: auto;
-}
-
-#userguide.dt, #userguide.dd {
-    text-align: center;
-}
-
-#userguide.panel {
-    padding: 5px;
-}
-
-.userguide-footer {
-    overflow: auto;
-}
-
 /* Used in Help but for general use */
 .kbd {
     display: inline-block;
