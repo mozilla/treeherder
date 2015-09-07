@@ -593,7 +593,7 @@ class FailureMatch(models.Model):
     failure_line = FlexibleForeignKey(FailureLine)
     classified_failure = FlexibleForeignKey(ClassifiedFailure)
     matcher = models.ForeignKey(Matcher)
-    score = models.PositiveSmallIntegerField(blank=True, null=True)
+    score = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     is_best = models.BooleanField(default=False)
 
     # TODO: add indexes once we know which queries will be typically executed
