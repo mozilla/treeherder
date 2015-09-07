@@ -1,7 +1,9 @@
 from cStringIO import StringIO
+from itertools import islice
 
 import requests
 from django.core.management.base import BaseCommand, CommandError
+from django.conf import settings
 from mozlog import reader
 
 from treeherder.model.derived import JobsModel
@@ -28,6 +30,9 @@ class Command(BaseCommand):
                 raise CommandError('Unknown repository %s' % args[2])
 
             log_iter = reader.read(log_content)
+            failure_lines_cutoff = getattr(settings, 'FAILURE_LINES_CUTOFF', None)
+            if failure_lines_cutoff:
+                log_iter = islice(log_iter, failure_lines_cutoff)
 
             with JobsModel(args[2]) as jobs_model:
                 job_id = jobs_model.get_job_ids_by_guid([args[1]])
