@@ -1,4 +1,21 @@
-.help-btn-sm tr > th > button {
+#userguide {
+    padding: 10px 10px 0px;
+    overflow: auto;
+}
+
+#userguide.dt, #userguide.dd {
+    text-align: center;
+}
+
+#userguide.panel {
+    padding: 5px;
+}
+
+/*
+ * Job notation table
+ */
+
+.ug-btn-sm tr > th > button {
     font-size: 13px;
     padding: 0px 2px;
     margin-top: 1px;
@@ -9,54 +26,66 @@
     background: #fff;
 }
 
-.help-btn-sm tr > th > button:focus {
+.ug-btn-sm tr > th > button:focus {
     outline: 0;
 }
 
-.help-btn-desc tr > td {
+.ug-btn-desc tr > td {
     vertical-align: bottom;
 }
 
-.help-btn {
+.ug-btn {
     margin: 2px;
     border: 2px solid;
 }
 
-.help-btn-comment {
+.ug-btn-comment {
     border: none;
     background-color: #fff;
 }
 
-.help-btn-orange {
+.ug-btn-orange {
     border-color: #dd6602;
 }
 
-.help-btn-purple {
+.ug-btn-purple {
     border-color: #6f0296;
 }
 
-.help-btn-red {
+.ug-btn-red {
     border-color: #a1020e;
 }
 
-.help-btn-yellow {
+.ug-btn-yellow {
     border-color: #fbd890;
 }
 
-.help-btn-bg {
+.ug-btn-bg {
     background-color: #fff;
 }
 
-#help-job-name {
+/*
+ * Copy values on hover
+ */
+
+#ug-job-name {
     color: #428bca;
 }
 
-#help-raw-log-icon {
+#ug-raw-log-icon {
     font-size: 14px;
     color: #666;
 }
 
-#help-logviewer-icon {
+#ug-logviewer-icon {
     vertical-align: text-bottom;
     width: 15px;
+}
+
+/*
+ * Footer
+ */
+
+.ug-footer {
+    overflow: auto;
 }
