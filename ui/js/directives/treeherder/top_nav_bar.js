@@ -22,32 +22,32 @@ treeherder.directive('thWatchedRepo', [
         var statusInfo = {
             "open": {
                 icon: "fa-circle-o",
-                color: "treeOpen",
+                color: "tree-open",
                 btnClass: "btn-view-nav"
             },
             "approval required": {
                 icon: "fa-lock",
-                color: "treeApproval",
+                color: "tree-approval",
                 btnClass: "btn-view-nav"
             },
             "closed": {
                 icon: "fa-times-circle",
-                color: "treeClosed",
+                color: "tree-closed",
                 btnClass: "btn-view-nav-closed"
             },
             "unsupported": {
                 icon: "fa-question",
-                color: "treeUnavailable",
+                color: "tree-unavailable",
                 btnClass: "btn-view-nav"
             },
             "not retrieved yet": {
                 icon: "fa-spinner",
-                color: "treeUnavailable",
+                color: "tree-unavailable",
                 btnClass: "btn-view-nav"
             },
             "error": {
                 icon: "fa-question",
-                color: "treeUnavailable",
+                color: "tree-unavailable",
                 btnClass: "btn-view-nav"
             }
         };

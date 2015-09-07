@@ -9,13 +9,19 @@ body {
     flex-flow: column;
 }
 
-/* Boostrap navbar overrides for logviewer */
 .navbar {
     flex: none;
     min-height: 41px; /* 40 for contained elements + lower bootstrap border */
     border-top: 0; /* Shut off the top border */
     border-radius: 0; /* Straight navbar */
     margin-bottom: 10px; /* Breathing space for run-data */
+}
+
+.navbar .dropdown-menu {
+    max-height: 600px;
+    overflow: auto;
+    margin-top: 10px;
+    padding-bottom: 8px;
 }
 
 .navbar-nav > li > a {
