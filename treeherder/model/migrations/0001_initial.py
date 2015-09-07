@@ -121,7 +121,7 @@ class Migration(migrations.Migration):
             name='FailureMatch',
             fields=[
                 ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
-                ('score', models.PositiveSmallIntegerField(null=True, blank=True)),
+                ('score', models.DecimalField(null=True, max_digits=3, decimal_places=2, blank=True)),
                 ('is_best', models.BooleanField(default=False)),
                 ('classified_failure', treeherder.model.fields.FlexibleForeignKey(to='model.ClassifiedFailure')),
                 ('failure_line', treeherder.model.fields.FlexibleForeignKey(to='model.FailureLine')),

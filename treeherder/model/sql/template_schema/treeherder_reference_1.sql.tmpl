@@ -759,7 +759,7 @@ DROP TABLE IF EXISTS `failure_match`;
 
 CREATE TABLE `failure_match` (
     `id` bigint AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    `score` smallint UNSIGNED NULL,
+    `score` numeric(3, 2) NULL,
     `is_best` bool NOT NULL,
     `failure_line_id` bigint NOT NULL,
     `classified_failure_id` bigint NOT NULL,
