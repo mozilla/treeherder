@@ -1094,15 +1094,16 @@ def get_symbols_and_platforms(buildername):
         'job_group_name': job_name_info.get('group_name', ''),
         'job_group_symbol': job_name_info.get('group_symbol', ''),
         'ref_data_name': buildername,
-        'state': 'possible',
-        'result': 'possible',
         'build_platform': platform_info.get('os_platform', ''),
         'build_os': platform_info.get('os', ''),
         'build_architecture': platform_info.get('arch', ''),
         'device_name': device_name,
+        'build_system_type': 'buildbot',
         'machine_platform_architecture': platform_info.get('arch', ''),
         'machine_platform_os': platform_info.get('os', ''),
-        'platform_option': extract_build_type(buildername),
+        'option_collection': {
+            extract_build_type(buildername): True
+        },
         'platform': platform_info.get('os_platform', ''),
         'job_coalesced_to_guid': None
     }

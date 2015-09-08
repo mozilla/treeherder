@@ -272,8 +272,8 @@ treeherder.factory('ThResultSetStore', [
             return key;
         };
 
-        var getPossibleJobs = function(repoName, resultSet){
-            var uri = ThJobModel.get_uri(repoName)+"list_possible";
+        var getRunnableJobs = function(repoName, resultSet) {
+            var uri = ThJobModel.get_runnable_uri(repoName);
 
             return ThJobModel.get_list_by_uri(uri).then(function(jobList) {
                 var id = resultSet.id;
@@ -282,8 +282,18 @@ treeherder.factory('ThResultSetStore', [
                     job.id = thAggregateIds.escape(job.result_set_id + job.ref_data_name);
                 });
 
+                if (jobList.length === 0) {
+                    thNotify.send("No new jobs available");
+                };
+
                 mapResultSetJobs(repoName, jobList);
             });
+        };
+
+        var deleteRunnableJobs = function(repoName, resultSet){
+            repositories[repoName].rsMap[resultSet.id].selected_runnable_jobs = [];
+            resultSet.isRunnableVisible = false;
+            $rootScope.$emit(thEvents.globalFilterChanged);
         };
 
         /******
@@ -800,26 +810,26 @@ treeherder.factory('ThResultSetStore', [
             return repositories[repoName].rsMap[resultsetId].rs_obj;
         };
 
-        var getSelectedPossibleJobs = function(repoName, resultsetId){
-            if (!repositories[repoName].rsMap[resultsetId].selected_possible_jobs)
-                repositories[repoName].rsMap[resultsetId].selected_possible_jobs = [];
-            return repositories[repoName].rsMap[resultsetId].selected_possible_jobs;
+        var getSelectedRunnableJobs = function(repoName, resultsetId){
+            if (!repositories[repoName].rsMap[resultsetId].selected_runnable_jobs)
+                repositories[repoName].rsMap[resultsetId].selected_runnable_jobs = [];
+            return repositories[repoName].rsMap[resultsetId].selected_runnable_jobs;
         };
 
-        var toggleSelectedPossibleJob = function(repoName, resultsetId, buildername){
-            var selectedPossibleJobs = getSelectedPossibleJobs(repoName, resultsetId);
-            var jobIndex = selectedPossibleJobs.indexOf(buildername);
+        var toggleSelectedRunnableJob = function(repoName, resultsetId, buildername){
+            var selectedRunnableJobs = getSelectedRunnableJobs(repoName, resultsetId);
+            var jobIndex = selectedRunnableJobs.indexOf(buildername);
 
             if (jobIndex === -1){
-                selectedPossibleJobs.push(buildername);
+                selectedRunnableJobs.push(buildername);
             } else {
-                selectedPossibleJobs.splice(jobIndex, 1);
+                selectedRunnableJobs.splice(jobIndex, 1);
             }
         };
 
-        var isPossibleJobSelected = function(repoName, resultsetId, buildername){
-            var selectedPossibleJobs = getSelectedPossibleJobs(repoName, resultsetId);
-            var jobIndex = selectedPossibleJobs.indexOf(buildername);
+        var isRunnableJobSelected = function(repoName, resultsetId, buildername){
+            var selectedRunnableJobs = getSelectedRunnableJobs(repoName, resultsetId);
+            var jobIndex = selectedRunnableJobs.indexOf(buildername);
             return jobIndex !== -1;
         };
 
@@ -1077,6 +1087,7 @@ treeherder.factory('ThResultSetStore', [
 
             addRepository: addRepository,
             aggregateJobPlatform: aggregateJobPlatform,
+            deleteRunnableJobs: deleteRunnableJobs,
             fetchJobs: fetchJobs,
             fetchResultSets: fetchResultSets,
             getAllShownJobs: getAllShownJobs,
@@ -1084,10 +1095,10 @@ treeherder.factory('ThResultSetStore', [
             getGroupMap: getGroupMap,
             getLoadingStatus: getLoadingStatus,
             getPlatformKey: getPlatformKey,
-            getPossibleJobs: getPossibleJobs,
-            isPossibleJobSelected: isPossibleJobSelected,
-            getSelectedPossibleJobs: getSelectedPossibleJobs,
-            toggleSelectedPossibleJob: toggleSelectedPossibleJob,
+            getRunnableJobs: getRunnableJobs,
+            isRunnableJobSelected: isRunnableJobSelected,
+            getSelectedRunnableJobs: getSelectedRunnableJobs,
+            toggleSelectedRunnableJob: toggleSelectedRunnableJob,
             getResultSet: getResultSet,
             getResultSetsArray: getResultSetsArray,
             getResultSetsMap: getResultSetsMap,

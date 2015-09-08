@@ -34,7 +34,7 @@ treeherder.directive('thCloneJobs', [
 
         // Custom Attributes
         var jobKeyAttr = 'data-jmkey';
-        var possibleJobBuildernameAttr = 'data-buildername';
+        var runnableJobBuildernameAttr = 'data-buildername';
         var groupKeyAttr = 'data-grkey';
 
         var tableInterpolator = thCloneHtml.get('resultsetClone').interpolator;
@@ -52,7 +52,7 @@ treeherder.directive('thCloneJobs', [
         var jobBtnInterpolator = thCloneHtml.get('jobBtnClone').interpolator;
 
         //Instantiate job btn interpolator
-        var possibleJobBtnInterpolator = thCloneHtml.get('possibleJobBtnClone').interpolator;
+        var runnableJobBtnInterpolator = thCloneHtml.get('runnableJobBtnClone').interpolator;
 
         var getJobMapKey = function(job){
             return 'key' + job.id;
@@ -200,14 +200,22 @@ treeherder.directive('thCloneJobs', [
             }
         };
 
-        var clickPossibleJobCb = function(el, resultset_id) {
-            var buildername = el.attr(possibleJobBuildernameAttr);
-            ThResultSetStore.toggleSelectedPossibleJob($rootScope.repoName, resultset_id, buildername);
-            el.toggleClass("result-status-shading-possible-selected");
+        var clickRunnableJobCb = function(el, resultset_id) {
+            var buildername = el.attr(runnableJobBuildernameAttr);
+            ThResultSetStore.toggleSelectedRunnableJob($rootScope.repoName, resultset_id, buildername);
+            el.toggleClass("runnable-job-btn-selected");
         };
 
         var togglePinJobCb = function(ev, el, job){
             $rootScope.$emit(thEvents.jobPin, job);
+        };
+
+        var filterWithRunnable = function(job) {
+            var rsMap = ThResultSetStore.getResultSetsMap($rootScope.repoName);
+            var visible = thJobFilters.showJob(job);
+            if (job.state === "runnable")
+                visible = visible && rsMap[job.result_set_id].rs_obj.isRunnableVisible;
+            return visible;
         };
 
         var addJobBtnEls = function(jgObj, jobList) {
@@ -226,7 +234,7 @@ treeherder.directive('thCloneJobs', [
                 // Keep track of visibility with this property. This
                 // way down stream job consumers don't need to repeatedly
                 // call showJob
-                job.visible = thJobFilters.showJob(job);
+                job.visible = filterWithRunnable(job);
 
                 addJobBtnToArray(job, lastJobSelected, jobBtnArray);
             }
@@ -241,14 +249,14 @@ treeherder.directive('thCloneJobs', [
             jobStatus.value = job.job_type_symbol;
             jobStatus.title = getHoverText(job);
 
-            if (thResultStatus(job) === "possible"){
+            if (thResultStatus(job) === "runnable") {
                 jobStatus.buildername = job.ref_data_name;
-                jobBtn = $(possibleJobBtnInterpolator(jobStatus));
+                jobBtn = $(runnableJobBtnInterpolator(jobStatus));
 
-                if (ThResultSetStore.isPossibleJobSelected($rootScope.repoName,
-                                                            job.result_set_id,
-                                                            jobStatus.buildername))
-                    jobBtn.addClass("result-status-shading-possible-selected");
+                if (ThResultSetStore.isRunnableJobSelected($rootScope.repoName,
+                                                           job.result_set_id,
+                                                           jobStatus.buildername))
+                    jobBtn.addClass("runnable-job-btn-selected");
             }
             else{
                 jobBtn = $(jobBtnInterpolator(jobStatus));
@@ -315,7 +323,7 @@ treeherder.directive('thCloneJobs', [
                 var countInfo = thResultStatusInfo(resultStatus,
                                                 job.failure_classification_id);
 
-                job.visible = thJobFilters.showJob(job);
+                job.visible = filterWithRunnable(job);
 
                 // Even if a job is not visible, add it to the DOM as hidden.  This is
                 // important because it can still be "selected" when not visible
@@ -378,10 +386,10 @@ treeherder.directive('thCloneJobs', [
 
             var el = $(ev.target);
             var key = el.attr(jobKeyAttr);
-            var buildername = el.attr(possibleJobBuildernameAttr);
+            var buildername = el.attr(runnableJobBuildernameAttr);
             //Confirm user selected a job
             if (buildername) {
-                _.bind(clickPossibleJobCb, this, el, resultset.id)();
+                _.bind(clickRunnableJobCb, this, el, resultset.id)();
             } else if(key && !_.isEmpty(this.job_map[key])){
 
                 var job = this.job_map[key].job_obj;
@@ -566,13 +574,13 @@ treeherder.directive('thCloneJobs', [
             var job, jmKey, show;
             var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
 
-            element.find('.job-list .job-btn, .job-list .possible-job-btn').each(
+            element.find('.job-list .job-btn, .job-list .runnable-job-btn').each(
                 function internalFilterJob() {
                     // using jquery to do these things was quite a bit slower,
                     // so just using raw JS for speed.
                     jmKey = this.dataset.jmkey;
                     job = jobMap[jmKey].job_obj;
-                    show = thJobFilters.showJob(job);
+                    show = filterWithRunnable(job);
                     job.visible = show;
                     showHideElement($(this), show);
                 });
@@ -855,17 +863,25 @@ treeherder.directive('thCloneJobs', [
                     }
                 });
 
-            // Show possible jobs when users press '+'
-            $rootScope.$on(
-                thEvents.showPossibleJobs, function(ev, rs){
-                    if(scope.resultset.id === rs.id){
-                        var resultSetAggregateId = thAggregateIds.getResultsetTableId(
-                            $rootScope.repoName, scope.resultset.id, scope.resultset.revision
-                        );
+            // Show runnable jobs when users press 'Add new jobs'
+            $rootScope.$on(thEvents.showRunnableJobs, function(ev, rs) {
+                if(scope.resultset.id === rs.id) {
+                    var resultSetAggregateId = thAggregateIds.getResultsetTableId(
+                        $rootScope.repoName, scope.resultset.id, scope.resultset.revision
+                    );
+                    rs.isRunnableVisible = true;
 
-                        ThResultSetStore.getPossibleJobs($rootScope.repoName, rs);
-                    }
-                });
+                    ThResultSetStore.getRunnableJobs($rootScope.repoName, rs);
+                }
+            });
+
+            // Hide runnable jobs when users press 'Hide runnable jobs'
+            $rootScope.$on(thEvents.deleteRunnableJobs, function(ev, rs) {
+                if(scope.resultset.id === rs.id) {
+                    ThResultSetStore.deleteRunnableJobs($rootScope.repoName, rs);
+                }
+            });
+
         };
 
         var generateJobElements = function(resultsetAggregateId, resultset) {

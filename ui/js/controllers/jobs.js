@@ -169,10 +169,12 @@ treeherderApp.controller('ResultSetCtrl', [
 
         };
 
-        $scope.showPossibleJobs = function() {
-            $rootScope.$emit(
-                thEvents.showPossibleJobs, $scope.resultset
-            );
+        $scope.showRunnableJobs = function() {
+            $rootScope.$emit(thEvents.showRunnableJobs, $scope.resultset);
+        };
+
+        $scope.deleteRunnableJobs = function() {
+            $rootScope.$emit(thEvents.deleteRunnableJobs, $scope.resultset);
         };
 
         $scope.cancelAllJobs = function(revision) {
@@ -225,20 +227,29 @@ treeherderApp.controller('ResultSetCtrl', [
             });
         };
 
+        $scope.getRunnableVisibility = function() {
+            var show = $scope.resultset.isRunnableVisible;
+            if (typeof show === "undefined") {
+                return false;
+            }
+            return show;
+        };
+
         $scope.showTriggerButton = function() {
-            var buildernames = ThResultSetStore.getSelectedPossibleJobs($rootScope.repoName, $scope.resultset.id);
+            var buildernames = ThResultSetStore.getSelectedRunnableJobs($rootScope.repoName, $scope.resultset.id);
             return buildernames.length > 0;
         };
 
-        $scope.triggerNewJobs = function(){
+        $scope.triggerNewJobs = function() {
             if (!window.confirm(
                 'This will trigger all selected jobs. Do you want to proceed?')) {
                 return;
             }
-            if ($scope.user.loggedin){
-                var buildernames = ThResultSetStore.getSelectedPossibleJobs($rootScope.repoName, $scope.resultset.id);
+            if ($scope.user.loggedin) {
+                var buildernames = ThResultSetStore.getSelectedRunnableJobs($rootScope.repoName, $scope.resultset.id);
                 ThResultSetModel.triggerNewJobs($scope.repoName, $scope.resultset.id, buildernames).then(function() {
                     thNotify.send("Trigger request sent", "success");
+                    ThResultSetStore.deleteRunnableJobs($scope.repoName, $scope.resultset);
                 }, function(e) {
                     // Generic error eg. the user doesn't have permission
                     thNotify.send(
