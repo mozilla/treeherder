@@ -459,9 +459,10 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                                             // The values are later processed at getCounterMap as the data arguments.
                                                             var values = [];
                                                             _.where(data.blob, { result_set_id: resultSetId }).forEach(function(pdata) {
-                                                                //summary series have geomean, individual pages have mean
+                                                                //summary series have geomean, individual pages have filtered or median
                                                                 if (pdata.geomean === undefined) {
-                                                                    values.push(pdata.mean);
+                                                                    values.push((pdata.value !== undefined) ? pdata.value :
+                                                                                pdata.median)
                                                                 } else {
                                                                     values.push(pdata.geomean);
                                                                 }
