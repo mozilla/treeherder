@@ -533,7 +533,9 @@ class ReferenceDataSignatures(models.Model):
 class FailureLine(models.Model):
 
     STATUS_LIST = ('PASS', 'FAIL', 'OK', 'ERROR', 'TIMEOUT', 'CRASH', 'ASSERT', 'SKIP', 'NOTRUN')
-    ACTION_LIST = ("test_result", "log", "crash")
+    # Truncated is a special action that we use to indicate that the list of failure lines
+    # was truncated according to settings.FAILURE_LINES_CUTOFF.
+    ACTION_LIST = ("test_result", "log", "crash", "truncated")
     LEVEL_LIST = ("critical", "error", "warning", "info", "debug")
 
     ACTION_CHOICES = zip(ACTION_LIST, ACTION_LIST)
