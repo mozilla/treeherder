@@ -75,6 +75,15 @@ body {
 
 .lv-line-text {
     white-space: pre;
+    position: relative;
+    height: 100px;
+    max-width: 100%;
+}
+
+.lv-line-num {
+    white-space:pre;
+    float:left;
+    border-right: thick #000;
 }
 
 .lv-error-line {
@@ -100,11 +109,11 @@ body {
 }
 
 /* Equal weight selector needs to follow the above nth-child() */
-.lv-log-container > div.text-danger {
+.lv-log-container > .lv-log-line > span.text-danger {
     background: #fbe3e3;
 }
 
-.lv-log-container > div.text-selected {
+.lv-log-container > .lv-log-line > span.lv-selected-lines {
     background: #F8EEC7;
 }
 

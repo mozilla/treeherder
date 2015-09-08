@@ -48,6 +48,7 @@ logViewerApp.controller('LogviewerCtrl', [
             var match = urlHash.match(regex);
             $scope.selectedBegin = match[1];
             $scope.selectedEnd = match[3];
+            $urlRouter.update();
         };
 
         $scope.hasFailedSteps = function () {
@@ -300,7 +301,7 @@ logViewerApp.controller('LogviewerCtrl', [
             //TODO: Test $scope.selectedBegin and $scope.selectedEnd
             var i = $scope.selectedBegin;
             var end = $scope.selectedEnd;
-            for (i ; i <= end ; i++) {
+            for (i; i <= end; i++) {
                 data[i].selected = true;
             }
         }
