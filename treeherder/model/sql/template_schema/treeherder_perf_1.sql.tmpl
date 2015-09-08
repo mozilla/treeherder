@@ -1,0 +1,21 @@
+BEGIN;
+CREATE TABLE `performance_datum` (`id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY, `job_id` integer UNSIGNED NOT NULL, `result_set_id` integer UNSIGNED NOT NULL, `value` double precision NOT NULL, `push_timestamp` datetime NOT NULL, `repository_id` integer NOT NULL);
+CREATE TABLE `performance_framework` (`id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY, `name` varchar(255) NOT NULL UNIQUE);
+CREATE TABLE `performance_signature` (`id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY, `signature_hash` varchar(40) NOT NULL UNIQUE, `suite` varchar(80) NOT NULL, `test` varchar(80) NOT NULL, `extra_properties` longtext NOT NULL, `framework_id` integer NOT NULL, `option_collection_id` integer NOT NULL, `platform_id` integer NOT NULL);
+ALTER TABLE `performance_datum` ADD COLUMN `signature_id` integer NOT NULL;
+ALTER TABLE `performance_datum` ALTER COLUMN `signature_id` DROP DEFAULT;
+ALTER TABLE `performance_datum` ADD CONSTRAINT `performance_datum_repository_id_77477458_uniq` UNIQUE (`repository_id`, `job_id`, `result_set_id`, `signature_id`, `push_timestamp`);
+CREATE INDEX `performance_datum_repository_id_45018fe9_idx` ON `performance_datum` (`repository_id`, `result_set_id`);
+CREATE INDEX `performance_datum_repository_id_651aa81e_idx` ON `performance_datum` (`repository_id`, `signature_id`, `push_timestamp`);
+CREATE INDEX `performance_datum_repository_id_54d2646f_idx` ON `performance_datum` (`repository_id`, `job_id`);
+ALTER TABLE `performance_datum` ADD CONSTRAINT `performance_datum_repository_id_63e56275_fk_repository_id` FOREIGN KEY (`repository_id`) REFERENCES `repository` (`id`);
+CREATE INDEX `performance_datum_d697ea38` ON `performance_datum` (`job_id`);
+CREATE INDEX `performance_datum_148af56c` ON `performance_datum` (`result_set_id`);
+CREATE INDEX `performance_datum_ce25c56a` ON `performance_datum` (`push_timestamp`);
+ALTER TABLE `performance_signature` ADD CONSTRAINT `performance_sig_framework_id_ab852e1_fk_performance_framework_id` FOREIGN KEY (`framework_id`) REFERENCES `performance_framework` (`id`);
+ALTER TABLE `performance_signature` ADD CONSTRAINT `performanc_option_collection_id_5c26993b_fk_option_collection_id` FOREIGN KEY (`option_collection_id`) REFERENCES `option_collection` (`id`);
+ALTER TABLE `performance_signature` ADD CONSTRAINT `performance_signature_platform_id_1f9ab43_fk_machine_platform_id` FOREIGN KEY (`platform_id`) REFERENCES `machine_platform` (`id`);
+CREATE INDEX `performance_datum_edb74c98` ON `performance_datum` (`signature_id`);
+ALTER TABLE `performance_datum` ADD CONSTRAINT `performance_da_signature_id_2be72806_fk_performance_signature_id` FOREIGN KEY (`signature_id`) REFERENCES `performance_signature` (`id`);
+
+COMMIT;
