@@ -30,13 +30,19 @@ class Command(BaseCommand):
                 raise CommandError('Unknown repository %s' % args[2])
 
             log_iter = reader.read(log_content)
+
             failure_lines_cutoff = settings.FAILURE_LINES_CUTOFF
 
             if failure_lines_cutoff:
-                log_iter = islice(log_iter, failure_lines_cutoff)
+                log_iter = list(islice(log_iter, failure_lines_cutoff+1))
+
+                if len(log_iter) > failure_lines_cutoff:
+                    # add a fake log line to indicate that the list was truncated
+                    log_iter[-1] = dict(action='log', line=0, status='OK')
 
             with JobsModel(args[2]) as jobs_model:
                 job_id = jobs_model.get_job_ids_by_guid([args[1]])
+
                 if not job_id:
                     raise CommandError('No job found with guid %s in the %s repository' % (args[1], args[2]))
 
