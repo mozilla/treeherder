@@ -3,7 +3,7 @@ from rest_framework import routers
 
 from treeherder.webapp.api import (artifact, bug, job_log_url, jobs, logslice,
                                    note, performance_data, refdata,
-                                   resultset, possible_jobs)
+                                   resultset, runnable_jobs)
 
 
 # router for views that are bound to a project
@@ -17,9 +17,9 @@ project_bound_router.register(
 )
 
 project_bound_router.register(
-    r'possible_jobs',
-    possible_jobs.PossibleJobsViewSet,
-    base_name='possible_jobs',
+    r'runnable_jobs',
+    runnable_jobs.RunnableJobsViewSet,
+    base_name='runnable_jobs',
 )
 
 project_bound_router.register(

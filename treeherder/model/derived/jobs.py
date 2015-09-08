@@ -202,6 +202,21 @@ class JobsModel(TreeherderModelBase):
         )
         return data
 
+    def get_runnable_job_list(self):
+        data = self.execute(
+            proc="jobs.selects.get_runnable_job_list",
+            replace=[self.refdata_model.get_db_name()],
+            debug_show=self.DEBUG,
+        )
+
+        # These jobs must show up in Treeherder as runnable jobs
+        for datum in data:
+            datum['job_coalesced_to_guid'] = None
+            datum['state'] = 'runnable'
+            datum['result'] = 'runnable'
+
+        return data
+
     def set_state(self, job_id, state):
         """Update the state of an existing job"""
         self.execute(
@@ -259,13 +274,6 @@ class JobsModel(TreeherderModelBase):
     def trigger_all_talos_jobs(self, requester, resultset_id, project, times):
         publish_resultset_action.apply_async(
             args=[self.project, "trigger_all_talos_jobs", resultset_id, requester, times],
-            routing_key='publish_to_pulse'
-        )
-
-    def trigger_new_jobs(self, requester, resultset_id, project, buildernames):
-        publish_resultset_action.apply_async(
-            args=[self.project, "trigger_new_jobs", resultset_id, requester,
-                  1, buildernames],
             routing_key='publish_to_pulse'
         )
 
@@ -1133,16 +1141,15 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 placeholders=coalesced_job_guid_placeholders,
                 executemany=True)
 
-    def store_possible_job_data(self, data, raise_errors=False):
+    def store_runnable_job_data(self, data, raise_errors=False):
         """
-        Store possible data instances into possible_job db
+        Store runnable data instances into runnable_job db
         """
         # Ensure that we have job data to process
         if not data:
             return
 
         job_placeholders = []
-        repository_lookup = {}
 
         for datum in data:
             build_os_name = datum['build_os']
@@ -1171,26 +1178,26 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 job_type, job_symbol, group_name, group_symbol
             )
 
-            state = datum['state']
-            result = datum['result']
+            reference_data_name = datum['ref_data_name']  # Buildername
+            build_system_type = datum['build_system_type']
+            option_collection_hash = self.refdata_model.add_option_collection(
+                datum['option_collection'])
 
-            # Buildername
-            reference_data_name = datum['ref_data_name']
-
-            repository = datum['branch']
-            if repository not in repository_lookup:
-                repository_lookup[repository] = self.refdata_model.get_repository_id(repository)
-            repository_key = repository_lookup[repository]
+            signature = self.refdata_model.add_reference_data_signature(
+                reference_data_name, build_system_type, self.project,
+                [build_system_type, self.project, build_os_name, build_platform,
+                 build_architecture, machine_os_name, machine_platform,
+                 machine_architecture, device_name, group_name, group_symbol,
+                 job_type, job_symbol, option_collection_hash]
+            )
 
             job_placeholders.append([
                 build_platform_key,
                 machine_platform_key,
                 device_name,
                 job_type_key,
-                state,
-                result,
-                reference_data_name,
-                repository_key
+                option_collection_hash,
+                signature
             ])
 
         # Store all reference data and retrieve associated ids
@@ -1202,11 +1209,42 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             datum[2] = id_lookups['devices'][datum[2]]['id']
             datum[3] = id_lookups['job_types'][datum[3]]['id']
 
+        # This part is a little weird because of a bug in MySQLdb:
+        # When a query matches the insert_values regex (
+        # http://git.io/vsgJT -- cursors.py:18 ) executemany doesn't
+        # set self.executed_ after running it ( http://git.io/vsgJX --
+        # cursors.py:262 ) which gives us the following error:
+        #
+        #   ProgrammingError: execute() first
+        #
+        # Running any other command on the same connection will set
+        # self.executed_ for us, so as a workaround we add the first
+        # row alone without executemany and then insert every other
+        # row using executemany=True.
+
         self.execute(
-            proc='jobs.inserts.set_possible_job_data',
+            proc='jobs.inserts.set_runnable_job_data',
             debug_show=self.DEBUG,
-            placeholders=job_placeholders,
-            executemany=True)
+            placeholders=job_placeholders[0]
+        )
+
+        if len(job_placeholders) > 1:
+            self.execute(
+                proc='jobs.inserts.set_runnable_job_data',
+                debug_show=self.DEBUG,
+                placeholders=job_placeholders[1:],
+                executemany=True
+            )
+
+    def clean_runnable_job_data(self):
+        """
+        Remove runnable jobs from the previous day.
+
+        This way we always have an up-to-date runnable jobs lists.
+        """
+        self.execute(
+            proc='jobs.deletes.cycle_runnable_job',
+            debug_show=self.DEBUG)
 
     def _remove_existing_jobs(self, data):
         """

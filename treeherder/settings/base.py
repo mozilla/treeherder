@@ -273,6 +273,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_THROTTLE_RATES': {
         'jobs': '220/minute',
+        'runnable_jobs': '220/minute',
         'resultset': '220/minute'
     },
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
@@ -298,7 +299,6 @@ ALLTHETHINGS_URL = "https://secure.pub.build.mozilla.org/builddata/reports/allth
 BUILDAPI_PENDING_CHUNK_SIZE = 500
 BUILDAPI_RUNNING_CHUNK_SIZE = 500
 BUILDAPI_BUILDS4H_CHUNK_SIZE = 500
-ALLTHETHINGS_CHUNK_SIZE = 500
 
 PARSER_MAX_STEP_ERROR_LINES = 100
 PARSER_MAX_SUMMARY_LINES = 200

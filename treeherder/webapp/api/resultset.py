@@ -9,6 +9,7 @@ from treeherder.model.derived import DatasetNotFoundError
 from treeherder.webapp.api.permissions import (HasLegacyOauthPermissionsOrReadOnly,
                                                IsStaffOrReadOnly)
 from treeherder.webapp.api.utils import UrlQueryFilter, to_timestamp, with_jobs
+from treeherder.model.tasks import publish_resultset_action
 
 
 class ResultSetViewSet(viewsets.ViewSet):
@@ -177,13 +178,26 @@ class ResultSetViewSet(viewsets.ViewSet):
         if not pk:
             return Response({"message": "resultset id required"}, status=400)
 
-        try:
-            buildernames = request.data['buildernames']
-            jm.trigger_new_jobs(request.user.email, pk, project, buildernames)
-            return Response({"message": "New jobs added for push '{0}'".format(pk)})
+        # Making sure a resultset with this id exists
+        filter = UrlQueryFilter({"id": pk})
+        full = filter.pop('full', 'true').lower() == 'true'
+        result_set_list = jm.get_result_set_list(0, 1, full, filter.conditions)
+        if not result_set_list:
+            return Response({"message": "No resultset with id: {0}".format(pk)},
+                            status=404)
 
-        except Exception as ex:
-            return Response("Exception: {0}".format(ex), 404)
+        buildernames = request.data.get('buildernames', [])
+        if len(buildernames) == 0:
+            Response({"message": "The list of buildernames cannot be empty"},
+                     status=400)
+
+        publish_resultset_action.apply_async(
+            args=[project, "trigger_new_jobs", pk, request.user.email,
+                  1, buildernames],
+            routing_key='publish_to_pulse'
+        )
+
+        return Response({"message": "New jobs added for push '{0}'".format(pk)})
 
     @with_jobs
     def create(self, request, project, jm):
