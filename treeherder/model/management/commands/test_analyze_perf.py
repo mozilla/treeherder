@@ -74,10 +74,15 @@ class Command(BaseCommand):
                 signature_data = pc.get_performance_signatures(
                     project, time_interval=options['time_interval'])
                 signatures = []
+                signatures_should_ignored = []
                 # if doing everything, only handle summary series
                 for (signature, properties) in signature_data.iteritems():
+                    signatures.append(signature)
                     if 'subtest_signatures' in properties:
-                        signatures.append(signature)
+                        signatures_should_ignored = signatures_should_ignored + \
+                                                    properties['subtest_signatures']
+                signatures = [signature for signature in signatures
+                              if signature not in signatures_should_ignored]
 
             for signature in signatures:
                 series = pc.get_performance_series(
