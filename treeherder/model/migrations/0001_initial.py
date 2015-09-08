@@ -98,7 +98,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
                 ('job_guid', models.CharField(max_length=50)),
-                ('action', models.CharField(max_length=11, choices=[('test_result', 'test_result'), ('log', 'log'), ('crash', 'crash')])),
+                ('action', models.CharField(max_length=11, choices=[('test_result', 'test_result'), ('log', 'log'), ('crash', 'crash'), ('truncated', 'truncated')])),
                 ('line', models.PositiveIntegerField()),
                 ('test', models.TextField(null=True, blank=True)),
                 ('subtest', models.TextField(null=True, blank=True)),
