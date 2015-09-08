@@ -70,13 +70,13 @@
         <a ng-click="createFieldFilter()"
            title="Create new field filter">new</a> to filter by a specific job field
       </span>
-      <h4>
+      <h5>
         <div class="label label-default field-filter"
              ng-repeat="filter in fieldFilters">{{::fieldChoices[filter.field].name}}: "{{::getFilterValue(filter.field, filter.value)}}"
           <a ng-click="removeFilter($index)"
              title="Delete this filter"><i class="glyphicon glyphicon-remove"></i></a>
         </div>
-      </h4>
+      </h5>
     </div>
     <div class="field-filter-form" ng-show="newFieldFilter">
       <form novalidate class="form-inline" role="form">

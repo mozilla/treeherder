@@ -92,6 +92,7 @@ input:focus::-moz-placeholder {
     border: 1px solid black;
     max-height: 400px;
     overflow-y: auto;
+    font-size: 12px;
 }
 
 .th-top-nav-options-panel .th-option-heading {
@@ -131,6 +132,15 @@ input:focus::-moz-placeholder {
 
 #jobFilterField {
     width: 200px;
+}
+
+/* Will remove these when we redo the Filter panel layout in bug 1202003 */
+#filter .th-option-heading input {
+    margin: 0;
+}
+
+#filter .checkbox-inline input {
+    margin: 1px 0 0 -16px;
 }
 
 .field-filter-form {
@@ -181,11 +191,11 @@ input:focus::-moz-placeholder {
 }
 
 .sheriff-panel-exclusion-profiles-row td:first-child {
-  width: 133px;
+  width: 119px;
 }
 
 .sheriff-panel-job-exclusions-row td:first-child {
-  width: 155px;
+  width: 138px;
 }
 
 /**
