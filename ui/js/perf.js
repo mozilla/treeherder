@@ -462,7 +462,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                                                 //summary series have geomean, individual pages have filtered or median
                                                                 if (pdata.geomean === undefined) {
                                                                     values.push((pdata.value !== undefined) ? pdata.value :
-                                                                                pdata.median)
+                                                                                pdata.median);
                                                                 } else {
                                                                     values.push(pdata.geomean);
                                                                 }
