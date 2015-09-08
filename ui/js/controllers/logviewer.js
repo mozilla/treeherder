@@ -39,7 +39,16 @@ logViewerApp.controller('LogviewerCtrl', [
                 return;
             }
             $scope.showSuccessful = !$scope.hasFailedSteps();
+            $scope.getSelectedLines();
         });
+
+        $scope.getSelectedLines = function() {
+            var urlHash = $location.hash();
+            var regex = /L(\d+)(-L(\d+))?$/;
+            var match = urlHash.match(regex);
+            $scope.selectedBegin = match[1];
+            $scope.selectedEnd = match[3];
+        };
 
         $scope.hasFailedSteps = function () {
             var steps = $scope.artifact.step_data.steps;
@@ -101,6 +110,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 }).then(function(data) {
 
                     drawErrorLines(data);
+                    drawSelectedLines(data);
 
                     if (bounds.top) {
                         for (var i = data.length - 1; i >= 0; i--) {
@@ -281,6 +291,18 @@ logViewerApp.controller('LogviewerCtrl', [
                     data[index].hasError = true;
                 });
             });
+        }
+
+        function drawSelectedLines(data) {
+            if (data.length === 0) {
+                return;
+            }
+            //TODO: Test $scope.selectedBegin and $scope.selectedEnd
+            var i = $scope.selectedBegin;
+            var end = $scope.selectedEnd;
+            for (i ; i <= end ; i++) {
+                data[i].selected = true;
+            }
         }
 
         function getChunksSurrounding(line) {

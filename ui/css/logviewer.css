@@ -104,6 +104,10 @@ body {
     background: #fbe3e3;
 }
 
+.lv-log-container > div.text-selected {
+    background: yellow;
+}
+
 .lv-log-line {
     padding: 0 18px;
 }
