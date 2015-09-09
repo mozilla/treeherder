@@ -1,0 +1,125 @@
+/*
+ * Shared navbar panel settings
+ */
+
+.th-top-nav-options-panel {
+    background-color: white;
+    padding: 10px 10px 0;
+    border-bottom: 1px solid black;
+    max-height: 400px;
+    overflow-y: auto;
+    font-size: 12px;
+}
+
+.th-top-nav-options-panel .th-option-heading {
+    padding: 3px 10px;
+    background-color: #354048;;
+    color: white;
+}
+
+.th-inline-option-group {
+    display: inline-block;
+}
+
+.th-option-group {
+    margin-right: 5px;
+    border: 1px solid #101010;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.th-option-heading .th-panel-heading {
+    padding: 5px 10px;
+    background-color: #354048;
+}
+
+/*
+ * Filter panel
+ */
+
+#job-filter-value {
+    width: 150px;
+}
+
+#job-filter-choice-value {
+    width: 150px;
+}
+
+#job-filter-field {
+    width: 200px;
+}
+
+/* Will remove these when we redo the Filter panel layout in bug 1202003 */
+#filter .th-option-heading input {
+    margin: 0;
+}
+
+#filter .checkbox-inline input {
+    margin: 1px 0 0 -16px;
+}
+
+.field-filter-form {
+    border-top: 2px solid lightgray;
+    margin-top: 5px;
+    padding: 3px;
+    background-color: lightgray;
+}
+
+.field-filter {
+    margin: 3px;
+}
+
+.field-filter a, .th-option-heading a {
+    color: white;
+    cursor: pointer;
+}
+
+.field-filter-placeholder a {
+    cursor: pointer;
+}
+
+/*
+ * Sheriff panel
+ */
+
+.add-new-exclusion input.ng-invalid.ng-dirty {
+    border-color: #B94A48;
+}
+
+.add-new-exclusion {
+    margin-bottom: 10px;
+}
+
+.exclusion-container {
+    padding-bottom: 10px;
+}
+
+.exclusion-tabs {
+    border-bottom: none;
+}
+
+.exclusion-tabs li a:visited {
+    /* Preserve unvisited link color */
+    color: #337ab7;
+}
+
+.sheriff-panel-delete-icon {
+  padding-right: 25px;
+  font-size: 12px;
+  color: #bababa;
+}
+
+.sheriff-panel-excluded-job {
+  margin-right: 20px;
+}
+
+.sheriff-panel-exclusion-profiles-row td:first-child {
+  /* Aligns second column nicely under Job exclusion tab */
+  width: 119px;
+}
+
+.sheriff-panel-job-exclusions-row td:first-child {
+  /* Aligns second column nicely under Job exclusion tab */
+  width: 138px;
+}
