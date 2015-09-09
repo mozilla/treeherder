@@ -820,7 +820,6 @@ class TreeherderClient(object):
 
         Returns a list of dictionaries with the following properties:
 
-
             {
               id: <id>
               job_group: <job_group_id>

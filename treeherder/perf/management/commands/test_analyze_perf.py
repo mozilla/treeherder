@@ -30,7 +30,7 @@ class Command(BaseCommand):
                     help='Project to get signatures from (specify multiple time to get multiple projects'),
         make_option('--signature',
                     action='store',
-                    help='Signature hash to process, defaults to all summary series')
+                    help='Signature hash to process, defaults to all non-subtests')
     )
 
     @staticmethod
@@ -69,10 +69,12 @@ class Command(BaseCommand):
         for project in options['project']:
             if options['signature']:
                 signatures = [options['signature']]
-                signature_data = {}
+                signature_data = pc.get_performance_signatures(
+                    project, signatures=signatures,
+                    interval=options['time_interval'])
             else:
                 signature_data = pc.get_performance_signatures(
-                    project, time_interval=options['time_interval'])
+                    project, interval=options['time_interval'])
                 signatures = []
                 signatures_to_ignore = set()
                 # if doing everything, only handle summary series
@@ -85,25 +87,18 @@ class Command(BaseCommand):
                               if signature not in signatures_to_ignore]
 
             for signature in signatures:
-                series = pc.get_performance_series(
-                    project, signature,
-                    time_interval=options['time_interval'])
+                series = pc.get_performance_data(
+                    project, signatures=signature,
+                    interval=options['time_interval'])[signature]
 
                 series_properties = signature_data.get(signature)
-                if not series_properties:
-                    series_properties = pc.get_performance_signature_properties(
-                        project, signature)
-
-                if series_properties.get('subtest_signatures') is not None:
-                    meanvar = 'geomean'
-                else:
-                    meanvar = 'mean'
 
                 perf_data = []
-                for (result_set_id, timestamp, mean) in zip(
+
+                for (result_set_id, timestamp, value) in zip(
                         series['result_set_id'], series['push_timestamp'],
-                        series[meanvar]):
-                    perf_data.append(PerfDatum(timestamp, mean, testrun_id=result_set_id))
+                        series['value']):
+                    perf_data.append(PerfDatum(timestamp, value, testrun_id=result_set_id))
 
                 ta = TalosAnalyzer()
                 ta.addData(perf_data)
