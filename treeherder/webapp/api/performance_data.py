@@ -4,11 +4,12 @@ import time
 
 from collections import defaultdict
 from rest_framework import exceptions
+from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.response import Response
 
 from treeherder.model import models
-from treeherder.perf.models import (PerformanceSignature, PerformanceDatum)
+from treeherder.perf.models import (PerformanceSignature, PerformanceDatum, PerformanceAlert)
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
@@ -107,5 +108,34 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
                 'value': round(datum.value, 2)  # round to 2 decimal places
             }
             ret[datum.signature.signature_hash].append(d)
+
+        return Response(ret)
+
+
+class PerformanceAlertViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for the performance alert model"""
+
+    def list(self, request, project):
+        repository = models.Repository.objects.get(name=project)
+        alerts = PerformanceAlert.objects.filter(repository=repository).order_by(
+            'result_set_id').select_related('series_signature',
+                                            'series_signature__option_collection')
+        ret = []
+        for alert in alerts:
+            alertdict = {
+                'result_set_id': alert.result_set_id,
+                'suite': alert.series_signature.suite,
+                'option_collection_hash': alert.series_signature.option_collection.option_collection_hash,
+                'signature_hash': alert.series_signature.signature_hash,
+                'amount_pct': round(alert.amount_pct, 2),
+                'amount_abs': round(alert.amount_abs, 2)
+            }
+            if alert.series_signature.test:
+                alertdict.update({'test': alert.series_signature.test})
+            test_options = alert.series_signature.extra_properties.get('test_options')
+            if test_options:
+                alertdict['test_options'] = test_options
+
+            ret.append(alertdict)
 
         return Response(ret)

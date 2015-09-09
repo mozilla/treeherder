@@ -67,6 +67,11 @@ project_bound_router.register(
     performance_data.PerformancePlatformViewSet,
     base_name='performance-signatures-platforms')
 
+project_bound_router.register(
+    r'performance/alerts',
+    performance_data.PerformanceAlertViewSet,
+    base_name='performance-alerts')
+
 # this is the default router for plain restful endpoints
 
 # refdata endpoints:

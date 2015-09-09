@@ -67,3 +67,38 @@ class PerformanceDatum(models.Model):
 
     def __str__(self):
         return "{} {}".format(self.value, self.push_timestamp)
+
+
+@python_2_unicode_compatible
+class PerformanceAlert(models.Model):
+    NEW = 0
+    WONTFIX = 1
+    BACKED_OUT = 2
+    INVALID = 3
+    BUGFILED = 4
+    DUPLICATE = 5
+
+    STATUSES = ((NEW, 'New'),
+                (WONTFIX, 'Won\'t fix'),
+                (BACKED_OUT, 'Backed out'),
+                (INVALID, 'Invalid'),
+                (BUGFILED, 'Bug filed'),
+                (DUPLICATE, 'Duplicate'))
+
+    id = models.AutoField(primary_key=True)
+    repository = models.ForeignKey(Repository)
+    result_set_id = models.PositiveIntegerField()
+    status = models.IntegerField(choices=STATUSES, default=NEW)
+    duplicate_of = models.ForeignKey('self', null=True)
+    series_signature = models.ForeignKey(PerformanceSignature)
+    amount_pct = models.FloatField()
+    amount_abs = models.FloatField()
+    bugzilla_id = models.PositiveIntegerField(null=True)
+
+    class Meta:
+        db_table = "performance_alert"
+        unique_together = ('repository', 'result_set_id', 'series_signature')
+
+    def __str__(self):
+        return "{} {} {} {}%".format(self.repository, self.result_set_id,
+                                     self.series_signature, self.amount_pct)
