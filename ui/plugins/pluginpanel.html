@@ -12,7 +12,7 @@
   <div id="job-details-panel">
     <div id="job-details-actionbar">
       <nav class="navbar navbar-dark">
-        <ul class="nav navbar-nav">
+        <ul class="nav navbar-nav actionbar-nav">
 
           <li ng-repeat="job_log_url in job_log_urls">
             <a ng-if="job_log_url.parse_status == 'parsed'"
@@ -92,14 +92,16 @@
               <span class="fa fa-times-circle cancel-job-icon"></span>
             </a>
           </li>
-          <li>
-            <a title="Retrigger this job"
-               class="icon-green"
-               href="" prevent-default-on-left-click
-               target="_blank"
-               ng-click="retriggerJob([selectedJob])">
-              <span class="fa fa-repeat"></span>
+          <li class="dropdown">
+            <a id="retriggerLabel"
+               ng-attr-title="{{user.loggedin ? 'Retrigger or backfill this job' : 'Login required for retrigger'}}"
+               ng-class="user.loggedin ? 'icon-green' : 'disabled'" href="" data-toggle="dropdown">
+              <span class="fa fa-repeat"></span>&nbsp
+              <span class="fa fa-angle-down lightgray"></span>
             </a>
+            <ul class="dropdown-menu actionbar-menu" role="menu" aria-labelledby="retriggerLabel"
+                ng-include src="'partials/main/thJobDetailsRetriggerMenu.html'">
+            </ul>
           </li>
           <li ng-if="isReftest()" ng-repeat="job_log_url in job_log_urls">
             <a title="Launch the Reftest Analyser in a new window"
@@ -209,13 +211,6 @@
         <li class="small" ng-repeat="line in job_details" ng-if="line.value == 'Inspect Task'">
           <label>Taskcluster:</label>
           <span><a href="{{line.url}}" target="_blank">{{line.value}}</a></span>
-        </li>
-        <li class="small" ng-click="backfillJob()" ng-show="user.is_staff">
-          <label>
-            <a title="Trigger this jobtype on previous pushes.">
-                Backfill this job
-            </a>
-          </label>
         </li>
       </ul>
 

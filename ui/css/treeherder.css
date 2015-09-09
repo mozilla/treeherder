@@ -377,7 +377,9 @@ input:focus::-moz-placeholder {
     color: #68aae2;
 }
 
-.icon-green:hover {
+.icon-green:hover,
+.icon-green:focus,
+.icon-green:active {
     color: #0de00d !important;
 }
 
@@ -521,7 +523,6 @@ div#info-panel .navbar {
     font-size:12px;
     min-height: 33px;
     min-width: initial;
-    overflow: hidden;
     z-index: 100;
 }
 
@@ -603,7 +604,18 @@ div#info-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
 
 #job-details-actionbar, #job-tabs-navbar {
     min-height: 33px;
-    overflow-y: auto;
+}
+
+.actionbar-nav > li:not(:first-child) {
+    /* Preserve left side padding on our first icon but keep others compact */
+    padding: 0 !important;
+}
+
+.actionbar-menu {
+    /* We have to override non-responsive bootstrap for correct styling */
+    margin-top: 1px !important;
+    margin-left: 6px;
+    border-radius: 4px !important;
 }
 
 .pinned-job-count {
@@ -611,7 +623,8 @@ div#info-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
 }
 
 #job-details-panel {
-    width: 260px;
+    width: 250px;
+    min-width: 250px;
 }
 
 #job-details-pane > ul {
@@ -652,7 +665,7 @@ div#info-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
     -webkit-flex: 1 6;
     flex: 1 6;
     padding:0px;
-    min-width: 500px;
+    min-width: 565px;
 }
 
 #info-panel nav.navbar.navbar-sub {
