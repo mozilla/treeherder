@@ -527,6 +527,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'xpcshell'), "name": "XPCShell"},
     {"regex": re.compile(r'mozmill$'), "name": "Mozmill"},
     {"regex": re.compile(r'luciddream'), "name": "Luciddream"},
+    {"regex": re.compile(r'media-tests'), "name": "Media Tests"},
     # ** Builds **
     # If we start doing debug ASan tests, please kill these special build types
     {"regex": re.compile(r'debug asan nightly'), "name": "AddressSanitizer Debug Nightly"},
@@ -934,6 +935,7 @@ SYMBOLS = {
     "Marionette Framework Unit Tests": "Mn",
     "Marionette Framework Unit Tests e10s": "Mn-e10s",
     "Marionette WebAPI Tests": "Mnw",
+    "Media Tests": "Mt",
     "Android x86 Test Set": "S",
     "Android x86 Test Combos": "Sets",
     "XPCShell": "X",
