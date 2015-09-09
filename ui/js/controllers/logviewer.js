@@ -44,11 +44,15 @@ logViewerApp.controller('LogviewerCtrl', [
 
         $scope.getSelectedLines = function() {
             var urlHash = $location.hash();
-            var regex = /L(\d+)(-L(\d+))?$/;
-            var match = urlHash.match(regex);
-            $scope.selectedBegin = match[1];
-            $scope.selectedEnd = match[3];
-            $urlRouter.update();
+            var regexSelectedlines = /L(\d+)(-L(\d+))?$/;
+            if (regexSelectedlines.test(urlHash)) {
+                var matchSelectedLines = urlHash.match(regexSelectedlines);
+                if (isNaN(matchSelectedLines[3])) {
+                    matchSelectedLines[3] = matchSelectedLines[1];
+                }
+                $scope.selectedBegin = matchSelectedLines[1];
+                $scope.selectedEnd = matchSelectedLines[3];
+            }
         };
 
         $scope.hasFailedSteps = function () {
@@ -295,14 +299,22 @@ logViewerApp.controller('LogviewerCtrl', [
         }
 
         function drawSelectedLines(data) {
-            if (data.length === 0) {
-                return;
-            }
             //TODO: Test $scope.selectedBegin and $scope.selectedEnd
             var i = $scope.selectedBegin;
             var end = $scope.selectedEnd;
-            for (i; i <= end; i++) {
-                data[i].selected = true;
+
+            var min = data[0].index;
+            var max = data[ data.length - 1 ].index;
+
+            var index = i - min;
+            var indexEnd = end - min;
+
+            if (i < min || end > max) {
+                return;
+            }
+
+            for (index; index <= indexEnd; index++) {
+                data[index].selected = true;
             }
         }
 

@@ -5,8 +5,8 @@
      class="lv-log-line"
      line="{{ ::lv_line.index }}">
 
-     <div class="lv-line-num">{{$index}}</div>
+     <span class="lv-line-num"> {{::lv_line.index}}     </span>
      <span ng-class="{'text-danger': (lv_line.hasError == true),
                      'lv-selected-lines': (lv_line.selected == true)}"
-          class="lv-line-text">   {{ ::lv_line.text }}</span>
+          class="lv-line-text"> {{  ::lv_line.text}}</span>
 </div>
