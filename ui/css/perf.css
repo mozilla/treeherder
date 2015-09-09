@@ -331,3 +331,21 @@ span.compare-regression {
 .bar-regression {
   background-color: red;
 }
+
+.alert-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.alert-title .icon-superscript {
+  vertical-align: super;
+  font-size: 0.625em;
+  margin-left: -0.2em;
+}
+
+.alert-metadata ul {
+    padding-top: 4px;
+}
+

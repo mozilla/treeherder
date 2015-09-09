@@ -31,10 +31,12 @@
         <li ng-class="{active: $state.current.name.indexOf('compare') >= 0}">
           <a ui-sref="comparechooser">Compare</a>
         </li>
+        <li ng-class="{active: $state.current.name.indexOf('alerts') >= 0}">
+          <a ui-sref="alerts">Alerts</a>
+        </li>
       </ul>
     </div>
   </nav>
-
   <section ui-view>
   </section>
 
@@ -71,6 +73,7 @@
   <script src="js/perf.js"></script>
   <script src="js/controllers/perf/compare.js"></script>
   <script src="js/controllers/perf/graphs.js"></script>
+  <script src="js/controllers/perf/alerts.js"></script>
   <script src="js/directives/perf/compare.js"></script>
   <script src="js/perfapp.js"></script>
   <script src="js/filters.js"></script>
