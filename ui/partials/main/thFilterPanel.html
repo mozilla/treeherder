@@ -81,8 +81,8 @@
     <div class="field-filter-form" ng-show="newFieldFilter">
       <form novalidate class="form-inline" role="form">
         <div class="form-group input-group-sm">
-          <label class="sr-only" for="jobFilterField">Field</label>
-          <select id="jobFilterField"
+          <label class="sr-only" for="job-filter-field">Field</label>
+          <select id="job-filter-field"
                   class="form-control"
                   ng-model="newFieldFilter.field"
                   ng-change="setFieldMatchType()"
@@ -92,18 +92,18 @@
             <option ng-repeat="(field, obj) in fieldChoices"
                     value="{{::field}}">{{::obj.name}}</option>
           </select>
-          <label class="sr-only" for="jobFilterValue">Value</label>
+          <label class="sr-only" for="job-filter-value">Value</label>
           <input ng-show="newFieldFilter.matchType!=='choice'"
                  class="form-control"
                  ng-model="newFieldFilter.value"
-                 id="jobFilterValue"
+                 id="job-filter-value"
                  type="text"
                  placeholder="filter value">
-          <label class="sr-only" for="jobFilterChoiceValue">Value</label>
+          <label class="sr-only" for="job-filter-choice-value">Value</label>
           <select ng-show="newFieldFilter.matchType==='choice'"
                   class="form-control"
                   ng-model="newFieldFilter.value"
-                  id="jobFilterChoiceValue">
+                  id="job-filter-choice-value">
             <option value="" disabled selected>select value</option>
             <option ng-repeat="(fci, fci_obj) in newFieldFilter.choices"
                     value="{{::fci}}">{{::fci_obj.name}}</option>

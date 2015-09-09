@@ -83,132 +83,6 @@ input:focus::-moz-placeholder {
 }
 
 /*
- * General panels
- */
-
-.th-top-nav-options-panel {
-    background-color: white;
-    padding: 10px;
-    border: 1px solid black;
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.th-top-nav-options-panel .th-option-heading {
-    padding: 3px 10px;
-    background-color: #354048;;
-    color: white;
-}
-
-.th-inline-option-group {
-    display: inline-block;
-}
-
-.th-stacked-option-group {
-    display: block;
-}
-
-.th-option-group {
-    margin-right: 5px;
-    border: 1px solid #101010;
-    -moz-border-radius:5px;
-    -webkit-border-radius:5px;
-    border-radius:5px;
-}
-
-.th-option-heading .th-panel-heading{
-    padding: 5px 10px;
-    background-color: #354048;
-}
-
-#jobFilterValue {
-    width: 150px;
-}
-
-#jobFilterChoiceValue {
-    width: 150px;
-}
-
-#jobFilterField {
-    width: 200px;
-}
-
-.field-filter-form {
-    border-top: 2px solid lightgray;
-    margin-top: 5px;
-    padding: 3px;
-    background-color: lightgray;
-}
-
-.field-filter {
-    margin: 3px;
-}
-
-.field-filter a, .th-option-heading a {
-    color: white;
-    cursor: pointer;
-}
-
-.field-filter-placeholder a {
-    cursor: pointer;
-}
-
-/**
-  Sheriff panel
-*/
-
-.add-new-exclusion input.ng-invalid.ng-dirty {
-    border-color: #B94A48;
-}
-
-.exclusion-tabs {
-    border-bottom: none;
-}
-
-/* Preserve bootstrap unvisited link color */
-.exclusion-tabs li a:visited {
-    color: #337ab7;
-}
-
-.sheriff-panel-delete-icon {
-  padding-right: 25px;
-  font-size: 12px;
-  color: #bababa;
-}
-
-.sheriff-panel-excluded-job {
-  margin-right: 20px;
-}
-
-.sheriff-panel-exclusion-profiles-row td:first-child {
-  width: 133px;
-}
-
-.sheriff-panel-job-exclusions-row td:first-child {
-  width: 155px;
-}
-
-/**
-  Failures
-*/
-
-.th-failures-box {
-    position: fixed;
-    top: 46px;
-    right:0px;
-    padding:2px;
-}
-
-.th-failures-box li{
-    background-color: #222;
-    color: #999;
-    border-color: #080808;
-}
-.th-failures-box li a{
-    color: #428bca;
-}
-
-/*
     Resultsets
 */
 
@@ -1814,7 +1688,7 @@ div.similar_jobs .left_panel table tr { cursor: default; }
     width: 22px;
 }
 
-.add-new-filter .form-group{
+.form-group {
     margin-bottom: 5px;
 }
 
