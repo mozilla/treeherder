@@ -83,13 +83,22 @@ body {
 .lv-line-num {
     white-space:pre;
     float:left;
-    border-right: thick #000;
+    border-right-style: groove;
+    width: auto;
+    -moz-user-select: none;
+    -khtml-user-select:none;
+    -webkit-user-select:none;
+    -o-user-select :none;
+}
+
+.lv-line-num: hover {
+    background-color: yellow;
 }
 
 .lv-error-line {
     background-color: white;
     color: #333333;
-    width: 100%;
+    width: auto;
 }
 
 .lv-error-line span:nth-child(2) {
