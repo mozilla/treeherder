@@ -12,7 +12,7 @@
 
   <!-- Exclusion profiles -->
   <div ng-if="view == 'exclusion_profile_list'"
-       class="th-inline-option-group add-new-exclusion">
+       class="th-inline-option-group exclusion-container">
     <p ng-if="profiles.length == 0">No profile available</p>
     <table ng-if="profiles.length > 0" class="table table-condensed">
       <tr>
@@ -94,7 +94,7 @@
 
   <!-- Job exclusions -->
   <div ng-if="view == 'job_exclusion_list'"
-       class="th-inline-option-group add-new-exclusion">
+       class="th-inline-option-group exclusion-container">
     <p ng-if="exclusions.length == 0">No exclusion available</p>
     <table ng-if="exclusions.length > 0"
            class="table table-condensed">

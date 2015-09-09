@@ -88,8 +88,8 @@ input:focus::-moz-placeholder {
 
 .th-top-nav-options-panel {
     background-color: white;
-    padding: 10px;
-    border: 1px solid black;
+    padding: 10px 10px 0;
+    border-bottom: 1px solid black;
     max-height: 400px;
     overflow-y: auto;
 }
@@ -156,6 +156,14 @@ input:focus::-moz-placeholder {
 /**
   Sheriff panel
 */
+
+.exclusion-container {
+    padding-bottom: 10px;
+}
+
+.add-new-exclusion {
+    margin-bottom: 10px;
+}
 
 .add-new-exclusion input.ng-invalid.ng-dirty {
     border-color: #B94A48;
