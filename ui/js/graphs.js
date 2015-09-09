@@ -478,29 +478,28 @@ perf.controller('GraphsCtrl', [
         function getSeriesData(series) {
             return $http.get(thServiceDomain + '/api/project/' +
                              series.projectName +
-                             '/performance-data/get_performance_data/' +
+                             '/performance/data/' +
                              '?interval_seconds=' + $scope.myTimerange.value +
                              '&signatures=' + series.signature).then(
                                  function(response) {
-                                     var flotSeries = {
+                                     series.flotSeries = {
                                          lines: { show: false },
                                          points: { show: series.visible },
                                          color: series.color,
                                          label: series.projectName + " " + series.name,
-                                         data: [],
-                                         resultSetData: [],
+                                         data: _.map(
+                                         response.data[series.signature],
+                                             function(dataPoint) {
+                                                 return [
+                                                     new Date(dataPoint.push_timestamp*1000),
+                                                     dataPoint.value
+                                                 ];
+                                             }),
+                                         resultSetData: _.pluck(
+                                             response.data[series.signature],
+                                             'result_set_id'),
                                          thSeries: jQuery.extend({}, series)
                                      };
-                                     response.data[0].blob.forEach(function(dataPoint) {
-                                         flotSeries.data.push([
-                                             new Date(dataPoint.push_timestamp*1000),
-                                             dataPoint.value]);
-                                         flotSeries.resultSetData.push(
-                                             dataPoint.result_set_id);
-                                     });
-                                     flotSeries.data.sort(function(a,b) {
-                                         return a[0] > b[0]; });
-                                     series.flotSeries = flotSeries;
                                  });
         }
 
@@ -509,14 +508,14 @@ perf.controller('GraphsCtrl', [
             return $q.all(partialSeriesList.map(
                 function(partialSeries) {
                     return $http.get(thServiceDomain + '/api/project/' +
-                                     partialSeries.project + '/performance-data/' +
-                                     'get_signature_properties/?signatures=' +
+                                     partialSeries.project + '/performance/' +
+                                     'signatures/?signature=' +
                                      partialSeries.signature).then(function(response) {
                                          var data = response.data;
                                          if (!propsHash[partialSeries.project]) {
                                              propsHash[partialSeries.project] = {};
                                          }
-                                         propsHash[partialSeries.project][partialSeries.signature] = data[0];
+                                         propsHash[partialSeries.project][partialSeries.signature] = data[partialSeries.signature];
                                      });
                 })).then(function() {
                     // create a new seriesList in the correct order

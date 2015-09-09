@@ -21,25 +21,5 @@
 
             "host_type":"master_host"
         }
-    },
-    "locks": {
-        "get_lock": {
-
-            "sql":"SELECT GET_LOCK(?, 60) AS 'lock'",
-
-            "host_type":"master_host"
-        },
-        "is_free_lock": {
-
-            "sql":"SELECT IS_FREE_LOCK(?) AS 'lock'",
-
-            "host_type":"master_host"
-        },
-        "release_lock": {
-
-            "sql":"SELECT RELEASE_LOCK(?) AS 'release_lock'",
-
-            "host_type":"master_host"
-        }
     }
 }

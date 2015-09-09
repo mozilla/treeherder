@@ -8,14 +8,6 @@
             "sql":"DELETE FROM job_note WHERE id = ?",
             "host_type": "master_host"
         },
-        "delete_series_signature": {
-          "sql": "DELETE FROM series_signature WHERE signature = ?",
-          "host_type": "master_host"
-        },
-        "delete_performance_series": {
-          "sql": "DELETE FROM performance_series WHERE series_signature = ?",
-          "host_type": "master_host"
-        },
         "cycle_job_artifact":{
 
             "sql":"DELETE FROM job_artifact WHERE job_id IN (REP0)",
@@ -88,26 +80,6 @@
                     OR `job_guid` = ?
                 )",
 
-            "host_type":"master_host"
-        },
-        "set_series_signature":{
-            "sql":"INSERT INTO `series_signature` (`signature`, `property`, `value`)
-                   SELECT ?,?,?
-                   FROM DUAL WHERE NOT EXISTS (
-                        SELECT `signature`, `property`, `value`
-                        FROM `series_signature`
-                        WHERE `signature` = ? AND `property` = ? AND `value` = ?
-                   )",
-            "host_type":"master_host"
-        },
-        "set_performance_series":{
-            "sql":"INSERT INTO `performance_series` (`interval_seconds`, `series_signature`, `type`, `last_updated`, `blob`)
-                   SELECT ?,?,?,?,?
-                   FROM DUAL WHERE NOT EXISTS (
-                        SELECT `interval_seconds`, `series_signature`
-                        FROM `performance_series`
-                        WHERE `interval_seconds` = ? AND `series_signature` = ?
-                   )",
             "host_type":"master_host"
         },
         "set_job_eta":{
@@ -231,12 +203,6 @@
     },
 
     "updates": {
-        "update_performance_series":{
-            "sql":"UPDATE `performance_series`
-                   SET `last_updated` = ?, `blob` = ?
-                   WHERE `interval_seconds` = ? AND `series_signature` = ?",
-            "host_type":"master_host"
-        },
         "set_state":{
 
             "sql":"UPDATE `job`
@@ -325,16 +291,6 @@
         }
     },
     "selects":{
-        "get_signatures_from_properties":{
-
-            "sql": "SELECT `signature` FROM `series_signature`
-                    WHERE (REP0)
-                    GROUP BY `signature`
-                    HAVING (REP1)",
-
-             "host_type":"read_host"
-
-        },
         "get_all_properties_of_signatures":{
 
             "sql": "SELECT `property`, `value`, `signature` FROM `series_signature`
@@ -359,27 +315,6 @@
                     WHERE `series_signature` IN (REP0) AND `interval_seconds` = ?",
 
              "host_type":"read_host"
-
-        },
-        "get_performance_series": {
-
-            "sql":"SELECT `interval_seconds`, `series_signature`, `type`, `last_updated`, `blob`
-                   FROM `performance_series`
-                   WHERE `interval_seconds` = ? AND `series_signature` = ?",
-
-            "host_type":"master_host"
-
-        },
-        "get_all_series_signatures": {
-
-            "sql":"SELECT `signature`,
-                    GROUP_CONCAT(
-                        CONCAT_WS('=', `property`, `value`) SEPARATOR ', '
-                    ) AS 'properties'
-                   FROM `series_signature`
-                   GROUP BY `signature`",
-
-            "host_type":"read_host"
 
         },
         "get_max_job_submit_timestamp":{
