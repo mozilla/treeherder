@@ -40,7 +40,9 @@ logViewerApp.controller('LogviewerCtrl', [
         });
         $scope.$watch('[selectedBegin, selectedEnd]', function(newVal, oldVal) {
             var newHash = (newVal[0] == newVal[1])? newVal[0] : newVal[0] + "-L"+newVal[1];
-            $location.hash("L"+newHash);
+            if (!isNaN(newVal[0])) {
+                $location.hash("L"+newHash);
+            }
         });
         $scope.$on("$locationChangeSuccess", function(event) {
             getSelectedLines();
