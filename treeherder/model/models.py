@@ -585,20 +585,16 @@ class FailureLine(models.Model):
         )
 
     def add_match(self, matcher, classified_failure, score):
-        new_match = FailureMatch(
-            failure_line=self,
-            classified_failure=classified_failure,
-            score=score,
-            matcher=matcher)
+
         new_match.save()
 
     def best_match(self, min_score=0):
-        matches = FailureMatch.objects.filter(failure_line_id=self.id).order_by(
+        match = FailureMatch.objects.filter(failure_line_id=self.id).order_by(
             "-score",
-            "-classified_failure__modified")
+            "-classified_failure__modified").first()
 
-        if matches and matches[0].score > min_score:
-            return matches[0]
+        if match and match.score > min_score:
+            return match
 
     def create_new_classification(self, matcher):
         new_classification = ClassifiedFailure()
@@ -607,7 +603,7 @@ class FailureLine(models.Model):
         new_link = FailureMatch(
             failure_line=self,
             classified_failure=new_classification,
-            matcher=Matcher.objects.get(name=matcher.name),
+            matcher=matcher,
             score=1,
             is_best=True)
         new_link.save()
@@ -631,8 +627,8 @@ class MatcherManager(models.Manager):
     def register_matcher(self, cls):
         self._register(cls, Matcher._matcher_funcs)
 
-    def register_creator(self, cls):
-        self._register(cls, Matcher._creator_funcs)
+    def register_detector(self, cls):
+        self._register(cls, Matcher._detector_funcs)
 
     def _register(self, cls, dest):
         if cls.__name__ in dest:
@@ -646,15 +642,15 @@ class MatcherManager(models.Manager):
         for matcher in Matcher._matcher_funcs.values():
             yield matcher
 
-    def registered_creators(self):
-        for matcher in Matcher._creator_funcs.values():
+    def registered_detectors(self):
+        for matcher in Matcher._detector_funcs.values():
             yield matcher
 
 
 class Matcher(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
-    _creator_funcs = OrderedDict()
+    _detector_funcs = OrderedDict()
     _matcher_funcs = OrderedDict()
 
     objects = MatcherManager()

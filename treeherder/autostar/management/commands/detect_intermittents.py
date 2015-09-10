@@ -51,7 +51,7 @@ def add_new_intermittents(repository, jobs):
 
         new_matches = set()
 
-        for creator in Matcher.objects.registered_creators():
+        for detector in Matcher.objects.registered_detectors():
             job_failures = failures_by_job[job["job_guid"]]
 
             unmatched_lines = [item for item in job_failures if
@@ -61,11 +61,11 @@ def add_new_intermittents(repository, jobs):
             logger.debug("Unmatched lines %r" % unmatched_lines)
             if unmatched_lines:
                 logger.debug("Found %i unmatched lines" % len(unmatched_lines))
-            line_indicies = creator(unmatched_lines)
+            line_indicies = detector(unmatched_lines)
 
             for index in line_indicies:
                 failure = unmatched_lines[index]
-                failure.create_new_classification(creator.db_object)
+                failure.create_new_classification(detector.db_object)
                 new_matches.add(failure.id)
 
         if new_matches:
