@@ -13,16 +13,11 @@ from treeherder.model.derived.jobs import JobsModel
 
 logger = logging.getLogger(__name__)
 
-######
-# This will use the store_job_data method in jobs.  I will likely end up that
-# it is more efficient to circumvent that at some point.  But for now, this
-# ensures we're following the same path as the rest of the ingestion code.
-#
-######
-
 
 class JobConsumer(ConsumerMixin):
-
+    """
+    Consume jobs from Pulse exchanges
+    """
     def __init__(self, connection):
         self.connection = connection
         self.consumers = []
@@ -34,7 +29,7 @@ class JobConsumer(ConsumerMixin):
             Consumer(**c) for c in self.consumers
         ]
 
-    def listen_to(self, exchange, routing_key, queue_name, callback):
+    def listen_to(self, exchange, routing_key, queue_name, callback, durable=False):
         self.logger.info("Pulse message consumer listening to : {} {}".format(
             exchange.name,
             routing_key
@@ -45,7 +40,7 @@ class JobConsumer(ConsumerMixin):
             channel=self.connection.channel(),
             exchange=exchange,
             routing_key=routing_key,
-            durable=False,
+            durable=durable,
             auto_delete=True
         )
 
@@ -53,13 +48,18 @@ class JobConsumer(ConsumerMixin):
 
 
 class JobLoader:
+    """
+    Validate, transform and load a list of Jobs
+
+
+    """
     jobs_schema = None
     artifact_schema = None
 
     # status can only transition from lower to higher order.  If a job comes
     # in to update a status to a lower order, it will be skipped as out of
     # sequence.
-    status_rank = {
+    STATUS_RANK = {
         "unscheduled": 0,
         "pending": 1,
         "running": 2,
@@ -68,14 +68,14 @@ class JobLoader:
         "exception": 3,
         "canceled": 3
     }
-    completed_status_rank = 3
-    test_result_map = {
+    COMPLETED_STATUS_RANK = 3
+    TEST_RESULT_MAP = {
         "success": "success",
         "fail": "testfail",
         "exception": "exception",
         "canceled": "usercancel"
     }
-    build_result_map = {
+    BUILD_RESULT_MAP = {
         "success": "success",
         "fail": "busted",
         "exception": "exception",
@@ -95,7 +95,6 @@ class JobLoader:
         validated_jobs = self._get_validated_jobs_by_project(all_jobs_list)
 
         for project, job_list in validated_jobs.items():
-            print "project: " + project
             with JobsModel(project) as jobs_model:
                 rs_lookup = jobs_model.get_revision_resultset_lookup(
                     [x["origin"]["revision"] for x in job_list])
@@ -103,19 +102,25 @@ class JobLoader:
                 for pulse_job in job_list:
                     if pulse_job["status"] != "unscheduled":
                         try:
-                            storeable_job_list.append(self.transform(pulse_job, rs_lookup))
+                            storeable_job_list.append(
+                                self.transform(pulse_job, rs_lookup)
+                            )
                         except AttributeError:
-                            logger.warn("Skipping job due to bad attribute", exc_info=1)
+                            logger.warn("Skipping job due to bad attribute",
+                                        exc_info=1)
 
-                import pprint
-                pprint.pprint(storeable_job_list)
-                jobs_model.store_job_data(storeable_job_list, raise_errors=raise_errors)
+                jobs_model.store_job_data(storeable_job_list,
+                                          raise_errors=raise_errors)
 
     def transform(self, pulse_job, rs_lookup):
         """
-        Transform a pulse job into a job that can be written to disk.
+        Transform a pulse job into a job that can be written to disk.  Log
+        References and artifacts will also be transformed and loaded with the
+        job.
 
-        Also generate log references and artifacts
+        We can rely on the structure of ``pulse_job`` because it will
+        already have been validated against the JSON Schema at this point.
+
         """
         return {
             "revision_hash": rs_lookup[pulse_job["origin"]["revision"]]["revision_hash"],
@@ -126,30 +131,30 @@ class JobLoader:
                 "group_name": pulse_job["display"].get("groupName", "unknown"),
                 "group_symbol": pulse_job["display"].get("groupSymbol"),
                 "product_name": pulse_job.get("productName", "unknown"),
-                "state": self.get_state(pulse_job),
-                "result": self.get_result(pulse_job),
+                "state": self._get_state(pulse_job),
+                "result": self._get_result(pulse_job),
                 "reason": pulse_job["reason"],
                 "who": pulse_job["who"],
-                "submit_timestamp": self.to_timestamp(pulse_job["timeScheduled"]),
-                "start_timestamp": self.to_timestamp(pulse_job["timeStarted"]),
-                "end_timestamp": self.to_timestamp(pulse_job["timeCompleted"]),
-                "machine": self.get_machine(pulse_job),
-                "build_platform": self.get_platform(pulse_job["machine"].get("build", None)),
-                "machine_platform": self.get_platform(pulse_job["machine"].get("test", None)),
-                "option_collection": self.get_option_collection(pulse_job),
-                "log_references": self.get_log_references(pulse_job),
-                "artifacts": self.get_artifacts(pulse_job),
+                "submit_timestamp": self._to_timestamp(pulse_job["timeScheduled"]),
+                "start_timestamp": self._to_timestamp(pulse_job["timeStarted"]),
+                "end_timestamp": self._to_timestamp(pulse_job["timeCompleted"]),
+                "machine": self._get_machine(pulse_job),
+                "build_platform": self._get_platform(pulse_job["machine"].get("build", None)),
+                "machine_platform": self._get_platform(pulse_job["machine"].get("test", None)),
+                "option_collection": self._get_option_collection(pulse_job),
+                "log_references": self._get_log_references(pulse_job),
+                "artifacts": self._get_artifacts(pulse_job),
             },
             "coalesced": pulse_job.get("coalesced", [])
         }
 
-    def get_artifacts(self, job):
+    def _get_artifacts(self, job):
         pulse_artifacts = job["artifacts"]
         for artifact in pulse_artifacts:
             artifact["job_guid"] = job["jobGuid"]
         return pulse_artifacts
 
-    def get_log_references(self, job):
+    def _get_log_references(self, job):
         log_references = []
         for logref in job["logs"]:
             log_references.append({
@@ -159,8 +164,7 @@ class JobLoader:
             })
         return log_references
 
-    @staticmethod
-    def get_option_collection(job):
+    def _get_option_collection(self, job):
         option_collection = {"opt": True}
         if "optionCollection" in job:
             option_collection = {}
@@ -168,8 +172,7 @@ class JobLoader:
                 option_collection[option] = True
         return option_collection
 
-    @staticmethod
-    def get_platform(platform_src):
+    def _get_platform(self, platform_src):
         platform = None
         if platform_src:
             platform = {
@@ -179,8 +182,7 @@ class JobLoader:
             }
         return platform
 
-    @staticmethod
-    def get_machine(job):
+    def _get_machine(self, job):
         machine = "unknown"
         if "build" in job["machine"]:
             machine = job["machine"]["build"]["machineName"]
@@ -188,8 +190,7 @@ class JobLoader:
             machine = job["machine"]["run"]["machineName"]
         return machine
 
-    @staticmethod
-    def get_state(job):
+    def _get_state(self, job):
         status = job["status"]
         state = "completed"
         if status in ["pending", "running"]:
@@ -198,16 +199,16 @@ class JobLoader:
             raise AttributeError("unscheduled not a supported status at this time.")
         return state
 
-    def get_result(self, job):
+    def _get_result(self, job):
         result = "unknown"
         status = job["status"]
-        if self.status_rank[status] >= self.completed_status_rank:
+        if self.STATUS_RANK[status] >= self.COMPLETED_STATUS_RANK:
             if job.get("isRetried", False):
                 result = "retry"
             elif job["jobKind"] == "build":
-                result = self.build_result_map[status]
+                result = self.BUILD_RESULT_MAP[status]
             else:
-                result = self.test_result_map[status]
+                result = self.TEST_RESULT_MAP[status]
 
         return result
 
@@ -218,10 +219,10 @@ class JobLoader:
                 jsonschema.validate(pulse_job, self.jobs_schema)
                 validated_jobs[pulse_job["origin"]["project"]].append(pulse_job)
             except (jsonschema.ValidationError, jsonschema.SchemaError) as e:
-                logger.error("JSON Schema validation error during job ingestion: {}".format(e))
+                logger.error(
+                    "JSON Schema validation error during job ingestion: {}".format(e))
 
         return validated_jobs
 
-    @staticmethod
-    def to_timestamp(datestr):
+    def _to_timestamp(self, datestr):
         return time.mktime(parser.parse(datestr).timetuple())

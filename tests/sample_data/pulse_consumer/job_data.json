@@ -8,13 +8,108 @@
     },
 
     "display": {
-      "jobSymbol": "P",
+      "jobSymbol": "P1",
       "jobName": "Pulse Ingestion Test",
       "groupSymbol": "PI",
       "groupName": "PulseIngestion"
     },
 
     "status": "success",
+    "jobKind": "test",
+
+    "machine": {
+      "test": {
+        "machineName": "bld-linux64-ec2-104",
+        "platform": "linux64",
+        "osName": "linux",
+        "architecture": "x86_64"
+      },
+      "build": {
+        "machineName": "bld-linux64-ec2-104",
+        "platform": "linux64",
+        "osName": "linux",
+        "architecture": "x86_64"
+      }
+    },
+
+    "who": "thedude@lebowski.com",
+    "reason": "scheduler",
+
+    "timeScheduled": "2014-12-19T16:39:57-08:00",
+    "timeStarted": "2014-12-19T17:39:57-08:00",
+    "timeCompleted": "2014-12-19T18:39:57-08:00",
+
+    "logs": [
+      {
+        "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
+        "parseStatus": "parsed",
+        "name": "builds-4h"
+      }
+    ],
+    "artifacts": [
+      {
+        "type": "json",
+        "name": "Artie Fact",
+        "blob": "{\"some\": \"value\"}"
+      }
+    ]
+  },
+  {
+    "jobGuid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33",
+    "origin": {
+      "kind": "hg.mozilla.org",
+      "project": "set by test",
+      "revision": "set by test"
+    },
+
+    "display": {
+      "jobSymbol": "P2",
+      "jobName": "Pulse Ingestion Test",
+      "groupSymbol": "PI",
+      "groupName": "PulseIngestion"
+    },
+
+    "status": "running",
+    "jobKind": "test",
+
+    "machine": {
+      "test": {
+        "machineName": "bld-linux64-ec2-104",
+        "platform": "linux64",
+        "osName": "linux",
+        "architecture": "x86_64"
+      },
+      "build": {
+        "machineName": "bld-linux64-ec2-104",
+        "platform": "linux64",
+        "osName": "linux",
+        "architecture": "x86_64"
+      }
+    },
+
+    "who": "thedude@lebowski.com",
+    "reason": "scheduler",
+
+    "timeScheduled": "2014-12-19T16:39:57-08:00",
+    "timeStarted": "2014-12-19T17:39:57-08:00",
+    "timeCompleted": "2014-12-19T18:39:57-08:00"
+  },
+  {
+    "jobGuid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33",
+    "origin": {
+      "kind": "hg.mozilla.org",
+      "project": "set by test",
+      "revision": "set by test"
+    },
+
+    "display": {
+      "jobSymbol": "P3",
+      "jobName": "Pulse Ingestion Test",
+      "groupSymbol": "PI",
+      "groupName": "PulseIngestion"
+    },
+
+    "status": "fail",
     "jobKind": "test",
 
     "machine": {

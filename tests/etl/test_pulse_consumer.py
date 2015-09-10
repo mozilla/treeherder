@@ -2,9 +2,9 @@ from treeherder.etl import pulse_consumer
 from treeherder.model.derived.artifacts import ArtifactsModel
 
 
-def test_validate_jobs(sample_data, test_project, jm, result_set_stored):
+def test_ingest_job(sample_data, test_project, jm, result_set_stored):
     """
-    Ensure the pending job with the missing resultset is queued for refetching
+    Ingest a job through the JSON Schema validated JobLoader used by Pulse
     """
     revision = result_set_stored[0]["revisions"][0]["revision"]
     sample_jobs = sample_data.pulse_jobs
@@ -12,17 +12,14 @@ def test_validate_jobs(sample_data, test_project, jm, result_set_stored):
         job["origin"]["project"] = test_project
         job["origin"]["revision"] = revision
 
-    jpc = pulse_consumer.JobLoader()
-
-    jpc.process_job_list(sample_jobs, raise_errors=True)
+    jl = pulse_consumer.JobLoader()
+    jl.process_job_list(sample_jobs, raise_errors=True)
 
     jobs = jm.get_job_list(0, 10)
-    import pprint
-    pprint.pprint(jobs)
-    assert len(jobs) == 1
+    assert len(jobs) == 3
 
     logs = jm.get_job_log_url_list([jobs[0]["id"]])
-    assert len(logs) == 1
+    assert len(logs) == 2
     with ArtifactsModel(test_project) as am:
         artifacts = am.get_job_artifact_list(0, 10)
-        assert len(artifacts) == 1
+        assert len(artifacts) == 2
