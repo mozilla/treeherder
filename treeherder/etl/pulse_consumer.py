@@ -71,7 +71,7 @@ class JobLoader:
     COMPLETED_STATUS_RANK = 3
     TEST_RESULT_MAP = {
         "success": "success",
-        "fail": "testfail",
+        "fail": "testfailed",
         "exception": "exception",
         "canceled": "usercancel"
     }
@@ -149,14 +149,14 @@ class JobLoader:
         }
 
     def _get_artifacts(self, job):
-        pulse_artifacts = job["artifacts"]
+        pulse_artifacts = job.get("artifacts", [])
         for artifact in pulse_artifacts:
             artifact["job_guid"] = job["jobGuid"]
         return pulse_artifacts
 
     def _get_log_references(self, job):
         log_references = []
-        for logref in job["logs"]:
+        for logref in job.get("logs", []):
             log_references.append({
                 "name": logref["name"],
                 "url": logref["url"],

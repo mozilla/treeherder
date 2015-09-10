@@ -36,10 +36,9 @@ class Command(BaseCommand):
         logger.info("Job received via Pulse")
 
         message = args[0]
-        payload = message['payload']
         try:
-            jobs = json.loads(payload['jobs'])
+            jobs = json.loads(message)
             jl = JobLoader()
             jl.process_job_list(jobs)
         except Exception:
-            logger.error("Unable to load job.", exc_info=1)
+            logger.error("Unable to load jobs: {}".format(message), exc_info=1)
