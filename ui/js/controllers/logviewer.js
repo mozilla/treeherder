@@ -25,7 +25,6 @@ logViewerApp.controller('LogviewerCtrl', [
             $scope.job_id= query_string.job_id;
             LogSlice = new ThLogSliceModel($scope.job_id, LINE_BUFFER_SIZE);
         }
-
         $scope.displayedLogLines = [];
         $scope.loading = false;
         $scope.logError = false;
@@ -33,15 +32,20 @@ logViewerApp.controller('LogviewerCtrl', [
         $scope.currentLineNumber = 0;
         $scope.highestLine = 0;
         $scope.showSuccessful = true;
-
         $scope.$watch('artifact', function () {
             if (!$scope.artifact) {
                 return;
             }
             $scope.showSuccessful = !$scope.hasFailedSteps();
-            $scope.getSelectedLines();
         });
+        $scope.$watch('selectedBegin', function() {
+            $scope.getSelectedLines();
 
+        });
+        $scope.click = function(line) {
+            $scope.selectedBegin = $scope.selectedEnd = line.index;
+            line.selected = true;
+        };
         $scope.getSelectedLines = function() {
             var urlHash = $location.hash();
             var regexSelectedlines = /L(\d+)(-L(\d+))?$/;
