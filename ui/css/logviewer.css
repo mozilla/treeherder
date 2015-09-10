@@ -75,8 +75,6 @@ body {
 
 .lv-line-text {
     white-space: pre;
-    padding: 0 30px;
-    width: 100%;
 }
 
 .lv-line-num {
@@ -91,7 +89,6 @@ body {
     -webkit-user-select:none;
     -o-user-select :none;
     background-color: white;
-    width: auto;
 }
 
 .lv-line-num:hover {
@@ -102,7 +99,6 @@ body {
 .lv-error-line {
     background-color: white;
     color: #333333;
-    width: 100%;
 }
 
 .lv-error-line span:nth-child(2) {
@@ -111,11 +107,10 @@ body {
 
 .lv-log-container {
     flex: 1;
-    overflow: auto;
+    overflow-x: scroll;
     font-family: monospace;
     font-size: small;
     background: #f8f8f8;
-    width: 100%;
 }
 
 .lv-log-container > div:nth-child(even) {
@@ -129,13 +124,6 @@ body {
 
 .lv-log-container > div.lv-log-line > div.lv-line-text.lv-selected-lines {
     background: #F8EEC7;
-}
-
-.lv-log-line {
-    padding: 0 18px;
-    white-space: nowrap;
-    display: list-item;
-    width: 100%;
 }
 
 .lv-line-highlight {

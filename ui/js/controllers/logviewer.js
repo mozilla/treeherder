@@ -32,7 +32,6 @@ logViewerApp.controller('LogviewerCtrl', [
         $scope.currentLineNumber = 0;
         $scope.highestLine = 0;
         $scope.showSuccessful = true;
-        getSelectedLines();
         $scope.$watch('artifact', function () {
             if (!$scope.artifact) {
                 return;
@@ -42,6 +41,9 @@ logViewerApp.controller('LogviewerCtrl', [
         $scope.$watch('[selectedBegin, selectedEnd]', function(newVal, oldVal) {
             var newHash = (newVal[0] == newVal[1])? newVal[0] : newVal[0] + "-L"+newVal[1];
             $location.hash("L"+newHash);
+        });
+        $scope.$on("$locationChangeSuccess", function(event) {
+            getSelectedLines();
         });
 
         $scope.click = function(line, $event) {
