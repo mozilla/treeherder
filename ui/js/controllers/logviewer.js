@@ -32,21 +32,35 @@ logViewerApp.controller('LogviewerCtrl', [
         $scope.currentLineNumber = 0;
         $scope.highestLine = 0;
         $scope.showSuccessful = true;
+        getSelectedLines();
         $scope.$watch('artifact', function () {
             if (!$scope.artifact) {
                 return;
             }
             $scope.showSuccessful = !$scope.hasFailedSteps();
         });
-        $scope.$watch('selectedBegin', function() {
-            $scope.getSelectedLines();
-
+        $scope.$watch('[selectedBegin, selectedEnd]', function(newVal, oldVal) {
+            var newHash = (newVal[0] == newVal[1])? newVal[0] : newVal[0] + "-L"+newVal[1];
+            $location.hash("L"+newHash);
         });
-        $scope.click = function(line) {
-            $scope.selectedBegin = $scope.selectedEnd = line.index;
-            line.selected = true;
+
+        $scope.click = function(line, $event) {
+            if($event.shiftKey) {
+                if (line.index < $scope.selectedBegin){
+                    $scope.selectedEnd = $scope.selectedBegin;
+                    $scope.selectedBegin = line.index;
+                }
+                else {
+                    $scope.selectedEnd = line.index;
+                }
+            }
+            else {
+                $scope.selectedBegin = $scope.selectedEnd = line.index;
+                line.selected = true;
+            }
         };
-        $scope.getSelectedLines = function() {
+
+        function getSelectedLines () {
             var urlHash = $location.hash();
             var regexSelectedlines = /L(\d+)(-L(\d+))?$/;
             if (regexSelectedlines.test(urlHash)) {
@@ -57,7 +71,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 $scope.selectedBegin = matchSelectedLines[1];
                 $scope.selectedEnd = matchSelectedLines[3];
             }
-        };
+        }
 
         $scope.hasFailedSteps = function () {
             var steps = $scope.artifact.step_data.steps;
@@ -119,7 +133,6 @@ logViewerApp.controller('LogviewerCtrl', [
                 }).then(function(data) {
 
                     drawErrorLines(data);
-                    drawSelectedLines(data);
 
                     if (bounds.top) {
                         for (var i = data.length - 1; i >= 0; i--) {
@@ -300,26 +313,6 @@ logViewerApp.controller('LogviewerCtrl', [
                     data[index].hasError = true;
                 });
             });
-        }
-
-        function drawSelectedLines(data) {
-            //TODO: Test $scope.selectedBegin and $scope.selectedEnd
-            var i = $scope.selectedBegin;
-            var end = $scope.selectedEnd;
-
-            var min = data[0].index;
-            var max = data[ data.length - 1 ].index;
-
-            var index = i - min;
-            var indexEnd = end - min;
-
-            if (i < min || end > max) {
-                return;
-            }
-
-            for (index; index <= indexEnd; index++) {
-                data[index].selected = true;
-            }
         }
 
         function getChunksSurrounding(line) {
