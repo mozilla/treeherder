@@ -55,7 +55,7 @@
     ]
   },
   {
-    "jobGuid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33",
+    "jobGuid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf34",
     "origin": {
       "kind": "hg.mozilla.org",
       "project": "set by test",
@@ -95,7 +95,7 @@
     "timeCompleted": "2014-12-19T18:39:57-08:00"
   },
   {
-    "jobGuid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33",
+    "jobGuid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35",
     "origin": {
       "kind": "hg.mozilla.org",
       "project": "set by test",

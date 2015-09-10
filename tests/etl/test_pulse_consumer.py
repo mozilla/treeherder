@@ -19,7 +19,7 @@ def test_ingest_job(sample_data, test_project, jm, result_set_stored):
     assert len(jobs) == 3
 
     logs = jm.get_job_log_url_list([jobs[0]["id"]])
-    assert len(logs) == 2
+    assert len(logs) == 1
     with ArtifactsModel(test_project) as am:
         artifacts = am.get_job_artifact_list(0, 10)
         assert len(artifacts) == 2
