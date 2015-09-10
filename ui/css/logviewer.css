@@ -75,30 +75,34 @@ body {
 
 .lv-line-text {
     white-space: pre;
-    position: relative;
-    height: 100px;
-    max-width: 100%;
+    padding: 0 30px;
+    width: 100%;
 }
 
 .lv-line-num {
-    white-space:pre;
+    white-space: pre;
     float:left;
-    border-right-style: groove;
-    width: auto;
+    align-items: center;
+    border-right-style: solid;
+    border-right-color: black;
+    border-right-width: thin;
     -moz-user-select: none;
     -khtml-user-select:none;
     -webkit-user-select:none;
     -o-user-select :none;
+    background-color: white;
+    width: auto;
 }
 
-.lv-line-num: hover {
-    background-color: yellow;
+.lv-line-num:hover {
+    color: blue;
+    cursor: pointer;
 }
 
 .lv-error-line {
     background-color: white;
     color: #333333;
-    width: auto;
+    width: 100%;
 }
 
 .lv-error-line span:nth-child(2) {
@@ -111,6 +115,7 @@ body {
     font-family: monospace;
     font-size: small;
     background: #f8f8f8;
+    width: 100%;
 }
 
 .lv-log-container > div:nth-child(even) {
@@ -118,16 +123,19 @@ body {
 }
 
 /* Equal weight selector needs to follow the above nth-child() */
-.lv-log-container > .lv-log-line > span.text-danger {
+.lv-log-container > .lv-log-line > .text-danger {
     background: #fbe3e3;
 }
 
-.lv-log-container > .lv-log-line > span.lv-selected-lines {
+.lv-log-container > div.lv-log-line > div.lv-line-text.lv-selected-lines {
     background: #F8EEC7;
 }
 
 .lv-log-line {
     padding: 0 18px;
+    white-space: nowrap;
+    display: list-item;
+    width: 100%;
 }
 
 .lv-line-highlight {
