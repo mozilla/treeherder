@@ -1,17 +1,23 @@
+import logging
+from kombu.messaging import Producer
+from kombu import Connection, Exchange
+
 from django.core.management.base import BaseCommand
-
-from mozillapulse.publishers import GenericPublisher
-from mozillapulse.config import PulseConfiguration
-from mozillapulse.messages.base import GenericMessage
-
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
 
-    """Management command to publish a job to a pulse exchange."""
+    """
+    Management command to publish a job to a pulse exchange.
 
-    help = "Publish a message to a pulse exchange"
+    This is primarily intended as a mechanism to test new or changed jobs
+    to ensure they validate and will show as expected in the Treeherder UI.
+    """
+
+    help = "Publish jobs to a pulse exchange"
 
     def add_arguments(self, parser):
         parser.add_argument('project', help="The project/repo to post jobs for (e.g.: mozilla-inbound")
@@ -21,27 +27,22 @@ class Command(BaseCommand):
         project = options["project"]
         payload_file = options["payload_file"]
         config = settings.PULSE_DATA_INGESTION_CONFIG
-        user = config["userid"]
-        password = config["password"]
 
-        exchange = "exchange/{}/jobs".format(user)
-        print "Publish to exchange: {}".format(exchange)
+        exchange_name = "exchange/{}/jobs".format(config["userid"])
 
-        config = PulseConfiguration(user=user, password=password,
-                                    vhost=config['virtual_host'],
-                                    ssl=config['ssl'],
-                                    host=config['hostname'])
+        connection = Connection(**config)
+        exchange = Exchange(exchange_name, type="topic")
+        producer = Producer(connection,
+                            exchange,
+                            routing_key=project,
+                            auto_declare=True)
 
-        message = JobMessage(project)
+        logger.info("Publish to exchange: {}".format(exchange_name))
+
         with open(payload_file) as f:
-            message.set_data("jobs", value=f.read())
+            body = f.read()
 
-        publisher = GenericPublisher(config, exchange=exchange)
-        publisher.publish(message)
-
-
-class JobMessage(GenericMessage):
-
-    def __init__(self, project):
-        super(JobMessage, self).__init__()
-        self.routing_parts = [project]
+            try:
+                producer.publish(body)
+            finally:
+                connection.release()
