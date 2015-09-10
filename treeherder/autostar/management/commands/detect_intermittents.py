@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand, CommandError
 from treeherder.autostar import creators
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import FailureLine, Matcher
-from autostar import match_errors
+from .autostar import match_errors
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,8 @@ class Command(BaseCommand):
             raise CommandError('2 arguments required, %s given' % len(args))
         job_guid, repository = args
 
-        jobs = JobsModel(repository).get_job_repeats(job_guid)
+        with JobsModel(repository) as jobs_model:
+            jobs = jobs_model.get_job_repeats(job_guid)
 
         add_new_intermittents(repository, jobs)
 
@@ -50,14 +51,11 @@ def add_new_intermittents(repository, jobs):
 
         new_matches = set()
 
-        for creator in Matcher.objects.auto_creators():
+        for creator in Matcher.objects.registered_creators():
             job_failures = failures_by_job[job["job_guid"]]
 
-            for item in job_failures:
-                logger.debug(item.classified_failures.all())
-
             unmatched_lines = [item for item in job_failures if
-                               not item.classified_failures.all() and
+                               not item.classified_failures.count() and
                                item.id not in new_matches]
 
             logger.debug("Unmatched lines %r" % unmatched_lines)
@@ -66,7 +64,6 @@ def add_new_intermittents(repository, jobs):
             line_indicies = creator(unmatched_lines)
 
             for index in line_indicies:
-                print index
                 failure = unmatched_lines[index]
                 failure.create_new_classification(creator.db_object)
                 new_matches.add(failure.id)

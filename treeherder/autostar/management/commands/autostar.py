@@ -35,7 +35,7 @@ def match_errors(repository, job_guid):
 
     all_matched = set()
 
-    for matcher in Matcher.objects.auto_matchers():
+    for matcher in Matcher.objects.registered_matchers():
         matches = matcher(unmatched_failures)
         for failure, intermittent, score in matches:
             logger.info("Matched failure %i with intermittent %i" % (failure.id,
@@ -54,8 +54,8 @@ def match_errors(repository, job_guid):
 
 
 def all_lines_matched(job_failures):
-    if any(not failure_line.matches.all() or
-           all(match.score < 1 for match in failure_line.matches.all())
-           for failure_line in job_failures):
-        return False
+    for failure_line in job_failures:
+        existing_failures = failure_line.matches.all()
+        if existing_failures and all(match.score < 1 for match in existing_failures):
+            return False
     return True

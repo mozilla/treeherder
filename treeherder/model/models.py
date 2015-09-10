@@ -607,7 +607,7 @@ class FailureLine(models.Model):
         new_link = FailureMatch(
             failure_line=self,
             classified_failure=new_classification,
-            matcher=Matcher.objects.filter(name=matcher.name).get(),
+            matcher=Matcher.objects.get(name=matcher.name),
             score=1,
             is_best=True)
         new_link.save()
@@ -638,19 +638,15 @@ class MatcherManager(models.Manager):
         if cls.__name__ in dest:
             return
 
-        try:
-            obj = Matcher.objects.filter(name=cls.__name__).get()
-        except Matcher.DoesNotExist:
-            obj = Matcher(name=cls.__name__)
-            obj.save()
+        obj = Matcher.objects.get_or_create(name=cls.__name__)[0]
 
         dest[cls.__name__] = cls(obj)
 
-    def auto_matchers(self):
+    def registered_matchers(self):
         for matcher in Matcher._matcher_funcs.values():
             yield matcher
 
-    def auto_creators(self):
+    def registered_creators(self):
         for matcher in Matcher._creator_funcs.values():
             yield matcher
 

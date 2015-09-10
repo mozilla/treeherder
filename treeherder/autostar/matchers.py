@@ -27,10 +27,10 @@ class PreciseTestMatcher(Matcher):
                         failure_line__id=failure.id).order_by("-score",
                                                               "-classified_failure__modified")
 
-                if matching_failures:
-                    logger.debug("Found %i matching rows" % len(matching_failures))
-                    intermittent = matching_failures[0].classified_failure
-                    score = matching_failures[0].score
+                best_match = matching_failures.first()
+                if best_match:
+                    intermittent = best_match.classified_failure
+                    score = best_match.score
                     rv.append((failure, intermittent, score))
         return rv
 
@@ -49,10 +49,10 @@ class PreciseLogMatcher(Matcher):
                         failure_line__id=failure.id).order_by("-score",
                                                               "-classified_failure__modified")
 
+                best_match = matching_failures.first()
                 if matching_failures:
-                    logger.debug("Found %i matching rows" % len(matching_failures))
-                    intermittent = matching_failures[0].classified_failure
-                    score = matching_failures[0].score
+                    intermittent = best_match.classified_failure
+                    score = best_match.score
                     rv.append((failure, intermittent, score))
         return rv
 
