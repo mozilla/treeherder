@@ -6,8 +6,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from treeherder.model.derived import DatasetNotFoundError
-from treeherder.webapp.api.permissions import (HasLegacyOauthPermissionsOrReadOnly,
-                                               IsStaffOrReadOnly)
+from treeherder.webapp.api import permissions
 from treeherder.webapp.api.utils import UrlQueryFilter, to_timestamp, with_jobs
 
 
@@ -19,7 +18,7 @@ class ResultSetViewSet(viewsets.ViewSet):
     ``result sets`` are synonymous with ``pushes`` in the ui
     """
     throttle_scope = 'resultset'
-    permission_classes = (HasLegacyOauthPermissionsOrReadOnly,)
+    permission_classes = (permissions.HasHawkOrLegacyOauthPermissionsOrReadOnly,)
 
     @with_jobs
     def list(self, request, project, jm):
@@ -132,7 +131,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         except Exception as ex:
             return Response("Exception: {0}".format(ex), 404)
 
-    @detail_route(methods=['post'], permission_classes=[IsStaffOrReadOnly])
+    @detail_route(methods=['post'], permission_classes=[permissions.IsStaffOrReadOnly])
     @with_jobs
     def trigger_missing_jobs(self, request, project, jm, pk=None):
         """
@@ -148,7 +147,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         except Exception as ex:
             return Response("Exception: {0}".format(ex), 404)
 
-    @detail_route(methods=['post'], permission_classes=[IsStaffOrReadOnly])
+    @detail_route(methods=['post'], permission_classes=[permissions.IsStaffOrReadOnly])
     @with_jobs
     def trigger_all_talos_jobs(self, request, project, jm, pk=None):
         """
