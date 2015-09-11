@@ -70,6 +70,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'hawkrest.middleware.HawkResponseMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -105,6 +106,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_extensions',
     'rest_framework_swagger',
+    'hawkrest',
     'corsheaders',
     'django_browserid',
     # treeherder apps
@@ -267,6 +269,7 @@ REST_FRAMEWORK = {
     'ALLOWED_VERSIONS': ('1.0',),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
+        'hawkrest.HawkAuthentication',
         'treeherder.webapp.api.auth.TwoLeggedOauthAuthentication',
     )
 }
@@ -415,3 +418,5 @@ SWAGGER_SETTINGS = {"enabled_methods": ['get', ]}
 REST_FRAMEWORK_EXTENSIONS = {
     'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15
 }
+
+HAWK_CREDENTIALS_LOOKUP = 'treeherder.webapp.api.auth.hawk_lookup'

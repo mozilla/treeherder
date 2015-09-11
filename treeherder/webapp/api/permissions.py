@@ -1,3 +1,4 @@
+from mohawk import Receiver
 from rest_framework import permissions
 
 
@@ -37,10 +38,28 @@ class HasLegacyOauthPermissions(permissions.BasePermission):
         return hasattr(request, 'legacy_oauth_authenticated')
 
 
-class HasLegacyOauthPermissionsOrReadOnly(permissions.BasePermission):
+class HasHawkPermissions(permissions.BasePermission):
 
     def has_permission(self, request, view):
+        hawk_header = 'hawk.receiver'
+
+        if hawk_header in request.META and isinstance(request.META[hawk_header], Receiver):
+            return True
+        return False
+
+
+class HasHawkOrLegacyOauthPermissions(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        return (HasHawkPermissions().has_permission(request, view) or
+                HasLegacyOauthPermissions().has_permission(request, view))
+
+
+class HasHawkOrLegacyOauthPermissionsOrReadOnly(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return hasattr(request, 'legacy_oauth_authenticated')
+        return HasHawkOrLegacyOauthPermissions().has_permission(request, view)
