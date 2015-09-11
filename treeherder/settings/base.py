@@ -17,16 +17,6 @@ DEBUG = os.environ.get("TREEHERDER_DEBUG", False)
 TREEHERDER_REQUEST_PROTOCOL = os.environ.get("TREEHERDER_REQUEST_PROTOCOL", "http")
 TREEHERDER_REQUEST_HOST = os.environ.get("TREEHERDER_REQUEST_HOST", "local.treeherder.mozilla.org")
 
-TREEHERDER_PERF_SERIES_TIME_RANGES = [
-    {"seconds": 86400, "days": 1},
-    {"seconds": 604800, "days": 7},
-    {"seconds": 1209600, "days": 14},
-    {"seconds": 2592000, "days": 30},
-    {"seconds": 5184000, "days": 60},
-    {"seconds": 7776000, "days": 90},
-    {"seconds": 31536000, "days": 365},
-]
-
 DATA_CYCLE_INTERVAL = timedelta(days=30 * 4)
 
 RABBITMQ_USER = os.environ.get("TREEHERDER_RABBITMQ_USER", "guest")
@@ -124,6 +114,7 @@ INSTALLED_APPS = [
     'treeherder.etl',
     'treeherder.workers',
     'treeherder.embed',
+    'treeherder.perf'
 ]
 
 LOCAL_APPS = []
@@ -182,7 +173,6 @@ CELERY_QUEUES = (
     Queue('buildapi_4hr', Exchange('default'), routing_key='buildapi_4hr'),
     Queue('cycle_data', Exchange('default'), routing_key='cycle_data'),
     Queue('calculate_eta', Exchange('default'), routing_key='calculate_eta'),
-    Queue('populate_performance_series', Exchange('default'), routing_key='populate_performance_series'),
     Queue('fetch_bugs', Exchange('default'), routing_key='fetch_bugs')
 )
 
@@ -331,9 +321,6 @@ BZ_MAX_COMMENT_LENGTH = 40000
 # timeout for requests to external sources
 # like ftp.mozilla.org or hg.mozilla.org
 TREEHERDER_REQUESTS_TIMEOUT = 30
-
-# timeout for acquiring lock to update performance series
-PERFHERDER_UPDATE_SERIES_LOCK_TIMEOUT = 60
 
 # The pulse uri that is passed to kombu
 PULSE_URI = os.environ.get("PULSE_URI", "amqps://guest:guest@pulse.mozilla.org/")

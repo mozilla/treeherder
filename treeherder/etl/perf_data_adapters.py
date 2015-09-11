@@ -1,3 +1,4 @@
+import datetime
 import logging
 import math
 from hashlib import sha1
@@ -5,6 +6,14 @@ from hashlib import sha1
 import simplejson as json
 from jsonschema import validate
 from simplejson import encoder
+
+from treeherder.model.models import (MachinePlatform,
+                                     OptionCollection,
+                                     Repository)
+from treeherder.perf.models import (PerformanceFramework,
+                                    PerformanceSignature,
+                                    PerformanceDatum)
+
 
 logger = logging.getLogger(__name__)
 
@@ -23,100 +32,58 @@ class PerformanceDataAdapter(object):
         'talos_data'
     ])
 
-    def __init__(self):
+    datazilla_schema = {
+        "title": "Datazilla Schema",
 
-        self.datazilla_schema = {
-            "title": "Datazilla Schema",
+        "type": "object",
 
-            "type": "object",
+        "properties": {
+            "test_machine": {"type": "object"},
+            "testrun": {"type": "object"},
+            "results": {"type": "object"},
+            "test_build": {"type": "object"},
+            "test_aux": {"type": "object"}
+        },
 
-            "properties": {
-                "test_machine": {"type": "object"},
-                "testrun": {"type": "object"},
-                "results": {"type": "object"},
-                "test_build": {"type": "object"},
-                "test_aux": {"type": "object"}
-            },
-
-            "required": ["results", "test_build", "testrun", "test_machine"]
-        }
+        "required": ["results", "test_build", "testrun", "test_machine"]
+    }
 
     @staticmethod
-    def _round(num):
-        # Use a precision of .2f for all numbers stored
-        # to insure we don't have floats with giant mantissa's
-        # that inflate the size of the stored data structure
-        return round(num, 2)
-
-    @staticmethod
-    def _extract_summary_data(suite_data, summary):
-        suite_data["value"] = summary["suite"]
-        return suite_data
-
-    @staticmethod
-    def _calculate_summary_data(job_id, result_set_id, push_timestamp, results):
+    def _calculate_summary_value(results):
         values = []
         for test in results:
             values += results[test]
 
         if values:
-            geomean = math.exp(sum(map(lambda v: math.log(v+1),
-                                       values))/len(values))-1
-        else:
-            geomean = 0.0
+            return math.exp(sum(map(lambda v: math.log(v+1),
+                                    values))/len(values))-1
 
-        return {
-            "job_id": job_id,
-            "result_set_id": result_set_id,
-            "push_timestamp": push_timestamp,
-            "value": PerformanceDataAdapter._round(geomean)
-        }
+        return 0.0
 
     @staticmethod
-    def _extract_test_data(series_data, summary):
-        if not isinstance(summary, dict):
-            return series_data
-
-        # "filtered" currently means the fully calculated subtest
-        # value
-        series_data["value"] = PerformanceDataAdapter._round(
-            summary["filtered"])
-
-        return series_data
-
-    @staticmethod
-    def _calculate_test_data(job_id, result_set_id, push_timestamp,
-                             replicates):
+    def _calculate_test_value(replicates):
         replicates.sort()
         r = replicates
         r_len = len(replicates)
 
-        series_data = {
-            "job_id": job_id,
-            "result_set_id": result_set_id,
-            "push_timestamp": push_timestamp,
-            "value": 0
-        }
+        value = 0.0
 
         if r_len > 0:
             def avg(s):
-                return float(sum(r)) / r_len
+                return float(sum(s)) / len(s)
 
-            mean = float(sum(r))/r_len
-            series_data["value"] = PerformanceDataAdapter._round(mean)
+            value = avg(r)
 
             if r_len > 1:
                 if len(r) % 2 == 1:
-                    series_data["value"] = PerformanceDataAdapter._round(
-                        r[int(math.floor(len(r)/2))])
+                    value = r[int(math.floor(len(r)/2))]
                 else:
-                    series_data["value"] = PerformanceDataAdapter._round(
-                        avg([r[(len(r)/2) - 1], r[len(r)/2]]))
+                    value = avg([r[(len(r)/2) - 1], r[len(r)/2]])
 
-        return series_data
+        return value
 
     @staticmethod
-    def get_series_signature(signature_properties):
+    def get_signature_hash(signature_properties):
         signature_prop_values = signature_properties.keys()
         str_values = []
         for value in signature_properties.values():
@@ -131,65 +98,12 @@ class PerformanceDataAdapter(object):
 
         return sha.hexdigest()
 
-    def _add_performance_placeholder(self, series_signature,
-                                     signature_properties,
-                                     testdata):
-        if series_signature not in self.signatures:
-            self.signatures[series_signature] = []
-
-            for signature_property in signature_properties:
-                self.signature_property_placeholders.append([
-                    series_signature,
-                    signature_property,
-                    signature_properties[signature_property],
-                    series_signature,
-                    signature_property,
-                    signature_properties[signature_property],
-                ])
-
-        self.signatures[series_signature].append(testdata)
-
 
 class TalosDataAdapter(PerformanceDataAdapter):
 
     # keys useful for creating a non-redundant performance signature
     SIGNIFICANT_REFERENCE_DATA_KEYS = ['option_collection_hash',
                                        'machine_platform']
-
-    def __init__(self):
-
-        super(TalosDataAdapter, self).__init__()
-
-        self.adapted_data = []
-
-        self.signatures = {}
-        self.signature_property_placeholders = []
-
-    @staticmethod
-    def _get_base_perf_obj(job_guid, name, type, talos_datum, series_signature,
-                           signature_properties, series_data):
-
-        # N.B. test_build information (i.e. revision) just there to ease third
-        # party alert processing, since we should normally be able to get
-        # it by querying the job info
-        obj = {
-            "job_guid": job_guid,
-            "name": name,
-            "type": type,
-            "blob": {
-                "date": talos_datum["testrun"]["date"],
-                "series_signature": series_signature,
-                "signature_properties": signature_properties,
-                "performance_series": series_data,
-                "testsuite": talos_datum["testrun"]["suite"],
-                "metadata": {'test_build': talos_datum['test_build']}
-            }
-        }
-        options = talos_datum["testrun"].get("options")
-        if options:
-            obj['blob']['metadata']['options'] = options
-
-        return obj
 
     @staticmethod
     def _transform_signature_properties(properties, significant_keys=None):
@@ -210,23 +124,38 @@ class TalosDataAdapter(PerformanceDataAdapter):
 
         return transformed_properties
 
-    def adapt_and_load(self, reference_data, job_data, datum):
+    def adapt_and_load(self, project_name, reference_data, job_data, datum):
+        if 'e10s' in reference_data.get('job_group_symbol', ''):
+            extra_properties = {'test_options': ['e10s']}
+        else:
+            extra_properties = {}
+
         # transform the reference data so it only contains what we actually
-        # care about
+        # care about (for calculating the signature hash reproducibly), then
+        # get the associated models
         reference_data = self._transform_signature_properties(reference_data)
+        option_collection = OptionCollection.objects.get(
+            option_collection_hash=reference_data['option_collection_hash'])
+        framework = PerformanceFramework.objects.get(name='talos')
+        # there may be multiple machine platforms with the same platform: use
+        # the first
+        platform = MachinePlatform.objects.filter(
+            platform=reference_data['machine_platform'])[0]
+        repository = Repository.objects.get(
+            name=project_name)
 
         # Get just the talos datazilla structure for treeherder
         target_datum = json.loads(datum['blob'])
         for talos_datum in target_datum['talos_data']:
             validate(talos_datum, self.datazilla_schema)
-
             _job_guid = datum["job_guid"]
             _suite = talos_datum["testrun"]["suite"]
 
             # data for performance series
             job_id = job_data[_job_guid]['id']
             result_set_id = job_data[_job_guid]['result_set_id']
-            push_timestamp = job_data[_job_guid]['push_timestamp']
+            push_timestamp = datetime.datetime.fromtimestamp(
+                job_data[_job_guid]['push_timestamp'])
 
             # counters will not be part of the summary series
             # counters have a json obj {'stat': val} instead of [val1, val2, ...]
@@ -237,18 +166,24 @@ class TalosDataAdapter(PerformanceDataAdapter):
                         'test': _test
                     }
                     signature_properties.update(reference_data)
-
-                    series_signature = self.get_series_signature(
+                    signature_properties.update(extra_properties)
+                    signature_hash = self.get_signature_hash(
                         signature_properties)
 
+                    signature, _ = PerformanceSignature.objects.get_or_create(
+                        signature_hash=signature_hash,
+                        defaults={
+                            'test': _test,
+                            'suite': _suite,
+                            'option_collection': option_collection,
+                            'platform': platform,
+                            'framework': framework,
+                            'extra_properties': extra_properties
+                        })
+
                     try:
-                        series_data = {
-                            "job_id": job_id,
-                            "result_set_id": result_set_id,
-                            "push_timestamp": push_timestamp,
-                            "value": float(
-                                talos_datum["talos_counters"][_test]["mean"])
-                        }
+                        value = float(
+                            talos_datum["talos_counters"][_test]["mean"])
                     except:
                         logger.warning("Talos counters for job %s, "
                                        "result_set %s, and counter named %s "
@@ -257,8 +192,13 @@ class TalosDataAdapter(PerformanceDataAdapter):
                                         talos_datum["talos_counters"][_test]))
                         continue
 
-                    self._add_performance_placeholder(
-                        series_signature, signature_properties, series_data)
+                    PerformanceDatum.objects.get_or_create(
+                        repository=repository,
+                        result_set_id=result_set_id,
+                        job_id=job_id,
+                        signature=signature,
+                        push_timestamp=push_timestamp,
+                        defaults={'value': value})
 
             subtest_signatures = []
 
@@ -271,48 +211,72 @@ class TalosDataAdapter(PerformanceDataAdapter):
                 }
                 signature_properties.update(reference_data)
 
-                series_signature = self.get_series_signature(
+                signature_hash = self.get_signature_hash(
                     signature_properties)
-                subtest_signatures.append(series_signature)
+                subtest_signatures.append(signature_hash)
 
-                series_data = self._calculate_test_data(
-                    job_id, result_set_id, push_timestamp,
-                    talos_datum["results"][_test])
+                signature, _ = PerformanceSignature.objects.get_or_create(
+                    signature_hash=signature_hash,
+                    defaults={
+                        'test': _test,
+                        'suite': _suite,
+                        'option_collection': option_collection,
+                        'platform': platform,
+                        'framework': framework,
+                        'extra_properties': extra_properties
+                    })
 
-                if "summary" in talos_datum and talos_datum["summary"]["subtests"][_test]:
-                    summary_data = talos_datum["summary"]["subtests"][_test]
-                    series_data = self._extract_test_data(series_data,
-                                                          summary_data)
+                if "summary" in talos_datum:
+                    # most talos results should provide a summary of their
+                    # subtest results based on an internal calculation of
+                    # the replicates, use that if available
+                    value = talos_datum["summary"]["subtests"][_test]["filtered"]
+                else:
+                    # backwards compatibility for older versions of talos
+                    # and android talos which don't provide this summary
+                    # (at some point we can remove this)
+                    value = self._calculate_test_value(
+                        talos_datum["results"][_test])
 
-                self._add_performance_placeholder(
-                    series_signature, signature_properties, series_data)
+                PerformanceDatum.objects.get_or_create(
+                    repository=repository,
+                    result_set_id=result_set_id,
+                    job_id=job_id,
+                    signature=signature,
+                    push_timestamp=push_timestamp,
+                    defaults={'value': value})
 
             if subtest_signatures:
                 # summary series
-                summary_properties = {
-                    'suite': _suite,
-                    'subtest_signatures': json.dumps(sorted(subtest_signatures))
+                extra_summary_properties = {
+                    'subtest_signatures': sorted(subtest_signatures)
                 }
+                extra_summary_properties.update(extra_properties)
+                summary_properties = {'suite': _suite}
                 summary_properties.update(reference_data)
-                summary_signature = self.get_series_signature(
+                summary_properties.update(extra_summary_properties)
+                summary_signature_hash = self.get_signature_hash(
                     summary_properties)
-
-                summary_data = self._calculate_summary_data(
-                    job_id, result_set_id, push_timestamp, talos_datum["results"])
+                signature, _ = PerformanceSignature.objects.get_or_create(
+                    signature_hash=summary_signature_hash,
+                    defaults={
+                        'test': '',
+                        'suite': _suite,
+                        'option_collection': option_collection,
+                        'platform': platform,
+                        'framework': framework,
+                        'extra_properties': extra_summary_properties
+                    })
 
                 if "summary" in talos_datum and "suite" in talos_datum["summary"]:
-                    summary_data = self._extract_summary_data(summary_data,
-                                                              talos_datum["summary"])
+                    value = talos_datum["summary"]["suite"]
+                else:
+                    value = self._calculate_summary_value(talos_datum["results"])
 
-                self._add_performance_placeholder(
-                    summary_signature, summary_properties,
-                    summary_data)
-
-    def submit_tasks(self, project):
-
-        from treeherder.model.tasks import populate_performance_series
-
-        populate_performance_series.apply_async(
-            args=[project, 'talos_data', self.signatures],
-            routing_key='populate_performance_series'
-        )
+                PerformanceDatum.objects.get_or_create(
+                    repository=repository,
+                    result_set_id=result_set_id,
+                    job_id=job_id,
+                    signature=signature,
+                    push_timestamp=push_timestamp,
+                    defaults={'value': value})
