@@ -19,6 +19,6 @@ if [ ! -f $LOGFILE ]; then
 fi
 
 exec $NEWRELIC_ADMIN celery -A treeherder worker -c 3 \
-     -Q default,cycle_data,calculate_eta,populate_performance_series,fetch_bugs \
+     -Q default,cycle_data,calculate_eta,fetch_bugs \
      -E --maxtasksperchild=500 \
      --logfile=$LOGFILE -l INFO -n default.%h

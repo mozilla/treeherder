@@ -1,29 +1,72 @@
+import datetime
 from optparse import make_option
 from urlparse import urlparse
 
 import concurrent.futures
 from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
 
 from treeherder.client import PerfherderClient, PerformanceTimeInterval
-from treeherder.model.derived.jobs import JobsModel
+from treeherder.model.models import (MachinePlatform, OptionCollection,
+                                     Repository)
+from treeherder.perf.models import (PerformanceFramework,
+                                    PerformanceSignature,
+                                    PerformanceDatum)
 
 
-def _add_series(server_params, project, time_intervals, signature_hash,
-                signature_props, mysql_debug, verbose):
-    with JobsModel(project) as jm:
-        jm.DEBUG = mysql_debug
-        if verbose:
-            print(signature_hash)
+def _add_series(pc, project_name, signature_hash, signature_props, verbosity):
+    if verbosity == 3:
+        print signature_hash
 
-        jm.set_series_signature(signature_hash, signature_props)
-        for time_interval in time_intervals:
-            pc = PerfherderClient(protocol=server_params.scheme,
-                                  host=server_params.netloc)
-            series = pc.get_performance_series(project, signature_hash,
-                                               time_interval=time_interval)
-            jm.store_performance_series(time_interval, 'talos_data',
-                                        str(signature_hash),
-                                        series)
+    try:
+        option_collection = OptionCollection.objects.get(
+            option_collection_hash=signature_props['option_collection_hash'])
+    except OptionCollection.DoesNotExist:
+        print "Option collection for {} ({}) does not exist".format(
+            signature_hash, signature_props)
+        raise
+
+    # can't use "get" for platform because we currently have more than one platform
+    # with the same name in the database
+    platform = MachinePlatform.objects.filter(
+        platform=signature_props['machine_platform']).first()
+    if not platform:
+        raise Exception("Platform for %s (%s) does not exist".format(
+            signature_hash, signature_props))
+
+    framework = PerformanceFramework.objects.get(name='talos')
+
+    extra_properties = {}
+    for k in signature_props.keys():
+        if k not in ['option_collection_hash', 'machine_platform',
+                     'test', 'suite']:
+            extra_properties[k] = signature_props[k]
+
+    signature, _ = PerformanceSignature.objects.get_or_create(
+        signature_hash=signature_hash,
+        defaults={
+            'test': signature_props.get('test', ''),
+            'suite': signature_props['suite'],
+            'option_collection': option_collection,
+            'platform': platform,
+            'framework': framework,
+            'extra_properties': extra_properties
+        })
+
+    series = pc.get_performance_data(
+        project_name, signatures=signature_hash,
+        time_interval=PerformanceTimeInterval.ONE_YEAR)[signature_hash]
+    repository = Repository.objects.get(name=project_name)
+
+    with transaction.atomic():
+        for datum in series:
+            PerformanceDatum.objects.create(
+                repository=repository,
+                result_set_id=datum['result_set_id'],
+                job_id=datum['job_id'],
+                signature=signature,
+                value=datum['value'],
+                push_timestamp=datetime.datetime.fromtimestamp(datum['push_timestamp']))
 
 
 class Command(BaseCommand):
@@ -37,23 +80,11 @@ class Command(BaseCommand):
                     dest='server',
                     default='https://treeherder.mozilla.org',
                     help='Server to get data from, default https://treeherder.mozilla.org'),
-        make_option('--mysql-debug',
-                    action='store_true',
-                    dest='mysql_debug',
-                    default=False),
         make_option('--num-workers',
                     action='store',
                     dest='num_workers',
                     type='int',
                     default=4),
-        make_option('--verbose',
-                    action='store_true',
-                    default=False),
-        make_option('--time-interval',
-                    action='store',
-                    default=None,
-                    type='int',
-                    help="Time interval to fetch (defaults to all)"),
         make_option('--filter-props',
                     action='append',
                     dest="filter_props",
@@ -84,23 +115,16 @@ class Command(BaseCommand):
                 k, v = kv.split(':')
                 signatures = signatures.filter((k, v))
 
-        if options['time_interval'] is None:
-            time_intervals = PerformanceTimeInterval.all_valid_time_intervals()
-        else:
-            time_intervals = [options['time_interval']]
-
         with concurrent.futures.ProcessPoolExecutor(
                 options['num_workers']) as executor:
             futures = []
 
             for signature_hash in signatures.get_signature_hashes():
-                futures.append(executor.submit(_add_series, server_params,
+                futures.append(executor.submit(_add_series, pc,
                                                project,
-                                               time_intervals,
                                                signature_hash,
                                                signatures[signature_hash],
-                                               options['mysql_debug'],
-                                               options['verbose']))
+                                               options['verbosity']))
             for future in futures:
                 try:
                     future.result()

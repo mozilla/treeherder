@@ -2,7 +2,7 @@ import unittest
 
 from mock import patch
 
-from treeherder.client import PerfherderClient, TreeherderClientError
+from treeherder.client import PerfherderClient
 
 
 class PerfherderClientTest(unittest.TestCase):
@@ -36,49 +36,16 @@ class PerfherderClientTest(unittest.TestCase):
         self.assertEqual(sigs.get_property_values('cheezburgers'), set([1, 2]))
 
     @patch("treeherder.client.client.requests.get")
-    def test_get_performance_signature_properties(self, mock_get):
-        mock_get.return_value = self._get_mock_response(
-            [{'cheezburgers': 1, 'hamburgers': 2}])
-        pc = PerfherderClient()
-        propdict = pc.get_performance_signature_properties('mozilla-central',
-                                                           'signature1')
-        self.assertEqual({'cheezburgers': 1, 'hamburgers': 2},
-                         propdict)
+    def test_get_performance_data(self, mock_get):
 
-    @patch("treeherder.client.client.requests.get")
-    def test_get_performance_signature_properties_no_results(self, mock_get):
-        mock_get.return_value = self._get_mock_response(
-            [])
+        mock_get.return_value = self._get_mock_response({
+            'signature1': [{'value': 1}, {'value': 2}],
+            'signature2': [{'value': 2}, {'value': 1}]
+        })
         pc = PerfherderClient()
-        self.assertRaises(TreeherderClientError,
-                          pc.get_performance_signature_properties,
-                          'mozilla-central', 'signature1')
-
-    @patch("treeherder.client.client.requests.get")
-    def test_get_performance_series_list(self, mock_get):
-
-        mock_get.return_value = self._get_mock_response(
-            [{'series_signature': 'signature1',
-              'blob': [{'geomean': 1}, {'geomean': 2}]},
-             {'series_signature': 'signature2',
-              'blob': [{'geomean': 2}, {'geomean': 1}]}])
-        pc = PerfherderClient()
-        series_list = pc.get_performance_series_list('mozilla-central',
-                                                     ['signature1',
-                                                      'signature2'])
+        series_list = pc.get_performance_data('mozilla-central',
+                                              signatures=['signature1',
+                                                          'signature2'])
         self.assertEqual(len(series_list), 2)
-        self.assertEqual(series_list[0]['geomean'], [1, 2])
-        self.assertEqual(series_list[1]['geomean'], [2, 1])
-
-    @patch("treeherder.client.client.requests.get")
-    def test_get_performance_series_list_improper_length(self, mock_get):
-
-        # returning 1 when we should return 2
-        mock_get.return_value = self._get_mock_response(
-            [{'series_signature': 'signature1',
-              'blob': [{'geomean': 1}]}])
-
-        pc = PerfherderClient()
-        self.assertRaises(TreeherderClientError,
-                          pc.get_performance_series_list,
-                          'mozilla-central', ['signature1', 'signature2'])
+        self.assertEqual(series_list['signature1']['value'], [1, 2])
+        self.assertEqual(series_list['signature2']['value'], [2, 1])
