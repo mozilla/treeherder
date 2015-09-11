@@ -421,6 +421,7 @@ class ExclusionProfile(models.Model):
     exclusions = models.ManyToManyField(JobExclusion, related_name="profiles")
     flat_exclusion = JSONField(blank=True, default={})
     author = models.ForeignKey(User, related_name="exclusion_profiles_authored")
+    modified = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         super(ExclusionProfile, self).save(*args, **kwargs)

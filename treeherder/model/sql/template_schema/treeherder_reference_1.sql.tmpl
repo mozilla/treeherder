@@ -601,6 +601,7 @@ CREATE TABLE `exclusion_profile` (
     `is_default` bool NOT NULL,
     `flat_exclusion` longtext NOT NULL,
     `author_id` integer NOT NULL,
+    `modified` datetime NOT NULL,
 KEY `idx_name` (`name`),
 KEY `idx_is_default` (`is_default`),
 KEY `idx_author` (`author_id`)

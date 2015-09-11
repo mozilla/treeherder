@@ -75,6 +75,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(unique=True, max_length=255)),
                 ('is_default', models.BooleanField(default=False)),
                 ('flat_exclusion', jsonfield.fields.JSONField(default={}, blank=True)),
+                ('modified', models.DateTimeField(auto_now=True)),
                 ('author', models.ForeignKey(related_name='exclusion_profiles_authored', to=settings.AUTH_USER_MODEL)),
             ],
             options={
