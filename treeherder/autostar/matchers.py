@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 Match = namedtuple('Match', ['failure_line', 'classified_failure', 'score'])
 
+
 class Matcher(object):
     __metaclass__ = ABCMeta
 
@@ -39,8 +40,8 @@ class PreciseTestMatcher(Matcher):
                     failure_line__status=failure_line.status,
                     failure_line__expected=failure_line.expected,
                     failure_line__message=failure_line.message).exclude(
-                        failure_line__id=failure_line.id).order_by("-score",
-                                                                   "-classified_failure__modified")
+                        failure_line__job_guid=failure_line.job_guid).order_by(
+                            "-score", "-classified_failure__modified")
 
                 best_match = matching_failures.first()
                 if best_match:

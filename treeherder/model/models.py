@@ -584,10 +584,6 @@ class FailureLine(models.Model):
             ('job_guid', 'line')
         )
 
-    def add_match(self, matcher, classified_failure, score):
-
-        new_match.save()
-
     def best_match(self, min_score=0):
         match = FailureMatch.objects.filter(failure_line_id=self.id).order_by(
             "-score",
@@ -625,10 +621,10 @@ class ClassifiedFailure(models.Model):
 
 class MatcherManager(models.Manager):
     def register_matcher(self, cls):
-        self._register(cls, Matcher._matcher_funcs)
+        return self._register(cls, Matcher._matcher_funcs)
 
     def register_detector(self, cls):
-        self._register(cls, Matcher._detector_funcs)
+        return self._register(cls, Matcher._detector_funcs)
 
     def _register(self, cls, dest):
         if cls.__name__ in dest:
@@ -636,7 +632,10 @@ class MatcherManager(models.Manager):
 
         obj = Matcher.objects.get_or_create(name=cls.__name__)[0]
 
-        dest[cls.__name__] = cls(obj)
+        instance = cls(obj)
+        dest[cls.__name__] = instance
+
+        return instance
 
     def registered_matchers(self):
         for matcher in Matcher._matcher_funcs.values():

@@ -21,6 +21,7 @@ class Detector(object):
     def __call__(self, failure_lines):
         pass
 
+
 class TestFailureDetector(Detector):
     def __call__(self, failure_lines):
         rv = []

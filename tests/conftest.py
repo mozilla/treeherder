@@ -437,3 +437,50 @@ def mock_error_summary(monkeypatch):
     monkeypatch.setattr(error_summary, "get_error_summary", _get_error_summary)
 
     return bs_obj
+
+
+@pytest.fixture
+def failure_lines(jm, eleven_jobs_stored, initial_data):
+    from treeherder.model.models import RepositoryGroup, Repository
+    from tests.autostar.utils import test_line, create_failure_lines
+
+    job = jm.get_job(1)[0]
+
+    repository_group = RepositoryGroup.objects.create(name="repo_group")
+    repository = Repository.objects.create(name=jm.project,
+                                           repository_group=repository_group)
+
+    return create_failure_lines(repository,
+                                job["job_guid"],
+                                [(test_line, {}),
+                                 (test_line, {"subtest": "subtest2"})])
+
+
+@pytest.fixture
+def classified_failures(jm, eleven_jobs_stored, initial_data, failure_lines):
+    from treeherder.model.models import ClassifiedFailure, FailureMatch, Matcher
+    from treeherder.autostar import creators
+
+    job_1 = jm.get_job(1)[0]
+
+    class TreeherderUnitTestDetector(creators.Detector):
+        def __call__(self, failure_lines):
+            pass
+
+    test_matcher = Matcher.objects.register_detector(TreeherderUnitTestDetector)
+
+    classified_failures = []
+
+    for failure_line in failure_lines:
+        if failure_line.job_guid == job_1["job_guid"]:
+            classified_failure = ClassifiedFailure()
+            classified_failure.save()
+            match = FailureMatch(failure_line=failure_line,
+                                 classified_failure=classified_failure,
+                                 matcher=test_matcher.db_object,
+                                 score=1.0,
+                                 is_best=True)
+            match.save()
+            classified_failures.append(classified_failure)
+
+    return classified_failures
