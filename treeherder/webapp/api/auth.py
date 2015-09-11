@@ -4,6 +4,7 @@ from rest_framework import exceptions
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.renderers import JSONRenderer
 
+from treeherder.credentials.models import Credentials
 from treeherder.etl.oauth_utils import OAuthCredentials
 
 
@@ -80,3 +81,17 @@ class TwoLeggedOauthAuthentication(BaseAuthentication):
             )
         request.legacy_oauth_authenticated = True
         return (DummyUser(), None)
+
+
+def hawk_lookup(id):
+    try:
+        credentials = Credentials.objects.get(client_id=id, authorized=True)
+    except Credentials.DoesNotExist:
+        raise exceptions.AuthenticationFailed(
+            'No authentication credentials found with id %s' % id)
+
+    return {
+        'id': id,
+        'key': str(credentials.secret),
+        'algorithm': 'sha256'
+    }

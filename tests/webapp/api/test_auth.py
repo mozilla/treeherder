@@ -1,19 +1,24 @@
 import oauth2 as oauth
+from django.contrib.auth.models import User
 from django.core.urlresolvers import resolve, reverse
+from mohawk import Sender
+import pytest
 from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory
-
+from treeherder.credentials.models import Credentials
 from treeherder.etl.oauth_utils import OAuthCredentials
-from treeherder.webapp.api.auth import TwoLeggedOauthAuthentication
+from treeherder.webapp.api import permissions
 
 
 class AuthenticatedView(APIView):
-    authentication_classes = [TwoLeggedOauthAuthentication]
+    permission_classes = (permissions.HasHawkOrLegacyOauthPermissions,)
 
     def get(self, request, *args, **kwargs):
-        return Response({'authenticated': hasattr(request, 'legacy_oauth_authenticated')})
+        return Response({'authenticated': True})
 
+    def post(self, request, *args, **kwargs):
+        return Response({'authenticated': True})
 
 factory = APIRequestFactory()
 
@@ -89,3 +94,95 @@ def test_two_legged_oauth_project_via_user(monkeypatch, jm, set_oauth_credential
     response = view(request)
 
     assert response.data == {'authenticated': True}
+
+
+@pytest.fixture
+def api_user(request):
+    user = User.objects.create_user('MyUser')
+
+    def fin():
+        user.delete()
+    request.addfinalizer(fin)
+
+    return user
+
+
+@pytest.fixture
+def client_credentials(request, api_user):
+    client_credentials = Credentials.objects.create(
+        client_id='test-credentials', owner=api_user)
+
+    def fin():
+        client_credentials.delete()
+    request.addfinalizer(fin)
+
+    return client_credentials
+
+
+def _get_hawk_response(client_id, secret, method='GET',
+                       content='', content_type='application/json'):
+    auth = {
+        'id': client_id,
+        'key': secret,
+        'algorithm': 'sha256'
+    }
+    url = 'http://testserver/'
+
+    sender = Sender(auth, url, method,
+                    content=content,
+                    content_type='application/json')
+
+    do_request = getattr(factory, method.lower())
+
+    request = do_request(url,
+                         data=content,
+                         content_type='application/json',
+                         # factory.get doesn't set the CONTENT_TYPE header
+                         # I'm setting it manually here for simplicity
+                         CONTENT_TYPE='application/json',
+                         HTTP_AUTHORIZATION=sender.request_header)
+
+    view = AuthenticatedView.as_view()
+
+    return view(request)
+
+
+def test_get_hawk_authorized(client_credentials):
+    client_credentials.authorized = True
+    client_credentials.save()
+    response = _get_hawk_response(client_credentials.client_id,
+                                  str(client_credentials.secret))
+    assert response.data == {'authenticated': True}
+
+
+def test_get_hawk_unauthorized(client_credentials):
+    response = _get_hawk_response(client_credentials.client_id,
+                                  str(client_credentials.secret))
+    assert response.data == {'detail': ('No authentication credentials '
+                                        'found with id %s') % client_credentials.client_id}
+
+
+def test_post_hawk_authorized(client_credentials):
+    client_credentials.authorized = True
+    client_credentials.save()
+    response = _get_hawk_response(client_credentials.client_id,
+                                  str(client_credentials.secret), method='POST',
+                                  content="{'this': 'that'}")
+    assert response.data == {'authenticated': True}
+
+
+def test_post_hawk_unauthorized(client_credentials):
+    response = _get_hawk_response(client_credentials.client_id,
+                                  str(client_credentials.secret), method='POST',
+                                  content="{'this': 'that'}")
+    assert response.data == {'detail': ('No authentication credentials '
+                                        'found with id %s') % client_credentials.client_id}
+
+
+def test_no_auth():
+    url = u'http://testserver/'
+    request = factory.get(url)
+    view = AuthenticatedView.as_view()
+    response = view(request)
+
+    assert response.data == {'detail': 'Authentication credentials were not provided.'}
