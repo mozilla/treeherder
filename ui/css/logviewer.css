@@ -82,7 +82,7 @@ body {
     float:left;
     align-items: center;
     border-right-style: solid;
-    border-right-color: black;
+    border-right-color:  #F8EEC7;
     border-right-width: thin;
     -moz-user-select: none;
     -khtml-user-select:none;
@@ -92,7 +92,8 @@ body {
 }
 
 .lv-line-num:hover {
-    color: blue;
+    color: black;
+    background-color:  #F8EEC7;
     cursor: pointer;
 }
 
