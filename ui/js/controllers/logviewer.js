@@ -63,7 +63,6 @@ logViewerApp.controller('LogviewerCtrl', [
             }
         };
 
-
         $scope.hasFailedSteps = function () {
             var steps = $scope.artifact.step_data.steps;
             for (var i = 0; i < steps.length; i++) {
@@ -258,6 +257,7 @@ logViewerApp.controller('LogviewerCtrl', [
                                     else {
                                         var steps = $scope.artifact.step_data.steps;
                                         var line = $scope.selectedBegin - 8;
+                                        $scope.displayedStep = steps[2];
                                         $scope.scrollTo($event, steps[2], line);
                                     }
                                 }, 100);
