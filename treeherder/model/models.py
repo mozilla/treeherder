@@ -49,6 +49,11 @@ class Product(NamedModel):
         db_table = 'product'
 
 
+class Device(NamedModel):
+    class Meta:
+        db_table = 'device'
+
+
 @python_2_unicode_compatible
 class BuildPlatform(models.Model):
     id = models.AutoField(primary_key=True)
