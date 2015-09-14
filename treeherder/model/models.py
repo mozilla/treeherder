@@ -31,17 +31,22 @@ ACTIVE_STATUS_CHOICES = zip(ACTIVE_STATUS_LIST, ACTIVE_STATUS_LIST,)
 
 
 @python_2_unicode_compatible
-class Product(models.Model):
+class NamedModel(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50L, db_index=True)
     description = models.TextField(blank=True, default='fill me')
     active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
 
     class Meta:
-        db_table = 'product'
+        abstract = True
 
     def __str__(self):
         return self.name
+
+
+class Product(NamedModel):
+    class Meta:
+        db_table = 'product'
 
 
 @python_2_unicode_compatible
@@ -60,32 +65,16 @@ class BuildPlatform(models.Model):
             self.os_name, self.platform, self.architecture)
 
 
-@python_2_unicode_compatible
-class Option(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50L, db_index=True)
-    description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
+class Option(NamedModel):
 
     class Meta:
         db_table = 'option'
 
-    def __str__(self):
-        return self.name
 
-
-@python_2_unicode_compatible
-class RepositoryGroup(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50L, db_index=True)
-    description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
+class RepositoryGroup(NamedModel):
 
     class Meta:
         db_table = 'repository_group'
-
-    def __str__(self):
-        return self.name
 
 
 @python_2_unicode_compatible
@@ -373,18 +362,10 @@ class JobType(models.Model):
             self.name, self.symbol)
 
 
-@python_2_unicode_compatible
-class FailureClassification(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50L, db_index=True)
-    description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
+class FailureClassification(NamedModel):
 
     class Meta:
         db_table = 'failure_classification'
-
-    def __str__(self):
-        return self.name
 
 
 # exclusion profiles models
