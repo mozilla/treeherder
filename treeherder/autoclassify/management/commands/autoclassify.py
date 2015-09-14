@@ -3,13 +3,13 @@ from collections import defaultdict
 
 from django.core.management.base import BaseCommand, CommandError
 
-from treeherder.autostar import matchers
+from treeherder.autoclassify import matchers
 from treeherder.model.models import FailureLine, Matcher, FailureMatch
 
 logger = logging.getLogger(__name__)
 
 # The minimum goodness of match we need to mark a particular match as the best match
-AUTOSTAR_CUTOFF_RATIO = 0.8
+AUTOCLASSIFY_CUTOFF_RATIO = 0.8
 
 # Initialisation needed to associate matcher functions with the matcher objects
 matchers.register()
@@ -53,7 +53,7 @@ def match_errors(repository, job_guid):
 
     for failure_line in all_matched:
         # TODO: store all matches
-        best_match = failure_line.best_match(AUTOSTAR_CUTOFF_RATIO)
+        best_match = failure_line.best_match(AUTOCLASSIFY_CUTOFF_RATIO)
         if best_match:
             best_match.is_best = True
             best_match.save()

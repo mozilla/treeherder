@@ -11,16 +11,16 @@ from treeherder import celery_app
 logger = logging.getLogger(__name__)
 
 
-@task(name='autostar', max_retries=10)
-def autostar(project, job_guid):
+@task(name='autoclassify', max_retries=10)
+def autoclassify(project, job_guid):
     try:
-        logger.info('Running autostar')
-        call_command('autostar', job_guid, project)
+        logger.info('Running autoclassify')
+        call_command('autoclassify', job_guid, project)
         celery_app.send_task('detect-intermittents',
                              [project, job_guid],
-                             routing_key='autostar')
+                             routing_key='autoclassify')
     except Exception, e:
-        autostar.retry(exc=e, countdown=(1 + autostar.request.retries) * 60)
+        autoclassify.retry(exc=e, countdown=(1 + autoclassify.request.retries) * 60)
 
 
 @task(name='detect-intermittents', max_retries=10)

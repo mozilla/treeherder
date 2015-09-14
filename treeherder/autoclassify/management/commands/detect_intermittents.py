@@ -2,14 +2,14 @@ import logging
 
 from django.core.management.base import BaseCommand, CommandError
 
-from treeherder.autostar import creators
+from treeherder.autoclassify import detectors
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import FailureLine, Matcher
-from .autostar import match_errors
+from .autoclassify import match_errors
 
 logger = logging.getLogger(__name__)
 
-creators.register()
+detectors.register()
 
 
 class Command(BaseCommand):

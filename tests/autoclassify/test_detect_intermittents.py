@@ -1,8 +1,8 @@
 from django.core.management import call_command
 
 from treeherder.model.models import Matcher, Repository, ClassifiedFailure
-from treeherder.autostar.matchers import PreciseTestMatcher
-from treeherder.autostar.creators import TestFailureDetector
+from treeherder.autoclassify.matchers import PreciseTestMatcher
+from treeherder.autoclassify.detectors import TestFailureDetector
 from .utils import test_line, create_failure_lines
 
 

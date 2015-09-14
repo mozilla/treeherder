@@ -58,7 +58,7 @@ def store_error_summary(project, job_log_url, job_guid):
     try:
         logger.info('Running store_error_summary')
         call_command('store_error_summary', job_log_url, job_guid, project)
-        celery_app.send_task('autostar',
+        celery_app.send_task('autoclassify',
                              [project, job_guid],
                              routing_key='autostar')
     except Exception, e:

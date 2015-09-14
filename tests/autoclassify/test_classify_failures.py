@@ -1,7 +1,7 @@
 from django.core.management import call_command
 
 from treeherder.model.models import Matcher, Repository
-from treeherder.autostar.matchers import PreciseTestMatcher
+from treeherder.autoclassify.matchers import PreciseTestMatcher
 from .utils import test_line, create_failure_lines
 
 
@@ -23,7 +23,7 @@ def test_classify_test_failure(activate_responses, jm, eleven_jobs_stored, initi
     Matcher._matcher_funcs = {}
     Matcher.objects.register_matcher(PreciseTestMatcher)
 
-    call_command('autostar', job['job_guid'], jm.project)
+    call_command('autoclassify', job['job_guid'], jm.project)
 
     for item in test_failure_lines:
         item.refresh_from_db()

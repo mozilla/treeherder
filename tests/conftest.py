@@ -442,7 +442,7 @@ def mock_error_summary(monkeypatch):
 @pytest.fixture
 def failure_lines(jm, eleven_jobs_stored, initial_data):
     from treeherder.model.models import RepositoryGroup, Repository
-    from tests.autostar.utils import test_line, create_failure_lines
+    from tests.autoclassify.utils import test_line, create_failure_lines
 
     job = jm.get_job(1)[0]
 
@@ -459,11 +459,11 @@ def failure_lines(jm, eleven_jobs_stored, initial_data):
 @pytest.fixture
 def classified_failures(jm, eleven_jobs_stored, initial_data, failure_lines):
     from treeherder.model.models import ClassifiedFailure, FailureMatch, Matcher
-    from treeherder.autostar import creators
+    from treeherder.autoclassify import detectors
 
     job_1 = jm.get_job(1)[0]
 
-    class TreeherderUnitTestDetector(creators.Detector):
+    class TreeherderUnitTestDetector(detectors.Detector):
         def __call__(self, failure_lines):
             pass
 
