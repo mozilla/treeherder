@@ -457,7 +457,7 @@ def failure_lines(jm, eleven_jobs_stored, initial_data):
 
 
 @pytest.fixture
-def classified_failures(jm, eleven_jobs_stored, initial_data, failure_lines):
+def classified_failures(request, jm, eleven_jobs_stored, initial_data, failure_lines):
     from treeherder.model.models import ClassifiedFailure, FailureMatch, Matcher
     from treeherder.autoclassify import detectors
 
@@ -468,6 +468,11 @@ def classified_failures(jm, eleven_jobs_stored, initial_data, failure_lines):
             pass
 
     test_matcher = Matcher.objects.register_detector(TreeherderUnitTestDetector)
+
+    def finalize():
+        Matcher._detector_funcs = {}
+        Matcher._matcher_funcs = {}
+    request.addfinalizer(finalize)
 
     classified_failures = []
 

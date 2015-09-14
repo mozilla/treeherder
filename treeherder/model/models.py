@@ -628,7 +628,7 @@ class MatcherManager(models.Manager):
 
     def _register(self, cls, dest):
         if cls.__name__ in dest:
-            return
+            return dest[cls.__name__]
 
         obj = Matcher.objects.get_or_create(name=cls.__name__)[0]
 
