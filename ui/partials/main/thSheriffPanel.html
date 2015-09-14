@@ -21,38 +21,53 @@
       <tr ng-repeat="profile in profiles"
           class="sheriff-panel-exclusion-profiles-row">
         <td>
-          <a ng-click="init_profile_update(profile)"
-             class="pointable"
-             title="Change the members in this profile">
+          <!-- Profile name button -->
+          <button ng-click="init_profile_update(profile)"
+                  ng-disabled="!user.is_staff"
+                  class="sheriff-panel-btn pointable"
+                  ng-class="!user.is_staff ? 'sheriff-panel-text-btn-disabled' :
+                           'sheriff-panel-text-btn'"
+                  title="{{!user.is_staff ? '' : 'Change the members in this profile'}}">
             {{::profile.name}}
-          </a>
+          </button>
         </td>
         <td class="text-center">
-          <span ng-click="set_default_profile(profile)"
-                ng-class="profile.is_default ? 'fa-check-circle text-success' :
-                          'fa-circle-o xlightgray'"
-                class="fa pointable"
-                title="{{profile.is_default ? 'Default profile' :
-                       'Set this as the default profile'}}">
-          </span>
+          <!-- Default profile button -->
+          <button ng-click="set_default_profile(profile)"
+                  ng-disabled="!user.is_staff"
+                  ng-hide="!profile.is_default && !user.is_staff"
+                  ng-class="profile.is_default ? 'fa-check-circle text-success' :
+                           'fa-circle-o xlightgray'"
+                  class="fa sheriff-panel-btn pointable"
+                  title="{{profile.is_default ? 'Default profile' :
+                         'Set this as the default profile'}}">
+          </button>
         </td>
         <td>
-          <a ng-click="init_exclusion_update(exclusions_map[exclusion])"
-             ng-repeat="exclusion in profile.exclusions"
-             class="th-inline-option-group sheriff-panel-excluded-job pointable"
-             title="Modify this exclusion">
-            &#8226; {{::exclusions_map[exclusion].name}}</a>
+          <!-- Exclusion names buttons -->
+          <button ng-click="init_exclusion_update(exclusions_map[exclusion])"
+                  ng-repeat="exclusion in profile.exclusions"
+                  ng-disabled="!user.is_staff"
+                  class="th-inline-option-group sheriff-panel-btn sheriff-panel-excluded-job pointable"
+                  ng-class="!user.is_staff ? 'sheriff-panel-text-btn-disabled' :
+                           'sheriff-panel-text-btn'"
+                  title="{{!user.is_staff ? '' : 'Modify this exclusion'}}">
+            &#8226; {{::exclusions_map[exclusion].name}}</button>
         </td>
         <td>
-          <span ng-click="delete_profile(profile)"
-                class="sheriff-panel-delete-icon hover-warning pointable"
-                title="Delete this profile">
+          <!-- Delete profile button -->
+          <button ng-click="delete_profile(profile)"
+                  ng-if="user.is_staff"
+                  class="sheriff-panel-btn sheriff-panel-delete-icon hover-warning pointable"
+                  title="Delete this profile">
             <i class="fa fa-times-circle"></i>
-          </span>
+          </button>
         </td>
       </tr>
     </table>
     <button ng-click="init_profile_add()" type="button"
+            ng-disabled="!user.is_staff"
+            title="{{!user.is_staff ? 'Staff permissions required' : ''}}"
             class="btn btn-sm btn-primary">Add profile</button>
   </div>
 
@@ -109,11 +124,15 @@
       <tr ng-repeat="exclusion in exclusions"
           class="sheriff-panel-job-exclusions-row">
         <td>
-          <a ng-click="init_exclusion_update(exclusion)"
-             class="pointable"
-             title="Modify this exclusion">
+          <!-- Exclusion name button -->
+          <button ng-click="init_exclusion_update(exclusion)"
+                  ng-disabled="!user.is_staff"
+                  class="sheriff-panel-btn pointable"
+                  ng-class="!user.is_staff ? 'sheriff-panel-text-btn-disabled' :
+                           'sheriff-panel-text-btn'"
+                  title="{{!user.is_staff ? '' : 'Modify this exclusion'}}">
             {{::exclusion.name}}
-          </a>
+          </button>
         </td>
         <td>{{::exclusion.description}}</td>
         <td><th-truncated-list numvisible="2" elements="exclusion.info.repos" /></td>
@@ -122,6 +141,7 @@
         <td><th-truncated-list numvisible="2" elements="exclusion.info.job_types" /></td>
         <td>
           <span ng-click="delete_exclusion(exclusion)"
+                ng-if="user.is_staff"
                 class="sheriff-panel-delete-icon hover-warning pointable"
                 title="Delete this exclusion">
             <i class="fa fa-times-circle"></i>
@@ -130,6 +150,8 @@
       </tr>
     </table>
     <button ng-click="init_exclusion_add()" type="button"
+            ng-disabled="!user.is_staff"
+            title="{{!user.is_staff ? 'Staff permissions required' : ''}}"
             class="btn btn-sm btn-primary">Add exclusion</button>
   </div>
 

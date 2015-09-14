@@ -15,7 +15,7 @@
 
     <span class="navbar-right">
       <!-- Sheriffing Button -->
-      <span ng-show="user.is_staff">
+      <span ng-show="user.loggedin">
         <span class="btn btn-view-nav btn-right-navbar nav-menu-btn"
              ng-class="{'active': (isSheriffPanelShowing)}"
              ng-click="setSheriffPanelShowing(!isSheriffPanelShowing)"
