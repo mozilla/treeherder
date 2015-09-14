@@ -1,10 +1,9 @@
 "use strict";
 
+// configure the router here, after we have defined all the controllers etc
 perf.config(function($compileProvider, $stateProvider, $urlRouterProvider) {
     // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
     $compileProvider.debugInfoEnabled(false);
-
-    $urlRouterProvider.deferIntercept(); // so we don't reload on url change
 
     $stateProvider.state('graphs', {
         templateUrl: 'partials/perf/graphsctrl.html',
@@ -24,26 +23,9 @@ perf.config(function($compileProvider, $stateProvider, $urlRouterProvider) {
         controller: 'CompareChooserCtrl'
     });
 
-    $urlRouterProvider.otherwise('/graphs');
-})
-// define the interception
-    .run(function ($rootScope, $urlRouter, $location, $state) {
-        $rootScope.$state = $state;
-        $rootScope.$on('$locationChangeSuccess', function(e, newUrl, oldUrl) {
-            // Prevent $urlRouter's default handler from firing
-            e.preventDefault();
-
-            // if we're not in graphs, or we're viewing the graphs for for first
-            // time, synchronize (for graphs we want to be able to update the
-            // url without reloading the controller)
-            // note that this will trigger an apparently harmless javascript
-            // exception (TODO: not sure if there's a way of fixing this atm)
-            if ($state.current.name !== 'graphs' ||
-                newUrl.indexOf('graphs') === -1) {
-                $urlRouter.sync();
-            }
-        });
-
-        // Configures $urlRouter's listener *after* custom listener
-        $urlRouter.listen();
-    });
+    $urlRouterProvider.otherwise('/graphs?timerange&series&highlightedRevisions&zoom');
+}).run(['$rootScope', '$state', '$stateParams',
+        function ($rootScope,   $state,   $stateParams) {
+            $rootScope.$state = $state;
+            $rootScope.$stateParams = $stateParams;
+        }]);
