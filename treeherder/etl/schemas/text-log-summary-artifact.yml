@@ -1,0 +1,99 @@
+"$schema": http://json-schema.org/draft-04/schema#
+type: object
+properties:
+  blob:
+    type: object
+    properties:
+      step_data:
+        type: object
+        properties:
+          all_errors:
+            type: array
+            items:
+              type: object
+              properties:
+                line:
+                  type: string
+                linenumber:
+                  type: integer
+              additionalProperties: false
+              required:
+              - line
+              - linenumber
+            additionalItems: false
+          steps:
+            type: array
+            items:
+              type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      line:
+                        type: string
+                      linenumber:
+                        type: integer
+                    additionalProperties: false
+                  additionalItems: false
+                name:
+                  type: string
+                started:
+                  type: string
+                  format: date-time
+                started_linenumber:
+                  type: integer
+                finished_linenumber:
+                  type: integer
+                finished:
+                  type: string
+                  format: date-time
+                error_count:
+                  type: integer
+                duration:
+                  type: integer
+                order:
+                  type: integer
+                result:
+                  type: string
+                  enum: [fail, exception, success, canceled, unknown]
+              required:
+              - line
+              - linenumber
+              - errors
+              - name
+              - started
+              - started_linenumber
+              - finished_linenumber
+              - finished
+              - error_count
+              - duration
+              - order
+              - result
+              additionalProperties: false
+            additionalItems: false
+          errors_truncated:
+            type: boolean
+        additionalProperties: false
+        required:
+        - all_errors
+        - steps
+        - errors_truncated
+      logurl:
+        type: string
+    additionalProperties: false
+    required:
+    - step_data
+    - logurl
+  type:
+    type: string
+  name:
+    type: string
+  job_guid:
+    type: integer
+additionalProperties: false
+required:
+- blob
+- type
+- name
