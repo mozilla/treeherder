@@ -42,9 +42,6 @@ class TalosDataAdapterTest(TestCase):
             })
 
     def test_adapt_and_load(self):
-        # need a talos framework for this to work
-        pf = PerformanceFramework.objects.create(name='talos')
-        pf.save()
 
         talos_perf_data = SampleData.get_talos_perf_data()
         for talos_datum in talos_perf_data:
