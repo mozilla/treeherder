@@ -484,3 +484,16 @@ def classified_failures(jm, eleven_jobs_stored, initial_data, failure_lines):
             classified_failures.append(classified_failure)
 
     return classified_failures
+
+@pytest.fixture
+def retriggers(jm, eleven_jobs_stored):
+    from treeherder.model.models import MachinePlatform
+
+    original = jm.get_job(2)[0]
+    retrigger = original.copy()
+    retrigger['job_guid'] = "f1c75261017c7c5ce3000931dce4c442fe0a1298"
+
+    jm.execute(proc="jobs_test.inserts.duplicate_job",
+               placeholders=[retrigger['job_guid'], original['job_guid']])
+
+    return [retrigger]
