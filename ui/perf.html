@@ -27,9 +27,9 @@
             </ul>
           </span>
         </li>
-        <li ng-class="{active: $state.includes('graphs')}"><a href="#/graphs">Graphs</a></li>
+        <li ng-class="{active: $state.includes('graphs')}"><a ui-sref="graphs">Graphs</a></li>
         <li ng-class="{active: $state.current.name.indexOf('compare') >= 0}">
-          <a href="#/comparechooser">Compare</a>
+          <a ui-sref="comparechooser">Compare</a>
         </li>
       </ul>
     </div>
