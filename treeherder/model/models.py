@@ -33,9 +33,9 @@ ACTIVE_STATUS_CHOICES = zip(ACTIVE_STATUS_LIST, ACTIVE_STATUS_LIST,)
 @python_2_unicode_compatible
 class Product(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50L)
+    name = models.CharField(max_length=50L, db_index=True)
     description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True, default='active')
+    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'product'
@@ -47,10 +47,10 @@ class Product(models.Model):
 @python_2_unicode_compatible
 class BuildPlatform(models.Model):
     id = models.AutoField(primary_key=True)
-    os_name = models.CharField(max_length=25L)
-    platform = models.CharField(max_length=25L)
-    architecture = models.CharField(max_length=25L, blank=True)
-    active_status = models.CharField(max_length=7L, blank=True, default='active')
+    os_name = models.CharField(max_length=25L, db_index=True)
+    platform = models.CharField(max_length=25L, db_index=True)
+    architecture = models.CharField(max_length=25L, blank=True, db_index=True)
+    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'build_platform'
@@ -63,9 +63,9 @@ class BuildPlatform(models.Model):
 @python_2_unicode_compatible
 class Option(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50L)
+    name = models.CharField(max_length=50L, db_index=True)
     description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True, default='active')
+    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'option'
@@ -77,9 +77,9 @@ class Option(models.Model):
 @python_2_unicode_compatible
 class RepositoryGroup(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50L)
+    name = models.CharField(max_length=50L, db_index=True)
     description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True, default='active')
+    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'repository_group'
@@ -92,12 +92,12 @@ class RepositoryGroup(models.Model):
 class Repository(models.Model):
     id = models.AutoField(primary_key=True)
     repository_group = models.ForeignKey('RepositoryGroup')
-    name = models.CharField(max_length=50L)
-    dvcs_type = models.CharField(max_length=25L)
+    name = models.CharField(max_length=50L, db_index=True)
+    dvcs_type = models.CharField(max_length=25L, db_index=True)
     url = models.CharField(max_length=255L)
-    codebase = models.CharField(max_length=50L, blank=True)
+    codebase = models.CharField(max_length=50L, blank=True, db_index=True)
     description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True, default='active')
+    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'repository'
@@ -110,10 +110,10 @@ class Repository(models.Model):
 @python_2_unicode_compatible
 class MachinePlatform(models.Model):
     id = models.AutoField(primary_key=True)
-    os_name = models.CharField(max_length=25L)
-    platform = models.CharField(max_length=25L)
-    architecture = models.CharField(max_length=25L, blank=True)
-    active_status = models.CharField(max_length=7L, blank=True, default='active')
+    os_name = models.CharField(max_length=25L, db_index=True)
+    platform = models.CharField(max_length=25L, db_index=True)
+    architecture = models.CharField(max_length=25L, blank=True, db_index=True)
+    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'machine_platform'
@@ -126,8 +126,8 @@ class MachinePlatform(models.Model):
 @python_2_unicode_compatible
 class Bugscache(models.Model):
     id = models.AutoField(primary_key=True)
-    status = models.CharField(max_length=64L, blank=True)
-    resolution = models.CharField(max_length=64L, blank=True)
+    status = models.CharField(max_length=64L, blank=True, db_index=True)
+    resolution = models.CharField(max_length=64L, blank=True, db_index=True)
     summary = models.CharField(max_length=255L)
     crash_signature = models.TextField(blank=True)
     keywords = models.TextField(blank=True)
@@ -144,10 +144,10 @@ class Bugscache(models.Model):
 @python_2_unicode_compatible
 class Machine(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50L)
-    first_timestamp = models.IntegerField()
-    last_timestamp = models.IntegerField()
-    active_status = models.CharField(max_length=7L, blank=True, default='active')
+    name = models.CharField(max_length=50L, db_index=True)
+    first_timestamp = models.IntegerField(db_index=True)
+    last_timestamp = models.IntegerField(db_index=True)
+    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'machine'
@@ -328,10 +328,10 @@ class Datasource(models.Model):
 @python_2_unicode_compatible
 class JobGroup(models.Model):
     id = models.AutoField(primary_key=True)
-    symbol = models.CharField(max_length=10L, default='?')
-    name = models.CharField(max_length=50L)
+    symbol = models.CharField(max_length=10L, default='?', db_index=True)
+    name = models.CharField(max_length=50L, db_index=True)
     description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True, default='active')
+    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'job_group'
@@ -344,8 +344,8 @@ class JobGroup(models.Model):
 @python_2_unicode_compatible
 class OptionCollection(models.Model):
     id = models.AutoField(primary_key=True)
-    option_collection_hash = models.CharField(max_length=40L)
-    option = models.ForeignKey(Option)
+    option_collection_hash = models.CharField(max_length=40L, db_index=True)
+    option = models.ForeignKey(Option, db_index=True)
 
     class Meta:
         db_table = 'option_collection'
@@ -359,13 +359,14 @@ class OptionCollection(models.Model):
 class JobType(models.Model):
     id = models.AutoField(primary_key=True)
     job_group = models.ForeignKey(JobGroup, null=True, blank=True)
-    symbol = models.CharField(max_length=10L, default='?')
-    name = models.CharField(max_length=50L)
+    symbol = models.CharField(max_length=10L, default='?', db_index=True)
+    name = models.CharField(max_length=50L, db_index=True)
     description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True, default='active')
+    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'job_type'
+        unique_together = (('name', 'symbol'),)
 
     def __str__(self):
         return "{0} ({1})".format(
@@ -375,9 +376,9 @@ class JobType(models.Model):
 @python_2_unicode_compatible
 class FailureClassification(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50L)
+    name = models.CharField(max_length=50L, db_index=True)
     description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True, default='active')
+    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'failure_classification'
@@ -417,10 +418,10 @@ class ExclusionProfile(models.Model):
     An exclusion profile represents a list of job exclusions that can be associated with a user profile.
     """
     name = models.CharField(max_length=255, unique=True)
-    is_default = models.BooleanField(default=False)
+    is_default = models.BooleanField(default=False, db_index=True)
     exclusions = models.ManyToManyField(JobExclusion, related_name="profiles")
     flat_exclusion = JSONField(blank=True, default={})
-    author = models.ForeignKey(User, related_name="exclusion_profiles_authored")
+    author = models.ForeignKey(User, related_name="exclusion_profiles_authored", db_index=True)
     modified = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
@@ -494,7 +495,7 @@ class UserExclusionProfile(models.Model):
 
     user = models.ForeignKey(User, related_name="exclusion_profiles")
     exclusion_profile = models.ForeignKey(ExclusionProfile, blank=True, null=True)
-    is_default = models.BooleanField(default=True)
+    is_default = models.BooleanField(default=True, db_index=True)
 
     class Meta:
         db_table = 'user_exclusion_profile'
@@ -508,24 +509,24 @@ class ReferenceDataSignatures(models.Model):
     build_system_type is buildbot by default
     """
     name = models.CharField(max_length=255L)
-    signature = models.CharField(max_length=50L)
-    build_os_name = models.CharField(max_length=25L)
-    build_platform = models.CharField(max_length=25L)
-    build_architecture = models.CharField(max_length=25L)
-    machine_os_name = models.CharField(max_length=25L)
-    machine_platform = models.CharField(max_length=25L)
-    machine_architecture = models.CharField(max_length=25L)
-    device_name = models.CharField(max_length=50L)
-    job_group_name = models.CharField(max_length=100L, blank=True)
-    job_group_symbol = models.CharField(max_length=25L, blank=True)
-    job_type_name = models.CharField(max_length=100L)
-    job_type_symbol = models.CharField(max_length=25L, blank=True)
-    option_collection_hash = models.CharField(max_length=64L, blank=True)
-    build_system_type = models.CharField(max_length=25L, blank=True)
-    repository = models.CharField(max_length=50L)
-    first_submission_timestamp = models.IntegerField()
-    review_timestamp = models.IntegerField(null=True, blank=True)
-    review_status = models.CharField(max_length=12L, blank=True)
+    signature = models.CharField(max_length=50L, db_index=True)
+    build_os_name = models.CharField(max_length=25L, db_index=True)
+    build_platform = models.CharField(max_length=25L, db_index=True)
+    build_architecture = models.CharField(max_length=25L, db_index=True)
+    machine_os_name = models.CharField(max_length=25L, db_index=True)
+    machine_platform = models.CharField(max_length=25L, db_index=True)
+    machine_architecture = models.CharField(max_length=25L, db_index=True)
+    device_name = models.CharField(max_length=50L, db_index=True)
+    job_group_name = models.CharField(max_length=100L, blank=True, db_index=True)
+    job_group_symbol = models.CharField(max_length=25L, blank=True, db_index=True)
+    job_type_name = models.CharField(max_length=100L, db_index=True)
+    job_type_symbol = models.CharField(max_length=25L, blank=True, db_index=True)
+    option_collection_hash = models.CharField(max_length=64L, blank=True, db_index=True)
+    build_system_type = models.CharField(max_length=25L, blank=True, db_index=True)
+    repository = models.CharField(max_length=50L, db_index=True)
+    first_submission_timestamp = models.IntegerField(db_index=True)
+    review_timestamp = models.IntegerField(null=True, blank=True, db_index=True)
+    review_status = models.CharField(max_length=12L, blank=True, db_index=True)
 
     class Meta:
         db_table = 'reference_data_signatures'

@@ -18,8 +18,8 @@ class Migration(migrations.Migration):
             name='Bugscache',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('status', models.CharField(max_length=64L, blank=True)),
-                ('resolution', models.CharField(max_length=64L, blank=True)),
+                ('status', models.CharField(db_index=True, max_length=64L, blank=True)),
+                ('resolution', models.CharField(db_index=True, max_length=64L, blank=True)),
                 ('summary', models.CharField(max_length=255L)),
                 ('crash_signature', models.TextField(blank=True)),
                 ('keywords', models.TextField(blank=True)),
@@ -34,10 +34,10 @@ class Migration(migrations.Migration):
             name='BuildPlatform',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('os_name', models.CharField(max_length=25L)),
-                ('platform', models.CharField(max_length=25L)),
-                ('architecture', models.CharField(max_length=25L, blank=True)),
-                ('active_status', models.CharField(default='active', max_length=7L, blank=True)),
+                ('os_name', models.CharField(max_length=25L, db_index=True)),
+                ('platform', models.CharField(max_length=25L, db_index=True)),
+                ('architecture', models.CharField(db_index=True, max_length=25L, blank=True)),
+                ('active_status', models.CharField(default='active', max_length=7L, db_index=True, blank=True)),
             ],
             options={
                 'db_table': 'build_platform',
@@ -73,7 +73,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(unique=True, max_length=255)),
-                ('is_default', models.BooleanField(default=False)),
+                ('is_default', models.BooleanField(default=False, db_index=True)),
                 ('flat_exclusion', jsonfield.fields.JSONField(default={}, blank=True)),
                 ('modified', models.DateTimeField(auto_now=True)),
                 ('author', models.ForeignKey(related_name='exclusion_profiles_authored', to=settings.AUTH_USER_MODEL)),
@@ -86,9 +86,9 @@ class Migration(migrations.Migration):
             name='FailureClassification',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('name', models.CharField(max_length=50L)),
+                ('name', models.CharField(max_length=50L, db_index=True)),
                 ('description', models.TextField(default='fill me', blank=True)),
-                ('active_status', models.CharField(default='active', max_length=7L, blank=True)),
+                ('active_status', models.CharField(default='active', max_length=7L, db_index=True, blank=True)),
             ],
             options={
                 'db_table': 'failure_classification',
@@ -148,10 +148,10 @@ class Migration(migrations.Migration):
             name='JobGroup',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('symbol', models.CharField(default='?', max_length=10L)),
-                ('name', models.CharField(max_length=50L)),
+                ('symbol', models.CharField(default='?', max_length=10L, db_index=True)),
+                ('name', models.CharField(max_length=50L, db_index=True)),
                 ('description', models.TextField(default='fill me', blank=True)),
-                ('active_status', models.CharField(default='active', max_length=7L, blank=True)),
+                ('active_status', models.CharField(default='active', max_length=7L, db_index=True, blank=True)),
             ],
             options={
                 'db_table': 'job_group',
@@ -161,10 +161,10 @@ class Migration(migrations.Migration):
             name='JobType',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('symbol', models.CharField(default='?', max_length=10L)),
-                ('name', models.CharField(max_length=50L)),
+                ('symbol', models.CharField(default='?', max_length=10L, db_index=True)),
+                ('name', models.CharField(max_length=50L, db_index=True)),
                 ('description', models.TextField(default='fill me', blank=True)),
-                ('active_status', models.CharField(default='active', max_length=7L, blank=True)),
+                ('active_status', models.CharField(default='active', max_length=7L, db_index=True, blank=True)),
                 ('job_group', models.ForeignKey(blank=True, to='model.JobGroup', null=True)),
             ],
             options={
@@ -175,10 +175,10 @@ class Migration(migrations.Migration):
             name='Machine',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('name', models.CharField(max_length=50L)),
-                ('first_timestamp', models.IntegerField()),
-                ('last_timestamp', models.IntegerField()),
-                ('active_status', models.CharField(default='active', max_length=7L, blank=True)),
+                ('name', models.CharField(max_length=50L, db_index=True)),
+                ('first_timestamp', models.IntegerField(db_index=True)),
+                ('last_timestamp', models.IntegerField(db_index=True)),
+                ('active_status', models.CharField(default='active', max_length=7L, db_index=True, blank=True)),
             ],
             options={
                 'db_table': 'machine',
@@ -188,10 +188,10 @@ class Migration(migrations.Migration):
             name='MachinePlatform',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('os_name', models.CharField(max_length=25L)),
-                ('platform', models.CharField(max_length=25L)),
-                ('architecture', models.CharField(max_length=25L, blank=True)),
-                ('active_status', models.CharField(default='active', max_length=7L, blank=True)),
+                ('os_name', models.CharField(max_length=25L, db_index=True)),
+                ('platform', models.CharField(max_length=25L, db_index=True)),
+                ('architecture', models.CharField(db_index=True, max_length=25L, blank=True)),
+                ('active_status', models.CharField(default='active', max_length=7L, db_index=True, blank=True)),
             ],
             options={
                 'db_table': 'machine_platform',
@@ -211,9 +211,9 @@ class Migration(migrations.Migration):
             name='Option',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('name', models.CharField(max_length=50L)),
+                ('name', models.CharField(max_length=50L, db_index=True)),
                 ('description', models.TextField(default='fill me', blank=True)),
-                ('active_status', models.CharField(default='active', max_length=7L, blank=True)),
+                ('active_status', models.CharField(default='active', max_length=7L, db_index=True, blank=True)),
             ],
             options={
                 'db_table': 'option',
@@ -223,7 +223,7 @@ class Migration(migrations.Migration):
             name='OptionCollection',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('option_collection_hash', models.CharField(max_length=40L)),
+                ('option_collection_hash', models.CharField(max_length=40L, db_index=True)),
                 ('option', models.ForeignKey(to='model.Option')),
             ],
             options={
@@ -234,9 +234,9 @@ class Migration(migrations.Migration):
             name='Product',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('name', models.CharField(max_length=50L)),
+                ('name', models.CharField(max_length=50L, db_index=True)),
                 ('description', models.TextField(default='fill me', blank=True)),
-                ('active_status', models.CharField(default='active', max_length=7L, blank=True)),
+                ('active_status', models.CharField(default='active', max_length=7L, db_index=True, blank=True)),
             ],
             options={
                 'db_table': 'product',
@@ -247,24 +247,24 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=255L)),
-                ('signature', models.CharField(max_length=50L)),
-                ('build_os_name', models.CharField(max_length=25L)),
-                ('build_platform', models.CharField(max_length=25L)),
-                ('build_architecture', models.CharField(max_length=25L)),
-                ('machine_os_name', models.CharField(max_length=25L)),
-                ('machine_platform', models.CharField(max_length=25L)),
-                ('machine_architecture', models.CharField(max_length=25L)),
-                ('device_name', models.CharField(max_length=50L)),
-                ('job_group_name', models.CharField(max_length=100L, blank=True)),
-                ('job_group_symbol', models.CharField(max_length=25L, blank=True)),
-                ('job_type_name', models.CharField(max_length=100L)),
-                ('job_type_symbol', models.CharField(max_length=25L, blank=True)),
-                ('option_collection_hash', models.CharField(max_length=64L, blank=True)),
-                ('build_system_type', models.CharField(max_length=25L, blank=True)),
-                ('repository', models.CharField(max_length=50L)),
-                ('first_submission_timestamp', models.IntegerField()),
-                ('review_timestamp', models.IntegerField(null=True, blank=True)),
-                ('review_status', models.CharField(max_length=12L, blank=True)),
+                ('signature', models.CharField(max_length=50L, db_index=True)),
+                ('build_os_name', models.CharField(max_length=25L, db_index=True)),
+                ('build_platform', models.CharField(max_length=25L, db_index=True)),
+                ('build_architecture', models.CharField(max_length=25L, db_index=True)),
+                ('machine_os_name', models.CharField(max_length=25L, db_index=True)),
+                ('machine_platform', models.CharField(max_length=25L, db_index=True)),
+                ('machine_architecture', models.CharField(max_length=25L, db_index=True)),
+                ('device_name', models.CharField(max_length=50L, db_index=True)),
+                ('job_group_name', models.CharField(db_index=True, max_length=100L, blank=True)),
+                ('job_group_symbol', models.CharField(db_index=True, max_length=25L, blank=True)),
+                ('job_type_name', models.CharField(max_length=100L, db_index=True)),
+                ('job_type_symbol', models.CharField(db_index=True, max_length=25L, blank=True)),
+                ('option_collection_hash', models.CharField(db_index=True, max_length=64L, blank=True)),
+                ('build_system_type', models.CharField(db_index=True, max_length=25L, blank=True)),
+                ('repository', models.CharField(max_length=50L, db_index=True)),
+                ('first_submission_timestamp', models.IntegerField(db_index=True)),
+                ('review_timestamp', models.IntegerField(db_index=True, null=True, blank=True)),
+                ('review_status', models.CharField(db_index=True, max_length=12L, blank=True)),
             ],
             options={
                 'db_table': 'reference_data_signatures',
@@ -274,12 +274,12 @@ class Migration(migrations.Migration):
             name='Repository',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('name', models.CharField(max_length=50L)),
-                ('dvcs_type', models.CharField(max_length=25L)),
+                ('name', models.CharField(max_length=50L, db_index=True)),
+                ('dvcs_type', models.CharField(max_length=25L, db_index=True)),
                 ('url', models.CharField(max_length=255L)),
-                ('codebase', models.CharField(max_length=50L, blank=True)),
+                ('codebase', models.CharField(db_index=True, max_length=50L, blank=True)),
                 ('description', models.TextField(default='fill me', blank=True)),
-                ('active_status', models.CharField(default='active', max_length=7L, blank=True)),
+                ('active_status', models.CharField(default='active', max_length=7L, db_index=True, blank=True)),
             ],
             options={
                 'db_table': 'repository',
@@ -289,9 +289,9 @@ class Migration(migrations.Migration):
             name='RepositoryGroup',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('name', models.CharField(max_length=50L)),
+                ('name', models.CharField(max_length=50L, db_index=True)),
                 ('description', models.TextField(default='fill me', blank=True)),
-                ('active_status', models.CharField(default='active', max_length=7L, blank=True)),
+                ('active_status', models.CharField(default='active', max_length=7L, db_index=True, blank=True)),
             ],
             options={
                 'db_table': 'repository_group',
@@ -301,7 +301,7 @@ class Migration(migrations.Migration):
             name='UserExclusionProfile',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('is_default', models.BooleanField(default=True)),
+                ('is_default', models.BooleanField(default=True, db_index=True)),
                 ('exclusion_profile', models.ForeignKey(blank=True, to='model.ExclusionProfile', null=True)),
                 ('user', models.ForeignKey(related_name='exclusion_profiles', to=settings.AUTH_USER_MODEL)),
             ],
@@ -339,11 +339,31 @@ class Migration(migrations.Migration):
             unique_together=set([('option_collection_hash', 'option')]),
         ),
         migrations.AlterUniqueTogether(
+            name='jobtype',
+            unique_together=set([('name', 'symbol')]),
+        ),
+        migrations.AlterUniqueTogether(
             name='failurematch',
             unique_together=set([('failure_line', 'classified_failure', 'matcher')]),
         ),
         migrations.AlterUniqueTogether(
             name='failureline',
             unique_together=set([('job_guid', 'line')]),
+        ),
+        migrations.RunSQL(
+            sql='CREATE FULLTEXT INDEX `idx_summary` on bugscache (`summary`);',
+            reverse_sql='ALTER TABLE bugscache DROP INDEX idx_summary',
+        ),
+        migrations.RunSQL(
+            sql='CREATE FULLTEXT INDEX `idx_crash_signature` on bugscache (`crash_signature`);',
+            reverse_sql='ALTER TABLE bugscache DROP INDEX idx_crash_signature',
+        ),
+        migrations.RunSQL(
+            sql='CREATE FULLTEXT INDEX `idx_keywords` on bugscache (`keywords`);',
+            reverse_sql='ALTER TABLE bugscache DROP INDEX idx_keywords',
+        ),
+        migrations.RunSQL(
+            sql='CREATE FULLTEXT INDEX `idx_all_full_text` on bugscache (`summary`, `crash_signature`, `keywords`);',
+            reverse_sql='ALTER TABLE bugscache DROP INDEX idx_all_full_text',
         ),
     ]
