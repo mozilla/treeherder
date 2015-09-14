@@ -366,4 +366,16 @@ class Migration(migrations.Migration):
             sql='CREATE FULLTEXT INDEX `idx_all_full_text` on bugscache (`summary`, `crash_signature`, `keywords`);',
             reverse_sql='ALTER TABLE bugscache DROP INDEX idx_all_full_text',
         ),
+        migrations.CreateModel(
+            name='Device',
+            fields=[
+                ('id', models.AutoField(serialize=False, primary_key=True)),
+                ('name', models.CharField(max_length=50L, db_index=True)),
+                ('description', models.TextField(default='fill me', blank=True)),
+                ('active_status', models.CharField(default='active', max_length=7L, db_index=True, blank=True)),
+            ],
+            options={
+                'db_table': 'device',
+            },
+        ),
     ]
