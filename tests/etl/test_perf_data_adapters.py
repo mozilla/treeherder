@@ -7,8 +7,7 @@ from treeherder.etl.perf_data_adapters import TalosDataAdapter
 from treeherder.model.models import (MachinePlatform, Option,
                                      OptionCollection, Repository,
                                      RepositoryGroup)
-from treeherder.perf.models import (PerformanceFramework, PerformanceSignature,
-                                    PerformanceDatum)
+from treeherder.perf.models import PerformanceSignature, PerformanceDatum
 
 
 class TalosDataAdapterTest(TestCase):
