@@ -44,7 +44,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 $location.hash("L"+newHash);
             }
         });
-        $scope.$on("$locationChangeSuccess", function(event) {
+        $scope.$on("$locationChangeSuccess", function($event, $artifact) {
             getSelectedLines();
         });
 
@@ -60,22 +60,9 @@ logViewerApp.controller('LogviewerCtrl', [
             }
             else {
                 $scope.selectedBegin = $scope.selectedEnd = line.index;
-                line.selected = true;
             }
         };
 
-        function getSelectedLines () {
-            var urlHash = $location.hash();
-            var regexSelectedlines = /L(\d+)(-L(\d+))?$/;
-            if (regexSelectedlines.test(urlHash)) {
-                var matchSelectedLines = urlHash.match(regexSelectedlines);
-                if (isNaN(matchSelectedLines[3])) {
-                    matchSelectedLines[3] = matchSelectedLines[1];
-                }
-                $scope.selectedBegin = matchSelectedLines[1];
-                $scope.selectedEnd = matchSelectedLines[3];
-            }
-        }
 
         $scope.hasFailedSteps = function () {
             var steps = $scope.artifact.step_data.steps;
@@ -249,7 +236,7 @@ logViewerApp.controller('LogviewerCtrl', [
             // Make the log and job artifacts available
             ThJobArtifactModel.get_list({job_id: $scope.job_id, name__in: 'text_log_summary,Job Info'})
             .then(function(artifactList) {
-                artifactList.forEach(function(artifact) {
+                artifactList.forEach(function(artifact, $event) {
                     if (artifact.name === 'text_log_summary') {
                         $scope.artifact = artifact.blob;
                         $scope.step_data = artifact.blob.step_data;
@@ -265,7 +252,14 @@ logViewerApp.controller('LogviewerCtrl', [
                                 });
                             } else {
                                 $timeout(function() {
-                                    angular.element('.lv-error-line').first().trigger('click');
+                                    if (isNaN($scope.selectedBegin)) {
+                                        angular.element('.lv-error-line').first().trigger('click');
+                                    }
+                                    else {
+                                        var steps = $scope.artifact.step_data.steps;
+                                        var line = $scope.selectedBegin - 8;
+                                        $scope.scrollTo($event, steps[2], line);
+                                    }
                                 }, 100);
                             }
                         }
@@ -278,6 +272,19 @@ logViewerApp.controller('LogviewerCtrl', [
         };
 
         /** utility functions **/
+
+        function getSelectedLines () {
+            var urlHash = $location.hash();
+            var regexSelectedlines = /L(\d+)(-L(\d+))?$/;
+            if (regexSelectedlines.test(urlHash)) {
+                var matchSelectedLines = urlHash.match(regexSelectedlines);
+                if (isNaN(matchSelectedLines[3])) {
+                    matchSelectedLines[3] = matchSelectedLines[1];
+                }
+                $scope.selectedBegin = matchSelectedLines[1];
+                $scope.selectedEnd = matchSelectedLines[3];
+            }
+        }
 
         function logFileLineCount () {
             var steps = $scope.artifact.step_data.steps;
