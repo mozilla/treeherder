@@ -105,3 +105,7 @@ fancy-tag==0.2.0
 # Required by oauth2
 # sha256: vGM5kZpSNbnRqu4BHKVGQYQJjwxHyQmAAfkclxdlg_U
 httplib2==0.9.1
+
+# Required by django.contrib.migrations
+# sha256: Z4xsNspLAUBRd9qLhO7PkuySyfbHYjlsllu10wXyD4E
+sqlparse==0.1.16
