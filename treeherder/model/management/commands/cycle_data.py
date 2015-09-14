@@ -1,5 +1,6 @@
 import datetime
 from optparse import make_option
+from datetime import timedelta
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -21,12 +22,20 @@ class Command(BaseCommand):
             help='Write debug messages to stdout'),
 
         make_option(
-            '--cycle-interval',
+            '--resultset-data-cycle-interval',
             action='store',
-            dest='cycle_interval',
+            dest='resultset_data_cycle_interval',
             default=0,
             type='int',
-            help='Data cycle interval expressed in days'),
+            help='Reultsetdata cycle interval expressed in days'),
+
+        make_option(
+            '--revision-data-cycle-interval',
+            action='store',
+            dest='revision_data_cycle_interval',
+            default=0,
+            type='int',
+            help='Revision data cycle interval expressed in days'),
 
         make_option(
             '--chunk-size',
@@ -49,10 +58,15 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.is_debug = options['debug']
 
-        if options['cycle_interval']:
-            cycle_interval = datetime.timedelta(days=options['cycle_interval'])
+        cycle_interval = {}
+        if options['revision_data_cycle_interval']:
+            cycle_interval["revisiondata"] = timedelta(days=options['revision_data_cycle_interval'])
         else:
-            cycle_interval = settings.DATA_CYCLE_INTERVAL
+            cycle_interval["revisiondata"] = settings.DATA_CYCLE_INTERVAL["revisiondata"]
+        if options['resultset_data_cycle_interval']:
+            cycle_interval["resultset"] = timedelta(days=options['resultset_data_cycle_interval'])
+        else:
+            cycle_interval["resultset"] = settings.DATA_CYCLE_INTERVAL["resultset"]
 
         self.debug("cycle interval... jobs: {}".format(cycle_interval))
 
