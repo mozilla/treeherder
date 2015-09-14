@@ -31,9 +31,9 @@ treeherder.directive('lvLogSteps', ['$timeout', '$q', function ($timeout, $q) {
                     return $q.reject();
                 });
 
-                //if (scope.displayedStep && scope.displayedStep.order === step.order) {
-                //    $event.stopPropagation();
-                //}
+                if (scope.displayedStep && scope.displayedStep.order === step.order) {
+                    $event.stopPropagation();
+                }
             };
 
             scope.toggleSuccessfulSteps = function() {
