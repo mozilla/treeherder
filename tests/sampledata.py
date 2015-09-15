@@ -83,7 +83,7 @@ class SampleData(object):
             # the same, the tests will not pass.
             for rs in self.resultset_data:
                 for rev in rs["revisions"]:
-                    rev["repository"] = settings.DATABASES["default"]["TEST_NAME"]
+                    rev["repository"] = settings.DATABASES["default"]["TEST"]["NAME"]
 
     def get_log_path(self, name):
         """Returns the full path to a log file"""
