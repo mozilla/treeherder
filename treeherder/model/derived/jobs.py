@@ -1,14 +1,10 @@
 import logging
 import time
-import zlib
-from collections import defaultdict
 from datetime import datetime
-from hashlib import sha1
 
 import simplejson as json
 from _mysql_exceptions import IntegrityError
 from django.conf import settings
-from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 
 from treeherder.etl.common import get_guid_root
@@ -109,11 +105,6 @@ class JobsModel(TreeherderModelBase):
         "jobs.deletes.cycle_revision",
         "jobs.deletes.cycle_revision_map",
         "jobs.deletes.cycle_result_set"
-    ]
-
-    PERFORMANCE_SERIES_JSON_KEYS = [
-        "subtest_signatures",
-        "test_options"
     ]
 
     @classmethod
@@ -345,85 +336,6 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
         )
         return int(data[0]['max_id'] or 0)
-
-    @staticmethod
-    def get_performance_series_cache_key(project, interval_seconds,
-                                         machine_platform=None, hash=False):
-        if machine_platform is None:
-            key = 'performance-series-summary-%s-%s' % (project,
-                                                        interval_seconds)
-        else:
-            key = 'performance-series-summary-%s-%s-%s' % (project,
-                                                           interval_seconds,
-                                                           machine_platform)
-        if hash:
-            key += '-hash'
-
-        return key
-
-    def get_performance_series_summary(self, interval_seconds, machine_platform=None):
-        """
-        Retrieve a summary of all of the property/value list pairs found
-        in the series_signature table, organized by the signature summaries
-        that they belong to.
-
-        {
-            'signature1': {
-                            'property1': 'value1',
-                            'property2': 'value2',
-                            ...
-                          },
-            'signature2': {
-                            'property1': 'value1',
-                            'property2': 'value2',
-                            ...
-                          }
-            ...
-        }
-
-        This data structure can be used to build a comprehensive set of
-        options to browse all available performance data in a repository.
-        """
-
-        # Only retrieve signatures with property/values that have
-        # received data for the time interval requested
-        last_updated_limit = utils.get_now_timestamp() - interval_seconds
-
-        cache_key = self.get_performance_series_cache_key(self.project, interval_seconds,
-                                                          machine_platform)
-
-        series_summary = cache.get(cache_key, None)
-        if series_summary:
-            series_summary = json.loads(utils.decompress_if_needed(series_summary))
-        else:
-            data = self.get_dhub().execute(
-                proc="jobs.selects.get_perf_series_properties",
-                placeholders=[last_updated_limit, interval_seconds],
-                debug_show=self.DEBUG,
-            )
-
-            series_summary = defaultdict(dict)
-            for datum in data:
-                key, val = datum['property'], datum['value']
-                if key in self.PERFORMANCE_SERIES_JSON_KEYS:
-                    val = json.loads(val)
-                series_summary[datum['signature']][key] = val
-            if machine_platform:
-                series_summary = dict((key, val) for key, val in series_summary.items()
-                                      if val['machine_platform'] == machine_platform)
-
-            # HACK: take this out when we're using pylibmc and can use
-            # compression automatically
-            series_summary_json = json.dumps(series_summary, sort_keys=True)
-            cache.set(cache_key, zlib.compress(series_summary_json))
-            sha = sha1()
-            sha.update(series_summary_json)
-            hash_cache_key = self.get_performance_series_cache_key(
-                self.project, interval_seconds, machine_platform,
-                hash=True)
-            cache.set(hash_cache_key, sha.hexdigest())
-
-        return series_summary
 
     def get_job_note(self, id):
         """Return the job note by id."""
@@ -1752,23 +1664,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             proc='jobs.updates.update_job_log_url',
             debug_show=self.DEBUG,
             placeholders=[parse_status, job_log_url_id])
-
-    def get_performance_series_from_signatures(self, signatures, interval_seconds):
-
-        repl = [','.join(['%s'] * len(signatures))]
-        placeholders = signatures
-        placeholders.append(str(interval_seconds))
-
-        data = self.execute(
-            proc="jobs.selects.get_performance_series_from_signatures",
-            debug_show=self.DEBUG,
-            placeholders=placeholders,
-            replace=repl)
-
-        data = [{"series_signature": x["series_signature"],
-                 "blob": json.loads(utils.decompress_if_needed(x["blob"]))} for x in data]
-
-        return data
 
     def _get_last_insert_id(self):
         """Return last-inserted ID."""

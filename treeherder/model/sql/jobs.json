@@ -291,32 +291,6 @@
         }
     },
     "selects":{
-        "get_all_properties_of_signatures":{
-
-            "sql": "SELECT `property`, `value`, `signature` FROM `series_signature`
-                    WHERE `signature` IN (REP0)",
-
-             "host_type":"read_host"
-
-        },
-        "get_perf_series_properties":{
-
-            "sql":"SELECT s.`signature`, s.`property`, s.`value`
-                   FROM series_signature AS s
-                   LEFT JOIN `performance_series` AS p
-                    ON s.`signature` = p.`series_signature`
-                   WHERE p.`last_updated` >= ? AND p.`interval_seconds` = ?",
-
-            "host_type":"read_host"
-        },
-        "get_performance_series_from_signatures":{
-
-            "sql": "SELECT `series_signature`, `blob` FROM `performance_series`
-                    WHERE `series_signature` IN (REP0) AND `interval_seconds` = ?",
-
-             "host_type":"read_host"
-
-        },
         "get_max_job_submit_timestamp":{
 
             "sql": "SELECT MAX(`submit_timestamp`) AS 'submit_timestamp' FROM `job`",
