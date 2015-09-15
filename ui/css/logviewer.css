@@ -79,21 +79,19 @@ body {
 
 .lv-line-num {
     white-space: pre;
-    float:left;
+    float: left;
     align-items: center;
-    border-right-style: solid;
-    border-right-color:  #F8EEC7;
-    border-right-width: thin;
+    border-right: solid thin #e6e6e6;
     -moz-user-select: none;
-    -khtml-user-select:none;
-    -webkit-user-select:none;
-    -o-user-select :none;
-    background-color: white;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+    color: rgba(0, 0, 0, 0.3);
 }
 
 .lv-line-num:hover {
     color: black;
-    background-color:  #F8EEC7;
+    background-color: #F8EEC7;
     cursor: pointer;
 }
 

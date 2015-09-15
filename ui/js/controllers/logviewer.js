@@ -39,9 +39,9 @@ logViewerApp.controller('LogviewerCtrl', [
             $scope.showSuccessful = !$scope.hasFailedSteps();
         });
         $scope.$watch('[selectedBegin, selectedEnd]', function(newVal, oldVal) {
-            var newHash = (newVal[0] == newVal[1])? newVal[0] : newVal[0] + "-L"+newVal[1];
+            var newHash = (newVal[0] == newVal[1])? newVal[0] : newVal[0] + "-L" + newVal[1];
             if (!isNaN(newVal[0])) {
-                $location.hash("L"+newHash);
+                $location.hash("L" + newHash);
             }
         });
         $scope.$on("$locationChangeSuccess", function($event, $artifact) {
@@ -50,15 +50,13 @@ logViewerApp.controller('LogviewerCtrl', [
 
         $scope.click = function(line, $event) {
             if($event.shiftKey) {
-                if (line.index < $scope.selectedBegin){
+                if (line.index < $scope.selectedBegin) {
                     $scope.selectedEnd = $scope.selectedBegin;
                     $scope.selectedBegin = line.index;
-                }
-                else {
+                } else {
                     $scope.selectedEnd = line.index;
                 }
-            }
-            else {
+            } else {
                 $scope.selectedBegin = $scope.selectedEnd = line.index;
             }
         };
@@ -253,8 +251,7 @@ logViewerApp.controller('LogviewerCtrl', [
                                 $timeout(function() {
                                     if (isNaN($scope.selectedBegin)) {
                                         angular.element('.lv-error-line').first().trigger('click');
-                                    }
-                                    else {
+                                    } else {
                                         var steps = $scope.artifact.step_data.steps;
                                         var line = $scope.selectedBegin - 8;
                                         $scope.displayedStep = steps[2];
