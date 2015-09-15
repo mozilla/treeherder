@@ -426,7 +426,8 @@ perf.controller('GraphsCtrl', [
 
         $scope.timeRangeChanged = function() {
             // if new === old (i.e. page is first loaded), skip the event
-            if ($scope.oldTimerange.value === $scope.myTimerange.value) {
+            if (!$scope.oldTimerange ||
+                $scope.oldTimerange.value === $scope.myTimerange.value) {
                 return;
             }
 
