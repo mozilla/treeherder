@@ -30,7 +30,7 @@
         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add <span ng-show="seriesList.length > 0">more</span> test data</button>
     </div>
     <div id="data-display">
-      <select ng-model="myTimerange" ng-options="timerange.text for timerange in timeranges track by timerange.value" ng-change="timeRangeChanged()" ng-disabled="seriesList.length == 0">
+      <select ng-model="myTimerange" ng-options="timerange.text for timerange in timeranges track by timerange.value" ng-change="timeRangeChanged()">
       </select>
       <hr/>
       <div id="overview-plot"></div>

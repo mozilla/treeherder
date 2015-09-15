@@ -15,7 +15,8 @@ perf.controller('GraphsCtrl', [
 
         $scope.highlightedRevisions = [ undefined, undefined ];
         $scope.timeranges = phTimeRanges;
-        $scope.myTimerange = _.find(phTimeRanges, {'value': parseInt($stateParams.timerange)});
+        $scope.oldTimerange = _.find(phTimeRanges, {'value': parseInt($stateParams.timerange)});
+        $scope.myTimerange = $scope.oldTimerange;
         $scope.ttHideTimer = null;
         $scope.selectedDataPoint = null;
         $scope.showToolTipTimeout = null;
@@ -424,6 +425,11 @@ perf.controller('GraphsCtrl', [
         }
 
         $scope.timeRangeChanged = function() {
+            // if new === old (i.e. page is first loaded), skip the event
+            if ($scope.oldTimerange.value === $scope.myTimerange.value) {
+                return;
+            }
+
             $scope.zoom = {};
             deselectDataPoint();
 
