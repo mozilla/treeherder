@@ -175,6 +175,6 @@ def result_set(**kwargs):
     # same name as the db test name in settings.  If this is not
     # the same, the tests will not pass.
     for rev in defaults["revisions"]:
-        rev["repository"] = settings.DATABASES["default"]["TEST_NAME"]
+        rev["repository"] = settings.DATABASES["default"]["TEST"]["NAME"]
 
     return defaults

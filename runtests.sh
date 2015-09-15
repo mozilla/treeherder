@@ -4,4 +4,4 @@ echo "Running flake8"
 flake8 || { echo "flake8 errors found!"; exit 1; }
 
 echo "Running Python tests"
-py.test tests/$* --cov-report html --cov treeherder
+DJANGO_SETTINGS_MODULE=tests.settings py.test tests/$* --cov-report html --cov treeherder

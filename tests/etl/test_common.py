@@ -15,7 +15,7 @@ def test_get_revision_hash_none(mock_get_remote_content,
                                 initial_data, result_set_stored):
     """Test that none is returned if the revision doesn't exist"""
     from treeherder.etl import common
-    project = settings.DATABASES["default"]["TEST_NAME"]
+    project = settings.DATABASES["default"]["TEST"]["NAME"]
     revision = "fakerevision"
     resultset = common.lookup_revisions({project: [revision]})
     assert len(resultset) == 0
