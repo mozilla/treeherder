@@ -12,7 +12,7 @@ $mysqlservice = $operatingsystem ? {
 }
 
 class mysql {
-  package { mysql-server:
+  package { 'mysql-server-5.6':
     ensure => installed
   }
 
@@ -23,7 +23,7 @@ class mysql {
   service { $mysqlservice:
     ensure => running,
     enable => true,
-    require => Package['mysql-server'],
+    require => Package['mysql-server-5.6'],
   }
 
   if $operatingsystem == 'ubuntu'{
@@ -32,7 +32,7 @@ class mysql {
       owner => "root", group => "root", mode => 0644,
       notify => Service[$mysqlservice],
       require => [
-          Package['mysql-server']
+          Package['mysql-server-5.6']
       ]
     }
   }
