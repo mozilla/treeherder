@@ -13,7 +13,11 @@ class Matcher(object):
     __metaclass__ = ABCMeta
 
     """Class that is called with a list of unmatched failure lines
-    from a specific job, and returns a list of"""
+    from a specific job, and returns a list of Match tuples
+    containing the failure_line that matched, the failure it
+    matched with, and the score, which is a number in the range
+    0-1 with 1 being a perfect match and 0 being the worst possible
+    match."""
 
     def __init__(self, db_object):
         self.db_object = db_object
