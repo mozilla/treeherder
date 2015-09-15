@@ -6,6 +6,7 @@ from os.path import dirname
 import kombu
 import pytest
 import responses
+from django.conf import settings
 from django.core.management import call_command
 from requests import Request
 from requests_hawk import HawkAuth
@@ -33,28 +34,12 @@ def pytest_sessionstart(session):
 
     """
     sys.path.append(dirname(dirname(__file__)))
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "treeherder.config.settings")
-    from django.conf import settings
     from django.test.runner import DiscoverRunner
-
     # we don't actually let Django run the tests, but we need to use some
     # methods of its runner for setup/teardown of dbs and some other things
     session.django_runner = DiscoverRunner()
     # this provides templates-rendered debugging info and locmem mail storage
     session.django_runner.setup_test_environment()
-
-    settings.DATABASES["default"]["TEST_NAME"] = "test_treeherder"
-
-    # this makes celery calls synchronous, useful for unit testing
-    settings.CELERY_ALWAYS_EAGER = True
-    settings.CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
-
-    # Don't attempt to submit bug associations to Elasticsearch.
-    settings.MIRROR_CLASSIFICATIONS = False
-
-    # Reconfigure pulse to operate on default vhost of rabbitmq
-    settings.PULSE_URI = settings.BROKER_URL
-    settings.PULSE_EXCHANGE_NAMESPACE = 'test'
 
 
 def pytest_sessionfinish(session):
@@ -118,9 +103,8 @@ def initial_data():
 @pytest.fixture(scope='function')
 def jm(request):
     """ Give a test access to a JobsModel instance. """
-    from django.conf import settings
     from treeherder.model.derived.jobs import JobsModel
-    model = JobsModel.create(settings.DATABASES["default"]["TEST_NAME"])
+    model = JobsModel.create(settings.DATABASES["default"]["TEST"]["NAME"])
 
     # patch in additional test-only procs on the datasources
     add_test_procs_file(
@@ -153,9 +137,8 @@ def add_test_procs_file(dhub, key, filename):
 
 @pytest.fixture()
 def jobs_ds():
-    from django.conf import settings
     from treeherder.model.models import Datasource
-    return Datasource.objects.create(project=settings.DATABASES["default"]["TEST_NAME"])
+    return Datasource.objects.create(project=settings.DATABASES["default"]["TEST"]["NAME"])
 
 
 @pytest.fixture(scope='session')
@@ -178,12 +161,11 @@ def sample_resultset(sample_data):
 @pytest.fixture
 def test_project():
     from django.conf import settings
-    return settings.DATABASES["default"]["TEST_NAME"]
+    return settings.DATABASES["default"]["TEST"]["NAME"]
 
 
 @pytest.fixture
 def test_repository():
-    from django.conf import settings
     from treeherder.model.models import Repository, RepositoryGroup
 
     RepositoryGroup.objects.create(
@@ -194,7 +176,7 @@ def test_repository():
 
     return Repository.objects.create(
         dvcs_type="hg",
-        name=settings.DATABASES["default"]["TEST_NAME"],
+        name=settings.DATABASES["default"]["TEST"]["NAME"],
         url="https://hg.mozilla.org/mozilla-central",
         active_status="active",
         codebase="gecko",
@@ -392,8 +374,6 @@ def activate_responses(request):
 
 
 def pulse_consumer(exchange, request):
-    from django.conf import settings
-
     exchange_name = 'exchange/{}/v1/{}'.format(
         settings.PULSE_EXCHANGE_NAMESPACE,
         exchange
