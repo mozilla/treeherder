@@ -40,7 +40,7 @@ def test_elasticsearch_doc_request_body(test_project, eleven_jobs_stored):
         "type": "B2G Emulator Image Build",
         "buildtype": "debug",
         "starttime": "1384353553",
-        "tree": "test_treeherder",
+        "tree": settings.TREEHERDER_TEST_PROJECT,
         "rev": "cdfe03e77e66",
         "bug": str(bug_id),
         "who": who,
@@ -76,15 +76,15 @@ def test_bugzilla_comment_request_body(test_project, eleven_jobs_stored):
 
     expected = {
         'comment': (u'log: http://local.treeherder.mozilla.org/'
-                    u'logviewer.html#?repo=test_treeherder&job_id=1\n'
-                    u'repository: test_treeherder\n'
+                    u'logviewer.html#?repo=%s&job_id=1\n'
+                    u'repository: test_treeherder_jobs\n'
                     u'start_time: 2013-11-13T06:39:13\n'
                     u'who: user[at]mozilla[dot]com\n'
                     u'machine: bld-linux64-ec2-132\n'
                     u'buildname: non-buildbot b2g-emu-jb test B2G Emulator Image Build\n'
                     u'revision: cdfe03e77e66\n\n'
                     u'First error line\n'
-                    u'Second error line')
+                    u'Second error line') % settings.TREEHERDER_TEST_PROJECT
     }
     assert req.body == expected
 

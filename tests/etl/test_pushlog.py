@@ -2,6 +2,7 @@ import json
 import os
 
 import responses
+from django.conf import settings
 from django.core.cache import cache
 
 from treeherder.etl.pushlog import HgPushlogProcess, MissingHgPushlogProcess
@@ -165,7 +166,8 @@ def test_ingest_hg_pushlog_cache_last_push(jm, initial_data, test_repository,
     pushes = pushlog_dict['pushes']
     max_push_id = max([int(k) for k in pushes.keys()])
 
-    assert cache.get("test_treeherder:last_push_id") == max_push_id
+    cache_key = "%s:last_push_id" % settings.TREEHERDER_TEST_PROJECT
+    assert cache.get(cache_key) == max_push_id
 
 
 def test_empty_json_pushes(jm, initial_data, test_base_dir,
