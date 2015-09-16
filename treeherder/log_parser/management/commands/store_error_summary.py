@@ -2,6 +2,7 @@ from cStringIO import StringIO
 from itertools import islice
 
 import requests
+from django.db import transaction
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from mozlog import reader
@@ -44,7 +45,8 @@ class Command(BaseCommand):
                 if not job_id:
                     raise CommandError('No job found with guid %s in the %s repository' % (args[1], args[2]))
 
-            FailureLine.objects.bulk_create(
-                [FailureLine(repository=repository, job_guid=args[1], **failure_line)
-                 for failure_line in log_iter]
-            )
+            with transaction.atomic():
+                FailureLine.objects.bulk_create(
+                    [FailureLine(repository=repository, job_guid=args[1], **failure_line)
+                     for failure_line in log_iter]
+                )
