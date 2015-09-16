@@ -98,8 +98,7 @@ def initial_data():
 @pytest.fixture
 def jobs_ds(request):
     from treeherder.model.models import Datasource
-
-    ds = Datasource.objects.create(project=settings.DATABASES["default"]["TEST"]["NAME"])
+    ds = Datasource.objects.create(project=settings.TREEHERDER_TEST_PROJECT)
 
     def fin():
         ds.delete()
@@ -159,13 +158,12 @@ def sample_resultset(sample_data):
 
 
 @pytest.fixture
-def test_project():
-    from django.conf import settings
-    return settings.DATABASES["default"]["TEST"]["NAME"]
+def test_project(jm):
+    return jm.project
 
 
 @pytest.fixture
-def test_repository():
+def test_repository(jm):
     from treeherder.model.models import Repository, RepositoryGroup
 
     RepositoryGroup.objects.create(
@@ -176,7 +174,7 @@ def test_repository():
 
     return Repository.objects.create(
         dvcs_type="hg",
-        name=settings.DATABASES["default"]["TEST"]["NAME"],
+        name=jm.project,
         url="https://hg.mozilla.org/mozilla-central",
         active_status="active",
         codebase="gecko",

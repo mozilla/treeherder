@@ -10,7 +10,7 @@ class SampleData(object):
     def get_credentials(cls):
 
         credentials = {
-            'test_treeherder': {
+            settings.TREEHERDER_TEST_PROJECT: {
                 'consumer_key': '8de17836-4a9b-45f5-824c-5ada76713334',
                 'consumer_secret': '0f71d011-d773-4831-9f1c-17b237207467'
             }
@@ -83,7 +83,7 @@ class SampleData(object):
             # the same, the tests will not pass.
             for rs in self.resultset_data:
                 for rev in rs["revisions"]:
-                    rev["repository"] = settings.DATABASES["default"]["TEST"]["NAME"]
+                    rev["repository"] = settings.TREEHERDER_TEST_PROJECT
 
     def get_log_path(self, name):
         """Returns the full path to a log file"""
