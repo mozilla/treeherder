@@ -1,6 +1,6 @@
 {
     "running": {
-        "test_treeherder": {
+        "test_treeherder_jobs": {
             "45f8637cb9f7": [
                 {
                     "submitted_at": 1369231311,

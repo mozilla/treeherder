@@ -173,6 +173,6 @@ def result_set(**kwargs):
     # same name as the db test name in settings.  If this is not
     # the same, the tests will not pass.
     for rev in defaults["revisions"]:
-        rev["repository"] = settings.DATABASES["default"]["TEST"]["NAME"]
+        rev["repository"] = settings.TREEHERDER_TEST_PROJECT
 
     return defaults

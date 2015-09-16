@@ -1,6 +1,6 @@
 {
     "pending":{
-        "test_treeherder": {
+        "test_treeherder_jobs": {
             "45f8637cb9f7": [
                 {"submitted_at": 1369304814, "id": 24575179, "buildername": "WINNT 6.2 try debug test mochitest-4"}
             ],

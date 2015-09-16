@@ -41,7 +41,7 @@ def test_elasticsearch_doc_request_body(test_project, eleven_jobs_stored):
         "type": "B2G Emulator Image Build",
         "buildtype": "debug",
         "starttime": "1384353553",
-        "tree": "test_treeherder",
+        "tree": test_project,
         "rev": "cdfe03e77e66",
         "bug": str(bug_id),
         "who": who,
