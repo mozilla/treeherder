@@ -13,6 +13,7 @@ from webtest.app import TestApp
 
 from tests.sampledata import SampleData
 from treeherder.etl.oauth_utils import OAuthCredentials
+from treeherder.model.derived.jobs import JobsModel
 from treeherder.webapp.wsgi import application
 
 
@@ -71,12 +72,6 @@ def pytest_runtest_teardown(item):
 
     """
 
-    from treeherder.model.models import Datasource
-
-    ds_list = Datasource.objects.all()
-    for ds in ds_list:
-        ds.delete()
-
     call_command("migrate", 'model', '0001_initial', interactive=False)
 
 
@@ -98,11 +93,23 @@ def initial_data():
     call_command('load_initial_data')
 
 
-@pytest.fixture(scope='function')
-def jm(request):
+@pytest.fixture
+def jobs_ds(request):
+    from treeherder.model.models import Datasource
+
+    ds = Datasource.objects.create(project=settings.DATABASES["default"]["TEST"]["NAME"])
+
+    def fin():
+        ds.delete()
+    request.addfinalizer(fin)
+
+    return ds
+
+
+@pytest.fixture
+def jm(request, jobs_ds):
     """ Give a test access to a JobsModel instance. """
-    from treeherder.model.derived.jobs import JobsModel
-    model = JobsModel.create(settings.DATABASES["default"]["TEST"]["NAME"])
+    model = JobsModel(jobs_ds.project)
 
     # patch in additional test-only procs on the datasources
     add_test_procs_file(
@@ -113,7 +120,6 @@ def jm(request):
 
     def fin():
         model.disconnect()
-
     request.addfinalizer(fin)
 
     return model
@@ -131,12 +137,6 @@ def add_test_procs_file(dhub, key, filename):
         proclist.append(test_proc_file)
     dhub.data_sources[key]["procs"] = proclist
     dhub.load_procs(key)
-
-
-@pytest.fixture()
-def jobs_ds():
-    from treeherder.model.models import Datasource
-    return Datasource.objects.create(project=settings.DATABASES["default"]["TEST"]["NAME"])
 
 
 @pytest.fixture(scope='session')
