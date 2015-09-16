@@ -59,8 +59,7 @@ def pytest_runtest_setup(item):
 
     increment_cache_key_prefix()
 
-    # this should provide isolation between tests.
-    call_command("init_master_db", interactive=False, skip_fixtures=True)
+    call_command("migrate")
 
 
 def pytest_runtest_teardown(item):
@@ -71,8 +70,8 @@ def pytest_runtest_teardown(item):
     between tests
 
     """
-
-    call_command("migrate", 'model', '0001_initial', interactive=False)
+    # this should provide isolation between tests.
+    call_command("flush", interactive=False)
 
 
 def increment_cache_key_prefix():
