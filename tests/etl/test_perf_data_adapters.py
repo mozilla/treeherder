@@ -25,6 +25,10 @@ class PerfDataAdapterTest(TestCase):
     JOB_GUID = "oqiwy0q847365qiu"
     PUSH_TIMESTAMP = 1402692388
 
+    fixtures = [
+        'performance_framework'
+    ]
+
     def setUp(self):
         repo_group = RepositoryGroup.objects.create(name='mygroup')
         repo_args = {
