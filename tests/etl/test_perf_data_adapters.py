@@ -16,6 +16,10 @@ class TalosDataAdapterTest(TestCase):
     REPO_NAME = 'mozilla-central'
     MACHINE_PLATFORM = "win7"
 
+    fixtures = [
+        'performance_framework'
+    ]
+
     def setUp(self):
         repo_group = RepositoryGroup.objects.create(name='mygroup')
         repo_args = {
