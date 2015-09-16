@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import os
 from django.db import models, migrations
 import jsonfield.fields
 from django.conf import settings
@@ -349,7 +350,18 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name='failureline',
             unique_together=set([('job_guid', 'line')]),
-        ),
+        )
+    ]
+
+    if 'TRAVIS' in os.environ:
+        print "Travis environment detected, changing the bugscache table engine to MyISAM"
+        operations += [
+            migrations.RunSQL(
+                sql='ALTER TABLE bugscache ENGINE=MyISAM;',
+                reverse_sql='ALTER TABLE bugscache ENGINE=InnoDB;'
+            )
+        ]
+    operations += [
         migrations.RunSQL(
             sql='CREATE FULLTEXT INDEX `idx_summary` on bugscache (`summary`);',
             reverse_sql='ALTER TABLE bugscache DROP INDEX idx_summary',

@@ -8,10 +8,10 @@ cache:
     - node_modules
 env:
   global:
-    - DATABASE_URL='mysql://root@localhost/treeherder'
-    - DATABASE_URL_RO='mysql://root@localhost/treeherder'
+    - DATABASE_URL='mysql://root@localhost/test_treeherder'
+    - DATABASE_URL_RO='mysql://root@localhost/test_treeherder'
     - TREEHERDER_DJANGO_SECRET_KEY='secretkey-1234'
-    - DJANGO_SETTINGS_MODULE=tests.settings
+    - DJANGO_SETTINGS_MODULE='tests.settings'
 services:
   - rabbitmq
   - memcached
@@ -24,9 +24,10 @@ before_script:
   # Required for Karma tests (http://docs.travis-ci.com/user/gui-and-headless-browsers/)
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
-  - mysql -e 'create database treeherder;'
+  - mysql -e 'create database test_treeherder;'
 script:
   - npm test
+  - python -m 'from django.conf import settings; dir(settings)'
   - py.test tests/$* --runslow
 notifications:
   email:
