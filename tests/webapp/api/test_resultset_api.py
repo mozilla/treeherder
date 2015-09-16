@@ -10,7 +10,7 @@ from treeherder.client import TreeherderResultSetCollection
 from treeherder.webapp.api import utils
 
 
-def test_resultset_list(webapp, eleven_jobs_stored, jm):
+def test_resultset_list(webapp, eleven_jobs_stored, jm, test_project):
     """
     test retrieving a list of ten json blobs from the jobs-list
     endpoint.  ``full`` set to false, so it doesn't return revisions.
@@ -44,7 +44,7 @@ def test_resultset_list(webapp, eleven_jobs_stored, jm):
         u'count': 10,
         u'filter_params': {},
         u'repository':
-        u'test_treeherder'
+        test_project
     })
 
 
@@ -79,7 +79,7 @@ def test_resultset_list_empty_rs_still_show(webapp, initial_data,
     jm.disconnect()
 
 
-def test_resultset_list_single_short_revision(webapp, eleven_jobs_stored, jm):
+def test_resultset_list_single_short_revision(webapp, eleven_jobs_stored, jm, test_project):
     """
     test retrieving a resultset list, filtered by single short revision
     """
@@ -99,11 +99,11 @@ def test_resultset_list_single_short_revision(webapp, eleven_jobs_stored, jm):
         u'filter_params': {
             u'revision': "21fb3eed1b5f"
         },
-        u'repository': u'test_treeherder'}
+        u'repository': test_project}
     )
 
 
-def test_resultset_list_single_long_revision(webapp, eleven_jobs_stored, jm):
+def test_resultset_list_single_long_revision(webapp, eleven_jobs_stored, jm, test_project):
     """
     test retrieving a resultset list, filtered by a single long revision
     """
@@ -123,11 +123,11 @@ def test_resultset_list_single_long_revision(webapp, eleven_jobs_stored, jm):
         u'filter_params': {
             u'revision__in': u'21fb3eed1b5f3456789012345678901234567890,21fb3eed1b5f'
         },
-        u'repository': u'test_treeherder'}
+        u'repository': test_project}
     )
 
 
-def test_resultset_list_single_long_revision_stored_long(webapp, sample_resultset, jm):
+def test_resultset_list_single_long_revision_stored_long(webapp, sample_resultset, jm, test_project):
     """
     test retrieving a resultset list with store long revision, filtered by a single long revision
     """
@@ -152,11 +152,11 @@ def test_resultset_list_single_long_revision_stored_long(webapp, sample_resultse
         u'filter_params': {
             u'revision__in': u'21fb3eed1b5f3456789012345678901234567890,21fb3eed1b5f'
         },
-        u'repository': u'test_treeherder'}
+        u'repository': test_project}
     )
 
 
-def test_resultset_list_filter_by_revision(webapp, eleven_jobs_stored, jm):
+def test_resultset_list_filter_by_revision(webapp, eleven_jobs_stored, jm, test_project):
     """
     test retrieving a resultset list, filtered by a revision range
     """
@@ -179,13 +179,13 @@ def test_resultset_list_filter_by_revision(webapp, eleven_jobs_stored, jm):
             u'push_timestamp__gte': 1384363842,
             u'push_timestamp__lte': 1384365942
         },
-        u'repository': u'test_treeherder',
+        u'repository': test_project,
         u'tochange': u'909f55c626a8'}
     )
 
 
 def test_resultset_list_filter_by_date(webapp, initial_data,
-                                       sample_resultset, jm):
+                                       sample_resultset, jm, test_project):
     """
     test retrieving a resultset list, filtered by a date range
     """
@@ -215,7 +215,7 @@ def test_resultset_list_filter_by_date(webapp, initial_data,
             u'push_timestamp__gte': 1376118000.0,
             u'push_timestamp__lt': 1376463600.0
         },
-        u'repository': u'test_treeherder',
+        u'repository': test_project,
         u'startdate': u'2013-08-10'}
     )
 
@@ -223,7 +223,7 @@ def test_resultset_list_filter_by_date(webapp, initial_data,
 
 
 def test_resultset_list_without_jobs(webapp, initial_data,
-                                     sample_resultset, jm):
+                                     sample_resultset, jm, test_project):
     """
     test retrieving a resultset list without jobs
     """
@@ -243,7 +243,7 @@ def test_resultset_list_without_jobs(webapp, initial_data,
     assert meta == {
         u'count': len(results),
         u'filter_params': {},
-        u'repository': u'test_treeherder'
+        u'repository': test_project
     }
 
     jm.disconnect()
