@@ -1,6 +1,6 @@
 from jsonschema import validate
 
-from treeherder.etl.perf_data_adapters import TalosDataAdapter
+from treeherder.etl.perf import TALOS_SCHEMA
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import BuildbotPerformanceDataArtifactBuilder
 
@@ -16,8 +16,6 @@ def test_performance_log_parsing():
     sd = SampleData()
     files = sd.get_performance_logs()
 
-    tda = TalosDataAdapter()
-
     for file_url in files:
         builder = BuildbotPerformanceDataArtifactBuilder(url=file_url)
         lpc = ArtifactBuilderCollection(file_url, builders=[builder])
@@ -27,4 +25,4 @@ def test_performance_log_parsing():
         # Validate the data returned has the required datazilla
         # json schema
         for talos_datum in act['talos_data']:
-            validate(talos_datum, tda.TALOS_SCHEMA)
+            validate(talos_datum, TALOS_SCHEMA)

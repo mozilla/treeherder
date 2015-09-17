@@ -3,7 +3,7 @@ import json
 from django.test import TestCase
 
 from tests.sampledata import SampleData
-from treeherder.etl.perf_data_adapters import TalosDataAdapter
+from treeherder.etl.perf import load_perf_artifacts
 from treeherder.model.models import (MachinePlatform, Option,
                                      OptionCollection, Repository,
                                      RepositoryGroup)
@@ -40,7 +40,7 @@ class TalosDataAdapterTest(TestCase):
                 'active_status': "active"
             })
 
-    def test_adapt_and_load(self):
+    def test_load(self):
 
         talos_perf_data = SampleData.get_talos_perf_data()
         for talos_datum in talos_perf_data:
@@ -79,8 +79,7 @@ class TalosDataAdapterTest(TestCase):
             # Mimic production environment, the blobs are serialized
             # when the web service receives them
             datum['blob'] = json.dumps({'talos_data': [datum['blob']]})
-            tda = TalosDataAdapter()
-            tda.adapt_and_load(self.REPO_NAME, reference_data, job_data, datum)
+            load_perf_artifacts(self.REPO_NAME, reference_data, job_data, datum)
 
             # base: subtests + one extra result for the summary series
             expected_result_count = len(talos_datum["results"]) + 1
