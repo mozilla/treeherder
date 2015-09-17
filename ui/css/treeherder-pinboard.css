@@ -1,0 +1,190 @@
+.pinboard-open-btn {
+  margin-top: -1px;
+  background-color: #e6eef5 !important;
+  color: #252c33 !important;
+}
+
+#pinboard-panel {
+  background-color: #e6eef5;
+  color: #252c33;
+  flex: auto;
+  -webkit-flex: auto;
+  display: flex;
+  display: -webkit-flex;
+  flex-flow: row;
+  -webkit-flex-flow: row;
+}
+
+#pinboard-panel .header {
+  padding-left: 2px;
+  height: 18px;
+}
+
+/*
+ * Pinned jobs container
+ */
+
+#pinned-job-list {
+  position: relative;
+  flex: auto;
+  -webkit-flex: auto;
+  margin: 7px 7px 10px;
+}
+
+#pinned-job-list .content {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  padding: 2px;
+  overflow: auto;
+  background-color: #FFFFFF;
+}
+
+.pinned-job {
+  margin-bottom: 2px;
+  padding: 1px 2px;
+  width: 3.5em;
+}
+
+.pinned-job-close-btn {
+  padding: 1px 2px 1px 2px;
+  border-color: #fafafa #fafafa #fafafa transparent;
+}
+
+.pinboard-preload-txt {
+  color: #bfbfbf;
+}
+
+/*
+ * Related bugs container
+ */
+
+#pinboard-related-bugs {
+  position: relative;
+  width: 200px;
+  flex: none;
+  -webkit-flex: none;
+  margin: 7px 7px 10px;
+}
+
+#pinboard-related-bugs .content {
+  position: absolute;
+  height: 100%;
+  width: 200px;
+  padding: 2px;
+  overflow-x: hidden;
+  color: black;
+  background-color: #FFFFFF;
+}
+
+.add-related-bugs-icon {
+  margin-right: 2px;
+  font-size: 17px;
+  color: #98c3da;
+}
+
+.add-related-bugs-form {
+  position: relative;
+  top: -18px;
+  left: 20px;
+}
+
+.add-related-bugs-input {
+  width: 12em;
+}
+
+.pinboard-related-bug-preload-txt {
+  vertical-align: top;
+}
+
+.pinboard-related-bugs-btn {
+  margin-bottom: -1px;
+}
+
+.pinboard-related-bugs-btn:hover > .related-bugs-link {
+  color: #2a6496;
+  text-decoration: underline;
+}
+
+/* Spin button suppression on chrome (bug 1045611) */
+#pinboard-related-bugs form input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Spin button suppression on firefox (bug 1045611) */
+#pinboard-related-bugs form input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/*
+ * Classification container
+ */
+
+#pinboard-classification {
+  flex: none;
+  -webkit-flex: none;
+  width: 185px;
+  padding: 5px;
+}
+
+.pinboard-label {
+  color: #777;
+}
+
+#pinboard-classification-content {
+  color: black;
+}
+
+#pinboard-classification select {
+  width: 177px;
+}
+
+.classification-comment-container {
+  margin-top: 5px;
+  height: 20px;
+}
+
+.add-classification-input {
+  width: 177px;
+  height: 20px;
+  padding: 0 0 0 3px;
+  border-radius: 0;
+  font-size: 12px;
+}
+
+.classification-comment-preload-txt {
+  position: relative;
+  top: -17px;
+  left: 5px;
+  pointer-events: none;
+}
+
+/*
+ * Save container and dropdown menu controls
+ */
+
+#pinboard-controls {
+  flex: none;
+  -webkit-flex: none;
+  height: 43px;
+  margin: 20px;
+}
+
+#pinboard-controls .dropdown-menu {
+  z-index: 2000;
+}
+
+#pinboard-controls .save-btn-dropdown {
+  margin-left: -1px;
+  padding-top: 1px;
+  display: inline;
+  width: 24px;
+  float: right;
+}
+
+#pinboard-controls .save-btn {
+  float: left;
+  display: inline;
+  width: 70px;
+}
