@@ -2,12 +2,14 @@
 import os
 from datetime import timedelta
 
+import environ
 import dj_database_url
 from kombu import Exchange, Queue
 
 from treeherder import path
 
 # These settings can all be optionally set via env vars, or in local.py:
+env = environ.Env()
 
 TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "127.0.0.1:11211")
 TREEHERDER_MEMCACHED_KEY_PREFIX = os.environ.get("TREEHERDER_MEMCACHED_KEY_PREFIX", "treeherder")
@@ -331,6 +333,37 @@ PULSE_URI = os.environ.get("PULSE_URI", "amqps://guest:guest@pulse.mozilla.org/"
 # Note we will never publish any pulse messages unless the exchange namespace is
 # set this normally is your pulse username.
 PULSE_EXCHANGE_NAMESPACE = None
+
+# Specifies the Pulse exchanges Treeherder will ingest data from.  This list
+# will be updated as new applications come online that Treeherder supports.
+# Can be overridden in local.py to specify fewer or completely different
+# exchanges for testing purposes on local machines.
+PULSE_DATA_INGESTION_EXCHANGES = env.json(
+    "PULSE_DATA_INGESTION_EXCHANGES",
+    default=[
+        # {
+        #     "name": "exchange/taskcluster-treeherder/jobs",
+        #     "projects": [
+        #         'mozilla-central',
+        #         'mozilla-inbound'
+        #         # other repos TC can submit to
+        #     ]
+        # },
+        # {
+        #     "name": "exchange/treeherder-test/jobs",
+        #     "projects": [
+        #         'mozilla-inbound'
+        #     ]
+        # }
+        # ... other CI systems
+    ])
+
+# Used to specify the PulseGuardian account that will be used to create
+# ingestion queues for the exchanges specified in ``PULSE_DATA_INGESTION_EXCHANGES``.
+# See https://pulse.mozilla.org/whats_pulse for more info
+# Example: "amqp://treeherder-test:thpulsesekrit6@pulse.mozilla.org:5672//"
+PULSE_DATA_INGESTION_CONFIG = env.url("PULSE_DATA_INGESTION_CONFIG", default="")
+PULSE_QUEUE_USERID = env("PULSE_QUEUE_USERID", default="")
 
 # Note: All the configs below this import will take precedence over what is
 # defined in local.py!
