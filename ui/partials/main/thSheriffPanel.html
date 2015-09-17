@@ -27,7 +27,7 @@
                   class="sheriff-panel-btn pointable"
                   ng-class="!user.is_staff ? 'sheriff-panel-text-btn-disabled' :
                            'sheriff-panel-text-btn'"
-                  title="{{!user.is_staff ? '' : 'Change the members in this profile'}}">
+                  ng-attr-title="{{!user.is_staff ? '' : 'Change the members in this profile'}}">
             {{::profile.name}}
           </button>
         </td>
@@ -39,8 +39,8 @@
                   ng-class="profile.is_default ? 'fa-check-circle text-success' :
                            'fa-circle-o xlightgray'"
                   class="fa sheriff-panel-btn pointable"
-                  title="{{profile.is_default ? 'Default profile' :
-                         'Set this as the default profile'}}">
+                  ng-attr-title="{{profile.is_default ? 'Default profile' :
+                                 'Set this as the default profile'}}">
           </button>
         </td>
         <td>
@@ -51,7 +51,7 @@
                   class="th-inline-option-group sheriff-panel-btn sheriff-panel-excluded-job pointable"
                   ng-class="!user.is_staff ? 'sheriff-panel-text-btn-disabled' :
                            'sheriff-panel-text-btn'"
-                  title="{{!user.is_staff ? '' : 'Modify this exclusion'}}">
+                  ng-attr-title="{{!user.is_staff ? '' : 'Modify this exclusion'}}">
             &#8226; {{::exclusions_map[exclusion].name}}</button>
         </td>
         <td>
@@ -67,7 +67,7 @@
     </table>
     <button ng-click="init_profile_add()" type="button"
             ng-disabled="!user.is_staff"
-            title="{{!user.is_staff ? 'Staff permissions required' : ''}}"
+            ng-attr-title="{{!user.is_staff ? 'Staff permissions required' : ''}}"
             class="btn btn-sm btn-primary">Add profile</button>
   </div>
 
@@ -130,7 +130,7 @@
                   class="sheriff-panel-btn pointable"
                   ng-class="!user.is_staff ? 'sheriff-panel-text-btn-disabled' :
                            'sheriff-panel-text-btn'"
-                  title="{{!user.is_staff ? '' : 'Modify this exclusion'}}">
+                  ng-attr-title="{{!user.is_staff ? '' : 'Modify this exclusion'}}">
             {{::exclusion.name}}
           </button>
         </td>
