@@ -3,8 +3,7 @@ import zlib
 
 import simplejson as json
 
-from treeherder.etl.perf_data_adapters import (PerformanceDataAdapter,
-                                               TalosDataAdapter)
+from treeherder.etl.perf import (load_perf_artifacts, PERFORMANCE_ARTIFACT_TYPES)
 from treeherder.model import utils
 
 from .base import TreeherderModelBase
@@ -109,8 +108,6 @@ class ArtifactsModel(TreeherderModelBase):
         reference_data = self.refdata_model.get_reference_data(
             list(job_ref_data_signatures))
 
-        tda = TalosDataAdapter()
-
         for perf_data in performance_artifact_placeholders:
             job_guid = perf_data["job_guid"]
             ref_data_signature = job_data[job_guid]['signature']
@@ -120,7 +117,7 @@ class ArtifactsModel(TreeherderModelBase):
                 del ref_data['signature']
 
             # adapt and load data into placeholder structures
-            tda.adapt_and_load(self.project, ref_data, job_data, perf_data)
+            load_perf_artifacts(self.project, ref_data, job_data, perf_data)
 
     def load_job_artifacts(self, artifact_data, job_id_lookup):
         """
@@ -154,7 +151,7 @@ class ArtifactsModel(TreeherderModelBase):
                     artifact['job_guid'], {}
                 ).get('id', None)
 
-                if artifact_name in PerformanceDataAdapter.PERFORMANCE_TYPES:
+                if artifact_name in PERFORMANCE_ARTIFACT_TYPES:
                     self._adapt_performance_artifact_collection(
                         artifact, performance_artifact_list,
                         performance_artifact_job_id_list, job_id)
