@@ -330,11 +330,7 @@ perf.controller('GraphsCtrl', [
                                         function(resultSets) {
                                             var resultSetId = resultSets[0].id;
                                             var j = series.flotSeries.resultSetData.indexOf(resultSetId);
-                                            var seriesToaddHighlight = _.find(
-                                                $scope.seriesList, function(sr) {
-                                                    return sr.signature == series.signature;
-                                                });
-                                            seriesToaddHighlight.highlightedPoints.push(j);
+                                            series.highlightedPoints.push(j);
                                         });
                             }
                             return null;
