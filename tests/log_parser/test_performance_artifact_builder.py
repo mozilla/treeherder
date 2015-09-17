@@ -27,4 +27,4 @@ def test_performance_log_parsing():
         # Validate the data returned has the required datazilla
         # json schema
         for talos_datum in act['talos_data']:
-            validate(talos_datum, tda.datazilla_schema)
+            validate(talos_datum, tda.TALOS_SCHEMA)

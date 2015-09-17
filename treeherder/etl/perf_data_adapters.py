@@ -5,7 +5,6 @@ from hashlib import sha1
 
 import simplejson as json
 from jsonschema import validate
-from simplejson import encoder
 
 from treeherder.model.models import (MachinePlatform,
                                      OptionCollection,
@@ -17,8 +16,6 @@ from treeherder.perf.models import (PerformanceFramework,
 
 logger = logging.getLogger(__name__)
 
-encoder.FLOAT_REPR = lambda o: format(o, '.2f')
-
 
 class PerformanceDataAdapter(object):
 
@@ -27,60 +24,33 @@ class PerformanceDataAdapter(object):
     treeherder performance artifacts.
     """
 
-    performance_types = set([
+    PERFORMANCE_TYPES = set([
         'performance',
         'talos_data'
     ])
 
-    datazilla_schema = {
-        "title": "Datazilla Schema",
-
-        "type": "object",
-
-        "properties": {
-            "test_machine": {"type": "object"},
-            "testrun": {"type": "object"},
-            "results": {"type": "object"},
-            "test_build": {"type": "object"},
-            "test_aux": {"type": "object"}
-        },
-
-        "required": ["results", "test_build", "testrun", "test_machine"]
-    }
+    # keys useful for creating a non-redundant performance signature
+    SIGNIFICANT_REFERENCE_DATA_KEYS = ['option_collection_hash',
+                                       'machine_platform']
 
     @staticmethod
-    def _calculate_summary_value(results):
-        values = []
-        for test in results:
-            values += results[test]
+    def transform_signature_properties(properties, significant_keys=None):
+        if significant_keys is None:
+            significant_keys = TalosDataAdapter.SIGNIFICANT_REFERENCE_DATA_KEYS
+        transformed_properties = {}
+        keys = properties.keys()
+        for k in keys:
+            if k in significant_keys:
+                transformed_properties[k] = properties[k]
 
-        if values:
-            return math.exp(sum(map(lambda v: math.log(v+1),
-                                    values))/len(values))-1
+        # HACK: determine if e10s is in job_group_symbol, and add an "e10s"
+        # property to a 'test_options' property if so (we should probably
+        # make talos produce this information somehow and consume it in the
+        # future)
+        if 'e10s' in properties.get('job_group_symbol', ''):
+            transformed_properties['test_options'] = json.dumps(['e10s'])
 
-        return 0.0
-
-    @staticmethod
-    def _calculate_test_value(replicates):
-        replicates.sort()
-        r = replicates
-        r_len = len(replicates)
-
-        value = 0.0
-
-        if r_len > 0:
-            def avg(s):
-                return float(sum(s)) / len(s)
-
-            value = avg(r)
-
-            if r_len > 1:
-                if len(r) % 2 == 1:
-                    value = r[int(math.floor(len(r)/2))]
-                else:
-                    value = avg([r[(len(r)/2) - 1], r[len(r)/2]])
-
-        return value
+        return transformed_properties
 
     @staticmethod
     def get_signature_hash(signature_properties):
@@ -101,28 +71,59 @@ class PerformanceDataAdapter(object):
 
 class TalosDataAdapter(PerformanceDataAdapter):
 
-    # keys useful for creating a non-redundant performance signature
-    SIGNIFICANT_REFERENCE_DATA_KEYS = ['option_collection_hash',
-                                       'machine_platform']
+    TALOS_SCHEMA = {
+        "title": "Talos Schema",
+
+        "type": "object",
+
+        "properties": {
+            "test_machine": {"type": "object"},
+            "testrun": {"type": "object"},
+            "results": {"type": "object"},
+            "test_build": {"type": "object"},
+            "test_aux": {"type": "object"}
+        },
+
+        "required": ["results", "test_build", "testrun", "test_machine"]
+    }
 
     @staticmethod
-    def _transform_signature_properties(properties, significant_keys=None):
-        if significant_keys is None:
-            significant_keys = TalosDataAdapter.SIGNIFICANT_REFERENCE_DATA_KEYS
-        transformed_properties = {}
-        keys = properties.keys()
-        for k in keys:
-            if k in significant_keys:
-                transformed_properties[k] = properties[k]
+    def _calculate_summary_value(results):
+        # needed only for legacy talos blobs which don't provide a suite
+        # summary value
+        values = []
+        for test in results:
+            values += results[test]
 
-        # HACK: determine if e10s is in job_group_symbol, and add an "e10s"
-        # property to a 'test_options' property if so (we should probably
-        # make talos produce this information somehow and consume it in the
-        # future)
-        if 'e10s' in properties.get('job_group_symbol', ''):
-            transformed_properties['test_options'] = json.dumps(['e10s'])
+        if values:
+            return math.exp(sum(map(lambda v: math.log(v+1),
+                                    values))/len(values))-1
 
-        return transformed_properties
+        return 0.0
+
+    @staticmethod
+    def _calculate_test_value(replicates):
+        # needed only for legacy talos blobs which don't provide a test
+        # summary value
+        replicates.sort()
+        r = replicates
+        r_len = len(replicates)
+
+        value = 0.0
+
+        if r_len > 0:
+            def avg(s):
+                return float(sum(s)) / len(s)
+
+            value = avg(r)
+
+            if r_len > 1:
+                if len(r) % 2 == 1:
+                    value = r[int(math.floor(len(r)/2))]
+                else:
+                    value = avg([r[(len(r)/2) - 1], r[len(r)/2]])
+
+        return value
 
     def adapt_and_load(self, project_name, reference_data, job_data, datum):
         if 'e10s' in reference_data.get('job_group_symbol', ''):
@@ -133,7 +134,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
         # transform the reference data so it only contains what we actually
         # care about (for calculating the signature hash reproducibly), then
         # get the associated models
-        reference_data = self._transform_signature_properties(reference_data)
+        reference_data = self.transform_signature_properties(reference_data)
         option_collection = OptionCollection.objects.get(
             option_collection_hash=reference_data['option_collection_hash'])
         framework = PerformanceFramework.objects.get(name='talos')
@@ -147,7 +148,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
         # Get just the talos datazilla structure for treeherder
         target_datum = json.loads(datum['blob'])
         for talos_datum in target_datum['talos_data']:
-            validate(talos_datum, self.datazilla_schema)
+            validate(talos_datum, self.TALOS_SCHEMA)
             _job_guid = datum["job_guid"]
             _suite = talos_datum["testrun"]["suite"]
 

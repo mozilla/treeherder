@@ -154,7 +154,7 @@ class ArtifactsModel(TreeherderModelBase):
                     artifact['job_guid'], {}
                 ).get('id', None)
 
-                if artifact_name in PerformanceDataAdapter.performance_types:
+                if artifact_name in PerformanceDataAdapter.PERFORMANCE_TYPES:
                     self._adapt_performance_artifact_collection(
                         artifact, performance_artifact_list,
                         performance_artifact_job_id_list, job_id)
