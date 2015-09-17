@@ -109,3 +109,6 @@ httplib2==0.9.1
 # Required by django.contrib.migrations
 # sha256: Z4xsNspLAUBRd9qLhO7PkuySyfbHYjlsllu10wXyD4E
 sqlparse==0.1.16
+
+# sha256: s3x2UackVMLdR-MjrY1iKbaquQUMWFgKO0mJ2HyV0J0
+django-environ==0.3.0
