@@ -49,12 +49,10 @@ logViewerApp.controller('LogviewerCtrl', [
             getSelectedLines();
 
             var newLine = parseInt($scope.selectedBegin);
-
-            console.log(typeof(newLine));
-            var range = 50;
-            if ( (newLine <= parseInt(oldLine - range)) || (newLine >= parseInt(oldLine + range))) {
+            var range = LINE_BUFFER_SIZE/2;
+            if ( newLine <= (oldLine - range) || (newLine >= oldLine + range)) {
                 try {
-                    $scope.displayedStep = getStep(newLine);
+                    $scope.displayedStep = getStepFromLine(newLine);
                     moveScrollToLineNumber(newLine, $event);
                 } catch(err) {}
             }
@@ -265,8 +263,7 @@ logViewerApp.controller('LogviewerCtrl', [
                                         angular.element('.lv-error-line').first().trigger('click');
                                     } else {
                                         try {
-                                            var step = getStep($scope.selectedBegin);
-                                            $scope.displayedStep = getStep($scope.selectedBegin);
+                                            $scope.displayedStep = getStepFromLine($scope.selectedBegin);
                                             moveScrollToLineNumber($scope.selectedBegin, $event);
                                         } catch(err) {}
                                     }
@@ -296,7 +293,7 @@ logViewerApp.controller('LogviewerCtrl', [
             });
         }
 
-        function getStep(linenumber) {
+        function getStepFromLine(linenumber) {
             //TODO: Implement this search as a binary search
             var steps = $scope.artifact.step_data.steps;
             var i;
