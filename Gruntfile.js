@@ -2,7 +2,13 @@
 
 module.exports = function(grunt) {
 
-    require('load-grunt-tasks')(grunt);
+    if (grunt.option('production')) {
+        // Only load tasks from packages listed under `dependencies`.
+        require('load-grunt-tasks')(grunt, {scope: 'dependencies'});
+    } else {
+        // Load tasks from all packages listed in package.json.
+        require('load-grunt-tasks')(grunt);
+    }
 
     grunt.initConfig({
 
