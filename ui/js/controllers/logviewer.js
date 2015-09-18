@@ -262,8 +262,8 @@ logViewerApp.controller('LogviewerCtrl', [
                                     if (isNaN($scope.selectedBegin)) {
                                         angular.element('.lv-error-line').first().trigger('click');
                                     } else {
-                                            $scope.displayedStep = getStepFromLine($scope.selectedBegin);
-                                            moveScrollToLineNumber($scope.selectedBegin, $event);
+                                        $scope.displayedStep = getStepFromLine($scope.selectedBegin);
+                                        moveScrollToLineNumber($scope.selectedBegin, $event);
                                     }
                                 }, 100);
                             }
