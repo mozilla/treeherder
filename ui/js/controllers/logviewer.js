@@ -32,6 +32,7 @@ logViewerApp.controller('LogviewerCtrl', [
         $scope.currentLineNumber = 0;
         $scope.highestLine = 0;
         $scope.showSuccessful = true;
+        $scope.willScroll = false;
         $scope.$watch('artifact', function () {
             if (!$scope.artifact) {
                 return;
@@ -55,15 +56,17 @@ logViewerApp.controller('LogviewerCtrl', [
 
             var newLine = parseInt($scope.selectedBegin);
             var range = LINE_BUFFER_SIZE/2;
-            if ( newLine <= (oldLine - range) || (newLine >= oldLine + range)) {
+            if ( (newLine <= (oldLine - range) || newLine >= oldLine + range) && !$scope.willScroll) {
                 if ($scope.artifact) {
                     $scope.displayedStep = getStepFromLine(newLine);
                     moveScrollToLineNumber(newLine, $event);
                 }
             }
+            $scope.willScroll = false;
         });
 
         $scope.click = function(line, $event) {
+            $scope.willScroll = true;
             if($event.shiftKey) {
                 if (line.index < $scope.selectedBegin) {
                     $scope.selectedEnd = $scope.selectedBegin;
