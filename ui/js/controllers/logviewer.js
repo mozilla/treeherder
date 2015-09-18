@@ -44,20 +44,20 @@ logViewerApp.controller('LogviewerCtrl', [
                 $location.hash("L" + newHash);
             }
         });
-        $scope.$on("$locationChangeSuccess", function($event, $artifact, $element, $attr) {
+        $scope.$on("$locationChangeSuccess", function($event, $artifact) {
+            var oldLine = parseInt($scope.currentLineNumber);
             getSelectedLines();
-            //TODO: define the step and run the function to load the line
-            try {   //Using try to avoid errors when the function is loaded befre the div be defined
-                //var steps = $scope.artifact.step_data.steps;
-                var line = $scope.selectedBegin - 8;
-                var step = getStep($scope.selectedBegin);
-                console.log(step);
-                if (step.order != $scope.displayedStep.order) {
-                    $scope.displayedStep = step;
-                    goTo(line, $event);
-                }
-                //$scope.scrollTo($event, steps[2], line);
-            } catch(err) {}
+
+            var newLine = parseInt($scope.selectedBegin);
+
+            console.log(typeof(newLine));
+            var range = 50;
+            if ( (newLine <= parseInt(oldLine - range)) || (newLine >= parseInt(oldLine + range))) {
+                try {
+                    $scope.displayedStep = getStep(newLine);
+                    moveScrollToLineNumber(newLine, $event);
+                } catch(err) {}
+            }
         });
 
         $scope.click = function(line, $event) {
@@ -265,12 +265,9 @@ logViewerApp.controller('LogviewerCtrl', [
                                         angular.element('.lv-error-line').first().trigger('click');
                                     } else {
                                         try {
-                                            //var steps = $scope.artifact.step_data.steps;
-                                            var line = $scope.selectedBegin - 8;
                                             var step = getStep($scope.selectedBegin);
-                                            $scope.displayedStep = step;
-                                            $scope.scrollTo($event, step, line);
-                                            //goTo($scope.selectedBegin, $event);
+                                            $scope.displayedStep = getStep($scope.selectedBegin);
+                                            moveScrollToLineNumber($scope.selectedBegin, $event);
                                         } catch(err) {}
                                     }
                                 }, 100);
@@ -286,8 +283,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
         /** utility functions **/
 
-
-        function goTo(linenumber, $event) {
+        function moveScrollToLineNumber(linenumber, $event) {
             $scope.currentLineNumber = linenumber;
 
             $scope.loadMore({}).then(function () {
@@ -295,7 +291,7 @@ logViewerApp.controller('LogviewerCtrl', [
                     var raw = $('.lv-log-container')[0];
                     var line = $('.lv-log-line[line="' + linenumber + '"]');
                     raw.scrollTop += line.offset().top - $('.run-data').outerHeight() -
-                    $('.navbar').outerHeight() - 9;
+                    $('.navbar').outerHeight() - 120;
                 });
             });
         }
@@ -304,9 +300,9 @@ logViewerApp.controller('LogviewerCtrl', [
             //TODO: Implement this search as a binary search
             var steps = $scope.artifact.step_data.steps;
             var i;
-            for (i=0; i< steps.length; i++) {
+            for (i=1; i< steps.length; i++) {
                 if (steps[i].started_linenumber >= linenumber) {
-                    return steps[i];
+                    return steps[i-1];
                 }
             }
         }
