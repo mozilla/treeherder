@@ -112,3 +112,6 @@ sqlparse==0.1.16
 
 # sha256: s3x2UackVMLdR-MjrY1iKbaquQUMWFgKO0mJ2HyV0J0
 django-environ==0.3.0
+
+# sha256: hOvuRduDR6irx3nZHsBFro5mNLS4uCxvu9yKHxDv2Vw
+memoize==1.0.0
