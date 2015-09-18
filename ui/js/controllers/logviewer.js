@@ -54,7 +54,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 try {
                     $scope.displayedStep = getStepFromLine(newLine);
                     moveScrollToLineNumber(newLine, $event);
-                } catch(err) {}
+                } catch(err){ }
             }
         });
 
