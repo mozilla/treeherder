@@ -21,7 +21,7 @@
            ng-mouseover="check=(step==displayedStep)"
            ng-mouseleave="check=false"
            ng-class="{'lv-line-highlight': check}"
-           ng-click="scrollTo($event, step, error.linenumber);"
+           ng-click="eraseSelected(); scrollTo($event, step, error.linenumber);"
            class="text-left pull-left lv-error-line">
         <span class="label label-default lv-line-no text-left">
           {{::error.linenumber}}

@@ -43,6 +43,9 @@ logViewerApp.controller('LogviewerCtrl', [
             if (!isNaN(newVal[0])) {
                 $location.hash("L" + newHash);
             }
+            else {
+                $location.hash("");
+            }
         });
         $scope.$on("$locationChangeSuccess", function($event, $artifact) {
             var oldLine = parseInt($scope.currentLineNumber);
@@ -69,6 +72,12 @@ logViewerApp.controller('LogviewerCtrl', [
             } else {
                 $scope.selectedBegin = $scope.selectedEnd = line.index;
             }
+        };
+
+        // Erase the value of selectedBegin, used to erase the hash value when
+        // the user clicks on the error step button 
+        $scope.eraseSelected = function() {
+            $scope.selectedBegin = 'undefined';
         };
 
         $scope.hasFailedSteps = function () {
@@ -292,7 +301,6 @@ logViewerApp.controller('LogviewerCtrl', [
         }
 
         function getStepFromLine(linenumber) {
-            //TODO: Implement this search as a binary search
             var steps = $scope.artifact.step_data.steps;
             var i;
             for (i=1; i< steps.length; i++) {
