@@ -98,6 +98,7 @@ body {
 .lv-error-line {
     background-color: white;
     color: #333333;
+    width: 100%;
 }
 
 .lv-error-line span:nth-child(2) {
@@ -106,7 +107,7 @@ body {
 
 .lv-log-container {
     flex: 1;
-    overflow-x: scroll;
+    overflow-x: auto;
     font-family: monospace;
     font-size: small;
     background: #f8f8f8;
