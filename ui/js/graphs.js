@@ -439,6 +439,19 @@ perf.controller('GraphsCtrl', [
 
         $scope.repoName = $stateParams.projectId;
 
+        function updateDocumentTitle() {
+            if ($scope.seriesList.length) {
+                window.document.title = ($scope.seriesList[0].name + " " +
+                                         $scope.seriesList[0].platform +
+                                         " (" + $scope.seriesList[0].projectName +
+                                         ")");
+                if ($scope.seriesList.length > 1)
+                    window.document.title += " and others";
+            } else {
+                window.document.title = $state.current.title;
+            }
+        }
+
         function updateDocument() {
             $state.transitionTo('graphs', {
                 timerange: $scope.myTimerange.value,
@@ -466,16 +479,8 @@ perf.controller('GraphsCtrl', [
             }, {location: true, inherit: true,
                 relative: $state.$current,
                 notify: false});
-            if ($scope.seriesList.length) {
-                window.document.title = ($scope.seriesList[0].name + " " +
-                                         $scope.seriesList[0].platform +
-                                         " (" + $scope.seriesList[0].projectName +
-                                         ")");
-                if ($scope.seriesList.length > 1)
-                    window.document.title += " and others";
-            } else {
-                window.document.title = "Perfherder Graphs";
-            }
+
+            updateDocumentTitle();
         }
 
         function getSeriesData(series) {
@@ -536,6 +541,8 @@ perf.controller('GraphsCtrl', [
                     });
                     $q.all($scope.seriesList.map(getSeriesData)).then(function() {
                         plotGraph();
+                        updateDocumentTitle();
+
                         if ($scope.selectedDataPoint) {
                             showTooltip($scope.selectedDataPoint);
                         }

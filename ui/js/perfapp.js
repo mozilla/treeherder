@@ -6,6 +6,7 @@ perf.config(function($compileProvider, $stateProvider, $urlRouterProvider) {
     $compileProvider.debugInfoEnabled(false);
 
     $stateProvider.state('graphs', {
+        title: 'Perfherder Graphs',
         templateUrl: 'partials/perf/graphsctrl.html',
         url: '/graphs?timerange&series&highlightedRevisions&zoom',
         controller: 'GraphsCtrl'
@@ -18,6 +19,7 @@ perf.config(function($compileProvider, $stateProvider, $urlRouterProvider) {
         url: '/comparesubtest?originalProject&originalRevision&newProject&newRevision&originalSignature&newSignature&hideMinorChanges',
         controller: 'CompareSubtestResultsCtrl'
     }).state('comparechooser', {
+        title: 'Perfherder Compare',
         templateUrl: 'partials/perf/comparechooserctrl.html',
         url: '/comparechooser?originalProject&originalRevision&newProject&newRevision',
         controller: 'CompareChooserCtrl'
@@ -25,7 +27,13 @@ perf.config(function($compileProvider, $stateProvider, $urlRouterProvider) {
 
     $urlRouterProvider.otherwise('/graphs?timerange&series&highlightedRevisions&zoom');
 }).run(['$rootScope', '$state', '$stateParams',
-        function ($rootScope,   $state,   $stateParams) {
+        function ($rootScope, $state, $stateParams) {
             $rootScope.$state = $state;
             $rootScope.$stateParams = $stateParams;
+
+            $rootScope.$on('$stateChangeSuccess', function() {
+                if ($state.current.title) {
+                    window.document.title = $state.current.title;
+                }
+            });
         }]);
