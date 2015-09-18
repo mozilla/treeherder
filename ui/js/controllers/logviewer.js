@@ -51,10 +51,10 @@ logViewerApp.controller('LogviewerCtrl', [
             var newLine = parseInt($scope.selectedBegin);
             var range = LINE_BUFFER_SIZE/2;
             if ( newLine <= (oldLine - range) || (newLine >= oldLine + range)) {
-                try {
+                if ($scope.artifact) {
                     $scope.displayedStep = getStepFromLine(newLine);
                     moveScrollToLineNumber(newLine, $event);
-                } catch(err){ }
+                }
             }
         });
 
@@ -262,10 +262,8 @@ logViewerApp.controller('LogviewerCtrl', [
                                     if (isNaN($scope.selectedBegin)) {
                                         angular.element('.lv-error-line').first().trigger('click');
                                     } else {
-                                        try {
                                             $scope.displayedStep = getStepFromLine($scope.selectedBegin);
                                             moveScrollToLineNumber($scope.selectedBegin, $event);
-                                        } catch(err) {}
                                     }
                                 }, 100);
                             }
