@@ -47,7 +47,6 @@ logViewerApp.controller('LogviewerCtrl', [
                 if($scope.artifact) {
                     $location.hash("");
                 }
-                //$location.hash("");
             }
         });
         $scope.$on("$locationChangeSuccess", function($event, $artifact) {
