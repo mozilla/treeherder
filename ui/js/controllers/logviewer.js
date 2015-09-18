@@ -44,7 +44,10 @@ logViewerApp.controller('LogviewerCtrl', [
                 $location.hash("L" + newHash);
             }
             else {
-                $location.hash("");
+                if($scope.artifact) {
+                    $location.hash("");
+                }
+                //$location.hash("");
             }
         });
         $scope.$on("$locationChangeSuccess", function($event, $artifact) {
@@ -75,7 +78,7 @@ logViewerApp.controller('LogviewerCtrl', [
         };
 
         // Erase the value of selectedBegin, used to erase the hash value when
-        // the user clicks on the error step button 
+        // the user clicks on the error step button
         $scope.eraseSelected = function() {
             $scope.selectedBegin = 'undefined';
         };
