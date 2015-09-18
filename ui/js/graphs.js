@@ -17,13 +17,15 @@ perf.controller('GraphsCtrl', [
 
         $scope.timeranges = phTimeRanges;
         if ($stateParams.timerange) {
-            $scope.oldTimerange = _.find(phTimeRanges,
+            var timeRange = _.find(phTimeRanges,
                                          {'value': parseInt($stateParams.timerange)});
-            $scope.myTimerange = $scope.oldTimerange;
+            $scope.myTimerange = timeRange;
+            $scope.oldTimerange = timeRange;
         }
         if (!$scope.myTimerange) {
             // 7 days is a sensible default
             $scope.myTimerange = $scope.timeranges[1];
+            $scope.oldTimerange = $scope.myTimerange;
         }
 
         $scope.ttHideTimer = null;
@@ -427,11 +429,12 @@ perf.controller('GraphsCtrl', [
         $scope.timeRangeChanged = function() {
             // if new === old (i.e. page is first loaded), skip the event
             if (!$scope.oldTimerange ||
-                $scope.oldTimerange.value === $scope.myTimerange.value) {
+                $scope.oldTimerange === $scope.myTimerange) {
                 $scope.oldTimerange = $scope.myTimerange;
                 return;
             }
 
+            $scope.oldTimerange = $scope.myTimerange;
             $scope.zoom = {};
             deselectDataPoint();
 
