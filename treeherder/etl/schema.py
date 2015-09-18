@@ -17,6 +17,10 @@ class IngestionDataSchema(object):
         return self.get_json_schema(
             "text-log-summary-artifact.yml")
 
+    @mproperty
+    def job_json_schema(self):
+        return self.get_json_schema("pulse-job.yml")
+
     def get_json_schema(self, filename):
         """
         Get a JSON Schema by filename.
