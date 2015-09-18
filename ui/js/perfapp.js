@@ -25,7 +25,7 @@ perf.config(function($compileProvider, $stateProvider, $urlRouterProvider) {
         controller: 'CompareChooserCtrl'
     });
 
-    $urlRouterProvider.otherwise('/graphs?timerange&series&highlightedRevisions&zoom');
+    $urlRouterProvider.otherwise('/graphs');
 }).run(['$rootScope', '$state', '$stateParams',
         function ($rootScope, $state, $stateParams) {
             $rootScope.$state = $state;
