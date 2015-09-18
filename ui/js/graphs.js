@@ -14,9 +14,18 @@ perf.controller('GraphsCtrl', [
         var optionCollectionMap = null;
 
         $scope.highlightedRevisions = [ undefined, undefined ];
+
         $scope.timeranges = phTimeRanges;
-        $scope.oldTimerange = _.find(phTimeRanges, {'value': parseInt($stateParams.timerange)});
-        $scope.myTimerange = $scope.oldTimerange;
+        if ($stateParams.timerange) {
+            $scope.oldTimerange = _.find(phTimeRanges,
+                                         {'value': parseInt($stateParams.timerange)});
+            $scope.myTimerange = $scope.oldTimerange;
+        }
+        if (!$scope.myTimerange) {
+            // 7 days is a sensible default
+            $scope.myTimerange = $scope.timeranges[1];
+        }
+
         $scope.ttHideTimer = null;
         $scope.selectedDataPoint = null;
         $scope.showToolTipTimeout = null;
@@ -415,15 +424,11 @@ perf.controller('GraphsCtrl', [
             });
         }
 
-        if (!$scope.myTimerange) {
-            // 7 days is a sensible default
-            $scope.myTimerange = $scope.timeranges[1];
-        }
-
         $scope.timeRangeChanged = function() {
             // if new === old (i.e. page is first loaded), skip the event
             if (!$scope.oldTimerange ||
                 $scope.oldTimerange.value === $scope.myTimerange.value) {
+                $scope.oldTimerange = $scope.myTimerange;
                 return;
             }
 
