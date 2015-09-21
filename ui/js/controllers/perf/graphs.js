@@ -42,19 +42,20 @@ perf.controller('GraphsCtrl', [
             // retriggers but oh well, hopefully this will work for 99%
             // of cases)
             var resultSetId = flotItem.series.resultSetData[flotItem.dataIndex];
-
             return {
                 projectName: flotItem.series.thSeries.projectName,
                 signature: flotItem.series.thSeries.signature,
                 resultSetId: resultSetId,
-                flotDataOffset: (flotItem.dataIndex -
-                                 flotItem.series.resultSetData.indexOf(resultSetId))
+                jobId: flotItem.series.jobID[flotItem.dataIndex]
             };
         }
 
         function deselectDataPoint() {
             $timeout(function() {
                 $scope.selectedDataPoint = null;
+                $scope.plot.unhighlight();
+                hideTooltip();
+                updateDocument();
             });
         }
 
@@ -62,7 +63,6 @@ perf.controller('GraphsCtrl', [
             if ($scope.showToolTipTimeout){
                 window.clearTimeout($scope.showToolTipTimeout);
             }
-
             $scope.showToolTipTimeout = window.setTimeout(function() {
                 if ($scope.ttHideTimer) {
                     clearTimeout($scope.ttHideTimer);
@@ -76,7 +76,6 @@ perf.controller('GraphsCtrl', [
                             s.signature == dataPoint.signature;
                     });
                 var phSeries = $scope.seriesList[phSeriesIndex];
-
                 // we need the flot data for calculating values/deltas and to know where
                 // on the graph to position the tooltip
                 var flotData = {
@@ -84,8 +83,7 @@ perf.controller('GraphsCtrl', [
                         return fs.thSeries.projectName == dataPoint.projectName &&
                             fs.thSeries.signature == dataPoint.signature;
                     }),
-                    pointIndex: phSeries.flotSeries.resultSetData.indexOf(
-                        dataPoint.resultSetId) + dataPoint.flotDataOffset
+                    pointIndex: phSeries.flotSeries.jobID.indexOf(dataPoint.jobId)
                 };
                 var prevResultSetId = _.find(phSeries.flotSeries.resultSetData,
                                              function(resultSetId) {
@@ -95,10 +93,8 @@ perf.controller('GraphsCtrl', [
                                              function(resultSetId) {
                                                  return resultSetId === dataPoint.resultSetId ? 'retrigger':'original';
                                              });
-                var prevFlotDataPointIndex = (flotData.pointIndex -
-                                              dataPoint.flotDataOffset - 1);
+                var prevFlotDataPointIndex = (flotData.pointIndex - 1);
                 var flotSeriesData = flotData.series.data;
-
                 var t = flotSeriesData[flotData.pointIndex][0],
                     v = flotSeriesData[flotData.pointIndex][1],
                     v0 = ((prevFlotDataPointIndex >= 0) ?
@@ -216,8 +212,8 @@ perf.controller('GraphsCtrl', [
                             s.signature == $scope.selectedDataPoint.signature;
                     });
                 var selectedSeries = $scope.seriesList[selectedSeriesIndex];
-                var flotDataPoint = selectedSeries.flotSeries.resultSetData.indexOf(
-                    $scope.selectedDataPoint.resultSetId) + $scope.selectedDataPoint.flotDataOffset;
+                var flotDataPoint = selectedSeries.flotSeries.jobID.indexOf(
+                    $scope.selectedDataPoint.jobId);
                 $scope.plot.highlight(selectedSeriesIndex, flotDataPoint);
             }
         }
@@ -266,6 +262,9 @@ perf.controller('GraphsCtrl', [
             $("#overview-plot").bind("plotselected", function (event, ranges) {
                 deselectDataPoint();
                 hideTooltip();
+                if ($scope.selectedDataPoint) {
+                    showTooltip($scope.selectedDataPoint);
+                }
 
                 $.each($scope.plot.getXAxes(), function(_, axis) {
                     var opts = axis.options;
@@ -375,6 +374,10 @@ perf.controller('GraphsCtrl', [
                 plotOverviewGraph();
                 zoomGraph();
 
+                if ($scope.selectedDataPoint) {
+                    showTooltip($scope.selectedDataPoint);
+                }
+
                 function getDateStr(timestamp) {
                     var date = new Date(parseInt(timestamp));
                     return date.toUTCString();
@@ -420,7 +423,7 @@ perf.controller('GraphsCtrl', [
                         hideTooltip();
                         $scope.$digest();
                     }
-
+                    updateDocument();
                     highlightDataPoints();
                 });
             });
@@ -484,6 +487,13 @@ perf.controller('GraphsCtrl', [
                         return $scope.zoom;
                     }
                 })(),
+                tooltip: (function() {
+                    var reToolTip = ($scope.selectedDataPoint) ? "["
+                    + $scope.selectedDataPoint.projectName + "," + $scope.selectedDataPoint.signature
+                    + "," + $scope.selectedDataPoint.resultSetId + "," + $scope.selectedDataPoint.jobId
+                    + "]" : undefined;
+                    return reToolTip;
+                })(),
             }, {location: true, inherit: true,
                 relative: $state.$current,
                 notify: false});
@@ -514,7 +524,9 @@ perf.controller('GraphsCtrl', [
                                          resultSetData: _.pluck(
                                              response.data[series.signature],
                                              'result_set_id'),
-                                         thSeries: jQuery.extend({}, series)
+                                         thSeries: jQuery.extend({}, series),
+                                         jobID: _.pluck(response.data[series.signature],
+                                             'job_id'),
                                      };
                                  });
         }
@@ -652,6 +664,17 @@ perf.controller('GraphsCtrl', [
                 } else {
                     $scope.seriesList = [];
                     addSeriesList([]);
+                }
+                if ($stateParams.tooltip) {
+                    var tooltipString = decodeURIComponent($stateParams.tooltip).replace(/[\[\]"]/g, '');
+                    var tooltipArray = tooltipString.split(",");
+                    var tooltip = {
+                            projectName: tooltipArray[0],
+                            signature: tooltipArray[1],
+                            resultSetId: parseInt(tooltipArray[2]),
+                            jobId: parseInt(tooltipArray[3])
+                    };
+                    $scope.selectedDataPoint = (tooltipString) ? tooltip : null;
                 }
 
                 ThRepositoryModel.get_list().then(function(response) {
