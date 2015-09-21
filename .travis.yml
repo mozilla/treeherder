@@ -19,6 +19,7 @@ install:
   - ./bin/peep.py install -r requirements/common.txt -r requirements/dev.txt
 before_script:
   - flake8 --show-source
+  - isort --check-only --diff --quiet
   - grunt checkjs
   # Required for Karma tests (http://docs.travis-ci.com/user/gui-and-headless-browsers/)
   - export DISPLAY=:99.0
