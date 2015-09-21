@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 PERFORMANCE_ARTIFACT_TYPES = set([
-    'performance',
+    'performance_data',
     'talos_data'
 ])
 
@@ -28,8 +28,74 @@ SIGNIFICANT_REFERENCE_DATA_KEYS = ['option_collection_hash',
                                    'machine_platform']
 
 
+PERFHERDER_SCHEMA = {
+    "title": "Perfherder Schema",
+    "description": "Structure for submitting performance data as part of a job",
+    "type": "object",
+
+    "definitions": {
+        "framework_schema": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "title": "Framework name",
+                    "type": "string"
+                }
+            }
+        },
+        "subtest_schema": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "title": "Subtest name",
+                    "type": "string"
+                },
+                "value": {
+                    "title": "Subtest value",
+                    "description": "Summary value for subtest",
+                    "type": "number"
+                }
+            },
+            "required": ["name", "value"]
+        },
+        "suite_schema": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "title": "Suite name",
+                    "type": "string"
+                },
+                "value": {
+                    "title": "Suite value",
+                    "type": "number"
+                },
+                "subtests": {
+                    "title": "Subtests",
+                    "type": "array",
+                    "items": {"$ref": "#/definitions/subtest_schema"}
+                }
+            },
+            "required": ["name", "subtests"]
+        }
+    },
+    "properties": {
+        "framework": {
+            "$ref": "#/definitions/framework_schema"
+        },
+        "suites": {
+            "title": "Performance suites",
+            "description": "List of suite-level data submitted as part of this structure",
+            "type": "array",
+            "items": {"$ref": "#/definitions/suite_schema"}
+        }
+    },
+    "required": ["framework", "suites"]
+}
+
+
 TALOS_SCHEMA = {
     "title": "Talos Schema",
+    "description": "Legacy schema for the submission of Talos data to Perfherder (DO NOT USE UNLESS YOU'RE TALOS)",
     "type": "object",
 
     "properties": {
@@ -79,6 +145,99 @@ def _get_signature_hash(signature_properties):
     return sha.hexdigest()
 
 
+def load_perf_artifacts(project_name, reference_data, job_data, datum):
+    perf_datum = json.loads(datum['blob'])
+    validate(perf_datum, PERFHERDER_SCHEMA)
+
+    if 'e10s' in reference_data.get('job_group_symbol', ''):
+        extra_properties = {'test_options': ['e10s']}
+    else:
+        extra_properties = {}
+
+    # transform the reference data so it only contains what we actually
+    # care about (for calculating the signature hash reproducibly), then
+    # get the associated models
+    reference_data = _transform_signature_properties(reference_data)
+    option_collection = OptionCollection.objects.get(
+        option_collection_hash=reference_data['option_collection_hash'])
+    # there may be multiple machine platforms with the same platform: use
+    # the first
+    platform = MachinePlatform.objects.filter(
+        platform=reference_data['machine_platform'])[0]
+    repository = Repository.objects.get(
+        name=project_name)
+
+    # data for performance series
+    job_guid = datum["job_guid"]
+    job_id = job_data[job_guid]['id']
+    result_set_id = job_data[job_guid]['result_set_id']
+    push_timestamp = datetime.datetime.fromtimestamp(
+        job_data[job_guid]['push_timestamp'])
+
+    framework = PerformanceFramework.objects.get(name=perf_datum['framework']['name'])
+    for suite in perf_datum['suites']:
+        subtest_signatures = []
+        for subtest in suite['subtests']:
+            subtest_properties = {
+                'suite': suite['name'],
+                'test': subtest['name']
+            }
+            subtest_properties.update(reference_data)
+            subtest_signature_hash = _get_signature_hash(
+                subtest_properties)
+            subtest_signatures.append(subtest_signature_hash)
+
+            signature, _ = PerformanceSignature.objects.get_or_create(
+                signature_hash=subtest_signature_hash,
+                defaults={
+                    'test': subtest['name'],
+                    'suite': suite['name'],
+                    'option_collection': option_collection,
+                    'platform': platform,
+                    'framework': framework,
+                    'extra_properties': extra_properties
+                })
+            PerformanceDatum.objects.get_or_create(
+                repository=repository,
+                result_set_id=result_set_id,
+                job_id=job_id,
+                signature=signature,
+                push_timestamp=push_timestamp,
+                defaults={'value': subtest['value']})
+
+        # if we have a summary value, create or get its signature and insert
+        # it too
+        if suite['value']:
+            # summary series
+            extra_summary_properties = {
+                'subtest_signatures': sorted(subtest_signatures)
+            }
+            extra_summary_properties.update(extra_properties)
+            summary_properties = {'suite': suite['name']}
+            summary_properties.update(reference_data)
+            summary_properties.update(extra_summary_properties)
+            summary_signature_hash = _get_signature_hash(
+                summary_properties)
+
+            signature, _ = PerformanceSignature.objects.get_or_create(
+                signature_hash=summary_signature_hash,
+                defaults={
+                    'test': '',
+                    'suite': suite['name'],
+                    'option_collection': option_collection,
+                    'platform': platform,
+                    'framework': framework,
+                    'extra_properties': extra_summary_properties
+                })
+            PerformanceDatum.objects.get_or_create(
+                repository=repository,
+                result_set_id=result_set_id,
+                job_id=job_id,
+                signature=signature,
+                push_timestamp=push_timestamp,
+                defaults={'value': suite['value']})
+
+
 def _calculate_summary_value(results):
     # needed only for legacy talos blobs which don't provide a suite
     # summary value
@@ -117,7 +276,7 @@ def _calculate_test_value(replicates):
     return value
 
 
-def load_perf_artifacts(project_name, reference_data, job_data, datum):
+def load_talos_artifacts(project_name, reference_data, job_data, datum):
     if 'e10s' in reference_data.get('job_group_symbol', ''):
         extra_properties = {'test_options': ['e10s']}
     else:
