@@ -21,7 +21,6 @@
     "grunt-eslint": "16.0.0",
     "grunt-html-angular-validate": "0.4.1",
     "karma": "~0.12.0",
-    "karma-cli": "0.0.4",
     "karma-coverage": ">=0.2.0",
     "karma-firefox-launcher": ">=0.1.3",
     "karma-jasmine": "0.1.0",
