@@ -26,6 +26,9 @@ pyinotify==0.9.6
 # sha256: j8ToZaKfPG7K5AGn3OGCR_ir0EbSTjkOFq-Zdsyceqg
 flake8==2.4.1
 
+# sha256: OtJDrXOLL5pYAFrESxOjwpewIBMn7a7DLCRbW8ZtJ-4
+isort==4.2.2
+
 # Required by pytest
 # sha256: B-IKuQpVC9PCGJHg2IfwkxtAmPFIrsleKbUYjxYbsHU
 py==1.4.30
