@@ -689,6 +689,19 @@
                    group by state, result
                    ",
             "host_type": "read_host"
+        },
+        "get_job_retriggers":{
+            "sql":"SELECT
+                    job.job_guid,
+                    job.result
+                   FROM job
+                   JOIN job as ref_job ON
+                    job.signature = ref_job.signature AND
+                    job.result_set_id = ref_job.result_set_id
+                   WHERE
+                    job.state = 'completed' AND
+                    ref_job.job_guid = ?",
+            "host_type": "read_host"
         }
     }
 }
