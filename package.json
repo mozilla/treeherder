@@ -20,10 +20,11 @@
   "devDependencies": {
     "grunt-eslint": "16.0.0",
     "grunt-html-angular-validate": "0.5.2",
-    "karma": "0.12.37",
+    "jasmine-core": "2.3.4",
+    "karma": "0.13.10",
     "karma-coverage": "0.5.2",
     "karma-firefox-launcher": "0.1.6",
-    "karma-jasmine": "0.1.0",
+    "karma-jasmine": "0.3.6",
     "karma-junit-reporter": "0.3.4",
     "karma-ng-scenario": "0.1.0"
   },
