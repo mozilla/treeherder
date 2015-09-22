@@ -20,13 +20,16 @@ describe('ThResultSetStore', function(){
 
 
 
-        $httpBackend.whenGET('https://treestatus.mozilla.org/mozilla-central?format=json').respond(
+        $httpBackend.whenGET('https://api.pub.build.mozilla.org/treestatus/trees/mozilla-central').respond(
             {
-                "status": "approval required",
-                "message_of_the_day": "I before E",
-                "tree": "mozilla-central",
-                "reason": ""
+                "result": {
+                    "status": "approval required",
+                    "message_of_the_day": "I before E",
+                    "tree": "mozilla-central",
+                    "reason": ""
+                }
             }
+
         );
 
         $httpBackend.whenGET(foregroundPrefix + '/jobs/0/unclassified_failure_count/').respond(

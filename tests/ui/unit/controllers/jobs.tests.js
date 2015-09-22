@@ -30,12 +30,14 @@ describe('JobsCtrl', function(){
             getJSONFixture('job_list/job_2.json')
         );
 
-        $httpBackend.whenGET('https://treestatus.mozilla.org/mozilla-central?format=json').respond(
+        $httpBackend.whenGET('https://api.pub.build.mozilla.org/treestatus/trees/mozilla-central').respond(
             {
-                "status": "closed",
-                "message_of_the_day": "See the <a href=\"https://wiki.mozilla.org/Tree_Rules/Inbound\">Inbound tree rules</a> before pushing. <a href=\"https://sheriffs.etherpad.mozilla.org/sheriffing-notes\">Sheriff notes/current issues</a>.",
-                "tree": "mozilla-central",
-                "reason": "Bustage"
+                "result": {
+                    "status": "closed",
+                    "message_of_the_day": "See the <a href=\"https://wiki.mozilla.org/Tree_Rules/Inbound\">Inbound tree rules</a> before pushing. <a href=\"https://sheriffs.etherpad.mozilla.org/sheriffing-notes\">Sheriff notes/current issues</a>.",
+                    "tree": "mozilla-central",
+                    "reason": "Bustage"
+                }
             }
         );
 
