@@ -305,7 +305,6 @@ def unicode_keys(d):
 
 def clean_source_blob_dict(src):
     """Fix a few fields so they're easier to compare"""
-    src["commit_timestamp"] = long(src["commit_timestamp"])
     src["push_timestamp"] = long(src["push_timestamp"])
     return src
 

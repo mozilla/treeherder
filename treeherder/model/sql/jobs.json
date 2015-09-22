@@ -116,10 +116,9 @@
                     `revision`,
                     `author`,
                     `comments`,
-                    `commit_timestamp`,
                     `repository_id`
                     )
-                SELECT ?,?,?,?,?
+                SELECT ?,?,?,?
                 FROM DUAL
                 WHERE NOT EXISTS (
                     SELECT `revision`
@@ -648,8 +647,7 @@
                     r.repository_id,
                     r.revision,
                     r.author,
-                    r.comments,
-                    r.commit_timestamp
+                    r.comments
                    FROM revision_map AS rm
                    LEFT JOIN revision AS r ON rm.revision_id = r.id
                    WHERE r.active_status = 'active' AND rm.result_set_id IN (REP0)

@@ -377,20 +377,17 @@ DROP TABLE IF EXISTS `revision`;
  *  revision - The revision string associated with the repository
  *  author - The author associated with the revision
  *  comments - The comments associated with the revision
- *  commit_timestamp - Timestamp associated with the commit
  **************************/
 CREATE TABLE `revision` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `revision` varchar(50) COLLATE utf8_bin NOT NULL,
   `author` varchar(150) COLLATE utf8_bin NOT NULL,
   `comments` text DEFAULT NULL,
-  `commit_timestamp` int(11) unsigned default NULL,
   `repository_id` int(11) unsigned NOT NULL,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_revision` (`revision`, `repository_id`),
   KEY `idx_author` (`author`),
-  KEY `idx_commit_timestamp` (`commit_timestamp`),
   KEY `idx_repository_id` (`repository_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;

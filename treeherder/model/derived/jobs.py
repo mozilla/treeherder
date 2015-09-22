@@ -868,7 +868,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     'author': detail['author'],
                     'repository_id': detail['repository_id'],
                     'comments': detail['comments'],
-                    'commit_timestamp': detail['commit_timestamp']
                 })
 
         return aggregate_details
@@ -1744,11 +1743,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     )
                     repository_id_lookup[rev_datum['repository']] = repository_id
 
-                # We may not have a commit timestamp in the push data
-                commit_timestamp = rev_datum.get(
-                    'commit_timestamp', None
-                )
-
                 # We may not have a comment in the push data
                 comment = rev_datum.get(
                     'comment', None
@@ -1759,7 +1753,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     [rev_datum['revision'],
                      rev_datum['author'],
                      comment,
-                     commit_timestamp,
                      repository_id,
                      rev_datum['revision'],
                      repository_id]

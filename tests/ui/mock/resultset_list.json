@@ -19,7 +19,6 @@
       "revisions": [
         {
           "repository_id": 2,
-          "commit_timestamp": null,
           "author": "john@doe.com",
           "comments": "Back out bug 1071880 for causing bug 1083952.",
           "revision": "acf46fe8b054"
@@ -39,7 +38,6 @@
       "revisions": [
         {
           "repository_id": 2,
-          "commit_timestamp": null,
           "author": "john@doe.com",
           "comments": "Bug 1133254 - Dehandlify shape-updating object methods, allow setting multiple flags on an object at once, r=terrence.",
           "revision": "b1cc2dd3e35c"

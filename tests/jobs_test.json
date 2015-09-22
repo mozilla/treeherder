@@ -34,8 +34,7 @@
             "host_type": "master_host"
         },
         "job_source": {
-            "sql": "SELECT rev.commit_timestamp,
-                           res.push_timestamp,
+            "sql": "SELECT res.push_timestamp,
                            rev.comments,
                            rev.repository_id,
                            rev.revision
