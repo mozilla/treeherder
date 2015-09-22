@@ -120,3 +120,23 @@ class BugscacheSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Bugscache
+
+
+class ClassifiedFailureSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.ClassifiedFailure
+
+
+class MatchSerializer(serializers.ModelSerializer):
+    classified_failure = ClassifiedFailureSerializer(many=True)
+
+    class Meta:
+        model = models.FailureMatch
+
+
+class FailureLineSerializer(serializers.ModelSerializer):
+    matches = MatchSerializer(many=True)
+
+    class Meta:
+        model = models.FailureLine

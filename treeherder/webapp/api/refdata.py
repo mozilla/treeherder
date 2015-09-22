@@ -1,5 +1,6 @@
+import django_filters
 from django.contrib.auth.models import User
-from rest_framework import viewsets
+from rest_framework import filters, viewsets
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import CacheResponseAndETAGMixin
 
@@ -178,3 +179,17 @@ class ExclusionProfileViewSet(viewsets.ModelViewSet):
         if "author" not in request.DATA:
             request.DATA["author"] = request.user.id
         return super(ExclusionProfileViewSet, self).create(request, *args, **kwargs)
+
+
+class FailureLineFilter(django_filters.FilterSet):
+    job_guid = django_filters.CharFilter
+
+    class Meta:
+        model = models.FailureLine
+
+
+class FailureLineViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = models.FailureLine.objects.all()
+    serializer_class = th_serializers.FailureLineSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = FailureLineFilter

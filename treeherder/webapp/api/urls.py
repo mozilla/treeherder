@@ -85,6 +85,7 @@ default_router.register(r'failureclassification', refdata.FailureClassificationV
 default_router.register(r'user', refdata.UserViewSet, base_name='user')
 default_router.register(r'exclusion-profile', refdata.ExclusionProfileViewSet)
 default_router.register(r'job-exclusion', refdata.JobExclusionViewSet)
+default_router.register(r'failure-line', refdata.FailureLineViewSet)
 
 urlpatterns = patterns(
     '',
