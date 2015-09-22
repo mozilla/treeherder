@@ -214,7 +214,7 @@
         "dvcs_type": "hg",
         "name": "ux",
         "url": "https://hg.mozilla.org/projects/ux",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 6,
         "description": ""
@@ -318,7 +318,7 @@
         "dvcs_type": "hg",
         "name": "fig",
         "url": "https://hg.mozilla.org/projects/fig",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 6,
         "description": ""
@@ -682,7 +682,7 @@
         "dvcs_type": "hg",
         "name": "mozilla-esr31",
         "url": "https://hg.mozilla.org/releases/mozilla-esr31",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 2,
         "description": ""
@@ -708,7 +708,7 @@
         "dvcs_type": "hg",
         "name": "comm-esr31",
         "url": "https://hg.mozilla.org/releases/comm-esr31",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "comm",
         "repository_group": 2,
         "description": ""
@@ -721,7 +721,7 @@
         "dvcs_type": "hg",
         "name": "mozilla-b2g34_v2_1s",
         "url": "https://hg.mozilla.org/releases/mozilla-b2g34_v2_1s",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 2,
         "description": ""
