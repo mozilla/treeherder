@@ -92,7 +92,13 @@ class Command(BaseCommand):
                     "specify multiple times)",
                     type="string",
                     metavar="KEY:VALUE"),
-                )
+
+        make_option('--time-interval',
+                    action='store',
+                    dest='time_interval',
+                    type='int',
+                    default=PerformanceTimeInterval.WEEK),
+    )
 
     def handle(self, *args, **options):
         if len(args) != 1:
@@ -105,7 +111,7 @@ class Command(BaseCommand):
                               host=server_params.netloc)
         signatures = pc.get_performance_signatures(
             project,
-            time_interval=PerformanceTimeInterval.NINETY_DAYS)
+            time_interval=options['time_interval'])
 
         if options['filter_props']:
             for kv in options['filter_props']:
