@@ -90,6 +90,11 @@ div#info-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
   flex-flow: row;
 }
 
+#info-panel-content .dropdown-menu > li > a {
+    /* Explicit addition for our Info-panel menus eg. Retrigger */
+    cursor: pointer;
+}
+
 #job-details-panel, #job-tabs-panel {
   background-color: #fff;
   display: -webkit-flex;
