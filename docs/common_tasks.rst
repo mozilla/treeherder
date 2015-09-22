@@ -208,3 +208,26 @@ To do this:
 * Tell people to visit: ``https://<your-username>.github.io/treeherder/ui/``
 
 There is no need to perform a ``grunt build`` prior. After switching away from the local gh-pages branch, you will need to recreate ``ui/js/config/local.conf.js`` if desired, due to the ``git add -f``.
+
+Updating packages in package.json
+---------------------------------
+
+If the package is required in production/during deployment (ie: will be listed under
+`dependencies` rather than `devDependencies`), the following update process must be
+followed:
+
+* Follow the instructions for installing `nodejs` and `build-essential` `here <https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions>`_.
+
+* Update the package list in ``package.json``, making sure to specify an exact version, and not tilde or caret range notation.
+
+* From the root of the Treeherder repo, run:
+
+  .. code-block:: bash
+
+     > npm install
+     # npm-shrinkwrap fixes some of the deficiencies of the in-built shrinkwrap
+     > sudo npm install -g npm-shrinkwrap
+     # Adds the packages listed under `dependencies` to npm-shrinkwrap.json
+     > npm-shrinkwrap
+
+* Now commit the changes to both ``package.json`` and ``npm-shrinkwrap.json``.
