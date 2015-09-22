@@ -206,7 +206,7 @@ div#info-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
   -webkit-flex: 1 6;
   flex: 1 6;
   padding: 0px;
-  min-width: 565px;
+  min-width: 625px;
 }
 
 #job-tabs-pane {
