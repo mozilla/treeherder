@@ -220,7 +220,7 @@ treeherder.factory('ThRepositoryModel', [
             return {
                 status: "unsupported",
                 message_of_the_day: repoName +
-                    ' is not supported in <a href="https://treestatus.mozilla.org">treestatus.mozilla.org</a>',
+                    ' is not supported in <a href="https://api.pub.build.mozilla.org/treestatus">api.pub.build.mozilla.org/treestatus</a>',
                 reason: "",
                 tree: repoName
             };
@@ -233,8 +233,8 @@ treeherder.factory('ThRepositoryModel', [
         var getErrorTreeStatus = function(repoName) {
             return {
                 status: "error",
-                message_of_the_day: 'Error reaching <a href="https://treestatus.mozilla.org">treestatus.mozilla.org</a>',
-                reason: 'Error reaching <a href="https://treestatus.mozilla.org">treestatus.mozilla.org</a>',
+                message_of_the_day: 'Error reaching <a href="https://api.pub.build.mozilla.org/treestatus">api.pub.build.mozilla.org/treestatus</a>',
+                reason: 'Error reaching <a href="https://api.pub.build.mozilla.org/treestatus">api.pub.build.mozilla.org/treestatus</a>',
                 tree: repoName
             };
         };
@@ -265,7 +265,7 @@ treeherder.factory('ThRepositoryModel', [
                 $log.debug("updateTreeStatus", "getStatus", "updating", repo);
                 treeStatus.get(repo).then(
                     function(data) {
-                        newStatuses[repo] = data.data;
+                        newStatuses[repo] = data.data.result;
                         updateStatusesIfDone();
                     }, function(data) {
                         if (data.data != null) {
