@@ -4,6 +4,7 @@
 
 .job-group {
   margin: 0 -3px 0 3px;
+  cursor: default;
 }
 
 .job-btn {
@@ -42,7 +43,6 @@
 
 .group-content {
   margin-left: -3px;
-  cursor: pointer;
 }
 
 .group-content::before {
