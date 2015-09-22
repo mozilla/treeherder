@@ -17,8 +17,8 @@
                     </a>
                     <a href="{{:: getBugUrl(bug.id) }}"
                        target="_blank">{{::bug.id}}
-                        <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:suggestion.search"
-                              title="{{::bug.summary}}">{{::bug.summary}}
+                        <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:suggestion.search">
+                            {{::bug.summary}}
                         </span>
                     </a>
                 </li>
@@ -42,16 +42,16 @@
                     <a ng-if="bug.resolution === ''"
                        href="{{:: getBugUrl(bug.id) }}"
                        target="_blank">{{::bug.id}}
-                        <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:suggestion.search"
-                              title="{{::bug.summary}}">{{::bug.summary}}
+                        <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:suggestion.search">
+                            {{::bug.summary}}
                         </span>
                     </a>
                     <a ng-if="bug.resolution !== ''"
                        href="{{:: getBugUrl(bug.id) }}"
+                       title="{{::bug.resolution}}"
                        target="_blank"
                        class="deleted">{{::bug.id}}
                         <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:suggestion.search"
-                              title="{{::bug.resolution}} - {{::bug.summary}}"
                               class="deleted">{{::bug.summary}}
                         </span>
                     </a>
