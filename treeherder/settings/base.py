@@ -362,8 +362,8 @@ PULSE_DATA_INGESTION_EXCHANGES = env.json(
 # ingestion queues for the exchanges specified in ``PULSE_DATA_INGESTION_EXCHANGES``.
 # See https://pulse.mozilla.org/whats_pulse for more info
 # Example: "amqp://treeherder-test:thpulsesekrit6@pulse.mozilla.org:5672//"
-PULSE_DATA_INGESTION_CONFIG = env.url("PULSE_DATA_INGESTION_CONFIG", default=None)
-PULSE_QUEUE_USERID = env("PULSE_QUEUE_USERID", default=None)
+PULSE_DATA_INGESTION_CONFIG = env.url("PULSE_DATA_INGESTION_CONFIG", default="")
+PULSE_QUEUE_USERID = env("PULSE_QUEUE_USERID", default="")
 
 # Note: All the configs below this import will take precedence over what is
 # defined in local.py!
