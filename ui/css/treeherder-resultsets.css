@@ -1,0 +1,168 @@
+/*
+ * Resultset bar
+ */
+
+.result-set-bar {
+  border-top: 1px solid black;
+  padding: 2px 0px 0px 34px;
+  white-space: nowrap;
+  display: flex;
+  display: -webkit-flex;
+  -webkit-flex-flow: row wrap;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.result-set-left {
+  display: flex;
+  display: -webkit-flex;
+  -webkit-flex-flow: row wrap;
+  flex-flow: row wrap;
+  flex: auto;
+  align-items: center;
+}
+
+.result-set-title-left {
+  flex: 0 0 24.2em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+}
+
+.result-set-body-divider {
+  margin-left: 34px;
+  border-bottom: 1px solid lightgrey;
+}
+
+.result-set-body {
+  padding-left: 15px;
+  padding-right: 25px;
+}
+
+.result-set {
+  padding-bottom: 0px;
+  margin-left: 0;
+  margin-top: 2px;
+  white-space: normal;
+  width: 100%;
+  position: relative;
+}
+
+.result-counts {
+  flex: none;
+  -webkit-flex: none;
+  padding-right: 10px;
+}
+
+.result-set-progress {
+  color: #6f6d70;
+  font-style: italic;
+  margin-left: 10px;
+}
+
+.result-set-buttons {
+  margin-right: 25px;
+}
+
+.btn-resultset {
+  color: #666;
+  background-color: transparent;
+}
+
+.btn-resultset:hover {
+  background-color: #6f6d70;
+  color: white;
+}
+
+.btn-resultset.disabled:hover,
+.btn-resultset.disabled:active,
+.btn-resultset.disabled.active,
+.btn-resultset[disabled]:hover,
+.btn-resultset[disabled]:active,
+.btn-resultset[disabled].active,
+fieldset[disabled] .btn-resultset:hover {
+  background-color: #7c7a7d;
+  border-color: #7c7a7d;
+  color: white;
+}
+
+/* Encompasses unknown push,resultset,repo */
+.unknown-message-body {
+  padding-top: 10px;
+}
+
+.result-set .job-list-pad {
+  padding-right: 0;
+}
+
+.result-set .job-list-nopad {
+  padding-left: 20px;
+  padding-right: 0;
+  display: block;
+}
+
+.result-set .revision-list {
+  padding-left: 0;
+}
+
+/*
+ * Revision list
+ */
+
+.revision-list {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.revision {
+  font-size: 12px;
+  padding-top: 2px;
+  overflow: auto;
+}
+
+.revision-holder > a {
+  padding-top: 2px;
+  font: 11px "Lucida Console",Monaco,monospace;
+}
+
+.revision-holder {
+  padding-left: 20px;
+  padding-right: 11px;
+}
+
+.revision-comment {
+  color: #777;
+}
+
+/*
+ * Job table
+ */
+
+.platform {
+  font-size: 12px;
+  padding-left: 0;
+  padding-right: 5px;
+  width: 14.5em;
+  min-width: 14.5em;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.job-row {
+  display: table-cell;
+  white-space: normal;
+  word-break: normal;
+}
+
+.job-list table {
+  width: 100%;
+}
+
+.job-list table tr {
+  border-bottom: 1px dotted lightgrey;
+}
+
+.job-list table tr:nth-child(even) {
+  background: #f8f8f8;
+}
