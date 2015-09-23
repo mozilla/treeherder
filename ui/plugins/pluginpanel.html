@@ -222,7 +222,8 @@
       </div>
     </div>
   </div>
-  <div id="job-tabs-panel">
+  <div id="job-tabs-panel"
+       ng-class="{'talos-job-selected': tabService.tabs.talos.enabled}">
     <div id="job-tabs-navbar">
       <nav class="navbar navbar-dark">
         <ul class="nav navbar-nav tab-headers">
