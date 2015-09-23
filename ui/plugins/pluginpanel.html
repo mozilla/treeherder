@@ -84,8 +84,9 @@
             </ul>
           </li>
           <li ng-show="canCancel()">
-            <a title="Cancel this job"
-               class="hover-warning"
+            <a ng-attr-title="{{user.loggedin ? 'Cancel this job' :
+                              'Must be logged in to cancel a job'}}"
+               ng-class="user.loggedin ? 'hover-warning' : 'disabled'"
                href="" prevent-default-on-left-click
                target="_blank"
                ng-click="cancelJob()">
