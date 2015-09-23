@@ -428,6 +428,5 @@ div.similar_jobs .left_panel table tr {
  */
 
 div.talos-panel {
-  /* The !important can be removed if/when bug 1094466 is fixed */
   display: block !important;
 }
