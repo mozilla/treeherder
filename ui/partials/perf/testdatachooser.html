@@ -28,10 +28,10 @@
     </div>
   </div>
   <div class="btn-group-vertical ">
-    <button id="unselect-test" ng-click="unselectTest()" type="button" class="btn btn-xs btn-default">
+    <button id="unselect-test" ng-click="unselectTest()" type="button" class="btn btn-xs btn-default" ng-disabled="!testsToAdd.length">
       <span class="glyphicon glyphicon-chevron-left"></span>
     </button>
-    <button id="select-test" ng-click="selectTest()" type="button" class="btn btn-xs btn-default">
+    <button id="select-test" ng-click="selectTest()" type="button" class="btn btn-xs btn-default" ng-disabled="!unselectedTestList.length">
       <span class="glyphicon glyphicon-chevron-right"></span>
     </button>
   </div>
