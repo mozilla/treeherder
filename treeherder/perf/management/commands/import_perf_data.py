@@ -60,7 +60,7 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity):
 
     with transaction.atomic():
         for datum in series:
-            PerformanceDatum.objects.create(
+            PerformanceDatum.objects.get_or_create(
                 repository=repository,
                 result_set_id=datum['result_set_id'],
                 job_id=datum['job_id'],
