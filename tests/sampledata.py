@@ -29,6 +29,10 @@ class SampleData(object):
         return cls.get_perf_data('talos_perf.json')
 
     @classmethod
+    def get_minimal_talos_perf_data(cls):
+        return cls.get_perf_data('talos_perf_minimal.json')
+
+    @classmethod
     def get_b2g_perf_data(cls):
         return cls.get_perf_data('b2g_perf.json')
 
