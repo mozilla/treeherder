@@ -24,7 +24,7 @@ module.exports = function (config) {
             'ui/js/values.js',
             'ui/js/logviewer.js',
             'ui/js/treeherder_app.js',
-            'ui/js/controllers/**/*.js',
+            'ui/js/controllers/*.js',
             'ui/js/directives/treeherder/**/*.js',
             'ui/js/models/**/*.js',
             'ui/js/services/**/*.js',
