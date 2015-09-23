@@ -110,10 +110,10 @@ httplib2==0.9.2
 # sha256: Z4xsNspLAUBRd9qLhO7PkuySyfbHYjlsllu10wXyD4E
 sqlparse==0.1.16
 
-# sha256: s3x2UackVMLdR-MjrY1iKbaquQUMWFgKO0mJ2HyV0J0
-django-environ==0.3.0
+# sha256: cM9SH4fmT03Srrh87QBtyY9iHizbOBNPvLz2MJ_eYkQ
+django-environ==0.4.0
 
-# required by mohawk
+# required by mohawk & django-environ
 # sha256: QYqTw5en7asj5ViNvAZ6x0pyPts9VBvUk295R252Rdo
 six==1.9.0
 
