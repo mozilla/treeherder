@@ -82,153 +82,6 @@ input:focus::-moz-placeholder {
     overflow-y: auto;
 }
 
-
-/*
-    Resultsets
-*/
-
-.th-revision-btn {
-    margin-left: 10px;
-    width: calc(100% - 170px);
-}
-
-.th-action-button span.dropdown:hover ul.dropdown-menu{
-    display: block;
-}
-
-.th-action-button:after {
-  content: none;
-}
-
-.th-rs-loading {
-    width: 50px;
-    display: inline-block;
-    height: 35px;
-    margin-bottom: -14px;
-    margin-left: 5px;
-}
-
-.revision {
-    font-size: 12px;
-    padding-top: 2px;
-    overflow: auto;
-}
-
-.revision-holder > a {
-    padding-top: 2px;
-    font: 11px "Lucida Console",Monaco,monospace;
-}
-
-.revision-holder {
-    padding-left:20px;
-    padding-right: 11px;
-}
-
-.revision-comment {
-    color: #777;
-}
-
-.platform {
-    font-size: 12px;
-    padding-left: 0;
-    padding-right: 5px;
-    width: 14.5em;
-    min-width: 14.5em;
-    overflow: hidden;
-    vertical-align: top;
-}
-
-.job-row {
-    display: table-cell;
-    white-space: normal;
-    word-break: normal;
-
-}
-
-.icon-superscript {
-    vertical-align: super;
-    font-size: 0.625em;
-    margin-left: -0.2em;
-}
-
-.result-set {
-    padding-bottom: 0px;
-    margin-left: 0;
-    margin-top: 2px;
-    white-space: normal;
-    width: 100%;
-    position: relative;
-}
-
-.result-set-body-divider {
-    margin-left: 34px;
-    border-bottom: 1px solid lightgrey;
-}
-
-.result-set-body {
-    padding-left: 15px;
-    padding-right: 25px;
-}
-
-/* Encompasses unknown push,resultset,repo */
-.unknown-message-body {
-    padding-top: 10px;
-}
-
-.result-set-title-left {
-    flex: 0 0 24.2em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding-right: 10px;
-}
-
-.result-set-fa-icon {
-    float: left;
-    padding-top: 4px;
-    padding-right: 4px;
-}
-
-.result-counts {
-    flex: none;
-    -webkit-flex: none;
-    padding-right: 10px;
-}
-
-.result-set-bar {
-    border-top: 1px solid black;
-    padding: 2px 0px 0px 34px;
-    white-space: nowrap;
-    display: flex;
-    display: -webkit-flex;
-    -webkit-flex-flow: row wrap;
-    flex-flow: row nowrap;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.result-set-left {
-    display: flex;
-    display: -webkit-flex;
-    -webkit-flex-flow: row wrap;
-    flex-flow: row wrap;
-    flex: auto;
-    align-items: center;
-}
-
-.result-set-progress {
-    color: #6f6d70;
-    font-style: italic;
-    margin-left: 10px;
-}
-
-.result-set-buttons {
-    margin-right: 25px;
-}
-
-.result-set .revision-list {
-    padding-left: 0;
-}
-
 .logviewer-icon {
     width: 14px;
     height: 16px;
@@ -258,39 +111,18 @@ input:focus::-moz-placeholder {
     color: #0de00d !important;
 }
 
+.icon-superscript {
+  vertical-align: super;
+  font-size: 0.625em;
+  margin-left: -0.2em;
+}
+
 .hover-warning:hover {
     color: #fa4444 !important;
 }
 
 .dim-quarter {
     opacity: 0.75;
-}
-
-.revision-list {
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-.result-set .job-list-pad {
-    padding-right: 0;
-}
-
-.job-list table {
-    width: 100%;
-}
-
-.job-list table tr {
-    border-bottom: 1px dotted lightgrey;
-}
-
-.job-list table tr:nth-child(even) {
-    background: #f8f8f8;
-}
-
-.result-set .job-list-nopad {
-    padding-left: 20px;
-    padding-right: 0;
-    display: block;
 }
 
 .table-super-condensed thead > tr > th,
@@ -314,7 +146,6 @@ input:focus::-moz-placeholder {
 .btn-group + .btn + .save-btn-dropdown {
     margin-left: -5px;
 }
-
 
 /**
  * RESULT STATUS COUNTS
@@ -386,30 +217,20 @@ input:focus::-moz-placeholder {
     cursor: pointer;
 }
 
-/**
- * CUSTOM BUTTONS
+/*
+ * Custom buttons
  */
 
-.btn-resultset {
-  color: #666;
-  background-color: transparent;
-}
-.btn-resultset:hover{
-  background-color: #6f6d70;
-  color: white;
-}
-.btn-resultset.disabled:hover,
-.btn-resultset.disabled:active,
-.btn-resultset.disabled.active,
-.btn-resultset[disabled]:hover,
-.btn-resultset[disabled]:active,
-.btn-resultset[disabled].active,
-fieldset[disabled] .btn-resultset:hover {
-  background-color: #7c7a7d;
-  border-color: #7c7a7d;
-  color: white;
+/* Currently used in resultsets only */
+.th-action-button span.dropdown:hover ul.dropdown-menu {
+  display: block;
 }
 
+.th-action-button:after {
+  content: none;
+}
+
+/* Currently used in resultsets only */
 .label-initials {
   display: inline-block;
   margin-right: 0.2em;
