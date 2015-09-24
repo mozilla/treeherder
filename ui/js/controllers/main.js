@@ -59,7 +59,8 @@ treeherderApp.controller('MainCtrl', [
             'b',     // Pin selected job and add related bug
             'c',     // Pin selected job and add classification
             'f',     // Enter a quick filter
-            'l'      // Open the logviewer for the selected job
+            'l',     // Open the logviewer for the selected job
+            '?'      // Display onscreen keyboard shortcuts
         ];
 
         // Make the single key exclusions available
@@ -242,6 +243,11 @@ treeherderApp.controller('MainCtrl', [
                 }
             });
 
+            // Shortcut: display onscreen keyboard shortcuts
+            Mousetrap.bind('?', function() {
+                $scope.$evalAsync($scope.setOnscreenShortcutsShowing(true));
+            });
+
         };
 
         $scope.repoModel = ThRepositoryModel;
@@ -388,6 +394,14 @@ treeherderApp.controller('MainCtrl', [
         $scope.clearFilterBox = function() {
             thJobFilters.removeFilter("searchStr");
             $("#quick-filter").val("").focus();
+        };
+
+        $scope.onscreenOverlayShowing = false;
+
+        $scope.onscreenShortcutsShowing = false;
+        $scope.setOnscreenShortcutsShowing = function(tf) {
+            $scope.onscreenShortcutsShowing = tf;
+            $scope.onscreenOverlayShowing = tf;
         };
 
         $scope.isFilterPanelShowing = false;
