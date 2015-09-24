@@ -118,6 +118,7 @@ INSTALLED_APPS = [
     'treeherder.embed',
     'treeherder.perf',
     'treeherder.autoclassify',
+    'treeherder.credentials',
 ]
 
 LOCAL_APPS = []
