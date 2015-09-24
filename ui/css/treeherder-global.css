@@ -357,6 +357,24 @@ input:focus::-moz-placeholder {
 }
 
 /*
+ * Onscreen help
+ */
+
+#onscreen-overlay {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 10000; /* 1 more than .overlay wait spinners */
+    background: rgba(0, 0, 0, 0.4);
+}
+
+#onscreen-shortcuts {
+    position: relative;
+    top: 130px;
+    left: 16.5%;
+}
+
+/*
  * Clipboard
  *
  * This facilitates copy on hover for

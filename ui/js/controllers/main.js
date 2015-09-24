@@ -59,7 +59,8 @@ treeherderApp.controller('MainCtrl', [
             'b',     // Pin selected job and add related bug
             'c',     // Pin selected job and add classification
             'f',     // Enter a quick filter
-            'l'      // Open the logviewer for the selected job
+            'l',     // Open the logviewer for the selected job
+            '?'      // Display onscreen keyboard shortcuts
         ];
 
         // Make the single key exclusions available
@@ -216,6 +217,7 @@ treeherderApp.controller('MainCtrl', [
                 $scope.$evalAsync($scope.setSettingsPanelShowing(false));
                 $scope.$evalAsync($scope.setSheriffPanelShowing(false));
                 $scope.$evalAsync($scope.closeJob());
+                $scope.$evalAsync($scope.setOnscreenShortcutsShowing(false));
             });
 
             // Shortcut: clear the pinboard
@@ -240,6 +242,11 @@ treeherderApp.controller('MainCtrl', [
                 if ($scope.selectedJob) {
                     $scope.$evalAsync($rootScope.$emit(thEvents.deleteClassification));
                 }
+            });
+
+            // Shortcut: display onscreen keyboard shortcuts
+            Mousetrap.bind('?', function() {
+                $scope.$evalAsync($scope.setOnscreenShortcutsShowing(true));
             });
 
         };
@@ -388,6 +395,14 @@ treeherderApp.controller('MainCtrl', [
         $scope.clearFilterBox = function() {
             thJobFilters.removeFilter("searchStr");
             $("#quick-filter").val("").focus();
+        };
+
+        $scope.onscreenOverlayShowing = false;
+
+        $scope.onscreenShortcutsShowing = false;
+        $scope.setOnscreenShortcutsShowing = function(tf) {
+            $scope.onscreenShortcutsShowing = tf;
+            $scope.onscreenOverlayShowing = tf;
         };
 
         $scope.isFilterPanelShowing = false;

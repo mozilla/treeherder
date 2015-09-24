@@ -24,8 +24,17 @@
     </head>
     <body ng-controller="MainCtrl" ng-keydown="processKeyboardInput($event)">
         <div id="global-container">
+            <div id="onscreen-overlay" ng-if="onscreenOverlayShowing">
+               <div id="onscreen-shortcuts" ng-if="onscreenShortcutsShowing">
+                 <div class="col-xs-8">
+                    <ng-include src="'partials/main/thShortcutTable.html'"></ng-include>
+                 </div>
+               </div>
+            </div>
             <div id="global-navbar-container">
-                <ng-include id="th-global-top-nav-panel" src="'partials/main/thGlobalTopNavPanel.html'"></ng-include>
+                <ng-include id="th-global-top-nav-panel"
+                            src="'partials/main/thGlobalTopNavPanel.html'">
+                </ng-include>
             </div>
             <div id="th-global-content" class="th-global-content"
                  ng-click="clearJobOnClick($event)">
