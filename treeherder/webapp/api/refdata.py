@@ -1,4 +1,3 @@
-import django_filters
 from django.contrib.auth.models import User
 from rest_framework import filters, viewsets
 from rest_framework.response import Response
@@ -181,15 +180,9 @@ class ExclusionProfileViewSet(viewsets.ModelViewSet):
         return super(ExclusionProfileViewSet, self).create(request, *args, **kwargs)
 
 
-class FailureLineFilter(django_filters.FilterSet):
-    job_guid = django_filters.CharFilter
+class MatcherViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Matcher.objects.all()
+    serializer_class = th_serializers.MatcherSerializer
 
     class Meta:
-        model = models.FailureLine
-
-
-class FailureLineViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = models.FailureLine.objects.all()
-    serializer_class = th_serializers.FailureLineSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
-    filter_class = FailureLineFilter
+        model = models.Matcher

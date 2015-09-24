@@ -122,21 +122,22 @@ class BugscacheSerializer(serializers.ModelSerializer):
         model = models.Bugscache
 
 
-class ClassifiedFailureSerializer(serializers.ModelSerializer):
+class MatcherSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = models.ClassifiedFailure
+        model = models.Matcher
 
 
-class MatchSerializer(serializers.ModelSerializer):
-    classified_failure = ClassifiedFailureSerializer(many=True)
+class FailureMatchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.FailureMatch
+        exclude = ['classified_failure']
 
 
-class FailureLineSerializer(serializers.ModelSerializer):
-    matches = MatchSerializer(many=True)
+class FailureLineNoStackSerializer(serializers.ModelSerializer):
+    matches = FailureMatchSerializer(many=True)
 
     class Meta:
         model = models.FailureLine
+        exclude = ['stack']
