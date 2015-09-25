@@ -66,7 +66,10 @@ class Command(BaseCommand):
 
         # job type
         for job_type in c.get_job_types():
-            jgroup = JobGroup.objects.get(id=job_type['job_group'])
+            if job_type['job_group']:
+                jgroup = JobGroup.objects.get(id=job_type['job_group'])
+            else:
+                jgroup = None
             JobType.objects.get_or_create(
                     id=job_type['id'],
                     symbol=job_type['symbol'],
