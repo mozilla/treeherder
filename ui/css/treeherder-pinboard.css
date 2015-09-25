@@ -188,3 +188,15 @@
   display: inline;
   width: 70px;
 }
+
+.save-btn {
+  width: 81px;
+}
+
+.save-btn-dropdown {
+  width: 18px;
+}
+
+.btn-group + .btn + .save-btn-dropdown {
+  margin-left: -5px;
+}
