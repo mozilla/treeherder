@@ -132,7 +132,8 @@ class FailureMatchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.FailureMatch
-        exclude = ['classified_failure']
+        exclude = ['classified_failure',
+                   'failure_line']
 
 
 class FailureLineNoStackSerializer(serializers.ModelSerializer):
@@ -140,4 +141,6 @@ class FailureLineNoStackSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.FailureLine
-        exclude = ['stack']
+        exclude = ['stack',
+                   'stackwalk_stdout',
+                   'stackwalk_stderr']

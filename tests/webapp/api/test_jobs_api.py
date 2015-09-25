@@ -211,3 +211,33 @@ def test_job_detail_not_found(webapp, jm):
         expect_errors=True
     )
     assert resp.status_int == 404
+
+def test_job_error_lines(webapp, eleven_jobs_stored, jm, failure_lines, classified_failures):
+    """
+    test retrieving failure lines
+    """
+    job = jm.get_job(1)[0]
+
+    resp = webapp.get(
+        reverse("jobs-failure-lines",
+                kwargs={"project": jm.project, "pk": job["id"]})
+    )
+    assert resp.status_int == 200
+
+    failures = resp.json
+    assert isinstance(failures, list)
+
+    exp_failure_keys = ["id", "job_guid", "repository", "action", "line",
+                        "test", "subtest", "status", "expected", "message",
+                        "signature", "level", "created", "modified", "matches"]
+
+    assert set(failures[0].keys()) == set(exp_failure_keys)
+
+    matches = failures[0]["matches"]
+    assert isinstance(matches, list)
+
+    exp_matches_keys = ["id", "matcher", "score", "is_best"]
+
+    assert set(matches[0].keys()) == set(exp_matches_keys)
+
+    jm.disconnect()
