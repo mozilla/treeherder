@@ -264,6 +264,7 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'treeherder.webapp.api.exceptions.exception_handler',
     'DEFAULT_THROTTLE_CLASSES': (
         'treeherder.webapp.api.throttling.OauthKeyThrottle',
+        'treeherder.webapp.api.throttling.HawkClientThrottle'
     ),
     'DEFAULT_THROTTLE_RATES': {
         'jobs': '220/minute',
