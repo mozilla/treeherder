@@ -13,6 +13,7 @@ Contents:
 
    installation
    dataload
+   pulseload
    deployment
    list_of_services
    common_tasks
