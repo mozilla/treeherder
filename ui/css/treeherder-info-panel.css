@@ -195,6 +195,14 @@ div#info-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
   overflow: auto;
 }
 
+#result-status-pane div {
+  display: inline-block;
+}
+
+#result-status-pane div:first-child {
+  width: 11.25em;
+}
+
 /*
  * Job tabs panel (right side)
  */
