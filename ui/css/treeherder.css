@@ -61,7 +61,7 @@ input:focus::-moz-placeholder {
     position: fixed;
     width: 100%;
     height: 100%;
-    z-index: 10000; /* 1 more than info-panel-resizer */
+    z-index: 10000; /* 1 more than .overlay wait spinners */
     background: rgba(0, 0, 0, 0.4);
 }
 

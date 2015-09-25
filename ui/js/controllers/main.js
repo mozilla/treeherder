@@ -217,6 +217,7 @@ treeherderApp.controller('MainCtrl', [
                 $scope.$evalAsync($scope.setSettingsPanelShowing(false));
                 $scope.$evalAsync($scope.setSheriffPanelShowing(false));
                 $scope.$evalAsync($scope.closeJob());
+                $scope.$evalAsync($scope.setOnscreenShortcutsShowing(false));
             });
 
             // Shortcut: clear the pinboard
