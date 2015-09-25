@@ -25,7 +25,9 @@
         <div id="global-container">
             <div id="onscreen-overlay" ng-if="onscreenOverlayShowing">
                <div id="onscreen-shortcuts" ng-if="onscreenShortcutsShowing">
-                  <ng-include src="'partials/main/thOnscreenShortcuts.html'"></ng-include>
+                 <div class="col-xs-8">
+                    <ng-include src="'partials/main/thShortcutTable.html'"></ng-include>
+                 </div>
                </div>
             </div>
             <div id="global-navbar-container">
