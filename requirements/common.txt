@@ -123,3 +123,6 @@ mohawk==0.3.0
 
 # sha256: 93Oaer_oUL3Wk1F803LwmvJRB-p-t0vr7NuAEWmPA-4
 hawkrest==0.0.6
+
+# sha256: KuY89HXwvQSbci-sIIE9Yq7cFJV91aO_ANEg0rVARGA
+python-dateutil==2.4.2
