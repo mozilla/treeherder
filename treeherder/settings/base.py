@@ -178,7 +178,8 @@ CELERY_QUEUES = (
     Queue('buildapi_4hr', Exchange('default'), routing_key='buildapi_4hr'),
     Queue('cycle_data', Exchange('default'), routing_key='cycle_data'),
     Queue('calculate_eta', Exchange('default'), routing_key='calculate_eta'),
-    Queue('fetch_bugs', Exchange('default'), routing_key='fetch_bugs')
+    Queue('fetch_bugs', Exchange('default'), routing_key='fetch_bugs'),
+    Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs')
 )
 
 CELERY_ACCEPT_CONTENT = ['json']
@@ -338,6 +339,10 @@ PULSE_EXCHANGE_NAMESPACE = None
 # will be updated as new applications come online that Treeherder supports.
 # Can be overridden in local.py to specify fewer or completely different
 # exchanges for testing purposes on local machines.
+# Treeherder will subscribe with routing keys that are all combinations of
+# ``project`` and ``destination`` in the form of:
+#     <project>.<destination>
+# Wildcards such as ``#`` and ``*`` are supported for either field.
 PULSE_DATA_INGESTION_EXCHANGES = env.json(
     "PULSE_DATA_INGESTION_EXCHANGES",
     default=[
@@ -347,23 +352,34 @@ PULSE_DATA_INGESTION_EXCHANGES = env.json(
         #         'mozilla-central',
         #         'mozilla-inbound'
         #         # other repos TC can submit to
+        #     ],
+        #     "destinations": [
+        #         'production'
+        #         'staging'
         #     ]
         # },
         # {
         #     "name": "exchange/treeherder-test/jobs",
         #     "projects": [
         #         'mozilla-inbound'
+        #     ],
+        #     "destinations": [
+        #         'production'
+        #         'staging'
         #     ]
+        #
         # }
         # ... other CI systems
     ])
 
 # Used to specify the PulseGuardian account that will be used to create
 # ingestion queues for the exchanges specified in ``PULSE_DATA_INGESTION_EXCHANGES``.
-# See https://pulse.mozilla.org/whats_pulse for more info
-# Example: "amqp://treeherder-test:thpulsesekrit6@pulse.mozilla.org:5672//"
+# See https://pulse.mozilla.org/whats_pulse for more info.
+# Example: "amqp://myuserid:mypassword@pulse.mozilla.org:5672/"
 PULSE_DATA_INGESTION_CONFIG = env.url("PULSE_DATA_INGESTION_CONFIG", default="")
-PULSE_QUEUE_USERID = env("PULSE_QUEUE_USERID", default="")
+
+# Whether the Queues created for pulse ingestion are durable or not
+PULSE_DATA_INGESTION_QUEUES_DURABLE = env("PULSE_DATA_INGESTION_QUEUES_DURABLE", default=False)
 
 # Note: All the configs below this import will take precedence over what is
 # defined in local.py!
