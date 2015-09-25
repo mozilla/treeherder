@@ -33,30 +33,32 @@ logViewerApp.controller('LogviewerCtrl', [
         $scope.highestLine = 0;
         $scope.showSuccessful = true;
         $scope.willScroll = false;
+
         $scope.$watch('artifact', function () {
             if (!$scope.artifact) {
                 return;
             }
             $scope.showSuccessful = !$scope.hasFailedSteps();
         });
+
         $scope.$watch('[selectedBegin, selectedEnd]', function(newVal, oldVal) {
-            var newHash = (newVal[0] == newVal[1])? newVal[0] : newVal[0] + "-L" + newVal[1];
+            var newHash = (newVal[0] === newVal[1]) ? newVal[0] : newVal[0] + "-L" + newVal[1];
             if (!isNaN(newVal[0])) {
                 $location.hash("L" + newHash);
-            }
-            else {
-                if($scope.artifact) {
+            } else {
+                if ($scope.artifact) {
                     $location.hash("");
                 }
             }
         });
+
         $scope.$on("$locationChangeSuccess", function($event, $artifact) {
             var oldLine = parseInt($scope.currentLineNumber);
             getSelectedLines();
 
             var newLine = parseInt($scope.selectedBegin);
-            var range = LINE_BUFFER_SIZE/2;
-            if ( (newLine <= (oldLine - range) || newLine >= oldLine + range) && !$scope.willScroll) {
+            var range = LINE_BUFFER_SIZE / 2;
+            if ((newLine <= (oldLine - range) || newLine >= oldLine + range) && !$scope.willScroll) {
                 if ($scope.artifact) {
                     $scope.displayedStep = getStepFromLine(newLine);
                     moveScrollToLineNumber(newLine, $event);
@@ -67,7 +69,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
         $scope.click = function(line, $event) {
             $scope.willScroll = true;
-            if($event.shiftKey) {
+            if ($event.shiftKey) {
                 if (line.index < $scope.selectedBegin) {
                     $scope.selectedEnd = $scope.selectedBegin;
                     $scope.selectedBegin = line.index;
@@ -307,8 +309,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
         function getStepFromLine(linenumber) {
             var steps = $scope.artifact.step_data.steps;
-            var i;
-            for (i=1; i< steps.length; i++) {
+            for (var i = 1; i < steps.length; i++) {
                 if (steps[i].started_linenumber >= linenumber) {
                     return steps[i-1];
                 }
