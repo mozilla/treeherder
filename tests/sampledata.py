@@ -48,6 +48,7 @@ class SampleData(object):
         self.logs_dir = "{0}/sample_data/logs".format(
             os.path.dirname(__file__)
         )
+
         self.performance_logs_dir = "{0}/sample_data/artifacts/performance/perf_logs".format(
             os.path.dirname(__file__)
         )
@@ -63,6 +64,10 @@ class SampleData(object):
         with open("{0}/sample_data/artifacts/text_log_summary.json".format(
                   os.path.dirname(__file__))) as f:
             self.text_log_summary = json.load(f)
+
+        with open("{0}/sample_data/pulse_consumer/job_data.json".format(
+                  os.path.dirname(__file__))) as f:
+            self.pulse_jobs = json.load(f)
 
         self.job_data = []
         self.resultset_data = []
