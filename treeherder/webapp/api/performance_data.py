@@ -83,20 +83,23 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
 
         try:
             signature_hashes = request.QUERY_PARAMS.getlist("signatures")
+            job_id = request.QUERY_PARAMS.getlist("jobId")
         except:
-            raise exceptions.ValidationError('need signature list')
-
-        datums = PerformanceDatum.objects.filter(
-            repository=repository,
-            signature__signature_hash__in=signature_hashes).select_related(
+            raise exceptions.ValidationError('need signature list or job_id')
+        if signature_hashes:
+            datums = PerformanceDatum.objects.filter(
+                repository=repository,
+                signature__signature_hash__in=signature_hashes).select_related(
                 'signature__signature_hash')
-
+        else:
+            datums = PerformanceDatum.objects.filter(
+                repository=repository,
+                job_id__in=job_id)
         interval = request.QUERY_PARAMS.get('interval')
         if interval:
             datums = datums.filter(
                 push_timestamp__gt=datetime.datetime.fromtimestamp(
                     int(time.time() - int(interval))))
-
         ret = defaultdict(list)
         for datum in datums.select_related('signature__signature_hash').order_by(
                 'push_timestamp'):
