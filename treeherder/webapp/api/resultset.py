@@ -9,7 +9,7 @@ from treeherder.model.derived import DatasetNotFoundError
 from treeherder.webapp.api.permissions import (HasLegacyOauthPermissionsOrReadOnly,
                                                IsStaffOrReadOnly)
 from treeherder.webapp.api.utils import UrlQueryFilter, to_timestamp, with_jobs
-from treeherder.model.tasks import publish_resultset_action
+from treeherder.model.tasks import publish_resultset_runnable_job_action
 
 
 class ResultSetViewSet(viewsets.ViewSet):
@@ -171,7 +171,7 @@ class ResultSetViewSet(viewsets.ViewSet):
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
-    def trigger_new_jobs(self, request, project, jm, pk=None):
+    def trigger_runnable_jobs(self, request, project, jm, pk=None):
         """
         Add new jobs to a resultset.
         """
@@ -191,9 +191,8 @@ class ResultSetViewSet(viewsets.ViewSet):
             Response({"message": "The list of buildernames cannot be empty"},
                      status=400)
 
-        publish_resultset_action.apply_async(
-            args=[project, "trigger_new_jobs", pk, request.user.email,
-                  1, buildernames],
+        publish_resultset_runnable_job_action.apply_async(
+            args=[project, pk, request.user.email, buildernames],
             routing_key='publish_to_pulse'
         )
 

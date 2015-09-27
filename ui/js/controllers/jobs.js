@@ -227,14 +227,6 @@ treeherderApp.controller('ResultSetCtrl', [
             });
         };
 
-        $scope.getRunnableVisibility = function() {
-            var show = $scope.resultset.isRunnableVisible;
-            if (typeof show === "undefined") {
-                return false;
-            }
-            return show;
-        };
-
         $scope.showTriggerButton = function() {
             var buildernames = ThResultSetStore.getSelectedRunnableJobs($rootScope.repoName, $scope.resultset.id);
             return buildernames.length > 0;

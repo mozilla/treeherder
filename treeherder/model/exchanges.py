@@ -48,6 +48,22 @@ class TreeherderPublisher(PulsePublisher):
         schema="https://treeherder.mozilla.org/schemas/v1/resultset-action-message.json#"
     )
 
+    resultset_runnable_job_action = Exchange(
+        exchange="resultset-runnable-job-actions",
+        title="Runnable job actions issued by resultset",
+        description="""
+            This action is published when a user asks for new runnable jobs (chosen
+            by name) on a resultset.
+        """,
+        routing_keys=[
+            Key(
+                name='project',
+                summary="Project (or branch) that this result-set belongs to"
+            ),
+        ],
+        schema="https://treeherder.mozilla.org/schemas/v1/resultset-runnable-job-action-message.json#"
+    )
+
     job_action = Exchange(
         exchange="job-actions",
         title="Actions issued by jobs",

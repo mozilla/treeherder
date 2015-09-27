@@ -202,21 +202,6 @@ class JobsModel(TreeherderModelBase):
         )
         return data
 
-    def get_runnable_job_list(self):
-        data = self.execute(
-            proc="jobs.selects.get_runnable_job_list",
-            replace=[self.refdata_model.get_db_name()],
-            debug_show=self.DEBUG,
-        )
-
-        # These jobs must show up in Treeherder as runnable jobs
-        for datum in data:
-            datum['job_coalesced_to_guid'] = None
-            datum['state'] = 'runnable'
-            datum['result'] = 'runnable'
-
-        return data
-
     def set_state(self, job_id, state):
         """Update the state of an existing job"""
         self.execute(
@@ -1140,111 +1125,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 debug_show=self.DEBUG,
                 placeholders=coalesced_job_guid_placeholders,
                 executemany=True)
-
-    def store_runnable_job_data(self, data, raise_errors=False):
-        """
-        Store runnable data instances into runnable_job db
-        """
-        # Ensure that we have job data to process
-        if not data:
-            return
-
-        job_placeholders = []
-
-        for datum in data:
-            build_os_name = datum['build_os']
-            build_platform = datum['build_platform']
-            build_architecture = datum['build_architecture']
-            build_platform_key = self.refdata_model.add_build_platform(
-                build_os_name, build_platform, build_architecture
-            )
-            machine_os_name = datum['machine_platform_os']
-            machine_platform = datum['platform']
-            machine_architecture = datum['machine_platform_architecture']
-            machine_platform_key = self.refdata_model.add_machine_platform(
-                machine_os_name, machine_platform, machine_architecture
-            )
-
-            device_name = datum['device_name']
-            self.refdata_model.add_device(device_name)
-
-            job_type = datum['job_type_name']
-            job_symbol = datum['job_type_symbol']
-
-            group_name = datum['job_group_name']
-            group_symbol = datum['job_group_symbol']
-
-            job_type_key = self.refdata_model.add_job_type(
-                job_type, job_symbol, group_name, group_symbol
-            )
-
-            reference_data_name = datum['ref_data_name']  # Buildername
-            build_system_type = datum['build_system_type']
-            option_collection_hash = self.refdata_model.add_option_collection(
-                datum['option_collection'])
-
-            signature = self.refdata_model.add_reference_data_signature(
-                reference_data_name, build_system_type, self.project,
-                [build_system_type, self.project, build_os_name, build_platform,
-                 build_architecture, machine_os_name, machine_platform,
-                 machine_architecture, device_name, group_name, group_symbol,
-                 job_type, job_symbol, option_collection_hash]
-            )
-
-            job_placeholders.append([
-                build_platform_key,
-                machine_platform_key,
-                device_name,
-                job_type_key,
-                option_collection_hash,
-                signature
-            ])
-
-        # Store all reference data and retrieve associated ids
-        id_lookups = self.refdata_model.set_all_reference_data()
-
-        for datum in job_placeholders:
-            datum[0] = id_lookups['build_platforms'][datum[0]]['id']
-            datum[1] = id_lookups['machine_platforms'][datum[1]]['id']
-            datum[2] = id_lookups['devices'][datum[2]]['id']
-            datum[3] = id_lookups['job_types'][datum[3]]['id']
-
-        # This part is a little weird because of a bug in MySQLdb:
-        # When a query matches the insert_values regex (
-        # http://git.io/vsgJT -- cursors.py:18 ) executemany doesn't
-        # set self.executed_ after running it ( http://git.io/vsgJX --
-        # cursors.py:262 ) which gives us the following error:
-        #
-        #   ProgrammingError: execute() first
-        #
-        # Running any other command on the same connection will set
-        # self.executed_ for us, so as a workaround we add the first
-        # row alone without executemany and then insert every other
-        # row using executemany=True.
-
-        self.execute(
-            proc='jobs.inserts.set_runnable_job_data',
-            debug_show=self.DEBUG,
-            placeholders=job_placeholders[0]
-        )
-
-        if len(job_placeholders) > 1:
-            self.execute(
-                proc='jobs.inserts.set_runnable_job_data',
-                debug_show=self.DEBUG,
-                placeholders=job_placeholders[1:],
-                executemany=True
-            )
-
-    def clean_runnable_job_data(self):
-        """
-        Remove runnable jobs from the previous day.
-
-        This way we always have an up-to-date runnable jobs lists.
-        """
-        self.execute(
-            proc='jobs.deletes.cycle_runnable_job',
-            debug_show=self.DEBUG)
 
     def _remove_existing_jobs(self, data):
         """

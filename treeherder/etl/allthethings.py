@@ -1,11 +1,12 @@
 from django.conf import settings
 import collections
 import logging
+from hashlib import sha1
 
 from treeherder.etl.mixins import JsonExtractorMixin
 from treeherder.etl.buildbot import get_symbols_and_platforms
-from treeherder.model.derived.jobs import JobsModel
-from treeherder.model.models import Repository
+from treeherder.model.models import Repository, BuildPlatform, MachinePlatform, \
+    JobType, JobGroup, Option, Device, RunnableJob, OptionCollection
 
 
 logger = logging.getLogger(__name__)
@@ -31,26 +32,73 @@ class AllthethingsTransformerMixin:
 class RunnableJobsProcess(JsonExtractorMixin,
                           AllthethingsTransformerMixin):
 
+    # XXX: Copied from refdata.py. What is the best place for this?
+    def get_option_collection_hash(self, options):
+        """returns an option_collection_hash given a list of options"""
+
+        options = sorted(list(options))
+        sha_hash = sha1()
+        # equivalent to loop over the options and call sha_hash.update()
+        sha_hash.update(''.join(options))
+        return sha_hash.hexdigest()
+
     def load(self, jobs_per_branch):
-        active_projects = Repository.objects.filter(
-            active_status='active').values_list('name', flat=True)
+        active_repositories = Repository.objects.all().filter(
+            active_status='active')
 
-        # We clean the runnable_job table on every active repository
-        # to avoid keeping old data when a branch moves away from
-        # Buildbot
-        for project in active_projects:
-            with JobsModel(project) as jm:
-                jm.clean_runnable_job_data()
-
-        for project, data in jobs_per_branch.iteritems():
-            # There are some branches in allthethings.json, e.g,
-            # release/mozilla-beta that do not correspond to any
-            # active project, we need to skip those
-            if project not in active_projects:
+        for repo in active_repositories:
+            # Some active repositories might not have any buildbot
+            # builders.
+            if repo.name not in jobs_per_branch:
                 continue
 
-            with JobsModel(project) as jm:
-                jm.store_runnable_job_data(data)
+            for datum in jobs_per_branch[repo.name]:
+                # XXX: refdata.py truncates those fields at 25 characters.
+                # Should we do the same?
+                build_platform, _ = BuildPlatform.objects.get_or_create(
+                    os_name=datum['build_os'],
+                    platform=datum['build_platform'],
+                    architecture=datum['build_architecture']
+                )
+
+                machine_platform, _ = MachinePlatform.objects.get_or_create(
+                    os_name=datum['machine_platform_os'],
+                    platform=datum['platform'],
+                    architecture=datum['machine_platform_architecture']
+                )
+
+                job_group, _ = JobGroup.objects.get_or_create(
+                    name=datum['job_group_name'],
+                    symbol=datum['job_group_symbol']
+                )
+
+                job_type, _ = JobType.objects.get_or_create(
+                    name=datum['job_type_name'],
+                    symbol=datum['job_type_symbol'],
+                    job_group=job_group
+                )
+
+                option_collection_hash = self.get_option_collection_hash(
+                    datum['option_collection'].keys())
+
+                for key in datum['option_collection'].keys():
+                    option, _ = Option.objects.get_or_create(name=key)
+                    OptionCollection.objects.get_or_create(
+                        option_collection_hash=option_collection_hash,
+                        option=option)
+
+                device, _ = Device.objects.get_or_create(name=datum['device_name'])
+
+                # This automatically updates the last_touched field.
+                RunnableJob.objects.update_or_create(
+                    ref_data_name=datum['ref_data_name'],
+                    build_system_type=datum['build_system_type'],
+                    defaults={'build_platform': build_platform,
+                              'machine_platform': machine_platform,
+                              'device': device,
+                              'job_type': job_type,
+                              'option_collection_hash': option_collection_hash,
+                              'repository': repo})
 
     def run(self):
         extracted_content = self.extract(settings.ALLTHETHINGS_URL)

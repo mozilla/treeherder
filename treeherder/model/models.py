@@ -666,3 +666,25 @@ class FailureMatch(models.Model):
         unique_together = (
             ('failure_line', 'classified_failure', 'matcher')
         )
+
+
+@python_2_unicode_compatible
+class RunnableJob(models.Model):
+    id = models.AutoField(primary_key=True)
+    build_platform = models.ForeignKey(BuildPlatform)
+    machine_platform = models.ForeignKey(MachinePlatform)
+    device = models.ForeignKey(Device)
+    job_type = models.ForeignKey(JobType)
+    option_collection_hash = models.CharField(max_length=64L)
+    ref_data_name = models.CharField(max_length=255L)
+    build_system_type = models.CharField(max_length=25L)
+    repository = models.ForeignKey(Repository)
+    last_touched = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'runnable_job'
+
+    def __str__(self):
+        return "{0} {1} {2}".format(self.id,
+                                    self.ref_data_name,
+                                    self.build_system_type)

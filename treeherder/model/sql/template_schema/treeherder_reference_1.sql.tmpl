@@ -548,6 +548,38 @@ CREATE TABLE `repository_group` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `runnable_job`
+--
+
+DROP TABLE IF EXISTS `runnable_job`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: runnable_job
+ *
+ * List of (kinds of) jobs that can be triggered through Treeherder.
+ *
+ * Population Method: dynamic from incoming data
+ **************************/
+CREATE TABLE `runnable_job` (
+  `id` integer NOT NULL AUTO_INCREMENT,
+  `build_platform_id` integer NOT NULL,
+  `machine_platform_id` integer NOT NULL,
+  `device_id` integer DEFAULT NULL,
+  `job_type_id` integer NOT NULL,
+  `option_collection_hash` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `ref_data_name` varchar(255) COLLATE utf8_bin NOT NULL,
+  `build_system_type` varchar(25) COLLATE utf8_bin DEFAULT NULL,
+  `repository_id` integer NOT NULL,
+  `last_touched` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_repository_id` (`repository_id`),
+  UNIQUE KEY `uni_build_type_name` (`ref_data_name`, `build_system_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 DROP TABLE IF EXISTS `job_exclusion`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;

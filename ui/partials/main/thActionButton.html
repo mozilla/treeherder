@@ -12,12 +12,12 @@
     <li><a target="_blank" ignore-job-clear-on-click
            title="Add new jobs to this resultset"
            href="" prevent-default-on-left-click
-           ng-hide="getRunnableVisibility()"
+           ng-hide="resultset.isRunnableVisible"
            ng-click="showRunnableJobs()">Add new Jobs</a></li>
     <li><a target="_blank" ignore-job-clear-on-click
            title="Hide Runnable Jobs"
            href="" prevent-default-on-left-click
-           ng-show="getRunnableVisibility()"
+           ng-show="resultset.isRunnableVisible"
            ng-click="deleteRunnableJobs()">Hide Runnable Jobs</a></li>
     <li><a target="_blank" ignore-job-clear-on-click
            href="https://mcmerge.paas.allizom.org/?cset={{::resultset.revision}}&amp;tree={{::repoName}}"

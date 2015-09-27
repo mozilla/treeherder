@@ -5,10 +5,12 @@ treeherder.factory('ThResultSetStore', [
     'ThResultSetModel', 'ThJobModel', 'thEvents', 'thResultStatusObject',
     'thAggregateIds', 'ThLog', 'thNotify', 'thJobFilters', 'thOptionOrder',
     'ThRepositoryModel', '$timeout', 'ThJobTypeModel', 'ThJobGroupModel',
+    'ThRunnableJobModel',
     function(
         $rootScope, $q, $location, $interval, thPlatformOrder, ThResultSetModel,
         ThJobModel, thEvents, thResultStatusObject, thAggregateIds, ThLog, thNotify,
-        thJobFilters, thOptionOrder, ThRepositoryModel, $timeout, ThJobTypeModel, ThJobGroupModel) {
+        thJobFilters, thOptionOrder, ThRepositoryModel, $timeout, ThJobTypeModel,
+        ThJobGroupModel, ThRunnableJobModel) {
 
         var $log = new ThLog("ThResultSetStore");
 
@@ -273,9 +275,7 @@ treeherder.factory('ThResultSetStore', [
         };
 
         var getRunnableJobs = function(repoName, resultSet) {
-            var uri = ThJobModel.get_runnable_uri(repoName);
-
-            return ThJobModel.get_list_by_uri(uri).then(function(jobList) {
+            return ThRunnableJobModel.get_list(repoName).then(function(jobList) {
                 var id = resultSet.id;
                 _.each(jobList, function(job) {
                     job.result_set_id = id;

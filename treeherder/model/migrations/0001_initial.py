@@ -298,6 +298,24 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
+            name='RunnableJob',
+            fields=[
+                ('id', models.AutoField(serialize=False, primary_key=True)),
+                ('build_platform_id', models.ForeignKey(to='model.BuildPlatform')),
+                ('machine_platform_id', models.ForeignKey(to='model.MachinePlatform')),
+                ('device_id', models.ForeignKey(to='model.Device')),
+                ('job_type_id', models.ForeignKey(to='model.JobType')),
+                ('option_collection_hash', models.CharField(max_length=64L)),
+                ('ref_data_name', models.CharField(max_length=255L)),
+                ('build_system_type', models.CharField(max_length=25L)),
+                ('repository_id', models.ForeignKey(to='model.Repository')),
+                ('last_touched', models.DateTimeField(auto_now=True)),
+            ],
+            options={
+                'db_table': 'runnable_job',
+            },
+        ),
+        migrations.CreateModel(
             name='UserExclusionProfile',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),

@@ -25,10 +25,6 @@ treeherder.factory('ThJobModel', [
 
         ThJobModel.get_uri = function(repoName){return thUrl.getProjectUrl("/jobs/", repoName);};
 
-        ThJobModel.get_runnable_uri = function(repoName) {
-            return thUrl.getProjectUrl("/runnable_jobs/", repoName);
-        };
-
         ThJobModel.get_list = function(repoName, options, config) {
             return ThJobModel.get_list_by_uri(ThJobModel.get_uri(repoName), options, config);
         };
