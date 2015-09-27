@@ -3,13 +3,13 @@ import json
 import time
 from collections import defaultdict
 
-from rest_framework import (exceptions,
-                            viewsets)
+from collections import defaultdict
+from rest_framework import exceptions
+from rest_framework import viewsets
 from rest_framework.response import Response
 
 from treeherder.model import models
-from treeherder.perf.models import (PerformanceDatum,
-                                    PerformanceSignature)
+from treeherder.perf.models import (PerformanceSignature, PerformanceDatum)
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
@@ -24,20 +24,20 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
                 'signature__platform')
 
         # filter based on signature hashes, if asked
-        signature_hashes = request.query_params.getlist('signature')
+        signature_hashes = request.QUERY_PARAMS.getlist('signature')
         if signature_hashes:
             signature_ids = PerformanceSignature.objects.filter(
                 signature_hash__in=signature_hashes).values_list('id', flat=True)
             signature_data = signature_data.filter(signature_id__in=list(
                 signature_ids))
 
-        interval = request.query_params.get('interval')
+        interval = request.QUERY_PARAMS.get('interval')
         if interval:
             signature_data = signature_data.filter(
                 push_timestamp__gte=datetime.datetime.fromtimestamp(
                     int(time.time() - int(interval))))
 
-        platform = request.query_params.get('platform')
+        platform = request.QUERY_PARAMS.get('platform')
         if platform:
             platforms = models.MachinePlatform.objects.filter(
                 platform=platform)
@@ -83,21 +83,26 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
         repository = models.Repository.objects.get(name=project)
 
         try:
-            signature_hashes = request.query_params.getlist("signatures")
+            signature_hashes = request.QUERY_PARAMS.getlist("signatures")
+            job_id = request.QUERY_PARAMS.getlist("jobId")
         except:
-            raise exceptions.ValidationError('need signature list')
-
-        datums = PerformanceDatum.objects.filter(
-            repository=repository,
-            signature__signature_hash__in=signature_hashes).select_related(
+            raise exceptions.ValidationError('need signature list or job_id')
+        except:
+            raise exceptions.ValidationError('need signature list or job_id')
+        if signature_hashes:
+            datums = PerformanceDatum.objects.filter(
+                repository=repository,
+                signature__signature_hash__in=signature_hashes).select_related(
                 'signature__signature_hash')
-
-        interval = request.query_params.get('interval')
+        else:
+            datums = PerformanceDatum.objects.filter(
+                repository=repository,
+                job_id__in=job_id)
+        interval = request.QUERY_PARAMS.get('interval')
         if interval:
             datums = datums.filter(
                 push_timestamp__gt=datetime.datetime.fromtimestamp(
                     int(time.time() - int(interval))))
-
         ret = defaultdict(list)
         for datum in datums.select_related('signature__signature_hash').order_by(
                 'push_timestamp'):

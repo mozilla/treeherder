@@ -87,7 +87,7 @@ treeherder.controller('PluginCtrl', [
                     $scope.eta = $scope.job.get_current_eta();
                     $scope.eta_abs = Math.abs($scope.job.get_current_eta());
                     $scope.typical_eta = $scope.job.get_typical_eta();
-                    $scope.jobRevision = ThResultSetStore.getSelectedJob($scope.repoName).job.revision
+                    $scope.jobRevision = ThResultSetStore.getSelectedJob($scope.repoName).job.revision;
 
                     // we handle which tab gets presented in the job details panel
                     // and a special set of rules for talos
