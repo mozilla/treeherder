@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from treeherder.model.derived import ArtifactsModel
+from treeherder.model.models import FailureLine
+from treeherder.webapp.api import serializers
 from treeherder.webapp.api import permissions
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 from treeherder.webapp.api.utils import UrlQueryFilter, get_option, with_jobs
@@ -163,6 +165,25 @@ class JobsViewSet(viewsets.ViewSet):
         if job:
             jm.backfill(request.user.email, job[0])
             return Response({"message": "backfilled job '{0}'".format(job[0]['job_guid'])})
+        else:
+            return Response("No job with id: {0}".format(pk), 404)
+
+    @detail_route(methods=['get'])
+    @with_jobs
+    def failure_lines(self, request, project, jm, pk=None):
+        """
+        Get a list of test failure lines for the job
+        """
+        job = jm.get_job(pk)
+        if job:
+            queryset = FailureLine.objects.filter(
+                job_guid=job[0]['job_guid']
+            ).prefetch_related(
+                "matches", "matches__matcher"
+            )
+            failure_lines = [serializers.FailureLineNoStackSerializer(obj).data
+                             for obj in queryset]
+            return Response(failure_lines)
         else:
             return Response("No job with id: {0}".format(pk), 404)
 

@@ -120,3 +120,27 @@ class BugscacheSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Bugscache
+
+
+class MatcherSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Matcher
+
+
+class FailureMatchSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.FailureMatch
+        exclude = ['classified_failure',
+                   'failure_line']
+
+
+class FailureLineNoStackSerializer(serializers.ModelSerializer):
+    matches = FailureMatchSerializer(many=True)
+
+    class Meta:
+        model = models.FailureLine
+        exclude = ['stack',
+                   'stackwalk_stdout',
+                   'stackwalk_stderr']

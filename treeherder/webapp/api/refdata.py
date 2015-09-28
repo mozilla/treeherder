@@ -178,3 +178,11 @@ class ExclusionProfileViewSet(viewsets.ModelViewSet):
         if "author" not in request.DATA:
             request.DATA["author"] = request.user.id
         return super(ExclusionProfileViewSet, self).create(request, *args, **kwargs)
+
+
+class MatcherViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Matcher.objects.all()
+    serializer_class = th_serializers.MatcherSerializer
+
+    class Meta:
+        model = models.Matcher
