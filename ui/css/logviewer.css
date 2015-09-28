@@ -77,6 +77,24 @@ body {
     white-space: pre;
 }
 
+.lv-line-num {
+    white-space: pre;
+    float: left;
+    align-items: center;
+    border-right: solid thin #e6e6e6;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+    color: rgba(0, 0, 0, 0.3);
+}
+
+.lv-line-num:hover {
+    color: black;
+    background-color: #F8EEC7;
+    cursor: pointer;
+}
+
 .lv-error-line {
     background-color: white;
     color: #333333;
@@ -89,7 +107,7 @@ body {
 
 .lv-log-container {
     flex: 1;
-    overflow: auto;
+    overflow-x: auto;
     font-family: monospace;
     font-size: small;
     background: #f8f8f8;
@@ -100,12 +118,12 @@ body {
 }
 
 /* Equal weight selector needs to follow the above nth-child() */
-.lv-log-container > div.text-danger {
+.lv-log-container > .lv-log-line > .text-danger {
     background: #fbe3e3;
 }
 
-.lv-log-line {
-    padding: 0 18px;
+.lv-log-container > div.lv-log-line > div.lv-line-text.lv-selected-lines {
+    background: #F8EEC7;
 }
 
 .lv-line-highlight {

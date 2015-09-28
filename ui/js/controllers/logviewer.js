@@ -25,7 +25,6 @@ logViewerApp.controller('LogviewerCtrl', [
             $scope.job_id= query_string.job_id;
             LogSlice = new ThLogSliceModel($scope.job_id, LINE_BUFFER_SIZE);
         }
-
         $scope.displayedLogLines = [];
         $scope.loading = false;
         $scope.logError = false;
@@ -33,6 +32,7 @@ logViewerApp.controller('LogviewerCtrl', [
         $scope.currentLineNumber = 0;
         $scope.highestLine = 0;
         $scope.showSuccessful = true;
+        $scope.willScroll = false;
 
         $scope.$watch('artifact', function () {
             if (!$scope.artifact) {
@@ -40,6 +40,50 @@ logViewerApp.controller('LogviewerCtrl', [
             }
             $scope.showSuccessful = !$scope.hasFailedSteps();
         });
+
+        $scope.$watch('[selectedBegin, selectedEnd]', function(newVal, oldVal) {
+            var newHash = (newVal[0] === newVal[1]) ? newVal[0] : newVal[0] + "-L" + newVal[1];
+            if (!isNaN(newVal[0])) {
+                $location.hash("L" + newHash);
+            } else if ($scope.artifact) {
+                $location.hash("");
+            }
+        });
+
+        $scope.$on("$locationChangeSuccess", function($event, $artifact) {
+            var oldLine = parseInt($scope.currentLineNumber);
+            getSelectedLines();
+
+            var newLine = parseInt($scope.selectedBegin);
+            var range = LINE_BUFFER_SIZE / 2;
+            if ((newLine <= (oldLine - range) || newLine >= oldLine + range) && !$scope.willScroll) {
+                if ($scope.artifact) {
+                    $scope.displayedStep = getStepFromLine(newLine);
+                    moveScrollToLineNumber(newLine, $event);
+                }
+            }
+            $scope.willScroll = false;
+        });
+
+        $scope.click = function(line, $event) {
+            $scope.willScroll = true;
+            if ($event.shiftKey) {
+                if (line.index < $scope.selectedBegin) {
+                    $scope.selectedEnd = $scope.selectedBegin;
+                    $scope.selectedBegin = line.index;
+                } else {
+                    $scope.selectedEnd = line.index;
+                }
+            } else {
+                $scope.selectedBegin = $scope.selectedEnd = line.index;
+            }
+        };
+
+        // Erase the value of selectedBegin, used to erase the hash value when
+        // the user clicks on the error step button
+        $scope.eraseSelected = function() {
+            $scope.selectedBegin = 'undefined';
+        };
 
         $scope.hasFailedSteps = function () {
             var steps = $scope.artifact.step_data.steps;
@@ -213,7 +257,7 @@ logViewerApp.controller('LogviewerCtrl', [
             // Make the log and job artifacts available
             ThJobArtifactModel.get_list({job_id: $scope.job_id, name__in: 'text_log_summary,Job Info'})
             .then(function(artifactList) {
-                artifactList.forEach(function(artifact) {
+                artifactList.forEach(function(artifact, $event) {
                     if (artifact.name === 'text_log_summary') {
                         $scope.artifact = artifact.blob;
                         $scope.step_data = artifact.blob.step_data;
@@ -229,7 +273,12 @@ logViewerApp.controller('LogviewerCtrl', [
                                 });
                             } else {
                                 $timeout(function() {
-                                    angular.element('.lv-error-line').first().trigger('click');
+                                    if (isNaN($scope.selectedBegin)) {
+                                        angular.element('.lv-error-line').first().trigger('click');
+                                    } else {
+                                        $scope.displayedStep = getStepFromLine($scope.selectedBegin);
+                                        moveScrollToLineNumber($scope.selectedBegin, $event);
+                                    }
                                 }, 100);
                             }
                         }
@@ -242,6 +291,41 @@ logViewerApp.controller('LogviewerCtrl', [
         };
 
         /** utility functions **/
+
+        function moveScrollToLineNumber(linenumber, $event) {
+            $scope.currentLineNumber = linenumber;
+
+            $scope.loadMore({}).then(function () {
+                $timeout(function () {
+                    var raw = $('.lv-log-container')[0];
+                    var line = $('.lv-log-line[line="' + linenumber + '"]');
+                    raw.scrollTop += line.offset().top - $('.run-data').outerHeight() -
+                    $('.navbar').outerHeight() - 120;
+                });
+            });
+        }
+
+        function getStepFromLine(linenumber) {
+            var steps = $scope.artifact.step_data.steps;
+            for (var i = 1; i < steps.length; i++) {
+                if (steps[i].started_linenumber >= linenumber) {
+                    return steps[i-1];
+                }
+            }
+        }
+
+        function getSelectedLines () {
+            var urlHash = $location.hash();
+            var regexSelectedlines = /L(\d+)(-L(\d+))?$/;
+            if (regexSelectedlines.test(urlHash)) {
+                var matchSelectedLines = urlHash.match(regexSelectedlines);
+                if (isNaN(matchSelectedLines[3])) {
+                    matchSelectedLines[3] = matchSelectedLines[1];
+                }
+                $scope.selectedBegin = matchSelectedLines[1];
+                $scope.selectedEnd = matchSelectedLines[3];
+            }
+        }
 
         function logFileLineCount () {
             var steps = $scope.artifact.step_data.steps;
