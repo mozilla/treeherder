@@ -157,7 +157,7 @@ treeherder.controller('PluginCtrl', [
                     // Provide a parse status for the model
                     var logsNotParsed = [];
                     $scope.jobLogsAllParsed = _.every($scope.job_log_urls, function(jlu) {
-                        if(jlu.parse_status === 'pending'){
+                        if(jlu.parse_status === 'pending' || jlu.parse_status === 'failed'){
                             logsNotParsed.push(jlu);
                             return false;
                         }else{
