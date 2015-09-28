@@ -332,22 +332,18 @@ DROP TABLE IF EXISTS `result_set`;
  * Example Data:
  *
  *  revision_hash - Hash of any number of revisions associated with the result set
- *  aggregate_id - A id to use for aggregating result_sets. This is primarily used for supporting
- *      a github like pull request work flow but could also be used for any other type of grouping.
  *  author - The author associated with the result_set. May or may not be the author
  *           of an associated revision.
  **************************/
 CREATE TABLE `result_set` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `revision_hash` varchar(50) COLLATE utf8_bin NOT NULL,
-  `aggregate_id` varchar(50) COLLATE utf8_bin DEFAULT NULL,
   `author` varchar(150) COLLATE utf8_bin NOT NULL,
   `type` varchar(25) DEFAULT NULL,
   `push_timestamp` int(11) unsigned NOT NULL,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_revision_hash` (`revision_hash`),
-  KEY `idx_aggregate_id` (`aggregate_id`),
   KEY `idx_author` (`author`),
   KEY `idx_type` (`type`),
   KEY `idx_push_timestamp` (`push_timestamp`),
