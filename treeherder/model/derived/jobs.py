@@ -896,7 +896,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     "start_timestamp": "20130411165317",
                     "end_timestamp": "1365733932"
                     "machine": "tst-linux64-ec2-314",
-                    "build_url": "http://....",
                     "build_platform": {
                         "platform": "Ubuntu VM 12.04",
                         "os_name": "linux",

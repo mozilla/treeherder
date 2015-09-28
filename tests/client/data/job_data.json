@@ -5,7 +5,6 @@
       "end_timestamp": 1387222817,
       "submit_timestamp": 1387221298,
       "start_timestamp": 1387221345,
-      "build_url": "",
       "name": "SpiderMonkey --enable-sm-fail-on-warnings Build",
       "option_collection": {
         "opt": true
@@ -56,7 +55,6 @@
       "end_timestamp": 1387222972,
       "submit_timestamp": 1387221298,
       "start_timestamp": 1387221347,
-      "build_url": "",
       "name": "SpiderMonkey --enable-sm-fail-on-warnings Build",
       "option_collection": {
         "opt": true
@@ -107,7 +105,6 @@
       "end_timestamp": 1387223377,
       "submit_timestamp": 1387221295,
       "start_timestamp": 1387221330,
-      "build_url": "",
       "name": "Build",
       "option_collection": {
         "opt": true
@@ -158,7 +155,6 @@
       "end_timestamp": 1387223495,
       "submit_timestamp": 1387221298,
       "start_timestamp": 1387221308,
-      "build_url": "",
       "name": "Build",
       "option_collection": {
         "opt": true
@@ -209,7 +205,6 @@
       "end_timestamp": 1387223600,
       "submit_timestamp": 1387221291,
       "start_timestamp": 1387221311,
-      "build_url": "",
       "name": "SpiderMonkey --enable-sm-fail-on-warnings Build",
       "option_collection": {
         "debug": true
@@ -260,7 +255,6 @@
       "end_timestamp": 1387223740,
       "submit_timestamp": 1387221291,
       "start_timestamp": 1387221311,
-      "build_url": "",
       "name": "SpiderMonkey --enable-sm-fail-on-warnings Build",
       "option_collection": {
         "debug": true
@@ -311,7 +305,6 @@
       "end_timestamp": 1387223610,
       "submit_timestamp": 1387221295,
       "start_timestamp": 1387221341,
-      "build_url": "",
       "name": "Build",
       "option_collection": {
         "opt": true
@@ -362,7 +355,6 @@
       "end_timestamp": 1387223589,
       "submit_timestamp": 1387221298,
       "start_timestamp": 1387221420,
-      "build_url": "",
       "name": "Valgrind Nightly",
       "option_collection": {
         "opt": true
@@ -413,7 +405,6 @@
       "end_timestamp": 1387223891,
       "submit_timestamp": 1387221295,
       "start_timestamp": 1387221330,
-      "build_url": "",
       "name": "Build",
       "option_collection": {
         "opt": true
@@ -464,7 +455,6 @@
       "end_timestamp": 1387224022,
       "submit_timestamp": 1387223602,
       "start_timestamp": 1387223668,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Marionette Framework Unit Tests",
       "option_collection": {
         "debug": true
@@ -515,7 +505,6 @@
       "end_timestamp": 1387224177,
       "submit_timestamp": 1387221297,
       "start_timestamp": 1387221342,
-      "build_url": "",
       "name": "SpiderMonkey GGC Shell Build",
       "option_collection": {
         "debug": true
@@ -566,7 +555,6 @@
       "end_timestamp": 1387224263,
       "submit_timestamp": 1387222827,
       "start_timestamp": 1387223615,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "XPCShellTest",
       "option_collection": {
         "debug": true
@@ -621,7 +609,6 @@
       "end_timestamp": 1387224151,
       "submit_timestamp": 1387222827,
       "start_timestamp": 1387223630,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "CPP Unit Tests",
       "option_collection": {
         "debug": true
@@ -676,7 +663,6 @@
       "end_timestamp": 1387224205,
       "submit_timestamp": 1387223602,
       "start_timestamp": 1387223701,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "CPP Unit Tests",
       "option_collection": {
         "debug": true
@@ -727,7 +713,6 @@
       "end_timestamp": 1387224308,
       "submit_timestamp": 1387223721,
       "start_timestamp": 1387223850,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux/1387221298/firefox-29.0a1.en-US.linux-i686.tar.bz2",
       "name": "Reftest-IPC",
       "option_collection": {
         "opt": true
@@ -778,7 +763,6 @@
       "end_timestamp": 1387224299,
       "submit_timestamp": 1387223606,
       "start_timestamp": 1387223856,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Marionette Framework Unit Tests",
       "option_collection": {
         "debug": true
@@ -829,7 +813,6 @@
       "end_timestamp": 1387224489,
       "submit_timestamp": 1387223602,
       "start_timestamp": 1387223643,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Mochitest",
       "option_collection": {
         "debug": true
@@ -880,7 +863,6 @@
       "end_timestamp": 1387224408,
       "submit_timestamp": 1387223602,
       "start_timestamp": 1387223683,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Mochitest",
       "option_collection": {
         "debug": true
@@ -931,7 +913,6 @@
       "end_timestamp": 1387224531,
       "submit_timestamp": 1387223602,
       "start_timestamp": 1387223717,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Crashtest",
       "option_collection": {
         "debug": true
@@ -982,7 +963,6 @@
       "end_timestamp": 1387224290,
       "submit_timestamp": 1387223721,
       "start_timestamp": 1387223731,
-      "build_url": "",
       "name": "Mochitest",
       "option_collection": {
         "opt": true
@@ -1033,7 +1013,6 @@
       "end_timestamp": 1387224585,
       "submit_timestamp": 1387223606,
       "start_timestamp": 1387223798,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Mochitest",
       "option_collection": {
         "debug": true
@@ -1084,7 +1063,6 @@
       "end_timestamp": 1387224544,
       "submit_timestamp": 1387223721,
       "start_timestamp": 1387223818,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux/1387221298/firefox-29.0a1.en-US.linux-i686.tar.bz2",
       "name": "CPP Unit Tests",
       "option_collection": {
         "opt": true
@@ -1135,7 +1113,6 @@
       "end_timestamp": 1387224580,
       "submit_timestamp": 1387223721,
       "start_timestamp": 1387223819,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux/1387221298/firefox-29.0a1.en-US.linux-i686.tar.bz2",
       "name": "Crashtest",
       "option_collection": {
         "opt": true
@@ -1186,7 +1163,6 @@
       "end_timestamp": 1387224674,
       "submit_timestamp": 1387223602,
       "start_timestamp": 1387223633,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Mochitest",
       "option_collection": {
         "debug": true
@@ -1237,7 +1213,6 @@
       "end_timestamp": 1387224740,
       "submit_timestamp": 1387223602,
       "start_timestamp": 1387223677,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Mochitest",
       "option_collection": {
         "debug": true
@@ -1288,7 +1263,6 @@
       "end_timestamp": 1387224595,
       "submit_timestamp": 1387223721,
       "start_timestamp": 1387223729,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux/1387221298/firefox-29.0a1.en-US.linux-i686.tar.bz2",
       "name": "Crashtest-IPC",
       "option_collection": {
         "opt": true
@@ -1339,7 +1313,6 @@
       "end_timestamp": 1387224567,
       "submit_timestamp": 1387223725,
       "start_timestamp": 1387223732,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux/1387221298/firefox-29.0a1.en-US.linux-i686.tar.bz2",
       "name": "Talos chrome",
       "option_collection": {
         "opt": true
@@ -1390,7 +1363,6 @@
       "end_timestamp": 1387224657,
       "submit_timestamp": 1387222827,
       "start_timestamp": 1387223745,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Mochitest",
       "option_collection": {
         "debug": true
@@ -1445,7 +1417,6 @@
       "end_timestamp": 1387224617,
       "submit_timestamp": 1387223721,
       "start_timestamp": 1387223756,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux/1387221298/firefox-29.0a1.en-US.linux-i686.tar.bz2",
       "name": "Mochitest",
       "option_collection": {
         "opt": true
@@ -1496,7 +1467,6 @@
       "end_timestamp": 1387224694,
       "submit_timestamp": 1387223606,
       "start_timestamp": 1387223858,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Crashtest",
       "option_collection": {
         "debug": true
@@ -1547,7 +1517,6 @@
       "end_timestamp": 1387224824,
       "submit_timestamp": 1387221295,
       "start_timestamp": 1387221323,
-      "build_url": "",
       "name": "Build",
       "option_collection": {
         "debug": true
@@ -1598,7 +1567,6 @@
       "end_timestamp": 1387224926,
       "submit_timestamp": 1387223602,
       "start_timestamp": 1387223684,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "XPCShellTest",
       "option_collection": {
         "debug": true
@@ -1649,7 +1617,6 @@
       "end_timestamp": 1387224702,
       "submit_timestamp": 1387223725,
       "start_timestamp": 1387223730,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux/1387221298/firefox-29.0a1.en-US.linux-i686.tar.bz2",
       "name": "Talos tp",
       "option_collection": {
         "opt": true
@@ -1700,7 +1667,6 @@
       "end_timestamp": 1387224906,
       "submit_timestamp": 1387223721,
       "start_timestamp": 1387223742,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux/1387221298/firefox-29.0a1.en-US.linux-i686.tar.bz2",
       "name": "Mochitest",
       "option_collection": {
         "opt": true
@@ -1751,7 +1717,6 @@
       "end_timestamp": 1387224887,
       "submit_timestamp": 1387223606,
       "start_timestamp": 1387223769,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Mochitest",
       "option_collection": {
         "debug": true
@@ -1802,7 +1767,6 @@
       "end_timestamp": 1387224893,
       "submit_timestamp": 1387223606,
       "start_timestamp": 1387223793,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Mochitest",
       "option_collection": {
         "debug": true
@@ -1853,7 +1817,6 @@
       "end_timestamp": 1387224812,
       "submit_timestamp": 1387223721,
       "start_timestamp": 1387223815,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux/1387221298/firefox-29.0a1.en-US.linux-i686.tar.bz2",
       "name": "Mochitest",
       "option_collection": {
         "opt": true
@@ -1904,7 +1867,6 @@
       "end_timestamp": 1387224942,
       "submit_timestamp": 1387224056,
       "start_timestamp": 1387224193,
-      "build_url": "",
       "name": "Build",
       "option_collection": {
         "pgo": true
@@ -1955,7 +1917,6 @@
       "end_timestamp": 1387225110,
       "submit_timestamp": 1387221292,
       "start_timestamp": 1387221312,
-      "build_url": "",
       "name": "SpiderMonkey --enable-root-analysis Build",
       "option_collection": {
         "debug": true
@@ -2006,7 +1967,6 @@
       "end_timestamp": 1387225127,
       "submit_timestamp": 1387221298,
       "start_timestamp": 1387221367,
-      "build_url": "",
       "name": "Build",
       "option_collection": {
         "opt": true
@@ -2057,7 +2017,6 @@
       "end_timestamp": 1387225049,
       "submit_timestamp": 1387221298,
       "start_timestamp": 1387221419,
-      "build_url": "",
       "name": "Static Checking Build",
       "option_collection": {
         "debug": true
@@ -2108,7 +2067,6 @@
       "end_timestamp": 1387225112,
       "submit_timestamp": 1387223602,
       "start_timestamp": 1387223604,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Jetpack SDK Test",
       "option_collection": {
         "debug": true
@@ -2159,7 +2117,6 @@
       "end_timestamp": 1387225133,
       "submit_timestamp": 1387222827,
       "start_timestamp": 1387223670,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "JSReftest",
       "option_collection": {
         "debug": true
@@ -2214,7 +2171,6 @@
       "end_timestamp": 1387225107,
       "submit_timestamp": 1387223725,
       "start_timestamp": 1387223733,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux/1387221298/firefox-29.0a1.en-US.linux-i686.tar.bz2",
       "name": "Talos svg",
       "option_collection": {
         "opt": true
@@ -2265,7 +2221,6 @@
       "end_timestamp": 1387225090,
       "submit_timestamp": 1387223606,
       "start_timestamp": 1387223766,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Jetpack SDK Test",
       "option_collection": {
         "debug": true
@@ -2316,7 +2271,6 @@
       "end_timestamp": 1387224969,
       "submit_timestamp": 1387223721,
       "start_timestamp": 1387223806,
-      "build_url": "",
       "name": "Reftest Unaccelerated",
       "option_collection": {
         "opt": true
@@ -2367,7 +2321,6 @@
       "end_timestamp": 1387224848,
       "submit_timestamp": 1387223721,
       "start_timestamp": 1387223871,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux/1387221298/firefox-29.0a1.en-US.linux-i686.tar.bz2",
       "name": "Jetpack SDK Test",
       "option_collection": {
         "opt": true
@@ -2418,7 +2371,6 @@
       "end_timestamp": 1387225122,
       "submit_timestamp": 1387224178,
       "start_timestamp": 1387224230,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux64-asan/1387221298/firefox-29.0a1.en-US.linux-x86_64-asan.tar.bz2",
       "name": "Crashtest",
       "option_collection": {
         "opt": true
@@ -2469,7 +2421,6 @@
       "end_timestamp": 1387225009,
       "submit_timestamp": 1387224178,
       "start_timestamp": 1387224251,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux64-asan/1387221298/firefox-29.0a1.en-US.linux-x86_64-asan.tar.bz2",
       "name": "CPP Unit Tests",
       "option_collection": {
         "opt": true
@@ -2520,7 +2471,6 @@
       "end_timestamp": 1387225163,
       "submit_timestamp": 1387224722,
       "start_timestamp": 1387224756,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64/1387221298/firefox-29.0a1.en-US.mac.dmg",
       "name": "Talos other",
       "option_collection": {
         "opt": true
@@ -2574,7 +2524,6 @@
       "end_timestamp": 1387225182,
       "submit_timestamp": 1387223602,
       "start_timestamp": 1387223699,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "JSReftest",
       "option_collection": {
         "debug": true
@@ -2625,7 +2574,6 @@
       "end_timestamp": 1387225172,
       "submit_timestamp": 1387223721,
       "start_timestamp": 1387223750,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux/1387221298/firefox-29.0a1.en-US.linux-i686.tar.bz2",
       "name": "Mochitest Other",
       "option_collection": {
         "opt": true
@@ -2676,7 +2624,6 @@
       "end_timestamp": 1387225400,
       "submit_timestamp": 1387221298,
       "start_timestamp": 1387221307,
-      "build_url": "",
       "name": "Build",
       "option_collection": {
         "debug": true
@@ -2727,7 +2674,6 @@
       "end_timestamp": 1387225267,
       "submit_timestamp": 1387223725,
       "start_timestamp": 1387223731,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux/1387221298/firefox-29.0a1.en-US.linux-i686.tar.bz2",
       "name": "Talos dromaeojs",
       "option_collection": {
         "opt": true
@@ -2778,7 +2724,6 @@
       "end_timestamp": 1387225497,
       "submit_timestamp": 1387223721,
       "start_timestamp": 1387223746,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux/1387221298/firefox-29.0a1.en-US.linux-i686.tar.bz2",
       "name": "XPCShellTest",
       "option_collection": {
         "opt": true
@@ -2829,7 +2774,6 @@
       "end_timestamp": 1387225475,
       "submit_timestamp": 1387224178,
       "start_timestamp": 1387224232,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux64-asan/1387221298/firefox-29.0a1.en-US.linux-x86_64-asan.tar.bz2",
       "name": "Mochitest",
       "option_collection": {
         "opt": true
@@ -2880,7 +2824,6 @@
       "end_timestamp": 1387225385,
       "submit_timestamp": 1387224178,
       "start_timestamp": 1387224257,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux64-asan/1387221298/firefox-29.0a1.en-US.linux-x86_64-asan.tar.bz2",
       "name": "Mochitest",
       "option_collection": {
         "opt": true
@@ -2931,7 +2874,6 @@
       "end_timestamp": 1387225479,
       "submit_timestamp": 1387224942,
       "start_timestamp": 1387224952,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64/1387221298/firefox-29.0a1.en-US.mac.dmg",
       "name": "Mochitest",
       "option_collection": {
         "opt": true
@@ -2982,7 +2924,6 @@
       "end_timestamp": 1387225427,
       "submit_timestamp": 1387224937,
       "start_timestamp": 1387224958,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64/1387221298/firefox-29.0a1.en-US.mac.dmg",
       "name": "Mochitest",
       "option_collection": {
         "opt": true
@@ -3036,7 +2977,6 @@
       "end_timestamp": 1387225535,
       "submit_timestamp": 1387224937,
       "start_timestamp": 1387224961,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64/1387221298/firefox-29.0a1.en-US.mac.dmg",
       "name": "Mochitest",
       "option_collection": {
         "opt": true
@@ -3090,7 +3030,6 @@
       "end_timestamp": 1387225472,
       "submit_timestamp": 1387224937,
       "start_timestamp": 1387224965,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64/1387221298/firefox-29.0a1.en-US.mac.dmg",
       "name": "Mochitest",
       "option_collection": {
         "opt": true
@@ -3144,7 +3083,6 @@
       "end_timestamp": 1387225651,
       "submit_timestamp": 1387221298,
       "start_timestamp": 1387221343,
-      "build_url": "",
       "name": "Static Rooting Hazard Analysis, Full Browser",
       "option_collection": {
         "opt": true
@@ -3195,7 +3133,6 @@
       "end_timestamp": 1387225453,
       "submit_timestamp": 1387223721,
       "start_timestamp": 1387223869,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux/1387221298/firefox-29.0a1.en-US.linux-i686.tar.bz2",
       "name": "JSReftest",
       "option_collection": {
         "opt": true
@@ -3246,7 +3183,6 @@
       "end_timestamp": 1387225610,
       "submit_timestamp": 1387224178,
       "start_timestamp": 1387224236,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux64-asan/1387221298/firefox-29.0a1.en-US.linux-x86_64-asan.tar.bz2",
       "name": "Jetpack SDK Test",
       "option_collection": {
         "opt": true
@@ -3297,7 +3233,6 @@
       "end_timestamp": 1387225584,
       "submit_timestamp": 1387224722,
       "start_timestamp": 1387224751,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64/1387221298/firefox-29.0a1.en-US.mac.dmg",
       "name": "Talos chrome",
       "option_collection": {
         "opt": true
@@ -3351,7 +3286,6 @@
       "end_timestamp": 1387225580,
       "submit_timestamp": 1387224937,
       "start_timestamp": 1387224977,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64/1387221298/firefox-29.0a1.en-US.mac.dmg",
       "name": "Crashtest",
       "option_collection": {
         "opt": true
@@ -3405,7 +3339,6 @@
       "end_timestamp": 1387225605,
       "submit_timestamp": 1387224937,
       "start_timestamp": 1387224980,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64/1387221298/firefox-29.0a1.en-US.mac.dmg",
       "name": "CPP Unit Tests",
       "option_collection": {
         "opt": true
@@ -3459,7 +3392,6 @@
       "end_timestamp": 1387225593,
       "submit_timestamp": 1387224997,
       "start_timestamp": 1387225018,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux64/1387221298/firefox-29.0a1.en-US.linux-x86_64.tar.bz2",
       "name": "CPP Unit Tests",
       "option_collection": {
         "opt": true
@@ -3510,7 +3442,6 @@
       "end_timestamp": 1387225687,
       "submit_timestamp": 1387224997,
       "start_timestamp": 1387225034,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux64/1387221298/firefox-29.0a1.en-US.linux-x86_64.tar.bz2",
       "name": "Crashtest",
       "option_collection": {
         "opt": true
@@ -3561,7 +3492,6 @@
       "end_timestamp": 1387225491,
       "submit_timestamp": 1387225035,
       "start_timestamp": 1387225103,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux64/1387221298/firefox-29.0a1.en-US.linux-x86_64.tar.bz2",
       "name": "Talos other",
       "option_collection": {
         "opt": true
@@ -3612,7 +3542,6 @@
       "end_timestamp": 1387225837,
       "submit_timestamp": 1387223602,
       "start_timestamp": 1387223642,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Mochitest Other",
       "option_collection": {
         "debug": true
@@ -3663,7 +3592,6 @@
       "end_timestamp": 1387225721,
       "submit_timestamp": 1387223721,
       "start_timestamp": 1387223748,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux/1387221298/firefox-29.0a1.en-US.linux-i686.tar.bz2",
       "name": "Mochitest",
       "option_collection": {
         "opt": true
@@ -3714,7 +3642,6 @@
       "end_timestamp": 1387225778,
       "submit_timestamp": 1387223606,
       "start_timestamp": 1387223790,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Mochitest Other",
       "option_collection": {
         "debug": true
@@ -3765,7 +3692,6 @@
       "end_timestamp": 1387225722,
       "submit_timestamp": 1387224178,
       "start_timestamp": 1387224266,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux64-asan/1387221298/firefox-29.0a1.en-US.linux-x86_64-asan.tar.bz2",
       "name": "Mochitest",
       "option_collection": {
         "opt": true
@@ -3816,7 +3742,6 @@
       "end_timestamp": 1387225753,
       "submit_timestamp": 1387224722,
       "start_timestamp": 1387224729,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64/1387221298/firefox-29.0a1.en-US.mac.dmg",
       "name": "Talos tp",
       "option_collection": {
         "opt": true
@@ -3870,7 +3795,6 @@
       "end_timestamp": 1387225738,
       "submit_timestamp": 1387224937,
       "start_timestamp": 1387224963,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64/1387221298/firefox-29.0a1.en-US.mac.dmg",
       "name": "JSReftest",
       "option_collection": {
         "opt": true
@@ -3924,7 +3848,6 @@
       "end_timestamp": 1387225747,
       "submit_timestamp": 1387224937,
       "start_timestamp": 1387224973,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64/1387221298/firefox-29.0a1.en-US.mac.dmg",
       "name": "XPCShellTest",
       "option_collection": {
         "opt": true
@@ -3978,7 +3901,6 @@
       "end_timestamp": 1387225845,
       "submit_timestamp": 1387224937,
       "start_timestamp": 1387224985,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64/1387221298/firefox-29.0a1.en-US.mac.dmg",
       "name": "Jetpack SDK Test",
       "option_collection": {
         "opt": true
@@ -4032,7 +3954,6 @@
       "end_timestamp": 1387225851,
       "submit_timestamp": 1387224997,
       "start_timestamp": 1387225021,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux64/1387221298/firefox-29.0a1.en-US.linux-x86_64.tar.bz2",
       "name": "Mochitest",
       "option_collection": {
         "opt": true
@@ -4083,7 +4004,6 @@
       "end_timestamp": 1387225831,
       "submit_timestamp": 1387224997,
       "start_timestamp": 1387225075,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux64/1387221298/firefox-29.0a1.en-US.linux-x86_64.tar.bz2",
       "name": "Mochitest",
       "option_collection": {
         "opt": true
@@ -4134,7 +4054,6 @@
       "end_timestamp": 1387225885,
       "submit_timestamp": 1387224997,
       "start_timestamp": 1387225083,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux64/1387221298/firefox-29.0a1.en-US.linux-x86_64.tar.bz2",
       "name": "Mochitest",
       "option_collection": {
         "opt": true
@@ -4185,7 +4104,6 @@
       "end_timestamp": 1387225967,
       "submit_timestamp": 1387221298,
       "start_timestamp": 1387221359,
-      "build_url": "",
       "name": "Build",
       "option_collection": {
         "opt": true
@@ -4236,7 +4154,6 @@
       "end_timestamp": 1387226021,
       "submit_timestamp": 1387224937,
       "start_timestamp": 1387224967,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64/1387221298/firefox-29.0a1.en-US.mac.dmg",
       "name": "Mochitest Other",
       "option_collection": {
         "opt": true
@@ -4290,7 +4207,6 @@
       "end_timestamp": 1387226060,
       "submit_timestamp": 1387224997,
       "start_timestamp": 1387225029,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux64/1387221298/firefox-29.0a1.en-US.linux-x86_64.tar.bz2",
       "name": "Mochitest",
       "option_collection": {
         "opt": true
@@ -4341,7 +4257,6 @@
       "end_timestamp": 1387225983,
       "submit_timestamp": 1387224997,
       "start_timestamp": 1387225055,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux64/1387221298/firefox-29.0a1.en-US.linux-x86_64.tar.bz2",
       "name": "Jetpack SDK Test",
       "option_collection": {
         "opt": true
@@ -4392,7 +4307,6 @@
       "end_timestamp": 1387225916,
       "submit_timestamp": 1387225035,
       "start_timestamp": 1387225102,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux64/1387221298/firefox-29.0a1.en-US.linux-x86_64.tar.bz2",
       "name": "Talos chrome",
       "option_collection": {
         "opt": true
@@ -4443,7 +4357,6 @@
       "end_timestamp": 1387226000,
       "submit_timestamp": 1387225035,
       "start_timestamp": 1387225106,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux64/1387221298/firefox-29.0a1.en-US.linux-x86_64.tar.bz2",
       "name": "Talos tp",
       "option_collection": {
         "opt": true
@@ -4494,7 +4407,6 @@
       "end_timestamp": 1387226131,
       "submit_timestamp": 1387221298,
       "start_timestamp": 1387221358,
-      "build_url": "",
       "name": "Build",
       "option_collection": {
         "opt": true
@@ -4545,7 +4457,6 @@
       "end_timestamp": 1387226117,
       "submit_timestamp": 1387221298,
       "start_timestamp": 1387221370,
-      "build_url": "",
       "name": "AddressSanitizer Opt Build",
       "option_collection": {
         "asan": true
@@ -4596,7 +4507,6 @@
       "end_timestamp": 1387226119,
       "submit_timestamp": 1387221298,
       "start_timestamp": 1387221419,
-      "build_url": "",
       "name": "Build",
       "option_collection": {
         "opt": true
@@ -4647,7 +4557,6 @@
       "end_timestamp": 1387226215,
       "submit_timestamp": 1387223602,
       "start_timestamp": 1387223641,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Mochitest",
       "option_collection": {
         "debug": true
@@ -4698,7 +4607,6 @@
       "end_timestamp": 1387226181,
       "submit_timestamp": 1387223606,
       "start_timestamp": 1387223871,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Mochitest",
       "option_collection": {
         "debug": true
@@ -4749,7 +4657,6 @@
       "end_timestamp": 1387226210,
       "submit_timestamp": 1387224178,
       "start_timestamp": 1387224234,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux64-asan/1387221298/firefox-29.0a1.en-US.linux-x86_64-asan.tar.bz2",
       "name": "JSReftest",
       "option_collection": {
         "opt": true
@@ -4800,7 +4707,6 @@
       "end_timestamp": 1387226245,
       "submit_timestamp": 1387225055,
       "start_timestamp": 1387225126,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/b2g/tinderbox-builds/mozilla-inbound-linux64_gecko/1387221297/en-US/b2g-29.0a1.en-US.linux-x86_64.tar.bz2",
       "name": "Gaia UI Test",
       "option_collection": {
         "opt": true
@@ -4851,7 +4757,6 @@
       "end_timestamp": 1387226332,
       "submit_timestamp": 1387221298,
       "start_timestamp": 1387221308,
-      "build_url": "",
       "name": "Build",
       "option_collection": {
         "opt": true
@@ -4902,7 +4807,6 @@
       "end_timestamp": 1387226325,
       "submit_timestamp": 1387223606,
       "start_timestamp": 1387223834,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1387221298/firefox-29.0a1.en-US.mac64.dmg",
       "name": "Reftest",
       "option_collection": {
         "debug": true
@@ -4953,7 +4857,6 @@
       "end_timestamp": 1387226289,
       "submit_timestamp": 1387224722,
       "start_timestamp": 1387224728,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64/1387221298/firefox-29.0a1.en-US.mac.dmg",
       "name": "Talos dromaeojs",
       "option_collection": {
         "opt": true
@@ -5007,7 +4910,6 @@
       "end_timestamp": 1387226305,
       "submit_timestamp": 1387224722,
       "start_timestamp": 1387224754,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64/1387221298/firefox-29.0a1.en-US.mac.dmg",
       "name": "Talos svg",
       "option_collection": {
         "opt": true
@@ -5061,7 +4963,6 @@
       "end_timestamp": 1387226274,
       "submit_timestamp": 1387224942,
       "start_timestamp": 1387224956,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64/1387221298/firefox-29.0a1.en-US.mac.dmg",
       "name": "Mochitest",
       "option_collection": {
         "opt": true
@@ -5112,7 +5013,6 @@
       "end_timestamp": 1387226375,
       "submit_timestamp": 1387224997,
       "start_timestamp": 1387225017,
-      "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux64/1387221298/firefox-29.0a1.en-US.linux-x86_64.tar.bz2",
       "name": "Mochitest Other",
       "option_collection": {
         "opt": true
