@@ -7,13 +7,14 @@ treeherder.controller('PluginCtrl', [
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'thTabs',
     '$timeout', 'thJobSearchStr', 'thReftestStatus', 'ThResultSetStore',
+    'TheJobId',
     function PluginCtrl(
         $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
         numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
         thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs,
-        $timeout, thJobSearchStr, thReftestStatus, ThResultSetStore) {
+        $timeout, thJobSearchStr, thReftestStatus, ThResultSetStore, TheJobId) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -76,18 +77,23 @@ treeherder.controller('PluginCtrl', [
                     job_id,
                     {timeout: selectJobPromise});
 
+                var jobIdPromise = TheJobId.getdata(
+                    $scope.repoName, job_id,
+                    {timeout: selectJobPromise});
                 return $q.all([
                     jobDetailPromise,
                     buildapiArtifactPromise,
                     jobInfoArtifactPromise,
-                    jobLogUrlPromise
+                    jobLogUrlPromise,
+                    jobIdPromise
                 ]).then(function(results){
                     //the first result comes from the job detail promise
+                    console.log(results);
                     $scope.job = results[0];
                     $scope.eta = $scope.job.get_current_eta();
                     $scope.eta_abs = Math.abs($scope.job.get_current_eta());
                     $scope.typical_eta = $scope.job.get_typical_eta();
-                    $scope.jobRevision = ThResultSetStore.getSelectedJob($scope.repoName).job.revision;
+                    $scope.jobRevision = ThResultSetStore.getSelectedJob($scope.repoName).job.revision
 
                     // we handle which tab gets presented in the job details panel
                     // and a special set of rules for talos
