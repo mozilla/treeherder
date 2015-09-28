@@ -41,17 +41,16 @@ class JobsModel(TreeherderModelBase):
     JOB_PH_BUILD_PLATFORM_KEY = 4
     JOB_PH_MACHINE_PLATFORM_KEY = 5
     JOB_PH_MACHINE_NAME = 6
-    JOB_PH_DEVICE_NAME = 7
-    JOB_PH_OPTION_COLLECTION_HASH = 8
-    JOB_PH_TYPE_KEY = 9
-    JOB_PH_PRODUCT_TYPE = 10
-    JOB_PH_WHO = 11
-    JOB_PH_REASON = 12
-    JOB_PH_RESULT = 13
-    JOB_PH_STATE = 14
-    JOB_PH_START_TIMESTAMP = 16
-    JOB_PH_END_TIMESTAMP = 17
-    JOB_PH_RUNNING_AVG = 18
+    JOB_PH_OPTION_COLLECTION_HASH = 7
+    JOB_PH_TYPE_KEY = 8
+    JOB_PH_PRODUCT_TYPE = 9
+    JOB_PH_WHO = 10
+    JOB_PH_REASON = 11
+    JOB_PH_RESULT = 12
+    JOB_PH_STATE = 13
+    JOB_PH_START_TIMESTAMP = 15
+    JOB_PH_END_TIMESTAMP = 16
+    JOB_PH_RUNNING_AVG = 17
 
     # list of searchable columns, i.e. those who have an index
     # it would be nice to get this directly from the db and cache it
@@ -1242,9 +1241,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             long(job.get("end_timestamp", time.time()))
         )
 
-        device_name = job.get('device_name', 'unknown')
-        self.refdata_model.add_device(device_name)
-
         job_type = job.get('name', 'unknown')
         job_symbol = job.get('job_symbol', 'unknown')
 
@@ -1284,7 +1280,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             reference_data_name, build_system_type, self.project,
             [build_system_type, self.project, build_os_name, build_platform, build_architecture,
              machine_os_name, machine_platform, machine_architecture,
-             device_name, group_name, group_symbol, job_type, job_symbol,
+             group_name, group_symbol, job_type, job_symbol,
              option_collection_hash]
         )
 
@@ -1300,18 +1296,17 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             build_platform_key,     # idx:4, replace with build_platform_id
             machine_platform_key,   # idx:5, replace with machine_platform_id
             machine,                # idx:6, replace with machine_id
-            device_name,            # idx:7, replace with device_id
-            option_collection_hash,  # idx:8
-            job_type_key,           # idx:9, replace with job_type_id
-            product,                # idx:10, replace with product_id
+            option_collection_hash,  # idx:7
+            job_type_key,           # idx:8, replace with job_type_id
+            product,                # idx:9, replace with product_id
             who,
             reason,
-            job.get('result', 'unknown'),  # idx:13, this is typically an int
+            job.get('result', 'unknown'),  # idx:12, this is typically an int
             state,
             self.get_number(job.get('submit_timestamp')),
             self.get_number(job.get('start_timestamp')),
             self.get_number(job.get('end_timestamp')),
-            0,                      # idx:18, replace with running_avg_sec
+            0,                      # idx:17, replace with running_avg_sec
             tier,
             job_guid,
             get_guid_root(job_guid)  # will be the same except for ``retry`` jobs
@@ -1400,8 +1395,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             self.JOB_PH_MACHINE_PLATFORM_KEY]
         machine_name = job_placeholders[index][
             self.JOB_PH_MACHINE_NAME]
-        device_name = job_placeholders[index][
-            self.JOB_PH_DEVICE_NAME]
         option_collection_hash = job_placeholders[index][
             self.JOB_PH_OPTION_COLLECTION_HASH]
         job_type_key = job_placeholders[index][self.JOB_PH_TYPE_KEY]
@@ -1434,9 +1427,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # replace machine with id
         job_placeholders[index][
             self.JOB_PH_MACHINE_NAME] = id_lookups['machines'][machine_name]['id']
-
-        job_placeholders[index][
-            self.JOB_PH_DEVICE_NAME] = id_lookups['devices'][device_name]['id']
 
         # replace job_type with id
         job_type_id = id_lookups['job_types'][job_type_key]['id']

@@ -34,7 +34,6 @@
     "machine_platform_os",
     "start_timestamp",
     "build_architecture",
-    "device_name",
     "last_modified",
     "build_platform_id"
   ],
@@ -70,7 +69,6 @@
       "linux",
       1424271878,
       "x86",
-      "unknown",
       "2015-01-18T15:06:03",
       17
     ],
@@ -105,7 +103,6 @@
       "linux",
       1424270703,
       "x86",
-      "unknown",
       "2015-01-18T15:19:17",
       17
     ]

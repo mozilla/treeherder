@@ -91,12 +91,6 @@ class RefDataManager(object):
         self.product_placeholders = []
         self.unique_products = []
 
-        # Support structures for building device SQL
-        self.device_lookup = set()
-        self.device_where_in_list = []
-        self.device_placeholders = []
-        self.unique_devices = []
-
         # Support structures for building machine SQL
         self.machine_name_lookup = set()
         self.machine_where_in_list = []
@@ -161,7 +155,6 @@ class RefDataManager(object):
 
         self.id_lookup['products'] = self.process_products()
         self.id_lookup['machines'] = self.process_machines()
-        self.id_lookup['devices'] = self.process_devices()
 
         self.id_lookup['option_collections'] = self.process_option_collections()
 
@@ -209,12 +202,6 @@ class RefDataManager(object):
         self.product_where_in_list = []
         self.product_placeholders = []
         self.unique_products = []
-
-        # reset devices
-        self.device_lookup = set()
-        self.device_where_in_list = []
-        self.device_placeholders = []
-        self.unique_devices = []
 
         # reset machines
         self.machine_name_lookup = set()
@@ -381,18 +368,6 @@ class RefDataManager(object):
         self._add_name(
             product, self.product_lookup, self.product_placeholders,
             self.unique_products, self.product_where_in_list
-        )
-
-    def add_device(self, device):
-        """Add device names"""
-
-        device = device or 'unknown'
-
-        device = device[0:50]
-
-        self._add_name(
-            device, self.device_lookup, self.device_placeholders,
-            self.unique_devices, self.device_where_in_list
         )
 
     def _add_platform(
@@ -687,21 +662,6 @@ class RefDataManager(object):
             self.product_where_in_list,
             self.product_placeholders,
             self.unique_products
-        )
-
-    def process_devices(self):
-        """
-        Process the device reference data
-        """
-
-        insert_proc = 'reference.inserts.create_device'
-        select_proc = 'reference.selects.get_devices'
-
-        return self._process_names(
-            insert_proc, select_proc,
-            self.device_where_in_list,
-            self.device_placeholders,
-            self.unique_devices
         )
 
     def process_machines(self):
@@ -1033,20 +993,6 @@ class RefDataManager(object):
             names, insert_proc, select_proc,
             self.product_lookup, self.product_placeholders,
             self.unique_products, self.product_where_in_list)
-
-    def get_or_create_devices(self, names):
-        """
-        Get or create devices given a list of device names.  See
-        _get_or_create_names for data structure descriptions.
-        """
-
-        insert_proc = 'reference.inserts.create_device'
-        select_proc = 'reference.selects.get_devices'
-
-        return self._get_or_create_names(
-            names, insert_proc, select_proc,
-            self.device_lookup, self.device_placeholders,
-            self.unique_devices, self.device_where_in_list)
 
     def get_or_create_machines(self, names_and_timestamps):
         """

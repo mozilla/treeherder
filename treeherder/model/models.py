@@ -53,11 +53,6 @@ class Product(NamedModel):
         db_table = 'product'
 
 
-class Device(NamedModel):
-    class Meta:
-        db_table = 'device'
-
-
 @python_2_unicode_compatible
 class BuildPlatform(models.Model):
     id = models.AutoField(primary_key=True)
@@ -510,7 +505,6 @@ class ReferenceDataSignatures(models.Model):
     machine_os_name = models.CharField(max_length=25L, db_index=True)
     machine_platform = models.CharField(max_length=25L, db_index=True)
     machine_architecture = models.CharField(max_length=25L, db_index=True)
-    device_name = models.CharField(max_length=50L, db_index=True)
     job_group_name = models.CharField(max_length=100L, blank=True, db_index=True)
     job_group_symbol = models.CharField(max_length=25L, blank=True, db_index=True)
     job_type_name = models.CharField(max_length=100L, db_index=True)

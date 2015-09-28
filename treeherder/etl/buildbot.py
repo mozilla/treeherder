@@ -1063,14 +1063,3 @@ def get_symbol(name, bn):
         return n
 
     return "{0}{1}".format(s, n)
-
-
-def get_device_or_unknown(job_name):
-    """
-    retrieve the device name or unknown if no device is detected
-    """
-    position = job_name.find("Device")
-    if position > 0:
-        return job_name[0: position - 1]
-    else:
-        return "unknown"

@@ -254,7 +254,6 @@ class Migration(migrations.Migration):
                 ('machine_os_name', models.CharField(max_length=25L, db_index=True)),
                 ('machine_platform', models.CharField(max_length=25L, db_index=True)),
                 ('machine_architecture', models.CharField(max_length=25L, db_index=True)),
-                ('device_name', models.CharField(max_length=50L, db_index=True)),
                 ('job_group_name', models.CharField(db_index=True, max_length=100L, blank=True)),
                 ('job_group_symbol', models.CharField(db_index=True, max_length=25L, blank=True)),
                 ('job_type_name', models.CharField(max_length=100L, db_index=True)),
@@ -365,17 +364,5 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             sql='CREATE FULLTEXT INDEX `idx_all_full_text` on bugscache (`summary`, `crash_signature`, `keywords`);',
             reverse_sql='ALTER TABLE bugscache DROP INDEX idx_all_full_text',
-        ),
-        migrations.CreateModel(
-            name='Device',
-            fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('name', models.CharField(max_length=50L, db_index=True)),
-                ('description', models.TextField(default='fill me', blank=True)),
-                ('active_status', models.CharField(default='active', max_length=7L, db_index=True, blank=True)),
-            ],
-            options={
-                'db_table': 'device',
-            },
         ),
     ]

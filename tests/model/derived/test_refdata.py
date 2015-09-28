@@ -160,21 +160,7 @@ test_params = [
             'product3': {'id': 3, 'name': 'product3'},
             'product4': {'id': 4, 'name': 'product4'},
         }
-    },
-    {
-
-        'func': 'get_or_create_devices',
-        'input': [
-            'device1', 'device2', 'device3', 'device4', 'device4'
-        ],
-        'expected': {
-            'device1': {'id': 1, 'name': 'device1'},
-            'device2': {'id': 2, 'name': 'device2'},
-            'device3': {'id': 3, 'name': 'device3'},
-            'device4': {'id': 4, 'name': 'device4'},
-        }
     }
-
 ]
 
 
@@ -193,15 +179,15 @@ def test_reference_data_signatures(refdata):
 
     reference_data_sample = [
         ['buildername 1', 'buildbot', 'myrepo', [
-            'buildbot', 'myrepo', 'macosx', '10.8', 'x64', 'macosx', '10.8', 'x64', 'device1',
+            'buildbot', 'myrepo', 'macosx', '10.8', 'x64', 'macosx', '10.8', 'x64',
             'Mochitest', 'M', 'mochitest-1', 'M-1', 'asdfasdfasdf']],
 
         ['buildername 2', 'buildbot', 'myrepo', [
-            'buildbot', 'myrepo', 'macosx', '10.8', 'x64', 'macosx', '10.8', 'x64', 'device2',
+            'buildbot', 'myrepo', 'macosx', '10.8', 'x64', 'macosx', '10.8', 'x64',
             'Mochitest', 'M', 'mochitest-2', 'M-2', 'asdfasdfasdf']],
 
         ['buildername 3', 'buildbot', 'myrepo', [
-            'buildbot', 'myrepo', 'macosx', '10.8', 'x64', 'macosx', '10.8', 'x64', 'device3',
+            'buildbot', 'myrepo', 'macosx', '10.8', 'x64', 'macosx', '10.8', 'x64',
             'Mochitest', 'M', 'mochitest-3', 'M-2', 'asdfasdfasdf']]]
 
     expected_signatures = []

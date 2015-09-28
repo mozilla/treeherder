@@ -4,10 +4,10 @@
             "sql": "INSERT INTO `reference_data_signatures` (
                         `name`, `signature`, `build_system_type`, `repository`, `build_os_name`,
                         `build_platform`, `build_architecture`, `machine_os_name`,
-                        `machine_platform`, `machine_architecture`, `device_name`,
+                        `machine_platform`, `machine_architecture`,
                         `job_group_name`, `job_group_symbol`, `job_type_name`, `job_type_symbol`,
                         `option_collection_hash`, `first_submission_timestamp`)
-                    SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                    SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `name`, `signature`, `build_system_type`, `repository`
@@ -112,17 +112,6 @@
             "host_type":"master_host"
         },
 
-        "create_device":{
-            "sql": "INSERT INTO `device` (`name`, `description`)
-                    SELECT ?, 'fill me'
-                    FROM DUAL
-                    WHERE NOT EXISTS (
-                    SELECT `name`
-                    FROM `device`
-                    WHERE `name` = ?
-                    )",
-            "host_type":"master_host"
-        },
         "create_bugscache":{
             "sql":"INSERT INTO `bugscache` (`id`, `status`, `resolution`, `summary`, `crash_signature`, `keywords`, `os`, `modified`)
                    SELECT ?, ?, ?, ?, ?, ?, ?, ?
@@ -150,7 +139,6 @@
                           `machine_os_name`,
                           `machine_platform`,
                           `machine_architecture`,
-                          `device_name`,
                           `job_group_name`,
                           `job_group_symbol`,
                           `job_type_name`,
@@ -205,13 +193,6 @@
         "get_products":{
             "sql": "SELECT `id`, `name`
                     FROM `product`
-                    WHERE `active_status` = 'active' AND `name` IN (REP0)",
-
-            "host_type":"read_host"
-        },
-        "get_devices":{
-            "sql": "SELECT `id`, `name`
-                    FROM `device`
                     WHERE `active_status` = 'active' AND `name` IN (REP0)",
 
             "host_type":"read_host"

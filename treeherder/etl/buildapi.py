@@ -174,8 +174,6 @@ class Builds4hTransformerMixin(object):
                 'coalesced': []
             }
 
-            device_name = buildbot.get_device_or_unknown(job_name_info.get('name', ''))
-
             log_reference = []
             if 'log_url' in prop:
                 log_reference.append({
@@ -238,7 +236,6 @@ class Builds4hTransformerMixin(object):
                     'platform': platform_info.get('os_platform', ''),
                     'architecture': platform_info.get('arch', '')
                 },
-                'device_name': device_name,
                 # pgo or non-pgo dependent on buildername parsing
                 'option_collection': {
                     buildbot.extract_build_type(prop['buildername']): True
@@ -356,8 +353,6 @@ class PendingRunningTransformerMixin(object):
                         # the others are for the requests that were coalesced into this one.
                         request_id = job['request_ids'][-1]
 
-                    device_name = buildbot.get_device_or_unknown(job_name_info.get('name', ''))
-
                     new_job = {
                         'job_guid': common.generate_job_guid(
                             request_id,
@@ -381,7 +376,6 @@ class PendingRunningTransformerMixin(object):
                             'platform': platform_info['os_platform'],
                             'architecture': platform_info['arch'],
                         },
-                        'device_name': device_name,
                         'who': 'unknown',
                         'option_collection': {
                             # build_type contains an option name, eg. PGO

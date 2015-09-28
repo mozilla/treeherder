@@ -59,7 +59,6 @@
                 `build_platform_id`,
                 `machine_platform_id`,
                 `machine_id`,
-                `device_id`,
                 `option_collection_hash`,
                 `job_type_id`,
                 `product_id`,
@@ -72,7 +71,7 @@
                 `end_timestamp`,
                 `running_eta`,
                 `tier`)
-                SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+                SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
                 FROM DUAL WHERE NOT EXISTS (
                     SELECT `job_guid`
                     FROM `job`
@@ -443,7 +442,6 @@
                     j.`option_collection_hash`,
                     j.failure_classification_id,
                     m.`name` as machine_name,
-                    d.`name` as device_name,
                     mp.`platform` as platform,
                     mp.`os_name` as machine_platform_os,
                     mp.`architecture` as machine_platform_architecture,
@@ -484,8 +482,6 @@
                     ON jt.`job_group_id` = jg.id
                   LEFT JOIN result_set rs
                     ON rs.id = j.result_set_id
-                  LEFT JOIN `REP0`.`device` as d
-                    ON j.device_id = d.id
                   LEFT JOIN `REP0`.reference_data_signatures rds
                     ON j.signature = rds.signature
                   WHERE 1

@@ -98,13 +98,13 @@
         "duplicate_job": {
             "sql":"INSERT INTO job
                    (job_guid, signature, job_coalesced_to_guid, result_set_id, build_platform_id,
-                    machine_platform_id, machine_id, device_id, option_collection_hash,
+                    machine_platform_id, machine_id, option_collection_hash,
                     job_type_id, product_id, failure_classification_id, who, reason, result,
                     state, submit_timestamp, start_timestamp, end_timestamp, last_modified,
                     running_eta, tier, active_status)
                     SELECT
                     ?, signature, job_coalesced_to_guid, result_set_id, build_platform_id,
-                    machine_platform_id, machine_id, device_id, option_collection_hash,
+                    machine_platform_id, machine_id, option_collection_hash,
                     job_type_id, product_id, failure_classification_id, who, reason, result,
                     state, submit_timestamp, start_timestamp, end_timestamp, last_modified,
                     running_eta, tier, active_status
