@@ -107,8 +107,6 @@ characters at most. A job collection has the following data structure.
                     'platform': 'linux64', 'os_name': 'linux', 'architecture': 'x86_64'
                     },
 
-                'build_url': 'https://get.your.builds.here/12345',
-
                 'option_collection': {'opt': True},
 
                 # jobs can belong to different tiers
@@ -251,7 +249,6 @@ structures to send, do something like this:
         tj.add_start_timestamp( data['start_timestamp'] )
         tj.add_end_timestamp( data['end_timestamp'] )
         tj.add_machine( data['machine'] )
-        tj.add_build_url( data['build_url'] )
 
         tj.add_build_info(
             data['build']['os_name'], data['build']['platform'], data['build']['architecture']

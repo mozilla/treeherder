@@ -226,8 +226,6 @@ class Builds4hTransformerMixin(object):
                 'start_timestamp': build['starttime'],
                 'end_timestamp': build['endtime'],
                 'machine': prop.get('slavename', 'unknown'),
-                # build_url not present in all builds
-                'build_url': prop.get('build_url', ''),
                 # build_platform same as machine_platform
                 'build_platform': {
                     # platform attributes sometimes parse without results

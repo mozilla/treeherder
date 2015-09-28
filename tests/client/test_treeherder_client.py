@@ -323,7 +323,6 @@ class TreeherderJobTest(DataSetup, unittest.TestCase):
             tj.add_start_timestamp(job['job']['start_timestamp'])
             tj.add_end_timestamp(job['job']['end_timestamp'])
             tj.add_machine(job['job']['machine'])
-            tj.add_build_url(job['job']['build_url'])
 
             tj.add_build_info(
                 job['job']['build_platform']['os_name'],
@@ -524,7 +523,7 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
                                auth=auth, method='POST')
         prepped_request = req.prepare()
         self.assertEqual(prepped_request.url, ("http://host/api/project/project/jobs/?"
-                                               "oauth_body_hash=IKbDoi5GvTRaqjRTCDyKIN5wWiY%3D&"
+                                               "oauth_body_hash=DEn0vGleFUlmCzsFtv1fzBEpNHg%3D&"
                                                "oauth_nonce=46810593&"
                                                "oauth_timestamp=1342229050&"
                                                "oauth_consumer_key=key&"
@@ -532,7 +531,7 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
                                                "oauth_version=1.0&"
                                                "oauth_token=&"
                                                "user=project&"
-                                               "oauth_signature=DJe%2F%2FJtw7s2XUrciG%2Bl1tfJJen8%3D"))
+                                               "oauth_signature=kxmsE%2BCqRDtV%2Bqk9GYeA7n4F%2FCI%3D"))
 
     @patch("treeherder.client.client.requests.get")
     def test_get_job(self, mock_get):

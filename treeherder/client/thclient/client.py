@@ -202,9 +202,6 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
     def add_machine(self, machine):
         self.data['job']['machine'] = machine
 
-    def add_build_url(self, url):
-        self.data['job']['build_url'] = url
-
     def add_build_info(self, os_name, platform, arch):
         self.data['job']['build_platform']['os_name'] = os_name
         self.data['job']['build_platform']['platform'] = platform
@@ -304,9 +301,6 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
 
                 # Stored in treeherder_reference_1.machine.name
                 'machine': '',
-
-                # Stored in project_jobs_1.job_artifact, name=build_url
-                'build_url': '',
 
                 # Stored in
                 # treeherder_reference_1.build_platform.os_name,
