@@ -174,10 +174,7 @@ class Builds4hTransformerMixin(object):
                 'coalesced': []
             }
 
-            device_name = buildbot.get_device_or_unknown(
-                job_name_info.get('name', ''),
-                platform_info['vm']
-            )
+            device_name = buildbot.get_device_or_unknown(job_name_info.get('name', ''))
 
             log_reference = []
             if 'log_url' in prop:
@@ -361,10 +358,7 @@ class PendingRunningTransformerMixin(object):
                         # the others are for the requests that were coalesced into this one.
                         request_id = job['request_ids'][-1]
 
-                    device_name = buildbot.get_device_or_unknown(
-                        job_name_info.get('name', ''),
-                        platform_info['vm']
-                    )
+                    device_name = buildbot.get_device_or_unknown(job_name_info.get('name', ''))
 
                     new_job = {
                         'job_guid': common.generate_job_guid(
@@ -382,14 +376,12 @@ class PendingRunningTransformerMixin(object):
                             'os_name': platform_info['os'],
                             'platform': platform_info['os_platform'],
                             'architecture': platform_info['arch'],
-                            'vm': platform_info['vm']
                         },
                         # where are we going to get this data from?
                         'machine_platform': {
                             'os_name': platform_info['os'],
                             'platform': platform_info['os_platform'],
                             'architecture': platform_info['arch'],
-                            'vm': platform_info['vm']
                         },
                         'device_name': device_name,
                         'who': 'unknown',

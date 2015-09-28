@@ -390,10 +390,6 @@ PLATFORMS_BUILDERNAME = [
     }
 ]
 
-VM_STATUS = [
-    re.compile(WORD_BOUNDARY_RE + r'vm' + WORD_BOUNDARY_RE, re.IGNORECASE)
-]
-
 BUILD_TYPE_BUILDERNAME = [
     {
         'type': 'pgo',
@@ -992,21 +988,12 @@ def extract_platform_info(source_string):
         'os': 'unknown',
         'os_platform': source_string[:24],
         'arch': 'unknown',
-        'vm': extract_vm_status(source_string)
     }
     for platform in PLATFORMS_BUILDERNAME:
         if platform['regex'].search(source_string):
             output.update(platform['attributes'])
             return output
     return output
-
-
-def extract_vm_status(source_string):
-    vm = False
-    for regex in VM_STATUS:
-        if regex.search(source_string):
-            return True
-    return vm
 
 
 def extract_build_type(source_string):
@@ -1073,14 +1060,12 @@ def get_symbol(name, bn):
     return "{0}{1}".format(s, n)
 
 
-def get_device_or_unknown(job_name, vm):
+def get_device_or_unknown(job_name):
     """
     retrieve the device name or unknown if no device is detected
     """
     position = job_name.find("Device")
     if position > 0:
         return job_name[0: position - 1]
-    elif vm is True:
-        return "vm"
     else:
         return "unknown"

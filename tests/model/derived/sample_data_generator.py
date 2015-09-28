@@ -134,7 +134,6 @@ def build_platform(**kwargs):
         u"platform": u"WINNT5.1",
         u"os_name": u"win",
         u"architecture": u"x86",
-        u"vm": False
     }
 
     defaults.update(kwargs)
@@ -151,7 +150,6 @@ def machine_platform(**kwargs):
         u"platform": u"WINNT5.1",
         u"os_name": u"win",
         u"architecture": u"x86",
-        u"vm": False
     }
 
     defaults.update(kwargs)

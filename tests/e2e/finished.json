@@ -9,8 +9,7 @@
     "machine_platform": {
         "platform": "2.2",
         "os_name": "android",
-        "architecture": "ARMv7",
-        "vm": false
+        "architecture": "ARMv7"
     },
     "reason": "scheduler",
     "result": 0,
@@ -19,8 +18,7 @@
     "build_platform": {
         "platform": "2.2",
         "os_name": "android",
-        "architecture": "ARMv7",
-        "vm": false
+        "architecture": "ARMv7"
     },
     "start_timestamp": 1370484722.0,
     "name": "xpcshell",

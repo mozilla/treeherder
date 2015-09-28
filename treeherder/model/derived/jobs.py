@@ -900,14 +900,12 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     "build_platform": {
                         "platform": "Ubuntu VM 12.04",
                         "os_name": "linux",
-                        "architecture": "x86_64",
-                        "vm": true
+                        "architecture": "x86_64"
                     },
                     "machine_platform": {
                         "platform": "Ubuntu VM 12.04",
                         "os_name": "linux",
-                        "architecture": "x86_64",
-                        "vm": true
+                        "architecture": "x86_64"
                     },
                     "option_collection": {
                         "opt": true

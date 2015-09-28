@@ -325,14 +325,4 @@ def clean_job_blob_dict(job):
     except KeyError:
         pass  # no problem
 
-    # @@@ we don't keep track of VM'ness?
-    try:
-        del(job["machine_platform"]["vm"])
-    except KeyError:
-        pass  # no problem
-    try:
-        del(job["build_platform"]["vm"])
-    except KeyError:
-        pass  # no problem
-
     return job
