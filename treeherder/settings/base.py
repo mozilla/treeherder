@@ -2,9 +2,10 @@
 import os
 from datetime import timedelta
 
-import environ
 import dj_database_url
-from kombu import Exchange, Queue
+import environ
+from kombu import (Exchange,
+                   Queue)
 
 from treeherder import path
 

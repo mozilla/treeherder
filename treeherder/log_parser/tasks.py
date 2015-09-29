@@ -5,7 +5,8 @@ from django.core.management import call_command
 
 from treeherder import celery_app
 from treeherder.log_parser.utils import (extract_json_log_artifacts,
-                                         extract_text_log_artifacts, is_parsed,
+                                         extract_text_log_artifacts,
+                                         is_parsed,
                                          post_log_artifacts)
 
 logger = logging.getLogger(__name__)

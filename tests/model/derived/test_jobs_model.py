@@ -5,7 +5,8 @@ import pytest
 from django.core.management import call_command
 
 from tests import test_utils
-from tests.sample_data_generator import job_data, result_set
+from tests.sample_data_generator import (job_data,
+                                         result_set)
 from treeherder.model.derived import ArtifactsModel
 
 slow = pytest.mark.slow

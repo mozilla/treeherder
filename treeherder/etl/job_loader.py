@@ -1,11 +1,12 @@
 import logging
-import jsonschema
 import time
-from dateutil import parser
 from collections import defaultdict
 
-from treeherder.model.derived.jobs import JobsModel
+import jsonschema
+from dateutil import parser
+
 from treeherder.etl.schema import job_json_schema
+from treeherder.model.derived.jobs import JobsModel
 
 logger = logging.getLogger(__name__)
 

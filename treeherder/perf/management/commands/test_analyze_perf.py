@@ -2,10 +2,13 @@ from optparse import make_option
 from urlparse import urlparse
 
 from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import (BaseCommand,
+                                         CommandError)
 
-from treeherder.client import PerfherderClient, PerformanceTimeInterval
-from treeherder.perfalert import PerfDatum, TalosAnalyzer
+from treeherder.client import (PerfherderClient,
+                               PerformanceTimeInterval)
+from treeherder.perfalert import (PerfDatum,
+                                  TalosAnalyzer)
 
 
 class Command(BaseCommand):

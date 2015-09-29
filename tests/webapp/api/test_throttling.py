@@ -1,7 +1,8 @@
+from hawkrest import HawkAuthentication
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory
 from rest_framework.views import APIView
-from hawkrest import HawkAuthentication
+
 from treeherder.webapp.api import throttling
 
 

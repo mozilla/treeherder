@@ -1,5 +1,7 @@
 import logging
-from abc import ABCMeta, abstractmethod
+from abc import (ABCMeta,
+                 abstractmethod)
+
 from treeherder.model import models
 
 logger = logging.getLogger(__name__)

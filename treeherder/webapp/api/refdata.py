@@ -4,10 +4,12 @@ from rest_framework.response import Response
 from rest_framework_extensions.mixins import CacheResponseAndETAGMixin
 
 from treeherder.model import models
-from treeherder.model.derived import RefDataManager, JobsModel
+from treeherder.model.derived import (JobsModel,
+                                      RefDataManager)
 from treeherder.webapp.api import serializers as th_serializers
 from treeherder.webapp.api.permissions import (IsOwnerOrReadOnly,
                                                IsStaffOrReadOnly)
+
 
 #####################
 # Refdata ViewSets

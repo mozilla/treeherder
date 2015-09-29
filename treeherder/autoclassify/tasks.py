@@ -2,6 +2,7 @@ import logging
 
 from celery import task
 from django.core.management import call_command
+
 from treeherder import celery_app
 
 logger = logging.getLogger(__name__)

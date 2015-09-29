@@ -4,7 +4,8 @@ import traceback
 from django.conf import settings
 from django.utils.encoding import python_2_unicode_compatible
 
-from treeherder.client import TreeherderAuth, TreeherderClient
+from treeherder.client import (TreeherderAuth,
+                               TreeherderClient)
 from treeherder.etl.oauth_utils import OAuthCredentials
 
 logger = logging.getLogger(__name__)

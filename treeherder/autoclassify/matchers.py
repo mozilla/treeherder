@@ -1,5 +1,6 @@
 import logging
-from abc import ABCMeta, abstractmethod
+from abc import (ABCMeta,
+                 abstractmethod)
 from collections import namedtuple
 
 from treeherder.model import models

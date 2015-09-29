@@ -4,7 +4,8 @@ from requests import Request
 from webtest.app import TestApp
 
 from tests.sampledata import SampleData
-from treeherder.client import TreeherderAuth, TreeherderClient
+from treeherder.client import (TreeherderAuth,
+                               TreeherderClient)
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.model.derived.refdata import RefDataManager
 from treeherder.webapp.wsgi import application

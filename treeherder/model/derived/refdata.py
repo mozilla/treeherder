@@ -1,7 +1,8 @@
 import logging
 import os
 import time
-from datetime import datetime, timedelta
+from datetime import (datetime,
+                      timedelta)
 from hashlib import sha1
 
 from datasource.bases.BaseHub import BaseHub

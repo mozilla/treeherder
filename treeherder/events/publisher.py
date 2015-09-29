@@ -1,6 +1,8 @@
 import logging
 
-from kombu import Connection, Exchange, Producer
+from kombu import (Connection,
+                   Exchange,
+                   Producer)
 
 logger = logging.getLogger(__name__)
 

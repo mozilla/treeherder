@@ -1,7 +1,9 @@
 import pytest
 from django.core.management import call_command
 
-from treeherder.model.models import Datasource, Repository, RepositoryGroup
+from treeherder.model.models import (Datasource,
+                                     Repository,
+                                     RepositoryGroup)
 
 
 @pytest.fixture

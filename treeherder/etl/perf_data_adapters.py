@@ -10,10 +10,9 @@ from simplejson import encoder
 from treeherder.model.models import (MachinePlatform,
                                      OptionCollection,
                                      Repository)
-from treeherder.perf.models import (PerformanceFramework,
-                                    PerformanceSignature,
-                                    PerformanceDatum)
-
+from treeherder.perf.models import (PerformanceDatum,
+                                    PerformanceFramework,
+                                    PerformanceSignature)
 
 logger = logging.getLogger(__name__)
 

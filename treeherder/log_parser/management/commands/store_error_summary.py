@@ -2,13 +2,15 @@ from cStringIO import StringIO
 from itertools import islice
 
 import requests
-from django.db import transaction
-from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
+from django.core.management.base import (BaseCommand,
+                                         CommandError)
+from django.db import transaction
 from mozlog import reader
 
 from treeherder.model.derived import JobsModel
-from treeherder.model.models import FailureLine, Repository
+from treeherder.model.models import (FailureLine,
+                                     Repository)
 
 
 class Command(BaseCommand):

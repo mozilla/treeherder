@@ -6,7 +6,9 @@ from django.conf import settings
 from django.utils.six import BytesIO
 from mozlog.structured import reader
 
-from .parsers import StepParser, TalosParser, TinderboxPrintParser
+from .parsers import (StepParser,
+                      TalosParser,
+                      TinderboxPrintParser)
 
 logger = logging.getLogger(__name__)
 

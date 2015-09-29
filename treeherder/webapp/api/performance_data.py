@@ -1,14 +1,15 @@
 import datetime
 import json
 import time
-
 from collections import defaultdict
-from rest_framework import exceptions
-from rest_framework import viewsets
+
+from rest_framework import (exceptions,
+                            viewsets)
 from rest_framework.response import Response
 
 from treeherder.model import models
-from treeherder.perf.models import (PerformanceSignature, PerformanceDatum)
+from treeherder.perf.models import (PerformanceDatum,
+                                    PerformanceSignature)
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):

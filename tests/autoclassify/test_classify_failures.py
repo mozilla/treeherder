@@ -1,8 +1,11 @@
 from django.core.management import call_command
 
-from treeherder.model.models import Matcher, Repository
 from treeherder.autoclassify.matchers import PreciseTestMatcher
-from .utils import test_line, create_failure_lines
+from treeherder.model.models import (Matcher,
+                                     Repository)
+
+from .utils import (create_failure_lines,
+                    test_line)
 
 
 def test_classify_test_failure(activate_responses, jm, eleven_jobs_stored, initial_data,

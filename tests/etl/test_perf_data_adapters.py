@@ -4,10 +4,13 @@ from django.test import TestCase
 
 from tests.sampledata import SampleData
 from treeherder.etl.perf_data_adapters import TalosDataAdapter
-from treeherder.model.models import (MachinePlatform, Option,
-                                     OptionCollection, Repository,
+from treeherder.model.models import (MachinePlatform,
+                                     Option,
+                                     OptionCollection,
+                                     Repository,
                                      RepositoryGroup)
-from treeherder.perf.models import PerformanceSignature, PerformanceDatum
+from treeherder.perf.models import (PerformanceDatum,
+                                    PerformanceSignature)
 
 
 class TalosDataAdapterTest(TestCase):

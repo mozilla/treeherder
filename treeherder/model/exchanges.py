@@ -1,4 +1,6 @@
-from treeherder.model.pulse_publisher import Exchange, Key, PulsePublisher
+from treeherder.model.pulse_publisher import (Exchange,
+                                              Key,
+                                              PulsePublisher)
 
 
 class TreeherderPublisher(PulsePublisher):

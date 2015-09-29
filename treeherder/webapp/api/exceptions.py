@@ -5,7 +5,8 @@ from rest_framework import exceptions
 from rest_framework.response import Response
 from rest_framework.views import exception_handler as drf_exc_handler
 
-from treeherder.model.derived import DatasetNotFoundError, ObjectNotFoundException
+from treeherder.model.derived import (DatasetNotFoundError,
+                                      ObjectNotFoundException)
 
 logger = logging.getLogger(__name__)
 

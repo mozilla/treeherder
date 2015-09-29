@@ -1,7 +1,8 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from treeherder.model.derived import ArtifactsModel, JobsModel
+from treeherder.model.derived import (ArtifactsModel,
+                                      JobsModel)
 from treeherder.model.error_summary import get_artifacts_that_need_bug_suggestions
 from treeherder.model.tasks import populate_error_summary
 from treeherder.webapp.api import permissions

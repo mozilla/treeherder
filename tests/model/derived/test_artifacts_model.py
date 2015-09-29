@@ -2,7 +2,8 @@ import json
 
 import pytest
 
-from treeherder.model.derived import ArtifactsModel, JobsModel
+from treeherder.model.derived import (ArtifactsModel,
+                                      JobsModel)
 
 xfail = pytest.mark.xfail
 

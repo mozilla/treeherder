@@ -1,8 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic.edit import CreateView, DeleteView
-from django.views.generic import DetailView, ListView
+from django.views.generic import (DetailView,
+                                  ListView)
+from django.views.generic.edit import (CreateView,
+                                       DeleteView)
 
 from .forms import CredentialsForm
 from .models import Credentials

@@ -1,10 +1,17 @@
-from django.conf.urls import include, patterns, url
+from django.conf.urls import (include,
+                              patterns,
+                              url)
 from rest_framework import routers
 
-from treeherder.webapp.api import (artifact, bug, job_log_url, jobs, logslice,
-                                   note, performance_data, refdata,
+from treeherder.webapp.api import (artifact,
+                                   bug,
+                                   job_log_url,
+                                   jobs,
+                                   logslice,
+                                   note,
+                                   performance_data,
+                                   refdata,
                                    resultset)
-
 
 # router for views that are bound to a project
 # i.e. all those views that don't involve reference data

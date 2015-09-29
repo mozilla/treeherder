@@ -1,8 +1,11 @@
 import responses
-from django.core.management import call_command
 from django.conf import settings
+from django.core.management import call_command
 
-from treeherder.model.models import FailureLine, Repository, RepositoryGroup
+from treeherder.model.models import (FailureLine,
+                                     Repository,
+                                     RepositoryGroup)
+
 from ..sampledata import SampleData
 
 

@@ -1,4 +1,5 @@
 import copy
+
 import pytest
 
 from treeherder.etl.job_loader import JobLoader

@@ -3,9 +3,11 @@ import json
 import pytest
 from django.core.urlresolvers import reverse
 
-from treeherder.client.thclient import TreeherderAuth, client
+from treeherder.client.thclient import (TreeherderAuth,
+                                        client)
 from treeherder.etl.oauth_utils import OAuthCredentials
-from treeherder.model.derived import ArtifactsModel, JobsModel
+from treeherder.model.derived import (ArtifactsModel,
+                                      JobsModel)
 
 xfail = pytest.mark.xfail
 

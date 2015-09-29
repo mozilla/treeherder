@@ -1,11 +1,10 @@
-import logging
 import json
+import logging
 
 from kombu import Queue
 from kombu.mixins import ConsumerMixin
 
 from treeherder.etl.tasks.pulse_tasks import store_pulse_jobs
-
 
 logger = logging.getLogger(__name__)
 

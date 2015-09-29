@@ -1,15 +1,18 @@
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route, list_route
+from rest_framework.decorators import (detail_route,
+                                       list_route)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from treeherder.model.derived import ArtifactsModel
 from treeherder.model.models import FailureLine
-from treeherder.webapp.api import serializers
-from treeherder.webapp.api import permissions
+from treeherder.webapp.api import (permissions,
+                                   serializers)
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
-from treeherder.webapp.api.utils import UrlQueryFilter, get_option, with_jobs
+from treeherder.webapp.api.utils import (UrlQueryFilter,
+                                         get_option,
+                                         with_jobs)
 
 
 class JobsViewSet(viewsets.ViewSet):

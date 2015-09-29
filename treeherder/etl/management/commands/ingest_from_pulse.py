@@ -1,9 +1,10 @@
 import logging
 from urlparse import urlparse
-from kombu import Connection, Exchange
 
-from django.core.management.base import BaseCommand
 from django.conf import settings
+from django.core.management.base import BaseCommand
+from kombu import (Connection,
+                   Exchange)
 
 from treeherder.etl.pulse_consumer import JobConsumer
 

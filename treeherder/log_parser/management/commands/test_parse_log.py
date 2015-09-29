@@ -2,10 +2,10 @@ import time
 from optparse import make_option
 
 import simplejson as json
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import (BaseCommand,
+                                         CommandError)
 
-from treeherder.log_parser.artifactbuildercollection import \
-    ArtifactBuilderCollection
+from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 
 
 class Command(BaseCommand):

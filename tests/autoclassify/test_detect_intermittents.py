@@ -1,9 +1,13 @@
 from django.core.management import call_command
 
-from treeherder.model.models import Matcher, Repository, ClassifiedFailure
-from treeherder.autoclassify.matchers import PreciseTestMatcher
 from treeherder.autoclassify.detectors import TestFailureDetector
-from .utils import test_line, create_failure_lines
+from treeherder.autoclassify.matchers import PreciseTestMatcher
+from treeherder.model.models import (ClassifiedFailure,
+                                     Matcher,
+                                     Repository)
+
+from .utils import (create_failure_lines,
+                    test_line)
 
 
 def test_detect_intermittents(activate_responses, jm, eleven_jobs_stored, initial_data,

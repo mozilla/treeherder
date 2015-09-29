@@ -2,22 +2,26 @@ from __future__ import unicode_literals
 
 import os
 import uuid
-from collections import defaultdict, OrderedDict
-from warnings import filterwarnings, resetwarnings
+from collections import (OrderedDict,
+                         defaultdict)
+from warnings import (filterwarnings,
+                      resetwarnings)
 
 from datasource.bases.BaseHub import BaseHub
 from datasource.hubs.MySQL import MySQL
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.db import connection, models
+from django.db import (connection,
+                       models)
 from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
 from treeherder import path
 
-from .fields import BigAutoField, FlexibleForeignKey
+from .fields import (BigAutoField,
+                     FlexibleForeignKey)
 
 # the cache key is specific to the database name we're pulling the data from
 SOURCES_CACHE_KEY = "treeherder-datasources"

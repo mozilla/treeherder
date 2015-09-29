@@ -7,7 +7,9 @@ from rest_framework.reverse import reverse
 
 from treeherder.model.derived import DatasetNotFoundError
 from treeherder.webapp.api import permissions
-from treeherder.webapp.api.utils import UrlQueryFilter, to_timestamp, with_jobs
+from treeherder.webapp.api.utils import (UrlQueryFilter,
+                                         to_timestamp,
+                                         with_jobs)
 
 
 class ResultSetViewSet(viewsets.ViewSet):

@@ -1,7 +1,8 @@
 import os
 
 import simplejson as json
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import (BaseCommand,
+                                         CommandError)
 
 from treeherder.model.models import Datasource
 

@@ -1,8 +1,8 @@
+from test_client_job_ingestion import do_post_collection
 from tests.sampledata import SampleData
 from treeherder.client.thclient import client
-from treeherder.perf.models import (PerformanceSignature, PerformanceDatum)
-
-from test_client_job_ingestion import do_post_collection
+from treeherder.perf.models import (PerformanceDatum,
+                                    PerformanceSignature)
 
 
 def test_post_talos_artifact(test_project, test_repository, result_set_stored,

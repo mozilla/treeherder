@@ -3,7 +3,8 @@ This module contains
 """
 from celery import task
 
-from treeherder.etl.buildapi import (Builds4hJobsProcess, PendingJobsProcess,
+from treeherder.etl.buildapi import (Builds4hJobsProcess,
+                                     PendingJobsProcess,
                                      RunningJobsProcess)
 from treeherder.etl.pushlog import HgPushlogProcess
 from treeherder.model.derived import RefDataManager

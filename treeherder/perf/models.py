@@ -3,7 +3,9 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
-from treeherder.model.models import MachinePlatform, OptionCollection, Repository
+from treeherder.model.models import (MachinePlatform,
+                                     OptionCollection,
+                                     Repository)
 
 SIGNATURE_HASH_LENGTH = 40L
 

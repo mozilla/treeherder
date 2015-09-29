@@ -1,11 +1,13 @@
 import oauth2 as oauth
-from django.contrib.auth.models import User
-from django.core.urlresolvers import resolve, reverse
-from mohawk import Sender
 import pytest
+from django.contrib.auth.models import User
+from django.core.urlresolvers import (resolve,
+                                      reverse)
+from mohawk import Sender
 from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory
+
 from treeherder.credentials.models import Credentials
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.webapp.api import permissions

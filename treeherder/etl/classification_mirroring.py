@@ -5,7 +5,8 @@ import requests
 import simplejson as json
 from django.conf import settings
 
-from treeherder.model.derived import ArtifactsModel, JobsModel
+from treeherder.model.derived import (ArtifactsModel,
+                                      JobsModel)
 
 logger = logging.getLogger(__name__)
 

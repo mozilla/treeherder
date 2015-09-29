@@ -3,15 +3,18 @@ from optparse import make_option
 from urlparse import urlparse
 
 import concurrent.futures
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import (BaseCommand,
+                                         CommandError)
 from django.db import transaction
 
-from treeherder.client import PerfherderClient, PerformanceTimeInterval
-from treeherder.model.models import (MachinePlatform, OptionCollection,
+from treeherder.client import (PerfherderClient,
+                               PerformanceTimeInterval)
+from treeherder.model.models import (MachinePlatform,
+                                     OptionCollection,
                                      Repository)
-from treeherder.perf.models import (PerformanceFramework,
-                                    PerformanceSignature,
-                                    PerformanceDatum)
+from treeherder.perf.models import (PerformanceDatum,
+                                    PerformanceFramework,
+                                    PerformanceSignature)
 
 
 def _add_series(pc, project_name, signature_hash, signature_props, verbosity):

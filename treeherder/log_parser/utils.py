@@ -5,11 +5,11 @@ import simplejson as json
 from django.conf import settings
 
 from treeherder import celery_app
-from treeherder.client import (TreeherderArtifactCollection, TreeherderAuth,
+from treeherder.client import (TreeherderArtifactCollection,
+                               TreeherderAuth,
                                TreeherderClient)
 from treeherder.etl.oauth_utils import OAuthCredentials
-from treeherder.log_parser.artifactbuildercollection import \
-    ArtifactBuilderCollection
+from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import MozlogArtifactBuilder
 from treeherder.model.error_summary import get_error_summary_artifacts
 

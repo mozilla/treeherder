@@ -2,6 +2,7 @@ import json
 from time import time
 
 from datadiff import diff
+
 from treeherder.etl.classification_mirroring import ElasticsearchDocRequest
 from treeherder.model.derived import ArtifactsModel
 

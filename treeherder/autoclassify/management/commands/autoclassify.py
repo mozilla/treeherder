@@ -1,10 +1,13 @@
 import logging
 from collections import defaultdict
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import (BaseCommand,
+                                         CommandError)
 
 from treeherder.autoclassify import matchers
-from treeherder.model.models import FailureLine, Matcher, FailureMatch
+from treeherder.model.models import (FailureLine,
+                                     FailureMatch,
+                                     Matcher)
 
 logger = logging.getLogger(__name__)
 

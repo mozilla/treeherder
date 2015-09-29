@@ -5,9 +5,11 @@ from django.conf import settings
 from django.core.cache import cache
 
 from treeherder.client import TreeherderResultSetCollection
-from treeherder.etl.common import generate_revision_hash, get_not_found_onhold_push
+from treeherder.etl.common import (generate_revision_hash,
+                                   get_not_found_onhold_push)
 
-from .mixins import JsonExtractorMixin, OAuthLoaderMixin
+from .mixins import (JsonExtractorMixin,
+                     OAuthLoaderMixin)
 
 logger = logging.getLogger(__name__)
 

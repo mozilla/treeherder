@@ -4,7 +4,8 @@ import os
 import responses
 from django.core.cache import cache
 
-from treeherder.etl.pushlog import HgPushlogProcess, MissingHgPushlogProcess
+from treeherder.etl.pushlog import (HgPushlogProcess,
+                                    MissingHgPushlogProcess)
 
 
 def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,

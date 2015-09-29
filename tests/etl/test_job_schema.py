@@ -1,7 +1,8 @@
-import pytest
 import jsonschema
+import pytest
 
 from treeherder.etl.schema import job_json_schema
+
 
 # The test data in this file are a representative sample-set from
 # production Treeherder

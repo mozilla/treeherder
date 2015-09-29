@@ -9,14 +9,18 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from treeherder.etl.common import get_guid_root
 from treeherder.events.publisher import JobStatusPublisher
-from treeherder.model import error_summary, utils
-from treeherder.model.models import Datasource, ExclusionProfile
-from treeherder.model.tasks import (populate_error_summary, publish_job_action,
+from treeherder.model import (error_summary,
+                              utils)
+from treeherder.model.models import (Datasource,
+                                     ExclusionProfile)
+from treeherder.model.tasks import (populate_error_summary,
+                                    publish_job_action,
                                     publish_resultset,
                                     publish_resultset_action)
 
 from .artifacts import ArtifactsModel
-from .base import ObjectNotFoundException, TreeherderModelBase
+from .base import (ObjectNotFoundException,
+                   TreeherderModelBase)
 
 logger = logging.getLogger(__name__)
 

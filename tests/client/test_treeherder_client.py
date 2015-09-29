@@ -8,9 +8,12 @@ import requests
 from mock import patch
 
 from treeherder.client import (TreeherderArtifact,
-                               TreeherderArtifactCollection, TreeherderAuth,
-                               TreeherderClient, TreeherderClientError,
-                               TreeherderJob, TreeherderJobCollection,
+                               TreeherderArtifactCollection,
+                               TreeherderAuth,
+                               TreeherderClient,
+                               TreeherderClientError,
+                               TreeherderJob,
+                               TreeherderJobCollection,
                                TreeherderResultSet,
                                TreeherderResultSetCollection,
                                TreeherderRevision)

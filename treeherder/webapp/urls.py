@@ -1,9 +1,10 @@
-from django.conf.urls import include, url
+from django.conf.urls import (include,
+                              url)
 from django.contrib import admin
 from django_browserid.admin import site as browserid_admin
 
-from treeherder.embed import urls as embed_urls
 from treeherder.credentials.urls import urlpatterns as credentials_patterns
+from treeherder.embed import urls as embed_urls
 
 from .api import urls as api_urls
 from .views import LoginView

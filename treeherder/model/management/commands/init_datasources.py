@@ -3,7 +3,8 @@ from optparse import make_option
 from django.core.management.base import BaseCommand
 from django.utils.six.moves import input
 
-from treeherder.model.models import Datasource, Repository
+from treeherder.model.models import (Datasource,
+                                     Repository)
 
 
 class Command(BaseCommand):

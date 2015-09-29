@@ -1,11 +1,13 @@
 import json
 import os
 import time
-from datetime import datetime, timedelta
+from datetime import (datetime,
+                      timedelta)
 
 import pytest
 
-from treeherder.model.models import Repository, RepositoryGroup
+from treeherder.model.models import (Repository,
+                                     RepositoryGroup)
 
 
 @pytest.fixture

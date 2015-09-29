@@ -4,8 +4,17 @@ from urlparse import urlparse
 from django.core.management.base import BaseCommand
 
 from treeherder.client import TreeherderClient
-from treeherder.model.models import Option, OptionCollection, MachinePlatform, Machine, JobGroup, Product
-from treeherder.model.models import FailureClassification, BuildPlatform, JobType, Repository, RepositoryGroup
+from treeherder.model.models import (BuildPlatform,
+                                     FailureClassification,
+                                     JobGroup,
+                                     JobType,
+                                     Machine,
+                                     MachinePlatform,
+                                     Option,
+                                     OptionCollection,
+                                     Product,
+                                     Repository,
+                                     RepositoryGroup)
 
 
 class Command(BaseCommand):

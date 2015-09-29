@@ -6,8 +6,10 @@ import responses
 from django.conf import settings
 from django.core.cache import cache
 
-from treeherder.etl.buildapi import (CACHE_KEYS, Builds4hJobsProcess,
-                                     PendingJobsProcess, RunningJobsProcess)
+from treeherder.etl.buildapi import (CACHE_KEYS,
+                                     Builds4hJobsProcess,
+                                     PendingJobsProcess,
+                                     RunningJobsProcess)
 
 
 @pytest.fixture
