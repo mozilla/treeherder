@@ -19,6 +19,7 @@ Contents:
    common_tasks
    submitting_data
    retrieving_data
+   data_validation
    troubleshooting
    ui/index
 
