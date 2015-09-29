@@ -58,6 +58,10 @@ input:focus::-moz-placeholder {
   min-height: 20px; /* Override bootstrap 3.3.5 for similar jobs panel */
 }
 
+.dropdown-menu > li > a {
+  cursor: pointer;
+}
+
 /* Spacing for menus with adjacent checkboxes */
 .checkbox-dropdown-menu {
   padding-left: 8px;
