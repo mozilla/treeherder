@@ -475,6 +475,8 @@ Treeherder will detect what data is submitted in the ``TreeherderCollection``
 and generate the necessary artifacts accordingly.  The outline below describes
 what artifacts *Treeherder* will generate depending on what has been submitted.
 
+See :ref:`schema_validation` for more info on validating some specialized JSON
+data.
 
 JobCollections
 ^^^^^^^^^^^^^^
