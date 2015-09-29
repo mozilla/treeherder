@@ -45,8 +45,7 @@ class ElasticsearchDocRequest(object):
             "os": job_data["platform"],
             # I'm using the request time date here, as start time is not
             # available for pending jobs
-            "date": datetime.fromtimestamp(
-                int(job_data["submit_timestamp"])).strftime("%Y-%m-%d"),
+            "date": datetime.utcfromtimestamp(job_data["submit_timestamp"]).strftime("%Y-%m-%d"),
             "type": job_data["job_type_name"],
             "buildtype": option_collection[
                 job_data["option_collection_hash"]
