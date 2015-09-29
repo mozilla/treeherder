@@ -57,13 +57,15 @@ properties:
       jobSymbol:
         title: "jobSymbol"
         type: "string"
-        pattern: "^[A-Za-z0-9_-]+$"
+        # spaces and "?" are not valid for job symbols
+        pattern: "^[A-Za-z0-9._-]+$"
         minLength: 1
         maxLength: 25
       groupSymbol:
         title: "group symbol"
         type: "string"
-        pattern: "^[A-Za-z0-9\?_-]+$"
+        # spaces not valid for group symbols
+        pattern: "^[A-Za-z0-9/?_-]+$"
         minLength: 1
         maxLength: 25
       # could do without these if we require job type and group to exist prior
@@ -177,6 +179,16 @@ properties:
       - Self-serve: Requested by foo@example.com
       - The Nightly scheduler named 'b2g_mozilla-inbound periodic' triggered this build
       - unknown
+    type: "string"
+    minLength: 1
+    maxLength: 125
+  productName:
+    description: |
+      Examples include:
+      -  'b2g'
+      -  'firefox'
+      -  'taskcluster'
+      -  'xulrunner'
     type: "string"
     minLength: 1
     maxLength: 125

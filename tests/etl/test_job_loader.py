@@ -89,7 +89,5 @@ def change_state_result(job, job_loader, jm, status, state, result):
 
     jobs = jm.get_job_list(0, 10)
     assert len(jobs) == 1
-    import pprint
-    pprint.pprint(jobs)
     assert jobs[0]['state'] == state
     assert jobs[0]['result'] == result

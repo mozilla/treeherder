@@ -34,6 +34,7 @@
 
     "who": "thedude@lebowski.com",
     "reason": "scheduler",
+    "productName": "Oscillation Overthruster",
 
     "timeScheduled": "2014-12-19T16:39:57-08:00",
     "timeStarted": "2014-12-19T17:39:57-08:00",
@@ -65,8 +66,8 @@
     "display": {
       "jobSymbol": "P2",
       "jobName": "Pulse Ingestion Test",
-      "groupSymbol": "PI",
-      "groupName": "PulseIngestion"
+      "groupSymbol": "?",
+      "groupName": "unknown"
     },
 
     "status": "running",
@@ -89,6 +90,7 @@
 
     "who": "thedude@lebowski.com",
     "reason": "scheduler",
+    "productName": "Oscillation Overthruster",
 
     "timeScheduled": "2014-12-19T16:39:57-08:00",
     "timeStarted": "2014-12-19T17:39:57-08:00",
