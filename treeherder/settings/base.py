@@ -378,8 +378,16 @@ PULSE_DATA_INGESTION_EXCHANGES = env.json(
 # Example: "amqp://myuserid:mypassword@pulse.mozilla.org:5672/"
 PULSE_DATA_INGESTION_CONFIG = env.url("PULSE_DATA_INGESTION_CONFIG", default="")
 
-# Whether the Queues created for pulse ingestion are durable or not
-PULSE_DATA_INGESTION_QUEUES_DURABLE = env("PULSE_DATA_INGESTION_QUEUES_DURABLE", default=False)
+# Whether the Queues created for pulse ingestion are durable or not.
+# For local data ingestion, you probably should set this to False
+PULSE_DATA_INGESTION_QUEUES_DURABLE = env("PULSE_DATA_INGESTION_QUEUES_DURABLE",
+                                          default=True)
+
+# Whether the Queues created for pulse ingestion auto-delete after connections
+# are closed.
+# For local data ingestion, you probably should set this to True
+PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE = env("PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE",
+                                              default=False)
 
 # Note: All the configs below this import will take precedence over what is
 # defined in local.py!

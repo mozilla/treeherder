@@ -63,7 +63,7 @@ properties:
       groupSymbol:
         title: "group symbol"
         type: "string"
-        pattern: "^[A-Za-z0-9_-]+$"
+        pattern: "^[A-Za-z0-9\?_-]+$"
         minLength: 1
         maxLength: 25
       # could do without these if we require job type and group to exist prior

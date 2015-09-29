@@ -23,14 +23,15 @@ class JobConsumer(ConsumerMixin):
             Consumer(**c) for c in self.consumers
         ]
 
-    def listen_to(self, exchange, routing_key, queue_name, durable=False):
+    def listen_to(self, exchange, routing_key, queue_name,
+                  durable=True, auto_delete=False):
         queue = Queue(
             name=queue_name,
             channel=self.connection.channel(),
             exchange=exchange,
             routing_key=routing_key,
             durable=durable,
-            auto_delete=True
+            auto_delete=auto_delete
         )
 
         self.consumers.append(dict(queues=queue, callbacks=[self.on_message]))

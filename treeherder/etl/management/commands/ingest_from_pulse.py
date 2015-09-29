@@ -20,6 +20,7 @@ class Command(BaseCommand):
         config = settings.PULSE_DATA_INGESTION_CONFIG
         userid = urlparse(config).username
         durable = settings.PULSE_DATA_INGESTION_QUEUES_DURABLE
+        auto_delete = settings.PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE
         connection = Connection(config)
         consumer = JobConsumer(connection)
 
@@ -38,7 +39,8 @@ class Command(BaseCommand):
                             exchange,
                             routing_key,
                             queue_name,
-                            durable)
+                            durable,
+                            auto_delete)
                         self.stdout.write(
                             "Pulse message consumer listening to : {} {}".format(
                                 exchange.name,
