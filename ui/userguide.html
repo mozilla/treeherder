@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="userguide.app">
+<html ng-app="userguide">
 <head>
   <meta charset="utf-8">
   <title>Treeherder User Guide</title>
@@ -14,10 +14,6 @@
 </head>
 
 <body ng-controller="UserguideCtrl" id="userguide">
-  <script src="vendor/angular/angular.js"></script>
-  <script src="js/userguide.js"></script>
-  <script src="js/controllers/userguide.js"></script>
-
   <!-- Content panel -->
   <div class="panel panel-default">
     <!-- Header -->
@@ -614,5 +610,11 @@
 
   <!-- End of content panel -->
   </div>
+
+  <!-- build:js js/userguide.min.js -->
+  <script src="vendor/angular/angular.js"></script>
+  <script src="js/userguide.js"></script>
+  <script src="js/controllers/userguide.js"></script>
+  <!-- endbuild -->
 </body>
 </html>

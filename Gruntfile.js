@@ -82,6 +82,12 @@ module.exports = function(grunt) {
                 file: 'dist/js/perf.min.js',
                 cleanup: true
             },
+            userguidejs: {
+                replace: ['dist/**/*.html'],
+                replacement: 'userguide.min.js',
+                file: 'dist/js/userguide.min.js',
+                cleanup: true
+            },
             indexcss: {
                 replace: ['dist/**/*.html'],
                 replacement: 'index.min.css',
@@ -212,6 +218,27 @@ module.exports = function(grunt) {
                 dest: 'dist/js/perf.min.js',
                 options: {
                     usemin: 'dist/js/perf.min.js',
+                    append: true,
+                    htmlmin: {
+                        collapseBooleanAttributes:      true,
+                        collapseWhitespace:             true,
+                        conservativeCollapse:           true,
+                        removeAttributeQuotes:          true,
+                        removeComments:                 true,
+                        removeEmptyAttributes:          true,
+                        removeRedundantAttributes:      true,
+                        removeScriptTypeAttributes:     true,
+                        removeStyleLinkTypeAttributes:  true,
+                        keepClosingSlash: true
+                    }
+                }
+            },
+            userguide: {
+                cwd: 'ui',
+                src: 'partials/main/thShortcutTable.html',
+                dest: 'dist/js/userguide.min.js',
+                options: {
+                    usemin: 'dist/js/userguide.min.js',
                     append: true,
                     htmlmin: {
                         collapseBooleanAttributes:      true,
