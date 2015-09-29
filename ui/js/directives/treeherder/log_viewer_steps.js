@@ -36,10 +36,10 @@ treeherder.directive('lvLogSteps', ['$timeout', '$q', function ($timeout, $q) {
                 }
             };
 
-            scope.toggleSuccessfulSteps = function() {
+            scope.toggleSuccessfulSteps = function () {
                 scope.showSuccessful = !scope.showSuccessful;
 
-                var firstError = scope.artifact.step_data.steps.filter(function(step){
+                var firstError = scope.artifact.step_data.steps.filter(function (step) {
                     return step.result && step.result !== "success";
                 })[0];
 
@@ -50,12 +50,11 @@ treeherder.directive('lvLogSteps', ['$timeout', '$q', function ($timeout, $q) {
                 // scroll to the first error
                 $timeout(function () {
                     var scrollTop = getOffsetOfStep(firstError.order);
-
                     $('.steps-data').scrollTop( scrollTop );
                 });
             };
 
-            scope.displayLog = function(step, state) {
+            scope.displayLog = function (step, state) {
                 scope.displayedStep = step;
                 scope.currentLineNumber = step.started_linenumber;
 

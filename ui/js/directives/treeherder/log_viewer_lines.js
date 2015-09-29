@@ -14,16 +14,18 @@ treeherder.directive('lvLogLines', ['$timeout', '$parse', function ($timeout) {
         var lines = $('.lv-log-line');
         var scrollTop = $('.lv-log-container').scrollTop();
 
-        for (var i = 0, l = lines.length; i < l; i++) {
+        for (var i = 0, ll = lines.length; i < ll; i++) {
             if (lines[i].offsetTop > scrollTop) {
                 var steps = $scope.artifact.step_data.steps;
                 var lineNumber = +$(lines[i]).attr('line');
 
-                for (var j = 0, ll = steps.length; j < ll; j++) {
+                for (var j = 0, sl = steps.length; j < sl; j++) {
                     if (lineNumber > (steps[j].started_linenumber - 1) &&
                         lineNumber < (steps[j].finished_linenumber + 1)) {
                         // make sure we aren't updating when its already correct
-                        if ($scope.displayedStep.order === steps[j].order) return;
+                        if ($scope.displayedStep.order === steps[j].order) {
+                            return;
+                        }
 
                         $scope.displayedStep = steps[j];
 
@@ -31,7 +33,9 @@ treeherder.directive('lvLogLines', ['$timeout', '$parse', function ($timeout) {
                         var scrollTop = getOffsetOfStep(steps[j].order);
                         $('.steps-data').scrollTop(scrollTop);
 
-                        if(!$scope.$$phase) {$scope.$apply();}
+                        if (!$scope.$$phase) {
+                            $scope.$apply();
+                        }
 
                         return;
                     }

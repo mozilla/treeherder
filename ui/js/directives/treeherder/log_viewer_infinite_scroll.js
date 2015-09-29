@@ -9,7 +9,7 @@ treeherder.directive('lvInfiniteScroll', ['$timeout', '$parse', function ($timeo
             if (raw.scrollTop <= 100) {
                 scope.loadMore({top: true}, raw).then(function(haltScrollTop) {
                     if (!haltScrollTop) {
-                        $timeout(function() {
+                        $timeout(function () {
                             raw.scrollTop = raw.scrollHeight - sh;
                         });
                     }
