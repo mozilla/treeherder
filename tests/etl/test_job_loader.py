@@ -14,7 +14,7 @@ def first_job(sample_data, test_project, result_set_stored):
     return job
 
 
-def test_ingest_job(sample_data, test_project, jm, result_set_stored):
+def test_ingest_pulse_job(sample_data, test_project, jm, result_set_stored):
     """
     Ingest a job through the JSON Schema validated JobLoader used by Pulse
     """
@@ -74,6 +74,15 @@ def test_transition_pending_retry_fail_stays_retry(first_job, jm):
     change_state_result(first_job, jl, jm, "fail", "completed", "retry")
     first_job["isRetried"] = False
     change_state_result(first_job, jl, jm, "fail", "completed", "retry")
+
+
+def test_skip_unscheduled(first_job, jm):
+    jl = JobLoader()
+    first_job["status"] = "unscheduled"
+    jl.process_job_list([first_job], raise_errors=True)
+
+    jobs = jm.get_job_list(0, 10)
+    assert len(jobs) == 0
 
 
 def change_state_result(job, job_loader, jm, status, state, result):

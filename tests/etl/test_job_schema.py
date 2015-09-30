@@ -3,6 +3,8 @@ import jsonschema
 
 from treeherder.etl.schema import job_json_schema
 
+# The test data in this file are a representative sample-set from
+# production Treeherder
 
 @pytest.mark.parametrize("group_symbol", ['?','A','Aries','Buri/Hamac','L10n','M-e10s'])
 def test_group_symbols(sample_data, group_symbol):

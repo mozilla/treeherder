@@ -15,7 +15,6 @@ class JobLoader:
     jobs_schema = None
     artifact_schema = None
 
-    COMPLETED_STATUSES = ["success", "fail", "exception", "canceled"]
     TEST_RESULT_MAP = {
         "success": "success",
         "fail": "testfailed",
@@ -41,7 +40,7 @@ class JobLoader:
                     [x["origin"]["revision"] for x in job_list])
                 storeable_job_list = []
                 for pulse_job in job_list:
-                    if pulse_job["status"] != "unscheduled":
+                    if pulse_job["state"] != "unscheduled":
                         try:
                             storeable_job_list.append(
                                 self.transform(pulse_job, rs_lookup)
@@ -71,17 +70,17 @@ class JobLoader:
                 "group_name": pulse_job["display"].get("groupName", "unknown"),
                 "group_symbol": pulse_job["display"].get("groupSymbol"),
                 "product_name": pulse_job.get("productName", "unknown"),
-                "state": self._get_state(pulse_job),
+                "state": pulse_job["state"],
                 "result": self._get_result(pulse_job),
-                "reason": pulse_job["reason"],
-                "who": pulse_job["who"],
+                "reason": pulse_job.get("reason", "unknown"),
+                "who": pulse_job.get("who", "unknown"),
                 "tier": pulse_job.get("tier", 1),
                 "submit_timestamp": self._to_timestamp(pulse_job["timeScheduled"]),
                 "start_timestamp": self._to_timestamp(pulse_job["timeStarted"]),
                 "end_timestamp": self._to_timestamp(pulse_job["timeCompleted"]),
                 "machine": self._get_machine(pulse_job),
-                "build_platform": self._get_platform(pulse_job["machine"].get("build", None)),
-                "machine_platform": self._get_platform(pulse_job["machine"].get("test", None)),
+                "build_platform": self._get_platform(pulse_job.get("buildMachine", None)),
+                "machine_platform": self._get_platform(pulse_job.get("runMachine", None)),
                 "option_collection": self._get_option_collection(pulse_job),
                 "log_references": self._get_log_references(pulse_job),
                 "artifacts": self._get_artifacts(pulse_job),
@@ -118,39 +117,28 @@ class JobLoader:
         if platform_src:
             platform = {
                 "platform": platform_src["platform"],
-                "os_name": platform_src["osName"],
+                "os_name": platform_src["os"],
                 "architecture": platform_src["architecture"]
             }
         return platform
 
     def _get_machine(self, job):
         machine = "unknown"
-        if "build" in job["machine"]:
-            machine = job["machine"]["build"]["machineName"]
-        if "run" in job["machine"]:
-            machine = job["machine"]["run"]["machineName"]
+        if "buildMachine" in job:
+            machine = job["buildMachine"]["name"]
+        if "runMachine" in job:
+            machine = job["runMachine"]["name"]
         return machine
 
-    def _get_state(self, job):
-        status = job["status"]
-        state = "completed"
-        if status in ["pending", "running"]:
-            state = status
-        elif status == "unscheduled":
-            raise AttributeError("unscheduled not a supported status at this time.")
-        return state
-
     def _get_result(self, job):
-        result = "unknown"
-        status = job["status"]
-        if status in self.COMPLETED_STATUSES:
+        if job["state"] == "completed":
+            resmap = self.BUILD_RESULT_MAP if job["jobKind"] == "build" else self.TEST_RESULT_MAP
+            result = job.get("result", "unknown")
             if job.get("isRetried", False):
-                result = "retry"
-            elif job["jobKind"] == "build":
-                result = self.BUILD_RESULT_MAP[status]
+                return "retry"
             else:
-                result = self.TEST_RESULT_MAP[status]
-        return result
+                return resmap[result]
+        return "unknown"
 
     def _get_validated_jobs_by_project(self, jobs_list):
         validated_jobs = defaultdict(list)

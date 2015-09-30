@@ -14,22 +14,21 @@
       "groupName": "PulseIngestion"
     },
 
-    "status": "success",
+    "state": "completed",
+    "result": "success",
     "jobKind": "test",
 
-    "machine": {
-      "test": {
-        "machineName": "bld-linux64-ec2-104",
-        "platform": "linux64",
-        "osName": "linux",
-        "architecture": "x86_64"
-      },
-      "build": {
-        "machineName": "bld-linux64-ec2-104",
-        "platform": "linux64",
-        "osName": "linux",
-        "architecture": "x86_64"
-      }
+    "runMachine": {
+      "name": "bld-linux64-ec2-104",
+      "platform": "linux64",
+      "os": "linux",
+      "architecture": "x86_64"
+    },
+    "buildMachine": {
+      "name": "bld-linux64-ec2-104",
+      "platform": "linux64",
+      "os": "linux",
+      "architecture": "x86_64"
     },
 
     "who": "thedude@lebowski.com",
@@ -70,22 +69,20 @@
       "groupName": "unknown"
     },
 
-    "status": "running",
+    "state": "running",
     "jobKind": "test",
 
-    "machine": {
-      "test": {
-        "machineName": "bld-linux64-ec2-104",
-        "platform": "linux64",
-        "osName": "linux",
-        "architecture": "x86_64"
-      },
-      "build": {
-        "machineName": "bld-linux64-ec2-104",
-        "platform": "linux64",
-        "osName": "linux",
-        "architecture": "x86_64"
-      }
+    "runMachine": {
+      "name": "bld-linux64-ec2-104",
+      "platform": "linux64",
+      "os": "linux",
+      "architecture": "x86_64"
+    },
+    "buildMachine": {
+      "name": "bld-linux64-ec2-104",
+      "platform": "linux64",
+      "os": "linux",
+      "architecture": "x86_64"
     },
 
     "who": "thedude@lebowski.com",
@@ -111,22 +108,21 @@
       "groupName": "PulseIngestion"
     },
 
-    "status": "fail",
+    "state": "completed",
+    "result": "fail",
     "jobKind": "test",
 
-    "machine": {
-      "test": {
-        "machineName": "bld-linux64-ec2-104",
-        "platform": "linux64",
-        "osName": "linux",
-        "architecture": "x86_64"
-      },
-      "build": {
-        "machineName": "bld-linux64-ec2-104",
-        "platform": "linux64",
-        "osName": "linux",
-        "architecture": "x86_64"
-      }
+    "runMachine": {
+      "name": "bld-linux64-ec2-104",
+      "platform": "linux64",
+      "os": "linux",
+      "architecture": "x86_64"
+    },
+    "buildMachine": {
+      "name": "bld-linux64-ec2-104",
+      "platform": "linux64",
+      "os": "linux",
+      "architecture": "x86_64"
     },
 
     "who": "thedude@lebowski.com",
