@@ -2,7 +2,6 @@ import logging
 from datetime import datetime
 
 import requests
-import simplejson as json
 from django.conf import settings
 
 from treeherder.model.derived import (ArtifactsModel,
@@ -66,12 +65,9 @@ class ElasticsearchDocRequest(object):
         """
         Send request to Elasticsearch.
         """
-        es_host = settings.ES_HOST
-        es_endpoint = "/bugs/bug_info/"
-        es_url = "".join([es_host, es_endpoint])
+        es_url = "%s/bugs/bug_info/" % settings.ES_HOST
         logger.info("Submitting %s job %s's classification of bug %s to Elasticsearch", self.project, self.job_id, self.bug_id)
-        headers = {'Content-Type': 'text/plain', 'Connection': 'close'}
-        r = requests.post(es_url, data=json.dumps(self.body), headers=headers, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
+        r = requests.post(es_url, json=self.body, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
         try:
             r.raise_for_status()
         except requests.exceptions.HTTPError:
