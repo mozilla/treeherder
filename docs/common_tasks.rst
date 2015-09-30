@@ -162,6 +162,7 @@ ports will clash.
 If you do not provide a machine name for `up` or `ssh`, the command will
 apply to the `default` machine only.
 
+
 Building the docs locally
 -------------------------
 
@@ -172,10 +173,10 @@ Building the docs locally
   .. code-block:: bash
 
      > pip install -r requirements/docs.txt
-     > cd docs
-     > make html
+     > make -C docs html
 
-* The built docs can then be found inside docs/_build/html/
+* The built docs can then be found inside ``docs/_build/html/``.
+
 
 Sharing UI-only changes with others using GitHub Pages
 ------------------------------------------------------
