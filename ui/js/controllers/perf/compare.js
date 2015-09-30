@@ -434,9 +434,9 @@ perf.controller('CompareSubtestResultsCtrl', [
                                                 return PhCompare.getResultsMap($scope.newProject.name,
                                                                                newSeriesData.seriesList,
                                                                                timeRange,
-                                                                               [$scope.newResultSetID]);
+                                                                               [$scope.newResultSet.id]);
                                             }).then(function(newSeriesMaps) {
-                                                var newSeriesMap = newSeriesMaps[$scope.newResultSetID];
+                                                var newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
                                                 // There is a chance that we haven't received data for the given signature/resultSet yet
                                                 if (newSeriesMap) {
                                                     Object.keys(newSeriesMap).forEach(function(series) {
