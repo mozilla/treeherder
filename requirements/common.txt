@@ -117,7 +117,7 @@ django-environ==0.4.0
 # sha256: QYqTw5en7asj5ViNvAZ6x0pyPts9VBvUk295R252Rdo
 six==1.9.0
 
-# Required by hawkrest
+# Required by hawkrest and requests-hawk
 # sha256: SNZPN8Hy9utro7Xy2LDByQ4offLtH9-Ah0_tDDYJ61I
 mohawk==0.3.0
 
@@ -126,3 +126,6 @@ hawkrest==0.0.8
 
 # sha256: KuY89HXwvQSbci-sIIE9Yq7cFJV91aO_ANEg0rVARGA
 python-dateutil==2.4.2
+
+# sha256: Z1L5dgnjtpS42jP4T96FV4AIil_C-Vqjw5t69hdRcqQ
+ requests-hawk==0.2.0
