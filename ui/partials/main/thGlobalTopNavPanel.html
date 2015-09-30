@@ -15,17 +15,15 @@
 
     <span class="navbar-right">
       <!-- Sheriffing Button -->
-      <span ng-show="user.loggedin">
-        <span class="btn btn-view-nav btn-right-navbar nav-menu-btn"
-             ng-class="{'active': (isSheriffPanelShowing)}"
-             ng-click="setSheriffPanelShowing(!isSheriffPanelShowing)"
-             tabindex="0"
-             role="button"><span>Sheriffing</span>
-          <i class="fa fa-angle-down lightgray"
-             ng-hide="isSheriffPanelShowing"></i>
-          <i class="fa fa-angle-up lightgray"
-             ng-show="isSheriffPanelShowing"></i>
-        </span>
+      <span class="btn btn-view-nav btn-right-navbar nav-menu-btn"
+            ng-class="{'active': (isSheriffPanelShowing)}"
+            ng-click="setSheriffPanelShowing(!isSheriffPanelShowing)"
+            tabindex="0"
+            role="button"><span>Sheriffing</span>
+        <i class="fa fa-angle-down lightgray"
+           ng-hide="isSheriffPanelShowing"></i>
+        <i class="fa fa-angle-up lightgray"
+           ng-show="isSheriffPanelShowing"></i>
       </span>
 
       <!-- Infra Menu -->
