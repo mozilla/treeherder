@@ -69,7 +69,7 @@ class ElasticsearchDocRequest(object):
         es_host = settings.ES_HOST
         es_endpoint = "/bugs/bug_info/"
         es_url = "".join([es_host, es_endpoint])
-        logger.info("Sending data to %s: %s", es_url, self.body)
+        logger.info("Submitting %s job %s's classification of bug %s to Elasticsearch", self.project, self.job_id, self.bug_id)
         headers = {'Content-Type': 'text/plain', 'Connection': 'close'}
         r = requests.post(es_url, data=json.dumps(self.body), headers=headers, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
         try:
