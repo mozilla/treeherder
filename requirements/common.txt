@@ -126,3 +126,6 @@ hawkrest==0.0.8
 
 # sha256: KuY89HXwvQSbci-sIIE9Yq7cFJV91aO_ANEg0rVARGA
 python-dateutil==2.4.2
+
+# sha256: Z1L5dgnjtpS42jP4T96FV4AIil_C-Vqjw5t69hdRcqQ
+ requests-hawk==0.2.0
