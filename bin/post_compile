@@ -1,6 +1,13 @@
 #!/bin/bash -e
 # Tasks run by the Heroku Python buildpack after the compile step.
 
+# Work around https://github.com/heroku/heroku-buildpack-python/issues/223
+export PATH=/app/.heroku/node/bin:$PATH
+
+# Create a `dist/` directory containing built/minified versions of the `ui/` assets.
+# Uses the node binaries/packages installed by the nodejs buildpack previously.
+./node_modules/.bin/grunt build --production
+
 # Make the current Git revision accessible at <site-root>/revision.txt
 echo $SOURCE_VERSION > dist/revision.txt
 
