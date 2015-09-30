@@ -3,9 +3,7 @@ import json
 import pytest
 from django.core.urlresolvers import reverse
 
-from treeherder.client.thclient import (TreeherderAuth,
-                                        client)
-from treeherder.etl.oauth_utils import OAuthCredentials
+from treeherder.client.thclient import client
 from treeherder.model.derived import (ArtifactsModel,
                                       JobsModel)
 
@@ -92,11 +90,7 @@ def test_artifact_create_text_log_summary(webapp, test_project, eleven_jobs_stor
     })
     tac.add(ta)
 
-    credentials = OAuthCredentials.get_credentials(test_project)
-    auth = TreeherderAuth(credentials['consumer_key'],
-                          credentials['consumer_secret'],
-                          test_project)
-    cli = client.TreeherderClient(protocol='http', host='localhost', auth=auth)
+    cli = client.TreeherderClient(protocol='http', host='localhost')
     cli.post_collection(test_project,  tac)
 
     with ArtifactsModel(test_project) as artifacts_model:
@@ -141,11 +135,7 @@ def test_artifact_create_text_log_summary_and_bug_suggestions(
         'job_guid': job['job_guid']
     }))
 
-    credentials = OAuthCredentials.get_credentials(test_project)
-    auth = TreeherderAuth(credentials['consumer_key'],
-                          credentials['consumer_secret'],
-                          test_project)
-    cli = client.TreeherderClient(protocol='http', host='localhost', auth=auth)
+    cli = client.TreeherderClient(protocol='http', host='localhost')
     cli.post_collection(test_project, tac)
 
     with ArtifactsModel(test_project) as artifacts_model:

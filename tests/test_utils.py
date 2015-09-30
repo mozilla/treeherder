@@ -1,46 +1,14 @@
 import json
 
-from requests import Request
-from webtest.app import TestApp
-
 from tests.sampledata import SampleData
-from treeherder.client import (TreeherderAuth,
-                               TreeherderClient)
-from treeherder.etl.oauth_utils import OAuthCredentials
+from treeherder.client import TreeherderClient
 from treeherder.model.derived.refdata import RefDataManager
-from treeherder.webapp.wsgi import application
 
 
-def post_collection(
-        project, th_collection, status=None, expect_errors=False,
-        consumer_key=None, consumer_secret=None):
+def post_collection(project, th_collection, auth=None):
 
-    # Set the credentials
-    OAuthCredentials.set_credentials(SampleData.get_credentials())
-
-    credentials = OAuthCredentials.get_credentials(project)
-
-    # The only time the credentials should be overridden are when
-    # a client needs to test authentication failure confirmation
-    consumer_key = consumer_key or credentials['consumer_key']
-    consumer_secret = consumer_secret or credentials['consumer_secret']
-
-    auth = TreeherderAuth(consumer_key, consumer_secret, project)
-    client = TreeherderClient(protocol='http', host='localhost', auth=auth)
-    uri = client._get_project_uri(project, th_collection.endpoint_base)
-
-    req = Request('POST', uri,
-                  json=th_collection.get_collection_data(),
-                  auth=auth)
-    prepped_request = req.prepare()
-
-    response = TestApp(application).post_json(
-        prepped_request.url,
-        params=th_collection.get_collection_data(),
-        status=status
-    )
-
-    return response
+    client = TreeherderClient(protocol='http', host='localhost', auth=None)
+    return client.post_collection(project, th_collection)
 
 
 def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):

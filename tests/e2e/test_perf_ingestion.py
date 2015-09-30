@@ -1,5 +1,5 @@
-from test_client_job_ingestion import do_post_collection
 from tests.sampledata import SampleData
+from tests.test_utils import post_collection
 from treeherder.client.thclient import client
 from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceSignature)
@@ -36,7 +36,7 @@ def test_post_talos_artifact(test_project, test_repository, result_set_stored,
 
     tjc.add(tj)
 
-    do_post_collection(test_project, tjc)
+    post_collection(test_project, tjc)
 
     # we'll just validate that we got the expected number of results for
     # talos (we have validation elsewhere for the actual data adapters)

@@ -3,10 +3,10 @@ import traceback
 
 from django.conf import settings
 from django.utils.encoding import python_2_unicode_compatible
+from requests_hawk import HawkAuth
 
-from treeherder.client import (TreeherderAuth,
-                               TreeherderClient)
-from treeherder.etl.oauth_utils import OAuthCredentials
+from treeherder.client import TreeherderClient
+from treeherder.credentials.models import Credentials
 
 logger = logging.getLogger(__name__)
 
@@ -14,19 +14,20 @@ logger = logging.getLogger(__name__)
 def post_treeherder_collections(th_collections, chunk_size=1):
 
     errors = []
+    credentials = Credentials.objects.get(client_id=settings.ETL_CLIENT_ID)
+    auth = HawkAuth(credentials={
+        'id': credentials.client_id,
+        'key': str(credentials.secret),
+        'algorithm': 'sha256'
+    })
+
     cli = TreeherderClient(
         protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
         host=settings.TREEHERDER_REQUEST_HOST,
+        auth=auth
     )
 
     for project in th_collections:
-
-        credentials = OAuthCredentials.get_credentials(project)
-
-        auth = TreeherderAuth(credentials.get('consumer_key'),
-                              credentials.get('consumer_secret'),
-                              project)
-
         logger.info(
             "collection loading request for project {0}: {1}".format(
                 project,
@@ -36,7 +37,7 @@ def post_treeherder_collections(th_collections, chunk_size=1):
 
         for collection in collection_chunks:
             try:
-                cli.post_collection(project, collection, auth=auth)
+                cli.post_collection(project, collection)
             except Exception:
                 errors.append({
                     "project": project,

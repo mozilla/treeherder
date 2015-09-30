@@ -19,10 +19,19 @@ class dev{
     user => "${APP_USER}",
   }
 
-  exec{"export_project_credentials":
+  exec{"create_superuser":
     cwd => "${PROJ_DIR}",
-    command => "bash -c 'source /etc/profile.d/treeherder.sh; ${VENV_DIR}/bin/python manage.py export_project_credentials'",
-    require => Exec["init_datasources"],
+    command => "bash -c 'source /etc/profile.d/treeherder.sh; ${VENV_DIR}/bin/python manage.py createsuperuser --username treeherder --email treeherder@mozilla.com --noinput'",
+    require => Exec["init_master_db"],
     user => "${APP_USER}",
+    unless => "bash -c 'source /etc/profile.d/treeherder.sh; ${VENV_DIR}/bin/python manage.py dumpdata auth.User | grep treeherder@mozilla.com'",
+  }
+
+  exec{"create_etl_credentials":
+    cwd => "${PROJ_DIR}",
+    command => "bash -c 'source /etc/profile.d/treeherder.sh; ${VENV_DIR}/bin/python manage.py create_credentials treeherder-etl treeherder@mozilla.com \"Treeherder etl service credentials\"'",
+    require => Exec["create_superuser"],
+    user => "${APP_USER}",
+    unless => "bash -c 'source /etc/profile.d/treeherder.sh; ${VENV_DIR}/bin/python manage.py dumpdata credentials.Credentials | grep treeherder-etl'",
   }
 }
