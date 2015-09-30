@@ -17,13 +17,15 @@ In order to make the various services aware of a change in the code you need to 
 Running the tests
 -----------------
 
-* You can run flake8 and the py.test suite inside the Vagrant VM, using
+You can run flake8, isort and the py.test suite inside the Vagrant VM, using:
 
   .. code-block:: bash
 
      (venv)vagrant@local:~/treeherder$ ./runtests.sh
 
-* Or for more control, run py.test directly
+Or for more control, run each tool individually:
+
+* `py.test <http://pytest.org/>`_:
 
   .. code-block:: bash
 
@@ -31,19 +33,37 @@ Running the tests
      (venv)vagrant@local:~/treeherder$ py.test tests/log_parser/test_utils.py
      (venv)vagrant@local:~/treeherder$ py.test tests/etl/test_buildapi.py -k test_ingest_builds4h_jobs
 
-* To run all tests, including slow tests that are normally skipped, use
+  To run all tests, including slow tests that are normally skipped, use:
 
   .. code-block:: bash
 
      (venv)vagrant@local:~/treeherder$ py.test --runslow tests/
 
-* For more options, see ``py.test --help`` or http://pytest.org/latest/usage.html
+  For more options, see ``py.test --help`` or http://pytest.org/latest/usage.html
 
-* To run flake8 on its own, use
+* `flake8 <https://flake8.readthedocs.org/>`_:
 
   .. code-block:: bash
 
      (venv)vagrant@local:~/treeherder$ flake8
+
+  NB: If running flake8 from outside of the VM, ensure you are using the same version as used on Travis (see ``requirements/dev.txt``).
+
+* `isort <https://github.com/timothycrosley/isort>`_ (checks the :ref:`Python import style <python-import-style>`):
+
+  To run interactively:
+
+  .. code-block:: bash
+
+     (venv)vagrant@local:~/treeherder$ isort
+
+  Or to apply all changes without confirmation:
+
+  .. code-block:: bash
+
+     (venv)vagrant@local:~/treeherder$ isort --apply
+
+  NB: isort must be run from inside the VM, since a populated (and up to date) virtualenv is required so that isort can correctly categorise the imports.
 
 
 Look up credentials for a project

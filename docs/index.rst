@@ -20,6 +20,7 @@ Contents:
    submitting_data
    retrieving_data
    data_validation
+   code_style
    troubleshooting
    ui/index
 
