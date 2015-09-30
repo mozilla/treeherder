@@ -472,3 +472,6 @@ REST_FRAMEWORK_EXTENSIONS = {
 }
 
 HAWK_CREDENTIALS_LOOKUP = 'treeherder.webapp.api.auth.hawk_lookup'
+
+# This is the client id used by the internal data ingestion service.
+ETL_CLIENT_ID = 'treeherder-etl'
