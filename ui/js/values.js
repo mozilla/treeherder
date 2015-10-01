@@ -155,6 +155,8 @@ treeherder.value("phTimeRanges", [
       { "value":7776000, "text": "Last 90 days" },
       { "value":31536000, "text": "Last year" } ]);
 
+treeherder.value("phDefaultTimeRangeValue", 604800);
+
 treeherder.value("thJobNavSelectors",
     {
         ALL_JOBS: {
