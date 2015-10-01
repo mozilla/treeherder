@@ -4,30 +4,19 @@ perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$location', '$modal',
     'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries',
     'ThRepositoryModel', 'ThOptionCollectionModel', 'ThResultSetModel',
-    'phTimeRanges',
+    'phTimeRanges', 'phDefaultTimeRangeValue',
     function GraphsCtrl($state, $stateParams, $scope, $rootScope, $location,
                         $modal, thServiceDomain, $http, $q, $timeout, PhSeries,
                         ThRepositoryModel, ThOptionCollectionModel,
-                        ThResultSetModel, phTimeRanges) {
-
+                        ThResultSetModel, phTimeRanges, phDefaultTimeRangeValue) {
         var availableColors = [ 'red', 'green', 'blue', 'orange', 'purple' ];
         var optionCollectionMap = null;
 
         $scope.highlightedRevisions = [ undefined, undefined ];
 
         $scope.timeranges = phTimeRanges;
-        if ($stateParams.timerange) {
-            var timeRange = _.find(phTimeRanges,
-                                         {'value': parseInt($stateParams.timerange)});
-            $scope.myTimerange = timeRange;
-            $scope.oldTimerange = timeRange;
-        }
-        if (!$scope.myTimerange) {
-            // 7 days is a sensible default
-            $scope.myTimerange = $scope.timeranges[1];
-            $scope.oldTimerange = $scope.myTimerange;
-        }
 
+        $scope.timeRangeChanged = null;
         $scope.ttHideTimer = null;
         $scope.selectedDataPoint = null;
         $scope.showToolTipTimeout = null;
@@ -426,25 +415,6 @@ perf.controller('GraphsCtrl', [
             });
         }
 
-        $scope.timeRangeChanged = function() {
-            // if new === old (i.e. page is first loaded), skip the event
-            if (!$scope.oldTimerange ||
-                $scope.oldTimerange === $scope.myTimerange) {
-                $scope.oldTimerange = $scope.myTimerange;
-                return;
-            }
-
-            $scope.oldTimerange = $scope.myTimerange;
-            $scope.zoom = {};
-            deselectDataPoint();
-
-            updateDocument();
-            // refetch and re-render all graph data
-            $q.all($scope.seriesList.map(getSeriesData)).then(function() {
-                plotGraph();
-            });
-        };
-
         $scope.repoName = $stateParams.projectId;
 
         function updateDocumentTitle() {
@@ -462,10 +432,13 @@ perf.controller('GraphsCtrl', [
 
         function updateDocument() {
             $state.transitionTo('graphs', {
-                timerange: $scope.myTimerange.value,
                 series: $scope.seriesList.map(function(series) {
-                    return "[" + series.projectName + "," + series.signature + "," + (series.visible ? 1 : 0) + "]";
+                    return "[" + series.projectName + "," +
+                        series.signature + "," + (series.visible ? 1 : 0) +
+                        "]";
                 }),
+                timerange: ($scope.myTimerange.value != phDefaultTimeRangeValue) ?
+                    $scope.myTimerange.value : undefined,
                 highlightedRevisions: _.filter($scope.highlightedRevisions,
                                                function(highlight) {
                                                    return (highlight &&
@@ -483,10 +456,13 @@ perf.controller('GraphsCtrl', [
                         $scope.zoom = [];
                         return $scope.zoom;
                     }
-                })(),
-            }, {location: true, inherit: true,
-                relative: $state.$current,
-                notify: false});
+                })()
+            }, {
+                location: true,
+                inherit: true,
+                relative: {},
+                notify: false
+            });
 
             updateDocumentTitle();
         }
@@ -608,6 +584,26 @@ perf.controller('GraphsCtrl', [
         ThOptionCollectionModel.get_map().then(
             function(_optionCollectionMap) {
                 optionCollectionMap = _optionCollectionMap;
+
+                if ($stateParams.timerange) {
+                    var timeRange = _.find(phTimeRanges,
+                                           {'value': parseInt($stateParams.timerange)});
+                    $scope.myTimerange = timeRange;
+                } else {
+                    $scope.myTimerange = _.find(phTimeRanges,
+                                                {'value': phDefaultTimeRangeValue});
+                }
+                $scope.timeRangeChanged = function() {
+                    $scope.zoom = {};
+                    deselectDataPoint();
+
+                    updateDocument();
+                    // refetch and re-render all graph data
+                    $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+                        plotGraph();
+                    });
+                };
+
 
                 if ($stateParams.zoom) {
                     var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '');
