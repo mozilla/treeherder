@@ -269,7 +269,12 @@ logViewerApp.controller('LogviewerCtrl', [
 
                             if ($scope.step_data.all_errors.length == 0) {
                                 angular.element(document).ready(function () {
-                                    $scope.displayLog($scope.step_data.steps[0], 'initialLoad');
+                                    if (isNaN($scope.selectedBegin)) {
+                                        $scope.displayLog($scope.step_data.steps[0], 'initialLoad');
+                                    } else {
+                                        $scope.displayedStep = getStepFromLine($scope.selectedBegin);
+                                        moveScrollToLineNumber($scope.selectedBegin, $event);
+                                    }
                                 });
                             } else {
                                 $timeout(function() {
