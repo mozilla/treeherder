@@ -27,6 +27,7 @@ before_script:
 script:
   - npm test
   - py.test tests/$* --runslow
+  - ./node_modules/.bin/grunt build --production
 notifications:
   email:
     on_success: never
