@@ -65,7 +65,7 @@ treeherder.controller('BugsPluginCtrl', [
                         });
                         $scope.suggestions = suggestions;
                         $scope.bugSuggestionsLoaded = true;
-                    } else if ($scope.selectedJob) {
+                    } else if ($scope.selectedJob && $scope.logParseStatus === "parsed") {
                         $scope.bugSuggestionsLoaded = false;
                         // set a timer to re-run update() after 5 seconds
                         timeoutPromise = $timeout(thTabs.tabs.failureSummary.update, 5000);
