@@ -1,7 +1,6 @@
 treeherder
 ==================
 [![Build Status](https://travis-ci.org/mozilla/treeherder.png?branch=master)](https://travis-ci.org/mozilla/treeherder)
-[![Code Health](https://landscape.io/github/mozilla/treeherder/master/landscape.png)](https://landscape.io/github/mozilla/treeherder/master)
 [![Documentation Status](https://readthedocs.org/projects/treeherder/badge/?version=latest)](https://readthedocs.org/projects/treeherder/?badge=latest)
 
 
