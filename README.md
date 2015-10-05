@@ -1,6 +1,9 @@
 treeherder
 ==================
 [![Build Status](https://travis-ci.org/mozilla/treeherder.png?branch=master)](https://travis-ci.org/mozilla/treeherder)
+[![Python Requirements Status](https://requires.io/github/mozilla/treeherder/requirements.svg?branch=master)](https://requires.io/github/mozilla/treeherder/requirements/?branch=master)
+[![Node Dependency Status](https://david-dm.org/mozilla/treeherder.svg)](https://david-dm.org/mozilla/treeherder)
+[![Node devDependency Status](https://david-dm.org/mozilla/treeherder/dev-status.svg)](https://david-dm.org/mozilla/treeherder#info=devDependencies)
 [![Documentation Status](https://readthedocs.org/projects/treeherder/badge/?version=latest)](https://readthedocs.org/projects/treeherder/?badge=latest)
 
 
