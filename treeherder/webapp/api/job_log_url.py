@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class JobLogUrlViewSet(viewsets.ViewSet):
+    permission_classes = (permissions.HasHawkOrLegacyOauthPermissionsOrReadOnly,)
 
     """
     A job_log_url object holds a reference to a job log.
@@ -45,8 +46,7 @@ class JobLogUrlViewSet(viewsets.ViewSet):
 
         return Response(job_log_url_list)
 
-    @detail_route(methods=['post'],
-                  permission_classes=(permissions.HasLegacyOauthPermissions,))
+    @detail_route(methods=['post'])
     @with_jobs
     def update_parse_status(self, request, project, jm, pk=None):
         """
