@@ -67,8 +67,8 @@ django-cors-headers==1.1.0
 # sha256: -jPrQhcqGbcVrbp6ZJcJEftdj9G2nPjaepXyvH8PMDs
 django-browserid==1.0.0
 
-# sha256: gqOPZ02h-klsD8TfcUy7BYVAvtcqMMUKLjRLDZhMTSE
-oauth2==1.5.211
+# sha256: FbXEIwH0bdYxE_EhSw2BqLFiVPZahtPDKhtSKX8yZuY
+oauth2==1.9.0.post1
 
 # sha256: fn9zpnXFGHErrdeDJ54m0WQUDz_C7XoyECw9CKaipKc
 jsonfield==1.0.3
