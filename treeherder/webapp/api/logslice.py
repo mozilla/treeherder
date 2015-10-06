@@ -34,15 +34,15 @@ class LogSliceView(viewsets.ViewSet):
 
         Receives a line range and job_id and returns those lines
         """
-        job_id = request.QUERY_PARAMS.get("job_id")
-        log_name = request.QUERY_PARAMS.get("name", "buildbot_text")
+        job_id = request.query_params.get("job_id")
+        log_name = request.query_params.get("name", "buildbot_text")
         format = 'json' if log_name == 'mozlog_json' else 'text'
 
         handle = None
         gz_file = None
 
-        start_line = request.QUERY_PARAMS.get("start_line")
-        end_line = request.QUERY_PARAMS.get("end_line")
+        start_line = request.query_params.get("start_line")
+        end_line = request.query_params.get("end_line")
         if not start_line or not end_line:
             return Response("``start_line`` and ``end_line`` parameters are both required", 400)
 

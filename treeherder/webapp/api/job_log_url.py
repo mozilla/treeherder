@@ -31,7 +31,7 @@ class JobLogUrlViewSet(viewsets.ViewSet):
         job_id -- Mandatory filter indicating which job these log belongs to.
         """
 
-        job_id = request.QUERY_PARAMS.get('job_id')
+        job_id = request.query_params.get('job_id')
         if not job_id:
             raise ParseError(
                 detail="The job_id parameter is mandatory for this endpoint")
@@ -53,7 +53,7 @@ class JobLogUrlViewSet(viewsets.ViewSet):
         Change the state of a job.
         """
         try:
-            parse_status = request.DATA["parse_status"]
+            parse_status = request.data["parse_status"]
             jm.update_job_log_url_status(pk, parse_status)
             obj = jm.get_job_log_url_detail(pk)
             return Response(obj)

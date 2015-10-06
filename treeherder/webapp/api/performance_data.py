@@ -24,20 +24,20 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
                 'signature__platform')
 
         # filter based on signature hashes, if asked
-        signature_hashes = request.QUERY_PARAMS.getlist('signature')
+        signature_hashes = request.query_params.getlist('signature')
         if signature_hashes:
             signature_ids = PerformanceSignature.objects.filter(
                 signature_hash__in=signature_hashes).values_list('id', flat=True)
             signature_data = signature_data.filter(signature_id__in=list(
                 signature_ids))
 
-        interval = request.QUERY_PARAMS.get('interval')
+        interval = request.query_params.get('interval')
         if interval:
             signature_data = signature_data.filter(
                 push_timestamp__gte=datetime.datetime.fromtimestamp(
                     int(time.time() - int(interval))))
 
-        platform = request.QUERY_PARAMS.get('platform')
+        platform = request.query_params.get('platform')
         if platform:
             platforms = models.MachinePlatform.objects.filter(
                 platform=platform)
@@ -83,7 +83,7 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
         repository = models.Repository.objects.get(name=project)
 
         try:
-            signature_hashes = request.QUERY_PARAMS.getlist("signatures")
+            signature_hashes = request.query_params.getlist("signatures")
         except:
             raise exceptions.ValidationError('need signature list')
 
@@ -92,7 +92,7 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
             signature__signature_hash__in=signature_hashes).select_related(
                 'signature__signature_hash')
 
-        interval = request.QUERY_PARAMS.get('interval')
+        interval = request.query_params.get('interval')
         if interval:
             datums = datums.filter(
                 push_timestamp__gt=datetime.datetime.fromtimestamp(

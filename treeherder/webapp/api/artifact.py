@@ -33,14 +33,14 @@ class ArtifactViewSet(viewsets.ViewSet):
         return a list of job artifacts
         """
         # @todo: remove after old data expires from this change on 3/5/2015
-        qparams = request.QUERY_PARAMS.copy()
+        qparams = request.query_params.copy()
         name = qparams.get('name', None)
         if name and name == 'text_log_summary':
             qparams['name__in'] = 'text_log_summary,Structured Log'
             del(qparams['name'])
         # end remove block
 
-        # @todo: change ``qparams`` back to ``request.QUERY_PARAMS``
+        # @todo: change ``qparams`` back to ``request.query_params``
         filter = UrlQueryFilter(qparams)
 
         offset = int(filter.pop("offset", 0))
@@ -55,7 +55,7 @@ class ArtifactViewSet(viewsets.ViewSet):
             return Response(objs)
 
     def create(self, request, project):
-        artifacts = ArtifactsModel.serialize_artifact_json_blobs(request.DATA)
+        artifacts = ArtifactsModel.serialize_artifact_json_blobs(request.data)
 
         job_guids = [x['job_guid'] for x in artifacts]
         with JobsModel(project) as jobs_model, ArtifactsModel(project) as artifacts_model:

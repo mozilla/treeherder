@@ -60,7 +60,7 @@ class TwoLeggedOauthAuthentication(BaseAuthentication):
             method=request.method,
             url=uri,
             parameters=parameters,
-            body=json_renderer.render(request.DATA),
+            body=json_renderer.render(request.data),
         )
         server = oauth.Server()
         token = oauth.Token(key='', secret='')

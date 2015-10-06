@@ -77,7 +77,7 @@ class BugscacheViewSet(viewsets.ReadOnlyModelViewSet):
         Retrieves a list of bugs from the bugs cache
         search -- Mandatory term of search
         """
-        search_term = request.QUERY_PARAMS.get("search", None)
+        search_term = request.query_params.get("search", None)
         if not search_term:
             return Response({"message": "the 'search' parameter is mandatory"}, status=400)
 
@@ -158,8 +158,8 @@ class JobExclusionViewSet(viewsets.ModelViewSet):
         Overrides the default Viewset to set the current user
         as the author of this filter
         """
-        if "author" not in request.DATA:
-            request.DATA["author"] = request.user.id
+        if "author" not in request.data:
+            request.data["author"] = request.user.id
         return super(JobExclusionViewSet, self).create(request, *args, **kwargs)
 
 
@@ -177,8 +177,8 @@ class ExclusionProfileViewSet(viewsets.ModelViewSet):
         Overrides the default Viewset to set the current user
         as the author of this exclusion profile
         """
-        if "author" not in request.DATA:
-            request.DATA["author"] = request.user.id
+        if "author" not in request.data:
+            request.data["author"] = request.user.id
         return super(ExclusionProfileViewSet, self).create(request, *args, **kwargs)
 
 

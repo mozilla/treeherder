@@ -31,7 +31,7 @@ class NoteViewSet(viewsets.ViewSet):
         job_id -- Mandatory filter indicating which job these notes belong to.
         """
 
-        job_id = request.QUERY_PARAMS.get('job_id')
+        job_id = request.query_params.get('job_id')
         if not job_id:
             raise ParseError(detail="The job_id parameter is mandatory for this endpoint")
         try:
@@ -48,15 +48,15 @@ class NoteViewSet(viewsets.ViewSet):
         POST method implementation
         """
         jm.insert_job_note(
-            int(request.DATA['job_id']),
-            int(request.DATA['failure_classification_id']),
+            int(request.data['job_id']),
+            int(request.data['failure_classification_id']),
             request.user.email,
-            request.DATA.get('note', '')
+            request.data.get('note', '')
         )
 
         return Response(
             {'message': 'note stored for job {0}'.format(
-                request.DATA['job_id']
+                request.data['job_id']
             )}
         )
 

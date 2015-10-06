@@ -29,7 +29,7 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         """
         # make a mutable copy of these params
-        filter_params = request.QUERY_PARAMS.copy()
+        filter_params = request.query_params.copy()
 
         # This will contain some meta data about the request and results
         meta = {}
@@ -158,7 +158,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         if not pk:
             return Response({"message": "resultset id required"}, status=400)
 
-        times = int(request.QUERY_PARAMS.get('times', None))
+        times = int(request.query_params.get('times', None))
         if not times:
             raise ParseError(detail="The 'times' parameter is mandatory for this endpoint")
 
@@ -175,7 +175,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         POST method implementation
         """
         try:
-            jm.store_result_set_data(request.DATA)
+            jm.store_result_set_data(request.data)
         except DatasetNotFoundError as e:
             return Response({"message": str(e)}, status=404)
         except Exception as e:  # pragma nocover

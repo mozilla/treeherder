@@ -66,7 +66,7 @@ class JobsViewSet(viewsets.ViewSet):
         - count (10)
         - return_type (dict)
         """
-        filter = UrlQueryFilter(request.QUERY_PARAMS)
+        filter = UrlQueryFilter(request.query_params)
 
         offset = int(filter.pop("offset", 0))
         count = min(int(filter.pop("count", 10)), 2000)
@@ -100,7 +100,7 @@ class JobsViewSet(viewsets.ViewSet):
         """
         Change the state of a job.
         """
-        state = request.DATA.get('state', None)
+        state = request.data.get('state', None)
 
         # check that this state is valid
         if state not in jm.STATES:
@@ -195,6 +195,6 @@ class JobsViewSet(viewsets.ViewSet):
         """
         This method adds a job to a given resultset.
         """
-        jm.store_job_data(request.DATA)
+        jm.store_job_data(request.data)
 
         return Response({'message': 'Job successfully updated'})

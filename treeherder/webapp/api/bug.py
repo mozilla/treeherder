@@ -17,11 +17,11 @@ class BugJobMapViewSet(viewsets.ViewSet):
         """
         Add a new relation between a job and a bug
         """
-        job_id, bug_id = map(int, (request.DATA['job_id'],
-                                   request.DATA['bug_id']))
+        job_id, bug_id = map(int, (request.data['job_id'],
+                                   request.data['bug_id']))
 
         try:
-            jm.insert_bug_job_map(job_id, bug_id, request.DATA['type'],
+            jm.insert_bug_job_map(job_id, bug_id, request.data['type'],
                                   int(time()), request.user.email)
         except JobDataIntegrityError as e:
             if "Duplicate" in e.message:
@@ -55,7 +55,7 @@ class BugJobMapViewSet(viewsets.ViewSet):
             "bug_id": bug_id,
             "job_id": job_id
         }
-        params.update(request.QUERY_PARAMS)
+        params.update(request.query_params)
         filter = UrlQueryFilter(params)
         obj = jm.get_bug_job_map_list(0, 1, filter.conditions)
         if obj:
@@ -65,7 +65,7 @@ class BugJobMapViewSet(viewsets.ViewSet):
 
     @with_jobs
     def list(self, request, project, jm):
-        filter = UrlQueryFilter(request.QUERY_PARAMS)
+        filter = UrlQueryFilter(request.query_params)
 
         offset = int(filter.pop("offset", 0))
         count = min(int(filter.pop("count", 10)), 1000)
