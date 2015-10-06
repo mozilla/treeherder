@@ -58,8 +58,8 @@ djangorestframework==3.2.4
 # sha256: 1PH7p2aNspPnPQd7QBnvUkor3A7Z4Xh3WI9ZUDFpks4
 django-rest-swagger==0.3.2
 
-# sha256: IHlImDhx2hyv_q93vj9WSOyfcxNCpPKjB8SZaPu64zs
-drf-extensions==0.2.7
+# sha256: mq-hMfZq--MW4OX1sKI2mUEfW-Jap0GI0eB3MXnNNBs
+drf-extensions==0.2.8
 
 # sha256: _NluK-R8ju80xlDgB6bVRuGefuYQQbie27u-dhmqOYc
 django-cors-headers==1.1.0
