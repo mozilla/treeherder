@@ -1,6 +1,4 @@
 import oauth2 as oauth
-import pytest
-from django.contrib.auth.models import User
 from django.core.urlresolvers import (resolve,
                                       reverse)
 from mohawk import Sender
@@ -8,7 +6,6 @@ from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory
 
-from treeherder.credentials.models import Credentials
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.webapp.api import permissions
 
@@ -98,29 +95,6 @@ def test_two_legged_oauth_project_via_user(monkeypatch, jm, set_oauth_credential
     assert response.data == {'authenticated': True}
 
 
-@pytest.fixture
-def api_user(request):
-    user = User.objects.create_user('MyUser')
-
-    def fin():
-        user.delete()
-    request.addfinalizer(fin)
-
-    return user
-
-
-@pytest.fixture
-def client_credentials(request, api_user):
-    client_credentials = Credentials.objects.create(
-        client_id='test-credentials', owner=api_user)
-
-    def fin():
-        client_credentials.delete()
-    request.addfinalizer(fin)
-
-    return client_credentials
-
-
 def _get_hawk_response(client_id, secret, method='GET',
                        content='', content_type='application/json'):
     auth = {
@@ -158,6 +132,8 @@ def test_get_hawk_authorized(client_credentials):
 
 
 def test_get_hawk_unauthorized(client_credentials):
+    client_credentials.authorized = False
+    client_credentials.save()
     response = _get_hawk_response(client_credentials.client_id,
                                   str(client_credentials.secret))
     assert response.data == {'detail': ('No authentication credentials '
@@ -174,6 +150,8 @@ def test_post_hawk_authorized(client_credentials):
 
 
 def test_post_hawk_unauthorized(client_credentials):
+    client_credentials.authorized = False
+    client_credentials.save()
     response = _get_hawk_response(client_credentials.client_id,
                                   str(client_credentials.secret), method='POST',
                                   content="{'this': 'that'}")

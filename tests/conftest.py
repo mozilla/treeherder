@@ -8,9 +8,11 @@ import pytest
 import responses
 from django.core.management import call_command
 from requests import Request
+from requests_hawk import HawkAuth
 from webtest.app import TestApp
 
 from tests.sampledata import SampleData
+from treeherder.client import TreeherderClient
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.webapp.wsgi import application
 
@@ -338,23 +340,31 @@ def set_oauth_credentials():
 
 
 @pytest.fixture
-def mock_post_json(monkeypatch, set_oauth_credentials):
+def mock_post_json(monkeypatch, client_credentials):
     def _post_json(th_client, project, endpoint, data,
                    timeout=None, auth=None):
 
+        auth = auth or th_client.auth
+        if not auth:
+            auth = HawkAuth(credentials={
+                'id': client_credentials.client_id,
+                'key': str(client_credentials.secret),
+                'algorithm': 'sha256'
+            })
+        app = TestApp(application)
         uri = th_client._get_project_uri(project, endpoint)
-
         req = Request('POST', uri, json=data, auth=auth)
-
         prepped_request = req.prepare()
 
-        getattr(TestApp(application), 'post')(
+        getattr(app, 'post')(
             prepped_request.url,
             params=json.dumps(data),
-            content_type='application/json'
+            content_type='application/json',
+            extra_environ={
+                'HTTP_AUTHORIZATION': str(prepped_request.headers['Authorization'])
+            }
         )
 
-    from treeherder.client import TreeherderClient
     monkeypatch.setattr(TreeherderClient, '_post_json', _post_json)
 
 
@@ -501,3 +511,34 @@ def retriggers(jm, eleven_jobs_stored):
                placeholders=[retrigger['job_guid'], original['job_guid']])
 
     return [retrigger]
+
+
+@pytest.fixture
+def api_user(request):
+    from django.contrib.auth.models import User
+    user = User.objects.create_user('MyUser')
+
+    def fin():
+        user.delete()
+    request.addfinalizer(fin)
+
+    return user
+
+
+@pytest.fixture
+def client_credentials(request, api_user):
+    from django.conf import settings
+    from treeherder.credentials.models import Credentials
+
+    # We need to get_or_create here because of bug 1133273.
+    # It can be a straight create once that bug is solved.
+    client_credentials, _ = Credentials.objects.get_or_create(
+        client_id=settings.ETL_CLIENT_ID,
+        defaults={'owner': api_user, 'authorized': True}
+    )
+
+    def fin():
+        client_credentials.delete()
+    request.addfinalizer(fin)
+
+    return client_credentials

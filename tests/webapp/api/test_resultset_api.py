@@ -216,7 +216,7 @@ def test_result_set_detail_bad_project(webapp, jm):
     assert resp.json == {"detail": "No project with name foo"}
 
 
-def test_resultset_create(sample_resultset, jm, initial_data):
+def test_resultset_create(sample_resultset, jm, initial_data, mock_post_json):
     """
     test posting data to the resultset endpoint via webtest.
     extected result are:
@@ -228,13 +228,11 @@ def test_resultset_create(sample_resultset, jm, initial_data):
     trsc = TreeherderResultSetCollection()
 
     for rs in sample_resultset:
+        rs.update({'author': 'John Doe'})
         rs = trsc.get_resultset(rs)
         trsc.add(rs)
 
-    resp = test_utils.post_collection(jm.project, trsc)
-
-    assert resp.status_int == 200
-    assert resp.json['message'] == 'well-formed JSON stored'
+    test_utils.post_collection(jm.project, trsc)
 
     stored_objs = jm.get_dhub().execute(
         proc="jobs_test.selects.resultset_by_rev_hash",
@@ -245,36 +243,6 @@ def test_resultset_create(sample_resultset, jm, initial_data):
     assert stored_objs[0]['revision_hash'] == sample_resultset[0]['revision_hash']
 
     jm.disconnect()
-
-
-def test_resultset_with_bad_secret(sample_resultset, jm, initial_data):
-
-    trsc = TreeherderResultSetCollection()
-    for rs in sample_resultset:
-        rs = trsc.get_resultset(rs)
-        trsc.add(rs)
-
-    resp = test_utils.post_collection(
-        jm.project, trsc, status=403, consumer_secret="horrible secret"
-    )
-
-    assert resp.status_int == 403
-    assert resp.json['detail'] == "Client authentication failed for project {0}".format(jm.project)
-
-
-def test_resultset_with_bad_key(sample_resultset, jm, initial_data):
-
-    trsc = TreeherderResultSetCollection()
-    for rs in sample_resultset:
-        rs = trsc.get_resultset(rs)
-        trsc.add(rs)
-
-    resp = test_utils.post_collection(
-        jm.project, trsc, status=403, consumer_key="horrible-key"
-    )
-
-    assert resp.status_int == 403
-    assert resp.json['detail'] == 'oauth_consumer_key does not match credentials for project {0}'.format(jm.project)
 
 
 def test_resultset_cancel_all(jm, resultset_with_three_jobs, pulse_action_consumer):

@@ -3,9 +3,8 @@ import json
 import pytest
 from mock import MagicMock
 
-from treeherder.client.thclient import (TreeherderAuth,
-                                        client)
-from treeherder.etl.oauth_utils import OAuthCredentials
+from tests.test_utils import post_collection
+from treeherder.client.thclient import client
 from treeherder.log_parser.parsers import StepParser
 from treeherder.model import error_summary
 from treeherder.model.derived import (ArtifactsModel,
@@ -29,17 +28,6 @@ def text_log_summary_dict():
         },
         "logurl": "https://queue.taskcluster.net/v1/task/nhxC4hC3RE6LSVWTZT4rag/runs/0/artifacts/public/logs/live_backing.log"
     }
-
-
-def do_post_collection(project, collection):
-    # assume if there were no exceptions we're ok
-    cli = client.TreeherderClient(protocol='http', host='localhost')
-    credentials = OAuthCredentials.get_credentials(project)
-    auth = TreeherderAuth(credentials['consumer_key'],
-                          credentials['consumer_secret'],
-                          project)
-
-    cli.post_collection(project, collection, auth=auth)
 
 
 def check_artifacts(test_project,
@@ -105,7 +93,7 @@ def test_post_job_with_parsed_log(test_project, result_set_stored,
     })
     tjc.add(tj)
 
-    do_post_collection(test_project, tjc)
+    post_collection(test_project, tjc)
 
     check_artifacts(test_project, job_guid, 'parsed', 0)
 
@@ -153,7 +141,7 @@ def test_post_job_with_text_log_summary_artifact_parsed(
     })
     tjc.add(tj)
 
-    do_post_collection(test_project, tjc)
+    post_collection(test_project, tjc)
 
     check_artifacts(test_project, job_guid, 'parsed', 2,
                     {'Bug suggestions', 'text_log_summary'}, mock_error_summary)
@@ -202,7 +190,7 @@ def test_post_job_with_text_log_summary_artifact_parsed_dict_blob(
     })
     tjc.add(tj)
 
-    do_post_collection(test_project, tjc)
+    post_collection(test_project, tjc)
 
     check_artifacts(test_project, job_guid, 'parsed', 2,
                     {'Bug suggestions', 'text_log_summary'}, mock_error_summary)
@@ -253,7 +241,7 @@ def test_post_job_with_text_log_summary_artifact_pending(
 
     tjc.add(tj)
 
-    do_post_collection(test_project, tjc)
+    post_collection(test_project, tjc)
 
     check_artifacts(test_project, job_guid, 'parsed', 2,
                     {'Bug suggestions', 'text_log_summary'}, mock_error_summary)
@@ -315,7 +303,7 @@ def test_post_job_with_text_log_summary_and_bug_suggestions_artifact(
 
     tjc.add(tj)
 
-    do_post_collection(test_project, tjc)
+    post_collection(test_project, tjc)
 
     check_artifacts(test_project, job_guid, 'parsed', 2,
                     {'Bug suggestions', 'text_log_summary'}, error_summary_blob)
@@ -384,7 +372,7 @@ def test_post_job_artifacts_by_add_artifact(
 
     tjc.add(tj)
 
-    do_post_collection(test_project, tjc)
+    post_collection(test_project, tjc)
 
     check_artifacts(test_project, job_guid, 'parsed', 5,
                     {'Bug suggestions', 'text_log_summary', 'Job Info',
@@ -411,7 +399,7 @@ def test_post_job_with_tier(test_project, result_set_stored,
     tj.add_tier(3)
     tjc.add(tj)
 
-    do_post_collection(test_project, tjc)
+    post_collection(test_project, tjc)
 
     with JobsModel(test_project) as jobs_model:
         job = [x for x in jobs_model.get_job_list(0, 20)
@@ -435,7 +423,7 @@ def test_post_job_with_default_tier(test_project, result_set_stored,
     })
     tjc.add(tj)
 
-    do_post_collection(test_project, tjc)
+    post_collection(test_project, tjc)
 
     with JobsModel(test_project) as jobs_model:
         job = [x for x in jobs_model.get_job_list(0, 20)

@@ -37,13 +37,14 @@ def completed_jobs(sample_data):
 
 @pytest.fixture
 def pending_jobs_stored(
-        jm, pending_jobs, result_set_stored):
+        jm, pending_jobs, result_set_stored, mock_post_json):
     """
     stores a list of buildapi pending jobs into the jobs store
     using BuildApiTreeHerderAdapter
     """
 
     pending_jobs.update(result_set_stored[0])
+    pending_jobs.update({'project': jm.project})
 
     tjc = TreeherderJobCollection()
     tj = tjc.get_job(pending_jobs)
@@ -54,11 +55,12 @@ def pending_jobs_stored(
 
 @pytest.fixture
 def running_jobs_stored(
-        jm, running_jobs, result_set_stored):
+        jm, running_jobs, result_set_stored, mock_post_json):
     """
     stores a list of buildapi running jobs
     """
     running_jobs.update(result_set_stored[0])
+    running_jobs.update({'project': jm.project})
 
     tjc = TreeherderJobCollection()
     tj = tjc.get_job(running_jobs)
@@ -74,6 +76,7 @@ def completed_jobs_stored(
     stores a list of buildapi completed jobs
     """
     completed_jobs['revision_hash'] = result_set_stored[0]['revision_hash']
+    completed_jobs.update({'project': jm.project})
 
     tjc = TreeherderJobCollection()
     tj = tjc.get_job(completed_jobs)
