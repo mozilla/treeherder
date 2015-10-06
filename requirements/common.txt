@@ -55,8 +55,8 @@ jsonschema==2.5.1
 # sha256: IJxixh3NSkTNC1M30mHCjbasWoUWtaCzJyKI87QHXWA
 djangorestframework==3.2.4
 
-# sha256: 1PH7p2aNspPnPQd7QBnvUkor3A7Z4Xh3WI9ZUDFpks4
-django-rest-swagger==0.3.2
+# sha256: 8xM6pxA16ey2ISjaWiW9C-uzZ119dI_W78GEW1AbiB4
+django-rest-swagger==0.3.4
 
 # sha256: mq-hMfZq--MW4OX1sKI2mUEfW-Jap0GI0eB3MXnNNBs
 drf-extensions==0.2.8
