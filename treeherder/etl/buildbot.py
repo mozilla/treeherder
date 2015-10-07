@@ -525,7 +525,8 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'xpcshell'), "name": "XPCShell"},
     {"regex": re.compile(r'mozmill$'), "name": "Mozmill"},
     {"regex": re.compile(r'luciddream'), "name": "Luciddream"},
-    {"regex": re.compile(r'media-tests'), "name": "Media Tests"},
+    {"regex": re.compile(r'media-tests'), "name": "Media Tests MSE Video Playback"},
+    {"regex": re.compile(r'media-youtube-tests'), "name": "Media Tests MSE YouTube Playback"},
     # ** Builds **
     # If we start doing debug ASan tests, please kill these special build types
     {"regex": re.compile(r'debug asan nightly'), "name": "AddressSanitizer Debug Nightly"},
@@ -688,6 +689,8 @@ GROUP_NAMES = {
     "Mochitest e10s Other": "Mochitest e10s",
     "Mochitest csb": "Mochitest csb",
     "Mochitest OOP": "Mochitest OOP",
+    "Media Tests MSE Video Playback": "VideoPuppeteer",
+    "Media Tests MSE YouTube Playback": "VideoPuppeteer",
     "Crashtest": "Reftest",
     "Crashtest IPC": "Reftest",
     "Reftest": "Reftest",
@@ -935,9 +938,11 @@ SYMBOLS = {
     "Marionette Framework Unit Tests": "Mn",
     "Marionette Framework Unit Tests e10s": "Mn-e10s",
     "Marionette WebAPI Tests": "Mnw",
-    "Media Tests": "Mt",
     "Android x86 Test Set": "S",
     "Android x86 Test Combos": "Sets",
+    "VideoPuppeteer": "VP",
+    "Media Tests MSE Video Playback": "b-m",
+    "Media Tests MSE YouTube Playback": "b-y",
     "XPCShell": "X",
     "Mozmill": "Z",
 
