@@ -21,10 +21,10 @@ class Command(BaseCommand):
             help='Write debug messages to stdout'),
 
         make_option(
-            '--cycle-interval',
+            '--days',
             action='store',
-            dest='cycle_interval',
-            default=0,
+            dest='days',
+            default=settings.DATA_CYCLE_DAYS,
             type='int',
             help='Data cycle interval expressed in days'),
 
@@ -49,12 +49,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.is_debug = options['debug']
 
-        if options['cycle_interval']:
-            cycle_interval = datetime.timedelta(days=options['cycle_interval'])
-        else:
-            cycle_interval = settings.DATA_CYCLE_INTERVAL
+        cycle_interval = datetime.timedelta(days=options['days'])
 
-        self.debug("cycle interval... jobs: {}".format(cycle_interval))
+        self.debug("cycle interval... {}".format(cycle_interval))
 
         projects = Datasource.objects.values_list('project', flat=True)
         for project in projects:

@@ -20,7 +20,8 @@ DEBUG = os.environ.get("TREEHERDER_DEBUG", False)
 TREEHERDER_REQUEST_PROTOCOL = os.environ.get("TREEHERDER_REQUEST_PROTOCOL", "http")
 TREEHERDER_REQUEST_HOST = os.environ.get("TREEHERDER_REQUEST_HOST", "local.treeherder.mozilla.org")
 
-DATA_CYCLE_INTERVAL = timedelta(days=30 * 4)
+# Default to retaining data for ~4 months.
+DATA_CYCLE_DAYS = env.int("DATA_CYCLE_DAYS", default=120)
 
 RABBITMQ_USER = os.environ.get("TREEHERDER_RABBITMQ_USER", "guest")
 RABBITMQ_PASSWORD = os.environ.get("TREEHERDER_RABBITMQ_PASSWORD", "guest")

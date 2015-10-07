@@ -209,7 +209,7 @@ def test_cycle_all_data(jm, refdata, sample_data, initial_data,
 
     jobs_before = jm.execute(proc="jobs_test.selects.jobs")
 
-    call_command('cycle_data', sleep_time=0, cycle_interval=1)
+    call_command('cycle_data', sleep_time=0, days=1)
 
     jobs_after = jm.execute(proc="jobs_test.selects.jobs")
 
@@ -249,7 +249,7 @@ def test_cycle_one_job(jm, refdata, sample_data, initial_data,
 
     jobs_before = jm.execute(proc="jobs_test.selects.jobs")
 
-    call_command('cycle_data', sleep_time=0, cycle_interval=1, debug=True)
+    call_command('cycle_data', sleep_time=0, days=1, debug=True)
 
     jobs_after = jm.execute(proc="jobs_test.selects.jobs")
 
@@ -289,7 +289,7 @@ def test_cycle_all_data_in_chunks(jm, refdata, sample_data, initial_data,
 
     jobs_before = jm.execute(proc="jobs_test.selects.jobs")
 
-    call_command('cycle_data', sleep_time=0, cycle_interval=1, chunk_size=3)
+    call_command('cycle_data', sleep_time=0, days=1, chunk_size=3)
 
     jobs_after = jm.execute(proc="jobs_test.selects.jobs")
 
