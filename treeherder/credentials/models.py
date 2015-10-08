@@ -16,3 +16,4 @@ class Credentials(models.Model):
 
     class Meta:
         db_table = 'credentials'
+        verbose_name_plural = 'credentials'

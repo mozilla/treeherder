@@ -99,6 +99,7 @@ class Repository(models.Model):
 
     class Meta:
         db_table = 'repository'
+        verbose_name_plural = 'repositories'
 
     def __str__(self):
         return "{0} {1}".format(
@@ -134,6 +135,7 @@ class Bugscache(models.Model):
 
     class Meta:
         db_table = 'bugscache'
+        verbose_name_plural = 'bugscache'
 
     def __str__(self):
         return "{0}".format(self.id)
@@ -497,6 +499,8 @@ class ReferenceDataSignatures(models.Model):
     A collection of all the possible combinations of reference data,
     populated on data ingestion. signature is a hash of the data it refers to
     build_system_type is buildbot by default
+
+    TODO: Rename to 'ReferenceDataSignature'.
     """
     name = models.CharField(max_length=255L)
     signature = models.CharField(max_length=50L, db_index=True)
@@ -520,6 +524,8 @@ class ReferenceDataSignatures(models.Model):
 
     class Meta:
         db_table = 'reference_data_signatures'
+        # Remove if/when the model is renamed to 'ReferenceDataSignature'.
+        verbose_name_plural = 'reference data signatures'
 
 
 class FailureLineManager(models.Manager):
@@ -667,6 +673,7 @@ class FailureMatch(models.Model):
 
     class Meta:
         db_table = 'failure_match'
+        verbose_name_plural = 'failure matches'
         unique_together = (
             ('failure_line', 'classified_failure', 'matcher')
         )
