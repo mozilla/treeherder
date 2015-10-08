@@ -330,7 +330,7 @@ PULSE_URI = os.environ.get("PULSE_URI", "amqps://guest:guest@pulse.mozilla.org/"
 
 # Note we will never publish any pulse messages unless the exchange namespace is
 # set this normally is your pulse username.
-PULSE_EXCHANGE_NAMESPACE = None
+PULSE_EXCHANGE_NAMESPACE = env("PULSE_EXCHANGE_NAMESPACE", default=None)
 
 # Specifies the Pulse exchanges Treeherder will ingest data from.  This list
 # will be updated as new applications come online that Treeherder supports.
