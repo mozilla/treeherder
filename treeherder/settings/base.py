@@ -9,7 +9,6 @@ from kombu import (Exchange,
 
 from treeherder import path
 
-# These settings can all be optionally set via env vars, or in local.py:
 env = environ.Env()
 
 TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "127.0.0.1:11211")
@@ -386,12 +385,14 @@ PULSE_DATA_INGESTION_QUEUES_DURABLE = env("PULSE_DATA_INGESTION_QUEUES_DURABLE",
 PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE = env("PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE",
                                               default=False)
 
-# Note: All the configs below this import will take precedence over what is
-# defined in local.py!
-try:
-    from .local import *
-except ImportError:
-    pass
+# The git-ignored local.py settings file should only be used for local development.
+if env.bool("ENABLE_LOCAL_SETTINGS_FILE", default=False):
+    # Note: All the configs below this import will take precedence over what is
+    # defined in local.py!
+    try:
+        from .local import *
+    except ImportError:
+        pass
 
 INSTALLED_APPS += LOCAL_APPS
 

@@ -30,6 +30,7 @@ line {"etc-hosts":
 
 file {"/etc/profile.d/treeherder.sh":
     content => "
+export ENABLE_LOCAL_SETTINGS_FILE='True'
 export DATABASE_URL='mysql://${DB_USER}:${DB_PASS}@localhost/treeherder'
 export DATABASE_URL_RO='mysql://${DB_USER}:${DB_PASS}@localhost/treeherder'
 export TREEHERDER_DEBUG='1'
