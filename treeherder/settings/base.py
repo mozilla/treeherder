@@ -58,7 +58,7 @@ TEMPLATE_LOADERS = [
     "django.template.loaders.eggs.Loader",
 ]
 TEMPLATE_DIRS = [
-    path("webapp", "templates")
+    path("templates")
 ]
 
 TEMPLATE_CONTEXT_PROCESSORS = (
