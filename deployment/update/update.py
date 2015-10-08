@@ -35,6 +35,11 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
     with ctx.lcd(th_service_src):
         ctx.local('git fetch --quiet origin %s' % ref)
         ctx.local('git reset --hard FETCH_HEAD')
+        # Fail early if we've forgotten to run grunt build before deploy.
+        # This is easier to do (and more necessary) - now that dist/ is not
+        # present on master, and only created on the stage/production branches.
+        if not os.path.isfile(os.path.join(th_service_src, 'dist', 'index.html')):
+            raise Exception("Grunt build hasn't been run and committed to the repo!")
         ctx.local('find . -type f -name "*.pyc" -delete')
         # Remove gzipped UI assets in case the uncompressed original no longer exists.
         ctx.local('find dist/ -type f -name "*.gz" -delete')
