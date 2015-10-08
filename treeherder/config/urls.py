@@ -5,9 +5,8 @@ from django_browserid.admin import site as browserid_admin
 
 from treeherder.credentials.urls import urlpatterns as credentials_patterns
 from treeherder.embed import urls as embed_urls
-
-from .api import urls as api_urls
-from .views import LoginView
+from treeherder.webapp.api import urls as api_urls
+from treeherder.webapp.views import LoginView
 
 browserid_admin.copy_registry(admin.site)
 

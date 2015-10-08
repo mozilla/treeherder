@@ -32,7 +32,7 @@ RABBITMQ_PORT = os.environ.get("TREEHERDER_RABBITMQ_PORT", "5672")
 SECRET_KEY = os.environ.get("TREEHERDER_DJANGO_SECRET_KEY")
 
 SITE_ID = 1
-ROOT_URLCONF = "treeherder.webapp.urls"
+ROOT_URLCONF = "treeherder.config.urls"
 WSGI_APPLICATION = 'treeherder.config.wsgi.application'
 
 TIME_ZONE = "America/Los_Angeles"
