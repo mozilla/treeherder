@@ -4,7 +4,7 @@ branch = True
 [report]
 omit =
   */migrations/*
-  treeherder/webapp/wsgi.py
+  treeherder/config/wsgi.py
   treeherder/settings/base.py
   treeherder/settings/local.py
   treeherder/settings/local.sample.py

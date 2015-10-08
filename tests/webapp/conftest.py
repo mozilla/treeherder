@@ -4,8 +4,8 @@ import pytest
 from webtest.app import TestApp
 
 from tests.sample_data_generator import job_data
+from treeherder.config import wsgi
 from treeherder.model.derived import ArtifactsModel
-from treeherder.webapp import wsgi
 
 
 @pytest.fixture

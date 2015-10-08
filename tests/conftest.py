@@ -13,8 +13,8 @@ from webtest.app import TestApp
 
 from tests.sampledata import SampleData
 from treeherder.client import TreeherderClient
+from treeherder.config.wsgi import application
 from treeherder.etl.oauth_utils import OAuthCredentials
-from treeherder.webapp.wsgi import application
 
 
 def pytest_addoption(parser):
