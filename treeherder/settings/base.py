@@ -283,7 +283,7 @@ REST_FRAMEWORK = {
     )
 }
 
-SITE_URL = os.environ.get("TREEHERDER_SITE_URL", "http://local.treeherder.mozilla.org")
+SITE_URL = os.environ.get("SITE_URL", "http://local.treeherder.mozilla.org")
 
 BUILDAPI_PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-pending.js"
 BUILDAPI_RUNNING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-running.js"
