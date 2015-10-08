@@ -3,7 +3,7 @@ Loading Pulse data
 
 For ingestion from Pulse exchanges, on your local machine, you can choose
 to ingest from any exchange you like.  Some exchanges will be registered in
-``base.py`` for use by the Treeherder servers.  You can use those to get the
+``settings.py`` for use by the Treeherder servers.  You can use those to get the
 same data as Treeherder.  Or you can specify your own and experiment with
 posting your own data.
 
@@ -11,7 +11,7 @@ Configuration
 -------------
 
 To specify the exchanges to read from, you can set environment variables in
-Vagrant, or in your ``settings/local.py`` file.  For example::
+Vagrant, or in your ``config/settings_local.py`` file.  For example::
 
     PULSE_DATA_INGESTION_EXCHANGES = [
         {
@@ -30,7 +30,7 @@ To be able to ingest from exchanges, you need to create a Pulse user with
 `Pulse Guardian`_, so
 Treeherder can create your Queues for listening to the Pulse exchanges.  For
 this, you must specify the connection URL in your environment variables or
-``local.py``.  For example::
+``settings_local.py``.  For example::
 
     PULSE_DATA_INGESTION_CONFIG = "amqp://mypulseuserid:mypassword@pulse.mozilla.org:5672/"
 

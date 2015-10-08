@@ -33,8 +33,7 @@ nosetests.xml
 
 #local settings
 deployment/update/commander_settings.py
-treeherder/settings/local.py
-treeherder/settings/pycharm_django_settings.py
+treeherder/config/settings_local.py
 ui/js/config/local.conf.js
 
 htmlcov/

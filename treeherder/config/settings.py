@@ -333,7 +333,7 @@ PULSE_EXCHANGE_NAMESPACE = env("PULSE_EXCHANGE_NAMESPACE", default=None)
 
 # Specifies the Pulse exchanges Treeherder will ingest data from.  This list
 # will be updated as new applications come online that Treeherder supports.
-# Can be overridden in local.py to specify fewer or completely different
+# Can be overridden in settings_local.py to specify fewer or completely different
 # exchanges for testing purposes on local machines.
 # Treeherder will subscribe with routing keys that are all combinations of
 # ``project`` and ``destination`` in the form of:
@@ -385,12 +385,12 @@ PULSE_DATA_INGESTION_QUEUES_DURABLE = env("PULSE_DATA_INGESTION_QUEUES_DURABLE",
 PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE = env("PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE",
                                               default=False)
 
-# The git-ignored local.py settings file should only be used for local development.
+# The git-ignored settings_local.py file should only be used for local development.
 if env.bool("ENABLE_LOCAL_SETTINGS_FILE", default=False):
     # Note: All the configs below this import will take precedence over what is
-    # defined in local.py!
+    # defined in settings_local.py!
     try:
-        from .local import *
+        from .settings_local import *
     except ImportError:
         pass
 

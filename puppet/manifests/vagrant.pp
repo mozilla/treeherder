@@ -46,7 +46,7 @@ file {"/var/log/treeherder/":
     mode => 750,
 }
 
-file {"${PROJ_DIR}/treeherder/settings/local.py":
+file {"${PROJ_DIR}/treeherder/config/settings_local.py":
      replace => "no",
      content => template("${PROJ_DIR}/puppet/files/treeherder/local.vagrant.py"),
 }
