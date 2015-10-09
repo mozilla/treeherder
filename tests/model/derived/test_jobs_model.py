@@ -334,7 +334,8 @@ def test_store_result_set_data(jm, initial_data, sample_resultset):
     for datum in sample_resultset:
         revision_hashes.add(datum['revision_hash'])
         for revision in datum['revisions']:
-            revisions.add(revision['revision'])
+            # todo: Continue using short revisions until Bug 1199364
+            revisions.add(revision['revision'][:12])
 
     jm.disconnect()
 

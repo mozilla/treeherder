@@ -98,13 +98,13 @@
         },
         "set_result_set":{
 
-            "sql":"INSERT INTO `result_set` (`author`, `revision_hash`,`push_timestamp`, `active_status`)
-                SELECT ?,?,?,?
+            "sql":"INSERT INTO `result_set` (`author`, `revision_hash`,`long_revision`,`short_revision`,`push_timestamp`, `active_status`)
+                SELECT ?,?,?,?,?,?
                 FROM DUAL
                 WHERE NOT EXISTS (
                     SELECT `revision_hash`, `push_timestamp`
                     FROM `result_set`
-                    WHERE `revision_hash` = ?
+                    WHERE `revision_hash` = ? or `long_revision` = ? or `short_revision` = ?
                 )",
 
             "host_type":"master_host"
@@ -112,17 +112,19 @@
         "set_revision":{
 
             "sql":"INSERT INTO `revision` (
+                    `long_revision`,
+                    `short_revision`,
                     `revision`,
                     `author`,
                     `comments`,
                     `repository_id`
                     )
-                SELECT ?,?,?,?
+                SELECT ?,?,?,?,?,?
                 FROM DUAL
                 WHERE NOT EXISTS (
                     SELECT `revision`
                     FROM `revision`
-                    WHERE `revision` = ? AND `repository_id` = ?
+                    WHERE (`long_revision` = ? OR `short_revision` = ? OR `revision` = ?) AND `repository_id` = ?
                 )",
 
             "host_type":"master_host"

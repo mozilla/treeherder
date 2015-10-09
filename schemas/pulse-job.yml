@@ -28,7 +28,7 @@ properties:
           revision:
             type: "string"
             pattern: "^[0-9a-f]+$"
-            minLength: 12
+            minLength: 40
             maxLength: 40
           pushLogID:
             type: "integer"

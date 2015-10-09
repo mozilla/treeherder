@@ -57,9 +57,8 @@ class Command(BaseCommand):
         # ingest this particular revision for this project
         process = HgPushlogProcess()
         # Use the actual push SHA, in case the changeset specified was a tag
-        # or branch name (eg tip). HgPushlogProcess returns the full SHA, but
-        # job ingestion expects the short version, so we truncate it.
-        push_sha = process.run(pushlog_url, project, changeset=changeset)[0:12]
+        # or branch name (eg tip). HgPushlogProcess returns the full SHA.
+        push_sha = process.run(pushlog_url, project, changeset=changeset)
 
         Builds4hJobsProcess().run(filter_to_project=project,
                                   filter_to_revision=push_sha,

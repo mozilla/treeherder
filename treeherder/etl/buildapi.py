@@ -115,13 +115,14 @@ class Builds4hTransformerMixin(object):
                 logger.warning("skipping builds-4hr job since no revision found: %s", prop['buildername'])
                 continue
 
-            prop['revision'] = prop['revision'][0:12]
+            prop['short_revision'] = prop['revision'][0:12]
 
-            if prop['revision'] == prop.get('l10n_revision', None):
+            if prop['short_revision'] == prop.get('l10n_revision', None):
                 # Some l10n jobs specify the l10n repo revision under 'revision', rather
                 # than the gecko revision. If we did not skip these, it would result in
                 # fetch_missing_resultsets requests that were guaranteed to 404.
                 # This needs to be fixed upstream in builds-4hr by bug 1125433.
+                # Also: l10n_revisions are short 12-char revisions, not full revisions
                 logger.warning("skipping builds-4hr job since revision refers to wrong repo: %s", prop['buildername'])
                 continue
 
@@ -139,9 +140,10 @@ class Builds4hTransformerMixin(object):
             try:
                 prop = build['properties']
                 project = prop['branch']
+                # todo: Continue using short revisions until Bug 1199364
                 resultset = common.get_resultset(project,
                                                  revisions_lookup,
-                                                 prop['revision'],
+                                                 prop['short_revision'],
                                                  missing_resultsets,
                                                  logger)
             except KeyError:

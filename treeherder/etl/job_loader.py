@@ -39,8 +39,9 @@ class JobLoader:
 
         for project, job_list in validated_jobs.items():
             with JobsModel(project) as jobs_model:
+                # todo: Continue using short revisions until Bug 1199364
                 rs_lookup = jobs_model.get_revision_resultset_lookup(
-                    [x["origin"]["revision"] for x in job_list])
+                    [x["origin"]["revision"][:12] for x in job_list])
                 storeable_job_list = []
                 for pulse_job in job_list:
                     if pulse_job["state"] != "unscheduled":
@@ -65,7 +66,8 @@ class JobLoader:
         already have been validated against the JSON Schema at this point.
         """
         return {
-            "revision_hash": rs_lookup[pulse_job["origin"]["revision"]]["revision_hash"],
+            # todo: Continue using short revisions until Bug 1199364
+            "revision_hash": rs_lookup[pulse_job["origin"]["revision"][:12]]["revision_hash"],
             "job": {
                 "job_guid": pulse_job["jobGuid"],
                 "name": pulse_job["display"].get("jobName", "unknown"),
