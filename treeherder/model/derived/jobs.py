@@ -1641,7 +1641,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     short_top_revision,
                     result['push_timestamp'],
                     result.get('active_status', 'active'),
-                    result['revision_hash']
+                    result['revision_hash'],
+                    top_revision['revision'],
+                    short_top_revision
+
                 ]
             )
             where_in_list.append('%s')
@@ -1662,6 +1665,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     'comment', None
                 )
 
+                # todo: camd store revision with short_revision and long_revision
                 repository_id = repository_id_lookup[rev_datum['repository']]
                 short_revision = rev_datum['revision'][:12]
                 revision_placeholders.append(

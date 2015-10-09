@@ -318,6 +318,6 @@ def _do_missing_resultset_test(jm, etl_process):
     assert len(revisions_stored) == 20
     was_stored = False
     for rs in revisions_stored:
-        if str(rs['revision']) == new_revision:
+        if str(rs['short_revision']) == new_revision:
             was_stored = True
     assert was_stored

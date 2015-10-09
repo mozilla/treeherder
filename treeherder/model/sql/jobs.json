@@ -74,7 +74,7 @@
                 WHERE NOT EXISTS (
                     SELECT `revision_hash`, `push_timestamp`
                     FROM `result_set`
-                    WHERE `revision_hash` = ?
+                    WHERE `revision_hash` = ? or `long_revision` = ? or `short_revision` = ?
                 )",
 
             "host_type":"master_host"
@@ -94,7 +94,7 @@
                 WHERE NOT EXISTS (
                     SELECT `revision`
                     FROM `revision`
-                    WHERE `revision` = ? AND `repository_id` = ?
+                    WHERE (`long_revision` = ? OR `short_revision` = ? `revision` = ?) AND `repository_id` = ?
                 )",
 
             "host_type":"master_host"
@@ -575,8 +575,8 @@
             "host_type": "read_host"
         },
         "get_revisions":{
-            "sql":"SELECT `id`, `revision` FROM `revision`
-                   WHERE `active_status` = 'active' AND `revision` IN (REP0)",
+            "sql":"SELECT `id`, `short_revision` FROM `revision`
+                   WHERE `active_status` = 'active' AND `short_revision` IN (REP0)",
 
             "host_type": "master_host"
         },
@@ -615,7 +615,7 @@
                       rs.push_timestamp,
                       rs.active_status,
                       revision.id as revision_id,
-                      revision.revision
+                      revision.short_revision
                    FROM result_set AS rs
                    INNER JOIN revision_map
                       ON rs.id = revision_map.result_set_id
@@ -632,7 +632,7 @@
             "sql":"SELECT
                     rm.result_set_id,
                     r.repository_id,
-                    r.revision,
+                    r.short_revision,
                     r.author,
                     r.comments
                    FROM revision_map AS rm
