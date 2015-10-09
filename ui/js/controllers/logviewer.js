@@ -58,7 +58,6 @@ logViewerApp.controller('LogviewerCtrl', [
             var range = LINE_BUFFER_SIZE / 2;
             if ((newLine <= (oldLine - range) || newLine >= oldLine + range) && !$scope.willScroll) {
                 if ($scope.artifact) {
-                    $scope.displayedStep = getStepFromLine(newLine);
                     moveScrollToLineNumber(newLine, $event);
                 }
             }
@@ -269,14 +268,17 @@ logViewerApp.controller('LogviewerCtrl', [
 
                             if ($scope.step_data.all_errors.length == 0) {
                                 angular.element(document).ready(function () {
-                                    $scope.displayLog($scope.step_data.steps[0], 'initialLoad');
+                                    if (isNaN($scope.selectedBegin)) {
+                                        $scope.displayLog($scope.step_data.steps[0], 'initialLoad');
+                                    } else {
+                                        moveScrollToLineNumber($scope.selectedBegin, $event);
+                                    }
                                 });
                             } else {
                                 $timeout(function() {
                                     if (isNaN($scope.selectedBegin)) {
                                         angular.element('.lv-error-line').first().trigger('click');
                                     } else {
-                                        $scope.displayedStep = getStepFromLine($scope.selectedBegin);
                                         moveScrollToLineNumber($scope.selectedBegin, $event);
                                     }
                                 }, 100);
@@ -294,7 +296,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
         function moveScrollToLineNumber(linenumber, $event) {
             $scope.currentLineNumber = linenumber;
-
+            $scope.displayedStep = getStepFromLine(linenumber);
             $scope.loadMore({}).then(function () {
                 $timeout(function () {
                     var raw = $('.lv-log-container')[0];
