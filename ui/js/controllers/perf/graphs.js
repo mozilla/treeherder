@@ -76,7 +76,7 @@ perf.controller('GraphsCtrl', [
                     pointIndex: phSeries.flotSeries.resultSetData.indexOf(
                         dataPoint.resultSetId) + dataPoint.flotDataOffset
                 };
-                var prevResultSetId = _.find(phSeries.flotSeries.resultSetData,
+                var prevResultSetId = _.findLast(phSeries.flotSeries.resultSetData,
                                              function(resultSetId) {
                                                  return (resultSetId < dataPoint.resultSetId);
                                              });
