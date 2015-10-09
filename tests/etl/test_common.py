@@ -6,9 +6,10 @@ def test_get_revision_hash(initial_data,
     """That the correct revision_hash is retrieved if the revision exists"""
     from treeherder.etl import common
     project = result_set_stored[0]['revisions'][0]['repository']
-    revision = result_set_stored[0]['revisions'][0]['revision']
-    resultset = common.lookup_revisions({project: [revision]})
-    assert resultset[project][revision]['revision_hash'] == result_set_stored[0]['revision_hash']
+    # todo: Continue using short revisions until Bug 1199364
+    short_revision = result_set_stored[0]['revisions'][0]['revision'][:12]
+    resultset = common.lookup_revisions({project: [short_revision]})
+    assert resultset[project][short_revision]['revision_hash'] == result_set_stored[0]['revision_hash']
 
 
 def test_get_revision_hash_none(mock_get_remote_content,

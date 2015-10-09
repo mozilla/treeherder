@@ -98,8 +98,8 @@
         },
         "set_result_set":{
 
-            "sql":"INSERT INTO `result_set` (`author`, `revision_hash`,`push_timestamp`, `active_status`)
-                SELECT ?,?,?,?
+            "sql":"INSERT INTO `result_set` (`author`, `revision_hash`,`long_revision`,`short_revision`,`push_timestamp`, `active_status`)
+                SELECT ?,?,?,?,?,?
                 FROM DUAL
                 WHERE NOT EXISTS (
                     SELECT `revision_hash`, `push_timestamp`
@@ -112,12 +112,14 @@
         "set_revision":{
 
             "sql":"INSERT INTO `revision` (
+                    `long_revision`,
+                    `short_revision`,
                     `revision`,
                     `author`,
                     `comments`,
                     `repository_id`
                     )
-                SELECT ?,?,?,?
+                SELECT ?,?,?,?,?,?
                 FROM DUAL
                 WHERE NOT EXISTS (
                     SELECT `revision`

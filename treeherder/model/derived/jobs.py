@@ -786,7 +786,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         the right repository in builds4hr/running/pending.  So we ingest those
         bad resultsets/revisions as non-active so that we don't keep trying
         to re-ingest them.  Allowing this query to retrieve non ``active``
-        resultsets means we will avoid re-doing that work by detacting that
+        resultsets means we will avoid re-doing that work by detecting that
         we've already ingested it.
 
         But we skip ingesting the job, because the resultset is not active.
@@ -1704,11 +1704,14 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # TODO: Confirm whether we need to do a lookup in this loop in the
         #   memcache to reduce query overhead
         for result in result_sets:
-
+            top_revision = result['revisions'][-1]['revision']
+            short_top_revision = top_revision[:12]
             revision_hash_placeholders.append(
                 [
                     result.get('author', 'unknown@somewhere.com'),
                     result['revision_hash'],
+                    top_revision,
+                    short_top_revision,
                     result['push_timestamp'],
                     result.get('active_status', 'active'),
                     result['revision_hash']
@@ -1733,18 +1736,21 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 )
 
                 repository_id = repository_id_lookup[rev_datum['repository']]
+                short_revision = rev_datum['revision'][:12]
                 revision_placeholders.append(
                     [rev_datum['revision'],
+                     short_revision,
+                     short_revision,
                      rev_datum['author'],
                      comment,
                      repository_id,
-                     rev_datum['revision'],
+                     short_revision,
                      repository_id]
                 )
 
-                all_revisions.append(rev_datum['revision'])
+                all_revisions.append(short_revision)
                 rev_where_in_list.append('%s')
-                revision_to_rhash_lookup[rev_datum['revision']] = result['revision_hash']
+                revision_to_rhash_lookup[short_revision] = result['revision_hash']
 
         # Retrieve a list of revision_hashes that have already been stored
         # in the list of unique_revision_hashes. Use it to determine the new

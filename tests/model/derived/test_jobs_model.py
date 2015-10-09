@@ -334,7 +334,8 @@ def test_store_result_set_data(jm, initial_data, sample_resultset):
     for datum in sample_resultset:
         revision_hashes.add(datum['revision_hash'])
         for revision in datum['revisions']:
-            revisions.add(revision['revision'])
+            # todo: Continue using short revisions until Bug 1199364
+            revisions.add(revision['revision'][:12])
 
     jm.disconnect()
 
@@ -352,6 +353,15 @@ def test_store_result_set_data(jm, initial_data, sample_resultset):
 
     assert data['result_set_ids'] == result_set_ids
     assert data['revision_ids'] == revision_ids
+
+
+def test_store_result_set_revisions(jm, initial_data, sample_resultset):
+    """Test that the ``top`` revision stored for resultset is correct"""
+    resultsets = sample_resultset[8:9]
+    jm.store_result_set_data(resultsets)
+    stored = jm.get_dhub().execute(proc="jobs_test.selects.result_sets")[0]
+    assert stored["long_revision"] == "997b28cb87373456789012345678901234567890"
+    assert stored["short_revision"] == "997b28cb8737"
 
 
 def test_get_job_data(jm, test_project, refdata, sample_data, initial_data,

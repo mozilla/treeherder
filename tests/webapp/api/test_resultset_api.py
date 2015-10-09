@@ -1,3 +1,4 @@
+import copy
 import json
 
 from django.contrib.auth.models import User
@@ -132,7 +133,7 @@ def test_resultset_list_single_long_revision_stored_long(webapp, sample_resultse
     """
 
     # store a resultset with long revision
-    resultset = sample_resultset[0]
+    resultset = copy.deepcopy(sample_resultset[0])
     resultset["revisions"][0]["revision"] = "21fb3eed1b5f3456789012345678901234567890"
     jm.store_result_set_data([resultset])
 
@@ -144,7 +145,7 @@ def test_resultset_list_single_long_revision_stored_long(webapp, sample_resultse
     results = resp.json['results']
     meta = resp.json['meta']
     assert len(results) == 1
-    assert set([rs["revision"] for rs in results]) == {"21fb3eed1b5f3456789012345678901234567890"}
+    assert set([rs["revision"] for rs in results]) == {"21fb3eed1b5f"}
     assert(meta == {
         u'count': 1,
         u'revision': u'21fb3eed1b5f3456789012345678901234567890',
