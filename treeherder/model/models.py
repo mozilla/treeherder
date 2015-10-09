@@ -530,8 +530,9 @@ class FailureLineManager(models.Manager):
             classified_failures=None,
         )
 
-    def for_jobs(self, *jobs):
-        failures = FailureLine.objects.filter(job_guid__in=[item["job_guid"] for item in jobs])
+    def for_jobs(self, *jobs, **filters):
+        failures = FailureLine.objects.filter(job_guid__in=[item["job_guid"] for item in jobs],
+                                              **filters)
         failures_by_job = defaultdict(list)
         for item in failures:
             failures_by_job[item.job_guid].append(item)
@@ -584,8 +585,8 @@ class FailureLine(models.Model):
         if match and match.score > min_score:
             return match
 
-    def create_new_classification(self, matcher):
-        new_classification = ClassifiedFailure()
+    def create_new_classification(self, matcher, bug_number=None):
+        new_classification = ClassifiedFailure(bug_number=bug_number)
         new_classification.save()
 
         new_link = FailureMatch(

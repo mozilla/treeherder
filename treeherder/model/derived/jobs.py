@@ -11,8 +11,12 @@ from treeherder.etl.common import get_guid_root
 from treeherder.events.publisher import JobStatusPublisher
 from treeherder.model import (error_summary,
                               utils)
-from treeherder.model.models import (Datasource,
-                                     ExclusionProfile)
+from treeherder.model.models import (ClassifiedFailure,
+                                     Datasource,
+                                     ExclusionProfile,
+                                     FailureClassification,
+                                     FailureLine,
+                                     Matcher)
 from treeherder.model.tasks import (populate_error_summary,
                                     publish_job_action,
                                     publish_resultset,
@@ -391,6 +395,12 @@ class JobsModel(TreeherderModelBase):
         )
         self.update_last_job_classification(job_id)
 
+        intermittent_ids = [item.id for item in
+                            FailureClassification.objects.filter(
+                                name__in=["intermittent", "intermittent needs filing"])]
+        if who != "autoclassifier" and failure_classification_id in intermittent_ids:
+            self.update_autoclassification(job_id)
+
     def delete_job_note(self, note_id, job_id):
         """
         Delete a job note and updates the failure classification for that job
@@ -404,7 +414,108 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
-        self.update_last_job_classification(job_id)
+    def update_autoclassification(self, job_id):
+        """
+        If a job is manually classified and has a single line in the logs matching a single
+        FailureLine, but the FailureLine has not matched any ClassifiedFailure, add a
+        new match due to the manual clasification.
+        """
+
+        failure_line = self.manual_classification_line(job_id)
+
+        if failure_line is None:
+            return
+
+        manual_detector = Matcher.objects.get(name="ManualDetector")
+        bug_job_map = self.get_bug_job_map_list(
+            offset=0,
+            limit=1,
+            conditions={"job_id": set([("=", job_id)])})
+
+        if bug_job_map:
+            bug_number = bug_job_map[0]["bug_id"]
+            ClassifiedFailure.get(bug_number=bug_number)
+        else:
+            bug_number = None
+
+        failure_line.create_new_classification(manual_detector, bug_number)
+
+    def manual_classification_line(self, job_id):
+        """
+        Return the FailureLine from a job if it can be manually classified as a side effect
+        of the overall job being classified.
+        Otherwise return None.
+        """
+
+        job = self.get_job(job_id)[0]
+        failure_lines = FailureLine.objects.for_jobs(job)[job["job_guid"]]
+        if len(failure_lines) != 1:
+            return None
+
+        bug_suggestion_lines = self.bug_suggestions(job_id)
+        if len(bug_suggestion_lines) != 1:
+            return None
+
+        # Check that some detector would match this. This is being used as an indication
+        # that the autoclassifier will be able to work on this classification
+        for detector in Matcher.objects.registered_detectors():
+            if detector(failure_lines):
+                break
+        else:
+            return None
+
+        return failure_lines[0]
+
+    def update_after_autoclassification(self, job_id):
+        if self.fully_autoclassified(job_id):
+            self.insert_autoclassify_job_note(job_id)
+
+    def fully_autoclassified(self, job_id):
+        job = self.get_job(job_id)[0]
+
+        failure_lines = FailureLine.objects.for_jobs(job,
+                                                     matches__is_best=True)[job["job_guid"]]
+        if not failure_lines:
+            return False
+
+        bug_suggestion_lines = self.bug_suggestions(job_id)
+
+        return len(failure_lines) == len(bug_suggestion_lines)
+
+    def insert_autoclassify_job_note(self, job_id):
+        job = self.get_job(job_id)[0]
+
+        failure_lines = FailureLine.objects.filter(
+            job_guid=job["job_guid"], matches__is_best=True).prefetch_related(
+                'classified_failures')
+
+        bugs = set()
+        for line in failure_lines:
+            for classified_failure in line.classified_failures.all():
+                bugs.add(classified_failure.bug_number)
+
+        if len(bugs) == 1 and None not in bugs:
+            bug_number = bugs.pop()
+            self.insert_bug_job_map(job_id, bug_number, "autoclassification",
+                                    int(time.time()), "autoclassifier")
+
+        classification = FailureClassification.objects.get(name="autoclassified intermittent")
+
+        self.insert_job_note(job_id, classification.id, "autoclassifier", "")
+
+    def bug_suggestions(self, job_id):
+        """Get the list of log lines and associated bug suggestions for a job"""
+        with ArtifactsModel(self.project) as artifacts_model:
+            # TODO: Filter some junk from this
+            objs = artifacts_model.get_job_artifact_list(
+                offset=0,
+                limit=2,
+                conditions={"job_id": set([("=", job_id)]),
+                            "name": set([("=", "Bug suggestions")]),
+                            "type": set([("=", "json")])})
+
+            lines = objs[0]["blob"] if objs else []
+        return lines
 
     def insert_bug_job_map(self, job_id, bug_id, assignment_type, submit_timestamp, who):
         """

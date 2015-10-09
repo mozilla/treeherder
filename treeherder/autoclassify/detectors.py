@@ -34,6 +34,13 @@ class TestFailureDetector(Detector):
         return rv
 
 
+class ManualDetector(Detector):
+    """Small hack; this ensures that there's a matcher object indicating that a match
+    was by manual association, but which never automatically matches any lines"""
+    def __call__(self, failure_lines):
+        return []
+
+
 def register():
-    for obj in [TestFailureDetector]:
+    for obj in [ManualDetector, TestFailureDetector]:
         models.Matcher.objects.register_detector(obj)

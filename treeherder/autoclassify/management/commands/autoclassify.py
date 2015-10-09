@@ -5,6 +5,7 @@ from django.core.management.base import (BaseCommand,
                                          CommandError)
 
 from treeherder.autoclassify import matchers
+from treeherder.model.derived import JobsModel
 from treeherder.model.models import (FailureLine,
                                      FailureMatch,
                                      Matcher)
@@ -26,12 +27,13 @@ class Command(BaseCommand):
 
         if not len(args) == 2:
             raise CommandError('3 arguments required, %s given' % len(args))
-        job_id, repository = args
+        job_guid, repository = args
 
-        match_errors(repository, job_id)
+        with JobsModel(repository) as jm:
+            match_errors(repository, jm, job_guid)
 
 
-def match_errors(repository, job_guid):
+def match_errors(repository, jm, job_guid):
     unmatched_failures = FailureLine.objects.unmatched_for_job(repository, job_guid)
 
     if not unmatched_failures:
@@ -60,6 +62,10 @@ def match_errors(repository, job_guid):
         if best_match:
             best_match.is_best = True
             best_match.save()
+
+    if all_matched:
+        job_id = jm.get_job_ids_by_guid([job_guid])[job_guid]["id"]
+        jm.update_after_autoclassification(job_id)
 
 
 def all_lines_matched(failure_lines):
