@@ -341,12 +341,14 @@ CREATE TABLE `result_set` (
   `author` varchar(150) COLLATE utf8_bin NOT NULL,
   `type` varchar(25) DEFAULT NULL,
   `push_timestamp` int(11) unsigned NOT NULL,
+  `last_modified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_revision_hash` (`revision_hash`),
   KEY `idx_author` (`author`),
   KEY `idx_type` (`type`),
   KEY `idx_push_timestamp` (`push_timestamp`),
+  KEY `idx_last_modified` (`last_modified`),
   KEY `idx_active_status` (`active_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
