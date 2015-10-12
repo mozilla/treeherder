@@ -625,7 +625,7 @@ class TreeherderClient(object):
         :param protocol: protocol to use (http or https)
         :param host: treeherder host to post to
         :param timeout: maximum time it can take for a request to complete
-        :param auth: an instance of TreeherderAuth holding the auth credentials
+        :param auth: an instance of HawkAuth/TreeherderAuth holding the auth credentials
         """
         self.host = host
 
@@ -903,9 +903,14 @@ class TreeherderClient(object):
         :param project: project to submit data for
         :param collection_inst: a TreeherderCollection instance
         :param timeout: custom timeout in seconds (defaults to class timeout)
-        :param auth: an instance of TreeherderAuth holding the auth credentials
+        :param auth: an instance of HawkAuth/TreeherderAuth (deprecated)
         """
-        auth = auth or self.auth
+        if auth:
+            logger.warning('Passing `auth` to post_collection() is deprecated, '
+                           'pass it to the TreeherderClient constructor instead.')
+        else:
+            auth = self.auth
+
         if not isinstance(collection_inst, TreeherderCollection):
             msg = '{0} should be an instance of TreeherderCollection'.format(
                 type(collection_inst))
@@ -936,9 +941,14 @@ class TreeherderClient(object):
         :param parse_status: string representing parse status of a treeherder
                              job
         :param timeout: custom timeout in seconds (defaults to class timeout)
-        :param auth: an instance of TreeherderAuth holding the auth credentials
+        :param auth: an instance of HawkAuth/TreeherderAuth (deprecated)
         """
-        auth = auth or self.auth
+        if auth:
+            logger.warning('Passing `auth` to update_parse_status() is deprecated, '
+                           'pass it to the TreeherderClient constructor instead.')
+        else:
+            auth = self.auth
+
         self._post_json(project, self.UPDATE_ENDPOINT.format(job_log_url_id),
                         {'parse_status': parse_status},
                         timeout, auth)
