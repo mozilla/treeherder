@@ -83,6 +83,8 @@ class JobsModel(TreeherderModelBase):
             "id": "rs.id",
             "revision_hash": "rs.revision_hash",
             "revision": "revision.revision",
+            "short_revision": "rs.short_revision",
+            "long_revision": "rs.long_revision",
             "author": "rs.author",
             "push_timestamp": "rs.push_timestamp",
             "last_modified": "rs.last_modified"
