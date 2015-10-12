@@ -384,7 +384,6 @@ class TreeherderJobTest(DataSetup, unittest.TestCase):
     def test_sample_data_validation(self):
 
         for job in self.job_data:
-
             tj = TreeherderJob(job)
             tj.validate()
 
@@ -433,7 +432,6 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
         tjc = TreeherderJobCollection()
 
         for job in self.job_data:
-
             tjc.add(tjc.get_job(job))
 
         client = TreeherderClient(
@@ -460,7 +458,6 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
         trc = TreeherderResultSetCollection()
 
         for resultset in self.resultset_data:
-
             trc.add(trc.get_resultset(resultset))
 
         client = TreeherderClient(
@@ -487,7 +484,6 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
         tac = TreeherderArtifactCollection()
 
         for artifact in self.artifact_data:
-
             tac.add(tac.get_artifact(artifact))
 
         client = TreeherderClient(

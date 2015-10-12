@@ -907,24 +907,18 @@ class TreeherderClient(object):
         """
         auth = auth or self.auth
         if not isinstance(collection_inst, TreeherderCollection):
-
             msg = '{0} should be an instance of TreeherderCollection'.format(
                 type(collection_inst))
-
             raise TreeherderClientError(msg, [])
 
         if not collection_inst.endpoint_base:
-
             msg = "{0}: collection endpoint_base property not defined".format(
                 self.__class__.__name__)
-
             raise TreeherderClientError(msg, [])
 
         if not collection_inst.data:
-
             msg = "{0}: collection data property not defined".format(
                 self.__class__.__name__)
-
             raise TreeherderClientError(msg, [])
 
         collection_inst.validate()
