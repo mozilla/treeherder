@@ -84,7 +84,8 @@ class JobsModel(TreeherderModelBase):
             "revision_hash": "rs.revision_hash",
             "revision": "revision.revision",
             "author": "rs.author",
-            "push_timestamp": "rs.push_timestamp"
+            "push_timestamp": "rs.push_timestamp",
+            "last_modified": "rs.last_modified"
         },
         "bug_job_map": {
             "job_id": "job_id",
