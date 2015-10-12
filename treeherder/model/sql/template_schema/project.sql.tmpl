@@ -336,6 +336,8 @@ DROP TABLE IF EXISTS `result_set`;
 CREATE TABLE `result_set` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `revision_hash` varchar(50) COLLATE utf8_bin NOT NULL,
+  `short_revision` varchar(12) COLLATE utf8_bin DEFAULT NULL,
+  `long_revision` varchar(40) COLLATE utf8_bin DEFAULT NULL,
   `author` varchar(150) COLLATE utf8_bin NOT NULL,
   `type` varchar(25) DEFAULT NULL,
   `push_timestamp` int(11) unsigned NOT NULL,
@@ -343,6 +345,8 @@ CREATE TABLE `result_set` (
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_revision_hash` (`revision_hash`),
+  KEY `idx_short_revision` (`short_revision`),
+  KEY `idx_long_revision` (`long_revision`),
   KEY `idx_author` (`author`),
   KEY `idx_type` (`type`),
   KEY `idx_push_timestamp` (`push_timestamp`),
@@ -377,12 +381,16 @@ DROP TABLE IF EXISTS `revision`;
 CREATE TABLE `revision` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `revision` varchar(50) COLLATE utf8_bin NOT NULL,
+  `short_revision` varchar(12) COLLATE utf8_bin DEFAULT NULL,
+  `long_revision` varchar(40) COLLATE utf8_bin DEFAULT NULL,
   `author` varchar(150) COLLATE utf8_bin NOT NULL,
   `comments` text DEFAULT NULL,
   `repository_id` int(11) unsigned NOT NULL,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_revision` (`revision`, `repository_id`),
+  UNIQUE KEY `idx_short_revision` (`short_revision`, `repository_id`),
+  UNIQUE KEY `idx_long_revision` (`long_revision`, `repository_id`),
   KEY `idx_author` (`author`),
   KEY `idx_repository_id` (`repository_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
