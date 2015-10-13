@@ -72,7 +72,7 @@ class ArtifactsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
         )
         for artifact in data:
-            artifact["blob"] = utils.decompress_if_needed(artifact["blob"])
+            artifact["blob"] = zlib.decompress(artifact["blob"])
 
             if artifact["type"] == "json":
                 artifact["blob"] = json.loads(artifact["blob"])

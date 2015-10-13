@@ -1,4 +1,5 @@
 import json
+import zlib
 
 import pytest
 from webtest.app import TestApp
@@ -37,7 +38,7 @@ def sample_artifacts(jm, sample_data):
             job_id,
             "data_1",
             "json",
-            json.dumps({"data_1": "This is an artifact test"}),
+            zlib.compress(json.dumps({"data_1": "This is an artifact test"})),
             job_id,
             "data_1"
         ])
