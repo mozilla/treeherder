@@ -7,9 +7,8 @@ Requires commander_ which is installed on the systems that need it.
 """
 
 import os
+import requests
 import sys
-import urllib
-import urllib2
 
 from commander.deploy import hostgroups, task
 
@@ -139,17 +138,15 @@ def deploy_nodes(ctx, hostgroup, node_type):
 
 @task
 def ping_newrelic(ctx):
-    if settings.NEW_RELIC_API_KEY and settings.NEW_RELIC_APP_ID:
-
-        print 'Post deployment to New Relic'
-        data = urllib.urlencode({
-            'deployment[user]': 'Chief',
-            'deployment[application_id]': settings.NEW_RELIC_APP_ID
-        })
-        headers = {'x-api-key': settings.NEW_RELIC_API_KEY}
-        try:
-            request = urllib2.Request('https://api.newrelic.com/deployments.xml',
-                                      data, headers)
-            urllib2.urlopen(request, timeout=30)
-        except urllib2.URLError as exp:
-            print 'Error notifying New Relic: {0}'.format(exp)
+    data = {
+        'deployment[application_id]': settings.NEW_RELIC_APP_ID,
+        'deployment[user]': 'Chief',
+    }
+    headers = {'x-api-key': settings.NEW_RELIC_API_KEY}
+    r = requests.post('https://api.newrelic.com/deployments.xml',
+                      data=data, headers=headers, timeout=30)
+    try:
+        r.raise_for_status()
+    except requests.exceptions.HTTPError:
+        print("HTTPError {} notifying New Relic: {}".format(r.status_code, r.text))
+        raise
