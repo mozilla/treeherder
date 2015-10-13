@@ -22,6 +22,7 @@ class PerfDataAdapterTest(TestCase):
     REPO_NAME = 'mozilla-central'
     MACHINE_PLATFORM = "win7"
     JOB_GUID = "oqiwy0q847365qiu"
+    PUSH_TIMESTAMP = 1402692388
 
     def setUp(self):
         repo_group = RepositoryGroup.objects.create(name='mygroup')
@@ -52,7 +53,7 @@ class PerfDataAdapterTest(TestCase):
             self.JOB_GUID: {
                 "id": 1,
                 "result_set_id": 1,
-                "push_timestamp": 1402692388
+                "push_timestamp": self.PUSH_TIMESTAMP
             }
         }
 
@@ -67,7 +68,7 @@ class PerfDataAdapterTest(TestCase):
         return (job_data, reference_data)
 
     def _verify_signature_datum(self, framework_name, suitename, testname,
-                                value):
+                                value, timestamp):
 
         signature = PerformanceSignature.objects.get(
             suite=suitename,
@@ -80,6 +81,7 @@ class PerfDataAdapterTest(TestCase):
 
         datum = PerformanceDatum.objects.get(signature=signature)
         self.assertEqual(datum.value, value)
+        self.assertEqual(datum.push_timestamp, timestamp)
 
     def test_load_generic_data(self):
         framework_name = "cheezburger"
@@ -130,11 +132,13 @@ class PerfDataAdapterTest(TestCase):
 
         # verify summary, then subtests
         self._verify_signature_datum(perf_datum['framework']['name'],
-                                     perf_datum['suites'][0]['name'], '', 10.0)
+                                     perf_datum['suites'][0]['name'], '', 10.0,
+                                     self.PUSH_TIMESTAMP)
         for subtest in perf_datum['suites'][0]['subtests']:
             self._verify_signature_datum(perf_datum['framework']['name'],
                                          perf_datum['suites'][0]['name'],
-                                         subtest['name'], subtest['value'])
+                                         subtest['name'], subtest['value'],
+                                         self.PUSH_TIMESTAMP)
 
     def test_load_talos_data(self):
 
@@ -191,6 +195,7 @@ class PerfDataAdapterTest(TestCase):
                     # away, so I'm not going to bother testing the correctness. however
                     # let's at least verify that some values are being generated here
                     self.assertTrue(datum.value)
+                self.assertEqual(datum.push_timestamp, self.PUSH_TIMESTAMP)
 
             # if we have counters, verify that the series for them is as expected
             for (counter, results) in talos_datum.get('talos_counters',
@@ -199,6 +204,7 @@ class PerfDataAdapterTest(TestCase):
                 datum = PerformanceDatum.objects.get(signature=signature)
                 self.assertEqual(round(float(results['mean']), 2),
                                  datum.value)
+                self.assertEqual(datum.push_timestamp, self.PUSH_TIMESTAMP)
 
             # we should be left with just the summary series
             signature = PerformanceSignature.objects.get(
@@ -212,3 +218,4 @@ class PerfDataAdapterTest(TestCase):
                 # old style talos blob without summary. again, going away,
                 # but let's at least test that we have the value
                 self.assertTrue(datum.value)
+            self.assertEqual(datum.push_timestamp, self.PUSH_TIMESTAMP)
