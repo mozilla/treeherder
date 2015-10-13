@@ -78,9 +78,57 @@ def test_resultset_list_empty_rs_still_show(webapp, initial_data,
     jm.disconnect()
 
 
+def test_resultset_list_single_short_revision(webapp, eleven_jobs_stored, jm):
+    """
+    test retrieving a resultset list, filtered by single short revision
+    """
+
+    resp = webapp.get(
+        reverse("resultset-list", kwargs={"project": jm.project}),
+        {"revision": "21fb3eed1b5f"}
+    )
+    assert resp.status_int == 200
+    results = resp.json['results']
+    meta = resp.json['meta']
+    assert len(results) == 1
+    assert set([rs["revision"] for rs in results]) == {"21fb3eed1b5f"}
+    assert(meta == {
+        u'count': 1,
+        u'revision': u'21fb3eed1b5f',
+        u'filter_params': {
+            u'revision': "21fb3eed1b5f"
+        },
+        u'repository': u'test_treeherder'}
+    )
+
+
+def test_resultset_list_single_long_revision(webapp, eleven_jobs_stored, jm):
+    """
+    test retrieving a resultset list, filtered by a single long revision
+    """
+
+    resp = webapp.get(
+        reverse("resultset-list", kwargs={"project": jm.project}),
+        {"revision": "21fb3eed1b5f3456789012345678901234567890"}
+    )
+    assert resp.status_int == 200
+    results = resp.json['results']
+    meta = resp.json['meta']
+    assert len(results) == 1
+    assert set([rs["revision"] for rs in results]) == {"21fb3eed1b5f"}
+    assert(meta == {
+        u'count': 1,
+        u'revision': u'21fb3eed1b5f3456789012345678901234567890',
+        u'filter_params': {
+            u'revision': "21fb3eed1b5f"
+        },
+        u'repository': u'test_treeherder'}
+    )
+
+
 def test_resultset_list_filter_by_revision(webapp, eleven_jobs_stored, jm):
     """
-    test retrieving a resultset list, filtered by a date range
+    test retrieving a resultset list, filtered by a revision range
     """
 
     resp = webapp.get(

@@ -35,7 +35,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         meta = {}
 
         # support ranges for date as well as revisions(changes) like old tbpl
-        for param in ["fromchange", "tochange", "startdate", "enddate"]:
+        for param in ["fromchange", "tochange", "startdate", "enddate", "revision"]:
             v = filter_params.get(param, None)
             if v:
                 del(filter_params[param])
@@ -60,6 +60,13 @@ class ResultSetViewSet(viewsets.ViewSet):
             # we're doing ``less than``, rather than ``less than or equal to``.
             filter_params.update({
                 "push_timestamp__lt": to_timestamp(meta['enddate']) + 86400
+            })
+        if 'revision' in meta:
+            filter_params.update({
+                # TODO: modify to use ``short_revision`` or ``long_revision``
+                # when addressing Bug 1079796
+                # Truncate to short revision for now
+                "revision": meta['revision'][:12]
             })
 
         meta['filter_params'] = filter_params
