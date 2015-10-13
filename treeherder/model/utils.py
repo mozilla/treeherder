@@ -15,15 +15,11 @@ def get_now_timestamp():
     return int(time.time())
 
 
-def decompress_if_needed(blob):
+def decompress(blob):
     """
-    New blobs are gzip'ed to save space, but old ones may not be,
-    in which case we need to handle them gracefully.
+    New blobs are gzip'ed to save space, so we just decompress them in here.
     """
-    try:
-        return zlib.decompress(blob)
-    except zlib.error:
-        return blob
+    return zlib.decompress(blob)
 
 
 def where_wolf(project, flat_exclusions):
