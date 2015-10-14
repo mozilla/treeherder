@@ -276,10 +276,8 @@ def eleven_jobs_stored(jm, sample_data, sample_resultset, test_repository, mock_
 
 @pytest.fixture
 def mock_post_json(monkeypatch, client_credentials):
-    def _post_json(th_client, project, endpoint, data,
-                   timeout=None, auth=None):
-
-        auth = auth or th_client.auth
+    def _post_json(th_client, project, endpoint, data, timeout=None):
+        auth = th_client.auth
         if not auth:
             auth = HawkAuth(id=client_credentials.client_id,
                             key=str(client_credentials.secret))
