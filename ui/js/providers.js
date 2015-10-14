@@ -141,8 +141,12 @@ treeherder.provider('thResultStatusInfo', function() {
             }
 
             // handle if a job is classified
-            if (parseInt(failure_classification_id, 10) > 1) {
+            var classificationId = parseInt(failure_classification_id, 10);
+            if (classificationId > 1) {
                 resultStatusInfo.btnClass = resultStatusInfo.btnClass + "-classified";
+                if (classificationId == 7) {
+                    resultStatusInfo.btnClass += " autoclassified";
+                }
                 resultStatusInfo.countText = "classified " + resultStatusInfo.countText;
             }
             return resultStatusInfo;

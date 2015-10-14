@@ -172,7 +172,8 @@ div#info-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
   margin: 2px 0px;
 }
 
-#job-details-panel .star {
+#job-details-panel .star,
+#job-details-panel .star-o {
   color: #f0ad4e;
 }
 
