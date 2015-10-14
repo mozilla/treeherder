@@ -435,11 +435,11 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
         for job in self.job_data:
             tjc.add(tjc.get_job(job))
 
-        auth = TreeherderAuth('key', 'secret', 'project')
         client = TreeherderClient(
             protocol='http',
             host='host',
-            auth=auth,
+            client_id='client-abc',
+            secret='secret123',
             )
 
         client.post_collection('project', tjc)
@@ -462,11 +462,11 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
         for resultset in self.resultset_data:
             trc.add(trc.get_resultset(resultset))
 
-        auth = TreeherderAuth('key', 'secret', 'project')
         client = TreeherderClient(
             protocol='http',
             host='host',
-            auth=auth,
+            client_id='client-abc',
+            secret='secret123',
             )
 
         client.post_collection('project', trc)
@@ -489,11 +489,11 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
         for artifact in self.artifact_data:
             tac.add(tac.get_artifact(artifact))
 
-        auth = TreeherderAuth('key', 'secret', 'project')
         client = TreeherderClient(
             protocol='http',
             host='host',
-            auth=auth,
+            client_id='client-abc',
+            secret='secret123',
             )
 
         client.post_collection('project', tac)
