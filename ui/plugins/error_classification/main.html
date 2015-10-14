@@ -1,10 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
+<div ng-controller="ClassificationPluginCtrl">
+    <ul>
 
-</body>
-</html>
+    <li ng-repeat="line in failureLines">
+      <span>
+        {{line.matches | classified}}
+      </span>
+      <span ng-if="line.action === 'test_result'">
+        {{line.test}} {{line.subtest}} | Expected: {{line.expected}}, got {{line.status}} | {{line.message}}
+      </span>
+      <span ng-if="line.action === 'log'">
+        LOG {{line.level}} | {{line.message}}
+      </span>
+      <span ng-if="line.action === 'crash'">
+        CRASH | {{line.signature}}
+      </span>
+      <span ng-if="line.action === ''">
+        CRASH | {{line.signature}}
+      </span>
+    </li>
+
+    <!-- Wrong if condition here -->
+    <li ng-if="!tabs.errorClassification.is_loading &&  (!failureLines || failureLines.length == 0)">
+      <span>No classifiable errors for this job.</span>
+    </li>
+
+    <!--     <li ng-if="!tabs.failureSummary.is_loading && jobLogsAllParsed && !bugSuggestionsLoaded && job_log_urls.length"> -->
+    <!--         <div class="failure-summary-line-empty"> -->
+    <!--             <span>Log parsing complete.  Generating bug suggestions</span> -->
+    <!--             <span>The content of this panel will refresh in 5 seconds.</span> -->
+    <!--         </div> -->
+    <!--     </li> -->
+
+    <!--     <li ng-if="!tabs.failureSummary.is_loading && !jobLogsAllParsed" -->
+    <!--         ng-repeat="job_log_url in job_log_urls"> -->
+    <!--       <div class="failure-summary-line-empty"> -->
+    <!--         <span>Log parsing in progress. The</span> -->
+    <!--         <a title="Open the raw log in a new window" -->
+    <!--            target="_blank" -->
+    <!--            href="{{::job_log_url.url}}">raw log</a> -->
+    <!--         <span>is available. This panel will automatically recheck every 5 seconds.</span> -->
+    <!--       </div> -->
+    <!--     </li> -->
+    <!--     <li ng-if="!tabs.failureSummary.is_loading && !job_log_urls.length"> -->
+    <!--         <div class="failure-summary-line-empty"> -->
+    <!--             <span>No logs available for this job</span> -->
+    <!--         </div> -->
+    <!--     </li> -->
+    <!-- </ul> -->
+    <!-- <div ng-if="tabs.failureSummary.is_loading" class="overlay"> -->
+    <!--     <div> -->
+    <!--         <span class="fa fa-spinner fa-pulse th-spinner-lg"></span> -->
+    <!--     </div> -->
+    <!-- </div> -->
+</div>
