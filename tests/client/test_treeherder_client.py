@@ -6,6 +6,7 @@ import unittest
 
 import requests
 from mock import patch
+from requests_hawk import HawkAuth
 
 from treeherder.client import (TreeherderArtifact,
                                TreeherderArtifactCollection,
@@ -531,6 +532,21 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
                                                "oauth_token=&"
                                                "user=project&"
                                                "oauth_signature=kxmsE%2BCqRDtV%2Bqk9GYeA7n4F%2FCI%3D"))
+
+    def test_hawkauth_setup(self):
+        """Test that HawkAuth is correctly set up from the `client_id` and `secret` params."""
+        client = TreeherderClient(
+            client_id='client-abc',
+            secret='secret123',
+            )
+        auth = client.auth
+        assert isinstance(auth, HawkAuth)
+        expected_credentials = {
+            'id': 'client-abc',
+            'key': 'secret123',
+            'algorithm': 'sha256'
+        }
+        self.assertEqual(auth.credentials, expected_credentials)
 
     @patch("treeherder.client.client.requests.get")
     def test_get_job(self, mock_get):

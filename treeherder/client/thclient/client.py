@@ -5,6 +5,7 @@ import logging
 
 import requests
 from requests.exceptions import HTTPError
+from requests_hawk import HawkAuth
 
 # When releasing a new version to PyPI please also file a bug to request
 # that it is uploaded to http://pypi.pub.build.mozilla.org/pub/ too.
@@ -620,12 +621,14 @@ class TreeherderClient(object):
 
     def __init__(
             self, protocol='https', host='treeherder.mozilla.org',
-            timeout=120, auth=None):
+            timeout=120, auth=None, client_id=None, secret=None):
         """
         :param protocol: protocol to use (http or https)
         :param host: treeherder host to post to
         :param timeout: maximum time it can take for a request to complete
-        :param auth: an instance of HawkAuth/TreeherderAuth holding the auth credentials
+        :param auth: an instance of HawkAuth/TreeherderAuth holding the auth credentials (deprecated)
+        :param client_id: the Treeherder API credentials client ID
+        :param secret: the Treeherder API credentials secret
         """
         self.host = host
 
@@ -635,7 +638,19 @@ class TreeherderClient(object):
                                             ', '.join(self.PROTOCOLS)))
         self.protocol = protocol
         self.timeout = timeout
-        self.auth = auth
+
+        if auth:
+            logger.warning('The `auth` param is deprecated. Pass the new Hawk credentials '
+                           'as `client_id` and `secret` instead (see bug 1212936).')
+            self.auth = auth
+        elif client_id and secret:
+            self.auth = HawkAuth(credentials={
+                'id': client_id,
+                'key': secret,
+                'algorithm': 'sha256'
+            })
+        else:
+            self.auth = None
 
     def _get_project_uri(self, project, endpoint):
 
@@ -906,8 +921,8 @@ class TreeherderClient(object):
         :param auth: an instance of HawkAuth/TreeherderAuth (deprecated)
         """
         if auth:
-            logger.warning('Passing `auth` to post_collection() is deprecated, '
-                           'pass it to the TreeherderClient constructor instead.')
+            logger.warning('The `auth` param is deprecated. Pass the new Hawk credentials '
+                           'to the TreeherderClient constructor instead (see bug 1212936).')
         else:
             auth = self.auth
 
@@ -944,8 +959,8 @@ class TreeherderClient(object):
         :param auth: an instance of HawkAuth/TreeherderAuth (deprecated)
         """
         if auth:
-            logger.warning('Passing `auth` to update_parse_status() is deprecated, '
-                           'pass it to the TreeherderClient constructor instead.')
+            logger.warning('The `auth` param is deprecated. Pass the new Hawk credentials '
+                           'to the TreeherderClient constructor instead (see bug 1212936).')
         else:
             auth = self.auth
 

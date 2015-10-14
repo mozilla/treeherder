@@ -13,8 +13,8 @@ class TreeherderAuth(AuthBase):
         self.oauth_key = oauth_key
         self.oauth_secret = oauth_secret
         self.user = user
-        logger.warning('The use of TreeherderAuth is now deprecated.'
-                       'Please use HawkAuth instead')
+        logger.warning('The use of TreeherderAuth is now deprecated. Please switch to using '
+                       'Hawk credentials, which are passed directly to TreeherderClient.')
 
     def __call__(self, r):
         # modify and return the request

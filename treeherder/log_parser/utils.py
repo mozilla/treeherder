@@ -3,7 +3,6 @@ import urllib2
 
 import simplejson as json
 from django.conf import settings
-from requests_hawk import HawkAuth
 
 from treeherder import celery_app
 from treeherder.client import (TreeherderArtifactCollection,
@@ -83,15 +82,11 @@ def post_log_artifacts(project,
     logger.debug("Downloading/parsing log for %s", log_description)
 
     credentials = Credentials.objects.get(client_id=settings.ETL_CLIENT_ID)
-    auth = HawkAuth(credentials={
-        'id': credentials.client_id,
-        'key': str(credentials.secret),
-        'algorithm': 'sha256'
-    })
     client = TreeherderClient(
         protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
         host=settings.TREEHERDER_REQUEST_HOST,
-        auth=auth
+        client_id=credentials.client_id,
+        secret=str(credentials.secret),
     )
 
     try:

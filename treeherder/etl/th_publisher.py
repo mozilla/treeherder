@@ -3,7 +3,6 @@ import traceback
 
 from django.conf import settings
 from django.utils.encoding import python_2_unicode_compatible
-from requests_hawk import HawkAuth
 
 from treeherder.client import TreeherderClient
 from treeherder.credentials.models import Credentials
@@ -15,16 +14,12 @@ def post_treeherder_collections(th_collections, chunk_size=1):
 
     errors = []
     credentials = Credentials.objects.get(client_id=settings.ETL_CLIENT_ID)
-    auth = HawkAuth(credentials={
-        'id': credentials.client_id,
-        'key': str(credentials.secret),
-        'algorithm': 'sha256'
-    })
 
     cli = TreeherderClient(
         protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
         host=settings.TREEHERDER_REQUEST_HOST,
-        auth=auth
+        client_id=credentials.client_id,
+        secret=str(credentials.secret),
     )
 
     for project in th_collections:
