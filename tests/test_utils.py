@@ -5,9 +5,9 @@ from treeherder.client import TreeherderClient
 from treeherder.model.derived.refdata import RefDataManager
 
 
-def post_collection(project, th_collection, auth=None):
+def post_collection(project, th_collection):
 
-    client = TreeherderClient(protocol='http', host='localhost', auth=None)
+    client = TreeherderClient(protocol='http', host='localhost')
     return client.post_collection(project, th_collection)
 
 
