@@ -12,8 +12,6 @@ from .autoclassify import match_errors
 
 logger = logging.getLogger(__name__)
 
-detectors.register()
-
 
 class Command(BaseCommand):
     args = '<job_guid>, <repository>'
