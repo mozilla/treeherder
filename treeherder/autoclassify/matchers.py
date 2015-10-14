@@ -60,3 +60,6 @@ class PreciseTestMatcher(Matcher):
 def register():
     for obj in [PreciseTestMatcher]:
         models.Matcher.objects.register_matcher(obj)
+
+
+register()

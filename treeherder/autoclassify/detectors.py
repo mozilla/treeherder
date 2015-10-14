@@ -44,3 +44,6 @@ class ManualDetector(Detector):
 def register():
     for obj in [ManualDetector, TestFailureDetector]:
         models.Matcher.objects.register_detector(obj)
+
+
+register()

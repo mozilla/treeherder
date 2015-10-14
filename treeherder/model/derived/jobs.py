@@ -1,5 +1,6 @@
 import logging
 import time
+import re
 from datetime import datetime
 
 import simplejson as json
@@ -7,6 +8,7 @@ from _mysql_exceptions import IntegrityError
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
+from treeherder.autoclassify import detectors
 from treeherder.etl.common import get_guid_root
 from treeherder.events.publisher import JobStatusPublisher
 from treeherder.model import (error_summary,
@@ -396,6 +398,7 @@ class JobsModel(TreeherderModelBase):
         intermittent_ids = [item.id for item in
                             FailureClassification.objects.filter(
                                 name__in=["intermittent", "intermittent needs filing"])]
+
         if who != "autoclassifier" and failure_classification_id in intermittent_ids:
             self.update_autoclassification(job_id)
 
@@ -418,7 +421,6 @@ class JobsModel(TreeherderModelBase):
         FailureLine, but the FailureLine has not matched any ClassifiedFailure, add a
         new match due to the manual clasification.
         """
-
         failure_line = self.manual_classification_line(job_id)
 
         if failure_line is None:
@@ -450,7 +452,8 @@ class JobsModel(TreeherderModelBase):
         if len(failure_lines) != 1:
             return None
 
-        bug_suggestion_lines = self.bug_suggestions(job_id)
+        bug_suggestion_lines = self.filter_bug_suggestions(self.bug_suggestions(job_id))
+
         if len(bug_suggestion_lines) != 1:
             return None
 
@@ -464,8 +467,19 @@ class JobsModel(TreeherderModelBase):
 
         return failure_lines[0]
 
+    def filter_bug_suggestions(self, suggestion_lines):
+        remove = [re.compile("Return code: \d+")]
+
+        rv = []
+
+        for item in suggestion_lines:
+            if not any(regexp.match(item["search"]) for regexp in remove):
+                rv.append(item)
+
+        return rv
+
     def update_after_autoclassification(self, job_id):
-        if self.fully_autoclassified(job_id):
+        if self.fully_autoclassified(job_id) and len(self.get_job_note_list(job_id)) == 0:
             self.insert_autoclassify_job_note(job_id)
 
     def fully_autoclassified(self, job_id):
@@ -476,7 +490,7 @@ class JobsModel(TreeherderModelBase):
         if not failure_lines:
             return False
 
-        bug_suggestion_lines = self.bug_suggestions(job_id)
+        bug_suggestion_lines = self.filter_bug_suggestions(self.bug_suggestions(job_id))
 
         return len(failure_lines) == len(bug_suggestion_lines)
 
