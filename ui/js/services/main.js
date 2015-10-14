@@ -17,7 +17,7 @@ treeherder.factory('thUrl', [
             },
             getProjectJobUrl: function(url, jobId, repoName) {
                 var projectUrl = thUrl.getProjectUrl("", repoName);
-                return projectUrl + "/jobs/" + jobId + url
+                return projectUrl + "/jobs/" + jobId + url;
             },
             getLogViewerUrl: function(job_id) {
                 return "logviewer.html#?job_id=" + job_id + "&repo=" + $rootScope.repoName;
