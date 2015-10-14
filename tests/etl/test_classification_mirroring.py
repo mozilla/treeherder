@@ -1,4 +1,5 @@
 import json
+import zlib
 from time import time
 
 from datadiff import diff
@@ -19,7 +20,7 @@ def test_elasticsearch_doc_request_body(test_project, eleven_jobs_stored):
     }
     placeholders = [
         [job_id, "buildapi", "json",
-         json.dumps(sample_artifact), job_id, "buildapi"]
+         zlib.compress(json.dumps(sample_artifact)), job_id, "buildapi"]
     ]
     with ArtifactsModel(test_project) as artifacts_model:
         artifacts_model.store_job_artifact(placeholders)
