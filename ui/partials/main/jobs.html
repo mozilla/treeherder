@@ -41,6 +41,14 @@
         <span class="glyphicon glyphicon-pushpin"
               ignore-job-clear-on-click></span>
       </span>
+      <span class="btn btn-sm btn-resultset"
+            tabindex="0" role="button"
+            title="Trigger new jobs"
+            ng-show="showTriggerButton()"
+            ignore-job-clear-on-click
+            ng-click="triggerNewJobs()">
+           Trigger New Jobs
+      </span>
       <th-action-button ng-hide="isLoadingJobs"></th-action-button>
     </span>
   </div>
