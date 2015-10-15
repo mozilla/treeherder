@@ -108,6 +108,22 @@ def publish_resultset_action(project, action, resultset_id, requester, times=1):
     )
 
 
+@task(name='publish-resultset-runnable-job-action')
+def publish_resultset_runnable_job_action(project, resultset_id, requester,
+                                          buildernames):
+    publisher = pulse_connection.get_publisher()
+    if not publisher:
+        return
+
+    publisher.resultset_runnable_job_action(
+        version=1,
+        project=project,
+        requester=requester,
+        resultset_id=resultset_id,
+        buildernames=buildernames
+    )
+
+
 @task(name='publish-resultset')
 def publish_resultset(project, ids):
     # If we don't have a publisher (because of missing configs), then we can't
