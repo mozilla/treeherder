@@ -1072,3 +1072,29 @@ def get_symbol(name, bn):
         return n
 
     return "{0}{1}".format(s, n)
+
+
+def get_symbols_and_platforms(buildername):
+    """Return a dict with all the information we extract from the buildername."""
+    platform_info = extract_platform_info(buildername)
+    job_name_info = extract_name_info(buildername)
+
+    job = {
+        'job_type_name': job_name_info.get('name', ''),
+        'job_type_symbol': job_name_info.get('job_symbol', ''),
+        'job_group_name': job_name_info.get('group_name', ''),
+        'job_group_symbol': job_name_info.get('group_symbol', ''),
+        'ref_data_name': buildername,
+        'build_platform': platform_info.get('os_platform', ''),
+        'build_os': platform_info.get('os', ''),
+        'build_architecture': platform_info.get('arch', ''),
+        'build_system_type': 'buildbot',
+        'machine_platform_architecture': platform_info.get('arch', ''),
+        'machine_platform_os': platform_info.get('os', ''),
+        'option_collection': {
+            extract_build_type(buildername): True
+        },
+        'platform': platform_info.get('os_platform', ''),
+        'job_coalesced_to_guid': None
+    }
+    return job
