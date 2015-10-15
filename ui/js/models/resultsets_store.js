@@ -5,10 +5,12 @@ treeherder.factory('ThResultSetStore', [
     'ThResultSetModel', 'ThJobModel', 'thEvents', 'thResultStatusObject',
     'thAggregateIds', 'ThLog', 'thNotify', 'thJobFilters', 'thOptionOrder',
     'ThRepositoryModel', '$timeout', 'ThJobTypeModel', 'ThJobGroupModel',
+    'ThRunnableJobModel',
     function(
         $rootScope, $q, $location, $interval, thPlatformOrder, ThResultSetModel,
         ThJobModel, thEvents, thResultStatusObject, thAggregateIds, ThLog, thNotify,
-        thJobFilters, thOptionOrder, ThRepositoryModel, $timeout, ThJobTypeModel, ThJobGroupModel) {
+        thJobFilters, thOptionOrder, ThRepositoryModel, $timeout, ThJobTypeModel,
+        ThJobGroupModel, ThRunnableJobModel) {
 
         var $log = new ThLog("ThResultSetStore");
 
@@ -270,6 +272,28 @@ treeherder.factory('ThResultSetStore', [
                 key += option;
             }
             return key;
+        };
+
+        var getRunnableJobs = function(repoName, resultSet) {
+            return ThRunnableJobModel.get_list(repoName).then(function(jobList) {
+                var id = resultSet.id;
+                _.each(jobList, function(job) {
+                    job.result_set_id = id;
+                    job.id = thAggregateIds.escape(job.result_set_id + job.ref_data_name);
+                });
+
+                if (jobList.length === 0) {
+                    thNotify.send("No new jobs available");
+                };
+
+                mapResultSetJobs(repoName, jobList);
+            });
+        };
+
+        var deleteRunnableJobs = function(repoName, resultSet){
+            repositories[repoName].rsMap[resultSet.id].selected_runnable_jobs = [];
+            resultSet.isRunnableVisible = false;
+            $rootScope.$emit(thEvents.globalFilterChanged);
         };
 
         /******
@@ -786,6 +810,29 @@ treeherder.factory('ThResultSetStore', [
             return repositories[repoName].rsMap[resultsetId].rs_obj;
         };
 
+        var getSelectedRunnableJobs = function(repoName, resultsetId){
+            if (!repositories[repoName].rsMap[resultsetId].selected_runnable_jobs)
+                repositories[repoName].rsMap[resultsetId].selected_runnable_jobs = [];
+            return repositories[repoName].rsMap[resultsetId].selected_runnable_jobs;
+        };
+
+        var toggleSelectedRunnableJob = function(repoName, resultsetId, buildername){
+            var selectedRunnableJobs = getSelectedRunnableJobs(repoName, resultsetId);
+            var jobIndex = selectedRunnableJobs.indexOf(buildername);
+
+            if (jobIndex === -1){
+                selectedRunnableJobs.push(buildername);
+            } else {
+                selectedRunnableJobs.splice(jobIndex, 1);
+            }
+        };
+
+        var isRunnableJobSelected = function(repoName, resultsetId, buildername){
+            var selectedRunnableJobs = getSelectedRunnableJobs(repoName, resultsetId);
+            var jobIndex = selectedRunnableJobs.indexOf(buildername);
+            return jobIndex !== -1;
+        };
+
         var getJobMap = function(repoName){
             // this is a "watchable" for jobs
             return repositories[repoName].jobMap;
@@ -1040,6 +1087,7 @@ treeherder.factory('ThResultSetStore', [
 
             addRepository: addRepository,
             aggregateJobPlatform: aggregateJobPlatform,
+            deleteRunnableJobs: deleteRunnableJobs,
             fetchJobs: fetchJobs,
             fetchResultSets: fetchResultSets,
             getAllShownJobs: getAllShownJobs,
@@ -1047,6 +1095,10 @@ treeherder.factory('ThResultSetStore', [
             getGroupMap: getGroupMap,
             getLoadingStatus: getLoadingStatus,
             getPlatformKey: getPlatformKey,
+            getRunnableJobs: getRunnableJobs,
+            isRunnableJobSelected: isRunnableJobSelected,
+            getSelectedRunnableJobs: getSelectedRunnableJobs,
+            toggleSelectedRunnableJob: toggleSelectedRunnableJob,
             getResultSet: getResultSet,
             getResultSetsArray: getResultSetsArray,
             getResultSetsMap: getResultSetsMap,
