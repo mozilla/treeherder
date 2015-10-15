@@ -589,6 +589,10 @@ class FailureLine(models.Model):
         new_classification = ClassifiedFailure(bug_number=bug_number)
         new_classification.save()
 
+        FailureMatch.objects.filter(
+            failure_line=self,
+            is_best=True).update(is_best=False)
+
         new_link = FailureMatch(
             failure_line=self,
             classified_failure=new_classification,
