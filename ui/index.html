@@ -97,6 +97,7 @@
         <script src="js/models/bug_job_map.js"></script>
         <script src="js/models/classification.js"></script>
         <script src="js/models/job.js"></script>
+        <script src="js/models/runnable_job.js"></script>
         <script src="js/models/job_exclusion.js"></script>
         <script src="js/models/exclusion_profile.js"></script>
         <script src="js/models/build_platform.js"></script>
@@ -216,6 +217,15 @@
         <script type="'text/ng-template'" id="jobBtnClone.html">
             <button class="btn job-btn btn-xs {{ btnClass }} {{ key }}"
                   data-jmkey="{{ key }}"
+                  ignore-job-clear-on-click
+                  title="{{ title }}">{{ value }}</button>
+        </script>
+
+        <!-- Runnable Job Btn span -->
+        <script type="'text/ng-template'" id="runnableJobBtnClone.html">
+            <button class="btn runnable-job-btn {{ key }}"
+                  data-jmkey="{{ key }}"
+                  data-buildername="{{ buildername }}"
                   ignore-job-clear-on-click
                   title="{{ title }}">{{ value }}</button>
         </script>

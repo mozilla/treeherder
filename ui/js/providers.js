@@ -12,11 +12,11 @@ treeherder.provider('thServiceDomain', function() {
 
 treeherder.provider('thResultStatusList', function() {
     var all = function() {
-        return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending', 'coalesced'];
+        return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending', 'coalesced', 'runnable'];
     };
 
     var defaultFilters = function() {
-        return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending'];
+        return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending', 'runnable'];
     };
 
     this.$get = function() {
@@ -196,6 +196,10 @@ treeherder.provider('thEvents', function() {
             groupStateChanged: "group-state-changed-EVT",
 
             toggleRevisions: "toggle-revisions-EVT",
+
+            showRunnableJobs: "show-runnable-jobs-EVT",
+
+            deleteRunnableJobs: "delete-runnable-jobs-EVT",
 
             toggleAllRevisions: "toggle-all-revisions-EVT",
 
