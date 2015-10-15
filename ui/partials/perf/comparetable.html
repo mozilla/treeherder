@@ -15,7 +15,7 @@
     <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults[testName] | orderBy: 'name'">
       <td class="test-title">{{compareResult.name}}
         <span ng-if="compareResult.detailsLink">
-          (<a ng-href="{{compareResult.detailsLink}}">subtests</a>)
+          (<a ng-href="{{compareResult.detailsLink}}" ng-show="compareResult.detailsLink">subtests</a>)
         </span>
       </td>
       <td>

@@ -186,8 +186,9 @@ perf.controller('CompareResultsCtrl', [
                         originalSignature: oldSig,
                         newSignature: newSig
                     }), function(kv) { return kv[0]+"="+kv[1]; }).join("&");
-
-                    cmap.detailsLink = detailsLink;
+                    if (testName.indexOf("summary") > 0) {
+                        cmap.detailsLink = detailsLink;
+                    }
                     cmap.name = platform;
                     cmap.hideMinorChanges = $scope.hideMinorChanges;
                     if (Object.keys($scope.compareResults).indexOf(testName) < 0)
