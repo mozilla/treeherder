@@ -24,8 +24,10 @@
     </head>
     <body ng-controller="MainCtrl" ng-keydown="processKeyboardInput($event)">
         <div id="global-container">
-            <div id="onscreen-overlay" ng-if="onscreenOverlayShowing">
-               <div id="onscreen-shortcuts" ng-if="onscreenShortcutsShowing">
+            <div id="onscreen-overlay" ng-if="onscreenOverlayShowing"
+                 ng-click="setOnscreenShortcutsShowing(false)">
+               <div id="onscreen-shortcuts" ng-if="onscreenShortcutsShowing"
+                    stop-propagation-on-left-click>
                  <div class="col-xs-8">
                     <ng-include src="'partials/main/thShortcutTable.html'"></ng-include>
                  </div>
