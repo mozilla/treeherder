@@ -109,6 +109,7 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
             subtest_signatures.append(subtest_signature_hash)
 
             signature, _ = PerformanceSignature.objects.get_or_create(
+                repository=repository,
                 signature_hash=subtest_signature_hash,
                 defaults={
                     'test': subtest['name'],
@@ -116,7 +117,8 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
                     'option_collection': option_collection,
                     'platform': platform,
                     'framework': framework,
-                    'extra_properties': extra_properties
+                    'extra_properties': extra_properties,
+                    'last_updated': push_timestamp
                 })
             PerformanceDatum.objects.get_or_create(
                 repository=repository,
@@ -141,14 +143,15 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
                 summary_properties)
 
             signature, _ = PerformanceSignature.objects.get_or_create(
-                signature_hash=summary_signature_hash,
+                repository=repository, signature_hash=summary_signature_hash,
                 defaults={
                     'test': '',
                     'suite': suite['name'],
                     'option_collection': option_collection,
                     'platform': platform,
                     'framework': framework,
-                    'extra_properties': extra_summary_properties
+                    'extra_properties': extra_summary_properties,
+                    'last_updated': push_timestamp
                 })
             PerformanceDatum.objects.get_or_create(
                 repository=repository,
@@ -244,14 +247,15 @@ def load_talos_artifacts(project_name, reference_data, job_data, datum):
                     signature_properties)
 
                 signature, _ = PerformanceSignature.objects.get_or_create(
-                    signature_hash=signature_hash,
+                    repository=repository, signature_hash=signature_hash,
                     defaults={
                         'test': _test,
                         'suite': _suite,
                         'option_collection': option_collection,
                         'platform': platform,
                         'framework': framework,
-                        'extra_properties': extra_properties
+                        'extra_properties': extra_properties,
+                        'last_updated': push_timestamp
                     })
 
                 try:
@@ -289,14 +293,15 @@ def load_talos_artifacts(project_name, reference_data, job_data, datum):
             subtest_signatures.append(signature_hash)
 
             signature, _ = PerformanceSignature.objects.get_or_create(
-                signature_hash=signature_hash,
+                repository=repository, signature_hash=signature_hash,
                 defaults={
                     'test': _test,
                     'suite': _suite,
                     'option_collection': option_collection,
                     'platform': platform,
                     'framework': framework,
-                    'extra_properties': extra_properties
+                    'extra_properties': extra_properties,
+                    'last_updated': push_timestamp
                 })
 
             if "summary" in talos_datum:
@@ -331,14 +336,15 @@ def load_talos_artifacts(project_name, reference_data, job_data, datum):
             summary_signature_hash = _get_signature_hash(
                 summary_properties)
             signature, _ = PerformanceSignature.objects.get_or_create(
-                signature_hash=summary_signature_hash,
+                repository=repository, signature_hash=summary_signature_hash,
                 defaults={
                     'test': '',
                     'suite': _suite,
                     'option_collection': option_collection,
                     'platform': platform,
                     'framework': framework,
-                    'extra_properties': extra_summary_properties
+                    'extra_properties': extra_summary_properties,
+                    'last_updated': push_timestamp
                 })
 
             if "summary" in talos_datum and "suite" in talos_datum["summary"]:

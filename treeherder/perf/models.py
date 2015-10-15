@@ -29,14 +29,15 @@ class PerformanceSignature(models.Model):
                                       validators=[
                                           MinLengthValidator(SIGNATURE_HASH_LENGTH)
                                       ],
-                                      unique=True,
                                       db_index=True)
 
+    repository = models.ForeignKey(Repository, null=True)  # null=True only temporary, until we update old entries
     framework = models.ForeignKey(PerformanceFramework)
     platform = models.ForeignKey(MachinePlatform)
     option_collection = models.ForeignKey(OptionCollection)
     suite = models.CharField(max_length=80L)
     test = models.CharField(max_length=80L, blank=True)
+    last_updated = models.DateTimeField(db_index=True, null=True)  # null=True only temporary, until we update old entries
 
     # extra properties to distinguish the test (that don't fit into
     # option collection for whatever reason)
@@ -44,6 +45,14 @@ class PerformanceSignature(models.Model):
 
     class Meta:
         db_table = 'performance_signature'
+        # make sure there is only one signature per repository with a
+        # particular set of properties
+        unique_together = ('repository', 'framework', 'platform',
+                           'option_collection', 'suite', 'test',
+                           'last_updated')
+        # make sure there is only one signature of any hash per
+        # repository (same hash in different repositories is allowed)
+        unique_together = ('repository', 'signature_hash')
 
     def __str__(self):
         return self.signature_hash
@@ -66,6 +75,12 @@ class PerformanceDatum(models.Model):
                           ('repository', 'result_set_id')]
         unique_together = ('repository', 'job_id', 'result_set_id',
                            'signature', 'push_timestamp')
+
+    def save(self, *args, **kwargs):
+        super(PerformanceDatum, self).save(*args, **kwargs)  # Call the "real" save() method.
+        if self.signature.last_updated < self.push_timestamp:
+            self.signature.last_updated = self.push_timestamp
+            self.signature.save()
 
     def __str__(self):
         return "{} {}".format(self.value, self.push_timestamp)

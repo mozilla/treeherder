@@ -18,23 +18,22 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
 
         repository = models.Repository.objects.get(name=project)
 
-        signature_data = PerformanceDatum.objects.filter(
+        signature_data = PerformanceSignature.objects.filter(
             repository=repository).select_related(
-                'signature', 'signature__option_collection',
-                'signature__platform')
+                'option_collection', 'platform')
 
         # filter based on signature hashes, if asked
         signature_hashes = request.query_params.getlist('signature')
         if signature_hashes:
             signature_ids = PerformanceSignature.objects.filter(
                 signature_hash__in=signature_hashes).values_list('id', flat=True)
-            signature_data = signature_data.filter(signature_id__in=list(
+            signature_data = signature_data.filter(id__in=list(
                 signature_ids))
 
         interval = request.query_params.get('interval')
         if interval:
             signature_data = signature_data.filter(
-                push_timestamp__gte=datetime.datetime.fromtimestamp(
+                last_updated__gte=datetime.datetime.fromtimestamp(
                     int(time.time() - int(interval))))
 
         platform = request.query_params.get('platform')
@@ -42,15 +41,15 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
             platforms = models.MachinePlatform.objects.filter(
                 platform=platform)
             signature_data = signature_data.filter(
-                signature__platform__in=platforms)
+                platform__in=platforms)
 
         ret = {}
         for (signature_hash, option_collection_hash, platform, suite, test,
              extra_properties) in signature_data.values_list(
-                 'signature__signature_hash',
-                 'signature__option_collection__option_collection_hash',
-                 'signature__platform__platform', 'signature__suite',
-                 'signature__test', 'signature__extra_properties').distinct():
+                 'signature_hash',
+                 'option_collection__option_collection_hash',
+                 'platform__platform', 'suite',
+                 'test', 'extra_properties').distinct():
             ret[signature_hash] = {
                 'option_collection_hash': option_collection_hash,
                 'machine_platform': platform,

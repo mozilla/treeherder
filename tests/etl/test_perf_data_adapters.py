@@ -1,4 +1,5 @@
 import copy
+import datetime
 import json
 
 from django.test import TestCase
@@ -68,8 +69,8 @@ class PerfDataAdapterTest(TestCase):
         return (job_data, reference_data)
 
     def _verify_signature_datum(self, framework_name, suitename, testname,
-                                value, timestamp):
-
+                                value, push_timestamp):
+        repository = Repository.objects.get(name=self.REPO_NAME)
         signature = PerformanceSignature.objects.get(
             suite=suitename,
             test=testname)
@@ -78,10 +79,12 @@ class PerfDataAdapterTest(TestCase):
                          str(self.option_collection))
         self.assertEqual(str(signature.platform),
                          str(self.platform))
+        self.assertEqual(signature.last_updated, push_timestamp)
+        self.assertEqual(signature.repository, repository)
 
         datum = PerformanceDatum.objects.get(signature=signature)
         self.assertEqual(datum.value, value)
-        self.assertEqual(datum.push_timestamp, timestamp)
+        self.assertEqual(datum.push_timestamp, push_timestamp)
 
     def test_load_generic_data(self):
         framework_name = "cheezburger"
@@ -133,12 +136,26 @@ class PerfDataAdapterTest(TestCase):
         # verify summary, then subtests
         self._verify_signature_datum(perf_datum['framework']['name'],
                                      perf_datum['suites'][0]['name'], '', 10.0,
-                                     self.PUSH_TIMESTAMP)
+                                     datetime.datetime.fromtimestamp(
+                                         self.PUSH_TIMESTAMP))
         for subtest in perf_datum['suites'][0]['subtests']:
             self._verify_signature_datum(perf_datum['framework']['name'],
                                          perf_datum['suites'][0]['name'],
                                          subtest['name'], subtest['value'],
-                                         self.PUSH_TIMESTAMP)
+                                         datetime.datetime.fromtimestamp(
+                                             self.PUSH_TIMESTAMP))
+
+        # send another datum, a little later, verify that signature's
+        # `last_updated` is changed accordingly
+        job_data[self.JOB_GUID]['push_timestamp'] += 1
+        load_perf_artifacts(self.REPO_NAME, reference_data, job_data,
+                            submit_datum)
+        signature = PerformanceSignature.objects.get(
+            suite=perf_datum['suites'][0]['name'],
+            test=perf_datum['suites'][0]['subtests'][0]['name'])
+        self.assertEqual(signature.last_updated,
+                         datetime.datetime.fromtimestamp(
+                             self.PUSH_TIMESTAMP + 1))
 
     def test_load_talos_data(self):
 
@@ -195,7 +212,9 @@ class PerfDataAdapterTest(TestCase):
                     # away, so I'm not going to bother testing the correctness. however
                     # let's at least verify that some values are being generated here
                     self.assertTrue(datum.value)
-                self.assertEqual(datum.push_timestamp, self.PUSH_TIMESTAMP)
+                self.assertEqual(datum.push_timestamp,
+                                 datetime.datetime.fromtimestamp(
+                                     self.PUSH_TIMESTAMP))
 
             # if we have counters, verify that the series for them is as expected
             for (counter, results) in talos_datum.get('talos_counters',
@@ -204,7 +223,9 @@ class PerfDataAdapterTest(TestCase):
                 datum = PerformanceDatum.objects.get(signature=signature)
                 self.assertEqual(round(float(results['mean']), 2),
                                  datum.value)
-                self.assertEqual(datum.push_timestamp, self.PUSH_TIMESTAMP)
+                self.assertEqual(datum.push_timestamp,
+                                 datetime.datetime.fromtimestamp(
+                                     self.PUSH_TIMESTAMP))
 
             # we should be left with just the summary series
             signature = PerformanceSignature.objects.get(
@@ -218,4 +239,6 @@ class PerfDataAdapterTest(TestCase):
                 # old style talos blob without summary. again, going away,
                 # but let's at least test that we have the value
                 self.assertTrue(datum.value)
-            self.assertEqual(datum.push_timestamp, self.PUSH_TIMESTAMP)
+            self.assertEqual(datum.push_timestamp,
+                             datetime.datetime.fromtimestamp(
+                                 self.PUSH_TIMESTAMP))
