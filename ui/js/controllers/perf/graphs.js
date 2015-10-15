@@ -894,30 +894,37 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
             $scope.timeRange).then(function(platformList) {
                 $scope.platformList = platformList.platformList;
                 $scope.platformList.sort();
-                $scope.selectedPlatform = $scope.platformList[0];
+                if (_.contains($scope.platformList, defaultPlatform)) {
+                    $scope.selectedPlatform = defaultPlatform;
+                } else {
+                    $scope.selectedPlatform = $scope.platformList[0];
+                }
                 $scope.loadingPlatformList = false;
                 $scope.updateTestSelector();
             });
 
         $scope.updateTestSelector = function() {
             $scope.loadingTestData = true;
+            if ($scope.selectedPlatform) {
+                defaultPlatform = $scope.selectedPlatform;
+            }
             PhSeries.getSeriesByPlatform($scope.selectedProject.name,
                 $scope.timeRange, $scope.selectedPlatform, optionCollectionMap).then(
                 function(seriesData) {
                     $scope.unselectedTestList = _.sortBy(
                         _.filter(seriesData.seriesList,
-                            { platform: $scope.selectedPlatform }), 'name');
+                                 { platform: $scope.selectedPlatform }), 'name');
+                    // filter out tests which are already displayed or are
+                    // already selected
+                    _.forEach(_.union(testsDisplayed, $scope.testsToAdd),
+                              function(test) {
+                                  _.remove($scope.unselectedTestList, {
+                                      projectName: test.projectName,
+                                      signature: test.signature });
+                              });
+                    $scope.loadingTestData = false;
                 }
             );
-            // filter out tests which are already displayed or are
-            // already selected
-            _.forEach(_.union(testsDisplayed, $scope.testsToAdd),
-                function(test) {
-                    _.remove($scope.unselectedTestList, {
-                        projectName: test.projectName,
-                        signature: test.signature });
-                });
-            $scope.loadingTestData = false;
         };
 
     };

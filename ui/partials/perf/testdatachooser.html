@@ -20,7 +20,7 @@
     </div>
     <div id="choose-test-list" class="form-group">
       <p class="blink" ng-show="loadingTestData">Loading series data...</p>
-      <select multiple class="form-control" ng-model="selectedTestSignatures" ng-hide="loadingTestData">
+      <select ng-hide="loadingPlatformList || loadingTestData" multiple class="form-control" ng-model="selectedTestSignatures" ng-hide="loadingTestData">
         <option value="{{::testElem.signature}}" ng-repeat="testElem in unselectedTestList| filter: testFilter track by testElem.signature">
             {{::testElem.name}}
         </option>
