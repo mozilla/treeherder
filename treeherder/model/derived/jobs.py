@@ -1,6 +1,6 @@
 import logging
-import time
 import re
+import time
 from datetime import datetime
 
 import simplejson as json
@@ -8,7 +8,6 @@ from _mysql_exceptions import IntegrityError
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from treeherder.autoclassify import detectors
 from treeherder.etl.common import get_guid_root
 from treeherder.events.publisher import JobStatusPublisher
 from treeherder.model import (error_summary,
