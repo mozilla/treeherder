@@ -297,6 +297,23 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
+            name='RunnableJob',
+            fields=[
+                ('id', models.AutoField(serialize=False, primary_key=True)),
+                ('build_platform', models.ForeignKey(to='model.BuildPlatform')),
+                ('machine_platform', models.ForeignKey(to='model.MachinePlatform')),
+                ('job_type', models.ForeignKey(to='model.JobType')),
+                ('option_collection_hash', models.CharField(max_length=64L)),
+                ('ref_data_name', models.CharField(max_length=255L)),
+                ('build_system_type', models.CharField(max_length=25L)),
+                ('repository', models.ForeignKey(to='model.Repository')),
+                ('last_touched', models.DateTimeField(auto_now=True)),
+            ],
+            options={
+                'db_table': 'runnable_job',
+            },
+        ),
+        migrations.CreateModel(
             name='UserExclusionProfile',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -348,6 +365,10 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name='failureline',
             unique_together=set([('job_guid', 'line')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='runnablejob',
+            unique_together=set([('ref_data_name', 'build_system_type')]),
         ),
         migrations.RunSQL(
             sql='CREATE FULLTEXT INDEX `idx_summary` on bugscache (`summary`);',
