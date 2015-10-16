@@ -23,7 +23,7 @@ In addition:
 
   .. code-block:: python
 
-     from treeherder.client import (TreeherderAuth,
+     from treeherder.client import (HawkAuth,
                                     TreeherderClient)
 
 The quickest way to correct import style locally is to let isort make the changes for you - see :ref:`running the tests <running-tests>`.

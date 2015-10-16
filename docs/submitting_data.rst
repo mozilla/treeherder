@@ -168,7 +168,7 @@ data structures to send, do something like this.
 
 .. code-block:: python
 
-    from thclient import (TreeherderAuth, TreeherderClient, TreeherderClientError,
+    from thclient import (TreeherderClient, TreeherderClientError,
                           TreeherderResultSetCollection)
 
 
@@ -198,10 +198,10 @@ data structures to send, do something like this.
 
     # Send the collection to treeherder
 
-    # The OAuth key and secret for your project should be supplied to you by the
+    # The hawk id and secret for your project should be supplied to you by the
     # treeherder administrator.
-    auth = TreeherderAuth('oauth_key', 'oauth_secret', 'mozilla-central')
-    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org', auth=auth)
+    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org',
+                              client_id='hawk_id', secret='hawk_secret')
 
     # Post the result collection to a project
     #
@@ -221,7 +221,7 @@ structures to send, do something like this:
 
 .. code-block:: python
 
-    from thclient import (TreeherderAuth, TreeherderClient, TreeherderClientError,
+    from thclient import (TreeherderClient, TreeherderClientError,
                           TreeherderJobCollection)
 
     tjc = TreeherderJobCollection()
@@ -269,8 +269,8 @@ structures to send, do something like this:
                 )
         tjc.add(tj)
 
-    auth = TreeherderAuth('oauth_key', 'oauth_secret', 'mozilla-central')
-    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org', auth=auth)
+    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org',
+                              client_id='hawk_id', secret='hawk_secret')
     client.post_collection('mozilla-central', tjc)
 
 If you want to use `TreeherderArtifactCollection` to build up the job
@@ -278,7 +278,7 @@ artifacts data structures to send, do something like this:
 
 .. code-block:: python
 
-    from thclient import (TreeherderAuth, TreeherderClient, TreeherderClientError,
+    from thclient import (TreeherderClient, TreeherderClientError,
                           TreeherderArtifactCollection)
 
     tac = TreeherderArtifactCollection()
@@ -295,8 +295,8 @@ artifacts data structures to send, do something like this:
         tac.add(ta)
 
     # Send the collection to treeherder
-    auth = TreeherderAuth('oauth_key', 'oauth_secret', 'mozilla-central')
-    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org', auth=auth)
+    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org',
+                              client_id='hawk_id', secret='hawk_secret')
     client.post_collection('mozilla-central', tac)
 
 If you don't want to use `TreeherderResultCollection` or
@@ -305,7 +305,7 @@ data structures directly and add them to the collection.
 
 .. code-block:: python
 
-    from thclient import TreeherderAuth, TreeherderClient, TreeherderResultSetCollection
+    from thclient import TreeherderClient, TreeherderResultSetCollection
 
     trc = TreeherderResultSetCollection()
 
@@ -317,13 +317,13 @@ data structures directly and add them to the collection.
         # add resultset to collection
         trc.add(trs)
 
-    auth = TreeherderAuth('oauth_key', 'oauth_secret', 'mozilla-central')
-    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org', auth=auth)
+    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org',
+                              client_id='hawk_id', secret='hawk_secret')
     client.post_collection('mozilla-central', trc)
 
 .. code-block:: python
 
-    from thclient import TreeherderAuth, TreeherderClient, TreeherderJobCollection
+    from thclient import TreeherderClient, TreeherderJobCollection
 
     tjc = TreeherderJobCollection()
 
@@ -335,8 +335,8 @@ data structures directly and add them to the collection.
         # add job to collection
         tjc.add(tj)
 
-    auth = TreeherderAuth('oauth_key', 'oauth_secret', 'mozilla-central')
-    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org', auth=auth)
+    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org',
+                              client_id='hawk_id', secret='hawk_secret')
     client.post_collection('mozilla-central', tjc)
 
 In the same way, if you don't want to use `TreeherderArtifactCollection` to
@@ -357,8 +357,8 @@ add them to the collection.
         # add artifact to collection
         tac.add(ta)
 
-    auth = TreeherderAuth('oauth_key', 'oauth_secret', 'mozilla-central')
-    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org', auth=auth)
+    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org',
+                              client_id='hawk_id', secret='hawk_secret')
     client.post_collection('mozilla-central', tac)
 
 Job artifacts format
@@ -554,22 +554,17 @@ log name.  You must specify the name in two places for this to work.
         "job_id": 1774360
     }
 
-Authentication handling
------------------------
-Authentication in the client is handled by the TreeherderAuth class.
-To create a TreeherderAuth instance you have to provide your oauth key, secret and the repository you want to post data to
-(e.g. mozilla-central).
+Authentication
+--------------
+
+A treeherder client instance should identify itself to the server
+via the `Hawk authentication mechanism`_. You can pass the credentials
+for this mechanism via the `client_id` and `secret` parameters to
+TreeherderClient's constructor:
 
 .. code-block:: python
 
-    from thclient import TreeherderAuth
-
-    auth = TreeherderAuth('my-key', 'my-secret', 'mozilla-central')
-
-This auth instance should then be passed to the TreeherderClient constructor, like so:
-
-.. code-block:: python
-
-    auth = TreeherderAuth('my-key', 'my-secret', 'mozilla-central')
-    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org', auth=auth)
+    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org', client_id='hawk_id', secret='hawk_secret')
     client.post_collection('mozilla-central', tac)
+
+.. _Hawk authentication mechanism: https://github.com/hueniverse/hawk
