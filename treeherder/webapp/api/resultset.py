@@ -62,12 +62,18 @@ class ResultSetViewSet(viewsets.ViewSet):
                 "push_timestamp__lt": to_timestamp(meta['enddate']) + 86400
             })
         if 'revision' in meta:
-            filter_params.update({
-                # TODO: modify to use ``short_revision`` or ``long_revision``
-                # when addressing Bug 1079796
-                # Truncate to short revision for now
-                "revision": meta['revision'][:12]
-            })
+            # TODO: modify to use ``short_revision`` or ``long_revision`` fields
+            # when addressing Bug 1079796
+            # It ends up that we store sometimes long, sometimes short
+            # revisions in the ``revision`` field, depending on the repo/source.
+            # (gaia, for instance).  So we must search
+            # for EITHER the short or long, when long is passed in.
+            if len(meta['revision']) > 12:
+                filter_params.update(
+                    {"revision__in": "{},{}".format(meta['revision'], meta['revision'][:12])}
+                )
+            else:
+                filter_params.update({"revision": meta['revision']})
 
         meta['filter_params'] = filter_params
 

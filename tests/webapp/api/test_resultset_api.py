@@ -120,7 +120,36 @@ def test_resultset_list_single_long_revision(webapp, eleven_jobs_stored, jm):
         u'count': 1,
         u'revision': u'21fb3eed1b5f3456789012345678901234567890',
         u'filter_params': {
-            u'revision': "21fb3eed1b5f"
+            u'revision__in': u'21fb3eed1b5f3456789012345678901234567890,21fb3eed1b5f'
+        },
+        u'repository': u'test_treeherder'}
+    )
+
+
+def test_resultset_list_single_long_revision_stored_long(webapp, sample_resultset, jm):
+    """
+    test retrieving a resultset list with store long revision, filtered by a single long revision
+    """
+
+    # store a resultset with long revision
+    resultset = sample_resultset[0]
+    resultset["revisions"][0]["revision"] = "21fb3eed1b5f3456789012345678901234567890"
+    jm.store_result_set_data([resultset])
+
+    resp = webapp.get(
+        reverse("resultset-list", kwargs={"project": jm.project}),
+        {"revision": "21fb3eed1b5f3456789012345678901234567890"}
+    )
+    assert resp.status_int == 200
+    results = resp.json['results']
+    meta = resp.json['meta']
+    assert len(results) == 1
+    assert set([rs["revision"] for rs in results]) == {"21fb3eed1b5f3456789012345678901234567890"}
+    assert(meta == {
+        u'count': 1,
+        u'revision': u'21fb3eed1b5f3456789012345678901234567890',
+        u'filter_params': {
+            u'revision__in': u'21fb3eed1b5f3456789012345678901234567890,21fb3eed1b5f'
         },
         u'repository': u'test_treeherder'}
     )
