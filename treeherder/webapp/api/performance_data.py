@@ -69,9 +69,9 @@ class PerformancePlatformViewSet(viewsets.ViewSet):
     """
     def list(self, request, project):
         repository = models.Repository.objects.get(name=project)
-        return Response(PerformanceDatum.objects.filter(
+        return Response(PerformanceSignature.objects.filter(
             repository=repository).values_list(
-                'signature__platform__platform', flat=True).distinct())
+                'platform__platform', flat=True).distinct())
 
 
 class PerformanceDatumViewSet(viewsets.ViewSet):
@@ -89,7 +89,7 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
         datums = PerformanceDatum.objects.filter(
             repository=repository,
             signature__signature_hash__in=signature_hashes).select_related(
-                'signature__signature_hash')
+                'signature__signature_hash').order_by('push_timestamp')
 
         interval = request.query_params.get('interval')
         if interval:
@@ -98,14 +98,16 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
                     int(time.time() - int(interval))))
 
         ret = defaultdict(list)
-        for datum in datums.select_related('signature__signature_hash').order_by(
-                'push_timestamp'):
-            d = {
-                'job_id': datum.job_id,
-                'result_set_id': datum.result_set_id,
-                'push_timestamp': int(time.mktime(datum.push_timestamp.timetuple())),
-                'value': round(datum.value, 2)  # round to 2 decimal places
-            }
-            ret[datum.signature.signature_hash].append(d)
+        values_list = datums.values_list(
+            'signature__signature_hash', 'job_id', 'result_set_id',
+            'push_timestamp', 'value')
+        for (signature_hash, job_id, result_set_id, push_timestamp,
+             value) in values_list:
+            ret[signature_hash].append({
+                'job_id': job_id,
+                'result_set_id': result_set_id,
+                'push_timestamp': int(time.mktime(push_timestamp.timetuple())),
+                'value': round(value, 2)  # round to 2 decimal places
+            })
 
         return Response(ret)
