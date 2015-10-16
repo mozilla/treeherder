@@ -113,8 +113,7 @@ perf.controller('CompareResultsCtrl', [
                 $scope.originalProject.name,
                 timeRange,
                 optionCollectionMap,
-                {e10s: $scope.e10s,
-                 excludedPlatforms: $scope.excludedPlatforms }).then(
+                { excludedPlatforms: $scope.excludedPlatforms }).then(
                     function(originalSeriesData) {
                         $scope.platformList = originalSeriesData.platformList;
                         $scope.testList = originalSeriesData.testList;
@@ -137,7 +136,7 @@ perf.controller('CompareResultsCtrl', [
                             $scope.newProject.name,
                             timeRange,
                             optionCollectionMap,
-                            {e10s: $scope.e10s}).then(
+                            { excludedPlatforms: $scope.excludedPlatforms }).then(
                                 function(newSeriesData) {
                                     $scope.platformList = _.union($scope.platformList,
                                                                   newSeriesData.platformList).sort();
@@ -239,7 +238,6 @@ perf.controller('CompareResultsCtrl', [
                 return;
             }
 
-            $scope.e10s = Boolean($stateParams.e10s);
             // we are excluding macosx 10.10 by default for now, see: https://bugzilla.mozilla.org/show_bug.cgi?id=1201615
             $scope.excludedPlatforms = Boolean($stateParams.showExcludedPlatforms) ?
                 [] : [ 'osx-10-10' ];

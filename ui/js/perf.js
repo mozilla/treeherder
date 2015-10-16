@@ -169,11 +169,8 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
 
             return _getAllSeries(projectName, timeRange, optionMap).then(function(lists) {
                 lists.seriesList.forEach(function(seriesSummary) {
-                    // Only keep summary signatures, filter in/out e10s
-
-                    if (!seriesSummary.subtestSignatures ||
-                        (userOptions.e10s && !_.contains(seriesSummary.options, 'e10s')) ||
-                        (!userOptions.e10s && _.contains(seriesSummary.options, 'e10s'))) {
+                    if (!seriesSummary.subtestSignatures) {
+                        // Only keep summary signatures for now
                         return;
                     } else {
                         // We don't generate number for tp5n, this is xperf and we collect counters

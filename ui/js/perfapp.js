@@ -12,7 +12,7 @@ perf.config(function($compileProvider, $stateProvider, $urlRouterProvider) {
         controller: 'GraphsCtrl'
     }).state('compare', {
         templateUrl: 'partials/perf/comparectrl.html',
-        url: '/compare?originalProject&originalRevision&newProject&newRevision&hideMinorChanges&e10s&showExcludedPlatforms',
+        url: '/compare?originalProject&originalRevision&newProject&newRevision&hideMinorChanges&showExcludedPlatforms',
         controller: 'CompareResultsCtrl'
     }).state('comparesubtest', {
         templateUrl: 'partials/perf/comparesubtestctrl.html',
