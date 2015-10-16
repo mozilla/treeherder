@@ -429,18 +429,20 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                         return errors;
                                     },
 
-                                    getResultsMap: function(projectName, seriesList, timeRange, resultSetIds) {
-                                        var baseURL = thServiceDomain + '/api/project/' +
+                                    getResultsMap: function(projectName, seriesList, resultSetIds) {
+                                        var url = thServiceDomain + '/api/project/' +
                                             projectName + '/performance/' +
-                                            'data/?interval=' + timeRange;
-
+                                            'data/?';
+                                        url += _.map(resultSetIds, function(resultSetId) {
+                                            return 'result_set_id=' + resultSetId;
+                                        }).join('&');
                                         var resultsMap = {};
                                         return $q.all(_.chunk(seriesList, 20).map(function(seriesChunk) {
                                             var signatures = "";
                                             seriesChunk.forEach(function(series) {
                                                 signatures += "&signatures=" + series.signature;
                                             });
-                                            return $http.get(baseURL + signatures).then(
+                                            return $http.get(url + signatures).then(
                                                 function(response) {
                                                     resultSetIds.forEach(function(resultSetId) {
                                                         if (resultsMap[resultSetId] === undefined) {
@@ -455,14 +457,14 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                                             _.where(data, { result_set_id: resultSetId }).forEach(function(pdata) {
                                                                 values.push(pdata.value);
                                                             });
-
-                                                            var seriesData = _.find(seriesChunk, {'signature': signature});
-
-                                                            resultsMap[resultSetId][signature] = {
-                                                                platform: seriesData.platform,
-                                                                name: seriesData.name,
-                                                                values: values
-                                                            };
+                                                            var seriesData = _.find(seriesList, {'signature': signature});
+                                                            if (seriesData) {
+                                                                resultsMap[resultSetId][signature] = {
+                                                                    platform: seriesData.platform,
+                                                                    name: seriesData.name,
+                                                                    values: values
+                                                                };
+                                                            }
                                                         });
                                                     });
                                                 });

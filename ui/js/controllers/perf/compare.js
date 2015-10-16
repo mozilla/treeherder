@@ -119,7 +119,6 @@ perf.controller('CompareResultsCtrl', [
                         $scope.testList = originalSeriesData.testList;
                         return PhCompare.getResultsMap($scope.originalProject.name,
                                                        originalSeriesData.seriesList,
-                                                       timeRange,
                                                        resultSetIds);
                     }).then(function(resultMaps) {
                         var originalResultsMap = resultMaps[$scope.originalResultSet.id];
@@ -144,7 +143,6 @@ perf.controller('CompareResultsCtrl', [
                                                               newSeriesData.testList).sort();
                                     return PhCompare.getResultsMap($scope.newProject.name,
                                                                    newSeriesData.seriesList,
-                                                                   timeRange,
                                                                    [$scope.newResultSet.id]);
                                 }).then(function(resultMaps) {
                                     var newResultsMap = resultMaps[$scope.newResultSet.id];
@@ -395,7 +393,6 @@ perf.controller('CompareSubtestResultsCtrl', [
                                     $scope.platformList = originalSeriesData.platformList;
                                     return PhCompare.getResultsMap($scope.originalProject.name,
                                                                    originalSeriesData.seriesList,
-                                                                   timeRange,
                                                                    resultSetIds);
                                 }).then(function(seriesMaps) {
                                     var originalSeriesMap = seriesMaps[$scope.originalResultSet.id];
@@ -431,7 +428,6 @@ perf.controller('CompareSubtestResultsCtrl', [
 
                                                 return PhCompare.getResultsMap($scope.newProject.name,
                                                                                newSeriesData.seriesList,
-                                                                               timeRange,
                                                                                [$scope.newResultSet.id]);
                                             }).then(function(newSeriesMaps) {
                                                 var newSeriesMap = newSeriesMaps[$scope.newResultSet.id];

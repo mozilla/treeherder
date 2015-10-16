@@ -81,15 +81,25 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
     def list(self, request, project):
         repository = models.Repository.objects.get(name=project)
 
-        try:
-            signature_hashes = request.query_params.getlist("signatures")
-        except:
-            raise exceptions.ValidationError('need signature list')
+        signature_hashes = request.query_params.getlist("signatures")
+        result_set_ids = request.query_params.getlist("result_set_id")
+        job_ids = request.query_params.getlist("job_id")
+
+        if not (signature_hashes or result_set_ids or job_ids):
+            raise exceptions.ValidationError('Need to specify either '
+                                             'signatures, result_set_id, or '
+                                             'job_id')
 
         datums = PerformanceDatum.objects.filter(
-            repository=repository,
-            signature__signature_hash__in=signature_hashes).select_related(
+            repository=repository).select_related(
                 'signature__signature_hash').order_by('push_timestamp')
+
+        if signature_hashes:
+            datums = datums.filter(signature__signature_hash__in=signature_hashes)
+        if result_set_ids:
+            datums = datums.filter(result_set_id__in=result_set_ids)
+        if job_ids:
+            datums = datums.filter(job_id__in=job_ids)
 
         interval = request.query_params.get('interval')
         if interval:
