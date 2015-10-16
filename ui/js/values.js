@@ -63,6 +63,7 @@ treeherder.value("thPlatformOrder", {
     "osx-10-8": 12,
     "osx-10-9": 13,
     "osx-10-10": 14,
+    "osx-10-11": 15,
     "windowsxp": 20,
     "windows7-32": 21,
     "windows7-64": 22,
