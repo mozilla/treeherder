@@ -12,8 +12,7 @@ from treeherder.etl.common import get_guid_root
 from treeherder.events.publisher import JobStatusPublisher
 from treeherder.model import (error_summary,
                               utils)
-from treeherder.model.models import (ClassifiedFailure,
-                                     Datasource,
+from treeherder.model.models import (Datasource,
                                      ExclusionProfile,
                                      FailureClassification,
                                      FailureLine,
@@ -396,9 +395,8 @@ class JobsModel(TreeherderModelBase):
         )
         self.update_last_job_classification(job_id)
 
-        intermittent_ids = [item.id for item in
-                            FailureClassification.objects.filter(
-                                name__in=["intermittent", "intermittent needs filing"])]
+        intermittent_ids = FailureClassification.objects.filter(
+            name__in=["intermittent", "intermittent needs filing"]).values_list('id', flat=True)
 
         if who != "autoclassifier" and failure_classification_id in intermittent_ids:
             self.update_autoclassification(job_id)
@@ -420,7 +418,7 @@ class JobsModel(TreeherderModelBase):
         """
         If a job is manually classified and has a single line in the logs matching a single
         FailureLine, but the FailureLine has not matched any ClassifiedFailure, add a
-        new match due to the manual clasification.
+        new match due to the manual classification.
         """
         failure_line = self.manual_classification_line(job_id)
 
@@ -435,11 +433,10 @@ class JobsModel(TreeherderModelBase):
 
         if bug_job_map:
             bug_number = bug_job_map[0]["bug_id"]
-            ClassifiedFailure.get(bug_number=bug_number)
         else:
             bug_number = None
 
-        failure_line.create_new_classification(manual_detector, bug_number)
+        failure_line.set_classification(manual_detector, bug_number)
 
     def manual_classification_line(self, job_id):
         """
@@ -449,8 +446,9 @@ class JobsModel(TreeherderModelBase):
         """
 
         job = self.get_job(job_id)[0]
-        failure_lines = FailureLine.objects.for_jobs(job)[job["job_guid"]]
-        if len(failure_lines) != 1:
+        try:
+            failure_lines = [FailureLine.objects.get(job_guid=job["job_guid"])]
+        except (FailureLine.DoesNotExist, FailureLine.MultipleObjectsReturned):
             return None
 
         bug_suggestion_lines = self.filter_bug_suggestions(self.bug_suggestions(job_id))
@@ -460,10 +458,8 @@ class JobsModel(TreeherderModelBase):
 
         # Check that some detector would match this. This is being used as an indication
         # that the autoclassifier will be able to work on this classification
-        for detector in Matcher.objects.registered_detectors():
-            if detector(failure_lines):
-                break
-        else:
+        if not any(detector(failure_lines)
+                   for detector in Matcher.objects.registered_detectors()):
             return None
 
         return failure_lines[0]
@@ -486,14 +482,17 @@ class JobsModel(TreeherderModelBase):
     def fully_autoclassified(self, job_id):
         job = self.get_job(job_id)[0]
 
-        failure_lines = FailureLine.objects.for_jobs(job,
-                                                     matches__is_best=True)[job["job_guid"]]
-        if not failure_lines:
+        if FailureLine.objects.filter(action="truncated").count() > 0:
+            return False
+
+        num_failure_lines = FailureLine.objects.filter(job_guid=job["job_guid"],
+                                                       matches__is_best=True).count()
+        if num_failure_lines == 0:
             return False
 
         bug_suggestion_lines = self.filter_bug_suggestions(self.bug_suggestions(job_id))
 
-        return len(failure_lines) == len(bug_suggestion_lines)
+        return num_failure_lines == len(bug_suggestion_lines)
 
     def insert_autoclassify_job_note(self, job_id):
         job = self.get_job(job_id)[0]
@@ -516,13 +515,13 @@ class JobsModel(TreeherderModelBase):
 
         self.insert_job_note(job_id, classification.id, "autoclassifier", "")
 
-    def bug_suggestions(self, job_id):
+    def bug_suggestions(self, job_id, limit=35):
         """Get the list of log lines and associated bug suggestions for a job"""
         with ArtifactsModel(self.project) as artifacts_model:
             # TODO: Filter some junk from this
             objs = artifacts_model.get_job_artifact_list(
                 offset=0,
-                limit=2,
+                limit=limit,
                 conditions={"job_id": set([("=", job_id)]),
                             "name": set([("=", "Bug suggestions")]),
                             "type": set([("=", "json")])})

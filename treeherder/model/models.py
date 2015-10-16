@@ -13,7 +13,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db import (connection,
-                       models)
+                       models,
+                       transaction)
 from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
@@ -585,21 +586,25 @@ class FailureLine(models.Model):
         if match and match.score > min_score:
             return match
 
-    def create_new_classification(self, matcher, bug_number=None):
-        new_classification = ClassifiedFailure(bug_number=bug_number)
-        new_classification.save()
+    def set_classification(self, matcher, bug_number=None):
+        with transaction.atomic():
+            if bug_number:
+                classification = ClassifiedFailure.objects.get_or_create(
+                    bug_number=bug_number)
+            else:
+                classification = ClassifiedFailure.objects.create()
 
-        FailureMatch.objects.filter(
-            failure_line=self,
-            is_best=True).update(is_best=False)
+            FailureMatch.objects.filter(
+                failure_line=self,
+                is_best=True).update(is_best=False)
 
-        new_link = FailureMatch(
-            failure_line=self,
-            classified_failure=new_classification,
-            matcher=matcher,
-            score=1,
-            is_best=True)
-        new_link.save()
+            new_link = FailureMatch(
+                failure_line=self,
+                classified_failure=classification,
+                matcher=matcher,
+                score=1,
+                is_best=True)
+            new_link.save()
 
 
 class ClassifiedFailure(models.Model):

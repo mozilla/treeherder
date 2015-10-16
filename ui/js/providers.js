@@ -144,6 +144,7 @@ treeherder.provider('thResultStatusInfo', function() {
             var classificationId = parseInt(failure_classification_id, 10);
             if (classificationId > 1) {
                 resultStatusInfo.btnClass = resultStatusInfo.btnClass + "-classified";
+                // autoclassification-only case
                 if (classificationId == 7) {
                     resultStatusInfo.btnClass += " autoclassified";
                 }

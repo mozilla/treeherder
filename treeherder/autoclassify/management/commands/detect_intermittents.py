@@ -64,7 +64,7 @@ def add_new_intermittents(repository, jm, jobs):
 
             for index in line_indicies:
                 failure = unmatched_lines[index]
-                failure.create_new_classification(detector.db_object)
+                failure.set_classification(detector.db_object)
                 new_matches.add(failure.id)
 
         if new_matches:
