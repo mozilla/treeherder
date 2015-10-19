@@ -41,8 +41,8 @@ def test_post_talos_artifact(test_project, test_repository, result_set_stored,
 
     # we'll just validate that we got the expected number of results for
     # talos (we have validation elsewhere for the actual data adapters)
-    assert PerformanceSignature.objects.count() == 2
-    assert PerformanceDatum.objects.count() == 2
+    assert PerformanceSignature.objects.count() == 1
+    assert PerformanceDatum.objects.count() == 1
 
 
 def test_post_perf_artifact(test_project, test_repository, result_set_stored,

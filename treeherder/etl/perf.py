@@ -325,7 +325,7 @@ def load_talos_artifacts(project_name, reference_data, job_data, datum):
                 push_timestamp=push_timestamp,
                 defaults={'value': value})
 
-        if subtest_signatures:
+        if subtest_signatures and len(subtest_signatures) > 1:
             # summary series
             extra_summary_properties = {
                 'subtest_signatures': sorted(subtest_signatures)
