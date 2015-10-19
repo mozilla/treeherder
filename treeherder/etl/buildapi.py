@@ -8,8 +8,8 @@ from django.core.cache import cache
 from treeherder.client import TreeherderJobCollection
 from treeherder.etl import (buildbot,
                             common)
-from treeherder.etl.mixins import (JsonExtractorMixin,
-                                   OAuthLoaderMixin)
+from treeherder.etl.mixins import (ClientLoaderMixin,
+                                   JsonExtractorMixin)
 from treeherder.model.models import Datasource
 
 logger = logging.getLogger(__name__)
@@ -436,7 +436,7 @@ class PendingRunningTransformerMixin(object):
 
 class Builds4hJobsProcess(JsonExtractorMixin,
                           Builds4hTransformerMixin,
-                          OAuthLoaderMixin):
+                          ClientLoaderMixin):
 
     def run(self, filter_to_revision=None, filter_to_project=None,
             filter_to_job_group=None):
@@ -454,7 +454,7 @@ class Builds4hJobsProcess(JsonExtractorMixin,
 
 class PendingJobsProcess(JsonExtractorMixin,
                          PendingRunningTransformerMixin,
-                         OAuthLoaderMixin):
+                         ClientLoaderMixin):
 
     def run(self, filter_to_revision=None, filter_to_project=None,
             filter_to_job_group=None):
@@ -473,7 +473,7 @@ class PendingJobsProcess(JsonExtractorMixin,
 
 class RunningJobsProcess(JsonExtractorMixin,
                          PendingRunningTransformerMixin,
-                         OAuthLoaderMixin):
+                         ClientLoaderMixin):
 
     def run(self, filter_to_revision=None, filter_to_project=None,
             filter_to_job_group=None):

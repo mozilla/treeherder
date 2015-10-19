@@ -82,7 +82,7 @@ class ResultSetsLoaderMixin(JsonLoaderMixin):
                 logger.error("ResultSet loading failed: {0}".format(message['message']))
 
 
-class OAuthLoaderMixin(object):
+class ClientLoaderMixin(object):
 
     def load(self, th_collections, chunk_size=1):
         if th_collections:
