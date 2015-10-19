@@ -22,7 +22,7 @@ class JobsViewSet(viewsets.ViewSet):
 
     """
     throttle_scope = 'jobs'
-    permission_classes = (permissions.HasHawkOrLegacyOauthPermissionsOrReadOnly,)
+    permission_classes = (permissions.HasHawkPermissionsOrReadOnly,)
 
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):

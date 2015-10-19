@@ -32,12 +32,6 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         return obj.user == request.user
 
 
-class HasLegacyOauthPermissions(permissions.BasePermission):
-
-    def has_permission(self, request, view):
-        return hasattr(request, 'legacy_oauth_authenticated')
-
-
 class HasHawkPermissions(permissions.BasePermission):
 
     def has_permission(self, request, view):
@@ -48,18 +42,11 @@ class HasHawkPermissions(permissions.BasePermission):
         return False
 
 
-class HasHawkOrLegacyOauthPermissions(permissions.BasePermission):
-
-    def has_permission(self, request, view):
-        return (HasHawkPermissions().has_permission(request, view) or
-                HasLegacyOauthPermissions().has_permission(request, view))
-
-
-class HasHawkOrLegacyOauthPermissionsOrReadOnly(permissions.BasePermission):
+class HasHawkPermissionsOrReadOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
 
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return HasHawkOrLegacyOauthPermissions().has_permission(request, view)
+        return HasHawkPermissions().has_permission(request, view)

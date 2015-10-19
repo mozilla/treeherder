@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 import os
-import uuid
 from collections import (OrderedDict,
                          defaultdict)
 from warnings import (filterwarnings,
@@ -170,8 +169,6 @@ class Datasource(models.Model):
     id = models.AutoField(primary_key=True)
     project = models.CharField(max_length=50L, unique=True)
     name = models.CharField(max_length=128L, unique=True)
-    oauth_consumer_key = models.CharField(max_length=45L, blank=True, null=True)
-    oauth_consumer_secret = models.CharField(max_length=45L, blank=True, null=True)
 
     objects = DatasourceManager()
 
@@ -205,25 +202,12 @@ class Datasource(models.Model):
             if '-' in self.name:
                 self.name = self.name.replace('-', '_')
 
-            self.oauth_consumer_key = uuid.uuid4()
-            self.oauth_consumer_secret = uuid.uuid4()
-
         # validate the model before saving
         self.full_clean()
 
         super(Datasource, self).save(*args, **kwargs)
         if inserting:
             self.create_db()
-
-    def get_oauth_consumer_secret(self, key):
-        """
-        Return the oauth consumer secret if the key provided matches the
-        the consumer key.
-        """
-        oauth_consumer_secret = None
-        if self.oauth_consumer_key == key:
-            oauth_consumer_secret = self.oauth_consumer_secret
-        return oauth_consumer_secret
 
     def dhub(self, procs_file_name):
         """

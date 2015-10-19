@@ -7,18 +7,6 @@ from django.conf import settings
 class SampleData(object):
 
     @classmethod
-    def get_credentials(cls):
-
-        credentials = {
-            settings.TREEHERDER_TEST_PROJECT: {
-                'consumer_key': '8de17836-4a9b-45f5-824c-5ada76713334',
-                'consumer_secret': '0f71d011-d773-4831-9f1c-17b237207467'
-            }
-        }
-
-        return credentials
-
-    @classmethod
     def get_perf_data(cls, filename):
         with open("{0}/sample_data/artifacts/performance/{1}".format(
                 os.path.dirname(__file__), filename)) as f:

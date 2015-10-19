@@ -883,12 +883,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return aggregate_details
 
-    def get_oauth_consumer_secret(self, key):
-        """Consumer secret for oauth"""
-        ds = self.get_datasource()
-        secret = ds.get_oauth_consumer_secret(key)
-        return secret
-
     def store_job_data(self, data, raise_errors=False):
         """
         Store JobData instances into jobs db

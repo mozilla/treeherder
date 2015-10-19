@@ -40,22 +40,6 @@ class TreeherderModelBase(object):
         """String representation is project name."""
         return self.project
 
-    @classmethod
-    def get_oauth_credentials(cls):
-
-        credentials = {}
-
-        for source in Datasource.objects.cached():
-
-            if source.oauth_consumer_key and source.oauth_consumer_secret:
-
-                credentials[source.project] = {
-                    'consumer_key': source.oauth_consumer_key,
-                    'consumer_secret': source.oauth_consumer_secret
-                }
-
-        return credentials
-
     def get_dhub(self, procs_file_name=None):
         """
         The configured datahub
