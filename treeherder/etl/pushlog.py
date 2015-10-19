@@ -8,7 +8,7 @@ from treeherder.etl.common import (fetch_json,
                                    generate_revision_hash,
                                    get_not_found_onhold_push)
 
-from .mixins import OAuthLoaderMixin
+from .mixins import ClientLoaderMixin
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +62,7 @@ class HgPushlogTransformerMixin(object):
 
 
 class HgPushlogProcess(HgPushlogTransformerMixin,
-                       OAuthLoaderMixin):
+                       ClientLoaderMixin):
     # For more info on Mercurial Pushes, see:
     #   https://mozilla-version-control-tools.readthedocs.org/en/latest/hgmo/pushlog.html
 
@@ -138,7 +138,7 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
 
 
 class MissingHgPushlogProcess(HgPushlogTransformerMixin,
-                              OAuthLoaderMixin):
+                              ClientLoaderMixin):
 
     def extract(self, url, revision):
         logger.info("extracting missing resultsets: {0}".format(url))
