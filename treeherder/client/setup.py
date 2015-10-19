@@ -45,5 +45,5 @@ setup(name='treeherder-client',
       license='MPL',
       packages=['thclient'],
       zip_safe=False,
-      install_requires=['oauth2', 'requests>=2.4.3', 'requests-hawk']
+      install_requires=['requests>=2.4.3', 'requests-hawk']
       )
