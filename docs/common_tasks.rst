@@ -66,41 +66,30 @@ Or for more control, run each tool individually:
   NB: isort must be run from inside the VM, since a populated (and up to date) virtualenv is required so that isort can correctly categorise the imports.
 
 
-Look up credentials for a project
----------------------------------
+Managing API credentials
+------------------------
 
-To submit data to an existing project, you need corresponding OAuth
-credentials, even if you're submitting to your local server.
+To submit data to Treeherder's API you need Hawk credentials,
+even if you're submitting to your local server.
 
-Prerequisite: you must have previously exported credentials for all data
-source projects. This is part of the usual Treeherder setup process.
-
-  .. code-block:: bash
-
-      (venv)vagrant@local:~/treeherder$ ./manage.py export_project_credentials
-
-The above command writes all project credentials to
-``treeherder/etl/data/credentials.json`` for use by the Treeherder service.
-
-If you are implementing :doc:`data submission <submitting_data>` with
-``TreeherderClient`` and testing that locally, it is useful to work with your
-own copy of ``credentials.json``. You can export the credentials wherever you
-need with the ``--destination`` option:
+To generate credentials in the Vagrant instance run the following:
 
   .. code-block:: bash
 
-      (venv)vagrant@local:~/treeherder$ ./manage.py export_project_credentials --destination /some/path
+      (venv)vagrant@local:~/treeherder$ ./manage.py create_credentials my-client-id treeherder@mozilla.com "Description"
 
-Within Treeherder, you can look up the credentials for a project like
-``mozilla-central`` as follows:
+The generated Hawk ``secret`` will be output to the console, which should then
+be passed along with the chosen ``client_id`` to the TreeherderClient constructor.
+For more details see the :doc:`submitting_data` section.
 
-  .. code-block:: python
+Users can request credentials for the deployed Mozilla Treeherder instances
+(and view/delete existing ones) using the forms here:
+`stage <https://treeherder.allizom.org/credentials/>`_,
+`production <https://treeherder.mozilla.org/credentials/>`_.
 
-      from treeherder.etl.oauth_utils import OAuthCredentials
-      credentials = OAuthCredentials.get_credentials('mozilla-central')
-
-The call to ``get_credentials`` obtains data directly from the
-previously-generated ``treeherder/etl/data/credentials.json``.
+Once requested these require approval by a Treeherder administrator, here:
+`stage <https://treeherder.allizom.org/admin/credentials/credentials/>`_,
+`production <https://treeherder.mozilla.org/admin/credentials/credentials/>`_.
 
 
 Add a new repository
@@ -120,12 +109,6 @@ To add a new repository, the following steps are needed:
   .. code-block:: bash
 
      > python manage.py init_datasources
-
-* Generate a new oauth credentials file:
-
-  .. code-block:: bash
-
-     > python manage.py export_project_credentials
 
 * Restart all the services through supervisord:
 
