@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class JobLogUrlViewSet(viewsets.ViewSet):
-    permission_classes = (permissions.HasHawkOrLegacyOauthPermissionsOrReadOnly,)
+    permission_classes = (permissions.HasHawkPermissionsOrReadOnly,)
 
     """
     A job_log_url object holds a reference to a job log.

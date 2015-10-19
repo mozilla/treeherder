@@ -10,10 +10,8 @@ from requests import Request
 from requests_hawk import HawkAuth
 from webtest.app import TestApp
 
-from tests.sampledata import SampleData
 from treeherder.client import TreeherderClient
 from treeherder.config.wsgi import application
-from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.model.derived.jobs import JobsModel
 
 
@@ -274,11 +272,6 @@ def eleven_jobs_stored(jm, sample_data, sample_resultset, mock_log_parser):
         resultset_index += 1
 
     jm.store_job_data(blobs)
-
-
-@pytest.fixture
-def set_oauth_credentials():
-    OAuthCredentials.set_credentials(SampleData.get_credentials())
 
 
 @pytest.fixture

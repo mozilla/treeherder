@@ -47,9 +47,6 @@ treeherder/static/
 #media files in deployment
 treeherder/media/
 
-#etl data files
-treeherder/etl/data/credentials.json
-
 #docs build directory
 docs/_build/
 

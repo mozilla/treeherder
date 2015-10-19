@@ -10,7 +10,7 @@ from treeherder.webapp.api.utils import UrlQueryFilter
 
 
 class ArtifactViewSet(viewsets.ViewSet):
-    permission_classes = (permissions.HasHawkOrLegacyOauthPermissionsOrReadOnly,)
+    permission_classes = (permissions.HasHawkPermissionsOrReadOnly,)
 
     """
     This viewset is responsible for the artifact endpoint.
