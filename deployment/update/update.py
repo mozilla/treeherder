@@ -59,10 +59,6 @@ def update(ctx):
             ctx.local('ln -s lib lib64')
 
     with ctx.lcd(th_service_src):
-        # Once we no longer use credentials.json, everything below apart from
-        # collectstatic should be performed on one of the stage/prod specific
-        # nodes at the end of the deploy, rather than on the admin node.
-
         # Install nodejs non-dev packages, needed for the grunt build.
         ctx.local("npm install --production")
         # Generate the UI assets in the `dist/` directory.
@@ -82,8 +78,6 @@ def update(ctx):
         run_local_with_env(ctx, "python2.7 manage.py load_initial_data")
         # Populate the datasource table and create the connected databases.
         run_local_with_env(ctx, "python2.7 manage.py init_datasources")
-        # Update oauth credentials.
-        run_local_with_env(ctx, "python2.7 manage.py export_project_credentials")
 
 
 @task

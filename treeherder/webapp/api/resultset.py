@@ -21,7 +21,7 @@ class ResultSetViewSet(viewsets.ViewSet):
     ``result sets`` are synonymous with ``pushes`` in the ui
     """
     throttle_scope = 'resultset'
-    permission_classes = (permissions.HasHawkOrLegacyOauthPermissionsOrReadOnly,)
+    permission_classes = (permissions.HasHawkPermissionsOrReadOnly,)
 
     @with_jobs
     def list(self, request, project, jm):

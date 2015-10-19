@@ -284,8 +284,7 @@ REST_FRAMEWORK = {
     ),
     'EXCEPTION_HANDLER': 'treeherder.webapp.api.exceptions.exception_handler',
     'DEFAULT_THROTTLE_CLASSES': (
-        'treeherder.webapp.api.throttling.OauthKeyThrottle',
-        'treeherder.webapp.api.throttling.HawkClientThrottle'
+        'treeherder.webapp.api.throttling.HawkClientThrottle',
     ),
     'DEFAULT_THROTTLE_RATES': {
         'jobs': '220/minute',
@@ -297,7 +296,6 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
         'hawkrest.HawkAuthentication',
-        'treeherder.webapp.api.auth.TwoLeggedOauthAuthentication',
     ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }

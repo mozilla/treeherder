@@ -6,16 +6,12 @@ from rest_framework.views import APIView
 from treeherder.webapp.api import throttling
 
 
-class OauthKey1SecRateThrottle(throttling.OauthKeyThrottle):
-    THROTTLE_RATES = {'foo': '1/sec'}
-
-
 class HawkClient1SecRateThrottle(throttling.HawkClientThrottle):
     THROTTLE_RATES = {'foo': '1/sec'}
 
 
 class MockView(APIView):
-    throttle_classes = (OauthKey1SecRateThrottle, HawkClient1SecRateThrottle,)
+    throttle_classes = (HawkClient1SecRateThrottle,)
     throttle_scope = 'foo'
 
     def get(self, request):
@@ -44,19 +40,6 @@ def test_no_throttle():
         response = MockView.as_view()(request)
     # subsequent requests still ok
     response.status_code == 200
-
-
-def test_oauth_key_throttle():
-    request = factory.get('/', {'oauth_consumer_key': 'my-consumer-key'})
-
-    response = MockView.as_view()(request)
-    # first request ok
-    response.status_code == 200
-
-    for i in range(1):
-        response = MockView.as_view()(request)
-    # subsequent requests should get throttled
-    assert response.status_code == 429
 
 
 def test_hawk_client_throttle(monkeypatch):

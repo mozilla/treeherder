@@ -18,7 +18,6 @@ deployment/update/commander_settings.py
 dist/
 docs/_build/
 treeherder/config/settings_local.py
-treeherder/etl/data/credentials.json
 treeherder/media/
 treeherder/static/
 treeherder/webapp/log_cache/
