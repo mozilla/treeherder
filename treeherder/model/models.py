@@ -622,37 +622,52 @@ class ClassifiedFailure(models.Model):
 
 
 class MatcherManager(models.Manager):
-    def register_matcher(self, cls):
-        return self._register(cls, Matcher._matcher_funcs)
+    _detector_funcs = None
+    _matcher_funcs = None
 
-    def register_detector(self, cls):
-        return self._register(cls, Matcher._detector_funcs)
+    @classmethod
+    def register_matcher(cls, matcher_cls):
+        assert cls._matcher_funcs is not None
+        return cls._register(matcher_cls, cls._matcher_funcs)
 
-    def _register(self, cls, dest):
-        if cls.__name__ in dest:
+    @classmethod
+    def register_detector(cls, detector_cls):
+        assert cls._detector_funcs is not None
+        return cls._register(detector_cls, cls._detector_funcs)
+
+    @classmethod
+    def _register(cls, matcher_cls, dest):
+        if matcher_cls.__name__ in dest:
             return dest[cls.__name__]
 
-        obj = Matcher.objects.get_or_create(name=cls.__name__)[0]
+        obj = Matcher.objects.get_or_create(name=matcher_cls.__name__)[0]
 
-        instance = cls(obj)
-        dest[cls.__name__] = instance
+        instance = matcher_cls(obj)
+        dest[matcher_cls.__name__] = instance
 
         return instance
 
     def registered_matchers(self):
-        for matcher in Matcher._matcher_funcs.values():
+        if self._matcher_funcs is None:
+            from treeherder.autoclassify import matchers
+            MatcherManager._matcher_funcs = OrderedDict()
+            matchers.register()
+
+        for matcher in self._matcher_funcs.values():
             yield matcher
 
     def registered_detectors(self):
-        for matcher in Matcher._detector_funcs.values():
+        if self._detector_funcs is None:
+            from treeherder.autoclassify import detectors
+            MatcherManager._detector_funcs = OrderedDict()
+            detectors.register()
+
+        for matcher in self._detector_funcs.values():
             yield matcher
 
 
 class Matcher(models.Model):
     name = models.CharField(max_length=50, unique=True)
-
-    _detector_funcs = OrderedDict()
-    _matcher_funcs = OrderedDict()
 
     objects = MatcherManager()
 

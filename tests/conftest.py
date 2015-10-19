@@ -464,7 +464,7 @@ def failure_lines(jm, test_repository, eleven_jobs_stored, initial_data):
 
 @pytest.fixture
 def classified_failures(request, jm, eleven_jobs_stored, initial_data, failure_lines):
-    from treeherder.model.models import ClassifiedFailure, FailureMatch, Matcher
+    from treeherder.model.models import ClassifiedFailure, FailureMatch, MatcherManager
     from treeherder.autoclassify import detectors
 
     job_1 = jm.get_job(1)[0]
@@ -473,11 +473,13 @@ def classified_failures(request, jm, eleven_jobs_stored, initial_data, failure_l
         def __call__(self, failure_lines):
             pass
 
-    test_matcher = Matcher.objects.register_detector(TreeherderUnitTestDetector)
+    test_matcher = MatcherManager._detector_funcs = {}
+    test_matcher = MatcherManager._matcher_funcs = {}
+    test_matcher = MatcherManager.register_detector(TreeherderUnitTestDetector)
 
     def finalize():
-        Matcher._detector_funcs = {}
-        Matcher._matcher_funcs = {}
+        MatcherManager._detector_funcs = {}
+        MatcherManager._matcher_funcs = {}
     request.addfinalizer(finalize)
 
     classified_failures = []

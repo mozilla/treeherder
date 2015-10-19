@@ -4,7 +4,6 @@ from collections import defaultdict
 from django.core.management.base import (BaseCommand,
                                          CommandError)
 
-from treeherder.autoclassify import matchers
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import (FailureLine,
                                      FailureMatch,
@@ -14,9 +13,6 @@ logger = logging.getLogger(__name__)
 
 # The minimum goodness of match we need to mark a particular match as the best match
 AUTOCLASSIFY_CUTOFF_RATIO = 0.8
-
-# Initialisation needed to associate matcher functions with the matcher objects
-matchers.register()
 
 
 class Command(BaseCommand):

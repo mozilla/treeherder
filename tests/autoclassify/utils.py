@@ -1,8 +1,9 @@
 import json
+import zlib
 
 from treeherder.model.derived.artifacts import ArtifactsModel
 from treeherder.model.models import (FailureLine,
-                                     Matcher)
+                                     MatcherManager)
 
 test_line = {"action": "test_result", "test": "test1", "subtest": "subtest1",
              "status": "FAIL", "expected": "PASS", "message": "message1"}
@@ -32,7 +33,7 @@ def create_bug_suggestions(job, project, *bug_suggestions):
 
     bug_suggestions_placeholders = [
         job["id"], 'Bug suggestions',
-        'json', json.dumps(bug_suggestions),
+        'json', zlib.compress(json.dumps(bug_suggestions)),
         job["id"], 'Bug suggestions',
     ]
 
@@ -41,12 +42,12 @@ def create_bug_suggestions(job, project, *bug_suggestions):
 
 
 def register_matchers(*args):
-    Matcher._matcher_funcs = {}
+    MatcherManager._matcher_funcs = {}
     for item in args:
-        Matcher.objects.register_matcher(item)
+        MatcherManager.register_matcher(item)
 
 
 def register_detectors(*args):
-    Matcher._detector_funcs = {}
+    MatcherManager._detector_funcs = {}
     for item in args:
-        Matcher.objects.register_detector(item)
+        MatcherManager.register_detector(item)

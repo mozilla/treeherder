@@ -2,7 +2,7 @@ import logging
 from abc import (ABCMeta,
                  abstractmethod)
 
-from treeherder.model import models
+from treeherder.model.models import MatcherManager
 
 logger = logging.getLogger(__name__)
 
@@ -41,9 +41,14 @@ class ManualDetector(Detector):
         return []
 
 
+__registered = False
+
+
 def register():
+    global __registered
+    if __registered:
+        return
+    __registered = True
+
     for obj in [ManualDetector, TestFailureDetector]:
-        models.Matcher.objects.register_detector(obj)
-
-
-register()
+        MatcherManager.register_detector(obj)

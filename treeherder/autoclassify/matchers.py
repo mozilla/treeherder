@@ -3,8 +3,8 @@ from abc import (ABCMeta,
                  abstractmethod)
 from collections import namedtuple
 
-from treeherder.model import models
-from treeherder.model.models import FailureMatch
+from treeherder.model.models import (FailureMatch,
+                                     MatcherManager)
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +57,14 @@ class PreciseTestMatcher(Matcher):
         return rv
 
 
+__registered = False
+
+
 def register():
+    global __registered
+    if __registered:
+        return
+    __registered = True
+
     for obj in [PreciseTestMatcher]:
-        models.Matcher.objects.register_matcher(obj)
-
-
-register()
+        MatcherManager.register_matcher(obj)
