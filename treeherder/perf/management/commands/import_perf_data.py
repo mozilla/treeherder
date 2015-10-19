@@ -45,8 +45,11 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity):
                      'test', 'suite']:
             extra_properties[k] = signature_props[k]
 
+    repository = Repository.objects.get(name=project_name)
+
     signature, _ = PerformanceSignature.objects.get_or_create(
         signature_hash=signature_hash,
+        repository=repository,
         defaults={
             'test': signature_props.get('test', ''),
             'suite': signature_props['suite'],
@@ -59,7 +62,6 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity):
     series = pc.get_performance_data(
         project_name, signatures=signature_hash,
         time_interval=PerformanceTimeInterval.ONE_YEAR)[signature_hash]
-    repository = Repository.objects.get(name=project_name)
 
     with transaction.atomic():
         for datum in series:
