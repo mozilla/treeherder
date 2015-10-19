@@ -4,13 +4,11 @@ import json
 import os
 import unittest
 
-import requests
 from mock import patch
 from requests_hawk import HawkAuth
 
 from treeherder.client import (TreeherderArtifact,
                                TreeherderArtifactCollection,
-                               TreeherderAuth,
                                TreeherderClient,
                                TreeherderClientError,
                                TreeherderJob,
@@ -505,33 +503,6 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
             tac.get_collection_data(),
             resp['json']
             )
-
-    @patch("treeherder.client.auth.oauth.generate_nonce")
-    @patch("treeherder.client.auth.oauth.time.time")
-    def test_treeheder_auth(self, mock_time, mock_generate_nonce):
-
-        """Tests that oauth data is sent to server"""
-        mock_time.return_value = 1342229050
-        mock_generate_nonce.return_value = "46810593"
-
-        tjc = TreeherderJobCollection()
-        tjc.add(tjc.get_job(self.job_data[0]))
-
-        auth = TreeherderAuth('key', 'secret', 'project')
-        req = requests.Request(url='http://host/api/project/project/jobs/',
-                               json=tjc.get_collection_data(),
-                               auth=auth, method='POST')
-        prepped_request = req.prepare()
-        self.assertEqual(prepped_request.url, ("http://host/api/project/project/jobs/?"
-                                               "oauth_body_hash=DEn0vGleFUlmCzsFtv1fzBEpNHg%3D&"
-                                               "oauth_nonce=46810593&"
-                                               "oauth_timestamp=1342229050&"
-                                               "oauth_consumer_key=key&"
-                                               "oauth_signature_method=HMAC-SHA1&"
-                                               "oauth_version=1.0&"
-                                               "oauth_token=&"
-                                               "user=project&"
-                                               "oauth_signature=kxmsE%2BCqRDtV%2Bqk9GYeA7n4F%2FCI%3D"))
 
     def test_hawkauth_setup(self):
         """Test that HawkAuth is correctly set up from the `client_id` and `secret` params."""
