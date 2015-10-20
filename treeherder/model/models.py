@@ -636,9 +636,11 @@ class LazyClassData(object):
     def __set__(self, obj, val):
         self.value = val
 
+
 def _init_matchers():
     from treeherder.autoclassify import matchers
     matchers.register()
+
 
 def _init_detectors():
     from treeherder.autoclassify import detectors
