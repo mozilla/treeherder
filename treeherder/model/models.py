@@ -621,9 +621,33 @@ class ClassifiedFailure(models.Model):
         db_table = 'classified_failure'
 
 
+class LazyClassData(object):
+    def __init__(self, type_func, setter):
+        self.type_func = type_func
+        self.setter = setter
+        self.value = None
+
+    def __get__(self, obj, objtype):
+        if self.value is None:
+            self.value = self.type_func()
+            self.setter()
+        return self.value
+
+    def __set__(self, obj, val):
+        self.value = val
+
+def _init_matchers():
+    from treeherder.autoclassify import matchers
+    matchers.register()
+
+def _init_detectors():
+    from treeherder.autoclassify import detectors
+    detectors.register()
+
+
 class MatcherManager(models.Manager):
-    _detector_funcs = None
-    _matcher_funcs = None
+    _detector_funcs = LazyClassData(OrderedDict, _init_detectors)
+    _matcher_funcs = LazyClassData(OrderedDict, _init_matchers)
 
     @classmethod
     def register_matcher(cls, matcher_cls):
@@ -648,20 +672,10 @@ class MatcherManager(models.Manager):
         return instance
 
     def registered_matchers(self):
-        if self._matcher_funcs is None:
-            from treeherder.autoclassify import matchers
-            MatcherManager._matcher_funcs = OrderedDict()
-            matchers.register()
-
         for matcher in self._matcher_funcs.values():
             yield matcher
 
     def registered_detectors(self):
-        if self._detector_funcs is None:
-            from treeherder.autoclassify import detectors
-            MatcherManager._detector_funcs = OrderedDict()
-            detectors.register()
-
         for matcher in self._detector_funcs.values():
             yield matcher
 
