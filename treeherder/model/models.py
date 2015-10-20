@@ -607,7 +607,19 @@ class FailureLine(models.Model):
             new_link.save()
 
 
+class ClassifiedFailureManager(models.Manager):
+    def for_line(self, failure_line):
+        try:
+            return ClassifiedFailure.objects.filter(
+                failure_lines__id=failure_line.id,
+                matches__is_best=True).get()
+        except ClassifiedFailure.DoesNotExist:
+            return None
+
+
 class ClassifiedFailure(models.Model):
+    objects = ClassifiedFailureManager()
+
     id = BigAutoField(primary_key=True)
     failure_lines = models.ManyToManyField(FailureLine, through='FailureMatch',
                                            related_name='classified_failures')
@@ -710,7 +722,8 @@ class Matcher(models.Model):
 class FailureMatch(models.Model):
     id = BigAutoField(primary_key=True)
     failure_line = FlexibleForeignKey(FailureLine, related_name="matches")
-    classified_failure = FlexibleForeignKey(ClassifiedFailure)
+    classified_failure = FlexibleForeignKey(ClassifiedFailure, related_name="matches")
+
     matcher = models.ForeignKey(Matcher)
     score = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
     is_best = models.BooleanField(default=False)

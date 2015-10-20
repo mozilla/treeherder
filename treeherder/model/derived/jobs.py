@@ -12,7 +12,8 @@ from treeherder.etl.common import get_guid_root
 from treeherder.events.publisher import JobStatusPublisher
 from treeherder.model import (error_summary,
                               utils)
-from treeherder.model.models import (Datasource,
+from treeherder.model.models import (ClassifiedFailure,
+                                     Datasource,
                                      ExclusionProfile,
                                      FailureClassification,
                                      FailureLine,
@@ -426,17 +427,8 @@ class JobsModel(TreeherderModelBase):
             return
 
         manual_detector = Matcher.objects.get(name="ManualDetector")
-        bug_job_map = self.get_bug_job_map_list(
-            offset=0,
-            limit=1,
-            conditions={"job_id": set([("=", job_id)])})
 
-        if bug_job_map:
-            bug_number = bug_job_map[0]["bug_id"]
-        else:
-            bug_number = None
-
-        failure_line.set_classification(manual_detector, bug_number)
+        failure_line.set_classification(manual_detector)
 
     def manual_classification_line(self, job_id):
         """
@@ -482,7 +474,8 @@ class JobsModel(TreeherderModelBase):
     def fully_autoclassified(self, job_id):
         job = self.get_job(job_id)[0]
 
-        if FailureLine.objects.filter(action="truncated").count() > 0:
+        if FailureLine.objects.filter(job_guid=job["job_guid"],
+                                      action="truncated").count() > 0:
             return False
 
         num_failure_lines = FailureLine.objects.filter(job_guid=job["job_guid"],
@@ -565,6 +558,9 @@ class JobsModel(TreeherderModelBase):
                     routing_key='classification_mirroring'
                 )
 
+        if who != 'autoclassifier':
+            self.update_autoclassification_bug(job_id, bug_id)
+
     def delete_bug_job_map(self, job_id, bug_id):
         """
         Delete a bug-job entry identified by bug_id and job_id
@@ -577,6 +573,17 @@ class JobsModel(TreeherderModelBase):
             ],
             debug_show=self.DEBUG
         )
+
+    def update_autoclassification_bug(self, job_id, bug_id):
+        failure_line = self.manual_classification_line(job_id)
+
+        if failure_line is None:
+            return
+
+        failure = ClassifiedFailure.objects.for_line(failure_line)
+        if failure and failure.bug_number is None:
+            failure.bug_number = bug_id
+            failure.save()
 
     def calculate_eta(self, sample_window_seconds, debug):
 
