@@ -331,7 +331,7 @@
         "dvcs_type": "hg",
         "name": "gum",
         "url": "https://hg.mozilla.org/projects/gum",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 6,
         "description": ""
@@ -344,7 +344,7 @@
         "dvcs_type": "hg",
         "name": "holly",
         "url": "https://hg.mozilla.org/projects/holly",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 6,
         "description": ""
@@ -383,7 +383,7 @@
         "dvcs_type": "hg",
         "name": "maple",
         "url": "https://hg.mozilla.org/projects/maple",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 6,
         "description": ""
