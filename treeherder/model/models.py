@@ -589,7 +589,7 @@ class FailureLine(models.Model):
     def set_classification(self, matcher, bug_number=None):
         with transaction.atomic():
             if bug_number:
-                classification = ClassifiedFailure.objects.get_or_create(
+                classification, _ = ClassifiedFailure.objects.get_or_create(
                     bug_number=bug_number)
             else:
                 classification = ClassifiedFailure.objects.create()
@@ -623,6 +623,17 @@ class ClassifiedFailure(models.Model):
 
 class LazyClassData(object):
     def __init__(self, type_func, setter):
+        """Descriptor object for class-level data that is lazily initialized.
+        See https://docs.python.org/2/howto/descriptor.html for details of the descriptor
+        protocol.
+
+        :param type_func: Callable of zero arguments used to initalize the data storage on
+                          first access.
+        :param setter: Callable of zero arguments used to populate the data storage
+                       after it has been initialized. Unlike type_func this can safely
+                       be used reentrantly i.e. the setter function may itself access the
+                       attribute being set.
+        """
         self.type_func = type_func
         self.setter = setter
         self.value = None
@@ -666,7 +677,7 @@ class MatcherManager(models.Manager):
         if matcher_cls.__name__ in dest:
             return dest[cls.__name__]
 
-        obj = Matcher.objects.get_or_create(name=matcher_cls.__name__)[0]
+        obj, _ = Matcher.objects.get_or_create(name=matcher_cls.__name__)
 
         instance = matcher_cls(obj)
         dest[matcher_cls.__name__] = instance
