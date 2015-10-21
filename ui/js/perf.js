@@ -268,7 +268,6 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
 
                                 return {
                                     getCompareClasses: function(cr, type) {
-                                        if (cr.hideMinorChanges && !cr.isMeaningful) return 'subtest-empty';
                                         if (cr.isEmpty) return 'subtest-empty';
                                         if (type == 'row' && cr.highlightedTest) return 'active subtest-highlighted';
                                         if (type == 'row') return '';
@@ -394,6 +393,13 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                         cmap.isRegression = (cmap.className == 'compare-regression');
                                         cmap.isImprovement = (cmap.className == 'compare-improvement');
                                         cmap.isMeaningful = (cmap.className != "");
+                                        cmap.isComplete = (cmap.originalRuns.length &&
+                                                           cmap.newRuns.length)
+                                        cmap.isConfident = ((cmap.originalRuns.length > 1 &&
+                                                             cmap.newRuns.length > 1 &&
+                                                             cmap.confidenceText === 'high') ||
+                                                            (cmap.originalRuns.length >= 6 &&
+                                                             cmap.newRuns.length >= 6));
 
                                         return cmap;
                                     },
