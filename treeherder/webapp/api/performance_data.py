@@ -95,7 +95,10 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
                 'signature__signature_hash').order_by('push_timestamp')
 
         if signature_hashes:
-            datums = datums.filter(signature__signature_hash__in=signature_hashes)
+            signature_ids = PerformanceSignature.objects.filter(
+                repository=repository,
+                signature_hash__in=signature_hashes).values_list('id', flat=True)
+            datums = datums.filter(signature__id__in=list(signature_ids))
         if result_set_ids:
             datums = datums.filter(result_set_id__in=result_set_ids)
         if job_ids:
