@@ -1,11 +1,14 @@
-sudo: false
-language: python
+# Once mysql 5.6 is available on the container infra, this can be removed.
+sudo: required
+dist: trusty
 python:
   - "2.7"
-cache:
-  directories:
-    - $HOME/virtualenv/python2.7.9
-    - node_modules
+# This doesn't do anything on the non-container infra. See:
+#   https://github.com/travis-ci/travis-ci/issues/4997
+# cache:
+#   directories:
+#     - $HOME/virtualenv/python2.7.9
+#     - node_modules
 env:
   global:
     - DATABASE_URL='mysql://root@localhost/treeherder'
@@ -14,9 +17,18 @@ env:
 services:
   - rabbitmq
   - memcached
+before_install:
+  # Manually install mysql 5.6 since the default is v5.5.
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
 install:
   - npm install
-  - ./bin/peep.py install -r requirements/common.txt -r requirements/dev.txt
+  # We use `--user` with pip install since the non-container infra doesn't set up
+  # a virtualenv, and we cannot use sudo due to:
+  #   https://github.com/travis-ci/travis-ci/issues/4989
+  # Disabling the pip version check speeds up the install considerably, since peep
+  # calls pip once per package, which results in duplicate checks (plus log spam).
+  - ./bin/peep.py install --user -r requirements/common.txt -r requirements/dev.txt --disable-pip-version-check
 before_script:
   - flake8 --show-source
   - isort --check-only --diff --quiet
@@ -24,7 +36,7 @@ before_script:
   # Required for Karma tests (http://docs.travis-ci.com/user/gui-and-headless-browsers/)
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
-  - mysql -e 'create database treeherder;'
+  - mysql -u root -e 'create database treeherder;'
 script:
   - npm test
   - py.test tests/$* --runslow
