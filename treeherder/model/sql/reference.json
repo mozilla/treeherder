@@ -164,7 +164,7 @@
             "host_type":"master_host"
         },
         "get_job_types":{
-            "sql": "SELECT `id`, `name`, `symbol`, `job_group_id`
+            "sql": "SELECT `id`, `name`, `symbol`
                     FROM `job_type`
                     WHERE `active_status` = 'active' AND (REP0)",
 
@@ -283,23 +283,6 @@
                         `os` = ?,
                         `modified` = ?
                     WHERE `id` = ?",
-            "host_type":"master_host"
-        },
-        "update_job_type_group_id":{
-
-            "sql":"UPDATE `job_type`
-                   SET `job_group_id` = ?
-                   WHERE `name` = ? AND `symbol` = ?",
-
-
-            "host_type":"master_host"
-        },
-        "update_job_type_group_id":{
-
-            "sql":"UPDATE `job_type`
-                   SET `job_group_id` = ?
-                   WHERE `name` = ? AND `symbol` = ?",
-
             "host_type":"master_host"
         }
     },

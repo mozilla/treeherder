@@ -82,10 +82,10 @@ test_params = [
             ['mytype4', 'MT4', 'mygroup4', 'MG4']
         ],
         'expected': {
-            'mytype1-MT1': {'id': 1, 'name': 'mytype1', 'symbol': 'MT1', 'job_group_id': None},
-            'mytype2-MT2': {'id': 2, 'name': 'mytype2', 'symbol': 'MT2', 'job_group_id': None},
-            'mytype3-MT3': {'id': 3, 'name': 'mytype3', 'symbol': 'MT3', 'job_group_id': None},
-            'mytype4-MT4': {'id': 4, 'name': 'mytype4', 'symbol': 'MT4', 'job_group_id': None},
+            'mytype1-MT1': {'id': 1, 'name': 'mytype1', 'symbol': 'MT1'},
+            'mytype2-MT2': {'id': 2, 'name': 'mytype2', 'symbol': 'MT2'},
+            'mytype3-MT3': {'id': 3, 'name': 'mytype3', 'symbol': 'MT3'},
+            'mytype4-MT4': {'id': 4, 'name': 'mytype4', 'symbol': 'MT4'},
         }
     },
     {
@@ -224,38 +224,22 @@ def test_add_job_type(refdata):
         [None, 'B', None, '?'],
     ]
 
-    expected = (
-        {'name': 'mytype1', 'symbol': 'MT1', 'job_group_id': 1},
-        {'name': 'mytype2', 'symbol': 'MT2', 'job_group_id': 2},
-        {'name': 'mytype3', 'symbol': 'MT3', 'job_group_id': 3},
-        {'name': 'mytype4', 'symbol': 'MT4', 'job_group_id': 4},
-        {'name': 'mytype4', 'symbol': '?', 'job_group_id': 5},
-        {'name': 'unknown', 'symbol': '?', 'job_group_id': 6},
-        {'name': '?', 'symbol': '?', 'job_group_id': 7},
-        {'name': 'B2G Emulator Image Build', 'symbol': 'B', 'job_group_id': 6},
-        {'name': 'unknown', 'symbol': 'B', 'job_group_id': 6},
-    )
-
-    keys = []
+    type_keys = []
+    group_keys = []
     for data in job_data:
-        key = refdata.add_job_type(
+        type_key, group_key = refdata.add_job_type(
             data[0], data[1], data[2], data[3]
         )
-        keys.append(key)
+        type_keys.append(type_key)
+        group_keys.append(group_key)
 
     refdata.process_job_groups()
     job_lookup = refdata.process_job_types()
 
-    for key in keys:
+    for key in type_keys:
         assert key in job_lookup
 
-    row_data = refdata.dhub.execute(
-        proc='refdata_test.selects.test_all_job_group_ids'
-    )
-
     refdata.disconnect()
-
-    assert row_data == expected
 
 
 def test_get_repository_info(refdata, repository_id):

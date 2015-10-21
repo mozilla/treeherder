@@ -61,6 +61,7 @@
                 `machine_id`,
                 `option_collection_hash`,
                 `job_type_id`,
+                `job_group_id`,
                 `product_id`,
                 `who`,
                 `reason`,
@@ -71,7 +72,7 @@
                 `end_timestamp`,
                 `running_eta`,
                 `tier`)
-                SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+                SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
                 FROM DUAL WHERE NOT EXISTS (
                     SELECT `job_guid`
                     FROM `job`
@@ -240,6 +241,7 @@
                 `machine_id` = ?,
                 `option_collection_hash` = ?,
                 `job_type_id` = ?,
+                `job_group_id` = ?,
                 `product_id` = ?,
                 `who` = ?,
                 `reason` = ?,
@@ -426,7 +428,7 @@
                   LEFT JOIN `REP0`.`job_type` as jt
                     ON j.`job_type_id` = jt.id
 				  LEFT JOIN `REP0`.`job_group` as jg
-                    ON jt.`job_group_id` = jg.id
+                    ON j.`job_group_id` = jg.id
                   LEFT JOIN `REP0`.reference_data_signatures rds
                     ON j.signature = rds.signature
                   WHERE j.id = ?
@@ -455,7 +457,7 @@
                     jt.`symbol` as job_type_symbol,
                     jt.`description` as job_type_description,
 					jg.`name` as job_group_name,
-                    jt.`job_group_id` as job_group_id,
+                    j.`job_group_id` as job_group_id,
                     jg.`symbol` as job_group_symbol,
                     jg.`description` as job_group_description,
                     j.`who`,
@@ -481,7 +483,7 @@
                   LEFT JOIN `REP0`.`job_type` as jt
                     ON j.`job_type_id` = jt.id
 				  LEFT JOIN `REP0`.`job_group` as jg
-                    ON jt.`job_group_id` = jg.id
+                    ON j.`job_group_id` = jg.id
                   LEFT JOIN result_set rs
                     ON rs.id = j.result_set_id
                   LEFT JOIN `REP0`.reference_data_signatures rds

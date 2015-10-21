@@ -43,14 +43,15 @@ class JobsModel(TreeherderModelBase):
     JOB_PH_MACHINE_NAME = 6
     JOB_PH_OPTION_COLLECTION_HASH = 7
     JOB_PH_TYPE_KEY = 8
-    JOB_PH_PRODUCT_TYPE = 9
-    JOB_PH_WHO = 10
-    JOB_PH_REASON = 11
-    JOB_PH_RESULT = 12
-    JOB_PH_STATE = 13
-    JOB_PH_START_TIMESTAMP = 15
-    JOB_PH_END_TIMESTAMP = 16
-    JOB_PH_RUNNING_AVG = 17
+    JOB_PH_GROUP_KEY = 9
+    JOB_PH_PRODUCT_TYPE = 10
+    JOB_PH_WHO = 11
+    JOB_PH_REASON = 12
+    JOB_PH_RESULT = 13
+    JOB_PH_STATE = 14
+    JOB_PH_START_TIMESTAMP = 16
+    JOB_PH_END_TIMESTAMP = 17
+    JOB_PH_RUNNING_AVG = 18
 
     # list of searchable columns, i.e. those who have an index
     # it would be nice to get this directly from the db and cache it
@@ -66,6 +67,7 @@ class JobsModel(TreeherderModelBase):
             "machine_id": "j.machine_id",
             "option_collection_hash": "j.option_collection_hash",
             "job_type_id": "j.job_type_id",
+            "job_group_id": "j.job_group_id",
             "product_id": "j.product_id",
             "failure_classification_id": "j.failure_classification_id",
             "who": "j.who",
@@ -1250,7 +1252,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         group_name = job.get('group_name', 'unknown')
         group_symbol = job.get('group_symbol', 'unknown')
 
-        job_type_key = self.refdata_model.add_job_type(
+        job_type_key, job_group_key = self.refdata_model.add_job_type(
             job_type, job_symbol, group_name, group_symbol
         )
 
@@ -1301,15 +1303,16 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             machine,                # idx:6, replace with machine_id
             option_collection_hash,  # idx:7
             job_type_key,           # idx:8, replace with job_type_id
-            product,                # idx:9, replace with product_id
+            job_group_key,           # idx:9, replace with job_type_id
+            product,                # idx:10, replace with product_id
             who,
             reason,
-            job.get('result', 'unknown'),  # idx:12, this is typically an int
+            job.get('result', 'unknown'),  # idx:13, this is typically an int
             state,
             self.get_number(job.get('submit_timestamp')),
             self.get_number(job.get('start_timestamp')),
             self.get_number(job.get('end_timestamp')),
-            0,                      # idx:17, replace with running_avg_sec
+            0,                      # idx:18, replace with running_avg_sec
             tier,
             job_guid,
             get_guid_root(job_guid)  # will be the same except for ``retry`` jobs
@@ -1401,6 +1404,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         option_collection_hash = job_placeholders[index][
             self.JOB_PH_OPTION_COLLECTION_HASH]
         job_type_key = job_placeholders[index][self.JOB_PH_TYPE_KEY]
+        job_group_key = job_placeholders[index][self.JOB_PH_GROUP_KEY]
         product_type = job_placeholders[index][self.JOB_PH_PRODUCT_TYPE]
         who = job_placeholders[index][self.JOB_PH_WHO]
         reason = job_placeholders[index][self.JOB_PH_REASON]
@@ -1433,7 +1437,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         # replace job_type with id
         job_type_id = id_lookups['job_types'][job_type_key]['id']
+        job_group_id = id_lookups['job_groups'][job_group_key]['id']
         job_placeholders[index][self.JOB_PH_TYPE_KEY] = job_type_id
+        job_placeholders[index][self.JOB_PH_GROUP_KEY] = job_group_id
 
         # replace product_type with id
         job_placeholders[index][
@@ -1465,6 +1471,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 id_lookups['machines'][machine_name]['id'],
                 option_collection_hash,
                 id_lookups['job_types'][job_type_key]['id'],
+                id_lookups['job_groups'][job_group_key]['id'],
                 id_lookups['products'][product_type]['id'],
                 who,
                 reason,
