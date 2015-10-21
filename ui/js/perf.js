@@ -169,36 +169,30 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
 
             return _getAllSeries(projectName, timeRange, optionMap).then(function(lists) {
                 var allSubtestSignatures = _.flatten(_.map(lists.seriesList, function(series) {
-                                return series.subtestSignatures ? series.subtestSignatures : [];
-                            }));
+                    return series.subtestSignatures ? series.subtestSignatures : [];
+                }));
                 lists.seriesList.forEach(function(series) {
-                    // Only keep summary signatures, filter in/out e10s
-                    if ((userOptions.e10s && !_.contains(series.options, 'e10s')) ||
-                        (!userOptions.e10s && _.contains(series.options, 'e10s'))) {
+                    // Filter out subtests with a summary signature
+                    if (!series.subtestSignatures) {
+                        if (_.contains(allSubtestSignatures, series.signature)) {
+                            return;
+                        }
+                    }
+                    // We don't generate number for tp5n, this is xperf and we collect counters
+                    if (_.contains(series.name, "tp5n"))
                         return;
-                    } else {
-                        // We should also filter out those subtest series but keep none summary one.
-                        if (!series.subtestSignatures) {
-                            if (_.contains(allSubtestSignatures, series.signature)) {
-                                return;
-                            }
-                        }
-                        // We don't generate number for tp5n, this is xperf and we collect counters
-                        if (_.contains(series.name, "tp5n"))
-                            return;
-                        if (_.contains(userOptions.excludedPlatforms, series.platform))
-                            return;
+                    if (_.contains(userOptions.excludedPlatforms, series.platform))
+                        return;
 
-                        seriesList.push(series);
+                    seriesList.push(series);
 
-                        // add test/platform to lists if not yet present
-                        if (!_.contains(platformList, series.platform)) {
-                            platformList.push(series.platform);
-                        }
-                        if (!_.contains(testList, series.name)) {
-                            testList.push(series.name);
-                        }
-                    } //if/else
+                    // add test/platform to lists if not yet present
+                    if (!_.contains(platformList, series.platform)) {
+                        platformList.push(series.platform);
+                    }
+                    if (!_.contains(testList, series.name)) {
+                        testList.push(series.name);
+                    }
                 }); //lists.serieslist.forEach
 
                 return {
