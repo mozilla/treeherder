@@ -14,10 +14,45 @@
         <strong>tests with no results:</strong>
         {{testNoResults}}
       </div>
+      <h4>Filters</h3>
+      <form class="form-inline">
+        <div class="form-group">
+          <label for="filter-test">Test</label>
+            <input id="filter-test" type="text" class="form-control" ng-model="filterOptions.testFilter" placeholder="e.g. tp5o opt" ng-change="updateFilters()"/>
+        </div>
+        <div class="form-group">
+          <label for="filter-platform">Platform</label>
+            <input id="filter-platform" type="text" class="form-control" ng-model="filterOptions.platformFilter" placeholder="e.g. linux64" ng-change="updateFilters()"/>
+        </div>
+        <div class="checkbox" tooltip="Non-trivial changes (1.5%+)">
+          <label>
+            <input type="checkbox" ng-model="filterOptions.showOnlyImportant" ng-change="updateFilters()"/>
+            Show only important changes
+          </label>
+        </div>
+        <div class="checkbox" tooltip="At least 6 datapoints OR 2+ datapoints and a large difference">
+          <label>
+            <input type="checkbox" ng-model="filterOptions.showOnlyConfident" ng-change="updateFilters()"/>
+            Hide uncertain results
+          </label>
+        </div>
+        <div class="checkbox" tooltip="Platforms which don't produce consistent / reliable data -- beware!">
+          <label>
+            <input type="checkbox" ng-model="filterOptions.showUnreliablePlatforms" ng-change="updateFilters()"/>
+            Show unreliable platforms
+          </label>
+        </div>
+      </form>
+      <hr/>
       <ph-compare-table
          titles="titles"
          test-list="testList"
-         compare-results="compareResults">
+         compare-results="compareResults"
+         test-filter="filterOptions.testFilter"
+         platform-filter="filterOptions.platformFilter"
+         show-only-important="filterOptions.showOnlyImportant"
+         show-only-confident="filterOptions.showOnlyConfident"
+         show-unreliable-platforms="filterOptions.showUnreliablePlatforms">
       </ph-compare-table>
     </div>
   </div>

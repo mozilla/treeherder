@@ -1,4 +1,4 @@
-<table class="table compare-table" style="table-layout: fixed;"  ng-repeat="testName in testList">
+<table class="table compare-table" style="table-layout: fixed;" ng-repeat="testName in filteredTestList">
   <tbody>
     <tr class="subtest-header">
       <!-- Manually specify table widths because it's just easier this way -->
@@ -12,7 +12,7 @@
       <td class="num-runs" style="width: 80px"># Runs</td>
       <td class="test-warning" style="width: 30px"><!-- warning if not enough --></td>
     </tr>
-    <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults[testName] | orderBy: 'name'">
+    <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults[testName] | orderBy: 'name'" ng-show="filterPlatform(compareResult)">
       <td class="test-title">{{compareResult.name}}
         <span ng-if="compareResult.detailsLink">
           (<a ng-href="{{compareResult.detailsLink}}" ng-show="compareResult.detailsLink">subtests</a>)
@@ -85,16 +85,11 @@
                for confidence -- if we've done that many and we're still
                not confident in a change, more are unlikely to help)
           -->
-        <span ng-if="compareResult.originalRuns.length && compareResult.newRuns.length &&
-                     ((compareResult.originalRuns.length < 2 ||
-                       compareResult.newRuns.length < 2) ||
-                      (compareResult.originalRuns.length < 6 &&
-                       compareResult.newRuns.length < 6 &&
-                       compareResult.confidenceText !== 'high'))"
-                class="glyphicon glyphicon-warning-sign text-warning"
-                tooltip="More base / new runs recommended for increased confidence in comparison"
-                tooltip-placement="left"
-                style="cursor:default"></span>
+        <span ng-if="compareResult.isComplete && !compareResult.isConfident"
+              class="glyphicon glyphicon-warning-sign text-warning"
+              tooltip="More base / new runs recommended for increased confidence in comparison"
+              tooltip-placement="left"
+              style="cursor:default"></span>
       </td>
     </tr>
   </tbody>
