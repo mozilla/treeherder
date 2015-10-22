@@ -141,7 +141,6 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level': 'ERROR',
             'class': 'logging.StreamHandler',
             'formatter': 'standard'
         },
@@ -152,8 +151,13 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'hawkrest': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+        },
         'treeherder': {
-            'handlers': ['console']
+            'handlers': ['console'],
+            'level': 'ERROR',
         }
     }
 }

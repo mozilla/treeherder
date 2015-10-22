@@ -27,6 +27,10 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
+        'hawkrest': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+        },
         'treeherder': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
