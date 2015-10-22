@@ -41,6 +41,51 @@ treeherder.controller('PluginCtrl', [
             thJobFilters.replaceFilter('searchStr', jobSearchStr || null);
         };
 
+        // if the ``autoclassify`` param is set on the query sting, then
+        // show the ``errorClassification`` tab.  Otherwise, hide it.
+        // NOTE: This is a temporary param used during the evaluation/experimentation
+        // phase of this feature.
+        var showAutoClassifyTab = function() {
+            thTabs.tabs.errorClassification.enabled = ($location.search().autoclassify === true);
+        };
+        showAutoClassifyTab();
+        $rootScope.$on('$locationChangeSuccess', function() {
+            showAutoClassifyTab();
+        });
+
+        /**
+         * Set the tab options and selections based on the selected job.
+         * The default selected tab will be based on whether the job was a
+         * success or failure.
+         *
+         * Some tabs will be shown/hidden based on the job (such as Talos)
+         * and some based on query string params (such as errorClassification).
+         *
+         */
+        var initializeTabs = function(job) {
+            var successTab = "jobDetails";
+            var failTab = "failureSummary";
+
+            // show/hide Talos panel if this is a Talos job and default to
+            // Talos if the job was a ``success``
+            $scope.tabService.tabs.talos.enabled = (job.job_group_name.indexOf('Talos') !== -1);
+            if ($scope.tabService.tabs.talos.enabled) {
+                successTab = "talos";
+            }
+
+            // Error Classification/autoclassify special handling
+            if ($scope.tabService.tabs.errorClassification.enabled) {
+                failTab = "errorClassification";
+            }
+
+            // set the selected tab
+            if (thResultStatus(job) === 'success') {
+                $scope.tabService.selectedTab = successTab;
+            } else {
+                $scope.tabService.selectedTab = failTab;
+            }
+        };
+
         // this promise will void all the ajax requests
         // triggered by selectJob once resolved
         var selectJobPromise = null;
@@ -91,25 +136,8 @@ treeherder.controller('PluginCtrl', [
                     $scope.typical_eta = $scope.job.get_typical_eta();
                     $scope.jobRevision = ThResultSetStore.getSelectedJob($scope.repoName).job.revision;
 
-                    // we handle which tab gets presented in the job details panel
-                    // and a special set of rules for talos
-                    if ($scope.job.job_group_name.indexOf('Talos') !== -1) {
-                        $scope.tabService.tabs.talos.enabled = true;
-                        if (thResultStatus($scope.job) === 'success') {
-                            $scope.tabService.selectedTab = 'talos';
-                        } else {
-                            $scope.tabService.selectedTab = 'failureSummary';
-                        }
-                    } else {
-                        // tab presentation for any other (non-talos) job
-                        $scope.tabService.tabs.talos.enabled = false;
-                        if (thResultStatus($scope.job) === 'success') {
-                            $scope.tabService.selectedTab = 'jobDetails';
-                        } else {
-                            //$scope.tabService.selectedTab = 'failureSummary';
-                            $scope.tabService.selectedTab = 'errorClassification';
-                        }
-                    }
+                    // set the tab options and selections based on the selected job
+                    initializeTabs($scope.job);
 
                     // the second result come from the buildapi artifact promise
                     var buildapi_artifact = results[1];
