@@ -572,4 +572,8 @@ pass the credentials for this mechanism via the `client_id` and
     client = TreeherderClient(protocol='https', host='treeherder.mozilla.org', client_id='hawk_id', secret='hawk_secret')
     client.post_collection('mozilla-central', tac)
 
+Note: The system clock on the machines making submissions must be correct
+(or more specifically, within 60 seconds of the Treeherder server time),
+otherwise authentication will fail.
+
 .. _Hawk authentication mechanism: https://github.com/hueniverse/hawk
