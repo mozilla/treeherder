@@ -608,11 +608,11 @@ class FailureLine(models.Model):
 
 
 class ClassifiedFailureManager(models.Manager):
-    def for_line(self, failure_line):
+    def best_for_line(self, failure_line):
         try:
-            return ClassifiedFailure.objects.filter(
+            return ClassifiedFailure.objects.get(
                 failure_lines__id=failure_line.id,
-                matches__is_best=True).get()
+                matches__is_best=True)
         except ClassifiedFailure.DoesNotExist:
             return None
 

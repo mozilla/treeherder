@@ -501,20 +501,22 @@ class JobsModel(TreeherderModelBase):
 
         if len(bugs) == 1 and None not in bugs:
             bug_number = bugs.pop()
+            logger.info("Autoclassifier adding bug")
             self.insert_bug_job_map(job_id, bug_number, "autoclassification",
                                     int(time.time()), "autoclassifier")
 
         classification = FailureClassification.objects.get(name="autoclassified intermittent")
 
+        logger.info("Autoclassifier adding job note")
         self.insert_job_note(job_id, classification.id, "autoclassifier", "")
 
-    def bug_suggestions(self, job_id, limit=35):
+    def bug_suggestions(self, job_id):
         """Get the list of log lines and associated bug suggestions for a job"""
         with ArtifactsModel(self.project) as artifacts_model:
             # TODO: Filter some junk from this
             objs = artifacts_model.get_job_artifact_list(
                 offset=0,
-                limit=limit,
+                limit=1,
                 conditions={"job_id": set([("=", job_id)]),
                             "name": set([("=", "Bug suggestions")]),
                             "type": set([("=", "json")])})
@@ -580,7 +582,7 @@ class JobsModel(TreeherderModelBase):
         if failure_line is None:
             return
 
-        failure = ClassifiedFailure.objects.for_line(failure_line)
+        failure = ClassifiedFailure.objects.best_for_line(failure_line)
         if failure and failure.bug_number is None:
             failure.bug_number = bug_id
             failure.save()
