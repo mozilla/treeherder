@@ -188,7 +188,6 @@ perf.controller('CompareResultsCtrl', [
                         cmap.detailsLink = detailsLink;
                     }
                     cmap.name = platform;
-                    cmap.hideMinorChanges = $scope.hideMinorChanges;
                     if (Object.keys($scope.compareResults).indexOf(testName) < 0)
                         $scope.compareResults[testName] = [];
                     $scope.compareResults[testName].push(cmap);
@@ -220,6 +219,22 @@ perf.controller('CompareResultsCtrl', [
         $scope.dataLoading = true;
         $scope.getCompareClasses = PhCompare.getCompareClasses;
 
+        $scope.updateFilters = function() {
+
+            $state.transitionTo('compare', {
+                filterTest: $scope.filterOptions.testFilter,
+                filterPlatform: $scope.filterOptions.platformFilter,
+                showOnlyImportant: Boolean($scope.filterOptions.showOnlyImportant) ? undefined : 0,
+                showOnlyConfident: Boolean($scope.filterOptions.showOnlyConfident) ? undefined : 0,
+                showUnreliablePlatforms: Boolean($scope.filterOptions.showUnreliablePlatforms) ? 1 : undefined
+            }, {
+                location: true,
+                inherit: true,
+                relative: $state.$current,
+                notify: false
+            });
+        };
+
         var optionCollectionMap = {};
         var loadRepositories = ThRepositoryModel.load();
         var loadOptions = ThOptionCollectionModel.get_map().then(
@@ -236,11 +251,16 @@ perf.controller('CompareResultsCtrl', [
                 $scope.dataLoading = false;
                 return;
             }
+            $scope.filterOptions = {
+                testFilter: $stateParams.filterTest || "",
+                platformFilter: $stateParams.filterPlatform || "",
+                showOnlyImportant: $stateParams.showOnlyImportant === undefined ||
+                    parseInt($stateParams.showOnlyImportant),
+                showOnlyConfident: $stateParams.showOnlyConfident === undefined ||
+                    parseInt($stateParams.showOnlyConfident),
+                showUnreliablePlatforms: Boolean(parseInt($stateParams.showUnreliablePlatforms))
+            };
 
-            // we are excluding macosx 10.10 by default for now, see: https://bugzilla.mozilla.org/show_bug.cgi?id=1201615
-            $scope.excludedPlatforms = Boolean($stateParams.showExcludedPlatforms) ?
-                [] : [ 'osx-10-10' ];
-            $scope.hideMinorChanges = Boolean($stateParams.hideMinorChanges);
             $scope.originalProject = ThRepositoryModel.getRepo(
                 $stateParams.originalProject);
             $scope.newProject = ThRepositoryModel.getRepo(
@@ -328,7 +348,6 @@ perf.controller('CompareSubtestResultsCtrl', [
                     }
 
                     cmap.name = page;
-                    cmap.hideMinorChanges = $scope.hideMinorChanges;
                     $scope.compareResults[testName].push(cmap);
                 });
             });
@@ -357,7 +376,6 @@ perf.controller('CompareSubtestResultsCtrl', [
                     return;
                 }
 
-                $scope.hideMinorChanges = Boolean($stateParams.hideMinorChanges);
                 $scope.originalProject = ThRepositoryModel.getRepo(
                     $stateParams.originalProject);
                 $scope.newProject = ThRepositoryModel.getRepo(
