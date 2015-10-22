@@ -41,14 +41,6 @@ class ManualDetector(Detector):
         return []
 
 
-__registered = False
-
-
 def register():
-    global __registered
-    if __registered:
-        return
-    __registered = True
-
     for obj in [ManualDetector, TestFailureDetector]:
         MatcherManager.register_detector(obj)

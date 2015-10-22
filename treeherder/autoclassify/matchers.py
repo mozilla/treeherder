@@ -57,14 +57,6 @@ class PreciseTestMatcher(Matcher):
         return rv
 
 
-__registered = False
-
-
 def register():
-    global __registered
-    if __registered:
-        return
-    __registered = True
-
     for obj in [PreciseTestMatcher]:
         MatcherManager.register_matcher(obj)
