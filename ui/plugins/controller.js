@@ -6,14 +6,14 @@ treeherder.controller('PluginCtrl', [
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'thTabs',
-    '$timeout', 'thJobSearchStr', 'thReftestStatus', 'ThResultSetStore',
+    '$timeout', 'thJobSearchStr', 'thReftestStatus', 'ThResultSetStore', 'PhSeries',
     function PluginCtrl(
         $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
         numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
         thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs,
-        $timeout, thJobSearchStr, thReftestStatus, ThResultSetStore) {
+        $timeout, thJobSearchStr, thReftestStatus, ThResultSetStore, PhSeries) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -76,18 +76,24 @@ treeherder.controller('PluginCtrl', [
                     job_id,
                     {timeout: selectJobPromise});
 
+                var jobIdPromise = PhSeries.getSeriesByJobId(
+                    $scope.repoName, job_id);
+
                 return $q.all([
                     jobDetailPromise,
                     buildapiArtifactPromise,
                     jobInfoArtifactPromise,
-                    jobLogUrlPromise
+                    jobLogUrlPromise,
+                    jobIdPromise,
                 ]).then(function(results){
                     //the first result comes from the job detail promise
+                    console.log(results);
                     $scope.job = results[0];
                     $scope.eta = $scope.job.get_current_eta();
                     $scope.eta_abs = Math.abs($scope.job.get_current_eta());
                     $scope.typical_eta = $scope.job.get_typical_eta();
-                    $scope.jobRevision = ThResultSetStore.getSelectedJob($scope.repoName).job.revision
+                    $scope.jobRevision = ThResultSetStore.getSelectedJob($scope.repoName).job.revision;
+                    $scope.job_ids = results[4];
 
                     // we handle which tab gets presented in the job details panel
                     // and a special set of rules for talos
@@ -146,7 +152,11 @@ treeherder.controller('PluginCtrl', [
                     // the fourth result comes from the jobLogUrl artifact
                     // exclude the json log URLs
                     $scope.job_log_urls = _.reject(results[3], {name: 'mozlog_json'});
-
+                    $scope.perf_job_url = ('http://local.treeherder.mozilla.org/perf.html#/graphs?series=[' +
+                    $scope.repoName+ ',' + $scope.job.signature + ',1]&selected=[' +
+                    $scope.repoName + ',' + $scope.job.signature + ',' + $scope.job.result_set_id +
+                        ',' + $scope.job.id + ']');
+                    console.log($scope.job.signature)
                     // Provide a parse status as a scope variable for logviewer shortcut
                     if (!$scope.job_log_urls.length) {
                         $scope.logParseStatus = 'unavailable';
