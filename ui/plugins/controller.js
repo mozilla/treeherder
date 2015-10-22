@@ -6,14 +6,15 @@ treeherder.controller('PluginCtrl', [
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'thTabs',
-    '$timeout', 'thJobSearchStr', 'thReftestStatus', 'ThResultSetStore',
+    '$timeout', 'thJobSearchStr', 'thReftestStatus', 'ThResultSetStore', 'PhSeries',
+    'thServiceDomain',
     function PluginCtrl(
         $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
         numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
         thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs,
-        $timeout, thJobSearchStr, thReftestStatus, ThResultSetStore) {
+        $timeout, thJobSearchStr, thReftestStatus, ThResultSetStore, PhSeries, thServiceDomain) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -76,11 +77,15 @@ treeherder.controller('PluginCtrl', [
                     job_id,
                     {timeout: selectJobPromise});
 
+                var jobIdPromise = PhSeries.getSeriesByJobId(
+                    $scope.repoName, job_id);
+
                 return $q.all([
                     jobDetailPromise,
                     buildapiArtifactPromise,
                     jobInfoArtifactPromise,
-                    jobLogUrlPromise
+                    jobLogUrlPromise,
+                    jobIdPromise,
                 ]).then(function(results){
                     //the first result comes from the job detail promise
                     $scope.job = results[0];
@@ -88,7 +93,11 @@ treeherder.controller('PluginCtrl', [
                     $scope.eta_abs = Math.abs($scope.job.get_current_eta());
                     $scope.typical_eta = $scope.job.get_typical_eta();
                     $scope.jobRevision = ThResultSetStore.getSelectedJob($scope.repoName).job.revision
-
+                    $scope.job_ids = results[4];
+                    console.log(results);
+                    _.forEach($scope.job_ids, function(job) {
+                        console.log(job[0].value);
+                    });
                     // we handle which tab gets presented in the job details panel
                     // and a special set of rules for talos
                     if ($scope.job.job_group_name.indexOf('Talos') !== -1) {
@@ -123,7 +132,11 @@ treeherder.controller('PluginCtrl', [
                     $scope.jobSearchSignature = $scope.job.signature;
                     $scope.jobSearchStrHref = getJobSearchStrHref($scope.jobSearchStr);
                     $scope.jobSearchSignatureHref = getJobSearchStrHref($scope.job.signature);
-
+                    var generateUrlForPerf = function(projectName, jobId, signature, resultSetId) {
+                        return thServiceDomain + '/perf.html#/graphs?series=[' +
+                            projectName+ ',' + signature + ',1]&selected=[' +
+                            projectName + ',' + signature + ',' + resultSetId + ',' + jobId + ']';
+                    };
                     // the third result comes from the job info artifact promise
                     var jobInfoArtifact = results[2];
                     if (jobInfoArtifact.length > 0) {
@@ -141,6 +154,32 @@ treeherder.controller('PluginCtrl', [
                           }
                           return result;
                         }, []);
+                        if ($scope.job_ids !== null) {
+                            // Due to we still need to keep the GraphServer link in here, right now the only
+                            // way to get the talos result is from jobInfoArtifact. Anyway, we can
+                            // make talos just pass the result directly if we don't need Graph link anymore.
+                            $scope.job_details.forEach(function(job) {
+                                if (job.content_type == 'TalosResult') {
+                                    $scope.perf_job_deatils = [];
+                                    _.forEach(job.value.graphserver, function(test, testName) {
+                                        _.forEach($scope.job_ids, function(perfdata, key) {
+                                            // we only compare 1 digit after the decimal point because we may meet
+                                            // compare 14.10 with 14.12 and actually they point to the same job.
+                                            if (perfdata[0].value.toFixed(1) == Number(test.result).toFixed(1)) {
+                                                var data = {};
+                                                if (_.some($scope.perf_job_deatils, 'name', testName) === false) {
+                                                    data['name'] = testName;
+                                                    data['value'] = test.result;
+                                                    data['url'] = generateUrlForPerf($scope.repoName,
+                                                        perfdata[0].job_id, key, perfdata[0].result_set_id);
+                                                    $scope.perf_job_deatils.push(data);
+                                                }
+                                            }
+                                        });
+                                    })
+                                }
+                            });
+                        }
                     }
 
                     // the fourth result comes from the jobLogUrl artifact
