@@ -421,8 +421,8 @@ def test_ingest_job_with_updated_job_group(jm, refdata, sample_data, initial_dat
                                            mock_log_parser, result_set_stored):
     """
     When a job_type is associated with a job group on data ingestion,
-    that association will not updated ingesting a new job with the same
-    job_type but different job_group
+    that association will not persist if another job comes in with the same
+    type, but a different group.
     """
     first_job = sample_data.job_data[0]
     first_job["job"]["group_name"] = "first group name"
@@ -443,11 +443,9 @@ def test_ingest_job_with_updated_job_group(jm, refdata, sample_data, initial_dat
     second_job_lookup = jm.get_job_ids_by_guid([second_job_guid])
     second_job_stored = jm.get_job(second_job_lookup[second_job_guid]["id"])
 
-    first_job_group_name = first_job["job"]["group_name"]
+    second_job_group_name = second_job["job"]["group_name"]
 
-    second_job_group_name = second_job_stored[0]["job_group_name"]
-
-    assert first_job_group_name == second_job_group_name
+    assert second_job_group_name == second_job_stored[0]["job_group_name"]
 
 
 def test_retry_on_operational_failure(jm, initial_data, monkeypatch):

@@ -353,7 +353,6 @@ class OptionCollection(models.Model):
 @python_2_unicode_compatible
 class JobType(models.Model):
     id = models.AutoField(primary_key=True)
-    job_group = models.ForeignKey(JobGroup, null=True, blank=True)
     symbol = models.CharField(max_length=10L, default='?', db_index=True)
     name = models.CharField(max_length=50L, db_index=True)
     description = models.TextField(blank=True, default='fill me')

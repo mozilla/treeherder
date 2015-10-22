@@ -33,10 +33,6 @@
             "sql": "SELECT `name` FROM `job_type`",
             "host_type":"read_host"
         },
-        "test_all_job_group_ids":{
-            "sql": "SELECT `name`, `symbol`, `job_group_id` FROM `job_type` ORDER BY `id` ASC",
-            "host_type":"read_host"
-        },
         "test_all_products":{
             "sql": "SELECT `name` FROM `product`",
             "host_type":"read_host"
@@ -49,14 +45,11 @@
         },
         "test_job_type":{
             "sql": "SELECT
-                        jg.name AS 'group',
                         jt.`symbol`,
                         jt.`name`,
                         jt.`description`,
                         jt.`active_status`
                     FROM `job_type` jt
-                    INNER JOIN `job_group` jg
-                        on jg.id = jt.job_group_id
                     WHERE jt.`id` = ?",
             "host_type":"read_host"
         },
@@ -70,14 +63,14 @@
         "test_machine_platform":{
             "sql": "SELECT `platform`, `os_name`, `architecture`, `active_status`
                     FROM `machine_platform`
-                    WHERE 
+                    WHERE
                         `id` = ?",
             "host_type":"read_host"
         },
         "test_option":{
             "sql": "SELECT `name`, `description`, `active_status`
                     FROM `option`
-                    WHERE 
+                    WHERE
                         `id` = ?",
             "host_type":"read_host"
         },
@@ -86,7 +79,7 @@
                     FROM `option` o
                     INNER JOIN `option_collection` oc
                         ON o.`id` = oc.`option_id`
-                    WHERE 
+                    WHERE
                         oc.`option_collection_hash` = ?
                     ORDER BY o.`name`",
             "host_type":"read_host"
@@ -94,14 +87,14 @@
         "test_product":{
             "sql": "SELECT `name`, `description`, `active_status`
                     FROM `product`
-                    WHERE 
+                    WHERE
                         `id` = ?",
             "host_type":"read_host"
         },
         "test_repository_group":{
             "sql": "SELECT `name`, `description`, `active_status`
                     FROM `repository_group`
-                    WHERE 
+                    WHERE
                         `id` = ?",
             "host_type":"read_host"
         },

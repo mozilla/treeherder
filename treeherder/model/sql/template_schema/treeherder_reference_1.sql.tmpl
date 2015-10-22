@@ -259,8 +259,6 @@ DROP TABLE IF EXISTS `job_type`;
  *
  * Example Data:
  *
- *  job_group_id - References job_group.id
- *
  *  symbol - M (1 2 3 4 5 bc oth) | R (C J R) | T (c d o p s tp)
  *           The outer letter represents the symbol for the job_group, the
  *           letters in parenthesis represent the symbols for job_type entries.
@@ -269,7 +267,6 @@ DROP TABLE IF EXISTS `job_type`;
  **************************/
 CREATE TABLE `job_type` (
   `id` integer NOT NULL AUTO_INCREMENT,
-  `job_group_id` integer DEFAULT NULL,
   `symbol` char(25) COLLATE utf8_bin DEFAULT '?',
   `name` varchar(100) COLLATE utf8_bin NOT NULL,
   `description` text COLLATE utf8_bin,
@@ -278,9 +275,7 @@ CREATE TABLE `job_type` (
   KEY `idx_symbol` (`symbol`),
   KEY `idx_name` (`name`),
   KEY `idx_active_status` (`active_status`),
-  KEY `fk_job_type_job_group` (`job_group_id`),
-  UNIQUE KEY `uni_name_symbol` (`name`,`symbol`),
-  CONSTRAINT `fk_job_type_job_group` FOREIGN KEY (`job_group_id`) REFERENCES `job_group` (`id`)
+  UNIQUE KEY `uni_name_symbol` (`name`,`symbol`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

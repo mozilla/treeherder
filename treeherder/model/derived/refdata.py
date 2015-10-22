@@ -356,7 +356,7 @@ class RefDataManager(object):
             'job_symbol': job_symbol
         }
 
-        return job_key
+        return job_key, group_key
 
     def add_product(self, product):
         """Add product names"""
@@ -626,26 +626,6 @@ class RefDataManager(object):
             self.job_type_names_and_symbols,
             self.job_type_where_filters
         )
-
-        update_placeholders = []
-
-        # Find which job_types do not have group ids
-        for job_key in job_type_lookup:
-
-            if not job_type_lookup[job_key]['job_group_id']:
-                job_data = self.job_type_to_group_lookup[job_key]
-                group_id = self.job_group_lookup[job_data['group_key']]['id']
-                update_placeholders.append(
-                    [group_id, job_data['job_type'], job_data['job_symbol']]
-                )
-
-        if update_placeholders:
-            # Update the job types with the job group id
-            self.execute(
-                proc='reference.updates.update_job_type_group_id',
-                placeholders=update_placeholders,
-                executemany=True,
-                debug_show=self.DEBUG)
 
         return job_type_lookup
 
