@@ -148,7 +148,7 @@ LOGGING = {
     'loggers': {
         'django.request': {
             'handlers': ['console'],
-            'level': 'ERROR',
+            'level': 'WARNING',
             'propagate': True,
         },
         'hawkrest': {
