@@ -225,7 +225,7 @@ perf.controller('CompareResultsCtrl', [
                 filterTest: $scope.filterOptions.testFilter,
                 filterPlatform: $scope.filterOptions.platformFilter,
                 showOnlyImportant: Boolean($scope.filterOptions.showOnlyImportant) ? undefined : 0,
-                showOnlyConfident: Boolean($scope.filterOptions.showOnlyConfident) ? undefined : 0,
+                showOnlyConfident: Boolean($scope.filterOptions.showOnlyConfident) ? 1 : undefined,
                 showUnreliablePlatforms: Boolean($scope.filterOptions.showUnreliablePlatforms) ? 1 : undefined
             }, {
                 location: true,
@@ -256,7 +256,7 @@ perf.controller('CompareResultsCtrl', [
                 platformFilter: $stateParams.filterPlatform || "",
                 showOnlyImportant: $stateParams.showOnlyImportant === undefined ||
                     parseInt($stateParams.showOnlyImportant),
-                showOnlyConfident: $stateParams.showOnlyConfident === undefined ||
+                showOnlyConfident: $stateParams.showOnlyConfident !== undefined ||
                     parseInt($stateParams.showOnlyConfident),
                 showUnreliablePlatforms: Boolean(parseInt($stateParams.showUnreliablePlatforms))
             };
