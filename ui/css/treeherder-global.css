@@ -221,6 +221,15 @@ input:focus::-moz-placeholder {
   color: #999999;
 }
 
+.label-exp-act {
+  display: inline-block;
+  margin-right: 0.2em;
+  padding: 0.2em 0.3em;
+  border: 1px solid #999999;
+  background-color: white;
+  color: #999999;
+}
+
 /*
  * Colors
  */

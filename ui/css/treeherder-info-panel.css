@@ -438,3 +438,28 @@ div.similar_jobs .left_panel table tr {
 div.talos-panel {
   display: block !important;
 }
+
+/*
+ * Error Classification
+ */
+
+.failure-line-message {
+  display: flex;
+  padding-left: 3px;
+}
+
+.failure-line-message-toggle {
+  cursor: pointer;
+  width: 10px;
+}
+
+.failure-line-message-expanded {
+  padding-left: 18px;
+}
+
+.failure-line-message-collapsed {
+  max-height: 14px;
+  height: 14px;
+  overflow: auto;
+  padding-left: 18px;
+}

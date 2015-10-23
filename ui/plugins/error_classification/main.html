@@ -1,12 +1,26 @@
 <div ng-controller="ClassificationPluginCtrl">
-    <ul>
+  <ul class="list-unstyled">
 
-    <li ng-repeat="line in failureLines">
-      <span>
+    <li ng-repeat="line in failureLines"
+        class="">
+      <span class=""><strong>
         {{line.matches | classified}}
-      </span>
+      </strong></span>
       <span ng-if="line.action === 'test_result'">
-        {{line.test}} {{line.subtest}} | Expected: {{line.expected}}, got {{line.status}} | {{line.message}}
+        <span>{{line.test}} {{line.subtest}}
+          Expected: {{line.expected}}, got: <span class="label label-default">{{line.status}}</span>
+        </span>
+        <div ng-if="line.message"
+             ng-init="messageExpanded=false"
+             class="failure-line-message">
+             <span class="failure-line-message-toggle">
+               <span class="fa"
+                     ng-class="{'fa-caret-down': messageExpanded, 'fa-caret-right': !messageExpanded}"
+                     ng-click="messageExpanded = !messageExpanded"></span>
+             </span>
+             <div ng-class="{'failure-line-message-expanded': messageExpanded, 'failure-line-message-collapsed': !messageExpanded}">
+                   {{line.message}}</div>
+        </div>
       </span>
       <span ng-if="line.action === 'log'">
         LOG {{line.level}} | {{line.message}}
@@ -23,33 +37,5 @@
     <li ng-if="!tabs.errorClassification.is_loading &&  (!failureLines || failureLines.length == 0)">
       <span>No classifiable errors for this job.</span>
     </li>
-
-    <!--     <li ng-if="!tabs.failureSummary.is_loading && jobLogsAllParsed && !bugSuggestionsLoaded && job_log_urls.length"> -->
-    <!--         <div class="failure-summary-line-empty"> -->
-    <!--             <span>Log parsing complete.  Generating bug suggestions</span> -->
-    <!--             <span>The content of this panel will refresh in 5 seconds.</span> -->
-    <!--         </div> -->
-    <!--     </li> -->
-
-    <!--     <li ng-if="!tabs.failureSummary.is_loading && !jobLogsAllParsed" -->
-    <!--         ng-repeat="job_log_url in job_log_urls"> -->
-    <!--       <div class="failure-summary-line-empty"> -->
-    <!--         <span>Log parsing in progress. The</span> -->
-    <!--         <a title="Open the raw log in a new window" -->
-    <!--            target="_blank" -->
-    <!--            href="{{::job_log_url.url}}">raw log</a> -->
-    <!--         <span>is available. This panel will automatically recheck every 5 seconds.</span> -->
-    <!--       </div> -->
-    <!--     </li> -->
-    <!--     <li ng-if="!tabs.failureSummary.is_loading && !job_log_urls.length"> -->
-    <!--         <div class="failure-summary-line-empty"> -->
-    <!--             <span>No logs available for this job</span> -->
-    <!--         </div> -->
-    <!--     </li> -->
-    <!-- </ul> -->
-    <!-- <div ng-if="tabs.failureSummary.is_loading" class="overlay"> -->
-    <!--     <div> -->
-    <!--         <span class="fa fa-spinner fa-pulse th-spinner-lg"></span> -->
-    <!--     </div> -->
-    <!-- </div> -->
+  </ul>
 </div>

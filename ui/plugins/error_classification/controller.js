@@ -28,7 +28,7 @@ treeherder.controller('ClassificationPluginCtrl', [
             ThFailureLinesModel.get_list(jobId,
                                          {timeout: requestPromise})
             .then(function(failureLines) {
-                $scope.failureLines = failureLines
+                $scope.failureLines = failureLines;
                 $scope.failureLinesLoaded = failureLines.length > 0;
                 if (!$scope.failureLinesLoaded) {
                     timeoutPromise = $timeout(thTabs.tabs.errorClassification.update, 5000);
