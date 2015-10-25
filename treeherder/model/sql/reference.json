@@ -17,8 +17,8 @@
             "host_type":"master_host"
         },
         "create_build_platform":{
-            "sql": "INSERT INTO `build_platform` (`os_name`, `platform`, `architecture`)
-                    SELECT ?, ?, ?
+            "sql": "INSERT INTO `build_platform` (`os_name`, `platform`, `architecture`, `active_status`)
+                    SELECT ?, ?, ?, 'active'
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `os_name`, `platform`, `architecture`
@@ -29,8 +29,8 @@
         },
 
         "create_job_group":{
-            "sql":"INSERT INTO `job_group` (`name`, `symbol`, `description`)
-                   SELECT ?, ?, 'fill me'
+            "sql":"INSERT INTO `job_group` (`name`, `symbol`, `description`, `active_status`)
+                   SELECT ?, ?, 'fill me', 'active'
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `name`
@@ -41,8 +41,8 @@
         },
 
         "create_job_type":{
-            "sql":"INSERT INTO `job_type` (`name`, `symbol`, `description`)
-                   SELECT ?, ?, 'fill me'
+            "sql":"INSERT INTO `job_type` (`name`, `symbol`, `description`, `active_status`)
+                   SELECT ?, ?, 'fill me', 'active'
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `name`
@@ -53,8 +53,8 @@
         },
 
         "create_machine" : {
-            "sql": "INSERT INTO `machine` (`name`, `first_timestamp`, `last_timestamp`)
-                    SELECT ?, ?, ?
+            "sql": "INSERT INTO `machine` (`name`, `first_timestamp`, `last_timestamp`, `active_status`)
+                    SELECT ?, ?, ?, 'active'
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `name`
@@ -65,8 +65,8 @@
         },
 
         "create_machine_platform":{
-            "sql": "INSERT INTO `machine_platform` (`os_name`, `platform`, `architecture`)
-                    SELECT ?, ?, ?
+            "sql": "INSERT INTO `machine_platform` (`os_name`, `platform`, `architecture`, `active_status`)
+                    SELECT ?, ?, ?, 'active'
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `os_name`, `platform`, `architecture`
@@ -77,8 +77,8 @@
         },
 
         "create_option":{
-            "sql":"INSERT INTO `option` (`name`, `description`)
-                   SELECT ?, 'fill me'
+            "sql":"INSERT INTO `option` (`name`, `description`, `active_status`)
+                   SELECT ?, 'fill me', 'active'
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `name`
@@ -101,8 +101,8 @@
         },
 
         "create_product":{
-            "sql": "INSERT INTO `product` (`name`, `description`)
-                    SELECT ?, 'fill me'
+            "sql": "INSERT INTO `product` (`name`, `description`, `active_status`)
+                    SELECT ?, 'fill me', 'active'
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `name`
