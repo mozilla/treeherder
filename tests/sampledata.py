@@ -32,10 +32,6 @@ class SampleData(object):
     def get_minimal_talos_perf_data(cls):
         return cls.get_perf_data('talos_perf_minimal.json')
 
-    @classmethod
-    def get_b2g_perf_data(cls):
-        return cls.get_perf_data('b2g_perf.json')
-
     def __init__(self):
         self.job_data_file = "{0}/sample_data/job_data.txt".format(
             os.path.dirname(__file__)
