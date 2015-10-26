@@ -6,7 +6,8 @@ from django.conf import settings
 from django.utils.six import BytesIO
 from mozlog.structured import reader
 
-from .parsers import (StepParser,
+from .parsers import (PerformanceParser,
+                      StepParser,
                       TalosParser,
                       TinderboxPrintParser)
 
@@ -51,7 +52,7 @@ class ArtifactBuilderBase(object):
         # Talos data is stored in a json structure contained in a single line,
         # if the MAX_LINE_LENGTH is applied the data structure could be truncated,
         # preventing it from being ingested.
-        if "TALOSDATA" not in line and 'TalosResult' not in line:
+        if "TALOSDATA" not in line and 'PERFORMANCE_DATA' not in line:
             line = line[:self.MAX_LINE_LENGTH]
 
         self.parser.parse_line(line, self.lineno)
@@ -94,14 +95,24 @@ class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
         self.name = "text_log_summary"
 
 
+class BuildbotTalosDataArtifactBuilder(ArtifactBuilderBase):
+    """Makes the artifact for performance data."""
+
+    def __init__(self, url=None):
+        """Construct artifact builder for talos data"""
+        super(BuildbotTalosDataArtifactBuilder, self).__init__(url)
+        self.parser = TalosParser()
+        self.name = "talos_data"
+
+
 class BuildbotPerformanceDataArtifactBuilder(ArtifactBuilderBase):
     """Makes the artifact for performance data."""
 
     def __init__(self, url=None):
-        """Construct artifact builder for the log viewer"""
+        """Construct artifact builder for generic performance data"""
         super(BuildbotPerformanceDataArtifactBuilder, self).__init__(url)
-        self.parser = TalosParser()
-        self.name = "talos_data"
+        self.parser = PerformanceParser()
+        self.name = "performance_data"
 
 
 class MozlogArtifactBuilder(ArtifactBuilderBase):

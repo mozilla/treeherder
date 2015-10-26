@@ -67,7 +67,8 @@ def _get_signature_hash(signature_properties):
 
 
 def load_perf_artifacts(project_name, reference_data, job_data, datum):
-    perf_datum = json.loads(datum['blob'])
+    blob = json.loads(datum['blob'])
+    perf_datum = blob['performance_data']
     validate(perf_datum, PERFHERDER_SCHEMA)
 
     if 'e10s' in reference_data.get('job_group_symbol', ''):
@@ -130,7 +131,7 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
 
         # if we have a summary value, create or get its signature and insert
         # it too
-        if suite['value']:
+        if suite.get('value') is not None:
             # summary series
             extra_summary_properties = {
                 'subtest_signatures': sorted(subtest_signatures)

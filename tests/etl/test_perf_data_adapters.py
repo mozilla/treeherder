@@ -122,7 +122,9 @@ class PerfDataAdapterTest(TestCase):
 
         # the perf data adapter expects unserialized performance data
         submit_datum = copy.copy(datum)
-        submit_datum['blob'] = json.dumps(submit_datum['blob'])
+        submit_datum['blob'] = json.dumps({
+            'performance_data': submit_datum['blob']
+        })
 
         load_perf_artifacts(self.REPO_NAME, reference_data, job_data,
                             submit_datum)

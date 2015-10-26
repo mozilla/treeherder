@@ -67,15 +67,17 @@ def test_post_perf_artifact(test_project, test_repository, result_set_stored,
             'option_collection': {'opt': True},
             'artifacts': [{
                 'blob': {
-                    "framework": {"name": "cheezburger"},
-                    "suites": [{
-                        "name": "cheezburger metrics",
-                        "value": 10.0,
-                        "subtests": [
-                            {"name": "test1", "value": 20.0},
-                            {"name": "test2", "value": 30.0}
-                        ]
-                    }]
+                    "performance_data": {
+                        "framework": {"name": "cheezburger"},
+                        "suites": [{
+                            "name": "cheezburger metrics",
+                            "value": 10.0,
+                            "subtests": [
+                                {"name": "test1", "value": 20.0},
+                                {"name": "test2", "value": 30.0}
+                            ]
+                        }]
+                    }
                 },
                 'type': 'json',
                 'name': 'performance_data',

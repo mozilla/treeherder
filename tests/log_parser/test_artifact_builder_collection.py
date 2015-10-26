@@ -32,7 +32,7 @@ def test_default_builders():
         "foo-url",
     )
     assert isinstance(lpc.builders, list)
-    assert len(lpc.builders) == 3
+    assert len(lpc.builders) == 4
 
 
 def test_all_builders_complete():
