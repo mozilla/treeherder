@@ -6,23 +6,30 @@ class dev{
     timeout => 1800,
   }
 
-  exec{"init_master_db":
+  exec{"migrate":
     cwd => "${PROJ_DIR}",
-    command => "bash -c 'source /etc/profile.d/treeherder.sh; ${VENV_DIR}/bin/python manage.py init_master_db --noinput'",
+    command => "bash -c 'source /etc/profile.d/treeherder.sh; ${VENV_DIR}/bin/python manage.py migrate'",
+    user => "${APP_USER}",
+  }
+
+  exec{"load_initial_data":
+    cwd => "${PROJ_DIR}",
+    command => "bash -c 'source /etc/profile.d/treeherder.sh; ${VENV_DIR}/bin/python manage.py load_initial_data'",
+    require => Exec["migrate"],
     user => "${APP_USER}",
   }
 
   exec{"init_datasources":
     cwd => "${PROJ_DIR}",
     command => "bash -c 'source /etc/profile.d/treeherder.sh; ${VENV_DIR}/bin/python manage.py init_datasources'",
-    require => Exec["init_master_db"],
+    require => Exec["load_initial_data"],
     user => "${APP_USER}",
   }
 
   exec{"create_superuser":
     cwd => "${PROJ_DIR}",
     command => "bash -c 'source /etc/profile.d/treeherder.sh; ${VENV_DIR}/bin/python manage.py createsuperuser --username treeherder --email treeherder@mozilla.com --noinput'",
-    require => Exec["init_master_db"],
+    require => Exec["migrate"],
     user => "${APP_USER}",
     unless => "bash -c 'source /etc/profile.d/treeherder.sh; ${VENV_DIR}/bin/python manage.py dumpdata auth.User | grep treeherder@mozilla.com'",
   }
