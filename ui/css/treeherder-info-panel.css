@@ -442,24 +442,31 @@ div.talos-panel {
 /*
  * Error Classification
  */
+.error-classification-content {
+  padding: 2px 4px 0;
+  font-size: 11px;
+}
 
 .failure-line-message {
   display: flex;
-  padding-left: 3px;
 }
 
 .failure-line-message-toggle {
   cursor: pointer;
   width: 10px;
-}
-
-.failure-line-message-expanded {
-  padding-left: 18px;
+  padding: 2px 4px;
 }
 
 .failure-line-message-collapsed {
   max-height: 14px;
   height: 14px;
   overflow: auto;
-  padding-left: 18px;
+  padding-left: 5px;
+  color: darkgray;
 }
+
+.failure-line-message-expanded {
+  padding-left: 5px;
+  color: #747474;
+}
+

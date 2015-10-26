@@ -1,4 +1,5 @@
-<div ng-controller="ClassificationPluginCtrl">
+<div ng-controller="ClassificationPluginCtrl"
+     class="error-classification-content">
   <ul class="list-unstyled">
 
     <li ng-repeat="line in failureLines"
@@ -13,11 +14,9 @@
         <div ng-if="line.message"
              ng-init="messageExpanded=false"
              class="failure-line-message">
-             <span class="failure-line-message-toggle">
-               <span class="fa"
+             <span class="failure-line-message-toggle fa fa-fw fa-lg"
                      ng-class="{'fa-caret-down': messageExpanded, 'fa-caret-right': !messageExpanded}"
                      ng-click="messageExpanded = !messageExpanded"></span>
-             </span>
              <div ng-class="{'failure-line-message-expanded': messageExpanded, 'failure-line-message-collapsed': !messageExpanded}">
                    {{line.message}}</div>
         </div>
