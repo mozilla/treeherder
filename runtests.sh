@@ -8,4 +8,4 @@ isort --check-only --diff --quiet \
  || { echo "isort errors found! Run 'isort' with no options to fix."; exit 1; }
 
 echo "Running Python tests"
-DJANGO_SETTINGS_MODULE=tests.settings py.test tests/
+py.test tests/

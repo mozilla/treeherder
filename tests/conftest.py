@@ -1,7 +1,5 @@
 import json
 import os
-import sys
-from os.path import dirname
 
 import kombu
 import pytest
@@ -27,27 +25,6 @@ def pytest_addoption(parser):
     )
 
 
-def pytest_sessionstart(session):
-    """
-    Set up the test environment.
-
-    Set DJANGO_SETTINGS_MODULE and sets up a test database.
-
-    """
-    sys.path.append(dirname(dirname(__file__)))
-    from django.test.runner import DiscoverRunner
-    # we don't actually let Django run the tests, but we need to use some
-    # methods of its runner for setup/teardown of dbs and some other things
-    session.django_runner = DiscoverRunner()
-    # this provides templates-rendered debugging info and locmem mail storage
-    session.django_runner.setup_test_environment()
-
-
-def pytest_sessionfinish(session):
-    """Tear down the test environment, including databases."""
-    session.django_runner.teardown_test_environment()
-
-
 def pytest_runtest_setup(item):
     """
     Per-test setup.
@@ -60,20 +37,6 @@ def pytest_runtest_setup(item):
         pytest.skip("need --runslow option to run")
 
     increment_cache_key_prefix()
-
-    call_command("migrate")
-
-
-def pytest_runtest_teardown(item):
-    """
-    Per-test teardown.
-
-    Roll back the Django ORM transaction and delete all the dbs created
-    between tests
-
-    """
-    # this should provide isolation between tests.
-    call_command("flush", interactive=False)
 
 
 def increment_cache_key_prefix():
@@ -90,12 +53,12 @@ def increment_cache_key_prefix():
 
 
 @pytest.fixture()
-def initial_data():
+def initial_data(transactional_db):
     call_command('load_initial_data')
 
 
 @pytest.fixture
-def jobs_ds(request):
+def jobs_ds(request, transactional_db):
     from treeherder.model.models import Datasource
     ds = Datasource.objects.create(project=settings.TREEHERDER_TEST_PROJECT)
 
@@ -162,7 +125,7 @@ def test_project(jm):
 
 
 @pytest.fixture
-def test_repository(jm):
+def test_repository(jm, transactional_db):
     from treeherder.model.models import Repository, RepositoryGroup
 
     RepositoryGroup.objects.create(
@@ -489,7 +452,7 @@ def retriggers(jm, eleven_jobs_stored):
 
 
 @pytest.fixture
-def api_user(request):
+def api_user(request, transactional_db):
     from django.contrib.auth.models import User
     user = User.objects.create_user('MyUser')
 

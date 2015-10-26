@@ -14,7 +14,6 @@ env:
     - DATABASE_URL='mysql://root@localhost/test_treeherder'
     - DATABASE_URL_RO='mysql://root@localhost/test_treeherder'
     - TREEHERDER_DJANGO_SECRET_KEY='secretkey-1234'
-    - DJANGO_SETTINGS_MODULE='tests.settings'
 services:
   - rabbitmq
   - memcached
