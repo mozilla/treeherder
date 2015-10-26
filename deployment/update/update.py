@@ -72,6 +72,8 @@ def update(ctx):
         # collectstatic should be performed on one of the stage/prod specific
         # nodes at the end of the deploy, rather than on the admin node.
 
+        # Install nodejs non-dev packages, needed for the grunt build.
+        ctx.local("npm install --production")
         # Generate gzipped versions of files that would benefit from compression, that
         # WhiteNoise can then serve in preference to the originals. This is required
         # since WhiteNoise's Django storage backend only gzips assets handled by
