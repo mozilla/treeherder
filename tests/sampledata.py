@@ -49,7 +49,7 @@ class SampleData(object):
             os.path.dirname(__file__)
         )
 
-        self.performance_logs_dir = "{0}/sample_data/artifacts/performance/perf_logs".format(
+        self.talos_logs_dir = "{0}/sample_data/artifacts/performance/talos_logs".format(
             os.path.dirname(__file__)
         )
 
@@ -93,9 +93,9 @@ class SampleData(object):
         """Returns the full path to a log file"""
         return "{0}/{1}".format(self.logs_dir, name)
 
-    def get_performance_logs(self):
-        """Returns a list of full paths to performance log files"""
-        files = os.listdir(self.performance_logs_dir)
+    def get_talos_logs(self):
+        """Returns a list of full paths to talos log files"""
+        files = os.listdir(self.talos_logs_dir)
         for i, f in enumerate(files):
-            files[i] = 'file://{0}/{1}'.format(self.performance_logs_dir, f)
+            files[i] = 'file://{0}/{1}'.format(self.talos_logs_dir, f)
         return files

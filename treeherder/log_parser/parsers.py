@@ -465,3 +465,26 @@ class TalosParser(ParserBase):
             # Mark this parser as complete, so we don't continue to run
             # it against every remaining line in the log.
             self.complete = True
+
+
+class PerformanceParser(ParserBase):
+    """a sub-parser to find generic performance data"""
+
+    # Using $ in the regex as an end of line bounds causes the
+    # regex to fail on windows logs. This is likely due to the
+    # ^M character representation of the windows end of line.
+    RE_PERFORMANCE = re.compile(r'.*?PERFORMANCE_DATA:\s+({.*})')
+
+    def __init__(self):
+        super(PerformanceParser, self).__init__("performance_data")
+
+    def parse_line(self, line, lineno):
+        match = self.RE_PERFORMANCE.match(line)
+        if match:
+            # this will throw an exception if the json parsing breaks, but
+            # that's the behaviour we want
+            self.artifact = json.loads(match.group(1))
+            # at some point in the future we might want to allow a job to
+            # specify multiple performance artifacts, but for now we'll
+            # just stop here
+            self.complete = True

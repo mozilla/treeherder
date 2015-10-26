@@ -7,7 +7,8 @@ from django.conf import settings
 
 from .artifactbuilders import (BuildbotJobArtifactBuilder,
                                BuildbotLogViewArtifactBuilder,
-                               BuildbotPerformanceDataArtifactBuilder)
+                               BuildbotPerformanceDataArtifactBuilder,
+                               BuildbotTalosDataArtifactBuilder)
 
 
 class ArtifactBuilderCollection(object):
@@ -51,6 +52,12 @@ BuildbotJobArtifactBuilder
 
 BuildbotPerformanceDataArtifactBuilder
 -------------
+* Builds an artifact from generic performance data
+* Parsers:
+* PerformanceParser
+
+BuildbotTalosDataArtifactBuilder
+-------------
 * Builds an artifact from talos data
 * Parsers:
 * TalosParser
@@ -78,7 +85,8 @@ BuildbotPerformanceDataArtifactBuilder
             self.builders = [
                 BuildbotLogViewArtifactBuilder(url=self.url),
                 BuildbotJobArtifactBuilder(url=self.url),
-                BuildbotPerformanceDataArtifactBuilder(url=self.url)
+                BuildbotPerformanceDataArtifactBuilder(url=self.url),
+                BuildbotTalosDataArtifactBuilder(url=self.url)
             ]
 
     def get_log_handle(self, url):
@@ -137,6 +145,6 @@ BuildbotPerformanceDataArtifactBuilder
             builder.finish_parse()
             name = builder.name
             artifact = builder.get_artifact()
-            if name == 'talos_data' and not artifact[name]:
+            if (name == 'talos_data' or name == 'performance_data') and not artifact[name]:
                 continue
             self.artifacts[name] = artifact
