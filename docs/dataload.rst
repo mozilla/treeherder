@@ -2,7 +2,7 @@ Loading buildbot data
 =====================
 
 In order to start ingesting data, you need to turn on a celery worker with a '-B' option.
-In this way the worker can run some scheduled tasks that are loaded in the database with the init_master_db command.
+In this way the worker can run some scheduled tasks that are defined in treeherder.config.settings.CELERYBEAT_SCHEDULE.
 Here is a brief description of what each periodic task will do for you:
 
 *fetch-push-logs*
