@@ -7,7 +7,7 @@ from treeherder.model.models import (Datasource,
 
 
 @pytest.fixture
-def repository_group():
+def repository_group(transactional_db):
     return RepositoryGroup.objects.create(name="mygroup")
 
 
@@ -29,7 +29,7 @@ def test_init_datasources(repository):
     assert count_after == count_before + 1
 
 
-def test_init_datasources_no_repo():
+def test_init_datasources_no_repo(transactional_db):
     """check that no datasources are created if there are no repo"""
     count_before = Datasource.objects.all().count()
     call_command("init_datasources")

@@ -31,7 +31,7 @@ def assert_num_queries(queries):
         connection.force_debug_cursor = _old_debug_cursor
 
 
-def pytest_funcarg__DataSource(request):
+def pytest_funcarg__DataSource(request, transactional_db):
     """
     Gives a test access to the DataSource model class.
 
