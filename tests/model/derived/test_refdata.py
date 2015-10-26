@@ -11,7 +11,7 @@ from treeherder.model.models import (Repository,
 
 
 @pytest.fixture
-def repository_id():
+def repository_id(transactional_db):
     repo_group = RepositoryGroup.objects.create(name='mygroup')
     repo_args = {
         "dvcs_type": "hg",
