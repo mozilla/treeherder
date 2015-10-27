@@ -444,7 +444,6 @@ div.talos-panel {
  */
 .error-classification-content {
   padding: 2px 4px 0;
-  font-size: 11px;
 }
 
 .failure-line-message {
@@ -466,7 +465,7 @@ div.talos-panel {
 }
 
 .failure-line-message-expanded {
-  padding-left: 5px;
+  margin-left: 5px;
   color: #747474;
 }
 

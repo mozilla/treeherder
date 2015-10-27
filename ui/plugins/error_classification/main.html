@@ -17,8 +17,10 @@
              <span class="failure-line-message-toggle fa fa-fw fa-lg"
                      ng-class="{'fa-caret-down': messageExpanded, 'fa-caret-right': !messageExpanded}"
                      ng-click="messageExpanded = !messageExpanded"></span>
-             <div ng-class="{'failure-line-message-expanded': messageExpanded, 'failure-line-message-collapsed': !messageExpanded}">
-                   {{line.message}}</div>
+             <span ng-if="!messageExpanded"
+                   class="failure-line-message-collapsed">{{ line.message }}</span>
+             <pre ng-if="messageExpanded"
+                  class="failure-line-message-expanded">{{ line.message }}</pre>
         </div>
       </span>
       <span ng-if="line.action === 'log'">
