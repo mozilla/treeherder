@@ -49,10 +49,12 @@ class ArtifactBuilderBase(object):
         if self.parser.complete:
             return
 
-        # Talos data is stored in a json structure contained in a single line,
-        # if the MAX_LINE_LENGTH is applied the data structure could be truncated,
-        # preventing it from being ingested.
-        if "TALOSDATA" not in line and 'PERFORMANCE_DATA' not in line:
+        # Perf data is stored in a json structure contained in a single line,
+        # if the MAX_LINE_LENGTH is applied the data structure could be
+        # truncated, preventing it from being ingested.
+        if not any(perf_str in line for perf_str in ['TALOSDATA',
+                                                     'TalosResult',
+                                                     'PERFORMANCE_DATA']):
             line = line[:self.MAX_LINE_LENGTH]
 
         self.parser.parse_line(line, self.lineno)
