@@ -28,7 +28,26 @@ matrix:
         - flake8 --show-source
         - isort --check-only --diff --quiet
 
-    - env: main-test-run
+    - env: ui-tests
+      sudo: false
+      language: node_js
+      node_js: "4.2.1"
+      cache:
+        # Note: This won't re-use the same cache as the linters job,
+        # since caches are tied to the language/version combination.
+        directories:
+          - node_modules
+      install:
+        - npm install
+      before_script:
+        # Required for Karma tests (http://docs.travis-ci.com/user/gui-and-headless-browsers/)
+        - export DISPLAY=:99.0
+        - sh -e /etc/init.d/xvfb start
+      script:
+        - npm test
+        - ./node_modules/.bin/grunt build --production
+
+    - env: python-tests
       # Once mysql 5.6 is available on the container infra, we should switch back
       # to it, by setting `sudo: false`, so we can use caching for this job.
       sudo: required
@@ -42,21 +61,14 @@ matrix:
         - sudo apt-get update -qq
         - sudo apt-get install -qq mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
       install:
-        - npm install
         # We use `--user` with pip install since the non-container infra doesn't set up
         # a virtualenv, and we cannot use sudo due to:
         #   https://github.com/travis-ci/travis-ci/issues/4989
         # Disabling the pip version check speeds up the install considerably, since peep
         # calls pip once per package, which results in duplicate checks (plus log spam).
         - ./bin/peep.py install --user -r requirements/common.txt -r requirements/dev.txt --disable-pip-version-check
-      before_script:
-        # Required for Karma tests (http://docs.travis-ci.com/user/gui-and-headless-browsers/)
-        - export DISPLAY=:99.0
-        - sh -e /etc/init.d/xvfb start
       script:
-        - npm test
         - py.test tests/$* --runslow
-        - ./node_modules/.bin/grunt build --production
 
 notifications:
   email:
