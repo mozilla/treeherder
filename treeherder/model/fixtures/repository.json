@@ -856,5 +856,18 @@
         "repository_group": 2,
         "description": ""
     }
+},
+{
+    "pk": 70,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "mozilla-b2g44_v2_5",
+        "url": "https://hg.mozilla.org/releases/mozilla-b2g44_v2_5",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 2,
+        "description": ""
+    }
 }
 ]
