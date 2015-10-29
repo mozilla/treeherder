@@ -52,6 +52,7 @@ matrix:
       # to it, by setting `sudo: false`, so we can use caching for this job.
       sudo: required
       dist: trusty
+      language: python
       python: "2.7"
       services:
         - rabbitmq
@@ -61,12 +62,9 @@ matrix:
         - sudo apt-get update -qq
         - sudo apt-get install -qq mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
       install:
-        # We use `--user` with pip install since the non-container infra doesn't set up
-        # a virtualenv, and we cannot use sudo due to:
-        #   https://github.com/travis-ci/travis-ci/issues/4989
-        # Disabling the pip version check speeds up the install considerably, since peep
-        # calls pip once per package, which results in duplicate checks (plus log spam).
-        - ./bin/peep.py install --user -r requirements/common.txt -r requirements/dev.txt --disable-pip-version-check
+        # This uses pip rather than peep, since it takes half the time, and unlike the other
+        # jobs, this one cannot use caching. The hashes are validated in the linters job.
+        - pip install --disable-pip-version-check -r requirements/common.txt -r requirements/dev.txt
       script:
         - py.test tests/$* --runslow
 
