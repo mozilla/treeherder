@@ -12,5 +12,12 @@
         "fields": {
             "name": "build_metrics"
         }
+    },
+    {
+        "pk": 3,
+        "model": "perf.PerformanceFramework",
+        "fields": {
+            "name": "autophone"
+        }
     }
 ]
