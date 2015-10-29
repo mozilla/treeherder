@@ -47,7 +47,8 @@ div#info-panel .navbar-nav > li > a#logviewer-btn {
   line-height: 18px;
 }
 
-div#info-panel .navbar-nav > li > a.disabled {
+div#info-panel .navbar-nav > li > a.disabled,
+div#job-details-actionbar ul.actionbar-menu > li > a.disabled {
   cursor: not-allowed;
   text-decoration: none;
 }

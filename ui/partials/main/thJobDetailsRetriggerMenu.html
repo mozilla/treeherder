@@ -1,6 +1,9 @@
 <li>
   <a ng-click="retriggerJob([selectedJob])">Retrigger job</a>
 </li>
-<li>
+<li ng-show="currentRepo.repository_group.name == 'try'">
+  <a class="disabled" title="Backfill not available for this repo">Backfill job</a>
+</li>
+<li ng-hide="currentRepo.repository_group.name == 'try'">
   <a ng-click="backfillJob()">Backfill job</a>
 </li>
