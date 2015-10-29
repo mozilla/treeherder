@@ -47,7 +47,7 @@ matrix:
         - npm test
         - ./node_modules/.bin/grunt build --production
 
-    - env: python-tests
+    - env: python-tests-main
       # Once mysql 5.6 is available on the container infra, we should switch back
       # to it, by setting `sudo: false`, so we can use caching for this job.
       sudo: required
@@ -66,7 +66,27 @@ matrix:
         # jobs, this one cannot use caching. The hashes are validated in the linters job.
         - pip install --disable-pip-version-check -r requirements/common.txt -r requirements/dev.txt
       script:
-        - py.test tests/ --runslow
+        - py.test tests/ --runslow --ignore=tests/e2e/ --ignore=tests/log_parser/
+    - env: python-tests-e2e-and-logparser
+      # Once mysql 5.6 is available on the container infra, we should switch back
+      # to it, by setting `sudo: false`, so we can use caching for this job.
+      sudo: required
+      dist: trusty
+      language: python
+      python: "2.7"
+      services:
+        - rabbitmq
+        - memcached
+      before_install:
+        # Manually install mysql 5.6 since the default is v5.5.
+        - sudo apt-get -qq update
+        - sudo apt-get -qq install mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
+      install:
+        # This uses pip rather than peep, since it takes half the time, and unlike the other
+        # jobs, this one cannot use caching. The hashes are validated in the linters job.
+        - pip install --disable-pip-version-check -r requirements/common.txt -r requirements/dev.txt
+      script:
+        - py.test tests/e2e/ tests/log_parser/ --runslow
 
 notifications:
   email:
