@@ -16,6 +16,12 @@ treeherder.factory('thTabs', [
                     content: "plugins/failure_summary/main.html",
                     enabled: true
                 },
+                "errorClassification": {
+                    title: "Error Classifications",
+                    description: "error classifications",
+                    content: "plugins/error_classification/main.html",
+                    enabled: false
+                },
                 "annotations": {
                     title: "Annotations",
                     description: "annotations",
@@ -38,6 +44,7 @@ treeherder.factory('thTabs', [
             "tabOrder": [
                 "jobDetails",
                 "failureSummary",
+                "errorClassification",
                 "annotations",
                 "similarJobs",
                 "talos"

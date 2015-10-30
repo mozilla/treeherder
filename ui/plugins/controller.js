@@ -7,13 +7,15 @@ treeherder.controller('PluginCtrl', [
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'thTabs',
     '$timeout', 'thJobSearchStr', 'thReftestStatus', 'ThResultSetStore',
+    'ThFailureLinesModel',
     function PluginCtrl(
         $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
         numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
         thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs,
-        $timeout, thJobSearchStr, thReftestStatus, ThResultSetStore) {
+        $timeout, thJobSearchStr, thReftestStatus, ThResultSetStore,
+        ThFailureLinesModel) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -39,12 +41,25 @@ treeherder.controller('PluginCtrl', [
             thJobFilters.replaceFilter('searchStr', jobSearchStr || null);
         };
 
+        // if the ``autoclassify`` param is set on the query sting, then
+        // show the ``errorClassification`` tab.  Otherwise, hide it.
+        // NOTE: This is a temporary param used during the evaluation/experimentation
+        // phase of this feature.
+        var showAutoClassifyTab = function() {
+            thTabs.tabs.errorClassification.enabled = ($location.search().autoclassify === true);
+        };
+        showAutoClassifyTab();
+        $rootScope.$on('$locationChangeSuccess', function() {
+            showAutoClassifyTab();
+        });
+
         /**
          * Set the tab options and selections based on the selected job.
          * The default selected tab will be based on whether the job was a
          * success or failure.
          *
          * Some tabs will be shown/hidden based on the job (such as Talos)
+         * and some based on query string params (such as errorClassification).
          *
          */
         var initializeTabs = function(job) {
@@ -56,6 +71,11 @@ treeherder.controller('PluginCtrl', [
             $scope.tabService.tabs.talos.enabled = (job.job_group_name.indexOf('Talos') !== -1);
             if ($scope.tabService.tabs.talos.enabled) {
                 successTab = "talos";
+            }
+
+            // Error Classification/autoclassify special handling
+            if ($scope.tabService.tabs.errorClassification.enabled) {
+                failTab = "errorClassification";
             }
 
             // set the selected tab
