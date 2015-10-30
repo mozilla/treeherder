@@ -4,6 +4,7 @@ import os
 import pytest
 
 from treeherder.etl.bugzilla import BzApiBugProcess
+from treeherder.model.models import Bugscache
 
 
 @pytest.fixture
@@ -27,20 +28,14 @@ def mock_extract(monkeypatch):
                         extract)
 
 
-def test_bz_api_process(mock_extract, refdata):
+@pytest.mark.django_db(transaction=True)
+def test_bz_api_process(mock_extract):
     process = BzApiBugProcess()
     process.run()
 
-    row_data = refdata.dhub.execute(
-        proc='refdata_test.selects.test_bugscache',
-        return_type='tuple'
-    )
-
-    refdata.disconnect()
-
     # the number of rows inserted should equal to the number of bugs
-    assert len(row_data) == 15
+    assert Bugscache.objects.count() == 15
 
     # test that a second ingestion of the same bugs doesn't insert new rows
     process.run()
-    assert len(row_data) == 15
+    assert Bugscache.objects.count() == 15
