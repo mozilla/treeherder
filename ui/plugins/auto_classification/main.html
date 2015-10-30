@@ -1,0 +1,46 @@
+<div ng-controller="ClassificationPluginCtrl"
+     class="error-classification-content">
+  <ul class="list-unstyled">
+
+    <li ng-repeat="line in failureLines"
+        class="failure-line"
+        ng-class="{'classified-line': line.matches.length }">
+      <span><strong>{{line.matches | classified}}</strong></span>
+      <span ng-if="line.matches.length">
+          <span ng-repeat="match in line.matches">
+              <a href="{{:: getBugUrl(match.classified_failure.bug_number) }}"
+                 target="_blank">{{::match.classified_failure.bug_number}}</a>
+          </span>
+      </span>
+      <span ng-if="line.action === 'test_result'">
+        <span>{{line.test}} {{line.subtest}}
+          Expected: {{line.expected}}, got: <span class="label label-default">{{line.status}}</span>
+        </span>
+        <div ng-if="line.message"
+             ng-init="messageExpanded=false"
+             class="failure-line-message">
+             <span class="failure-line-message-toggle fa fa-fw fa-lg"
+                     ng-class="{'fa-caret-down': messageExpanded, 'fa-caret-right': !messageExpanded}"
+                     ng-click="messageExpanded = !messageExpanded"></span>
+             <span ng-if="!messageExpanded"
+                   class="failure-line-message-collapsed">{{ line.message }}</span>
+             <span ng-if="messageExpanded"
+                   class="failure-line-message-expanded">{{ line.message }}</span>
+        </div>
+      </span>
+      <span ng-if="line.action === 'log'">
+        LOG {{line.level}} | {{line.message}}
+      </span>
+      <span ng-if="line.action === 'crash'">
+        CRASH | {{line.signature}}
+      </span>
+      <span ng-if="line.action === ''">
+        CRASH | {{line.signature}}
+      </span>
+    </li>
+
+    <li ng-if="!tabs.autoClassification.is_loading &&  !failureLines.length">
+      <span>No classifiable errors for this job.</span>
+    </li>
+  </ul>
+</div>

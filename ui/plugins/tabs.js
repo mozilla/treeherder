@@ -16,6 +16,12 @@ treeherder.factory('thTabs', [
                     content: "plugins/failure_summary/main.html",
                     enabled: true
                 },
+                "autoClassification": {
+                    title: "Autoclassification",
+                    description: "Auto classification list",
+                    content: "plugins/auto_classification/main.html",
+                    enabled: false
+                },
                 "annotations": {
                     title: "Annotations",
                     description: "annotations",
@@ -38,6 +44,7 @@ treeherder.factory('thTabs', [
             "tabOrder": [
                 "jobDetails",
                 "failureSummary",
+                "autoClassification",
                 "annotations",
                 "similarJobs",
                 "talos"
