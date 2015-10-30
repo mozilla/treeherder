@@ -223,45 +223,17 @@
       </div>
     </div>
   </div>
-  <div id="job-tabs-panel"
-       ng-class="{'talos-job-selected': tabService.tabs.talos.enabled}">
+  <div id="job-tabs-panel">
     <div id="job-tabs-navbar">
       <nav class="navbar navbar-dark">
         <ul class="nav navbar-nav tab-headers">
-          <li ng-class="{'active': tabService.selectedTab == 'jobDetails'}">
-            <a title="Show additional job information"
+          <li ng-repeat="tabName in tabService.tabOrder"
+              ng-if="tabService.tabs[tabName].enabled"
+              ng-class="{'active': tabService.selectedTab == tabName}">
+            <a title="Show {{ tabService.tabs[tabName].description }}"
                href="" prevent-default-on-left-click
-               ng-click="tabService.showTab('jobDetails', job.id)">
-              Job details
-            </a>
-          <li ng-class="{'active': tabService.selectedTab == 'failureSummary'}">
-            <a title="Show failure summary"
-               href="" prevent-default-on-left-click
-               ng-click="tabService.showTab('failureSummary', job.id)">
-              Failure summary
-            </a>
-          </li>
-          <li ng-class="{'active': tabService.selectedTab == 'annotations'}">
-            <a title="Show annotations"
-               href="" prevent-default-on-left-click
-               ng-click="tabService.showTab('annotations', job.id)">
-              Annotations
-            </a>
-          </li>
-          </li>
-          <li ng-class="{'active': tabService.selectedTab == 'similarJobs'}">
-            <a title="Show similar jobs"
-               href="" prevent-default-on-left-click
-               ng-click="tabService.showTab('similarJobs', job.id)">
-              Similar jobs
-            </a>
-          </li>
-          <li ng-if="tabService.tabs.talos.enabled"
-              ng-class="{'active': tabService.selectedTab == 'talos'}">
-            <a title="Show Talos job details"
-               href="" prevent-default-on-left-click
-               ng-click="tabService.showTab('talos', job.id)">
-              Talos
+               ng-click="tabService.showTab(tabName, job.id)">
+              {{ tabService.tabs[tabName].title }}
             </a>
           </li>
         </ul>
