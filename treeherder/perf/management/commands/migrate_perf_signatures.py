@@ -39,7 +39,10 @@ class Command(BaseCommand):
 
         for project in projects:
             print project
-            repository = Repository.objects.get(name=project)
+            try:
+                repository = Repository.objects.get(name=project)
+            except:
+                continue
             hashes_to_migrate = set(PerformanceDatum.objects.filter(
                 repository=repository,
                 signature__repository__isnull=True).values_list(
