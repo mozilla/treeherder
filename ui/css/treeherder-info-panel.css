@@ -42,6 +42,11 @@ div#info-panel .navbar-nav > li > a {
   line-height: 19px;
 }
 
+/* Use a loaded image, rather than an icon, so it needs to be slightly shorter */
+div#info-panel .navbar-nav > li > a#logviewer-btn {
+  line-height: 18px;
+}
+
 div#info-panel .navbar-nav > li > a.disabled {
   cursor: not-allowed;
   text-decoration: none;
@@ -53,28 +58,47 @@ div#info-panel .navbar-nav > li.active a:focus {
   outline: 0;
 }
 
-div#info-panel .navbar > ul.tab-headers > li {
+div#info-panel .info-panel-navbar > ul.tab-headers > li {
   border-right: 1px solid #42484F;
 }
 
-.navbar.navbar-dark {
+.info-panel-navbar {
   background-color: #252C33;
+  border: 1px solid transparent;
   color: #CED3D9;
+  display: flex;
+  z-index: 100;
 }
 
-.navbar.navbar-dark .navbar-nav > li > a {
+.info-panel-navbar-tabs {
+  justify-content: space-between;
+}
+
+.info-panel-navbar-controls {
+  flex-wrap: nowrap;
+}
+
+.info-panel-navbar .navbar-nav {
+  display: flex;
+}
+
+.info-panel-navbar .navbar-nav > li {
+  white-space: nowrap;
+}
+
+.info-panel-navbar .navbar-nav > li > a {
   color: #9FA3A5;
 }
 
-.navbar.navbar-dark .navbar-nav > li > a:hover,
-.navbar.navbar-dark .navbar-nav > li > a:focus {
+.info-panel-navbar .navbar-nav > li > a:hover,
+.info-panel-navbar .navbar-nav > li > a:focus {
   background-color: #1E252B;
   color: #D3D8DA;
 }
 
-div#info-panel .navbar.navbar-dark .navbar-nav > li.active a,
-div#info-panel .navbar.navbar-dark .navbar-nav > li.active a:hover,
-div#info-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
+div#info-panel .info-panel-navbar .navbar-nav > li.active a,
+div#info-panel .info-panel-navbar .navbar-nav > li.active a:hover,
+div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
   background-color: #1A4666;
   color: #EEF0F2;
 }
@@ -215,11 +239,6 @@ div#info-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
   flex: 1 6;
   padding: 0px;
   min-width: 565px;
-}
-
-.talos-job-selected {
-  /* Override to optimize all other jobs above at 565px */
-  min-width: 625px !important;
 }
 
 #job-tabs-pane {
@@ -437,4 +456,44 @@ div.similar_jobs .left_panel table tr {
 
 div.talos-panel {
   display: block !important;
+}
+
+/*
+ * Error Classification
+ */
+
+.failure-line {
+  padding: 2px 4px 0;
+}
+
+.classified-line {
+  background: #ccfaff;
+}
+
+.failure-line-message {
+  display: flex;
+}
+
+.failure-line-message-toggle {
+  cursor: pointer;
+  width: 10px;
+  flex-basis: auto;
+  padding: 2px 4px;
+}
+
+.failure-line-message-collapsed {
+  max-height: 14px;
+  height: 14px;
+  overflow: hidden;
+  padding-left: 5px;
+  color: darkgray;
+}
+
+.failure-line-message-expanded {
+  margin-left: 5px;
+  margin-bottom: 10px;
+  color: #747474;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
 }
