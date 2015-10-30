@@ -1,10 +1,8 @@
 # Dependencies needed only for development/testing.
 
-# for the test suite and coverage metrics
 # sha256: gpJO-16ng6ciNGgqDoBJ2E9erryqw8jAiTt-rpfyg4A
 pytest==2.7.2
-# sha256: MeUZjAbykOHoE9MN3QY6BAHZ46aYEpykQmd4FnOnEoU
-pytest-cov==1.8.1
+
 # sha256: 8UAnAQY5mPanBgl4mq6NwFcD860KNIgvYZllNlTFVUM
 datadiff==1.1.6
 
@@ -32,14 +30,6 @@ isort==4.2.2
 # Required by pytest
 # sha256: B-IKuQpVC9PCGJHg2IfwkxtAmPFIrsleKbUYjxYbsHU
 py==1.4.30
-
-# Required by pytest-cov
-# sha256: ShTGfVIP2p1CsNphNGOFeMquHTdLm7Ri2N4AWH26dkw
-cov-core==1.15.0
-
-# Required by cov-core
-# sha256: 0a6hxKphuDZtakLdNlBiL7-cY07STq9_N5yLlw5e1E4
-coverage==3.7.1
 
 # Required by WebTest
 # sha256: twJyH4ciyU-9L737Qhg8S1s9iHEYa5KoiY4t_khpqts
