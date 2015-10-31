@@ -236,7 +236,7 @@ to { opacity: 0; }
 
 .compare-form .form-group .input-group-btn {
   flex: none;
-  width: 10px;
+  width: 80px;
 }
 
 .compare-table td, th {
