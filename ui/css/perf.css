@@ -32,7 +32,7 @@ to { opacity: 0; }
 
 #data-display { flex: auto; }
 
-#graph { width: 100%; height: 300px; margin-bottom: 30px; }
+#graph { width: 100%; height: 300px; margin-bottom: 30px; cursor: crosshair; }
 
 .graph-legend-table { table-layout:fixed; }
 
