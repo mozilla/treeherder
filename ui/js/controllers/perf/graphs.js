@@ -352,6 +352,7 @@ perf.controller('GraphsCtrl', [
                                      {
                                          xaxis: { mode: 'time' },
                                          series: { shadowSize: 0 },
+                                         selection: { mode: 'xy', color: '#97c6e5'},
                                          lines: { show: false },
                                          points: { show: true },
                                          legend: { show: false },
@@ -420,6 +421,38 @@ perf.controller('GraphsCtrl', [
                     }
                     updateDocument();
                     highlightDataPoints();
+                });
+
+                // This part of code is simply copy from overview-plot
+                $('#graph').bind("plotunselected", function() {
+                    $scope.zoom = {};
+                    $scope.selectedDataPoint = null;
+                    hideTooltip();
+                    updateDocument();
+                    plotGraph();
+                });
+                $('#graph').bind("plotselected", function(event, ranges) {
+                    deselectDataPoint();
+                    hideTooltip();
+
+                    $.each($scope.plot.getXAxes(), function(_, axis) {
+                        var opts = axis.options;
+                        opts.min = ranges.xaxis.from;
+                        opts.max = ranges.xaxis.to;
+                    });
+                    $.each($scope.plot.getYAxes(), function(_, axis) {
+                        var opts = axis.options;
+                        opts.min = ranges.yaxis.from;
+                        opts.max = ranges.yaxis.to;
+                    });
+
+                    $scope.zoom = {'x': [ranges.xaxis.from, ranges.xaxis.to], 'y': [ranges.yaxis.from, ranges.yaxis.to]};
+                    $scope.plot.setupGrid();
+                    $scope.plot.draw();
+                    updateDocument();
+                    // Make overview graph display the selected range.
+                    $scope.plot.clearSelection();
+                    zoomGraph();
                 });
             });
         }
