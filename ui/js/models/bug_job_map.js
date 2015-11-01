@@ -21,6 +21,10 @@ treeherder.factory('ThBugJobMapModel', [
                 item_list.push(new ThBugJobMapModel(elem));
             });
             return item_list;
+        }).then(function(bugJobMapList){
+            return _.filter(bugJobMapList, function(bugJobMap){
+                return bugJobMap.type !== 'autoclassification';
+            });
         });
     };
 
