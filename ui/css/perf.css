@@ -239,35 +239,35 @@ to { opacity: 0; }
   width: 10px;
 }
 
-.compare-table td {
+.compare-table td, th {
     text-align: center;
     cursor: default;
 }
 
-.compare-table td.test-title {
+.compare-table .test-title {
     text-align: left;
 }
 
-.compare-table .subtest-header > td {
+.compare-table .subtest-header > th {
     color: transparent;
     transition: color 150ms ease-in-out;
 }
 
-.compare-table:first-child .subtest-header > td,
-.compare-table:hover .subtest-header > td,
-.compare-table .subtest-header > td.test-title {
+.compare-table:first-child .subtest-header > th,
+.compare-table:hover .subtest-header > th,
+.compare-table .subtest-header > th.test-title {
     color: #333;
 }
 
-.compare-table .subtest-header > td.test-title {
+.compare-table .subtest-header > th.test-title {
     text-align: left;
 }
 
-.compare-table td.num-runs {
+.compare-table .num-runs {
     text-align: right;
 }
 
-.compare-table td.test-warning {
+.compare-table .test-warning {
     text-align: left;
 }
 

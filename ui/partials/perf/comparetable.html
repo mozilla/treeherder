@@ -2,15 +2,15 @@
   <tbody>
     <tr class="subtest-header">
       <!-- Manually specify table widths because it's just easier this way -->
-      <td class="test-title"><span style=" word-wrap: break-word;">{{titles[testName]}}</span></td>
-      <td style="width: 140px;">Base</td>
-      <td style="width: 30px;"><!-- less than / greater than --></td>
-      <td style="width: 140px;">New</td>
-      <td style="width: 80px;">Delta</td>
-      <td style="width: 120px"><!-- Graphical difference --></td>
-      <td style="width: 100px;">Confidence</td>
-      <td class="num-runs" style="width: 80px"># Runs</td>
-      <td class="test-warning" style="width: 30px"><!-- warning if not enough --></td>
+      <th class="test-title"><span style=" word-wrap: break-word;">{{titles[testName]}}</span></th>
+      <th style="width: 140px;">Base</th>
+      <th style="width: 30px;"><!-- less than / greater than --></th>
+      <th style="width: 140px;">New</th>
+      <th style="width: 80px;">Delta</th>
+      <th style="width: 120px"><!-- Graphical difference --></th>
+      <th style="width: 100px;">Confidence</th>
+      <th class="num-runs" style="width: 80px"># Runs</th>
+      <th class="test-warning" style="width: 30px"><!-- warning if not enough --></th>
     </tr>
     <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults[testName] | orderBy: 'name'" ng-show="filterPlatform(compareResult)">
       <td class="test-title">{{compareResult.name}}
