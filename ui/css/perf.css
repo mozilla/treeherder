@@ -263,6 +263,10 @@ to { opacity: 0; }
     text-align: left;
 }
 
+.compare-table tr:hover .detail-hint {
+    border-bottom: 1px dotted #777;
+}
+
 .compare-table .num-runs {
     text-align: right;
 }
@@ -312,8 +316,4 @@ span.compare-regression {
 
 .bar-regression {
   background-color: red;
-}
-
-.detail-hint {
-    border-bottom: 1px dotted #777;
 }
