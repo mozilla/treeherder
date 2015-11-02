@@ -34,4 +34,4 @@ exec $NEWRELIC_ADMIN gunicorn -w $NUM_WORKERS \
     --error-logfile=$ERROR_LOGFILE treeherder.config.wsgi:application \
     --keep-alive=3 \
     --log-level error \
-    --timeout=120
+    --timeout=30
