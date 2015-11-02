@@ -64,13 +64,6 @@ treeherder.factory('ThJobModel', [
                     return $q.when(next_pages_jobs).then(function(maybe_job_list){
                         return  item_list.concat(maybe_job_list);
                     });
-                }).then(function(job_list){
-                    return _.map(job_list, function(job){
-                        if (job.failure_classification_id === 7) {
-                            job.failure_classification_id = 1;
-                        }
-                        return job;
-                    });
                 });
         };
 

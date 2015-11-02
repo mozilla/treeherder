@@ -24,10 +24,6 @@ treeherder.factory('ThJobClassificationModel', [
                         item_list.push(new ThJobClassificationModel(elem));
                     });
                     return item_list;
-                }).then(function(classificationList){
-                    return _.filter(classificationList, function(jobClassification){
-                        return jobClassification.failure_classification_id !== 7;
-                    });
                 });
         };
 
