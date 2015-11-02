@@ -259,9 +259,7 @@ module.exports = function(grunt) {
             options: {
                 config: '.eslintrc'
             },
-            target: ['ui/js/*.js',
-                     'ui/js/**/*.js',
-                     'ui/js/**/**/*.js']
+            target: ['ui/']
         }
     });
 
