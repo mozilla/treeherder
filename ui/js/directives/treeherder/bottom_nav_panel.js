@@ -59,12 +59,11 @@ treeherder.directive('thFailureClassification', [
                         scope.classification = thClassificationTypes.classifications[newVal];
                         scope.badgeColorClass=scope.classification.star;
                         scope.hoverText=scope.classification.name;
-                        scope.iconCls = (newVal == 7 ? "glyphicon-star-empty" : "glyphicon glyphicon-star") + " star";
                     }
                 });
             },
             template: '<span title="{{hoverText}}">' +
-                '<i class="glyphicon {{iconCls}}"></i>' +
+                '<i class="glyphicon glyphicon-star star"></i>' +
                 '</span> {{hoverText}}'
         };
     }]);

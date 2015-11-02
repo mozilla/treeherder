@@ -144,21 +144,7 @@
 .btn-pink-classified-count::after,
 .btn-purple-classified::after,
 .btn-purple-classified-count::after {
-  font-family: 'Glyphicons Halflings';
-  font-weight: 400;
-  line-height: 1;
-  content: "\e006";
-  font-size: 75%;
-  vertical-align: super;
-}
-
-.autoclassified::after {
-  font-family: 'Glyphicons Halflings';
-  font-weight: 400;
-  line-height: 1;
-  content: "\e007";
-  font-size: 75%;
-  vertical-align: super;
+  content: "*";
 }
 
 /* Orange, testfailed */

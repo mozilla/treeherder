@@ -3,7 +3,7 @@ from django.core.management import call_command
 from treeherder.autoclassify.detectors import TestFailureDetector
 from treeherder.autoclassify.matchers import PreciseTestMatcher
 from treeherder.model.models import (ClassifiedFailure,
-                                     MatcherManager,
+                                     Matcher,
                                      Repository)
 
 from .utils import (create_failure_lines,
@@ -26,11 +26,11 @@ def test_detect_intermittents(activate_responses, jm, eleven_jobs_stored, initia
     old_failure_ids = set(item.id for item in ClassifiedFailure.objects.all())
 
     # Poke some internal state so that we only use a single matcher for the test
-    MatcherManager._matcher_funcs = {}
-    MatcherManager.register_matcher(PreciseTestMatcher)
+    Matcher._matcher_funcs = {}
+    Matcher.objects.register_matcher(PreciseTestMatcher)
 
-    MatcherManager._detector_funcs = {}
-    detector = MatcherManager.register_detector(TestFailureDetector)
+    Matcher._detector_funcs = {}
+    detector = Matcher.objects.register_detector(TestFailureDetector)
 
     call_command('detect_intermittents', retrigger['job_guid'], jm.project)
 

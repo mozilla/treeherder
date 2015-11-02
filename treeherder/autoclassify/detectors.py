@@ -2,7 +2,7 @@ import logging
 from abc import (ABCMeta,
                  abstractmethod)
 
-from treeherder.model.models import MatcherManager
+from treeherder.model import models
 
 logger = logging.getLogger(__name__)
 
@@ -34,13 +34,6 @@ class TestFailureDetector(Detector):
         return rv
 
 
-class ManualDetector(Detector):
-    """Small hack; this ensures that there's a matcher object indicating that a match
-    was by manual association, but which never automatically matches any lines"""
-    def __call__(self, failure_lines):
-        return []
-
-
 def register():
-    for obj in [ManualDetector, TestFailureDetector]:
-        MatcherManager.register_detector(obj)
+    for obj in [TestFailureDetector]:
+        models.Matcher.objects.register_detector(obj)

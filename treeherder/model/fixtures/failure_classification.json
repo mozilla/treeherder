@@ -52,14 +52,5 @@
         "description": "",
         "active_status": "active"
     }
-},
-{
-    "pk": 7,
-    "model": "model.failureclassification",
-    "fields": {
-        "name": "autoclassified intermittent",
-        "description": "",
-        "active_status": "active"
-    }
 }
 ]
