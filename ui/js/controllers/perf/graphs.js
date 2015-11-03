@@ -343,13 +343,15 @@ perf.controller('GraphsCtrl', [
                                             var resultSetId = resultSets[0].id;
                                             var j = series.flotSeries.resultSetData.indexOf(resultSetId);
                                             series.highlightedPoints.push(j);
+                                        }, function(reason) {
+                                            /* ignore cases where no result set exists
+                                               for revision */
                                         });
                             }
                             return null;
                         }));
                 }
             });
-
             $q.all(highlightPromises).then(function() {
                 // plot the actual graph
                 $scope.plot = $.plot($("#graph"),
