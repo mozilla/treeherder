@@ -60,11 +60,6 @@ def test_job_list(webapp, eleven_jobs_stored, jm):
     for job in jobs:
         assert set(job.keys()) == set(exp_keys)
 
-    # The jobs should be returned in order of descending order
-    # of their resultset's push_timestamp, so in this case the
-    # first job should have id of 10.
-    assert jobs[0]['id'] == 10
-
 
 def test_job_list_bad_project(webapp, eleven_jobs_stored, jm):
     """
