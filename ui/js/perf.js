@@ -2,7 +2,7 @@
 
 var perf = angular.module("perf", ['ui.router', 'ui.bootstrap', 'treeherder']);
 
-perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceDomain) {
+treeherder.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceDomain) {
 
     var _getSeriesSummary = function(projectName, signature, signatureProps,
                                      optionCollectionMap) {
@@ -99,6 +99,19 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
             };
         });
     };
+
+    var _getSeriesByJobId = function(projectName, jobId) {
+        return $http.get(thServiceDomain + '/api/project/' + projectName +
+            '/performance/data/?job_id=' + jobId).then(function(response) {
+            if(response.data) {
+                return response.data;
+            } else {
+                return $q.reject("No data been found for job id " +
+                    jobId + " in project " + projectName);
+            }
+        });
+    };
+
 
     return {
         getSeriesSummary: _getSeriesSummary,
@@ -209,6 +222,10 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
 
         getSeriesByPlatform: function(prjectName, timeRange, platform, optionMap) {
             return _getSeriesByPlatform(prjectName, timeRange, platform, optionMap);
+        },
+
+        getSeriesByJobId: function(projectName, jobId) {
+            return _getSeriesByJobId(projectName, jobId);
         },
     };
 }]);
