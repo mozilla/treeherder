@@ -231,9 +231,16 @@ def test_job_error_lines(webapp, eleven_jobs_stored, jm, failure_lines, classifi
     matches = failures[0]["matches"]
     assert isinstance(matches, list)
 
-    exp_matches_keys = ["id", "matcher", "score", "is_best"]
+    exp_matches_keys = ["id", "matcher", "score", "is_best", "classified_failure"]
 
     assert set(matches[0].keys()) == set(exp_matches_keys)
+
+    classified = matches[0]["classified_failure"]
+    assert isinstance(classified, dict)
+
+    exp_classified_keys = ["id", "bug_number"]
+
+    assert set(classified.keys()) == set(exp_classified_keys)
 
     jm.disconnect()
 
