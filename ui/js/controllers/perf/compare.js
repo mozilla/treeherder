@@ -90,12 +90,13 @@ perf.controller('CompareResultsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$location',
     'thServiceDomain', 'ThOptionCollectionModel', 'ThRepositoryModel',
     'ThResultSetModel', '$http', '$q', '$timeout', 'PhSeries', 'math',
-    'isReverseTest', 'PhCompare',
+    'isReverseTest', 'phTimeRanges', 'PhCompare',
     function CompareResultsCtrl($state, $stateParams, $scope,
                                 $rootScope, $location,
                                 thServiceDomain, ThOptionCollectionModel,
                                 ThRepositoryModel, ThResultSetModel, $http,
                                 $q, $timeout, PhSeries, math, isReverseTest,
+                                phTimeRanges,
                                 PhCompare) {
         function displayComparison() {
             $scope.testList = [];
@@ -175,18 +176,34 @@ perf.controller('CompareResultsCtrl', [
                         return;
                     }
 
-                    var detailsLink = 'perf.html#/comparesubtest?';
-                    detailsLink += _.map(_.pairs({
-                        originalProject: $scope.originalProject.name,
-                        originalRevision: $scope.originalRevision,
-                        newProject: $scope.newProject.name,
-                        newRevision: $scope.newRevision,
-                        originalSignature: oldSig,
-                        newSignature: newSig
-                    }), function(kv) { return kv[0]+"="+kv[1]; }).join("&");
+                    cmap.links = [];
+
                     if (testName.indexOf("summary") > 0) {
-                        cmap.detailsLink = detailsLink;
+                        var detailsLink = 'perf.html#/comparesubtest?';
+                        detailsLink += _.map(_.pairs({
+                            originalProject: $scope.originalProject.name,
+                            originalRevision: $scope.originalRevision,
+                            newProject: $scope.newProject.name,
+                            newRevision: $scope.newRevision,
+                            originalSignature: oldSig,
+                            newSignature: newSig
+                        }), function(kv) { return kv[0]+"="+kv[1]; }).join("&");
+                        cmap.links.push({
+                            title: 'subtests',
+                            href: detailsLink
+                        });
                     }
+
+                    var graphsLink = PhCompare.getGraphsLink(
+                        $scope.originalProject, $scope.newProject, oldSig,
+                        $scope.originalResultSet, $scope.newResultSet);
+                    if (graphsLink) {
+                        cmap.links.push({
+                            title: 'graph',
+                            href: graphsLink
+                        });
+                    }
+
                     cmap.name = platform;
                     if (Object.keys($scope.compareResults).indexOf(testName) < 0)
                         $scope.compareResults[testName] = [];
@@ -348,6 +365,18 @@ perf.controller('CompareSubtestResultsCtrl', [
                     }
 
                     cmap.name = page;
+
+                    var graphsLink = PhCompare.getGraphsLink(
+                        $scope.originalProject, $scope.newProject, oldSig,
+                        $scope.originalResultSet, $scope.newResultSet);
+                    if (graphsLink) {
+                        cmap.links = [{
+                            title: 'graph',
+                            href: graphsLink
+                        }];
+                    }
+
+
                     $scope.compareResults[testName].push(cmap);
                 });
             });

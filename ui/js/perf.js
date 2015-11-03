@@ -480,6 +480,48 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                             return resultsMap;
                                         });
                                     },
+                                    getGraphsLink: function(baseProject, newProject, signature, baseResultSet, newResultSet) {
+                                        var graphsLink = 'perf.html#/graphs?';
+                                        function getSeriesParam(projectName, signature) {
+                                            return 'series=[' + [ projectName, signature,
+                                                                  1 ].join(',') + ']';
+                                        }
+
+                                        if (baseProject.name === newProject.name) {
+                                            // Case 1: old/new push same repository
+                                            graphsLink += getSeriesParam(
+                                                baseProject.name, signature);
+                                        } else {
+                                            // Case 2: different repositories
+                                            _.forEach(
+                                                [baseProject, newProject],
+                                                function(project) {
+                                                    if (graphsLink[graphsLink.length-1] !== '?') {
+                                                        graphsLink += '&';
+                                                    }
+                                                    graphsLink += getSeriesParam(
+                                                        project.name, signature);
+                                                });
+                                        }
+                                        _.forEach([baseResultSet.revision, newResultSet.revision],
+                                                  function(revision) {
+                                                      graphsLink += '&highlightedRevisions=' + revision;
+                                                  });
+
+                                        graphsLink += '&timerange=' + _.max(
+                                            _.map([baseResultSet, newResultSet],
+                                                  function(resultSet) {
+                                                      return _.find(
+                                                          _.pluck(phTimeRanges, 'value'),
+                                                          function(t) {
+                                                              return ((Date.now() / 1000.0) -
+                                                                      resultSet.push_timestamp) < t;
+                                                          });
+                                                  }));
+
+                                        return graphsLink;
+                                    }
+
                                 };
                             }]);
 

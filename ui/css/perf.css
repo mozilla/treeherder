@@ -267,6 +267,20 @@ to { opacity: 0; }
     border-bottom: 1px dotted #777;
 }
 
+.compare-table .result-links span,
+.compare-table .result-links a {
+    color: transparent;
+    transition: color 150ms ease-in-out;
+}
+
+.compare-table tr:hover .result-links span {
+    color: #333;
+}
+
+.compare-table tr:hover .result-links a {
+    color: #23527c;
+}
+
 .compare-table .num-runs {
     text-align: right;
 }
