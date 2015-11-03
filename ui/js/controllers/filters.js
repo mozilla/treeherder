@@ -68,19 +68,6 @@ treeherderApp.controller('FilterPanelCtrl', [
             }
         };
 
-        /**
-         * Toggle the filters to show either unclassified or classified jobs,
-         * neither or both.
-         */
-        $scope.toggleClassifiedFilter = function() {
-            var func = $scope.classifiedFilter? thJobFilters.addFilter: thJobFilters.removeFilter;
-            func(thJobFilters.classifiedState, 'classified');
-        };
-        $scope.toggleUnClassifiedFilter = function() {
-            var func = $scope.unClassifiedFilter? thJobFilters.addFilter: thJobFilters.removeFilter;
-            func(thJobFilters.classifiedState, 'unclassified');
-        };
-
         $scope.createFieldFilter = function() {
             $scope.newFieldFilter = {field: "", value: ""};
         };
@@ -175,14 +162,6 @@ treeherderApp.controller('FilterPanelCtrl', [
                 $scope.resultStatusFilters[opt] = _.contains(
                     thJobFilters.getResultStatusArray(), opt);
             }
-
-            // whether or not to show classified jobs
-            // these are a special case of filtering because we're not checking
-            // for a value, just whether the job has any value set or not.
-            // just a boolean check either way
-            var classifiedState = thJobFilters.getClassifiedStateArray();
-            $scope.classifiedFilter = _.contains(classifiedState, 'classified');
-            $scope.unClassifiedFilter = _.contains(classifiedState, 'unclassified');
 
             // update "all checked" boxes for groups
             _.each($scope.filterGroups, function(group) {

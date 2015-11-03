@@ -11,7 +11,7 @@
             ng-click="thJobFilters.setOnlyCoalesced()">coalesced only</span>
       <span class="btn btn-default btn-xs"
             title="Reset to default status filters"
-            ng-click="thJobFilters.resetNonFieldFilters()">reset</span>
+            ng-click="thJobFilters.resetUnclassifiedFilters()">reset</span>
     </span>
   </div>
 
@@ -32,25 +32,6 @@
       <span ng-repeat="filterName in group.resultStatuses">
         <th-filter-checkbox></th-filter-checkbox>
       </span>
-    </div>
-  </span>
-
-  <!-- Classified/Unclassified filters -->
-  <span class="panel panel-default th-option-group th-inline-option-group">
-    <div class="panel-heading th-option-heading">classified</div>
-    <div class="panel-body">
-      <label class="checkbox-inline">
-        <input type="checkbox"
-               id="classified"
-               ng-model="classifiedFilter"
-               ng-click="toggleClassifiedFilter()"> classified
-      </label>
-      <label class="checkbox-inline">
-        <input type="checkbox"
-               id="unclassified"
-               ng-model="unClassifiedFilter"
-               ng-click="toggleUnClassifiedFilter()"> un-classified
-      </label>
     </div>
   </span>
 
