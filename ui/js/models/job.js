@@ -30,8 +30,12 @@ treeherder.factory('ThJobModel', [
             config = config || {};
             var timeout = config.timeout || null;
             var fetch_all = config.fetch_all || false;
+            // The `uri` config allows to fetch a list of jobs from an arbitrary
+            // endpoint e.g. the similar jobs endpoint. It defaults to the job
+            // list endpoint.
+            var uri = config.uri || ThJobModel.get_uri(repoName);
 
-            return $http.get(ThJobModel.get_uri(repoName),{
+            return $http.get(uri,{
                 params: options,
                 timeout: timeout
             }).
@@ -77,6 +81,14 @@ treeherder.factory('ThJobModel', [
                 .then(function(response) {
                     return new ThJobModel(response.data);
                 });
+        };
+
+        ThJobModel.get_similar_jobs = function(repoName, pk, options, config){
+            config = config || {};
+            // The similar jobs endpoints returns the same type of objects as
+            // the job list endpoint, so let's reuse the get_list method logic.
+            config.uri = ThJobModel.get_uri(repoName)+pk+"/similar_jobs/";
+            return ThJobModel.get_list(repoName, options, config);
         };
 
         ThJobModel.retrigger = function(repoName, job_id_list, config) {

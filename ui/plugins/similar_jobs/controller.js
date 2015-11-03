@@ -27,7 +27,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                     options[key] = $scope.job[key];
                 }
             });
-            ThJobModel.get_list($scope.repoName, options)
+            ThJobModel.get_similar_jobs($scope.repoName, $scope.job.id, options)
                 .then(function(data){
                     if(data.length > 0){
                         if(data.length > $scope.page_size){
@@ -90,7 +90,6 @@ treeherder.controller('SimilarJobsPluginCtrl', [
 
         $scope.similar_jobs_filters = {
             "machine_id": false,
-            "job_type_id": true,
             "build_platform_id": true,
             "option_collection_hash": true
         };
@@ -143,5 +142,3 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                 });
         };
 }]);
-
-
