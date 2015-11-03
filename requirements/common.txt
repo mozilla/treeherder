@@ -64,7 +64,7 @@ drf-extensions==0.2.8
 # sha256: _NluK-R8ju80xlDgB6bVRuGefuYQQbie27u-dhmqOYc
 django-cors-headers==1.1.0
 
-# sha256: -jPrQhcqGbcVrbp6ZJcJEftdj9G2nPjaepXyvH8PMDs
+# sha256: 56MxTtRt0kOTkYZwt6EVbkuvODGJ9kSz5hIbocv7wvk
 django-browserid==1.0.0
 
 # sha256: FbXEIwH0bdYxE_EhSw2BqLFiVPZahtPDKhtSKX8yZuY
