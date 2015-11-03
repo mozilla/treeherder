@@ -190,6 +190,38 @@ class JobsViewSet(viewsets.ViewSet):
         else:
             return Response("No job with id: {0}".format(pk), 404)
 
+    @detail_route(methods=['get'])
+    @with_jobs
+    def similar_jobs(self, request, project, jm, pk=None):
+        """
+        Get a list of jobs similar to the one selected.
+        """
+        job = jm.get_job(pk)
+        if job:
+            query_params = request.query_params.copy()
+            query_params['job_type_id'] = job[0]['job_type_id']
+            query_params['id__ne'] = job[0]['id']
+            url_query_filter = UrlQueryFilter(query_params)
+            offset = int(url_query_filter.pop("offset", 0))
+            # we don't need a big page size on this endoint,
+            # let's cap it to 50 elements
+            count = min(int(url_query_filter.pop("count", 10)), 50)
+            return_type = url_query_filter.pop("return_type", "dict").lower()
+            results = jm.get_job_list_sorted(offset, count,
+                                             conditions=url_query_filter.conditions)
+
+            response_body = dict(meta={"repository": project}, results=[])
+
+            if results and return_type == "list":
+                response_body["job_property_names"] = results[0].keys()
+                results = [item.values() for item in results]
+            response_body["results"] = results
+            response_body["meta"].update(offset=offset, count=count)
+
+            return Response(response_body)
+        else:
+            return Response("No job with id: {0}".format(pk), 404)
+
     @with_jobs
     def create(self, request, project, jm):
         """

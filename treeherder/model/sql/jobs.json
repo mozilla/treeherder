@@ -495,6 +495,67 @@
 
             "host_type":"read_host"
         },
+        "get_job_list_sorted":{
+            "sql":"SELECT
+                    j.id,
+                    j.`job_guid`,
+                    j.`signature`,
+                    j.`job_coalesced_to_guid`,
+                    j.`build_platform_id`,
+                    j.`option_collection_hash`,
+                    j.failure_classification_id,
+                    m.`name` as machine_name,
+                    mp.`platform` as platform,
+                    mp.`os_name` as machine_platform_os,
+                    mp.`architecture` as machine_platform_architecture,
+                    bp.`platform` as build_platform,
+                    bp.`os_name` as build_os,
+                    bp.`architecture` as build_architecture,
+                    j.`job_type_id` as job_type_id,
+                    jt.`name` as job_type_name,
+                    jt.`symbol` as job_type_symbol,
+                    jt.`description` as job_type_description,
+					jg.`name` as job_group_name,
+                    jt.`job_group_id` as job_group_id,
+                    jg.`symbol` as job_group_symbol,
+                    jg.`description` as job_group_description,
+                    j.`who`,
+                    j.`result_set_id`,
+                    j.`result`,
+                    j.`state`,
+                    j.`reason`,
+                    j.`start_timestamp`,
+                    j.`end_timestamp`,
+                    j.`submit_timestamp`,
+                    j.`running_eta`,
+                    j.`last_modified`,
+                    j.`tier`,
+                    rds.`name` as ref_data_name,
+                    rds.`build_system_type` as build_system_type
+                  FROM `job` as j
+                  LEFT JOIN `REP0`.`machine` as m
+                    ON j.`machine_id` = m.id
+                  LEFT JOIN `REP0`.`machine_platform` as mp
+                    ON j.`machine_platform_id` = mp.id
+                  LEFT JOIN `REP0`.`build_platform` as bp
+                    ON j.`build_platform_id` = bp.id
+                  LEFT JOIN `REP0`.`job_type` as jt
+                    ON j.`job_type_id` = jt.id
+				  LEFT JOIN `REP0`.`job_group` as jg
+                    ON jt.`job_group_id` = jg.id
+                  LEFT JOIN `REP0`.reference_data_signatures rds
+                    ON j.signature = rds.signature
+                  LEFT JOIN result_set rs
+                    ON rs.id = j.result_set_id
+                  WHERE 1
+                  REP1
+                  GROUP BY j.id
+                  ORDER BY
+                    rs.push_timestamp DESC
+                  ",
+
+            "host_type":"read_host"
+        },
         "get_log_references":{
             "sql":"SELECT `name`, `url`
                    FROM `job_log_url`
