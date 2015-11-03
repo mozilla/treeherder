@@ -10,7 +10,14 @@
       </ul>
     </li>
   </ul>
-
+  <ul ng-show="perfJobDetail">
+    <li>Perfherder:
+      <ul ng-repeat="line in perfJobDetail | toArray | orderBy: 'suite'">
+        <li>{{line.title}}: <a href="{{::line.url}}">{{::line.value}}</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
   <ul>
     <li ng-repeat="line in job_details"
         ng-if="line.content_type == 'link' && line.value.substr(-8) == '.sps.zip'">
@@ -19,7 +26,7 @@
     </li>
     <li>
       <a href="https://treeherder.mozilla.org/perf.html#/comparechooser?newProject={{repoName}}&newRevision={{jobRevision}}">
-         Compare result against another revision with Perfherder</a>
+         Compare result against another revision</a>
     </li>
   </ul>
 

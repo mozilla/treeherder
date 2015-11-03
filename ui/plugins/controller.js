@@ -1,19 +1,21 @@
 "use strict";
 
 treeherder.controller('PluginCtrl', [
-    '$scope', '$rootScope', '$location', 'thUrl', 'ThJobClassificationModel',
+    '$scope', '$rootScope', '$location', '$http', 'thUrl', 'ThJobClassificationModel',
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter', 'thDateFormat',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'thTabs',
     '$timeout', 'thJobSearchStr', 'thReftestStatus', 'ThResultSetStore',
+    'PhSeries', 'thServiceDomain',
     function PluginCtrl(
-        $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
+        $scope, $rootScope, $location, $http, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
         numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
         thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs,
-        $timeout, thJobSearchStr, thReftestStatus, ThResultSetStore) {
+        $timeout, thJobSearchStr, thReftestStatus, ThResultSetStore, PhSeries,
+        thServiceDomain) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -76,11 +78,15 @@ treeherder.controller('PluginCtrl', [
                     job_id,
                     {timeout: selectJobPromise});
 
+                var jobIdPromise = PhSeries.getSeriesByJobId(
+                    $scope.repoName, job_id);
+
                 return $q.all([
                     jobDetailPromise,
                     buildapiArtifactPromise,
                     jobInfoArtifactPromise,
-                    jobLogUrlPromise
+                    jobLogUrlPromise,
+                    jobIdPromise
                 ]).then(function(results){
                     //the first result comes from the job detail promise
                     $scope.job = results[0];
@@ -88,6 +94,7 @@ treeherder.controller('PluginCtrl', [
                     $scope.eta_abs = Math.abs($scope.job.get_current_eta());
                     $scope.typical_eta = $scope.job.get_typical_eta();
                     $scope.jobRevision = ThResultSetStore.getSelectedJob($scope.repoName).job.revision;
+                    $scope.jobIds = results[4];
 
                     // we handle which tab gets presented in the job details panel
                     // and a special set of rules for talos
@@ -123,7 +130,6 @@ treeherder.controller('PluginCtrl', [
                     $scope.jobSearchSignature = $scope.job.signature;
                     $scope.jobSearchStrHref = getJobSearchStrHref($scope.jobSearchStr);
                     $scope.jobSearchSignatureHref = getJobSearchStrHref($scope.job.signature);
-
                     // the third result comes from the job info artifact promise
                     var jobInfoArtifact = results[2];
                     if (jobInfoArtifact.length > 0) {
@@ -141,6 +147,48 @@ treeherder.controller('PluginCtrl', [
                           }
                           return result;
                         }, []);
+                        if ($scope.jobIds !== null) {
+                            var signatureList = _.keys($scope.jobIds);
+                            var seriesList = [];
+                            $scope.perfJobDetail = [];
+                            $q.all(_.chunk(signatureList, 20).map(function(signatureChunk) {
+                                var url = '/performance/signatures/?signature=' + signatureChunk.pop();
+                                signatureChunk.forEach(function(signature) {
+                                    url = url + '&signature=' + signature;
+                                });
+                                return $http.get(thUrl.getProjectUrl(url, $scope.repoName)).then(
+                                    function(response) {
+                                        _.map(response.data, function(serie, key) {
+                                            serie['signature'] = key;
+                                            seriesList.push(serie);
+                                        })
+                                    }
+                                );
+                            })).then(function(){
+                                var allSubtestSignatures = _.flatten(_.map(seriesList, function(series) {
+                                    return series.subtest_signatures ? series.subtest_signatures : [];
+                                }));
+                                _.forEach(seriesList, function(series) {
+                                    if (!series.subtest_signatures) {
+                                        if (_.contains(allSubtestSignatures, series.signature)) {
+                                            return;
+                                        }
+                                    }
+                                    var detail = {};
+                                    detail['url'] = thServiceDomain + '/perf.html#/graphs?series=[' +
+                                        $scope.repoName+ ',' + series.signature + ',1]&selected=[' +
+                                        $scope.repoName + ',' +  series.signature + ',' +
+                                        $scope.job['result_set_id'] + ',' + $scope.job['id'] + ']';
+                                    detail['value'] = $scope.jobIds[series.signature][0].value;
+                                    detail['title'] = series.suite;
+                                    if (series.hasOwnProperty('test') && series.test.toLowerCase() !== series.suite) {
+                                        detail['title'] += '_' + series.test.toLowerCase();
+                                    }
+
+                                    $scope.perfJobDetail.push(detail);
+                                });
+                            });
+                        }
                     }
 
                     // the fourth result comes from the jobLogUrl artifact
