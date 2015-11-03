@@ -241,3 +241,24 @@ def test_job_error_lines(webapp, eleven_jobs_stored, jm, failure_lines, classifi
     assert set(matches[0].keys()) == set(exp_matches_keys)
 
     jm.disconnect()
+
+
+def test_list_similar_jobs(webapp, eleven_jobs_stored, jm):
+    """
+    test retrieving similar jobs
+    """
+    job = jm.get_job(1)[0]
+
+    resp = webapp.get(
+        reverse("jobs-similar-jobs",
+                kwargs={"project": jm.project, "pk": job["id"]})
+    )
+    assert resp.status_int == 200
+
+    similar_jobs = resp.json
+
+    assert 'results' in  similar_jobs
+
+    assert isinstance(similar_jobs['results'], list)
+
+    assert len(similar_jobs['results']) == 3
