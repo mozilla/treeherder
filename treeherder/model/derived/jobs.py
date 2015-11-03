@@ -208,6 +208,21 @@ class JobsModel(TreeherderModelBase):
         )
         return data
 
+    def get_job_list_sorted(self, offset, limit, conditions=None):
+        replace_str, placeholders = self._process_conditions(
+            conditions, self.INDEXED_COLUMNS['job']
+        )
+        repl = [self.refdata_model.get_db_name(), replace_str]
+        data = self.execute(
+            proc="jobs.selects.get_job_list_sorted",
+            replace=repl,
+            placeholders=placeholders,
+            limit=limit,
+            offset=offset,
+            debug_show=self.DEBUG,
+        )
+        return data
+
     def set_state(self, job_id, state):
         """Update the state of an existing job"""
         self.execute(
