@@ -482,15 +482,13 @@
                     ON j.`job_type_id` = jt.id
 				  LEFT JOIN `REP0`.`job_group` as jg
                     ON jt.`job_group_id` = jg.id
-                  LEFT JOIN result_set rs
-                    ON rs.id = j.result_set_id
                   LEFT JOIN `REP0`.reference_data_signatures rds
                     ON j.signature = rds.signature
                   WHERE 1
                   REP1
                   GROUP BY j.id
                   ORDER BY
-                    rs.push_timestamp DESC
+                    result_set_id DESC
                   ",
 
             "host_type":"read_host"
