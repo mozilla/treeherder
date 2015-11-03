@@ -30,8 +30,9 @@ treeherder.factory('ThJobModel', [
             config = config || {};
             var timeout = config.timeout || null;
             var fetch_all = config.fetch_all || false;
+            var uri = config.uri || ThJobModel.get_uri(repoName);
 
-            return $http.get(ThJobModel.get_uri(repoName),{
+            return $http.get(uri,{
                 params: options,
                 timeout: timeout
             }).
@@ -78,6 +79,13 @@ treeherder.factory('ThJobModel', [
                     return new ThJobModel(response.data);
                 });
         };
+
+        ThJobModel.get_similar_jobs = function(repoName, pk, options, config){
+              config = config || {};
+              config.uri = ThJobModel.get_uri(repoName)+pk+"/similar_jobs/";
+              return ThJobModel.get_list(repoName, options, config);
+
+        }
 
         ThJobModel.retrigger = function(repoName, job_id_list, config) {
             config = config || {};
