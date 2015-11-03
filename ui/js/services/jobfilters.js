@@ -41,6 +41,7 @@ treeherder.factory('thJobFilters', [
 
         var QS_CLASSIFIED_STATE = PREFIX + CLASSIFIED_STATE;
         var QS_RESULT_STATUS = PREFIX + RESULT_STATUS;
+        var QS_FAILURE_CLASSIFICATION = PREFIX + "failure_classification_id";
         var QS_SEARCH_STR = PREFIX + SEARCH_STR;
 
         // default filter values, when a filter is not specified in the query string
@@ -52,6 +53,10 @@ treeherder.factory('thJobFilters', [
                 values: ['classified', 'unclassified']
             }
         };
+
+        // failure classification ids that should be shown in "unclassified" mode
+        var UNCLASSIFIED_IDS = [String(thClassificationTypes.classificationIds["not classified"]),
+                                String(thClassificationTypes.classificationIds["auto classified"])];
 
         // used with field-filters to determine how to match the value against the
         // job field.
@@ -303,10 +308,10 @@ treeherder.factory('thJobFilters', [
          * so the user sees everything.  Doesn't affect the field filters.  This
          * is used to undo the call to ``setOnlyUnclassifiedFailures``.
          */
-        var resetNonFieldFilters = function() {
+        var resetUnclassifiedFilters = function() {
             var locationSearch = _.clone($location.search());
             delete locationSearch[QS_RESULT_STATUS];
-            delete locationSearch[QS_CLASSIFIED_STATE];
+            delete locationSearch[QS_FAILURE_CLASSIFICATION];
             $location.search(locationSearch);
         };
 
@@ -340,7 +345,7 @@ treeherder.factory('thJobFilters', [
         var toggleUnclassifiedFailures = function() {
             $log.debug("toggleUnclassifiedFailures");
             if (_isUnclassifiedFailures()) {
-                resetNonFieldFilters();
+                resetUnclassifiedFilters();
             } else {
                 setOnlyUnclassifiedFailures();
             }
@@ -361,7 +366,7 @@ treeherder.factory('thJobFilters', [
         var setOnlyUnclassifiedFailures = function() {
             var locationSearch = _.clone($location.search());
             locationSearch[QS_RESULT_STATUS] = thFailureResults.slice();
-            locationSearch[QS_CLASSIFIED_STATE] = ['unclassified'];
+            locationSearch[QS_FAILURE_CLASSIFICATION] = UNCLASSIFIED_IDS.slice();
             $location.search(locationSearch);
         };
 
@@ -469,7 +474,8 @@ treeherder.factory('thJobFilters', [
          */
         var _isUnclassifiedFailures = function() {
             return (_.isEqual(_toArray($location.search()[QS_RESULT_STATUS]), thFailureResults) &&
-                    _.isEqual(_toArray($location.search()[QS_CLASSIFIED_STATE]), ['unclassified']));
+                    _.isEqual(_toArray($location.search()[QS_FAILURE_CLASSIFICATION]), UNCLASSIFIED_IDS)
+            );
         };
 
         var _matchesDefaults = function(field, values) {
@@ -550,7 +556,7 @@ treeherder.factory('thJobFilters', [
             removeFilter: removeFilter,
             replaceFilter: replaceFilter,
             removeAllFieldFilters: removeAllFieldFilters,
-            resetNonFieldFilters: resetNonFieldFilters,
+            resetUnclassifiedFilters: resetUnclassifiedFilters,
             toggleFilters: toggleFilters,
             toggleInProgress: toggleInProgress,
             toggleUnclassifiedFailures: toggleUnclassifiedFailures,
