@@ -35,11 +35,9 @@ treeherder.factory('thJobFilters', [
         var PREFIX = "filter-";
 
         // constants for specific types of filters
-        var CLASSIFIED_STATE = "classifiedState";
         var RESULT_STATUS = "resultStatus";
         var SEARCH_STR = "searchStr";
 
-        var QS_CLASSIFIED_STATE = PREFIX + CLASSIFIED_STATE;
         var QS_RESULT_STATUS = PREFIX + RESULT_STATUS;
         var QS_FAILURE_CLASSIFICATION = PREFIX + "failure_classification_id";
         var QS_SEARCH_STR = PREFIX + SEARCH_STR;
@@ -48,9 +46,6 @@ treeherder.factory('thJobFilters', [
         var DEFAULTS = {
             resultStatus: {
                 values: thResultStatusList.defaultFilters()
-            },
-            classifiedState: {
-                values: ['classified', 'unclassified']
             }
         };
 
@@ -116,7 +111,6 @@ treeherder.factory('thJobFilters', [
         // filter caches so that we only collect them when the filter params
         // change in the query string
         var cachedResultStatusFilters = {};
-        var cachedClassifiedStateFilters = {};
         var cachedFieldFilters = {};
         var cachedFilterParams;
 
@@ -148,7 +142,6 @@ treeherder.factory('thJobFilters', [
 
         var _refreshFilterCaches = function() {
             cachedResultStatusFilters = _getFiltersOrDefaults(RESULT_STATUS);
-            cachedClassifiedStateFilters = _getFiltersOrDefaults(CLASSIFIED_STATE);
             cachedFieldFilters = getFieldFiltersObj();
         };
 
@@ -188,25 +181,11 @@ treeherder.factory('thJobFilters', [
          */
         var showJob = function(job) {
 
-            // test against resultStatus, classifiedState and field filters
+            // test against resultStatus and field filters
             if (!_.contains(cachedResultStatusFilters, thResultStatus(job))) {
                 return false;
             }
-            if (!_checkClassifiedStateFilters(job)) {
-                return false;
-            }
             return _checkFieldFilters(job);
-        };
-
-        var _checkClassifiedStateFilters = function(job) {
-            var isClassified = _isJobClassified(job);
-            if (!_.contains(cachedClassifiedStateFilters, 'unclassified') && !isClassified) {
-                return false;
-            }
-            if (!_.contains(cachedClassifiedStateFilters, 'classified') && isClassified) {
-                return false;
-            }
-            return true;
         };
 
         var _checkFieldFilters = function(job) {
@@ -376,14 +355,7 @@ treeherder.factory('thJobFilters', [
         var setOnlyCoalesced = function() {
             var locationSearch = _.clone($location.search());
             locationSearch[QS_RESULT_STATUS] = "coalesced";
-            locationSearch[QS_CLASSIFIED_STATE]= DEFAULTS.classifiedState.values.slice();
             $location.search(locationSearch);
-        };
-
-        var getClassifiedStateArray = function() {
-            var arr = _toArray($location.search()[QS_CLASSIFIED_STATE]) ||
-                DEFAULTS.classifiedState.values;
-            return arr.slice();
         };
 
         /**
@@ -430,7 +402,6 @@ treeherder.factory('thJobFilters', [
         };
 
         var stripFiltersFromQueryString = function(locationSearch) {
-            delete locationSearch[QS_CLASSIFIED_STATE];
             delete locationSearch[QS_RESULT_STATUS];
 
             _stripFieldFilters(locationSearch);
@@ -452,7 +423,7 @@ treeherder.factory('thJobFilters', [
 
         var _isFieldFilter = function(field) {
             return _startsWith(field, PREFIX) &&
-                !_.contains(['resultStatus', 'classifiedState'], _withoutPrefix(field));
+                !_.contains(['resultStatus'], _withoutPrefix(field));
         };
 
         /**
@@ -564,7 +535,6 @@ treeherder.factory('thJobFilters', [
             setOnlyCoalesced: setOnlyCoalesced,
 
             // filter data read-only accessors
-            getClassifiedStateArray: getClassifiedStateArray,
             getFieldFiltersArray: getFieldFiltersArray,
             getFieldFiltersObj: getFieldFiltersObj,
             getResultStatusArray: getResultStatusArray,
@@ -573,7 +543,6 @@ treeherder.factory('thJobFilters', [
             getFieldChoices: getFieldChoices,
 
             // CONSTANTS
-            classifiedState: CLASSIFIED_STATE,
             resultStatus: RESULT_STATUS
         };
         return api;
