@@ -1,19 +1,21 @@
 "use strict";
 
 treeherder.controller('PluginCtrl', [
-    '$scope', '$rootScope', '$location', 'thUrl', 'ThJobClassificationModel',
+    '$scope', '$rootScope', '$location', '$http', 'thUrl', 'ThJobClassificationModel',
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter', 'thDateFormat',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'thTabs',
     '$timeout', 'thJobSearchStr', 'thReftestStatus', 'ThResultSetStore',
+    'PhSeries', 'thServiceDomain',
     function PluginCtrl(
-        $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
+        $scope, $rootScope, $location, $http, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
         numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
         thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs,
-        $timeout, thJobSearchStr, thReftestStatus, ThResultSetStore) {
+        $timeout, thJobSearchStr, thReftestStatus, ThResultSetStore, PhSeries,
+        thServiceDomain) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -76,11 +78,15 @@ treeherder.controller('PluginCtrl', [
                     job_id,
                     {timeout: selectJobPromise});
 
+                var jobIdPromise = PhSeries.getSeriesByJobId(
+                    $scope.repoName, job_id);
+
                 return $q.all([
                     jobDetailPromise,
                     buildapiArtifactPromise,
                     jobInfoArtifactPromise,
-                    jobLogUrlPromise
+                    jobLogUrlPromise,
+                    jobIdPromise
                 ]).then(function(results){
                     //the first result comes from the job detail promise
                     $scope.job = results[0];
@@ -88,6 +94,7 @@ treeherder.controller('PluginCtrl', [
                     $scope.eta_abs = Math.abs($scope.job.get_current_eta());
                     $scope.typical_eta = $scope.job.get_typical_eta();
                     $scope.jobRevision = ThResultSetStore.getSelectedJob($scope.repoName).job.revision;
+                    $scope.job_ids = results[4];
 
                     // we handle which tab gets presented in the job details panel
                     // and a special set of rules for talos
@@ -123,7 +130,11 @@ treeherder.controller('PluginCtrl', [
                     $scope.jobSearchSignature = $scope.job.signature;
                     $scope.jobSearchStrHref = getJobSearchStrHref($scope.jobSearchStr);
                     $scope.jobSearchSignatureHref = getJobSearchStrHref($scope.job.signature);
-
+                    var generateUrlForPerf = function(projectName, jobId, signature, resultSetId) {
+                        return thServiceDomain + '/perf.html#/graphs?series=[' +
+                            projectName+ ',' + signature + ',1]&selected=[' +
+                            projectName + ',' + signature + ',' + resultSetId + ',' + jobId + ']';
+                    };
                     // the third result comes from the job info artifact promise
                     var jobInfoArtifact = results[2];
                     if (jobInfoArtifact.length > 0) {
@@ -141,6 +152,56 @@ treeherder.controller('PluginCtrl', [
                           }
                           return result;
                         }, []);
+                        if ($scope.job_ids !== null) {
+                            var signatureList = _.keys($scope.job_ids);
+                            var series = [];
+                            $scope.perf_job_detail = [];
+                            $q.all(_.chunk(signatureList, 20).map(function(signatureChunk) {
+                                var url = '/performance/signatures/?signature=' + signatureChunk.pop();
+                                signatureChunk.forEach(function(signature) {
+                                    url = url + '&signature=' + signature;
+                                });
+                                return $http.get(thUrl.getProjectUrl(url, $scope.repoName)).then(
+                                    function(response) {
+                                        _.map(response.data, function(serie, key) {
+                                            serie['signature'] = key;
+                                            series.push(serie);
+                                        })
+                                    }
+                                );
+                            })).then(function(){
+                                var allSubtestSignatures = _.flatten(_.map(series, function(serie) {
+                                    return serie.subtest_signatures ? serie.subtest_signatures : [];
+                                }));
+                                _.forEach(series, function(serie) {
+                                    if (!serie.subtest_signatures) {
+                                        if (_.contains(allSubtestSignatures, serie.signature)) {
+                                            return;
+                                        }
+                                    }
+                                    if (serie.test) {
+                                        if (serie.suite == 'tp5o' && !_.contains(['Private Bytes',
+                                                'XRes', 'Main_RSS', 'shutdown'], serie.test)) {
+                                            return;
+                                        }
+                                        if (serie.suite == 'tp4n' && serie.test !== 'shutdown') {
+                                            return;
+                                        }
+                                    }
+                                    var detail = {};
+                                    detail['url'] = generateUrlForPerf($scope.repoName, $scope.job['id'],
+                                        serie.signature, $scope.job['result_set_id']);
+                                    console.log($scope.job_ids[serie.signature]);
+                                    detail['value'] = $scope.job_ids[serie.signature][0].value;
+                                    detail['suite'] = serie.suite;
+                                    if (serie.hasOwnProperty('test')) {
+                                        detail['suite'] = serie.suite + '_' +
+                                            serie.test.toLowerCase();
+                                    }
+                                    $scope.perf_job_detail.push(detail);
+                                });
+                            });
+                        }
                     }
 
                     // the fourth result comes from the jobLogUrl artifact

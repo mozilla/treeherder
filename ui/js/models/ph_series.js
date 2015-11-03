@@ -96,6 +96,19 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thSe
         });
     };
 
+    var _getSeriesByJobId = function(projectName, jobId) {
+        return $http.get(thServiceDomain + '/api/project/' + projectName +
+            '/performance/data/?job_id=' + jobId).then(function(response) {
+            if(response.data) {
+                return response.data;
+            } else {
+                return $q.reject("No data been found for job id " +
+                    jobId + " in project " + projectName);
+            }
+        });
+    };
+
+
     return {
         getSeriesSummary: _getSeriesSummary,
 
@@ -205,6 +218,10 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thSe
 
         getSeriesByPlatform: function(prjectName, timeRange, platform, optionMap) {
             return _getSeriesByPlatform(prjectName, timeRange, platform, optionMap);
+        },
+
+        getSeriesByJobId: function(projectName, jobId) {
+            return _getSeriesByJobId(projectName, jobId);
         },
     };
 }]);
