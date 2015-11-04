@@ -4,6 +4,7 @@ function thelp {
 
     thlogs             - Open several top-priority logs in succession using \"less\"
     thlogsdelete       - Delete all the top-priority logs
+    thpurge            - Empty all databases and reset all queues (requires vagrant provision afterward)
     thqueues           - Output the status of the Treeherder celery queues
     thqueuespurge      - Empty all the treeherder celery queues
     threstartmemcached - Restart memcached
@@ -89,4 +90,12 @@ function thresetall {
 
     echo "Purging queues"
     thqueuespurge
+}
+
+function thpurge {
+    ~/treeherder/manage.py init_datasources --reset
+    ~/treeherder/manage.py flush
+    thresetall
+    echo
+    echo "Please exit vagrant and run 'vagrant provision' to finish"
 }
