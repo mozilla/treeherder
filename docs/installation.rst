@@ -100,9 +100,10 @@ talos jobs for a particular push, try:
 
      (venv)vagrant@local:~/treeherder$ ./manage.py ingest_push --filter-job-group T mozilla-inbound 63f8a47cfdf
 
-Note that some types of data (e.g. performance) are not processed immediately, and you
-will thus need to start a celery worker to handle them. You don't need
-to enable the beat service for this though, so you can omit the "-B":
+Note that some types of data (e.g. performance, log error summaries) are not processed
+immediately, and you will thus need to start a celery worker *before* running `ingest_push`
+to handle them. You don't need to enable the beat service for this though, so you can
+omit the `-B`:
 
   .. code-block:: bash
 
