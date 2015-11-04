@@ -1,8 +1,6 @@
 import logging
 
-from django.conf import settings
 from rest_framework import exceptions
-from rest_framework.response import Response
 from rest_framework.views import exception_handler as drf_exc_handler
 
 from treeherder.model.derived import (DatasetNotFoundError,
@@ -35,10 +33,4 @@ Mostly a conversion of treeherders ORM exceptions to drf APIExceptions
             "{0} object not found using: {1}".format(
                 exc.table, unicode(exc.extra_info)))
 
-    response = drf_exc_handler(exc, context)
-    if response is None:
-        msg = {"detail": unicode(exc)}
-        if settings.DEBUG:
-            msg["traceback"] = full_message
-        response = Response(msg, status=500)
-    return response
+    return drf_exc_handler(exc, context)
