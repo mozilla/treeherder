@@ -53,6 +53,9 @@ treeherder.factory('thJobFilters', [
             }
         };
 
+        // failure classification ids that should be shown in "unclassified" mode
+        var UNCLASSIFIED_IDS = [1, 7];
+
         // used with field-filters to determine how to match the value against the
         // job field.
         var MATCH_TYPE = {
@@ -421,7 +424,7 @@ treeherder.factory('thJobFilters', [
         };
 
         var _isJobClassified = function(job) {
-            return job.failure_classification_id !== 1;
+            return !_.contains(UNCLASSIFIED_IDS, job.failure_classification_id);
         };
 
         var stripFiltersFromQueryString = function(locationSearch) {
