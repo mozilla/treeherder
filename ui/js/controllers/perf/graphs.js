@@ -281,9 +281,7 @@ perf.controller('GraphsCtrl', [
 
             $("#overview-plot").bind("plotunselected", plotUnselected);
 
-            $("#overview-plot").bind("plotselected", function(event, ranges) {
-                plotSelected(event,ranges);
-            });
+            $("#overview-plot").bind("plotselected", plotSelected);
         }
 
         function zoomGraph() {
