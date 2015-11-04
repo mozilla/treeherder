@@ -435,9 +435,8 @@ perf.controller('GraphsCtrl', [
                 $('#graph').bind("plotunselected", plotUnselected);
 
                 $('#graph').bind("plotselected", function(event, ranges) {
-                    plotSelected(event, ranges);
-                    // Make overview graph display the selected range.
                     $scope.plot.clearSelection();
+                    plotSelected(event, ranges);
                     zoomGraph();
                 });
             });
