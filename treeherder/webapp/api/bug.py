@@ -24,10 +24,10 @@ class BugJobMapViewSet(viewsets.ViewSet):
             jm.insert_bug_job_map(job_id, bug_id, request.data['type'],
                                   int(time()), request.user.email)
         except JobDataIntegrityError as e:
-            if "Duplicate" in e.message:
+            if e.message[0] == 1062 or "Duplicate" in e.message[1]:
                 return Response(
                     {"message": "Bug job map skipped: {0}".format(e.message)},
-                    409
+                    200
                 )
             else:
                 raise e
