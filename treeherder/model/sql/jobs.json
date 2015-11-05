@@ -487,6 +487,7 @@
                   WHERE 1
                   REP1
                   GROUP BY j.id
+                  ORDER BY j.id
                   ",
 
             "host_type":"read_host"
