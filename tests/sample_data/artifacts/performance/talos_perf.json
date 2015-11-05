@@ -29,7 +29,7 @@
         "summary": {
             "suite": 3141.00,
             "subtests": {
-                "dhtml.html": {"min": 1, "max": 100, "std": 0.75, "mean": 50, "median": 50, "filtered": 51},
+                "dhtml.html": {"min": 1, "max": 100, "std": 0.75, "mean": 50, "median": 50, "filtered": 51, "lowerIsBetter": false},
                 "tablemutation.html": {"min": 1, "max": 100, "std": 0.75, "mean": 50, "median": 50, "value": 50, "filtered": 52}
             }
         },

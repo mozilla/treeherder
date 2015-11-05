@@ -21,8 +21,10 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
         name = name + " " + options.join(" ");
 
         return { name: name, projectName: projectName, signature: signature,
-                 platform: platform, options: options,
-                 subtestSignatures: subtestSignatures };
+                 platform: platform,
+                 lowerIsBetter: (signatureProps.lower_is_better == undefined ||
+                                 signatureProps.lower_is_better),
+                 options: options, subtestSignatures: subtestSignatures };
     };
 
     var _getAllSeries = function(projectName, timeRange, optionMap) {
@@ -211,23 +213,9 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
     };
 }]);
 
-perf.factory('isReverseTest', [ function() {
-    return function(testName) {
-        var reverseTests = ['dromaeo_dom', 'dromaeo_css', 'v8_7', 'canvasmark'];
-        var found = false;
-        reverseTests.forEach(function(rt) {
-            if (testName.indexOf(rt) >= 0) {
-                found = true;
-            }
-        });
-        return found;
-    };
-}]);
-
-
 perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
-                            'math', 'isReverseTest', 'phTimeRanges',
-                            function($q, $http, thServiceDomain, PhSeries, math, isReverseTest, phTimeRanges) {
+                            'math', 'phTimeRanges',
+                            function($q, $http, thServiceDomain, PhSeries, math, phTimeRanges) {
 
                                 // Used for t_test: default stddev if both sets have only a single value - 15%.
                                 // Should be rare case and it's unreliable, but at least have something.
@@ -368,10 +356,10 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                             return cmap; // No comparison, just display for one side.
 
                                         // Compare the sides.
-                                        // "Normal" tests are "lower is better". Reversed is.. reversed.
+                                        // Normally tests are "lower is better", can be over-ridden with a series option
                                         cmap.delta = (cmap.newValue - cmap.originalValue);
                                         var newIsBetter = cmap.delta < 0; // New value is lower than orig value
-                                        if (isReverseTest(testName))
+                                        if (originalData.lowerIsBetter)
                                             newIsBetter = !newIsBetter;
 
                                         cmap.deltaPercentage = math.percentOf(cmap.delta, cmap.originalValue);
@@ -470,6 +458,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                                                 resultsMap[resultSetId][signature] = {
                                                                     platform: seriesData.platform,
                                                                     name: seriesData.name,
+                                                                    lowerIsBetter: seriesData.lowerIsBetter,
                                                                     values: values
                                                                 };
                                                             }

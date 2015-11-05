@@ -92,12 +92,12 @@ perf.controller('CompareResultsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$location',
     'thServiceDomain', 'ThOptionCollectionModel', 'ThRepositoryModel',
     'ThResultSetModel', '$http', '$q', '$timeout', 'PhSeries', 'math',
-    'isReverseTest', 'phTimeRanges', 'PhCompare',
+    'phTimeRanges', 'PhCompare',
     function CompareResultsCtrl($state, $stateParams, $scope,
                                 $rootScope, $location,
                                 thServiceDomain, ThOptionCollectionModel,
                                 ThRepositoryModel, ThResultSetModel, $http,
-                                $q, $timeout, PhSeries, math, isReverseTest,
+                                $q, $timeout, PhSeries, math,
                                 phTimeRanges,
                                 PhCompare) {
         function displayComparison() {
@@ -304,13 +304,13 @@ perf.controller('CompareSubtestResultsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$location',
     'thServiceDomain', 'ThOptionCollectionModel', 'ThRepositoryModel',
     'ThResultSetModel', '$http', '$q', '$timeout', 'PhSeries', 'math',
-    'isReverseTest', 'PhCompare',
+    'PhCompare',
     function CompareSubtestResultsCtrl($state, $stateParams, $scope, $rootScope,
                                        $location, thServiceDomain,
                                        ThOptionCollectionModel,
                                        ThRepositoryModel, ThResultSetModel,
                                        $http, $q, $timeout, PhSeries, math,
-                                       isReverseTest, PhCompare) {
+                                       PhCompare) {
         //TODO: duplicated from comparectrl
         function verifyRevision(project, revision, rsid) {
             return ThResultSetModel.getResultSetsFromRevision(project.name, revision).then(

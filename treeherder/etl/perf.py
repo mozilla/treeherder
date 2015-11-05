@@ -109,7 +109,7 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
                 subtest_properties)
             subtest_signatures.append(subtest_signature_hash)
 
-            signature, _ = PerformanceSignature.objects.get_or_create(
+            signature, _ = PerformanceSignature.objects.update_or_create(
                 repository=repository,
                 signature_hash=subtest_signature_hash,
                 defaults={
@@ -119,7 +119,7 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
                     'platform': platform,
                     'framework': framework,
                     'extra_properties': extra_properties,
-                    'last_updated': push_timestamp
+                    'lower_is_better': subtest.get('lowerIsBetter', True)
                 })
             PerformanceDatum.objects.get_or_create(
                 repository=repository,
@@ -293,7 +293,23 @@ def load_talos_artifacts(project_name, reference_data, job_data, datum):
                 signature_properties)
             subtest_signatures.append(signature_hash)
 
-            signature, _ = PerformanceSignature.objects.get_or_create(
+            if "summary" in talos_datum:
+                # most talos results should provide a summary of their
+                # subtest results based on an internal calculation of
+                # the replicates, use that if available
+                testdict = talos_datum["summary"]["subtests"][_test]
+                value = testdict["filtered"]
+                # "lower is better" is a property than can change
+                lower_is_better = testdict.get('lowerIsBetter', True)
+            else:
+                # backwards compatibility for older versions of talos
+                # and android talos which don't provide this summary
+                # (at some point we can remove this)
+                value = _calculate_test_value(
+                    talos_datum["results"][_test])
+                lower_is_better = True
+
+            signature, _ = PerformanceSignature.objects.update_or_create(
                 repository=repository, signature_hash=signature_hash,
                 defaults={
                     'test': _test,
@@ -302,20 +318,8 @@ def load_talos_artifacts(project_name, reference_data, job_data, datum):
                     'platform': platform,
                     'framework': framework,
                     'extra_properties': extra_properties,
-                    'last_updated': push_timestamp
+                    'lower_is_better': lower_is_better
                 })
-
-            if "summary" in talos_datum:
-                # most talos results should provide a summary of their
-                # subtest results based on an internal calculation of
-                # the replicates, use that if available
-                value = talos_datum["summary"]["subtests"][_test]["filtered"]
-            else:
-                # backwards compatibility for older versions of talos
-                # and android talos which don't provide this summary
-                # (at some point we can remove this)
-                value = _calculate_test_value(
-                    talos_datum["results"][_test])
 
             PerformanceDatum.objects.get_or_create(
                 repository=repository,
@@ -336,7 +340,15 @@ def load_talos_artifacts(project_name, reference_data, job_data, datum):
             summary_properties.update(extra_summary_properties)
             summary_signature_hash = _get_signature_hash(
                 summary_properties)
-            signature, _ = PerformanceSignature.objects.get_or_create(
+
+            if "summary" in talos_datum and "suite" in talos_datum["summary"]:
+                value = talos_datum["summary"]["suite"]
+                lower_is_better = talos_datum["summary"].get("lowerIsBetter",
+                                                             True)
+            else:
+                value = _calculate_summary_value(talos_datum["results"])
+                lower_is_better = True
+            signature, _ = PerformanceSignature.objects.update_or_create(
                 repository=repository, signature_hash=summary_signature_hash,
                 defaults={
                     'test': '',
@@ -345,13 +357,8 @@ def load_talos_artifacts(project_name, reference_data, job_data, datum):
                     'platform': platform,
                     'framework': framework,
                     'extra_properties': extra_summary_properties,
-                    'last_updated': push_timestamp
+                    'lower_is_better': lower_is_better
                 })
-
-            if "summary" in talos_datum and "suite" in talos_datum["summary"]:
-                value = talos_datum["summary"]["suite"]
-            else:
-                value = _calculate_summary_value(talos_datum["results"])
 
             PerformanceDatum.objects.get_or_create(
                 repository=repository,

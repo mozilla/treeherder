@@ -37,6 +37,7 @@ class PerformanceSignature(models.Model):
     option_collection = models.ForeignKey(OptionCollection)
     suite = models.CharField(max_length=80L)
     test = models.CharField(max_length=80L, blank=True)
+    lower_is_better = models.BooleanField(default=True)
     last_updated = models.DateTimeField(db_index=True, null=True)  # null=True only temporary, until we update old entries
 
     # extra properties to distinguish the test (that don't fit into

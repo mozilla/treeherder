@@ -45,16 +45,20 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
 
         ret = {}
         for (signature_hash, option_collection_hash, platform, suite, test,
-             extra_properties) in signature_data.values_list(
+             lower_is_better, extra_properties) in signature_data.values_list(
                  'signature_hash',
                  'option_collection__option_collection_hash',
                  'platform__platform', 'suite',
-                 'test', 'extra_properties').distinct():
+                 'test', 'lower_is_better', 'extra_properties').distinct():
             ret[signature_hash] = {
                 'option_collection_hash': option_collection_hash,
                 'machine_platform': platform,
                 'suite': suite
             }
+            if not lower_is_better:
+                # almost always true, save some banwidth by assuming that by
+                # default
+                ret[signature_hash]['lower_is_better'] = False
             if test:
                 # test may be empty in case of a summary test, leave it empty then
                 ret[signature_hash]['test'] = test

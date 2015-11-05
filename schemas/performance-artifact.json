@@ -19,6 +19,11 @@
                     "description": "Summary value for subtest",
                     "title": "Subtest value",
                     "type": "number"
+                },
+                "lowerIsBetter": {
+                    "description": "Whether lower values are better for subtest",
+                    "title": "Lower is better",
+                    "type": "boolean"
                 }
             },
             "required": [
@@ -43,6 +48,11 @@
                 "value": {
                     "title": "Suite value",
                     "type": "number"
+                },
+                "lowerIsBetter": {
+                    "description": "Whether lower values are better for suite",
+                    "title": "Lower is better",
+                    "type": "boolean"
                 }
             },
             "required": [
