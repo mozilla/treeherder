@@ -32,7 +32,10 @@ class Command(BaseCommand):
 
         for project in projects:
             print project
-            repository = Repository.objects.get(name=project)
+            try:
+                repository = Repository.objects.get(name=project)
+            except:
+                continue
             signatures = PerformanceSignature.objects.filter(
                 repository=repository)
             signatures_to_remove = []
