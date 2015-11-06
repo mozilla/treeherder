@@ -88,10 +88,6 @@ class PerfDataAdapterTest(TestCase):
 
     def test_load_generic_data(self):
         framework_name = "cheezburger"
-
-        PerformanceDatum.objects.all().delete()
-        PerformanceSignature.objects.all().delete()
-        PerformanceFramework.objects.all().delete()
         PerformanceFramework.objects.get_or_create(name=framework_name)
 
         (job_data, reference_data) = self._get_job_and_reference_data()
@@ -165,15 +161,6 @@ class PerfDataAdapterTest(TestCase):
 
         talos_perf_data = SampleData.get_talos_perf_data()
         for talos_datum in talos_perf_data:
-            # delete any previously-created perf objects
-            # FIXME: because of https://bugzilla.mozilla.org/show_bug.cgi?id=1133273
-            # this can be really slow if we have a dev database with lots of
-            # performance data in it (if the test succeeds, the transaction
-            # will be rolled back so at least it won't pollute the production
-            # database)
-            PerformanceSignature.objects.all().delete()
-            PerformanceDatum.objects.all().delete()
-
             (job_data, reference_data) = self._get_job_and_reference_data()
 
             datum = {
@@ -244,3 +231,7 @@ class PerfDataAdapterTest(TestCase):
             self.assertEqual(datum.push_timestamp,
                              datetime.datetime.fromtimestamp(
                                  self.PUSH_TIMESTAMP))
+
+            # delete perf objects for next iteration
+            PerformanceSignature.objects.all().delete()
+            PerformanceDatum.objects.all().delete()
