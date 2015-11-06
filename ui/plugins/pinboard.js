@@ -124,8 +124,8 @@ treeherder.controller('PinboardCtrl', [
                 // Rebind escape to canceling the bug entry, pressing escape
                 // again will close the pinboard as usual.
                 Mousetrap.bind('escape', function() {
-                  var cancel = _.bind($scope.toggleEnterBugNumber, $scope, false);
-                  $scope.$evalAsync(cancel);
+                    var cancel = _.bind($scope.toggleEnterBugNumber, $scope, false);
+                    $scope.$evalAsync(cancel);
                 });
 
                 // Install a click handler on the document so that clicking

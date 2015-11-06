@@ -131,15 +131,15 @@ treeherder.controller('PluginCtrl', [
                         // we merge them here to make displaying them in the UI
                         // easier.
                         $scope.job_details = jobInfoArtifact.reduce(function(result, artifact) {
-                          if (artifact.blob && Array.isArray(artifact.blob.job_details)) {
-                              result = result.concat(artifact.blob.job_details);
-                          }
-                          if ($scope.artifacts.buildapi) {
-                              $scope.artifacts.buildapi.blob.title = "Buildername";
-                              $scope.artifacts.buildapi.blob.value = $scope.artifacts.buildapi.blob.buildername;
-                              result = result.concat($scope.artifacts.buildapi.blob);
-                          }
-                          return result;
+                            if (artifact.blob && Array.isArray(artifact.blob.job_details)) {
+                                result = result.concat(artifact.blob.job_details);
+                            }
+                            if ($scope.artifacts.buildapi) {
+                                $scope.artifacts.buildapi.blob.title = "Buildername";
+                                $scope.artifacts.buildapi.blob.value = $scope.artifacts.buildapi.blob.buildername;
+                                result = result.concat($scope.artifacts.buildapi.blob);
+                            }
+                            return result;
                         }, []);
                     }
 
@@ -197,43 +197,43 @@ treeherder.controller('PluginCtrl', [
         };
 
         var updateVisibleFields = function() {
-                var undef = "",
-                    duration = "";
-                // fields that will show in the job detail panel
-                $scope.visibleFields = {
-                    "Build": $scope.job.build_architecture + " " +
-                             $scope.job.build_platform  + " " +
-                             $scope.job.build_os || undef,
-                    "Job name": $scope.job.job_type_name || undef
-                };
+            var undef = "",
+                duration = "";
+            // fields that will show in the job detail panel
+            $scope.visibleFields = {
+                "Build": $scope.job.build_architecture + " " +
+                         $scope.job.build_platform  + " " +
+                         $scope.job.build_os || undef,
+                "Job name": $scope.job.job_type_name || undef
+            };
 
-                // time fields to show in detail panel, but that should be grouped together
-                $scope.visibleTimeFields = {
-                    requestTime: dateFilter($scope.job.submit_timestamp*1000,
-                                            thDateFormat)
-                };
+            // time fields to show in detail panel, but that should be grouped together
+            $scope.visibleTimeFields = {
+                requestTime: dateFilter($scope.job.submit_timestamp*1000,
+                                        thDateFormat)
+            };
 
-                /*
-                    display appropriate times and duration
+            /*
+                display appropriate times and duration
 
-                    If start time is 0, then duration should be from requesttime to now
-                    If we have starttime and no endtime, then duration should be starttime to now
-                    If we have both starttime and endtime, then duration will be between those two
-                */
-                var endtime = $scope.job.end_timestamp || Date.now()/1000;
-                var starttime = $scope.job.start_timestamp || $scope.job.submit_timestamp;
-                duration = numberFilter((endtime-starttime)/60, 0) + " minute(s)";
+                If start time is 0, then duration should be from requesttime to now
+                If we have starttime and no endtime, then duration should be starttime to now
+                If we have both starttime and endtime, then duration will be between those two
+            */
+            var endtime = $scope.job.end_timestamp || Date.now()/1000;
+            var starttime = $scope.job.start_timestamp || $scope.job.submit_timestamp;
+            duration = numberFilter((endtime-starttime)/60, 0) + " minute(s)";
 
-                $scope.visibleTimeFields.duration = duration;
+            $scope.visibleTimeFields.duration = duration;
 
-                if ($scope.job.start_timestamp) {
-                    $scope.visibleTimeFields.startTime = dateFilter(
-                        $scope.job.start_timestamp*1000, thDateFormat);
-                }
-                if ($scope.job.end_timestamp) {
-                    $scope.visibleTimeFields.endTime = dateFilter(
-                        $scope.job.end_timestamp*1000, thDateFormat);
-                }
+            if ($scope.job.start_timestamp) {
+                $scope.visibleTimeFields.startTime = dateFilter(
+                    $scope.job.start_timestamp*1000, thDateFormat);
+            }
+            if ($scope.job.end_timestamp) {
+                $scope.visibleTimeFields.endTime = dateFilter(
+                    $scope.job.end_timestamp*1000, thDateFormat);
+            }
         };
 
         $scope.getCountPinnedJobs = function() {
@@ -319,10 +319,10 @@ treeherder.controller('PluginCtrl', [
                 // See note in retrigger logic.
                 ThJobModel.cancel($scope.repoName, $scope.job.id).then(function() {
                   // XXX: Remove this after 1134929 is resolved.
-                  var requestId = getBuildbotRequestId();
-                  if (requestId) {
-                    return thBuildApi.cancelJob($scope.repoName, requestId);
-                  }
+                    var requestId = getBuildbotRequestId();
+                    if (requestId) {
+                        return thBuildApi.cancelJob($scope.repoName, requestId);
+                    }
                 }).catch(function(e) {
                     thNotify.send(
                         ThModelErrors.format(e, "Unable to cancel job"),
