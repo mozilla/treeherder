@@ -59,13 +59,14 @@ perf.controller('CompareChooserCtrl', [
             };
 
             $scope.runCompare = function() {
-                ThResultSetModel.getResultSetsFromRevision(
-                    $scope.originalProject.name, $scope.originalRevision).then(
-                        function(resultSets) {
-                            $scope.originalRevisionError = undefined;
-                        }, function(error) {
-                            $scope.originalRevisionError = error;
-                        });
+                ThResultSetModel.getResultSetsFromRevision($scope.originalProject.name, $scope.originalRevision).then(
+                    function(resultSets) {
+                        $scope.originalRevisionError = undefined;
+                    },
+                    function(error) {
+                        $scope.originalRevisionError = error;
+                    }
+                );
 
                 ThResultSetModel.getResultSetsFromRevision($scope.newProject.name, $scope.newRevision).then(
                     function (resultSets) {
@@ -78,7 +79,8 @@ perf.controller('CompareChooserCtrl', [
                                 newRevision: $scope.newRevision
                             });
                         }
-                    }, function (error) {
+                    },
+                    function (error) {
                         $scope.newRevisionError = error;
                     }
                 );
@@ -228,7 +230,8 @@ perf.controller('CompareResultsCtrl', [
                     } else {
                         $scope.newResultSet = resultSet;
                     }
-                }, function(error) {
+                },
+                function(error) {
                     $scope.errors.push(error);
                 });
         }
@@ -319,7 +322,8 @@ perf.controller('CompareSubtestResultsCtrl', [
                     } else {
                         $scope.newResultSet = resultSet;
                     }
-                }, function(error) {
+                },
+                function(error) {
                     $scope.errors.push(error);
                 });
         }

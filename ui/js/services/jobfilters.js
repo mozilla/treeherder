@@ -221,29 +221,29 @@ treeherder.factory('thJobFilters', [
 
                         switch (FIELD_CHOICES[field].matchType) {
 
-                        case MATCH_TYPE.substr:
-                            if (!_containsSubstr(values, jobFieldValue.toLowerCase())) {
-                                return false;
-                            }
-                            break;
+                            case MATCH_TYPE.substr:
+                                if (!_containsSubstr(values, jobFieldValue.toLowerCase())) {
+                                    return false;
+                                }
+                                break;
 
-                        case MATCH_TYPE.searchStr:
-                            if (!_containsAllSubstr(values, jobFieldValue.toLowerCase())) {
-                                return false;
-                            }
-                            break;
+                            case MATCH_TYPE.searchStr:
+                                if (!_containsAllSubstr(values, jobFieldValue.toLowerCase())) {
+                                    return false;
+                                }
+                                break;
 
-                        case MATCH_TYPE.exactstr:
-                            if (!_.contains(values, jobFieldValue.toLowerCase())) {
-                                return false;
-                            }
-                            break;
+                            case MATCH_TYPE.exactstr:
+                                if (!_.contains(values, jobFieldValue.toLowerCase())) {
+                                    return false;
+                                }
+                                break;
 
-                        case MATCH_TYPE.choice:
-                            if (!_.contains(values, String(jobFieldValue).toLowerCase())) {
-                                return false;
-                            }
-                            break;
+                            case MATCH_TYPE.choice:
+                                if (!_.contains(values, String(jobFieldValue).toLowerCase())) {
+                                    return false;
+                                }
+                                break;
                         }
                     }
                 }

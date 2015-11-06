@@ -144,10 +144,13 @@ treeherder.factory('BrowserId', [
              */
             verifyAssertion: function(assertion){
                 return $http.post(
-                    thServiceDomain+'/browserid/login/', {assertion: assertion},{
+                    thServiceDomain+'/browserid/login/',
+                    {assertion: assertion},
+                    {
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
                         transformRequest: browserid.transform_data
-                });
+                    }
+                );
             },
 
             transform_data: function(data){

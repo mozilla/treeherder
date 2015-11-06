@@ -24,7 +24,8 @@ treeherder.factory('ThUserModel', [
                     }else{
                         return {};
                     }
-                }, function(reason){
+                },
+                function(reason){
                     thNotify.send(reason.data,"danger");
                     return $q.reject(reason);
                 });

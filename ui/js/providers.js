@@ -48,13 +48,13 @@ treeherder.provider('thResultStatusObject', function() {
             'running':0,
             'pending':0,
             'completed':0
-            };
+        };
     };
 
     this.$get = function() {
         return {
             getResultStatusObject:getResultStatusObject
-            };
+        };
     };
 });
 
@@ -262,7 +262,7 @@ treeherder.provider('thAggregateIds', function() {
             getJobMapKey: getJobMapKey,
             getGroupMapKey: getGroupMapKey,
             escape: escape
-            };
+        };
     };
 });
 

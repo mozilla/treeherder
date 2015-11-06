@@ -364,33 +364,33 @@ treeherder.directive('thCloneJobs', [
                 job.revision = resultset.revision;
                 //NOTE: scope is set to "this" by _.bind
                 switch (ev.which) {
-                case 1:
-                    //Left mouse button pressed
-                    if (ev.ctrlKey || ev.metaKey) {
-                        _.bind(togglePinJobCb, this, ev, el, job)();
-                    } else {
-                        _.bind(clickJobCb, this, ev, el, job)();
-                    }
-
-                    break;
-
-                case 2:
-                    ev.preventDefault();
-                    //Middle mouse button pressed
-                    ThJobModel.get(this.repoName, job.id).then(function(data){
-                        // Open the logviewer in a new window
-                        if (data.logs.length > 0) {
-                            window.open(location.origin + "/" + thUrl.getLogViewerUrl(job.id));
+                    case 1:
+                        //Left mouse button pressed
+                        if (ev.ctrlKey || ev.metaKey) {
+                            _.bind(togglePinJobCb, this, ev, el, job)();
+                        } else {
+                            _.bind(clickJobCb, this, ev, el, job)();
                         }
-                    });
 
-                    break;
-                case 3:
-                    //Right mouse button pressed
-                    break;
-                default:
-                    //strange mouse detected
-                    _.bind(clickJobCb, this, ev, el, job)();
+                        break;
+
+                    case 2:
+                        ev.preventDefault();
+                        //Middle mouse button pressed
+                        ThJobModel.get(this.repoName, job.id).then(function(data){
+                            // Open the logviewer in a new window
+                            if (data.logs.length > 0) {
+                                window.open(location.origin + "/" + thUrl.getLogViewerUrl(job.id));
+                            }
+                        });
+
+                        break;
+                    case 3:
+                        //Right mouse button pressed
+                        break;
+                    default:
+                        //strange mouse detected
+                        _.bind(clickJobCb, this, ev, el, job)();
                 }
 
                 ThResultSetStore.setSelectedJob($rootScope.repoName, el, job);
@@ -936,5 +936,5 @@ treeherder.directive('thCloneJobs', [
             link:linker,
             replace:true
         };
-
-    }]);
+    }
+]);

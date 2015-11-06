@@ -3,41 +3,42 @@
 treeherder.factory('ThLog', [
     '$log', 'ThLogConfig',
     function($log, ThLogConfig) {
-    // a logger that states the object doing the logging
+        // a logger that states the object doing the logging
 
-    var ThLog = function(name) {
-        this.name = name;
-    };
+        var ThLog = function(name) {
+            this.name = name;
+        };
 
-    /**
-     * If ``whitelist`` has values, then only show messages from those.
-     * If ``whitelist`` is empty, then skip any messages from ``blacklist`` items.
-     */
-    var whitelist = ThLogConfig.whitelist;
-    var blacklist = ThLogConfig.blacklist;
+        /**
+         * If ``whitelist`` has values, then only show messages from those.
+         * If ``whitelist`` is empty, then skip any messages from ``blacklist`` items.
+         */
+        var whitelist = ThLogConfig.whitelist;
+        var blacklist = ThLogConfig.blacklist;
 
-    ThLog.prototype.getClassName = function() {
-        return this.name;
-    };
+        ThLog.prototype.getClassName = function() {
+            return this.name;
+        };
 
-    ThLog.prototype.debug = function() {logIt(this, $log.debug, arguments);};
-    ThLog.prototype.log = function() {logIt(this, $log.log, arguments);};
-    ThLog.prototype.warn = function() {logIt(this, $log.warn, arguments);};
-    ThLog.prototype.info = function() {logIt(this, $log.info, arguments);};
-    ThLog.prototype.error = function() {logIt(this, $log.error, arguments);};
+        ThLog.prototype.debug = function() {logIt(this, $log.debug, arguments);};
+        ThLog.prototype.log = function() {logIt(this, $log.log, arguments);};
+        ThLog.prototype.warn = function() {logIt(this, $log.warn, arguments);};
+        ThLog.prototype.info = function() {logIt(this, $log.info, arguments);};
+        ThLog.prototype.error = function() {logIt(this, $log.error, arguments);};
 
-    var logIt = function(self, func, args) {
-        if ((whitelist.length && _.contains(whitelist, self.getClassName())) ||
-            (blacklist.length && !_.contains(blacklist, self.getClassName())) ||
-            (!whitelist.length && !blacklist.length)) {
-            var newArgs = Array.prototype.slice.call(args);
-            newArgs.unshift(self.getClassName());
-            func.apply(null, newArgs);
-        }
-    };
+        var logIt = function(self, func, args) {
+            if ((whitelist.length && _.contains(whitelist, self.getClassName())) ||
+                (blacklist.length && !_.contains(blacklist, self.getClassName())) ||
+                (!whitelist.length && !blacklist.length)) {
+                var newArgs = Array.prototype.slice.call(args);
+                newArgs.unshift(self.getClassName());
+                func.apply(null, newArgs);
+            }
+        };
 
-    return ThLog;
-}]);
+        return ThLog;
+    }
+]);
 
 
 /**

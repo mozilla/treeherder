@@ -267,7 +267,8 @@ treeherder.factory('ThRepositoryModel', [
                     function(data) {
                         newStatuses[repo] = data.data.result;
                         updateStatusesIfDone();
-                    }, function(data) {
+                    },
+                    function(data) {
                         if (data.data != null) {
                             newStatuses[repo] = getUnsupportedTreeStatus(repo);
                         } else {
