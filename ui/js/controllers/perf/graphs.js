@@ -45,7 +45,6 @@ perf.controller('GraphsCtrl', [
         function deselectDataPoint() {
             $timeout(function() {
                 $scope.selectedDataPoint = null;
-                $scope.plot.unhighlight();
                 hideTooltip();
                 updateDocument();
             });
