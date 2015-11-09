@@ -11,7 +11,7 @@
 <div id="info-panel-content">
   <div id="job-details-panel">
     <div id="job-details-actionbar">
-      <nav class="navbar navbar-dark">
+      <nav class="navbar info-panel-navbar">
         <ul class="nav navbar-nav actionbar-nav">
 
           <li ng-repeat="job_log_url in job_log_urls">
@@ -225,7 +225,7 @@
   </div>
   <div id="job-tabs-panel">
     <div id="job-tabs-navbar">
-      <nav class="navbar navbar-dark">
+      <nav class="info-panel-navbar info-panel-navbar-tabs">
         <ul class="nav navbar-nav tab-headers">
           <li ng-repeat="tabName in tabService.tabOrder"
               ng-if="tabService.tabs[tabName].enabled"
@@ -238,7 +238,7 @@
           </li>
         </ul>
 
-        <ul class="nav navbar-nav pull-right">
+        <ul class="nav navbar-nav info-panel-navbar-controls">
           <li>
             <a href="#" prevent-default-on-left-click ng-click="togglePinboardVisibility()"
                ng-class="{'pinboard-open-btn': isPinboardVisible}">
