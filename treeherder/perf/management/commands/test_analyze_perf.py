@@ -8,7 +8,7 @@ from django.core.management.base import (BaseCommand,
 from treeherder.client import (PerfherderClient,
                                PerformanceTimeInterval)
 from treeherder.perfalert import (PerfDatum,
-                                  TalosAnalyzer)
+                                  Analyzer)
 
 
 class Command(BaseCommand):
@@ -103,7 +103,7 @@ class Command(BaseCommand):
                         series['value']):
                     perf_data.append(PerfDatum(timestamp, value, testrun_id=result_set_id))
 
-                ta = TalosAnalyzer()
+                ta = Analyzer()
                 ta.addData(perf_data)
                 for r in ta.analyze_t():
                     if r.state == 'regression':

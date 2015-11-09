@@ -29,7 +29,7 @@ class TestAnalyze(unittest.TestCase):
         self.assertEqual(calc_t([0.0, 0.0], [1.0, 1.0]), float('inf'))
 
 
-class TestTalosAnalyzer(unittest.TestCase):
+class TestAnalyzer(unittest.TestCase):
 
     def get_data(self):
         times = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
@@ -37,7 +37,7 @@ class TestTalosAnalyzer(unittest.TestCase):
         return [PerfDatum(t, float(v)) for t, v in zip(times, values)]
 
     def test_analyze_t(self):
-        a = TalosAnalyzer()
+        a = Analyzer()
 
         data = self.get_data()
         a.addData(data)
@@ -67,7 +67,7 @@ class TestTalosAnalyzer(unittest.TestCase):
 
     def check_json(self, filename, expected_timestamps):
         """Parse JSON produced by http://graphs.mozilla.org/api/test/runs"""
-        # Configuration for TalosAnalyzer
+        # Configuration for Analyzer
         FORE_WINDOW = 12
         BACK_WINDOW = 12
         THRESHOLD = 7
@@ -80,7 +80,7 @@ class TestTalosAnalyzer(unittest.TestCase):
                           testrun_timestamp=r[2], buildid=r[1][1],
                           revision=r[1][2]) for r in runs]
 
-        a = TalosAnalyzer()
+        a = Analyzer()
         a.addData(data)
         results = a.analyze_t(BACK_WINDOW, FORE_WINDOW, THRESHOLD,
                               MACHINE_THRESHOLD, MACHINE_HISTORY_SIZE)
