@@ -42,8 +42,7 @@ class TestAnalyzer(unittest.TestCase):
         data = self.get_data()
         a.addData(data)
         result = [(d.push_timestamp, d.state) for d in
-                  a.analyze_t(back_window=5, fore_window=5, t_threshold=2,
-                              machine_threshold=15, machine_history_size=5)]
+                  a.analyze_t(back_window=5, fore_window=5, t_threshold=2)]
         self.assertEqual(result, [
             (1, 'good'),
             (2, 'good'),
@@ -71,19 +70,16 @@ class TestAnalyzer(unittest.TestCase):
         FORE_WINDOW = 12
         BACK_WINDOW = 12
         THRESHOLD = 7
-        MACHINE_THRESHOLD = 15
-        MACHINE_HISTORY_SIZE = 5
 
         payload = SampleData.get_perf_data(os.path.join('graphs', filename))
         runs = payload['test_runs']
-        data = [PerfDatum(r[2], r[3], testrun_id=r[0], machine_id=r[6],
+        data = [PerfDatum(r[2], r[3], testrun_id=r[0],
                           testrun_timestamp=r[2], buildid=r[1][1],
                           revision=r[1][2]) for r in runs]
 
         a = Analyzer()
         a.addData(data)
-        results = a.analyze_t(BACK_WINDOW, FORE_WINDOW, THRESHOLD,
-                              MACHINE_THRESHOLD, MACHINE_HISTORY_SIZE)
+        results = a.analyze_t(BACK_WINDOW, FORE_WINDOW, THRESHOLD)
         regression_timestamps = [d.testrun_timestamp for d in results if
                                  d.state == 'regression']
         self.assertEqual(regression_timestamps, expected_timestamps)

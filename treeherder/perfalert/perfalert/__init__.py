@@ -57,8 +57,7 @@ def calc_t(w1, w2, weight_fn=None):
 
 class PerfDatum(object):
     def __init__(self, push_timestamp, value, testrun_timestamp=None,
-                 buildid=None, testrun_id=None, machine_id=None,
-                 revision=None, state='good'):
+                 buildid=None, testrun_id=None, revision=None, state='good'):
         # Date code was pushed
         self.push_timestamp = push_timestamp
         # Value of this point
@@ -75,14 +74,12 @@ class PerfDatum(object):
             self.testrun_timestamp = push_timestamp
         # Which test run was this
         self.testrun_id = testrun_id
-        # Which machine is this
-        self.machine_id = machine_id
         # What revision this data is for
         self.revision = revision
 
         # t-test score
         self.t = 0
-        # Whether a machine issue or perf regression is found
+        # Whether a perf regression is found
         self.state = state
 
     def __cmp__(self, o):
@@ -115,19 +112,12 @@ class Analyzer:
     def __init__(self):
         # List of PerfDatum instances
         self.data = []
-        self.machine_history = {}
 
     def addData(self, data):
         self.data.extend(data)
-        for d in data:
-            self.machine_history.setdefault(d.machine_id, []).append(d)
-
         self.data.sort()
-        for d in self.machine_history.values():
-            d.sort()
 
-    def analyze_t(self, back_window=12, fore_window=12, t_threshold=7,
-                  machine_threshold=None, machine_history_size=None):
+    def analyze_t(self, back_window=12, fore_window=12, t_threshold=7):
         # Use T-Tests
         # Analyze test data using T-Tests, comparing data[i-j:i] to data[i:i+k]
         (j, k) = (back_window, fore_window)
@@ -152,38 +142,7 @@ class Analyzer:
                 # Assume it's ok, we don't have enough data
                 di.t = 0
 
-            if machine_threshold is None:
-                good_data.append(di)
-            else:
-                my_history = self.machine_history[di.machine_id]
-                my_history_index = my_history.index(di)
-                my_data = [d.value for d in self.machine_history[di.machine_id][my_history_index-machine_history_size+1:my_history_index+1]]
-                other_data = []
-                l = len(good_data)-1
-                while len(other_data) < k*2 and l > 0:
-                    dl = good_data[l]
-                    if dl.machine_id != di.machine_id:
-                        other_data.insert(0, dl.value)
-                    l -= 1
-
-                if len(other_data) >= k*2 and len(my_data) >= machine_history_size:
-                    m_t = calc_t(other_data, my_data, linear_weights)
-                else:
-                    m_t = 0
-
-                if abs(m_t) >= machine_threshold:
-                    l = len(good_data)-1
-                    while l >= 0:
-                        dl = good_data[l]
-                        if dl.machine_id != di.machine_id:
-                            di.last_other = dl
-                            break
-                        l -= 1
-                    # We think this machine is bad, so don't add its data to the
-                    # set of good data
-                    di.state = 'machine'
-                else:
-                    good_data.append(di)
+            good_data.append(di)
 
         # Now that the t-test scores are calculated, go back through the data to
         # find where regressions most likely happened.
