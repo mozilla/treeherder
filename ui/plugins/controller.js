@@ -158,12 +158,11 @@ treeherder.controller('PluginCtrl', [
                                 });
                                 return $http.get(thUrl.getProjectUrl(url, $scope.repoName)).then(
                                     function(response) {
-                                        _.map(response.data, function(serie, key) {
-                                            serie['signature'] = key;
-                                            seriesList.push(serie);
-                                        })
-                                    }
-                                );
+                                        _.map(response.data, function(series, key) {
+                                            series['signature'] = key;
+                                            seriesList.push(series);
+                                        });
+                                    });
                             })).then(function(){
                                 var allSubtestSignatures = _.flatten(_.map(seriesList, function(series) {
                                     return series.subtest_signatures ? series.subtest_signatures : [];
