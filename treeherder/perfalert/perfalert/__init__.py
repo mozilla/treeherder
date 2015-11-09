@@ -111,7 +111,7 @@ class PerfDatum(object):
                                             self.machine_id)
 
 
-class TalosAnalyzer:
+class Analyzer:
     def __init__(self):
         # List of PerfDatum instances
         self.data = []
