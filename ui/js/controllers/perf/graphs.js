@@ -432,9 +432,6 @@ perf.controller('GraphsCtrl', [
                     highlightDataPoints();
                 });
 
-                // This part of code is simply copy from overview-plot
-                $('#graph').bind("plotunselected", plotUnselected);
-
                 $('#graph').bind("plotselected", function(event, ranges) {
                     $scope.plot.clearSelection();
                     plotSelected(event, ranges);
