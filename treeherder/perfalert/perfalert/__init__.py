@@ -110,11 +110,10 @@ class PerfDatum(object):
 
 class Analyzer:
     def __init__(self):
-        # List of PerfDatum instances
-        self.data = []
+        self.data = []  # List of PerfDatum instances
 
-    def addData(self, data):
-        self.data.extend(data)
+    def add_data(self, push_timestamp, value, **kwargs):
+        self.data.append(PerfDatum(push_timestamp, value, **kwargs))
         self.data.sort()
 
     def analyze_t(self, back_window=12, fore_window=12, t_threshold=7):
