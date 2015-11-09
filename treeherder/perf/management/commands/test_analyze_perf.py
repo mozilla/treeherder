@@ -96,16 +96,14 @@ class Command(BaseCommand):
 
                 series_properties = signature_data.get(signature)
 
-                perf_data = []
+                a = Analyzer()
 
                 for (result_set_id, timestamp, value) in zip(
                         series['result_set_id'], series['push_timestamp'],
                         series['value']):
-                    perf_data.append(PerfDatum(timestamp, value, testrun_id=result_set_id))
+                    a.add_data(timestamp, value, testrun_id=result_set_id)
 
-                ta = Analyzer()
-                ta.addData(perf_data)
-                for r in ta.analyze_t():
+                for r in a.analyze_t():
                     if r.state == 'regression':
                         resultsets = pc.get_resultsets(project,
                                                        id=r.testrun_id)
