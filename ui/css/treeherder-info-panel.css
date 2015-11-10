@@ -42,6 +42,11 @@ div#info-panel .navbar-nav > li > a {
   line-height: 19px;
 }
 
+/* Use a loaded image, rather than an icon, so it needs to be slightly shorter */
+div#info-panel .navbar-nav > li > a#logviewer-btn {
+  line-height: 18px;
+}
+
 div#info-panel .navbar-nav > li > a.disabled {
   cursor: not-allowed;
   text-decoration: none;
