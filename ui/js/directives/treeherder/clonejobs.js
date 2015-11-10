@@ -263,6 +263,11 @@ treeherder.directive('thCloneJobs', [
             }
         };
 
+        // used only during grouping.  Reusable function so we don't re-create
+        // it in the loop.
+        var _getJobTypeSymbol = function(job) {
+            return job.job_type_symbol;
+        };
         /**
          * Group non-failed jobs as '+n' counts in the UI by default,
          * and failed jobs as individual buttons.
@@ -279,6 +284,7 @@ treeherder.directive('thCloneJobs', [
 
             var jobList = platformGroup.find(".group-job-list");
             var countList = platformGroup.find(".group-count-list");
+            var typeSymbolCounts = _.countBy(jgObj.jobs, _getJobTypeSymbol);
             jobList.empty();
             countList.empty();
 
@@ -301,7 +307,8 @@ treeherder.directive('thCloneJobs', [
                 //
                 // We don't add it to group counts, because it should not be counted
                 // when filtered out.  Failures don't get included in counts anyway.
-                if (_.contains(failResults, resultStatus)) {
+                if (_.contains(failResults, resultStatus) ||
+                        typeSymbolCounts[job.job_type_symbol] > 1) {
                     // render the job itself, not a count
                     addJobBtnToArray(job, lastJobSelected, jobBtnArray);
                 } else {
