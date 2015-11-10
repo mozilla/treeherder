@@ -270,21 +270,12 @@ treeherder.directive('thCloneJobs', [
          * display.
          */
         var addGroupJobsAndCounts = function(jgObj, platformGroup) {
-            var ct, job, jobCountBtn, l;
-            var countAdded = false;
             var jobCountBtnArray = [];
             var jobBtnArray = [];
             var stateCounts = {};
             var lastJobSelected = ThResultSetStore.getSelectedJob($rootScope.repoName);
 
-            var jobList = platformGroup.find(".group-job-list");
-            var countList = platformGroup.find(".group-count-list");
-            jobList.empty();
-            countList.empty();
-
-            for (l = 0; l < jgObj.jobs.length; l++) {
-
-                job = jgObj.jobs[l];
+            _.forEach(jgObj.jobs, function(job) {
                 job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' +
                     job.signature;
 
@@ -315,9 +306,8 @@ treeherder.directive('thCloneJobs', [
                             countInfo.selectedClasses = selectedCountCls + " " + largeBtnCls;
                         }
 
-                        ct = _.get(_.get(stateCounts, countInfo.btnClass, countInfo),
-                                   "count", 0);
-                        countInfo.count = ct + 1;
+                        countInfo.count = _.get(
+                            _.get(stateCounts, countInfo.btnClass, countInfo), "count", 0) + 1;
                         // keep a reference to the job.  If there ends up being
                         // only one for this status, then just add the job itself
                         // rather than a count.
@@ -325,7 +315,7 @@ treeherder.directive('thCloneJobs', [
                         stateCounts[countInfo.btnClass] = countInfo;
                     }
                 }
-            }
+            });
 
             _.forEach(stateCounts, function(countInfo) {
                 if (countInfo.count === 1) {
@@ -334,22 +324,18 @@ treeherder.directive('thCloneJobs', [
                     addJobBtnToArray(countInfo.lastJob, lastJobSelected, jobBtnArray);
                 } else {
                     // with more than 1 job for the status, add it as a count
-                    countAdded = true;
                     countInfo.value = countInfo.count;
                     countInfo.title = countInfo.count + " " + countInfo.countText + " jobs in group";
                     countInfo.btnClass = countInfo.btnClass + "-count";
-                    jobCountBtn = $(jobGroupCountInterpolator(countInfo));
+                    var jobCountBtn = $(jobGroupCountInterpolator(countInfo));
+                    showHideElement(jobCountBtn, true);
                     jobCountBtnArray.push(jobCountBtn);
                     jobCountBtnArray.push(' ');
-                    showHideElement(jobCountBtn, true);
                 }
             });
 
-            jobList.append(jobBtnArray);
-
-            if (countAdded) {
-                countList.append(jobCountBtnArray);
-            }
+            platformGroup.find(".group-job-list").html(jobBtnArray);
+            platformGroup.find(".group-count-list").html(jobCountBtnArray);
         };
 
         var jobMouseDown = function(resultset, ev){
