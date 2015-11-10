@@ -183,8 +183,8 @@ treeherder.factory('thNotify', [
              */
             send: function(message, severity, sticky){
                 $log.debug("received message", message);
-                var severity = severity || 'info';
-                var sticky = sticky || false;
+                severity = severity || 'info';
+                sticky = sticky || false;
                 var maxNsNotifications = 5;
                 thNotify.notifications.push({
                     message: message,

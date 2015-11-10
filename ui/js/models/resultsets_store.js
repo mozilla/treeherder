@@ -136,20 +136,20 @@ treeherder.factory('ThResultSetStore', [
                 }
             });
         };
-        var registerJobsPoller = function(){
+        var registerJobsPoller = function() {
             $interval(pollJobs, jobPollInterval);
         };
 
-        var mapResultSetJobs = function(repoName, jobList){
-            if(jobList.length > 0){
+        var mapResultSetJobs = function(repoName, jobList) {
+            if(jobList.length > 0) {
                 // jobList contains jobs belonging to the same resultset,
                 // so we can pick the result_set_id from the first job
                 var resultSetId = jobList[0].result_set_id;
                 var resultSet = _.findWhere(
                     repositories[repoName].resultSets, {id: resultSetId}
                 );
-                if(_.isUndefined(resultSet)){ return $q.defer().resolve(); }
-                if(_.has(resultSet, 'jobList')){
+                if (_.isUndefined(resultSet)){ return $q.defer().resolve(); }
+                if (_.has(resultSet, 'jobList')) {
                     // get the new job ids
                     var jobIds = _.pluck(jobList, 'id');
                     // remove the elements that need to be updated
@@ -157,7 +157,7 @@ treeherder.factory('ThResultSetStore', [
                         return _.indexOf(jobIds, job.id) === -1;
                     });
                     resultSet.jobList = resultSet.jobList.concat(jobList);
-                }else{
+                } else {
                     resultSet.jobList = jobList;
                 }
                 var sortAndGroupJobs = _.compose(
@@ -173,7 +173,7 @@ treeherder.factory('ThResultSetStore', [
                         );
                         $rootScope.$emit(thEvents.applyNewJobs, resultSetId);
                     });
-            }else{
+            } else {
                 return $q.defer().resolve();
             }
         };
@@ -867,7 +867,7 @@ treeherder.factory('ThResultSetStore', [
                                 return mapResultSetJobs(repoName, jobs);
                             });
                         });
-                    $q.all(mapResultSetJobsPromiseList).then(function(){
+                    $q.all(mapResultSetJobsPromiseList).then(function() {
                         registerJobsPoller();
                     });
                 });
