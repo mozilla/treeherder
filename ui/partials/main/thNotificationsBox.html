@@ -7,6 +7,9 @@
       <span ng-switch-when="success" class="fa fa-check"></span>
       <span ng-switch-default></span>
       {{::notification.message}}
+      <span ng-if="notification.url && notification.linkText">
+        <a href="{{::notification.url}}">{{::notification.linkText}}</a>
+      </span>
       <button ng-click="notifier.remove($index)" ng-if="notification.sticky" class="close">x</button>
     </div>
   </li>

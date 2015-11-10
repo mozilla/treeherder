@@ -181,7 +181,7 @@ treeherder.factory('thNotify', [
              * @sticky is a boolean indicating if you want the message to disappear
              * after a while or not
              */
-            send: function(message, severity, sticky){
+            send: function(message, severity, sticky, linkText, url) {
                 $log.debug("received message", message);
                 severity = severity || 'info';
                 sticky = sticky || false;
@@ -189,7 +189,9 @@ treeherder.factory('thNotify', [
                 thNotify.notifications.push({
                     message: message,
                     severity: severity,
-                    sticky: sticky
+                    sticky: sticky,
+                    linkText: linkText,
+                    url: url
                 });
 
                 if (!sticky) {

@@ -868,9 +868,59 @@ treeherder.factory('ThResultSetStore', [
                             });
                         });
                     $q.all(mapResultSetJobsPromiseList).then(function() {
+                        setSelectedJobFromQueryString(repoName);
                         registerJobsPoller();
                     });
                 });
+        };
+
+        /**
+         * If the URL has a query string param of ``selectedJob`` then select
+         * that job on load.
+         *
+         * If that job isn't in any of the loaded resultsets, then throw
+         * an error and provide a link to load it with the right resultset.
+         */
+        var setSelectedJobFromQueryString = function(repoName) {
+            var selectedJobId = parseInt($location.search().selectedJob);
+            var selectedJobEl, key;
+
+            if (selectedJobId) {
+                key = thAggregateIds.getJobMapKey({id: selectedJobId});
+                selectedJobEl = repositories[repoName].jobMap[key];
+
+                // select the job in question
+                if (selectedJobEl) {
+                    $timeout(function() {
+                        $rootScope.$emit(thEvents.selectJob, selectedJobEl.job_obj);
+                    }, 200);
+
+                } else {
+                    // If the ``selectedJob`` was not mapped, then we need to notify
+                    // the user it's not in the range of the current result set list.
+                    ThJobModel.get(repoName, selectedJobId).then(function(job) {
+                        ThResultSetModel.getResultSet(repoName, job.result_set_id).then(function(resultset) {
+                            var url = $rootScope.urlBasePath +
+                                      "?repo=" + repoName +
+                                      "&revision=" + resultset.data.revision +
+                                      "&selectedJob=" + selectedJobId;
+
+                            // the job exists, but isn't in any loaded resultset.
+                            // provide a message and link to load the right resultset
+                            thNotify.send("Selected job id: " + selectedJobId + " not within current result set range.",
+                                          "danger",
+                                          true,
+                                          "Load result set",
+                                          url);
+
+                        });
+                    }, function() {
+                        // the job wasn't found in the db.  Either never existed,
+                        // or was expired and deleted.
+                        thNotify.send("Unable to find job with id " + selectedJobId, "danger", true);
+                    });
+                }
+            }
         };
 
         var getLastModifiedJob = function(jobList){

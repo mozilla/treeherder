@@ -15,12 +15,23 @@ treeherderApp.controller('MainCtrl', [
 
         var $log = new ThLog("MainCtrl");
 
+        // Query String param for selected job
+        var QS_SELECTED_JOB = "selectedJob";
+
         thClassificationTypes.load();
 
         $rootScope.getWindowTitle = function() {
             var ufc = $scope.getUnclassifiedFailureCount($rootScope.repoName);
             return "[" + ufc + "] " + $rootScope.repoName;
         };
+
+        $rootScope.$on(thEvents.jobClick, function(ev, job) {
+            $location.search(QS_SELECTED_JOB, job.id);
+        });
+
+        $rootScope.$on(thEvents.clearSelectedJob, function() {
+            $location.search(QS_SELECTED_JOB, null);
+        });
 
         $rootScope.closeJob = function() {
             // Setting the selectedJob to null closes the bottom panel
