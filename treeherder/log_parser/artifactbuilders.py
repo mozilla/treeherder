@@ -54,7 +54,7 @@ class ArtifactBuilderBase(object):
         # truncated, preventing it from being ingested.
         if not any(perf_str in line for perf_str in ['TALOSDATA',
                                                      'TalosResult',
-                                                     'PERFORMANCE_DATA']):
+                                                     'PERFHERDER_DATA']):
             line = line[:self.MAX_LINE_LENGTH]
 
         self.parser.parse_line(line, self.lineno)

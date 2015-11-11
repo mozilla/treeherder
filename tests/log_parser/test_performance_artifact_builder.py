@@ -35,12 +35,13 @@ def test_performance_log_parsing():
     Validate that we can parse a generic performance artifact
     """
     sd = SampleData()
-    file_path = sd.get_log_path(
-        'mozilla-inbound-android-api-11-debug-bm91-build1-build1317.txt.gz')
-    file_url = 'file://{}'.format(file_path)
+    for logfile in ['mozilla-inbound-android-api-11-debug-bm91-build1-build1317.txt.gz',
+                    'try_ubuntu64_hw_test-chromez-bm103-tests1-linux-build1429.txt.gz']:
+        file_path = sd.get_log_path(logfile)
+        file_url = 'file://{}'.format(file_path)
 
-    builder = BuildbotPerformanceDataArtifactBuilder(url=file_url)
-    lpc = ArtifactBuilderCollection(file_url, builders=[builder])
-    lpc.parse()
-    act = lpc.artifacts[builder.name]
-    validate(act['performance_data'], PERFHERDER_SCHEMA)
+        builder = BuildbotPerformanceDataArtifactBuilder(url=file_url)
+        lpc = ArtifactBuilderCollection(file_url, builders=[builder])
+        lpc.parse()
+        act = lpc.artifacts[builder.name]
+        validate(act['performance_data'], PERFHERDER_SCHEMA)
