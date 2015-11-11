@@ -84,8 +84,6 @@ def update(ctx):
         run_local_with_env(ctx, "python2.7 manage.py init_datasources")
         # Update oauth credentials.
         run_local_with_env(ctx, "python2.7 manage.py export_project_credentials")
-        # Clear the cache.
-        run_local_with_env(ctx, "python2.7 manage.py clear_cache")
 
 
 @task
