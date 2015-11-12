@@ -33,8 +33,8 @@ isort==4.2.2
 py==1.4.30
 
 # Required by WebTest
-# sha256: twJyH4ciyU-9L737Qhg8S1s9iHEYa5KoiY4t_khpqts
-beautifulsoup4==4.4.0
+# sha256: gqJTJFrtmHXxQd2Yp0YlcrypPQZM8xF70z3kth7hjmg
+beautifulsoup4==4.4.1
 # sha256: 4z94MKKdWsdvWsmsPlGCQBJgi71i47rGK_2WaM7_eio
 waitress==0.8.10
 # sha256: nmzRxAyd3blmwpkJa9N2tVH5rJOpnr3VG0d3tNoseg8
