@@ -32,21 +32,6 @@
 
             "sql":"DELETE FROM job WHERE id IN (REP0)",
             "host_type": "master_host"
-        },
-        "cycle_revision":{
-
-            "sql":"DELETE FROM revision WHERE id IN (REP0)",
-            "host_type": "master_host"
-        },
-        "cycle_revision_map":{
-
-            "sql":"DELETE FROM revision_map WHERE result_set_id IN (REP0)",
-            "host_type": "master_host"
-        },
-        "cycle_result_set":{
-
-            "sql":"DELETE FROM result_set WHERE id IN (REP0)",
-            "host_type": "master_host"
         }
     },
     "inserts":{
@@ -359,13 +344,8 @@
             "host_type":"master_host"
         },
 
-        "get_jobs_to_cycle":{
-            "sql":"SELECT id, job_guid FROM job WHERE result_set_id IN (REP0)",
-            "host_type":"master_host"
-        },
-
-        "get_result_sets_to_cycle":{
-            "sql":"SELECT id FROM result_set WHERE push_timestamp < ?",
+        "jobs_to_cycle":{
+            "sql":"SELECT id FROM job WHERE submit_timestamp < ?",
             "host_type":"master_host"
         },
 
