@@ -2,18 +2,12 @@
     "selects": {
         "get_jobs_for_cycling": {
 
-            "sql": "SELECT id FROM `job` WHERE `result_set_id` IN (
-                        SELECT id FROM result_set WHERE push_timestamp < ?
-                    )",
+            "sql": "SELECT id FROM job WHERE submit_timestamp < ?",
             "host_type": "master_host"
         },
-        "get_result_set_jobs":{
+        "get_one_job_for_cycling":{
 
-            "sql":"SELECT j.id, j.job_guid
-                   FROM result_set AS r
-                   INNER JOIN job AS j
-                        ON r.id = j.result_set_id
-                   WHERE r.id = ?",
+            "sql":"SELECT id FROM job WHERE id = ?",
 
             "host_type": "master_host"
         },
@@ -83,13 +77,13 @@
 
                 "host_type":"master_host"
         },
-        "set_result_sets_push_timestamp":{
-            "sql":"UPDATE `result_set` SET `push_timestamp` = ?",
+        "set_jobs_last_modified":{
+            "sql":"UPDATE `job` SET `submit_timestamp` = ?",
 
             "host_type":"master_host"
         },
-        "set_one_result_set_push_timestamp":{
-            "sql":"UPDATE `result_set` SET `push_timestamp` = ? WHERE id = 1",
+        "set_one_job_last_modified_timestamp":{
+            "sql":"UPDATE `job` SET `submit_timestamp` = ? WHERE id = 1",
 
             "host_type":"master_host"
         }

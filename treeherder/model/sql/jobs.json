@@ -359,13 +359,8 @@
             "host_type":"master_host"
         },
 
-        "get_jobs_to_cycle":{
-            "sql":"SELECT id, job_guid FROM job WHERE result_set_id IN (REP0)",
-            "host_type":"master_host"
-        },
-
-        "get_result_sets_to_cycle":{
-            "sql":"SELECT id FROM result_set WHERE push_timestamp < ?",
+        "jobs_to_cycle":{
+            "sql":"SELECT id FROM job WHERE submit_timestamp < ?",
             "host_type":"master_host"
         },
 

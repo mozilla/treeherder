@@ -108,9 +108,6 @@ class JobsModel(TreeherderModelBase):
         "jobs.deletes.cycle_job_note",
         "jobs.deletes.cycle_bug_job_map",
         "jobs.deletes.cycle_job",
-        "jobs.deletes.cycle_revision",
-        "jobs.deletes.cycle_revision_map",
-        "jobs.deletes.cycle_result_set"
     ]
 
     @classmethod
@@ -546,82 +543,37 @@ class JobsModel(TreeherderModelBase):
 into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         jobs_max_timestamp = self._get_max_timestamp(cycle_interval)
-        # Retrieve list of result sets to delete
-        result_set_data = self.execute(
-            proc='jobs.selects.get_result_sets_to_cycle',
+        # Retrieve list of jobs to delete
+        jobs_data = self.execute(
+            proc='jobs.selects.jobs_to_cycle',
             placeholders=[jobs_max_timestamp],
             debug_show=self.DEBUG
         )
-        if not result_set_data:
+        if not jobs_data:
             return 0
 
-        # group the result_set data in chunks
-        result_set_chunk_list = zip(*[iter(result_set_data)] * chunk_size)
-        # append the remaining result_set not fitting in a complete chunk
-        result_set_chunk_list.append(
-            result_set_data[-(len(result_set_data) % chunk_size):])
-
-        for result_set_chunks in result_set_chunk_list:
-
-            # Retrieve list of revisions associated with result sets
-            rs_placeholders = [x['id'] for x in result_set_chunks]
-            rs_where_in_clause = [','.join(['%s'] * len(rs_placeholders))]
-            revision_data = self.execute(
-                proc='jobs.selects.get_revision_ids_to_cycle',
-                placeholders=rs_placeholders,
-                replace=rs_where_in_clause,
-                debug_show=self.DEBUG
-            )
-
-            # Retrieve list of jobs associated with result sets
-            rev_placeholders = [x['revision_id'] for x in revision_data]
-            rev_where_in_clause = [','.join(['%s'] * len(rev_placeholders))]
-            job_data = self.execute(
-                proc='jobs.selects.get_jobs_to_cycle',
-                placeholders=rs_placeholders,
-                replace=rs_where_in_clause,
-                debug_show=self.DEBUG
-            )
-
-            job_guid_dict = dict((d['id'], d['job_guid']) for d in job_data)
-            job_where_in_clause = [','.join(['%s'] * len(job_guid_dict))]
+        # group the job in chunks
+        jobs_chunk_list = zip(*[iter(jobs_data)] * chunk_size)
+        # append the remaining job data not fitting in a complete chunk
+        jobs_chunk_list.append(
+            jobs_data[-(len(jobs_data) % chunk_size):])
+        for jobs_chunk in jobs_chunk_list:
+            job_id_list = [d['id'] for d in jobs_chunk]
+            job_where_in_clause = [','.join(['%s'] * len(job_id_list))]
 
             # Associate placeholders and replace data with sql
             jobs_targets = []
             for proc in self.JOBS_CYCLE_TARGETS:
-                query_name = proc.split('.')[-1]
-                if query_name == 'cycle_revision':
-                    jobs_targets.append({
-                        "proc": proc,
-                        "placeholders": rev_placeholders,
-                        "replace": rev_where_in_clause
-                    })
-
-                elif query_name == 'cycle_revision_map':
-                    jobs_targets.append({
-                        "proc": proc,
-                        "placeholders": rs_placeholders,
-                        "replace": rs_where_in_clause
-                    })
-
-                elif query_name == 'cycle_result_set':
-                    jobs_targets.append({
-                        "proc": proc,
-                        "placeholders": rs_placeholders,
-                        "replace": rs_where_in_clause
-                    })
-
-                else:
-                    jobs_targets.append({
-                        "proc": proc,
-                        "placeholders": job_guid_dict.keys(),
-                        "replace": job_where_in_clause
-                    })
+                jobs_targets.append({
+                    "proc": proc,
+                    "placeholders": job_id_list,
+                    "replace": job_where_in_clause
+                })
 
             # remove data from specified jobs tables that is older than max_timestamp
             self._execute_table_deletes(jobs_targets, 'jobs', sleep_time)
 
-        return len(result_set_data)
+        return len(jobs_data)
 
     def _get_max_timestamp(self, cycle_interval):
         max_date = datetime.now() - cycle_interval
