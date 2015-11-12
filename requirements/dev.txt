@@ -11,8 +11,8 @@ WebTest==2.0.18
 
 # sha256: uDndLZwRfHAUMMFJlWkYpCOphjtIsJyQ4wpgE-fS9E8
 mock==1.0.1
-# sha256: pd97XgYOqpGdfrd_rqzwrMfhAHS7NMmgrCI44hhRRzs
-responses==0.4.0
+# sha256: poGD2_cAwrmXfOr7fimdDiRQZzJl72Dv1QTWlWA06g0
+responses==0.5.0
 
 # sha256: zpQ42JTxetE1k4irq0EvDbjcNv54LkQlt-wx5eP5kKk
 django-extensions==1.5.7
