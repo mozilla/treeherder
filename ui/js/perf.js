@@ -375,19 +375,17 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                         // Compare the sides.
                                         // Normally tests are "lower is better", can be over-ridden with a series option
                                         cmap.delta = (cmap.newValue - cmap.originalValue);
-                                        var newIsBetter = cmap.delta < 0; // New value is lower than orig value
-                                        if (originalData.lowerIsBetter)
-                                            newIsBetter = !newIsBetter;
+                                        cmap.newIsBetter = (originalData.lowerIsBetter && cmap.delta < 0) ||
+                                            (!originalData.lowerIsBetter && cmap.delta > 0);
 
+                                        // delta percentage (for display)
                                         cmap.deltaPercentage = math.percentOf(cmap.delta, cmap.originalValue);
-
                                         // arbitrary scale from 0-20% multiplied by 5, capped
                                         // at 100 (so 20% regression == 100% bad)
                                         cmap.magnitude = Math.min(Math.abs(cmap.deltaPercentage)*5, 100);
-                                        cmap.newIsBetter = newIsBetter;
 
                                         var abs_t_value = Math.abs(math.t_test(originalData.values, newData.values, STDDEV_DEFAULT_FACTOR));
-                                        cmap.className = getClassName(newIsBetter, cmap.originalValue, cmap.newValue, abs_t_value);
+                                        cmap.className = getClassName(cmap.newIsBetter, cmap.originalValue, cmap.newValue, abs_t_value);
                                         cmap.confidence = abs_t_value;
                                         cmap.confidenceText = abs_t_value < T_VALUE_CARE_MIN ? "low" :
                                             abs_t_value < T_VALUE_CONFIDENT ? "med" :
