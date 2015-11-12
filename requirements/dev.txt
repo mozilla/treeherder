@@ -37,8 +37,8 @@ py==1.4.30
 beautifulsoup4==4.4.0
 # sha256: gmUn3J0zTtTtds2uZy_cu8z2FBhmV9txZ5q1jfhpRYo
 waitress==0.8.9
-# sha256: Evi5g5C-_EczbSwOW62cxIYJ2Ajquz-GddwQJ6Op6ds
-WebOb==1.4.1
+# sha256: nmzRxAyd3blmwpkJa9N2tVH5rJOpnr3VG0d3tNoseg8
+WebOb==1.5.1
 
 # Required by mock
 # sha256: _1rZ4vjZ5dHou_vPR3IqtSfPDVHK7u2dptD0B5k4P94
