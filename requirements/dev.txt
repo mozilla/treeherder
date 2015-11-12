@@ -22,8 +22,8 @@ django-extensions==1.5.7
 # sha256: nJmKXXYGyoNQZc2rwBOubGbrnqdqAKHjvG4M_itPcfQ
 pyinotify==0.9.6
 
-# sha256: j8ToZaKfPG7K5AGn3OGCR_ir0EbSTjkOFq-Zdsyceqg
-flake8==2.4.1
+# sha256: sVjy_R5it9Jdvj4JGfyXeYcZ9ypgcr2y-bDh0C_CsD8
+flake8==2.5.0
 
 # sha256: OtJDrXOLL5pYAFrESxOjwpewIBMn7a7DLCRbW8ZtJ-4
 isort==4.2.2
