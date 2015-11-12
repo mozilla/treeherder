@@ -18,6 +18,9 @@ supervisor*.log
 .tox
 nosetests.xml
 
+# pytest cache
+.cache/
+
 # Translations
 *.mo
 
