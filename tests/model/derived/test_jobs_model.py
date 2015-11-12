@@ -198,7 +198,7 @@ def test_cycle_all_data(jm, refdata, sample_data, initial_data,
     cycle_date_ts = time_now - 7 * 24 * 3600
 
     jm.execute(
-        proc="jobs_test.updates.set_result_sets_push_timestamp",
+        proc="jobs_test.updates.set_jobs_last_modified",
         placeholders=[cycle_date_ts]
     )
 
@@ -233,17 +233,17 @@ def test_cycle_one_job(jm, refdata, sample_data, initial_data,
     cycle_date_ts = int(time_now - 7 * 24 * 3600)
 
     jm.execute(
-        proc="jobs_test.updates.set_result_sets_push_timestamp",
+        proc="jobs_test.updates.set_jobs_last_modified",
         placeholders=[time_now]
     )
 
     jm.execute(
-        proc="jobs_test.updates.set_one_result_set_push_timestamp",
+        proc="jobs_test.updates.set_one_job_last_modified_timestamp",
         placeholders=[cycle_date_ts]
     )
 
     jobs_to_be_deleted = jm.execute(
-        proc="jobs_test.selects.get_result_set_jobs",
+        proc="jobs_test.selects.get_one_job_for_cycling",
         placeholders=[1]
     )
 
@@ -256,7 +256,7 @@ def test_cycle_one_job(jm, refdata, sample_data, initial_data,
     # Confirm that the target result set has no jobs in the
     # jobs table
     jobs_to_be_deleted_after = jm.execute(
-        proc="jobs_test.selects.get_result_set_jobs",
+        proc="jobs_test.selects.get_one_job_for_cycling",
         placeholders=[1]
     )
 
@@ -278,7 +278,7 @@ def test_cycle_all_data_in_chunks(jm, refdata, sample_data, initial_data,
     cycle_date_ts = int(time_now - 7 * 24 * 3600)
 
     jm.execute(
-        proc="jobs_test.updates.set_result_sets_push_timestamp",
+        proc="jobs_test.updates.set_jobs_last_modified",
         placeholders=[cycle_date_ts]
     )
 

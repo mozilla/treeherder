@@ -32,10 +32,10 @@ class Command(BaseCommand):
             '--chunk-size',
             action='store',
             dest='chunk_size',
-            default=10,
+            default=5000,
             type='int',
             help=('Define the size of the chunks '
-                  'the target data will be divided in')),
+                  'Split the job deletes into chunks of this size [default: %default]')),
 
         make_option(
             '--sleep-time',
@@ -60,7 +60,7 @@ class Command(BaseCommand):
                 rs_deleted = jm.cycle_data(cycle_interval,
                                            options['chunk_size'],
                                            options['sleep_time'])
-                self.debug("Deleted {} resultsets from {}".format(rs_deleted, project))
+                self.debug("Deleted {} jobs from {}".format(rs_deleted, project))
 
     def debug(self, msg):
         if self.is_debug:
