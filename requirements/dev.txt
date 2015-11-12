@@ -1,7 +1,7 @@
 # Dependencies needed only for development/testing.
 
-# sha256: gpJO-16ng6ciNGgqDoBJ2E9erryqw8jAiTt-rpfyg4A
-pytest==2.7.2
+# sha256: hpnSrjQvIR0cxn3QURG5GSVgmu99KUgxWE9zf2Wk9B0
+pytest==2.8.2
 
 # sha256: 8UAnAQY5mPanBgl4mq6NwFcD860KNIgvYZllNlTFVUM
 datadiff==1.1.6
