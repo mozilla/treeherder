@@ -89,8 +89,8 @@ Unipath==1.1
 PyYAML==3.11
 
 # Used directly plus required by django-browserid, WebTest & responses
-# sha256: IPl2zc4CpCtpzoDp4DiXpRgUs21EizcohUYIbrxHMUY
-requests==2.7.0
+# sha256: ET-7pVManjSUW302szoIToul0GZLcDyBp8Vy2RkZpbg
+requests==2.9.1
 
 # Required by django.contrib.migrations
 # sha256: ObGWxKBvdtasgvApRXypYfZiqLu7JpTrHf5PK2ii188
