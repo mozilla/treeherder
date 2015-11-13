@@ -190,7 +190,8 @@ treeherder.directive('thResultStatusChicklet', [
     return {
         restrict: "E",
         link: function(scope, element, attrs) {
-            scope.chickletClass = thResultStatusInfo(scope.filterName).chickletClass;
+            scope.chickletClass = thResultStatusInfo(scope.filterName).btnClass +
+                "-filter-chicklet";
         },
         templateUrl: 'partials/main/thResultStatusChicklet.html'
     };

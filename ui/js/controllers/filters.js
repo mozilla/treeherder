@@ -74,7 +74,6 @@ treeherderApp.controller('FilterPanelCtrl', [
          * on the nav bar
          */
         $scope.toggleResultStatusFilterChicklet = function(filter) {
-            console.log("$scope.resultStatusFilters", $scope.resultStatusFilters);
             if ($scope.resultStatusFilters[filter]) {
                 $scope.resultStatusFilters[filter] = false;
                 thJobFilters.removeFilter(thJobFilters.resultStatus, filter);
