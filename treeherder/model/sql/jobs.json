@@ -731,14 +731,17 @@
         },
         "get_resultset_status":{
             "sql":"SELECT
-                        id,
+                        job.id,
                         state,
                         result,
                         SUM(IF(job_coalesced_to_guid is NULL, 0, 1)) as num_coalesced,
                         count(*) as total
                    FROM job
-                   WHERE result_set_id = ?
-                   REP0
+                   LEFT JOIN REP0.failure_classification fc
+                        ON fc.id = job.failure_classification_id
+                   WHERE result_set_id = ? and (
+                    fc.name = 'not classified' or fc.id IS NULL)
+                   REP1
                    group by state, result
                    ",
             "host_type": "read_host"

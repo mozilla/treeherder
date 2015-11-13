@@ -356,7 +356,7 @@ def test_resultset_cancel_all(jm, resultset_with_three_jobs, pulse_action_consum
     user.delete()
 
 
-def test_resultset_status(webapp, eleven_jobs_stored, jm):
+def test_resultset_status(webapp, eleven_jobs_stored, jm, initial_data):
     """
     test retrieving the status of a resultset
     """
@@ -371,3 +371,14 @@ def test_resultset_status(webapp, eleven_jobs_stored, jm):
     assert resp.status_int == 200
     assert isinstance(resp.json, dict)
     assert resp.json == {'success': 1}
+
+    # the first ten resultsets have one job each, so resultset.id == job.id
+    jm.insert_job_note(rs["id"], 2, 'John Doe', 'A random note')
+
+    resp = webapp.get(
+        reverse("resultset-status",
+                kwargs={"project": jm.project, "pk": int(rs["id"])})
+    )
+    assert resp.status_int == 200
+    assert isinstance(resp.json, dict)
+    assert resp.json == {}

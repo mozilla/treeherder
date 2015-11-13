@@ -1904,7 +1904,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
     def get_resultset_status(self, resultset_id, exclusion_profile="default"):
         """Retrieve an aggregated job count for the given resultset.
         If an exclusion profile is provided, the job counted will be filtered accordingly"""
-        replace = []
+        replace = [self.refdata_model.get_db_name()]
         placeholders = [resultset_id]
         if exclusion_profile:
             signature_list = self.get_exclusion_profile_signatures(exclusion_profile)
