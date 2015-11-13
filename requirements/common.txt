@@ -12,8 +12,8 @@ Django==1.8.7
 # sha256: 2_WWGNWp7_Fy0lAh82YUvlrwUB5FJ5dcpQS5WGPxT-0
 celery==3.1.18
 
-# sha256: _qhlOuS4en6wmWWUCfCeaANqe4PwoVoLxq7629mKUdw
-kombu==3.0.26
+# sha256: _ss07fSFIGTzhdv1OWkEeyI1PTYIpXZJfdBfcblD-uY
+kombu==3.0.30
 
 # sha256: QorI8yGcePsEzgWJXV3_m9gTwFqaeSLFPch5zTKhJJM
 simplejson==3.8.1
