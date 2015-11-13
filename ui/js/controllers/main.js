@@ -416,10 +416,6 @@ treeherderApp.controller('MainCtrl', [
             $scope.onscreenOverlayShowing = tf;
         };
 
-        $scope.isFilterDefaults = function() {
-            thJobFilters.isDefaults();
-        };
-
         $scope.isFilterPanelShowing = false;
         $scope.setFilterPanelShowing = function(tf) {
             $scope.isFilterPanelShowing = tf;

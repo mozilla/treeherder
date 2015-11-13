@@ -162,19 +162,8 @@ th-watched-repo {
    font-size: 14px;
 }
 
-.btn-filter-chicklets {
-    background-color: white;
-    border-color: #a9a9a9;
-    color: white;
-}
-
 .btn-nav-filter {
     padding: 7px 2px;
-}
-
-.chicklet-off {
-    text-decoration: line-through;
-    opacity: 0.5;
 }
 
 .btn.btn-view-nav.btn-orange-filter-chicklet,
