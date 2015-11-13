@@ -26,8 +26,8 @@ newrelic==2.58.1.44
 MySQL-python==1.2.5
 
 # Required by celery
-# sha256: aI-UZrHDrhQQY4Hm29MoEV51xSYMVC60jmxGkx9pKMw
-billiard==3.3.0.20
+# sha256: 0hYYE4cxf4aWxtHICiSRJY0DdJPB8MbrWJkqVJSB534
+billiard==3.3.0.22
 # sha256: Pt5HDT0XujwHY436DRBFK8G25a0yYSemW6d-aq6xG-w
 pytz==2015.7
 
