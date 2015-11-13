@@ -298,7 +298,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'hawkrest.HawkAuthentication',
         'treeherder.webapp.api.auth.TwoLeggedOauthAuthentication',
-    )
+    ),
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }
 
 SITE_URL = env("SITE_URL", default="http://local.treeherder.mozilla.org")
