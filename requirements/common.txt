@@ -9,8 +9,8 @@ whitenoise==2.0.6
 # sha256: j7aT7P5M1v-a4xNv8KHqpKyuAa8ie7geZG3CutMpXM8
 Django==1.8.7
 
-# sha256: 2_WWGNWp7_Fy0lAh82YUvlrwUB5FJ5dcpQS5WGPxT-0
-celery==3.1.18
+# sha256: Q0tOYjCEKLDoP7zRzruIU76yMCN7GyNIQGP88f9hC24
+celery==3.1.19
 
 # sha256: _ss07fSFIGTzhdv1OWkEeyI1PTYIpXZJfdBfcblD-uY
 kombu==3.0.30
