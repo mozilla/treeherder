@@ -344,10 +344,6 @@ treeherderApp.controller('MainCtrl', [
             $location.search("group_state", newGroupState);
         };
 
-        $scope.toggleCompactMode = function() {
-            $rootScope.isCompactMode = !$rootScope.isCompactMode;
-        };
-
         var getNewReloadTriggerParams = function() {
             return _.pick(
                 $location.search(),

@@ -1,10 +1,4 @@
-<span ng-if="!isCompactMode"
-      class="btn btn-view-nav btn-sm btn-nav-filter {{chickletClass}}"
-      ng-class="{'chicklet-off': (!resultStatusFilters[filterName])}"
-      ng-click="toggleResultStatusFilterChicklet(filterName)">{{filterName}}
-</span>
-<span ng-if="isCompactMode"
-      class="btn btn-view-nav btn-sm btn-nav-filter {{chickletClass}} fa"
+<span class="btn btn-view-nav btn-sm btn-nav-filter {{chickletClass}} fa"
       ng-class="{'fa-dot-circle-o': (resultStatusFilters[filterName]), 'fa-circle-thin': (!resultStatusFilters[filterName])}"
       ng-click="toggleResultStatusFilterChicklet(filterName)"
       title="{{filterName}}">
