@@ -161,7 +161,7 @@ treeherder.value("phTimeRanges", [
       { "value":7776000, "text": "Last 90 days" },
       { "value":31536000, "text": "Last year" } ]);
 
-treeherder.value("phDefaultTimeRangeValue", 604800);
+treeherder.value("phDefaultTimeRangeValue", 1209600);
 
 // we are excluding macosx 10.10 by default for now, see: https://bugzilla.mozilla.org/show_bug.cgi?id=1201615
 treeherder.value("phUnreliablePlatforms", [
