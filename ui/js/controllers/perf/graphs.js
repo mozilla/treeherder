@@ -537,6 +537,12 @@ perf.controller('GraphsCtrl', [
                                      'signatures/?signature=' +
                                      partialSeries.signature).then(function(response) {
                                          var data = response.data;
+
+                                         if (!data[partialSeries.signature]) {
+                                             return $q.reject("Signature `" + partialSeries.signature +
+                                                     "` not found for " + partialSeries.project);
+                                         }
+
                                          if (!propsHash[partialSeries.project]) {
                                              propsHash[partialSeries.project] = {};
                                          }
@@ -564,7 +570,16 @@ perf.controller('GraphsCtrl', [
                             showTooltip($scope.selectedDataPoint);
                         }
                     });
-                });
+                },
+                         function(error) {
+                             if (error.statusText) {
+                                 error = "HTTP Error: " + error.statusText;
+                             }
+                             // we could probably do better than print this
+                             // rather useless error, but at least this gives
+                             // a hint on what the problem is
+                             alert("Error loading performance data\n\n" + error);
+                         });
         };
 
         $scope.removeSeries = function(projectName, signature) {
