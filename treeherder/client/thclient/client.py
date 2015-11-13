@@ -644,11 +644,7 @@ class TreeherderClient(object):
                            'as `client_id` and `secret` instead (see bug 1212936).')
             self.auth = auth
         elif client_id and secret:
-            self.auth = HawkAuth(credentials={
-                'id': client_id,
-                'key': secret,
-                'algorithm': 'sha256'
-            })
+            self.auth = HawkAuth(id=client_id, key=secret)
         else:
             self.auth = None
 
