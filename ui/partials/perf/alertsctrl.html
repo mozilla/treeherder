@@ -1,0 +1,99 @@
+<div class="container-fluid">
+  <div class="alert alert-danger" role="alert">
+    Perfherder alerts are experimental and not to be trusted (yet)
+  </div>
+  <hr/>
+  <div class="panel panel-default" ng-repeat="alertSummary in alertSummaries">
+    <div class="panel-heading">
+      <a href="#/alerts?id={{alertSummary.id}}" class="alert-title">{{alertSummary.title}} <span class="fa fa-external-link icon-superscript"/></a>
+      <ul class="list-unstyled alert-metadata">
+        <li>{{alertSummary.platforms.join(' / ')}}</li>
+        <li>{{alertSummary.resultSetMetadata.dateStr}}</li>
+        <li ng-if="alertSummary.pushURL">
+          <a href="{{alertSummary.pushURL}}">{{alertSummary.resultSetMetadata.revision}}…{{alertSummary.prevResultSetMetadata.revision}}</a>
+        </li>
+        <li ng-if="!alertSummary.pushURL">
+          <!-- This shouldn't happen in production, only in development -->
+          <span class="text-danger">Unknown revision(s)</span>
+        </li>
+      </ul>
+    </div>
+    <div class="panel-body">
+      <h4>Alerts</h4>
+      <table class="table table-striped compare-table">
+        <tr>
+          <!-- Manually specify table widths because it's just easier this way -->
+          <th class="test-title">
+            <span style=" word-wrap: break-word;">
+              Test
+            </span>
+          </th>
+          <th style="width: 140px;">Previous</th>
+          <th style="width: 30px;"><!-- less than / greater than --></th>
+          <th style="width: 140px;">New</th>
+          <th style="width: 80px;">Delta</th>
+          <th style="width: 120px"><!-- Graphical difference --></th>
+          <th style="width: 100px;">Confidence</th>
+        </tr>
+        <tr ng-repeat="alert in alertSummary.alerts">
+          <td class="test-title">
+            {{alert.title}}&nbsp;&nbsp;
+            <span class="result-links">
+              <a href="#/graphs?timerange={{alertSummary.resultSetMetadata.timeRange}}&series=[{{alertSummary.repository}},{{alert.signature_hash}},1]&highlightedRevisions={{alertSummary.resultSetMetadata.revision}}">graph</a>
+            </span>
+          </td>
+          <td>{{alert.prev_value}}</td>
+          <td>
+            <span ng-class="{'compare-improvement': !alert.is_regression, 'compare-regression': alert.is_regression}">
+              <span ng-if="alert.prev_value < alert.new_value">
+                &lt;
+              </span>
+              <span ng-if="alert.prev_value > alert.new_value">
+                &gt;
+              </span>
+            </span>
+          </td>
+          <td>{{alert.new_value}}</td>
+          <td><span class="detail-hint" tooltip="Absolute difference: {{alert.amount_abs}}">{{alert.amount_pct}}%</span></td>
+          <td>
+            <div ng-if="alert.is_regression" style="margin: auto; width: 80%;"
+                 tooltip="Relative magnitude of change (scale from 0 - 20%+)">
+              <div class="bar bar-scale"
+                   style="width: {{100 - getCappedMagnitude(alert.amount_pct)}}%; height: 1em; float: left;">
+              </div>
+              <div class="bar bar-regression"
+                   style="width: {{getCappedMagnitude(alert.amount_pct)}}%; float: left;">
+              </div>
+            </div>
+            <div ng-if="!alert.is_regression" style="margin: auto; width: 80%;"
+                 tooltip="Relative magnitude of change (scale from 0 - 20%+)">
+              <div class="bar bar-improvement"
+                   style="width: {{getCappedMagnitude(alert.amount_pct)}}%; float: left;">
+              </div>
+              <div class="bar bar-scale"
+                   style="width: {{100 - getCappedMagnitude(alert.amount_pct)}}%; float: left; ">
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <span class="detail-hint"
+                  tooltip="Confidence value as calculated by Perfherder alerts. Note that this is NOT the same as the calculation used in the compare view"
+                  tooltip-placement="left">
+              {{alert.t_value}}
+            </span>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="well" ng-show="alertSummaries.length > 1">
+  get next:
+  <div class="btn-group">
+    <div class="btn btn-default btn-sm"
+         ng-click="getMoreAlertSummaries(count)"
+         ng-repeat="count in [10, 20, 50]">{{::count}}
+    </div>
+  </div>
+</div>

@@ -13,7 +13,8 @@ from treeherder.perfalert import Analyzer
 class Command(BaseCommand):
 
     help = """
-    Test running performance alert subsystem on a series
+    Test running performance alert subsystem on a series, printing results
+    to standard out
     """
 
     option_list = BaseCommand.option_list + (

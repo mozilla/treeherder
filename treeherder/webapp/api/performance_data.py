@@ -8,14 +8,14 @@ from rest_framework import (exceptions,
 from rest_framework.response import Response
 
 from treeherder.model import models
-from treeherder.perf.models import (PerformanceDatum,
+from treeherder.perf.models import (PerformanceAlertSummary,
+                                    PerformanceDatum,
                                     PerformanceSignature)
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
 
     def list(self, request, project):
-
         repository = models.Repository.objects.get(name=project)
 
         signature_data = PerformanceSignature.objects.filter(
@@ -126,5 +126,59 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
                 'push_timestamp': int(time.mktime(push_timestamp.timetuple())),
                 'value': round(value, 2)  # round to 2 decimal places
             })
+
+        return Response(ret)
+
+
+class PerformanceAlertSummaryViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for the performance alert model"""
+
+    def list(self, request):
+        ids = request.query_params.getlist("id")
+        if ids:
+            summaries = PerformanceAlertSummary.objects.filter(
+                id__in=ids)
+        else:
+            offset = int(request.query_params.get("offset", 0))
+            count = min(int(request.query_params.get("count", 10)), 100)
+            print (offset, count)
+            summaries = PerformanceAlertSummary.objects.order_by('-last_updated')[offset:offset+count]
+
+        ret = []
+        for summary in summaries:
+            summarydict = {
+                'id': summary.id,
+                'prev_result_set_id': summary.prev_result_set_id,
+                'result_set_id': summary.result_set_id,
+                'repository': summary.repository.name,
+                'alerts': []
+            }
+            for alert in summary.generated_alerts.all():
+                alertdict = {
+                    'suite': alert.series_signature.suite,
+                    'test': alert.series_signature.test,
+                    'option_collection_hash': alert.series_signature.option_collection.option_collection_hash,
+                    'extra_properties': alert.series_signature.extra_properties,
+                    'machine_platform': alert.series_signature.platform.platform,
+                    'signature_hash': alert.series_signature.signature_hash,
+                    'prev_result_set_id': alert.prev_result_set_id,
+                    'result_set_id': alert.result_set_id,
+                    'prev_value': round(alert.prev_value, 2),
+                    'new_value': round(alert.new_value, 2),
+                    'amount_pct': round(alert.amount_pct, 2),
+                    'amount_abs': round(alert.amount_abs, 2),
+                    'is_regression': alert.is_regression,
+                    't_value': round(alert.t_value, 2)
+                }
+                if alert.series_signature.test:
+                    alertdict.update({'test': alert.series_signature.test})
+                test_options = alert.series_signature.extra_properties.get(
+                    'test_options')
+                if test_options:
+                    alertdict['test_options'] = test_options
+
+                summarydict['alerts'].append(alertdict)
+
+            ret.append(summarydict)
 
         return Response(ret)

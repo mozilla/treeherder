@@ -86,3 +86,64 @@ class PerformanceDatum(models.Model):
 
     def __str__(self):
         return "{} {}".format(self.value, self.push_timestamp)
+
+
+@python_2_unicode_compatible
+class PerformanceAlert(models.Model):
+
+    id = models.AutoField(primary_key=True)
+    repository = models.ForeignKey(Repository)
+    prev_result_set_id = models.PositiveIntegerField()
+    result_set_id = models.PositiveIntegerField()
+    series_signature = models.ForeignKey(PerformanceSignature)
+    is_regression = models.BooleanField()
+    amount_pct = models.FloatField()
+    amount_abs = models.FloatField()
+    prev_value = models.FloatField()
+    new_value = models.FloatField()
+    t_value = models.FloatField()
+
+    class Meta:
+        db_table = "performance_alert"
+        unique_together = ('repository', 'prev_result_set_id', 'result_set_id', 'series_signature')
+
+    def __str__(self):
+        return "{} {} {} {}%".format(self.repository, self.result_set_id,
+                                     self.series_signature, self.amount_pct)
+
+
+class PerformanceAlertSummary(models.Model):
+
+    NEW = 0
+    WONTFIX = 1
+    BACKED_OUT = 2
+    INVALID = 3
+    BUGFILED = 4
+    DUPLICATE = 5
+
+    STATUSES = ((NEW, 'New'),
+                (WONTFIX, 'Won\'t fix'),
+                (BACKED_OUT, 'Backed out'),
+                (INVALID, 'Invalid'),
+                (BUGFILED, 'Bug filed'),
+                (DUPLICATE, 'Duplicate'))
+
+    id = models.AutoField(primary_key=True)
+    status = models.IntegerField(choices=STATUSES, default=NEW)
+    repository = models.ForeignKey(Repository)
+    prev_result_set_id = models.PositiveIntegerField()
+    result_set_id = models.PositiveIntegerField()
+    bugzilla_id = models.PositiveIntegerField(null=True)
+
+    last_updated = models.DateTimeField(db_index=True)
+
+    # alerts generated directly from the same result set as the summary
+    generated_alerts = models.ManyToManyField(PerformanceAlert,
+                                              related_name='generated_alerts')
+
+    class Meta:
+        db_table = "performance_alert_summary"
+        unique_together = ('repository', 'prev_result_set_id', 'result_set_id')
+
+    def __str__(self):
+        return "{} {}".format(self.repository, self.result_set_id)

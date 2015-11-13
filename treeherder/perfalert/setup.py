@@ -14,6 +14,10 @@ setup(name='perfalert',
           'Programming Language :: Python',
           'Topic :: Software Development :: Libraries :: Python Modules',
       ],
+      entry_points="""
+          [console_scripts]
+          test_perfherder = test_perfherder.main:main
+        """,
       keywords='',
       author='Mozilla Automation and Testing Team & others',
       author_email='tools@lists.mozilla.org',
