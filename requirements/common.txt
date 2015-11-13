@@ -80,8 +80,8 @@ futures==3.0.3
 https://github.com/jeads/datasource/archive/v0.10.0.tar.gz#egg=datasource==0.10.0
 
 # Required by jsonschema
-# sha256: ajt0IEMrCBfvGSrvNBzXZuGZgBqQyn_jGfnV_KQO3aI
-functools32==3.2.3.post1
+# sha256: 9iU9--BTitLjh72P39kpPJJdY1U_WBPE5Yd0VBZQHm0
+functools32==3.2.3-2
 
 # Required by django-rest-swagger
 # sha256: 5iV-UI2Ku_tt3Y7DV-M1ifH0ixWZEn8jsBcSTZCw__c
