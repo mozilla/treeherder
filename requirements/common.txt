@@ -15,8 +15,8 @@ celery==3.1.18
 # sha256: _qhlOuS4en6wmWWUCfCeaANqe4PwoVoLxq7629mKUdw
 kombu==3.0.26
 
-# sha256: Y9f3sUog8p90Mlpp5ttFkl6vbjoAPqtGwCNP0FCoyT8
-simplejson==3.7.3
+# sha256: QorI8yGcePsEzgWJXV3_m9gTwFqaeSLFPch5zTKhJJM
+simplejson==3.8.1
 
 # sha256: KXli8j9mkLQbdp9g67m0Oy3k8jGLnFCLkqAvCrPth4s
 newrelic==2.58.1.44
