@@ -107,8 +107,8 @@ sqlparse==0.1.18
 django-environ==0.4.0
 
 # required by mohawk & django-environ
-# sha256: QYqTw5en7asj5ViNvAZ6x0pyPts9VBvUk295R252Rdo
-six==1.9.0
+# sha256: D_eMQD2bzPWkJabTGhKqa0fxwhyk3CVzp-LzKpczXrE
+six==1.10.0
 
 # Required by hawkrest and requests-hawk
 # sha256: SNZPN8Hy9utro7Xy2LDByQ4offLtH9-Ah0_tDDYJ61I
