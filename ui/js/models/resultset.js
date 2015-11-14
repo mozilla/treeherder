@@ -51,7 +51,7 @@ treeherder.factory(
                  );
              },
 
-             getResultSets: function(repoName, rsOffsetTimestamp, count, resultsetlist, full, keep_filters) {
+             getResultSets: function(repoName, rsOffsetTimestamp, count, full, keep_filters) {
                  rsOffsetTimestamp = typeof rsOffsetTimestamp === 'undefined'?  0: rsOffsetTimestamp;
                  full = _.isUndefined(full) ? true: full;
                  keep_filters = _.isUndefined(keep_filters) ? true : keep_filters;
@@ -100,17 +100,21 @@ treeherder.factory(
                      _.extend(params, locationParams);
                  }
 
-                 if (resultsetlist) {
-                     _.extend(params, {
-                         offset: 0,
-                         count: resultsetlist.length,
-                         id__in: resultsetlist.join()
-                     });
-                 }
                  return $http.get(
                      thUrl.getProjectUrl("/resultset/", repoName),
                      {params: params}
                  );
+             },
+             getResultSetList: function(repoName, resultSetList, full) {
+                 return $http.get(
+                     thUrl.getProjectUrl("/resultset/", repoName), {
+                         params: {
+                             full: _.isUndefined(full) ? true: full,
+                             offset: 0,
+                             count: resultSetList.length,
+                             id__in: resultSetList.join()
+                         }
+                     });
              },
              getResultSet: function(repoName, pk) {
                  return $http.get(

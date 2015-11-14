@@ -813,7 +813,6 @@ treeherder.factory('ThResultSetStore', [
             var loadResultsets = ThResultSetModel.getResultSets(repoName,
                                                                 repositories[repoName].rsMapOldestTimestamp,
                                                                 count,
-                                                                undefined,
                                                                 true,
                                                                 keepFilters).
                 then(function(data) {
