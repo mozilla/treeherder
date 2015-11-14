@@ -48,6 +48,10 @@ STATIC_URL = "/static/"
 MEDIA_ROOT = path("media")
 MEDIA_URL = "/media/"
 
+# Default minimum regression threshold for perfherder is 1% (otherwise
+# e.g. the build size tests will alert on every commit)
+PERFHERDER_REGRESSION_THRESHOLD = 2
+
 # Create hashed+gzipped versions of assets during collectstatic,
 # which will then be served by WhiteNoise with a suitable max-age.
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'

@@ -5,7 +5,12 @@ perf.config(function($compileProvider, $stateProvider, $urlRouterProvider) {
     // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
     $compileProvider.debugInfoEnabled(false);
 
-    $stateProvider.state('graphs', {
+    $stateProvider.state('alerts', {
+        title: 'Perfherder Alerts',
+        templateUrl: 'partials/perf/alertsctrl.html',
+        url: '/alerts?id',
+        controller: 'AlertsCtrl'
+    }).state('graphs', {
         title: 'Perfherder Graphs',
         templateUrl: 'partials/perf/graphsctrl.html',
         url: '/graphs?timerange&series&highlightedRevisions&zoom&selected',
