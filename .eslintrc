@@ -9,7 +9,6 @@
         // Remove a line to enable the rule.
         "comma-dangle": 0,
         "no-console": 0,
-        "no-extra-semi": 0,
         "no-redeclare": 0,
         "no-undef": 0,
         "no-unused-vars": 0,

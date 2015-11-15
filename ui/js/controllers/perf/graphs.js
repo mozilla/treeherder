@@ -580,7 +580,7 @@ perf.controller('GraphsCtrl', [
                              // a hint on what the problem is
                              alert("Error loading performance data\n\n" + error);
                          });
-        };
+        }
 
         $scope.removeSeries = function(projectName, signature) {
             var newSeriesList = [];

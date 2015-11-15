@@ -16,7 +16,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thSe
         return signatureProps.suite + " " + testName;
     };
 
-    function _getSeriesOptions(signatureProps, optionCollectionMap) {
+    var _getSeriesOptions = function(signatureProps, optionCollectionMap) {
         var options = [ optionCollectionMap[signatureProps.option_collection_hash] ];
         if (signatureProps.test_options) {
             options = options.concat(signatureProps.test_options);

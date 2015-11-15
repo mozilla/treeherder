@@ -106,7 +106,7 @@ treeherder.factory('ThRepositoryModel', [
                             } else {
                                 this.pushlogURL = this.url + "/pushloghtml";
                             }
-                        };
+                        }
                         Repo.prototype = {
                             getRevisionHref: function(revision) {
                                 if (this.dvcs_type == 'git') {

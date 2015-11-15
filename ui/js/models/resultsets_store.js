@@ -284,7 +284,7 @@ treeherder.factory('ThResultSetStore', [
 
                 if (jobList.length === 0) {
                     thNotify.send("No new jobs available");
-                };
+                }
 
                 mapResultSetJobs(repoName, jobList);
             });
