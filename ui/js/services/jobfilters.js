@@ -172,8 +172,8 @@ treeherder.factory('thJobFilters', [
             var filters = _.clone($location.search()[_withPrefix(field)]);
             if (filters) {
                 return _toArray(filters);
-            } else if (DEFAULTS.hasOwnProperty(field)) {
-                return DEFAULTS[field].values.slice();
+            } else if (DEFAULTS.hasOwnProperty(_withoutPrefix(field))) {
+                return DEFAULTS[_withoutPrefix(field)].values.slice();
             }
             return [];
         };
@@ -330,12 +330,15 @@ treeherder.factory('thJobFilters', [
         };
 
         var toggleInProgress = function() {
-            var rsValues = _toArray($location.search()[QS_RESULT_STATUS]);
-            var pendRun = ['pending', 'running'];
-            if (_.difference(pendRun, rsValues).length === 0) {
-                rsValues = _.without(rsValues, 'pending', 'running');
+            toggleResultStatuses(['pending', 'running']);
+        };
+
+        var toggleResultStatuses = function(resultStatuses) {
+            var rsValues = _getFiltersOrDefaults(RESULT_STATUS);
+            if (_.difference(resultStatuses, rsValues).length === 0) {
+                rsValues = _.difference(rsValues, resultStatuses);
             } else {
-                rsValues = _.uniq(_.flatten(rsValues, pendRun));
+                rsValues = _.uniq(rsValues.concat(resultStatuses));
             }
             $location.search(QS_RESULT_STATUS, rsValues);
         };
@@ -555,6 +558,7 @@ treeherder.factory('thJobFilters', [
             removeAllFieldFilters: removeAllFieldFilters,
             resetNonFieldFilters: resetNonFieldFilters,
             toggleFilters: toggleFilters,
+            toggleResultStatuses: toggleResultStatuses,
             toggleInProgress: toggleInProgress,
             toggleUnclassifiedFailures: toggleUnclassifiedFailures,
             toggleTier1Only: toggleTier1Only,
