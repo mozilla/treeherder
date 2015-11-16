@@ -63,77 +63,66 @@ treeherder.provider('thResultStatusInfo', function() {
         return function(resultState, failure_classification_id) {
             // default if there is no match, used for pending
             var resultStatusInfo = {
-                severity: 100,
                 btnClass: "btn-default"
             };
 
             switch (resultState) {
                 case "busted":
                     resultStatusInfo = {
-                        severity: 1,
                         btnClass: "btn-red",
                         countText: "busted"
                     };
                     break;
                 case "exception":
                     resultStatusInfo = {
-                        severity: 2,
                         btnClass: "btn-purple",
                         countText: "exception"
                     };
                     break;
                 case "testfailed":
                     resultStatusInfo = {
-                        severity: 3,
                         btnClass: "btn-orange",
                         countText: "failed"
                     };
                     break;
                 case "unknown":
                     resultStatusInfo = {
-                        severity: 4,
                         btnClass: "btn-yellow",
                         countText: "unknown"
                     };
                     break;
                 case "usercancel":
                     resultStatusInfo = {
-                        severity: 5,
                         btnClass: "btn-pink",
                         countText: "cancel"
                     };
                     break;
                 case "retry":
                     resultStatusInfo = {
-                        severity: 6,
                         btnClass: "btn-dkblue",
                         countText: "retry"
                     };
                     break;
                 case "success":
                     resultStatusInfo = {
-                        severity: 7,
                         btnClass: "btn-green",
                         countText: "success"
                     };
                     break;
                 case "running":
                     resultStatusInfo = {
-                        severity: 8,
                         btnClass: "btn-dkgray",
                         countText: "running"
                     };
                     break;
                 case "pending":
                     resultStatusInfo = {
-                        severity: 100,
                         btnClass: "btn-ltgray",
                         countText: "pending"
                     };
                     break;
                 case "coalesced":
                     resultStatusInfo = {
-                        severity: 101,
                         btnClass: "btn-ltblue",
                         countText: "coalesced"
                     };
