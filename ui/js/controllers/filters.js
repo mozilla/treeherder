@@ -101,7 +101,8 @@ treeherderApp.controller('FilterPanelCtrl', [
         // value.  For example, failure_classification_id is an int, but we
         // want to show the text.
         $scope.getFilterValue = function(field, value) {
-            if ($scope.fieldChoices[field].matchType === 'choice') {
+            if ($scope.fieldChoices[field].matchType === 'choice' &&
+                $scope.fieldChoices[field].choices[value]) {
                 return $scope.fieldChoices[field].choices[value].name;
             }
             return value;
