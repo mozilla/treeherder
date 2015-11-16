@@ -1,6 +1,0 @@
-build
-deployment
-docs
-htmlcov
-puppet
-treeherder/etl/data/credentials.json
