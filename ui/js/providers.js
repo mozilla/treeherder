@@ -68,6 +68,7 @@ treeherder.provider('thResultStatusInfo', function() {
 
             switch (resultState) {
                 case "busted":
+                case "failures":
                     resultStatusInfo = {
                         btnClass: "btn-red",
                         countText: "busted"
@@ -110,6 +111,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     };
                     break;
                 case "running":
+                case "in progress":
                     resultStatusInfo = {
                         btnClass: "btn-dkgray",
                         countText: "running"

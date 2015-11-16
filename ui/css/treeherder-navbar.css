@@ -162,6 +162,60 @@ th-watched-repo {
    font-size: 14px;
 }
 
+.btn-nav-filter {
+    padding: 7px 2px;
+}
+
+.btn.btn-view-nav.btn-orange-filter-chicklet,
+.btn.btn-view-nav.btn-orange-filter-chicklet:hover {
+    color: #dd6602;
+}
+
+.btn.btn-view-nav.btn-red-filter-chicklet,
+.btn.btn-view-nav.btn-red-filter-chicklet:hover {
+    color: #c03a44;
+}
+
+.btn.btn-view-nav.btn-purple-filter-chicklet,
+.btn.btn-view-nav.btn-purple-filter-chicklet:hover {
+    color: #77438d;
+}
+
+.btn.btn-view-nav.btn-green-filter-chicklet,
+.btn.btn-view-nav.btn-green:hover {
+    color: rgba(2, 130, 51, 0.75);
+}
+
+.btn.btn-view-nav.btn-dkblue-filter-chicklet,
+.btn.btn-view-nav.btn-dkblue-filter-chicklet:hover {
+    color: #3656ff;
+}
+
+.btn.btn-view-nav.btn-pink-filter-chicklet,
+.btn.btn-view-nav.btn-pink-filter-chicklet:hover {
+    color: rgba(250, 115, 172, 0.82);
+}
+
+.btn.btn-view-nav.btn-ltblue-filter-chicklet,
+.btn.btn-view-nav.btn-ltblue-filter-chicklet:hover {
+    color: #81b8ed;
+}
+
+.btn.btn-view-nav.btn-ltgray-filter-chicklet,
+.btn.btn-view-nav.btn-ltgray-filter-chicklet:hover {
+    color: #e0e0e0;
+}
+
+.btn.btn-view-nav.btn-dkgray-filter-chicklet,
+.btn.btn-view-nav.btn-dkgray-filter-chicklet:hover {
+    color: #7c7a7d;
+}
+
+.btn.btn-view-nav.btn-black-filter-chicklet,
+.btn.btn-view-nav.btn-black-filter-chicklet:hover {
+    color: black;
+}
+
 /*
  * Quick Filter
  */

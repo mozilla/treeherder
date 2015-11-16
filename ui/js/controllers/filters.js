@@ -24,14 +24,19 @@ treeherderApp.controller('FilterPanelCtrl', [
                 name: "non-failures",
                 resultStatuses: ["success", "retry", "usercancel", "coalesced"]
             },
-            inProgress: {
-                value: "inProgress",
+            "in progress": {
+                value: "in progress",
                 name: "in progress",
                 resultStatuses: ["pending", "running"]
             }
         };
 
         $scope.resultStatusFilters = {};
+        $scope.filterChicklets = _.flatten([
+            "failures",
+            $scope.filterGroups.nonfailures.resultStatuses,
+            "in progress"
+        ]);
 
         // field filters
         $scope.newFieldFilter = null;
@@ -66,6 +71,33 @@ treeherderApp.controller('FilterPanelCtrl', [
             } else {
                 thJobFilters.addFilter(thJobFilters.resultStatus, filter);
             }
+        };
+
+        $scope.isFilterOn = function(filter) {
+            if (_.contains(_.keys($scope.filterGroups), filter)) {
+                // this is a filter grouping, so toggle all on/off
+                return _.some(
+                    _.at($scope.resultStatusFilters,
+                    $scope.filterGroups[filter].resultStatuses)
+                );
+            } else {
+                return $scope.resultStatusFilters[filter];
+            }
+        };
+
+        /**
+         * Handle toggling one of the individual result status filter chicklets
+         * on the nav bar
+         */
+        $scope.toggleResultStatusFilterChicklet = function(filter) {
+            var filterValues;
+            if (_.contains(_.keys($scope.filterGroups), filter)) {
+                // this is a filter grouping, so toggle all on/off
+                filterValues = $scope.filterGroups[filter].resultStatuses;
+            } else {
+                filterValues = [filter];
+            }
+            thJobFilters.toggleResultStatuses(filterValues);
         };
 
         /**
