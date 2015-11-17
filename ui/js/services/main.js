@@ -19,6 +19,15 @@ treeherder.factory('thUrl', [
                 var uri = "/jobs/" + jobId + url;
                 return thUrl.getProjectUrl(uri, repoName);
             },
+            getPushUrl: function(repo, fromChange, toChange) {
+                return "index.html#/jobs?" + _.reduce({
+                    repo: repo, fromchange: fromChange, tochange: toChange
+                }, function(result, v, k) {
+                    if (result.length)
+                        result += '&';
+                    return result + k + '=' + v;
+                }, "");
+            },
             getLogViewerUrl: function(job_id) {
                 return "logviewer.html#?job_id=" + job_id + "&repo=" + $rootScope.repoName;
             },

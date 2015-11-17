@@ -86,3 +86,66 @@ class PerformanceDatum(models.Model):
 
     def __str__(self):
         return "{} {}".format(self.value, self.push_timestamp)
+
+
+@python_2_unicode_compatible
+class PerformanceAlertSummary(models.Model):
+    '''
+    A summarization of performance alerts
+
+    A summary of "alerts" that the performance numbers for a specific
+    repository have changed at a particular time.
+
+    See also the :ref:`PerformanceAlert` class below.
+    '''
+    id = models.AutoField(primary_key=True)
+    repository = models.ForeignKey(Repository)
+    prev_result_set_id = models.PositiveIntegerField()
+    result_set_id = models.PositiveIntegerField()
+
+    last_updated = models.DateTimeField(db_index=True)
+
+    class Meta:
+        db_table = "performance_alert_summary"
+        unique_together = ('repository', 'prev_result_set_id', 'result_set_id')
+
+    def __str__(self):
+        return "{} {}".format(self.repository, self.result_set_id)
+
+
+@python_2_unicode_compatible
+class PerformanceAlert(models.Model):
+    '''
+    A single performance alert
+
+    An individual "alert" that the numbers in a specific performance
+    series have consistently changed level at a specific time.
+
+    An alert is always a member of an alert summary, which groups all
+    the alerts associated with a particular result set and repository
+    together.
+    '''
+    id = models.AutoField(primary_key=True)
+    summary = models.ForeignKey(PerformanceAlertSummary,
+                                related_name='alerts')
+    series_signature = models.ForeignKey(PerformanceSignature)
+    is_regression = models.BooleanField()
+    amount_pct = models.FloatField(
+        help_text="Amount in percentage that series has changed")
+    amount_abs = models.FloatField(
+        help_text="Absolute amount that series has changed")
+    prev_value = models.FloatField(
+        help_text="Previous value of series before change")
+    new_value = models.FloatField(
+        help_text="New value of series after change")
+    t_value = models.FloatField(
+        help_text="t value out of analysis indicating confidence "
+        "that change is 'real'")
+
+    class Meta:
+        db_table = "performance_alert"
+        unique_together = ('summary', 'series_signature')
+
+    def __str__(self):
+        return "{} {} {}%".format(self.alert_summary, self.series_signature,
+                                  self.amount_pct)
