@@ -4,27 +4,58 @@ var perf = angular.module("perf", ['ui.router', 'ui.bootstrap', 'treeherder']);
 
 treeherder.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceDomain) {
 
-    var _getSeriesSummary = function(projectName, signature, signatureProps,
-                                     optionCollectionMap) {
-        var platform = signatureProps.machine_platform;
-        var testName = signatureProps.test;
-        var subtestSignatures;
-        if (testName === undefined) {
-            testName = "summary";
-            subtestSignatures = signatureProps.subtest_signatures;
+    var _getTestName = function(signatureProps, displayOptions) {
+        if (displayOptions && displayOptions.abbreviate) {
+            // exclude "summary" for abbreviated output
+            if (signatureProps.test)
+                return signatureProps.suite + " " + signatureProps.test;
+            return signatureProps.suite;
         }
-        var name = signatureProps.suite + " " + testName;
+
+        var testName = signatureProps.test ? signatureProps.test : "summary";
+        return signatureProps.suite + " " + testName;
+    };
+
+    function _getSeriesOptions(signatureProps, optionCollectionMap) {
+        var options = [ optionCollectionMap[signatureProps.option_collection_hash] ];
+        if (signatureProps.test_options) {
+            options = options.concat(signatureProps.test_options);
+        }
+        return options;
+    };
+
+    var _getSeriesName = function(signatureProps, optionCollectionMap,
+                                  displayOptions) {
+        var platform = signatureProps.machine_platform;
+        var name = _getTestName(signatureProps);
+
+        if (displayOptions && displayOptions.includePlatformInName) {
+            name = name + " " + platform;
+        }
         var options = [ optionCollectionMap[signatureProps.option_collection_hash] ];
         if (signatureProps.test_options) {
             options = options.concat(signatureProps.test_options);
         }
         name = name + " " + options.join(" ");
+        return name;
+    };
 
-        return { name: name, projectName: projectName, signature: signature,
-                 platform: platform,
-                 lowerIsBetter: (signatureProps.lower_is_better == undefined ||
+    var _getSeriesSummary = function(projectName, signature, signatureProps,
+                                     optionCollectionMap) {
+        var platform = signatureProps.machine_platform;
+        var testName = signatureProps.test;
+        var subtestSignatures = signatureProps.subtest_signatures;
+        var options = [ optionCollectionMap[signatureProps.option_collection_hash] ];
+        if (signatureProps.test_options) {
+            options = options.concat(signatureProps.test_options);
+        }
+
+        return { name: _getSeriesName(signatureProps, optionCollectionMap),
+                 projectName: projectName, signature: signature,
+                 platform: platform, options: options,
+                 lowerIsBetter: (signatureProps.lower_is_better === undefined ||
                                  signatureProps.lower_is_better),
-                 options: options, subtestSignatures: subtestSignatures };
+                 subtestSignatures: subtestSignatures };
     };
 
     var _getAllSeries = function(projectName, timeRange, optionMap) {
@@ -114,6 +145,8 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thSe
 
 
     return {
+        getTestName: _getTestName,
+        getSeriesName: _getSeriesName,
         getSeriesSummary: _getSeriesSummary,
 
         getSubtestSummaries: function(projectName, timeRange, optionMap, targetSignature) {
