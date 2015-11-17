@@ -3,8 +3,8 @@
 # sha256: pRec3pItK04EXuWxHocyPud9NjrkApT8glLyXWoOrwY
 gunicorn==19.3.0
 
-# sha256: HCXe64vZm2Kwo-ODYV_ohOwRTOTDu-udw53RQU7cKU0
-whitenoise==2.0.4
+# sha256: gm_-XWCMncja6-8bC0PQH3lY8XwvzjbnXIDiYWAXLE8
+whitenoise==2.0.6
 
 # sha256: j7aT7P5M1v-a4xNv8KHqpKyuAa8ie7geZG3CutMpXM8
 Django==1.8.7
