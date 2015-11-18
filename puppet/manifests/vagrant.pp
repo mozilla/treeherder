@@ -33,7 +33,7 @@ file {"/etc/profile.d/treeherder.sh":
 export ENABLE_LOCAL_SETTINGS_FILE='True'
 export DATABASE_URL='mysql://${DB_USER}:${DB_PASS}@localhost/treeherder'
 export DATABASE_URL_RO='mysql://${DB_USER}:${DB_PASS}@localhost/treeherder'
-export TREEHERDER_DEBUG='1'
+export TREEHERDER_DEBUG='True'
 export TREEHERDER_DJANGO_SECRET_KEY='${DJANGO_SECRET_KEY}'
 export NEW_RELIC_DEVELOPER_MODE='True'
 "
