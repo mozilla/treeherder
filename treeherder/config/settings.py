@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-import dj_database_url
 import environ
 from kombu import (Exchange,
                    Queue)
@@ -414,14 +413,13 @@ TEMPLATE_DEBUG = DEBUG
 # The database config is defined using environment variables of form:
 #   'mysql://username:password@host:optional_port/database_name'
 DATABASES = {
-    'default': dj_database_url.config(env='DATABASE_URL'),
-    'read_only': dj_database_url.config(env='DATABASE_URL_RO')
+    'default': env.db_url('DATABASE_URL'),
+    'read_only': env.db_url('DATABASE_URL_RO')
 }
 
 # Setup ssl connection for aws rds.
-# Once https://github.com/kennethreitz/dj-database-url/pull/52 is fixed,
-# Heroku can have the option added to the DATABASE_URL query string,
-# and this can be removed.
+# Now that we're using django-environ this can be removed after
+# the Heroku env variables are updated with += `?ssl=...`.
 if env.bool('IS_HEROKU', default=False):
     ca_path = '/app/deployment/aws/combined-ca-bundle.pem'
     for db_name in DATABASES:
