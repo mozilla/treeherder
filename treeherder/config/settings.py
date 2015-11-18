@@ -1,5 +1,3 @@
-# Django settings for webapp project.
-import os
 from datetime import timedelta
 
 import dj_database_url
@@ -11,25 +9,25 @@ from treeherder import path
 
 env = environ.Env()
 
-TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "127.0.0.1:11211")
-TREEHERDER_MEMCACHED_KEY_PREFIX = os.environ.get("TREEHERDER_MEMCACHED_KEY_PREFIX", "treeherder")
+TREEHERDER_MEMCACHED = env("TREEHERDER_MEMCACHED", default="127.0.0.1:11211")
+TREEHERDER_MEMCACHED_KEY_PREFIX = env("TREEHERDER_MEMCACHED_KEY_PREFIX", default="treeherder")
 
-DEBUG = os.environ.get("TREEHERDER_DEBUG", False)
+DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 
-TREEHERDER_REQUEST_PROTOCOL = os.environ.get("TREEHERDER_REQUEST_PROTOCOL", "http")
-TREEHERDER_REQUEST_HOST = os.environ.get("TREEHERDER_REQUEST_HOST", "local.treeherder.mozilla.org")
+TREEHERDER_REQUEST_PROTOCOL = env("TREEHERDER_REQUEST_PROTOCOL", default="http")
+TREEHERDER_REQUEST_HOST = env("TREEHERDER_REQUEST_HOST", default="local.treeherder.mozilla.org")
 
 # Default to retaining data for ~4 months.
 DATA_CYCLE_DAYS = env.int("DATA_CYCLE_DAYS", default=120)
 
-RABBITMQ_USER = os.environ.get("TREEHERDER_RABBITMQ_USER", "guest")
-RABBITMQ_PASSWORD = os.environ.get("TREEHERDER_RABBITMQ_PASSWORD", "guest")
-RABBITMQ_VHOST = os.environ.get("TREEHERDER_RABBITMQ_VHOST", "/")
-RABBITMQ_HOST = os.environ.get("TREEHERDER_RABBITMQ_HOST", "localhost")
-RABBITMQ_PORT = os.environ.get("TREEHERDER_RABBITMQ_PORT", "5672")
+RABBITMQ_USER = env("TREEHERDER_RABBITMQ_USER", default="guest")
+RABBITMQ_PASSWORD = env("TREEHERDER_RABBITMQ_PASSWORD", default="guest")
+RABBITMQ_VHOST = env("TREEHERDER_RABBITMQ_VHOST", default="/")
+RABBITMQ_HOST = env("TREEHERDER_RABBITMQ_HOST", default="localhost")
+RABBITMQ_PORT = env("TREEHERDER_RABBITMQ_PORT", default="5672")
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = os.environ.get("TREEHERDER_DJANGO_SECRET_KEY")
+SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY")
 
 SITE_ID = 1
 ROOT_URLCONF = "treeherder.config.urls"
@@ -39,7 +37,7 @@ TIME_ZONE = "America/Los_Angeles"
 USE_I18N = False
 USE_L10N = True
 
-SERVE_MINIFIED_UI = os.environ.get("SERVE_MINIFIED_UI") == "True"
+SERVE_MINIFIED_UI = env.bool("SERVE_MINIFIED_UI", default=False)
 WHITENOISE_ROOT = path("..", "dist" if SERVE_MINIFIED_UI else "ui")
 
 STATIC_ROOT = path("static")
@@ -299,7 +297,7 @@ REST_FRAMEWORK = {
     )
 }
 
-SITE_URL = os.environ.get("SITE_URL", "http://local.treeherder.mozilla.org")
+SITE_URL = env("SITE_URL", default="http://local.treeherder.mozilla.org")
 
 BUILDAPI_PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-pending.js"
 BUILDAPI_RUNNING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-running.js"
@@ -326,10 +324,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 # set ALLOWED_HOSTS to match your domain name.
 # An asterisk means everything but it's not secure.
 # IP addresses are also allowed. A dot is used to include all sub domains
-if (os.environ.get('TREEHERDER_ALLOWED_HOSTS')):
-    ALLOWED_HOSTS = [os.environ.get('TREEHERDER_ALLOWED_HOSTS')]
-else:
-    ALLOWED_HOSTS = [".mozilla.org", ".allizom.org"]
+ALLOWED_HOSTS = env.list("TREEHERDER_ALLOWED_HOSTS", default=[".mozilla.org", ".allizom.org"])
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -343,7 +338,7 @@ ES_HOST = "http://of-elasticsearch-zlb.webapp.scl3.mozilla.com:9200"
 TREEHERDER_REQUESTS_TIMEOUT = 30
 
 # The pulse uri that is passed to kombu
-PULSE_URI = os.environ.get("PULSE_URI", "amqps://guest:guest@pulse.mozilla.org/")
+PULSE_URI = env("PULSE_URI", default="amqps://guest:guest@pulse.mozilla.org/")
 
 # Note we will never publish any pulse messages unless the exchange namespace is
 # set this normally is your pulse username.
@@ -394,14 +389,14 @@ PULSE_DATA_INGESTION_CONFIG = env.url("PULSE_DATA_INGESTION_CONFIG", default="")
 
 # Whether the Queues created for pulse ingestion are durable or not.
 # For local data ingestion, you probably should set this to False
-PULSE_DATA_INGESTION_QUEUES_DURABLE = env("PULSE_DATA_INGESTION_QUEUES_DURABLE",
-                                          default=True)
+PULSE_DATA_INGESTION_QUEUES_DURABLE = env.bool("PULSE_DATA_INGESTION_QUEUES_DURABLE",
+                                               default=True)
 
 # Whether the Queues created for pulse ingestion auto-delete after connections
 # are closed.
 # For local data ingestion, you probably should set this to True
-PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE = env("PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE",
-                                              default=False)
+PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE = env.bool("PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE",
+                                                   default=False)
 
 # The git-ignored settings_local.py file should only be used for local development.
 if env.bool("ENABLE_LOCAL_SETTINGS_FILE", default=False):
@@ -427,7 +422,7 @@ DATABASES = {
 # Once https://github.com/kennethreitz/dj-database-url/pull/52 is fixed,
 # Heroku can have the option added to the DATABASE_URL query string,
 # and this can be removed.
-if 'IS_HEROKU' in os.environ:
+if env.bool('IS_HEROKU', default=False):
     ca_path = '/app/deployment/aws/combined-ca-bundle.pem'
     for db_name in DATABASES:
         DATABASES[db_name]['OPTIONS'] = {
@@ -471,14 +466,14 @@ BROKER_URL = 'amqp://{0}:{1}@{2}:{3}/{4}'.format(
 )
 
 # This code handles the memcachier service on heroku.
-if "IS_HEROKU" in os.environ:
+if env.bool('IS_HEROKU', default=False):
     from memcacheify import memcacheify
     CACHES['default'].update(
         memcacheify().get('default')
     )
 
-if "CLOUDAMQP_URL" in os.environ:
-    BROKER_URL = os.environ["CLOUDAMQP_URL"]
+if env('CLOUDAMQP_URL', default=None):
+    BROKER_URL = env('CLOUDAMQP_URL')
 
 CELERY_IGNORE_RESULT = True
 
