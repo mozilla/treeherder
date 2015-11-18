@@ -19,6 +19,7 @@ TREEHERDER_REQUEST_HOST = env("TREEHERDER_REQUEST_HOST", default="local.treeherd
 # Default to retaining data for ~4 months.
 DATA_CYCLE_DAYS = env.int("DATA_CYCLE_DAYS", default=120)
 
+# Remove once stage/prod have transitioned to using BROKER_URL
 RABBITMQ_USER = env("TREEHERDER_RABBITMQ_USER", default="guest")
 RABBITMQ_PASSWORD = env("TREEHERDER_RABBITMQ_PASSWORD", default="guest")
 RABBITMQ_VHOST = env("TREEHERDER_RABBITMQ_VHOST", default="/")
@@ -455,13 +456,16 @@ CACHES = {
 KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX
 
 # celery broker setup
-BROKER_URL = 'amqp://{0}:{1}@{2}:{3}/{4}'.format(
-    RABBITMQ_USER,
-    RABBITMQ_PASSWORD,
-    RABBITMQ_HOST,
-    RABBITMQ_PORT,
-    RABBITMQ_VHOST
-)
+# BROKER_URL is replacing the separate variables, however we need to
+# support both until stage/prod have BROKER_URL set.
+BROKER_URL = env('BROKER_URL',
+                 default='amqp://{0}:{1}@{2}:{3}/{4}'.format(
+                    RABBITMQ_USER,
+                    RABBITMQ_PASSWORD,
+                    RABBITMQ_HOST,
+                    RABBITMQ_PORT,
+                    RABBITMQ_VHOST
+                 ))
 
 # This code handles the memcachier service on heroku.
 if env.bool('IS_HEROKU', default=False):
