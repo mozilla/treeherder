@@ -1,0 +1,88 @@
+<div class="container-fluid">
+  <div class="alert alert-danger" role="alert">
+    Perfherder alerts are experimental and not to be trusted (yet)
+  </div>
+  <hr/>
+  <div class="panel panel-default" ng-repeat="alertSummary in alertSummaries">
+    <div class="panel-heading">
+      <a href="#/alerts?id={{alertSummary.id}}" class="alert-title">{{alertSummary.title}} <span class="fa fa-external-link icon-superscript"/></a>
+      <ul class="list-unstyled alert-metadata">
+        <li>{{alertSummary.platforms.join(' / ')}}</li>
+        <li>{{alertSummary.resultSetMetadata.dateStr}}</li>
+        <li><a href="https://treeherder.mozilla.org/#/jobs?repo={{alertSummary.repository}}&fromchange={{alertSummary.prevResultSetMetadata.revision}}&tochange={{alertSummary.resultSetMetadata.revision}}">{{alertSummary.resultSetMetadata.revision}}…{{alertSummary.prevResultSetMetadata.revision}}</a></li>
+      </ul>
+      <!--
+          <p>
+            <div class="btn-group">
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Untriaged <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a href="#">File a bug</a></li>
+                <li><a href="#">Connect with a bug</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#">Mark as backed out</a></li>
+                <li><a href="#">Mark as invalid</a></li>
+                <li><a href="#">Mark as won't fix</a></li>
+              </ul>
+            </div>
+          </p>
+          -->
+    </div>
+    <div class="panel-body">
+      <h4>Alerts</h4>
+      <table class="table table-striped compare-table">
+        <tr>
+          <!-- Manually specify table widths because it's just easier this way -->
+          <!-- <th style="width:16px;"></th> -->
+          <th class="test-title">
+            <span style=" word-wrap: break-word;">
+              Test
+            </span>
+          </th>
+          <!--
+              <th style="width: 140px;">Branch</th>
+          <th style="width: 140px;">Revision</th>
+          -->
+          <th style="width: 140px;">Previous</th>
+          <th style="width: 30px;"><!-- less than / greater than --></th>
+          <th style="width: 140px;">New</th>
+          <th style="width: 80px;">Delta</th>
+          <th style="width: 100px;">Confidence</th>
+        </tr>
+        <tr ng-repeat="alert in alertSummary.alerts">
+          <!-- <td><input type="checkbox"/></td> -->
+          <td class="test-title">
+            {{alert.title}}&nbsp;&nbsp;
+            <span class="result-links">
+              <a href="#/graphs?timerange={{alertSummary.resultSetMetadata.timeRange}}&series=[{{alertSummary.repository}},{{alert.signature_hash}},1]&highlightedRevisions={{alertSummary.resultSetMetadata.revision}}">graph</a>
+            </span>
+          </td>
+          <td>{{alert.prev_value}}</td>
+          <td>
+            <span ng-class="{'compare-improvement': !alert.regression, 'compare-regression': alert.regression}">
+              <span ng-if="alert.prev_value < alert.new_value">
+                &lt;
+              </span>
+              <span ng-if="alert.prev_value > alert.new_value">
+                &gt;
+              </span>
+            </span>
+          </td>
+          <td>{{alert.new_value}}</td>
+          <td><span class="detail-hint" tooltip="Absolute difference: {{alert.amount_abs}}">{{alert.amount_pct}}%</span></td>
+          <td>{{alert.t_value}}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="well" ng-show="alertSummaries.length > 1">
+  get next:
+  <div class="btn-group">
+    <div class="btn btn-default btn-sm"
+         ng-click="getMoreAlertSummaries(count)"
+         ng-repeat="count in [10, 20, 50]">{{::count}}
+    </div>
+  </div>
+</div>
