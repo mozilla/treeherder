@@ -26,7 +26,7 @@ class RefDataManager(object):
         master_host_config = {
             "host": settings.DATABASES['default']['HOST'],
             "user": settings.DATABASES['default']['USER'],
-            "passwd": settings.DATABASES['default']['PASSWORD']
+            "passwd": settings.DATABASES['default'].get('PASSWORD') or '',
         }
         if 'OPTIONS' in settings.DATABASES['default']:
             master_host_config.update(settings.DATABASES['default']['OPTIONS'])
@@ -34,7 +34,7 @@ class RefDataManager(object):
         read_host_config = {
             "host": settings.DATABASES['read_only']['HOST'],
             "user": settings.DATABASES['read_only']['USER'],
-            "passwd": settings.DATABASES['read_only']['PASSWORD']
+            "passwd": settings.DATABASES['read_only'].get('PASSWORD') or '',
         }
         if 'OPTIONS' in settings.DATABASES['read_only']:
             read_host_config.update(settings.DATABASES['read_only']['OPTIONS'])

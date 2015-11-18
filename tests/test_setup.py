@@ -11,7 +11,7 @@ def db_conn():
     return MySQLdb.connect(
         host=settings.DATABASES['default']['HOST'],
         user=settings.DATABASES['default']['USER'],
-        passwd=settings.DATABASES['default']['PASSWORD'],
+        passwd=settings.DATABASES['default'].get('PASSWORD') or '',
         **db_options
     )
 

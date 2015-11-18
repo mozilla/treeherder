@@ -70,7 +70,7 @@ class Command(BaseCommand):
                 host=settings.DATABASES['default']['HOST'],
                 db=datasource.name,
                 user=settings.DATABASES['default']['USER'],
-                passwd=settings.DATABASES['default']['PASSWORD'],
+                passwd=settings.DATABASES['default'].get('PASSWORD') or '',
                 **db_options
             )
             try:
