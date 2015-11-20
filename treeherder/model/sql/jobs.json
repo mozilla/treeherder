@@ -71,13 +71,8 @@
                     `signature`,
                     `state`,
                     `avg_sec`,
-                    `median_sec`,
-                    `min_sec`,
-                    `max_sec`,
-                    `std`,
-                    `sample_count`,
                     `submit_timestamp`)
-                   VALUES (?,?,?,?,?,?,?,?,?)",
+                   VALUES (?,?,?,?)",
 
             "host_type":"master_host"
         },
@@ -288,17 +283,7 @@
             "sql":"SELECT signature,
                           CAST(
                             ROUND( AVG(end_timestamp - start_timestamp) )
-                            AS UNSIGNED) AS 'running_avg_sec',
-
-                          MIN(end_timestamp - start_timestamp) AS 'running_min_sec',
-                          MAX(end_timestamp - start_timestamp) AS 'running_max_sec',
-
-                          CAST(
-                            ROUND( STD(end_timestamp - start_timestamp) )
-                            AS SIGNED) AS 'running_std',
-
-                          GROUP_CONCAT(end_timestamp - start_timestamp SEPARATOR ',')
-                            AS 'running_samples'
+                            AS UNSIGNED) AS 'running_avg_sec'
                    FROM job
                    WHERE submit_timestamp >= ? AND
                          start_timestamp >= submit_timestamp AND
@@ -327,11 +312,6 @@
             "sql":"SELECT signature,
                           state,
                           avg_sec,
-                          median_sec,
-                          min_sec,
-                          max_sec,
-                          std,
-                          sample_count,
                           MAX(submit_timestamp)
                     FROM job_eta
                     WHERE signature IN (REP0)
