@@ -1385,9 +1385,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             job_guid_list.append(job_guid_root)
 
         reference_data_signature = job_placeholders[index][1]
-        running_avg_sec = job_eta_times.get(reference_data_signature, {}).get('running', 0)
+        average_duration = job_eta_times.get(reference_data_signature, 0)
 
-        job_placeholders[index][self.JOB_PH_RUNNING_AVG] = running_avg_sec
+        job_placeholders[index][self.JOB_PH_RUNNING_AVG] = average_duration
 
         # Load job_update_placeholders
         if job_state != 'pending':
@@ -1443,14 +1443,14 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
             signature = eta_data['signature']
             state = eta_data['state']
+            # There are still old rows in the DB with state 'pending', which must
+            # be filtered out. Doing so in the SQL query resulted in worse perf, see:
+            # https://bugzilla.mozilla.org/show_bug.cgi?id=1221064#c7
+            # However this will all be removed in later commits, so it's somewhat moot.
+            if state != 'running':
+                continue
 
-            if signature not in eta_lookup:
-                eta_lookup[signature] = {}
-
-            if state not in eta_lookup[signature]:
-                eta_lookup[signature][state] = {}
-
-            eta_lookup[signature][state] = eta_data['avg_sec']
+            eta_lookup[signature] = eta_data['avg_sec']
 
         return eta_lookup
 
