@@ -956,7 +956,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # Store all reference data and retrieve associated ids
         id_lookups = self.refdata_model.set_all_reference_data()
 
-        job_eta_times = self.get_job_eta_times(
+        average_job_durations = self.get_average_job_durations(
             id_lookups['reference_data_signatures']
         )
 
@@ -979,7 +979,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 job_guid_list,
                 job_update_placeholders,
                 result_set_ids,
-                job_eta_times,
+                average_job_durations,
                 push_timestamps
             )
 
@@ -1243,7 +1243,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             self.get_number(job.get('submit_timestamp')),
             self.get_number(job.get('start_timestamp')),
             self.get_number(job.get('end_timestamp')),
-            0,                      # idx:17, replace with running_avg_sec
+            0,                      # idx:17, replace with average job duration
             tier,
             job_guid,
             get_guid_root(job_guid)  # will be the same except for ``retry`` jobs
@@ -1306,7 +1306,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
     def _set_data_ids(
         self, index, job_placeholders, id_lookups,
         job_guid_list, job_update_placeholders,
-        result_set_ids, job_eta_times, push_timestamps
+        result_set_ids, average_job_durations, push_timestamps
     ):
         """
         Supplant ref data with ids and create update placeholders
@@ -1385,7 +1385,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             job_guid_list.append(job_guid_root)
 
         reference_data_signature = job_placeholders[index][1]
-        average_duration = job_eta_times.get(reference_data_signature, 0)
+        average_duration = average_job_durations.get(reference_data_signature, 0)
 
         job_placeholders[index][self.JOB_PH_RUNNING_AVG] = average_duration
 
@@ -1424,8 +1424,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return self.get_job_ids_by_guid(job_guid_list)
 
-    def get_job_eta_times(self, reference_data_signatures):
-
+    def get_average_job_durations(self, reference_data_signatures):
         eta_lookup = {}
 
         if len(reference_data_signatures) == 0:
