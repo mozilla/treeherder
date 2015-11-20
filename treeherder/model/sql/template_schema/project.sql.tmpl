@@ -166,11 +166,6 @@ DROP TABLE IF EXISTS `job_eta`;
  *  signature - References treeherder_reference_1.buildbot_buildernames.signature
  *  state - pending | running
  *  avg_sec - A rolling average over a 12 hr window in seconds
- *  median_sec - The median of the sample range
- *  min_sec - The minimum value of the sample range
- *  max_sec - The minimum value of the sample range
- *  std - Of the of avg_sec
- *  sample_count - The number of samples used in the rolling average
  *  submit_timestamp - The timestamp the eta data was computed and entered
  *************************/
 CREATE TABLE `job_eta` (
@@ -178,17 +173,10 @@ CREATE TABLE `job_eta` (
   `signature` varchar(50) DEFAULT NULL,
   `state` varchar(25) COLLATE utf8_bin NOT NULL,
   `avg_sec` int(10) unsigned NOT NULL,
-  `median_sec` int(10) unsigned NOT NULL,
-  `min_sec` int(10) unsigned NOT NULL,
-  `max_sec` int(10) unsigned NOT NULL,
-  `std` int(10) unsigned NOT NULL,
-  `sample_count` int(10) unsigned NOT NULL,
   `submit_timestamp` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_state` (`state`),
   KEY `idx_avg_sec` (`avg_sec`),
-  KEY `idx_median_sec` (`median_sec`),
-  KEY `idx_sample_count` (`sample_count`),
   KEY `idx_submit_timestamp` (`submit_timestamp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;

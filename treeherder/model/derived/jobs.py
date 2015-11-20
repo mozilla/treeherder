@@ -492,23 +492,11 @@ class JobsModel(TreeherderModelBase):
             submit_timestamp = int(time.time())
             for signature in eta_groups:
 
-                running_samples = map(
-                    lambda x: int(x or 0),
-                    eta_groups[signature]['running_samples'].split(','))
-
-                running_median = self.get_median_from_sorted_list(
-                    sorted(running_samples))
-
                 placeholders.append(
                     [
                         signature,
                         'running',
                         eta_groups[signature]['running_avg_sec'],
-                        running_median,
-                        eta_groups[signature]['running_min_sec'],
-                        eta_groups[signature]['running_max_sec'],
-                        eta_groups[signature]['running_std'],
-                        len(running_samples),
                         submit_timestamp
                     ])
 
@@ -518,25 +506,6 @@ class JobsModel(TreeherderModelBase):
                 executemany=True,
                 debug_show=self.DEBUG
             )
-
-    def get_median_from_sorted_list(self, sorted_list):
-
-        length = len(sorted_list)
-
-        if length == 0:
-            return 0
-
-        # Cannot take the median with only on sample,
-        # return it
-        elif length == 1:
-            return sorted_list[0]
-
-        elif not length % 2:
-            return round(
-                (sorted_list[length / 2] + sorted_list[length / 2 - 1]) / 2, 0
-            )
-
-        return round(sorted_list[length / 2], 0)
 
     def cycle_data(self, cycle_interval, chunk_size, sleep_time):
         """Delete data older than cycle_interval, splitting the target data
