@@ -478,24 +478,21 @@ class JobsModel(TreeherderModelBase):
         if max_start_timestamp:
 
             time_window = int(max_start_timestamp) - sample_window_seconds
-
-            eta_groups = self.execute(
-                proc='jobs.selects.get_eta_groups',
+            average_durations = self.execute(
+                proc='jobs.selects.get_average_job_durations',
                 placeholders=[time_window],
-                key_column='signature',
-                return_type='dict',
+                return_type='tuple',
                 debug_show=self.DEBUG
             )
 
             placeholders = []
             submit_timestamp = int(time.time())
-            for signature in eta_groups:
-
+            for job in average_durations:
                 placeholders.append(
                     [
-                        signature,
+                        job['signature'],
                         'running',
-                        eta_groups[signature]['running_avg_sec'],
+                        job['average_duration'],
                         submit_timestamp
                     ])
 
