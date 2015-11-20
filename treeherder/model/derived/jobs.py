@@ -475,33 +475,34 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         ).get_column_data('start_timestamp')
 
-        if max_start_timestamp:
+        if not max_start_timestamp:
+            return
 
-            time_window = int(max_start_timestamp) - sample_window_seconds
-            average_durations = self.execute(
-                proc='jobs.selects.get_average_job_durations',
-                placeholders=[time_window],
-                return_type='tuple',
-                debug_show=self.DEBUG
-            )
+        time_window = int(max_start_timestamp) - sample_window_seconds
+        average_durations = self.execute(
+            proc='jobs.selects.get_average_job_durations',
+            placeholders=[time_window],
+            return_type='tuple',
+            debug_show=self.DEBUG
+        )
 
-            placeholders = []
-            submit_timestamp = int(time.time())
-            for job in average_durations:
-                placeholders.append(
-                    [
-                        job['signature'],
-                        'running',
-                        job['average_duration'],
-                        submit_timestamp
-                    ])
+        placeholders = []
+        submit_timestamp = int(time.time())
+        for job in average_durations:
+            placeholders.append(
+                [
+                    job['signature'],
+                    'running',
+                    job['average_duration'],
+                    submit_timestamp
+                ])
 
-            self.execute(
-                proc='jobs.inserts.set_job_eta',
-                placeholders=placeholders,
-                executemany=True,
-                debug_show=self.DEBUG
-            )
+        self.execute(
+            proc='jobs.inserts.set_job_eta',
+            placeholders=placeholders,
+            executemany=True,
+            debug_show=self.DEBUG
+        )
 
     def cycle_data(self, cycle_interval, chunk_size, sleep_time):
         """Delete data older than cycle_interval, splitting the target data
