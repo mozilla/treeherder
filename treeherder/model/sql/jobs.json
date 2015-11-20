@@ -275,12 +275,11 @@
             "sql": "SELECT MAX(`start_timestamp`) AS 'start_timestamp' FROM `job`",
             "host_type":"master_host"
         },
-        "get_eta_groups":{
-
+        "get_average_job_durations":{
             "sql":"SELECT signature,
                           CAST(
                             ROUND( AVG(end_timestamp - start_timestamp) )
-                            AS UNSIGNED) AS 'running_avg_sec'
+                            AS UNSIGNED) AS 'average_duration'
                    FROM job
                    WHERE start_timestamp >= ? AND
                          end_timestamp >= start_timestamp AND
