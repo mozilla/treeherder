@@ -6,13 +6,12 @@ from collections import defaultdict
 from rest_framework import (exceptions,
                             filters,
                             pagination,
-                            serializers,
                             viewsets)
 from rest_framework.response import Response
 
+from performance_serializers import PerformanceAlertSummarySerializer
 from treeherder.model import models
-from treeherder.perf.models import (PerformanceAlert,
-                                    PerformanceAlertSummary,
+from treeherder.perf.models import (PerformanceAlertSummary,
                                     PerformanceDatum,
                                     PerformanceSignature)
 
@@ -105,6 +104,7 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
 
         if signature_hashes:
             signature_ids = PerformanceSignature.objects.filter(
+                repository=repository,
                 signature_hash__in=signature_hashes).values_list('id', flat=True)
             datums = datums.filter(signature__id__in=list(signature_ids))
         if result_set_ids:
@@ -132,78 +132,6 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
             })
 
         return Response(ret)
-
-
-class OptionCollectionSerializer(serializers.RelatedField):
-
-    def to_representation(self, value):
-        return value.option_collection_hash
-
-    class Meta:
-        model = models.OptionCollection
-        fields = ['option_collection_hash']
-
-
-class MachinePlatformNameSerializer(serializers.ModelSerializer):
-
-    def to_representation(self, value):
-        return value.platform
-
-    class Meta:
-        model = models.MachinePlatform
-        fields = ['platform']
-
-
-class PerformanceSignatureSerializer(serializers.ModelSerializer):
-    option_collection_hash = OptionCollectionSerializer(
-        read_only=True, source="option_collection")
-    machine_platform = MachinePlatformNameSerializer(read_only=True,
-                                                     source='platform')
-
-    class Meta:
-        model = PerformanceSignature
-        fields = ['signature_hash', 'machine_platform', 'suite', 'test',
-                  'lower_is_better', 'option_collection_hash']
-
-
-class PerformanceAlertSerializer(serializers.ModelSerializer):
-    def _get_decimal_field():
-        return serializers.DecimalField(max_digits=20, decimal_places=2,
-                                        coerce_to_string=False,
-                                        read_only=True)
-    series_signature = PerformanceSignatureSerializer(read_only=True)
-
-    # express quantities in terms of decimals to save space
-    amount_abs = _get_decimal_field()
-    amount_pct = _get_decimal_field()
-    t_value = _get_decimal_field()
-    prev_value = _get_decimal_field()
-    new_value = _get_decimal_field()
-
-    class Meta:
-        model = PerformanceAlert
-        fields = ['series_signature', 'is_regression', 'prev_value',
-                  'new_value', 't_value', 'amount_abs', 'amount_pct']
-
-
-class RepositoryNameSerializer(serializers.RelatedField):
-
-    def to_representation(self, value):
-        return value.name
-
-    class Meta:
-        model = models.Repository
-        fields = ['name']
-
-
-class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
-    alerts = PerformanceAlertSerializer(many=True, read_only=True)
-    repository = RepositoryNameSerializer(read_only=True)
-
-    class Meta:
-        model = PerformanceAlertSummary
-        fields = ['id', 'result_set_id', 'prev_result_set_id', 'last_updated',
-                  'repository', 'alerts']
 
 
 class AlertSummaryPagination(pagination.CursorPagination):

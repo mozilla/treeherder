@@ -1,6 +1,8 @@
-from django.conf import settings
 import datetime
 import time
+
+from django.conf import settings
+from django.db import transaction
 
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
@@ -45,30 +47,29 @@ def generate_new_alerts_in_series(signature):
             if pct_change < settings.PERFHERDER_REGRESSION_THRESHOLD:
                 # ignore regressions below a threshold of 1%
                 continue
+            with transaction.atomic():
+                summary, _ = PerformanceAlertSummary.objects.get_or_create(
+                    repository=signature.repository,
+                    result_set_id=cur.testrun_id,
+                    prev_result_set_id=prev.testrun_id,
+                    defaults={
+                        'last_updated': datetime.datetime.fromtimestamp(
+                            cur.push_timestamp)
+                    })
 
-            summary, _ = PerformanceAlertSummary.objects.get_or_create(
-                repository=signature.repository,
-                result_set_id=cur.testrun_id,
-                prev_result_set_id=prev.testrun_id,
-                defaults={
-                    'last_updated': datetime.datetime.fromtimestamp(
-                        cur.push_timestamp)
-                })
+                # django/mysql doesn't understand "inf", so just use some
+                # arbitrarily high value for that case
+                t_value = cur.t
+                if t_value == float('inf'):
+                    t_value = 1000
 
-            # django/mysql doesn't understand "inf", so just use some
-            # arbitrarily high value for that case
-            t_value = cur.t
-            if t_value == float('inf'):
-                t_value = 1000
-
-            PerformanceAlert.objects.get_or_create(
-                summary=summary,
-                series_signature=signature,
-                defaults={
-                    'is_regression': is_regression,
-                    'amount_pct': pct_change,
-                    'amount_abs': delta,
-                    'prev_value': prev_value,
-                    'new_value': new_value,
-                    't_value': t_value
-                })
+                a = PerformanceAlert.objects.create(
+                    summary=summary,
+                    series_signature=signature,
+                    is_regression=is_regression,
+                    amount_pct=pct_change,
+                    amount_abs=delta,
+                    prev_value=prev_value,
+                    new_value=new_value,
+                    t_value=t_value)
+                a.save()

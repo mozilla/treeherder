@@ -1,5 +1,3 @@
-from optparse import make_option
-
 from django.core.management.base import (BaseCommand,
                                          CommandError)
 
@@ -16,20 +14,19 @@ class Command(BaseCommand):
     This is mostly useful for testing
     """
 
-    option_list = BaseCommand.option_list + (
-        make_option('--project',
-                    action='append',
-                    help='Project to get signatures from (specify multiple times to get multiple projects'),
-        make_option('--signature',
-                    action='store',
-                    help='Signature hash to process, defaults to all non-subtests')
-    )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--project', action='append',
+            help='Project to get signatures from (specify multiple times to '
+            'get multiple projects')
+        parser.add_argument(
+            '--signature', action='append',
+            help='Signature hashes to process, defaults to all non-subtests')
 
     def handle(self, *args, **options):
         if not options['project']:
             raise CommandError("Must specify at least one project with "
                                "--project")
-
         for project in options['project']:
             repository = models.Repository.objects.get(name=project)
 
@@ -37,11 +34,8 @@ class Command(BaseCommand):
                 repository=repository)
 
             if options['signature']:
-                signature_hashes = [options['signature']]
-                signature_ids = PerformanceSignature.objects.filter(
-                    signature_hash__in=signature_hashes).values_list('id',
-                                                                     flat=True)
-                signatures_to_process = signatures.filter(id__in=list(signature_ids))
+                signatures_to_process = signatures.filter(
+                    signature_hash__in=options['signature'])
             else:
                 hashes_to_ignore = set()
                 # if doing everything, only handle series which are not a

@@ -91,6 +91,8 @@ class PerformanceDatum(models.Model):
 @python_2_unicode_compatible
 class PerformanceAlertSummary(models.Model):
     '''
+    A summarization of performance alerts
+
     A summary of "alerts" that the performance numbers for a specific
     repository have changed at a particular time.
 
@@ -114,8 +116,10 @@ class PerformanceAlertSummary(models.Model):
 @python_2_unicode_compatible
 class PerformanceAlert(models.Model):
     '''
+    A single performance alert
+
     An individual "alert" that the numbers in a specific performance
-    series have consistently changed level at a specific time
+    series have consistently changed level at a specific time.
 
     An alert is always a member of an alert summary, which groups all
     the alerts associated with a particular result set and repository

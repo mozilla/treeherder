@@ -5,7 +5,7 @@ perf.factory('PhAlerts', ['$http', 'thServiceDomain', function($http, thServiceD
         getAlertSummary: function(id) {
             // get a specific alert summary
             return $http.get(thServiceDomain +
-                             '/api/performance/alertsummary?id=' + id).then(
+                             '/api/performance/alertsummary/' + id + '/').then(
                                  function(response) {
                                      return response.data;
                                  });
