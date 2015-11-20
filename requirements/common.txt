@@ -79,8 +79,8 @@ mozlog==3.0
 # sha256: BK-ioGq33MqdgXF7Qgp6FIJgYemyYUpcd90kx1zPl-Q
 futures==3.0.3
 
-# sha256: uUuxlcsCM1Ljir_4azpnOtsEnySrg7s16_bE8KItgcY
-https://github.com/jeads/datasource/archive/v0.9.1.tar.gz#egg=datasource==0.9.1
+# sha256: e2KpUXwldQ0DgJB2BTdY1XQN5FqMbG2RlMLAiFtKPqI
+https://github.com/jeads/datasource/archive/v0.10.0.tar.gz#egg=datasource==0.10.0
 
 # Required by jsonschema
 # sha256: ajt0IEMrCBfvGSrvNBzXZuGZgBqQyn_jGfnV_KQO3aI
