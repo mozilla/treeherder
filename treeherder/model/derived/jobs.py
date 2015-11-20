@@ -468,17 +468,16 @@ class JobsModel(TreeherderModelBase):
         )
 
     def calculate_eta(self, sample_window_seconds, debug):
-
         # Get the most recent timestamp from jobs
-        max_timestamp = self.execute(
-            proc='jobs.selects.get_max_job_submit_timestamp',
+        max_start_timestamp = self.execute(
+            proc='jobs.selects.get_max_job_start_timestamp',
             return_type='iter',
             debug_show=self.DEBUG
-        ).get_column_data('submit_timestamp')
+        ).get_column_data('start_timestamp')
 
-        if max_timestamp:
+        if max_start_timestamp:
 
-            time_window = int(max_timestamp) - sample_window_seconds
+            time_window = int(max_start_timestamp) - sample_window_seconds
 
             eta_groups = self.execute(
                 proc='jobs.selects.get_eta_groups',
