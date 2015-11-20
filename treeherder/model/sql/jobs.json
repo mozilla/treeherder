@@ -271,12 +271,9 @@
         }
     },
     "selects":{
-        "get_max_job_submit_timestamp":{
-
-            "sql": "SELECT MAX(`submit_timestamp`) AS 'submit_timestamp' FROM `job`",
-
+        "get_max_job_start_timestamp":{
+            "sql": "SELECT MAX(`start_timestamp`) AS 'start_timestamp' FROM `job`",
             "host_type":"master_host"
-
         },
         "get_eta_groups":{
 
@@ -285,14 +282,11 @@
                             ROUND( AVG(end_timestamp - start_timestamp) )
                             AS UNSIGNED) AS 'running_avg_sec'
                    FROM job
-                   WHERE submit_timestamp >= ? AND
-                         start_timestamp >= submit_timestamp AND
+                   WHERE start_timestamp >= ? AND
                          end_timestamp >= start_timestamp AND
-                         start_timestamp > 0 AND end_timestamp > 0
+                         end_timestamp is NOT NULL
                    GROUP BY signature",
-
             "host_type":"read_host"
-
         },
         "get_signature_list_from_job_ids":{
 
