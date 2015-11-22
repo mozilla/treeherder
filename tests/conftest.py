@@ -160,7 +160,7 @@ def mock_log_parser(monkeypatch):
 
 
 @pytest.fixture
-def result_set_stored(jm, initial_data, sample_resultset):
+def result_set_stored(jm, initial_data, sample_resultset, test_repository):
 
     jm.store_result_set_data(sample_resultset)
 
@@ -215,7 +215,7 @@ def mock_message_broker(monkeypatch):
 
 
 @pytest.fixture
-def resultset_with_three_jobs(jm, sample_data, sample_resultset):
+def resultset_with_three_jobs(jm, sample_data, sample_resultset, test_repository):
     """
     Stores a number of jobs in the same resultset.
     """
@@ -246,7 +246,7 @@ def resultset_with_three_jobs(jm, sample_data, sample_resultset):
 
 
 @pytest.fixture
-def eleven_jobs_stored(jm, sample_data, sample_resultset, mock_log_parser):
+def eleven_jobs_stored(jm, sample_data, sample_resultset, test_repository, mock_log_parser):
     """stores a list of 11 job samples"""
 
     jm.store_result_set_data(sample_resultset)

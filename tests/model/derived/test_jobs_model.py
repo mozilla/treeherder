@@ -31,7 +31,7 @@ def test_disconnect(jm):
 
 
 def test_ingest_single_sample_job(jm, refdata, sample_data, initial_data,
-                                  mock_log_parser, sample_resultset):
+                                  sample_resultset, test_repository, mock_log_parser):
     """Process a single job structure in the job_data.txt file"""
     job_data = sample_data.job_data[:1]
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
@@ -40,7 +40,8 @@ def test_ingest_single_sample_job(jm, refdata, sample_data, initial_data,
     refdata.disconnect()
 
 
-def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data, sample_resultset, mock_log_parser):
+def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data,
+                                sample_resultset, test_repository, mock_log_parser):
     """
     @@@ - Re-enable when our job_data.txt has been re-created with
           correct data.
@@ -81,7 +82,7 @@ def test_get_inserted_row_ids(jm, sample_resultset, test_repository):
 
 
 def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data, initial_data,
-                                            mock_log_parser, sample_resultset):
+                                            sample_resultset, test_repository, mock_log_parser):
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
     job = job_data[0]['job']
@@ -117,7 +118,7 @@ def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data, initial_da
 
 
 def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data, initial_data,
-                                                       mock_log_parser, sample_resultset):
+                                                       sample_resultset, test_repository, mock_log_parser):
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
     job = job_data[0]['job']
@@ -161,7 +162,7 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data,
 
 
 def test_ingest_retry_sample_job_no_running(jm, refdata, sample_data, initial_data,
-                                            mock_log_parser, sample_resultset):
+                                            sample_resultset, test_repository, mock_log_parser):
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
     job = job_data[0]['job']
@@ -187,7 +188,7 @@ def test_ingest_retry_sample_job_no_running(jm, refdata, sample_data, initial_da
 
 
 def test_cycle_all_data(jm, refdata, sample_data, initial_data,
-                        sample_resultset, mock_log_parser):
+                        sample_resultset, test_repository, mock_log_parser):
     """
     Test cycling the sample data
     """
@@ -220,7 +221,7 @@ def test_cycle_all_data(jm, refdata, sample_data, initial_data,
 
 
 def test_cycle_one_job(jm, refdata, sample_data, initial_data,
-                       sample_resultset, mock_log_parser):
+                       sample_resultset, test_repository, mock_log_parser):
     """
     Test cycling one job in a group of jobs to confirm there are no
     unexpected deletions
@@ -266,7 +267,7 @@ def test_cycle_one_job(jm, refdata, sample_data, initial_data,
 
 
 def test_cycle_all_data_in_chunks(jm, refdata, sample_data, initial_data,
-                                  sample_resultset, mock_log_parser):
+                                  sample_resultset, test_repository, mock_log_parser):
     """
     Test cycling the sample data in chunks.
     """
@@ -299,7 +300,7 @@ def test_cycle_all_data_in_chunks(jm, refdata, sample_data, initial_data,
     assert len(jobs_after) == 0
 
 
-def test_bad_date_value_ingestion(jm, initial_data, mock_log_parser):
+def test_bad_date_value_ingestion(jm, initial_data, test_repository, mock_log_parser):
     """
     Test ingesting an blob with bad date value
 
@@ -365,7 +366,7 @@ def test_store_result_set_revisions(jm, initial_data, sample_resultset):
 
 
 def test_get_job_data(jm, test_project, refdata, sample_data, initial_data,
-                      mock_log_parser, sample_resultset):
+                      sample_resultset, test_repository, mock_log_parser):
 
     target_len = 10
     job_data = sample_data.job_data[:target_len]
@@ -378,7 +379,7 @@ def test_get_job_data(jm, test_project, refdata, sample_data, initial_data,
 
 
 def test_remove_existing_jobs_single_existing(jm, sample_data, initial_data, refdata,
-                                              mock_log_parser, sample_resultset):
+                                              sample_resultset, test_repository, mock_log_parser):
     """Remove single existing job prior to loading"""
 
     job_data = sample_data.job_data[:1]
@@ -393,7 +394,7 @@ def test_remove_existing_jobs_single_existing(jm, sample_data, initial_data, ref
 
 
 def test_remove_existing_jobs_one_existing_one_new(jm, sample_data, initial_data, refdata,
-                                                   mock_log_parser, sample_resultset):
+                                                   sample_resultset, test_repository, mock_log_parser):
     """Remove single existing job prior to loading"""
 
     job_data = sample_data.job_data[:1]
@@ -405,7 +406,7 @@ def test_remove_existing_jobs_one_existing_one_new(jm, sample_data, initial_data
 
 
 def test_ingesting_skip_existing(jm, sample_data, initial_data, refdata,
-                                 mock_log_parser, sample_resultset):
+                                 sample_resultset, test_repository, mock_log_parser):
     """Remove single existing job prior to loading"""
 
     job_data = sample_data.job_data[:1]
