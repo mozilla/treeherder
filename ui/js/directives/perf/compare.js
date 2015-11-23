@@ -9,8 +9,7 @@ treeherder.directive(
                 titles: '=',
                 compareResults: '=',
                 testList: '=',
-                testFilter: '=',
-                platformFilter: '=',
+                filter: '=',
                 showOnlyImportant: '=',
                 showOnlyConfident: '=',
                 showUnreliablePlatforms: '='
@@ -20,26 +19,36 @@ treeherder.directive(
                 function filter(item, matchText) {
                     return !matchText || item.toLowerCase().indexOf(matchText.toLowerCase()) > (-1);
                 }
-                scope.filterTest = function(item) {
-                    return filter(item, scope.testFilter);
-                };
-                scope.filterPlatform = function(result) {
-                    return filter(result.name, scope.platformFilter) &&
-                        (!scope.showOnlyImportant || result.isMeaningful) &&
-                        (!scope.showOnlyConfident || result.isConfident) &&
-                        (scope.showUnreliablePlatforms || !_.contains(
+                function shouldBeHidden(result) {
+                    return (!scope.showOnlyImportant || result.isMeaningful)
+                        && (!scope.showOnlyConfident || result.isConfident)
+                        && (scope.showUnreliablePlatforms || !_.contains(
                             phUnreliablePlatforms, result.name));
-                };
-                function updateFilteredTestList() {
-                    scope.filteredTestList = _.filter(_.keys(scope.compareResults), function(testName) {
-                        return scope.filterTest(scope.titles[testName]) &&
-                            _.any(_.map(scope.compareResults[testName], function(result) {
-                                return scope.filterPlatform(result);
-                            }));
-                    }).sort();
                 }
-                scope.$watchGroup(['testFilter', 'platformFilter',
-                                   'showOnlyImportant', 'showOnlyConfident',
+                function filterResult (results, key) {
+                    if (scope.filter === undefined) {
+                        return results;
+                    }
+                    return _.filter(results, function(result) {
+                        var testCondition = key + ' ' + result.name;
+                        return _.every(scope.filter.split(' '), function(matchText) {
+                            return filter(testCondition, matchText) && shouldBeHidden(result);
+                        });
+                    });
+                }
+
+                function updateFilteredTestList() {
+                    scope.filteredResultList = {};
+                    _.forEach(scope.compareResults, function(result, key) {
+                        var compareResults = filterResult(result, key);
+                        if (compareResults.length > 0) {
+                            scope.filteredResultList[key] = compareResults;
+                        }
+                    });
+                    scope.hasNoResults = _.isEmpty(scope.filteredResultList);
+                }
+
+                scope.$watchGroup(['filter', 'showOnlyImportant', 'showOnlyConfident',
                                    'showUnreliablePlatforms'], function() {
                     updateFilteredTestList();
                 });
