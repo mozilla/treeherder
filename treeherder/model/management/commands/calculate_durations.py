@@ -2,11 +2,11 @@ from optparse import make_option
 
 from django.core.management.base import BaseCommand
 
-from treeherder.model.tasks import calculate_eta
+from treeherder.model.tasks import calculate_durations
 
 
 class Command(BaseCommand):
-    help = """Cycle data that exceeds the time constraint limit"""
+    help = """Populate the job_duration table with average durations for recent jobs"""
 
     option_list = BaseCommand.option_list + (
 
@@ -30,4 +30,4 @@ class Command(BaseCommand):
 
         sample_window_seconds = 60 * 60 * sample_window_size
 
-        calculate_eta(sample_window_seconds, debug)
+        calculate_durations(sample_window_seconds, debug)

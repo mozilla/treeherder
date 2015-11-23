@@ -188,7 +188,7 @@ CELERY_QUEUES = (
     Queue('buildapi_4hr', Exchange('default'), routing_key='buildapi_4hr'),
     Queue('fetch_allthethings', Exchange('default'), routing_key='fetch_allthethings'),
     Queue('cycle_data', Exchange('default'), routing_key='cycle_data'),
-    Queue('calculate_eta', Exchange('default'), routing_key='calculate_eta'),
+    Queue('calculate_durations', Exchange('default'), routing_key='calculate_durations'),
     Queue('fetch_bugs', Exchange('default'), routing_key='fetch_bugs'),
     Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs')
 )
@@ -251,12 +251,12 @@ CELERYBEAT_SCHEDULE = {
             'queue': 'cycle_data'
         }
     },
-    'calculate-eta-every-6-hours': {
-        'task': 'calculate-eta',
+    'calculate-durations-every-6-hours': {
+        'task': 'calculate-durations',
         'schedule': timedelta(hours=6),
         'relative': True,
         'options': {
-            'queue': 'calculate_eta'
+            'queue': 'calculate_durations'
         }
     },
     'fetch-bugs-every-hour': {
