@@ -12,7 +12,9 @@ from treeherder.events.publisher import JobStatusPublisher
 from treeherder.model import (error_summary,
                               utils)
 from treeherder.model.models import (Datasource,
-                                     ExclusionProfile)
+                                     ExclusionProfile,
+                                     JobDuration,
+                                     Repository)
 from treeherder.model.tasks import (populate_error_summary,
                                     publish_job_action,
                                     publish_resultset,
@@ -486,23 +488,11 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
-        placeholders = []
-        submit_timestamp = int(time.time())
+        repository = Repository.objects.get(name=self.project)
         for job in average_durations:
-            placeholders.append(
-                [
-                    job['signature'],
-                    'running',
-                    job['average_duration'],
-                    submit_timestamp
-                ])
-
-        self.execute(
-            proc='jobs.inserts.set_job_eta',
-            placeholders=placeholders,
-            executemany=True,
-            debug_show=self.DEBUG
-        )
+            JobDuration.objects.update_or_create(signature=job['signature'],
+                                                 repository=repository,
+                                                 defaults={'average_duration': job['average_duration']})
 
     def cycle_data(self, cycle_interval, chunk_size, sleep_time):
         """Delete data older than cycle_interval, splitting the target data
