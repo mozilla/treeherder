@@ -233,10 +233,12 @@ th-watched-repo {
     position: relative;
 }
 
-#quick-filter:focus,
-#quick-filter:valid {
-    width: 300px !important;
-    padding-right: 20px;
+@media (min-width: 850px) {
+  #quick-filter:focus,
+  #quick-filter:valid {
+      width: 300px !important;
+      padding-right: 20px;
+  }
 }
 
 #quick-filter:valid + #quick-filter-clear-button {
@@ -247,10 +249,10 @@ th-watched-repo {
     color: #bababa;
     font-size: 13px;
     cursor: pointer;
-    position: absolute;
+    position: relative;
     display: none;
-    top: 7px;
-    right: 5px;
+    top: 1px;
+    right: 20px;
     height: 16px;
 }
 
