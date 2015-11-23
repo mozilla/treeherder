@@ -6,6 +6,7 @@
     <!-- build:css css/perf.min.css -->
     <link href="vendor/css/bootstrap.css" rel="stylesheet" media="screen">
     <link href="vendor/css/font-awesome.css" rel="stylesheet" media="screen">
+    <link href="css/treeherder-navbar.css" rel="stylesheet" media="screen">
     <link href="css/perf.css" rel="stylesheet" media="screen">
     <!-- endbuild -->
     <link id="favicon" type="image/png" rel="shortcut icon" href="img/line_chart.png">
@@ -13,31 +14,24 @@
     </style>
 </head>
 <body>
-  <nav class="navbar navbar-default" role="navigation">
-    <div class="container-fluid">
-      <ul class="nav navbar-nav">
-        <li>
-          <span class="dropdown">
-            <button id="perf-logo" title="Treeherder services" role="button"
-                    href="#" data-toggle="dropdown" data-target="#">Perfherder
-              <span class="fa fa-angle-down lightgray"></span>
-            </button>
-            <ul class="dropdown-menu" role="menu" aria-labelledby="perf-logo">
-              <li><a href="/">Treeherder</a></li>
-            </ul>
-          </span>
-        </li>
-        <li ng-class="{active: $state.includes('graphs')}"><a ui-sref="graphs">Graphs</a></li>
-        <li ng-class="{active: $state.current.name.indexOf('compare') >= 0}">
-          <a ui-sref="comparechooser">Compare</a>
-        </li>
-        <li ng-class="{active: $state.current.name.indexOf('alerts') >= 0}">
-          <a ui-sref="alerts">Alerts</a>
-        </li>
-      </ul>
+  <nav id="th-global-navbar" class="navbar navbar-inverse" role="navigation">
+    <div id="th-global-navbar-top" class="navbar navbar-collapse">
+      <span class="dropdown">
+        <button title="Treeherder services" role="button"
+                class="btn btn-view-nav"
+                href="#" data-toggle="dropdown" data-target="#">Perfherder
+          <span class="fa fa-angle-down lightgray"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="perf-logo">
+          <li><a href="/">Treeherder</a></li>
+        </ul>
+      </span>
+      <a ng-class="{active: $state.includes('graphs')}" class="btn btn-view-nav" ui-sref="graphs">Graphs</a>
+      <a ng-class="{active: $state.current.name.indexOf('compare') >= 0}" class="btn btn-view-nav" ui-sref="comparechooser">Compare</a>
+      <a ng-class="{active: $state.current.name.indexOf('alerts') >= 0}" class="btn btn-view-nav" ui-sref="alerts">Alerts</a>
     </div>
   </nav>
-
+  <div style="padding-top: 20px;"></div>
   <section ui-view>
   </section>
 

@@ -17,6 +17,7 @@
 .navbar {
     min-height: 36px;
     margin-bottom: 0px;
+    border-radius: 0px;
 }
 
 .navbar .dropdown-menu {
