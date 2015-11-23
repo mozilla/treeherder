@@ -869,5 +869,18 @@
         "repository_group": 2,
         "description": ""
     }
+},
+{
+    "pk": 71,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "bmo-upstream-merge",
+        "url": "https://github.com/mozilla/webtools-bmo-bugzilla",
+        "active_status": "active",
+        "codebase": "bugzilla",
+        "repository_group": 4,
+        "description": "A suite of tests to check the quality of the BMO codebase."
+    }
 }
 ]
