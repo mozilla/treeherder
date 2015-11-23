@@ -242,8 +242,7 @@ perf.controller('CompareResultsCtrl', [
         $scope.updateFilters = function() {
 
             $state.transitionTo('compare', {
-                filterTest: $scope.filterOptions.testFilter,
-                filterPlatform: $scope.filterOptions.platformFilter,
+                filter: $scope.filterOptions.filter,
                 showOnlyImportant: Boolean($scope.filterOptions.showOnlyImportant) ? undefined : 0,
                 showOnlyConfident: Boolean($scope.filterOptions.showOnlyConfident) ? 1 : undefined,
                 showUnreliablePlatforms: Boolean($scope.filterOptions.showUnreliablePlatforms) ? 1 : undefined
@@ -272,8 +271,7 @@ perf.controller('CompareResultsCtrl', [
                 return;
             }
             $scope.filterOptions = {
-                testFilter: $stateParams.filterTest || "",
-                platformFilter: $stateParams.filterPlatform || "",
+                filter: $stateParams.filter || "",
                 showOnlyImportant: $stateParams.showOnlyImportant === undefined ||
                     parseInt($stateParams.showOnlyImportant),
                 showOnlyConfident: $stateParams.showOnlyConfident !== undefined ||

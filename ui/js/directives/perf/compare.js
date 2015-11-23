@@ -9,8 +9,7 @@ treeherder.directive(
                 titles: '=',
                 compareResults: '=',
                 testList: '=',
-                testFilter: '=',
-                platformFilter: '=',
+                filter: '=',
                 showOnlyImportant: '=',
                 showOnlyConfident: '=',
                 showUnreliablePlatforms: '='
@@ -20,26 +19,43 @@ treeherder.directive(
                 function filter(item, matchText) {
                     return !matchText || item.toLowerCase().indexOf(matchText.toLowerCase()) > (-1);
                 }
-                scope.filterTest = function(item) {
-                    return filter(item, scope.testFilter);
-                };
-                scope.filterPlatform = function(result) {
-                    return filter(result.name, scope.platformFilter) &&
-                        (!scope.showOnlyImportant || result.isMeaningful) &&
-                        (!scope.showOnlyConfident || result.isConfident) &&
-                        (scope.showUnreliablePlatforms || !_.contains(
+                function hidenOption(result) {
+                    return (!scope.showOnlyImportant || result.isMeaningful)
+                        && (!scope.showOnlyConfident || result.isConfident)
+                        && (scope.showUnreliablePlatforms || !_.contains(
                             phUnreliablePlatforms, result.name));
-                };
-                function updateFilteredTestList() {
-                    scope.filteredTestList = _.filter(_.keys(scope.compareResults), function(testName) {
-                        return scope.filterTest(scope.titles[testName]) &&
-                            _.any(_.map(scope.compareResults[testName], function(result) {
-                                return scope.filterPlatform(result);
-                            }));
-                    }).sort();
                 }
-                scope.$watchGroup(['testFilter', 'platformFilter',
-                                   'showOnlyImportant', 'showOnlyConfident',
+                scope.filterResult = function(results, key) {
+                    return _.filter(results, function(result) {
+                        var testCondition = key + ' ' + result.name;
+                        return _.every(scope.filter.split(' '), function(matchText) {
+                            return filter(testCondition, matchText) && hidenOption(result);
+                        });
+                    });
+                };
+
+                // We use this function to sort result list been filtered out.
+                function sortResults (resultsList) {
+                    var keys = _.sortBy(_.keys(resultsList), function (key) {
+                        return key;
+                    });
+                    return _.object(keys, _.map(keys, function (key) {
+                        return resultsList[key];
+                    }));
+                }
+
+                function updateFilteredTestList() {
+                    scope.filteredResultList = {};
+                    _.forEach(scope.compareResults, function(result, key) {
+                        var compareResults = scope.filterResult(result, key);
+                        if (compareResults.length > 0) {
+                            scope.filteredResultList[key] = compareResults;
+                        }
+                    });
+                    scope.filteredResultList = sortResults(scope.filteredResultList);
+                }
+
+                scope.$watchGroup(['filter', 'showOnlyImportant', 'showOnlyConfident',
                                    'showUnreliablePlatforms'], function() {
                     updateFilteredTestList();
                 });
