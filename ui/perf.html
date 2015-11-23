@@ -7,6 +7,7 @@
     <link href="vendor/css/bootstrap.css" rel="stylesheet" media="screen">
     <link href="vendor/css/font-awesome.css" rel="stylesheet" media="screen">
     <link href="css/treeherder-navbar.css" rel="stylesheet" media="screen">
+    <link href="vendor/css/persona-buttons.css" rel="stylesheet" media="screen">
     <link href="css/perf.css" rel="stylesheet" media="screen">
     <!-- endbuild -->
     <link id="favicon" type="image/png" rel="shortcut icon" href="img/line_chart.png">
@@ -29,6 +30,11 @@
       <a ng-class="{active: $state.includes('graphs')}" class="btn btn-view-nav" ui-sref="graphs">Graphs</a>
       <a ng-class="{active: $state.current.name.indexOf('compare') >= 0}" class="btn btn-view-nav" ui-sref="comparechooser">Compare</a>
       <a ng-class="{active: $state.current.name.indexOf('alerts') >= 0}" class="btn btn-view-nav" ui-sref="alerts">Alerts</a>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+          <persona-buttons></persona-buttons>
+        </li>
+      </ul>
     </div>
   </nav>
   <div style="padding-top: 20px;"></div>
@@ -66,14 +72,18 @@
   <script src="js/models/job.js"></script>
   <script src="js/models/runnable_job.js"></script>
   <script src="js/models/resultset.js"></script>
+  <script src="js/models/user.js"></script>
   <script src="js/perf.js"></script>
   <script src="js/controllers/perf/compare.js"></script>
   <script src="js/controllers/perf/graphs.js"></script>
   <script src="js/controllers/perf/alerts.js"></script>
+  <script src="js/directives/treeherder/persona.js"></script>
   <script src="js/directives/perf/compare.js"></script>
   <script src="js/perfapp.js"></script>
   <script src="js/filters.js"></script>
   <!-- endbuild -->
+
+  <script src="https://login.persona.org/include.js"></script>
 
 </body>
 </html>

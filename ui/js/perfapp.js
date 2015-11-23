@@ -1,9 +1,13 @@
 "use strict";
 
 // configure the router here, after we have defined all the controllers etc
-perf.config(function($compileProvider, $stateProvider, $urlRouterProvider) {
+perf.config(function($compileProvider, $httpProvider, $stateProvider, $urlRouterProvider) {
     // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
     $compileProvider.debugInfoEnabled(false);
+
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.useApplyAsync(true);
 
     $stateProvider.state('alerts', {
         title: 'Perfherder Alerts',
