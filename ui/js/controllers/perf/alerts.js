@@ -133,7 +133,7 @@ perf.controller('AlertsCtrl', [
         $scope.getMoreAlertSummaries = function(count) {
             PhAlerts.getAlertSummaries($scope.getMoreAlertSummariesHref).then(
                 function(data) {
-                    addAlertSummaries(data.results, data.next)
+                    addAlertSummaries(data.results, data.next);
                 });
         };
 
