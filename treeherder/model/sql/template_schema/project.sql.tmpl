@@ -95,7 +95,7 @@ DROP TABLE IF EXISTS `job`;
  *  start_timestamp - Time the job was started.
  *  end_timestamp - Time the job completed.
  *  last_modified - The last time the job was modified
- *  running_eta - ETA to a completed state. A rolling average over a 6 hr window of end_timestamp - start_timestamp, recomputed every 30 min.
+ *  running_eta - The estimated job duration as recorded in the job_duration table at time of submission.
  **************************/
 CREATE TABLE `job` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
