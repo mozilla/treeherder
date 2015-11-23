@@ -467,7 +467,7 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
-    def calculate_eta(self, sample_window_seconds, debug):
+    def calculate_durations(self, sample_window_seconds, debug):
         # Get the most recent timestamp from jobs
         max_start_timestamp = self.execute(
             proc='jobs.selects.get_max_job_start_timestamp',

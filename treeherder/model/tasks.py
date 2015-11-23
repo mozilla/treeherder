@@ -46,8 +46,8 @@ def cycle_data():
     call_command('cycle_data')
 
 
-@task(name='calculate-eta', rate_limit='1/h')
-def calculate_eta(sample_window_seconds=21600, debug=False):
+@task(name='calculate-durations', rate_limit='1/h')
+def calculate_durations(sample_window_seconds=21600, debug=False):
     from treeherder.model.derived.jobs import JobsModel
 
     projects = Repository.objects.filter(active_status='active').values_list('name', flat=True)
@@ -55,7 +55,7 @@ def calculate_eta(sample_window_seconds=21600, debug=False):
     for project in projects:
 
         with JobsModel(project) as jm:
-            jm.calculate_eta(sample_window_seconds, debug)
+            jm.calculate_durations(sample_window_seconds, debug)
 
 
 @task(name='publish-job-action')
