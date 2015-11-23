@@ -57,7 +57,8 @@ class JobLogUrlViewSet(viewsets.ViewSet):
         except KeyError:
             raise ParseError(detail=("The parse_status parameter is mandatory for this endpoint"))
         jm.update_job_log_url_status(pk, parse_status)
-        return Response({"message": "Log parse status updated successfully"})
+        obj = jm.get_job_log_url_detail(pk)
+        return Response(obj)
 
     @detail_route(methods=['post'])
     @with_jobs

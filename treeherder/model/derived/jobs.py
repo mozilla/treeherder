@@ -1657,13 +1657,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         return data
 
     def update_job_log_url_status(self, job_log_url_id, parse_status):
-        rows_updated = self.execute(
+
+        self.execute(
             proc='jobs.updates.update_job_log_url',
-            return_type='rowcount',
             debug_show=self.DEBUG,
             placeholders=[parse_status, job_log_url_id])
-        if rows_updated < 1:
-            raise ObjectNotFoundException("job_log_url", id=job_log_url_id)
 
     def _get_last_insert_id(self):
         """Return last-inserted ID."""
