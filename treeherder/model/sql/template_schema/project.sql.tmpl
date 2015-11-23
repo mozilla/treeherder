@@ -148,39 +148,6 @@ CREATE TABLE `job` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
-DROP TABLE IF EXISTS `job_eta`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
---
--- Table structure for table `job_eta`
---
-/*************************
- * Table: job_eta
- *
- * This table holds a timeline of eta trends for pending and running jobs
- *
- * Population Method: dynamic from incoming data
- *
- * Example Data:
- *
- *  signature - References treeherder_reference_1.buildbot_buildernames.signature
- *  state - pending | running
- *  avg_sec - A rolling average over a 12 hr window in seconds
- *  submit_timestamp - The timestamp the eta data was computed and entered
- *************************/
-CREATE TABLE `job_eta` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `signature` varchar(50) DEFAULT NULL,
-  `state` varchar(25) COLLATE utf8_bin NOT NULL,
-  `avg_sec` int(10) unsigned NOT NULL,
-  `submit_timestamp` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_state` (`state`),
-  KEY `idx_avg_sec` (`avg_sec`),
-  KEY `idx_submit_timestamp` (`submit_timestamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
 --
 -- Table structure for table `job_artifact`
 --
