@@ -1415,33 +1415,14 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         return self.get_job_ids_by_guid(job_guid_list)
 
     def get_average_job_durations(self, reference_data_signatures):
-        eta_lookup = {}
+        if not reference_data_signatures:
+            return {}
 
-        if len(reference_data_signatures) == 0:
-            return eta_lookup
-
-        rds_where_in_clause = ','.join(['%s'] * len(reference_data_signatures))
-
-        job_eta_data = self.execute(
-            proc='jobs.selects.get_last_eta_by_signatures',
-            debug_show=self.DEBUG,
-            replace=[rds_where_in_clause],
-            placeholders=reference_data_signatures)
-
-        for eta_data in job_eta_data:
-
-            signature = eta_data['signature']
-            state = eta_data['state']
-            # There are still old rows in the DB with state 'pending', which must
-            # be filtered out. Doing so in the SQL query resulted in worse perf, see:
-            # https://bugzilla.mozilla.org/show_bug.cgi?id=1221064#c7
-            # However this will all be removed in later commits, so it's somewhat moot.
-            if state != 'running':
-                continue
-
-            eta_lookup[signature] = eta_data['avg_sec']
-
-        return eta_lookup
+        repository = Repository.objects.get(name=self.project)
+        durations = JobDuration.objects.filter(signature__in=reference_data_signatures,
+                                               repository=repository
+                                               ).values_list('signature', 'average_duration')
+        return dict(durations)
 
     def get_job_ids_by_guid(self, job_guid_list):
 

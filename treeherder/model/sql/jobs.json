@@ -291,17 +291,6 @@
             "host_type":"master_host"
 
         },
-        "get_last_eta_by_signatures":{
-            "sql":"SELECT signature,
-                          state,
-                          avg_sec,
-                          MAX(submit_timestamp)
-                    FROM job_eta
-                    WHERE signature IN (REP0)
-                    GROUP BY signature, state
-                    ORDER BY submit_timestamp DESC",
-            "host_type":"read_host"
-        },
         "get_revision_ids_to_cycle":{
             "sql":"SELECT revision_id FROM revision_map WHERE result_set_id IN (REP0)",
             "host_type":"master_host"
