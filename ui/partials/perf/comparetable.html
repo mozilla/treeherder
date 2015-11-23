@@ -12,7 +12,7 @@
       <th class="num-runs" style="width: 80px"># Runs</th>
       <th class="test-warning" style="width: 30px"><!-- warning if not enough --></th>
     </tr>
-    <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults[testName] | orderBy: 'name'" ng-show="filterPlatform(compareResult)">
+    <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults[testName] | orderBy: 'name'" ng-show="filterPlatform(compareResult) && hideOptions(compareResult)">
       <td class="test-title">{{compareResult.name}}&nbsp;&nbsp;
         <span class="result-links" ng-if="compareResult.links.length > 0">
           <span ng-repeat="link in compareResult.links">
