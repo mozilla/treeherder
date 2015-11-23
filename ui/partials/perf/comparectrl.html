@@ -17,12 +17,8 @@
       <h4>Filters</h4>
       <form class="form-inline">
         <div class="form-group">
-          <label for="filter-test">Test</label>
-            <input id="filter-test" type="text" class="form-control" ng-model="filterOptions.testFilter" placeholder="e.g. tp5o opt" ng-change="updateFilters()"/>
-        </div>
-        <div class="form-group">
-          <label for="filter-platform">Platform</label>
-            <input id="filter-platform" type="text" class="form-control" ng-model="filterOptions.platformFilter" placeholder="e.g. linux64" ng-change="updateFilters()"/>
+          <label for="filter">Filter</label>
+            <input id="filter" type="text" class="form-control" ng-model="filterOptions.filter" placeholder="e.g. linux tp5o" ng-change="updateFilters()"/>
         </div>
         <div class="checkbox" tooltip="Non-trivial changes (1.5%+)">
           <label>
@@ -48,8 +44,7 @@
          titles="titles"
          test-list="testList"
          compare-results="compareResults"
-         test-filter="filterOptions.testFilter"
-         platform-filter="filterOptions.platformFilter"
+         filter="filterOptions.filter"
          show-only-important="filterOptions.showOnlyImportant"
          show-only-confident="filterOptions.showOnlyConfident"
          show-unreliable-platforms="filterOptions.showUnreliablePlatforms">
