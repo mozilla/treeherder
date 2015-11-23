@@ -42,10 +42,7 @@ perf.controller('AlertsCtrl', [
             return Math.min(Math.abs(percent)*5, 100);
         };
 
-        function addAlertSummaries(data) {
-            $scope.getMoreAlertSummariesHref = data.next;
-            var alertSummaries = data.results;
-
+        function addAlertSummaries(alertSummaries, getMoreAlertSummariesHref) {
             // create a mapping of result set information -> alert summaries,
             // so we can fill in revision information for each alert summary
             // (this is sadly easier to do on the client side than the server
@@ -135,7 +132,9 @@ perf.controller('AlertsCtrl', [
 
         $scope.getMoreAlertSummaries = function(count) {
             PhAlerts.getAlertSummaries($scope.getMoreAlertSummariesHref).then(
-                addAlertSummaries);
+                function(data) {
+                    addAlertSummaries(data.results, data.next)
+                });
         };
 
         ThRepositoryModel.get_list().then(function(response) {
@@ -146,13 +145,16 @@ perf.controller('AlertsCtrl', [
             ThOptionCollectionModel.get_map().then(
                 function(optionCollectionMap) {
                     $scope.optionCollectionMap = optionCollectionMap;
-                    var alertPromise;
                     if ($stateParams.id) {
-                        alertPromise = PhAlerts.getAlertSummary($stateParams.id);
+                        PhAlerts.getAlertSummary($stateParams.id).then(
+                            function(data) {
+                                addAlertSummaries([data], null);
+                            });
                     } else {
-                        alertPromise = PhAlerts.getAlertSummaries();
+                        PhAlerts.getAlertSummaries().then(function(data) {
+                            addAlertSummaries(data.results, data.next);
+                        });
                     }
-                    alertPromise.then(addAlertSummaries);
                 });
 
         });
