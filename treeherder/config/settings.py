@@ -441,9 +441,10 @@ MEMCACHED_LOCATION = TREEHERDER_MEMCACHED.strip(',').split(',')
 
 CACHES = {
     "default": {
-        "BACKEND": "treeherder.cache.MemcachedCache",
+        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
         "LOCATION": MEMCACHED_LOCATION,
-        "TIMEOUT": 0,
+        # Cache forever
+        "TIMEOUT": None,
         # bumping this is effectively equivalent to restarting memcached
         "VERSION": 1,
     },
