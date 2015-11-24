@@ -1,5 +1,7 @@
 import datetime
 
+import pytest
+
 from treeherder.model.models import (MachinePlatform,
                                      Option,
                                      OptionCollection)
@@ -11,7 +13,8 @@ from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceSignature)
 
 
-def test_detect_alerts_in_series(test_project, test_repository):
+@pytest.fixture
+def test_perf_signature(test_repository):
     framework = PerformanceFramework.objects.create(
         name='test_talos')
     option = Option.objects.create(name='opt')
@@ -33,6 +36,26 @@ def test_detect_alerts_in_series(test_project, test_repository):
         suite='mysuite',
         test='mytest'
     )
+    return signature
+
+
+def _verify_alert(alertid, expected_result_set_id,
+                  expected_prev_result_set_id,
+                  expected_signature, expected_prev_value,
+                  expected_new_value, is_regression):
+    alert = PerformanceAlert.objects.get(id=alertid)
+    assert alert.prev_value == expected_prev_value
+    assert alert.new_value == expected_new_value
+    assert alert.series_signature == expected_signature
+    assert alert.is_regression == is_regression
+
+    summary = PerformanceAlertSummary.objects.get(id=alertid)
+    assert summary.result_set_id == expected_result_set_id
+    assert summary.prev_result_set_id == expected_prev_result_set_id
+
+
+def test_detect_alerts_in_series(test_project, test_repository,
+                                 test_perf_signature):
 
     INTERVAL = 30
     for (t, v) in zip([i for i in range(INTERVAL)],
@@ -41,36 +64,24 @@ def test_detect_alerts_in_series(test_project, test_repository):
         PerformanceDatum.objects.create(
             repository=test_repository,
             result_set_id=t,
-            job_id=0,
-            signature=signature,
+            job_id=t,
+            signature=test_perf_signature,
             push_timestamp=datetime.datetime.fromtimestamp(t),
             value=v)
 
-    generate_new_alerts_in_series(signature)
-
-    def verify_alert(alertid, expected_result_set_id,
-                     expected_prev_result_set_id,
-                     expected_signature, expected_prev_value,
-                     expected_new_value, is_regression):
-        alert = PerformanceAlert.objects.get(id=alertid)
-        assert alert.prev_value == expected_prev_value
-        assert alert.new_value == expected_new_value
-        assert alert.series_signature == expected_signature
-        assert alert.is_regression == is_regression
-
-        summary = PerformanceAlertSummary.objects.get(id=alertid)
-        assert summary.result_set_id == expected_result_set_id
-        assert summary.prev_result_set_id == expected_prev_result_set_id
+    generate_new_alerts_in_series(test_perf_signature)
 
     assert PerformanceAlert.objects.count() == 1
     assert PerformanceAlertSummary.objects.count() == 1
-    verify_alert(1, (INTERVAL/2), (INTERVAL/2)-1, signature, 0.5, 1.0, True)
+    _verify_alert(1, (INTERVAL/2), (INTERVAL/2)-1, test_perf_signature, 0.5,
+                  1.0, True)
 
     # verify that no new alerts generated if we rerun
-    generate_new_alerts_in_series(signature)
+    generate_new_alerts_in_series(test_perf_signature)
     assert PerformanceAlert.objects.count() == 1
     assert PerformanceAlertSummary.objects.count() == 1
-    verify_alert(1, (INTERVAL/2), (INTERVAL/2)-1, signature, 0.5, 1.0, True)
+    _verify_alert(1, (INTERVAL/2), (INTERVAL/2)-1, test_perf_signature, 0.5,
+                  1.0, True)
 
     # add data to generate a new alert
     for (t, v) in zip([i for i in range(INTERVAL, INTERVAL*2)],
