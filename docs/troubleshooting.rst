@@ -75,6 +75,21 @@ If after a ``celery -A treeherder worker -B --concurrency 5`` you experience a s
 
 You should ctrl+c to shut down celery, remove the ``celerybeat-schedule`` file in the project root, and restart your worker.
 
+Why is my celery ingestion throwing errors?
+-------------------------------------------
+
+If after a ``celery -A treeherder worker -B --concurrency 5`` you experience connection errors like
+
+.. code-block:: bash
+
+   [2015-11-24 04:46:32,899: ERROR/Beat] beat: Connection error: [Errno 111] Connection refused. Trying again in 6.0 seconds...
+   [2015-11-24 04:46:38,894: ERROR/MainProcess] consumer: Cannot connect to amqp://guest:**@127.0.0.1:5672//: [Errno 111] Connection refused.
+   Trying again in 8.00 seconds...
+
+Try restarting the rabbitmq service with `threstartrabbitmq` at the
+commandline.  There are many more useful functions, like this,  found
+in the `.bash_aliases` file.
+
 Where are my log files?
 -----------------------
 
