@@ -313,6 +313,14 @@ class Migration(migrations.Migration):
             name='repository_group',
             field=models.ForeignKey(to='model.RepositoryGroup'),
         ),
+        migrations.AlterUniqueTogether(
+            name='referencedatasignatures',
+            unique_together=set([('name', 'signature', 'build_system_type', 'repository')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='jobgroup',
+            unique_together=set([('name', 'symbol')]),
+        ),
         migrations.AddField(
             model_name='failurematch',
             name='matcher',
@@ -332,6 +340,10 @@ class Migration(migrations.Migration):
             model_name='classifiedfailure',
             name='failure_lines',
             field=models.ManyToManyField(related_name='intermittent_failures', through='model.FailureMatch', to='model.FailureLine'),
+        ),
+        migrations.AlterUniqueTogether(
+            name='userexclusionprofile',
+            unique_together=set([('user', 'exclusion_profile')]),
         ),
         migrations.AlterUniqueTogether(
             name='optioncollection',

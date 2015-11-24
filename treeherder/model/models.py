@@ -330,6 +330,7 @@ class JobGroup(models.Model):
 
     class Meta:
         db_table = 'job_group'
+        unique_together = ('name', 'symbol')
 
     def __str__(self):
         return "{0} ({1})".format(
@@ -486,6 +487,7 @@ class UserExclusionProfile(models.Model):
 
     class Meta:
         db_table = 'user_exclusion_profile'
+        unique_together = ('user', 'exclusion_profile')
 
 
 class ReferenceDataSignatures(models.Model):
@@ -520,6 +522,7 @@ class ReferenceDataSignatures(models.Model):
         db_table = 'reference_data_signatures'
         # Remove if/when the model is renamed to 'ReferenceDataSignature'.
         verbose_name_plural = 'reference data signatures'
+        unique_together = ('name', 'signature', 'build_system_type', 'repository')
 
 
 class FailureLineManager(models.Manager):
