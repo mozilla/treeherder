@@ -147,5 +147,5 @@ class PerformanceAlert(models.Model):
         unique_together = ('summary', 'series_signature')
 
     def __str__(self):
-        return "{} {} {}%".format(self.alert_summary, self.series_signature,
+        return "{} {} {}%".format(self.summary, self.series_signature,
                                   self.amount_pct)
