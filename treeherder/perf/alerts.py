@@ -29,9 +29,15 @@ def generate_new_alerts_in_series(signature):
                    testrun_id=datum.result_set_id)
     prev = None
     analyzed_series = a.analyze_t()
-
+    prev_testrun_id = None
     with transaction.atomic():
         for (prev, cur) in zip(analyzed_series, analyzed_series[1:]):
+            # we can have the same testrun id in a sequence if there are
+            # retriggers, so only set the prev_testrun_id if that isn't
+            # the case
+            if prev.testrun_id != cur.testrun_id:
+                prev_testrun_id = prev.testrun_id
+
             if cur.state == 'regression':
                 prev_value = cur.historical_stats['avg']
                 new_value = cur.forward_stats['avg']
@@ -54,7 +60,7 @@ def generate_new_alerts_in_series(signature):
                 summary, _ = PerformanceAlertSummary.objects.get_or_create(
                     repository=signature.repository,
                     result_set_id=cur.testrun_id,
-                    prev_result_set_id=prev.testrun_id,
+                    prev_result_set_id=prev_testrun_id,
                     defaults={
                         'last_updated': datetime.datetime.fromtimestamp(
                             cur.push_timestamp)

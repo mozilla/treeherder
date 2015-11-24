@@ -83,16 +83,21 @@ class PerfDatum(object):
         self.state = state
 
     def __cmp__(self, o):
+        # only compare value to make sorting deterministic
+        # in cases where we have multiple datapoints with
+        # the same push timestamp
         return cmp(
-                (self.push_timestamp, self.testrun_timestamp),
-                (o.push_timestamp, o.testrun_timestamp),
-                )
+            (self.push_timestamp, self.testrun_timestamp, self.value),
+            (o.push_timestamp, o.testrun_timestamp, o.value),
+        )
 
     def __eq__(self, o):
+        # same as for __cmp__: only compare value to make
+        # comparisons determistic
         return cmp(
-                (self.testrun_timestamp, self.value, self.buildid, self.machine_id),
-                (o.testrun_timestamp, o.value, o.buildid, o.machine_id),
-                ) == 0
+            (self.testrun_timestamp, self.value, self.buildid),
+            (o.testrun_timestamp, o.value, o.buildid),
+        ) == 0
 
     def __ne__(self, o):
         return not self == o

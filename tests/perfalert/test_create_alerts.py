@@ -90,12 +90,39 @@ def test_detect_alerts_in_series(test_project, test_repository,
             repository=test_repository,
             result_set_id=t,
             job_id=0,
-            signature=signature,
+            signature=test_perf_signature,
             push_timestamp=datetime.datetime.fromtimestamp(t),
             value=v)
 
-    generate_new_alerts_in_series(signature)
+    generate_new_alerts_in_series(test_perf_signature)
 
     assert PerformanceAlert.objects.count() == 2
     assert PerformanceAlertSummary.objects.count() == 2
-    verify_alert(2, INTERVAL, INTERVAL-1, signature, 1.0, 2.0, True)
+    _verify_alert(2, INTERVAL, INTERVAL-1, test_perf_signature, 1.0, 2.0,
+                  True)
+
+
+def test_detect_alerts_in_series_with_retriggers(
+        test_project, test_repository, test_perf_signature):
+
+    # sometimes we detect an alert in the middle of a series
+    # where there are retriggers, make sure we handle this case
+    # gracefully by generating a sequence where the regression
+    # "appears" in the middle of a series with the same resultset
+    # to make sure things are calculated correctly
+    for (r, j, v) in zip(
+            ([1 for i in range(30)] +
+             [2 for i in range(60)]),
+            [i for i in range(90)],
+            ([0.5 for i in range(50)] +
+             [1.0 for i in range(40)])
+    ):
+        PerformanceDatum.objects.create(
+            repository=test_repository,
+            result_set_id=r,
+            job_id=j,
+            signature=test_perf_signature,
+            push_timestamp=datetime.datetime.fromtimestamp(r),
+            value=v)
+    generate_new_alerts_in_series(test_perf_signature)
+    _verify_alert(1, 2, 1, test_perf_signature, 0.5, 1.0, True)
