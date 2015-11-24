@@ -125,3 +125,6 @@ python-dateutil==2.4.2
 
 # sha256: Z1L5dgnjtpS42jP4T96FV4AIil_C-Vqjw5t69hdRcqQ
 requests-hawk==0.2.0
+
+# sha256: AMxHk1r7vYMmD90oOwqnkOZY0qcZIgSfbkZ9yooSRTc
+django-filter==0.11.0
