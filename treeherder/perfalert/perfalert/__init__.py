@@ -98,14 +98,17 @@ class PerfDatum(object):
         return not self == o
 
     def __repr__(self):
-        return "<%s: %.3f, %i, %s>" % (self.buildid, self.value,
-                                       self.testrun_timestamp, self.machine_id)
+        return "<%s: %.3f, %i, %i, %s>" % (self.buildid, self.value,
+                                           self.testrun_timestamp,
+                                           self.testrun_id,
+                                           self.state)
 
     def __str__(self):
-        return "Build %s on %s %s %s %s" % (self.buildid,
-                                            self.testrun_timestamp,
-                                            self.push_timestamp, self.value,
-                                            self.machine_id)
+        return "Build %s on %s %s %s %.3f" % (self.buildid,
+                                              self.testrun_timestamp,
+                                              self.push_timestamp,
+                                              self.testrun_id,
+                                              self.value)
 
 
 class Analyzer:
