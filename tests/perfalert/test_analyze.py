@@ -78,11 +78,10 @@ class TestAnalyzer(unittest.TestCase):
         a = Analyzer()
         for r in runs:
             a.add_data(r[2], r[3], testrun_id=r[0],
-                       testrun_timestamp=r[2], buildid=r[1][1],
-                       revision=r[1][2])
+                       revision_id=r[1][2])
 
         results = a.analyze_t(BACK_WINDOW, FORE_WINDOW, THRESHOLD)
-        regression_timestamps = [d.testrun_timestamp for d in results if
+        regression_timestamps = [d.push_timestamp for d in results if
                                  d.state == 'regression']
         self.assertEqual(regression_timestamps, expected_timestamps)
 

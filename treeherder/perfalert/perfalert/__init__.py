@@ -55,27 +55,18 @@ def calc_t(w1, w2, weight_fn=None):
     return delta_s / (((s1['variance'] / s1['n']) + (s2['variance'] / s2['n'])) ** 0.5)
 
 
-class PerfDatum(object):
+class Datum(object):
     def __init__(self, push_timestamp, value, testrun_timestamp=None,
-                 buildid=None, testrun_id=None, revision=None, state='good'):
+                 testrun_id=None, revision_id=None, state='good'):
         # Date code was pushed
         self.push_timestamp = push_timestamp
         # Value of this point
         self.value = value
 
-        # Which build was this
-        self.buildid = buildid
-        # timestamp when test was run
-        if testrun_timestamp:
-            self.testrun_timestamp = testrun_timestamp
-        else:
-            # in some cases we may not have information on when test was run
-            # in that case just pretend its the same as when it was pushed
-            self.testrun_timestamp = push_timestamp
         # Which test run was this
         self.testrun_id = testrun_id
         # What revision this data is for
-        self.revision = revision
+        self.revision_id = revision_id
 
         # t-test score
         self.t = 0
@@ -83,29 +74,19 @@ class PerfDatum(object):
         self.state = state
 
     def __cmp__(self, o):
+        # only compare value to make sorting deterministic
+        # in cases where we have multiple datapoints with
+        # the same push timestamp
         return cmp(
-                (self.push_timestamp, self.testrun_timestamp),
-                (o.push_timestamp, o.testrun_timestamp),
-                )
-
-    def __eq__(self, o):
-        return cmp(
-                (self.testrun_timestamp, self.value, self.buildid, self.machine_id),
-                (o.testrun_timestamp, o.value, o.buildid, o.machine_id),
-                ) == 0
-
-    def __ne__(self, o):
-        return not self == o
+            (self.push_timestamp, self.testrun_id, self.value),
+            (o.push_timestamp, o.testrun_id, o.value),
+        )
 
     def __repr__(self):
-        return "<%s: %.3f, %i, %s>" % (self.buildid, self.value,
-                                       self.testrun_timestamp, self.machine_id)
-
-    def __str__(self):
-        return "Build %s on %s %s %s %s" % (self.buildid,
-                                            self.testrun_timestamp,
-                                            self.push_timestamp, self.value,
-                                            self.machine_id)
+        return "<%s: %s, %s, %.3f, %.3f, %s>" % (self.push_timestamp,
+                                                 self.revision_id,
+                                                 self.testrun_id, self.value,
+                                                 self.t, self.state)
 
 
 class Analyzer:
@@ -113,7 +94,7 @@ class Analyzer:
         self.data = []  # List of PerfDatum instances
 
     def add_data(self, push_timestamp, value, **kwargs):
-        self.data.append(PerfDatum(push_timestamp, value, **kwargs))
+        self.data.append(Datum(push_timestamp, value, **kwargs))
         self.data.sort()
 
     def analyze_t(self, back_window=12, fore_window=12, t_threshold=7):
