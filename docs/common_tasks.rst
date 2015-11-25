@@ -65,6 +65,7 @@ Or for more control, run each tool individually:
 
   NB: isort must be run from inside the VM, since a populated (and up to date) virtualenv is required so that isort can correctly categorise the imports.
 
+.. _managing-api-credentials:
 
 Managing API credentials
 ------------------------

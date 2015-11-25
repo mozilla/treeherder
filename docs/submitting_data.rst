@@ -558,13 +558,10 @@ Authentication
 --------------
 
 A treeherder client instance should identify itself to the server
-via the `Hawk authentication mechanism`_. You can apply for
-credentials by going to:
+via the `Hawk authentication mechanism`_. To apply for credentials or
+create some for local testing, see :ref:`managing-api-credentials`.
 
-https://treeherder.mozilla.org/credentials/create/
-
-Once they have been approved by a Treeherder administrator, you can
-pass the credentials for this mechanism via the `client_id` and
+Once your credentials are set up, pass them via the `client_id` and
 `secret` parameters to TreeherderClient's constructor:
 
 .. code-block:: python
