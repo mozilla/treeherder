@@ -43,6 +43,8 @@ perf.controller('AlertsCtrl', [
         };
 
         function addAlertSummaries(alertSummaries, getMoreAlertSummariesHref) {
+            $scope.getMoreAlertSummariesHref = getMoreAlertSummariesHref;
+
             // create a mapping of result set information -> alert summaries,
             // so we can fill in revision information for each alert summary
             // (this is sadly easier to do on the client side than the server
