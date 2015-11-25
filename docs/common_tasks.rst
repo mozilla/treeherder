@@ -85,12 +85,12 @@ For more details see the :doc:`submitting_data` section.
 
 Users can request credentials for the deployed Mozilla Treeherder instances
 (and view/delete existing ones) using the forms here:
-`stage <https://treeherder.allizom.org/credentials/>`_,
-`production <https://treeherder.mozilla.org/credentials/>`_.
+`stage <https://treeherder.allizom.org/credentials/>`__ /
+`production <https://treeherder.mozilla.org/credentials/>`__.
 
 Once requested these require approval by a Treeherder administrator, here:
-`stage <https://treeherder.allizom.org/admin/credentials/credentials/>`_,
-`production <https://treeherder.mozilla.org/admin/credentials/credentials/>`_.
+`stage <https://treeherder.allizom.org/admin/credentials/credentials/>`__ /
+`production <https://treeherder.mozilla.org/admin/credentials/credentials/>`__.
 
 
 Add a new repository
