@@ -882,5 +882,18 @@
         "repository_group": 4,
         "description": "A suite of tests to check the quality of the BMO codebase."
     }
+},
+{
+    "pk": 72,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "b2g-ota",
+        "url": "https://hg.mozilla.org/releases/b2g-ota",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 2,
+        "description": ""
+    }
 }
 ]
