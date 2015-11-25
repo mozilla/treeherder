@@ -70,8 +70,11 @@
       </td>
       <td ng-if="!compareResult.delta"></td>
       <td>
-        <span ng-if="compareResult.confidenceText && compareResult.confidence">
-          {{compareResult.confidence|displayPrecision}} (<span class="detail-hint" tooltip="Result of running t-test on base versus new result distribution: higher values indicate greater confidence that the indicated performance difference is statistically meaningful">{{compareResult.confidenceText}}</abbr>)</span>&nbsp;
+        <span ng-if="compareResult.confidence && compareResult.confidenceText"
+              class="detail-hint"
+              tooltip="{{compareResult.confidenceTextLong}}">
+          {{compareResult.confidence|displayPrecision}} ({{compareResult.confidenceText}})
+          </span>
       </td>
       <td class="num-runs">
         <span class="detail-hint"

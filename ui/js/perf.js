@@ -330,6 +330,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                     // - .deltaPercentage
                                     // - .confidence               // t-test value
                                     // - .confidenceText           // 'low'/'med'/'high'
+                                    // - .confidenceTextLong       // more explanation on what confidenceText means
                                     // - .isMeaningful             // for highlighting - bool over t-test threshold
                                     // And some data to help formatting of the comparison:
                                     // - .className
@@ -420,10 +421,17 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                         var abs_t_value = Math.abs(math.t_test(originalData.values, newData.values, STDDEV_DEFAULT_FACTOR));
                                         cmap.className = getClassName(cmap.newIsBetter, cmap.originalValue, cmap.newValue, abs_t_value);
                                         cmap.confidence = abs_t_value;
-                                        cmap.confidenceText = abs_t_value < T_VALUE_CARE_MIN ? "low" :
-                                            abs_t_value < T_VALUE_CONFIDENT ? "med" :
-                                            "high";
-
+                                        cmap.confidenceTextLong = "Result of running t-test on base versus new result distribution: "
+                                        if (abs_t_value < T_VALUE_CARE_MIN) {
+                                            cmap.confidenceText = "low";
+                                            cmap.confidenceTextLong += "A value of 'low' suggests less confidence that there is a sustained, significant change between the two revisions.";
+                                        } else if (abs_t_value < T_VALUE_CONFIDENT) {
+                                            cmap.confidenceText = "med";
+                                            cmap.confidenceTextLong += "A value of 'med' indicates uncertainty that there is a significant change. If you haven't already, consider retriggering the job to be more sure.";
+                                        } else {
+                                            cmap.confidenceText = "high";
+                                            cmap.confidenceTextLong += "A value of 'high' indicates more confidence that there is a significant change, however you should check the historical record for the test by looking at the graph to be more sure (some noisy tests can provide inconsistent results).";
+                                        }
                                         cmap.isRegression = (cmap.className == 'compare-regression');
                                         cmap.isImprovement = (cmap.className == 'compare-improvement');
                                         cmap.isMeaningful = (cmap.className != "");
