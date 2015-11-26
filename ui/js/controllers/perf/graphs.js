@@ -893,7 +893,8 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
                 var testList = _.sortBy(_.filter(series.seriesList,
                     {platform: relatedSeries.platform}), 'name');
                 var temp = _.findWhere(testList, {"name": relatedSeries.name});
-                $scope.testsToAdd.push(_.clone(temp));
+                if (temp !== undefined)
+                    $scope.testsToAdd.push(_.clone(temp));
             });
         }).then(function () {
             loadingExtraDataPromise.resolve($scope.testsToAdd.length);
