@@ -421,7 +421,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                         var abs_t_value = Math.abs(math.t_test(originalData.values, newData.values, STDDEV_DEFAULT_FACTOR));
                                         cmap.className = getClassName(cmap.newIsBetter, cmap.originalValue, cmap.newValue, abs_t_value);
                                         cmap.confidence = abs_t_value;
-                                        cmap.confidenceTextLong = "Result of running t-test on base versus new result distribution: "
+                                        cmap.confidenceTextLong = "Result of running t-test on base versus new result distribution: ";
                                         if (abs_t_value < T_VALUE_CARE_MIN) {
                                             cmap.confidenceText = "low";
                                             cmap.confidenceTextLong += "A value of 'low' suggests less confidence that there is a sustained, significant change between the two revisions.";
