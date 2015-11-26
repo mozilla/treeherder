@@ -1113,11 +1113,22 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             try:
                 job = datum['job']
 
-                job_guid = str(job['job_guid'])
-                states[str(job['state'])].append(job_guid)
+                # Retry is a special case here (isn't it everywhere?).  A retry
+                # could come in after a job is complete.  For Buildbot, we
+                # don't usually get that.  It changes from running to retry
+                # almost instantly.  But in order to be idempotent from other
+                # sources that won't have the special retry guid like
+                # ``sha_timestamp``, we need to handle that a job can come
+                # in complete/failed then get updated to complete/retry and
+                # it will be updated.  If we remove the job from the list of
+                # updates here because we detect it is already completed,
+                # then it will never get updated to retry.
+                if job['result'] != "retry":
+                    job_guid = str(job['job_guid'])
+                    states[str(job['state'])].append(job_guid)
 
-                # index this place in the ``data`` object
-                data_idx.append(job_guid)
+                    # index this place in the ``data`` object
+                    data_idx.append(job_guid)
 
             except Exception:
                 data_idx.append("skipped")
@@ -1154,6 +1165,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             for i, guid in enumerate(data_idx):
                 if guid not in existing_guids:
                     new_data.append(data[i])
+        else:
+            # if we had a list of jobs that were, say, all retry, then we would
+            # have no placeholders and new_data would be empty when it should
+            # be the unchanged data.
+            new_data = data
 
         return new_data
 
@@ -1440,6 +1456,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 job_state,
                 start_timestamp,
                 end_timestamp,
+                result,
                 job_state,
                 get_guid_root(job_guid)
             ])
