@@ -433,7 +433,7 @@ JOB_TYPE_BUILDERNAME = {
         re.compile(r'.+(?<!leak) test .+'),
     ],
     'talos': [re.compile(r'.+ talos .+')],
-    'repack': [re.compile(r'.+ l10n .+')],
+    'repack': [re.compile(r'(.+ l10n .+|.+_l10n_.+'))],
 }
 
 # from Data.js ``type`` Config.testNames and Config.buildNames
