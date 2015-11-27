@@ -13,6 +13,7 @@ from treeherder.model.models import (MachinePlatform,
 from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceFramework,
                                     PerformanceSignature)
+from treeherder.perf.tasks import generate_alerts
 
 logger = logging.getLogger(__name__)
 
@@ -129,6 +130,12 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
                 push_timestamp=push_timestamp,
                 defaults={'value': subtest['value']})
 
+            # if there is no summary, we should schedule a generate alerts
+            # task for the subtest, since we have new data
+            if not suite.get('value'):
+                generate_alerts.apply_async(args=[signature],
+                                            routing_key='generate_perf_alerts')
+
         # if we have a summary value, create or get its signature and insert
         # it too
         if suite.get('value') is not None:
@@ -161,6 +168,9 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
                 signature=signature,
                 push_timestamp=push_timestamp,
                 defaults={'value': suite['value']})
+
+            generate_alerts.apply_async(args=[signature],
+                                        routing_key='generate_perf_alerts')
 
 
 def _calculate_summary_value(results):

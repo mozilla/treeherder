@@ -12,7 +12,9 @@ from treeherder.model.models import (MachinePlatform,
                                      OptionCollection,
                                      Repository,
                                      RepositoryGroup)
-from treeherder.perf.models import (PerformanceDatum,
+from treeherder.perf.models import (PerformanceAlert,
+                                    PerformanceAlertSummary,
+                                    PerformanceDatum,
                                     PerformanceFramework,
                                     PerformanceSignature)
 
@@ -49,12 +51,13 @@ class PerfDataAdapterTest(TestCase):
                 'active_status': "active"
             })
 
-    def _get_job_and_reference_data(self):
+    def _get_job_and_reference_data(self, result_set_id=1,
+                                    push_timestamp=PUSH_TIMESTAMP):
         job_data = {
             self.JOB_GUID: {
                 "id": 1,
-                "result_set_id": 1,
-                "push_timestamp": self.PUSH_TIMESTAMP
+                "result_set_id": result_set_id,
+                "push_timestamp": push_timestamp
             }
         }
 
@@ -86,6 +89,14 @@ class PerfDataAdapterTest(TestCase):
         datum = PerformanceDatum.objects.get(signature=signature)
         self.assertEqual(datum.value, value)
         self.assertEqual(datum.push_timestamp, push_timestamp)
+
+    def _create_submit_datum(self, datum):
+        # the perf data adapter expects unserialized performance data
+        submit_datum = copy.copy(datum)
+        submit_datum['blob'] = json.dumps({
+            'performance_data': submit_datum['blob']
+        })
+        return submit_datum
 
     def test_load_generic_data(self):
         framework_name = "cheezburger"
@@ -124,12 +135,7 @@ class PerfDataAdapterTest(TestCase):
             }
         }
 
-        # the perf data adapter expects unserialized performance data
-        submit_datum = copy.copy(datum)
-        submit_datum['blob'] = json.dumps({
-            'performance_data': submit_datum['blob']
-        })
-
+        submit_datum = self._create_submit_datum(datum)
         load_perf_artifacts(self.REPO_NAME, reference_data, job_data,
                             submit_datum)
         self.assertEqual(4, PerformanceSignature.objects.all().count())
@@ -167,6 +173,48 @@ class PerfDataAdapterTest(TestCase):
         self.assertEqual(signature.last_updated,
                          datetime.datetime.fromtimestamp(
                              self.PUSH_TIMESTAMP + 1))
+
+    def test_alert_generation(self):
+        framework_name = "cheezburger"
+        PerformanceFramework.objects.get_or_create(name=framework_name)
+
+        for (i, value) in zip(range(30), [1]*15 + [2]*15):
+            (job_data, reference_data) = self._get_job_and_reference_data(
+                result_set_id=i, push_timestamp=i)
+            datum = {
+                "job_guid": self.JOB_GUID,
+                "name": "test",
+                "type": "test",
+                "blob": {
+                    "framework": {"name": framework_name},
+                    "suites": [
+                        {
+                            "name": "cheezburger metrics",
+                            "subtests": [
+                                {
+                                    "name": "test1",
+                                    "value": value
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+            load_perf_artifacts(self.REPO_NAME, reference_data, job_data,
+                                self._create_submit_datum(datum))
+
+        # validate that a performance alert was generated
+        self.assertEqual(1, PerformanceAlert.objects.all().count())
+        self.assertEqual(1, PerformanceAlertSummary.objects.all().count())
+
+        summary = PerformanceAlertSummary.objects.get(id=1)
+        self.assertEqual(summary.result_set_id, 15)
+        self.assertEqual(summary.prev_result_set_id, 14)
+
+        alert = PerformanceAlert.objects.get(id=1)
+        self.assertEqual(alert.is_regression, True)
+        self.assertEqual(alert.amount_abs, 1)
+        self.assertEqual(alert.amount_pct, 100)
 
     def test_load_talos_data(self):
 
