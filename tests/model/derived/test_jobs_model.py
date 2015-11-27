@@ -8,6 +8,7 @@ from tests import test_utils
 from tests.sample_data_generator import (job_data,
                                          result_set)
 from treeherder.model.derived import ArtifactsModel
+from treeherder.model.models import JobDuration
 
 slow = pytest.mark.slow
 xfail = pytest.mark.xfail
@@ -185,6 +186,43 @@ def test_ingest_retry_sample_job_no_running(jm, refdata, sample_data, initial_da
 
     assert len(jl) == 1
     assert jl[0]['result'] == 'retry'
+
+
+def test_calculate_durations(jm, test_repository, mock_log_parser):
+    """
+    Test the calculation of average job durations and their use during
+    subsequent job ingestion.
+    """
+    rs = result_set()
+    jm.store_result_set_data([rs])
+    now = int(time.time())
+
+    first_job_duration = 120
+    first_job = job_data(revision_hash=rs['revision_hash'],
+                         start_timestamp=now,
+                         end_timestamp=now + first_job_duration)
+    jm.store_job_data([first_job])
+
+    # Generate average duration based on the first job.
+    call_command('calculate_durations')
+
+    # Ingest the same job type again to check that the pre-generated
+    # average duration is used during ingestion.
+    second_job_duration = 142
+    second_job = job_data(revision_hash=rs['revision_hash'],
+                          start_timestamp=now,
+                          end_timestamp=now + second_job_duration,
+                          job_guid='a-different-unique-guid')
+    jm.store_job_data([second_job])
+    ingested_second_job = jm.get_job(2)[0]
+    assert ingested_second_job['running_eta'] == first_job_duration
+
+    # Check that the average duration is updated now that there are two jobs.
+    call_command('calculate_durations')
+    durations = JobDuration.objects.all()
+    assert len(durations) == 1
+    expected_duration = int(round((first_job_duration + second_job_duration) / 2))
+    assert durations[0].average_duration == expected_duration
 
 
 def test_cycle_all_data(jm, refdata, sample_data, initial_data,
