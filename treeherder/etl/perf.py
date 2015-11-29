@@ -142,7 +142,8 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
             summary_properties.update(extra_summary_properties)
             summary_signature_hash = _get_signature_hash(
                 summary_properties)
-
+            subtests = PerformanceSignature.objects.filter(
+                signature_hash__in=subtest_signatures)
             signature, _ = PerformanceSignature.objects.get_or_create(
                 repository=repository, signature_hash=summary_signature_hash,
                 defaults={
@@ -151,9 +152,10 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
                     'option_collection': option_collection,
                     'platform': platform,
                     'framework': framework,
-                    'extra_properties': extra_summary_properties,
+                    'extra_properties': extra_properties,
                     'last_updated': push_timestamp
                 })
+            signature.subtests.add(*subtests)
             PerformanceDatum.objects.get_or_create(
                 repository=repository,
                 result_set_id=result_set_id,

@@ -138,7 +138,6 @@ class PerfDataAdapterTest(TestCase):
         self.assertEqual(framework_name, framework.name)
 
         perf_datum = datum['blob']
-
         # verify summary, then subtests
         self._verify_signature_datum(perf_datum['framework']['name'],
                                      perf_datum['suites'][0]['name'],
@@ -155,6 +154,15 @@ class PerfDataAdapterTest(TestCase):
                                          subtest['value'],
                                          datetime.datetime.fromtimestamp(
                                              self.PUSH_TIMESTAMP))
+        summary_signature = PerformanceSignature.objects.get(
+            suite=perf_datum['suites'][0]['name'], test='')
+        subtest_signature = PerformanceSignature.objects.exclude(
+            suite=perf_datum['suites'][0]['name'], test='')
+        self.assertEqual(3, len(subtest_signature))
+        # Not sure why I can't just compare two Queryset list, and it always return error
+        # by self.assertEqual(subtest_signature, summary_signature.subtests.all())
+        for i in range(0, 3):
+            self.assertEqual(subtest_signature[i], summary_signature.subtests.all()[i])
 
         # send another datum, a little later, verify that signature's
         # `last_updated` is changed accordingly
