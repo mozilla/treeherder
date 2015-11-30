@@ -696,12 +696,11 @@ class TreeherderClient(object):
                             headers=self.REQUEST_HEADERS)
         try:
             resp.raise_for_status()
-        except HTTPError as e:
-            response = e.response
-            logger.error("Error submitting data to %s" % response.request.url)
-            logger.error("Request headers: %s" % response.request.headers)
-            logger.error("Response headers: %s" % response.headers)
-            logger.error("Response body: %s" % response.content)
+        except HTTPError:
+            logger.error("HTTPError %s requesting %s: %s",
+                         resp.status_code, resp.request.url, resp.content)
+            logger.debug("Request headers: %s", resp.request.headers)
+            logger.debug("Response headers: %s", resp.headers)
             raise
 
         return resp.json()
@@ -721,13 +720,12 @@ class TreeherderClient(object):
 
         try:
             resp.raise_for_status()
-        except HTTPError as e:
-            response = e.response
-            logger.error("Error submitting data to %s" % response.request.url)
-            logger.error("Request headers: %s" % response.request.headers)
-            logger.error("Request body: %s" % response.request.body)
-            logger.error("Response headers: %s" % response.headers)
-            logger.error("Response body: %s" % response.content)
+        except HTTPError:
+            logger.error("HTTPError %s submitting to %s: %s",
+                         resp.status_code, resp.request.url, resp.content)
+            logger.debug("Request headers: %s", resp.request.headers)
+            logger.debug("Request body: %s", resp.request.body)
+            logger.debug("Response headers: %s", resp.headers)
             raise
 
     def get_option_collection_hash(self):
