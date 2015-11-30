@@ -5,7 +5,7 @@
   <hr/>
   <div class="panel panel-default" ng-repeat="alertSummary in alertSummaries">
     <div class="panel-heading">
-      <a href="#/alerts?id={{alertSummary.id}}" class="alert-title">{{alertSummary.title}} <span class="fa fa-external-link icon-superscript"/></a>
+      <a href="#/alerts?id={{alertSummary.id}}" class="alert-title">Alert #{{alertSummary.id}} - {{alertSummary.title}} <span class="fa fa-external-link icon-superscript"/></a>
       <ul class="list-unstyled alert-metadata">
         <li>{{alertSummary.platforms.join(' / ')}}</li>
         <li>{{alertSummary.resultSetMetadata.dateStr}}</li>
@@ -19,7 +19,7 @@
       </ul>
     </div>
     <div class="panel-body">
-      <h4>Alerts</h4>
+      <h4>Detected changes</h4>
       <table class="table table-striped compare-table">
         <tr>
           <!-- Manually specify table widths because it's just easier this way -->
