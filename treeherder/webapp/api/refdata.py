@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework_extensions.mixins import CacheResponseAndETAGMixin
 
 from treeherder.model import models
 from treeherder.model.derived import (JobsModel,
@@ -37,15 +36,11 @@ class JobGroupViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = th_serializers.JobGroupSerializer
 
 
-class RepositoryViewSet(CacheResponseAndETAGMixin,
-                        viewsets.ReadOnlyModelViewSet):
+class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata Repository model"""
     queryset = models.Repository.objects.filter(active_status='active')
     serializer_class = th_serializers.RepositorySerializer
-
-    def list_cache_key_func(self, **kwargs):
-        return models.REPOSITORY_LIST_CACHE_KEY
 
     """
     Overrides the retrieve method to get the extra information from the Jobs model
@@ -115,15 +110,11 @@ class JobTypeViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = th_serializers.JobTypeSerializer
 
 
-class FailureClassificationViewSet(CacheResponseAndETAGMixin,
-                                   viewsets.ReadOnlyModelViewSet):
+class FailureClassificationViewSet(viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata FailureClassification model"""
     queryset = models.FailureClassification.objects.all()
     serializer_class = th_serializers.FailureClassificationSerializer
-
-    def list_cache_key_func(self, **kwargs):
-        return models.FAILURE_CLASSIFICAION_LIST_CACHE_KEY
 
 #############################
 # User and exclusion profiles
