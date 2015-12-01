@@ -339,8 +339,11 @@ perf.controller('GraphsCtrl', [
                                     series.projectName, rev).then(
                                         function(resultSets) {
                                             var resultSetId = resultSets[0].id;
-                                            var j = series.flotSeries.resultSetData.indexOf(resultSetId);
-                                            series.highlightedPoints.push(j);
+                                            var j =  _.compact(_.map(series.flotSeries.resultSetData,
+                                                function(resultSet, index) {
+                                                    return resultSet == resultSetId ? index : null;
+                                                }));
+                                            series.highlightedPoints = _.union(series.highlightedPoints, j);
                                         }, function(reason) {
                                             /* ignore cases where no result set exists
                                                for revision */
