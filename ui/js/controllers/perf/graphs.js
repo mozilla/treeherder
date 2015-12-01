@@ -338,9 +338,10 @@ perf.controller('GraphsCtrl', [
                                 return ThResultSetModel.getResultSetsFromRevision(
                                     series.projectName, rev).then(
                                         function(resultSets) {
-                                            var resultSetId = resultSets[0].id;
-                                            var j = series.flotSeries.resultSetData.indexOf(resultSetId);
-                                            series.highlightedPoints.push(j);
+                                            series.highlightedPoints = _.union(series.highlightedPoints,  _.compact(_.map(
+                                                series.flotSeries.resultSetData, function(resultSetId, index) {
+                                                    return resultSets[0].id == resultSetId ? index : null;
+                                                })));
                                         }, function(reason) {
                                             /* ignore cases where no result set exists
                                                for revision */
