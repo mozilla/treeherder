@@ -418,14 +418,13 @@ DATABASES = {
 }
 
 # Setup ssl connection for aws rds.
-# Now that we're using django-environ this can be removed after
-# the Heroku env variables are updated with += `?ssl=...`.
+# Can be removed when django-environ supports setting this:
+# https://github.com/joke2k/django-environ/issues/72
 if env.bool('IS_HEROKU', default=False):
-    ca_path = '/app/deployment/aws/combined-ca-bundle.pem'
     for db_name in DATABASES:
         DATABASES[db_name]['OPTIONS'] = {
             'ssl': {
-                'ca': ca_path
+                'ca': '/app/deployment/aws/combined-ca-bundle.pem'
             }
         }
 
