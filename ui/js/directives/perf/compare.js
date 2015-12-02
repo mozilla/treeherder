@@ -45,6 +45,9 @@ treeherder.directive(
                             scope.filteredResultList[key] = compareResults;
                         }
                     });
+                    scope.filteredResultList = _.map(_.keys(scope.filteredResultList), function(testName) {
+                        return {'testName': testName, 'results': scope.filteredResultList[testName]};
+                    });
                     scope.hasNoResults = _.isEmpty(scope.filteredResultList);
                 }
 
