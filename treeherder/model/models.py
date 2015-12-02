@@ -36,7 +36,7 @@ ACTIVE_STATUS_CHOICES = zip(ACTIVE_STATUS_LIST, ACTIVE_STATUS_LIST,)
 class NamedModel(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50L, db_index=True)
-    description = models.TextField(blank=True, default='fill me')
+    description = models.TextField(blank=True)
     active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
 
     class Meta:
@@ -87,7 +87,7 @@ class Repository(models.Model):
     dvcs_type = models.CharField(max_length=25L, db_index=True)
     url = models.CharField(max_length=255L)
     codebase = models.CharField(max_length=50L, blank=True, db_index=True)
-    description = models.TextField(blank=True, default='fill me')
+    description = models.TextField(blank=True)
     active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
 
     class Meta:
@@ -322,7 +322,7 @@ class JobGroup(models.Model):
     id = models.AutoField(primary_key=True)
     symbol = models.CharField(max_length=10L, default='?', db_index=True)
     name = models.CharField(max_length=50L, db_index=True)
-    description = models.TextField(blank=True, default='fill me')
+    description = models.TextField(blank=True)
     active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
 
     class Meta:
@@ -354,7 +354,7 @@ class JobType(models.Model):
     job_group = models.ForeignKey(JobGroup, null=True, blank=True)
     symbol = models.CharField(max_length=10L, default='?', db_index=True)
     name = models.CharField(max_length=50L, db_index=True)
-    description = models.TextField(blank=True, default='fill me')
+    description = models.TextField(blank=True)
     active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
 
     class Meta:

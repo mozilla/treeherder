@@ -4,7 +4,7 @@
     "job_group": 1,
     "symbol": "Be",
     "name": "Hamachi Device Image Build (Engineering)",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -20,7 +20,7 @@
     "job_group": 2,
     "symbol": "B",
     "name": "B2G Emulator Image Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -28,7 +28,7 @@
     "job_group": 3,
     "symbol": "arm",
     "name": "SpiderMonkey ARM Simulator Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -212,7 +212,7 @@
     "job_group": 3,
     "symbol": "Hf",
     "name": "Static Rooting Hazard Analysis, Full Browser",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -308,7 +308,7 @@
     "job_group": 7,
     "symbol": "Be",
     "name": "Flame Device Image Build (Engineering)",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -460,7 +460,7 @@
     "job_group": 2,
     "symbol": "Gu",
     "name": "Gaia UI Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -468,7 +468,7 @@
     "job_group": 8,
     "symbol": "S4",
     "name": "Android x86 Test Set",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -500,7 +500,7 @@
     "job_group": 2,
     "symbol": "S",
     "name": "Static Checking Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -508,7 +508,7 @@
     "job_group": 2,
     "symbol": "Bn",
     "name": "Non-Unified Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -516,7 +516,7 @@
     "job_group": 10,
     "symbol": "B",
     "name": "Wasabi Device Image Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -524,7 +524,7 @@
     "job_group": 7,
     "symbol": "B",
     "name": "Flame Device Image Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -532,7 +532,7 @@
     "job_group": 2,
     "symbol": "?",
     "name": "unknown",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -540,7 +540,7 @@
     "job_group": 1,
     "symbol": "B",
     "name": "Hamachi Device Image Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -548,7 +548,7 @@
     "job_group": 11,
     "symbol": "Be",
     "name": "Nexus 4 Device Image Build (Engineering)",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -556,7 +556,7 @@
     "job_group": 11,
     "symbol": "B",
     "name": "Nexus 4 Device Image Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -676,7 +676,7 @@
     "job_group": 1,
     "symbol": "N",
     "name": "Hamachi Device Image Nightly",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -748,7 +748,7 @@
     "job_group": 2,
     "symbol": "Gi",
     "name": "Gaia Integration Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -764,7 +764,7 @@
     "job_group": 12,
     "symbol": "B",
     "name": "Helix Device Image Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -780,7 +780,7 @@
     "job_group": 2,
     "symbol": "G",
     "name": "Gaia Unit Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -788,7 +788,7 @@
     "job_group": 2,
     "symbol": "Gb",
     "name": "Gaia Build Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -852,7 +852,7 @@
     "job_group": 13,
     "symbol": "Be",
     "name": "Unknown B2G Device Image Build (Engineering)",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -860,7 +860,7 @@
     "job_group": 3,
     "symbol": "r",
     "name": "SpiderMonkey Root Analysis Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -876,7 +876,7 @@
     "job_group": 2,
     "symbol": "W",
     "name": "W3C Web Platform Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -884,7 +884,7 @@
     "job_group": 2,
     "symbol": "Mb",
     "name": "Mozbase Unit Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -892,7 +892,7 @@
     "job_group": 8,
     "symbol": "S1",
     "name": "Android x86 Test Set",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -900,7 +900,7 @@
     "job_group": 8,
     "symbol": "S3",
     "name": "Android x86 Test Set",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -908,7 +908,7 @@
     "job_group": 8,
     "symbol": "S2",
     "name": "Android x86 Test Set",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -916,7 +916,7 @@
     "job_group": 3,
     "symbol": "ggc",
     "name": "SpiderMonkey GGC Shell Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -924,7 +924,7 @@
     "job_group": 2,
     "symbol": "N",
     "name": "B2G Emulator Image Nightly",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -940,7 +940,7 @@
     "job_group": 13,
     "symbol": "B",
     "name": "Unknown B2G Device Image Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -948,7 +948,7 @@
     "job_group": 7,
     "symbol": "N",
     "name": "Flame Device Image Nightly",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -956,7 +956,7 @@
     "job_group": 7,
     "symbol": "Ne",
     "name": "Flame Device Image Nightly (Engineering)",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -964,7 +964,7 @@
     "job_group": 1,
     "symbol": "Ne",
     "name": "Hamachi Device Image Nightly (Engineering)",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -972,7 +972,7 @@
     "job_group": 12,
     "symbol": "N",
     "name": "Helix Device Image Nightly",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -980,7 +980,7 @@
     "job_group": 2,
     "symbol": "N",
     "name": "Nightly",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -988,7 +988,7 @@
     "job_group": 14,
     "symbol": "N",
     "name": "L10n Nightly",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -996,7 +996,7 @@
     "job_group": 11,
     "symbol": "N",
     "name": "Nexus 4 Device Image Nightly",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1004,7 +1004,7 @@
     "job_group": 10,
     "symbol": "N",
     "name": "Wasabi Device Image Nightly",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1012,7 +1012,7 @@
     "job_group": 13,
     "symbol": "N",
     "name": "Unknown B2G Device Image Nightly",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1020,7 +1020,7 @@
     "job_group": 13,
     "symbol": "Ne",
     "name": "Unknown B2G Device Image Nightly (Engineering)",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1028,7 +1028,7 @@
     "job_group": 11,
     "symbol": "Ne",
     "name": "Nexus 4 Device Image Nightly (Engineering)",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1036,7 +1036,7 @@
     "job_group": 2,
     "symbol": "Xr",
     "name": "XULRunner Nightly",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1068,7 +1068,7 @@
     "job_group": 3,
     "symbol": "Hs",
     "name": "Static Rooting Hazard Analysis, JS Shell",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1076,7 +1076,7 @@
     "job_group": 3,
     "symbol": "exr",
     "name": "SpiderMonkey Exact Rooting Shell Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1084,7 +1084,7 @@
     "job_group": 2,
     "symbol": "Bn",
     "name": "B2G Emulator Image Non-Unified Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1124,7 +1124,7 @@
     "job_group": 2,
     "symbol": "Wr",
     "name": "W3C Web Platform Reftests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1132,7 +1132,7 @@
     "job_group": 17,
     "symbol": "B",
     "name": "Dolphin Device Image Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1140,7 +1140,7 @@
     "job_group": 17,
     "symbol": "Be",
     "name": "Dolphin Device Image Build (Engineering)",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1148,7 +1148,7 @@
     "job_group": 17,
     "symbol": "N",
     "name": "Dolphin Device Image Nightly",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1156,7 +1156,7 @@
     "job_group": 17,
     "symbol": "Ne",
     "name": "Dolphin Device Image Nightly (Engineering)",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1276,7 +1276,7 @@
     "job_group": 2,
     "symbol": "Gbu",
     "name": "Gaia Build Unit Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1284,7 +1284,7 @@
     "job_group": 18,
     "symbol": "Rs-oop",
     "name": "Reftest Sanity OOP",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1292,7 +1292,7 @@
     "job_group": 2,
     "symbol": "Gip",
     "name": "Gaia Python Integration Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1300,7 +1300,7 @@
     "job_group": 5,
     "symbol": "Rs",
     "name": "Reftest Sanity",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1308,7 +1308,7 @@
     "job_group": 2,
     "symbol": "Gij",
     "name": "Gaia JS Integration Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1316,7 +1316,7 @@
     "job_group": 2,
     "symbol": "H",
     "name": "Hazard Analysis Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1324,7 +1324,7 @@
     "job_group": 15,
     "symbol": "M-oop1",
     "name": "Mochitest OOP",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1332,7 +1332,7 @@
     "job_group": 2,
     "symbol": "X3",
     "name": "XPCShell",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1340,7 +1340,7 @@
     "job_group": 2,
     "symbol": "Gu",
     "name": "Gaia Unit Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1348,7 +1348,7 @@
     "job_group": 2,
     "symbol": "X1",
     "name": "XPCShell",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1356,7 +1356,7 @@
     "job_group": 2,
     "symbol": "W3",
     "name": "W3C Web Platform Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1364,7 +1364,7 @@
     "job_group": 19,
     "symbol": "B",
     "name": "Flame KitKat Device Image Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1372,7 +1372,7 @@
     "job_group": 19,
     "symbol": "Be",
     "name": "Flame KitKat Device Image Build (Engineering)",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1380,7 +1380,7 @@
     "job_group": 2,
     "symbol": "X2",
     "name": "XPCShell",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1388,7 +1388,7 @@
     "job_group": 2,
     "symbol": "W4",
     "name": "W3C Web Platform Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1396,7 +1396,7 @@
     "job_group": 2,
     "symbol": "W1",
     "name": "W3C Web Platform Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1404,7 +1404,7 @@
     "job_group": 2,
     "symbol": "W2",
     "name": "W3C Web Platform Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1412,7 +1412,7 @@
     "job_group": 9,
     "symbol": "bc1",
     "name": "Mochitest e10s Browser Chrome",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1420,7 +1420,7 @@
     "job_group": 9,
     "symbol": "bc2",
     "name": "Mochitest e10s Browser Chrome",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1428,7 +1428,7 @@
     "job_group": 9,
     "symbol": "bc3",
     "name": "Mochitest e10s Browser Chrome",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1436,7 +1436,7 @@
     "job_group": 14,
     "symbol": "N4",
     "name": "L10n Nightly",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1444,7 +1444,7 @@
     "job_group": 14,
     "symbol": "N5",
     "name": "L10n Nightly",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1452,7 +1452,7 @@
     "job_group": 14,
     "symbol": "N3",
     "name": "L10n Nightly",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1460,7 +1460,7 @@
     "job_group": 14,
     "symbol": "N2",
     "name": "L10n Nightly",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1468,7 +1468,7 @@
     "job_group": 14,
     "symbol": "N1",
     "name": "L10n Nightly",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1476,7 +1476,7 @@
     "job_group": 3,
     "symbol": "H",
     "name": "SpiderMonkey Hazard Analysis Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1484,7 +1484,7 @@
     "job_group": 15,
     "symbol": "1",
     "name": "Mochitest OOP",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1492,7 +1492,7 @@
     "job_group": 2,
     "symbol": "Gip-oop",
     "name": "Gaia Python Integration Test OOP",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1500,7 +1500,7 @@
     "job_group": 2,
     "symbol": "Gu-oop",
     "name": "Gaia Unit Test OOP",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1508,7 +1508,7 @@
     "job_group": 4,
     "symbol": "M",
     "name": "Mochitest",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1516,7 +1516,7 @@
     "job_group": 19,
     "symbol": "Ne",
     "name": "Flame KitKat Device Image Nightly (Engineering)",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1524,7 +1524,7 @@
     "job_group": 19,
     "symbol": "N",
     "name": "Flame KitKat Device Image Nightly",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1532,7 +1532,7 @@
     "job_group": 2,
     "symbol": "Z",
     "name": "Mozmill",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1540,7 +1540,7 @@
     "job_group": 21,
     "symbol": "Ne",
     "name": "Tarako Device Image Nightly (Engineering)",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1548,7 +1548,7 @@
     "job_group": 21,
     "symbol": "N",
     "name": "Tarako Device Image Nightly",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1556,7 +1556,7 @@
     "job_group": 4,
     "symbol": "JP",
     "name": "Mochitest Jetpack",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1564,7 +1564,7 @@
     "job_group": 22,
     "symbol": "Gip",
     "name": "Gaia Python Integration Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1572,7 +1572,7 @@
     "job_group": 24,
     "symbol": "1",
     "name": "W3C Web Platform Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1580,7 +1580,7 @@
     "job_group": 24,
     "symbol": "2",
     "name": "W3C Web Platform Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1588,7 +1588,7 @@
     "job_group": 24,
     "symbol": "3",
     "name": "W3C Web Platform Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1596,7 +1596,7 @@
     "job_group": 24,
     "symbol": "4",
     "name": "W3C Web Platform Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1604,7 +1604,7 @@
     "job_group": 25,
     "symbol": "Ba",
     "name": "Android Instrumentation Background",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1612,7 +1612,7 @@
     "job_group": 25,
     "symbol": "Br",
     "name": "Android Instrumentation Browser",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1620,7 +1620,7 @@
     "job_group": 23,
     "symbol": "1",
     "name": "Gaia JS Integration Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1628,7 +1628,7 @@
     "job_group": 23,
     "symbol": "2",
     "name": "Gaia JS Integration Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1636,7 +1636,7 @@
     "job_group": 23,
     "symbol": "3",
     "name": "Gaia JS Integration Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1644,7 +1644,7 @@
     "job_group": 23,
     "symbol": "4",
     "name": "Gaia JS Integration Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1652,7 +1652,7 @@
     "job_group": 22,
     "symbol": "f1",
     "name": "Gaia Python Functional Integration Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1660,7 +1660,7 @@
     "job_group": 22,
     "symbol": "f2",
     "name": "Gaia Python Functional Integration Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1668,7 +1668,7 @@
     "job_group": 22,
     "symbol": "f3",
     "name": "Gaia Python Functional Integration Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1676,7 +1676,7 @@
     "job_group": 22,
     "symbol": "u",
     "name": "Gaia Python Integration Unit Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1684,7 +1684,7 @@
     "job_group": 22,
     "symbol": "a",
     "name": "Gaia Python Accessibility Integration Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1692,7 +1692,7 @@
     "job_group": 26,
     "symbol": "Gip-oop",
     "name": "Gaia Python Integration Tests OOP",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1700,7 +1700,7 @@
     "job_group": 27,
     "symbol": "s",
     "name": "Talos svg e10s",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1708,7 +1708,7 @@
     "job_group": 27,
     "symbol": "tp",
     "name": "Talos tp e10s",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1716,7 +1716,7 @@
     "job_group": 27,
     "symbol": "x",
     "name": "Talos xperf e10s",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1724,7 +1724,7 @@
     "job_group": 28,
     "symbol": "s",
     "name": "Autophone Smoketest",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1732,7 +1732,7 @@
     "job_group": 28,
     "symbol": "t",
     "name": "Autophone Throbber",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1740,7 +1740,7 @@
     "job_group": 28,
     "symbol": "w",
     "name": "Autophone Webappstartup",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1748,7 +1748,7 @@
     "job_group": 21,
     "symbol": "B",
     "name": "Tarako Device Image Build",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1756,7 +1756,7 @@
     "job_group": 21,
     "symbol": "Be",
     "name": "Tarako Device Image Build (Engineering)",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1764,7 +1764,7 @@
     "job_group": 4,
     "symbol": "18",
     "name": "Mochitest",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1772,7 +1772,7 @@
     "job_group": 4,
     "symbol": "17",
     "name": "Mochitest",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1780,7 +1780,7 @@
     "job_group": 4,
     "symbol": "20",
     "name": "Mochitest",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1788,7 +1788,7 @@
     "job_group": 4,
     "symbol": "19",
     "name": "Mochitest",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1796,7 +1796,7 @@
     "job_group": 19,
     "symbol": "Gip",
     "name": "Gaia Python Integration Test (Flame-KK)",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1804,7 +1804,7 @@
     "job_group": 27,
     "symbol": "o",
     "name": "Talos other e10s",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1812,7 +1812,7 @@
     "job_group": 27,
     "symbol": "c",
     "name": "Talos chrome e10s",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1820,7 +1820,7 @@
     "job_group": 27,
     "symbol": "d",
     "name": "Talos dromaeojs e10s",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1828,7 +1828,7 @@
     "job_group": 27,
     "symbol": "g1",
     "name": "Talos g1 e10s",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1836,7 +1836,7 @@
     "job_group": 7,
     "symbol": "Gip",
     "name": "Gaia Python Integration Test (flame)",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1844,7 +1844,7 @@
     "job_group": 29,
     "symbol": "1",
     "name": "Mochitest csb",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1852,7 +1852,7 @@
     "job_group": 29,
     "symbol": "2",
     "name": "Mochitest csb",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1860,7 +1860,7 @@
     "job_group": 29,
     "symbol": "3",
     "name": "Mochitest csb",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1868,7 +1868,7 @@
     "job_group": 29,
     "symbol": "4",
     "name": "Mochitest csb",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1876,7 +1876,7 @@
     "job_group": 29,
     "symbol": "5",
     "name": "Mochitest csb",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1884,7 +1884,7 @@
     "job_group": 9,
     "symbol": "dt",
     "name": "Mochitest e10s DevTools Browser Chrome",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1892,7 +1892,7 @@
     "job_group": 30,
     "symbol": "C",
     "name": "Crashtest e10s",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1900,7 +1900,7 @@
     "job_group": 30,
     "symbol": "R-e10s",
     "name": "Reftest e10s",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1908,7 +1908,7 @@
     "job_group": 4,
     "symbol": "rc7",
     "name": "Robocop",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1916,7 +1916,7 @@
     "job_group": 4,
     "symbol": "rc6",
     "name": "Robocop",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1924,7 +1924,7 @@
     "job_group": 4,
     "symbol": "gl1",
     "name": "Mochitest WebGL",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1932,7 +1932,7 @@
     "job_group": 4,
     "symbol": "gl2",
     "name": "Mochitest WebGL",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1940,7 +1940,7 @@
     "job_group": 31,
     "symbol": "GBI2",
     "name": "Gaia build tests 2",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1948,7 +1948,7 @@
     "job_group": 31,
     "symbol": "GBU",
     "name": "Gaia build tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1956,7 +1956,7 @@
     "job_group": 32,
     "symbol": "JSON",
     "name": "Gaia JSON Lint",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1964,7 +1964,7 @@
     "job_group": 31,
     "symbol": "GBI3",
     "name": "Gaia build tests 3",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1972,7 +1972,7 @@
     "job_group": 31,
     "symbol": "GBI1",
     "name": "Gaia build tests 1",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1980,7 +1980,7 @@
     "job_group": 32,
     "symbol": "CSS",
     "name": "Gaia CSS Lint",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1988,7 +1988,7 @@
     "job_group": 32,
     "symbol": "JSHint",
     "name": "Gaia JSHint",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -1996,7 +1996,7 @@
     "job_group": 32,
     "symbol": "GJSLint",
     "name": "Gaia GJSLint",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -2004,7 +2004,7 @@
     "job_group": 31,
     "symbol": "GBI4",
     "name": "Gaia build tests 4",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -2012,7 +2012,7 @@
     "job_group": 23,
     "symbol": "5",
     "name": "Gaia JS Integration Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -2020,7 +2020,7 @@
     "job_group": 23,
     "symbol": "10",
     "name": "Gaia JS Integration Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -2028,7 +2028,7 @@
     "job_group": 23,
     "symbol": "6",
     "name": "Gaia JS Integration Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -2036,7 +2036,7 @@
     "job_group": 23,
     "symbol": "8",
     "name": "Gaia JS Integration Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -2044,7 +2044,7 @@
     "job_group": 23,
     "symbol": "9",
     "name": "Gaia JS Integration Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
@@ -2052,7 +2052,7 @@
     "job_group": 23,
     "symbol": "7",
     "name": "Gaia JS Integration Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   }
 ]

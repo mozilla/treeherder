@@ -3,224 +3,224 @@
     "id": 1,
     "symbol": "Buri/Hamac",
     "name": "Buri/Hamachi Device Image",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 2,
     "symbol": "?",
     "name": "unknown",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 3,
     "symbol": "SM",
     "name": "SpiderMonkey",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 4,
     "symbol": "M",
     "name": "Mochitest",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 5,
     "symbol": "R",
     "name": "Reftest",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 6,
     "symbol": "T",
     "name": "Talos Performance",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 7,
     "symbol": "Flame",
     "name": "Flame Device Image",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 8,
     "symbol": "Sets",
     "name": "Android x86 Test Combos",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 9,
     "symbol": "M-e10s",
     "name": "Mochitest e10s",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 10,
     "symbol": "Wasabi",
     "name": "Wasabi Device Image",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 11,
     "symbol": "Nexus 4",
     "name": "Nexus 4 Device Image",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 12,
     "symbol": "Helix",
     "name": "Helix Device Image",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 13,
     "symbol": "Unknown",
     "name": "Unknown Device Image",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 14,
     "symbol": "L10n",
     "name": "L10n Repack",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 15,
     "symbol": "M-oop",
     "name": "Mochitest OOP",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 16,
     "symbol": "R-oop",
     "name": "Reftest Sanity OOP",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 17,
     "symbol": "Dolphin",
     "name": "Dolphin Device Image",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 18,
     "symbol": "Rs-oop",
     "name": "Reftest Sanity OOP",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 19,
     "symbol": "Flame-KK",
     "name": "Flame KitKat Device Image",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 20,
     "symbol": "Buri/Hamachi",
     "name": "Buri/Hamachi Device Image",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 21,
     "symbol": "Tarako",
     "name": "Tarako Device Image",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 22,
     "symbol": "Gip",
     "name": "Gaia Python Integration Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 23,
     "symbol": "Gij",
     "name": "Gaia JS Integration Test",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 24,
     "symbol": "W",
     "name": "W3C Web Platform Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 25,
     "symbol": "I",
     "name": "Android Instrumentation Tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 26,
     "symbol": "Gip-oop",
     "name": "Gaia Python Integration Tests OOP",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 27,
     "symbol": "T-e10s",
     "name": "Talos Performance e10s",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 28,
     "symbol": "A",
     "name": "Autophone",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 29,
     "symbol": "M-csb",
     "name": "Mochitest csb",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 30,
     "symbol": "R-e10s",
     "name": "Reftest e10s",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 31,
     "symbol": "GB",
     "name": "Gaia build tests",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   },
   {
     "id": 32,
     "symbol": "LINT",
     "name": "Linters",
-    "description": "fill me",
+    "description": "",
     "active_status": "active"
   }
 ]
