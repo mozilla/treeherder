@@ -11,7 +11,9 @@ from treeherder.model.models import (MachinePlatform,
                                      Option,
                                      OptionCollection,
                                      Repository)
-from treeherder.perf.models import (PerformanceDatum,
+from treeherder.perf.models import (PerformanceAlert,
+                                    PerformanceAlertSummary,
+                                    PerformanceDatum,
                                     PerformanceFramework,
                                     PerformanceSignature)
 
@@ -55,6 +57,48 @@ def perf_reference_data():
         'property2': 'value2',
         'property3': 'value3'
     }
+
+
+def _generate_perf_data_range(test_project, test_repository,
+                              perf_option_collection, perf_platform,
+                              perf_reference_data):
+    framework_name = "cheezburger"
+    PerformanceFramework.objects.create(name=framework_name)
+
+    for (i, value) in zip(range(30), [1]*15 + [2]*15):
+        perf_job_data = {
+            'fake_job_guid': {
+                'id': i,
+                'result_set_id': i,
+                'push_timestamp': i
+            }
+        }
+        datum = {
+            'job_guid': 'fake_job_guid',
+            'name': 'test',
+            'type': 'test',
+            'blob': {
+                'framework': {'name': framework_name},
+                'suites': [
+                    {
+                        'name': 'cheezburger metrics',
+                        'subtests': [
+                            {
+                                'name': 'test1',
+                                'value': value
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+        # the perf data adapter expects unserialized performance data
+        submit_datum = copy.copy(datum)
+        submit_datum['blob'] = json.dumps({
+            'performance_data': submit_datum['blob']
+        })
+        load_perf_artifacts(test_repository.name, perf_reference_data,
+                            perf_job_data, submit_datum)
 
 
 def _verify_signature_datum(repo_name, framework_name, suitename,
@@ -166,7 +210,7 @@ def test_load_talos_data(test_project, test_repository,
                          perf_option_collection, perf_platform,
                          perf_job_data, perf_reference_data):
 
-    PerformanceFramework.objects.get_or_create(name='talos')
+    PerformanceFramework.objects.create(name='talos')
 
     talos_perf_data = SampleData.get_talos_perf_data()
     for talos_datum in talos_perf_data:
@@ -199,6 +243,7 @@ def test_load_talos_data(test_project, test_repository,
         # verify that we have signatures for the subtests
         for (testname, results) in talos_datum["results"].iteritems():
             signature = PerformanceSignature.objects.get(test=testname)
+
             datum = PerformanceDatum.objects.get(signature=signature)
             if talos_datum.get('summary'):
                 # if we have a summary, ensure the subtest summary values made
@@ -238,3 +283,39 @@ def test_load_talos_data(test_project, test_repository,
         # delete perf objects for next iteration
         PerformanceSignature.objects.all().delete()
         PerformanceDatum.objects.all().delete()
+
+
+def test_alert_generation(test_project, test_repository,
+                          perf_option_collection, perf_platform,
+                          perf_reference_data):
+    _generate_perf_data_range(test_project, test_repository,
+                              perf_option_collection, perf_platform,
+                              perf_reference_data)
+
+    # validate that a performance alert was generated
+    assert 1 == PerformanceAlert.objects.all().count()
+    assert 1 == PerformanceAlertSummary.objects.all().count()
+
+    summary = PerformanceAlertSummary.objects.get(id=1)
+    assert summary.result_set_id == 15
+    assert summary.prev_result_set_id == 14
+
+    alert = PerformanceAlert.objects.get(id=1)
+    assert alert.is_regression
+    assert alert.amount_abs == 1
+    assert alert.amount_pct == 100
+
+
+def test_alert_generation_try(test_project, test_repository,
+                              perf_option_collection, perf_platform,
+                              perf_reference_data):
+    # validates that no alerts generated on "try" repos
+    test_repository.repository_group.name = "try"
+    test_repository.repository_group.save()
+
+    _generate_perf_data_range(test_project, test_repository,
+                              perf_option_collection, perf_platform,
+                              perf_reference_data)
+
+    assert 0 == PerformanceAlert.objects.all().count()
+    assert 0 == PerformanceAlertSummary.objects.all().count()

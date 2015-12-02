@@ -13,6 +13,7 @@ from treeherder.model.models import (MachinePlatform,
 from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceFramework,
                                     PerformanceSignature)
+from treeherder.perf.tasks import generate_alerts
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +89,7 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
         platform=reference_data['machine_platform'])[0]
     repository = Repository.objects.get(
         name=project_name)
+    is_try_repository = repository.repository_group.name == 'try'
 
     # data for performance series
     job_guid = datum["job_guid"]
@@ -129,6 +131,12 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
                 push_timestamp=push_timestamp,
                 defaults={'value': subtest['value']})
 
+            # if there is no summary, we should schedule a generate alerts
+            # task for the subtest, since we have new data
+            if not is_try_repository and suite.get('value') is None:
+                generate_alerts.apply_async(args=[signature.id],
+                                            routing_key='generate_perf_alerts')
+
         # if we have a summary value, create or get its signature and insert
         # it too
         if suite.get('value') is not None:
@@ -161,6 +169,9 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
                 signature=signature,
                 push_timestamp=push_timestamp,
                 defaults={'value': suite['value']})
+            if not is_try_repository:
+                generate_alerts.apply_async(args=[signature.id],
+                                            routing_key='generate_perf_alerts')
 
 
 def _calculate_summary_value(results):
