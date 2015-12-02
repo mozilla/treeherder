@@ -36,6 +36,15 @@ treeherder.directive(
                         });
                     });
                 }
+                // We use this function to sort result list been filtered out.
+                function sortResults (resultsList) {
+                    var keys = _.sortBy(_.keys(resultsList), function (key) {
+                        return key;
+                    });
+                    return _.object(keys, _.map(keys, function (key) {
+                        return resultsList[key];
+                    }));
+                }
 
                 function updateFilteredTestList() {
                     scope.filteredResultList = {};
@@ -45,6 +54,7 @@ treeherder.directive(
                             scope.filteredResultList[key] = compareResults;
                         }
                     });
+                    scope.filteredResultList = sortResults(scope.filteredResultList);
                     scope.hasNoResults = _.isEmpty(scope.filteredResultList);
                 }
 
