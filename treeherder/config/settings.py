@@ -50,6 +50,10 @@ MEDIA_URL = "/media/"
 # e.g. the build size tests will alert on every commit)
 PERFHERDER_REGRESSION_THRESHOLD = 2
 
+# Only generate alerts for data newer than this time in seconds in perfherder
+# default is 2 weeks
+PERFHERDER_ALERTS_MAX_AGE = 1209600
+
 # Create hashed+gzipped versions of assets during collectstatic,
 # which will then be served by WhiteNoise with a suitable max-age.
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'

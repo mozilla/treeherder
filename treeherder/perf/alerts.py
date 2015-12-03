@@ -11,9 +11,15 @@ from treeherder.perfalert import Analyzer
 
 
 def generate_new_alerts_in_series(signature):
+    # get series data starting from either:
+    # (1) the last alert, if there is one
+    # (2) the alerts max age
+    # (use whichever is newer)
     series = PerformanceDatum.objects.filter(
         signature=signature).order_by(
-            'push_timestamp')
+            'push_timestamp').filter(
+                push_timestamp__gte=datetime.datetime.fromtimestamp(
+                    int(time.time() - settings.PERFHERDER_ALERTS_MAX_AGE)))
     existing_alerts = PerformanceAlert.objects.filter(
         series_signature=signature).select_related(
             'summary').order_by('-summary__result_set_id')[:1]
