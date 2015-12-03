@@ -29,6 +29,10 @@ class PerformanceDecimalField(serializers.DecimalField):
 
 class PerformanceAlertSerializer(serializers.ModelSerializer):
     series_signature = PerformanceSignatureSerializer(read_only=True)
+    revised_summary_id = serializers.SlugRelatedField(
+        slug_field="id", source="revised_summary",
+        allow_null=True,
+        queryset=PerformanceAlertSummary.objects.all())
 
     # express quantities in terms of decimals to save space
     amount_abs = PerformanceDecimalField(read_only=True)
@@ -39,8 +43,9 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PerformanceAlert
-        fields = ['series_signature', 'is_regression', 'prev_value',
-                  'new_value', 't_value', 'amount_abs', 'amount_pct']
+        fields = ['id', 'series_signature', 'is_regression', 'prev_value',
+                  'new_value', 't_value', 'amount_abs', 'amount_pct',
+                  'revised_summary_id']
 
 
 class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
