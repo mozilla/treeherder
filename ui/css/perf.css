@@ -349,3 +349,6 @@ span.compare-regression {
     padding-top: 4px;
 }
 
+.alert-reassigned {
+    text-decoration: line-through;
+}

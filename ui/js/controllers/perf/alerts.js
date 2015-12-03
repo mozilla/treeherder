@@ -19,16 +19,55 @@ perf.factory('PhAlerts', ['$http', 'thServiceDomain', function($http, thServiceD
             return $http.get(href).then(function(response) {
                 return response.data;
             });
+        },
+        reassignAlertSummary: function(alertId, revisedSummaryId) {
+            return $http.put(thServiceDomain +
+                             '/api/performance/alert/' + alertId + '/',
+                             { revised_summary_id: revisedSummaryId });
         }
     };
 }]);
 
+perf.controller(
+    'ReassignAlertsCtrl',
+    function($scope, $modalInstance, $http, $q, alertSummary, PhAlerts) {
+        var alerts = _.where(alertSummary.alerts, {'selected': true});
+        $scope.reassignAlerts = function() {
+            var revisedSummaryId = parseInt(
+                $scope.reassignAlertId.newAlertSummaryId.$modelValue);
+            $scope.reassigning = true;
+            $q.all(_.map(alerts, function(alert) {
+                return PhAlerts.reassignAlertSummary(
+                    alert.id, revisedSummaryId);
+            })).then(function() {
+                $scope.reassigning = false;
+                alertSummary.allSelected = false; // all are no longer selected
+                alerts.forEach(function(alert) {
+                    _.assign(alert, {
+                        selected: false,
+                        revised_summary_id: revisedSummaryId
+                    });
+                });
+                $modalInstance.dismiss('reassigned');
+            });
+        };
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+        $scope.$on('modal.closing', function(event, reason, closed) {
+            if ($scope.reassigning) {
+                event.preventDefault();
+            }
+        });
+    });
+
 perf.controller('AlertsCtrl', [
-    '$state', '$stateParams', '$scope', '$rootScope', '$http', '$q', 'thUrl',
-    'ThRepositoryModel', 'ThOptionCollectionModel', 'ThResultSetModel',
+    '$state', '$stateParams', '$scope', '$rootScope', '$http', '$q', '$modal',
+    'thUrl', 'ThRepositoryModel', 'ThOptionCollectionModel', 'ThResultSetModel',
     'thDefaultRepo', 'PhSeries', 'PhAlerts', 'phTimeRanges', 'phDefaultTimeRangeValue',
     'dateFilter', 'thDateFormat',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $http, $q,
+                        $modal,
                         thUrl, ThRepositoryModel, ThOptionCollectionModel,
                         ThResultSetModel, thDefaultRepo, PhSeries, PhAlerts,
                         phTimeRanges, phDefaultTimeRangeValue, dateFilter,
@@ -42,6 +81,58 @@ perf.controller('AlertsCtrl', [
             return Math.min(Math.abs(percent)*5, 100);
         };
 
+        // these methods handle the business logic of alert selection and
+        // unselection
+        $scope.anySelected = function(alerts) {
+            return _.any(_.pluck(alerts, 'selected'));
+        };
+        $scope.anyReassignedAndSelected = function(alerts) {
+            return _.any(alerts, function(alert) {
+                if (alert.revised_summary_id && alert.selected) {
+                    return true;
+                }
+                return false;
+            });
+        };
+        $scope.selectNoneOrSelectAll = function(alertSummary) {
+            // if some are not selected, then select all if checked
+            // otherwise select none
+            alertSummary.alerts.forEach(function(alert) {
+                alert.selected = alertSummary.allSelected;
+            });
+        };
+        $scope.alertSelected = function(alertSummary) {
+            if (_.all(_.pluck(alertSummary.alerts, 'selected'))) {
+                alertSummary.allSelected = true;
+            } else {
+                alertSummary.allSelected = false;
+            }
+        };
+        $scope.reassignAlerts = function(alertSummary) {
+            var modalInstance = $modal.open({
+                templateUrl: 'partials/perf/reassignalertsctrl.html',
+                controller: 'ReassignAlertsCtrl',
+                size: 'sm',
+                resolve: {
+                    alertSummary: function() {
+                        return alertSummary;
+                    }
+                }
+            });
+        };
+        $scope.unassignAlerts = function(alertSummary) {
+            alertSummary.allSelected = false;
+            var selectedAlerts = _.where(alertSummary.alerts, {'selected': true});
+            selectedAlerts.forEach(function(selectedAlert) {
+                selectedAlert.selected = false;
+                if (selectedAlert.revised_summary_id !== null) {
+                    PhAlerts.reassignAlertSummary(
+                        selectedAlert.id, null).then(function() {
+                            selectedAlert.revised_summary_id = null;
+                        });
+                }
+            });
+        };
         function addAlertSummaries(alertSummaries, getMoreAlertSummariesHref) {
             $scope.getMoreAlertSummariesHref = getMoreAlertSummariesHref;
 
