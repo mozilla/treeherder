@@ -40,7 +40,7 @@ class python {
   exec { "install-virtualenv":
     cwd => "/tmp",
     user => "${APP_USER}",
-    command => "sudo pip install virtualenv==12.1.1",
+    command => "sudo pip install virtualenv==13.1.2",
     creates => "/usr/local/bin/virtualenv",
     require => Exec["install-pip"],
   }
