@@ -9,11 +9,14 @@ from rest_framework import (exceptions,
                             viewsets)
 from rest_framework.response import Response
 
-from performance_serializers import PerformanceAlertSummarySerializer
+from performance_serializers import (PerformanceAlertSerializer,
+                                     PerformanceAlertSummarySerializer)
 from treeherder.model import models
-from treeherder.perf.models import (PerformanceAlertSummary,
+from treeherder.perf.models import (PerformanceAlert,
+                                    PerformanceAlertSummary,
                                     PerformanceDatum,
                                     PerformanceSignature)
+from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
@@ -153,3 +156,19 @@ class PerformanceAlertSummaryViewSet(viewsets.ReadOnlyModelViewSet):
     filter_fields = ['id']
     ordering = ('-last_updated', '-id')
     pagination_class = AlertSummaryPagination
+
+
+class PerformanceAlertViewSet(viewsets.ModelViewSet):
+    queryset = PerformanceAlert.objects.all()
+    permission_classes = (IsStaffOrReadOnly,)
+
+    serializer_class = PerformanceAlertSerializer
+    filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
+    filter_fields = ['id']
+    ordering = ('-id')
+
+    class AlertPagination(pagination.CursorPagination):
+        ordering = ('-id')
+        page_size = 10
+
+    pagination_class = AlertPagination

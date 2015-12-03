@@ -123,11 +123,15 @@ class PerformanceAlert(models.Model):
 
     An alert is always a member of an alert summary, which groups all
     the alerts associated with a particular result set and repository
-    together.
+    together. In many cases at Mozilla, the original alert summary is not
+    correct, so we allow reassigning it to a different (revised) summary.
     '''
     id = models.AutoField(primary_key=True)
     summary = models.ForeignKey(PerformanceAlertSummary,
                                 related_name='alerts')
+    revised_summary = models.ForeignKey(PerformanceAlertSummary,
+                                        related_name='revised_alerts',
+                                        null=True)
     series_signature = models.ForeignKey(PerformanceSignature)
     is_regression = models.BooleanField()
     amount_pct = models.FloatField(

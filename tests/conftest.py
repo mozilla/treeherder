@@ -482,3 +482,35 @@ def client_credentials(request, api_user):
     request.addfinalizer(fin)
 
     return client_credentials
+
+
+@pytest.fixture
+def test_perf_signature(test_repository):
+    from treeherder.model.models import (MachinePlatform,
+                                         Option,
+                                         OptionCollection)
+    from treeherder.perf.models import (PerformanceFramework,
+                                        PerformanceSignature)
+
+    framework = PerformanceFramework.objects.create(
+        name='test_talos')
+    option = Option.objects.create(name='opt')
+    option_collection = OptionCollection.objects.create(
+        option_collection_hash='my_option_hash',
+        option=option)
+    platform = MachinePlatform.objects.create(
+        os_name='win',
+        platform='win7',
+        architecture='x86',
+        active_status='active')
+
+    signature = PerformanceSignature.objects.create(
+        repository=test_repository,
+        signature_hash=(40*'t'),
+        framework=framework,
+        platform=platform,
+        option_collection=option_collection,
+        suite='mysuite',
+        test='mytest'
+    )
+    return signature
