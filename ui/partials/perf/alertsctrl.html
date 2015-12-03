@@ -2,6 +2,9 @@
   <div class="alert alert-danger" role="alert">
     Perfherder alerts are experimental and not to be trusted (yet)
   </div>
+  <div class="alert alert-warning" ng-show="!user.is_staff" role="alert">
+    You must be logged into perfherder/treeherder and be a sheriff to make changes
+  </div>
   <hr/>
   <div class="panel panel-default" ng-repeat="alertSummary in alertSummaries">
     <div class="panel-heading">
@@ -22,6 +25,8 @@
       <h4>Detected changes</h4>
       <table class="table table-striped compare-table">
         <tr>
+          <th style="width:16px;">
+            <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alertSummary.allSelected" ng-change="selectNoneOrSelectAll(alertSummary)"/><!-- select 'em all checkbox --></th>
           <!-- Manually specify table widths because it's just easier this way -->
           <th class="test-title">
             <span style=" word-wrap: break-word;">
@@ -36,8 +41,17 @@
           <th style="width: 100px;">Confidence</th>
         </tr>
         <tr ng-repeat="alert in alertSummary.alerts">
+          <td>
+            <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alert.selected" ng-change="alertSelected(alertSummary)"/>
+          </td>
           <td class="test-title">
-            {{alert.title}}&nbsp;&nbsp;
+            <span ng-class="{'alert-reassigned': alert.revised_summary_id}">
+              {{alert.title}}
+            </span>
+            <span ng-show="alert.revised_summary_id">
+              &nbsp;(duplicate of
+              <a href="#/alerts?id={{alert.revised_summary_id}}">#{{alert.revised_summary_id}}</a>)
+            </span>&nbsp;&nbsp;
             <span class="result-links">
               <a href="#/graphs?timerange={{alertSummary.resultSetMetadata.timeRange}}&series=[{{alertSummary.repository}},{{alert.series_signature.signature_hash}},1]&highlightedRevisions={{alertSummary.resultSetMetadata.revision}}">graph</a>
             </span>
@@ -85,6 +99,14 @@
           </td>
         </tr>
       </table>
+      <div style="padding-left: 8px;">
+        <button class="btn btn-default" role="button" ng-show="anySelected(alertSummary.alerts)"
+                ng-click="reassignAlerts(alertSummary)">Reassign</button>
+        <button class="btn btn-default" role="button"
+                ng-show="anySelected(alertSummary.alerts)"
+                ng-disabled="!anyReassignedAndSelected(alertSummary.alerts)"
+                ng-click="unassignAlerts(alertSummary)">Unassign</button>
+      </div>
     </div>
   </div>
 </div>
