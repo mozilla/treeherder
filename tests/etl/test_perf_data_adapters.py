@@ -194,6 +194,14 @@ def test_load_generic_data(test_project, test_repository,
                                 subtest.get('lowerIsBetter', True),
                                 subtest['value'],
                                 pushtime)
+    summary_signature = PerformanceSignature.objects.get(
+        suite=perf_datum['suites'][0]['name'], test='')
+    subtest_signatures = PerformanceSignature.objects.exclude(
+        id=summary_signature.id).values_list('signature_hash', flat=True)
+    subtest_hashes = [subtest_signature.signature_hash
+                      for subtest_signature in summary_signature.subtests.all()]
+    assert len(subtest_hashes) == 3
+    assert sorted(subtest_signatures) == sorted(subtest_hashes)
 
     # send another datum, a little later, verify that signature's
     # `last_updated` is changed accordingly
