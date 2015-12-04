@@ -311,14 +311,14 @@ def mock_post_json(monkeypatch, client_credentials):
 
 
 @pytest.fixture
-def mock_get_remote_content(monkeypatch):
-    def _get_remote_content(url, params=None):
+def mock_fetch_json(monkeypatch):
+    def _fetch_json(url, params=None):
         response = TestApp(application).get(url, params=params, status=200)
         return response.json
 
     import treeherder.etl.common
     monkeypatch.setattr(treeherder.etl.common,
-                        'get_remote_content', _get_remote_content)
+                        'fetch_json', _fetch_json)
 
 
 @pytest.fixture

@@ -58,7 +58,7 @@ def mock_mozlog_get_log_handler(monkeypatch):
 
 
 def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset,
-                   test_repository, mock_post_json, mock_get_remote_content):
+                   test_repository, mock_post_json, mock_fetch_json):
     """
     check that at least 3 job_artifacts get inserted when running
     a parse_log task for a successful job
@@ -97,7 +97,7 @@ def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset,
 @pytest.mark.xfail
 def test_parse_mozlog_log(jm, initial_data, jobs_with_local_mozlog_log,
                           sample_resultset, test_repository, mock_post_json,
-                          mock_get_remote_content,
+                          mock_fetch_json,
                           mock_mozlog_get_log_handler
                           ):
     """
@@ -140,7 +140,7 @@ def test_parse_mozlog_log(jm, initial_data, jobs_with_local_mozlog_log,
 
 def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
                                   sample_resultset, test_repository, mock_post_json,
-                                  mock_get_remote_content
+                                  mock_fetch_json
                                   ):
     """
     check that at least 3 job_artifacts get inserted when running

@@ -179,12 +179,12 @@ def get_bugs_for_search_term(search, base_uri):
     Fetch the base_uri endpoint filtering on search and status.
     Status must be either 'open' or 'closed'
     """
-    from treeherder.etl.common import get_remote_content
+    from treeherder.etl.common import fetch_json
 
     params = {
         'search': search
     }
-    return get_remote_content(base_uri, params=params)
+    return fetch_json(base_uri, params=params)
 
 
 def get_artifacts_that_need_bug_suggestions(artifact_list):
