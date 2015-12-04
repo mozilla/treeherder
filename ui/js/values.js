@@ -163,11 +163,6 @@ treeherder.value("phTimeRanges", [
 
 treeherder.value("phDefaultTimeRangeValue", 1209600);
 
-// we are excluding macosx 10.10 by default for now, see: https://bugzilla.mozilla.org/show_bug.cgi?id=1201615
-treeherder.value("phUnreliablePlatforms", [
-    'osx-10-10'
-]);
-
 treeherder.value("thJobNavSelectors",
     {
         ALL_JOBS: {

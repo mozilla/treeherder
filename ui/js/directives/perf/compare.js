@@ -2,7 +2,7 @@
 
 treeherder.directive(
     'phCompareTable',
-    ['PhCompare', 'phUnreliablePlatforms', function(PhCompare, phUnreliablePlatforms) {
+    ['PhCompare', function(PhCompare) {
         return {
             templateUrl: 'partials/perf/comparetable.html',
             scope: {
@@ -11,8 +11,7 @@ treeherder.directive(
                 testList: '=',
                 filter: '=',
                 showOnlyImportant: '=',
-                showOnlyConfident: '=',
-                showUnreliablePlatforms: '='
+                showOnlyConfident: '='
             },
             link: function(scope, element, attrs) {
                 scope.getCompareClasses = PhCompare.getCompareClasses;
@@ -21,9 +20,7 @@ treeherder.directive(
                 }
                 function shouldBeHidden(result) {
                     return (!scope.showOnlyImportant || result.isMeaningful)
-                        && (!scope.showOnlyConfident || result.isConfident)
-                        && (scope.showUnreliablePlatforms || !_.contains(
-                            phUnreliablePlatforms, result.name));
+                        && (!scope.showOnlyConfident || result.isConfident);
                 }
                 function filterResult (results, key) {
                     if (scope.filter === undefined) {
@@ -51,10 +48,10 @@ treeherder.directive(
                     scope.hasNoResults = _.isEmpty(scope.filteredResultList);
                 }
 
-                scope.$watchGroup(['filter', 'showOnlyImportant', 'showOnlyConfident',
-                                   'showUnreliablePlatforms'], function() {
-                    updateFilteredTestList();
-                });
+                scope.$watchGroup(['filter', 'showOnlyImportant', 'showOnlyConfident'],
+                                  function() {
+                                      updateFilteredTestList();
+                                  });
                 updateFilteredTestList();
             }
         };

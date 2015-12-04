@@ -32,12 +32,6 @@
             Hide uncertain results
           </label>
         </div>
-        <div class="checkbox" tooltip="Platforms which don't produce consistent / reliable data -- beware!">
-          <label>
-            <input type="checkbox" ng-model="filterOptions.showUnreliablePlatforms" ng-change="updateFilters()"/>
-            Show unreliable platforms
-          </label>
-        </div>
       </form>
       <hr/>
       <ph-compare-table
@@ -46,8 +40,7 @@
          compare-results="compareResults"
          filter="filterOptions.filter"
          show-only-important="filterOptions.showOnlyImportant"
-         show-only-confident="filterOptions.showOnlyConfident"
-         show-unreliable-platforms="filterOptions.showUnreliablePlatforms">
+         show-only-confident="filterOptions.showOnlyConfident">
       </ph-compare-table>
     </div>
   </div>

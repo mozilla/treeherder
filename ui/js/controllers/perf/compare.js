@@ -244,8 +244,7 @@ perf.controller('CompareResultsCtrl', [
             $state.transitionTo('compare', {
                 filter: $scope.filterOptions.filter,
                 showOnlyImportant: Boolean($scope.filterOptions.showOnlyImportant) ? undefined : 0,
-                showOnlyConfident: Boolean($scope.filterOptions.showOnlyConfident) ? 1 : undefined,
-                showUnreliablePlatforms: Boolean($scope.filterOptions.showUnreliablePlatforms) ? 1 : undefined
+                showOnlyConfident: Boolean($scope.filterOptions.showOnlyConfident) ? 1 : undefined
             }, {
                 location: true,
                 inherit: true,
@@ -275,8 +274,7 @@ perf.controller('CompareResultsCtrl', [
                 showOnlyImportant: $stateParams.showOnlyImportant === undefined ||
                     parseInt($stateParams.showOnlyImportant),
                 showOnlyConfident: $stateParams.showOnlyConfident !== undefined ||
-                    parseInt($stateParams.showOnlyConfident),
-                showUnreliablePlatforms: Boolean(parseInt($stateParams.showUnreliablePlatforms))
+                    parseInt($stateParams.showOnlyConfident)
             };
 
             $scope.originalProject = ThRepositoryModel.getRepo(
