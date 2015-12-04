@@ -8,8 +8,7 @@ from treeherder.client import TreeherderResultSetCollection
 from treeherder.etl.common import (generate_revision_hash,
                                    get_not_found_onhold_push)
 
-from .mixins import (JsonExtractorMixin,
-                     OAuthLoaderMixin)
+from .mixins import OAuthLoaderMixin
 
 logger = logging.getLogger(__name__)
 
@@ -203,19 +202,3 @@ class MissingHgPushlogProcess(HgPushlogTransformerMixin,
                 source_url
             ))
             raise
-
-
-class GitPushlogTransformerMixin(object):
-
-    def transform(self, source_url):
-        # TODO: implement git sources.xml transformation logic
-        pass
-
-
-class GitPushlogProcess(JsonExtractorMixin,
-                        GitPushlogTransformerMixin,
-                        OAuthLoaderMixin):
-
-    def run(self, source_url, project):
-        # TODO: implement the whole sources.xml ingestion process
-        pass
