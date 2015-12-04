@@ -52,7 +52,7 @@ class JobData(dict):
         return value
 
 
-def get_remote_content(url, params=None):
+def fetch_json(url, params=None):
     """A thin layer of abstraction over requests. """
     resp = requests.get(url,
                         params=params,
