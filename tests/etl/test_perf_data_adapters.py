@@ -1,6 +1,7 @@
 import copy
 import datetime
 import json
+import time
 
 import pytest
 
@@ -65,12 +66,13 @@ def _generate_perf_data_range(test_project, test_repository,
     framework_name = "cheezburger"
     PerformanceFramework.objects.create(name=framework_name)
 
+    now = int(time.time())
     for (i, value) in zip(range(30), [1]*15 + [2]*15):
         perf_job_data = {
             'fake_job_guid': {
                 'id': i,
                 'result_set_id': i,
-                'push_timestamp': i
+                'push_timestamp': now + i
             }
         }
         datum = {
