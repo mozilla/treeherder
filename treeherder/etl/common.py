@@ -52,14 +52,21 @@ class JobData(dict):
         return value
 
 
+def make_request(url, method='GET', timeout=settings.TREEHERDER_REQUESTS_TIMEOUT, **kwargs):
+    """A wrapper around requests to set defaults & call raise_for_status()."""
+    response = requests.request(method,
+                                url,
+                                timeout=timeout,
+                                **kwargs)
+    response.raise_for_status()
+    return response
+
+
 def fetch_json(url, params=None):
-    """A thin layer of abstraction over requests. """
-    resp = requests.get(url,
-                        params=params,
-                        headers={'Accept': 'application/json'},
-                        timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
-    resp.raise_for_status()
-    return resp.json()
+    response = make_request(url,
+                            params=params,
+                            headers={'Accept': 'application/json'})
+    return response.json()
 
 
 def lookup_revisions(revision_dict):
