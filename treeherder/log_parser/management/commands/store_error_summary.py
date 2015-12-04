@@ -18,19 +18,20 @@ class Command(BaseCommand):
     help = 'Download, parse and store the given failure summary log.'
 
     def handle(self, *args, **options):
-
-        if not len(args) == 3:
+        try:
+            log_url, job_guid, repository_name = args
+        except ValueError:
             raise CommandError('3 arguments required, %s given' % len(args))
-        log_response = requests.get(args[0], timeout=30)
+        log_response = requests.get(log_url, timeout=30)
         log_response.raise_for_status()
 
         if log_response.text:
             log_content = StringIO(log_response.text)
 
             try:
-                repository = Repository.objects.get(name=args[2], active_status='active')
+                repository = Repository.objects.get(name=repository_name, active_status='active')
             except Repository.DoesNotExist:
-                raise CommandError('Unknown repository %s' % args[2])
+                raise CommandError('Unknown repository %s' % repository_name)
 
             log_iter = reader.read(log_content)
 
@@ -41,14 +42,14 @@ class Command(BaseCommand):
                 # Alter the N+1th log line to indicate the list was truncated.
                 log_iter[-1].update(action='truncated')
 
-            with JobsModel(args[2]) as jobs_model:
-                job_id = jobs_model.get_job_ids_by_guid([args[1]])
+            with JobsModel(repository_name) as jobs_model:
+                job_id = jobs_model.get_job_ids_by_guid([job_guid])
 
                 if not job_id:
-                    raise CommandError('No job found with guid %s in the %s repository' % (args[1], args[2]))
+                    raise CommandError('No job found with guid %s in the %s repository' % (job_guid, repository_name))
 
             with transaction.atomic():
                 FailureLine.objects.bulk_create(
-                    [FailureLine(repository=repository, job_guid=args[1], **failure_line)
+                    [FailureLine(repository=repository, job_guid=job_guid, **failure_line)
                      for failure_line in log_iter]
                 )
