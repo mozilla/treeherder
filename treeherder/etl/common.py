@@ -52,7 +52,7 @@ class JobData(dict):
         return value
 
 
-def make_request(url, method='GET', timeout=settings.TREEHERDER_REQUESTS_TIMEOUT, **kwargs):
+def make_request(url, method='GET', timeout=settings.REQUESTS_TIMEOUT, **kwargs):
     """A wrapper around requests to set defaults & call raise_for_status()."""
     response = requests.request(method,
                                 url,
