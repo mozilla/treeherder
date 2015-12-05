@@ -22,7 +22,7 @@ class JsonExtractorMixin(object):
         req.add_header('Accept', 'application/json')
         req.add_header('Content-Type', 'application/json')
         try:
-            handler = urllib2.urlopen(req, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
+            handler = urllib2.urlopen(req, timeout=settings.REQUESTS_TIMEOUT)
             encoding = handler.info().get('Content-Encoding')
             if encoding and 'gzip' in encoding:
                 buf = StringIO(handler.read())
@@ -43,7 +43,7 @@ class JsonLoaderMixin(object):
         req.add_header('Content-Type', 'application/json')
         if not data:
             data = None
-        return urllib2.urlopen(req, json.dumps(data),  timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
+        return urllib2.urlopen(req, json.dumps(data),  timeout=settings.REQUESTS_TIMEOUT)
 
 
 class ResultSetsLoaderMixin(JsonLoaderMixin):

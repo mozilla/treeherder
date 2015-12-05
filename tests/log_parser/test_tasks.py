@@ -48,7 +48,7 @@ def mock_mozlog_get_log_handler(monkeypatch):
     def _get_log_handle(mockself, url):
         response = urllib2.urlopen(
                url,
-               timeout=settings.TREEHERDER_REQUESTS_TIMEOUT
+               timeout=settings.REQUESTS_TIMEOUT
         )
         return gzip.GzipFile(fileobj=BytesIO(response.read()))
 

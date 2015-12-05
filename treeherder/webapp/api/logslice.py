@@ -24,7 +24,7 @@ class LogSliceView(viewsets.ViewSet):
         """Hook to get a handle to the log with this url"""
         return urllib2.urlopen(
             url,
-            timeout=settings.TREEHERDER_REQUESTS_TIMEOUT
+            timeout=settings.REQUESTS_TIMEOUT
         )
 
     @with_jobs
