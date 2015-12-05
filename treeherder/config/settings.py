@@ -340,6 +340,7 @@ ES_HOST = "http://of-elasticsearch-zlb.webapp.scl3.mozilla.com:9200"
 # timeout for requests to external sources
 # like ftp.mozilla.org or hg.mozilla.org
 REQUESTS_TIMEOUT = 30
+REQUESTS_USER_AGENT = 'treeherder/{}'.format(TREEHERDER_REQUEST_HOST)
 
 # The pulse uri that is passed to kombu
 PULSE_URI = env("PULSE_URI", default="amqps://guest:guest@pulse.mozilla.org/")

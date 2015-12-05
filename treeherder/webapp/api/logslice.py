@@ -22,8 +22,10 @@ class LogSliceView(viewsets.ViewSet):
 
     def get_log_handle(self, url):
         """Hook to get a handle to the log with this url"""
+        req = urllib2.Request(url)
+        req.add_header('User-Agent', settings.REQUESTS_USER_AGENT)
         return urllib2.urlopen(
-            url,
+            req,
             timeout=settings.REQUESTS_TIMEOUT
         )
 
