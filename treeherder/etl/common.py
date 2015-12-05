@@ -69,6 +69,11 @@ def fetch_json(url, params=None):
     return response.json()
 
 
+def fetch_text(url):
+    response = make_request(url)
+    return response.text
+
+
 def lookup_revisions(revision_dict):
     """
     Retrieve a list of revision->resultset lookups
