@@ -21,6 +21,7 @@ class JsonExtractorMixin(object):
         req = urllib2.Request(url)
         req.add_header('Accept', 'application/json')
         req.add_header('Content-Type', 'application/json')
+        req.add_header('User-Agent', settings.TREEHERDER_USER_AGENT)
         try:
             handler = urllib2.urlopen(req, timeout=settings.REQUESTS_TIMEOUT)
             encoding = handler.info().get('Content-Encoding')
@@ -41,6 +42,7 @@ class JsonLoaderMixin(object):
     def load(self, url, data):
         req = urllib2.Request(url)
         req.add_header('Content-Type', 'application/json')
+        req.add_header('User-Agent', settings.TREEHERDER_USER_AGENT)
         if not data:
             data = None
         return urllib2.urlopen(req, json.dumps(data),  timeout=settings.REQUESTS_TIMEOUT)

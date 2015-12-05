@@ -52,10 +52,14 @@ class JobData(dict):
         return value
 
 
-def make_request(url, method='GET', timeout=settings.REQUESTS_TIMEOUT, **kwargs):
+def make_request(url, method='GET', headers=None,
+                 timeout=settings.REQUESTS_TIMEOUT, **kwargs):
     """A wrapper around requests to set defaults & call raise_for_status()."""
+    headers = headers or {}
+    headers['User-Agent'] = settings.TREEHERDER_USER_AGENT
     response = requests.request(method,
                                 url,
+                                headers=headers,
                                 timeout=timeout,
                                 **kwargs)
     response.raise_for_status()
