@@ -25,31 +25,33 @@ class Command(BaseCommand):
         log_response = requests.get(log_url, timeout=30)
         log_response.raise_for_status()
 
-        if log_response.text:
-            log_content = StringIO(log_response.text)
+        if not log_response.text:
+            return
 
-            try:
-                repository = Repository.objects.get(name=repository_name, active_status='active')
-            except Repository.DoesNotExist:
-                raise CommandError('Unknown repository %s' % repository_name)
+        log_content = StringIO(log_response.text)
 
-            log_iter = reader.read(log_content)
+        try:
+            repository = Repository.objects.get(name=repository_name, active_status='active')
+        except Repository.DoesNotExist:
+            raise CommandError('Unknown repository %s' % repository_name)
 
-            failure_lines_cutoff = settings.FAILURE_LINES_CUTOFF
-            log_iter = list(islice(log_iter, failure_lines_cutoff+1))
+        log_iter = reader.read(log_content)
 
-            if len(log_iter) > failure_lines_cutoff:
-                # Alter the N+1th log line to indicate the list was truncated.
-                log_iter[-1].update(action='truncated')
+        failure_lines_cutoff = settings.FAILURE_LINES_CUTOFF
+        log_iter = list(islice(log_iter, failure_lines_cutoff+1))
 
-            with JobsModel(repository_name) as jobs_model:
-                job_id = jobs_model.get_job_ids_by_guid([job_guid])
+        if len(log_iter) > failure_lines_cutoff:
+            # Alter the N+1th log line to indicate the list was truncated.
+            log_iter[-1].update(action='truncated')
 
-                if not job_id:
-                    raise CommandError('No job found with guid %s in the %s repository' % (job_guid, repository_name))
+        with JobsModel(repository_name) as jobs_model:
+            job_id = jobs_model.get_job_ids_by_guid([job_guid])
 
-            with transaction.atomic():
-                FailureLine.objects.bulk_create(
-                    [FailureLine(repository=repository, job_guid=job_guid, **failure_line)
-                     for failure_line in log_iter]
-                )
+            if not job_id:
+                raise CommandError('No job found with guid %s in the %s repository' % (job_guid, repository_name))
+
+        with transaction.atomic():
+            FailureLine.objects.bulk_create(
+                [FailureLine(repository=repository, job_guid=job_guid, **failure_line)
+                 for failure_line in log_iter]
+            )
