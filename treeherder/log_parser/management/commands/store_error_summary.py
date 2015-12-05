@@ -1,13 +1,13 @@
 from cStringIO import StringIO
 from itertools import islice
 
-import requests
 from django.conf import settings
 from django.core.management.base import (BaseCommand,
                                          CommandError)
 from django.db import transaction
 from mozlog import reader
 
+from treeherder.etl.common import fetch_text
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import (FailureLine,
                                      Repository)
@@ -22,13 +22,13 @@ class Command(BaseCommand):
             log_url, job_guid, repository_name = args
         except ValueError:
             raise CommandError('3 arguments required, %s given' % len(args))
-        log_response = requests.get(log_url, timeout=30)
-        log_response.raise_for_status()
 
-        if not log_response.text:
+        log_text = fetch_text(log_url)
+
+        if not log_text:
             return
 
-        log_content = StringIO(log_response.text)
+        log_content = StringIO(log_text)
 
         try:
             repository = Repository.objects.get(name=repository_name, active_status='active')
