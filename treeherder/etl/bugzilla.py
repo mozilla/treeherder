@@ -3,7 +3,7 @@ from urllib import urlencode
 import dateutil.parser
 from django.conf import settings
 
-from treeherder.etl.mixins import JsonExtractorMixin
+from treeherder.etl.common import fetch_json
 from treeherder.model.models import Bugscache
 
 
@@ -24,11 +24,9 @@ def get_bz_source_url():
     return source_url
 
 
-class BzApiBugProcess(JsonExtractorMixin):
+class BzApiBugProcess():
 
     def run(self):
-        # this is the last day we fetched bugs from bugzilla
-
         bug_list = []
 
         offset = 0
@@ -41,10 +39,10 @@ class BzApiBugProcess(JsonExtractorMixin):
                 offset,
                 limit
             )
-            response = self.extract(paginated_url)
-            temp_bug_list = response.get('bugs', [])
-            bug_list += temp_bug_list
-            if len(temp_bug_list) < limit:
+            response = fetch_json(paginated_url)
+            bug_results_chunk = response.get('bugs', [])
+            bug_list += bug_results_chunk
+            if len(bug_results_chunk) < limit:
                 break
             offset += limit
 

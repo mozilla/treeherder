@@ -5,7 +5,7 @@ from treeherder.model.models import Bugscache
 
 
 @pytest.mark.django_db(transaction=True)
-def test_bz_api_process(mock_extract):
+def test_bz_api_process(mock_bugzilla_api_request):
     process = BzApiBugProcess()
     process.run()
 
