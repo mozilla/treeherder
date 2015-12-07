@@ -1,7 +1,5 @@
-import gzip
 import logging
 import urllib2
-from StringIO import StringIO
 
 import simplejson as json
 from django.conf import settings
@@ -10,29 +8,6 @@ from django.core.urlresolvers import reverse
 from treeherder.etl import th_publisher
 
 logger = logging.getLogger(__name__)
-
-
-class JsonExtractorMixin(object):
-
-    def extract(self, url):
-        """
-        Deserializes a json string contained a given file, uncompressing it if needed
-        """
-        req = urllib2.Request(url)
-        req.add_header('Accept', 'application/json')
-        req.add_header('Content-Type', 'application/json')
-        req.add_header('User-Agent', settings.TREEHERDER_USER_AGENT)
-        try:
-            handler = urllib2.urlopen(req, timeout=settings.REQUESTS_TIMEOUT)
-            encoding = handler.info().get('Content-Encoding')
-            if encoding and 'gzip' in encoding:
-                buf = StringIO(handler.read())
-                handler = gzip.GzipFile(fileobj=buf)
-
-            return json.loads(handler.read())
-        except Exception:
-            logger.error('Error fetching {0}'.format(url), exc_info=True)
-            return None
 
 
 class JsonLoaderMixin(object):
