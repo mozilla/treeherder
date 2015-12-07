@@ -13,102 +13,115 @@ from treeherder.etl.buildapi import (CACHE_KEYS,
 
 
 @pytest.fixture
-def mock_buildapi_pending_url(monkeypatch):
+def mock_buildapi_pending_url(activate_responses):
     tests_folder = os.path.dirname(os.path.dirname(__file__))
     path = os.path.join(
         tests_folder,
         "sample_data",
         "builds-pending.json"
     )
-    monkeypatch.setattr(settings,
-                        'BUILDAPI_PENDING_URL',
-                        "file://{0}".format(path))
+    with open(path) as f:
+        mocked_content = f.read()
+    responses.add(responses.GET, settings.BUILDAPI_PENDING_URL,
+                  body=mocked_content, status=200,
+                  content_type='application/json')
 
 
 @pytest.fixture
-def mock_buildapi_running_url(monkeypatch):
+def mock_buildapi_running_url(activate_responses):
     tests_folder = os.path.dirname(os.path.dirname(__file__))
     path = os.path.join(
         tests_folder,
         "sample_data",
         "builds-running.json"
     )
-    monkeypatch.setattr(settings,
-                        'BUILDAPI_RUNNING_URL',
-                        "file://{0}".format(path))
+    with open(path) as f:
+        mocked_content = f.read()
+    responses.add(responses.GET, settings.BUILDAPI_RUNNING_URL,
+                  body=mocked_content, status=200,
+                  content_type='application/json')
 
 
 @pytest.fixture
-def mock_buildapi_builds4h_url(monkeypatch):
+def mock_buildapi_builds4h_url(activate_responses):
     tests_folder = os.path.dirname(os.path.dirname(__file__))
     path = os.path.join(
         tests_folder,
         "sample_data",
         "buildbot_text.json"
     )
-    monkeypatch.setattr(settings,
-                        'BUILDAPI_BUILDS4H_URL',
-                        "file://{0}".format(path))
+    with open(path) as f:
+        mocked_content = f.read()
+    responses.add(responses.GET, settings.BUILDAPI_BUILDS4H_URL,
+                  body=mocked_content, status=200,
+                  content_type='application/json')
 
 
 @pytest.fixture
-def mock_buildapi_pending_missing1_url(monkeypatch):
+def mock_buildapi_pending_missing1_url(activate_responses):
     tests_folder = os.path.dirname(os.path.dirname(__file__))
     path = os.path.join(
         tests_folder,
         "sample_data",
         "builds-pending-missing1.json"
     )
-    monkeypatch.setattr(settings,
-                        'BUILDAPI_PENDING_URL',
-                        "file://{0}".format(path))
+    with open(path) as f:
+        mocked_content = f.read()
+    responses.add(responses.GET, settings.BUILDAPI_PENDING_URL,
+                  body=mocked_content, status=200,
+                  content_type='application/json')
 
 
 @pytest.fixture
-def mock_buildapi_running_missing1_url(monkeypatch):
+def mock_buildapi_running_missing1_url(activate_responses):
     tests_folder = os.path.dirname(os.path.dirname(__file__))
     path = os.path.join(
         tests_folder,
         "sample_data",
         "builds-running-missing1.json"
     )
-    monkeypatch.setattr(settings,
-                        'BUILDAPI_RUNNING_URL',
-                        "file://{0}".format(path))
+    with open(path) as f:
+        mocked_content = f.read()
+    responses.add(responses.GET, settings.BUILDAPI_RUNNING_URL,
+                  body=mocked_content, status=200,
+                  content_type='application/json')
 
 
 @pytest.fixture
-def mock_buildapi_builds4h_missing1_url(monkeypatch):
+def mock_buildapi_builds4h_missing1_url(activate_responses):
     tests_folder = os.path.dirname(os.path.dirname(__file__))
     path = os.path.join(
         tests_folder,
         "sample_data",
         "buildbot_text-missing1.json"
     )
-    monkeypatch.setattr(settings,
-                        'BUILDAPI_BUILDS4H_URL',
-                        "file://{0}".format(path))
+    with open(path) as f:
+        mocked_content = f.read()
+    responses.add(responses.GET, settings.BUILDAPI_BUILDS4H_URL,
+                  body=mocked_content, status=200,
+                  content_type='application/json')
 
 
 @pytest.fixture
-def mock_buildapi_builds4h_missing_branch_url(monkeypatch):
+def mock_buildapi_builds4h_missing_branch_url(activate_responses):
     tests_folder = os.path.dirname(os.path.dirname(__file__))
     path = os.path.join(
         tests_folder,
         "sample_data",
         "buildbot_text-missing_branch.json"
     )
-    monkeypatch.setattr(settings,
-                        'BUILDAPI_BUILDS4H_URL',
-                        "file://{0}".format(path))
+    with open(path) as f:
+        mocked_content = f.read()
+    responses.add(responses.GET, settings.BUILDAPI_BUILDS4H_URL,
+                  body=mocked_content, status=200,
+                  content_type='application/json')
 
 
 def test_ingest_pending_jobs(jm,
                              mock_buildapi_pending_url,
                              mock_post_json,
                              mock_log_parser,
-                             mock_get_resultset,
-                             mock_fetch_json):
+                             mock_get_resultset):
     """
     a new buildapi pending job creates a new obj in the job table
     """
@@ -129,8 +142,7 @@ def test_ingest_running_jobs(jm,
                              mock_buildapi_running_url,
                              mock_post_json,
                              mock_log_parser,
-                             mock_get_resultset,
-                             mock_fetch_json):
+                             mock_get_resultset):
     """
     a new buildapi running job creates a new obj in the job table
     """
@@ -151,8 +163,7 @@ def test_ingest_builds4h_jobs(jm,
                               mock_buildapi_builds4h_url,
                               mock_post_json,
                               mock_log_parser,
-                              mock_get_resultset,
-                              mock_fetch_json):
+                              mock_get_resultset):
     """
     a new buildapi completed job creates a new obj in the job table
     """
@@ -174,8 +185,7 @@ def test_ingest_running_to_complete_job(jm,
                                         mock_buildapi_builds4h_url,
                                         mock_post_json,
                                         mock_log_parser,
-                                        mock_get_resultset,
-                                        mock_fetch_json):
+                                        mock_get_resultset):
     """
     a new buildapi running job transitions to a new completed job
 
@@ -206,8 +216,7 @@ def test_ingest_running_job_fields(jm,
                                    mock_buildapi_running_url,
                                    mock_post_json,
                                    mock_log_parser,
-                                   mock_get_resultset,
-                                   mock_fetch_json):
+                                   mock_get_resultset):
     """
     a new buildapi running job creates a new obj in the job table
     """
@@ -227,7 +236,7 @@ def test_ingest_running_job_fields(jm,
 def test_ingest_builds4h_jobs_1_missing_resultset(jm,
                                                   sample_resultset, mock_buildapi_builds4h_missing1_url,
                                                   mock_post_json, mock_log_parser, mock_get_resultset,
-                                                  mock_fetch_json, activate_responses):
+                                                  activate_responses):
     """
     Ensure the builds4h job with the missing resultset is queued for refetching
     """
@@ -237,8 +246,7 @@ def test_ingest_builds4h_jobs_1_missing_resultset(jm,
 
 def test_ingest_builds4h_jobs_missing_branch(jm,
                                              sample_resultset, mock_buildapi_builds4h_missing_branch_url,
-                                             mock_post_json, mock_log_parser, mock_get_resultset,
-                                             mock_fetch_json):
+                                             mock_post_json, mock_log_parser, mock_get_resultset):
     """
     Ensure the builds4h job with the missing resultset is queued for refetching
     """
