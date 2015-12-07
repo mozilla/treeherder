@@ -5,7 +5,7 @@ from hashlib import sha1
 from django.conf import settings
 
 from treeherder.etl.buildbot import get_symbols_and_platforms
-from treeherder.etl.mixins import JsonExtractorMixin
+from treeherder.etl.common import fetch_json
 from treeherder.model.models import (BuildPlatform,
                                      JobGroup,
                                      JobType,
@@ -35,8 +35,7 @@ class AllthethingsTransformerMixin:
         return jobs_per_branch
 
 
-class RunnableJobsProcess(JsonExtractorMixin,
-                          AllthethingsTransformerMixin):
+class RunnableJobsProcess(AllthethingsTransformerMixin):
 
     # XXX: Copied from refdata.py. What is the best place for this?
     def get_option_collection_hash(self, options):
@@ -104,6 +103,6 @@ class RunnableJobsProcess(JsonExtractorMixin,
                               'repository': repo})
 
     def run(self):
-        extracted_content = self.extract(settings.ALLTHETHINGS_URL)
-        jobs_per_branch = self.transform(extracted_content)
+        all_the_things = fetch_json(settings.ALLTHETHINGS_URL)
+        jobs_per_branch = self.transform(all_the_things)
         self.load(jobs_per_branch)
