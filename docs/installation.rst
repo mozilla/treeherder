@@ -1,6 +1,13 @@
 Installation
 ================
 
+.. note:: This section describes how to set up a fully functioning
+          instance of Treeherder. If you only want to hack on the UI,
+          you can just setup a standalone webserver which accesses
+          the server backend using node.js, which is much simpler.
+          See the :doc:`UI installation section <ui/installation>`.
+
+
 Prerequisites
 -------------
 
