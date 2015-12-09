@@ -5,15 +5,16 @@ var perf = angular.module("perf", ['ui.router', 'ui.bootstrap', 'treeherder']);
 treeherder.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceDomain) {
 
     var _getTestName = function(signatureProps, displayOptions) {
+        var suiteName = signatureProps.suite;
+        var testName = signatureProps.test;
+
         if (displayOptions && displayOptions.abbreviate) {
             // exclude "summary" for abbreviated output
-            if (signatureProps.test)
-                return signatureProps.suite + " " + signatureProps.test;
-            return signatureProps.suite;
+            return testName ? suiteName + " " + testName : suiteName;
         }
 
-        var testName = signatureProps.test ? signatureProps.test : "summary";
-        return signatureProps.suite + " " + testName;
+        testName = testName || "summary";
+        return suiteName == testName ? testName : suiteName + " " + testName;
     };
 
     var _getSeriesOptions = function(signatureProps, optionCollectionMap) {
