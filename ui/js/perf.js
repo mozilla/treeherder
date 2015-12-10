@@ -32,12 +32,8 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thSe
         if (displayOptions && displayOptions.includePlatformInName) {
             name = name + " " + platform;
         }
-        var options = [ optionCollectionMap[signatureProps.option_collection_hash] ];
-        if (signatureProps.test_options) {
-            options = options.concat(signatureProps.test_options);
-        }
-        name = name + " " + options.join(" ");
-        return name;
+        var options = _getSeriesOptions(signatureProps, optionCollectionMap);
+        return name + " " + options.join(" ");
     };
 
     var _getSeriesSummary = function(projectName, signature, signatureProps,
@@ -45,10 +41,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thSe
         var platform = signatureProps.machine_platform;
         var testName = signatureProps.test;
         var subtestSignatures = signatureProps.subtest_signatures;
-        var options = [ optionCollectionMap[signatureProps.option_collection_hash] ];
-        if (signatureProps.test_options) {
-            options = options.concat(signatureProps.test_options);
-        }
+        var options = _getSeriesOptions(signatureProps, optionCollectionMap);
 
         return { name: _getSeriesName(signatureProps, optionCollectionMap),
                  projectName: projectName, signature: signature,
