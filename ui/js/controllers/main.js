@@ -800,7 +800,15 @@ treeherderApp.controller('IntermittentFilerCtrl', function($scope, $modalInstanc
                   //XXX NEEDINFO FLAG
                 }
             }).done(function(json) {
-                console.log(json);
+                window.open(bugzillaRoot + "show_bug.cgi?id=" + json.id);
+            }).fail(function(xhr, status, error) {
+                if(xhr.responseJSON.message.search("There is no component named") >= 0) {
+                    window.alert("This product/component pair doesn't seem to exist. Please choose another product.");
+                }
+                if(xhr.responseJSON.message.search("There is no keyword named") >= 0) {
+                    window.alert("This keyword doesn't exist, please remove or correct it");
+                }
+                console.log(xhr.responseJSON.message);
             });
         });
     };
