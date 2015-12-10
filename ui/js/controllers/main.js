@@ -747,6 +747,8 @@ treeherderApp.controller('IntermittentFilerCtrl', function($scope, $modalInstanc
         var componentString = "";
         var isProductSelected = false;
 
+        $(':input','#modalForm').attr("disabled",true);
+
         var productRadios = document.getElementById("modalForm").elements["productGroup"];
         if(productRadios && productRadios.length) {
             for(var i=0, len=productRadios.length; i<len; i++) {
@@ -779,11 +781,13 @@ treeherderApp.controller('IntermittentFilerCtrl', function($scope, $modalInstanc
         }
 
         // Fetch product information from bugzilla to get version numbers, then submit the new bug
-        $.ajax(bugzillaRoot + "rest/product/" + productString).done(function(productJSON) {
+        // Only request the versions because some products take quite a long time to fetch the full object
+        $.ajax(bugzillaRoot + "rest/product/" + productString + "?include_fields=versions").done(function(productJSON) {
             var productObject = productJSON.products[0];
             console.log(productObject.versions);
-            $.ajax({
-                url: bugzillaRoot + "rest/bug?api_key=qF8lX6AyGjcZcmSV4tZTmy2F2PbBycQdB9lsp8cB",
+            $http({
+                //url: bugzillaRoot + "rest/bug?api_key=qF8lX6AyGjcZcmSV4tZTmy2F2PbBycQdB9lsp8cB",
+                url: "api/bugzilla/create_bug/",
                 method: "POST",
                 data: {
                     "product": productString,
@@ -799,16 +803,12 @@ treeherderApp.controller('IntermittentFilerCtrl', function($scope, $modalInstanc
                   //XXX var ccstring = "&cc=" + encodeURIComponent(document.getElementById("modalCc").value);
                   //XXX NEEDINFO FLAG
                 }
-            }).done(function(json) {
-                window.open(bugzillaRoot + "show_bug.cgi?id=" + json.id);
-            }).fail(function(xhr, status, error) {
-                if(xhr.responseJSON.message.search("There is no component named") >= 0) {
-                    window.alert("This product/component pair doesn't seem to exist. Please choose another product.");
-                }
-                if(xhr.responseJSON.message.search("There is no keyword named") >= 0) {
-                    window.alert("This keyword doesn't exist, please remove or correct it");
-                }
-                console.log(xhr.responseJSON.message);
+            }).then(function successCallback(json) {
+                console.log(json.data);
+                window.open(bugzillaRoot + "show_bug.cgi?id=" + json.data.message);
+                $scope.cancelFiler();
+            }, function errorCallback(response) {
+                console.log(response);
             });
         });
     };
