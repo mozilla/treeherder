@@ -5,14 +5,6 @@ from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceSignature)
 
 
-class TestOptionsSerializer(serializers.JSONField):
-    def to_representation(self, obj):
-        # if extra_propeties is blank, just return nothing
-        if type(obj) == dict:
-            return obj.get('test_options', [])
-        return []
-
-
 class PerformanceSignatureSerializer(serializers.ModelSerializer):
     option_collection_hash = serializers.SlugRelatedField(
         read_only=True, slug_field="option_collection_hash",
@@ -20,14 +12,11 @@ class PerformanceSignatureSerializer(serializers.ModelSerializer):
     machine_platform = serializers.SlugRelatedField(read_only=True,
                                                     slug_field="platform",
                                                     source="platform")
-    test_options = TestOptionsSerializer(read_only=True,
-                                         source="extra_properties")
 
     class Meta:
         model = PerformanceSignature
         fields = ['signature_hash', 'machine_platform', 'suite', 'test',
-                  'lower_is_better', 'option_collection_hash',
-                  'test_options']
+                  'lower_is_better', 'option_collection_hash']
 
 
 class PerformanceDecimalField(serializers.DecimalField):
