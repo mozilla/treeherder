@@ -747,6 +747,8 @@ treeherderApp.controller('IntermittentFilerCtrl', function($scope, $modalInstanc
         var componentString = "";
         var isProductSelected = false;
 
+        $(':input','#modalForm').attr("disabled",true);
+
         var productRadios = document.getElementById("modalForm").elements["productGroup"];
         if(productRadios && productRadios.length) {
             for(var i=0, len=productRadios.length; i<len; i++) {
@@ -779,7 +781,8 @@ treeherderApp.controller('IntermittentFilerCtrl', function($scope, $modalInstanc
         }
 
         // Fetch product information from bugzilla to get version numbers, then submit the new bug
-        $.ajax(bugzillaRoot + "rest/product/" + productString).done(function(productJSON) {
+        // Only request the versions because some products take quite a long time to fetch the full object
+        $.ajax(bugzillaRoot + "rest/product/" + productString + "?include_fields=versions").done(function(productJSON) {
             var productObject = productJSON.products[0];
             console.log(productObject.versions);
             $.ajax({
@@ -801,6 +804,7 @@ treeherderApp.controller('IntermittentFilerCtrl', function($scope, $modalInstanc
                 }
             }).done(function(json) {
                 window.open(bugzillaRoot + "show_bug.cgi?id=" + json.id);
+                $scope.cancelFiler();
             }).fail(function(xhr, status, error) {
                 if(xhr.responseJSON.message.search("There is no component named") >= 0) {
                     window.alert("This product/component pair doesn't seem to exist. Please choose another product.");
