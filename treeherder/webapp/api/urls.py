@@ -102,7 +102,8 @@ default_router.register(r'exclusion-profile', refdata.ExclusionProfileViewSet)
 default_router.register(r'job-exclusion', refdata.JobExclusionViewSet)
 default_router.register(r'matcher', refdata.MatcherViewSet)
 
-default_router.register(r'bugzilla', bugzilla.BugzillaViewSet)
+default_router.register(r'bugzilla', bugzilla.BugzillaViewSet,
+                        base_name='bugzilla')
 
 urlpatterns = patterns(
     '',
