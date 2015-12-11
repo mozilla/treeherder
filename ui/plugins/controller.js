@@ -310,6 +310,10 @@ treeherder.controller('PluginCtrl', [
                 $scope.visibleTimeFields.endTime = dateFilter(
                     $scope.job.end_timestamp*1000, thDateFormat);
             }
+
+            // Scroll the job details pane to the top during job selection
+            var jobDetailsPane = document.getElementById('job-details-pane');
+            jobDetailsPane.scrollTop = 0;
         };
 
         $scope.getCountPinnedJobs = function() {
