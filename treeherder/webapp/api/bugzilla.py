@@ -3,6 +3,7 @@ from time import time
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
+import requests
 
 from treeherder.etl.common import make_request
 from treeherder.model.derived.jobs import JobDataIntegrityError
@@ -12,7 +13,6 @@ from rest_framework.decorators import (detail_route,
                                        list_route)
 
 from django.conf import settings
-
 
 
 class BugzillaViewSet(viewsets.ViewSet):
@@ -45,9 +45,9 @@ class BugzillaViewSet(viewsets.ViewSet):
 
         try:
             response = make_request(url, method='POST', headers=headers, json=data)
-        except request.exceptions.HTTPError as e:
+        except requests.exceptions.HTTPError as e:
             response = e.response
             # logger.error("HTTPError %s submitting to %s: %s", response.status_code, url, response.text)
             return Response({"failure": response})
 
-        return Response({"message": "hello"})
+        return Response({"success": response.json()["id"]})

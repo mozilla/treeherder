@@ -805,7 +805,7 @@ treeherderApp.controller('IntermittentFilerCtrl', function($scope, $modalInstanc
                 }
             }).then(function successCallback(json) {
                 console.log(json.data);
-                window.open(bugzillaRoot + "show_bug.cgi?id=" + json.data.message);
+                window.open(bugzillaRoot + "show_bug.cgi?id=" + json.data.success);
                 $scope.cancelFiler();
             }, function errorCallback(response) {
                 console.log(response);
