@@ -49,8 +49,8 @@ python-memcached==1.53
 # sha256: ceezvPn8pAi8tlu2CJLzddOr3S5PKW7uuP4Lu_zeWY4
 jsonschema==2.5.1
 
-# sha256: IJxixh3NSkTNC1M30mHCjbasWoUWtaCzJyKI87QHXWA
-djangorestframework==3.2.4
+# sha256: rO6jRBF9Miz9oTpnYn7s8WR3b5tpBiIIPtkk9uE3YBo
+djangorestframework==3.3.1
 
 # sha256: 8xM6pxA16ey2ISjaWiW9C-uzZ119dI_W78GEW1AbiB4
 django-rest-swagger==0.3.4
