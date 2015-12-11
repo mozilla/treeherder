@@ -31,11 +31,22 @@
       <a ng-class="{active: $state.includes('graphs')}" class="btn btn-view-nav" ui-sref="graphs">Graphs</a>
       <a ng-class="{active: $state.current.name.indexOf('compare') >= 0}" class="btn btn-view-nav" ui-sref="comparechooser">Compare</a>
       <a ng-class="{active: $state.current.name.indexOf('alerts') >= 0}" class="btn btn-view-nav" ui-sref="alerts">Alerts</a>
-      <ul class="nav navbar-nav navbar-right">
-        <li>
-          <persona-buttons></persona-buttons>
-        </li>
-      </ul>
+      <div class="nav navbar-nav navbar-right">
+        <!-- Help Menu -->
+        <span class="dropdown">
+          <button id="helpLabel" title="Perfherder help" role="button"
+                  href="#" data-toggle="dropdown" data-target="#"
+                  class="btn btn-view-nav btn-right-navbar nav-help-btn">
+            <span class="fa fa-question-circle lightgray nav-help-icon"></span>
+            <span class="fa fa-angle-down lightgray"></span>
+          </button>
+          <ul class="dropdown-menu icon-menu" role="menu" aria-labelledby="helpLabel"
+              ng-include="'partials/perf/helpMenu.html'">
+          </ul>
+        </span>
+        <!-- Persona login -->
+        <persona-buttons></persona-buttons>
+      </div>
     </div>
   </nav>
   <div style="padding-top: 20px;"></div>
