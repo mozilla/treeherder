@@ -776,6 +776,28 @@ perf.controller('GraphsCtrl', [
             });
     }]);
 
+perf.filter('testNameContainWords', function() {
+    /**
+     Filter a list of test by ensuring that every word in the textFilter is
+     present in the test name.
+     **/
+    return function(inputs, textFilter) {
+        if (!textFilter) {
+            return inputs;
+        }
+
+        var filters = textFilter.split(/\s+/);
+        return inputs.filter(function(input) {
+            for (var i=0; i<filters.length; i++) {
+                if (input.name.indexOf(filters[i]) === -1) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    };
+});
+
 perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
                                             projects, optionCollectionMap,
                                             timeRange, thServiceDomain,

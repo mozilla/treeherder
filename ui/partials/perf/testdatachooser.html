@@ -16,12 +16,12 @@
     </select>
     <h4>Tests</h4>
     <div class="form-group">
-      <input class="form-control input-sm" type="text" ng-model="testFilter" placeholder="Filter tests"/>
+      <input class="form-control input-sm" type="text" ng-model="testFilter" placeholder="Filter tests" ng-model-options="{debounce: 500}"/>
     </div>
     <div id="choose-test-list" class="form-group">
       <p class="blink" ng-show="loadingTestData">Loading series data...</p>
       <select ng-hide="loadingPlatformList || loadingTestData" multiple class="form-control" ng-model="selectedTestSignatures" ng-hide="loadingTestData">
-        <option value="{{::testElem.signature}}" ng-repeat="testElem in unselectedTestList| filter: testFilter track by testElem.signature">
+        <option value="{{::testElem.signature}}" ng-repeat="testElem in unselectedTestList| testNameContainWords: testFilter track by testElem.signature">
             {{::testElem.name}}
         </option>
       </select>
