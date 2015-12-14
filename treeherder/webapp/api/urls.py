@@ -105,6 +105,9 @@ default_router.register(r'performance/alertsummary',
 default_router.register(r'performance/alert',
                         performance_data.PerformanceAlertViewSet,
                         base_name='performance-alerts')
+default_router.register(r'performance/framework',
+                        performance_data.PerformanceFrameworkViewSet,
+                        base_name='performance-frameworks')
 
 urlpatterns = [
     url(r'^project/(?P<project>[\w-]{0,50})/',

@@ -10,11 +10,13 @@ from rest_framework import (exceptions,
 from rest_framework.response import Response
 
 from performance_serializers import (PerformanceAlertSerializer,
-                                     PerformanceAlertSummarySerializer)
+                                     PerformanceAlertSummarySerializer,
+                                     PerformanceFrameworkSerializer)
 from treeherder.model import models
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceDatum,
+                                    PerformanceFramework,
                                     PerformanceSignature)
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
@@ -50,13 +52,15 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
                 platform__in=platforms)
 
         ret = {}
-        for (signature_hash, option_collection_hash, platform, suite, test,
-             lower_is_better, extra_properties) in signature_data.values_list(
+        for (signature_hash, option_collection_hash, platform, framework,
+             suite, test, lower_is_better,
+             extra_properties) in signature_data.values_list(
                  'signature_hash',
                  'option_collection__option_collection_hash',
-                 'platform__platform', 'suite',
+                 'platform__platform', 'framework', 'suite',
                  'test', 'lower_is_better', 'extra_properties').distinct():
             ret[signature_hash] = {
+                'framework_id': framework,
                 'option_collection_hash': option_collection_hash,
                 'machine_platform': platform,
                 'suite': suite
@@ -83,6 +87,13 @@ class PerformancePlatformViewSet(viewsets.ViewSet):
         return Response(PerformanceSignature.objects.filter(
             repository=repository).values_list(
                 'platform__platform', flat=True).distinct())
+
+
+class PerformanceFrameworkViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = PerformanceFramework.objects.all()
+    serializer_class = PerformanceFrameworkSerializer
+    filter_backends = [filters.OrderingFilter]
+    ordering = 'id'
 
 
 class PerformanceDatumViewSet(viewsets.ViewSet):

@@ -2,7 +2,14 @@ from rest_framework import serializers
 
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
+                                    PerformanceFramework,
                                     PerformanceSignature)
+
+
+class PerformanceFrameworkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PerformanceFramework
+        fields = ['id', 'name']
 
 
 class TestOptionsSerializer(serializers.JSONField):
