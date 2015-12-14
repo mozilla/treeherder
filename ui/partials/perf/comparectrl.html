@@ -14,10 +14,14 @@
         <strong>tests with no results:</strong>
         {{testNoResults}}
       </div>
-      <h4>Filters</h4>
       <form class="form-inline">
         <div class="form-group">
-          <label for="filter">Filter</label>
+          <select ng-model="filterOptions.framework"
+                  ng-options="framework.name for framework in frameworks track by framework.id"
+                  ng-change="updateFilters()"/>
+        </div>
+        &nbsp;
+        <div class="form-group">
             <input id="filter" type="text" class="form-control" ng-model="filterOptions.filter" placeholder="e.g. linux tp5o" ng-change="updateFilters()"/>
         </div>
         <div class="checkbox" tooltip="Non-trivial changes (1.5%+)">
@@ -38,6 +42,7 @@
          titles="titles"
          test-list="testList"
          compare-results="compareResults"
+         framework-id="filterOptions.framework.id"
          filter="filterOptions.filter"
          show-only-important="filterOptions.showOnlyImportant"
          show-only-confident="filterOptions.showOnlyConfident">

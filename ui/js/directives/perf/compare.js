@@ -9,6 +9,7 @@ treeherder.directive(
                 titles: '=',
                 compareResults: '=',
                 testList: '=',
+                frameworkId: '=',
                 filter: '=',
                 showOnlyImportant: '=',
                 showOnlyConfident: '='
@@ -18,18 +19,19 @@ treeherder.directive(
                 function filter(item, matchText) {
                     return !matchText || item.toLowerCase().indexOf(matchText.toLowerCase()) > (-1);
                 }
-                function shouldBeHidden(result) {
-                    return (!scope.showOnlyImportant || result.isMeaningful)
-                        && (!scope.showOnlyConfident || result.isConfident);
+                function shouldBeShown(result) {
+                    return (scope.frameworkId === undefined || result.frameworkId === scope.frameworkId) &&
+                        (!scope.showOnlyImportant || result.isMeaningful) &&
+                        (!scope.showOnlyConfident || result.isConfident);
                 }
-                function filterResult (results, key) {
+                function filterResult(results, key) {
                     if (scope.filter === undefined) {
                         return results;
                     }
                     return _.filter(results, function(result) {
                         var testCondition = key + ' ' + result.name;
                         return _.every(scope.filter.split(' '), function(matchText) {
-                            return filter(testCondition, matchText) && shouldBeHidden(result);
+                            return filter(testCondition, matchText) && shouldBeShown(result);
                         });
                     });
                 }
@@ -48,7 +50,7 @@ treeherder.directive(
                     scope.hasNoResults = _.isEmpty(scope.filteredResultList);
                 }
 
-                scope.$watchGroup(['filter', 'showOnlyImportant', 'showOnlyConfident'],
+                scope.$watchGroup(['frameworkId', 'filter', 'showOnlyImportant', 'showOnlyConfident'],
                                   function() {
                                       updateFilteredTestList();
                                   });

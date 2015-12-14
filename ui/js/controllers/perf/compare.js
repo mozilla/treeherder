@@ -91,13 +91,13 @@ perf.controller('CompareChooserCtrl', [
 perf.controller('CompareResultsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$location',
     'thServiceDomain', 'ThOptionCollectionModel', 'ThRepositoryModel',
-    'ThResultSetModel', '$http', '$q', '$timeout', 'PhSeries', 'math',
-    'phTimeRanges', 'PhCompare',
+    'ThResultSetModel', '$http', '$q', '$timeout', 'PhFramework', 'PhSeries',
+    'math', 'phTimeRanges', 'PhCompare',
     function CompareResultsCtrl($state, $stateParams, $scope,
                                 $rootScope, $location,
                                 thServiceDomain, ThOptionCollectionModel,
                                 ThRepositoryModel, ThResultSetModel, $http,
-                                $q, $timeout, PhSeries, math,
+                                $q, $timeout, PhFramework, PhSeries, math,
                                 phTimeRanges,
                                 PhCompare) {
         function displayComparison() {
@@ -240,8 +240,8 @@ perf.controller('CompareResultsCtrl', [
         $scope.getCompareClasses = PhCompare.getCompareClasses;
 
         $scope.updateFilters = function() {
-
             $state.transitionTo('compare', {
+                framework: $scope.filterOptions.framework.id,
                 filter: $scope.filterOptions.filter,
                 showOnlyImportant: Boolean($scope.filterOptions.showOnlyImportant) ? undefined : 0,
                 showOnlyConfident: Boolean($scope.filterOptions.showOnlyConfident) ? 1 : undefined
@@ -259,7 +259,11 @@ perf.controller('CompareResultsCtrl', [
             function(_optionCollectionMap) {
                 optionCollectionMap = _optionCollectionMap;
             });
-        $q.all([loadRepositories, loadOptions]).then(function() {
+        var loadFrameworks = PhFramework.getFrameworkList().then(
+            function(frameworks) {
+                $scope.frameworks = frameworks.data;
+            });
+        $q.all([loadRepositories, loadOptions, loadFrameworks]).then(function() {
             $scope.errors = PhCompare.validateInput($stateParams.originalProject,
                                                     $stateParams.newProject,
                                                     $stateParams.originalRevision,
@@ -270,6 +274,9 @@ perf.controller('CompareResultsCtrl', [
                 return;
             }
             $scope.filterOptions = {
+                framework: _.find($scope.frameworks, {
+                    id: parseInt($stateParams.framework)
+                }) || $scope.frameworks[0],
                 filter: $stateParams.filter || "",
                 showOnlyImportant: $stateParams.showOnlyImportant === undefined ||
                     parseInt($stateParams.showOnlyImportant),

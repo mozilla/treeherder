@@ -46,6 +46,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thSe
         return { name: _getSeriesName(signatureProps, optionCollectionMap),
                  projectName: projectName, signature: signature,
                  platform: platform, options: options,
+                 frameworkId: signatureProps.framework_id,
                  lowerIsBetter: (signatureProps.lower_is_better === undefined ||
                                  signatureProps.lower_is_better),
                  subtestSignatures: subtestSignatures };
@@ -399,6 +400,9 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                         if (!hasOrig || !hasNew)
                                             return cmap; // No comparison, just display for one side.
 
+                                        // keep the framework id so we can filter by that later, if necessary
+                                        cmap.frameworkId = originalData.frameworkId;
+
                                         // Compare the sides.
                                         // Normally tests are "lower is better", can be over-ridden with a series option
                                         cmap.delta = (cmap.newValue - cmap.originalValue);
@@ -508,6 +512,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                                                     platform: seriesData.platform,
                                                                     name: seriesData.name,
                                                                     lowerIsBetter: seriesData.lowerIsBetter,
+                                                                    frameworkId: seriesData.frameworkId,
                                                                     values: values
                                                                 };
                                                             }
