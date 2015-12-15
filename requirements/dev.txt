@@ -29,8 +29,8 @@ flake8==2.5.1
 isort==4.2.2
 
 # Required by pytest
-# sha256: B-IKuQpVC9PCGJHg2IfwkxtAmPFIrsleKbUYjxYbsHU
-py==1.4.30
+# sha256: Sj5PMADBI4Naw5yrXMxRBkIVO8R7wfE-K7tTA5VArmk
+py==1.4.31
 
 # Required by WebTest
 # sha256: gqJTJFrtmHXxQd2Yp0YlcrypPQZM8xF70z3kth7hjmg
