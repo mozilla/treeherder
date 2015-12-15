@@ -88,42 +88,47 @@ class Builds4hTransformerMixin(object):
         projects = set(x.project for x in Datasource.objects.cached())
 
         for build in data['builds']:
-            prop = build['properties']
+            try:
+                prop = build['properties']
 
-            if 'buildername' not in prop:
-                logger.warning("skipping builds-4hr job since no buildername found")
-                continue
+                if 'buildername' not in prop:
+                    logger.warning("skipping builds-4hr job since no buildername found")
+                    continue
 
-            if 'branch' not in prop:
-                logger.warning("skipping builds-4hr job since no branch found: %s", prop['buildername'])
-                continue
+                if 'branch' not in prop:
+                    logger.warning("skipping builds-4hr job since no branch found: %s", prop['buildername'])
+                    continue
 
-            if prop['branch'] not in projects:
-                # Fuzzer jobs specify a branch of 'idle', and we intentionally don't display them.
-                if prop['branch'] != 'idle':
-                    logger.warning("skipping builds-4hr job on unknown branch %s: %s", prop['branch'], prop['buildername'])
-                continue
+                if prop['branch'] not in projects:
+                    # Fuzzer jobs specify a branch of 'idle', and we intentionally don't display them.
+                    if prop['branch'] != 'idle':
+                        logger.warning("skipping builds-4hr job on unknown branch %s: %s", prop['branch'], prop['buildername'])
+                    continue
 
-            if project_filter and prop['branch'] != project_filter:
-                continue
+                if project_filter and prop['branch'] != project_filter:
+                    continue
 
-            prop['revision'] = prop.get('revision',
-                                        prop.get('got_revision',
-                                                 prop.get('sourcestamp', None)))
+                prop['revision'] = prop.get('revision',
+                                            prop.get('got_revision',
+                                                     prop.get('sourcestamp', None)))
 
-            if not prop['revision']:
-                logger.warning("skipping builds-4hr job since no revision found: %s", prop['buildername'])
-                continue
+                if not prop['revision']:
+                    logger.warning("skipping builds-4hr job since no revision found: %s", prop['buildername'])
+                    continue
 
-            prop['short_revision'] = prop['revision'][0:12]
+                prop['short_revision'] = prop['revision'][0:12]
 
-            if prop['short_revision'] == prop.get('l10n_revision', None):
-                # Some l10n jobs specify the l10n repo revision under 'revision', rather
-                # than the gecko revision. If we did not skip these, it would result in
-                # fetch_missing_resultsets requests that were guaranteed to 404.
-                # This needs to be fixed upstream in builds-4hr by bug 1125433.
-                # Also: l10n_revisions are short 12-char revisions, not full revisions
-                logger.warning("skipping builds-4hr job since revision refers to wrong repo: %s", prop['buildername'])
+                if prop['short_revision'] == prop.get('l10n_revision', None):
+                    # Some l10n jobs specify the l10n repo revision under 'revision', rather
+                    # than the gecko revision. If we did not skip these, it would result in
+                    # fetch_missing_resultsets requests that were guaranteed to 404.
+                    # This needs to be fixed upstream in builds-4hr by bug 1125433.
+                    # Also: l10n_revisions are short 12-char revisions, not full revisions
+                    logger.warning("skipping builds-4hr job since revision refers to wrong repo: %s", prop['buildername'])
+                    continue
+
+            except KeyError as e:
+                logger.warning("skipping builds-4hr job %s since missing property: %s", build['id'], str(e))
                 continue
 
             revisions[prop['branch']].append(prop['short_revision'])
