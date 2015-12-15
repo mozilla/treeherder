@@ -18,8 +18,8 @@ kombu==3.0.30
 # sha256: QorI8yGcePsEzgWJXV3_m9gTwFqaeSLFPch5zTKhJJM
 simplejson==3.8.1
 
-# sha256: KXli8j9mkLQbdp9g67m0Oy3k8jGLnFCLkqAvCrPth4s
-newrelic==2.58.1.44
+# sha256: F9WY_MyghFwDN-UnbUDWX5Ua_qat-b2Rcs_zqH8u8pQ
+newrelic==2.60.0.46
 
 # Required by datasource
 # sha256: gRBAtkfl1WhvhNtBXv1pfmJQAIsRK2kJunesBZ4UDHQ
