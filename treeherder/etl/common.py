@@ -1,9 +1,12 @@
 import hashlib
+import logging
 import time
 
 import requests
 import simplejson as json
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
 
 
 class JobDataError(ValueError):
@@ -94,6 +97,15 @@ def lookup_revisions(revision_dict):
         if lookup_content:
             lookup[project] = lookup_content
     return lookup
+
+
+def should_skip_project(project, valid_projects, project_filter):
+    if project_filter and project != project_filter:
+        return True
+    if project not in valid_projects:
+        logger.info("Skipping unknown branch: %s", project)
+        return True
+    return False
 
 
 def generate_revision_hash(revisions):

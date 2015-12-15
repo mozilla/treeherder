@@ -85,27 +85,18 @@ class Builds4hTransformerMixin(object):
         revisions = defaultdict(list)
         missing_resultsets = defaultdict(set)
 
-        projects = set(x.project for x in Datasource.objects.cached())
+        valid_projects = set(x.project for x in Datasource.objects.cached())
 
         for build in data['builds']:
             try:
                 prop = build['properties']
+                project = prop['branch']
 
                 if 'buildername' not in prop:
                     logger.warning("skipping builds-4hr job since no buildername found")
                     continue
 
-                if 'branch' not in prop:
-                    logger.warning("skipping builds-4hr job since no branch found: %s", prop['buildername'])
-                    continue
-
-                if prop['branch'] not in projects:
-                    # Fuzzer jobs specify a branch of 'idle', and we intentionally don't display them.
-                    if prop['branch'] != 'idle':
-                        logger.warning("skipping builds-4hr job on unknown branch %s: %s", prop['branch'], prop['buildername'])
-                    continue
-
-                if project_filter and prop['branch'] != project_filter:
+                if common.should_skip_project(project, valid_projects, project_filter):
                     continue
 
                 prop['revision'] = prop.get('revision',
@@ -131,7 +122,7 @@ class Builds4hTransformerMixin(object):
                 logger.warning("skipping builds-4hr job %s since missing property: %s", build['id'], str(e))
                 continue
 
-            revisions[prop['branch']].append(prop['short_revision'])
+            revisions[project].append(prop['short_revision'])
 
         revisions_lookup = common.lookup_revisions(revisions)
 
@@ -145,6 +136,8 @@ class Builds4hTransformerMixin(object):
             try:
                 prop = build['properties']
                 project = prop['branch']
+                if common.should_skip_project(project, valid_projects, project_filter):
+                    continue
                 # todo: Continue using short revisions until Bug 1199364
                 resultset = common.get_resultset(project,
                                                  revisions_lookup,
@@ -289,17 +282,13 @@ class PendingRunningTransformerMixin(object):
         transform the buildapi structure into something we can ingest via
         our restful api
         """
-        projects = set(x.project for x in Datasource.objects.cached())
+        valid_projects = set(x.project for x in Datasource.objects.cached())
         revision_dict = defaultdict(list)
         missing_resultsets = defaultdict(set)
 
         # loop to catch all the revisions
         for project, revisions in data[source].iteritems():
-            # this skips those projects we don't care about
-            if project not in projects:
-                continue
-
-            if project_filter and project != project_filter:
+            if common.should_skip_project(project, valid_projects, project_filter):
                 continue
 
             for rev, jobs in revisions.items():
@@ -314,6 +303,8 @@ class PendingRunningTransformerMixin(object):
         th_collections = {}
 
         for project, revisions in data[source].iteritems():
+            if common.should_skip_project(project, valid_projects, project_filter):
+                continue
 
             for revision, jobs in revisions.items():
 
