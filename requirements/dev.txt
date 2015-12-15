@@ -3,8 +3,8 @@
 # sha256: hpnSrjQvIR0cxn3QURG5GSVgmu99KUgxWE9zf2Wk9B0
 pytest==2.8.2
 
-# sha256: 8UAnAQY5mPanBgl4mq6NwFcD860KNIgvYZllNlTFVUM
-datadiff==1.1.6
+# sha256: VASUQKiW3lJH7i57eqVCX5OayDLDftshAfjTA26Jyqg
+datadiff==2.0.0
 
 # sha256: 5TIecoMa7o5gOKYiOHhbLWCYIz1Y-xH3FWFMnW09f9o
 WebTest==2.0.20
