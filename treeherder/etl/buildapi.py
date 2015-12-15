@@ -76,8 +76,8 @@ class Builds4hTransformerMixin(object):
 
         return job_guid_data
 
-    def transform(self, data, filter_to_project=None, filter_to_revision=None,
-                  filter_to_job_group=None):
+    def transform(self, data, project_filter=None, revision_filter=None,
+                  job_group_filter=None):
         """
         transform the builds4h structure into something we can ingest via
         our restful api
@@ -104,7 +104,7 @@ class Builds4hTransformerMixin(object):
                     logger.warning("skipping builds-4hr job on unknown branch %s: %s", prop['branch'], prop['buildername'])
                 continue
 
-            if filter_to_project and prop['branch'] != filter_to_project:
+            if project_filter and prop['branch'] != project_filter:
                 continue
 
             prop['revision'] = prop.get('revision',
@@ -149,7 +149,7 @@ class Builds4hTransformerMixin(object):
             except KeyError:
                 # skip this job, at least at this point
                 continue
-            if filter_to_revision and filter_to_revision != resultset['revision']:
+            if revision_filter and revision_filter != resultset['revision']:
                 continue
 
             # We record the id here rather than at the start of the loop, since we
@@ -165,8 +165,8 @@ class Builds4hTransformerMixin(object):
             platform_info = buildbot.extract_platform_info(prop['buildername'])
             job_name_info = buildbot.extract_name_info(prop['buildername'])
 
-            if (filter_to_job_group and job_name_info.get('group_symbol', '').lower() !=
-                    filter_to_job_group.lower()):
+            if (job_group_filter and job_name_info.get('group_symbol', '').lower() !=
+                    job_group_filter.lower()):
                 continue
 
             treeherder_data = {
@@ -266,7 +266,7 @@ class Builds4hTransformerMixin(object):
             th_job = th_collections[project].get_job(treeherder_data)
             th_collections[project].add(th_job)
 
-        if missing_resultsets and not filter_to_revision:
+        if missing_resultsets and not revision_filter:
             common.fetch_missing_resultsets("builds4h", missing_resultsets, logger)
 
         num_new_jobs = len(job_ids_seen_now.difference(job_ids_seen_last_time))
@@ -278,8 +278,8 @@ class Builds4hTransformerMixin(object):
 
 class PendingRunningTransformerMixin(object):
 
-    def transform(self, data, source, filter_to_revision=None, filter_to_project=None,
-                  filter_to_job_group=None):
+    def transform(self, data, source, revision_filter=None, project_filter=None,
+                  job_group_filter=None):
         """
         transform the buildapi structure into something we can ingest via
         our restful api
@@ -294,7 +294,7 @@ class PendingRunningTransformerMixin(object):
             if project not in projects:
                 continue
 
-            if filter_to_project and project != filter_to_project:
+            if project_filter and project != project_filter:
                 continue
 
             for rev, jobs in revisions.items():
@@ -322,7 +322,7 @@ class PendingRunningTransformerMixin(object):
                     # skip this job, at least at this point
                     continue
 
-                if filter_to_revision and filter_to_revision != resultset['revision']:
+                if revision_filter and revision_filter != resultset['revision']:
                     continue
 
                 # using project and revision form the revision lookups
@@ -344,8 +344,8 @@ class PendingRunningTransformerMixin(object):
                     platform_info = buildbot.extract_platform_info(job['buildername'])
                     job_name_info = buildbot.extract_name_info(job['buildername'])
 
-                    if (filter_to_job_group and job_name_info.get('group_symbol', '').lower() !=
-                            filter_to_job_group.lower()):
+                    if (job_group_filter and job_name_info.get('group_symbol', '').lower() !=
+                            job_group_filter.lower()):
                         continue
 
                     if source == 'pending':
@@ -424,7 +424,7 @@ class PendingRunningTransformerMixin(object):
                     th_job = th_collections[project].get_job(treeherder_data)
                     th_collections[project].add(th_job)
 
-        if missing_resultsets and not filter_to_revision:
+        if missing_resultsets and not revision_filter:
             common.fetch_missing_resultsets(source, missing_resultsets, logger)
 
         num_new_jobs = len(job_ids_seen_now.difference(job_ids_seen_last_time))
@@ -438,14 +438,13 @@ class Builds4hJobsProcess(JsonExtractorMixin,
                           Builds4hTransformerMixin,
                           ClientLoaderMixin):
 
-    def run(self, filter_to_revision=None, filter_to_project=None,
-            filter_to_job_group=None):
+    def run(self, revision_filter=None, project_filter=None, job_group_filter=None):
         """ Returns True if new completed jobs were loaded, False otherwise. """
         extracted_content = self.extract(settings.BUILDAPI_BUILDS4H_URL)
         job_collections, job_ids_seen = self.transform(extracted_content,
-                                                       filter_to_revision=filter_to_revision,
-                                                       filter_to_project=filter_to_project,
-                                                       filter_to_job_group=filter_to_job_group)
+                                                       revision_filter=revision_filter,
+                                                       project_filter=project_filter,
+                                                       job_group_filter=job_group_filter)
         if job_collections:
             self.load(job_collections, chunk_size=settings.BUILDAPI_BUILDS4H_CHUNK_SIZE)
         cache.set(CACHE_KEYS['complete'], job_ids_seen)
@@ -456,15 +455,14 @@ class PendingJobsProcess(JsonExtractorMixin,
                          PendingRunningTransformerMixin,
                          ClientLoaderMixin):
 
-    def run(self, filter_to_revision=None, filter_to_project=None,
-            filter_to_job_group=None):
+    def run(self, revision_filter=None, project_filter=None, job_group_filter=None):
         """ Returns True if new pending jobs were loaded, False otherwise. """
         extracted_content = self.extract(settings.BUILDAPI_PENDING_URL)
         job_collections, job_ids_seen = self.transform(extracted_content,
                                                        'pending',
-                                                       filter_to_revision=filter_to_revision,
-                                                       filter_to_project=filter_to_project,
-                                                       filter_to_job_group=filter_to_job_group)
+                                                       revision_filter=revision_filter,
+                                                       project_filter=project_filter,
+                                                       job_group_filter=job_group_filter)
         if job_collections:
             self.load(job_collections, chunk_size=settings.BUILDAPI_PENDING_CHUNK_SIZE)
         cache.set(CACHE_KEYS['pending'], job_ids_seen)
@@ -475,15 +473,14 @@ class RunningJobsProcess(JsonExtractorMixin,
                          PendingRunningTransformerMixin,
                          ClientLoaderMixin):
 
-    def run(self, filter_to_revision=None, filter_to_project=None,
-            filter_to_job_group=None):
+    def run(self, revision_filter=None, project_filter=None, job_group_filter=None):
         """ Returns True if new running jobs were loaded, False otherwise. """
         extracted_content = self.extract(settings.BUILDAPI_RUNNING_URL)
         job_collections, job_ids_seen = self.transform(extracted_content,
                                                        'running',
-                                                       filter_to_revision=filter_to_revision,
-                                                       filter_to_project=filter_to_project,
-                                                       filter_to_job_group=filter_to_job_group)
+                                                       revision_filter=revision_filter,
+                                                       project_filter=project_filter,
+                                                       job_group_filter=job_group_filter)
         if job_collections:
             self.load(job_collections, chunk_size=settings.BUILDAPI_RUNNING_CHUNK_SIZE)
         cache.set(CACHE_KEYS['running'], job_ids_seen)

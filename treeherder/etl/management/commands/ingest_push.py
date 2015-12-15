@@ -60,15 +60,15 @@ class Command(BaseCommand):
         # or branch name (eg tip). HgPushlogProcess returns the full SHA.
         push_sha = process.run(pushlog_url, project, changeset=changeset)[:12]
 
-        Builds4hJobsProcess().run(filter_to_project=project,
-                                  filter_to_revision=push_sha,
-                                  filter_to_job_group=options['filter_job_group'])
-        PendingJobsProcess().run(filter_to_project=project,
-                                 filter_to_revision=push_sha,
-                                 filter_to_job_group=options['filter_job_group'])
-        RunningJobsProcess().run(filter_to_project=project,
-                                 filter_to_revision=push_sha,
-                                 filter_to_job_group=options['filter_job_group'])
+        Builds4hJobsProcess().run(project_filter=project,
+                                  revision_filter=push_sha,
+                                  job_group_filter=options['filter_job_group'])
+        PendingJobsProcess().run(project_filter=project,
+                                 revision_filter=push_sha,
+                                 job_group_filter=options['filter_job_group'])
+        RunningJobsProcess().run(project_filter=project,
+                                 revision_filter=push_sha,
+                                 job_group_filter=options['filter_job_group'])
 
     def handle(self, *args, **options):
 
