@@ -1,7 +1,7 @@
 # Packages that are shared between deployment and dev environments.
 
-# sha256: pRec3pItK04EXuWxHocyPud9NjrkApT8glLyXWoOrwY
-gunicorn==19.3.0
+# sha256: Y_GgziUCwBgA3h1NyBLJ66CC6Z9EvqrK6UlsQVGwlvg
+gunicorn==19.4.1
 
 # sha256: gm_-XWCMncja6-8bC0PQH3lY8XwvzjbnXIDiYWAXLE8
 whitenoise==2.0.6
