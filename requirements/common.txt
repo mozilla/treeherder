@@ -67,8 +67,8 @@ django-browserid==1.0.2
 # sha256: fn9zpnXFGHErrdeDJ54m0WQUDz_C7XoyECw9CKaipKc
 jsonfield==1.0.3
 
-# sha256: TpIokjaxi2V7uT5bnU7EAlBx79wJMNJZs03CMjndfQ4
-mozlog==3.0
+# sha256: _E4CpAv0hfJenT-cVQB7w26ye_paEHUS318ZDokFvXU
+mozlog==3.1
 
 # sha256: BK-ioGq33MqdgXF7Qgp6FIJgYemyYUpcd90kx1zPl-Q
 futures==3.0.3
