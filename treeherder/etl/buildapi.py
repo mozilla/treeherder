@@ -99,14 +99,6 @@ class Builds4hTransformerMixin(object):
                 if common.should_skip_project(project, valid_projects, project_filter):
                     continue
 
-                prop['revision'] = prop.get('revision',
-                                            prop.get('got_revision',
-                                                     prop.get('sourcestamp', None)))
-
-                if not prop['revision']:
-                    logger.warning("skipping builds-4hr job since no revision found: %s", prop['buildername'])
-                    continue
-
                 prop['short_revision'] = prop['revision'][0:12]
 
                 if prop['short_revision'] == prop.get('l10n_revision', None):
@@ -145,7 +137,7 @@ class Builds4hTransformerMixin(object):
                                                  missing_resultsets,
                                                  logger)
             except KeyError:
-                # skip this job, at least at this point
+                # There was no matching resultset, skip the job.
                 continue
             if revision_filter and revision_filter != resultset['revision']:
                 continue
@@ -315,7 +307,7 @@ class PendingRunningTransformerMixin(object):
                                                      missing_resultsets,
                                                      logger)
                 except KeyError:
-                    # skip this job, at least at this point
+                    # There was no matching resultset, skip the job.
                     continue
 
                 if revision_filter and revision_filter != resultset['revision']:
