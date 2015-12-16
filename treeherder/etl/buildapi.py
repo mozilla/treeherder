@@ -99,16 +99,10 @@ class Builds4hTransformerMixin(object):
                 if common.should_skip_revision(prop['revision'], revision_filter):
                     continue
 
-                prop['short_revision'] = prop['revision'][0:12]
-
-                if prop['short_revision'] == prop.get('l10n_revision', None):
-                    # Some l10n jobs specify the l10n repo revision under 'revision', rather
-                    # than the gecko revision. If we did not skip these, it would result in
-                    # fetch_missing_resultsets requests that were guaranteed to 404.
-                    # This needs to be fixed upstream in builds-4hr by bug 1125433.
-                    # Also: l10n_revisions are short 12-char revisions, not full revisions
-                    logger.warning("skipping builds-4hr job since revision refers to wrong repo: %s", prop['buildername'])
+                if common.is_blacklisted_buildername(buildername):
                     continue
+
+                prop['short_revision'] = prop['revision'][0:12]
 
             except KeyError as e:
                 logger.warning("skipping builds-4hr job %s since missing property: %s", build['id'], str(e))
@@ -132,6 +126,8 @@ class Builds4hTransformerMixin(object):
                 if common.should_skip_project(project, valid_projects, project_filter):
                     continue
                 if common.should_skip_revision(prop['revision'], revision_filter):
+                    continue
+                if common.is_blacklisted_buildername(buildername):
                     continue
                 # todo: Continue using short revisions until Bug 1199364
                 resultset = common.get_resultset(project,
@@ -287,7 +283,12 @@ class PendingRunningTransformerMixin(object):
             for rev, jobs in revisions.items():
                 if common.should_skip_revision(rev, revision_filter):
                     continue
-                revision_dict[project].append(rev)
+                for job in jobs:
+                    if not common.is_blacklisted_buildername(job['buildername']):
+                        # Add the revision to the list to be fetched so long as we
+                        # find at least one valid job associated with it.
+                        revision_dict[project].append(rev)
+                        break
 
         # retrieving the revision->resultset lookups
         revisions_lookup = common.lookup_revisions(revision_dict)
@@ -319,6 +320,9 @@ class PendingRunningTransformerMixin(object):
                 # to filter those jobs with unmatched revision
                 for job in jobs:
                     buildername = job['buildername']
+                    if common.is_blacklisted_buildername(buildername):
+                        continue
+
                     job_ids_seen_now.add(job['id'])
 
                     # Don't process jobs that were already present in this datasource

@@ -119,6 +119,20 @@ def should_skip_revision(revision, revision_filter):
     return False
 
 
+def is_blacklisted_buildername(buildername):
+    if buildername.endswith(' l10n dep'):
+        # These l10n jobs specify the l10n repo revision under 'revision', rather
+        # than the gecko revision. If we did not skip these, it would result in
+        # fetch_missing_resultsets requests that were guaranteed to 404.
+        # This needs to be fixed upstream in builds-*.js by bug 1125433.
+        # We have to blacklist by buildername rather than comparing the
+        # l10n_revision property, since the latter is not available in
+        # builds-{pending,running}.
+        logger.info("Skipping blacklisted buildername: %s", buildername)
+        return True
+    return False
+
+
 def generate_revision_hash(revisions):
     """Builds the revision hash for a set of revisions"""
 
