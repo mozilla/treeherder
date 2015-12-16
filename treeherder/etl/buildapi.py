@@ -91,10 +91,7 @@ class Builds4hTransformerMixin(object):
             try:
                 prop = build['properties']
                 project = prop['branch']
-
-                if 'buildername' not in prop:
-                    logger.warning("skipping builds-4hr job since no buildername found")
-                    continue
+                buildername = prop['buildername']
 
                 if common.should_skip_project(project, valid_projects, project_filter):
                     continue
@@ -131,6 +128,7 @@ class Builds4hTransformerMixin(object):
             try:
                 prop = build['properties']
                 project = prop['branch']
+                buildername = prop['buildername']
                 if common.should_skip_project(project, valid_projects, project_filter):
                     continue
                 if common.should_skip_revision(prop['revision'], revision_filter):
@@ -155,8 +153,8 @@ class Builds4hTransformerMixin(object):
             if build['id'] in job_ids_seen_last_time:
                 continue
 
-            platform_info = buildbot.extract_platform_info(prop['buildername'])
-            job_name_info = buildbot.extract_name_info(prop['buildername'])
+            platform_info = buildbot.extract_platform_info(buildername)
+            job_name_info = buildbot.extract_name_info(buildername)
 
             if (job_group_filter and job_name_info.get('group_symbol', '').lower() !=
                     job_group_filter.lower()):
@@ -188,7 +186,7 @@ class Builds4hTransformerMixin(object):
                             })
                 except Exception as e:
                     logger.warning("invalid blobber_files json for build id %s (%s): %s",
-                                   build['id'], prop['buildername'], e)
+                                   build['id'], buildername, e)
 
             try:
                 job_guid_data = self.find_job_guid(build)
@@ -208,7 +206,7 @@ class Builds4hTransformerMixin(object):
                 'job_symbol': job_name_info.get('job_symbol', ''),
                 'group_name': job_name_info.get('group_name', ''),
                 'group_symbol': job_name_info.get('group_symbol', ''),
-                'reference_data_name': prop['buildername'],
+                'reference_data_name': buildername,
                 'product_name': prop.get('product', ''),
                 'state': 'completed',
                 'result': buildbot.RESULT_DICT[build['result']],
@@ -233,7 +231,7 @@ class Builds4hTransformerMixin(object):
                 },
                 # pgo or non-pgo dependent on buildername parsing
                 'option_collection': {
-                    buildbot.extract_build_type(prop['buildername']): True
+                    buildbot.extract_build_type(buildername): True
                 },
                 'log_references': log_reference,
                 'artifacts': [
@@ -242,7 +240,7 @@ class Builds4hTransformerMixin(object):
                         'name': 'buildapi',
                         'log_urls': [],
                         'blob': {
-                            'buildername': build['properties']['buildername'],
+                            'buildername': buildername,
                             'request_id': request_id
                         }
                     },
@@ -320,6 +318,7 @@ class PendingRunningTransformerMixin(object):
                 # using project and revision form the revision lookups
                 # to filter those jobs with unmatched revision
                 for job in jobs:
+                    buildername = job['buildername']
                     job_ids_seen_now.add(job['id'])
 
                     # Don't process jobs that were already present in this datasource
@@ -333,8 +332,8 @@ class PendingRunningTransformerMixin(object):
                         'project': project,
                     }
 
-                    platform_info = buildbot.extract_platform_info(job['buildername'])
-                    job_name_info = buildbot.extract_name_info(job['buildername'])
+                    platform_info = buildbot.extract_platform_info(buildername)
+                    job_name_info = buildbot.extract_name_info(buildername)
 
                     if (job_group_filter and job_name_info.get('group_symbol', '').lower() !=
                             job_group_filter.lower()):
@@ -350,13 +349,13 @@ class PendingRunningTransformerMixin(object):
                     new_job = {
                         'job_guid': common.generate_job_guid(
                             request_id,
-                            job['buildername']
+                            buildername
                         ),
                         'name': job_name_info.get('name', ''),
                         'job_symbol': job_name_info.get('job_symbol', ''),
                         'group_name': job_name_info.get('group_name', ''),
                         'group_symbol': job_name_info.get('group_symbol', ''),
-                        'reference_data_name': job['buildername'],
+                        'reference_data_name': buildername,
                         'state': source,
                         'submit_timestamp': job['submitted_at'],
                         'build_platform': {
@@ -373,7 +372,7 @@ class PendingRunningTransformerMixin(object):
                         'who': 'unknown',
                         'option_collection': {
                             # build_type contains an option name, eg. PGO
-                            buildbot.extract_build_type(job['buildername']): True
+                            buildbot.extract_build_type(buildername): True
                         },
                         'log_references': [],
                         'artifacts': [
@@ -382,7 +381,7 @@ class PendingRunningTransformerMixin(object):
                                 'name': 'buildapi',
                                 'log_urls': [],
                                 'blob': {
-                                    'buildername': job['buildername'],
+                                    'buildername': buildername,
                                     'request_id': request_id
                                 }
                             },
