@@ -1,5 +1,6 @@
 import hashlib
 import logging
+import re
 import time
 
 import requests
@@ -7,6 +8,7 @@ import simplejson as json
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
+REVISION_SHA_RE = re.compile(r'^[a-f\d]{12,40}$', re.IGNORECASE)
 
 
 class JobDataError(ValueError):
@@ -104,6 +106,15 @@ def should_skip_project(project, valid_projects, project_filter):
         return True
     if project not in valid_projects:
         logger.info("Skipping unknown branch: %s", project)
+        return True
+    return False
+
+
+def should_skip_revision(revision, revision_filter):
+    if revision_filter and revision != revision_filter:
+        return True
+    if not revision or not REVISION_SHA_RE.match(revision):
+        logger.info("Skipping invalid revision SHA: %s", revision)
         return True
     return False
 

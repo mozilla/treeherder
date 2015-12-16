@@ -99,6 +99,9 @@ class Builds4hTransformerMixin(object):
                 if common.should_skip_project(project, valid_projects, project_filter):
                     continue
 
+                if common.should_skip_revision(prop['revision'], revision_filter):
+                    continue
+
                 prop['short_revision'] = prop['revision'][0:12]
 
                 if prop['short_revision'] == prop.get('l10n_revision', None):
@@ -130,6 +133,8 @@ class Builds4hTransformerMixin(object):
                 project = prop['branch']
                 if common.should_skip_project(project, valid_projects, project_filter):
                     continue
+                if common.should_skip_revision(prop['revision'], revision_filter):
+                    continue
                 # todo: Continue using short revisions until Bug 1199364
                 resultset = common.get_resultset(project,
                                                  revisions_lookup,
@@ -138,8 +143,6 @@ class Builds4hTransformerMixin(object):
                                                  logger)
             except KeyError:
                 # There was no matching resultset, skip the job.
-                continue
-            if revision_filter and revision_filter != resultset['revision']:
                 continue
 
             # We record the id here rather than at the start of the loop, since we
@@ -284,6 +287,8 @@ class PendingRunningTransformerMixin(object):
                 continue
 
             for rev, jobs in revisions.items():
+                if common.should_skip_revision(rev, revision_filter):
+                    continue
                 revision_dict[project].append(rev)
 
         # retrieving the revision->resultset lookups
@@ -299,6 +304,8 @@ class PendingRunningTransformerMixin(object):
                 continue
 
             for revision, jobs in revisions.items():
+                if common.should_skip_revision(revision, revision_filter):
+                    continue
 
                 try:
                     resultset = common.get_resultset(project,
@@ -308,9 +315,6 @@ class PendingRunningTransformerMixin(object):
                                                      logger)
                 except KeyError:
                     # There was no matching resultset, skip the job.
-                    continue
-
-                if revision_filter and revision_filter != resultset['revision']:
                     continue
 
                 # using project and revision form the revision lookups
