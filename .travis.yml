@@ -11,7 +11,7 @@ matrix:
     - env: linters
       sudo: false
       language: python
-      python: "2.7"
+      python: "2.7.11"
       cache:
         directories:
           - ~/venv
@@ -54,7 +54,7 @@ matrix:
       sudo: required
       dist: trusty
       language: python
-      python: "2.7"
+      python: "2.7.11"
       services:
         - rabbitmq
         - memcached
@@ -75,7 +75,7 @@ matrix:
       sudo: required
       dist: trusty
       language: python
-      python: "2.7"
+      python: "2.7.11"
       services:
         - rabbitmq
         - memcached
