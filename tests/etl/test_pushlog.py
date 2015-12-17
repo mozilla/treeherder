@@ -5,8 +5,7 @@ import responses
 from django.conf import settings
 from django.core.cache import cache
 
-from treeherder.etl.pushlog import (HgPushlogProcess,
-                                    MissingHgPushlogProcess)
+from treeherder.etl.pushlog import HgPushlogProcess
 
 
 def test_ingest_hg_pushlog(jm, test_base_dir,
@@ -96,40 +95,6 @@ def test_ingest_hg_pushlog_already_stored(jm, test_base_dir,
     )
 
     assert len(pushes_stored) == 2
-
-
-def test_ingest_hg_pushlog_not_found_in_json_pushes(jm, test_base_dir,
-                                                    test_repository, mock_post_json,
-                                                    activate_responses):
-    """
-    Ingest a pushlog that is not found in json-pushes.  So we ingest a
-    resultset that is "onhold"
-
-    """
-
-    pushlog_fake_url = "http://www.thisismypushlog.com"
-    responses.add(responses.GET, pushlog_fake_url,
-                  body="foo", status=404,
-                  content_type='application/json')
-
-    process = MissingHgPushlogProcess()
-
-    process.run(pushlog_fake_url, jm.project, "123456789012")
-
-    pushes_stored = jm.get_dhub().execute(
-        proc="jobs_test.selects.result_sets",
-        return_type='tuple'
-    )
-
-    assert len(pushes_stored) == 1
-    assert pushes_stored[0]['active_status'] == "onhold"
-
-    revisions_stored = jm.get_dhub().execute(
-        proc="jobs_test.selects.revision_ids",
-        return_type='tuple'
-    )
-
-    assert len(revisions_stored) == 1
 
 
 def test_ingest_hg_pushlog_cache_last_push(jm, test_repository,

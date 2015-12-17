@@ -1,7 +1,6 @@
 import hashlib
 import logging
 import re
-import time
 
 import requests
 from django.conf import settings
@@ -146,81 +145,3 @@ def get_guid_root(guid):
     if "_" in str(guid):
         return str(guid).split("_", 1)[0]
     return guid
-
-
-def fetch_missing_resultsets(source, missing_resultsets, logger):
-    """
-    Schedules refetch of resultsets based on ``missing_revisions``
-    """
-    for k, v in missing_resultsets.iteritems():
-        missing_resultsets[k] = list(v)
-
-    logger.warn(
-        "Found {0} jobs with missing resultsets.  Scheduling re-fetch: {1}".format(
-            source,
-            missing_resultsets
-        )
-    )
-    from treeherder.etl.tasks.cleanup_tasks import fetch_missing_push_logs
-    fetch_missing_push_logs.apply_async(
-        args=[missing_resultsets],
-        routing_key="fetch_missing_push_logs")
-
-
-def get_resultset(project, revisions_lookup, revision, missing_resultsets, logger):
-    """
-    Get the resultset out of the revisions_lookup for the given revision.
-
-    This is a little complex due to our attempts to get missing resultsets
-    in case we see jobs that, for one reason or another, we didn't get the
-    resultset from json-pushes.
-
-    This may raise a KeyError if the project or revision isn't found in the
-    lookup..  This signals that the job should be skipped
-    """
-
-    resultset_lookup = revisions_lookup[project]
-    try:
-        resultset = resultset_lookup[revision]
-
-        # we can ingest resultsets that are not active for various
-        # reasons.  One would be that the data from pending/running/
-        # builds4hr may have a bad revision (from the wrong repo).
-        # in this case, we ingest the resultset as inactive so we
-        # don't keep re-trying to find it when we hit jobs like this.
-        # Or, the resultset could be inactive for other reasons.
-        # Either way, we don't want to ingest jobs for it.
-        if resultset.get("active_status", "active") != "active":
-            logger.info(("Skipping job for non-active "
-                         "resultset/revision: {0}").format(
-                revision))
-
-    except KeyError as ex:
-        # we don't have the resultset for this build/job yet
-        # we need to queue fetching that resultset
-        if revision not in ["Unknown", None]:
-            missing_resultsets[project].add(revision)
-        raise ex
-
-    return resultset
-
-
-def get_not_found_onhold_push(url, revision):
-    return {
-        "pushes": {
-            "00001": {
-                "date": int(time.time()),
-                "changesets": [
-                    {
-                        "node": revision,
-                        "tags": [],
-                        "author": "Unknown",
-                        "branch": "default",
-                        "desc": "Pushlog not found at {0}".format(url)
-                    }
-                ],
-                "user": "Unknown",
-                "active_status": "onhold"
-            }
-        }
-    }

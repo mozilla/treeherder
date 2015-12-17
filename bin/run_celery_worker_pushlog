@@ -15,7 +15,7 @@ if [ ! -f $LOGFILE ]; then
 fi
 
 exec newrelic-admin run-program celery -A treeherder worker \
-    -Q pushlog,fetch_missing_push_logs \
+    -Q pushlog \
     --concurrency=5 --logfile=$LOGFILE -l INFO \
     --maxtasksperchild=500 -n pushlog.%h
 

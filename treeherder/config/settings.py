@@ -202,7 +202,6 @@ CELERY_QUEUES = [
     Queue('error_summary', Exchange('default'), routing_key='error_summary'),
     Queue('publish_to_pulse', Exchange('default'), routing_key='publish_to_pulse'),
     Queue('pushlog', Exchange('default'), routing_key='pushlog'),
-    Queue('fetch_missing_push_logs', Exchange('default'), routing_key='fetch_missing_push_logs'),
     Queue('buildapi_pending', Exchange('default'), routing_key='buildapi_pending'),
     Queue('buildapi_running', Exchange('default'), routing_key='buildapi_running'),
     Queue('buildapi_4hr', Exchange('default'), routing_key='buildapi_4hr'),

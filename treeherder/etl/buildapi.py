@@ -82,7 +82,6 @@ class Builds4hTransformerMixin(object):
         our restful api
         """
         revisions = defaultdict(list)
-        missing_resultsets = defaultdict(set)
 
         valid_projects = set(x.project for x in Datasource.objects.cached())
 
@@ -120,13 +119,13 @@ class Builds4hTransformerMixin(object):
                     continue
                 if common.should_skip_revision(prop['revision'], revision_filter):
                     continue
-                resultset = common.get_resultset(project,
-                                                 revisions_lookup,
-                                                 prop['revision'],
-                                                 missing_resultsets,
-                                                 logger)
             except KeyError:
-                # There was no matching resultset, skip the job.
+                continue
+
+            try:
+                resultset = revisions_lookup[project][prop['revision']]
+            except KeyError:
+                logger.warning("skipping builds-4hr job %s since %s revision %s not yet ingested", build['id'], project, prop['revision'])
                 continue
 
             # We record the id here rather than at the start of the loop, since we
@@ -243,9 +242,6 @@ class Builds4hTransformerMixin(object):
             th_job = th_collections[project].get_job(treeherder_data)
             th_collections[project].add(th_job)
 
-        if missing_resultsets and not revision_filter:
-            common.fetch_missing_resultsets("builds4h", missing_resultsets, logger)
-
         num_new_jobs = len(job_ids_seen_now.difference(job_ids_seen_last_time))
         logger.info("Imported %d completed jobs, skipped %d previously seen",
                     num_new_jobs, len(job_ids_seen_now) - num_new_jobs)
@@ -263,7 +259,6 @@ class PendingRunningTransformerMixin(object):
         """
         valid_projects = set(x.project for x in Datasource.objects.cached())
         revision_dict = defaultdict(list)
-        missing_resultsets = defaultdict(set)
 
         # loop to catch all the revisions
         for project, revisions in data[source].iteritems():
@@ -292,13 +287,9 @@ class PendingRunningTransformerMixin(object):
                     continue
 
                 try:
-                    resultset = common.get_resultset(project,
-                                                     revisions_lookup,
-                                                     revision,
-                                                     missing_resultsets,
-                                                     logger)
+                    resultset = revisions_lookup[project][revision]
                 except KeyError:
-                    # There was no matching resultset, skip the job.
+                    logger.warning("skipping jobs since %s revision %s not yet ingested", project, revision)
                     continue
 
                 # using project and revision form the revision lookups

@@ -6,8 +6,7 @@ from django.core.cache import cache
 from treeherder.client import TreeherderResultSetCollection
 from treeherder.etl import th_publisher
 from treeherder.etl.common import (fetch_json,
-                                   generate_revision_hash,
-                                   get_not_found_onhold_push)
+                                   generate_revision_hash)
 
 logger = logging.getLogger(__name__)
 
@@ -135,66 +134,3 @@ class HgPushlogProcess(HgPushlogTransformerMixin):
             cache.set("{0}:last_push_id".format(repository), last_push_id)
 
         return top_revision
-
-
-class MissingHgPushlogProcess(HgPushlogTransformerMixin):
-
-    def extract(self, url, revision):
-        logger.info("extracting missing resultsets: {0}".format(url))
-        try:
-            return fetch_json(url)
-        except requests.exceptions.HTTPError as e:
-            status_code = e.response.status_code
-            if status_code == 404:
-                # we will sometimes get here because builds4hr/pending/running have a
-                # job with a resultset that json-pushes doesn't know about.  So far
-                # I have only found this to be the case when it uses a revision from
-                # the wrong repo.  For example: mozilla-central, but l10n.  The l10n
-                # is a separate repo, but buildbot shows it as the same.  So we
-                # create this dummy resultset with ``active_status`` of ``onhold``.
-                #
-                # The effect of this is that we won't keep trying to re-fetch
-                # the bogus pushlog, but the jobs are (correctly) not shown in the
-                # UI, since they're bad data.
-                logger.warn(("no pushlog in json-pushes.  generating a dummy"
-                             " onhold placeholder: {0}").format(url))
-
-                # we want to make a "dummy" resultset that is "onhold",
-                # because json-pushes doesn't know about it.
-                # This is, in effect, what TBPL does.
-                # These won't show in the UI, because they only fetch "active"
-                # resultsets
-                return get_not_found_onhold_push(url, revision)
-
-            logger.warning("HTTPError %s fetching: %s", status_code, url)
-            raise
-
-    def run(self, source_url, repository, revision):
-
-        try:
-            extracted_content = self.extract(source_url, revision)
-
-            if extracted_content:
-
-                transformed = self.transform(
-                    extracted_content['pushes'],
-                    repository
-                )
-
-                for project, coll in transformed.iteritems():
-                    logger.info("loading missing resultsets for {0}: {1}".format(
-                        project,
-                        coll.to_json()))
-
-                th_publisher.post_treeherder_collections(transformed)
-                logger.info("done loading missing resultsets for {0}".format(repository))
-            else:
-                assert extracted_content, (
-                    "Got no content response for missing resultsets: {0}".format(
-                        source_url)
-                )
-        except Exception:
-            logger.exception("error loading missing resultsets: {0}".format(
-                source_url
-            ))
-            raise
