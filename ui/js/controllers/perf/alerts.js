@@ -20,42 +20,62 @@ perf.factory('PhAlerts', ['$http', 'thServiceDomain', function($http, thServiceD
                 return response.data;
             });
         },
-        reassignAlertSummary: function(alertId, revisedSummaryId) {
+        changeAlertSummaryStatus: function(alertSummaryId, newStatus) {
+            return $http.put(thServiceDomain +
+                             '/api/performance/alertsummary/' + alertSummaryId + '/',
+                             { status: newStatus });
+        },
+        modifyAlert: function(alertId, modification) {
             return $http.put(thServiceDomain +
                              '/api/performance/alert/' + alertId + '/',
-                             { revised_summary_id: revisedSummaryId });
+                             modification);
         }
     };
 }]);
 
 perf.controller(
-    'ReassignAlertsCtrl',
-    function($scope, $modalInstance, $http, $q, alertSummary, PhAlerts) {
+    'ModifyAlertsCtrl',
+    function($scope, $modalInstance, $http, $q, alertSummary, PhAlerts,
+             modifiedStatus, phAlertResolutionMap) {
+        if (modifiedStatus === phAlertResolutionMap.DUPLICATE) {
+            $scope.title = "Reassign to...";
+            $scope.placeholder = "Alert #";
+        } else { // bug number only other current possibility
+            $scope.title = "Change bug number...";
+            $scope.placeholder = "Bug #";
+        }
+
         var alerts = _.where(alertSummary.alerts, {'selected': true});
-        $scope.reassignAlerts = function() {
-            var revisedSummaryId = parseInt(
-                $scope.reassignAlertId.newAlertSummaryId.$modelValue);
-            $scope.reassigning = true;
+        $scope.modifyAlerts = function() {
+            var modification = {
+                revised_summary_id: null,
+                bug_number: null,
+                status: modifiedStatus
+            };
+            var newId = parseInt(
+                $scope.modifyAlert.newId.$modelValue);
+            if (modifiedStatus === phAlertResolutionMap.DUPLICATE) {
+                modification.revised_summary_id = newId;
+            } else {
+                modification.bug_number = newId;
+            }
+            $scope.modifying = true;
             $q.all(_.map(alerts, function(alert) {
-                return PhAlerts.reassignAlertSummary(
-                    alert.id, revisedSummaryId);
+                return PhAlerts.modifyAlert(alert.id, modification);
             })).then(function() {
-                $scope.reassigning = false;
+                $scope.modifying = false;
                 alertSummary.allSelected = false; // all are no longer selected
                 alerts.forEach(function(alert) {
-                    _.assign(alert, {
-                        selected: false,
-                        revised_summary_id: revisedSummaryId
-                    });
+                    _.assign(alert, {selected:false}, modification);
                 });
-                $modalInstance.dismiss('reassigned');
+                $modalInstance.dismiss('modified');
             });
         };
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
         $scope.$on('modal.closing', function(event, reason, closed) {
-            if ($scope.reassigning) {
+            if ($scope.modifying) {
                 event.preventDefault();
             }
         });
@@ -65,13 +85,13 @@ perf.controller('AlertsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$http', '$q', '$modal',
     'thUrl', 'ThRepositoryModel', 'ThOptionCollectionModel', 'ThResultSetModel',
     'thDefaultRepo', 'PhSeries', 'PhAlerts', 'phTimeRanges', 'phDefaultTimeRangeValue',
-    'dateFilter', 'thDateFormat',
+    'phAlertResolutionMap', 'dateFilter', 'thDateFormat',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $http, $q,
                         $modal,
                         thUrl, ThRepositoryModel, ThOptionCollectionModel,
                         ThResultSetModel, thDefaultRepo, PhSeries, PhAlerts,
-                        phTimeRanges, phDefaultTimeRangeValue, dateFilter,
-                        thDateFormat) {
+                        phTimeRanges, phDefaultTimeRangeValue,
+                        phAlertResolutionMap, dateFilter, thDateFormat) {
 
         $scope.alertSummaries = [];
         $scope.getMoreAlertSummariesHref = null;
@@ -80,18 +100,25 @@ perf.controller('AlertsCtrl', [
             // at 100 (so 20% regression == 100% bad)
             return Math.min(Math.abs(percent)*5, 100);
         };
+        $scope.phAlertResolutionMap = phAlertResolutionMap;
+
+        // these methods
+        $scope.changeAlertSummaryStatus = function(alertSummary, status) {
+            PhAlerts.changeAlertSummaryStatus(
+                alertSummary.id, status).then(function() {
+                    alertSummary.status = status;
+                });
+        };
 
         // these methods handle the business logic of alert selection and
         // unselection
         $scope.anySelected = function(alerts) {
             return _.any(_.pluck(alerts, 'selected'));
         };
-        $scope.anyReassignedAndSelected = function(alerts) {
+        $scope.anySelectedAndTriaged = function(alerts) {
             return _.any(alerts, function(alert) {
-                if (alert.revised_summary_id && alert.selected) {
-                    return true;
-                }
-                return false;
+                return (alert.status !== phAlertResolutionMap.UNTRIAGED &&
+                        alert.selected);
             });
         };
         $scope.selectNoneOrSelectAll = function(alertSummary) {
@@ -108,30 +135,57 @@ perf.controller('AlertsCtrl', [
                 alertSummary.allSelected = false;
             }
         };
-        $scope.reassignAlerts = function(alertSummary) {
-            var modalInstance = $modal.open({
-                templateUrl: 'partials/perf/reassignalertsctrl.html',
-                controller: 'ReassignAlertsCtrl',
+
+        $scope.fileBug = function(alertSummary) {
+            window.open("https://edmorley.github.io/fileit/");
+        };
+
+        function modifyAlerts(alertSummary, modifiedStatus) {
+            $modal.open({
+                templateUrl: 'partials/perf/modifyalertsctrl.html',
+                controller: 'ModifyAlertsCtrl',
                 size: 'sm',
                 resolve: {
+                    modifiedStatus: function() {
+                        return modifiedStatus;
+                    },
                     alertSummary: function() {
                         return alertSummary;
                     }
                 }
             });
+        }
+        $scope.reassignAlerts = function(alertSummary) {
+            modifyAlerts(alertSummary, phAlertResolutionMap.DUPLICATE);
         };
-        $scope.unassignAlerts = function(alertSummary) {
+        $scope.addBugNumberToAlerts = function(alertSummary) {
+            modifyAlerts(alertSummary, phAlertResolutionMap.INVESTIGATING);
+        };
+
+        function modifySelectedAlertStatus(alertSummary, status) {
             alertSummary.allSelected = false;
-            var selectedAlerts = _.where(alertSummary.alerts, {'selected': true});
-            selectedAlerts.forEach(function(selectedAlert) {
-                selectedAlert.selected = false;
-                if (selectedAlert.revised_summary_id !== null) {
-                    PhAlerts.reassignAlertSummary(
-                        selectedAlert.id, null).then(function() {
-                            selectedAlert.revised_summary_id = null;
-                        });
-                }
-            });
+            _.where(alertSummary.alerts, {'selected': true}).forEach(
+                function(selectedAlert) {
+                    var modification = {
+                        status: status,
+                        revised_summary_id: null,
+                        bug_number: null
+                    };
+                    PhAlerts.modifyAlert(selectedAlert.id, modification).then(function() {
+                        _.assign(selectedAlert, modification);
+                        selectedAlert.selected = false;
+                    });
+                });
+        }
+
+        $scope.markAlertsInvalid = function(alertSummary) {
+            modifySelectedAlertStatus(alertSummary,
+                                      phAlertResolutionMap.INVALID);
+        };
+
+        $scope.resetAlerts = function(alertSummary) {
+            modifySelectedAlertStatus(alertSummary,
+                                      phAlertResolutionMap.UNTRIAGED);
         };
         function addAlertSummaries(alertSummaries, getMoreAlertSummariesHref) {
             $scope.getMoreAlertSummariesHref = getMoreAlertSummariesHref;

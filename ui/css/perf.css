@@ -332,11 +332,27 @@ span.compare-regression {
   background-color: red;
 }
 
+.alert-summary span {
+    transition: color 150ms ease-in-out;
+}
+
+.alert-summary a {
+    cursor: pointer;
+}
+
 .alert-title {
     font-size: 18px;
     font-weight: bold;
     margin-bottom: 4px;
     color: #333;
+}
+
+.alert-untriaged {
+    color: #3c763d;
+}
+
+.alert-invalid {
+    color: #a94442;
 }
 
 .alert-title .icon-superscript {
@@ -349,6 +365,6 @@ span.compare-regression {
     padding-top: 4px;
 }
 
-.alert-reassigned {
+.alert-strike {
     text-decoration: line-through;
 }
