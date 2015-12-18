@@ -90,7 +90,6 @@
               <td ng-if="property.label == 'Revision'" class="break-word">
                 <a href="{{::property.value | getRevisionUrl:repoName}}"
                    title="Open resultset"
-                   class="repo-link"
                    ng-cloak>{{property.value}}</a>
               </td>
               <td ng-if="property.label != 'Revision'"
