@@ -15,11 +15,24 @@
             {{getUnclassifiedFailureCount(repoName)}}</span> unclassified
         </span>
 
-        <!--Toggle Tier-1 jobs only Button-->
-        <span class="btn btn-view-nav btn-sm"
-              title="Toggle Tier-1 jobs only mode"
-              tabindex="0" role="button"
-              ng-click="toggleTier1Only()">1</span>
+        <!--Toggle Tiers filter Button-->
+        <span th-checkbox-dropdown-container class="dropdown">
+          <button id="tierLabel" role="button"
+                  href="#" data-toggle="dropdown" data-target="#"
+                  class="btn btn-view-nav btn-sm nav-menu-btn">Tiers
+            <span class="fa fa-angle-down lightgray"></span>
+          </button>
+          <ul class="dropdown-menu checkbox-dropdown-menu"
+              role="menu">
+              <li ng-repeat="tier in jobFilters.tiers">
+                <input type="checkbox"
+                       class="dropdown-checkbox"
+                       ng-checked="isTierShowing(tier)"
+                       ng-click="toggleTier(tier)"
+                       title="toggle showing this tier"> Tier {{::tier}}
+              </li>
+          </ul>
+        </span>
 
         <!--Hidden Jobs Button-->
         <span class="btn btn-view-nav btn-sm btn-right-navbar"
