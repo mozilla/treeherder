@@ -308,7 +308,6 @@ treeherderApp.controller('MainCtrl', [
         };
 
         $scope.toggleUnclassifiedFailures = thJobFilters.toggleUnclassifiedFailures;
-        $scope.toggleTier1Only = thJobFilters.toggleTier1Only;
 
         $scope.toggleInProgress = function() {
             thJobFilters.toggleInProgress();
@@ -342,6 +341,14 @@ treeherderApp.controller('MainCtrl', [
         $scope.toggleGroupState = function() {
             var newGroupState = $scope.groupState === "collapsed" ? "expanded" : null;
             $location.search("group_state", newGroupState);
+        };
+
+        $scope.isTierShowing = function(tier) {
+            return thJobFilters.isFilterSetToShow("tier", tier);
+        };
+
+        $scope.toggleTier = function(tier) {
+            thJobFilters.toggleFilters('tier', [tier], !$scope.isTierShowing(tier));
         };
 
         var getNewReloadTriggerParams = function() {
@@ -438,6 +445,6 @@ treeherderApp.controller('MainCtrl', [
 
         $scope.pinboardCount = thPinboard.count;
         $scope.pinnedJobs = thPinboard.pinnedJobs;
-
+        $scope.jobFilters = thJobFilters;
     }
 ]);
