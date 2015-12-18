@@ -163,6 +163,15 @@ treeherder.value("phTimeRanges", [
 
 treeherder.value("phDefaultTimeRangeValue", 1209600);
 
+treeherder.value("phAlertResolutionMap", {
+    UNTRIAGED: 0,
+    INVALID: 1,
+    WONTFIX: 2,
+    RESOLVED: 3,
+    INVESTIGATING: 4,
+    DUPLICATE: 5
+});
+
 treeherder.value("thJobNavSelectors",
     {
         ALL_JOBS: {

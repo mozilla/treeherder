@@ -1,0 +1,27 @@
+<form name="modifyAlert" ng-submit="modifyAlerts()">
+<div class="modal-header">
+  <button type="button" class="close" ng-model="closeButton" ng-show="!modifying" ng-click="cancel()">
+    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+  </button>
+  <h3 class="modal-title">{{title}}</h3>
+</div>
+<div class="modal-body">
+      <div class="form-group" ng-class="{'has-error': modifyAlert.newId.$invalid}">
+        <input class="form-control"
+               ng-model="newId"
+               ng-pattern="/^[1-9]+[0-9]*$/"
+               ng-disabled="modifying"
+               name="newId"
+               placeholder="{{placeholder}}"
+               autofocus/>
+      </div>
+
+  </div>
+</div>
+<div class="modal-footer">
+      <button class="btn btn-primary" ng-click="modifyAlerts()" ng-disabled="modifying || !newId.length || !modifyAlert.newId.$valid">
+        <span ng-if="!modifying">Assign</span>
+        <span ng-if="modifying">Assigning...</span>
+      </button>
+</div>
+    </form>

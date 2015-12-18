@@ -6,9 +6,11 @@
     You must be logged into perfherder/treeherder and be a sheriff to make changes
   </div>
   <hr/>
-  <div class="panel panel-default" ng-repeat="alertSummary in alertSummaries">
+  <div class="panel panel-default alert-summary" ng-repeat="alertSummary in alertSummaries">
     <div class="panel-heading">
-      <a href="#/alerts?id={{alertSummary.id}}" class="alert-title">Alert #{{alertSummary.id}} - {{alertSummary.title}} <span class="fa fa-external-link icon-superscript"/></a>
+      <a href="#/alerts?id={{alertSummary.id}}" ng-class="{'alert-title-invalid': alertSummary.status==4}" class="alert-title">
+        Alert #{{alertSummary.id}} - {{alertSummary.title}} <span class="fa fa-external-link icon-superscript"/>
+      </a>
       <ul class="list-unstyled alert-metadata">
         <li>{{alertSummary.platforms.join(' / ')}}</li>
         <li>{{alertSummary.resultSetMetadata.dateStr}}</li>
@@ -45,12 +47,21 @@
             <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alert.selected" ng-change="alertSelected(alertSummary)"/>
           </td>
           <td class="test-title">
-            <span ng-class="{'alert-reassigned': alert.revised_summary_id}">
+            <span ng-class="{'alert-strike': (alert.revised_summary_id || alert.status === phAlertResolutionMap.INVALID)}">
               {{alert.title}}
             </span>
+            <span ng-show="alert.status === phAlertResolutionMap.INVALID">
+              &nbsp;(<span class="alert-invalid">invalid</span>)
+            </span>
+            <span ng-show="alert.status === phAlertResolutionMap.UNTRIAGED">
+              &nbsp;(<span class="alert-untriaged">untriaged</span>)
+            </span>
+            <span ng-show="alert.bug_number">
+              &nbsp;(<a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{alert.bug_number}}">bug #{{alert.bug_number}}</a>)
+            </span>
             <span ng-show="alert.revised_summary_id">
-              &nbsp;(duplicate of
-              <a href="#/alerts?id={{alert.revised_summary_id}}">#{{alert.revised_summary_id}}</a>)
+              &nbsp;(see
+              <a href="#/alerts?id={{alert.revised_summary_id}}">alert #{{alert.revised_summary_id}}</a>)
             </span>&nbsp;&nbsp;
             <span class="result-links">
               <a href="#/graphs?timerange={{alertSummary.resultSetMetadata.timeRange}}&series=[{{alertSummary.repository}},{{alert.series_signature.signature_hash}},1]&highlightedRevisions={{alertSummary.resultSetMetadata.revision}}">graph</a>
@@ -99,13 +110,31 @@
           </td>
         </tr>
       </table>
-      <div style="padding-left: 8px;">
-        <button class="btn btn-default" role="button" ng-show="anySelected(alertSummary.alerts)"
-                ng-click="reassignAlerts(alertSummary)">Reassign</button>
-        <button class="btn btn-default" role="button"
-                ng-show="anySelected(alertSummary.alerts)"
-                ng-disabled="!anyReassignedAndSelected(alertSummary.alerts)"
-                ng-click="unassignAlerts(alertSummary)">Unassign</button>
+      <div style="padding-left: 8px;" ng-show="anySelected(alertSummary.alerts)">
+        <div ng-if="!anySelectedAndTriaged(alertSummary.alerts)" class="btn-group" role="group" aria-label="alert-actions">
+          <button class="btn btn-default" role="button"
+                  ng-click="markAlertsInvalid(alertSummary)" title="Mark as invalid">
+            <span class="fa fa-ban"></span>
+          </button>
+          <button class="btn btn-default" role="button"
+                  ng-click="fileBug(alertSummary)" title="File bug for selected alerts">
+            <span class="fa fa-bug"></span>
+          </button>
+          <button class="btn btn-default" role="button"
+                  ng-click="addBugNumberToAlerts(alertSummary)" title="Link alerts to existing bug">
+            <span class="fa fa-link"></span>
+          </button>
+          <button class="btn btn-default" role="button"
+                  ng-click="reassignAlerts(alertSummary)"
+                  title="Associate with another alert summary">
+            <span class="fa fa-share"></span>
+          </button>
+        </div>
+        <button ng-if="anySelectedAndTriaged(alertSummary.alerts)" class="btn btn-warning" role="button"
+                ng-click="resetAlerts(alertSummary)" title="Reset selected alerts to untriaged">
+          Reset
+        </button>
+
       </div>
     </div>
   </div>
