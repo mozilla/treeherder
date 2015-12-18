@@ -45,12 +45,8 @@ treeherder.factory('thJobFilters', [
 
         // default filter values, when a filter is not specified in the query string
         var DEFAULTS = {
-            resultStatus: {
-                values: thResultStatusList.defaultFilters()
-            },
-            classifiedState: {
-                values: ['classified', 'unclassified']
-            }
+            resultStatus: thResultStatusList.defaultFilters(),
+            classifiedState: ['classified', 'unclassified'],
         };
 
         // failure classification ids that should be shown in "unclassified" mode
@@ -173,7 +169,7 @@ treeherder.factory('thJobFilters', [
             if (filters) {
                 return _toArray(filters);
             } else if (DEFAULTS.hasOwnProperty(_withoutPrefix(field))) {
-                return DEFAULTS[_withoutPrefix(field)].values.slice();
+                return DEFAULTS[_withoutPrefix(field)].slice();
             }
             return [];
         };
@@ -377,13 +373,13 @@ treeherder.factory('thJobFilters', [
         var setOnlyCoalesced = function() {
             var locationSearch = _.clone($location.search());
             locationSearch[QS_RESULT_STATUS] = "coalesced";
-            locationSearch[QS_CLASSIFIED_STATE]= DEFAULTS.classifiedState.values.slice();
+            locationSearch[QS_CLASSIFIED_STATE]= DEFAULTS.classifiedState.slice();
             $location.search(locationSearch);
         };
 
         var getClassifiedStateArray = function() {
             var arr = _toArray($location.search()[QS_CLASSIFIED_STATE]) ||
-                DEFAULTS.classifiedState.values;
+                DEFAULTS.classifiedState;
             return arr.slice();
         };
 
@@ -417,7 +413,7 @@ treeherder.factory('thJobFilters', [
 
         var getResultStatusArray = function() {
             var arr = _toArray($location.search()[QS_RESULT_STATUS]) ||
-                DEFAULTS.resultStatus.values;
+                DEFAULTS.resultStatus;
             return arr.slice();
         };
 
@@ -481,8 +477,8 @@ treeherder.factory('thJobFilters', [
         var _matchesDefaults = function(field, values) {
             $log.debug("_matchesDefaults", field, values);
             if (DEFAULTS.hasOwnProperty(field)) {
-                return values.length === DEFAULTS[field].values.length &&
-                    _.intersection(DEFAULTS[field].values, values).length === DEFAULTS[field].values.length;
+                return values.length === DEFAULTS[field].length &&
+                    _.intersection(DEFAULTS[field], values).length === DEFAULTS[field].length;
             }
             return false;
         };
