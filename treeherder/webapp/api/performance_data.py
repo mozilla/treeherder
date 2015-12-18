@@ -153,7 +153,7 @@ class AlertSummaryPagination(pagination.CursorPagination):
     page_size = 10
 
 
-class PerformanceAlertSummaryViewSet(viewsets.ReadOnlyModelViewSet):
+class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     """ViewSet for the performance alert summary model"""
     queryset = PerformanceAlertSummary.objects.all().prefetch_related(
         'alerts', 'alerts__series_signature',
@@ -161,6 +161,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ReadOnlyModelViewSet):
         'alerts__series_signature__platform',
         'alerts__series_signature__option_collection',
         'alerts__series_signature__option_collection__option')
+    permission_classes = (IsStaffOrReadOnly,)
 
     serializer_class = PerformanceAlertSummarySerializer
     filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
