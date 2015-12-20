@@ -30,3 +30,12 @@ Visit our **readthedocs** page for other setup and configuration at:
 https://treeherder.readthedocs.org/
 
 File any bugs you may encounter [here](https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&component=Treeherder).
+
+#### Autolander (bot)
+
+Autolander is a bot which integrates github and bugzilla workflows.
+
+Features available:
+  - Automatic pull request to bugzilla attachment linking.
+  - Validates pull request title and commit message formats.
+  - [Autolander on Github](https://github.com/mozilla/autolander)
