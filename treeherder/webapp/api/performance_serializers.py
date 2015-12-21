@@ -61,9 +61,9 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PerformanceAlert
-        fields = ['id', 'series_signature', 'is_regression', 'prev_value',
-                  'new_value', 't_value', 'amount_abs', 'amount_pct',
-                  'revised_summary_id']
+        fields = ['id', 'status', 'series_signature', 'is_regression',
+                  'prev_value', 'new_value', 't_value', 'amount_abs',
+                  'amount_pct', 'revised_summary_id', 'bug_number']
 
 
 class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
@@ -71,7 +71,12 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     repository = serializers.SlugRelatedField(read_only=True,
                                               slug_field='name')
 
+    # marking these fields as readonly, the user should not be modifying them
+    prev_result_set_id = serializers.ReadOnlyField()
+    result_set_id = serializers.ReadOnlyField()
+    last_updated = serializers.ReadOnlyField()
+
     class Meta:
         model = PerformanceAlertSummary
-        fields = ['id', 'result_set_id', 'prev_result_set_id', 'last_updated',
-                  'repository', 'alerts']
+        fields = ['id', 'result_set_id', 'prev_result_set_id',
+                  'last_updated', 'repository', 'alerts']

@@ -33,14 +33,19 @@ def test_alerts(webapp, test_repository, test_perf_signature):
     assert resp.json['next'] is None
     assert resp.json['previous'] is None
     assert len(resp.json['results']) == 1
-    assert set(resp.json['results'][0].keys()) == set(['amount_pct',
-                                                       'amount_abs',
-                                                       'id', 'is_regression',
-                                                       'new_value',
-                                                       'prev_value',
-                                                       'revised_summary_id',
-                                                       'series_signature',
-                                                       't_value'])
+    assert set(resp.json['results'][0].keys()) == set([
+        'amount_pct',
+        'amount_abs',
+        'bug_number',
+        'id',
+        'is_regression',
+        'new_value',
+        'prev_value',
+        'revised_summary_id',
+        'series_signature',
+        'status',
+        't_value'
+    ])
     assert resp.json['results'][0]['revised_summary_id'] is None
 
     # create a new summary and reassign the alert to it
