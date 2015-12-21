@@ -47,10 +47,13 @@ treeherder.factory('thJobFilters', [
         var DEFAULTS = {
             resultStatus: thResultStatusList.defaultFilters(),
             classifiedState: ['classified', 'unclassified'],
+            tier: ["1", "2"]
         };
 
         // failure classification ids that should be shown in "unclassified" mode
         var UNCLASSIFIED_IDS = [1, 7];
+
+        var TIERS = ["1", "2", "3"];
 
         // used with field-filters to determine how to match the value against the
         // job field.
@@ -148,7 +151,12 @@ treeherder.factory('thJobFilters', [
 
         var getFieldFiltersObj = function() {
             var fieldFilters = {};
-            var locationSearch = $location.search();
+            // get the search params and lay any defaults over it so we test
+            // against those as well.
+            var locationSearch = _.defaults(_.clone($location.search()),
+                                            _.mapKeys(DEFAULTS, function(value, key) {
+                                                return _withPrefix(key);
+                                            }));
             _.each(locationSearch, function(values, field) {
                 if (_isFieldFilter(field)) {
                     if (field === QS_SEARCH_STR) {
@@ -156,7 +164,7 @@ treeherder.factory('thJobFilters', [
                         fieldFilters[_withoutPrefix(field)] = decodeURIComponent(values).replace(/ +(?= )/g, ' ').toLowerCase().split(' ');
                     } else {
                         var lowerVals = _.map(_toArray(values),
-                                              function(v) {return v.toLowerCase();});
+                                              function(v) {return String(v).toLowerCase();});
                         fieldFilters[_withoutPrefix(field)] = lowerVals;
                     }
                 }
@@ -336,6 +344,10 @@ treeherder.factory('thJobFilters', [
             } else {
                 rsValues = _.uniq(rsValues.concat(resultStatuses));
             }
+            // remove all query string params for this field if we match the defaults
+            if (_matchesDefaults(RESULT_STATUS, rsValues)) {
+                rsValues = null;
+            }
             $location.search(QS_RESULT_STATUS, rsValues);
         };
 
@@ -348,13 +360,8 @@ treeherder.factory('thJobFilters', [
             }
         };
 
-        var toggleTier1Only = function() {
-            $log.debug("toggleTier1Only");
-            if (_.contains(_getFiltersOrDefaults('tier'), '1')) {
-                removeFilter('tier', '1');
-            } else {
-                addFilter('tier', '1');
-            }
+        var isFilterSetToShow = function(field, value) {
+            return _.contains(_getFiltersOrDefaults(field), String(value));
         };
 
         /**
@@ -557,7 +564,6 @@ treeherder.factory('thJobFilters', [
             toggleResultStatuses: toggleResultStatuses,
             toggleInProgress: toggleInProgress,
             toggleUnclassifiedFailures: toggleUnclassifiedFailures,
-            toggleTier1Only: toggleTier1Only,
             setOnlyCoalesced: setOnlyCoalesced,
 
             // filter data read-only accessors
@@ -566,12 +572,14 @@ treeherder.factory('thJobFilters', [
             getFieldFiltersObj: getFieldFiltersObj,
             getResultStatusArray: getResultStatusArray,
             isJobUnclassifiedFailure: isJobUnclassifiedFailure,
+            isFilterSetToShow: isFilterSetToShow,
             stripFiltersFromQueryString: stripFiltersFromQueryString,
             getFieldChoices: getFieldChoices,
 
             // CONSTANTS
             classifiedState: CLASSIFIED_STATE,
-            resultStatus: RESULT_STATUS
+            resultStatus: RESULT_STATUS,
+            tiers: TIERS
         };
         return api;
     }]);

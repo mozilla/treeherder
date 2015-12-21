@@ -308,7 +308,6 @@ treeherderApp.controller('MainCtrl', [
         };
 
         $scope.toggleUnclassifiedFailures = thJobFilters.toggleUnclassifiedFailures;
-        $scope.toggleTier1Only = thJobFilters.toggleTier1Only;
 
         $scope.toggleInProgress = function() {
             thJobFilters.toggleInProgress();
@@ -342,6 +341,44 @@ treeherderApp.controller('MainCtrl', [
         $scope.toggleGroupState = function() {
             var newGroupState = $scope.groupState === "collapsed" ? "expanded" : null;
             $location.search("group_state", newGroupState);
+        };
+
+        /*
+         * This updates which tier checkboxes are set according to the filters.
+         * It's made slightly tricky due to the fact that, if you remove all
+         * tier filters, it goes back to the default of showing only Tier 1
+         * and 2, which then changes which boxes are checked.
+         *
+         * Initially I tried to do this with a call to ng-clicked on the
+         * checkbox which called:
+         *     thJobFilters.toggleFilters('tier', [tier], !$scope.isTierShowing(tier));
+         *
+         * However, that didn't update the checkboxes correctly when it went back to the
+         * default of just tier 1 and 2 selected.  This had the a negative reaction
+         * described in #2 from this comment: https://bugzilla.mozilla.org/show_bug.cgi?id=1231774#c5
+         * It has to do with changing the value of a checkbox out from under it
+         * when you've actually clicked that checkbox.
+         *
+         * This new solution uses a simple model scope object and update function
+         * to keep things in sync.
+         */
+        $scope.isTierShowing = function(tier) {
+            return thJobFilters.isFilterSetToShow("tier", tier);
+        };
+
+        $scope.tiers = {};
+
+        $scope.updateTiers = function() {
+            _.forEach(thJobFilters.tiers, function(tier) {
+                $scope.tiers[tier] = $scope.isTierShowing(tier);
+            });
+        };
+
+        $scope.updateTiers();
+
+        $scope.tierToggled = function(tier) {
+            thJobFilters.toggleFilters('tier', [tier], $scope.tiers[tier]);
+            $scope.updateTiers();
         };
 
         var getNewReloadTriggerParams = function() {
@@ -438,6 +475,6 @@ treeherderApp.controller('MainCtrl', [
 
         $scope.pinboardCount = thPinboard.count;
         $scope.pinnedJobs = thPinboard.pinnedJobs;
-
+        $scope.jobFilters = thJobFilters;
     }
 ]);
