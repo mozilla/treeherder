@@ -11,11 +11,6 @@ from { opacity: 1; }
 to { opacity: 0; }
 }
 
-.graph-legend .series-inactive {
-  border-color: #D3D3D3;
-  color: #D3D3D3;
-}
-
 .ph-horizontal-layout {
   display: flex;
   flex-flow: row;
@@ -34,13 +29,34 @@ to { opacity: 0; }
 
 #graph { width: 100%; height: 300px; margin-bottom: 30px; cursor: crosshair; }
 
-.graph-legend-table { table-layout:fixed; }
+.graph-legend-table {
+    table-layout: fixed;
+}
 
-.graph-legend { padding: 4px; text-overflow: ellipsis; table-layout:fixed; font-size: 12px; }
+.graph-legend-table tbody > tr > td {
+    padding: 0px;
+}
 
-.graph-legend-table .show-hide-check{
-  float:right;
+.graph-legend {
+    padding: 8px 20px 8px 8px;
+    text-overflow: ellipsis;
+    font-size: 12px;
+    border-left: 10px solid;
+}
+
+.graph-legend .series-inactive {
+  border-color: #D3D3D3;
+  color: #D3D3D3;
+}
+
+.graph-legend-table .close {
+    margin-right: 6px;
+}
+
+.graph-legend-table .show-hide-check {
+  float: right;
   margin-top: -20px;
+  margin-right: 6px;
 }
 
 .graph-right-padding { flex: none; width: 200px; }
