@@ -11,18 +11,13 @@
               <span aria-hidden="true">&times;</span>
               <span class="sr-only">Remove series</span>
             </button>
-            <table>
-              <tr>
-                <td width="10px" class="graph-legend" style="padding: 4px; background-color: {{series.blockColor}}" ></td>
-                <td class="graph-legend" ng-class="{'series-inactive':!series.active}">
-                  <b>{{series.name}}</b><br/>
-                  <a href="#" ng-click="addTestData('addRelatedBranches', series.signature)" title="Add related branches">{{series.projectName}}</a><br/>
-                  <a href="#" ng-click="addTestData('addRelatedPlatform', series.signature)" title="Add related platforms">{{series.platform}}</a><br/>
-                  <div class="signature"><small>{{series.signature}}</small></div>
-                </td>
-              </tr>
-            </table>
-            <input title="Show/Hide series" type="checkbox" ng-model="series.visible" class="show-hide-check" ng-click="showHideSeries(series.signature)">
+              <div class="graph-legend" style="border-left-color: {{series.blockColor}}" ng-class="{'series-inactive':!series.visible}">
+                <b>{{series.name}}</b><br/>
+                <a href="#" ng-click="addTestData('addRelatedBranches', series.signature)" title="Add related branches">{{series.projectName}}</a><br/>
+                <a href="#" ng-click="addTestData('addRelatedPlatform', series.signature)" title="Add related platforms">{{series.platform}}</a><br/>
+                <div class="signature"><small>{{series.signature}}</small></div>
+              </div>
+              <input title="Show/Hide series" type="checkbox" ng-model="series.visible" class="show-hide-check" ng-click="showHideSeries(series.signature)">
           </td>
         </tr>
       </table>
