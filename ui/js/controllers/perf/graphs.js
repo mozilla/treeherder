@@ -319,8 +319,7 @@ perf.controller('GraphsCtrl', [
             // synchronize series visibility with flot, in case it's changed
             $scope.seriesList.forEach(function(series) {
                 series.flotSeries.points.show = series.visible;
-                series.active = true;
-                series.blockColor = series.active ? series.color : "grey";
+                series.blockColor = series.visible ? series.color : "grey";
             });
 
             // reset highlights
