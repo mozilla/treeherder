@@ -302,6 +302,7 @@ REST_FRAMEWORK = {
 }
 
 SITE_URL = env("SITE_URL", default="http://local.treeherder.mozilla.org")
+APPEND_SLASH = False
 
 BUILDAPI_PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-pending.js"
 BUILDAPI_RUNNING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-running.js"
