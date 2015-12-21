@@ -7,7 +7,7 @@ treeherder.factory(
             return {
                 getFrameworkList: function() {
                     return $http.get(thServiceDomain +
-                                     '/api/performance/framework');
+                                     '/api/performance/framework/');
                 }
             };
         }]);
