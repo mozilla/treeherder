@@ -283,6 +283,7 @@ treeherder.factory('ThResultSetStore', [
                 });
 
                 if (jobList.length === 0) {
+                    resultSet.isRunnableVisible = false;
                     thNotify.send("No new jobs available");
                 }
 
