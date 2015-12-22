@@ -21,6 +21,9 @@ class TestOptionsSerializer(serializers.JSONField):
 
 
 class PerformanceSignatureSerializer(serializers.ModelSerializer):
+    framework_id = serializers.SlugRelatedField(
+        slug_field="id", source="framework",
+        queryset=PerformanceFramework.objects.all())
     option_collection_hash = serializers.SlugRelatedField(
         read_only=True, slug_field="option_collection_hash",
         source="option_collection")
@@ -32,9 +35,9 @@ class PerformanceSignatureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PerformanceSignature
-        fields = ['signature_hash', 'machine_platform', 'suite', 'test',
-                  'lower_is_better', 'option_collection_hash',
-                  'test_options']
+        fields = ['framework_id', 'signature_hash', 'machine_platform',
+                  'suite', 'test', 'lower_is_better',
+                  'option_collection_hash', 'test_options']
 
 
 class PerformanceDecimalField(serializers.DecimalField):

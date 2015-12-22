@@ -12,7 +12,7 @@ perf.config(function($compileProvider, $httpProvider, $stateProvider, $urlRouter
     $stateProvider.state('alerts', {
         title: 'Perfherder Alerts',
         templateUrl: 'partials/perf/alertsctrl.html',
-        url: '/alerts?id',
+        url: '/alerts?id&framework&filter&hideImprovements',
         controller: 'AlertsCtrl'
     }).state('graphs', {
         title: 'Perfherder Graphs',
