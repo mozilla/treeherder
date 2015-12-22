@@ -84,15 +84,16 @@ perf.controller(
 perf.controller('AlertsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$http', '$q', '$modal',
     'thUrl', 'ThRepositoryModel', 'ThOptionCollectionModel', 'ThResultSetModel',
-    'thDefaultRepo', 'PhSeries', 'PhAlerts', 'phTimeRanges', 'phDefaultTimeRangeValue',
-    'phAlertResolutionMap', 'dateFilter', 'thDateFormat',
+    'thDefaultRepo', 'PhFramework', 'PhSeries', 'PhAlerts', 'phTimeRanges',
+    'phDefaultTimeRangeValue', 'phAlertResolutionMap', 'dateFilter',
+    'thDateFormat',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $http, $q,
                         $modal,
                         thUrl, ThRepositoryModel, ThOptionCollectionModel,
-                        ThResultSetModel, thDefaultRepo, PhSeries, PhAlerts,
-                        phTimeRanges, phDefaultTimeRangeValue,
-                        phAlertResolutionMap, dateFilter, thDateFormat) {
-
+                        ThResultSetModel, thDefaultRepo, PhFramework,
+                        PhSeries, PhAlerts, phTimeRanges,
+                        phDefaultTimeRangeValue, phAlertResolutionMap,
+                        dateFilter, thDateFormat) {
         $scope.alertSummaries = [];
         $scope.getMoreAlertSummariesHref = null;
         $scope.getCappedMagnitude = function(percent) {
@@ -108,6 +109,41 @@ perf.controller('AlertsCtrl', [
                 alertSummary.id, status).then(function() {
                     alertSummary.status = status;
                 });
+        };
+
+        function updateAlertVisibility() {
+            _.forEach($scope.alertSummaries, function(alertSummary) {
+                _.forEach(alertSummary.alerts, function(alert) {
+                    // only show alert if it passes all filter criteria
+                    alert.visible =
+                        (alert.series_signature.framework_id === $scope.filterOptions.framework.id) &&
+                        (!$scope.filterOptions.hideImprovements || alert.is_regression) &&
+                        _.every($scope.filterOptions.filter.split(' '),
+                                function(matchText) {
+                                    return !matchText ||
+                                        alert.title.toLowerCase().indexOf(
+                                            matchText.toLowerCase()) > (-1);
+                                });
+                });
+                alertSummary.anyVisible = _.any(alertSummary.alerts,
+                                                'visible');
+            });
+            $scope.numFilteredAlertSummaries = _.filter($scope.alertSummaries, { anyVisible: false }).length;
+
+        }
+
+        $scope.filtersUpdated = function() {
+            $state.transitionTo('alerts', {
+                framework: $scope.filterOptions.framework.id,
+                filter: $scope.filterOptions.filter,
+                hideImprovements: Boolean($scope.filterOptions.hideImprovements) ? undefined : 0,
+            }, {
+                location: true,
+                inherit: true,
+                relative: $state.$current,
+                notify: false
+            });
+            updateAlertVisibility();
         };
 
         // these methods handle the business logic of alert selection and
@@ -274,6 +310,7 @@ perf.controller('AlertsCtrl', [
             })).then(function() {
                 $scope.alertSummaries = _.union($scope.alertSummaries,
                                                 alertSummaries);
+                updateAlertVisibility();
             });
         }
 
@@ -284,27 +321,39 @@ perf.controller('AlertsCtrl', [
                 });
         };
 
-        ThRepositoryModel.get_list().then(function(response) {
-            $scope.projects = response.data;
-            $scope.selectedProject = _.findWhere($scope.projects, {
-                name: thDefaultRepo ? thDefaultRepo : thDefaultRepo
-            });
-            ThOptionCollectionModel.get_map().then(
-                function(optionCollectionMap) {
-                    $scope.optionCollectionMap = optionCollectionMap;
-                    if ($stateParams.id) {
-                        PhAlerts.getAlertSummary($stateParams.id).then(
-                            function(data) {
-                                addAlertSummaries([data], null);
-                            });
-                    } else {
-                        PhAlerts.getAlertSummaries().then(function(data) {
-                            addAlertSummaries(data.results, data.next);
-                        });
-                    }
-                });
-
-        });
-
+        $q.all([PhFramework.getFrameworkList().then(
+            function(frameworks) {
+                $scope.frameworks = frameworks.data;
+            }),
+                ThRepositoryModel.get_list().then(function(response) {
+                    $scope.projects = response.data;
+                    $scope.selectedProject = _.findWhere($scope.projects, {
+                        name: thDefaultRepo ? thDefaultRepo : thDefaultRepo
+                    });
+                }),
+                ThOptionCollectionModel.get_map().then(
+                    function(optionCollectionMap) {
+                        $scope.optionCollectionMap = optionCollectionMap;
+                    })]
+              ).then(function() {
+                  $scope.filterOptions = {
+                      framework: _.find($scope.frameworks, {
+                          id: parseInt($stateParams.framework)
+                      }) || $scope.frameworks[0],
+                      filter: $stateParams.filter || "",
+                      hideImprovements: $stateParams.hideImprovements === undefined ||
+                          parseInt($stateParams.hideImprovements)
+                  };
+                  if ($stateParams.id) {
+                      PhAlerts.getAlertSummary($stateParams.id).then(
+                          function(data) {
+                              addAlertSummaries([data], null);
+                          });
+                  } else {
+                      PhAlerts.getAlertSummaries().then(function(data) {
+                          addAlertSummaries(data.results, data.next);
+                      });
+                  }
+              });
     }
 ]);
