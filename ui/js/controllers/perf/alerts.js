@@ -83,14 +83,13 @@ perf.controller(
 
 perf.controller('AlertsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$http', '$q', '$modal',
-    'thUrl', 'ThRepositoryModel', 'ThOptionCollectionModel', 'ThResultSetModel',
-    'thDefaultRepo', 'PhFramework', 'PhSeries', 'PhAlerts', 'phTimeRanges',
+    'thUrl', 'ThOptionCollectionModel', 'ThResultSetModel',
+    'PhFramework', 'PhSeries', 'PhAlerts', 'phTimeRanges',
     'phDefaultTimeRangeValue', 'phAlertResolutionMap', 'dateFilter',
     'thDateFormat',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $http, $q,
-                        $modal,
-                        thUrl, ThRepositoryModel, ThOptionCollectionModel,
-                        ThResultSetModel, thDefaultRepo, PhFramework,
+                        $modal, thUrl, ThOptionCollectionModel,
+                        ThResultSetModel, PhFramework,
                         PhSeries, PhAlerts, phTimeRanges,
                         phDefaultTimeRangeValue, phAlertResolutionMap,
                         dateFilter, thDateFormat) {
@@ -103,7 +102,6 @@ perf.controller('AlertsCtrl', [
         };
         $scope.phAlertResolutionMap = phAlertResolutionMap;
 
-        // these methods
         $scope.changeAlertSummaryStatus = function(alertSummary, status) {
             PhAlerts.changeAlertSummaryStatus(
                 alertSummary.id, status).then(function() {
@@ -325,12 +323,6 @@ perf.controller('AlertsCtrl', [
             function(frameworks) {
                 $scope.frameworks = frameworks.data;
             }),
-                ThRepositoryModel.get_list().then(function(response) {
-                    $scope.projects = response.data;
-                    $scope.selectedProject = _.findWhere($scope.projects, {
-                        name: thDefaultRepo ? thDefaultRepo : thDefaultRepo
-                    });
-                }),
                 ThOptionCollectionModel.get_map().then(
                     function(optionCollectionMap) {
                         $scope.optionCollectionMap = optionCollectionMap;
