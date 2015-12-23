@@ -3,6 +3,9 @@
 # sha256: Y_GgziUCwBgA3h1NyBLJ66CC6Z9EvqrK6UlsQVGwlvg
 gunicorn==19.4.1
 
+# sha256: zeNo_aD7mVjdWLwsuVXQvz3xt5wTLZfO6Qvl_aNKUIk
+wsgi-sslify==1.0.1
+
 # sha256: gm_-XWCMncja6-8bC0PQH3lY8XwvzjbnXIDiYWAXLE8
 whitenoise==2.0.6
 
@@ -20,6 +23,10 @@ simplejson==3.8.1
 
 # sha256: F9WY_MyghFwDN-UnbUDWX5Ua_qat-b2Rcs_zqH8u8pQ
 newrelic==2.60.0.46
+
+# Required by wsgi-sslify
+# sha256: aUkbUwUVfDxuDwSnAZhNaud_1yn8HJrNJQd_HfOFMms
+werkzeug==0.11.3
 
 # Required by datasource
 # sha256: gRBAtkfl1WhvhNtBXv1pfmJQAIsRK2kJunesBZ4UDHQ
