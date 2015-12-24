@@ -315,6 +315,10 @@ FAILURE_LINES_CUTOFF = 35
 
 BZ_API_URL = "https://bugzilla.mozilla.org"
 
+ORANGEFACTOR_SUBMISSION_URL = "https://brasstacks.mozilla.com/orangefactor/api/saveclassification"
+ORANGEFACTOR_HAWK_ID = "treeherder"
+ORANGEFACTOR_HAWK_KEY = env("ORANGEFACTOR_HAWK_KEY", default=None)
+
 # this setting allows requests from any host
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -328,7 +332,6 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Set this to True to submit bug associations to Elasticsearch.
 MIRROR_CLASSIFICATIONS = True
-ES_HOST = "http://of-elasticsearch-zlb.webapp.scl3.mozilla.com:9200"
 
 # Enable integration between autoclassifier and jobs
 AUTOCLASSIFY_JOBS = env.bool("AUTOCLASSIFY_JOBS", default=False)
