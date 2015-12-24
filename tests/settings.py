@@ -7,9 +7,6 @@ TREEHERDER_TEST_PROJECT = "%s_jobs" % DATABASES["default"]["TEST"]["NAME"]
 CELERY_ALWAYS_EAGER = True
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
-# Don't attempt to submit bug associations to Bugzilla & Elasticsearch.
-MIRROR_CLASSIFICATIONS = False
-
 # Reconfigure pulse to operate on default vhost of rabbitmq
 PULSE_URI = BROKER_URL
 PULSE_EXCHANGE_NAMESPACE = 'test'
