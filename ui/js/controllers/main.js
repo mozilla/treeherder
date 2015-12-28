@@ -843,7 +843,6 @@ treeherderApp.controller('IntermittentFilerCtrl', function($scope, $modalInstanc
                   //XXX NEEDINFO FLAG
                 }
             }).then(function successCallback(json) {
-                console.log(json.data);
                 if(json.data.failure) {
                   var errorString = "";
                   for (var i = 0; i < json.data.failure.length; i++) {
