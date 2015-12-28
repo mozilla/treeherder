@@ -27,7 +27,8 @@ class BugzillaViewSet(viewsets.ViewSet):
         params = request.data
         url = "https://bugzilla-dev.allizom.org/rest/bug"
         headers = {
-            'X_BUGZILLA_API_KEY': 'qF8lX6AyGjcZcmSV4tZTmy2F2PbBycQdB9lsp8cB'
+          #  'X_BUGZILLA_API_KEY': 'qF8lX6AyGjcZcmSV4tZTmy2F2PbBycQdB9lsp8cB'
+            'X_BUGZILLA_API_KEY': settings.TREEHERDER_BUGZILLA_API_KEY
         }
 
         data = {
