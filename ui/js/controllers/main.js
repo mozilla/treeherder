@@ -525,7 +525,7 @@ treeherderApp.controller('MainCtrl', [
     }
 ]);
 
-treeherderApp.controller('IntermittentFilerCtrl', function($scope, $modalInstance, $http, summary,
+treeherderApp.controller('IntermittentFilerCtrl', function($scope, $modalInstance, $http, summary, thNotify,
                                                            fullLog, parsedLog, reftest, selectedJob, allFailures) {
     $modalInstance.productObject = {
         "accessible":
@@ -807,6 +807,7 @@ treeherderApp.controller('IntermittentFilerCtrl', function($scope, $modalInstanc
 
         if(!isProductSelected) {
             alert("Please select (or search and select) a product/component pair to continue");
+            $(':input','#modalForm').attr("disabled",false);
             return;
         }
         var logstrings = "";
@@ -843,8 +844,20 @@ treeherderApp.controller('IntermittentFilerCtrl', function($scope, $modalInstanc
                 }
             }).then(function successCallback(json) {
                 console.log(json.data);
-                window.open(bugzillaRoot + "show_bug.cgi?id=" + json.data.success);
-                $scope.cancelFiler();
+                if(json.data.failure) {
+                  var errorString = "";
+                  for (var i = 0; i < json.data.failure.length; i++) {
+                      errorString += json.data.failure[i];
+                  }
+                  errorString = JSON.parse(errorString);
+                  console.log("FAILURE", errorString);
+                  thNotify.send("Bugzilla error: " + errorString.message, "danger", true);
+                  $(':input','#modalForm').attr("disabled",false);
+                } else {
+                  console.log(json.data);
+                  window.open(bugzillaRoot + "show_bug.cgi?id=" + json.data.success);
+                  $scope.cancelFiler();
+                }
             }, function errorCallback(response) {
                 console.log(response);
             });
