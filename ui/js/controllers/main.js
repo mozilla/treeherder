@@ -837,33 +837,33 @@ treeherderApp.controller('IntermittentFilerCtrl', function($scope, $rootScope, $
                   //  "blocks": [""],//var blocksstring = "&blocked=" + encodeURIComponent(document.getElementById("modalBlocks").value);
                     // XXX This takes the last version returned from the product query, probably should be smarter about this in the future...
                     "version": productObject.versions[productObject.versions.length-1].name,
-                    "description": logstrings + document.getElementById("modalComment").value,
+                    "description": logstrings + document.getElementById("modalComment").value + "\n\nFiled by " + $scope.user.email,
                     "comment_tags": "treeherder",
                   //XXX var ccstring = "&cc=" + encodeURIComponent(document.getElementById("modalCc").value);
                   //XXX NEEDINFO FLAG
                 }
             }).then(function successCallback(json) {
                 if(json.data.failure) {
-                  var errorString = "";
-                  for (var i = 0; i < json.data.failure.length; i++) {
-                      errorString += json.data.failure[i];
-                  }
-                  errorString = JSON.parse(errorString);
-                  console.log("FAILURE", errorString);
-                  thNotify.send("Bugzilla error: " + errorString.message, "danger", true);
-                  $(':input','#modalForm').attr("disabled",false);
+                    var errorString = "";
+                    for (var i = 0; i < json.data.failure.length; i++) {
+                        errorString += json.data.failure[i];
+                    }
+                    errorString = JSON.parse(errorString);
+                    console.log("FAILURE", errorString);
+                    thNotify.send("Bugzilla error: " + errorString.message, "danger", true);
+                    $(':input','#modalForm').attr("disabled",false);
                 } else {
-                  console.log(json.data);
+                    console.log(json.data);
 
-                  // Auto-classify this failure now that the bug has been filed and we have a bug number
-                  thPinboard.pinJob($rootScope.selectedJob);
-                  thPinboard.addBug({id:json.data.success});
-                  // This isn't working; user has to still click the 'save' button...
-                  $rootScope.$evalAsync($rootScope.$emit(thEvents.saveClassification));
+                    // Auto-classify this failure now that the bug has been filed and we have a bug number
+                    thPinboard.pinJob($rootScope.selectedJob);
+                    thPinboard.addBug({id:json.data.success});
+                    // This isn't working; user has to still click the 'save' button...
+                    $rootScope.$evalAsync($rootScope.$emit(thEvents.saveClassification));
 
-                  // Open the newly filed bug in a new tab or window for further editing
-                  window.open(bugzillaRoot + "show_bug.cgi?id=" + json.data.success);
-                  $scope.cancelFiler();
+                    // Open the newly filed bug in a new tab or window for further editing
+                    window.open(bugzillaRoot + "show_bug.cgi?id=" + json.data.success);
+                    $scope.cancelFiler();
                 }
             }, function errorCallback(response) {
                 console.log(response);
