@@ -525,8 +525,8 @@ treeherderApp.controller('MainCtrl', [
     }
 ]);
 
-treeherderApp.controller('IntermittentFilerCtrl', function($scope, $modalInstance, $http, summary, thNotify,
-                                                           fullLog, parsedLog, reftest, selectedJob, allFailures) {
+treeherderApp.controller('IntermittentFilerCtrl', function($scope, $rootScope, $modalInstance, $http, summary, thNotify, thEvents,
+                                                           thPinboard, fullLog, parsedLog, reftest, selectedJob, allFailures) {
     $modalInstance.productObject = {
         "accessible":
             ["Core :: Disability Access APIs","Firefox :: Disability Access"],
@@ -854,6 +854,14 @@ treeherderApp.controller('IntermittentFilerCtrl', function($scope, $modalInstanc
                   $(':input','#modalForm').attr("disabled",false);
                 } else {
                   console.log(json.data);
+
+                  // Auto-classify this failure now that the bug has been filed and we have a bug number
+                  thPinboard.pinJob($rootScope.selectedJob);
+                  thPinboard.addBug({id:json.data.success});
+                  // This isn't working; user has to still click the 'save' button...
+                  $rootScope.$evalAsync($rootScope.$emit(thEvents.saveClassification));
+
+                  // Open the newly filed bug in a new tab or window for further editing
                   window.open(bugzillaRoot + "show_bug.cgi?id=" + json.data.success);
                   $scope.cancelFiler();
                 }
