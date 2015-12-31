@@ -4,3 +4,6 @@ LOCAL_APPS = []
 
 # Set this to True to submit bug associations to Elasticsearch.
 MIRROR_CLASSIFICATIONS = False
+
+# Switch to using a different bugzilla instance
+BZ_API_URL = "http://bugzilla-dev.allizom.org/"

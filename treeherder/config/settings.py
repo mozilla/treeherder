@@ -315,6 +315,7 @@ PARSER_MAX_SUMMARY_LINES = 200
 FAILURE_LINES_CUTOFF = 35
 
 BZ_API_URL = "https://bugzilla.mozilla.org"
+BZ_API_KEY = env("BUGZILLA_API_KEY", default="")
 
 # this setting allows requests from any host
 CORS_ORIGIN_ALLOW_ALL = True
