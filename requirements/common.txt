@@ -44,6 +44,10 @@ amqp==1.4.8
 # sha256: N4Ethjya0-NcBzTELgvwMgzow77YLNIK1UyzTRWBV7o
 anyjson==0.3.3
 
+# Celery/Kombu optional extra for improved performance over amqp.
+# sha256: YEoia5_j-eQ5NTcCpzHyo5z3cYguaLygIMsiTZuZDEk
+librabbitmq==1.6.1
+
 # Required by mozlog
 # sha256: 7cVxMGHxCWYEi_a0DZpRSzgeC6hJxk4DTE72wYR9MAc
 blessings==1.6
