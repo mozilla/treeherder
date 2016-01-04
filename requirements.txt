@@ -7,5 +7,5 @@
 # More info here: https://devcenter.heroku.com/articles/memcachier#python
 pylibmc==1.5.0
 
-django-pylibmc==0.5.0
+django-pylibmc==0.6.1
 django-heroku-memcacheify==0.8
