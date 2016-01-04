@@ -5,7 +5,7 @@
 # Pylibmc must be in this file so that heroku knows it has to install
 # libmemcached when bootstrapping the containers.
 # More info here: https://devcenter.heroku.com/articles/memcachier#python
-pylibmc==1.4.2
+pylibmc==1.5.0
 
 django-pylibmc==0.5.0
 django-heroku-memcacheify==0.8
