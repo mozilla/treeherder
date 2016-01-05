@@ -42,7 +42,7 @@ def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
     # Ensure for each push we sent a pulse notification...
     for _ in range(0, push_num):
         message = pulse_resultset_consumer.get(block=True, timeout=2)
-        content = json.loads(message.body)
+        content = message.payload
         assert content['revision'] in rev_to_push
         # Ensure we don't match the same revision twice...
         rev_to_push.remove(content['revision'])

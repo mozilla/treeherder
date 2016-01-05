@@ -1,5 +1,4 @@
 import copy
-import json
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -348,7 +347,7 @@ def test_resultset_cancel_all(jm, resultset_with_three_jobs, pulse_action_consum
 
     for _ in range(0, 3):
         message = pulse_action_consumer.get(block=True, timeout=2)
-        content = json.loads(message.body)
+        content = message.payload
 
         assert content['action'] == 'cancel'
         assert content['project'] == jm.project

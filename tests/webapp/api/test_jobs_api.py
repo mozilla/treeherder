@@ -1,5 +1,3 @@
-import json
-
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
@@ -145,7 +143,7 @@ def test_job_retrigger_authorized(webapp, eleven_jobs_stored, jm,
     client.post(url, {"job_id_list": job_id_list}, format='json')
 
     message = pulse_action_consumer.get(block=True, timeout=2)
-    content = json.loads(message.body)
+    content = message.payload
 
     assert content['project'] == jm.project
     assert content['action'] == 'retrigger'
@@ -170,7 +168,7 @@ def test_job_cancel_authorized(webapp, eleven_jobs_stored, jm,
     client.post(url)
 
     message = pulse_action_consumer.get(block=True, timeout=2)
-    content = json.loads(message.body)
+    content = message.payload
 
     assert content['project'] == jm.project
     assert content['action'] == 'cancel'
