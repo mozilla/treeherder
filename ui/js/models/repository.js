@@ -2,9 +2,9 @@
 
 treeherder.factory('ThRepositoryModel', [
     '$http', 'thUrl', '$rootScope', 'ThLog', '$interval',
-    'treeStatus', 'thRepoGroupOrder',
+    '$q', 'treeStatus', 'thRepoGroupOrder',
     function(
-        $http, thUrl, $rootScope, ThLog, $interval,
+        $http, thUrl, $rootScope, ThLog, $interval, $q,
         treeStatus, thRepoGroupOrder) {
 
         var $log = new ThLog("ThRepositoryModel");
@@ -154,6 +154,9 @@ treeherder.factory('ThRepositoryModel', [
                 if (options.name) {
                     setCurrent(options.name);
                 }
+                return $q(function(resolve, reject) {
+                    resolve('Already loaded');
+                });
             }
         };
 
