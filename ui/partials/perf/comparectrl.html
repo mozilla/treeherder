@@ -24,13 +24,13 @@
         <div class="form-group">
             <input id="filter" type="text" class="form-control" ng-model="filterOptions.filter" placeholder="filter text e.g. linux tp5o" ng-change="updateFilters()"/>
         </div>
-        <div class="checkbox" tooltip="Non-trivial changes (1.5%+)">
+        <div class="checkbox" uib-tooltip="Non-trivial changes (1.5%+)">
           <label>
             <input type="checkbox" ng-model="filterOptions.showOnlyImportant" ng-change="updateFilters()"/>
             Show only important changes
           </label>
         </div>
-        <div class="checkbox" tooltip="At least 6 datapoints OR 2+ datapoints and a large difference">
+        <div class="checkbox" uib-tooltip="At least 6 datapoints OR 2+ datapoints and a large difference">
           <label>
             <input type="checkbox" ng-model="filterOptions.showOnlyConfident" ng-change="updateFilters()"/>
             Hide uncertain results
