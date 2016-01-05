@@ -42,13 +42,13 @@
                     replicates="compareResult.newRuns"></ph-average>
       </td>
       <td ng-class="getCompareClasses(compareResult)">
-        <span ng-if="compareResult.delta" class="detail-hint" tooltip="Mean difference: {{compareResult.delta|displayPrecision}} (= {{compareResult.deltaPercentage|displayPrecision}}%)">
+        <span ng-if="compareResult.delta" class="detail-hint" uib-tooltip="Mean difference: {{compareResult.delta|displayPrecision}} (= {{compareResult.deltaPercentage|displayPrecision}}%)">
           {{compareResult.deltaPercentage|displayPrecision}}%
         </span>
       </td>
       <td ng-if="compareResult.delta">
         <div ng-if="!compareResult.newIsBetter" style="margin: auto; width: 80%;"
-             tooltip="Relative magnitude of change (scale from 0 - 20%+)">
+             uib-tooltip="Relative magnitude of change (scale from 0 - 20%+)">
           <div class="bar bar-scale"
                style="width: {{100 - compareResult.magnitude}}%; height: 1em; float: left;">
           </div>
@@ -58,7 +58,7 @@
           </div>
         </div>
         <div ng-if="compareResult.newIsBetter" style="margin: auto; width: 80%;"
-             tooltip="Relative magnitude of change (scale from 0 - 20%+)">
+             uib-tooltip="Relative magnitude of change (scale from 0 - 20%+)">
           <div class="bar"
                ng-class="{'bar-improvement': compareResult.isImprovement}"
                style="width: {{compareResult.magnitude}}%; float: left;">
@@ -72,13 +72,13 @@
       <td>
         <span ng-if="compareResult.confidence && compareResult.confidenceText"
               class="detail-hint"
-              tooltip="{{compareResult.confidenceTextLong}}">
+              uib-tooltip="{{compareResult.confidenceTextLong}}">
           {{compareResult.confidence|displayPrecision}} ({{compareResult.confidenceText}})
           </span>
       </td>
       <td class="num-runs">
         <span class="detail-hint"
-              tooltip="{{compareResult.originalRuns.length}} base /  {{compareResult.newRuns.length}} new">
+              uib-tooltip="{{compareResult.originalRuns.length}} base /  {{compareResult.newRuns.length}} new">
           {{compareResult.originalRuns.length}} /
           {{compareResult.newRuns.length}}</span>
       </td>
@@ -93,7 +93,7 @@
           -->
         <span ng-if="compareResult.isComplete && !compareResult.isConfident"
               class="glyphicon glyphicon-warning-sign text-warning"
-              tooltip="More base / new runs recommended for increased confidence in comparison"
+              uib-tooltip="More base / new runs recommended for increased confidence in comparison"
               tooltip-placement="left"
               style="cursor:default"></span>
       </td>

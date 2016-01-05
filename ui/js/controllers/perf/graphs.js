@@ -1,12 +1,12 @@
 "use strict";
 
 perf.controller('GraphsCtrl', [
-    '$state', '$stateParams', '$scope', '$rootScope', '$location', '$modal',
+    '$state', '$stateParams', '$scope', '$rootScope', '$location', '$uibModal',
     'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries',
     'ThRepositoryModel', 'ThOptionCollectionModel', 'ThResultSetModel',
     'phTimeRanges', 'phDefaultTimeRangeValue',
     function GraphsCtrl($state, $stateParams, $scope, $rootScope, $location,
-                        $modal, thServiceDomain, $http, $q, $timeout, PhSeries,
+                        $uibModal, thServiceDomain, $http, $q, $timeout, PhSeries,
                         ThRepositoryModel, ThOptionCollectionModel,
                         ThResultSetModel, phTimeRanges, phDefaultTimeRangeValue) {
         var availableColors = [ 'red', 'green', 'blue', 'orange', 'purple' ];
@@ -725,7 +725,7 @@ perf.controller('GraphsCtrl', [
                             options = { option: option, relatedSeries: series };
                         }
 
-                        var modalInstance = $modal.open({
+                        var modalInstance = $uibModal.open({
                             templateUrl: 'partials/perf/testdatachooser.html',
                             controller: 'TestChooserCtrl',
                             size: 'lg',
@@ -794,7 +794,7 @@ perf.filter('testNameContainsWords', function() {
     };
 });
 
-perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
+perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
                                             projects, optionCollectionMap,
                                             timeRange, thServiceDomain,
                                             thDefaultRepo, PhSeries,
@@ -825,11 +825,11 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
             series[i] = _.clone(selectedSeries);
             series[i].projectName = selectedSeries.projectName;
         });
-        $modalInstance.close(series);
+        $uibModalInstance.close(series);
     };
 
     $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
     };
 
     $scope.unselectedTestList = []; // tests in the "tests" list
@@ -980,5 +980,5 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
 
     };
 
-    $modalInstance.updateTestInput = $scope.updateTestInput;
+    $uibModalInstance.updateTestInput = $scope.updateTestInput;
 });

@@ -94,10 +94,10 @@
               </span>
             </td>
             <td>{{alert.new_value}}</td>
-            <td><span class="detail-hint" tooltip="Absolute difference: {{alert.amount_abs}}">{{alert.amount_pct}}%</span></td>
+            <td><span class="detail-hint" uib-tooltip="Absolute difference: {{alert.amount_abs}}">{{alert.amount_pct}}%</span></td>
             <td>
               <div ng-if="alert.is_regression" style="margin: auto; width: 80%;"
-                   tooltip="Relative magnitude of change (scale from 0 - 20%+)">
+                   uib-tooltip="Relative magnitude of change (scale from 0 - 20%+)">
                 <div class="bar bar-scale"
                      style="width: {{100 - getCappedMagnitude(alert.amount_pct)}}%; height: 1em; float: left;">
                 </div>
@@ -106,7 +106,7 @@
                 </div>
               </div>
               <div ng-if="!alert.is_regression" style="margin: auto; width: 80%;"
-                   tooltip="Relative magnitude of change (scale from 0 - 20%+)">
+                   uib-tooltip="Relative magnitude of change (scale from 0 - 20%+)">
                 <div class="bar bar-improvement"
                      style="width: {{getCappedMagnitude(alert.amount_pct)}}%; float: left;">
                 </div>
@@ -118,7 +118,7 @@
 
             <td>
               <span class="detail-hint"
-                    tooltip="Confidence value as calculated by Perfherder alerts. Note that this is NOT the same as the calculation used in the compare view"
+                    uib-tooltip="Confidence value as calculated by Perfherder alerts. Note that this is NOT the same as the calculation used in the compare view"
                     tooltip-placement="left">
                 {{alert.t_value}}
               </span>
