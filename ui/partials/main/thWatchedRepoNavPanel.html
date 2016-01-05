@@ -17,11 +17,11 @@
 
         <!--Toggle Tiers filter Button-->
         <span th-checkbox-dropdown-container class="dropdown">
-          <button id="tierLabel" role="button"
+          <span id="tierLabel" role="button"
                   href="#" data-toggle="dropdown" data-target="#"
                   class="btn btn-view-nav btn-sm nav-menu-btn">Tiers
             <span class="fa fa-angle-down lightgray"></span>
-          </button>
+          </span>
           <ul class="dropdown-menu checkbox-dropdown-menu"
               role="menu">
               <li ng-repeat="tier in jobFilters.tiers">
