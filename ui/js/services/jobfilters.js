@@ -222,29 +222,30 @@ treeherder.factory('thJobFilters', [
                     if (!_.isUndefined(jobFieldValue)) {
                         // if a filter is added somehow, but the job object doesn't
                         // have that field, then don't filter.  Consider it a pass.
+                        jobFieldValue = String(jobFieldValue).toLowerCase();
 
                         switch (FIELD_CHOICES[field].matchType) {
 
                             case MATCH_TYPE.substr:
-                                if (!_containsSubstr(values, jobFieldValue.toLowerCase())) {
+                                if (!_containsSubstr(values, jobFieldValue)) {
                                     return false;
                                 }
                                 break;
 
                             case MATCH_TYPE.searchStr:
-                                if (!_containsAllSubstr(values, jobFieldValue.toLowerCase())) {
+                                if (!_containsAllSubstr(values, jobFieldValue)) {
                                     return false;
                                 }
                                 break;
 
                             case MATCH_TYPE.exactstr:
-                                if (!_.contains(values, jobFieldValue.toLowerCase())) {
+                                if (!_.contains(values, jobFieldValue)) {
                                     return false;
                                 }
                                 break;
 
                             case MATCH_TYPE.choice:
-                                if (!_.contains(values, String(jobFieldValue).toLowerCase())) {
+                                if (!_.contains(values, jobFieldValue)) {
                                     return false;
                                 }
                                 break;
@@ -470,7 +471,7 @@ treeherder.factory('thJobFilters', [
             if (field === 'platform') {
                 result = thPlatformName(result) + " " + job.platform_option;
             }
-            return String(result);
+            return result;
         };
 
         /**
