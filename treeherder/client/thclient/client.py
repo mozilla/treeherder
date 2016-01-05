@@ -650,7 +650,7 @@ class TreeherderClient(object):
             )
 
     def _get_uri(self, endpoint):
-        uri = '{0}://{1}/api/{2}'.format(
+        uri = '{0}://{1}/api/{2}/'.format(
             self.protocol, self.host, endpoint)
 
         return uri
