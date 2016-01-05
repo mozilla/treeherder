@@ -377,8 +377,13 @@ span.compare-regression {
   margin-left: -0.2em;
 }
 
-.alert-metadata ul {
-    padding-top: 4px;
+.alert-push-dropdown {
+    padding: 0px;
+    vertical-align: inherit;
+}
+
+.alert-push-dropdown .caret {
+    margin-left: 2px;
 }
 
 .alert-strike {

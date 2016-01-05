@@ -25,18 +25,23 @@
         <a href="#/alerts?id={{alertSummary.id}}" ng-class="{'alert-title-invalid': alertSummary.status==4}" class="alert-title">
           Alert #{{alertSummary.id}} - {{alertSummary.title}} <span class="fa fa-external-link icon-superscript"/>
         </a>
-        <ul class="list-unstyled alert-metadata">
-          <li>{{alertSummary.platforms.join(' / ')}}</li>
-          <li>{{alertSummary.resultSetMetadata.dateStr}}</li>
-          <li ng-if="alertSummary.pushURL">
-            <a href="{{alertSummary.pushURL}}">{{alertSummary.resultSetMetadata.revision}}…{{alertSummary.prevResultSetMetadata.revision}}</a>
-          </li>
-          <li ng-if="!alertSummary.pushURL">
+        <div>
+          {{alertSummary.resultSetMetadata.dateStr}} ·
+          <span ng-if="alertSummary.resultSetMetadata && alertSummary.resultSetMetadata" title="{{alertSummary.resultSetMetadata.comments}}" uib-dropdown>
+            <button id="push-dropdown" class="btn btn-link alert-push-dropdown" uib-dropdown-toggle>
+              {{alertSummary.resultSetMetadata.revision}}<span class="caret"></span>
+            </button>
+            <ul class="uib-dropdown-menu" aria-labelledby="push-dropdown">
+              <li role="menuitem"><a href="{{alertSummary.jobsURL}}" target="_blank">Jobs</a></li>
+              <li role="menuitem"><a href="{{alertSummary.pushlogURL}}" target="_blank">Pushlog</a></li>
+            </ul>
+          </span>
+          <span ng-if="!alertSummary.resultSetMetadata || !alertSummary.resultSetMetadata" class="text-danger">
             <!-- This shouldn't happen in production, only in development -->
-            <span class="text-danger">Unknown revision(s)</span>
-          </li>
-        </ul>
-      </div>
+            Unknown revision(s)
+          </span>
+        </div>
+        </div>
       <div class="panel-body">
         <h4>Detected changes</h4>
 

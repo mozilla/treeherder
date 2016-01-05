@@ -83,14 +83,14 @@ perf.controller(
 
 perf.controller('AlertsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$http', '$q', '$modal',
-    'thUrl', 'ThOptionCollectionModel', 'ThResultSetModel',
+    'thUrl', 'ThRepositoryModel', 'ThOptionCollectionModel', 'ThResultSetModel',
     'PhFramework', 'PhSeries', 'PhAlerts', 'phTimeRanges',
     'phDefaultTimeRangeValue', 'phAlertResolutionMap', 'dateFilter',
     'thDateFormat',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $http, $q,
-                        $modal, thUrl, ThOptionCollectionModel,
-                        ThResultSetModel, PhFramework,
-                        PhSeries, PhAlerts, phTimeRanges,
+                        $modal, thUrl, ThRepositoryModel,
+                        ThOptionCollectionModel, ThResultSetModel,
+                        PhFramework, PhSeries, PhAlerts, phTimeRanges,
                         phDefaultTimeRangeValue, phAlertResolutionMap,
                         dateFilter, thDateFormat) {
         $scope.alertSummaries = [];
@@ -289,23 +289,29 @@ perf.controller('AlertsCtrl', [
                                                   summary.prevResultSetMetadata = resultSet;
                                               }
                                           });
-                                // get a URL for examining the details of the
-                                // result set in treeherder
-                                _.forEach(alertSummaries, function(alertSummary) {
-                                    if (alertSummary.prevResultSetMetadata &&
-                                        alertSummary.resultSetMetadata) {
-                                        alertSummary.pushURL = thUrl.getPushUrl(
-                                            alertSummary.repository,
-                                            alertSummary.prevResultSetMetadata.revision,
-                                            alertSummary.resultSetMetadata.revision);
-                                    } else {
-                                        alertSummary.pushURL = "";
-                                    }
-                                });
-
                             });
+
                         });
             })).then(function() {
+                // for all complete summaries, fill in job and pushlog links
+                _.forEach(alertSummaries, function(summary) {
+                    var repo =  _.findWhere($rootScope.repos,
+                                            { name: summary.repository });
+
+                    if (summary.prevResultSetMetadata &&
+                        summary.resultSetMetadata) {
+                        summary.jobsURL = thUrl.getJobsUrl(
+                            summary.repository,
+                            summary.prevResultSetMetadata.revision,
+                            summary.resultSetMetadata.revision);
+                        summary.pushlogURL = repo.getPushLogHref({
+                            from: summary.prevResultSetMetadata.revision,
+                            to: summary.resultSetMetadata.revision
+                        });
+                    }
+                });
+
+                // update master list + visibility
                 $scope.alertSummaries = _.union($scope.alertSummaries,
                                                 alertSummaries);
                 updateAlertVisibility();
@@ -319,33 +325,35 @@ perf.controller('AlertsCtrl', [
                 });
         };
 
-        $q.all([PhFramework.getFrameworkList().then(
-            function(frameworks) {
-                $scope.frameworks = frameworks.data;
-            }),
-                ThOptionCollectionModel.get_map().then(
-                    function(optionCollectionMap) {
-                        $scope.optionCollectionMap = optionCollectionMap;
-                    })]
-              ).then(function() {
-                  $scope.filterOptions = {
-                      framework: _.find($scope.frameworks, {
-                          id: parseInt($stateParams.framework)
-                      }) || $scope.frameworks[0],
-                      filter: $stateParams.filter || "",
-                      hideImprovements: $stateParams.hideImprovements === undefined ||
-                          parseInt($stateParams.hideImprovements)
-                  };
-                  if ($stateParams.id) {
-                      PhAlerts.getAlertSummary($stateParams.id).then(
-                          function(data) {
-                              addAlertSummaries([data], null);
+        ThRepositoryModel.load().then(function(response) {
+            $q.all([PhFramework.getFrameworkList().then(
+                function(frameworks) {
+                    $scope.frameworks = frameworks.data;
+                }),
+                    ThOptionCollectionModel.get_map().then(
+                        function(optionCollectionMap) {
+                            $scope.optionCollectionMap = optionCollectionMap;
+                        })]
+                  ).then(function() {
+                      $scope.filterOptions = {
+                          framework: _.find($scope.frameworks, {
+                              id: parseInt($stateParams.framework)
+                          }) || $scope.frameworks[0],
+                          filter: $stateParams.filter || "",
+                          hideImprovements: $stateParams.hideImprovements === undefined ||
+                              parseInt($stateParams.hideImprovements)
+                      };
+                      if ($stateParams.id) {
+                          PhAlerts.getAlertSummary($stateParams.id).then(
+                              function(data) {
+                                  addAlertSummaries([data], null);
+                              });
+                      } else {
+                          PhAlerts.getAlertSummaries().then(function(data) {
+                              addAlertSummaries(data.results, data.next);
                           });
-                  } else {
-                      PhAlerts.getAlertSummaries().then(function(data) {
-                          addAlertSummaries(data.results, data.next);
-                      });
-                  }
-              });
+                      }
+                  });
+        });
     }
 ]);
