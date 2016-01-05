@@ -41,120 +41,117 @@
             Unknown revision(s)
           </span>
         </div>
-        </div>
-      <div class="panel-body">
-        <h4>Detected changes</h4>
+      </div>
 
-        <table class="table table-striped table-compact compare-table">
-          <tr>
-            <th style="width:16px;">
-              <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alertSummary.allSelected" ng-change="selectNoneOrSelectAll(alertSummary)"/><!-- select 'em all checkbox --></th>
-            <!-- Manually specify table widths because it's just easier this way -->
-            <th class="test-title">
-              <span style=" word-wrap: break-word;">
+      <table class="table table-compact compare-table">
+        <tr>
+          <th style="width:16px;">
+            <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alertSummary.allSelected" ng-change="selectNoneOrSelectAll(alertSummary)"/><!-- select 'em all checkbox --></th>
+          <!-- Manually specify table widths because it's just easier this way -->
+          <th class="test-title">
+            <span style=" word-wrap: break-word;">
                 Test
+            </span>
+          </th>
+          <th style="width: 140px;">Previous</th>
+          <th style="width: 30px;"><!-- less than / greater than --></th>
+          <th style="width: 140px;">New</th>
+          <th style="width: 80px;">Delta</th>
+          <th style="width: 120px"><!-- Graphical difference --></th>
+          <th style="width: 100px;">Confidence</th>
+        </tr>
+        <tr ng-repeat="alert in alertSummary.alerts" ng-show="alert.visible">
+          <td>
+            <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alert.selected" ng-change="alertSelected(alertSummary)"/>
+          </td>
+          <td class="test-title">
+            <span ng-class="{'alert-strike': (alert.revised_summary_id || alert.status === phAlertResolutionMap.INVALID)}">
+              {{alert.title}}
+            </span>
+            <span ng-show="alert.status === phAlertResolutionMap.INVALID">
+              &nbsp;(<span class="alert-invalid">invalid</span>)
+            </span>
+            <span ng-show="alert.status === phAlertResolutionMap.UNTRIAGED">
+              &nbsp;(<span class="alert-untriaged">untriaged</span>)
+            </span>
+            <span ng-show="alert.bug_number">
+              &nbsp;(<a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{alert.bug_number}}">bug #{{alert.bug_number}}</a>)
+            </span>
+            <span ng-show="alert.revised_summary_id">
+              &nbsp;(see
+              <a href="#/alerts?id={{alert.revised_summary_id}}">alert #{{alert.revised_summary_id}}</a>)
+            </span>&nbsp;&nbsp;
+            <span class="result-links">
+              <a href="#/graphs?timerange={{alertSummary.resultSetMetadata.timeRange}}&series=[{{alertSummary.repository}},{{alert.series_signature.signature_hash}},1]&highlightedRevisions={{alertSummary.resultSetMetadata.revision}}">graph</a>
+            </span>
+          </td>
+          <td>{{alert.prev_value}}</td>
+          <td>
+            <span ng-class="{'compare-improvement': !alert.is_regression, 'compare-regression': alert.is_regression}">
+              <span ng-if="alert.prev_value < alert.new_value">
+                &lt;
               </span>
-            </th>
-            <th style="width: 140px;">Previous</th>
-            <th style="width: 30px;"><!-- less than / greater than --></th>
-            <th style="width: 140px;">New</th>
-            <th style="width: 80px;">Delta</th>
-            <th style="width: 120px"><!-- Graphical difference --></th>
-            <th style="width: 100px;">Confidence</th>
-          </tr>
-          <tr ng-repeat="alert in alertSummary.alerts" ng-show="alert.visible">
-            <td>
-              <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alert.selected" ng-change="alertSelected(alertSummary)"/>
-            </td>
-            <td class="test-title">
-              <span ng-class="{'alert-strike': (alert.revised_summary_id || alert.status === phAlertResolutionMap.INVALID)}">
-                {{alert.title}}
+              <span ng-if="alert.prev_value > alert.new_value">
+                &gt;
               </span>
-              <span ng-show="alert.status === phAlertResolutionMap.INVALID">
-                &nbsp;(<span class="alert-invalid">invalid</span>)
-              </span>
-              <span ng-show="alert.status === phAlertResolutionMap.UNTRIAGED">
-                &nbsp;(<span class="alert-untriaged">untriaged</span>)
-              </span>
-              <span ng-show="alert.bug_number">
-                &nbsp;(<a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{alert.bug_number}}">bug #{{alert.bug_number}}</a>)
-              </span>
-              <span ng-show="alert.revised_summary_id">
-                &nbsp;(see
-                <a href="#/alerts?id={{alert.revised_summary_id}}">alert #{{alert.revised_summary_id}}</a>)
-              </span>&nbsp;&nbsp;
-              <span class="result-links">
-                <a href="#/graphs?timerange={{alertSummary.resultSetMetadata.timeRange}}&series=[{{alertSummary.repository}},{{alert.series_signature.signature_hash}},1]&highlightedRevisions={{alertSummary.resultSetMetadata.revision}}">graph</a>
-              </span>
-            </td>
-            <td>{{alert.prev_value}}</td>
-            <td>
-              <span ng-class="{'compare-improvement': !alert.is_regression, 'compare-regression': alert.is_regression}">
-                <span ng-if="alert.prev_value < alert.new_value">
-                  &lt;
-                </span>
-                <span ng-if="alert.prev_value > alert.new_value">
-                  &gt;
-                </span>
-              </span>
-            </td>
-            <td>{{alert.new_value}}</td>
-            <td><span class="detail-hint" uib-tooltip="Absolute difference: {{alert.amount_abs}}">{{alert.amount_pct}}%</span></td>
-            <td>
-              <div ng-if="alert.is_regression" style="margin: auto; width: 80%;"
-                   uib-tooltip="Relative magnitude of change (scale from 0 - 20%+)">
-                <div class="bar bar-scale"
-                     style="width: {{100 - getCappedMagnitude(alert.amount_pct)}}%; height: 1em; float: left;">
-                </div>
-                <div class="bar bar-regression"
-                     style="width: {{getCappedMagnitude(alert.amount_pct)}}%; float: left;">
-                </div>
+            </span>
+          </td>
+          <td>{{alert.new_value}}</td>
+          <td><span class="detail-hint" uib-tooltip="Absolute difference: {{alert.amount_abs}}">{{alert.amount_pct}}%</span></td>
+          <td>
+            <div ng-if="alert.is_regression" style="margin: auto; width: 80%;"
+                 uib-tooltip="Relative magnitude of change (scale from 0 - 20%+)">
+              <div class="bar bar-scale"
+                   style="width: {{100 - getCappedMagnitude(alert.amount_pct)}}%; height: 1em; float: left;">
               </div>
-              <div ng-if="!alert.is_regression" style="margin: auto; width: 80%;"
-                   uib-tooltip="Relative magnitude of change (scale from 0 - 20%+)">
-                <div class="bar bar-improvement"
-                     style="width: {{getCappedMagnitude(alert.amount_pct)}}%; float: left;">
-                </div>
-                <div class="bar bar-scale"
-                     style="width: {{100 - getCappedMagnitude(alert.amount_pct)}}%; float: left; ">
-                </div>
+              <div class="bar bar-regression"
+                   style="width: {{getCappedMagnitude(alert.amount_pct)}}%; float: left;">
               </div>
-            </td>
+            </div>
+            <div ng-if="!alert.is_regression" style="margin: auto; width: 80%;"
+                 uib-tooltip="Relative magnitude of change (scale from 0 - 20%+)">
+              <div class="bar bar-improvement"
+                   style="width: {{getCappedMagnitude(alert.amount_pct)}}%; float: left;">
+              </div>
+              <div class="bar bar-scale"
+                   style="width: {{100 - getCappedMagnitude(alert.amount_pct)}}%; float: left; ">
+              </div>
+            </div>
+          </td>
 
-            <td>
-              <span class="detail-hint"
-                    uib-tooltip="Confidence value as calculated by Perfherder alerts. Note that this is NOT the same as the calculation used in the compare view"
-                    tooltip-placement="left">
-                {{alert.t_value}}
-              </span>
-            </td>
-          </tr>
-        </table>
-        <div style="padding-left: 8px;" ng-show="anySelected(alertSummary.alerts)">
-          <div ng-if="!anySelectedAndTriaged(alertSummary.alerts)" class="btn-group" role="group" aria-label="alert-actions">
-            <button class="btn btn-default" role="button"
-                    ng-click="markAlertsInvalid(alertSummary)" title="Mark as invalid">
-              <span class="fa fa-ban"></span>
-            </button>
-            <button class="btn btn-default" role="button"
-                    ng-click="fileBug(alertSummary)" title="File bug for selected alerts">
-              <span class="fa fa-bug"></span>
-            </button>
-            <button class="btn btn-default" role="button"
-                    ng-click="addBugNumberToAlerts(alertSummary)" title="Link alerts to existing bug">
-              <span class="fa fa-link"></span>
-            </button>
-            <button class="btn btn-default" role="button"
-                    ng-click="reassignAlerts(alertSummary)"
-                    title="Associate with another alert summary">
-              <span class="fa fa-share"></span>
-            </button>
-          </div>
-          <button ng-if="anySelectedAndTriaged(alertSummary.alerts)" class="btn btn-warning" role="button"
-                  ng-click="resetAlerts(alertSummary)" title="Reset selected alerts to untriaged">
-            Reset
+          <td>
+            <span class="detail-hint"
+                  uib-tooltip="Confidence value as calculated by Perfherder alerts. Note that this is NOT the same as the calculation used in the compare view"
+                  tooltip-placement="left">
+              {{alert.t_value}}
+            </span>
+          </td>
+        </tr>
+      </table>
+      <div class="panel-body" uib-collapse="!anySelected(alertSummary.alerts)">
+        <div ng-if="!anySelectedAndTriaged(alertSummary.alerts)" class="btn-group" role="group" aria-label="alert-actions">
+          <button class="btn btn-default" role="button"
+                  ng-click="markAlertsInvalid(alertSummary)" title="Mark as invalid">
+            <span class="fa fa-ban"></span>
+          </button>
+          <button class="btn btn-default" role="button"
+                  ng-click="fileBug(alertSummary)" title="File bug for selected alerts">
+            <span class="fa fa-bug"></span>
+          </button>
+          <button class="btn btn-default" role="button"
+                  ng-click="addBugNumberToAlerts(alertSummary)" title="Link alerts to existing bug">
+            <span class="fa fa-link"></span>
+          </button>
+          <button class="btn btn-default" role="button"
+                  ng-click="reassignAlerts(alertSummary)"
+                  title="Associate with another alert summary">
+            <span class="fa fa-share"></span>
           </button>
         </div>
+        <button ng-if="anySelectedAndTriaged(alertSummary.alerts)" class="btn btn-warning" role="button"
+                ng-click="resetAlerts(alertSummary)" title="Reset selected alerts to untriaged">
+          Reset
+        </button>
       </div>
   </div>
   <p class="text-muted" ng-if="numFilteredAlertSummaries > 0">
