@@ -98,7 +98,7 @@ perf.controller('GraphsCtrl', [
                     dvp = v / v0 - 1;
 
                 $scope.tooltipContent = {
-                    project: _.findWhere($scope.projects,
+                    project: _.findWhere($rootScope.repos,
                                          { name: phSeries.projectName }),
                     revisionUrl: thServiceDomain + '#/jobs?repo=' + phSeries.projectName,
                     test: phSeries.name,
@@ -122,6 +122,12 @@ perf.controller('GraphsCtrl', [
                                    function(revisions) {
                                        $scope.tooltipContent[resultRevision.scopeKey] =
                                            revisions[0];
+                                       if ($scope.tooltipContent.prevRevision && $scope.tooltipContent.revision) {
+                                           $scope.tooltipContent.pushlogURL = $scope.tooltipContent.project.getPushLogHref({
+                                               from: $scope.tooltipContent.prevRevision,
+                                               to: $scope.tooltipContent.revision
+                                           });
+                                       }
                                    }, function(error) {
                                        console.log("Failed to get revision: " + error.reason);
                                    });
@@ -708,9 +714,8 @@ perf.controller('GraphsCtrl', [
                     };
                     $scope.selectedDataPoint = (tooltipString) ? tooltip : null;
                 }
-                ThRepositoryModel.get_list().then(function(response) {
+                ThRepositoryModel.load().then(function() {
 
-                    $scope.projects = response.data;
                     $scope.addTestData = function(option, seriesSignature) {
                         var defaultProjectName, defaultPlatform;
                         var options = {};
@@ -731,7 +736,7 @@ perf.controller('GraphsCtrl', [
                             size: 'lg',
                             resolve: {
                                 projects: function() {
-                                    return $scope.projects;
+                                    return $rootScope.repos;
                                 },
                                 optionCollectionMap: function() {
                                     return optionCollectionMap;
