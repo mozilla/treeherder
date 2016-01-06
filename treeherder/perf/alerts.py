@@ -70,7 +70,6 @@ def generate_new_alerts_in_series(signature):
                         'last_updated': datetime.datetime.fromtimestamp(
                             cur.push_timestamp)
                     })
-
                 # django/mysql doesn't understand "inf", so just use some
                 # arbitrarily high value for that case
                 t_value = cur.t

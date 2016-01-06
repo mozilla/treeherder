@@ -100,68 +100,42 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
 
     framework = PerformanceFramework.objects.get(name=perf_datum['framework']['name'])
     for suite in perf_datum['suites']:
-        subtest_signatures = []
+        subtest_properties = []
+        summary_signature_hash = None
         for subtest in suite['subtests']:
-            subtest_properties = {
+            subtest_propertie = {
                 'suite': suite['name'],
-                'test': subtest['name']
+                'test': subtest['name'],
+                'lowerIsBetter': subtest.get('lowerIsBetter', True),
+                'value': subtest['value']
             }
-            subtest_properties.update(reference_data)
-            subtest_signature_hash = _get_signature_hash(
-                subtest_properties)
-            subtest_signatures.append(subtest_signature_hash)
+            subtest_propertie.update(reference_data)
+            subtest_properties.append(subtest_propertie)
 
-            signature, _ = PerformanceSignature.objects.update_or_create(
-                repository=repository,
-                signature_hash=subtest_signature_hash,
-                defaults={
-                    'test': subtest['name'],
-                    'suite': suite['name'],
-                    'option_collection': option_collection,
-                    'platform': platform,
-                    'framework': framework,
-                    'extra_properties': extra_properties,
-                    'lower_is_better': subtest.get('lowerIsBetter', True)
-                })
-            PerformanceDatum.objects.get_or_create(
-                repository=repository,
-                result_set_id=result_set_id,
-                job_id=job_id,
-                signature=signature,
-                push_timestamp=push_timestamp,
-                defaults={'value': subtest['value']})
-
-            # if there is no summary, we should schedule a generate alerts
-            # task for the subtest, since we have new data
-            if not is_try_repository and suite.get('value') is None:
-                generate_alerts.apply_async(args=[signature.id],
-                                            routing_key='generate_perf_alerts')
-
-        # if we have a summary value, create or get its signature and insert
-        # it too
+        # if we have a summary value, create or get its signature by all its subtest
+        # properties.
         if suite.get('value') is not None:
             # summary series
             extra_summary_properties = {
-                'subtest_signatures': sorted(subtest_signatures)
+                'subtest_properties': subtest_properties
             }
-            extra_summary_properties.update(extra_properties)
             summary_properties = {'suite': suite['name']}
             summary_properties.update(reference_data)
             summary_properties.update(extra_summary_properties)
+            summary_properties.update(extra_properties)
             summary_signature_hash = _get_signature_hash(
                 summary_properties)
-
             signature, _ = PerformanceSignature.objects.get_or_create(
-                repository=repository, signature_hash=summary_signature_hash,
-                defaults={
-                    'test': '',
-                    'suite': suite['name'],
-                    'option_collection': option_collection,
-                    'platform': platform,
-                    'framework': framework,
-                    'extra_properties': extra_summary_properties,
-                    'last_updated': push_timestamp
-                })
+                    repository=repository, signature_hash=summary_signature_hash,
+                    defaults={
+                        'test': '',
+                        'suite': suite['name'],
+                        'option_collection': option_collection,
+                        'platform': platform,
+                        'framework': framework,
+                        'extra_properties': extra_properties,
+                        'last_updated': push_timestamp,
+                    })
             PerformanceDatum.objects.get_or_create(
                 repository=repository,
                 result_set_id=result_set_id,
@@ -170,6 +144,42 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
                 push_timestamp=push_timestamp,
                 defaults={'value': suite['value']})
             if not is_try_repository:
+                generate_alerts.apply_async(args=[signature.id],
+                                            routing_key='generate_perf_alerts')
+
+        for property in subtest_properties:
+            # we calculate the subtest signature incorporate
+            # the hash of the parent.
+            summary_signature = None
+            if summary_signature_hash is not None:
+                property.update({'parents_signature': summary_signature_hash})
+                summary_signature = PerformanceSignature.objects.get(
+                        signature_hash=summary_signature_hash)
+            subtest_signature_hash = _get_signature_hash(property)
+            signature, _ = PerformanceSignature.objects.update_or_create(
+                    repository=repository,
+                    signature_hash=subtest_signature_hash,
+                    defaults={
+                        'test': property['test'],
+                        'suite': suite['name'],
+                        'option_collection': option_collection,
+                        'platform': platform,
+                        'framework': framework,
+                        'extra_properties': extra_properties,
+                        'lower_is_better': property['lowerIsBetter'],
+                        'parents_signature': summary_signature
+                    })
+
+            PerformanceDatum.objects.get_or_create(
+                    repository=repository,
+                    result_set_id=result_set_id,
+                    job_id=job_id,
+                    signature=signature,
+                    push_timestamp=push_timestamp,
+                    defaults={'value': property['value']})
+            # if there is no summary, we should schedule a generate alerts
+            # task for the subtest, since we have new data
+            if not is_try_repository and suite.get('value') is None:
                 generate_alerts.apply_async(args=[signature.id],
                                             routing_key='generate_perf_alerts')
 
