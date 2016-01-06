@@ -252,8 +252,14 @@ class StepParser(ParserBase):
             # is between step markers), which have no recorded start/finish time.
             self.current_step["duration"] = None
             return
-        start_time = self.parsetime(started_string)
-        finish_time = self.parsetime(finished_string)
+        try:
+            start_time = self.parsetime(started_string)
+            finish_time = self.parsetime(finished_string)
+        except ValueError:
+            # Gracefully fail if the dates were malformed in the log,
+            # otherwise we won't get an error summary at all.
+            self.current_step["duration"] = None
+            return
         td = finish_time - start_time
         secs = (
             td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6
