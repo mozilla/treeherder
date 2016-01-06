@@ -348,43 +348,81 @@ span.compare-regression {
   background-color: red;
 }
 
-.alert-summary span {
-    transition: color 150ms ease-in-out;
-}
-
 .alert-summary a {
     cursor: pointer;
 }
 
-.alert-title {
-    font-weight: bold;
-    margin-bottom: 4px;
+.alert-summary-heading {
+  display: flex;
+  flex-flow: row;
+  padding: 0px;
+}
+
+.alert-summary-header-element {
+    flex: none;
+    padding: 8px;
+}
+
+.alert-summary-title {
+    flex: auto;
+    padding: 8px 4px;
+}
+
+.alert-summary-title a {
     color: #333;
+    font-weight: bold;
 }
 
-.alert-untriaged {
-    color: #3c763d;
-}
-
-.alert-invalid {
-    color: #a94442;
-}
-
-.alert-title .icon-superscript {
+.alert-summary-title .icon-superscript {
   vertical-align: super;
   font-size: 0.625em;
   margin-left: -0.2em;
 }
 
-.alert-push-dropdown {
+.push-dropdown {
     padding: 0px;
     vertical-align: inherit;
 }
 
-.alert-push-dropdown .caret {
+.push-dropdown .caret {
     margin-left: 2px;
 }
 
+.alert-summary-date {
+    width: 160px;
+    text-align: right;
+}
+
+/* Table widths for alerts */
+td.alert-checkbox {
+    width: 30px;
+}
+td.alert-title {
+    text-align: left;
+}
+td.alert-value {
+    width: 140px;
+}
+td.alert-comparison { /* e.g. "<" */
+    width: 30px;
+}
+td.alert-pct-difference {
+    width: 80px;
+}
+td.alert-graphical-difference {
+    width: 120px;
+}
+td.alert-confidence {
+    width: 100px;
+}
+
+/* Various styles for individual alerts ("changes" in UI) */
+.alert-untriaged {
+    color: #3c763d;
+}
+.alert-invalid {
+    color: #a94442;
+}
 .alert-strike {
     text-decoration: line-through;
 }
