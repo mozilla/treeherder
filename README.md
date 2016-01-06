@@ -24,7 +24,7 @@ The steps to run only the UI are provided [here](https://treeherder.readthedocs.
 #### Links
 
 Visit our project tracking Wiki at:
-https://wiki.mozilla.org/Auto-tools/Projects/Treeherder
+https://wiki.mozilla.org/EngineeringProductivity/Projects/Treeherder
 
 Visit our **readthedocs** page for other setup and configuration at:
 https://treeherder.readthedocs.org/
