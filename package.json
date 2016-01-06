@@ -27,7 +27,7 @@
     "grunt-eslint": "17.3.1",
     "grunt-html-angular-validate": "0.5.2",
     "jasmine-core": "2.3.4",
-    "karma": "0.13.10",
+    "karma": "0.13.19",
     "karma-coverage": "0.5.2",
     "karma-firefox-launcher": "0.1.6",
     "karma-jasmine": "0.3.6",
