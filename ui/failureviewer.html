@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html ng-controller="FailureViewerCtrl" ng-init="init()" ng-app="failureviewer">
+  <head>
+    <meta charset="utf-8">
+    <title>Failure Viewer</title>
+    <!-- build:css css/logviewer.min.css -->
+    <link href="vendor/css/bootstrap.css" rel="stylesheet" media="screen">
+    <link href="vendor/css/font-awesome.css" rel="stylesheet" media="screen">
+    <link href="css/treeherder-global.css" rel="stylesheet" type="text/css">
+    <link href="css/failureviewer.css" rel="stylesheet" type="text/css">
+    <!-- endbuild -->
+    <link id="favicon" type="image/png" rel="shortcut icon" href="img/tree_open.png">
+  </head>
+  <body>
+    <!-- Failureviewer navbar -->
+    <nav class="navbar navbar-default" role="navigation">
+      <div class="container-fluid">
+        <ul class="nav navbar-nav">
+
+          <!-- Logo menu button -->
+          <li>
+            <span class="dropdown">
+              <button id="fv-logo" title="Treeherder services" role="button"
+                      href="#" data-toggle="dropdown" data-target="#">Failure Viewer
+                <span class="fa fa-angle-down"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu" aria-labelledby="fv-logo">
+                <li><a href="/">Treeherder</a></li>
+                <li><a href="perf.html">Perfherder</a></li>
+              </ul>
+            </span>
+          </li>
+
+          <li class="navbar-text">Classified Failure Error Lines</li>
+          <li class="navbar-text"
+              ng-if="classification.bug_number"> - Bug {{classification.bug_number}}</li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Failure lines table -->
+    <div class="failure-line-list"
+         ng-if="!isLoading">
+      <table class="table table-condensed" >
+        <tr ng-repeat="line in cfList">
+          <td>
+            <div ng-if="line.test"><label>Test:</label> {{line.test}}</div>
+            <div ng-if="line.subtest"><label>Subtest:</label> {{line.subtest}}</div>
+            <div ><label>Status:</label> Expected: <strong>{{line.expected}}</strong>  Actual: <strong>{{line.status}}</strong></div>
+            <div ng-if="line.message"
+                 ng-init="messageExpanded=false"
+                 class="failure-line-message">
+              <span class="failure-line-message-toggle fa fa-fw fa-lg"
+                    ng-class="{'fa-caret-down': messageExpanded, 'fa-caret-right': !messageExpanded}"
+                    ng-click="messageExpanded = !messageExpanded"></span>
+              <span ng-if="!messageExpanded"
+                    class="failure-line-message-collapsed">{{ line.message }}</span>
+              <span ng-if="messageExpanded"
+                    class="failure-line-message-expanded">{{ line.message }}</span>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div ng-if="isLoading">
+        <div class="failure-line-loading">Loading...
+            <span class="fa fa-spinner fa-pulse"></span>
+        </div>
+    </div>
+
+    <th-notification-box></th-notification-box>
+
+    <!-- build:js js/failureviewer.min.js -->
+    <script src="vendor/jquery-2.1.3.js"></script>
+    <script src="vendor/angular/angular.js"></script>
+    <script src="vendor/angular/angular-route.js"></script>
+    <script src="vendor/angular/angular-resource.js"></script>
+    <script src="vendor/angular/angular-cookies.js"></script>
+    <script src="vendor/angular/angular-sanitize.js"></script>
+    <script src="vendor/angular-local-storage.min.js"></script>
+    <script src="vendor/ui-bootstrap-tpls-0.13.0.js"></script>
+    <script src="vendor/bootstrap.js"></script>
+    <script src="vendor/lodash.min.js"></script>
+    <script src="vendor/resizer.js"></script>
+
+    <script src="js/treeherder.js"></script>
+    <script src="js/failureviewer.js"></script>
+    <script src="js/providers.js"></script>
+
+    <!-- Directives -->
+    <script src="js/directives/treeherder/main.js"></script>
+
+    <!-- Main services -->
+    <script src="js/services/main.js"></script>
+    <script src="js/services/log.js"></script>
+
+    <!-- Model services -->
+    <script src="js/models/classified_failure.js"></script>
+    <script src="js/models/failure_lines.js"></script>
+
+    <!-- Filter -->
+    <script src="js/filters.js"></script>
+
+    <!-- Controllers -->
+    <script src="js/controllers/failureviewer.js"></script>
+    <!-- endbuild -->
+
+    <!-- build:dontbuild -->
+    <script src="js/config/local.conf.js"></script>
+    <!-- endbuild -->
+  </body>
+</html>
+<body>
