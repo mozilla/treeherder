@@ -261,7 +261,6 @@ treeherder.factory('ThResultSetStore', [
 
         var setSelectedJob = function(
             repoName, lastJobElSelected, lastJobObjSelected){
-
             repositories[repoName].lastJobElSelected = lastJobElSelected;
             repositories[repoName].lastJobObjSelected = lastJobObjSelected;
         };
