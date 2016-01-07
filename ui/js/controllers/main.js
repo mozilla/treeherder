@@ -5,13 +5,13 @@ treeherderApp.controller('MainCtrl', [
     'ThRepositoryModel', 'thPinboard', 'thNotify',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
-    'thDefaultRepo', 'thJobNavSelectors',
+    'thDefaultRepo', 'thJobNavSelectors', 'thTabs',
     function MainController(
         $scope, $rootScope, $routeParams, $location, ThLog,
         ThRepositoryModel, thPinboard, thNotify,
         thClassificationTypes, thEvents, $interval, $window,
         ThExclusionProfileModel, thJobFilters, ThResultSetStore,
-        thDefaultRepo, thJobNavSelectors) {
+        thDefaultRepo, thJobNavSelectors, thTabs) {
 
         var $log = new ThLog("MainCtrl");
 
@@ -71,6 +71,7 @@ treeherderApp.controller('MainCtrl', [
             'c',     // Pin selected job and add classification
             'f',     // Enter a quick filter
             'l',     // Open the logviewer for the selected job
+            's',     // Save all autoclassifications for the selected job
             '?'      // Display onscreen keyboard shortcuts
         ];
 
@@ -252,6 +253,13 @@ treeherderApp.controller('MainCtrl', [
             Mousetrap.bind('ctrl+backspace', function() {
                 if ($scope.selectedJob) {
                     $scope.$evalAsync($rootScope.$emit(thEvents.deleteClassification));
+                }
+            });
+
+            // Shortcut: delete classification and related bugs
+            Mousetrap.bind('s', function() {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.saveAllAutoclassifications));
                 }
             });
 
