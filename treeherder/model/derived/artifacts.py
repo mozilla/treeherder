@@ -1,4 +1,5 @@
 import logging
+import re
 import zlib
 
 import simplejson as json
@@ -233,3 +234,27 @@ class ArtifactsModel(TreeherderModelBase):
                 artifact['blob'] = json.dumps(blob)
 
         return artifacts
+
+    def bug_suggestions(self, job_id):
+        """Get the list of log lines and associated bug suggestions for a job"""
+        # TODO: Filter some junk from this
+        objs = self.get_job_artifact_list(
+            offset=0,
+            limit=1,
+            conditions={"job_id": set([("=", job_id)]),
+                        "name": set([("=", "Bug suggestions")]),
+                        "type": set([("=", "json")])})
+
+        lines = objs[0]["blob"] if objs else []
+        return lines
+
+    def filter_bug_suggestions(self, suggestion_lines):
+        remove = [re.compile("Return code: \d+")]
+
+        rv = []
+
+        for item in suggestion_lines:
+            if not any(regexp.match(item["search"]) for regexp in remove):
+                rv.append(item)
+
+        return rv
