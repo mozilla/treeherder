@@ -209,7 +209,6 @@ treeherder.factory('ThResultSetStore', [
                     // selected job is being re-rendered, knowing which one is
                     // selected here in the model will allow us to apply the
                     // correct styling to it.
-                    lastJobElSelected:{},
                     lastJobObjSelected:{},
 
                     // maps to help finding objects to update/add
@@ -255,14 +254,12 @@ treeherder.factory('ThResultSetStore', [
         };
 
         var getSelectedJob = function(repoName){
-            return { el:repositories[repoName].lastJobElSelected,
-                     job:repositories[repoName].lastJobObjSelected };
+            return {
+                job:repositories[repoName].lastJobObjSelected
+            };
         };
 
-        var setSelectedJob = function(
-            repoName, lastJobElSelected, lastJobObjSelected){
-
-            repositories[repoName].lastJobElSelected = lastJobElSelected;
+        var setSelectedJob = function(repoName, lastJobObjSelected) {
             repositories[repoName].lastJobObjSelected = lastJobObjSelected;
         };
 

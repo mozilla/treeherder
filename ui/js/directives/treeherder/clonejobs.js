@@ -127,11 +127,10 @@ treeherder.directive('thCloneJobs', [
         var selectJob = function(job, job_selection_type) {
             var jobKey = getJobMapKey(job);
             var jobEl = $('.' + jobKey);
-
             clickJobCb({}, jobEl, job, job_selection_type);
             scrollToElement(jobEl);
 
-            ThResultSetStore.setSelectedJob($rootScope.repoName, jobEl, job);
+            ThResultSetStore.setSelectedJob($rootScope.repoName, job);
         };
 
         var setSelectJobStyles = function(el){
@@ -146,11 +145,13 @@ treeherder.directive('thCloneJobs', [
         var clearSelectJobStyles = function() {
             var lastJobSelected = ThResultSetStore.getSelectedJob(
                 $rootScope.repoName);
-
-            if (!_.isEmpty(lastJobSelected.el)) {
-                lastJobSelected.el.removeClass(selectedBtnCls);
-                lastJobSelected.el.removeClass(largeBtnCls);
-                lastJobSelected.el.addClass(btnCls);
+            if (!_.isEmpty(lastJobSelected.job)) {
+                var el = $('.' + getJobMapKey(lastJobSelected.job));
+                if (!_.isEmpty(el) && !(typeof el === 'string')) {
+                    el.removeClass(selectedBtnCls);
+                    el.removeClass(largeBtnCls);
+                    el.addClass(btnCls);
+                }
             }
 
             // if a job was previously selected that is now inside a count,
@@ -194,7 +195,7 @@ treeherder.directive('thCloneJobs', [
                         gi.grpCountList.empty();
                         gi.jgObj.groupState = "expanded";
                         gi.grpJobList.empty();
-                        addJobBtnEls(gi.jgObj, gi.grpJobList);
+                        gi.grpJobList.append(renderJobBtnEls(gi.jgObj));
                     }
                 }
             }
@@ -219,7 +220,7 @@ treeherder.directive('thCloneJobs', [
             return visible;
         };
 
-        var addJobBtnEls = function(jgObj, jobList) {
+        var renderJobBtnEls = function(jgObj) {
             var lastJobSelected = ThResultSetStore.getSelectedJob($rootScope.repoName);
             var job, l;
             var jobBtnArray = [];
@@ -239,7 +240,16 @@ treeherder.directive('thCloneJobs', [
 
                 addJobBtnToArray(job, lastJobSelected, jobBtnArray);
             }
-            jobList.append(jobBtnArray);
+            return jobBtnArray;
+        };
+
+        var getJobBtnEls = function(jgObj) {
+            var jobBtnArray = renderJobBtnEls(jgObj);
+            var jobBtnHTML = "";
+            jobBtnArray.forEach(function(element) {
+                jobBtnHTML += element;
+            });
+            return jobBtnHTML;
         };
 
         var addJobBtnToArray = function(job, lastJobSelected, jobBtnArray) {
@@ -249,32 +259,25 @@ treeherder.directive('thCloneJobs', [
             jobStatus.key = getJobMapKey(job);
             jobStatus.value = job.job_type_symbol;
             jobStatus.title = getHoverText(job);
-
+            jobStatus.extraClasses = "";
+            jobStatus.extraClasses += job.visible ? " filter-shown" : "";
+            if( !_.isEmpty(lastJobSelected.job) &&
+                (lastJobSelected.job.id === job.id)){
+                jobStatus.extraClasses += " " + largeBtnCls + " " + selectedBtnCls;
+            } else {
+                jobStatus.extraClasses += " " + btnCls;
+            }
             if (thResultStatus(job) === "runnable") {
                 jobStatus.buildername = job.ref_data_name;
-                jobBtn = $(runnableJobBtnInterpolator(jobStatus));
-
                 if (ThResultSetStore.isRunnableJobSelected($rootScope.repoName,
                                                            job.result_set_id,
                                                            jobStatus.buildername)) {
-                    jobBtn.addClass("runnable-job-btn-selected");
+                    jobStatus.extraClasses += " runnable-job-btn-selected";
                 }
+                jobBtn = runnableJobBtnInterpolator(jobStatus);
             } else {
-                jobBtn = $(jobBtnInterpolator(jobStatus));
+                jobBtn = jobBtnInterpolator(jobStatus);
             }
-
-            // If the job is currently selected make sure to re-apply
-            // the job selection styles
-            if( !_.isEmpty(lastJobSelected.job) &&
-                (lastJobSelected.job.id === job.id)){
-
-                setSelectJobStyles(jobBtn);
-
-                //Update the selected job element to the current one
-                ThResultSetStore.setSelectedJob($rootScope.repoName, jobBtn, job);
-            }
-            showHideElement(jobBtn, job.visible);
-
             jobBtnArray.push(jobBtn);
             // add a zero-width space between spans so they can wrap
             jobBtnArray.push(' ');
@@ -300,7 +303,8 @@ treeherder.directive('thCloneJobs', [
          * Each job receives a corresponding resultState which determines its
          * display.
          */
-        var addGroupJobsAndCounts = function(jgObj, platformGroup) {
+
+        var renderGroupJobsAndCounts = function(jgObj) {
             var jobCountBtnArray = [];
             var jobBtnArray = [];
             var stateCounts = {};
@@ -357,16 +361,26 @@ treeherder.directive('thCloneJobs', [
                     addJobBtnToArray(countInfo.lastJob, lastJobSelected, jobBtnArray);
                 } else {
                     // with more than 1 job for the status, add it as a count
-                    countInfo.value = countInfo.count;
-                    countInfo.title = countInfo.count + " " + countInfo.countText + " jobs in group";
-                    countInfo.btnClass = countInfo.btnClass + "-count";
-                    var jobCountBtn = $(jobGroupCountInterpolator(countInfo));
-                    showHideElement(jobCountBtn, true);
-                    jobCountBtnArray.push(jobCountBtn);
+                    jobCountBtnArray.push(jobGroupCountInterpolator({
+                        value: countInfo.count,
+                        title: countInfo.count + " " + countInfo.countText + " jobs in group",
+                        btnClass: countInfo.btnClass + "-count",
+                        visibleClass: "filter-shown",
+                        selectedClasses: countInfo.selectedClasses
+                    }));
                     jobCountBtnArray.push(' ');
                 }
             });
+            return {
+                jobBtnArray: jobBtnArray,
+                jobCountBtnArray: jobCountBtnArray
+            };
+        };
 
+        var addGroupJobsAndCounts = function(jgObj, platformGroup) {
+            var btnArrays = renderGroupJobsAndCounts(jgObj);
+            var jobBtnArray = btnArrays.jobBtnArray;
+            var jobCountBtnArray = btnArrays.jobCountBtnArray;
             platformGroup.find(".group-job-list").html(jobBtnArray);
             platformGroup.find(".group-count-list").html(jobCountBtnArray);
         };
@@ -415,7 +429,7 @@ treeherder.directive('thCloneJobs', [
                         _.bind(clickJobCb, this, ev, el, job)();
                 }
 
-                ThResultSetStore.setSelectedJob($rootScope.repoName, el, job);
+                ThResultSetStore.setSelectedJob($rootScope.repoName, job);
 
             } else {
                 _.bind(clickGroupCb, this, el)();
@@ -525,30 +539,38 @@ treeherder.directive('thCloneJobs', [
         var renderJobTableRow = function(row, jobTdEl, jobGroups) {
 
             //Empty the job column before populating it
-            jobTdEl.empty();
-
-            var jgObj, jobGroup, i;
-            for (i=0; i<jobGroups.length; i++) {
-
-                jgObj = jobGroups[i];
-
-                if (jgObj.symbol !== '?') {
+            var btnHTML, countBtnHTML, jobTdHtml = "";
+            jobGroups.forEach(function(jobGroup) {
+                if (jobGroup.symbol !== '?') {
                     // Job group detected, add job group symbols
-                    jobGroups[i].grkey = jgObj.mapKey;
-                    jobGroups[i].collapsed = true;
-                    jobGroup = $(jobGroupInterpolator(jobGroups[i]));
-                    jobTdEl.append(jobGroup);
-
-                    if (isGroupExpanded(jgObj)) {
-                        addJobBtnEls(jgObj, jobGroup.find(".group-job-list"));
+                    jobGroup.grkey = jobGroup.mapKey;
+                    jobGroup.collapsed = true;
+                    if (isGroupExpanded(jobGroup)) {
+                        btnHTML = getJobBtnEls(jobGroup);
                     } else {
-                        addGroupJobsAndCounts(jgObj, jobGroup);
+                        var btnArrays = renderGroupJobsAndCounts(jobGroup);
+                        btnHTML = "";
+                        btnArrays.jobBtnArray.forEach(function(element) {
+                            btnHTML += element;
+                        });
+                        countBtnHTML = "";
+                        btnArrays.jobCountBtnArray.forEach(function(element) {
+                            countBtnHTML += element;
+                        });
                     }
+                    jobTdHtml += jobGroupInterpolator({
+                        btnHTML: btnHTML,
+                        countBtnHTML: countBtnHTML,
+                        symbol: jobGroup.symbol,
+                        name: jobGroup.name,
+                        grkey: jobGroup.grkey
+                    });
                 } else {
                     // Add the job btn spans
-                    addJobBtnEls(jgObj, jobTdEl);
+                    jobTdHtml += getJobBtnEls(jobGroup);
                 }
-            }
+            });
+            jobTdEl.html(jobTdHtml);
             row.append(jobTdEl);
             filterPlatform(row);
         };
@@ -618,7 +640,7 @@ treeherder.directive('thCloneJobs', [
                 }
 
                 if (isGroupExpanded(gi.jgObj)) {
-                    addJobBtnEls(gi.jgObj, gi.platformGroupEl.find(".group-job-list"));
+                    gi.platformGroupEl.find(".group-job-list").append(renderJobBtnEls(gi.jgObj));
                 } else {
                     addGroupJobsAndCounts(gi.jgObj, gi.platformGroupEl);
                 }
