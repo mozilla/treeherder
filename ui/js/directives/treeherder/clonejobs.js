@@ -526,23 +526,31 @@ treeherder.directive('thCloneJobs', [
 
             //Empty the job column before populating it
             jobTdEl.empty();
-
             var jgObj, jobGroup, i;
             for (i=0; i<jobGroups.length; i++) {
 
                 jgObj = jobGroups[i];
-
                 if (jgObj.symbol !== '?') {
                     // Job group detected, add job group symbols
                     jobGroups[i].grkey = jgObj.mapKey;
                     jobGroups[i].collapsed = true;
-                    jobGroup = $(jobGroupInterpolator(jobGroups[i]));
-                    jobTdEl.append(jobGroup);
-
+                    //jobGroup = $(jobGroupInterpolator(jobGroups[i]));
+                    var jobText = "<span class=\"disabled job-group\" title=\"" +
+                              jgObj.name + "\" data-grkey=\"" + jgObj.grkey +
+                              "\"><span class=\"group-symbol\" " +
+                              "ignore-job-clear-on-click=\"\">" + jgObj.symbol +
+                              "</span><span class=\"group-content\"><span class=\"group-job-list\">" +
+                              "<button class=\"btn job-btn btn-xs btn-dkgray key43 filter-shown\" " +
+                              "data-jmkey=\"key43\" ignore-job-clear-on-click=\"\" title=\"" +
+                              jgObj.jobs[0].job_type_name + "\">" + jgObj.jobs[0].job_type_symbol +
+                              "</button> </span><span class=\"group-count-list\">" +
+                              "</span></span></span>";
+                    jobTdEl.append(jobText);
+                    //jobTdEl.append(jobGroup);
                     if (isGroupExpanded(jgObj)) {
-                        addJobBtnEls(jgObj, jobGroup.find(".group-job-list"));
+                        //addJobBtnEls(jgObj, jobGroup.find(".group-job-list"));
                     } else {
-                        addGroupJobsAndCounts(jgObj, jobGroup);
+                        //addGroupJobsAndCounts(jgObj, jobGroup);
                     }
                 } else {
                     // Add the job btn spans
