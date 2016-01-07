@@ -252,10 +252,12 @@ treeherder.value("thJobNavSelectors",
         },
         UNCLASSIFIED_FAILURES: {
             name: "unclassified failures",
-            selector: ".selected-job, .selected-count, " +
+            selector: ".selected-job, " +
+                      ".selected-count, " +
                       ".job-btn.btn-red, " +
                       ".job-btn.btn-orange, " +
-                      ".job-btn.btn-purple"
+                      ".job-btn.btn-purple, " +
+                      ".job-btn.autoclassified"
         }
     }
 );
