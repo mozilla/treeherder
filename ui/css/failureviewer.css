@@ -1,0 +1,65 @@
+body {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    min-width: 240px;
+    display: flex;
+    flex-flow: column;
+}
+
+.navbar {
+    flex: none;
+    min-height: 41px; /* 40 for contained elements + lower bootstrap border */
+    border-top: 0; /* Shut off the top border */
+    border-radius: 0; /* Straight navbar */
+    margin-bottom: 10px; /* Breathing space for run-data */
+}
+
+#fv-logo {
+    padding: 14px 15px 0 15px;
+    border: none;
+    background: #f8f8f8;
+}
+
+.failure-message {
+    flex-wrap: wrap;
+    white-space: pre-wrap;
+}
+
+.failure-line-list {
+    overflow-y: auto;
+}
+
+.failure-line-message {
+    display: flex;
+}
+
+.failure-line-message-toggle {
+    cursor: pointer;
+    width: 10px;
+    flex-basis: auto;
+    padding: 2px 4px;
+}
+
+.failure-line-message-collapsed {
+    height: 20px;
+    overflow: hidden;
+    padding-left: 5px;
+    color: darkgray;
+}
+
+.failure-line-message-expanded {
+    margin-left: 5px;
+    margin-bottom: 10px;
+    color: #747474;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+}
+
+.failure-line-loading {
+    padding: 30px 30px;
+    color: darkgrey;
+}
