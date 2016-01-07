@@ -122,3 +122,7 @@ def to_timestamp(datestr):
         datestr,
         "%Y-%m-%d"
     ).timetuple())
+
+
+def as_dict(queryset, key):
+    return {getattr(item, key): item for item in queryset}
