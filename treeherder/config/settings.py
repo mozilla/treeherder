@@ -272,6 +272,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
     ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework_filters.backends.DjangoFilterBackend',
+    ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
@@ -330,6 +333,9 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Set this to True to submit bug associations to Elasticsearch.
 MIRROR_CLASSIFICATIONS = True
 ES_HOST = "http://of-elasticsearch-zlb.webapp.scl3.mozilla.com:9200"
+
+# Enable integration between autoclassifier and jobs
+AUTOCLASSIFY_JOBS = env.bool("TREEHERDER_AUTOCLASSIFY_JOBS", default=False)
 
 # timeout for requests to external sources
 # like ftp.mozilla.org or hg.mozilla.org
