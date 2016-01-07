@@ -133,7 +133,8 @@ treeherder.directive('thCheckboxDropdownContainer', [
 
                 $('.checkbox-dropdown-menu').on({
                     "click": function(ev) {
-                        if ($(ev.target).hasClass("dropdown-link")) {
+                        if ($(ev.target).hasClass("dropdown-link") ||
+                            $(ev.target).parent().hasClass("dropdown-link")) {
                             scope.closeable = false;
                         }
                         $log.debug("menu dropdown", "click", scope.closeable, ev.target.className);
