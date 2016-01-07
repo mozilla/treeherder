@@ -115,19 +115,25 @@ treeherder.factory('ThRepositoryModel', [
                                 return this.url + '/rev/' + revision;
                             },
                             getPushLogHref: function(arg) {
-                                // if git, assume github
                                 if (this.dvcs_type == 'git') {
+                                    // if git, assume github
                                     if (typeof(arg) === 'string') {
                                         return this.getRevisionHref(arg);
+                                    } else if (arg && arg.from && arg.to) {
+                                        return this.url + '/compare/' + arg.from + '...' +
+                                            arg.to;
                                     }
-                                    return this.url + '/compare/' + arg.from + '...' + arg.to;
-                                }
-                                // otherwise assume mercurial
-                                if (typeof(arg) === 'string') {
-                                    return this.pushlogURL + '?changeset=' + arg;
                                 } else {
-                                    return this.pushlogURL + '?fromchange=' + arg.from +'&tochange=' + arg.to;
+                                    // otherwise assume mercurial
+                                    if (typeof(arg) === 'string') {
+                                        return this.pushlogURL + '?changeset=' + arg;
+                                    } else if (arg && arg.from && arg.to) {
+                                        return this.pushlogURL + '?fromchange=' +
+                                            arg.from +'&tochange=' + arg.to;
+                                    }
                                 }
+                                // if we get here, undefined
+                                return "";
                             }
                         };
 
