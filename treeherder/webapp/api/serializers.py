@@ -129,6 +129,7 @@ class MatcherSerializer(serializers.ModelSerializer):
 
 
 class ClassifiedFailureSerializer(serializers.ModelSerializer):
+    bug = BugscacheSerializer(read_only=True)
 
     class Meta:
         model = models.ClassifiedFailure
@@ -136,7 +137,6 @@ class ClassifiedFailureSerializer(serializers.ModelSerializer):
 
 
 class FailureMatchSerializer(serializers.ModelSerializer):
-    classified_failure = ClassifiedFailureSerializer()
 
     class Meta:
         model = models.FailureMatch
@@ -145,6 +145,8 @@ class FailureMatchSerializer(serializers.ModelSerializer):
 
 class FailureLineNoStackSerializer(serializers.ModelSerializer):
     matches = FailureMatchSerializer(many=True)
+    classified_failures = ClassifiedFailureSerializer(many=True)
+    unstructured_bugs = NoOpSerializer(read_only=True)
 
     class Meta:
         model = models.FailureLine

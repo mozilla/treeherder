@@ -1,3 +1,5 @@
+import copy
+
 from django.conf.urls import (include,
                               url)
 from rest_framework import routers
@@ -5,6 +7,8 @@ from rest_framework import routers
 from treeherder.webapp.api import (artifact,
                                    bug,
                                    bugzilla,
+                                   classifiedfailure,
+                                   failureline,
                                    job_log_url,
                                    jobs,
                                    logslice,
@@ -81,10 +85,15 @@ project_bound_router.register(
     performance_data.PerformancePlatformViewSet,
     base_name='performance-signatures-platforms')
 
+
 # this is the default router for plain restful endpoints
+class ExtendedRouter(routers.DefaultRouter):
+    routes = copy.deepcopy(routers.DefaultRouter.routes)
+    routes[0].mapping[u"put"] = u"update_many"
+
 
 # refdata endpoints:
-default_router = routers.DefaultRouter()
+default_router = ExtendedRouter()
 default_router.register(r'product', refdata.ProductViewSet)
 default_router.register(r'machine', refdata.MachineViewSet)
 default_router.register(r'machineplatform', refdata.MachinePlatformViewSet)
@@ -100,6 +109,11 @@ default_router.register(r'user', refdata.UserViewSet, base_name='user')
 default_router.register(r'exclusion-profile', refdata.ExclusionProfileViewSet)
 default_router.register(r'job-exclusion', refdata.JobExclusionViewSet)
 default_router.register(r'matcher', refdata.MatcherViewSet)
+default_router.register(r'failure-line', failureline.FailureLineViewSet,
+                        base_name='failure-line')
+default_router.register(r'classified-failure',
+                        classifiedfailure.ClassifiedFailureViewSet,
+                        base_name='classified-failure')
 default_router.register(r'performance/alertsummary',
                         performance_data.PerformanceAlertSummaryViewSet,
                         base_name='performance-alert-summaries')
