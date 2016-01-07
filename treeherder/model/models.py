@@ -12,7 +12,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db import (connection,
-                       models)
+                       models,
+                       transaction)
 from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
@@ -529,8 +530,9 @@ class FailureLineManager(models.Manager):
             classified_failures=None,
         )
 
-    def for_jobs(self, *jobs):
-        failures = FailureLine.objects.filter(job_guid__in=[item["job_guid"] for item in jobs])
+    def for_jobs(self, *jobs, **filters):
+        failures = FailureLine.objects.filter(job_guid__in=[item["job_guid"] for item in jobs],
+                                              **filters)
         failures_by_job = defaultdict(list)
         for item in failures:
             failures_by_job[item.job_guid].append(item)
@@ -563,6 +565,15 @@ class FailureLine(models.Model):
     stack = models.TextField(blank=True, null=True)
     stackwalk_stdout = models.TextField(blank=True, null=True)
     stackwalk_stderr = models.TextField(blank=True, null=True)
+
+    # Note that the case of best_classification = None and best_is_verified = True
+    # has the special semantic that the line is ignored and should not be considered
+    # for future autoclassifications.
+    best_classification = FlexibleForeignKey("ClassifiedFailure",
+                                             related_name="best_for_lines",
+                                             null=True)
+    best_is_verified = models.BooleanField(default=False)
+
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
@@ -574,35 +585,88 @@ class FailureLine(models.Model):
         unique_together = (
             ('job_guid', 'line')
         )
+        index_together = (
+            ('job_guid', 'repository')
+        )
 
-    def best_match(self, min_score=0):
-        match = FailureMatch.objects.filter(failure_line_id=self.id).order_by(
+    def best_automatic_match(self, min_score=0):
+        return FailureMatch.objects.filter(
+            failure_line_id=self.id,
+            score__gt=min_score).order_by(
             "-score",
-            "-classified_failure__modified").first()
+            "-classified_failure__modified").select_related(
+                'classified_failure').first()
 
-        if match and match.score > min_score:
-            return match
+    def set_classification(self, matcher, bug_number=None):
+        with transaction.atomic():
+            if bug_number:
+                classification, _ = ClassifiedFailure.objects.get_or_create(
+                    bug_number=bug_number)
+            else:
+                classification = ClassifiedFailure.objects.create()
 
-    def create_new_classification(self, matcher):
-        new_classification = ClassifiedFailure()
-        new_classification.save()
+            new_link = FailureMatch(
+                failure_line=self,
+                classified_failure=classification,
+                matcher=matcher,
+                score=1)
+            new_link.save()
 
-        new_link = FailureMatch(
-            failure_line=self,
-            classified_failure=new_classification,
-            matcher=matcher,
-            score=1,
-            is_best=True)
-        new_link.save()
+        return classification
+
+    def verify_best_classification(self, classification):
+        self.best_classification = classification
+        self.best_is_verified = True
+        self.save()
+
+    def _serialized_components(self):
+        if self.action == "test_result":
+            return ["TEST-UNEXPECTED-%s" % self.status.upper(),
+                    self.test]
+        if self.action == "log":
+            return [self.level.upper(),
+                    self.message.split("\n")[0]]
+
+    def unstructured_bugs(self):
+        components = self._serialized_components()
+        if not components:
+            return []
+
+        # Importing this at the top level causes circular import misery
+        from treeherder.model.derived import JobsModel
+        with JobsModel(self.repository.name) as jm:
+            job_id = jm.get_job_ids_by_guid([self.job_guid])[self.job_guid]["id"]
+            bug_suggestions = jm.filter_bug_suggestions(jm.bug_suggestions(job_id))
+
+        rv = []
+        ids_seen = set()
+        for item in bug_suggestions:
+            if all(component in item["search"] for component in components):
+                for suggestion in item["bugs"]["open_recent"]:
+                    if suggestion["id"] not in ids_seen:
+                        ids_seen.add(suggestion["id"])
+                        rv.append(suggestion)
+
+        return rv
 
 
 class ClassifiedFailure(models.Model):
     id = BigAutoField(primary_key=True)
     failure_lines = models.ManyToManyField(FailureLine, through='FailureMatch',
                                            related_name='classified_failures')
+    # Note that we use a bug number of 0 as a sentinal value to indicate lines that
+    # are not actually symptomatic of a real bug, but are still possible to autoclassify
     bug_number = models.PositiveIntegerField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+
+    def bug(self):
+        # Putting this here forces one query per object; there should be a way
+        # to make things more efficient
+        try:
+            return Bugscache.objects.get(id=self.bug_number)
+        except Bugscache.DoesNotExist:
+            return None
 
     # TODO: add indexes once we know which queries will be typically executed
 
@@ -610,38 +674,80 @@ class ClassifiedFailure(models.Model):
         db_table = 'classified_failure'
 
 
+class LazyClassData(object):
+    def __init__(self, type_func, setter):
+        """Descriptor object for class-level data that is lazily initialized.
+        See https://docs.python.org/2/howto/descriptor.html for details of the descriptor
+        protocol.
+
+        :param type_func: Callable of zero arguments used to initalize the data storage on
+                          first access.
+        :param setter: Callable of zero arguments used to populate the data storage
+                       after it has been initialized. Unlike type_func this can safely
+                       be used reentrantly i.e. the setter function may itself access the
+                       attribute being set.
+        """
+        self.type_func = type_func
+        self.setter = setter
+        self.value = None
+
+    def __get__(self, obj, objtype):
+        if self.value is None:
+            self.value = self.type_func()
+            self.setter()
+        return self.value
+
+    def __set__(self, obj, val):
+        self.value = val
+
+
+def _init_matchers():
+    from treeherder.autoclassify import matchers
+    matchers.register()
+
+
+def _init_detectors():
+    from treeherder.autoclassify import detectors
+    detectors.register()
+
+
 class MatcherManager(models.Manager):
-    def register_matcher(self, cls):
-        return self._register(cls, Matcher._matcher_funcs)
+    _detector_funcs = LazyClassData(OrderedDict, _init_detectors)
+    _matcher_funcs = LazyClassData(OrderedDict, _init_matchers)
 
-    def register_detector(self, cls):
-        return self._register(cls, Matcher._detector_funcs)
+    @classmethod
+    def register_matcher(cls, matcher_cls):
+        assert cls._matcher_funcs is not None
+        return cls._register(matcher_cls, cls._matcher_funcs)
 
-    def _register(self, cls, dest):
-        if cls.__name__ in dest:
+    @classmethod
+    def register_detector(cls, detector_cls):
+        assert cls._detector_funcs is not None
+        return cls._register(detector_cls, cls._detector_funcs)
+
+    @classmethod
+    def _register(cls, matcher_cls, dest):
+        if matcher_cls.__name__ in dest:
             return dest[cls.__name__]
 
-        obj = Matcher.objects.get_or_create(name=cls.__name__)[0]
+        obj, _ = Matcher.objects.get_or_create(name=matcher_cls.__name__)
 
-        instance = cls(obj)
-        dest[cls.__name__] = instance
+        instance = matcher_cls(obj)
+        dest[matcher_cls.__name__] = instance
 
         return instance
 
     def registered_matchers(self):
-        for matcher in Matcher._matcher_funcs.values():
+        for matcher in self._matcher_funcs.values():
             yield matcher
 
     def registered_detectors(self):
-        for matcher in Matcher._detector_funcs.values():
+        for matcher in self._detector_funcs.values():
             yield matcher
 
 
 class Matcher(models.Model):
     name = models.CharField(max_length=50, unique=True)
-
-    _detector_funcs = OrderedDict()
-    _matcher_funcs = OrderedDict()
 
     objects = MatcherManager()
 
@@ -657,10 +763,10 @@ class Matcher(models.Model):
 class FailureMatch(models.Model):
     id = BigAutoField(primary_key=True)
     failure_line = FlexibleForeignKey(FailureLine, related_name="matches")
-    classified_failure = FlexibleForeignKey(ClassifiedFailure)
+    classified_failure = FlexibleForeignKey(ClassifiedFailure, related_name="matches")
+
     matcher = models.ForeignKey(Matcher)
     score = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
-    is_best = models.BooleanField(default=False)
 
     # TODO: add indexes once we know which queries will be typically executed
 
