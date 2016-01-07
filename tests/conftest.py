@@ -378,17 +378,13 @@ def mock_error_summary(monkeypatch):
 
 
 @pytest.fixture
-def failure_lines(jm, eleven_jobs_stored, initial_data):
-    from treeherder.model.models import RepositoryGroup, Repository
+def failure_lines(jm, test_repository, eleven_jobs_stored, initial_data):
     from tests.autoclassify.utils import test_line, create_failure_lines
 
+    test_repository.save()
+
     job = jm.get_job(1)[0]
-
-    repository_group = RepositoryGroup.objects.create(name="repo_group")
-    repository = Repository.objects.create(name=jm.project,
-                                           repository_group=repository_group)
-
-    return create_failure_lines(repository,
+    return create_failure_lines(test_repository,
                                 job["job_guid"],
                                 [(test_line, {}),
                                  (test_line, {"subtest": "subtest2"})])
@@ -396,7 +392,7 @@ def failure_lines(jm, eleven_jobs_stored, initial_data):
 
 @pytest.fixture
 def classified_failures(request, jm, eleven_jobs_stored, initial_data, failure_lines):
-    from treeherder.model.models import ClassifiedFailure, FailureMatch, Matcher
+    from treeherder.model.models import ClassifiedFailure, FailureMatch, MatcherManager
     from treeherder.autoclassify import detectors
 
     job_1 = jm.get_job(1)[0]
@@ -405,11 +401,13 @@ def classified_failures(request, jm, eleven_jobs_stored, initial_data, failure_l
         def __call__(self, failure_lines):
             pass
 
-    test_matcher = Matcher.objects.register_detector(TreeherderUnitTestDetector)
+    test_matcher = MatcherManager._detector_funcs = {}
+    test_matcher = MatcherManager._matcher_funcs = {}
+    test_matcher = MatcherManager.register_detector(TreeherderUnitTestDetector)
 
     def finalize():
-        Matcher._detector_funcs = {}
-        Matcher._matcher_funcs = {}
+        MatcherManager._detector_funcs = {}
+        MatcherManager._matcher_funcs = {}
     request.addfinalizer(finalize)
 
     classified_failures = []
@@ -421,10 +419,11 @@ def classified_failures(request, jm, eleven_jobs_stored, initial_data, failure_l
             match = FailureMatch(failure_line=failure_line,
                                  classified_failure=classified_failure,
                                  matcher=test_matcher.db_object,
-                                 score=1.0,
-                                 is_best=True)
+                                 score=1.0)
             match.save()
             classified_failures.append(classified_failure)
+            failure_line.best_classification = classified_failure
+            failure_line.save()
 
     return classified_failures
 
@@ -502,3 +501,43 @@ def test_perf_signature(test_repository):
         test='mytest'
     )
     return signature
+
+
+@pytest.fixture
+def mock_autoclassify_jobs_true(monkeypatch):
+    from django.conf import settings
+    monkeypatch.setattr(settings, 'AUTOCLASSIFY_JOBS', True)
+
+
+@pytest.fixture
+def mock_extract(monkeypatch):
+    """
+    mock BzApiBugProcess._get_bz_source_url() to return
+    a local sample file
+    """
+    from treeherder.etl.bugzilla import BzApiBugProcess
+
+    def extract(obj, url):
+        tests_folder = os.path.dirname(__file__)
+        bug_list_path = os.path.join(
+            tests_folder,
+            "sample_data",
+            "bug_list.json"
+        )
+        with open(bug_list_path) as f:
+            return json.loads(f.read())
+
+    monkeypatch.setattr(BzApiBugProcess,
+                        'extract',
+                        extract)
+
+
+@pytest.fixture
+def bugs(mock_extract):
+    from treeherder.etl.bugzilla import BzApiBugProcess
+    from treeherder.model.models import Bugscache
+
+    process = BzApiBugProcess()
+    process.run()
+
+    return Bugscache.objects.all()

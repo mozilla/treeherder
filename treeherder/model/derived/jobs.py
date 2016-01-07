@@ -1,4 +1,5 @@
 import logging
+import re
 import time
 from datetime import datetime
 
@@ -11,9 +12,13 @@ from treeherder.etl.common import get_guid_root
 from treeherder.events.publisher import JobStatusPublisher
 from treeherder.model import (error_summary,
                               utils)
-from treeherder.model.models import (Datasource,
+from treeherder.model.models import (ClassifiedFailure,
+                                     Datasource,
                                      ExclusionProfile,
+                                     FailureClassification,
+                                     FailureLine,
                                      JobDuration,
+                                     Matcher,
                                      Repository)
 from treeherder.model.tasks import (populate_error_summary,
                                     publish_job_action,
@@ -390,7 +395,7 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
-    def insert_job_note(self, job_id, failure_classification_id, who, note):
+    def insert_job_note(self, job_id, failure_classification_id, who, note, autoclassify=False):
         """insert a new note for a job and updates its failure classification"""
         self.execute(
             proc='jobs.inserts.insert_note',
@@ -405,6 +410,12 @@ class JobsModel(TreeherderModelBase):
         )
         self.update_last_job_classification(job_id)
 
+        intermittent_ids = FailureClassification.objects.filter(
+            name__in=["intermittent", "intermittent needs filing"]).values_list('id', flat=True)
+
+        if not autoclassify and failure_classification_id in intermittent_ids:
+            self.update_autoclassification(job_id)
+
     def delete_job_note(self, note_id, job_id):
         """
         Delete a job note and updates the failure classification for that job
@@ -418,9 +429,180 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
-        self.update_last_job_classification(job_id)
+    def update_autoclassification(self, job_id):
+        """
+        If a job is manually classified and has a single line in the logs matching a single
+        FailureLine, but the FailureLine has not matched any ClassifiedFailure, add a
+        new match due to the manual classification.
+        """
+        failure_line = self.manual_classification_line(job_id)
 
-    def insert_bug_job_map(self, job_id, bug_id, assignment_type, submit_timestamp, who):
+        if failure_line is None:
+            return
+
+        manual_detector = Matcher.objects.get(name="ManualDetector")
+
+        classification = failure_line.set_classification(manual_detector)
+        failure_line.verify_best_classification(classification)
+
+    def manual_classification_line(self, job_id):
+        """
+        Return the FailureLine from a job if it can be manually classified as a side effect
+        of the overall job being classified.
+        Otherwise return None.
+        """
+
+        job = self.get_job(job_id)[0]
+        try:
+            failure_lines = [FailureLine.objects.get(job_guid=job["job_guid"])]
+        except (FailureLine.DoesNotExist, FailureLine.MultipleObjectsReturned):
+            return None
+
+        bug_suggestion_lines = self.filter_bug_suggestions(self.bug_suggestions(job_id))
+
+        if len(bug_suggestion_lines) != 1:
+            return None
+
+        # Check that some detector would match this. This is being used as an indication
+        # that the autoclassifier will be able to work on this classification
+        if not any(detector(failure_lines)
+                   for detector in Matcher.objects.registered_detectors()):
+            return None
+
+        return failure_lines[0]
+
+    def filter_bug_suggestions(self, suggestion_lines):
+        remove = [re.compile("Return code: \d+")]
+
+        rv = []
+
+        for item in suggestion_lines:
+            if not any(regexp.match(item["search"]) for regexp in remove):
+                rv.append(item)
+
+        return rv
+
+    def update_after_autoclassification(self, job_id, user=None):
+        if not settings.AUTOCLASSIFY_JOBS:
+            return
+
+        if self.fully_autoclassified(job_id):
+            existing_notes = self.get_job_note_list(job_id)
+            # We don't want to add a job note after an autoclassification if there is already
+            # one and after a verification if there is already one not supplied by the
+            # autoclassifier
+            if existing_notes:
+                return
+            self.insert_autoclassify_job_note(job_id)
+
+    def update_after_verification(self, job_id, user):
+        if not settings.AUTOCLASSIFY_JOBS:
+            return
+
+        if self.fully_verified(job_id):
+            existing_notes = self.get_job_note_list(job_id)
+            autoclassification = FailureClassification.objects.get(
+                name="autoclassified intermittent")
+            # We don't want to add a job note after an autoclassification if there is already
+            # one and after a verification if there is already one not supplied by the
+            # autoclassifier
+            if (any(item["failure_classification_id"] != autoclassification.id
+                    for item in existing_notes)):
+                return
+            self.insert_autoclassify_job_note(job_id, user=user)
+
+    def fully_verified(self, job_id):
+        job = self.get_job(job_id)[0]
+
+        if FailureLine.objects.filter(job_guid=job["job_guid"],
+                                      action="truncated").count() > 0:
+            return False
+
+        unverified_failure_lines = FailureLine.objects.filter(
+            best_is_verified=False,
+            job_guid=job["job_guid"]).count()
+
+        if unverified_failure_lines:
+            return False
+
+        verified_failure_lines = FailureLine.objects.filter(
+            best_is_verified=True,
+            job_guid=job["job_guid"]).count()
+
+        bug_suggestion_lines = self.filter_bug_suggestions(self.bug_suggestions(job_id))
+
+        return verified_failure_lines == len(bug_suggestion_lines)
+
+    def fully_autoclassified(self, job_id):
+        job = self.get_job(job_id)[0]
+
+        if FailureLine.objects.filter(job_guid=job["job_guid"],
+                                      action="truncated").count() > 0:
+            return False
+
+        classified_failure_lines = FailureLine.objects.filter(
+            best_classification__isnull=False,
+            job_guid=job["job_guid"]).count()
+
+        if classified_failure_lines == 0:
+            return False
+
+        bug_suggestion_lines = self.filter_bug_suggestions(self.bug_suggestions(job_id))
+
+        return classified_failure_lines == len(bug_suggestion_lines)
+
+    def insert_autoclassify_job_note(self, job_id, user=None):
+        if not settings.AUTOCLASSIFY_JOBS:
+            return
+
+        if user is None:
+            verified = False
+            user = "autoclassifier"
+        else:
+            verified = True
+
+        job = self.get_job(job_id)[0]
+
+        # Only insert bugs for verified failures since these are automatically
+        # mirrored to ES and the mirroring can't be undone
+        classified_failures = ClassifiedFailure.objects.filter(
+            best_for_lines__job_guid=job["job_guid"],
+            best_for_lines__best_is_verified=True)
+
+        bug_numbers = {item.bug_number for item in classified_failures if item.bug_number}
+
+        for bug_number in bug_numbers:
+            try:
+                self.insert_bug_job_map(job_id, bug_number, "autoclassification",
+                                        int(time.time()), user, autoclassify=True)
+            except JobDataIntegrityError:
+                pass
+
+        if not verified:
+            classification = FailureClassification.objects.get(
+                name="autoclassified intermittent")
+            logger.info("Autoclassifier adding job note")
+        else:
+            classification = FailureClassification.objects.get(name="intermittent")
+
+        self.insert_job_note(job_id, classification.id, user, "", autoclassify=True)
+
+    def bug_suggestions(self, job_id):
+        """Get the list of log lines and associated bug suggestions for a job"""
+        with ArtifactsModel(self.project) as artifacts_model:
+            # TODO: Filter some junk from this
+            objs = artifacts_model.get_job_artifact_list(
+                offset=0,
+                limit=1,
+                conditions={"job_id": set([("=", job_id)]),
+                            "name": set([("=", "Bug suggestions")]),
+                            "type": set([("=", "json")])})
+
+            lines = objs[0]["blob"] if objs else []
+        return lines
+
+    def insert_bug_job_map(self, job_id, bug_id, assignment_type, submit_timestamp, who,
+                           autoclassify=False):
         """
         Store a new relation between the given job and bug ids.
         """
@@ -456,6 +638,9 @@ class JobsModel(TreeherderModelBase):
                     routing_key='classification_mirroring'
                 )
 
+        if not autoclassify:
+            self.update_autoclassification_bug(job_id, bug_id)
+
     def delete_bug_job_map(self, job_id, bug_id):
         """
         Delete a bug-job entry identified by bug_id and job_id
@@ -468,6 +653,17 @@ class JobsModel(TreeherderModelBase):
             ],
             debug_show=self.DEBUG
         )
+
+    def update_autoclassification_bug(self, job_id, bug_id):
+        failure_line = self.manual_classification_line(job_id)
+
+        if failure_line is None:
+            return
+
+        classification = failure_line.best_classification
+        if classification and classification.bug_number is None:
+            classification.bug_number = bug_id
+            classification.save()
 
     def calculate_durations(self, sample_window_seconds, debug):
         # Get the most recent timestamp from jobs
