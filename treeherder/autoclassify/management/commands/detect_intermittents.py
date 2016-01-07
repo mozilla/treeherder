@@ -3,16 +3,14 @@ import logging
 from django.core.management.base import (BaseCommand,
                                          CommandError)
 
-from treeherder.autoclassify import detectors
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import (FailureLine,
                                      Matcher)
 
-from .autoclassify import match_errors
+from .autoclassify import (AUTOCLASSIFY_CUTOFF_RATIO,
+                           match_errors)
 
 logger = logging.getLogger(__name__)
-
-detectors.register()
 
 
 class Command(BaseCommand):
@@ -24,13 +22,12 @@ class Command(BaseCommand):
             raise CommandError('2 arguments required, %s given' % len(args))
         job_guid, repository = args
 
-        with JobsModel(repository) as jobs_model:
-            jobs = jobs_model.get_job_repeats(job_guid)
+        with JobsModel(repository) as jm:
+            jobs = jm.get_job_repeats(job_guid)
+            add_new_intermittents(repository, jm, jobs)
 
-        add_new_intermittents(repository, jobs)
 
-
-def add_new_intermittents(repository, jobs):
+def add_new_intermittents(repository, jm, jobs):
     # The approach here is currently to look for new intermittents to add, one at a time
     # and then rerun the matching on other jobs
     # TODO: limit the possible matches to those that have just been added
@@ -68,12 +65,18 @@ def add_new_intermittents(repository, jobs):
 
             for index in line_indicies:
                 failure = unmatched_lines[index]
-                failure.create_new_classification(detector.db_object)
+                failure.set_classification(detector.db_object)
                 new_matches.add(failure.id)
 
         if new_matches:
+            failure_lines = FailureLine.objects.filter(id__in=new_matches)
+            for failure_line in failure_lines:
+                best_match = failure_line.best_automatic_match(AUTOCLASSIFY_CUTOFF_RATIO)
+                if best_match:
+                    failure_line.best_classification = best_match.classified_failure
+                    failure_line.save()
             for rematch_job in jobs:
                 if rematch_job == job:
                     continue
                 logger.debug("Trying rematch on job %s" % (rematch_job["job_guid"]))
-                match_errors(repository, rematch_job["job_guid"])
+                match_errors(repository, jm, rematch_job["job_guid"])
