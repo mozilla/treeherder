@@ -46,7 +46,8 @@ treeherder.controller('PluginCtrl', [
         // NOTE: This is a temporary param used during the evaluation/experimentation
         // phase of this feature.
         var showAutoClassifyTab = function() {
-            thTabs.tabs.autoClassification.enabled = ($location.search().autoclassify === true);
+            thTabs.tabs.autoClassification.enabled = ($location.search().autoclassify === true ||
+                                                      $location.host().indexOf('herokuapp.com') != -1);
         };
         showAutoClassifyTab();
         $rootScope.$on('$locationChangeSuccess', function() {
