@@ -240,7 +240,7 @@ treeherder.directive('thCloneJobs', [
                 addJobBtnToArray(job, lastJobSelected, jobBtnArray);
             }
             return jobBtnArray;
-        }
+        };
         var addJobBtnEls = function(jgObj, jobList) {
             var jobBtnArray = renderJobBtnEls(jgObj);
             jobList.append(jobBtnArray);
@@ -249,7 +249,7 @@ treeherder.directive('thCloneJobs', [
         var getJobBtnEls = function(jgObj) {
             var jobBtnArray = renderJobBtnEls(jgObj);
             return jobBtnArray[0][0].outerHTML;
-        }
+        };
 
         var addJobBtnToArray = function(job, lastJobSelected, jobBtnArray) {
             var jobStatus, jobBtn;
@@ -310,7 +310,7 @@ treeherder.directive('thCloneJobs', [
          * display.
          */
 
-         var renderGroupJobsAndCounts = function(jgObj) {
+        var renderGroupJobsAndCounts = function(jgObj) {
             var jobCountBtnArray = [];
             var jobBtnArray = [];
             var stateCounts = {};
@@ -381,7 +381,8 @@ treeherder.directive('thCloneJobs', [
                 "jobCountBtnArray": jobCountBtnArray
             }
             return output;
-         }
+         };
+
         var addGroupJobsAndCounts = function(jgObj, platformGroup) {
             var btnArrays = renderGroupJobsAndCounts(jgObj);
             var jobBtnArray = btnArrays.jobBtnArray;
