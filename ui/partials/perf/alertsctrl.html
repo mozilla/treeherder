@@ -66,14 +66,14 @@
             &nbsp;(<span class="alert-untriaged">untriaged</span>)
           </span>
           <span ng-show="alert.bug_number">
-            &nbsp;(<a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{alert.bug_number}}">bug #{{alert.bug_number}}</a>)
+            &nbsp;(<a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{alert.bug_number}}" target="_blank">bug #{{alert.bug_number}}</a>)
           </span>
           <span ng-show="alert.revised_summary_id">
             &nbsp;(see
-            <a href="#/alerts?id={{alert.revised_summary_id}}">alert #{{alert.revised_summary_id}}</a>)
+            <a href="#/alerts?id={{alert.revised_summary_id}}" target="_blank">alert #{{alert.revised_summary_id}}</a>)
           </span>&nbsp;&nbsp;
           <span class="result-links">
-            <a href="#/graphs?timerange={{alertSummary.resultSetMetadata.timeRange}}&series=[{{alertSummary.repository}},{{alert.series_signature.signature_hash}},1]&highlightedRevisions={{alertSummary.resultSetMetadata.revision}}">graph</a>
+            <a href="#/graphs?timerange={{alertSummary.resultSetMetadata.timeRange}}&series=[{{alertSummary.repository}},{{alert.series_signature.signature_hash}},1]&highlightedRevisions={{alertSummary.resultSetMetadata.revision}}" target="_blank">graph</a>
           </span>
         </td>
         <td class="alert-value">{{alert.prev_value}}</td>
