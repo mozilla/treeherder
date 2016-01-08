@@ -379,9 +379,9 @@ treeherder.directive('thCloneJobs', [
             var output = {
                 "jobBtnArray": jobBtnArray,
                 "jobCountBtnArray": jobCountBtnArray
-            }
+            };
             return output;
-         };
+        };
 
         var addGroupJobsAndCounts = function(jgObj, platformGroup) {
             var btnArrays = renderGroupJobsAndCounts(jgObj);
