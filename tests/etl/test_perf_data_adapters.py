@@ -12,9 +12,7 @@ from treeherder.model.models import (MachinePlatform,
                                      Option,
                                      OptionCollection,
                                      Repository)
-from treeherder.perf.models import (PerformanceAlert,
-                                    PerformanceAlertSummary,
-                                    PerformanceDatum,
+from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceFramework,
                                     PerformanceSignature)
 
@@ -289,39 +287,3 @@ def test_load_talos_data(test_project, test_repository,
         # delete perf objects for next iteration
         PerformanceSignature.objects.all().delete()
         PerformanceDatum.objects.all().delete()
-
-
-def test_alert_generation(test_project, test_repository,
-                          perf_option_collection, perf_platform,
-                          perf_reference_data):
-    _generate_perf_data_range(test_project, test_repository,
-                              perf_option_collection, perf_platform,
-                              perf_reference_data)
-
-    # validate that a performance alert was generated
-    assert 1 == PerformanceAlert.objects.all().count()
-    assert 1 == PerformanceAlertSummary.objects.all().count()
-
-    summary = PerformanceAlertSummary.objects.get(id=1)
-    assert summary.result_set_id == 15
-    assert summary.prev_result_set_id == 14
-
-    alert = PerformanceAlert.objects.get(id=1)
-    assert alert.is_regression
-    assert alert.amount_abs == 1
-    assert alert.amount_pct == 100
-
-
-def test_alert_generation_try(test_project, test_repository,
-                              perf_option_collection, perf_platform,
-                              perf_reference_data):
-    # validates that no alerts generated on "try" repos
-    test_repository.repository_group.name = "try"
-    test_repository.repository_group.save()
-
-    _generate_perf_data_range(test_project, test_repository,
-                              perf_option_collection, perf_platform,
-                              perf_reference_data)
-
-    assert 0 == PerformanceAlert.objects.all().count()
-    assert 0 == PerformanceAlertSummary.objects.all().count()
