@@ -111,8 +111,8 @@ django-environ==0.4.0
 six==1.10.0
 
 # Required by hawkrest and requests-hawk
-# sha256: SNZPN8Hy9utro7Xy2LDByQ4offLtH9-Ah0_tDDYJ61I
-mohawk==0.3.0
+# sha256: oIGk-dihoT1OJqxwqx89HOpTA1r9vHukYA0tUNgtuE0
+mohawk==0.3.1
 
 # sha256: O2dezcmG-fVp0tBBTcVNldgecGVmfgWWqdXd73v2Q5g
 hawkrest==0.0.8
