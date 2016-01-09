@@ -114,8 +114,8 @@ six==1.10.0
 # sha256: oIGk-dihoT1OJqxwqx89HOpTA1r9vHukYA0tUNgtuE0
 mohawk==0.3.1
 
-# sha256: O2dezcmG-fVp0tBBTcVNldgecGVmfgWWqdXd73v2Q5g
-hawkrest==0.0.8
+# sha256: O398RkqdNsPSOHO4Vy2XpAeWAmVjWrdIgOFAae7LfxE
+hawkrest==0.0.9
 
 # sha256: KuY89HXwvQSbci-sIIE9Yq7cFJV91aO_ANEg0rVARGA
 python-dateutil==2.4.2
