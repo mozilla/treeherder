@@ -248,7 +248,11 @@ treeherder.directive('thCloneJobs', [
 
         var getJobBtnEls = function(jgObj) {
             var jobBtnArray = renderJobBtnEls(jgObj);
-            return jobBtnArray[0][0].outerHTML;
+            var jobBtnHTML = "";
+            jobBtnArray.forEach(function(element) {
+                jobBtnHTML += element;
+            });
+            return jobBtnHTML;
         };
 
         var addJobBtnToArray = function(job, lastJobSelected, jobBtnArray) {
@@ -258,18 +262,17 @@ treeherder.directive('thCloneJobs', [
             jobStatus.key = getJobMapKey(job);
             jobStatus.value = job.job_type_symbol;
             jobStatus.title = getHoverText(job);
-
+            jobStatus.visibleClass = job.visible ? "filter-shown" : "";
             if (thResultStatus(job) === "runnable") {
                 jobStatus.buildername = job.ref_data_name;
-                jobBtn = $(runnableJobBtnInterpolator(jobStatus));
-
                 if (ThResultSetStore.isRunnableJobSelected($rootScope.repoName,
                                                            job.result_set_id,
                                                            jobStatus.buildername)) {
-                    jobBtn.addClass("runnable-job-btn-selected");
+                    jobStatus.runnableClass = "runnable-job-btn-selected";
                 }
+                jobBtn = runnableJobBtnInterpolator(jobStatus);
             } else {
-                jobBtn = $(jobBtnInterpolator(jobStatus));
+                jobBtn = jobBtnInterpolator(jobStatus);
             }
 
             // If the job is currently selected make sure to re-apply
@@ -282,8 +285,6 @@ treeherder.directive('thCloneJobs', [
                 //Update the selected job element to the current one
                 ThResultSetStore.setSelectedJob($rootScope.repoName, jobBtn, job);
             }
-            showHideElement(jobBtn, job.visible);
-
             jobBtnArray.push(jobBtn);
             // add a zero-width space between spans so they can wrap
             jobBtnArray.push(' ');
@@ -370,15 +371,15 @@ treeherder.directive('thCloneJobs', [
                     countInfo.value = countInfo.count;
                     countInfo.title = countInfo.count + " " + countInfo.countText + " jobs in group";
                     countInfo.btnClass = countInfo.btnClass + "-count";
-                    var jobCountBtn = $(jobGroupCountInterpolator(countInfo));
-                    showHideElement(jobCountBtn, true);
+                    countInfo.visibleClass = "filter-shown";
+                    var jobCountBtn = jobGroupCountInterpolator(countInfo);
                     jobCountBtnArray.push(jobCountBtn);
                     jobCountBtnArray.push(' ');
                 }
             });
             var output = {
-                "jobBtnArray": jobBtnArray,
-                "jobCountBtnArray": jobCountBtnArray
+                jobBtnArray: jobBtnArray,
+                jobCountBtnArray: jobCountBtnArray
             };
             return output;
         };
@@ -395,9 +396,17 @@ treeherder.directive('thCloneJobs', [
             var btnArrays = renderGroupJobsAndCounts(jgObj);
             var jobBtnArray = btnArrays.jobBtnArray;
             var jobCountBtnArray = btnArrays.jobCountBtnArray;
+            var jobBtnHTML = "";
+            jobBtnArray.forEach(function(element) {
+                jobBtnHTML += element;
+            });
+            var jobCountBtnHTML = "";
+            jobCountBtnArray.forEach(function(element) {
+                jobCountBtnHTML += element;
+            });
             var output = {
-                "jobBtnHTML": jobBtnArray.length ? jobBtnArray[0][0].outerHTML : "",
-                "jobCountBtnHTML": jobCountBtnArray.length ? jobCountBtnArray[0][0].outerHTML : ""
+                jobBtnHTML: jobBtnHTML,
+                jobCountBtnHTML: jobCountBtnHTML
             };
             return output;
         };
@@ -565,15 +574,15 @@ treeherder.directive('thCloneJobs', [
                     // Job group detected, add job group symbols
                     jobGroups[i].grkey = jgObj.mapKey;
                     jobGroups[i].collapsed = true;
-                    jobGroups[i].btnHTML = getJobBtnEls(jgObj);
                     if (isGroupExpanded(jgObj)) {
-                        jobGroups[i].btnHTML = addJobBtnEls(jgObj);
+                        jobGroups[i].btnHTML = getJobBtnEls(jgObj);
                     } else {
                         var html = getGroupJobsAndCounts(jgObj);
                         jobGroups[i].btnHTML = html.jobBtnHTML;
                         jobGroups[i].countBtnHTML = html.jobCountBtnHTML;
                     }
                     jobTdHtml += jobGroupInterpolator(jobGroups[i]);
+                    console.log(jobTdHtml);
                 } else {
                     // Add the job btn spans
                     jobTdHtml += getJobBtnEls(jgObj);

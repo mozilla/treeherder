@@ -213,13 +213,13 @@
 
         <!-- Job group count span for each count item -->
         <script type="'text/ng-template'" id="jobGroupCountClone.html">
-            <button class="btn {{ selectedClasses }} group-btn btn-xs job-group-count {{ btnClass }}"
+            <button class="btn {{ selectedClasses }} group-btn btn-xs job-group-count {{ btnClass }} {{ visibleClass }}"
                     title="{{ title }}">{{ value }}</button>
         </script>
 
         <!-- Job Btn span -->
         <script type="'text/ng-template'" id="jobBtnClone.html">
-            <button class="btn job-btn btn-xs {{ btnClass }} {{ key }}"
+            <button class="btn job-btn btn-xs {{ btnClass }} {{ key }} {{ visibleClass }}"
                   data-jmkey="{{ key }}"
                   ignore-job-clear-on-click
                   title="{{ title }}">{{ value }}</button>
@@ -227,7 +227,7 @@
 
         <!-- Runnable Job Btn span -->
         <script type="'text/ng-template'" id="runnableJobBtnClone.html">
-            <button class="btn runnable-job-btn {{ key }}"
+            <button class="btn runnable-job-btn {{ key }}  {{ visibleClass }} {{ runnableClass }}"
                   data-jmkey="{{ key }}"
                   data-buildername="{{ buildername }}"
                   ignore-job-clear-on-click
