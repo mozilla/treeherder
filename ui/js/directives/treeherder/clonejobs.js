@@ -368,11 +368,13 @@ treeherder.directive('thCloneJobs', [
                     addJobBtnToArray(countInfo.lastJob, lastJobSelected, jobBtnArray);
                 } else {
                     // with more than 1 job for the status, add it as a count
-                    countInfo.value = countInfo.count;
-                    countInfo.title = countInfo.count + " " + countInfo.countText + " jobs in group";
-                    countInfo.btnClass = countInfo.btnClass + "-count";
-                    countInfo.visibleClass = "filter-shown";
-                    var jobCountBtn = jobGroupCountInterpolator(countInfo);
+                    var jobCountBtn = jobGroupCountInterpolator({
+                        value: countInfo.count,
+                        title: countInfo.count + " " + countInfo.countText + " jobs in group",
+                        btnClass: countInfo.btnClass + "-count",
+                        visibleClass: "filter-shown",
+                        selectedClasses: countInfo.selectedClasses
+                    });
                     jobCountBtnArray.push(jobCountBtn);
                     jobCountBtnArray.push(' ');
                 }
@@ -393,22 +395,7 @@ treeherder.directive('thCloneJobs', [
         };
 
         var getGroupJobsAndCounts = function(jgObj) {
-            var btnArrays = renderGroupJobsAndCounts(jgObj);
-            var jobBtnArray = btnArrays.jobBtnArray;
-            var jobCountBtnArray = btnArrays.jobCountBtnArray;
-            var jobBtnHTML = "";
-            jobBtnArray.forEach(function(element) {
-                jobBtnHTML += element;
-            });
-            var jobCountBtnHTML = "";
-            jobCountBtnArray.forEach(function(element) {
-                jobCountBtnHTML += element;
-            });
-            var output = {
-                jobBtnHTML: jobBtnHTML,
-                jobCountBtnHTML: jobCountBtnHTML
-            };
-            return output;
+
         };
 
         var jobMouseDown = function(resultset, ev){
@@ -566,28 +553,32 @@ treeherder.directive('thCloneJobs', [
 
             //Empty the job column before populating it
             jobTdEl.empty();
-            var jgObj, jobGroup, i, jobTdHtml = "";
-            for (i=0; i<jobGroups.length; i++) {
-
-                jgObj = jobGroups[i];
+            var jgObj, jobTdHtml = "";
+            jobGroups.forEach(function (jobGroup) {
+                jgObj = jobGroup;
                 if (jgObj.symbol !== '?') {
                     // Job group detected, add job group symbols
-                    jobGroups[i].grkey = jgObj.mapKey;
-                    jobGroups[i].collapsed = true;
+                    jobGroup.grkey = jgObj.mapKey;
+                    jobGroup.collapsed = true;
                     if (isGroupExpanded(jgObj)) {
-                        jobGroups[i].btnHTML = getJobBtnEls(jgObj);
+                        jobGroup.btnHTML = getJobBtnEls(jgObj);
                     } else {
-                        var html = getGroupJobsAndCounts(jgObj);
-                        jobGroups[i].btnHTML = html.jobBtnHTML;
-                        jobGroups[i].countBtnHTML = html.jobCountBtnHTML;
+                        var btnArrays = renderGroupJobsAndCounts(jgObj);
+                        jobGroup.btnHTML = "";
+                        btnArrays.jobBtnArray.forEach(function(element) {
+                            jobGroup.btnHTML += element;
+                        });
+                        jobGroup.countBtnHTML = "";
+                        btnArrays.jobCountBtnArray.forEach(function(element) {
+                            jobGroup.countBtnHTML += element;
+                        });
                     }
-                    jobTdHtml += jobGroupInterpolator(jobGroups[i]);
-                    console.log(jobTdHtml);
+                    jobTdHtml += jobGroupInterpolator(jobGroup);
                 } else {
                     // Add the job btn spans
                     jobTdHtml += getJobBtnEls(jgObj);
                 }
-            }
+            });
             jobTdEl.append($(jobTdHtml));
             row.append(jobTdEl);
             filterPlatform(row);
