@@ -394,10 +394,6 @@ treeherder.directive('thCloneJobs', [
             platformGroup.find(".group-count-list").html(jobCountBtnArray);
         };
 
-        var getGroupJobsAndCounts = function(jgObj) {
-
-        };
-
         var jobMouseDown = function(resultset, ev){
 
             var el = $(ev.target);
