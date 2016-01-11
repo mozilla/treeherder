@@ -83,16 +83,6 @@
 
             </ul>
           </li>
-          <li ng-show="canCancel()">
-            <a ng-attr-title="{{user.loggedin ? 'Cancel this job' :
-                              'Must be logged in to cancel a job'}}"
-               ng-class="user.loggedin ? 'hover-warning' : 'disabled'"
-               href="" prevent-default-on-left-click
-               target="_blank"
-               ng-click="cancelJob()">
-              <span class="fa fa-times-circle cancel-job-icon"></span>
-            </a>
-          </li>
           <li class="dropdown">
             <a id="retriggerLabel"
                ng-attr-title="{{user.loggedin ? 'Retrigger or backfill this job' :
@@ -110,6 +100,16 @@
                target="_blank"
                href="http://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl={{::job_log_url.url}}&only_show_unexpected=1">
               <span class="fa fa-bar-chart-o"></span>
+            </a>
+          </li>
+          <li ng-show="canCancel()">
+            <a ng-attr-title="{{user.loggedin ? 'Cancel this job' :
+                              'Must be logged in to cancel a job'}}"
+               ng-class="user.loggedin ? 'hover-warning' : 'disabled'"
+               href="" prevent-default-on-left-click
+               target="_blank"
+               ng-click="cancelJob()">
+              <span class="fa fa-times-circle cancel-job-icon"></span>
             </a>
           </li>
         </ul>
