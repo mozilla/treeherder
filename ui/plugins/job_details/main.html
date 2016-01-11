@@ -1,12 +1,11 @@
 <div class="job-tabs-content">
   <ul class="list-unstyled">
     <li ng-repeat="line in job_details | orderBy:'title'" class="small">
-      <label>{{line.title}}:</label>
-      <span ng-switch on="line.content_type">
+      <label ng-if="line.content_type != 'TalosResult'">{{line.title}}:</label>
+      <span ng-if="line.content_type != 'TalosResult'" ng-switch on="line.content_type">
         <a ng-switch-when="link" title="{{line.value}}"
            href="{{line.url}}" target="_blank">{{line.value}}</a>
         <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
-        <span ng-switch-when="TalosResult">See talos panel</span>
         <span title="{{line.value}}" ng-switch-when="object">{{line.value}}</span>
         <span title="{{line.value}}" ng-switch-default>{{line.value}}</span>
       </span>
