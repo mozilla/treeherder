@@ -331,7 +331,9 @@ treeherder.factory('thJobFilters', [
             for (var i = 0; i < values.length; i++) {
                 action(field, values[i]);
             }
-            $rootScope.$emit(thEvents.globalFilterChanged);
+            // Don't emit the filter changed state here: we'll
+            // do that when the URL change signal gets fired (see
+            // the locationChangeSuccess event, above)
         };
 
         var toggleInProgress = function() {
