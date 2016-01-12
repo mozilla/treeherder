@@ -83,15 +83,18 @@ perf.controller(
 
 perf.controller('AlertsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$http', '$q', '$modal',
+    '$templateRequest', '$interpolate',
     'thUrl', 'ThRepositoryModel', 'ThOptionCollectionModel', 'ThResultSetModel',
     'PhFramework', 'PhSeries', 'PhAlerts', 'phTimeRanges',
-    'phDefaultTimeRangeValue', 'phAlertResolutionMap', 'dateFilter',
-    'thDateFormat',
+    'phDefaultTimeRangeValue', 'phAlertResolutionMap', 'phTalosDocumentationMap',
+    'mcTalosConfigUrl', 'dateFilter', 'thDateFormat',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $http, $q,
-                        $modal, thUrl, ThRepositoryModel,
+                        $modal, $templateRequest, $interpolate, thUrl,
+                        ThRepositoryModel,
                         ThOptionCollectionModel, ThResultSetModel,
                         PhFramework, PhSeries, PhAlerts, phTimeRanges,
                         phDefaultTimeRangeValue, phAlertResolutionMap,
+                        phTalosDocumentationMap, mcTalosConfigUrl,
                         dateFilter, thDateFormat) {
         $scope.alertSummaries = [];
         $scope.getMoreAlertSummariesHref = null;
@@ -171,7 +174,81 @@ perf.controller('AlertsCtrl', [
         };
 
         $scope.fileBug = function(alertSummary) {
-            window.open("https://edmorley.github.io/fileit/");
+            $http.get(mcTalosConfigUrl).then(function(response) {
+                // yes this is ridiculous, but it's (hopefully) less likely
+                // to break than the alternatives, since it should auto-update
+                // whenever someone changes the talos configuration in
+                // mozilla-central
+                var trySuiteMapping = {};
+                _.forEach(
+                    _.filter(Object.keys(response.data.suites),
+                             function(buildbotSuite) {
+                                 // we only want the high level suite names, -
+                                 // and _ denote variants
+                                 return (buildbotSuite.indexOf('-') === -1 &&
+                                         buildbotSuite.indexOf('_') === -1);
+                             }),
+                    function(buildbotSuite) {
+                        _.forEach(
+                            response.data.suites[buildbotSuite].tests, function(test) {
+                            trySuiteMapping[test] = buildbotSuite;
+                        });
+                    });
+                $templateRequest('partials/perf/bugzilla_talos.tmpl').then(
+                    function(template) {
+                        var selectedAlerts = _.filter(alertSummary.alerts,
+                                                      {selected: true});
+                        var testDescriptions = _.uniq(_.map(selectedAlerts, function(alert) {
+                            var suitekey = alert.series_signature.suite;
+                            var testkey = alert.series_signature.suite + '_' +
+                                alert.series_signature.test;
+                            var prefix = 'https://wiki.mozilla.org/Buildbot/Talos/Tests#';
+                            if (phTalosDocumentationMap[suitekey]) {
+                                return prefix + phTalosDocumentationMap[suitekey];
+                            } else if (phTalosDocumentationMap[testkey]) {
+                                return prefix + phTalosDocumentationMap[testkey];
+                            } else {
+                                // assume testkey will work otherwise
+                                return prefix + testkey;
+                            }
+                        }));
+                        var talosSuites = _.uniq(_.map(selectedAlerts, function(alert) {
+                            return alert.series_signature.suite;
+                        }));
+                        var trySuites = _.uniq(_.map(selectedAlerts, function(alert) {
+                            var suiteName = trySuiteMapping[alert.series_signature.suite];
+                            if (_.contains(alert.series_signature.test_options, 'e10s')) {
+                                suiteName += '-e10s';
+                            }
+                            return suiteName;
+                        }));
+
+                        // they have 3 days from today to respond (assuming
+                        // that holidays/weekends are not a reason to avoid
+                        // a backout, since the whole point is to be able to
+                        // do one before a pile of patches land on top of it)
+                        var backoutDate = new Date(Date.now() + 3*86400*1000);
+                        var dayMapping = {
+                            0: 'Sunday',
+                            1: 'Monday',
+                            2: 'Tuesday',
+                            3: 'Wednesday',
+                            4: 'Thursday',
+                            5: 'Friday',
+                            6: 'Saturday'
+                        };
+                        var compiled = $interpolate(template)({
+                            revision: alertSummary.resultSetMetadata.revision,
+                            alertHref: thServiceDomain + '/perf.html#/alerts?id=' +
+                                alertSummary.id,
+                            testDescriptions: testDescriptions.join('\n'),
+                            trySuites: trySuites.join(','),
+                            talosTestListSyntax: talosSuites.join(":"),
+                            backoutDay: dayMapping[backoutDate.getDay()]
+                        });
+                        window.open("https://bugzilla.mozilla.org/enter_bug.cgi?component=Untriaged&product=Firefox&short_desc=Performance%20Regression&comment=" + encodeURIComponent(compiled));
+                    });
+            });
         };
 
         function modifyAlerts(alertSummary, modifiedStatus) {

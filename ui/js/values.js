@@ -172,6 +172,37 @@ treeherder.value("phAlertResolutionMap", {
     DUPLICATE: 5
 });
 
+treeherder.value("phTalosDocumentationMap", {
+    "a11yr": "a11y",
+    "cart": "TART.2FCART",
+    "damp": "DAMP",
+    "dromaeo_css": "Dromaeo_Tests",
+    "dromaeo_dom": "Dromaeo_Tests",
+    "sessionrestore": "sessionrestore.2Fsessionrestore_no_auto_restore",
+    "sessionrestore_no_auto_restore": "sessionrestore.2Fsessionrestore_no_auto_restore",
+    "tart": "TART.2FCART",
+    "tcanvasmark": "CanvasMark",
+    "tp5n_main_normal_fileio": "xperf",
+    "tp5n_main_normal_fileio": "xperf",
+    "tp5n_main_normal_netio": "xperf",
+    "tp5n_main_startup_fileio": "xperf",
+    "tp5n_main_startup_netio": "xperf",
+    "tp5n_nonmain_normal_fileio": "xperf",
+    "tp5n_nonmain_normal_netio": "xperf",
+    "tp5n_nonmain_startup_fileio": "xperf",
+    "tp5o": "tp5",
+    "tp5o_% processor time": ".25_CPU",
+    "tp5o_main_rss": "RSS_.28Resident_Set_Size.29",
+    "tp5o_modified page list bytes": "Modified_Page_List_Bytes",
+    "tp5o_private bytes": "Private_Bytes",
+    "tp5o_xres": "Xres_.28X_Resource_Monitoring.29",
+    "tsvgr_opacity": "tsvg-opacity",
+    "v8_7": "V8.2C_version_7",
+});
+
+treeherder.value('mcTalosConfigUrl',
+                 'http://hg.mozilla.org/mozilla-central/raw-file/tip/testing/talos/talos.json');
+
 treeherder.value("thJobNavSelectors",
     {
         ALL_JOBS: {
