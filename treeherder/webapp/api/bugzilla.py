@@ -9,7 +9,6 @@ from treeherder.etl.common import make_request
 
 
 class BugzillaViewSet(viewsets.ViewSet):
-    # permission_classes = (IsAuthenticatedOrReadOnly,)
 
     @list_route(methods=['post'])
     def create_bug(self, request):
@@ -26,13 +25,11 @@ class BugzillaViewSet(viewsets.ViewSet):
             'product': params["product"],
             'component': params["component"],
             'summary': params["summary"],
-            'keywords': 'intermittent-failure',
-            # 'dependson': params[""],
-            # 'blocks': params[""],
+            'keywords': params["keywords"],
             'version': params["version"],
             'description': params["description"],
             'comment_tags': "treeherder",
-            # 'ccstring': params[""],
+            # XXX Should implement dependson, blocks, needinfo, and ccstring fields
         }
 
         try:

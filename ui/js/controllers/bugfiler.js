@@ -112,24 +112,20 @@ treeherder.controller('BugFilerCtrl', [
                 ["Toolkit :: XULRunner"]
         };
 
-        $modalInstance.defaultproductObject = {
-            // XXX
-        };
+        /**
+         *  'enter' from the product search input should initiate the search
+         */
+        $scope.productSearch = function(ev) {
+            if (ev.keyCode === 13) {
+                $scope.findProduct();
+            }
+        }
 
         /**
          *  Pre-fill the form with information/metadata from the failure
          */
         $scope.initiate = function() {
             $modalInstance.parsedSummary = $modalInstance.parseSummary(summary);
-
-            console.log($modalInstance.parsedSummary, fullLog, parsedLog, reftest, selectedJob, allFailures);
-
-            // Allow 'enter' from the product finder input box to trigger the search
-            document.getElementById("modalProductFinderSearch").addEventListener("keypress", function(e) {
-                if(e.keyCode === 13) {
-                    $scope.findProduct();
-                }
-            });
 
             document.getElementById("modalSummary").value = "Intermittent " + $modalInstance.parsedSummary[0].join(" | ");
 
@@ -138,7 +134,6 @@ treeherder.controller('BugFilerCtrl', [
             document.getElementById("modalReftestLog").nextElementSibling.href = reftest;
 
             for(var i=0;i<allFailures.length;i++) {
-                console.log(allFailures[i]);
                 var omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR", "TEST-UNEXPECTED-TIMEOUT"];
                 for(var j=0; j < omittedLeads.length; j++) {
                     if(allFailures[i][0].search(omittedLeads[j]) >= 0) {
@@ -226,7 +221,6 @@ treeherder.controller('BugFilerCtrl', [
 
             if(productSearch) {
                 $.get("https://bugzilla.mozilla.org/rest/prod_comp_search/" + productSearch + "?limit=5", function(data) {
-                    console.log(data.products);
                     for(var i = 0; i < data.products.length;i++) {
                         if(data.products[i].product && data.products[i].component) {
                             suggestedProducts.push(data.products[i].product + " :: " + data.products[i].component);
@@ -304,7 +298,6 @@ treeherder.controller('BugFilerCtrl', [
             // Only request the versions because some products take quite a long time to fetch the full object
             $.ajax(bugzillaRoot + "rest/product/" + productString + "?include_fields=versions").done(function(productJSON) {
                 var productObject = productJSON.products[0];
-                console.log(productObject.versions);
                 $http({
                     //url: bugzillaRoot + "rest/bug?api_key=qF8lX6AyGjcZcmSV4tZTmy2F2PbBycQdB9lsp8cB",
                     url: "api/bugzilla/create_bug/",
@@ -313,15 +306,12 @@ treeherder.controller('BugFilerCtrl', [
                         "product": productString,
                         "component": componentString,
                         "summary": summarystring,
-                        "keywords": "intermittent-failure",//var keywordsstring = "&keywords=" + encodeURIComponent(document.getElementById("modalKeywords").value);
-                      //  "dependson": [""],//var dependsstring = "&dependson=" + encodeURIComponent(document.getElementById("modalDepends").value);
-                      //  "blocks": [""],//var blocksstring = "&blocked=" + encodeURIComponent(document.getElementById("modalBlocks").value);
+                        "keywords": "intermittent-failure",
                         // XXX This takes the last version returned from the product query, probably should be smarter about this in the future...
                         "version": productObject.versions[productObject.versions.length-1].name,
                         "description": logstrings + document.getElementById("modalComment").value,
                         "comment_tags": "treeherder",
-                      //XXX var ccstring = "&cc=" + encodeURIComponent(document.getElementById("modalCc").value);
-                      //XXX NEEDINFO FLAG
+                        // XXX Still should implement ccstring, dependson, blocks, and needinfo fields
                     }
                 }).then(function successCallback(json) {
                     if(json.data.failure) {
@@ -330,12 +320,9 @@ treeherder.controller('BugFilerCtrl', [
                             errorString += json.data.failure[i];
                         }
                         errorString = JSON.parse(errorString);
-                        console.log("FAILURE", errorString);
                         thNotify.send("Bugzilla error: " + errorString.message, "danger", true);
                         $(':input','#modalForm').attr("disabled",false);
                     } else {
-                        console.log(json.data);
-
                         // Auto-classify this failure now that the bug has been filed and we have a bug number
                         thPinboard.pinJob($rootScope.selectedJob);
                         thPinboard.addBug({id:json.data.success});
@@ -347,8 +334,7 @@ treeherder.controller('BugFilerCtrl', [
                         $scope.cancelFiler();
                     }
                 }, function errorCallback(response) {
-                    console.log("HI",response);
-                    $log.debug("sup");
+                    $log.debug(response);
                 });
             });
         };

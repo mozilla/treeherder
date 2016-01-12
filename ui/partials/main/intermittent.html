@@ -1,7 +1,7 @@
 <form id="modalForm">
   <h2> Intermittent Bug Filer </h2>
 
-  <input name="modalProductFinderSearch" id="modalProductFinderSearch" 
+  <input name="modalProductFinderSearch" id="modalProductFinderSearch" ng-keydown="productSearch($event)"
          type="text" placeholder="Firefox" tooltip="Manually search for a product" />
   <button name="modalProductFinderButton" id="modalProductFinderButton"
           type="button" ng-click="findProduct()" prevent-default-on-left-click>Find Product</button>
@@ -39,26 +39,6 @@
   <div id="modalCommentDiv">
     <label id="modalCommentlabel" for="modalComment">Comment:</label>
     <textarea id="modalComment" type="textarea" placeholder=""></textarea>
-  </div>
-
-  <div id="modalExtrasDiv">
-    <div id="modalExtrasLeftDiv">
-      <label id="modalKeywordslabel" for="modalKeywords">Keywords:</label>
-      <input id="modalKeywords" disabled="true" type="text" value="intermittent-failure, " />
-      <br/>
-      <label id="modalCclabel" for="modalCc">Cc:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
-      <input id="modalCc" type="text" placeholder="name@site.org" />
-      <br/>
-      <label id="modalNeedinfolabel" for="modalNeedinfo">Needinfo:&nbsp;&nbsp;</label>
-      <input id="modalNeedinfo" type="text" placeholder="DOESN'T WORK FOR NOW (name@site.org)" disabled="true" />
-    </div>
-    <div id="modalExtrasRightDiv">
-      <label id="modalDependslabel" for="modalKeywords">Depends on:</label>
-      <input id="modalDepends" type="text" placeholder="123456, 123457..." />
-      <br/>
-      <label id="modalBlockslabel" for="modalCc">Blocks:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
-      <input id="modalBlocks" type="text" placeholder="123456, 123457..." />
-    </div>
   </div>
 
   <div id="modalBottomDiv">
