@@ -293,9 +293,7 @@ treeherderApp.controller('MainCtrl', [
 
         };
 
-        $scope.getUnclassifiedFailureCount = function(repoName) {
-            return ThResultSetStore.getUnclassifiedFailureCount(repoName);
-        };
+        $scope.getUnclassifiedFailureCount = ThResultSetStore.getUnclassifiedFailureCount;
 
         $scope.isSkippingExclusionProfiles = $location.search().exclusion_profile === 'false';
 
@@ -369,16 +367,28 @@ treeherderApp.controller('MainCtrl', [
         $scope.tiers = {};
 
         $scope.updateTiers = function() {
+            // If any tier has changed, update the tier menu check boxes and
+            // throw an event.
+            var changed = false;
             _.forEach(thJobFilters.tiers, function(tier) {
-                $scope.tiers[tier] = $scope.isTierShowing(tier);
+                var isShowing = $scope.isTierShowing(tier);
+                if (isShowing !== $scope.tiers[tier]) {
+                    $scope.tiers[tier] = isShowing;
+                    changed = true;
+                }
+
             });
+            if (changed) {
+                $rootScope.$emit(thEvents.recalculateUnclassified);
+            }
         };
 
         $scope.updateTiers();
 
+        // clicked a checkbox in the tier menu
         $scope.tierToggled = function(tier) {
             thJobFilters.toggleFilters('tier', [tier], $scope.tiers[tier]);
-            $scope.updateTiers();
+            $rootScope.$emit(thEvents.recalculateUnclassified);
         };
 
         var getNewReloadTriggerParams = function() {
@@ -433,6 +443,9 @@ treeherderApp.controller('MainCtrl', [
                 $scope.groupState = newGroupState;
                 $rootScope.$emit(thEvents.groupStateChanged);
             }
+
+            // update the tier drop-down menu if a tier setting was changed
+            $scope.updateTiers();
         });
 
         $scope.changeRepo = function(repo_name) {
