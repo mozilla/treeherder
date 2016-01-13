@@ -1,3 +1,4 @@
+import pytest
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
@@ -81,6 +82,62 @@ def test_job_list_equals_filter(webapp, eleven_jobs_stored, jm):
     resp = webapp.get(final_url).json
 
     assert len(resp['results']) == 1
+
+
+job_filter_values = [
+ (u'build_architecture', u'x86_64'),
+ (u'build_os', u'mac'),
+ (u'build_platform', u'osx-10-7'),
+ (u'build_platform_id', 3),
+ (u'build_system_type', u'buildbot'),
+ (u'end_timestamp', 1384364849),
+ (u'failure_classification_id', 1),
+ (u'id', 4),
+ (u'job_coalesced_to_guid', u'5da36fb825bc52d13fed5b805d44015b0f2f2f16'),
+ (u'job_group_id', 2),
+ (u'job_group_name', u'Mochitest'),
+ (u'job_group_symbol', u'M'),
+ (u'job_guid', u'ab952a4bbbc74f1d9fb3cf536073b371029dbd02'),
+ (u'job_type_id', 2),
+ (u'job_type_name', u'Mochitest Browser Chrome'),
+ (u'job_type_symbol', u'bc'),
+ (u'machine_name', u'talos-r4-lion-011'),
+ (u'machine_platform_architecture', u'x86_64'),
+ (u'machine_platform_os', u'mac'),
+ (u'option_collection_hash', u'32faaecac742100f7753f0c1d0aa0add01b4046b'),
+ (u'platform', u'osx-10-7'),
+ (u'reason', u'scheduler'),
+ (u'ref_data_name', u'1f2ea1934af0731400c4a5ab831e0c5ec287f0ad'),
+ (u'result', u'success'),
+ (u'result_set_id', 4),
+ (u'signature', u'1f2ea1934af0731400c4a5ab831e0c5ec287f0ad'),
+ (u'start_timestamp', 1384356880),
+ (u'state', u'completed'),
+ (u'submit_timestamp', 1384356854),
+ (u'tier', 1),
+ (u'who', u'tests-mozilla-b2g26_v1_2-lion-debug-unittest')
+ ]
+
+
+@pytest.mark.parametrize(('fieldname', 'expected'), job_filter_values)
+def test_job_list_filter_fields(webapp, eleven_jobs_stored, jm, fieldname, expected):
+    """
+    test retrieving a job list with a querystring filter.
+
+    values chosen above are from the 3rd of the ``eleven_stored_jobs`` so that
+    we aren't just getting the first one every time.
+
+    The field of ``last_modified`` is auto-generated, so just skipping that
+    to make this test easy.
+    """
+    url = reverse("jobs-list",
+                  kwargs={"project": jm.project})
+    final_url = url + "?{}={}".format(fieldname, expected)
+    print final_url
+    resp = webapp.get(final_url).json
+    first = resp['results'][0]
+
+    assert first[fieldname] == expected
 
 
 def test_job_list_in_filter(webapp, eleven_jobs_stored, jm):
