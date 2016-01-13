@@ -183,8 +183,13 @@ treeherder.controller('ClassificationPluginCtrl', [
          * A line has been selected as ignored if its bug_number is set to 0.
          */
         $scope.isLineIgnored = function(line) {
-            return line.ui.options[line.ui.selectedOption].bug_number === 0 ||
-                   line.ui.best.bug_number === 0;
+            try {
+                return line.ui.options[line.ui.selectedOption].bug_number === 0 ||
+                       line.ui.best.bug_number === 0;
+
+            } catch(ex) {
+                return false;
+            }
         };
 
         /**
