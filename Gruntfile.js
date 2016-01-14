@@ -216,7 +216,8 @@ module.exports = function(grunt) {
                 cwd: 'ui',
                 src: ['partials/main/persona_buttons.html',
                       'partials/main/thLogoutMenu.html',
-                      'partials/perf/*.html'],
+                      'partials/perf/*.html',
+                      'partials/perf/*.tmpl'],
                 dest: 'dist/js/perf.min.js',
                 options: {
                     usemin: 'dist/js/perf.min.js',
