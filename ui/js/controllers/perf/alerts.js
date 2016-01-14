@@ -150,7 +150,7 @@ perf.controller('AlertsCtrl', [
                     return PhSeries.getTestName(a.series_signature, { abbreviate:true });
                 })).sort().join(' / ');
             // add platform info
-            title += "(" + _.uniq(
+            title += " (" + _.uniq(
                 _.map(alerts, function(a) {
                     return a.series_signature.machine_platform;
                 })).sort().join(', ') + ')';
