@@ -230,7 +230,7 @@ treeherder.value("phTrySyntaxTalosModifierMap", {
 });
 
 treeherder.value('mcTalosConfigUrl',
-                 'http://hg.mozilla.org/mozilla-central/raw-file/tip/testing/talos/talos.json');
+                 'https://hg.mozilla.org/mozilla-central/raw-file/tip/testing/talos/talos.json');
 
 treeherder.value("thJobNavSelectors",
     {
