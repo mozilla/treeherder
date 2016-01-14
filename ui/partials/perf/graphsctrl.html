@@ -64,7 +64,10 @@
             <a ng-href="#/comparesubtest?originalProject={{tooltipContent.project.name}}&newProject={{tooltipContent.project.name}}&originalRevision={{tooltipContent.prevRevision}}&newRevision={{tooltipContent.revision}}&originalSignature={{selectedDataPoint.signature}}&newSignature={{selectedDataPoint.signature}}" target="_blank">compare</a>)
           </span>
         </p>
-        <p ng-hide="tooltipContent.revision">Loading revision...</p>
+        <p ng-hide="tooltipContent.revision">
+          <span ng-hide="tooltipContent.revisionInfoAvailable">Revision info unavailable</span>
+          <span ng-show="tooltipContent.revisionInfoAvailable">Loading revision...</span>
+        </p>
         <p id="tt-t" class="small" ng-bind="tooltipContent.date"></p>
         <p id="tt-v" class="small" ng-show="tooltipContent.retriggers > 0">Retriggers: {{tooltipContent.retriggers}}</p>
       </div>

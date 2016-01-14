@@ -107,7 +107,8 @@ perf.controller('GraphsCtrl', [
                     deltaValue: dv.toFixed(1),
                     deltaPercentValue: (100 * dvp).toFixed(1),
                     date: $.plot.formatDate(new Date(t), '%a %b %d, %H:%M:%S'),
-                    retriggers: (retriggerNum['retrigger'] - 1)
+                    retriggers: (retriggerNum['retrigger'] - 1),
+                    revisionInfoAvailable: true
                 };
 
                 // Get revision information for both this datapoint and the previous
@@ -129,6 +130,7 @@ perf.controller('GraphsCtrl', [
                                            });
                                        }
                                    }, function(error) {
+                                       $scope.tooltipContent.revisionInfoAvailable = false;
                                        console.log("Failed to get revision: " + error.reason);
                                    });
                        });
