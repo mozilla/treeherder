@@ -123,7 +123,7 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
                     'extra_properties': extra_properties,
                     'lower_is_better': subtest.get('lowerIsBetter', True)
                 })
-            PerformanceDatum.objects.get_or_create(
+            (_, datum_created) = PerformanceDatum.objects.get_or_create(
                 repository=repository,
                 result_set_id=result_set_id,
                 job_id=job_id,
@@ -133,7 +133,8 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
 
             # if there is no summary, we should schedule a generate alerts
             # task for the subtest, since we have new data
-            if not is_try_repository and suite.get('value') is None:
+            if (datum_created and (not is_try_repository) and
+                suite.get('value') is None):
                 generate_alerts.apply_async(args=[signature.id],
                                             routing_key='generate_perf_alerts')
 
@@ -162,14 +163,14 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
                     'extra_properties': extra_summary_properties,
                     'last_updated': push_timestamp
                 })
-            PerformanceDatum.objects.get_or_create(
+            (_, datum_created) = PerformanceDatum.objects.get_or_create(
                 repository=repository,
                 result_set_id=result_set_id,
                 job_id=job_id,
                 signature=signature,
                 push_timestamp=push_timestamp,
                 defaults={'value': suite['value']})
-            if not is_try_repository:
+            if datum_created and (not is_try_repository):
                 generate_alerts.apply_async(args=[signature.id],
                                             routing_key='generate_perf_alerts')
 
