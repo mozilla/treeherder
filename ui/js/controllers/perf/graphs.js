@@ -131,7 +131,7 @@ perf.controller('GraphsCtrl', [
                                        }
                                    }, function(error) {
                                        $scope.tooltipContent.revisionInfoAvailable = false;
-                                       console.log("Failed to get revision: " + error.reason);
+                                       console.log("Failed to get revision: " + error.data);
                                    });
                        });
 
