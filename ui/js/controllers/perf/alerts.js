@@ -84,14 +84,14 @@ perf.controller(
 perf.controller('AlertsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$http', '$q', '$modal',
     '$templateRequest', '$interpolate',
-    'thServiceDomain', 'thUrl', 'ThRepositoryModel', 'ThOptionCollectionModel',
+    'thUrl', 'ThRepositoryModel', 'ThOptionCollectionModel',
     'ThResultSetModel',
     'PhFramework', 'PhSeries', 'PhAlerts', 'phTimeRanges',
     'phDefaultTimeRangeValue', 'phAlertResolutionMap', 'phTalosDocumentationMap',
     'phTrySyntaxBuildPlatformMap', 'phTrySyntaxTalosModifierMap',
     'mcTalosConfigUrl', 'dateFilter', 'thDateFormat',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $http, $q,
-                        $modal, $templateRequest, $interpolate, thServiceDomain,
+                        $modal, $templateRequest, $interpolate,
                         thUrl, ThRepositoryModel,
                         ThOptionCollectionModel, ThResultSetModel,
                         PhFramework, PhSeries, PhAlerts, phTimeRanges,
@@ -291,7 +291,7 @@ perf.controller('AlertsCtrl', [
                         };
                         var compiled = $interpolate(template)({
                             revision: alertSummary.resultSetMetadata.revision,
-                            alertHref: thServiceDomain + '/perf.html#/alerts?id=' +
+                            alertHref: window.location.origin + '/perf.html#/alerts?id=' +
                                 alertSummary.id,
                             testDescriptions: testDescriptions.join('\n'),
                             tryBuildPlatforms: tryBuildPlatforms.join(','),

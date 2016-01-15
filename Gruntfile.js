@@ -223,9 +223,9 @@ module.exports = function(grunt) {
                     usemin: 'dist/js/perf.min.js',
                     append: true,
                     htmlmin: {
+                        // intentionally NOT collapsing whitespace here,
+                        // so perf regression templates are handled correctly
                         collapseBooleanAttributes:      true,
-                        collapseWhitespace:             true,
-                        conservativeCollapse:           true,
                         removeAttributeQuotes:          true,
                         removeComments:                 true,
                         removeEmptyAttributes:          true,
