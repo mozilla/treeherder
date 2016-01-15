@@ -97,7 +97,7 @@ class TreeherderModelBase(object):
         if conditions:
             for column, condition in conditions.items():
                 if allowed_fields is None or column in allowed_fields:
-                    if column in allowed_fields:
+                    if allowed_fields and column in allowed_fields:
                         # we need to get the db column string from the passed
                         # in querystring column.  It could be the same, but
                         # often it will have a table prefix for the column.

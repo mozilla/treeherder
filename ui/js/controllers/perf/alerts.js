@@ -83,15 +83,22 @@ perf.controller(
 
 perf.controller('AlertsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$http', '$q', '$modal',
-    'thUrl', 'ThRepositoryModel', 'ThOptionCollectionModel', 'ThResultSetModel',
+    '$templateRequest', '$interpolate',
+    'thServiceDomain', 'thUrl', 'ThRepositoryModel', 'ThOptionCollectionModel',
+    'ThResultSetModel',
     'PhFramework', 'PhSeries', 'PhAlerts', 'phTimeRanges',
-    'phDefaultTimeRangeValue', 'phAlertResolutionMap', 'dateFilter',
-    'thDateFormat',
+    'phDefaultTimeRangeValue', 'phAlertResolutionMap', 'phTalosDocumentationMap',
+    'phTrySyntaxBuildPlatformMap', 'phTrySyntaxTalosModifierMap',
+    'mcTalosConfigUrl', 'dateFilter', 'thDateFormat',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $http, $q,
-                        $modal, thUrl, ThRepositoryModel,
+                        $modal, $templateRequest, $interpolate, thServiceDomain,
+                        thUrl, ThRepositoryModel,
                         ThOptionCollectionModel, ThResultSetModel,
                         PhFramework, PhSeries, PhAlerts, phTimeRanges,
                         phDefaultTimeRangeValue, phAlertResolutionMap,
+                        phTalosDocumentationMap,
+                        phTrySyntaxBuildPlatformMap, phTrySyntaxTalosModifierMap,
+                        mcTalosConfigUrl,
                         dateFilter, thDateFormat) {
         $scope.alertSummaries = [];
         $scope.getMoreAlertSummariesHref = null;
@@ -128,6 +135,28 @@ perf.controller('AlertsCtrl', [
             });
             $scope.numFilteredAlertSummaries = _.filter($scope.alertSummaries, { anyVisible: false }).length;
 
+        }
+
+        function getAlertTitle(alerts) {
+            var title;
+            if (alerts.length > 1) {
+                title = _.min(_.pluck(alerts, 'amount_pct')) + " - " +
+                    _.max(_.pluck(alerts, 'amount_pct')) + "%";
+            } else {
+                title = alerts[0].amount_pct + "%";
+            }
+            // add test info
+            title += " " + _.uniq(
+                _.map(alerts, function(a) {
+                    return PhSeries.getTestName(a.series_signature, { abbreviate:true });
+                })).sort().join(' / ');
+            // add platform info
+            title += " (" + _.uniq(
+                _.map(alerts, function(a) {
+                    return a.series_signature.machine_platform;
+                })).sort().join(', ') + ')';
+
+            return title;
         }
 
         $scope.filtersUpdated = function() {
@@ -171,7 +200,115 @@ perf.controller('AlertsCtrl', [
         };
 
         $scope.fileBug = function(alertSummary) {
-            window.open("https://edmorley.github.io/fileit/");
+            $http.get(mcTalosConfigUrl).then(function(response) {
+                // yes this is ridiculous, but it's (hopefully) less likely
+                // to break than the alternatives, since it should auto-update
+                // whenever someone changes the talos configuration in
+                // mozilla-central
+                var trySuiteMapping = {};
+                _.forEach(
+                    _.filter(Object.keys(response.data.suites),
+                             function(buildbotSuite) {
+                                 // we only want the high level suite names, -
+                                 // and _ denote variants
+                                 return (buildbotSuite.indexOf('-') === -1 &&
+                                         buildbotSuite.indexOf('_') === -1);
+                             }),
+                    function(buildbotSuite) {
+                        _.forEach(
+                            response.data.suites[buildbotSuite].tests, function(test) {
+                                trySuiteMapping[test] = buildbotSuite;
+                            });
+                    });
+                $templateRequest('partials/perf/bugzilla_talos.tmpl').then(
+                    function(template) {
+                        var selectedAlerts = _.filter(alertSummary.alerts,
+                                                      {selected: true});
+                        var testDescriptions = _.uniq(_.map(selectedAlerts, function(alert) {
+                            var suitekey = alert.series_signature.suite;
+                            var testkey = alert.series_signature.suite + '_' +
+                                alert.series_signature.test;
+                            var prefix = 'https://wiki.mozilla.org/Buildbot/Talos/Tests#';
+                            if (phTalosDocumentationMap[suitekey]) {
+                                return prefix + phTalosDocumentationMap[suitekey];
+                            } else if (phTalosDocumentationMap[testkey]) {
+                                return prefix + phTalosDocumentationMap[testkey];
+                            } else {
+                                // assume suitekey or testkey will work otherwise
+                                if (alert.series_signature.test) {
+                                    return prefix + testkey;
+                                }
+                                return prefix + suitekey;
+                            }
+                        }));
+                        var talosSuites = _.uniq(_.map(selectedAlerts, function(alert) {
+                            return alert.series_signature.suite;
+                        }));
+                        var tryBuildPlatforms = _.uniq(_.map(selectedAlerts, function(alert) {
+                            var platform =  alert.series_signature.machine_platform;
+                            var mappedPlatform = phTrySyntaxBuildPlatformMap[platform];
+                            if (mappedPlatform)
+                                return mappedPlatform;
+                            return platform;
+                        }));
+                        var tryTalosModifiers = _.uniq(_.filter(_.map(
+                            selectedAlerts, function(alert) {
+                                var platform =  alert.series_signature.machine_platform;
+                                var mappedPlatform = phTrySyntaxTalosModifierMap[platform];
+                                if (mappedPlatform)
+                                    return mappedPlatform;
+                                return undefined;
+                            })));
+                        if (tryTalosModifiers.length) {
+                            tryTalosModifiers = '[' + tryTalosModifiers.join(',') + ']';
+                        } else {
+                            tryTalosModifiers = "";
+                        }
+                        var trySuites = _.uniq(_.map(selectedAlerts, function(alert) {
+                            var suiteName = trySuiteMapping[alert.series_signature.suite];
+                            if (_.contains(alert.series_signature.test_options, 'e10s')) {
+                                suiteName += '-e10s';
+                            }
+                            return suiteName + tryTalosModifiers;
+                        }));
+                        // they have 3 days from today to respond (if backout day
+                        // would be a Saturday or Sunday, delay until the following
+                        // Monday)
+                        var backoutDate = new Date(Date.now() + 3*86400*1000);
+                        if (backoutDate.getDay() === 6) {
+                            backoutDate.setDate(backoutDate.getDate() + 2);
+                        } else if (backoutDate.getDay() === 0) {
+                            backoutDate.setDate(backoutDate.getDate() + 1);
+                        }
+                        var dayMapping = {
+                            0: 'Sunday', // not used
+                            1: 'Monday',
+                            2: 'Tuesday',
+                            3: 'Wednesday',
+                            4: 'Thursday',
+                            5: 'Friday',
+                            6: 'Saturday' // not used
+                        };
+                        var compiled = $interpolate(template)({
+                            revision: alertSummary.resultSetMetadata.revision,
+                            alertHref: thServiceDomain + '/perf.html#/alerts?id=' +
+                                alertSummary.id,
+                            testDescriptions: testDescriptions.join('\n'),
+                            tryBuildPlatforms: tryBuildPlatforms.join(','),
+                            trySuites: trySuites.join(','),
+                            talosTestListSyntax: talosSuites.join(":"),
+                            backoutDay: dayMapping[backoutDate.getDay()]
+                        });
+                        var pushDate = dateFilter(
+                            alertSummary.resultSetMetadata.push_timestamp*1000,
+                            "EEE MMM d yyyy");
+                        var bugTitle = getAlertTitle(selectedAlerts) +
+                            " regression on push " +
+                            alertSummary.resultSetMetadata.revision + " (" +
+                            pushDate + ")";
+                        window.open("https://bugzilla.mozilla.org/enter_bug.cgi?component=Untriaged&product=Firefox&short_desc=" + encodeURIComponent(bugTitle) + "&comment=" + encodeURIComponent(compiled) + '&keywords=perf%2C%20regression%2C%20&status_whiteboard=%5Btalos_regression%5D');
+                    });
+            });
         };
 
         function modifyAlerts(alertSummary, modifiedStatus) {
@@ -252,20 +389,8 @@ perf.controller('AlertsCtrl', [
                         {includePlatformInName: true});
                 });
 
-                alertSummary.title = alertSummary.repository;
-                if (alertSummary.alerts.length > 1) {
-                    alertSummary.title += " " +
-                        _.min(_.pluck(alertSummary.alerts, 'amount_pct')) + " - " +
-                        _.max(_.pluck(alertSummary.alerts, 'amount_pct')) + "%";
-                } else {
-                    alertSummary.title += " " + alertSummary.alerts[0].amount_pct + "%";
-                }
-                alertSummary.title += " " + _.uniq(
-                    _.map(alertSummary.alerts, function(a) {
-                        return PhSeries.getTestName(a, { abbreviate:true });
-                    })).sort().join(' / ');
-                alertSummary.platforms = _.uniq(_.pluck(alertSummary.alerts,
-                                                        'machine_platform')).sort();
+                alertSummary.title = alertSummary.repository + " " +
+                    getAlertTitle(alertSummary.alerts);
             });
 
             $q.all(_.map(_.keys(resultSetToSummaryMap), function(repo) {
