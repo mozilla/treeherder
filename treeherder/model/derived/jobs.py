@@ -1,5 +1,4 @@
 import logging
-import re
 import time
 from datetime import datetime
 
@@ -427,7 +426,8 @@ class JobsModel(TreeherderModelBase):
             name__in=["intermittent", "intermittent needs filing"]).values_list('id', flat=True)
 
         if not autoclassify and failure_classification_id in intermittent_ids:
-            self.update_autoclassification(job_id)
+            failure_line = self.manual_classification_line(job_id)
+            self.update_autoclassification(failure_line)
 
     def delete_job_note(self, note_id, job_id):
         """
@@ -442,21 +442,19 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
-    def update_autoclassification(self, job_id):
+    def update_autoclassification(self, failure_line):
         """
         If a job is manually classified and has a single line in the logs matching a single
         FailureLine, but the FailureLine has not matched any ClassifiedFailure, add a
         new match due to the manual classification.
         """
-        failure_line = self.manual_classification_line(job_id)
-
         if failure_line is None:
             return
 
         manual_detector = Matcher.objects.get(name="ManualDetector")
 
         classification = failure_line.set_classification(manual_detector)
-        failure_line.verify_best_classification(classification)
+        failure_line.set_best_classification_verified(classification)
 
     def manual_classification_line(self, job_id):
         """
@@ -471,10 +469,12 @@ class JobsModel(TreeherderModelBase):
         except (FailureLine.DoesNotExist, FailureLine.MultipleObjectsReturned):
             return None
 
-        bug_suggestion_lines = self.filter_bug_suggestions(self.bug_suggestions(job_id))
+        with ArtifactsModel(self.project) as am:
+            bug_suggestion_lines = am.filter_bug_suggestions(
+                am.bug_suggestions(job_id))
 
-        if len(bug_suggestion_lines) != 1:
-            return None
+            if len(bug_suggestion_lines) != 1:
+                return None
 
         # Check that some detector would match this. This is being used as an indication
         # that the autoclassifier will be able to work on this classification
@@ -483,17 +483,6 @@ class JobsModel(TreeherderModelBase):
             return None
 
         return failure_lines[0]
-
-    def filter_bug_suggestions(self, suggestion_lines):
-        remove = [re.compile("Return code: \d+")]
-
-        rv = []
-
-        for item in suggestion_lines:
-            if not any(regexp.match(item["search"]) for regexp in remove):
-                rv.append(item)
-
-        return rv
 
     def update_after_autoclassification(self, job_id, user=None):
         if not settings.AUTOCLASSIFY_JOBS:
@@ -542,7 +531,9 @@ class JobsModel(TreeherderModelBase):
             best_is_verified=True,
             job_guid=job["job_guid"]).count()
 
-        bug_suggestion_lines = self.filter_bug_suggestions(self.bug_suggestions(job_id))
+        with ArtifactsModel(self.project) as am:
+            bug_suggestion_lines = am.filter_bug_suggestions(
+                am.bug_suggestions(job_id))
 
         return verified_failure_lines == len(bug_suggestion_lines)
 
@@ -560,7 +551,9 @@ class JobsModel(TreeherderModelBase):
         if classified_failure_lines == 0:
             return False
 
-        bug_suggestion_lines = self.filter_bug_suggestions(self.bug_suggestions(job_id))
+        with ArtifactsModel(self.project) as am:
+            bug_suggestion_lines = am.filter_bug_suggestions(
+                am.bug_suggestions(job_id))
 
         return classified_failure_lines == len(bug_suggestion_lines)
 
@@ -599,20 +592,6 @@ class JobsModel(TreeherderModelBase):
             classification = FailureClassification.objects.get(name="intermittent")
 
         self.insert_job_note(job_id, classification.id, user, "", autoclassify=True)
-
-    def bug_suggestions(self, job_id):
-        """Get the list of log lines and associated bug suggestions for a job"""
-        with ArtifactsModel(self.project) as artifacts_model:
-            # TODO: Filter some junk from this
-            objs = artifacts_model.get_job_artifact_list(
-                offset=0,
-                limit=1,
-                conditions={"job_id": set([("=", job_id)]),
-                            "name": set([("=", "Bug suggestions")]),
-                            "type": set([("=", "json")])})
-
-            lines = objs[0]["blob"] if objs else []
-        return lines
 
     def insert_bug_job_map(self, job_id, bug_id, assignment_type, submit_timestamp, who,
                            autoclassify=False):

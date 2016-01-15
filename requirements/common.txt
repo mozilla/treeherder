@@ -123,7 +123,7 @@ python-dateutil==2.4.2
 # sha256: wmJqsx6-8Mgbl3gcRMInW_zG2OhSD8TO1JXw84b4_iY
 requests-hawk==1.0.0
 
-# sha256: TmAcf_olJZS7oogdpc3CkbpDWxoFRVlekdP-zeLnT18
+# sha256: CRkOm0X1YySjZaf6igAmcs2h1cc6Dg2J1slT-5nUmWY
 djangorestframework-filters==0.6.0
 
 # Required by djangorestframework-filters
