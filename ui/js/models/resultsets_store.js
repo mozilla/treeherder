@@ -848,7 +848,7 @@ treeherder.factory('ThResultSetStore', [
             return _.isEmpty(repositories[repoName].rsMap);
         };
 
-        var fetchResultSets = function(repoName, count, keepFilters){
+        var fetchResultSets = function(repoName, count, keepFilters, isAppend){
             /**
              * Get the next batch of resultsets based on our current offset.
              * @param count How many to fetch
@@ -882,6 +882,12 @@ treeherder.factory('ThResultSetStore', [
                     // this allows someone to more quickly load ranges of revisions
                     // when they don't care about the specific jobs and results.
                     if ($location.search().nojobs) {
+                        return;
+                    }
+
+                    // there is already a polling task from loading the initial dataset
+                    // if the data has been loaded for appending.
+                    if (isAppend) {
                         return;
                     }
 
