@@ -604,7 +604,7 @@
         "dvcs_type": "hg",
         "name": "gaia-try",
         "url": "https://hg.mozilla.org/integration/gaia-try",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gaia",
         "repository_group": 3,
         "description": ""
@@ -669,7 +669,7 @@
         "dvcs_type": "hg",
         "name": "staging-gaia-try",
         "url": "https://hg.mozilla.org/users/jford_mozilla.com/gaia-try",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 3,
         "description": ""
