@@ -98,7 +98,14 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
     push_timestamp = datetime.datetime.fromtimestamp(
         job_data[job_guid]['push_timestamp'])
 
-    framework = PerformanceFramework.objects.get(name=perf_datum['framework']['name'])
+    try:
+        framework = PerformanceFramework.objects.get(
+            name=perf_datum['framework']['name'])
+    except PerformanceFramework.DoesNotExist:
+        logger.warning("Performance framework {} does not exist, skipping "
+                       "load of performance artifacts".format(
+                           perf_datum['framework']['name']))
+        return
     for suite in perf_datum['suites']:
         subtest_signatures = []
         for subtest in suite['subtests']:

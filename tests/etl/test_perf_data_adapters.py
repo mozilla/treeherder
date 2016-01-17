@@ -62,9 +62,11 @@ def perf_reference_data():
 
 def _generate_perf_data_range(test_project, test_repository,
                               perf_option_collection, perf_platform,
-                              perf_reference_data):
+                              perf_reference_data,
+                              create_perf_framework=True):
     framework_name = "cheezburger"
-    PerformanceFramework.objects.create(name=framework_name)
+    if create_perf_framework:
+        PerformanceFramework.objects.create(name=framework_name)
 
     now = int(time.time())
     for (i, value) in zip(range(30), [1]*15 + [2]*15):
@@ -285,6 +287,18 @@ def test_load_talos_data(test_project, test_repository,
         # delete perf objects for next iteration
         PerformanceSignature.objects.all().delete()
         PerformanceDatum.objects.all().delete()
+
+
+def test_no_performance_framework(test_project, test_repository,
+                                  perf_option_collection, perf_platform,
+                                  perf_reference_data):
+    _generate_perf_data_range(test_project, test_repository,
+                              perf_option_collection, perf_platform,
+                              perf_reference_data,
+                              create_perf_framework=False)
+    # no errors, but no data either
+    assert 0 == PerformanceSignature.objects.all().count()
+    assert 0 == PerformanceDatum.objects.all().count()
 
 
 def test_alert_generation(test_project, test_repository,
