@@ -10,12 +10,12 @@ perf.config(function($compileProvider, $httpProvider, $stateProvider, $urlRouter
     $httpProvider.useApplyAsync(true);
 
     $stateProvider.state('alerts', {
-        title: 'Perfherder Alerts',
+        title: 'Alerts',
         templateUrl: 'partials/perf/alertsctrl.html',
         url: '/alerts?id&framework&filter&hideImprovements',
         controller: 'AlertsCtrl'
     }).state('graphs', {
-        title: 'Perfherder Graphs',
+        title: 'Graphs',
         templateUrl: 'partials/perf/graphsctrl.html',
         url: '/graphs?timerange&series&highlightedRevisions&zoom&selected',
         controller: 'GraphsCtrl'
@@ -28,7 +28,7 @@ perf.config(function($compileProvider, $httpProvider, $stateProvider, $urlRouter
         url: '/comparesubtest?originalProject&originalRevision&newProject&newRevision&originalSignature&newSignature',
         controller: 'CompareSubtestResultsCtrl'
     }).state('comparechooser', {
-        title: 'Perfherder Compare',
+        title: 'Compare',
         templateUrl: 'partials/perf/comparechooserctrl.html',
         url: '/comparechooser?originalProject&originalRevision&newProject&newRevision',
         controller: 'CompareChooserCtrl'
