@@ -17,7 +17,7 @@ treeherder.factory('ThJobModel', [
                 parseInt(this.submit_timestamp) + parseInt(this.running_eta) ) )/60 );
         };
 
-        ThJobModel.prototype.get_typical_eta = function(){
+        ThJobModel.prototype.get_average_duration = function(){
             return Math.round(
                 parseInt(this.running_eta) /60
             );

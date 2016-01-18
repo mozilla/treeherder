@@ -142,11 +142,11 @@
           </div>
           <div ng-if="job.state =='running'">
             <span ng-if="eta < 0">ETA to completed: ~ {{eta_abs}} minutes</span>
-            <span ng-if="eta > 0">{{eta}} mins overdue, typically takes ~ {{typical_eta}} mins</span>
-            <span ng-if="eta == 0">ETA any minute now, typically takes ~ {{typical_eta}} mins</span>
+            <span ng-if="eta > 0">{{eta}} mins overdue, typically takes ~ {{average_duration}} mins</span>
+            <span ng-if="eta == 0">ETA any minute now, typically takes ~ {{average_duration}} mins</span>
           </div>
           <div ng-if="job.state =='pending'">
-            <span>Typically takes ~ {{typical_eta}} mins once started</span>
+            <span>Typically takes ~ {{average_duration}} mins once started</span>
           </div>
         </li>
       </ul>
