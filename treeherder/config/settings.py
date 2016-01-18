@@ -463,9 +463,6 @@ if env.bool('IS_HEROKU', default=False):
         memcacheify().get('default')
     )
 
-if env('CLOUDAMQP_URL', default=None):
-    BROKER_URL = env('CLOUDAMQP_URL')
-
 CELERY_IGNORE_RESULT = True
 
 API_HOSTNAME = SITE_URL
