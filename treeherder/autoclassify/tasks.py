@@ -16,7 +16,7 @@ def autoclassify(project, job_guid):
         celery_app.send_task('detect-intermittents',
                              [project, job_guid],
                              routing_key='detect_intermittents')
-    except Exception, e:
+    except Exception as e:
         autoclassify.retry(exc=e, countdown=(1 + autoclassify.request.retries) * 60)
 
 
@@ -27,5 +27,5 @@ def detect_intermittents(project, job_guid):
         # TODO: Make this list configurable
         if project == "mozilla-inbound":
             call_command('detect_intermittents', job_guid, project)
-    except Exception, e:
+    except Exception as e:
         detect_intermittents.retry(exc=e, countdown=(1 + detect_intermittents.request.retries) * 60)

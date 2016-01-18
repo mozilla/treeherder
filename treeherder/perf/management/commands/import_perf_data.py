@@ -139,7 +139,7 @@ class Command(BaseCommand):
             for future in futures:
                 try:
                     future.result()
-                except Exception, e:
+                except Exception as e:
                     self.stderr.write("FAIL: {}".format(e))
                     # shutdown any pending tasks and exit (if something
                     # is in progress, no wait to stop it)

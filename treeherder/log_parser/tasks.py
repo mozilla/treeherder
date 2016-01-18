@@ -64,5 +64,5 @@ def store_error_summary(project, job_log_url, job_guid):
             celery_app.send_task('autoclassify',
                                  [project, job_guid],
                                  routing_key='autoclassify')
-    except Exception, e:
+    except Exception as e:
         store_error_summary.retry(exc=e, countdown=(1 + store_error_summary.request.retries) * 60)
