@@ -9,9 +9,6 @@ from rest_framework import (exceptions,
                             viewsets)
 from rest_framework.response import Response
 
-from performance_serializers import (PerformanceAlertSerializer,
-                                     PerformanceAlertSummarySerializer,
-                                     PerformanceFrameworkSerializer)
 from treeherder.model import models
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
@@ -19,6 +16,10 @@ from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceFramework,
                                     PerformanceSignature)
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
+
+from .performance_serializers import (PerformanceAlertSerializer,
+                                      PerformanceAlertSummarySerializer,
+                                      PerformanceFrameworkSerializer)
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):

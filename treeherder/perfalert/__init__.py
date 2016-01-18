@@ -1,1 +1,1 @@
-from perfalert import *
+from .perfalert import *

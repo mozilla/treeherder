@@ -103,7 +103,7 @@ def add_test_procs_file(dhub, key, filename):
 @pytest.fixture(scope='session')
 def sample_data():
     """Returns a SampleData() object"""
-    from sampledata import SampleData
+    from .sampledata import SampleData
     return SampleData()
 
 

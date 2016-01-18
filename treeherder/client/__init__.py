@@ -1,1 +1,1 @@
-from thclient import *
+from .thclient import *
