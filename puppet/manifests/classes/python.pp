@@ -1,29 +1,12 @@
-# Install python and common packages for project
-
-$python_devel = $operatingsystem ? {
-    ubuntu => "python-dev",
-    default => "python-devel",
-}
-
-$libxml2 = $operatingsystem ? {
-    ubuntu => "libxml2-dev",
-    default => "libxml2-devel",
-}
-
-$site_packages = $operatingsystem ? {
-    ubuntu => "lib/python2.7/site-packages",
-    default => "lib64/python2.7/site-packages",
-}
-
 class python {
 
   # Python2.7 is already installed, but we need to update it to the
   # latest version from the third party PPA.
   package{["python2.7",
-           $python_devel,
+           "python-dev",
            "gcc",
            "git",
-           $libxml2]:
+           "libxml2-dev"]:
     ensure => "latest",
   }
 
@@ -33,7 +16,7 @@ class python {
     command => "curl https://bootstrap.pypa.io/get-pip.py | sudo python -",
     creates => "/usr/local/bin/pip",
     require => [
-      Package[$python_devel],
+      Package["python-dev"],
     ],
   }
 
