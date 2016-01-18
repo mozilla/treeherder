@@ -302,12 +302,14 @@ treeherder.controller('PluginCtrl', [
             var starttime = $scope.job.start_timestamp || $scope.job.submit_timestamp;
             duration = numberFilter((endtime-starttime)/60, 0) + " minute(s)";
 
-            $scope.visibleTimeFields.duration = duration;
-
             if ($scope.job.start_timestamp) {
                 $scope.visibleTimeFields.startTime = dateFilter(
                     $scope.job.start_timestamp*1000, thDateFormat);
+                $scope.visibleTimeFields.duration = duration;
+            } else {
+                $scope.visibleTimeFields.duration = "Not started (queued for " + duration + ")";
             }
+
             if ($scope.job.end_timestamp) {
                 $scope.visibleTimeFields.endTime = dateFilter(
                     $scope.job.end_timestamp*1000, thDateFormat);
