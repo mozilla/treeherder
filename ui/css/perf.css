@@ -317,6 +317,10 @@ td.compare-regression {
   font-weight: bold;
 }
 
+td.compare-notsure {
+  background-image: linear-gradient(to bottom, #FF9500, #FFCB00);
+}
+
 span.compare-improvement {
     color: #80BB2E;
 }
@@ -325,8 +329,8 @@ span.compare-regression {
     color: #B20000;
 }
 
-.compare-notsure {
-  background-image: linear-gradient(to bottom, #FF9500, #FFCB00);
+span.compare-notsure {
+    color: #FF9500;
 }
 
 .bar {
