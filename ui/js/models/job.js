@@ -11,7 +11,7 @@ treeherder.factory('ThJobModel', [
             angular.extend(this, data);
         };
 
-        ThJobModel.prototype.get_current_eta = function(){
+        ThJobModel.prototype.running_time_remaining = function(){
             var timestampSeconds = new Date().getTime()/1000;
             return Math.round( ( timestampSeconds - (
                 parseInt(this.submit_timestamp) + parseInt(this.running_eta) ) )/60 );
