@@ -13,8 +13,6 @@ logger = logging.getLogger(__name__)
 
 class JobLoader:
     """Validate, transform and load a list of Jobs"""
-    jobs_schema = None
-    artifact_schema = None
 
     TEST_RESULT_MAP = {
         "success": "success",

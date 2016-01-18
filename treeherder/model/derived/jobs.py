@@ -2,7 +2,6 @@ import logging
 import time
 from datetime import datetime
 
-import simplejson as json
 from _mysql_exceptions import IntegrityError
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -1860,16 +1859,6 @@ class JobData(dict):
         """Initialize ``JobData`` with a data dict and a context list."""
         self.context = context or []
         super(JobData, self).__init__(data)
-
-    @classmethod
-    def from_json(cls, json_blob):
-        """Create ``JobData`` from a JSON string."""
-        try:
-            data = json.loads(json_blob)
-        except ValueError as e:
-            raise JobDataError("Malformed JSON: {0}".format(e))
-
-        return cls(data)
 
     def __getitem__(self, name):
         """Get a data value, raising ``JobDataError`` if missing."""
