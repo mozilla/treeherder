@@ -9,6 +9,7 @@ class init {
       # https://launchpad.net/~fkrull/+archive/ubuntu/deadsnakes-python2.7
       exec { "add_python27_ppa":
           command => "sudo add-apt-repository ppa:fkrull/deadsnakes-python2.7",
+          creates => "/etc/apt/sources.list.d/fkrull-deadsnakes-python2_7-trusty.list",
       }
 
       exec { "update_apt":
