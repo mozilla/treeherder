@@ -385,10 +385,10 @@ def test_store_result_set_data(jm, initial_data, sample_resultset):
 
     # Confirm the data structures returned match what's stored in
     # the database
-    print '<><>EXP'
-    print data['result_set_ids']
-    print '<><>ACT'
-    print result_set_ids
+    print('<><>EXP')
+    print(data['result_set_ids'])
+    print('<><>ACT')
+    print(result_set_ids)
 
     assert data['result_set_ids'] == result_set_ids
     assert data['revision_ids'] == revision_ids

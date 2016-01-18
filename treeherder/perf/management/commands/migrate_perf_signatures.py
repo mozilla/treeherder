@@ -38,7 +38,7 @@ class Command(BaseCommand):
             projects = Datasource.objects.values_list('project', flat=True)
 
         for project in projects:
-            print project
+            print(project)
             try:
                 repository = Repository.objects.get(name=project)
             except:
@@ -51,7 +51,7 @@ class Command(BaseCommand):
                 hashes_to_migrate &= set(options['signature'])
 
             for hash in hashes_to_migrate:
-                print hash
+                print(hash)
                 old_signature = PerformanceSignature.objects.get(
                     repository__isnull=True, signature_hash=hash)
                 datums = PerformanceDatum.objects.filter(

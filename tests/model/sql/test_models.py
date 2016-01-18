@@ -58,7 +58,7 @@ def test_datasource_cache_invalidated(DataSource):
     # create a new datasource
     create_datasource(DataSource)
 
-    print DataSource.objects.all()
+    print(DataSource.objects.all())
 
     # new datasource appears in the list immediately
     assert len(DataSource.objects.cached()) == len(initial) + 1

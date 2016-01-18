@@ -31,7 +31,7 @@ class Command(BaseCommand):
             projects = Datasource.objects.values_list('project', flat=True)
 
         for project in projects:
-            print project
+            print(project)
             try:
                 repository = Repository.objects.get(name=project)
             except:
