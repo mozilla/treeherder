@@ -265,9 +265,9 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                 // Should be rare case and it's unreliable, but at least have something.
                                 var STDDEV_DEFAULT_FACTOR = 0.15;
 
-                                var RATIO_CARE_MIN = 1.015; // We don't care about less than ~1.5% diff
-                                var T_VALUE_CARE_MIN = 0.5; // Observations
-                                var T_VALUE_CONFIDENT = 1; // Observations. Weirdly nice that ended up as 0.5 and 1...
+                                var RATIO_CARE_MIN = 1.02; // We don't care about less than ~2% diff
+                                var T_VALUE_CARE_MIN = 3; // Anything below this is "low" in confidence
+                                var T_VALUE_CONFIDENT = 5; // Anything above this is "high" in confidence
 
                                 function getClassName(newIsBetter, oldVal, newVal, abs_t_value) {
                                     // NOTE: we care about general ratio rather than how much is new compared
@@ -436,9 +436,10 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                                            cmap.newRuns.length);
                                         cmap.isConfident = ((cmap.originalRuns.length > 1 &&
                                                              cmap.newRuns.length > 1 &&
-                                                             cmap.confidenceText === 'high') ||
+                                                             abs_t_value >= T_VALUE_CONFIDENT) ||
                                                             (cmap.originalRuns.length >= 6 &&
-                                                             cmap.newRuns.length >= 6));
+                                                             cmap.newRuns.length >= 6 &&
+                                                             abs_t_value >= T_VALUE_CARE_MIN));
 
                                         return cmap;
                                     },
