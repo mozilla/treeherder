@@ -135,8 +135,10 @@ treeherder.controller('PluginCtrl', [
                 ]).then(function(results){
                     //the first result comes from the job detail promise
                     $scope.job = results[0];
-                    $scope.eta = $scope.job.running_time_remaining();
-                    $scope.eta_abs = Math.abs($scope.eta);
+                    if ($scope.job.state =='running') {
+                        $scope.eta = $scope.job.running_time_remaining();
+                        $scope.eta_abs = Math.abs($scope.eta);
+                    }
                     $scope.average_duration = $scope.job.get_average_duration();
                     $scope.jobRevision = ThResultSetStore.getSelectedJob($scope.repoName).job.revision;
                     $scope.jobIds = results[4];
