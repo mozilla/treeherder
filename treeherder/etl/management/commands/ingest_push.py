@@ -58,7 +58,7 @@ class Command(BaseCommand):
         process = HgPushlogProcess()
         # Use the actual push SHA, in case the changeset specified was a tag
         # or branch name (eg tip). HgPushlogProcess returns the full SHA.
-        push_sha = process.run(pushlog_url, project, changeset=changeset)[:12]
+        push_sha = process.run(pushlog_url, project, changeset=changeset)
 
         Builds4hJobsProcess().run(project_filter=project,
                                   revision_filter=push_sha,
