@@ -130,7 +130,7 @@ treeherder.directive('thCloneJobs', [
             clickJobCb({}, jobEl, job, job_selection_type);
             scrollToElement(jobEl);
 
-            ThResultSetStore.setSelectedJob($rootScope.repoName, jobEl, job);
+            ThResultSetStore.setSelectedJob($rootScope.repoName, job);
         };
 
         var setSelectJobStyles = function(el){
@@ -145,10 +145,13 @@ treeherder.directive('thCloneJobs', [
         var clearSelectJobStyles = function() {
             var lastJobSelected = ThResultSetStore.getSelectedJob(
                 $rootScope.repoName);
-            if (!_.isEmpty(lastJobSelected.el) && !(typeof lastJobSelected.el === 'string')) {
-                lastJobSelected.el.removeClass(selectedBtnCls);
-                lastJobSelected.el.removeClass(largeBtnCls);
-                lastJobSelected.el.addClass(btnCls);
+            if (!_.isEmpty(lastJobSelected.job)) {
+                var el = $('.' + getJobMapKey(lastJobSelected.job));
+                if (!_.isEmpty(el) && !(typeof el === 'string')) {
+                    el.removeClass(selectedBtnCls);
+                    el.removeClass(largeBtnCls);
+                    el.addClass(btnCls);
+                }
             }
 
             // if a job was previously selected that is now inside a count,
@@ -426,7 +429,7 @@ treeherder.directive('thCloneJobs', [
                         _.bind(clickJobCb, this, ev, el, job)();
                 }
 
-                ThResultSetStore.setSelectedJob($rootScope.repoName, el, job);
+                ThResultSetStore.setSelectedJob($rootScope.repoName, job);
 
             } else {
                 _.bind(clickGroupCb, this, el)();
@@ -769,12 +772,6 @@ treeherder.directive('thCloneJobs', [
                     renderJobTableRow($(rowEl), jobTdEl, value.jobGroups);
                 }
             }, this);
-            // update the selected job element, in case it changed
-            var selectedJob = ThResultSetStore.getSelectedJob($rootScope.repoName);
-            if (!_.isEmpty(selectedJob.job)) {
-                var jobBtn = $('.' + getJobMapKey(selectedJob.job));
-                ThResultSetStore.setSelectedJob($rootScope.repoName, jobBtn, selectedJob.job);
-            }
         };
 
         var scrollToElement = function(el, duration) {
@@ -954,12 +951,6 @@ treeherder.directive('thCloneJobs', [
                 renderJobTableRow(row, jobTdEl, resultset.platforms[j].groups);
 
                 tableEl.append(row);
-            }
-            // update the selected job element, in case it changed
-            var selectedJob = ThResultSetStore.getSelectedJob($rootScope.repoName);
-            if (!_.isEmpty(selectedJob.job)) {
-                var jobBtn = $('.' + getJobMapKey(selectedJob.job));
-                ThResultSetStore.setSelectedJob($rootScope.repoName, jobBtn, selectedJob.job);
             }
         };
 
