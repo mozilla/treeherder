@@ -653,6 +653,18 @@ class FailureLine(models.Model):
 
         return rv
 
+    def update_autoclassification(self):
+        """
+        If a job is manually classified and has a single line in the logs matching a single
+        FailureLine, but the FailureLine has not matched any ClassifiedFailure, add a
+        new match due to the manual classification.
+        """
+
+        manual_detector = Matcher.objects.get(name="ManualDetector")
+
+        classification = self.set_classification(manual_detector)
+        self.set_best_classification_verified(classification)
+
 
 class ClassifiedFailure(models.Model):
     id = BigAutoField(primary_key=True)

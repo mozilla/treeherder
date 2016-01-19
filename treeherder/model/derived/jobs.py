@@ -427,7 +427,8 @@ class JobsModel(TreeherderModelBase):
 
         if not autoclassify and failure_classification_id in intermittent_ids:
             failure_line = self.manual_classification_line(job_id)
-            self.update_autoclassification(failure_line)
+            if failure_line:
+                failure_line.update_autoclassification()
 
     def delete_job_note(self, note_id, job_id):
         """
@@ -441,20 +442,6 @@ class JobsModel(TreeherderModelBase):
             ],
             debug_show=self.DEBUG
         )
-
-    def update_autoclassification(self, failure_line):
-        """
-        If a job is manually classified and has a single line in the logs matching a single
-        FailureLine, but the FailureLine has not matched any ClassifiedFailure, add a
-        new match due to the manual classification.
-        """
-        if failure_line is None:
-            return
-
-        manual_detector = Matcher.objects.get(name="ManualDetector")
-
-        classification = failure_line.set_classification(manual_detector)
-        failure_line.set_best_classification_verified(classification)
 
     def manual_classification_line(self, job_id):
         """
