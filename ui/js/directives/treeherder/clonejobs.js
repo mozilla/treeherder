@@ -536,8 +536,7 @@ treeherder.directive('thCloneJobs', [
             el.addClass(col12Cls);
         };
 
-        var renderJobTableRow = function(row, jobTdEl, jobGroups) {
-
+        var getJobTableRowHTML = function(jobGroups) {
             //Empty the job column before populating it
             var btnHTML, countBtnHTML, jobTdHtml = "";
             jobGroups.forEach(function(jobGroup) {
@@ -563,14 +562,19 @@ treeherder.directive('thCloneJobs', [
                         countBtnHTML: countBtnHTML,
                         symbol: jobGroup.symbol,
                         name: jobGroup.name,
-                        grkey: jobGroup.grkey
+                        grkey: jobGroup.grkey,
+                        display: (btnHTML.indexOf('filter-shown') !== -1 || countBtnHTML.indexOf('filter-shown') !== -1) ? 'inline' : 'none'
                     });
                 } else {
                     // Add the job btn spans
                     jobTdHtml += getJobBtnEls(jobGroup);
                 }
             });
-            jobTdEl.html(jobTdHtml);
+            return jobTdHtml;
+        };
+
+        var renderJobTableRow = function(row, jobTdEl, jobGroups) {
+            jobTdEl.html(getJobTableRowHTML(jobGroups));
             row.append(jobTdEl);
             filterPlatform(row);
         };
@@ -898,60 +902,41 @@ treeherder.directive('thCloneJobs', [
         var generateJobElements = function(resultsetAggregateId, resultset) {
 
             var tableEl = $('#' + resultsetAggregateId);
-
             var waitSpanEl = $(tableEl).prev();
             $(waitSpanEl).css('display', 'none');
-
-            var name, option, platformId, platformKey, row, platformTd, jobTdEl, j;
-            for (j=0; j<resultset.platforms.length; j++) {
-
-                platformId = thAggregateIds.getPlatformRowId(
+            var tableHtml = "";
+            resultset.platforms.forEach(function(platform) {
+                var platformId = thAggregateIds.getPlatformRowId(
                     $rootScope.repoName,
                     resultset.id,
-                    resultset.platforms[j].name,
-                    resultset.platforms[j].option
+                    platform.name,
+                    platform.option
                 );
-
-                row = $('#' + platformId);
-
-                if($(row).prop('tagName') !== 'TR'){
-                    // First time the row is being created
-                    row = $('<tr></tr>');
-                    row.prop('id', platformId);
-                } else {
-                    // Clear and re-write the div content if it
-                    // already exists
-                    $(row).empty();
-                }
-
-                name = thPlatformName(resultset.platforms[j].name);
-                option = resultset.platforms[j].option;
-
+                // We first determine whether the row has some visible element
+                var display_style = "none";
+                platform.groups.forEach(function(group) {
+                    group.jobs.forEach(function(job) {
+                        if (filterWithRunnable(job)) {
+                            display_style = "table-row";
+                        }
+                    });
+                });
+                var rowHtml = '<tr id="' + platformId + '" style="display: ' + display_style + ';">';
                 //Add platforms
-                platformTd = platformInterpolator(
+                rowHtml += platformInterpolator(
                     {
-                        'name':name, 'option':option,
+                        'name':thPlatformName(platform.name), 'option':platform.option,
                         'id':thAggregateIds.getPlatformRowId(
                             resultset.id,
-                            resultset.platforms[j].name,
-                            resultset.platforms[j].option
+                            platform.name,
+                            platform.option
                         )
                     }
                 );
-
-                row.append(platformTd);
-
-                // Render the row of job data
-                jobTdEl = $( thCloneHtml.get('jobTdClone').text );
-
-                platformKey = ThResultSetStore.getPlatformKey(
-                    resultset.platforms[j].name, resultset.platforms[j].option
-                );
-
-                renderJobTableRow(row, jobTdEl, resultset.platforms[j].groups);
-
-                tableEl.append(row);
-            }
+                rowHtml += '<td class="job-row">' + getJobTableRowHTML(platform.groups) + '</td></tr>';
+                tableHtml += rowHtml;
+            });
+            tableEl.html(tableHtml);
         };
 
         var $scope = null;
