@@ -46,11 +46,11 @@ class python {
     user => "${APP_USER}",
   }
 
-  exec{"peep-install-common":
+  exec{"pip-install-common":
     require => Exec['create-virtualenv'],
     user => "${APP_USER}",
     cwd => '/tmp',
-    command => "${VENV_DIR}/bin/python ${PROJ_DIR}/bin/peep.py install -r ${PROJ_DIR}/requirements/common.txt",
+    command => "${VENV_DIR}/bin/pip install --disable-pip-version-check --require-hashes -r ${PROJ_DIR}/requirements/common.txt",
     timeout => 1800,
   }
 

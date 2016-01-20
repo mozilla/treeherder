@@ -1,8 +1,8 @@
 class dev{
-  exec{"peep-install-dev":
+  exec{"pip-install-dev":
     user => "${APP_USER}",
     cwd => '/tmp',
-    command => "${VENV_DIR}/bin/python ${PROJ_DIR}/bin/peep.py install -r ${PROJ_DIR}/requirements/dev.txt",
+    command => "${VENV_DIR}/bin/pip install --disable-pip-version-check --require-hashes -r ${PROJ_DIR}/requirements/dev.txt",
     timeout => 1800,
   }
 

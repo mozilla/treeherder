@@ -1,62 +1,42 @@
 # Dependencies needed only for development/testing.
 
-# sha256: 9RhVsnz3ewsvqsdcYwCHrntIz_IrK9v0tjumb1eQr5g
-pytest==2.8.5
+pytest==2.8.5 --hash=sha256:f51855b27cf77b0b2faac75c630087ae7b48cff22b2bdbf4b63ba66f5790af98
 
-# sha256: VASUQKiW3lJH7i57eqVCX5OayDLDftshAfjTA26Jyqg
-datadiff==2.0.0
+datadiff==2.0.0 --hash=sha256:54049440a896de5247ee2e7b7aa5425f939ac832c37edb2101f8d3036e89caa8
 
-# sha256: 5TIecoMa7o5gOKYiOHhbLWCYIz1Y-xH3FWFMnW09f9o
-WebTest==2.0.20
+WebTest==2.0.20 --hash=sha256:e5321e72831aee8e6038a62238785b2d6098233d58fb11f715614c9d6d3d7fda
 
-# sha256: P1c6GL6U3ohtEZHyfBaEJ-9pPo3Pzs-VsXBXey62nLs
-mock==1.3.0
+mock==1.3.0 --hash=sha256:3f573a18be94de886d1191f27c168427ef693e8dcfcecf95b170577b2eb69cbb
 
-# sha256: poGD2_cAwrmXfOr7fimdDiRQZzJl72Dv1QTWlWA06g0
-responses==0.5.0
+responses==0.5.0 --hash=sha256:a68183dbf700c2b9977ceafb7e299d0e2450673265ef60efd504d6956034ea0d
 
-# sha256: -Y-ZHSsDkDOsX6pjjA0a-ycgq_TZ14FXPDWS1omUgKE
-django-extensions==1.6.1
+django-extensions==1.6.1 --hash=sha256:f98f991d2b039033ac5faa638c0d1afb2720abf4d9d781573c3592d6899480a1
 
 #for celery auto-reloading
-# sha256: nJmKXXYGyoNQZc2rwBOubGbrnqdqAKHjvG4M_itPcfQ
-pyinotify==0.9.6
+pyinotify==0.9.6 --hash=sha256:9c998a5d7606ca835065cdabc013ae6c66eb9ea76a00a1e3bc6e0cfe2b4f71f4
 
-# sha256: NPE9CD-55bFyisw90QiGtA-iVO_gO5ftAc7ViSbDjb0
-flake8==2.5.1
+flake8==2.5.1 --hash=sha256:34f13d083fb9e5b1728acc3dd10886b40fa254efe03b97ed01ced58926c38dbd
 
-# sha256: OtJDrXOLL5pYAFrESxOjwpewIBMn7a7DLCRbW8ZtJ-4
-isort==4.2.2
+isort==4.2.2 --hash=sha256:3ad243ad738b2f9a58005ac44b13a3c297b0201327edaec32c245b5bc66d27ee
 
 # Required by pytest
-# sha256: Sj5PMADBI4Naw5yrXMxRBkIVO8R7wfE-K7tTA5VArmk
-py==1.4.31
+py==1.4.31 --hash=sha256:4a3e4f3000c123835ac39cab5ccc510642153bc47bc1f13e2bbb53039540ae69
 
 # Required by WebTest
-# sha256: gqJTJFrtmHXxQd2Yp0YlcrypPQZM8xF70z3kth7hjmg
-beautifulsoup4==4.4.1
-# sha256: 4z94MKKdWsdvWsmsPlGCQBJgi71i47rGK_2WaM7_eio
-waitress==0.8.10
-# sha256: nmzRxAyd3blmwpkJa9N2tVH5rJOpnr3VG0d3tNoseg8
-WebOb==1.5.1
+beautifulsoup4==4.4.1 --hash=sha256:82a253245aed9875f141dd98a7462572bca93d064cf3117bd33de4b61ee18e68
+waitress==0.8.10 --hash=sha256:e33f7830a29d5ac76f5ac9ac3e51824012608bbd62e3bac62bfd9668ceff7a2a
+WebOb==1.5.1 --hash=sha256:9e6cd1c40c9dddb966c299096bd376b551f9ac93a99ebdd51b4777b4da2c7a0f
 
 # Required by mock
-# sha256: _1rZ4vjZ5dHou_vPR3IqtSfPDVHK7u2dptD0B5k4P94
-funcsigs==0.4
-# sha256: Rsjbda51oFa9HMB_ohc0_i5gPRGgeDPswe63TDXHLgw
-pbr==1.8.1
+funcsigs==0.4 --hash=sha256:ff5ad9e2f8d9e5d1e8bbfbcf47722ab527cf0d51caeeed9da6d0f40799383fde
+pbr==1.8.1 --hash=sha256:46c8db75ae75a056bd1cc07fa21734fe2e603d11a07833ecc1eeb74c35c72e0c
 
 # Required by responses
-# sha256: Fb7nUwAt_2hJh7jfjCNSiOuNRfgZGuBWJUgS39QsgdM
-cookies==2.2.1
+cookies==2.2.1 --hash=sha256:15bee753002dff684987b8df8c235288eb8d45f8191ae056254812dfd42c81d3
 
 # Required by flake8
-# sha256: vWwID7NyrrywzhnjXdrHRPKr9ae--iB9stEJfUjv5jo
-mccabe==0.3.1
-# sha256: Yuh_1UU1-5MrSk2Uho21IyV6EDHIvGvTWMIBVDPmRts
-pep8==1.5.7
-# sha256: Bx0SHp57MwWKobpd57zpuXv6MUnP4ay7ZYfCH8HI7aE
-pyflakes==1.0.0
+mccabe==0.3.1 --hash=sha256:bd6c080fb372aebcb0ce19e35ddac744f2abf5a7befa207db2d1097d48efe63a
+pep8==1.5.7 --hash=sha256:62e87fd54535fb932b4a4d94868db523257a1031c8bc6bd358c2015433e646db
+pyflakes==1.0.0 --hash=sha256:071d121e9e7b33058aa1ba5de7bce9b97bfa3149cfe1acbb6587c21fc1c8eda1
 
-# sha256: dD0AVuEn70JIUOp22T1FySwxPaDlZ2WAaln8doDCWrc
-pytest-django==2.9.1
+pytest-django==2.9.1 --hash=sha256:743d0056e127ef424850ea76d93d45c92c313da0e56765806a59fc7680c25ab7
