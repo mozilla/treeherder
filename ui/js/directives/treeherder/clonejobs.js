@@ -536,8 +536,7 @@ treeherder.directive('thCloneJobs', [
             el.addClass(col12Cls);
         };
 
-        var renderJobTableRow = function(row, jobTdEl, jobGroups) {
-
+        var getJobTableRowHTML = function(jobGroups) {
             //Empty the job column before populating it
             var btnHTML, countBtnHTML, jobTdHtml = "";
             jobGroups.forEach(function(jobGroup) {
@@ -570,7 +569,11 @@ treeherder.directive('thCloneJobs', [
                     jobTdHtml += getJobBtnEls(jobGroup);
                 }
             });
-            jobTdEl.html(jobTdHtml);
+            return jobTdHtml;
+        }
+
+        var renderJobTableRow = function(row, jobTdEl, jobGroups) {
+            jobTdEl.html(getJobTableRowHTML(jobGroups));
             row.append(jobTdEl);
             filterPlatform(row);
         };
@@ -898,11 +901,11 @@ treeherder.directive('thCloneJobs', [
         var generateJobElements = function(resultsetAggregateId, resultset) {
 
             var tableEl = $('#' + resultsetAggregateId);
-
             var waitSpanEl = $(tableEl).prev();
             $(waitSpanEl).css('display', 'none');
-
-            var name, option, platformId, platformKey, row, platformTd, jobTdEl, j;
+            var name, option, platformId, platformKey, j;
+            tableEl.html("");
+            var tableHtml = "";
             for (j=0; j<resultset.platforms.length; j++) {
 
                 platformId = thAggregateIds.getPlatformRowId(
@@ -912,23 +915,13 @@ treeherder.directive('thCloneJobs', [
                     resultset.platforms[j].option
                 );
 
-                row = $('#' + platformId);
-
-                if($(row).prop('tagName') !== 'TR'){
-                    // First time the row is being created
-                    row = $('<tr></tr>');
-                    row.prop('id', platformId);
-                } else {
-                    // Clear and re-write the div content if it
-                    // already exists
-                    $(row).empty();
-                }
+                tableHtml += '<tr id=' + platformId + ' >';
 
                 name = thPlatformName(resultset.platforms[j].name);
                 option = resultset.platforms[j].option;
 
                 //Add platforms
-                platformTd = platformInterpolator(
+                tableHtml += platformInterpolator(
                     {
                         'name':name, 'option':option,
                         'id':thAggregateIds.getPlatformRowId(
@@ -938,20 +931,16 @@ treeherder.directive('thCloneJobs', [
                         )
                     }
                 );
-
-                row.append(platformTd);
-
-                // Render the row of job data
-                jobTdEl = $( thCloneHtml.get('jobTdClone').text );
-
+                // Do we need to implement this function?
                 platformKey = ThResultSetStore.getPlatformKey(
                     resultset.platforms[j].name, resultset.platforms[j].option
                 );
 
-                renderJobTableRow(row, jobTdEl, resultset.platforms[j].groups);
-
-                tableEl.append(row);
+                tableHtml += '<td class="job-row">' + getJobTableRowHTML(resultset.platforms[j].groups) + '</td></tr>';
+                //filterPlatform(row); Not so sure about this function. Is it required? Don't
+                // see any direct way to implement it.
             }
+            tableEl.html(tableHtml);
         };
 
         var $scope = null;
