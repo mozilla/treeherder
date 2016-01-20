@@ -21,6 +21,7 @@ matrix:
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
         - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv ~/venv; fi
         - source ~/venv/bin/activate
+        - pip install -U pip==8.0.0
       install:
         - npm install
         - ./bin/peep.py install --disable-pip-version-check -r requirements/common.txt -r requirements/dev.txt
@@ -62,6 +63,7 @@ matrix:
         # Manually install mysql 5.6 since the default is v5.5.
         - sudo apt-get -qq update
         - sudo apt-get -qq install mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
+        - pip install -U pip==8.0.0
       install:
         # This uses pip rather than peep, since it takes half the time, and unlike the other
         # jobs, this one cannot use caching. The hashes are validated in the linters job.
@@ -83,6 +85,7 @@ matrix:
         # Manually install mysql 5.6 since the default is v5.5.
         - sudo apt-get -qq update
         - sudo apt-get -qq install mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
+        - pip install -U pip==8.0.0
       install:
         # This uses pip rather than peep, since it takes half the time, and unlike the other
         # jobs, this one cannot use caching. The hashes are validated in the linters job.
