@@ -25,14 +25,6 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
     queryset = ClassifiedFailure.objects.all()
     filter_class = ClassifiedFailureFilter
 
-    # def retrieve(self, request, pk=None):
-    #     try:
-    #         obj = ClassifiedFailure.objects.get(id=pk)
-    #     except ClassifiedFailure.DoesNotExist:
-    #         return Response("No classified failure with id %s" % pk, 500)
-    #
-    #     return Response(self.serializer_class(obj).data)
-
     def _create(self, data, many=False):
         rv = []
 
@@ -42,7 +34,7 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
                 obj, _ = ClassifiedFailure.objects.get_or_create(bug_number=bug)
             else:
                 obj = ClassifiedFailure()
-            obj.save()
+                obj.save()
             rv.append(obj)
 
         if not many:
