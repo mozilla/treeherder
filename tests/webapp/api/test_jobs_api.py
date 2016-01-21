@@ -262,6 +262,7 @@ def test_job_detail_not_found(webapp, jm):
     assert resp.status_int == 404
 
 
+@pytest.mark.skipif(True, reason="Awaiting landing of Bug 1177519")
 def test_job_error_lines(webapp, eleven_jobs_stored, jm, failure_lines, classified_failures):
     """
     test retrieving failure lines

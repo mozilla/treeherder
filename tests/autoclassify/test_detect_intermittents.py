@@ -1,3 +1,4 @@
+import pytest
 from django.core.management import call_command
 
 from treeherder.autoclassify.detectors import TestFailureDetector
@@ -10,6 +11,7 @@ from .utils import (create_failure_lines,
                     test_line)
 
 
+@pytest.mark.skipif(True, reason="Awaiting landing of Bug 1177519")
 def test_detect_intermittents(activate_responses, jm, eleven_jobs_stored, initial_data,
                               failure_lines, classified_failures, retriggers):
 
