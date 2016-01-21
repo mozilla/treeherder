@@ -455,7 +455,7 @@ perf.controller('AlertsCtrl', [
                 function(frameworks) {
                     $scope.frameworks = frameworks.data;
                 }),
-                    ThOptionCollectionModel.get_map().then(
+                    ThOptionCollectionModel.getMap().then(
                         function(optionCollectionMap) {
                             $scope.optionCollectionMap = optionCollectionMap;
                         })]
