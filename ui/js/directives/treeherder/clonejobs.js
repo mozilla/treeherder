@@ -570,7 +570,7 @@ treeherder.directive('thCloneJobs', [
                 }
             });
             return jobTdHtml;
-        }
+        };
 
         var renderJobTableRow = function(row, jobTdEl, jobGroups) {
             jobTdEl.html(getJobTableRowHTML(jobGroups));
@@ -914,14 +914,14 @@ treeherder.directive('thCloneJobs', [
                     resultset.platforms[j].name,
                     resultset.platforms[j].option
                 );
-
-                tableHtml += '<tr id=' + platformId + ' >';
+                var rowHtml = "";
+                rowHtml += '<tr id="' + platformId + '" >';
 
                 name = thPlatformName(resultset.platforms[j].name);
                 option = resultset.platforms[j].option;
 
                 //Add platforms
-                tableHtml += platformInterpolator(
+                rowHtml += platformInterpolator(
                     {
                         'name':name, 'option':option,
                         'id':thAggregateIds.getPlatformRowId(
@@ -935,10 +935,10 @@ treeherder.directive('thCloneJobs', [
                 platformKey = ThResultSetStore.getPlatformKey(
                     resultset.platforms[j].name, resultset.platforms[j].option
                 );
-
-                tableHtml += '<td class="job-row">' + getJobTableRowHTML(resultset.platforms[j].groups) + '</td></tr>';
+                rowHtml += '<td class="job-row">' + getJobTableRowHTML(resultset.platforms[j].groups) + '</td></tr>';
                 //filterPlatform(row); Not so sure about this function. Is it required? Don't
                 // see any direct way to implement it.
+                tableHtml += rowHtml;
             }
             tableEl.html(tableHtml);
         };
