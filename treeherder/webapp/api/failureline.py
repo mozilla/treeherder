@@ -16,18 +16,8 @@ from treeherder.webapp.api.utils import as_dict
 
 class FailureLineViewSet(viewsets.ViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
-
-    def retrieve(self, request, pk=None):
-        """
-        Get a single test failure line
-        """
-        try:
-            failure_line = FailureLine.objects.prefetch_related(
-                "matches", "matches__matcher",
-            ).get(id=pk)
-            return Response(serializers.FailureLineNoStackSerializer(failure_line).data)
-        except FailureLine.DoesNotExist:
-            return Response("No job with id: {0}".format(pk), 404)
+    queryset = FailureLine.objects.prefetch_related("matches", "matches__matcher").all()
+    serializer = FailureLineNoStackSerializer
 
     @transaction.atomic
     def _update(self, data, email, many=True):
