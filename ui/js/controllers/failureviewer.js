@@ -23,7 +23,7 @@ failureViewerApp.controller('FailureViewerCtrl', [
                 $scope.isLoading = true;
                 ThClassifiedFailuresModel.get_matches($scope.classifiedFailureId).then(
                     function (data) {
-                        $scope.cfList = data.data;
+                        $scope.cfList = data.data.results;
                     })
                     .finally(function() {
                         $scope.isLoading = false;

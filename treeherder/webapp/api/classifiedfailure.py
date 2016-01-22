@@ -1,7 +1,8 @@
 from collections import defaultdict
 
 import rest_framework_filters as filters
-from rest_framework import viewsets
+from rest_framework import (pagination,
+                            viewsets)
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -19,11 +20,17 @@ class ClassifiedFailureFilter(filters.FilterSet):
         fields = ["bug_number"]
 
 
+class IdPagination(pagination.CursorPagination):
+    ordering = ('-id')
+    page_size = 100
+
+
 class ClassifiedFailureViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = serializers.ClassifiedFailureSerializer
     queryset = ClassifiedFailure.objects.all()
     filter_class = ClassifiedFailureFilter
+    pagination_class = IdPagination
 
     def _create(self, data, many=False):
         rv = []
@@ -133,8 +140,15 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def matches(self, request, pk=None):
-        limit = request.GET.get("limit", 100)
-        lines = FailureLine.objects.filter(
-            best_classification__id=pk).prefetch_related('matches')[:limit]
+        serializer_class = serializers.FailureLineNoStackSerializer
 
-        return Response(serializers.FailureLineNoStackSerializer(lines, many=True).data)
+        queryset = FailureLine.objects.filter(
+            best_classification__id=pk).prefetch_related('matches').all()
+        page = self.paginate_queryset(queryset)
+
+        if page:
+            serializer = serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = serializer_class(queryset, many=True)
+        return Response(serializer.data)
