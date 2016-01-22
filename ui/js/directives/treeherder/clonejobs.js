@@ -557,17 +557,13 @@ treeherder.directive('thCloneJobs', [
                             countBtnHTML += element;
                         });
                     }
-                    var display_style = "none";
-                    if (btnHTML.indexOf('filter-shown') != -1 || countBtnHTML.indexOf('filter-shown') != -1) {
-                        display_style = "inline";
-                    }
                     jobTdHtml += jobGroupInterpolator({
                         btnHTML: btnHTML,
                         countBtnHTML: countBtnHTML,
                         symbol: jobGroup.symbol,
                         name: jobGroup.name,
                         grkey: jobGroup.grkey,
-                        display: display_style
+                        display: (btnHTML.indexOf('filter-shown') !== -1 || countBtnHTML.indexOf('filter-shown') !== -1) ? 'inline' : 'none'
                     });
                 } else {
                     // Add the job btn spans
@@ -909,30 +905,27 @@ treeherder.directive('thCloneJobs', [
             var waitSpanEl = $(tableEl).prev();
             $(waitSpanEl).css('display', 'none');
             var name, option, platformId, platformKey, j;
-            tableEl.html("");
             var tableHtml = "";
-            for (j=0; j<resultset.platforms.length; j++) {
-
+            resultset.platforms.forEach(function(platform) {
                 platformId = thAggregateIds.getPlatformRowId(
                     $rootScope.repoName,
                     resultset.id,
-                    resultset.platforms[j].name,
-                    resultset.platforms[j].option
+                    platform.name,
+                    platform.option
                 );
                 // We first determine whether the row has some visible element
                 var display_style = "none";
-                resultset.platforms[j].groups.forEach(function(group) {
+                platform.groups.forEach(function(group) {
                     group.jobs.forEach(function(job) {
                         if (filterWithRunnable(job)) {
                             display_style = "table-row";
                         }
                     });
                 });
-                var rowHtml = "";
-                rowHtml += '<tr id="' + platformId + '" style="display: ' + display_style + ';">';
+                var rowHtml = '<tr id="' + platformId + '" style="display: ' + display_style + ';">';
 
-                name = thPlatformName(resultset.platforms[j].name);
-                option = resultset.platforms[j].option;
+                name = thPlatformName(platform.name);
+                option = platform.option;
 
                 //Add platforms
                 rowHtml += platformInterpolator(
@@ -940,18 +933,14 @@ treeherder.directive('thCloneJobs', [
                         'name':name, 'option':option,
                         'id':thAggregateIds.getPlatformRowId(
                             resultset.id,
-                            resultset.platforms[j].name,
-                            resultset.platforms[j].option
+                            platform.name,
+                            platform.option
                         )
                     }
                 );
-                // Do we need to implement this function?
-                platformKey = ThResultSetStore.getPlatformKey(
-                    resultset.platforms[j].name, resultset.platforms[j].option
-                );
-                rowHtml += '<td class="job-row">' + getJobTableRowHTML(resultset.platforms[j].groups) + '</td></tr>';
+                rowHtml += '<td class="job-row">' + getJobTableRowHTML(platform.groups) + '</td></tr>';
                 tableHtml += rowHtml;
-            }
+            });
             tableEl.html(tableHtml);
         };
 
