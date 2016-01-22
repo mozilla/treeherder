@@ -557,12 +557,17 @@ treeherder.directive('thCloneJobs', [
                             countBtnHTML += element;
                         });
                     }
+                    var display_style = "none";
+                    if (btnHTML.indexOf('filter-shown') != -1 || countBtnHTML.indexOf('filter-shown') != -1) {
+                        display_style = "inline";
+                    }
                     jobTdHtml += jobGroupInterpolator({
                         btnHTML: btnHTML,
                         countBtnHTML: countBtnHTML,
                         symbol: jobGroup.symbol,
                         name: jobGroup.name,
-                        grkey: jobGroup.grkey
+                        grkey: jobGroup.grkey,
+                        display: display_style
                     });
                 } else {
                     // Add the job btn spans
@@ -914,8 +919,17 @@ treeherder.directive('thCloneJobs', [
                     resultset.platforms[j].name,
                     resultset.platforms[j].option
                 );
+                // We first determine whether the row has some visible element
+                var display_style = "none";
+                resultset.platforms[j].groups.forEach(function(group) {
+                    group.jobs.forEach(function(job) {
+                        if (filterWithRunnable(job)) {
+                            display_style = "table-row";
+                        }
+                    });
+                });
                 var rowHtml = "";
-                rowHtml += '<tr id="' + platformId + '" >';
+                rowHtml += '<tr id="' + platformId + '" style="display: ' + display_style + ';">';
 
                 name = thPlatformName(resultset.platforms[j].name);
                 option = resultset.platforms[j].option;
@@ -936,8 +950,6 @@ treeherder.directive('thCloneJobs', [
                     resultset.platforms[j].name, resultset.platforms[j].option
                 );
                 rowHtml += '<td class="job-row">' + getJobTableRowHTML(resultset.platforms[j].groups) + '</td></tr>';
-                //filterPlatform(row); Not so sure about this function. Is it required? Don't
-                // see any direct way to implement it.
                 tableHtml += rowHtml;
             }
             tableEl.html(tableHtml);
