@@ -34,9 +34,11 @@ def test_get_classified_failures(webapp, classified_failures):
     assert resp.status_int == 200
 
     actual = resp.json
-    expected = [{"id": cf.id,
-                 "bug_number": cf.bug_number,
-                 "bug": None} for cf in classified_failures]
+    expected = {"next": None,
+                "previous": None,
+                "results": [{"id": cf.id,
+                             "bug_number": cf.bug_number,
+                             "bug": None} for cf in reversed(classified_failures)]}
     assert actual == expected
 
 
@@ -48,9 +50,11 @@ def test_get_classified_failures_bug(webapp, classified_failures):
     assert resp.status_int == 200
 
     actual = resp.json
-    expected = [{"id": classified_failures[0].id,
-                 "bug_number": classified_failures[0].bug_number,
-                 "bug": None}]
+    expected = {"next": None,
+                "previous": None,
+                "results": [{"id": classified_failures[0].id,
+                             "bug_number": classified_failures[0].bug_number,
+                             "bug": None}]}
     assert actual == expected
 
 
@@ -382,6 +386,6 @@ def test_get_matching_lines(webapp, test_repository, failure_lines, classified_f
         reverse("classified-failure-matches", kwargs={"pk": classified_failures[0].id}))
 
     assert resp.status_int == 200
-    actual = resp.json
+    actual = resp.json["results"]
 
-    assert [item["id"] for item in actual] == [item.id for item in failure_lines]
+    assert [item["id"] for item in actual] == [item.id for item in reversed(failure_lines)]
