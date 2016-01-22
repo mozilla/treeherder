@@ -1,7 +1,8 @@
 from collections import defaultdict
 
 from django.db import transaction
-from rest_framework import viewsets
+from rest_framework import (mixins,
+                            viewsets)
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
@@ -14,10 +15,10 @@ from treeherder.webapp.api import serializers
 from treeherder.webapp.api.utils import as_dict
 
 
-class FailureLineViewSet(viewsets.ViewSet):
+class FailureLineViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = FailureLine.objects.prefetch_related("matches", "matches__matcher").all()
-    serializer = FailureLineNoStackSerializer
+    serializer_class = serializers.FailureLineNoStackSerializer
 
     @transaction.atomic
     def _update(self, data, email, many=True):
