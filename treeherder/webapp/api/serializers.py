@@ -18,14 +18,6 @@ class NoOpSerializer(serializers.Serializer):
         return value
 
 
-class JSONSerializerField(serializers.Field):
-    def to_internal_value(self, data):
-        return data
-
-    def to_representation(self, value):
-        return value
-
-
 class UserExclusionProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -154,7 +146,7 @@ class FailureMatchSerializer(serializers.ModelSerializer):
 class FailureLineNoStackSerializer(serializers.ModelSerializer):
     matches = FailureMatchSerializer(many=True)
     classified_failures = ClassifiedFailureSerializer(many=True)
-    unstructured_bugs = JSONSerializerField(read_only=True)
+    unstructured_bugs = NoOpSerializer(read_only=True)
 
     class Meta:
         model = models.FailureLine
