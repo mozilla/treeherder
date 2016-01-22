@@ -614,7 +614,7 @@ class FailureLine(models.Model):
 
         return classification
 
-    def set_best_classification_verified(self, classification):
+    def mark_best_classification_verified(self, classification):
         self.best_classification = classification
         self.best_is_verified = True
         self.save()
@@ -663,7 +663,7 @@ class FailureLine(models.Model):
         manual_detector = Matcher.objects.get(name="ManualDetector")
 
         classification = self.set_classification(manual_detector)
-        self.set_best_classification_verified(classification)
+        self.mark_best_classification_verified(classification)
 
 
 class ClassifiedFailure(models.Model):
