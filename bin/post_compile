@@ -37,3 +37,11 @@ set-env IS_HEROKU 1
 # (eg "web.1") is shown, rather than "Dynamic Hostname". $DYNO is quoted
 # so that it's expanded at runtime on each dyno, rather than now.
 set-env NEW_RELIC_PROCESS_HOST_DISPLAY_NAME '$DYNO'
+
+# Remove nodejs files to reduce slug size (and avoid environment variable
+# pollution from the nodejs profile script), since they are no longer
+# required once the grunt build has run. The buildpack cache will still
+# contain them, so this doesn't slow down the next slug compile.
+rm -r .heroku/node/
+rm -r .profile.d/nodejs.sh
+rm -r node_modules/
