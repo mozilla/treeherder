@@ -91,7 +91,7 @@
                for confidence -- if we've done that many and we're still
                not confident in a change, more are unlikely to help)
           -->
-        <span ng-if="compareResult.isComplete && !compareResult.isConfident"
+        <span ng-if="compareResult.needsMoreRuns"
               class="glyphicon glyphicon-warning-sign text-warning"
               uib-tooltip="More base / new runs recommended for increased confidence in comparison"
               tooltip-placement="left"
