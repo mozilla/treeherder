@@ -22,7 +22,7 @@
         </div>
         &nbsp;
         <div class="form-group">
-            <input id="filter" type="text" class="form-control" ng-model="filterOptions.filter" placeholder="filter text e.g. linux tp5o" ng-change="updateFilters()"/>
+            <input id="filter" type="text" class="form-control" ng-model="filterOptions.filter" placeholder="filter text e.g. linux tp5o" ng-change="updateFilters()" ng-model-options="{debounce: 250}"/>
         </div>
         <div class="checkbox" uib-tooltip="Non-trivial changes (2%+)">
           <label>
