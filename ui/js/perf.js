@@ -440,6 +440,8 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                                             (cmap.originalRuns.length >= 6 &&
                                                              cmap.newRuns.length >= 6 &&
                                                              abs_t_value >= T_VALUE_CARE_MIN));
+                                        cmap.needsMoreRuns = (cmap.isComplete && !cmap.isConfident &&
+                                                              cmap.originalRuns.length < 6);
 
                                         return cmap;
                                     },
