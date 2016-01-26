@@ -26,5 +26,12 @@
         "fields": {
             "name": "awsy"
         }
+    },
+    {
+        "pk": 5,
+        "model": "perf.PerformanceFramework",
+        "fields": {
+            "name": "awfy"
+        }
     }
 ]
