@@ -5,13 +5,13 @@ treeherder.directive('thCloneJobs', [
     'thServiceDomain', 'thResultStatusInfo', 'thEvents', 'thAggregateIds',
     'thJobFilters', 'thResultStatusObject', 'ThResultSetStore',
     'ThJobModel', 'linkifyBugsFilter', 'thResultStatus', 'thPlatformName',
-    'thJobSearchStr', 'thNotify', '$timeout',
+    'thJobSearchStr', 'thNotify', '$timeout', "ThReactModel",
     function(
         $rootScope, $http, ThLog, thUrl, thCloneHtml,
         thServiceDomain, thResultStatusInfo, thEvents, thAggregateIds,
         thJobFilters, thResultStatusObject, ThResultSetStore,
         ThJobModel, linkifyBugsFilter, thResultStatus, thPlatformName,
-        thJobSearchStr, thNotify, $timeout){
+        thJobSearchStr, thNotify, $timeout, ThReactModel){
 
         var $log = new ThLog("thCloneJobs");
 
@@ -899,7 +899,7 @@ treeherder.directive('thCloneJobs', [
 
         var generateJobElements = function(resultsetAggregateId, resultset) {
             ReactDOM.render(
-              React.createElement(window.Hello, {name: "Let's ReactJS!"}),
+              React.createElement(ThReactModel.Hello, {name: "Let's ReactJS!"}),
               document.getElementsByClassName("job-list")[0]
             );
             var tableEl = $('#' + resultsetAggregateId);
