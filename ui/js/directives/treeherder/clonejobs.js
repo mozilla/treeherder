@@ -728,7 +728,6 @@ treeherder.directive('thCloneJobs', [
                 platformName = thPlatformName(value.platformName);
 
                 rowEl = document.getElementById(platformId);
-                addAdditionalJobParameters(value.jobGroups);
                 if(!rowEl){
                     //First job for this platform found, which means we need
                     //to create the platform and job td elements and the
@@ -819,6 +818,9 @@ treeherder.directive('thCloneJobs', [
 
             $rootScope.$on(
                 thEvents.jobsLoaded, function(ev, platformData){
+                    platformData.forEach(function(value) {
+                        addAdditionalJobParameters(value.jobGroups);
+                    });
                     _.bind(updateJobs, scope, platformData)();
                 });
 
@@ -839,6 +841,9 @@ treeherder.directive('thCloneJobs', [
                         }
                     }
                     if(!_.isEmpty(platformData)){
+                        platformData.forEach(function(value) {
+                            addAdditionalJobParameters(value.jobGroups);
+                        });
                         _.bind(updateJobs, scope, platformData)();
                     }
                 });
@@ -860,6 +865,9 @@ treeherder.directive('thCloneJobs', [
                       in the UI. Use defer to avoid rendering jankiness
                       here.
                         **************/
+                        rsMap[resultSetId].rs_obj.platforms.forEach(function(platform) {
+                            addAdditionalJobParameters(platform.groups);
+                        });
                         _.defer(
                             generateJobElements,
                             resultsetAggregateId,
@@ -912,7 +920,6 @@ treeherder.directive('thCloneJobs', [
                     platform.name,
                     platform.option
                 );
-                addAdditionalJobParameters(platform.groups);
 
                 var display_style = "none";
                 // We first determine whether the row has some visible element
@@ -968,6 +975,9 @@ treeherder.directive('thCloneJobs', [
             element.append(targetEl);
 
             if (scope.resultset.platforms !== undefined) {
+                scope.resultset.platforms.forEach(function(platform) {
+                    addAdditionalJobParameters(platform.groups);
+                });
                 generateJobElements(
                     resultsetAggregateId, scope.resultset);
             } else {
