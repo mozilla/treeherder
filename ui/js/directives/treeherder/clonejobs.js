@@ -716,7 +716,7 @@ treeherder.directive('thCloneJobs', [
 
         var updateJobs = function(platformData){
             angular.forEach(platformData, function(value, platformId) {
-
+                addAdditionalJobParameters(value.jobGroups);
                 if(value.resultsetId !== this.resultset.id){
                     //Confirm we are the correct result set
                     return;
@@ -818,9 +818,6 @@ treeherder.directive('thCloneJobs', [
 
             $rootScope.$on(
                 thEvents.jobsLoaded, function(ev, platformData){
-                    platformData.forEach(function(value) {
-                        addAdditionalJobParameters(value.jobGroups);
-                    });
                     _.bind(updateJobs, scope, platformData)();
                 });
 
@@ -841,9 +838,6 @@ treeherder.directive('thCloneJobs', [
                         }
                     }
                     if(!_.isEmpty(platformData)){
-                        platformData.forEach(function(value) {
-                            addAdditionalJobParameters(value.jobGroups);
-                        });
                         _.bind(updateJobs, scope, platformData)();
                     }
                 });
