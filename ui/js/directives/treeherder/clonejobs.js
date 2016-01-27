@@ -1,5 +1,4 @@
 'use strict';
-
 /* Directives */
 treeherder.directive('thCloneJobs', [
     '$rootScope', '$http', 'ThLog', 'thUrl', 'thCloneHtml',
@@ -21,7 +20,6 @@ treeherder.directive('thCloneJobs', [
         var selectedBtnCls = 'selected-job';
         var selectedCountCls = 'selected-count';
         var largeBtnCls = 'btn-lg-xform';
-
         var col5Cls = 'col-xs-5';
         var col7Cls = 'col-xs-7';
         var col12Cls = 'col-xs-12';
@@ -900,7 +898,10 @@ treeherder.directive('thCloneJobs', [
         };
 
         var generateJobElements = function(resultsetAggregateId, resultset) {
-
+            ReactDOM.render(
+              React.createElement(window.Hello, {name: "Let's ReactJS!"}),
+              document.getElementsByClassName("job-list")[0]
+            );
             var tableEl = $('#' + resultsetAggregateId);
             var waitSpanEl = $(tableEl).prev();
             $(waitSpanEl).css('display', 'none');
