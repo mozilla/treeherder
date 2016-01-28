@@ -2,11 +2,12 @@
 
 perf.controller('CompareChooserCtrl', [
     '$state', '$stateParams', '$scope', 'ThRepositoryModel', 'ThResultSetModel',
-    'phCompareDefaultNewRepo', 'phCompareDefaultOriginalRepo',
+    'phCompareDefaultNewRepo', 'phCompareDefaultOriginalRepo', 'JsonPushes',
     function CompareChooserCtrl($state, $stateParams, $scope,
                                 ThRepositoryModel, ThResultSetModel,
                                 phCompareDefaultNewRepo,
-                                phCompareDefaultOriginalRepo) {
+                                phCompareDefaultOriginalRepo,
+                                JsonPushes) {
         ThRepositoryModel.get_list().success(function(projects) {
             $scope.projects = projects;
             $scope.originalTipList = [];
@@ -56,6 +57,37 @@ perf.controller('CompareChooserCtrl', [
 
             $scope.getNewTipRevision = function(tip) {
                 $scope.newRevision = tip;
+            };
+
+            $scope.getPreviousRevision = function() {
+                $scope.proposalRevision = $scope.newRevisionError = null;
+
+                // only check for a full revision
+                if ($scope.newRevision.length != 12) return;
+                // try will require another logic
+                if ($scope.newProject.name == "try") return;
+
+                JsonPushes.getPreviousRevision(
+                    $scope.newProject.url,
+                    $scope.newRevision
+                ).then(
+                    function (revision) {
+                        $scope.proposalRevision = {
+                            revision: revision.slice(0, 12),
+                            project: $scope.newProject
+                        };
+                    },
+                    function(error) {
+                        $scope.newRevisionError = error.toString();
+                    }
+                );
+            };
+
+            $scope.setProposalRevision = function() {
+                var rev = $scope.proposalRevision;
+                $scope.proposalRevision = null;
+                $scope.originalProject = rev.project;
+                $scope.originalRevision = rev.revision;
             };
 
             $scope.runCompare = function() {

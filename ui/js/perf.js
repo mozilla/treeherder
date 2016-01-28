@@ -659,3 +659,42 @@ perf.filter('displayPrecision', function() {
         return parseFloat(input).toFixed(2);
     };
 });
+
+
+perf.service('JsonPushes', ['$http','$q', function($http, $q) {
+    return {
+        /**
+         * Return the previous revision given one revision on a branch.
+         **/
+        getPreviousRevision: function(projectUrl, revision) {
+            var url = projectUrl + "/json-pushes?changeset=" + revision;
+
+            return $http.get(url).then(function(response) {
+                return Object.keys(response.data)[0];
+            }).then(function(pushId) {
+                pushId = parseInt(pushId);
+                // pushlog API do not include the endId pushId - so we ask
+                // between [pushId -2, pushId - 1]
+                return $http.get(projectUrl +
+                                 "/json-pushes?startID=" + (pushId - 2) +
+                                 "&endID=" + (pushId - 1));
+            }).then(function(response) {
+                var key = Object.keys(response.data)[0];
+                var chsets = response.data[key].changesets;
+                // the last revision in the push is the one interesting.
+                return chsets[chsets.length - 1];
+
+            // error handler to standardize errors
+            }, function(response) {
+                if (response instanceof Error) {
+                    return $q.reject("Unable to get a revision before " +
+                                     revision + " (" + response + ").");
+                } else {
+                    // http error
+                    return $q.reject("Error " + response.status +
+                                     " (" + response.data + ").");
+                }
+            });
+        }
+    };
+}]);
