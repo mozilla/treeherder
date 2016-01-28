@@ -124,6 +124,8 @@ class JobsModel(TreeherderModelBase):
         "jobs.deletes.cycle_job",
     ]
 
+    LOWER_TIERS = [2, 3]
+
     @classmethod
     def create(cls, project):
         """
@@ -885,21 +887,22 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         async_error_summary_list = []
 
-        # get the tier-2 data signatures for this project.
+        # get the lower tier data signatures for this project.
         # if there are none, then just return an empty list
-        tier_2_signatures = []
-        try:
-            tier_2 = ExclusionProfile.objects.get(name="Tier-2")
-            # tier_2_blob = json.loads(tier_2['flat_exclusion'])
-            tier_2_signatures = set(tier_2.flat_exclusion[self.project])
-        except KeyError:
-            # may be no tier 2 jobs for the current project
-            # and that's ok.
-            pass
-        except ObjectDoesNotExist:
-            # if this profile doesn't exist, then no second tier jobs
-            # and that's ok.
-            pass
+        lower_tier_signatures = {}
+        for tier_num in self.LOWER_TIERS:
+            lower_tier_signatures[tier_num] = []
+            try:
+                lower_tier = ExclusionProfile.objects.get(name="Tier-{}".format(tier_num))
+                lower_tier_signatures[tier_num] = set(lower_tier.flat_exclusion[self.project])
+            except KeyError:
+                # may be no jobs of this tier for the current project
+                # and that's ok.
+                pass
+            except ObjectDoesNotExist:
+                # if this profile doesn't exist, then jobs of this tier
+                # and that's ok.
+                pass
 
         for datum in data:
             # Make sure we can deserialize the json object
@@ -936,7 +939,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     log_placeholders,
                     artifact_placeholders,
                     retry_job_guids,
-                    tier_2_signatures,
+                    lower_tier_signatures,
                     async_error_summary_list
                 )
 
@@ -1123,7 +1126,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         self, job, revision_hash, revision_hash_lookup,
         unique_revision_hashes, rh_where_in, job_placeholders,
         log_placeholders, artifact_placeholders, retry_job_guids,
-        tier_2_signatures, async_artifact_list
+        lower_tier_signatures, async_artifact_list
     ):
         """
         Take the raw job object after etl and convert it to job_placeholders.
@@ -1217,9 +1220,13 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
              option_collection_hash]
         )
 
-        job_tier = job.get('tier') or 1
+        tier = job.get('tier') or 1
         # job tier signatures override the setting from the job structure
-        tier = 2 if signature in tier_2_signatures else job_tier
+        # Check the signatures list for any supported LOWER_TIERS that have
+        # an active exclusion profile.
+        for tier_num, signatures in lower_tier_signatures.iteritems():
+            if signature in signatures:
+                tier = tier_num
 
         job_placeholders.append([
             job_guid,
