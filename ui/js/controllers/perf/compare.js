@@ -60,18 +60,15 @@ perf.controller('CompareChooserCtrl', [
             };
 
             $scope.getPreviousRevision = function() {
-                $scope.proposalRevision = $scope.newRevisionError = null;
+                $scope.proposedRevision = $scope.newRevisionError = null;
 
                 // only check for a full revision
                 if ($scope.newRevision.length != 12) return;
 
-                // indicate that we are loading if it takes some time
-                var timeout = setTimeout(function() {
-                    $scope.proposalRevisionLoading = true;
-                }, 400);
+                $scope.proposedRevisionLoading = true;
 
                 var promise;
-                if ($scope.newProject.name == "try") {
+                if ($scope.newProject.name === "try") {
                     // try require some special logic
                     var iProjs = _.filter($scope.projects, function(proj) {
                         return proj.name == "mozilla-inbound" ||
@@ -98,7 +95,7 @@ perf.controller('CompareChooserCtrl', [
 
                 promise.then(
                     function(result) {
-                        $scope.proposalRevision = {
+                        $scope.proposedRevision = {
                             revision: result.revision.slice(0, 12),
                             project: result.project
                         };
@@ -107,14 +104,13 @@ perf.controller('CompareChooserCtrl', [
                         $scope.newRevisionError = error.toString();
                     }
                 ).finally(function() {
-                    clearTimeout(timeout);
-                    $scope.proposalRevisionLoading = false;
+                    $scope.proposedRevisionLoading = false;
                 });
             };
 
-            $scope.setProposalRevision = function() {
-                var rev = $scope.proposalRevision;
-                $scope.proposalRevision = null;
+            $scope.setProposedRevision = function() {
+                var rev = $scope.proposedRevision;
+                $scope.proposedRevision = null;
                 $scope.originalProject = rev.project;
                 $scope.originalRevision = rev.revision;
             };
