@@ -3,11 +3,12 @@
 perf.controller('CompareChooserCtrl', [
     '$state', '$stateParams', '$scope', 'ThRepositoryModel', 'ThResultSetModel',
     'phCompareDefaultNewRepo', 'phCompareDefaultOriginalRepo', 'JsonPushes',
+    'thPerformanceBranches',
     function CompareChooserCtrl($state, $stateParams, $scope,
                                 ThRepositoryModel, ThResultSetModel,
                                 phCompareDefaultNewRepo,
                                 phCompareDefaultOriginalRepo,
-                                JsonPushes) {
+                                JsonPushes, thPerformanceBranches) {
         ThRepositoryModel.get_list().success(function(projects) {
             $scope.projects = projects;
             $scope.originalTipList = [];
@@ -71,9 +72,8 @@ perf.controller('CompareChooserCtrl', [
                 if ($scope.newProject.name === "try") {
                     // try require some special logic
                     var iProjs = _.filter($scope.projects, function(proj) {
-                        return proj.name == "mozilla-inbound" ||
-                            proj.name == "mozilla-central" ||
-                            proj.name == "fx-team";
+                        return _.includes(thPerformanceBranches,
+                                          proj.name);
                     });
                     promise = JsonPushes.getPreviousRevisionFrom(
                         $scope.newProject,
