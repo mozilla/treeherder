@@ -64,45 +64,52 @@ perf.controller('CompareChooserCtrl', [
 
                 // only check for a full revision
                 if ($scope.newRevision.length != 12) return;
-                // try will require another logic
+
+                // indicate that we are loading if it takes some time
+                var timeout = setTimeout(function() {
+                    $scope.proposalRevisionLoading = true;
+                }, 400);
+
+                var promise;
                 if ($scope.newProject.name == "try") {
+                    // try require some special logic
                     var iProjs = _.filter($scope.projects, function(proj) {
                         return proj.name == "mozilla-inbound" ||
                             proj.name == "mozilla-central" ||
                             proj.name == "fx-team";
                     });
-                    JsonPushes.getPreviousRevisionFrom(
+                    promise = JsonPushes.getPreviousRevisionFrom(
                         $scope.newProject,
                         $scope.newRevision,
                         iProjs
-                    ).then(
-                        function(result) {
-                            $scope.proposalRevision = {
-                                revision: result.revision.slice(0, 12),
-                                project: result.project
-                            };
-                        },
-                        function(error) {
-                            $scope.newRevisionError = error.toString();
-                        }
                     );
-                    return;
+                } else {
+                    // any other branch
+                    promise = JsonPushes.getPreviousRevision(
+                        $scope.newProject,
+                        $scope.newRevision
+                    ).then(function (revision) {
+                        return {
+                            revision:revision,
+                            project: $scope.newProject,
+                        };
+                    });
                 }
 
-                JsonPushes.getPreviousRevision(
-                    $scope.newProject,
-                    $scope.newRevision
-                ).then(
-                    function (revision) {
+                promise.then(
+                    function(result) {
                         $scope.proposalRevision = {
-                            revision: revision.slice(0, 12),
-                            project: $scope.newProject
+                            revision: result.revision.slice(0, 12),
+                            project: result.project
                         };
                     },
                     function(error) {
                         $scope.newRevisionError = error.toString();
                     }
-                );
+                ).finally(function() {
+                    clearTimeout(timeout);
+                    $scope.proposalRevisionLoading = false;
+                });
             };
 
             $scope.setProposalRevision = function() {
