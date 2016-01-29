@@ -144,37 +144,6 @@ against a specific project, you can do that with the `--datasources` option.
 Run `./manage.py run_sql --help` for more details.
 
 
-Running multiple Vagrant VMs
-----------------------------
-
-It's sometimes useful to be able to spin up an additional Vagrant
-environment without affecting the first. To do this, append the
-machine name `scratch` onto the standard commands. You will need to
-ensure the default VM is suspended first, since otherwise the exposed
-ports will clash.
-
-  .. code-block:: bash
-
-     $ vagrant suspend
-     $ vagrant up scratch
-       ...
-     $ vagrant status
-       Current machine states:
-       default                   saved (virtualbox)
-       scratch                   running (virtualbox)
-     $ vagrant ssh scratch
-       ...
-     $ vagrant suspend scratch
-     $ vagrant up
-     $ vagrant status
-       Current machine states:
-       default                   running (virtualbox)
-       scratch                   saved (virtualbox)
-
-If you do not provide a machine name for `up` or `ssh`, the command will
-apply to the `default` machine only.
-
-
 Building the docs locally
 -------------------------
 
