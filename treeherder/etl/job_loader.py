@@ -63,20 +63,21 @@ class JobLoader:
         We can rely on the structure of ``pulse_job`` because it will
         already have been validated against the JSON Schema at this point.
         """
-        return {
+        job_guid = self._get_job_guid(pulse_job)
+        x = {
             # todo: Continue using short revisions until Bug 1199364
             "revision_hash": rs_lookup[pulse_job["origin"]["revision"][:12]]["revision_hash"],
             "job": {
-                "job_guid": pulse_job["jobGuid"],
+                "job_guid": job_guid,
                 "name": pulse_job["display"].get("jobName", "unknown"),
-                "job_symbol": pulse_job["display"].get("jobSymbol"),
+                "job_symbol": self._get_job_symbol(pulse_job),
                 "group_name": pulse_job["display"].get("groupName", "unknown"),
                 "group_symbol": pulse_job["display"].get("groupSymbol"),
                 "product_name": pulse_job.get("productName", "unknown"),
                 "state": pulse_job["state"],
                 "result": self._get_result(pulse_job),
                 "reason": pulse_job.get("reason", "unknown"),
-                "who": pulse_job.get("who", "unknown"),
+                "who": pulse_job.get("owner", "unknown"),
                 "tier": pulse_job.get("tier", 1),
                 "submit_timestamp": self._to_timestamp(pulse_job["timeScheduled"]),
                 "start_timestamp": self._to_timestamp(pulse_job["timeStarted"]),
@@ -86,16 +87,85 @@ class JobLoader:
                 "machine_platform": self._get_platform(pulse_job.get("runMachine", None)),
                 "option_collection": self._get_option_collection(pulse_job),
                 "log_references": self._get_log_references(pulse_job),
-                "artifacts": self._get_artifacts(pulse_job),
+                "artifacts": self._get_artifacts(pulse_job, job_guid),
             },
             "coalesced": pulse_job.get("coalesced", [])
         }
+        return x
 
-    def _get_artifacts(self, job):
-        pulse_artifacts = job.get("artifacts", [])
-        for artifact in pulse_artifacts:
-            artifact["job_guid"] = job["jobGuid"]
+    def _get_job_guid(self, job):
+        guid_parts = [job["taskId"]]
+        retry_id = job.get("retryId", 0)
+        if retry_id > 0:
+            guid_parts.append(str(retry_id))
+        return "/".join(guid_parts)
+
+    def _get_job_symbol(self, job):
+        return "{}{}".format(
+            job["display"].get("jobSymbol", ""),
+            job["display"].get("chunkId", "")
+        )
+
+    def _get_artifacts(self, job, job_guid):
+        artifact_funcs = [self._get_job_info_artifact,
+                          self._get_text_log_summary_artifact,
+                          self._get_bug_suggestions_artifact]
+        pulse_artifacts = []
+        for artifact_func in artifact_funcs:
+            artifact = artifact_func(job, job_guid)
+            if artifact:
+                pulse_artifacts.append(artifact)
         return pulse_artifacts
+
+    def _get_job_info_artifact(self, job, job_guid):
+        if "jobInfo" in job:
+            blob = job["jobInfo"]
+
+            # convert camel case to underscore case
+            blob["job_details"] = blob["jobDetails"]
+            del blob["jobDetails"]
+            for jd in blob["job_details"]:
+                jd["content_type"] = jd["contentType"]
+                del jd["contentType"]
+
+            artifact = {
+                "blob": blob,
+                "type": "json",
+                "name": "Job Info",
+                "job_guid": job_guid
+            }
+            return artifact
+        else:
+            return None
+
+    def _get_text_log_summary_artifact(self, job, job_guid):
+        if "textLogSummary" in job:
+            blob = job["textLogSummary"]
+
+            artifact = {
+                "blob": blob,
+                "type": "json",
+                "name": "text_log_summary",
+                "job_guid": job_guid
+            }
+            return artifact
+        else:
+            return None
+
+    def _get_bug_suggestions_artifact(self, job, job_guid):
+        if "bugSuggestions" in job:
+            blob = job["bugSuggestions"]
+
+            artifact = {
+                "blob": blob,
+                "type": "json",
+                "name": "Bug suggestions",
+                "job_guid": job_guid
+            }
+            return artifact
+
+        else:
+            return None
 
     def _get_log_references(self, job):
         log_references = []
@@ -109,9 +179,9 @@ class JobLoader:
 
     def _get_option_collection(self, job):
         option_collection = {"opt": True}
-        if "optionCollection" in job:
+        if "labels" in job:
             option_collection = {}
-            for option in job["optionCollection"]:
+            for option in job["labels"]:
                 option_collection[option] = True
         return option_collection
 

@@ -53,6 +53,10 @@ class SampleData(object):
                   os.path.dirname(__file__))) as f:
             self.pulse_jobs = json.load(f)
 
+        with open("{0}/sample_data/pulse_consumer/transformed_job_data.json".format(
+                  os.path.dirname(__file__))) as f:
+            self.transformed_pulse_jobs = json.load(f)
+
         self.job_data = []
         self.resultset_data = []
 

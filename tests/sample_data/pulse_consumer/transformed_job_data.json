@@ -1,0 +1,293 @@
+[
+  {
+    "job": {
+      "build_platform": {
+        "platform": "linux64",
+        "os_name": "linux",
+        "architecture": "x86_64"
+      },
+      "submit_timestamp": 1419035997.0,
+      "start_timestamp": 1419039597.0,
+      "name": "Pulse Ingestion Test",
+      "option_collection": {
+        "debug": true
+      },
+      "artifacts": [
+        {
+          "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33",
+          "type": "json",
+          "blob": {
+            "job_details": [
+              {
+                "url": "http://mozilla-releng-blobs.s3.amazonaws.com/blobs/Mozilla-Inbound-Non-PGO/sha512/05c7f57df6583c6351c6b49e439e2678e0f43c2e5b66695ea7d096a7519e1805f441448b5ffd4cc3b80b8b2c74b244288fda644f55ed0e226ef4e25ba02ca466",
+                "content_type": "link",
+                "value": "svgr-e10s_errorsummary.log",
+                "title": "artifact uploaded"
+              },
+              {
+                "url": "http://mozilla-releng-blobs.s3.amazonaws.com/blobs/Mozilla-Inbound-Non-PGO/sha512/a6b13038a5ea71b0975580904e35e08c9d965949c07eb8a12f75eb33f1ec9af1da6f4197c424d850deadebf631aa71da3c0d57a59ec9d82a419aa8c4644a2905",
+                "content_type": "link",
+                "value": "svgr-e10s_raw.log",
+                "title": "artifact uploaded"
+              }
+            ]
+          },
+          "name": "Job Info"
+        }
+      ],
+      "machine_platform": {
+        "platform": "linux64",
+        "os_name": "linux",
+        "architecture": "x86_64"
+      },
+      "who": "thedude@lebowski.com",
+      "group_symbol": "PI",
+      "reason": "scheduler",
+      "group_name": "PulseIngestion",
+      "machine": "bld-linux64-ec2-104",
+      "state": "completed",
+      "result": "success",
+      "log_references": [
+        {
+          "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
+          "parse_status": "parsed",
+          "name": "builds-4h"
+        }
+      ],
+      "tier": 1,
+      "job_symbol": "P",
+      "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33",
+      "product_name": "Oscillation Overthruster",
+      "end_timestamp": 1419043197.0
+    },
+    "revision_hash": "123",
+    "coalesced": []
+  },
+  {
+    "job": {
+      "build_platform": {
+        "platform": "linux64",
+        "os_name": "linux",
+        "architecture": "x86_64"
+      },
+      "submit_timestamp": 1419035997.0,
+      "start_timestamp": 1419039597.0,
+      "name": "Pulse Ingestion Test",
+      "option_collection": {
+        "debug": true,
+        "opt": true
+      },
+      "artifacts": [
+        {
+          "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf34",
+          "type": "json",
+          "blob": {
+            "step_data": {
+              "all_errors": [
+                {
+                  "line": "14:38:05     INFO -  PROCESS | 16672 | [Child 17361] ###!!! ABORT: Aborting on channel error.: file /builds/slave/m-in-l64-000000000000000000000/build/src/ipc/glue/MessageChannel.cpp, line 1823",
+                  "linenumber": 3211
+                },
+                {
+                  "line": "14:38:05     INFO -  TEST-UNEXPECTED-ERROR | tart | TIMEOUT: TART",
+                  "linenumber": 3212
+                },
+                {
+                  "line": "14:38:05    ERROR -  Traceback (most recent call last):",
+                  "linenumber": 3213
+                }
+              ],
+              "steps": [
+                {
+                  "errors": [],
+                  "name": "downloading to oauth.txt",
+                  "started": "2016-02-02T14:27:05-07:00",
+                  "started_linenumber": 231,
+                  "finished_linenumber": 232,
+                  "finished": "2016-02-02T14:27:05-08:00",
+                  "error_count": 0,
+                  "duration": 0,
+                  "order": 9,
+                  "result": "success"
+                },
+                {
+                  "errors": [
+                    {
+                      "line": "14:38:05     INFO -  PROCESS | 16672 | [Child 17361] ###!!! ABORT: Aborting on channel error.: file /builds/slave/m-in-l64-000000000000000000000/build/src/ipc/glue/MessageChannel.cpp, line 1823",
+                      "linenumber": 3211
+                    },
+                    {
+                      "line": "14:38:05     INFO -  TEST-UNEXPECTED-ERROR | tart | TIMEOUT: TART",
+                      "linenumber": 3212
+                    },
+                    {
+                      "line": "14:38:05    ERROR -  Traceback (most recent call last):",
+                      "linenumber": 3213
+                    }
+                  ],
+                  "name": "'/tools/buildbot/bin/python scripts/scripts/talos_script.py ...' failed",
+                  "started": "2016-02-02T14:27:05-07:00",
+                  "started_linenumber": 234,
+                  "finished_linenumber": 3269,
+                  "finished": "2016-02-02T14:38:09-08:00",
+                  "error_count": 7,
+                  "duration": 664,
+                  "order": 10,
+                  "result": "busted"
+                }
+              ],
+              "errors_truncated": false
+            },
+            "logurl": "http://archive.mozilla.org/pub/firefox/tinderbox-builds/mozilla-inbound-linux64/1454450752/mozilla-inbound_ubuntu64_hw_test-svgr-e10s-bm105-tests1-linux-build2559.txt.gz"
+          },
+          "name": "text_log_summary"
+        },
+        {
+          "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf34",
+          "type": "json",
+          "blob": [
+            {
+              "search": "PROCESS | 16672 | \u0007[Child 17361] ###!!! ABORT: Aborting on channel error.: file /builds/slave/m-in-l64-000000000000000000000/build/src/ipc/glue/MessageChannel.cpp, line 1823",
+              "search_terms": [
+                "16672"
+              ],
+              "bugs": {
+                "open_recent": [],
+                "all_others": []
+              }
+            },
+            {
+              "search": "PROCESS | 16672 | [Child 17361] ###!!! ABORT: Aborting on channel error.: file /builds/slave/m-in-l64-000000000000000000000/build/src/ipc/glue/MessageChannel.cpp, line 1823",
+              "search_terms": [
+                "16672"
+              ],
+              "bugs": {
+                "open_recent": [],
+                "all_others": []
+              }
+            },
+            {
+              "search": "TEST-UNEXPECTED-ERROR | tart | TIMEOUT: TART",
+              "search_terms": [
+                "TEST-UNEXPECTED-ERROR | tart | TIMEOUT: TART"
+              ],
+              "bugs": {
+                "open_recent": [],
+                "all_others": []
+              }
+            },
+            {
+              "search": "Traceback (most recent call last):",
+              "search_terms": [],
+              "bugs": {
+                "open_recent": [],
+                "all_others": []
+              }
+            },
+            {
+              "search": "TalosError: TIMEOUT: TART",
+              "search_terms": [
+                "TalosError: TIMEOUT: TART"
+              ],
+              "bugs": {
+                "open_recent": [],
+                "all_others": [
+                  {
+                    "crash_signature": "",
+                    "resolution": "FIXED",
+                    "summary": "Very frequent e10s tsvg TalosError: TIMEOUT: TART",
+                    "relevance": 24.02374267578125,
+                    "keywords": "intermittent-failure",
+                    "os": "Unspecified",
+                    "id": 1230978
+                  }
+                ]
+              }
+            },
+            {
+              "search": "Return code: 2",
+              "search_terms": [],
+              "bugs": {
+                "open_recent": [],
+                "all_others": []
+              }
+            },
+            {
+              "search": "# TBPL FAILURE #",
+              "search_terms": [
+                "# TBPL FAILURE #"
+              ],
+              "bugs": {
+                "open_recent": [],
+                "all_others": []
+              }
+            }
+          ],
+          "name": "Bug suggestions"
+        }
+      ],
+      "machine_platform": {
+        "platform": "linux64",
+        "os_name": "linux",
+        "architecture": "x86_64"
+      },
+      "who": "thedude@lebowski.com",
+      "group_symbol": "?",
+      "reason": "scheduler",
+      "group_name": "unknown",
+      "machine": "bld-linux64-ec2-104",
+      "state": "running",
+      "result": "unknown",
+      "log_references": [],
+      "tier": 1,
+      "job_symbol": "P2",
+      "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf34",
+      "product_name": "Oscillation Overthruster",
+      "end_timestamp": 1419043197.0
+    },
+    "revision_hash": "123",
+    "coalesced": []
+  },
+  {
+    "job": {
+      "build_platform": {
+        "platform": "linux64",
+        "os_name": "linux",
+        "architecture": "x86_64"
+      },
+      "submit_timestamp": 1419035997.0,
+      "start_timestamp": 1419039597.0,
+      "name": "Pulse Ingestion Test",
+      "option_collection": {
+        "opt": true
+      },
+      "artifacts": [],
+      "machine_platform": {
+        "platform": "linux64",
+        "os_name": "linux",
+        "architecture": "x86_64"
+      },
+      "who": "thedude@lebowski.com",
+      "group_symbol": "PI",
+      "reason": "scheduler",
+      "group_name": "PulseIngestion",
+      "machine": "bld-linux64-ec2-104",
+      "state": "completed",
+      "result": "testfailed",
+      "log_references": [
+        {
+          "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
+          "parse_status": "parsed",
+          "name": "builds-4h"
+        }
+      ],
+      "tier": 1,
+      "job_symbol": "3",
+      "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35/3",
+      "product_name": "unknown",
+      "end_timestamp": 1419043197.0
+    },
+    "revision_hash": "123",
+    "coalesced": []
+  }
+]
