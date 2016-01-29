@@ -889,18 +889,24 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         # get the lower tier data signatures for this project.
         # if there are none, then just return an empty list
-        lower_tier_signatures = {}
+        # this keeps track of them order (2, then 3) so that the latest
+        # will have precedence.  If a job signature is in both Tier-2 and
+        # Tier-3, then it will end up in Tier-3.
+        lower_tier_signatures = []
         for tier_num in self.LOWER_TIERS:
-            lower_tier_signatures[tier_num] = []
+            tier_info = {"tier": tier_num}
             try:
-                lower_tier = ExclusionProfile.objects.get(name="Tier-{}".format(tier_num))
-                lower_tier_signatures[tier_num] = set(lower_tier.flat_exclusion[self.project])
+                lower_tier = ExclusionProfile.objects.get(
+                    name="Tier-{}".format(tier_num))
+                signatures = set(lower_tier.flat_exclusion[self.project])
+                tier_info["signatures"] = signatures
+                lower_tier_signatures.append(tier_info)
             except KeyError:
                 # may be no jobs of this tier for the current project
                 # and that's ok.
                 pass
             except ObjectDoesNotExist:
-                # if this profile doesn't exist, then jobs of this tier
+                # if this profile doesn't exist, then no jobs of this tier
                 # and that's ok.
                 pass
 
@@ -1224,9 +1230,13 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # job tier signatures override the setting from the job structure
         # Check the signatures list for any supported LOWER_TIERS that have
         # an active exclusion profile.
-        for tier_num, signatures in lower_tier_signatures.iteritems():
-            if signature in signatures:
-                tier = tier_num
+
+        # As stated elsewhere, a job will end up in the lowest tier where its
+        # signature belongs.  So if a signature is in Tier-2 and Tier-3, it
+        # will end up in 3.
+        for tier_info in lower_tier_signatures:
+            if signature in tier_info["signatures"]:
+                tier = tier_info["tier"]
 
         job_placeholders.append([
             job_guid,
