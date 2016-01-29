@@ -1,12 +1,12 @@
 class python {
 
-  # Python2.7 is already installed, but we need to update it to the
-  # latest version from the third party PPA.
-  package{["python2.7",
+  package{[# Python2.7 is already installed, but we need to update it to the
+           # latest version from the third party PPA.
+           "python2.7",
+           # Required by MySQLdb.
            "python-dev",
-           "gcc",
-           "git",
-           "libxml2-dev"]:
+           # To improve the UX of the Vagrant environment.
+           "git"]:
     ensure => "latest",
   }
 
