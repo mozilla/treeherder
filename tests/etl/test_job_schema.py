@@ -15,6 +15,7 @@ def test_group_symbols(sample_data, group_symbol):
     """
     job = sample_data.pulse_jobs[0]
     job["origin"]["project"] = "proj"
+    job["origin"]["revision"] = "1234567890123456789012345678901234567890"
     job["display"]["groupSymbol"] = group_symbol
     jsonschema.validate(job, job_json_schema)
 
@@ -26,5 +27,6 @@ def test_job_symbols(sample_data, job_symbol):
     """
     job = sample_data.pulse_jobs[0]
     job["origin"]["project"] = "proj"
+    job["origin"]["revision"] = "1234567890123456789012345678901234567890"
     job["display"]["jobSymbol"] = job_symbol
     jsonschema.validate(job, job_json_schema)
