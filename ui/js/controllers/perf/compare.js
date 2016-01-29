@@ -65,10 +65,32 @@ perf.controller('CompareChooserCtrl', [
                 // only check for a full revision
                 if ($scope.newRevision.length != 12) return;
                 // try will require another logic
-                if ($scope.newProject.name == "try") return;
+                if ($scope.newProject.name == "try") {
+                    var iProjs = _.filter($scope.projects, function(proj) {
+                        return proj.name == "mozilla-inbound" ||
+                            proj.name == "mozilla-central" ||
+                            proj.name == "fx-team";
+                    });
+                    JsonPushes.getPreviousRevisionFrom(
+                        $scope.newProject,
+                        $scope.newRevision,
+                        iProjs
+                    ).then(
+                        function(result) {
+                            $scope.proposalRevision = {
+                                revision: result.revision.slice(0, 12),
+                                project: result.project
+                            };
+                        },
+                        function(error) {
+                            $scope.newRevisionError = error.toString();
+                        }
+                    );
+                    return;
+                }
 
                 JsonPushes.getPreviousRevision(
-                    $scope.newProject.url,
+                    $scope.newProject,
                     $scope.newRevision
                 ).then(
                     function (revision) {
