@@ -14,7 +14,7 @@ properties:
     maxLength: 50
 
   origin:
-    anyOf:
+    oneOf:
       - type: "object"
         properties:
           kind:
@@ -39,7 +39,15 @@ properties:
           kind:
             type: "string"
             enum: ['github.com']
-          project:
+          owner:
+            description: |
+              This could be the organization or the individual git username
+              depending on who owns the repo.
+            type: "string"
+            pattern: "^[0-9a-f]+$"
+            minLength: 1
+            maxLength: 50
+          projectName:
             type: "string"
             pattern: "^[0-9a-f]+$"
             minLength: 1
@@ -116,9 +124,11 @@ properties:
       - unknown
   jobKind:
     type: "string"
+    default: "other"
     enum:
       - build
       - test
+      - other
   tier:
     type: "integer"
     minimum: 1
@@ -129,6 +139,7 @@ properties:
     type: "boolean"
 
   coalesced:
+    description: The job guids that were coalesced to this job.
     title: "coalesced"
     type: "array"
     items:
@@ -150,14 +161,18 @@ properties:
     type: "string"
     format: "date-time"
 
-  optionCollection:
-    title: "option collection"
+  labels:
+    title: "labels"
     description: |
-      Options are a dimension of a platform.  The values here can vary wildly,
-      so most strings are valid for this.  The list of options that are used
+      Labels are a dimension of a platform.  The values here can vary wildly,
+      so most strings are valid for this.  The list of labels that are used
       is maleable going forward.
 
-      Some examples of options that have been used:
+      These were formerly known as "Options" within "Option Collections" but
+      calling labels now so they can be understood to be just strings that
+      denotes a characteristic of the job.
+
+      Some examples of labels that have been used:
         opt    Optimize Compiler GCC optimize flags
         debug  Debug flags passed in
         pgo    Profile Guided Optimization - Like opt, but runs with profiling, then builds again using that profiling
@@ -170,9 +185,10 @@ properties:
       maxLength: 50
       pattern: "^[A-Za-z0-9_-]+$"
 
-  who:
-    title: "who"
-    format: "email"
+  owner:
+    description: |
+      Description of who submitted the job: gaia | scheduler name | username | email
+    title: "owner"
     type: "string"
     minLength: 1
     maxLength: 50
