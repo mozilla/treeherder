@@ -34,10 +34,10 @@ treeherder.factory('thTabs', [
                     content: "plugins/similar_jobs/main.html",
                     enabled: true
                 },
-                "talos": {
-                    title: "Talos",
-                    description: "Talos job details",
-                    content: "plugins/talos/main.html",
+                "perfDetails": {
+                    title: "Performance",
+                    description: "performance details",
+                    content: "plugins/perf_details/main.html",
                     enabled: false
                 }
             },
@@ -47,7 +47,7 @@ treeherder.factory('thTabs', [
                 "autoClassification",
                 "annotations",
                 "similarJobs",
-                "talos"
+                "perfDetails"
             ],
             "selectedTab": "jobDetails",
             "showTab" : function(tab, contentId){
