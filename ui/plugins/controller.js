@@ -66,24 +66,29 @@ treeherder.controller('PluginCtrl', [
             var successTab = "jobDetails";
             var failTab = "failureSummary";
 
-            // show/hide Talos panel if this is a Talos job and default to
-            // Talos if the job was a ``success``
-            $scope.tabService.tabs.talos.enabled = (job.job_group_name.indexOf('Talos') !== -1);
-            if ($scope.tabService.tabs.talos.enabled) {
-                successTab = "talos";
-            }
+            // Check if performance data exist
+            $http.get('https://treeherder.mozilla.org/api/project/mozilla-inbound/performance/data/?job_id='+job.id).then(
+                function(response) {
+                    // show/hide Performance panel and default to
+                    // Performance if the job was a ``success``
+                    $scope.tabService.tabs.perfDetails.enabled = !(_.isEmpty(response.data));
+                    if ($scope.tabService.tabs.perfDetails.enabled) {
+                        successTab = "perfDetails";
+                    }
 
-            // Error Classification/autoclassify special handling
-            if ($scope.tabService.tabs.autoClassification.enabled) {
-                failTab = "autoClassification";
-            }
+                    // Error Classification/autoclassify special handling
+                    if ($scope.tabService.tabs.autoClassification.enabled) {
+                        failTab = "autoClassification";
+                    }
 
-            // set the selected tab
-            if (thResultStatus(job) === 'success') {
-                $scope.tabService.selectedTab = successTab;
-            } else {
-                $scope.tabService.selectedTab = failTab;
-            }
+                    // set the selected tab
+                    if (thResultStatus(job) === 'success') {
+                        $scope.tabService.selectedTab = successTab;
+                    } else {
+                        $scope.tabService.selectedTab = failTab;
+                    }
+                }
+            );
         };
 
         // this promise will void all the ajax requests
@@ -141,7 +146,7 @@ treeherder.controller('PluginCtrl', [
                     }
                     $scope.average_duration = $scope.job.get_average_duration();
                     $scope.jobRevision = ThResultSetStore.getSelectedJob($scope.repoName).job.revision;
-                    $scope.jobIds = results[4];
+                    $scope.performanceSignaturesForJob = results[4];
 
                     // set the tab options and selections based on the selected job
                     initializeTabs($scope.job);
@@ -178,8 +183,8 @@ treeherder.controller('PluginCtrl', [
                             }
                             return result;
                         }, []);
-                        if ($scope.jobIds !== null) {
-                            var signatureList = _.keys($scope.jobIds);
+                        if ($scope.performanceSignaturesForJob !== null) {
+                            var signatureList = _.keys($scope.performanceSignaturesForJob);
                             var seriesList = [];
                             $scope.perfJobDetail = [];
                             $q.all(_.chunk(signatureList, 20).map(function(signatureChunk) {
@@ -209,7 +214,7 @@ treeherder.controller('PluginCtrl', [
                                         $scope.repoName+ ',' + series.signature + ',1]&selected=[' +
                                         $scope.repoName + ',' +  series.signature + ',' +
                                         $scope.job['result_set_id'] + ',' + $scope.job['id'] + ']';
-                                    detail['value'] = $scope.jobIds[series.signature][0].value;
+                                    detail['value'] = $scope.performanceSignaturesForJob[series.signature][0].value;
                                     detail['title'] = series.suite;
                                     if (series.hasOwnProperty('test') && series.test.toLowerCase() !== series.suite) {
                                         detail['title'] += '_' + series.test.toLowerCase();
