@@ -21,7 +21,7 @@ treeherderApp.controller('JobsCtrl', [
                 $location.search('revision', null);
                 $location.search('tochange', revision);
             }
-            ThResultSetStore.fetchResultSets($scope.repoName, count, keepFilters).
+            ThResultSetStore.fetchResultSets($scope.repoName, count, keepFilters, true).
                 then(function() {
 
                     // since we fetched more resultsets, we need to persist the
@@ -76,7 +76,8 @@ treeherderApp.controller('JobsCtrl', [
             ThResultSetStore.fetchResultSets(
                 $scope.repoName,
                 ThResultSetStore.defaultResultSetCount,
-                true);
+                true,
+                false);
         }
 
         $rootScope.$on(thEvents.toggleAllRevisions, function(ev, expand) {
