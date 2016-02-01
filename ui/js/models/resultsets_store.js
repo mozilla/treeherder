@@ -878,6 +878,7 @@ treeherder.factory('ThResultSetStore', [
              * @param count How many to fetch
              */
             repositories[repoName].loadingStatus.appending = true;
+            var isAppend = (repositories[repoName].resultSets.length > 0);
             var resultsets;
             var exclusionProfile = $location.search().exclusion_profile;
             var loadRepositories = ThRepositoryModel.load({name: repoName,
@@ -940,7 +941,9 @@ treeherder.factory('ThResultSetStore', [
                         });
                     $q.all(mapResultSetJobsPromiseList).then(function() {
                         setSelectedJobFromQueryString(repoName);
-                        registerJobsPoller();
+                        if (!isAppend) {
+                            registerJobsPoller();
+                        }
                     });
                 });
         };
