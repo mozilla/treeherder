@@ -13,6 +13,7 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/home/vagrant/treeherder", type: "nfs"
 
   config.vm.provider "virtualbox" do |vb|
+    vb.name = "treeherder"
     vb.memory = "2048"
   end
 
