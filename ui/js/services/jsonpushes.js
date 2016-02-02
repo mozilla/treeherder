@@ -33,19 +33,11 @@ treeherder.service('JsonPushes', ['$http', '$q', function($http, $q) {
             return;
         }
 
+        // find the parent changeset
         $http.get(
-            project.url + "/json-pushes?changeset=" + revision
+            project.url + "/json-rev/" + revision
         ).then(function(response) {
-            // find the oldest changeset in the push
-            var pushId = _.keys(response.data)[0];
-            return response.data[pushId].changesets[0];
-        }).then(function(changeset) {
-            // find the parent changeset
-            return $http.get(
-                project.url + "/json-rev/" + changeset
-            ).then(function(response) {
-                return response.data.parents[0];
-            });
+            return response.data.parents[0];
         }).then(function(parentChset) {
             // now check in projects if we can find the parent changeset
             var promises = _.map(projects, function (proj) {
@@ -135,9 +127,17 @@ treeherder.service('JsonPushes', ['$http', '$q', function($http, $q) {
         getPreviousRevisionFrom: function(project, revision, projects) {
             var deferred = $q.defer();
 
-            _getPreviousRevisionFrom(project, revision, projects, deferred,
-                                     // attempt, maxAttempts
-                                     0, 7);
+            $http.get(
+                project.url + "/json-pushes?changeset=" + revision
+            ).then(function(response) {
+                // find the oldest changeset in the push
+                var pushId = _.keys(response.data)[0];
+                return response.data[pushId].changesets[0];
+            }).then(function(oldRev) {
+                _getPreviousRevisionFrom(project, oldRev, projects, deferred,
+                                         // attempt, maxAttempts
+                                         0, 7);
+            }, deferred.reject);
 
             return deferred.promise.then(
                 function(results) {
