@@ -15,7 +15,9 @@ from treeherder.webapp.api import (artifact,
                                    performance_data,
                                    refdata,
                                    resultset,
-                                   runnable_jobs)
+                                   runnable_jobs,
+                                   text_log_summary,
+                                   text_log_summary_line)
 
 # router for views that are bound to a project
 # i.e. all those views that don't involve reference data
@@ -113,6 +115,12 @@ default_router.register(r'failure-line', failureline.FailureLineViewSet,
 default_router.register(r'classified-failure',
                         classifiedfailure.ClassifiedFailureViewSet,
                         base_name='classified-failure')
+default_router.register(r'text-log-summary',
+                        text_log_summary.TextLogSummaryViewSet,
+                        base_name='text-log-summary')
+default_router.register(r'text-log-summary-line',
+                        text_log_summary_line.TextLogSummaryLineViewSet,
+                        base_name='text-log-summary-line')
 default_router.register(r'performance/alertsummary',
                         performance_data.PerformanceAlertSummaryViewSet,
                         base_name='performance-alert-summaries')

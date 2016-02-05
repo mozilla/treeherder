@@ -20,7 +20,7 @@ def autoclassify(jm, job, test_failure_lines, status="testfailed"):
     )
 
     register_matchers(PreciseTestMatcher)
-    call_command('autoclassify', job['job_guid'], jm.project)
+    call_command('autoclassify', jm.project, job['job_guid'])
 
     for item in test_failure_lines:
         item.refresh_from_db()

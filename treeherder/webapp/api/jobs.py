@@ -8,6 +8,7 @@ from rest_framework.reverse import reverse
 from treeherder.model.derived import ArtifactsModel
 from treeherder.model.models import (FailureLine,
                                      OptionCollection)
+                                     TextLogSummary)
 from treeherder.webapp.api import (permissions,
                                    serializers)
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
@@ -205,6 +206,53 @@ class JobsViewSet(viewsets.ViewSet):
             return Response(failure_lines)
         else:
             return Response("No job with id: {0}".format(pk), 404)
+
+    @detail_route(methods=['get'])
+    @with_jobs
+    def text_log_summary(self, request, project, jm, pk=None):
+        """
+        Get a list of test failure lines for the job
+        """
+        job = jm.get_job(pk)
+        if not job:
+            return Response("No job with id: {0}".format(pk), 404)
+
+        job = job[0]
+        summary = TextLogSummary.objects.filter(
+            job_guid=job['job_guid']
+        ).prefetch_related("lines").all()
+
+        if len(summary) > 1:
+            raise ValueError("Got multiple TextLogSummaries for the same job")
+
+        if not summary:
+            return Response("No text_log_summary generated for job with id: {0}".format(pk), 404)
+
+        with ArtifactsModel(project) as am:
+            artifacts = am.get_job_artifact_list(
+                offset=0,
+                limit=2,
+                conditions={"job_id": set([("=", pk)]),
+                            "name": set([("IN", ("Bug suggestions", "text_log_summary"))]),
+                            "type": set([("=", "json")])})
+            artifacts_by_name = {item["name"]: item for item in artifacts}
+
+        text_log_summary = artifacts_by_name.get("text_log_summary", {})
+        error_lines = text_log_summary.get("blob", {}).get("step_data", {}).get("all_errors", [])
+        bug_suggestions = artifacts_by_name.get("Bug suggestions", {}).get("blob")
+
+        summary = summary[0]
+
+        text_log_summary = artifacts_by_name.get("text_log_summary", {})
+        lines_by_number = {line["linenumber"]: line["line"] for line in error_lines}
+
+        rv = serializers.TextLogSummarySerializer(summary).data
+        rv["bug_suggestions"] = bug_suggestions
+
+        for line in rv["lines"]:
+            line["line"] = lines_by_number[line["line_number"]]
+
+        return Response(rv)
 
     @detail_route(methods=['get'])
     @with_jobs
