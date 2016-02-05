@@ -1,5 +1,6 @@
 import logging
 import time
+from collections import defaultdict
 from datetime import datetime
 from hashlib import sha1
 
@@ -28,7 +29,8 @@ from treeherder.model.models import (BuildPlatform,
                                      OptionCollection,
                                      Product,
                                      ReferenceDataSignatures,
-                                     Repository)
+                                     Repository,
+                                     TextLogSummaryLine)
 from treeherder.model.tasks import (populate_error_summary,
                                     publish_job_action,
                                     publish_resultset_action)
@@ -438,7 +440,7 @@ class JobsModel(TreeherderModelBase):
             name__in=["intermittent", "intermittent needs filing"]).values_list('id', flat=True)
 
         if not autoclassify and failure_classification_id in intermittent_ids:
-            failure_line = self.manual_classification_line(job_id)
+            failure_line = self.get_manual_classification_line(job_id)
             if failure_line:
                 failure_line.update_autoclassification()
 
@@ -455,7 +457,7 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
-    def manual_classification_line(self, job_id):
+    def get_manual_classification_line(self, job_id):
         """
         Return the FailureLine from a job if it can be manually classified as a side effect
         of the overall job being classified.
@@ -468,6 +470,8 @@ class JobsModel(TreeherderModelBase):
         except (FailureLine.DoesNotExist, FailureLine.MultipleObjectsReturned):
             return None
 
+        # Only propogate the classification if there is exactly one unstructured failure
+        # line for the job
         with ArtifactsModel(self.project) as am:
             bug_suggestion_lines = am.filter_bug_suggestions(
                 am.bug_suggestions(job_id))
@@ -487,7 +491,7 @@ class JobsModel(TreeherderModelBase):
         if not settings.AUTOCLASSIFY_JOBS:
             return
 
-        if self.fully_autoclassified(job_id):
+        if self.is_fully_autoclassified(job_id):
             existing_notes = self.get_job_note_list(job_id)
             # We don't want to add a job note after an autoclassification if there is already
             # one and after a verification if there is already one not supplied by the
@@ -500,7 +504,7 @@ class JobsModel(TreeherderModelBase):
         if not settings.AUTOCLASSIFY_JOBS:
             return
 
-        if self.fully_verified(job_id):
+        if self.is_fully_verified(job_id):
             existing_notes = self.get_job_note_list(job_id)
             autoclassification = FailureClassification.objects.get(
                 name="autoclassified intermittent")
@@ -512,31 +516,39 @@ class JobsModel(TreeherderModelBase):
                 return
             self.insert_autoclassify_job_note(job_id, user=user)
 
-    def fully_verified(self, job_id):
+    def is_fully_verified(self, job_id):
         job = self.get_job(job_id)[0]
 
         if FailureLine.objects.filter(job_guid=job["job_guid"],
                                       action="truncated").count() > 0:
+            logger.error("Job %s truncated storage of FailureLines" % job["job_guid"])
             return False
+
+        # Line is not fully verified if there are either structured failure lines
+        # with no best failure, or unverified unstructured lines not associated with
+        # a structured line
 
         unverified_failure_lines = FailureLine.objects.filter(
             best_is_verified=False,
             job_guid=job["job_guid"]).count()
 
         if unverified_failure_lines:
+            logger.error("Job %s has unverified FailureLines" % job["job_guid"])
             return False
 
-        verified_failure_lines = FailureLine.objects.filter(
-            best_is_verified=True,
-            job_guid=job["job_guid"]).count()
+        unverified_text_lines = TextLogSummaryLine.objects.filter(
+            verified=False,
+            failure_line=None,
+            summary__job_guid=job["job_guid"]).count()
 
-        with ArtifactsModel(self.project) as am:
-            bug_suggestion_lines = am.filter_bug_suggestions(
-                am.bug_suggestions(job_id))
+        if unverified_text_lines:
+            logger.error("Job %s has unverified TextLogSummary" % job["job_guid"])
+            return False
 
-        return verified_failure_lines == len(bug_suggestion_lines)
+        logger.info("Job %s is fully verified" % job["job_guid"])
+        return True
 
-    def fully_autoclassified(self, job_id):
+    def is_fully_autoclassified(self, job_id):
         job = self.get_job(job_id)[0]
 
         if FailureLine.objects.filter(job_guid=job["job_guid"],
@@ -579,8 +591,10 @@ class JobsModel(TreeherderModelBase):
         for bug_number in bug_numbers:
             try:
                 self.insert_bug_job_map(job_id, bug_number, "autoclassification",
-                                        int(time.time()), user, autoclassify=True)
+                                        int(time.time()), user, autoclassifer=True)
             except JobDataIntegrityError:
+                # This can happen if there is a race where multiple users try to
+                # verify the autoclassifications at the "same" time
                 pass
 
         if not verified:
@@ -593,9 +607,17 @@ class JobsModel(TreeherderModelBase):
         self.insert_job_note(job_id, classification.id, user, "", autoclassify=True)
 
     def insert_bug_job_map(self, job_id, bug_id, assignment_type, submit_timestamp, who,
-                           autoclassify=False):
+                           autoclassifer=False):
         """
         Store a new relation between the given job and bug ids.
+
+        :param job_id: id of the job
+        :param job_id: Bugzilla bug number of the related bug
+        :param assignment_type: Type of classification (infra, intermittent, etc.)
+        :param submit_timestamp: Timestamp of relationship creation
+        :param who: Email address of user creating the relation
+        :param autoclassifier: Boolean indicating whether the relation is being
+                               created by the autoclassifier
         """
         try:
             self.execute(
@@ -629,7 +651,7 @@ class JobsModel(TreeherderModelBase):
                     routing_key='classification_mirroring'
                 )
 
-        if not autoclassify:
+        if not autoclassifer:
             self.update_autoclassification_bug(job_id, bug_id)
 
     def delete_bug_job_map(self, job_id, bug_id):
@@ -646,7 +668,7 @@ class JobsModel(TreeherderModelBase):
         )
 
     def update_autoclassification_bug(self, job_id, bug_id):
-        failure_line = self.manual_classification_line(job_id)
+        failure_line = self.get_manual_classification_line(job_id)
 
         if failure_line is None:
             return
@@ -1270,6 +1292,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         # schedule the generation of ``Bug suggestions`` artifacts
         # asynchronously now that the jobs have been created
+        # TODO: handle error line cross-referencing for this case
         if async_error_summary_list:
             populate_error_summary.apply_async(
                 args=[self.project, async_error_summary_list, job_id_lookup],
@@ -1743,84 +1766,94 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return job_id_lookup
 
+    def _insert_log_urls(self, log_placeholders):
+        # Store the log references
+        return self.execute(
+            proc='jobs.inserts.set_job_log_url',
+            debug_show=self.DEBUG,
+            placeholders=log_placeholders,
+            executemany=True)
+
     def _load_log_urls(self, log_placeholders, job_id_lookup,
                        job_results):
 
-        # importing here to avoid an import loop
-        from treeherder.log_parser.tasks import parse_log, parse_json_log
-
-        tasks = []
-
-        result_sets = []
+        job_id_guid = {}
 
         if log_placeholders:
-            for index, log_ref in enumerate(log_placeholders):
+            for log_ref in log_placeholders:
                 job_guid = log_ref[0]
                 job_id = job_id_lookup[job_guid]['id']
-                result = job_results[job_guid]
-                result_set_id = job_id_lookup[job_guid]['result_set_id']
-                result_sets.append(result_set_id)
 
                 # Replace job_guid with id
-                log_placeholders[index][0] = job_id
-                task = dict()
+                log_ref[0] = job_id
+                job_id_guid[job_id] = job_guid
 
-                # a log can be submitted already parsed.  So only schedule
-                # a parsing task if it's ``pending``
-                # the submitter is then responsible for submitting the
-                # text_log_summary artifact
-                if log_ref[3] == 'pending':
-                    if log_ref[1] == 'mozlog_json':
-                        # don't parse structured logs for passing tests
-                        if result != 'success':
-                            task['routing_key'] = 'parse_log.json'
+            self._insert_log_urls(log_placeholders)
 
-                    else:
-                        if result != 'success':
-                            task['routing_key'] = 'parse_log.failures'
-                        else:
-                            task['routing_key'] = 'parse_log.success'
+            # Get the inserted rows, including their id
+            job_log_url_list = self.get_job_log_url_list(job_id_guid.keys())
 
-                if 'routing_key' in task:
-                    task['job_guid'] = job_guid
-                    task['log_url'] = log_ref[2]
-                    task['result_set_id'] = result_set_id
-                    tasks.append(task)
+            for item in job_log_url_list:
+                # For jobs which have retried we need to swap back to the root job guid
+                # here
+                job_guid = job_id_guid[item["job_id"]]
+                item["job_guid"] = job_id_lookup[job_guid]["job_guid"]
+                item["result"] = job_results[job_guid]
 
-            # Store the log references
-            self.execute(
-                proc='jobs.inserts.set_job_log_url',
-                debug_show=self.DEBUG,
-                placeholders=log_placeholders,
-                executemany=True)
+            self.schedule_log_parsing(job_log_url_list)
 
-            # I need to find the jog_log_url ids
-            # just inserted but there's no unique key.
-            # Also, the url column is not indexed, so it's
-            # not a good idea to search based on that.
-            # I'm gonna retrieve the logs by job ids and then
-            # use their url to create a map.
+    def schedule_log_parsing(self, log_data, priority="normal"):
+        """Kick off the initial task that parses the log data.
 
-            job_ids = [j["id"] for j in job_id_lookup.values()]
+        log_data is a list of dictionaries of the form
+        {"id": job_log_url id,
+         "job_id": job id
+         "name": log type,
+         "url": log url,
+         "parse_status": log_parse_status,
+         "job_guid": job guid,
+         "result": job result}
 
-            job_log_url_list = self.get_job_log_url_list(job_ids)
+        priority is either "normal" or "high"
+        """
 
-            log_url_lookup = dict([(jlu['url'], jlu)
-                                   for jlu in job_log_url_list])
+        # importing here to avoid an import loop
+        from treeherder.log_parser.tasks import parse_job_logs
 
-            for task in tasks:
-                parse_log_task = parse_log
-                if task['routing_key'] == "parse_log.json":
-                    parse_log_task = parse_json_log
+        if priority not in ("normal", "high"):
+            raise ValueError("Invalid log parsing priority '%s'" % priority)
 
-                parse_log_task.apply_async(
-                    args=[
-                        self.project,
-                        log_url_lookup[task['log_url']],
-                        task['job_guid'],
-                    ],
-                    routing_key=task['routing_key']
-                )
+        task_types = {
+            "errorsummary_json": ("store_failure_lines", "store_failure_lines"),
+            "buildbot_text": ("parse_log", "log_parser")
+        }
+
+        tasks = defaultdict(list)
+
+        for log_obj in log_data:
+            # a log can be submitted already parsed.  So only schedule
+            # a parsing task if it's ``pending``
+            # the submitter is then responsible for submitting the
+            # text_log_summary artifact
+            if log_obj["parse_status"] != 'pending':
+                continue
+
+            func_name, routing_key = task_types.get(log_obj["name"], (None, None))
+            if routing_key is None:
+                continue
+
+            if priority == "normal" and log_obj["result"] != 'success':
+                routing_key += '.failures'
+            else:
+                routing_key += ".%s" % priority
+
+            tasks[log_obj["job_guid"]].append({
+                "func_name": func_name,
+                "routing_key": routing_key,
+                "job_log_url": log_obj
+            })
+
+        parse_job_logs(self.project, tasks)
 
     def get_job_log_url_detail(self, job_log_url_id):
         obj = self.execute(
@@ -1849,6 +1882,17 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             debug_show=self.DEBUG,
         )
         return data
+
+    def get_job_log_url_by_url(self, job_id, url):
+        obj = self.execute(
+            proc='jobs.selects.get_job_log_url_by_url',
+            debug_show=self.DEBUG,
+            placeholders=[job_id, url])
+        if len(obj) == 0:
+            raise ObjectNotFoundException("job_log_url", id=job_id)
+        if len(obj) > 1:
+            raise ValueError("Multiple logs for the same job with the same url")
+        return obj[0]
 
     def update_job_log_url_status(self, job_log_url_id, parse_status):
 
@@ -1893,6 +1937,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
             }
         """
+
         if not result_sets:
             return {}
 

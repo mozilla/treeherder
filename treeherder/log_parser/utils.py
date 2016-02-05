@@ -1,24 +1,36 @@
 import logging
+import types
 import urllib2
 
 import simplejson as json
 from django.conf import settings
 
-from treeherder import celery_app
 from treeherder.client import (TreeherderArtifactCollection,
                                TreeherderClient)
 from treeherder.credentials.models import Credentials
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import MozlogArtifactBuilder
+from treeherder.model.derived import JobsModel
 from treeherder.model.error_summary import get_error_summary_artifacts
 
 logger = logging.getLogger(__name__)
 
 
+def expand_log_url(project, job_guid, job_log_url):
+    """If passed string assumed to be a url to a log, convert it to the
+    full job_log_url dict corresponding to that log url, otherwise
+    return the input job_log_url argument.
+    """
+    if isinstance(job_log_url, types.StringTypes):
+        with JobsModel(project) as jm:
+            job_id = jm.get_job_ids_by_guid([job_guid])[job_guid]['id']
+            return jm.get_job_log_url_by_url(job_id, job_log_url)
+
+    return job_log_url
+
+
 def is_parsed(job_log_url):
-    # if parse_status is not available, consider it pending
-    parse_status = job_log_url.get("parse_status", "pending")
-    return parse_status == "parsed"
+    return job_log_url.get("parse_status") == "parsed"
 
 
 def extract_text_log_artifacts(project, log_url, job_guid):
@@ -30,14 +42,6 @@ def extract_text_log_artifacts(project, log_url, job_guid):
 
     artifact_list = []
     for name, artifact in artifact_bc.artifacts.items():
-        if name == 'Job Info':
-            for detail in artifact['job_details']:
-                if ('title' in detail and detail['title'] == 'artifact uploaded'
-                        and detail['value'].endswith('_errorsummary.log')):
-                    # using .send_task to avoid an import loop.
-                    celery_app.send_task('store-error-summary',
-                                         [project, detail['url'], job_guid],
-                                         routing_key='store_error_summary')
         artifact_list.append({
             "job_guid": job_guid,
             "name": name,
@@ -123,7 +127,8 @@ def post_log_artifacts(project,
 
     try:
         client.post_collection(project, tac)
-        client.update_parse_status(project, job_log_url['id'], 'parsed')
+        with JobsModel(project) as jm:
+            jm.update_job_log_url_status(job_log_url["id"], "parsed")
         logger.debug("Finished posting artifact for %s %s", project, job_guid)
     except Exception as e:
         logger.error("Failed to upload parsed artifact for %s: %s", log_description, e)

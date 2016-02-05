@@ -1,68 +1,131 @@
+import json
 import logging
 
 from celery import task
 from django.conf import settings
 from django.core.management import call_command
 
-from treeherder import celery_app
-from treeherder.log_parser.utils import (extract_json_log_artifacts,
+from treeherder.autoclassify.tasks import autoclassify
+from treeherder.log_parser.utils import (expand_log_url,
                                          extract_text_log_artifacts,
                                          is_parsed,
                                          post_log_artifacts)
+from treeherder.workers.taskset import (create_taskset,
+                                        taskset)
 
 logger = logging.getLogger(__name__)
 
 
-@task(name='parse-log', max_retries=10)
-def parse_log(project, job_log_url, job_guid):
+def parser_task(f):
+    """Decorator that ensures the job_log_url is an object
+    rather than just a plain url, and checks if the task
+    has already run"""
+    def inner(project, job_guid, job_log_url, priority):
+        job_log_url = expand_log_url(project, job_guid, job_log_url)
+
+        if is_parsed(job_log_url):
+            return True
+
+        return f(project, job_guid, job_log_url, priority)
+
+    inner.__name__ = f.__name__
+    inner.__doc__ = f.__doc__
+
+    return inner
+
+
+def parse_job_logs(project, tasks):
+    """Schedule the log-related tasks that can run when we get logs for a
+    set of jobs in a specific repository, and arrange for the future
+    running of tasks that depend on logs being parsed/stored.  In
+    particular schedules one or both of store_failure_lines and
+    parse_log, and adds a callback for crossreference_error_lines to
+    run when they are complete.
+
+    :param project: The repository name of the jobs for which these tasks
+                    are scheduled.
+    :param tasks: Dict of {job_guid: [task_dict]} where task_dict contains
+                  detail of the tasks to schedule.
+    """
+    task_funcs = {"store_failure_lines": store_failure_lines,
+                  "parse_log": parse_log}
+
+    task_priorities = {"normal": 0,
+                       "failures": 1,
+                       "high": 2}
+
+    callback_priority = "normal"
+
+    for job_guid, task_list in tasks.iteritems():
+        callback_group = []
+        tasks = []
+
+        logger.debug("parse_job_logs for job %s" % job_guid)
+        for t in task_list:
+
+            priority = t["routing_key"].rsplit(".", 1)[1] if "routing_key" in t else "normal"
+            if task_priorities[priority] > task_priorities[callback_priority]:
+                callback_priority = priority
+
+            signature = task_funcs[t["func_name"]].si(project,
+                                                      job_guid,
+                                                      t['job_log_url'],
+                                                      priority)
+            if "routing_key" in t:
+                signature.set(routing_key=t["routing_key"])
+
+            if t["func_name"] in ["parse_log", "store_failure_lines"]:
+                tasks.append(t["func_name"])
+                callback_group.append(signature)
+            else:
+                signature.apply_async()
+
+        if not callback_group:
+            continue
+
+        callback = crossreference_error_lines.si(project, job_guid, tasks)
+        callback.set(routing_key="crossreference_error_lines.%s" % callback_priority)
+        create_taskset(callback_group, callback)
+
+
+@task(name='log-parser', max_retries=10)
+@taskset
+@parser_task
+def parse_log(project, job_guid, job_log_url, _priority):
     """
     Call ArtifactBuilderCollection on the given job.
     """
-
-    # don't parse a log if it's already been parsed
-    if is_parsed(job_log_url):
-        return
-
+    logger.debug("Running parse_log for job %s" % job_guid)
     post_log_artifacts(project,
                        job_guid,
                        job_log_url,
                        parse_log,
-                       extract_text_log_artifacts,
-                       )
+                       extract_text_log_artifacts)
 
 
-@task(name='parse-json-log', max_retries=10)
-def parse_json_log(project, job_log_url, job_guid):
-    """
-    Apply the Structured Log Fault Formatter to the structured log for a job.
-    """
-    # The parse-json-log task has suddenly started taking 80x longer that it used to,
-    # which is causing a backlog in normal log parsing tasks too. The output of this
-    # task is not being used yet, so skip parsing until this is resolved.
-    # See bug 1152681.
-    return
-
-    # don't parse a log if it's already been parsed
-    if is_parsed(job_log_url):
-        return
-
-    post_log_artifacts(project,
-                       job_guid,
-                       job_log_url,
-                       parse_json_log,
-                       extract_json_log_artifacts,
-                       )
-
-
-@task(name='store-error-summary', max_retries=10)
-def store_error_summary(project, job_log_url, job_guid):
-    """This task is a wrapper for the store_error_summary command."""
+@task(name='store-failure-lines', max_retries=10)
+@taskset
+@parser_task
+def store_failure_lines(project, job_guid, job_log_url, priority):
+    """This task is a wrapper for the store_failure_lines command."""
     try:
-        logger.info('Running store_error_summary')
-        call_command('store_error_summary', job_log_url, job_guid, project)
+        logger.debug('Running store_failure_lines for job %s' % job_guid)
+        call_command('store_failure_lines', project, job_guid, json.dumps(job_log_url))
         if settings.AUTOCLASSIFY_JOBS:
-            celery_app.send_task('autoclassify',
-                                 [project, job_guid],
-                                 routing_key='autoclassify')
+            autoclassify.apply_async(args=[project, job_guid],
+                                     routing_key="autoclassify.%s" % priority)
+
     except Exception as e:
-        store_error_summary.retry(exc=e, countdown=(1 + store_error_summary.request.retries) * 60)
+        store_failure_lines.retry(exc=e, countdown=(1 + store_failure_lines.request.retries) * 60)
+
+
+@task(name='crossreference-error-lines', max_retries=10)
+def crossreference_error_lines(project, job_guid, tasks):
+    """This task is a wrapper for the crossreference error lines command."""
+    logger.debug("Running crossreference-error-lines for %s" % job_guid)
+    if not("parse_log" in tasks and "store_failure_lines" in tasks):
+        return
+    try:
+        call_command('crossreference_error_lines', project, job_guid)
+    except Exception, e:
+        crossreference_error_lines.retry(exc=e, countdown=(1 + crossreference_error_lines.request.retries) * 60)

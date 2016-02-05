@@ -832,6 +832,30 @@ class RunnableJob(models.Model):
                                     self.build_system_type)
 
 
+class TextLogSummary(models.Model):
+    id = BigAutoField(primary_key=True)
+    job_guid = models.CharField(max_length=50)
+    repository = models.ForeignKey(Repository)
+    text_log_summary_artifact_id = models.PositiveIntegerField(blank=True, null=True)
+    bug_suggestions_artifact_id = models.PositiveIntegerField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'text_log_summary'
+        unique_together = (('job_guid', 'repository'))
+
+
+class TextLogSummaryLine(models.Model):
+    id = BigAutoField(primary_key=True)
+    summary = FlexibleForeignKey(TextLogSummary, related_name="lines")
+    line_number = models.PositiveIntegerField(blank=True, null=True)
+    failure_line = FlexibleForeignKey(FailureLine, related_name="text_log_line", null=True)
+    bug_number = models.PositiveIntegerField(blank=True, null=True)
+    verified = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'text_log_summary_line'
+
+
 class TaskSetMeta(models.Model):
     id = BigAutoField(primary_key=True)
     count = models.IntegerField()
