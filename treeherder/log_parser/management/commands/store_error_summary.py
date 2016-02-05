@@ -14,12 +14,12 @@ from treeherder.model.models import (FailureLine,
 
 
 class Command(BaseCommand):
-    args = '<log_url>, <job_guid>, <repository>'
+    args = '<repository>, <job_guid>, <log_url>'
     help = 'Download, parse and store the given failure summary log.'
 
     def handle(self, *args, **options):
         try:
-            log_url, job_guid, repository_name = args
+            repository_name, job_guid, log_url = args
         except ValueError:
             raise CommandError('3 arguments required, %s given' % len(args))
 
@@ -44,14 +44,18 @@ class Command(BaseCommand):
             # Alter the N+1th log line to indicate the list was truncated.
             log_iter[-1].update(action='truncated')
 
-        with JobsModel(repository_name) as jobs_model:
-            job_id = jobs_model.get_job_ids_by_guid([job_guid])
+        with JobsModel(repository_name) as jm:
+            job = jm.get_job_ids_by_guid([job_guid])[job_guid]
 
-            if not job_id:
+            if not job:
                 raise CommandError('No job found with guid %s in the %s repository' % (job_guid, repository_name))
 
-        with transaction.atomic():
-            FailureLine.objects.bulk_create(
-                [FailureLine(repository=repository, job_guid=job_guid, **failure_line)
-                 for failure_line in log_iter]
-            )
+            job_log_url = jm.get_job_log_url_by_url(job["id"], log_url)
+
+            with transaction.atomic():
+                FailureLine.objects.bulk_create(
+                    [FailureLine(repository=repository, job_guid=job_guid, **failure_line)
+                     for failure_line in log_iter]
+                )
+
+            jm.update_job_log_url_status(job_log_url["id"], "parsed")

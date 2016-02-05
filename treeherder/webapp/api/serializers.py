@@ -153,3 +153,15 @@ class FailureLineNoStackSerializer(serializers.ModelSerializer):
         exclude = ['stack',
                    'stackwalk_stdout',
                    'stackwalk_stderr']
+
+
+class TextLogSummaryLineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TextLogSummaryLine
+
+
+class TextLogSummarySerializer(serializers.ModelSerializer):
+    lines = TextLogSummaryLineSerializer(many=True)
+
+    class Meta:
+        model = models.TextLogSummary

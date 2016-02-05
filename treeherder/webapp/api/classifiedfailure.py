@@ -1,8 +1,7 @@
 from collections import defaultdict
 
 import rest_framework_filters as filters
-from rest_framework import (pagination,
-                            viewsets)
+from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -10,7 +9,8 @@ from rest_framework.response import Response
 from treeherder.model.models import (ClassifiedFailure,
                                      FailureLine,
                                      FailureMatch)
-from treeherder.webapp.api import serializers
+from treeherder.webapp.api import (pagination,
+                                   serializers)
 from treeherder.webapp.api.utils import as_dict
 
 
@@ -20,17 +20,12 @@ class ClassifiedFailureFilter(filters.FilterSet):
         fields = ["bug_number"]
 
 
-class IdPagination(pagination.CursorPagination):
-    ordering = ('-id')
-    page_size = 100
-
-
 class ClassifiedFailureViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = serializers.ClassifiedFailureSerializer
     queryset = ClassifiedFailure.objects.all()
     filter_class = ClassifiedFailureFilter
-    pagination_class = IdPagination
+    pagination_class = pagination.IdPagination
 
     def _create(self, data, many=False):
         rv = []

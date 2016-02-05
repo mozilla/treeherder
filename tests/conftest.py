@@ -538,3 +538,42 @@ def bugs(mock_extract):
     process.run()
 
     return Bugscache.objects.all()
+
+
+@pytest.fixture
+def artifacts(jm, failure_lines, test_repository):
+    from treeherder.model.models import FailureLine
+    from autoclassify.utils import create_summary_lines_failures, create_bug_suggestions_failures
+    job = jm.get_job(1)[0]
+
+    lines = [(item, {}) for item in FailureLine.objects.filter(job_guid=job["job_guid"]).values()]
+
+    summary_lines = create_summary_lines_failures(test_repository.name, job, lines)
+    bug_suggestions = create_bug_suggestions_failures(test_repository.name, job, lines)
+
+    return summary_lines, bug_suggestions
+
+
+@pytest.fixture
+def text_summary_lines(jm, failure_lines, test_repository, artifacts):
+    from treeherder.model.models import TextLogSummary, TextLogSummaryLine
+    job = jm.get_job(1)[0]
+
+    summary = TextLogSummary(
+        job_guid=job["job_guid"],
+        repository=test_repository,
+        text_log_summary_artifact_id=artifacts[0]["id"],
+        bug_suggestions_artifact_id=artifacts[1]["id"]
+    )
+    summary.save()
+
+    summary_lines = []
+    for line in failure_lines:
+        summary_line = TextLogSummaryLine(
+            summary=summary,
+            line_number=line.line,
+            failure_line=line)
+        summary_line.save()
+        summary_lines.append(summary_line)
+
+    return summary_lines

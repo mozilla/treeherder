@@ -3,7 +3,7 @@ from celery import task
 from treeherder.etl.classification_mirroring import ElasticsearchDocRequest
 
 
-@task(name="submit-elasticsearch-doc", max_retries=10, time_limit=30)
+@task(name="submit-elasticsearch-doc", max_retries=10, time_limit=30, ignore_result=True)
 def submit_elasticsearch_doc(project, job_id, bug_id, classification_timestamp, who):
     """
     Mirror the classification to Elasticsearch using a post request, until
