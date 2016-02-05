@@ -48,11 +48,6 @@ anyjson==0.3.3
 # sha256: 7cVxMGHxCWYEi_a0DZpRSzgeC6hJxk4DTE72wYR9MAc
 blessings==1.6
 
-# python-memcached v1.54 has a performance regression, don't update until
-# https://github.com/linsomniac/python-memcached/issues/71 is fixed.
-# sha256: vPcTcdmXu0ajFop7Y6rma1bMyswCWvkxDbQxVoHviGg
-python-memcached==1.53
-
 # sha256: ceezvPn8pAi8tlu2CJLzddOr3S5PKW7uuP4Lu_zeWY4
 jsonschema==2.5.1
 
@@ -125,3 +120,9 @@ requests-hawk==1.0.0
 
 # sha256: AMxHk1r7vYMmD90oOwqnkOZY0qcZIgSfbkZ9yooSRTc
 django-filter==0.11.0
+
+# sha256: FiVVlWFqbXjNeGpVzGQx2lt6zPRlEt-FRxKgzbs6z6o
+pylibmc==1.5.0
+
+# sha256: nP_e5wOq-evAKdnb3uir3QcjVkuV5LKsWeSmaLjlj5M
+django-pylibmc==0.6.1

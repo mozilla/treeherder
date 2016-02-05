@@ -5,6 +5,8 @@ class python {
            "python2.7",
            # Required by MySQLdb.
            "python-dev",
+           # Required by pylibmc.
+           "libmemcached-dev",
            # To improve the UX of the Vagrant environment.
            "git"]:
     ensure => "latest",
