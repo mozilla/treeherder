@@ -41,12 +41,12 @@ pulse_connection = LazyPublisher()
 
 
 # Run a maximum of 1 per hour
-@task(name='cycle-data', rate_limit='1/h')
+@task(name='cycle-data', rate_limit='1/h', ignore_result=True)
 def cycle_data():
     call_command('cycle_data')
 
 
-@task(name='calculate-durations', rate_limit='1/h')
+@task(name='calculate-durations', rate_limit='1/h', ignore_result=True)
 def calculate_durations(sample_window_seconds=21600, debug=False):
     from treeherder.model.derived.jobs import JobsModel
 
@@ -58,7 +58,7 @@ def calculate_durations(sample_window_seconds=21600, debug=False):
             jm.calculate_durations(sample_window_seconds, debug)
 
 
-@task(name='publish-job-action')
+@task(name='publish-job-action', ignore_result=True)
 def publish_job_action(project, action, job_id, requester):
     """
     Generic task to issue pulse notifications when jobs actions occur
@@ -92,7 +92,7 @@ def publish_job_action(project, action, job_id, requester):
         )
 
 
-@task(name='publish-resultset-action')
+@task(name='publish-resultset-action', ignore_result=True)
 def publish_resultset_action(project, action, resultset_id, requester, times=1):
     publisher = pulse_connection.get_publisher()
     if not publisher:
@@ -124,7 +124,7 @@ def publish_resultset_runnable_job_action(project, resultset_id, requester,
     )
 
 
-@task(name='publish-resultset')
+@task(name='publish-resultset', ignore_result=True)
 def publish_resultset(project, ids):
     # If we don't have a publisher (because of missing configs), then we can't
     # publish any pulse messages. This is okay, local installs etc. doesn't
@@ -170,7 +170,7 @@ def publish_resultset(project, ids):
             publisher.connection.release()
 
 
-@task(name='populate-error-summary')
+@task(name='error-summary', ignore_result=True)
 def populate_error_summary(project, artifacts, job_id_lookup):
     """
     Create bug suggestions artifact(s) for any text_log_summary artifacts.

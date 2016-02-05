@@ -168,7 +168,8 @@ class ArtifactsModel(TreeherderModelBase):
                 if not job_id:
                     logger.error(
                         ('load_job_artifacts: No job_id for '
-                         '{0} job_guid {1}'.format(self.project, job_guid)))
+                         '{0} job_guid {1} {2}'.format(self.project, job_guid,
+                                                       repr(job_id_lookup))))
 
             else:
                 logger.error(
