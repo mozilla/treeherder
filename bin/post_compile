@@ -14,11 +14,6 @@ echo $SOURCE_VERSION > dist/revision.txt
 # collectstatic, and so does not affect files in the `dist/` directory.
 python -m whitenoise.gzip dist
 
-# The Python buildpack automatic collectstatic has been disabled using
-# DISABLE_COLLECTSTATIC, since it's slower than us running it here.
-# See: https://github.com/heroku/heroku-buildpack-python/issues/252
-./manage.py collectstatic --noinput
-
 # The post_compile script is run in a sub-shell, so we need to source the
 # buildpack's utils script again, so we can use set-env/set-default-env:
 # https://github.com/heroku/heroku-buildpack-python/blob/master/bin/utils
