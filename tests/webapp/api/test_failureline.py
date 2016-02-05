@@ -138,7 +138,7 @@ def test_update_failure_line_mark_job(eleven_jobs_stored,
         assert failure_line.best_classification == classified_failures[1]
         assert failure_line.best_is_verified
 
-    assert jm.fully_verified(job['id'])
+    assert jm.is_fully_verified(job['id'])
 
     notes = jm.get_job_note_list(job['id'])
 
@@ -187,7 +187,7 @@ def test_update_failure_line_mark_job_with_human_note(eleven_jobs_stored,
 
         assert resp.status_code == 200
 
-    assert jm.fully_verified(job['id'])
+    assert jm.is_fully_verified(job['id'])
 
     notes = jm.get_job_note_list(job['id'])
 
@@ -236,7 +236,7 @@ def test_update_failure_line_mark_job_with_auto_note(eleven_jobs_stored,
 
         assert resp.status_code == 200
 
-    assert jm.fully_verified(job['id'])
+    assert jm.is_fully_verified(job['id'])
 
     notes = jm.get_job_note_list(job['id'])
 
@@ -297,7 +297,7 @@ def test_update_failure_lines(eleven_jobs_stored,
         assert failure_line.best_is_verified
 
     for job in jobs:
-        assert jm.fully_verified(job['id'])
+        assert jm.is_fully_verified(job['id'])
 
         notes = jm.get_job_note_list(job['id'])
 
@@ -383,7 +383,7 @@ def test_update_failure_line_all_ignore_mark_job(eleven_jobs_stored,
         assert failure_line.best_classification is None
         assert failure_line.best_is_verified
 
-    assert jm.fully_verified(job['id'])
+    assert jm.is_fully_verified(job['id'])
 
     notes = jm.get_job_note_list(job['id'])
 
@@ -437,7 +437,7 @@ def test_update_failure_line_partial_ignore_mark_job(eleven_jobs_stored,
             assert failure_line.best_classification == classified_failures[0]
         assert failure_line.best_is_verified
 
-    assert jm.fully_verified(job['id'])
+    assert jm.is_fully_verified(job['id'])
 
     notes = jm.get_job_note_list(job['id'])
 

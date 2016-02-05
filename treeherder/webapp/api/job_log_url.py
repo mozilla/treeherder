@@ -64,17 +64,18 @@ class JobLogUrlViewSet(viewsets.ViewSet):
     @with_jobs
     def parse(self, request, project, jm, pk=None):
         """Trigger an async task to parse this log."""
+
         log_obj = jm.get_job_log_url_detail(pk)
         job = jm.get_job(log_obj["job_id"])[0]
+
+        log_obj["job_guid"] = job["job_guid"]
+        # We can fake the result because there is only one queue for high priority
+        # jobs and it doesn't depend on the result
+        log_obj["result"] = None
 
         logger.info("{0} has requested to parse log {1}".format(
                     request.user.username, log_obj))
 
-        # importing here to avoid an import loop
-        from treeherder.log_parser.tasks import parse_log
-        parse_log.apply_async(
-            args=[project, log_obj, job["job_guid"]],
-            routing_key='parse_log.high_priority'
-        )
+        jm.schedule_log_parsing([log_obj], priority="high")
 
         return Response({"message": "Log parsing triggered successfully"})

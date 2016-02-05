@@ -854,6 +854,11 @@ class TextLogSummaryLine(models.Model):
     bug_number = models.PositiveIntegerField(blank=True, null=True)
     verified = models.BooleanField(default=False)
 
+    def bug(self):
+        # Putting this here forces one query per object; there should be a way
+        # to make things more efficient
+        return Bugscache.objects.filter(id=self.bug_number).first()
+
     class Meta:
         db_table = 'text_log_summary_line'
 

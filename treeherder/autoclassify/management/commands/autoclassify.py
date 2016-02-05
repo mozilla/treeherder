@@ -22,16 +22,22 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         if not len(args) == 2:
-            raise CommandError('3 arguments required, %s given' % len(args))
-        job_guid, repository = args
+            raise CommandError('2 arguments required, %s given' % len(args))
+        repository, job_guid = args
 
         with JobsModel(repository) as jm:
             match_errors(repository, jm, job_guid)
 
 
 def match_errors(repository, jm, job_guid):
-    job_id = jm.get_job_ids_by_guid([job_guid])[job_guid]["id"]
-    job = jm.get_job(job_id)[0]
+    job = jm.get_job_ids_by_guid([job_guid]).get(job_guid)
+
+    if not job:
+        logger.error('autoclassify: No job for '
+                     '{0} job_guid {1}'.format(repository, job_guid))
+        return
+
+    job_id = job.get("id")
 
     # Only try to autoclassify where we have a failure status; sometimes there can be
     # error lines even in jobs marked as passing.
