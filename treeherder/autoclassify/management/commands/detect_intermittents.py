@@ -14,13 +14,13 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    args = '<job_guid>, <repository>'
+    args = '<repository>, <job_guid>'
     help = 'Look for new intermittents in a job'
 
     def handle(self, *args, **options):
         if not len(args) == 2:
             raise CommandError('2 arguments required, %s given' % len(args))
-        job_guid, repository = args
+        repository, job_guid = args
 
         with JobsModel(repository) as jm:
             jobs = jm.get_job_repeats(job_guid)

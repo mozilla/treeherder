@@ -163,15 +163,31 @@ LOGGING = {
 CELERY_QUEUES = [
     Queue('default', Exchange('default'), routing_key='default'),
     # queue for failed jobs/logs
-    Queue('log_parser_fail', Exchange('default'), routing_key='parse_log.failures'),
-    # queue for successful jobs/logs
-    Queue('log_parser', Exchange('default'), routing_key='parse_log.success'),
-    # this is used to give priority to some logs, for example when we need to
-    # parse a log on demand
-    Queue('log_parser_hp', Exchange('default'), routing_key='parse_log.high_priority'),
-    Queue('log_parser_json', Exchange('default'), routing_key='parse_log.json'),
-    Queue('store_error_summary', Exchange('default'), routing_key='store_error_summary'),
-    Queue('autoclassify', Exchange('default'), routing_key='autoclassify'),
+    Queue('parse_job_logs', Exchange('default'), routing_key='parse_job_logs'),
+    Queue('parse_job_logs_fail', Exchange('default'), routing_key='parse_job_logs.failures'),
+    Queue('parse_job_logs_hp', Exchange('default'), routing_key='parse_job_logs.high'),
+    Queue('log_parser', Exchange('default'), routing_key='log_parser.normal'),
+    Queue('log_parser_fail', Exchange('default'), routing_key='log_parser.failures'),
+    Queue('log_parser_hp', Exchange('default'), routing_key='log_parser.high'),
+    Queue('log_parser_json', Exchange('default'), routing_key='log_parser_json.normal'),
+    Queue('log_parser_json_fail', Exchange('default'), routing_key='log_parser_json.failures'),
+    Queue('log_parser_json_hp', Exchange('default'), routing_key='log_parser_json.high'),
+    Queue('log_store_error_summary', Exchange('default'), routing_key='store_error_summary.normal'),
+    Queue('log_store_error_summary_fail', Exchange('default'), routing_key='store_error_summary.failures'),
+    Queue('log_store_error_summary_hp', Exchange('default'), routing_key='store_error_summary.high'),
+    Queue('log_after_parsed', Exchange('default'), routing_key='after_logs_parsed.normal'),
+    Queue('log_after_parsed_fail', Exchange('default'), routing_key='after_logs_parsed.failures'),
+    Queue('log_after_parsed_hp', Exchange('default'), routing_key='after_logs_parsed.high'),
+
+    Queue('log_crossreference_error_lines', Exchange('default'),
+          routing_key='crossreference_error_lines.normal'),
+    Queue('log_crossreference_error_lines_fail', Exchange('default'),
+          routing_key='crossreference_error_lines.failures'),
+    Queue('log_crossreference_error_lines_hp', Exchange('default'),
+          routing_key='crossreference_error_lines.high'),
+    Queue('log_autoclassify', Exchange('default'), routing_key='autoclassify.normal'),
+    Queue('log_autoclassify_fail', Exchange('default'), routing_key='autoclassify.failures'),
+    Queue('log_autoclassify_hp', Exchange('default'), routing_key='autoclassify.high'),
     Queue('detect_intermittents', Exchange('default'), routing_key='detect_intermittents'),
     # Queue for mirroring the failure classification activity to Elasticsearch.
     Queue('classification_mirroring', Exchange('default'), routing_key='classification_mirroring'),
@@ -188,6 +204,26 @@ CELERY_QUEUES = [
     Queue('fetch_bugs', Exchange('default'), routing_key='fetch_bugs'),
     Queue('generate_perf_alerts', Exchange('default'), routing_key='generate_perf_alerts'),
 ]
+
+
+class CeleryRouter(object):
+    queue_by_key = {item.routing_key: item.name for item in CELERY_QUEUES}
+
+    def route_for_task(self, task, args=None, kwargs=None):
+        import logging
+        if task == 'celery.chord_unlock':
+            callback_signature = args[1]
+            options = callback_signature.get('options')
+            if options:
+                routing_key = options.get('routing_key')
+                if routing_key:
+                    rv = {'queue': self.queue_by_key[routing_key],
+                          'routing_key': routing_key}
+                    logging.error("Routed to: %r" % (rv,))
+                    return rv
+
+
+CELERY_ROUTES = [CeleryRouter()]
 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
@@ -471,7 +507,10 @@ if env.bool('IS_HEROKU', default=False):
         memcacheify().get('default')
     )
 
-CELERY_IGNORE_RESULT = True
+CELERY_RESULT_BACKEND = "db+%s" % (env('DATABASE_URL'),)
+
+if env.bool('IS_HEROKU', default=False):
+    CELERY_RESULT_ENGINE_OPTIONS = {'connect_args': DATABASES['default']['OPTIONS']}
 
 API_HOSTNAME = SITE_URL
 

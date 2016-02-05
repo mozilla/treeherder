@@ -19,6 +19,28 @@ if [ ! -f $LOGFILE ]; then
 fi
 
 exec $NEWRELIC_ADMIN celery -A treeherder worker \
-    -Q log_parser_fail,log_parser,log_parser_hp,log_parser_json,error_summary,store_error_summary,autoclassify \
+    -Q \
+parse_job_logs,\
+parse_job_logs_fail,\
+parse_job_logs_hp,\
+log_parser,\
+log_parser_fail,\
+log_parser_hp,\
+log_parser_json,\
+log_parser_json_fail,\
+log_parser_json_hp,\
+log_store_error_summary,\
+log_store_error_summary_fail,\
+log_store_error_summary_hp,\
+log_after_parsed,\
+log_after_parsed_fail,\
+log_after_parsed_hp,\
+log_crossreference_error_lines,\
+log_crossreference_error_lines_fail,\
+log_crossreference_error_lines_hp,\
+log_autoclassify,\
+log_autoclassify_fail,\
+log_autoclassify_hp,\
+error_summary\
     --concurrency=5 --logfile=$LOGFILE -l INFO \
     --maxtasksperchild=500 -n log_parser.%h

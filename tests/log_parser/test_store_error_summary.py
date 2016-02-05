@@ -18,7 +18,9 @@ def test_store_error_summary(activate_responses, test_repository, jm,
 
     job = jm.get_job(1)[0]
 
-    call_command('store_error_summary', log_url, job['job_guid'], jm.project)
+    jm._insert_log_urls([[job["id"], "errorsummary_json", log_url, "pending"]])
+
+    call_command('store_error_summary', jm.project, job['job_guid'], log_url)
 
     assert FailureLine.objects.count() == 1
 
@@ -42,7 +44,9 @@ def test_store_error_summary_truncated(activate_responses, test_repository,
 
     job = jm.get_job(1)[0]
 
-    call_command('store_error_summary', log_url, job['job_guid'], jm.project)
+    jm._insert_log_urls([[job["id"], "errorsummary_json", log_url, "pending"]])
+
+    call_command('store_error_summary', jm.project, job['job_guid'], log_url)
 
     assert FailureLine.objects.count() == 5 + 1
 
