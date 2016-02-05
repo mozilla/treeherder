@@ -22,8 +22,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         if not len(args) == 2:
-            raise CommandError('3 arguments required, %s given' % len(args))
-        job_guid, repository = args
+            raise CommandError('2 arguments required, %s given' % len(args))
+        repository, job_guid = args
 
         with JobsModel(repository) as jm:
             match_errors(repository, jm, job_guid)

@@ -500,9 +500,14 @@
         "get_job_log_url_list":{
             "sql": "SELECT `id`, `job_id`, `name`, `url`, `parse_status`
                     FROM job_log_url
-                    WHERE job_id in (REP0)
-                    and active_status='active'",
+                    WHERE job_id in (REP0) and active_status='active'",
             "host_type": "master_host"
+        },
+        "get_job_log_url_by_url":{
+            "sql": "SELECT `id`, `job_id`, `name`, `url`, `parse_status`
+                    FROM job_log_url
+                    WHERE job_id = ? AND url = ? AND active_status = 'active'",
+            "host_type":"read_host"
         },
         "get_job_artifact":{
             "sql":"SELECT

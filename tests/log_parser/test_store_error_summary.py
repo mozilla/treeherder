@@ -22,7 +22,9 @@ def test_store_error_summary(activate_responses, jm, eleven_jobs_stored, initial
     repository = Repository.objects.create(name=jm.project,
                                            repository_group=repository_group)
 
-    call_command('store_error_summary', log_url, job['job_guid'], jm.project)
+    jm._insert_log_urls([[job["id"], "errorsummary_json", log_url, "pending"]])
+
+    call_command('store_error_summary', jm.project, job['job_guid'], log_url)
 
     assert FailureLine.objects.count() == 1
 
@@ -49,7 +51,9 @@ def test_store_error_summary_truncated(activate_responses, jm, eleven_jobs_store
     repository = Repository.objects.create(name=jm.project,
                                            repository_group=repository_group)
 
-    call_command('store_error_summary', log_url, job['job_guid'], jm.project)
+    jm._insert_log_urls([[job["id"], "errorsummary_json", log_url, "pending"]])
+
+    call_command('store_error_summary', jm.project, job['job_guid'], log_url)
 
     assert FailureLine.objects.count() == 5 + 1
 
