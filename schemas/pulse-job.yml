@@ -16,7 +16,7 @@ properties:
     minLength: 1
     maxLength: 50
   retryId:
-    title: "runId"
+    title: "retryId"
     description: |
       The infrastructure retry iteration on this job.  The number of times this
       job has been retried by the infrastructure.
@@ -243,17 +243,27 @@ properties:
 
   textLogSummary:
     type: object
+    description: |
+      This object defines what is seen in the Treeherder Log Viewer.  This object
+      can be submitted here, or it will be generated from the submitted log.
     properties:
       step_data:
         type: object
         properties:
           all_errors:
+            description: |
+              Lists all the lines of the log that have errors.  These line
+              values will be used the the process that generates the
+              ``Bug suggestions`` for display on the job summary panel in
+              Treeherder.
             type: array
             items:
               type: object
               properties:
                 line:
                   type: string
+                  minLength: 1
+                  maxLength: 150
                 linenumber:
                   type: integer
               additionalProperties: false
@@ -273,28 +283,38 @@ properties:
                     properties:
                       line:
                         type: string
+                        minLength: 1
+                        maxLength: 150
                       linenumber:
                         type: integer
+                        minimum: 0
                     additionalProperties: false
                   additionalItems: false
                 name:
                   type: string
+                  minLength: 1
+                  maxLength: 150
                 started:
                   type: string
                   format: date-time
                 started_linenumber:
                   type: integer
+                  minimum: 0
                 finished_linenumber:
                   type: integer
+                  minimum: 0
                 finished:
                   type: string
                   format: date-time
                 error_count:
                   type: integer
+                  minimum: 0
                 duration:
                   type: integer
+                  minimum: 0
                 order:
                   type: integer
+                  minimum: 0
                 result:
                   type: string
                   enum: [busted, testfailed, exception, success, canceled, unknown, retry, skipped]
@@ -335,10 +355,14 @@ properties:
       properties:
         search:
           type: string
+          minLength: 1
+          maxLength: 150
         search_terms:
           type: array
           items:
             type: string
+            minLength: 1
+            maxLength: 150
         bugs:
           type: object
           properties:
@@ -354,7 +378,43 @@ properties:
     - bugs
 
   jobInfo:
-    $ref: "#/definitions/jobInfo"
+    description: |
+      Definition of the Job Info for a job.  These are extra data
+      fields that go along with a job that will be displayed in
+      the details panel within Treeherder.
+    id: "jobInfo"
+    type: object
+    properties:
+      jobDetails:
+        type: array
+        items:
+        - type: object
+          properties:
+            url:
+              type: string
+              format: url
+            contentType:
+              type: string
+              enum:
+                - raw_html
+                - link
+                - TalosResult
+            value:
+              type: string
+              minLength: 1
+              maxLength: 1000
+            title:
+              type: string
+              minLength: 1
+              maxLength: 150
+          additionalProperties: false
+          required:
+          - contentType
+          - value
+          - title
+    additionalProperties: false
+    required:
+    - jobDetails
 
   logs:
     type: "array"
@@ -419,41 +479,6 @@ definitions:
       - os
       - architecture
 
-  jobInfo:
-    description: |
-      Definition of the Job Info for a job.  These are extra data
-      fields that go along with a job that will be displayed in
-      the details panel within Treeherder.
-    id: "jobInfo"
-    type: object
-    properties:
-      jobDetails:
-        type: array
-        items:
-        - type: object
-          properties:
-            url:
-              type: string
-              format: url
-            contentType:
-              type: string
-              enum:
-                - raw_html
-                - link
-                - TalosResult
-            value:
-              type: string
-            title:
-              type: string
-          additionalProperties: false
-          required:
-          - contentType
-          - value
-          - title
-    additionalProperties: false
-    required:
-    - jobDetails
-
   bugList:
     type: array
     items:
@@ -461,16 +486,28 @@ definitions:
       properties:
         crash_signature:
           type: string
+          minLength: 1
+          maxLength: 255
         resolution:
           type: string
+          minLength: 1
+          maxLength: 30
         summary:
           type: string
+          minLength: 1
+          maxLength: 255
         relevance:
           type: number
+          minimum: 0
+          maximum: 100
         keywords:
           type: string
+          minLength: 1
+          maxLength: 255
         os:
           type: string
+          minLength: 1
+          maxLength: 255
         id:
           type: integer
           minimum: 0
