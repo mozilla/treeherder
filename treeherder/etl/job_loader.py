@@ -115,6 +115,9 @@ class JobLoader:
             artifact = artifact_func(job, job_guid)
             if artifact:
                 pulse_artifacts.append(artifact)
+
+        # add in any arbitrary artifacts included in the "extra" section
+        pulse_artifacts.extend(self._get_extra_artifacts(job, job_guid))
         return pulse_artifacts
 
     def _get_job_info_artifact(self, job, job_guid):
@@ -167,6 +170,16 @@ class JobLoader:
         else:
             return None
 
+    def _get_extra_artifacts(self, job, job_guid):
+        artifacts = []
+        if "extra" in job and "artifacts" in job["extra"]:
+            for extra_artifact in job["extra"]["artifacts"]:
+                artifact = extra_artifact
+                artifact["job_guid"] = job_guid
+                artifacts.append(artifact)
+
+        return artifacts
+
     def _get_log_references(self, job):
         log_references = []
         for logref in job.get("logs", []):
@@ -205,7 +218,7 @@ class JobLoader:
 
     def _get_result(self, job):
         if job["state"] == "completed":
-            resmap = self.BUILD_RESULT_MAP if job["jobKind"] == "build" else self.TEST_RESULT_MAP
+            resmap = self.TEST_RESULT_MAP if job["jobKind"] == "test" else self.BUILD_RESULT_MAP
             result = job.get("result", "unknown")
             if job.get("isRetried", False):
                 return "retry"

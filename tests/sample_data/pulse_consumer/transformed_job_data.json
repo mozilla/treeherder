@@ -273,6 +273,55 @@
       "group_name": "PulseIngestion",
       "machine": "bld-linux64-ec2-104",
       "state": "completed",
+      "result": "retry",
+      "log_references": [
+        {
+          "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
+          "parse_status": "parsed",
+          "name": "builds-4h"
+        }
+      ],
+      "tier": 1,
+      "job_symbol": "3",
+      "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35",
+      "product_name": "unknown",
+      "end_timestamp": 1419043197.0
+    },
+    "revision_hash": "123",
+    "coalesced": []
+  },
+  {
+    "job": {
+      "build_platform": {
+        "platform": "linux64",
+        "os_name": "linux",
+        "architecture": "x86_64"
+      },
+      "submit_timestamp": 1419035997.0,
+      "start_timestamp": 1419039597.0,
+      "name": "Pulse Ingestion Test",
+      "option_collection": {
+        "opt": true
+      },
+      "artifacts": [
+        {
+          "blob": {"fee": "foo"},
+          "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35/3",
+          "name": "quagmire",
+          "type": "json"
+        }
+      ],
+      "machine_platform": {
+        "platform": "linux64",
+        "os_name": "linux",
+        "architecture": "x86_64"
+      },
+      "who": "thedude@lebowski.com",
+      "group_symbol": "PI",
+      "reason": "scheduler",
+      "group_name": "PulseIngestion",
+      "machine": "bld-linux64-ec2-104",
+      "state": "completed",
       "result": "testfailed",
       "log_references": [
         {

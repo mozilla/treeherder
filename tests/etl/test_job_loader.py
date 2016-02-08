@@ -50,13 +50,13 @@ def test_ingest_pulse_jobs(pulse_jobs, test_project, jm, result_set_stored):
     jl.process_job_list(pulse_jobs, raise_errors=True)
 
     jobs = jm.get_job_list(0, 10)
-    assert len(jobs) == 3
+    assert len(jobs) == 4
 
     logs = jm.get_job_log_url_list([jobs[0]["id"]])
     assert len(logs) == 1
     with ArtifactsModel(test_project) as am:
         artifacts = am.get_job_artifact_list(0, 10)
-        assert len(artifacts) == 3
+        assert len(artifacts) == 4
 
 
 def test_transition_pending_running_complete(first_job, jm):

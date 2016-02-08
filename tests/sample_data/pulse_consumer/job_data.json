@@ -253,7 +253,8 @@
 
   {
     "taskId": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35",
-    "retryId": 3,
+    "retryId": 0,
+    "isRetried": true,
     "origin": {
       "kind": "hg.mozilla.org",
       "project": "set by test",
@@ -298,5 +299,64 @@
         "name": "builds-4h"
       }
     ]
+  },
+  {
+    "taskId": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35",
+    "retryId": 3,
+    "origin": {
+      "kind": "hg.mozilla.org",
+      "project": "set by test",
+      "revision": "1234567890123456789012345678901234567890"
+    },
+
+    "display": {
+      "chunkId": 3,
+      "jobName": "Pulse Ingestion Test",
+      "groupSymbol": "PI",
+      "groupName": "PulseIngestion"
+    },
+
+    "state": "completed",
+    "result": "fail",
+    "jobKind": "test",
+
+    "runMachine": {
+      "name": "bld-linux64-ec2-104",
+      "platform": "linux64",
+      "os": "linux",
+      "architecture": "x86_64"
+    },
+    "buildMachine": {
+      "name": "bld-linux64-ec2-104",
+      "platform": "linux64",
+      "os": "linux",
+      "architecture": "x86_64"
+    },
+
+    "owner": "thedude@lebowski.com",
+    "reason": "scheduler",
+
+    "timeScheduled": "2014-12-19T16:39:57-08:00",
+    "timeStarted": "2014-12-19T17:39:57-08:00",
+    "timeCompleted": "2014-12-19T18:39:57-08:00",
+
+    "logs": [
+      {
+        "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
+        "parseStatus": "parsed",
+        "name": "builds-4h"
+      }
+    ],
+    "extra": {
+      "artifacts": [
+        {
+          "blob": {"fee": "foo"},
+          "type": "json",
+          "name": "quagmire"
+        }
+      ]
+    }
+
   }
+
 ]
