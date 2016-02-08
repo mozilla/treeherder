@@ -263,7 +263,7 @@ properties:
                 line:
                   type: string
                   minLength: 1
-                  maxLength: 150
+                  maxLength: 255
                 linenumber:
                   type: integer
               additionalProperties: false
@@ -284,7 +284,7 @@ properties:
                       line:
                         type: string
                         minLength: 1
-                        maxLength: 150
+                        maxLength: 255
                       linenumber:
                         type: integer
                         minimum: 0
@@ -293,7 +293,7 @@ properties:
                 name:
                   type: string
                   minLength: 1
-                  maxLength: 150
+                  maxLength: 255
                 started:
                   type: string
                   format: date-time
@@ -356,13 +356,13 @@ properties:
         search:
           type: string
           minLength: 1
-          maxLength: 150
+          maxLength: 550
         search_terms:
           type: array
           items:
             type: string
             minLength: 1
-            maxLength: 150
+            maxLength: 255
         bugs:
           type: object
           properties:
@@ -406,7 +406,7 @@ properties:
             title:
               type: string
               minLength: 1
-              maxLength: 150
+              maxLength: 255
           additionalProperties: false
           required:
           - contentType
@@ -486,7 +486,7 @@ definitions:
       properties:
         crash_signature:
           type: string
-          minLength: 1
+          minLength: 0
           maxLength: 255
         resolution:
           type: string
