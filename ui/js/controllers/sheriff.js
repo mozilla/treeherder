@@ -7,7 +7,6 @@ treeherderApp.controller('SheriffCtrl', [
         $scope, $rootScope, ThBuildPlatformModel, ThJobTypeModel, thEvents,
         ThRepositoryModel, ThOptionCollectionModel,
         ThJobExclusionModel, ThExclusionProfileModel, thNotify, $q) {
-
         // fetch the reference data
         $scope.exclusions = [];
         $scope.exclusions_map = {};

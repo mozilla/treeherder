@@ -64,6 +64,7 @@ def generate_new_alerts_in_series(signature):
 
                 summary, _ = PerformanceAlertSummary.objects.get_or_create(
                     repository=signature.repository,
+                    framework=signature.framework,
                     result_set_id=cur.testrun_id,
                     prev_result_set_id=prev_testrun_id,
                     defaults={

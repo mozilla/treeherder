@@ -165,7 +165,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
 
     serializer_class = PerformanceAlertSummarySerializer
     filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
-    filter_fields = ['id']
+    filter_fields = ['id', 'status', 'framework', 'repository']
     ordering = ('-last_updated', '-id')
     pagination_class = AlertSummaryPagination
 

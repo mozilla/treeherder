@@ -1,8 +1,14 @@
-<div class="container-fluid">
+<div class="container-fluid alerts-container">
   <div class="alert alert-warning" ng-show="!user.is_staff" role="alert">
     You must be logged into perfherder/treeherder and be a sheriff to make changes
   </div>
   <form class="form-inline">
+    <div class="form-group">
+      <select ng-model="filterOptions.status"
+              ng-options="status.text for status in statuses track by status.id"
+              ng-change="filtersUpdated()"/>
+    </div>
+    &nbsp;
     <div class="form-group">
       <select ng-model="filterOptions.framework"
               ng-options="framework.name for framework in frameworks track by framework.id"
@@ -20,19 +26,23 @@
     </div>
   </form>
   <hr/>
+  <p class="lead text-center" ng-show="alertSummaries && !alertSummaries.length">
+    No alerts for framework "{{filterOptions.framework.name}}" with status "{{filterOptions.status.text}}"
+  </p>
   <div class="panel panel-default alert-summary" ng-repeat="alertSummary in alertSummaries" ng-if="alertSummary.anyVisible">
     <div class="panel-heading alert-summary-heading">
       <div class="alert-summary-header-element">
         <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alertSummary.allSelected" ng-change="selectNoneOrSelectAll(alertSummary)"/><!-- select 'em all checkbox -->
       </div>
       <div class="alert-summary-title">
-        <a href="#/alerts?id={{alertSummary.id}}" ng-class="{'alert-summary-title-invalid': alertSummary.status==4}">
-          Alert #{{alertSummary.id}} - {{alertSummary.title}} <span class="fa fa-external-link icon-superscript"/>
+        <a class="anchor" href="#/alerts?id={{alertSummary.id}}" ng-class="{'alert-summary-title-invalid': alertSummary.status==4}">
+          Alert #{{alertSummary.id}} - {{alertSummary.repository}} - {{alertSummary.getTitle()}} <span class="fa fa-external-link icon-superscript"/>
         </a>
-      </div>
-      <div class="alert-summary-header-element">
+        <br/>
+        {{alertSummary.resultSetMetadata.dateStr}}
+        ·
         <span ng-if="alertSummary.resultSetMetadata && alertSummary.resultSetMetadata" title="{{alertSummary.resultSetMetadata.comments}}" uib-dropdown>
-          <button id="push-dropdown" class="btn btn-link push-dropdown" uib-dropdown-toggle>
+          <button id="push-dropdown" class="btn btn-link dropdown" uib-dropdown-toggle>
             {{alertSummary.resultSetMetadata.revision}}<span class="caret"></span>
           </button>
           <ul class="uib-dropdown-menu" aria-labelledby="push-dropdown">
@@ -40,13 +50,50 @@
             <li role="menuitem"><a href="{{alertSummary.pushlogURL}}" target="_blank">Pushlog</a></li>
           </ul>
         </span>
+        <span ng-show="alertSummary.bug_number"> ·
+          <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{alertSummary.bug_number}}" target="_blank">
+            Bug {{alertSummary.bug_number}}
+          </a>
+        </span>
         <span ng-if="!alertSummary.resultSetMetadata || !alertSummary.resultSetMetadata" class="text-danger">
           <!-- This shouldn't happen in production, only in development -->
           Unknown revision(s)
         </span>
       </div>
+      <div class="alert-summary-header-element">
+      </div>
       <div class="alert-summary-header-element alert-summary-date">
-        {{alertSummary.resultSetMetadata.dateStr}}
+        <div ng-show="!user.is_staff" style="padding: 6px;">
+          {{alertSummary.getStatusText()}}
+        </div>
+        <div ng-show="user.is_staff" class="btn-group" uib-dropdown>
+          <button id="status-dropdown" class="btn btn-link status-dropdown" uib-dropdown-toggle>
+{{alertSummary.getStatusText()}}
+            <span class="caret"></span>
+          </button>
+          <ul class="uib-dropdown-menu" aria-labelledby="status-dropdown">
+            <li role="menuitem" ng-show="!alertSummary.bug_number">
+              <a ng-click="fileBug(alertSummary)">File bug</a>
+            </li>
+            <li role="menuitem" ng-show="!alertSummary.bug_number">
+              <a ng-click="linkToBug(alertSummary)">Link to bug</a>
+            </li>
+            <li role="menuitem" ng-show="alertSummary.bug_number">
+              <a ng-click="unlinkBug(alertSummary)">Unlink from bug</a>
+            </li>
+            <li role="menuitem"
+                ng-if="alertSummary.bug_number && (alertSummary.isInvestigating() || alertSummary.isResolved())">
+              <a ng-click="markWontfix(alertSummary)">Mark as "won't fix"</a>
+            </li>
+            <li role="menuitem"
+                ng-if="alertSummary.bug_number && (alertSummary.isInvestigating() || alertSummary.isWontfix())">
+              <a ng-click="markResolved(alertSummary)">Mark as resolved</a>
+            </li>
+            <li role="menuitem" ng-if="alertSummary.isClosed()">
+              <a ng-if="!alertSummary.is_open" ng-click="changeAlertSummaryStatus(alertSummary, true)">Reopen</a>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
 
@@ -56,22 +103,19 @@
           <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alert.selected" ng-change="alertSelected(alertSummary)"/>
         </td>
         <td class="alert-title">
-          <span ng-class="{'alert-strike': (alert.revised_summary_id || alert.status === phAlertResolutionMap.INVALID)}">
+          <span ng-class="{'alert-strike': alert.isInvalid() || (alert.related_summary_id && alert.related_summary_id !== alertSummary.id)}">
             {{alert.title}}
           </span>
-          <span ng-show="alert.status === phAlertResolutionMap.INVALID">
-            &nbsp;(<span class="alert-invalid">invalid</span>)
-          </span>
-          <span ng-show="alert.status === phAlertResolutionMap.UNTRIAGED">
-            &nbsp;(<span class="alert-untriaged">untriaged</span>)
-          </span>
-          <span ng-show="alert.bug_number">
-            &nbsp;(<a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{alert.bug_number}}" target="_blank">bug #{{alert.bug_number}}</a>)
-          </span>
-          <span ng-show="alert.revised_summary_id">
-            &nbsp;(see
-            <a href="#/alerts?id={{alert.revised_summary_id}}" target="_blank">alert #{{alert.revised_summary_id}}</a>)
-          </span>&nbsp;&nbsp;
+          &nbsp;(<span ng-class="{'alert-invalid': alert.isInvalid(), 'alert-untriaged': alert.isUntriaged()}">{{alert.getStatusText()}}</span><span ng-show="alert.related_summary_id">
+            <!-- Reassigned or downstream *to* another alert -->
+            <span ng-if="alert.related_summary_id !== alertSummary.id">
+              to <a href="#/alerts?id={{alert.related_summary_id}}" target="_blank">alert #{{alert.related_summary_id}}</a>
+            </span>
+            <!-- Reassigned or downstream *from* the another alert -->
+            <span ng-if="alert.related_summary_id === alertSummary.id">
+              from <a href="#/alerts?id={{alert.summary_id}}" target="_blank">alert #{{alert.summary_id}}</a>
+            </span>
+          </span>)&nbsp;&nbsp;
           <span class="result-links">
             <a href="#/graphs?timerange={{alertSummary.resultSetMetadata.timeRange}}&series=[{{alertSummary.repository}},{{alert.series_signature.signature_hash}},1]&highlightedRevisions={{alertSummary.resultSetMetadata.revision}}" target="_blank">graph</a>
             <span> · </span>
@@ -121,36 +165,35 @@
       </tr>
     </table>
     <div class="panel-body" uib-collapse="!anySelected(alertSummary.alerts)">
-      <div ng-if="!anySelectedAndTriaged(alertSummary.alerts)" class="btn-group" role="group" aria-label="alert-actions">
-        <button class="btn btn-default" role="button"
-                ng-click="markAlertsInvalid(alertSummary)" title="Mark as invalid">
-          <span class="fa fa-ban"></span>
-        </button>
-        <button class="btn btn-default" role="button"
-                ng-click="fileBug(alertSummary)" title="File bug for selected alerts">
-          <span class="fa fa-bug"></span>
-        </button>
-        <button class="btn btn-default" role="button"
-                ng-click="addBugNumberToAlerts(alertSummary)" title="Link alerts to existing bug">
-          <span class="fa fa-link"></span>
-        </button>
-        <button class="btn btn-default" role="button"
-                ng-click="reassignAlerts(alertSummary)"
-                title="Associate with another alert summary">
-          <span class="fa fa-share"></span>
-        </button>
-      </div>
       <button ng-if="anySelectedAndTriaged(alertSummary.alerts)" class="btn btn-warning" role="button"
               ng-click="resetAlerts(alertSummary)" title="Reset selected alerts to untriaged">
         Reset
       </button>
+      <span ng-if="!anySelectedAndTriaged(alertSummary.alerts)">
+        <button class="btn btn-default" role="button"
+                ng-click="markAlertsAcknowledged(alertSummary)" title="Acknowledge selected alerts as valid">
+          <span class="fa fa-check"></span> Acknowledge
+        </button>
+        <button class="btn btn-default" role="button"
+                ng-click="markAlertsInvalid(alertSummary)" title="Mark selected alerts as invalid">
+          <span class="fa fa-ban"></span> Mark invalid
+        </button>
+        <button class="btn btn-default" role="button"
+                ng-click="markAlertsDownstream(alertSummary)"
+                title="Mark selected alerts as downstream from an alert summary on another branch">
+          <span class="fa fa-level-down"></span> Mark downstream
+        </button>
+        <button class="btn btn-default" role="button"
+                ng-click="reassignAlerts(alertSummary)"
+                title="Reassign selected alerts to another alert summary on the same branch">
+          <span class="fa fa-arrow-circle-o-right"></span> Reassign
+        </button>
+      </span>
     </div>
   </div>
   <p class="text-muted" ng-if="numFilteredAlertSummaries > 0">
     {{numFilteredAlertSummaries}} alerts not displayed because they had no changes matching filter criteria
   </p>
-</div>
-</div>
 </div>
 
 <div class="well" ng-show="getMoreAlertSummariesHref">
