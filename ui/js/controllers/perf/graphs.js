@@ -637,7 +637,7 @@ perf.controller('GraphsCtrl', [
             plotGraph();
         };
 
-        ThOptionCollectionModel.get_map().then(
+        ThOptionCollectionModel.getMap().then(
             function(_optionCollectionMap) {
                 optionCollectionMap = _optionCollectionMap;
 

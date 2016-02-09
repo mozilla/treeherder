@@ -101,7 +101,7 @@ treeherderApp.controller('SheriffCtrl', [
         // initialize the list of option collections
         $scope.master_option_collections = [];
 
-        ThOptionCollectionModel.get_map().then(function(optCollectionMap) {
+        ThOptionCollectionModel.getMap().then(function(optCollectionMap) {
             // the string representations of the option collections
             $scope.master_option_collections = _.values(optCollectionMap);
 

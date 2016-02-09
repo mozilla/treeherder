@@ -312,7 +312,7 @@ perf.controller('CompareResultsCtrl', [
 
         var optionCollectionMap = {};
         var loadRepositories = ThRepositoryModel.load();
-        var loadOptions = ThOptionCollectionModel.get_map().then(
+        var loadOptions = ThOptionCollectionModel.getMap().then(
             function(_optionCollectionMap) {
                 optionCollectionMap = _optionCollectionMap;
             });
@@ -451,7 +451,7 @@ perf.controller('CompareSubtestResultsCtrl', [
 
         var optionCollectionMap = {};
         var loadRepositories = ThRepositoryModel.load();
-        var loadOptions = ThOptionCollectionModel.get_map().then(
+        var loadOptions = ThOptionCollectionModel.getMap().then(
             function(_optionCollectionMap) {
                 optionCollectionMap = _optionCollectionMap;
             });
