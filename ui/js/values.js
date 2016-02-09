@@ -177,13 +177,23 @@ treeherder.value("phTimeRanges", [
 
 treeherder.value("phDefaultTimeRangeValue", 1209600);
 
-treeherder.value("phAlertResolutionMap", {
-    UNTRIAGED: 0,
-    INVALID: 1,
-    WONTFIX: 2,
-    RESOLVED: 3,
-    INVESTIGATING: 4,
-    DUPLICATE: 5
+treeherder.value("phAlertSummaryStatusMap", {
+    UNTRIAGED: { id: 0, text: "untriaged" },
+    DOWNSTREAM: { id: 1, text: "downstream" },
+    REASSIGNED: { id: 2, text: "reassigned" },
+    INVALID: { id: 3, text: "invalid" },
+    IMPROVEMENT: { id: 4, text: "improvement" },
+    INVESTIGATING: { id: 5, text: "investigating" },
+    WONTFIX: { id: 6, text: "wontfix" },
+    RESOLVED: { id: 7, text: "resolved" }
+});
+
+treeherder.value("phAlertStatusMap", {
+    UNTRIAGED: { id: 0, text: "untriaged" },
+    DOWNSTREAM: { id: 1, text: "downstream" },
+    REASSIGNED: { id: 2, text: "reassigned" },
+    INVALID: { id: 3, text: "invalid" },
+    ACKNOWLEDGED: { id: 4, text: "acknowledged" }
 });
 
 treeherder.value("phTalosDocumentationMap", {

@@ -1,4 +1,5 @@
-from rest_framework import serializers
+from rest_framework import (exceptions,
+                            serializers)
 
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
@@ -50,9 +51,12 @@ class PerformanceDecimalField(serializers.DecimalField):
 
 class PerformanceAlertSerializer(serializers.ModelSerializer):
     series_signature = PerformanceSignatureSerializer(read_only=True)
-    revised_summary_id = serializers.SlugRelatedField(
-        slug_field="id", source="revised_summary",
-        allow_null=True,
+    summary_id = serializers.SlugRelatedField(
+        slug_field="id", source="summary", required=False,
+        queryset=PerformanceAlertSummary.objects.all())
+    related_summary_id = serializers.SlugRelatedField(
+        slug_field="id", source="related_summary",
+        allow_null=True, required=False,
         queryset=PerformanceAlertSummary.objects.all())
 
     # express quantities in terms of decimals to save space
@@ -62,17 +66,32 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
     prev_value = PerformanceDecimalField(read_only=True)
     new_value = PerformanceDecimalField(read_only=True)
 
+    def update(self, instance, validated_data):
+        if instance.summary.repository != validated_data['summary'].repository:
+            raise exceptions.ValidationError("New summary's repository does "
+                                             "not match existing summary's "
+                                             "repository")
+        if instance.summary.framework != validated_data['summary'].framework:
+            raise exceptions.ValidationError("New summary's framework does "
+                                             "not match existing summary's "
+                                             "framework")
+        return super(PerformanceAlertSerializer, self).update(instance,
+                                                              validated_data)
+
     class Meta:
         model = PerformanceAlert
         fields = ['id', 'status', 'series_signature', 'is_regression',
                   'prev_value', 'new_value', 't_value', 'amount_abs',
-                  'amount_pct', 'revised_summary_id', 'bug_number']
+                  'amount_pct', 'summary_id', 'related_summary_id']
 
 
 class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     alerts = PerformanceAlertSerializer(many=True, read_only=True)
+    related_alerts = PerformanceAlertSerializer(many=True, read_only=True)
     repository = serializers.SlugRelatedField(read_only=True,
                                               slug_field='name')
+    framework = serializers.SlugRelatedField(read_only=True,
+                                             slug_field='id')
 
     # marking these fields as readonly, the user should not be modifying them
     prev_result_set_id = serializers.ReadOnlyField()
@@ -82,4 +101,5 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = PerformanceAlertSummary
         fields = ['id', 'result_set_id', 'prev_result_set_id',
-                  'last_updated', 'repository', 'alerts']
+                  'last_updated', 'repository', 'framework', 'alerts',
+                  'related_alerts', 'status', 'bug_number']

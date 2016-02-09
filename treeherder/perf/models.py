@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
@@ -100,14 +101,86 @@ class PerformanceAlertSummary(models.Model):
     '''
     id = models.AutoField(primary_key=True)
     repository = models.ForeignKey(Repository)
-    prev_result_set_id = models.PositiveIntegerField()
+    framework = models.ForeignKey(PerformanceFramework, null=True)
+    prev_result_set_id = models.PositiveIntegerField(null=True)
     result_set_id = models.PositiveIntegerField()
 
     last_updated = models.DateTimeField(db_index=True)
 
+    UNTRIAGED = 0
+    DOWNSTREAM = 1
+    REASSIGNED = 2
+    INVALID = 3
+    IMPROVEMENT = 4
+    INVESTIGATING = 5
+    WONTFIX = 6
+    RESOLVED = 7
+
+    STATUSES = ((UNTRIAGED, 'Untriaged'),
+                (DOWNSTREAM, 'Downstream'),
+                (INVALID, 'Invalid'),
+                (IMPROVEMENT, 'Improvement'),
+                (INVESTIGATING, 'Investigating'),
+                (WONTFIX, 'Won\'t fix'),
+                (RESOLVED, 'Resolved'))
+
+    status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
+
+    bug_number = models.PositiveIntegerField(null=True)
+
+    def update_status(self):
+        autodetermined_status = self.autodetermine_status()
+        if autodetermined_status != self.status:
+            self.status = autodetermined_status
+            self.save()
+
+    def autodetermine_status(self):
+        alerts = (PerformanceAlert.objects.filter(summary=self) |
+                  PerformanceAlert.objects.filter(related_summary=self))
+
+        # if no alerts yet, we'll say untriaged
+        if len(alerts) == 0:
+            return PerformanceAlertSummary.UNTRIAGED
+
+        # if any untriaged, then set to untriaged
+        if len([a for a in alerts if a.status == PerformanceAlert.UNTRIAGED]):
+            return PerformanceAlertSummary.UNTRIAGED
+
+        # if all invalid, then set to invalid
+        if all([alert.status == PerformanceAlert.INVALID for alert in
+                alerts]):
+            return PerformanceAlertSummary.INVALID
+
+        # otherwise filter out invalid alerts
+        alerts = [a for a in alerts if a.status != PerformanceAlert.INVALID]
+
+        # if there are any "acknowledged" alerts, then set to investigating
+        # if not one of the resolved statuses and there are regressions,
+        # otherwise we'll say it's an improvement
+        if len([a for a in alerts if a.status == PerformanceAlert.ACKNOWLEDGED]):
+            if all([not alert.is_regression for alert in alerts]):
+                return PerformanceAlertSummary.IMPROVEMENT
+            elif self.status not in (PerformanceAlertSummary.IMPROVEMENT,
+                                     PerformanceAlertSummary.INVESTIGATING,
+                                     PerformanceAlertSummary.WONTFIX,
+                                     PerformanceAlertSummary.RESOLVED):
+                return PerformanceAlertSummary.INVESTIGATING
+            # keep status if one of the investigating ones
+            return self.status
+
+        # at this point, we've determined that this is a summary with no valid
+        # alerts of its own: all alerts should be either reassigned,
+        # downstream, or invalid (but not all invalid, that case is covered
+        # above)
+        if len([a for a in alerts if a.status == PerformanceAlert.REASSIGNED]):
+            return PerformanceAlertSummary.REASSIGNED
+
+        return PerformanceAlertSummary.DOWNSTREAM
+
     class Meta:
         db_table = "performance_alert_summary"
-        unique_together = ('repository', 'prev_result_set_id', 'result_set_id')
+        unique_together = ('repository', 'framework', 'prev_result_set_id',
+                           'result_set_id')
 
     def __str__(self):
         return "{} {}".format(self.repository, self.result_set_id)
@@ -129,25 +202,29 @@ class PerformanceAlert(models.Model):
     id = models.AutoField(primary_key=True)
     summary = models.ForeignKey(PerformanceAlertSummary,
                                 related_name='alerts')
-    revised_summary = models.ForeignKey(PerformanceAlertSummary,
-                                        related_name='revised_alerts',
+    related_summary = models.ForeignKey(PerformanceAlertSummary,
+                                        related_name='related_alerts',
                                         null=True)
     series_signature = models.ForeignKey(PerformanceSignature)
     is_regression = models.BooleanField()
 
     UNTRIAGED = 0
-    INVALID = 1
-    WONTFIX = 2
-    INVESTIGATING = 3
-    RESOLVED = 4
-    DUPLICATE = 5
+    DOWNSTREAM = 1
+    REASSIGNED = 2
+    INVALID = 3
+    ACKNOWLEDGED = 4
+
+    # statuses where we relate this alert to another summary
+    RELATIONAL_STATUS_IDS = (DOWNSTREAM, REASSIGNED)
+    # statuses where this alert is related only to the summary it was
+    # originally assigned to
+    UNRELATIONAL_STATUS_IDS = (UNTRIAGED, INVALID, ACKNOWLEDGED)
 
     STATUSES = ((UNTRIAGED, 'Untriaged'),
+                (DOWNSTREAM, 'Downstream'),
+                (REASSIGNED, 'Reassigned'),
                 (INVALID, 'Invalid'),
-                (WONTFIX, 'Won\'t fix'),
-                (RESOLVED, 'Resolved'),
-                (INVESTIGATING, 'Investigating'),
-                (DUPLICATE, 'Duplicate'))
+                (ACKNOWLEDGED, 'Acknowledged'))
 
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
 
@@ -162,25 +239,27 @@ class PerformanceAlert(models.Model):
     t_value = models.FloatField(
         help_text="t value out of analysis indicating confidence "
         "that change is 'real'")
-    bug_number = models.PositiveIntegerField(null=True)
 
     def save(self, *args, **kwargs):
-        # just a bit of extra business logic to make sure
-        # the status corresponds with other metadata
-        if self.revised_summary is not None:
-            self.status = PerformanceAlert.DUPLICATE
-        elif self.status == PerformanceAlert.DUPLICATE:
-            self.status == PerformanceAlert.UNTRIAGED
-
-        if self.bug_number is not None:
-            if self.status == PerformanceAlert.UNTRIAGED:
-                self.status = PerformanceAlert.INVESTIGATING
-        elif self.status in (PerformanceAlert.WONTFIX,
-                             PerformanceAlert.RESOLVED,
-                             PerformanceAlert.INVESTIGATING):
-            self.status = PerformanceAlert.UNTRIAGED
+        # validate that we set a status that makes sense for presence
+        # or absence of a related summary
+        if self.related_summary and self.status not in self.RELATIONAL_STATUS_IDS:
+            raise ValidationError("Related summary set but status not in "
+                                  "'{}'!".format(", ".join(
+                                      [STATUS[1] for STATUS in self.STATUSES if
+                                       STATUS[0] in self.RELATIONAL_STATUS_IDS])))
+        if not self.related_summary and self.status not in self.UNRELATIONAL_STATUS_IDS:
+            raise ValidationError("Related summary not set but status not in "
+                                  "'{}'!".format(", ".join(
+                                      [STATUS[1] for STATUS in self.STATUSES if
+                                       STATUS[0] in self.UNRELATIONAL_STATUS_IDS])))
 
         super(PerformanceAlert, self).save(*args, **kwargs)
+
+        # check to see if we need to update the summary statuses
+        self.summary.update_status()
+        if self.related_summary:
+            self.related_summary.update_status()
 
     class Meta:
         db_table = "performance_alert"

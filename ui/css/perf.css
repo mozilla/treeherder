@@ -352,6 +352,11 @@ span.compare-notsure {
   background-color: red;
 }
 
+.alerts-container {
+    padding-left: 90px;
+    padding-right: 90px;
+}
+
 .alert-summary a {
     cursor: pointer;
 }
@@ -372,7 +377,7 @@ span.compare-notsure {
     padding: 8px 4px;
 }
 
-.alert-summary-title a {
+.alert-summary-title .anchor {
     color: #333;
     font-weight: bold;
 }
@@ -383,12 +388,12 @@ span.compare-notsure {
   margin-left: -0.2em;
 }
 
-.push-dropdown {
+.dropdown {
     padding: 0px;
     vertical-align: inherit;
 }
 
-.push-dropdown .caret {
+.dropdown .caret {
     margin-left: 2px;
 }
 

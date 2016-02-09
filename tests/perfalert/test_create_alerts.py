@@ -10,16 +10,19 @@ from treeherder.perf.models import (PerformanceAlert,
 def _verify_alert(alertid, expected_result_set_id,
                   expected_prev_result_set_id,
                   expected_signature, expected_prev_value,
-                  expected_new_value, is_regression):
+                  expected_new_value, expected_is_regression,
+                  expected_status, expected_summary_status):
     alert = PerformanceAlert.objects.get(id=alertid)
     assert alert.prev_value == expected_prev_value
     assert alert.new_value == expected_new_value
     assert alert.series_signature == expected_signature
-    assert alert.is_regression == is_regression
+    assert alert.is_regression == expected_is_regression
+    assert alert.status == expected_status
 
     summary = PerformanceAlertSummary.objects.get(id=alertid)
     assert summary.result_set_id == expected_result_set_id
     assert summary.prev_result_set_id == expected_prev_result_set_id
+    assert summary.status == expected_summary_status
 
 
 def test_detect_alerts_in_series(test_project, test_repository,
@@ -43,14 +46,16 @@ def test_detect_alerts_in_series(test_project, test_repository,
     assert PerformanceAlert.objects.count() == 1
     assert PerformanceAlertSummary.objects.count() == 1
     _verify_alert(1, (INTERVAL/2), (INTERVAL/2)-1, test_perf_signature, 0.5,
-                  1.0, True)
+                  1.0, True, PerformanceAlert.UNTRIAGED,
+                  PerformanceAlertSummary.UNTRIAGED)
 
     # verify that no new alerts generated if we rerun
     generate_new_alerts_in_series(test_perf_signature)
     assert PerformanceAlert.objects.count() == 1
     assert PerformanceAlertSummary.objects.count() == 1
     _verify_alert(1, (INTERVAL/2), (INTERVAL/2)-1, test_perf_signature, 0.5,
-                  1.0, True)
+                  1.0, True, PerformanceAlert.UNTRIAGED,
+                  PerformanceAlertSummary.UNTRIAGED)
 
     # add data to generate a new alert
     for (t, v) in zip([i for i in range(INTERVAL, INTERVAL*2)],
@@ -68,7 +73,8 @@ def test_detect_alerts_in_series(test_project, test_repository,
     assert PerformanceAlert.objects.count() == 2
     assert PerformanceAlertSummary.objects.count() == 2
     _verify_alert(2, INTERVAL, INTERVAL-1, test_perf_signature, 1.0, 2.0,
-                  True)
+                  True, PerformanceAlert.UNTRIAGED,
+                  PerformanceAlertSummary.UNTRIAGED)
 
 
 def test_detect_alerts_in_series_with_retriggers(
@@ -95,7 +101,9 @@ def test_detect_alerts_in_series_with_retriggers(
             push_timestamp=datetime.datetime.fromtimestamp(now + t),
             value=v)
     generate_new_alerts_in_series(test_perf_signature)
-    _verify_alert(1, 2, 1, test_perf_signature, 0.5, 1.0, True)
+    _verify_alert(1, 2, 1, test_perf_signature, 0.5, 1.0, True,
+                  PerformanceAlert.UNTRIAGED,
+                  PerformanceAlertSummary.UNTRIAGED)
 
 
 def test_no_alerts_with_old_data(

@@ -36,17 +36,17 @@ def test_alerts(webapp, test_repository, test_perf_signature):
     assert set(resp.json['results'][0].keys()) == set([
         'amount_pct',
         'amount_abs',
-        'bug_number',
         'id',
         'is_regression',
         'new_value',
         'prev_value',
-        'revised_summary_id',
+        'related_summary_id',
         'series_signature',
+        'summary_id',
         'status',
         't_value'
     ])
-    assert resp.json['results'][0]['revised_summary_id'] is None
+    assert resp.json['results'][0]['related_summary_id'] is None
 
     # create a new summary and reassign the alert to it
     PerformanceAlertSummary.objects.create(
@@ -58,9 +58,10 @@ def test_alerts(webapp, test_repository, test_perf_signature):
 
     # verify that we fail if not authenticated
     webapp.put_json(reverse('performance-alerts-list') + '1/', {
-        'revised_summary_id': 2
+        'related_summary_id': 2,
+        'status': PerformanceAlert.DOWNSTREAM
     }, status=403)
-    assert PerformanceAlert.objects.get(id=1).revised_summary_id is None
+    assert PerformanceAlert.objects.get(id=1).related_summary_id is None
 
     # verify that we fail if authenticated, but not staff
     client = APIClient()
@@ -69,10 +70,11 @@ def test_alerts(webapp, test_repository, test_perf_signature):
                                is_staff=False)
     client.force_authenticate(user=user)
     resp = client.put(reverse('performance-alerts-list') + '1/', {
-        'revised_summary_id': 2
+        'related_summary_id': 2,
+        'status': PerformanceAlert.DOWNSTREAM
     }, format='json')
     assert resp.status_code == 403
-    assert PerformanceAlert.objects.get(id=1).revised_summary_id is None
+    assert PerformanceAlert.objects.get(id=1).related_summary_id is None
 
     # verify that we succeed if authenticated + staff
     client = APIClient()
@@ -81,14 +83,16 @@ def test_alerts(webapp, test_repository, test_perf_signature):
                                is_staff=True)
     client.force_authenticate(user=user)
     resp = client.put(reverse('performance-alerts-list') + '1/', {
-        'revised_summary_id': 2
+        'related_summary_id': 2,
+        'status': PerformanceAlert.DOWNSTREAM
     }, format='json')
     assert resp.status_code == 200
-    assert PerformanceAlert.objects.get(id=1).revised_summary_id == 2
+    assert PerformanceAlert.objects.get(id=1).related_summary_id == 2
 
     # verify that we can unset it too
     resp = client.put(reverse('performance-alerts-list') + '1/', {
-        'revised_summary_id': None
+        'related_summary_id': None,
+        'status': PerformanceAlert.UNTRIAGED
     }, format='json')
     assert resp.status_code == 200
-    assert PerformanceAlert.objects.get(id=1).revised_summary_id is None
+    assert PerformanceAlert.objects.get(id=1).related_summary_id is None
