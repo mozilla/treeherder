@@ -7,8 +7,8 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('model', '0007_remove_datasource_oauth_fields'),
-        ('perf', '0003_performancesignature_lower_is_better'),
+        ('model', '0008__add_best_fields_to_failureline'),
+        ('perf', '0008_delete_perfalerts'),
     ]
 
     operations = [
