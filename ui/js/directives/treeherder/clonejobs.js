@@ -525,7 +525,7 @@ treeherder.directive('thCloneJobs', [
 
         var getJobTableRowHTML = function(jobGroups) {
             //Empty the job column before populating it
-            var btnHTML, countBtnHTML, jobTdHtml = "";
+            var btnHTML = "", countBtnHTML = "", jobTdHtml = "";
             jobGroups.forEach(function(jobGroup) {
                 if (jobGroup.symbol !== '?') {
                     // Job group detected, add job group symbols
