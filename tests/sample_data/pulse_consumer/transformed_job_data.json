@@ -50,7 +50,7 @@
       "log_references": [
         {
           "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
-          "parse_status": "parsed",
+          "parse_status": "pending",
           "name": "builds-4h"
         }
       ],
@@ -77,155 +77,7 @@
         "debug": true,
         "opt": true
       },
-      "artifacts": [
-        {
-          "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf34",
-          "type": "json",
-          "blob": {
-            "step_data": {
-              "all_errors": [
-                {
-                  "line": "14:38:05     INFO -  PROCESS | 16672 | [Child 17361] ###!!! ABORT: Aborting on channel error.: file /builds/slave/m-in-l64-000000000000000000000/build/src/ipc/glue/MessageChannel.cpp, line 1823",
-                  "linenumber": 3211
-                },
-                {
-                  "line": "14:38:05     INFO -  TEST-UNEXPECTED-ERROR | tart | TIMEOUT: TART",
-                  "linenumber": 3212
-                },
-                {
-                  "line": "14:38:05    ERROR -  Traceback (most recent call last):",
-                  "linenumber": 3213
-                }
-              ],
-              "steps": [
-                {
-                  "errors": [],
-                  "name": "downloading to oauth.txt",
-                  "started": "2016-02-02T14:27:05-07:00",
-                  "started_linenumber": 231,
-                  "finished_linenumber": 232,
-                  "finished": "2016-02-02T14:27:05-08:00",
-                  "error_count": 0,
-                  "duration": 0,
-                  "order": 9,
-                  "result": "success"
-                },
-                {
-                  "errors": [
-                    {
-                      "line": "14:38:05     INFO -  PROCESS | 16672 | [Child 17361] ###!!! ABORT: Aborting on channel error.: file /builds/slave/m-in-l64-000000000000000000000/build/src/ipc/glue/MessageChannel.cpp, line 1823",
-                      "linenumber": 3211
-                    },
-                    {
-                      "line": "14:38:05     INFO -  TEST-UNEXPECTED-ERROR | tart | TIMEOUT: TART",
-                      "linenumber": 3212
-                    },
-                    {
-                      "line": "14:38:05    ERROR -  Traceback (most recent call last):",
-                      "linenumber": 3213
-                    }
-                  ],
-                  "name": "'/tools/buildbot/bin/python scripts/scripts/talos_script.py ...' failed",
-                  "started": "2016-02-02T14:27:05-07:00",
-                  "started_linenumber": 234,
-                  "finished_linenumber": 3269,
-                  "finished": "2016-02-02T14:38:09-08:00",
-                  "error_count": 7,
-                  "duration": 664,
-                  "order": 10,
-                  "result": "busted"
-                }
-              ],
-              "errors_truncated": false
-            },
-            "logurl": "http://archive.mozilla.org/pub/firefox/tinderbox-builds/mozilla-inbound-linux64/1454450752/mozilla-inbound_ubuntu64_hw_test-svgr-e10s-bm105-tests1-linux-build2559.txt.gz"
-          },
-          "name": "text_log_summary"
-        },
-        {
-          "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf34",
-          "type": "json",
-          "blob": [
-            {
-              "search": "PROCESS | 16672 | \u0007[Child 17361] ###!!! ABORT: Aborting on channel error.: file /builds/slave/m-in-l64-000000000000000000000/build/src/ipc/glue/MessageChannel.cpp, line 1823",
-              "search_terms": [
-                "16672"
-              ],
-              "bugs": {
-                "open_recent": [],
-                "all_others": []
-              }
-            },
-            {
-              "search": "PROCESS | 16672 | [Child 17361] ###!!! ABORT: Aborting on channel error.: file /builds/slave/m-in-l64-000000000000000000000/build/src/ipc/glue/MessageChannel.cpp, line 1823",
-              "search_terms": [
-                "16672"
-              ],
-              "bugs": {
-                "open_recent": [],
-                "all_others": []
-              }
-            },
-            {
-              "search": "TEST-UNEXPECTED-ERROR | tart | TIMEOUT: TART",
-              "search_terms": [
-                "TEST-UNEXPECTED-ERROR | tart | TIMEOUT: TART"
-              ],
-              "bugs": {
-                "open_recent": [],
-                "all_others": []
-              }
-            },
-            {
-              "search": "Traceback (most recent call last):",
-              "search_terms": [],
-              "bugs": {
-                "open_recent": [],
-                "all_others": []
-              }
-            },
-            {
-              "search": "TalosError: TIMEOUT: TART",
-              "search_terms": [
-                "TalosError: TIMEOUT: TART"
-              ],
-              "bugs": {
-                "open_recent": [],
-                "all_others": [
-                  {
-                    "crash_signature": "",
-                    "resolution": "FIXED",
-                    "summary": "Very frequent e10s tsvg TalosError: TIMEOUT: TART",
-                    "relevance": 24.02374267578125,
-                    "keywords": "intermittent-failure",
-                    "os": "Unspecified",
-                    "id": 1230978
-                  }
-                ]
-              }
-            },
-            {
-              "search": "Return code: 2",
-              "search_terms": [],
-              "bugs": {
-                "open_recent": [],
-                "all_others": []
-              }
-            },
-            {
-              "search": "# TBPL FAILURE #",
-              "search_terms": [
-                "# TBPL FAILURE #"
-              ],
-              "bugs": {
-                "open_recent": [],
-                "all_others": []
-              }
-            }
-          ],
-          "name": "Bug suggestions"
-        }
-      ],
+      "artifacts": [],
       "machine_platform": {
         "platform": "linux64",
         "os_name": "linux",
@@ -261,7 +113,78 @@
       "option_collection": {
         "opt": true
       },
-      "artifacts": [],
+      "artifacts": [
+        {
+          "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35",
+          "type": "json",
+          "blob": {
+            "step_data": {
+              "all_errors": [
+                {
+                  "line": "14:38:05     INFO -  PROCESS | 16672 | [Child 17361] ###!!! ABORT: Aborting on channel error.: file /builds/slave/m-in-l64-000000000000000000000/build/src/ipc/glue/MessageChannel.cpp, line 1823",
+                  "linenumber": 3211
+                },
+                {
+                  "line": "14:38:05     INFO -  TEST-UNEXPECTED-ERROR | tart | TIMEOUT: TART",
+                  "linenumber": 3212
+                },
+                {
+                  "line": "14:38:05    ERROR -  Traceback (most recent call last):",
+                  "linenumber": 3213
+                }
+              ],
+              "steps": [
+                {
+                  "errors": [],
+                  "name": "downloading to oauth.txt",
+                  "started": 1454451605.0,
+                  "started_linenumber": 231,
+                  "finished_linenumber": 232,
+                  "finished": 1454452025.0,
+                  "error_count": 0,
+                  "duration": 420.0,
+                  "order": 0,
+                  "result": "success"
+                },
+                {
+                  "errors": [
+                    {
+                      "line": "14:38:05     INFO -  PROCESS | 16672 | [Child 17361] ###!!! ABORT: Aborting on channel error.: file /builds/slave/m-in-l64-000000000000000000000/build/src/ipc/glue/MessageChannel.cpp, line 1823",
+                      "linenumber": 3211
+                    },
+                    {
+                      "line": "14:38:05     INFO -  TEST-UNEXPECTED-ERROR | tart | TIMEOUT: TART",
+                      "linenumber": 3212
+                    },
+                    {
+                      "line": "14:38:05    ERROR -  Traceback (most recent call last):",
+                      "linenumber": 3213
+                    }
+                  ],
+                  "name": "'/tools/buildbot/bin/python scripts/scripts/talos_script.py ...' failed",
+                  "started": 1454452025.0,
+                  "started_linenumber": 234,
+                  "finished_linenumber": 3269,
+                  "finished": 1454452689.0,
+                  "error_count": 3,
+                  "duration": 664.0,
+                  "order": 1,
+                  "result": "testfailed"
+                }
+              ],
+              "errors_truncated": false
+            },
+            "logurl": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz"
+          },
+          "name": "text_log_summary"
+        },
+        {
+          "type": "json",
+          "blob": {"fee": "foo"},
+          "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35",
+          "name": "Bug suggestions"
+        }
+      ],
       "machine_platform": {
         "platform": "linux64",
         "os_name": "linux",
@@ -326,7 +249,7 @@
       "log_references": [
         {
           "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
-          "parse_status": "parsed",
+          "parse_status": "pending",
           "name": "builds-4h"
         }
       ],

@@ -108,8 +108,7 @@ class JobLoader:
 
     def _get_artifacts(self, job, job_guid):
         artifact_funcs = [self._get_job_info_artifact,
-                          self._get_text_log_summary_artifact,
-                          self._get_bug_suggestions_artifact]
+                          self._get_text_log_summary_artifact]
         pulse_artifacts = []
         for artifact_func in artifact_funcs:
             artifact = artifact_func(job, job_guid)
@@ -122,53 +121,79 @@ class JobLoader:
 
     def _get_job_info_artifact(self, job, job_guid):
         if "jobInfo" in job:
-            blob = job["jobInfo"]
 
-            # convert camel case to underscore case
-            blob["job_details"] = blob["jobDetails"]
-            del blob["jobDetails"]
-            for jd in blob["job_details"]:
-                jd["content_type"] = jd["contentType"]
-                del jd["contentType"]
+            ji = job["jobInfo"]
+            job_details = []
+            if "summary" in ji:
+                job_details.append({
+                    "content_type": "raw_html",
+                    "value": ji["summary"]["text"],
+                    "title": ji["summary"]["label"]
+                })
+            if "links" in ji:
+                for link in ji["links"]:
+                    job_details.append({
+                        "url": link["url"],
+                        "content_type": "link",
+                        "value": link["linkText"],
+                        "title": link["label"]
+                    })
 
             artifact = {
-                "blob": blob,
+                "blob": {
+                    "job_details": job_details
+                },
                 "type": "json",
                 "name": "Job Info",
                 "job_guid": job_guid
             }
             return artifact
-        else:
-            return None
 
     def _get_text_log_summary_artifact(self, job, job_guid):
-        if "textLogSummary" in job:
-            blob = job["textLogSummary"]
+        # We can only have one text_log_summary artifact,
+        # so pick the first log with steps to create it.
 
-            artifact = {
-                "blob": blob,
-                "type": "json",
-                "name": "text_log_summary",
-                "job_guid": job_guid
-            }
-            return artifact
-        else:
-            return None
+        if "logs" in job:
+            for log in job["logs"]:
+                if "steps" in log:
+                    all_errors = []
+                    old_steps = log["steps"]
+                    new_steps = []
 
-    def _get_bug_suggestions_artifact(self, job, job_guid):
-        if "bugSuggestions" in job:
-            blob = job["bugSuggestions"]
+                    for idx, step in enumerate(old_steps):
+                        errors = step.get("errors", [])
+                        error_count = len(errors)
+                        if error_count:
+                            all_errors.extend(errors)
 
-            artifact = {
-                "blob": blob,
-                "type": "json",
-                "name": "Bug suggestions",
-                "job_guid": job_guid
-            }
-            return artifact
+                        started = self._to_timestamp(step["timeStarted"])
+                        finished = self._to_timestamp(step["timeFinished"])
+                        new_steps.append({
+                            "name": step["name"],
+                            "result": self._get_step_result(job, step["result"]),
+                            "started": started,
+                            "finished": finished,
+                            "started_linenumber": step["lineStarted"],
+                            "finished_linenumber": step["lineFinished"],
+                            "errors": errors,
+                            "error_count": error_count,
+                            "duration": finished - started,
+                            "order": idx
+                        })
 
-        else:
-            return None
+                    return {
+                        "blob": {
+                            "step_data": {
+                                "all_errors": all_errors,
+                                "steps": new_steps,
+                                "errors_truncated": log.get("errorsTruncated")
+                            },
+                            "logurl": log["url"]
+                        },
+                        "type": "json",
+                        "name": "text_log_summary",
+                        "job_guid": job_guid
+                    }
 
     def _get_extra_artifacts(self, job, job_guid):
         artifacts = []
@@ -186,7 +211,7 @@ class JobLoader:
             log_references.append({
                 "name": logref["name"],
                 "url": logref["url"],
-                "parse_status": logref.get("parseStatus", "pending")
+                "parse_status": "parsed" if "steps" in logref else "pending"
             })
         return log_references
 
@@ -225,6 +250,10 @@ class JobLoader:
             else:
                 return resmap[result]
         return "unknown"
+
+    def _get_step_result(self, job, result):
+        resmap = self.TEST_RESULT_MAP if job["jobKind"] == "test" else self.BUILD_RESULT_MAP
+        return resmap[result]
 
     def _get_validated_jobs_by_project(self, jobs_list):
         validated_jobs = defaultdict(list)

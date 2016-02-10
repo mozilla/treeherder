@@ -80,18 +80,17 @@ properties:
   display:
     type: "object"
     properties:
-      anyOf:
-        jobSymbol:
-          title: "jobSymbol"
-          type: "string"
-          # spaces and "?" are not valid for job symbols
-          pattern: "^[A-Za-z0-9._-]+$"
-          minLength: 1
-          maxLength: 25
-        chunkId:
-          title: "chunkId"
-          type: "integer"
-          minimum: 1
+      jobSymbol:
+        title: "jobSymbol"
+        type: "string"
+        # spaces and "?" are not valid for job symbols
+        pattern: "^[A-Za-z0-9._-]+$"
+        minLength: 0
+        maxLength: 25
+      chunkId:
+        title: "chunkId"
+        type: "integer"
+        minimum: 1
       chunkCount:
         title: "chunkCount"
         type: "integer"
@@ -241,142 +240,6 @@ properties:
   runMachine:
     $ref: "#/definitions/machine"
 
-  textLogSummary:
-    type: object
-    description: |
-      This object defines what is seen in the Treeherder Log Viewer.  This object
-      can be submitted here, or it will be generated from the submitted log.
-    properties:
-      step_data:
-        type: object
-        properties:
-          all_errors:
-            description: |
-              Lists all the lines of the log that have errors.  These line
-              values will be used the the process that generates the
-              ``Bug suggestions`` for display on the job summary panel in
-              Treeherder.
-            type: array
-            items:
-              type: object
-              properties:
-                line:
-                  type: string
-                  minLength: 1
-                  maxLength: 255
-                linenumber:
-                  type: integer
-              additionalProperties: false
-              required:
-              - line
-              - linenumber
-            additionalItems: false
-          steps:
-            type: array
-            items:
-              type: object
-              properties:
-                errors:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      line:
-                        type: string
-                        minLength: 1
-                        maxLength: 255
-                      linenumber:
-                        type: integer
-                        minimum: 0
-                    additionalProperties: false
-                  additionalItems: false
-                name:
-                  type: string
-                  minLength: 1
-                  maxLength: 255
-                started:
-                  type: string
-                  format: date-time
-                started_linenumber:
-                  type: integer
-                  minimum: 0
-                finished_linenumber:
-                  type: integer
-                  minimum: 0
-                finished:
-                  type: string
-                  format: date-time
-                error_count:
-                  type: integer
-                  minimum: 0
-                duration:
-                  type: integer
-                  minimum: 0
-                order:
-                  type: integer
-                  minimum: 0
-                result:
-                  type: string
-                  enum: [busted, testfailed, exception, success, canceled, unknown, retry, skipped]
-              required:
-              - errors
-              - name
-              - started
-              - started_linenumber
-              - finished_linenumber
-              - finished
-              - error_count
-              - duration
-              - order
-              - result
-              additionalProperties: false
-            additionalItems: false
-          errors_truncated:
-            type: boolean
-        additionalProperties: false
-        required:
-        - all_errors
-        - steps
-        - errors_truncated
-      logurl:
-        type: string
-    additionalProperties: false
-    required:
-    - step_data
-    - logurl
-
-  bugSuggestions:
-    title: "Bug Suggestions"
-    description: |
-      Definition of the Bugs Suggested for a failed job.
-    type: array
-    items:
-      type: object
-      properties:
-        search:
-          type: string
-          minLength: 1
-          maxLength: 550
-        search_terms:
-          type: array
-          items:
-            type: string
-            minLength: 1
-            maxLength: 255
-        bugs:
-          type: object
-          properties:
-            open_recent:
-              $ref: "#/definitions/bugList"
-            all_others:
-              $ref: "#/definitions/bugList"
-
-    additionalProperties: false
-    required:
-    - search
-    - search_terms
-    - bugs
-
   jobInfo:
     description: |
       Definition of the Job Info for a job.  These are extra data
@@ -385,36 +248,36 @@ properties:
     id: "jobInfo"
     type: object
     properties:
-      jobDetails:
+      summary:
+        type: string
+        description: |
+          Plain text description of the job and its state.  Submitted with
+          the final message about a task.
+      links:
         type: array
         items:
         - type: object
+          description: |
+            List of URLs shown as key/value pairs.  Shown as:
+            "<label>: <linkText>" where linkText will be a link to the url.
           properties:
             url:
               type: string
               format: url
-            contentType:
-              type: string
-              enum:
-                - raw_html
-                - link
-                - TalosResult
-            value:
+            linkText:
               type: string
               minLength: 1
-              maxLength: 1000
-            title:
+              maxLength: 50
+            label:
               type: string
               minLength: 1
-              maxLength: 255
+              maxLength: 50
           additionalProperties: false
           required:
-          - contentType
-          - value
-          - title
+          - url
+          - linkText
+          - label
     additionalProperties: false
-    required:
-    - jobDetails
 
   logs:
     type: "array"
@@ -430,11 +293,67 @@ properties:
           type: "string"
           minLength: 1
           maxLength: 50
-        parseStatus:
-          type: "string"
-          enum:
-            - pending
-            - parsed
+        steps:
+          type: array
+          description: |
+            This object defines what is seen in the Treeherder Log Viewer.
+            These values can be submitted here, or they will be generated
+            by Treeherder's internal log parsing process from the
+            submitted log.  If this value is submitted, Treeherder will
+            consider the log already parsed and skip parsing.
+          items:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    line:
+                      type: string
+                      minLength: 1
+                      maxLength: 255
+                    linenumber:
+                      type: integer
+                      minimum: 0
+                  additionalProperties: false
+              name:
+                type: string
+                minLength: 1
+                maxLength: 255
+              timeStarted:
+                type: string
+                format: date-time
+              timeFinished:
+                type: string
+                format: date-time
+              lineStarted:
+                type: integer
+                minimum: 0
+              lineFinished:
+                type: integer
+                minimum: 0
+              result:
+                type: string
+                enum:
+                  - success
+                  - fail
+                  - exception
+                  - canceled
+                  - unknown
+            required:
+            - name
+            - timeStarted
+            - lineStarted
+            - lineFinished
+            - timeFinished
+            - result
+        errorsTruncated:
+          type: boolean
+          description: |
+            If true, indicates that the number of errors in the log was too
+            large and not all of those lines are indicated here.
+      additionalProperties: false
       required: [url, name]
 
   extra:
@@ -478,36 +397,3 @@ definitions:
       - platform
       - os
       - architecture
-
-  bugList:
-    type: array
-    items:
-      type: object
-      properties:
-        crash_signature:
-          type: string
-          minLength: 0
-          maxLength: 255
-        resolution:
-          type: string
-          minLength: 1
-          maxLength: 30
-        summary:
-          type: string
-          minLength: 1
-          maxLength: 255
-        relevance:
-          type: number
-          minimum: 0
-          maximum: 100
-        keywords:
-          type: string
-          minLength: 1
-          maxLength: 255
-        os:
-          type: string
-          minLength: 1
-          maxLength: 255
-        id:
-          type: integer
-          minimum: 0
