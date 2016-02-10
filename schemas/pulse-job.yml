@@ -240,44 +240,35 @@ properties:
   runMachine:
     $ref: "#/definitions/machine"
 
-  jobInfo:
+  summary:
+    type: string
     description: |
-      Definition of the Job Info for a job.  These are extra data
-      fields that go along with a job that will be displayed in
-      the details panel within Treeherder.
-    id: "jobInfo"
-    type: object
-    properties:
-      summary:
-        type: string
-        description: |
-          Plain text description of the job and its state.  Submitted with
-          the final message about a task.
-      links:
-        type: array
-        items:
-        - type: object
-          description: |
-            List of URLs shown as key/value pairs.  Shown as:
-            "<label>: <linkText>" where linkText will be a link to the url.
-          properties:
-            url:
-              type: string
-              format: url
-            linkText:
-              type: string
-              minLength: 1
-              maxLength: 50
-            label:
-              type: string
-              minLength: 1
-              maxLength: 50
-          additionalProperties: false
-          required:
-          - url
-          - linkText
-          - label
-    additionalProperties: false
+      Plain text description of the job and its state.  Submitted with
+      the final message about a task.
+  links:
+    type: array
+    items:
+    - type: object
+      description: |
+        List of URLs shown as key/value pairs.  Shown as:
+        "<label>: <linkText>" where linkText will be a link to the url.
+      properties:
+        url:
+          type: string
+          format: url
+        linkText:
+          type: string
+          minLength: 1
+          maxLength: 50
+        label:
+          type: string
+          minLength: 1
+          maxLength: 50
+      additionalProperties: false
+      required:
+      - url
+      - linkText
+      - label
 
   logs:
     type: "array"
