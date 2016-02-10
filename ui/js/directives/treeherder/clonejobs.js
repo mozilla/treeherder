@@ -229,15 +229,6 @@ treeherder.directive('thCloneJobs', [
 
                 job = jgObj.jobs[l];
 
-
-                job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' +
-                    job.signature;
-
-                // Keep track of visibility with this property. This
-                // way down stream job consumers don't need to repeatedly
-                // call showJob
-                job.visible = filterWithRunnable(job);
-
                 addJobBtnToArray(job, lastJobSelected, jobBtnArray);
             }
             return jobBtnArray;
@@ -312,15 +303,11 @@ treeherder.directive('thCloneJobs', [
             var typeSymbolCounts = _.countBy(jgObj.jobs, "job_type_symbol");
 
             _.forEach(jgObj.jobs, function(job) {
-                job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' +
-                    job.signature;
 
                 // Set the resultState
                 var resultStatus = thResultStatus(job);
                 var countInfo = thResultStatusInfo(resultStatus,
                                                 job.failure_classification_id);
-
-                job.visible = filterWithRunnable(job);
 
                 // Even if a job is not visible, add it to the DOM as hidden.  This is
                 // important because it can still be "selected" when not visible
@@ -536,15 +523,12 @@ treeherder.directive('thCloneJobs', [
             el.addClass(col12Cls);
         };
 
-        var renderJobTableRow = function(row, jobTdEl, jobGroups) {
-
+        var getJobTableRowHTML = function(jobGroups) {
             //Empty the job column before populating it
             var btnHTML, countBtnHTML, jobTdHtml = "";
             jobGroups.forEach(function(jobGroup) {
                 if (jobGroup.symbol !== '?') {
                     // Job group detected, add job group symbols
-                    jobGroup.grkey = jobGroup.mapKey;
-                    jobGroup.collapsed = true;
                     if (isGroupExpanded(jobGroup)) {
                         btnHTML = getJobBtnEls(jobGroup);
                     } else {
@@ -563,14 +547,19 @@ treeherder.directive('thCloneJobs', [
                         countBtnHTML: countBtnHTML,
                         symbol: jobGroup.symbol,
                         name: jobGroup.name,
-                        grkey: jobGroup.grkey
+                        grkey: jobGroup.grkey,
+                        display: (btnHTML.indexOf('filter-shown') !== -1 || countBtnHTML.indexOf('filter-shown') !== -1) ? 'inline' : 'none'
                     });
                 } else {
                     // Add the job btn spans
                     jobTdHtml += getJobBtnEls(jobGroup);
                 }
             });
-            jobTdEl.html(jobTdHtml);
+            return jobTdHtml;
+        };
+
+        var renderJobTableRow = function(row, jobTdEl, jobGroups) {
+            jobTdEl.html(getJobTableRowHTML(jobGroups));
             row.append(jobTdEl);
             filterPlatform(row);
         };
@@ -723,7 +712,7 @@ treeherder.directive('thCloneJobs', [
 
         var updateJobs = function(platformData){
             angular.forEach(platformData, function(value, platformId) {
-
+                addAdditionalJobParameters(value.jobGroups);
                 if(value.resultsetId !== this.resultset.id){
                     //Confirm we are the correct result set
                     return;
@@ -735,7 +724,6 @@ treeherder.directive('thCloneJobs', [
                 platformName = thPlatformName(value.platformName);
 
                 rowEl = document.getElementById(platformId);
-
                 if(!rowEl){
                     //First job for this platform found, which means we need
                     //to create the platform and job td elements and the
@@ -867,6 +855,9 @@ treeherder.directive('thCloneJobs', [
                       in the UI. Use defer to avoid rendering jankiness
                       here.
                         **************/
+                        rsMap[resultSetId].rs_obj.platforms.forEach(function(platform) {
+                            addAdditionalJobParameters(platform.groups);
+                        });
                         _.defer(
                             generateJobElements,
                             resultsetAggregateId,
@@ -894,64 +885,56 @@ treeherder.directive('thCloneJobs', [
             });
 
         };
-
+        var addAdditionalJobParameters = function(groups) {
+            groups.forEach(function(jobGroup) {
+                if (jobGroup.symbol !== '?') {
+                    jobGroup.grkey = jobGroup.mapKey;
+                    jobGroup.collapsed = true;
+                }
+                jobGroup.jobs.forEach(function(job) {
+                    // Keep track of visibility with this property. This
+                    // way down stream job consumers don't need to repeatedly
+                    // call showJob
+                    job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' + job.signature;
+                    job.visible = filterWithRunnable(job);
+                });
+            });
+        };
         var generateJobElements = function(resultsetAggregateId, resultset) {
 
             var tableEl = $('#' + resultsetAggregateId);
-
             var waitSpanEl = $(tableEl).prev();
             $(waitSpanEl).css('display', 'none');
-
-            var name, option, platformId, platformKey, row, platformTd, jobTdEl, j;
-            for (j=0; j<resultset.platforms.length; j++) {
-
-                platformId = thAggregateIds.getPlatformRowId(
+            var tableHtml = "";
+            resultset.platforms.forEach(function(platform) {
+                var platformId = thAggregateIds.getPlatformRowId(
                     $rootScope.repoName,
                     resultset.id,
-                    resultset.platforms[j].name,
-                    resultset.platforms[j].option
+                    platform.name,
+                    platform.option
                 );
 
-                row = $('#' + platformId);
-
-                if($(row).prop('tagName') !== 'TR'){
-                    // First time the row is being created
-                    row = $('<tr></tr>');
-                    row.prop('id', platformId);
-                } else {
-                    // Clear and re-write the div content if it
-                    // already exists
-                    $(row).empty();
-                }
-
-                name = thPlatformName(resultset.platforms[j].name);
-                option = resultset.platforms[j].option;
-
+                // We first determine whether the row has some visible element
+                var anyVisible = _.some(platform.groups, function(jobGroup) {
+                    return _.some(jobGroup.jobs, {visible: true});
+                });
+                var display_style = anyVisible ? "table-row" : "none";
+                var rowHtml = '<tr id="' + platformId + '" style="display: ' + display_style + ';">';
                 //Add platforms
-                platformTd = platformInterpolator(
+                rowHtml += platformInterpolator(
                     {
-                        'name':name, 'option':option,
+                        'name':thPlatformName(platform.name), 'option':platform.option,
                         'id':thAggregateIds.getPlatformRowId(
                             resultset.id,
-                            resultset.platforms[j].name,
-                            resultset.platforms[j].option
+                            platform.name,
+                            platform.option
                         )
                     }
                 );
-
-                row.append(platformTd);
-
-                // Render the row of job data
-                jobTdEl = $( thCloneHtml.get('jobTdClone').text );
-
-                platformKey = ThResultSetStore.getPlatformKey(
-                    resultset.platforms[j].name, resultset.platforms[j].option
-                );
-
-                renderJobTableRow(row, jobTdEl, resultset.platforms[j].groups);
-
-                tableEl.append(row);
-            }
+                rowHtml += '<td class="job-row">' + getJobTableRowHTML(platform.groups) + '</td></tr>';
+                tableHtml += rowHtml;
+            });
+            tableEl.html(tableHtml);
         };
 
         var $scope = null;
@@ -981,6 +964,9 @@ treeherder.directive('thCloneJobs', [
             element.append(targetEl);
 
             if (scope.resultset.platforms !== undefined) {
+                scope.resultset.platforms.forEach(function(platform) {
+                    addAdditionalJobParameters(platform.groups);
+                });
                 generateJobElements(
                     resultsetAggregateId, scope.resultset);
             } else {
