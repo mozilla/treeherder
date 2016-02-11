@@ -188,6 +188,13 @@ treeherder.directive('thCloneJobs', [
                 var groupMap =  ThResultSetStore.getGroupMap($rootScope.repoName);
                 var gi = getGroupInfo(el, groupMap);
                 if (gi) {
+                    gi.jgObj.jobs.forEach(function(job) {
+                        // Keep track of visibility with this property. This
+                        // way down stream job consumers don't need to repeatedly
+                        // call showJob
+                        job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' + job.signature;
+                        job.visible = filterWithRunnable(job);
+                    });
                     if (isGroupExpanded(gi.jgObj)) {
                         gi.jgObj.groupState = "collapsed";
                         addGroupJobsAndCounts(gi.jgObj, gi.platformGroupEl);
@@ -627,7 +634,13 @@ treeherder.directive('thCloneJobs', [
                 if (resetGroupState) {
                     delete gi.jgObj.groupState;
                 }
-
+                gi.jgObj.jobs.forEach(function(job) {
+                    // Keep track of visibility with this property. This
+                    // way down stream job consumers don't need to repeatedly
+                    // call showJob
+                    job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' + job.signature;
+                    job.visible = filterWithRunnable(job);
+                });
                 if (isGroupExpanded(gi.jgObj)) {
                     gi.platformGroupEl.find(".group-job-list").append(renderJobBtnEls(gi.jgObj));
                 } else {
@@ -711,6 +724,7 @@ treeherder.directive('thCloneJobs', [
         };
 
         var updateJobs = function(platformData){
+            console.log("yolo");
             angular.forEach(platformData, function(value, platformId) {
                 addAdditionalJobParameters(value.jobGroups);
                 if(value.resultsetId !== this.resultset.id){
@@ -901,7 +915,6 @@ treeherder.directive('thCloneJobs', [
             });
         };
         var generateJobElements = function(resultsetAggregateId, resultset) {
-
             var tableEl = $('#' + resultsetAggregateId);
             var waitSpanEl = $(tableEl).prev();
             $(waitSpanEl).css('display', 'none');
