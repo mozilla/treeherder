@@ -1,15 +1,4 @@
-<div class="talos-panel">
-  <ul ng-repeat="line in job_details"
-      ng-if="line.content_type == 'TalosResult'">
-
-    <li>Graphserver:
-      <ul>
-        <li ng-repeat="gr in line.value.graphserver | toArray | orderBy: '$key'">
-          {{::gr.$key}}: <a href="{{::gr.url}}" target="_blank">{{::gr.result}}</a>
-        </li>
-      </ul>
-    </li>
-  </ul>
+<div class="performance-panel">
   <ul ng-show="perfJobDetail">
     <li>Perfherder:
       <ul ng-repeat="detail in perfJobDetail | toArray | orderBy: 'title'">
