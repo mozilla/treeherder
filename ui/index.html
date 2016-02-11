@@ -55,6 +55,9 @@
         <th-notification-box></th-notification-box>
 
         <!-- build:js js/index.min.js -->
+        <script src="vendor/reactjs/react.js"></script>
+        <script src="vendor/reactjs/react-dom.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.min.js"></script>
         <script src="vendor/jquery-2.1.3.js"></script>
         <script src="vendor/angular/angular.js"></script>
         <script src="vendor/angular/angular-route.js"></script>
@@ -69,7 +72,6 @@
         <script src="vendor/jquery.scrollTo.js"></script>
         <script src="vendor/lodash.min.js"></script>
         <script src="vendor/resizer.js"></script>
-
         <script src="js/treeherder.js"></script>
         <script src="js/treeherder_app.js"></script>
         <script src="js/services/log.js"></script>
@@ -83,6 +85,7 @@
         <script src="js/directives/treeherder/top_nav_bar.js"></script>
         <script src="js/directives/treeherder/bottom_nav_panel.js"></script>
         <!-- Main services -->
+
         <script src="js/services/main.js"></script>
         <script src="js/services/buildapi.js"></script>
         <script src="js/services/classifications.js"></script>
@@ -108,6 +111,7 @@
         <script src="js/models/user.js"></script>
         <script src="js/models/error.js"></script>
         <script src="js/models/failure_lines.js"></script>
+        <script src="js/models/react_model.js" type="text/babel"></script>
         <script src="js/perf.js"></script>
         <!-- Controllers -->
         <script src="js/controllers/main.js"></script>
@@ -135,7 +139,13 @@
         <script src="https://login.persona.org/include.js"></script>
 
         <!-- Clone targets -->
-
+        <script type="text/babel" >
+            window.Hello = React.createClass({
+              render: function() {
+                return <div>{this.props.name}</div>;
+              }
+            });
+        </script>
         <!-- Clone target for each revision -->
         <script type="'text/ng-template'" id="revisionsClone.html">
             <div class="clearfix"></div>
