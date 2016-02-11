@@ -114,7 +114,8 @@ class PerformanceAlertSummary(models.Model):
     IMPROVEMENT = 4
     INVESTIGATING = 5
     WONTFIX = 6
-    RESOLVED = 7
+    FIXED = 7
+    BACKED_OUT = 8
 
     STATUSES = ((UNTRIAGED, 'Untriaged'),
                 (DOWNSTREAM, 'Downstream'),
@@ -122,7 +123,8 @@ class PerformanceAlertSummary(models.Model):
                 (IMPROVEMENT, 'Improvement'),
                 (INVESTIGATING, 'Investigating'),
                 (WONTFIX, 'Won\'t fix'),
-                (RESOLVED, 'Resolved'))
+                (FIXED, 'Fixed'),
+                (BACKED_OUT, 'Backed out'))
 
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
 
@@ -163,7 +165,8 @@ class PerformanceAlertSummary(models.Model):
             elif self.status not in (PerformanceAlertSummary.IMPROVEMENT,
                                      PerformanceAlertSummary.INVESTIGATING,
                                      PerformanceAlertSummary.WONTFIX,
-                                     PerformanceAlertSummary.RESOLVED):
+                                     PerformanceAlertSummary.FIXED,
+                                     PerformanceAlertSummary.BACKED_OUT):
                 return PerformanceAlertSummary.INVESTIGATING
             # keep status if one of the investigating ones
             return self.status

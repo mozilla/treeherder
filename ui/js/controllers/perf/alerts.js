@@ -157,7 +157,13 @@ perf.factory('PhAlerts', [
             AlertSummary.prototype['is' + _.capitalize(status.text)] = function() {
                 return this.status === status.id;
             };
+            AlertSummary.prototype['mark' + _.capitalize(status.text)] = function() {
+                this.updateStatus(status);
+            };
         });
+        AlertSummary.prototype.isResolved = function() {
+            return this.isFixed() || this.isWontfix() || this.isBackedout();
+        };
         AlertSummary.prototype._initializeAlerts = function(optionCollectionMap) {
             // this function converts the representation returned by the perfherder
             // api into a representation more suited for display in the UI
@@ -225,9 +231,8 @@ perf.factory('PhAlerts', [
 
             return $q.all(_.where(this.alerts, {'selected': true}).map(
                 function(selectedAlert) {
-                    return selectedAlert.modify(modification).then(function() {
-                        selectedAlert.selected = false;
-                    });
+                    selectedAlert.selected = false;
+                    return selectedAlert.modify(modification);
                 }));
         };
         AlertSummary.prototype.getStatusText = function() {
@@ -536,15 +541,6 @@ perf.controller('AlertsCtrl', [
             alertSummary.assignBug(null).then(function() {
                 updateAlertVisibility();
             });
-        };
-        $scope.markWontfix = function(alertSummary) {
-            alertSummary.updateStatus(phAlertSummaryStatusMap.WONTFIX);
-        };
-        $scope.markResolved = function(alertSummary) {
-            alertSummary.updateStatus(phAlertSummaryStatusMap.RESOLVED);
-        };
-        $scope.markInvestigating = function(alertSummary) {
-            alertSummary.updateStatus(phAlertSummaryStatusMap.INVESTIGATING);
         };
         $scope.markAlertsDownstream = function(alertSummary) {
             $modal.open({

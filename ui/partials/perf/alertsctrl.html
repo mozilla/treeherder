@@ -83,20 +83,20 @@
             <li role="menuitem" ng-show="alertSummary.bug_number">
               <a ng-click="unlinkBug(alertSummary)">Unlink from bug</a>
             </li>
-            <li role="menuitem"
-                ng-if="alertSummary.bug_number && (alertSummary.isResolved() || alertSummary.isWontfix())">
-              <a ng-click="markInvestigating(alertSummary)">Mark as investigating</a>
+            <li role="menuitem" ng-if="alertSummary.isResolved()">
+              <a ng-click="alertSummary.markInvestigating()">Re-open</a>
             </li>
             <li role="menuitem"
-                ng-if="alertSummary.bug_number && (alertSummary.isInvestigating() || alertSummary.isResolved())">
-              <a ng-click="markWontfix(alertSummary)">Mark as "won't fix"</a>
+                ng-if="alertSummary.isInvestigating() || (alertSummary.isResolved() && !alertSummary.isWontfix())">
+              <a ng-click="alertSummary.markWontfix()">Mark as "won't fix"</a>
             </li>
             <li role="menuitem"
-                ng-if="alertSummary.bug_number && (alertSummary.isInvestigating() || alertSummary.isWontfix())">
-              <a ng-click="markResolved(alertSummary)">Mark as resolved</a>
+                ng-if="alertSummary.isInvestigating() || (alertSummary.isResolved() && !alertSummary.isBackedout())">
+              <a ng-click="alertSummary.markBackedout()">Mark as backed out</a>
             </li>
-            <li role="menuitem" ng-if="alertSummary.isClosed()">
-              <a ng-if="!alertSummary.is_open" ng-click="changeAlertSummaryStatus(alertSummary, true)">Reopen</a>
+            <li role="menuitem"
+                ng-if="alertSummary.isInvestigating() || (alertSummary.isResolved() && !alertSummary.isFixed())">
+              <a ng-click="alertSummary.markFixed()">Mark as fixed</a>
             </li>
           </ul>
         </div>

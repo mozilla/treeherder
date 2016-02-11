@@ -185,7 +185,8 @@ treeherder.value("phAlertSummaryStatusMap", {
     IMPROVEMENT: { id: 4, text: "improvement" },
     INVESTIGATING: { id: 5, text: "investigating" },
     WONTFIX: { id: 6, text: "wontfix" },
-    RESOLVED: { id: 7, text: "resolved" }
+    FIXED: { id: 7, text: "fixed" },
+    BACKEDOUT: { id: 8, text: "backedout" }
 });
 
 treeherder.value("phAlertStatusMap", {
