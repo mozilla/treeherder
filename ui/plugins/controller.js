@@ -67,8 +67,9 @@ treeherder.controller('PluginCtrl', [
             var failTab = "failureSummary";
 
             // Check if performance data exists
-            $http.get(thServiceDomain + '/api/project/mozilla-inbound/performance/data/?job_id='+job.id)
-            .then(function(response) {
+            $http.get(thServiceDomain + '/api/project/' + $scope.repoName +
+                      '/performance/data/?job_id=' + job.id)
+                .then(function(response) {
                 // show/hide Performance panel and default to
                 // Performance if performace data exists and job is not build
                 if (!_.isEmpty(response.data) && job.job_type_name !== "Build") {
