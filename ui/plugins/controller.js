@@ -68,27 +68,25 @@ treeherder.controller('PluginCtrl', [
 
             // Check if performance data exists
             $http.get(thServiceDomain + '/api/project/' + $scope.repoName +
-                      '/performance/data/?job_id=' + job.id)
-                .then(function(response) {
-                // show/hide Performance panel and default to
-                // Performance if performace data exists and job is not build
-                if (!_.isEmpty(response.data) && job.job_type_name !== "Build") {
-                    $scope.tabService.tabs.perfDetails.enabled = true;
-                    successTab = "perfDetails";
-                }
-            })
-            .then(function() {
-                // Error Classification/autoclassify special handling
-                if ($scope.tabService.tabs.autoClassification.enabled) {
-                    failTab = "autoClassification";
-                }
-                // set the selected tab
-                if (thResultStatus(job) === 'success') {
-                    $scope.tabService.selectedTab = successTab;
-                } else {
-                    $scope.tabService.selectedTab = failTab;
-                }
-            });
+                      '/performance/data/?job_id=' + job.id).then(function(response) {
+                          // show/hide Performance panel and default to
+                          // Performance if performace data exists and job is not build
+                          if (!_.isEmpty(response.data) && job.job_type_name !== "Build") {
+                              $scope.tabService.tabs.perfDetails.enabled = true;
+                              successTab = "perfDetails";
+                          }
+                      }).then(function() {
+                          // Error Classification/autoclassify special handling
+                          if ($scope.tabService.tabs.autoClassification.enabled) {
+                              failTab = "autoClassification";
+                          }
+                          // set the selected tab
+                          if (thResultStatus(job) === 'success') {
+                              $scope.tabService.selectedTab = successTab;
+                          } else {
+                              $scope.tabService.selectedTab = failTab;
+                          }
+                      });
         };
 
         // this promise will void all the ajax requests
