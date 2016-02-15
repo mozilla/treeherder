@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
             name='PerformanceFramework',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.SlugField(unique=True, max_length=255L)),
+                ('name', models.SlugField(unique=True, max_length=255)),
             ],
             options={
                 'db_table': 'performance_framework',
@@ -41,9 +41,9 @@ class Migration(migrations.Migration):
             name='PerformanceSignature',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('signature_hash', models.CharField(db_index=True, unique=True, max_length=40L, validators=[django.core.validators.MinLengthValidator(40L)])),
-                ('suite', models.CharField(max_length=80L)),
-                ('test', models.CharField(max_length=80L, blank=True)),
+                ('signature_hash', models.CharField(db_index=True, unique=True, max_length=40, validators=[django.core.validators.MinLengthValidator(40)])),
+                ('suite', models.CharField(max_length=80)),
+                ('test', models.CharField(max_length=80, blank=True)),
                 ('extra_properties', jsonfield.fields.JSONField(max_length=1024)),
                 ('framework', models.ForeignKey(to='perf.PerformanceFramework')),
                 ('option_collection', models.ForeignKey(to='model.OptionCollection')),

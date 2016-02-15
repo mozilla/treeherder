@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='performancesignature',
             name='signature_hash',
-            field=models.CharField(db_index=True, max_length=40L, validators=[django.core.validators.MinLengthValidator(40L)]),
+            field=models.CharField(db_index=True, max_length=40, validators=[django.core.validators.MinLengthValidator(40)]),
         ),
         migrations.AlterUniqueTogether(
             name='performancesignature',

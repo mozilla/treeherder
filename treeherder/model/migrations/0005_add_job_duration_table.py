@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name='JobDuration',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('signature', models.CharField(max_length=50L)),
+                ('signature', models.CharField(max_length=50)),
                 ('average_duration', models.PositiveIntegerField()),
                 ('repository', models.ForeignKey(to='model.Repository')),
             ],

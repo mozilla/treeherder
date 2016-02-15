@@ -15,9 +15,9 @@ class Migration(migrations.Migration):
             name='RunnableJob',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('option_collection_hash', models.CharField(max_length=64L)),
-                ('ref_data_name', models.CharField(max_length=255L)),
-                ('build_system_type', models.CharField(max_length=25L)),
+                ('option_collection_hash', models.CharField(max_length=64)),
+                ('ref_data_name', models.CharField(max_length=255)),
+                ('build_system_type', models.CharField(max_length=25)),
                 ('last_touched', models.DateTimeField(auto_now=True)),
                 ('build_platform', models.ForeignKey(to='model.BuildPlatform')),
                 ('job_type', models.ForeignKey(to='model.JobType')),

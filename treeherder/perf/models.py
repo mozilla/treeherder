@@ -8,13 +8,13 @@ from treeherder.model.models import (MachinePlatform,
                                      OptionCollection,
                                      Repository)
 
-SIGNATURE_HASH_LENGTH = 40L
+SIGNATURE_HASH_LENGTH = 40
 
 
 @python_2_unicode_compatible
 class PerformanceFramework(models.Model):
 
-    name = models.SlugField(max_length=255L, unique=True)
+    name = models.SlugField(max_length=255, unique=True)
 
     class Meta:
         db_table = 'performance_framework'
@@ -36,8 +36,8 @@ class PerformanceSignature(models.Model):
     framework = models.ForeignKey(PerformanceFramework)
     platform = models.ForeignKey(MachinePlatform)
     option_collection = models.ForeignKey(OptionCollection)
-    suite = models.CharField(max_length=80L)
-    test = models.CharField(max_length=80L, blank=True)
+    suite = models.CharField(max_length=80)
+    test = models.CharField(max_length=80, blank=True)
     lower_is_better = models.BooleanField(default=True)
     last_updated = models.DateTimeField(db_index=True, null=True)  # null=True only temporary, until we update old entries
 
