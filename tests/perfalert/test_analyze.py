@@ -44,7 +44,8 @@ class TestAnalyzer(unittest.TestCase):
             a.add_data(t, float(v))
 
         result = [(d.push_timestamp, d.state) for d in
-                  a.analyze_t(back_window=5, fore_window=5, t_threshold=2)]
+                  a.analyze_t(min_back_window=5, max_back_window=5,
+                              fore_window=5, t_threshold=2)]
         self.assertEqual(result, [
             (1, 'good'),
             (2, 'good'),
@@ -59,12 +60,12 @@ class TestAnalyzer(unittest.TestCase):
 
     def test_json_files(self):
         self.check_json('runs1.json', [1365019665])
-        self.check_json('runs2.json', [1357692289, 1358971894, 1365014104])
+        self.check_json('runs2.json', [1357704596, 1358971894, 1365014104])
         self.check_json('runs3.json', [1335293827, 1338839958])
         self.check_json('runs4.json', [1364922838])
         self.check_json('runs5.json', [])
         self.check_json('a11y.json', [1366197637, 1367799757])
-        self.check_json('tp5rss.json', [1373413365, 1373424974])
+        self.check_json('tp5rss.json', [1372846906, 1373413365, 1373424974])
 
     def check_json(self, filename, expected_timestamps):
         """Parse JSON produced by http://graphs.mozilla.org/api/test/runs"""
@@ -80,7 +81,7 @@ class TestAnalyzer(unittest.TestCase):
             a.add_data(r[2], r[3], testrun_id=r[0],
                        revision_id=r[1][2])
 
-        results = a.analyze_t(BACK_WINDOW, FORE_WINDOW, THRESHOLD)
+        results = a.analyze_t()
         regression_timestamps = [d.push_timestamp for d in results if
                                  d.state == 'regression']
         self.assertEqual(regression_timestamps, expected_timestamps)
