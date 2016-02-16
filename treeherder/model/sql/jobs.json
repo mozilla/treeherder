@@ -94,7 +94,7 @@
                 WHERE NOT EXISTS (
                     SELECT `revision`
                     FROM `revision`
-                    WHERE (`long_revision` = ? OR `short_revision` = ? `revision` = ?) AND `repository_id` = ?
+                    WHERE (`long_revision` = ? OR `short_revision` = ? OR `revision` = ?) AND `repository_id` = ?
                 )",
 
             "host_type":"master_host"

@@ -740,7 +740,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             debug_show=self.DEBUG,
             replace=[replacement],
             return_type="dict",
-            key_column="revision"
+            key_column="short_revision"
         )
         return lookups
 
@@ -798,7 +798,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
             aggregate_details[detail['result_set_id']].append(
                 {
-                    'revision': detail['revision'],
+                    'revision': detail['short_revision'],
                     'author': detail['author'],
                     'repository_id': detail['repository_id'],
                     'comments': detail['comments'],
@@ -1642,7 +1642,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     result['push_timestamp'],
                     result.get('active_status', 'active'),
                     result['revision_hash'],
-                    top_revision['revision'],
+                    top_revision,
                     short_top_revision
 
                 ]
@@ -1675,6 +1675,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                      rev_datum['author'],
                      comment,
                      repository_id,
+                     rev_datum['revision'],
+                     short_revision,
                      short_revision,
                      repository_id]
                 )
@@ -1748,7 +1750,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             proc='jobs.selects.get_revisions',
             placeholders=all_revisions,
             replace=[rev_where_in_clause],
-            key_column='revision',
+            key_column='short_revision',
             return_type='dict',
             debug_show=self.DEBUG
         )
