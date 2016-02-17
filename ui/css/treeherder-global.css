@@ -223,6 +223,10 @@ input:focus::-moz-placeholder {
   color: #999999;
 }
 
+.label[href] {
+  color: #fff;
+}
+
 /*
  * Colors
  */

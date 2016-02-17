@@ -19,7 +19,8 @@ treeherder.factory('ThFailureLinesModel', [
             config = config || {};
             var timeout = config.timeout || null;
             return $http.get(ThFailureLinesModel.get_url(job_id), {
-                timeout: timeout
+                timeout: timeout,
+                cache: false
             })
             .then(function(response) {
                 var item_list = [];

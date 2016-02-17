@@ -465,6 +465,7 @@ div.performance-panel {
 
 .error-classification-content {
  font-size:11px;
+ display:flex;
 }
 
 ul.failure-line-list {
@@ -513,8 +514,26 @@ ul.failure-line-list {
   font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
 }
 
-.classification-options {
-  display: inline-flex;
+.classification-line {
+  display: flex;
+  margin-bottom: 6px;
+}
+
+.classification-line-actions {
+  width: 70px;
+  text-align: center;
+}
+
+.classification-line-actions > span > select {
+  width: 60px;
+  margin-bottom: 6px;
+}
+
+.classification-line-detail {
+  width: 100%;
+  padding-top: 3px;
+  padding-bottom:3px;
+  border-bottom: thin solid #eee;
 }
 
 .classification-set-bug {
@@ -527,6 +546,7 @@ ul.failure-line-list {
   margin-top: auto;
   margin-bottom: auto;
   text-align: center;
+  display: inline-block;
 }
 
 .classification-icon > * {
@@ -554,13 +574,13 @@ ul.failure-line-list {
   top: 0;
 }
 
-.failure-lines-save-all {
-  width: 80px;
+.failure-lines-actions {
   padding: 4px 4px 4px 4px;
+  text-align: center;
 }
 
-.failure-lines-save-all > button {
-  position: absolute;
+.failure-lines-actions > button {
+  margin-bottom: 4px;
 }
 
 .ignored-line {
