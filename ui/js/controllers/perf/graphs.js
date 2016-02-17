@@ -101,6 +101,7 @@ perf.controller('GraphsCtrl', [
                     project: _.findWhere($rootScope.repos,
                                          { name: phSeries.projectName }),
                     revisionUrl: thServiceDomain + '#/jobs?repo=' + phSeries.projectName,
+                    jobId: phSeries.flotSeries.jobIdData[index],
                     test: phSeries.name,
                     platform: phSeries.platform,
                     value: Math.round(v*1000)/1000,
