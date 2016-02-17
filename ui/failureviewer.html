@@ -33,7 +33,11 @@
 
           <li class="navbar-text">Classified Failure Error Lines</li>
           <li class="navbar-text"
-              ng-if="classification.bug_number"> - Bug {{classification.bug_number}}</li>
+              ng-if="classification.bug_number">
+            <a href="{{ getBugUrl(classification.bug_number) }}">Bug {{ ::classification.bug_number }}</a>
+          </li>
+          <li class="navbar-text"
+              ng-if="!classification.bug_number">[No Associated Bug]</li>
         </ul>
       </div>
     </nav>
@@ -111,4 +115,3 @@
     <!-- endbuild -->
   </body>
 </html>
-<body>
