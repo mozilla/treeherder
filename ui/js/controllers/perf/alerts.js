@@ -382,7 +382,6 @@ perf.controller(
                     _.find(allAlertSummaries, function(alertSummary) {
                         return alertSummary.id === newId;
                     }) || []);
-                console.log(summariesToUpdate);
                 $q.all(_.map(summariesToUpdate, function(alertSummary) {
                     return alertSummary.update();
                 })).then(function() {
@@ -490,7 +489,6 @@ perf.controller('AlertsCtrl', [
                         addAlertSummaries(data.results, data.next);
                     });
             } else {
-                console.log("They see me rollin', they updatin' alert visibility");
                 updateAlertVisibility();
             }
         };
