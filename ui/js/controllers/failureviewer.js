@@ -1,10 +1,10 @@
 'use strict';
 
 failureViewerApp.controller('FailureViewerCtrl', [
-    '$location', '$rootScope', '$scope', '$window',
+    '$q', '$location', '$rootScope', '$scope', '$window',
     'thNotify', 'ThClassifiedFailuresModel',
     function FailureViewer(
-        $location, $rootScope, $scope, $window,
+        $q, $location, $rootScope, $scope, $window,
         thNotify, ThClassifiedFailuresModel) {
 
         $rootScope.urlBasePath = $location.absUrl().split('failureviewer')[0];
@@ -17,14 +17,22 @@ failureViewerApp.controller('FailureViewerCtrl', [
             thNotify.send("No classified_failure_id specified", "danger", true);
         }
         $scope.init = function() {
-
             if ($scope.classifiedFailureId) {
-
                 $scope.isLoading = true;
-                ThClassifiedFailuresModel.get_matches($scope.classifiedFailureId).then(
-                    function (data) {
-                        $scope.cfList = data.data.results;
-                    })
+
+                var loadClassification = ThClassifiedFailuresModel.get(
+                    $scope.classifiedFailureId)
+                        .then(function (cf) {
+                            $scope.classification = cf;
+                        });
+
+                var loadMatches = ThClassifiedFailuresModel.get_matches(
+                    $scope.classifiedFailureId)
+                        .then(function (data) {
+                            $scope.cfList = data.data.results;
+                        });
+
+                $q.all([loadClassification, loadMatches])
                     .finally(function() {
                         $scope.isLoading = false;
                     });

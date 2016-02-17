@@ -12,6 +12,20 @@ treeherder.factory('ThClassifiedFailuresModel', [
             return thUrl.getRootUrl("/classified-failure/");
         };
 
+        ThClassifiedFailuresModel.get = function(id, config) {
+            // a static method to retrieve a list of ThClassifiedFailuresModel
+            // the timeout configuration parameter is a promise that can be used to abort
+            // the ajax request
+            config = config || {};
+            var timeout = config.timeout || null;
+            return $http.get(ThClassifiedFailuresModel.get_url() + id + "/", {
+                timeout: timeout
+            })
+            .then(function(response) {
+                return new ThClassifiedFailuresModel(response.data);
+            });
+        };
+
         ThClassifiedFailuresModel.get_list = function(config) {
             // a static method to retrieve a list of ThClassifiedFailuresModel
             // the timeout configuration parameter is a promise that can be used to abort
