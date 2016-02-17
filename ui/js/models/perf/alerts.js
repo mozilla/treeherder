@@ -145,6 +145,10 @@ perf.factory('PhAlerts', [
                     if (options && !_.isUndefined(options.frameworkFilter)) {
                         params[params.length] = ("framework=" + options.frameworkFilter);
                     }
+                    if (options && !_.isUndefined(options.seriesSignature)) {
+                        params[params.length] = ("alerts__series_signature__signature_hash=" +
+                                                 options.seriesSignature);
+                    }
 
                     if (params.length) {
                         href += "?" + params.join("&");

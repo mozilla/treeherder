@@ -2,17 +2,18 @@
 
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$location', '$uibModal',
-    'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries',
+    'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries', 'PhAlerts',
     'ThRepositoryModel', 'ThOptionCollectionModel', 'ThResultSetModel',
     'phTimeRanges', 'phDefaultTimeRangeValue',
     function GraphsCtrl($state, $stateParams, $scope, $rootScope, $location,
                         $uibModal, thServiceDomain, $http, $q, $timeout, PhSeries,
-                        ThRepositoryModel, ThOptionCollectionModel,
+                        PhAlerts, ThRepositoryModel, ThOptionCollectionModel,
                         ThResultSetModel, phTimeRanges, phDefaultTimeRangeValue) {
         var availableColors = [ 'red', 'green', 'blue', 'orange', 'purple' ];
         var optionCollectionMap = null;
 
         $scope.highlightedRevisions = [ undefined, undefined ];
+        $scope.highlightAlerts = true;
 
         $scope.timeranges = phTimeRanges;
 
@@ -71,7 +72,12 @@ perf.controller('GraphsCtrl', [
 
                 // we need the flot data for calculating values/deltas and to know where
                 // on the graph to position the tooltip
-                var index = phSeries.flotSeries.jobIdData.indexOf(dataPoint.jobId);
+                var index;
+                if (dataPoint.jobId) {
+                    index = phSeries.flotSeries.jobIdData.indexOf(dataPoint.jobId);
+                } else {
+                    index = phSeries.flotSeries.resultSetData.indexOf(dataPoint.resultSetId);
+                }
                 var flotData = {
                     series: _.find($scope.plot.getData(), function(fs) {
                         return fs.thSeries.projectName == dataPoint.projectName &&
@@ -96,7 +102,9 @@ perf.controller('GraphsCtrl', [
                           flotSeriesData[prevFlotDataPointIndex][1] : v),
                     dv = v - v0,
                     dvp = v / v0 - 1;
-
+                var alertSummary = _.find(phSeries.relatedAlertSummaries, function(alertSummary) {
+                    return alertSummary.result_set_id === dataPoint.resultSetId;
+                });
                 $scope.tooltipContent = {
                     project: _.findWhere($rootScope.repos,
                                          { name: phSeries.projectName }),
@@ -108,6 +116,7 @@ perf.controller('GraphsCtrl', [
                     deltaPercentValue: (100 * dvp).toFixed(1),
                     date: $.plot.formatDate(new Date(t), '%a %b %d, %H:%M:%S'),
                     retriggers: (retriggerNum['retrigger'] - 1),
+                    alertSummary: alertSummary,
                     revisionInfoAvailable: true
                 };
 
@@ -335,7 +344,40 @@ perf.controller('GraphsCtrl', [
                 series.highlightedPoints = [];
             });
 
-            // highlight each revision on visible serii
+            // highlight points which correspond to an alert
+            var markings = [];
+            function addHighlightedDatapoint(series, resultSetId) {
+                // add a vertical line where alerts are, for extra visibility
+                var index = _.compact(_.map(series.flotSeries.resultSetData, function(seriesResultSetId, index) {
+                    return resultSetId === seriesResultSetId ? index : null;
+                }));
+                markings.push({
+                    color: "#ddd",
+                    lineWidth: 1,
+                    xaxis: {
+                        from: series.flotSeries.data[index][0],
+                        to: series.flotSeries.data[index][0]
+                    }
+                });
+                // highlight the datapoints too
+                series.highlightedPoints = _.union(series.highlightedPoints,  _.compact(_.map(
+                    series.flotSeries.resultSetData,
+                    function(seriesResultSetId, index) {
+                        return resultSetId === seriesResultSetId ? index : null;
+                    })));
+            }
+
+            if ($scope.highlightAlerts) {
+                _.forEach($scope.seriesList, function(series) {
+                    if (series.visible) {
+                        _.forEach(series.relatedAlertSummaries, function(alertSummary) {
+                            addHighlightedDatapoint(series, alertSummary.result_set_id);
+                        });
+                    }
+                });
+            }
+
+            // highlight each explicitly highlighted revision on visible serii
             var highlightPromises = [];
             _.each($scope.highlightedRevisions, function(rev) {
                 if (rev && rev.length == 12) {
@@ -345,10 +387,7 @@ perf.controller('GraphsCtrl', [
                                 return ThResultSetModel.getResultSetsFromRevision(
                                     series.projectName, rev).then(
                                         function(resultSets) {
-                                            series.highlightedPoints = _.union(series.highlightedPoints,  _.compact(_.map(
-                                                series.flotSeries.resultSetData, function(resultSetId, index) {
-                                                    return resultSets[0].id == resultSetId ? index : null;
-                                                })));
+                                            addHighlightedDatapoint(series, resultSets[0].id);
                                         }, function(reason) {
                                             /* ignore cases where no result set exists
                                                for revision */
@@ -378,7 +417,8 @@ perf.controller('GraphsCtrl', [
                             backgroundColor: '#fff',
                             hoverable: true,
                             clickable: true,
-                            autoHighlight: false
+                            autoHighlight: false,
+                            markings: markings
                         }
                     }
                 );
@@ -477,6 +517,7 @@ perf.controller('GraphsCtrl', [
                                                    return (highlight &&
                                                            highlight.length == 12);
                                                }),
+                highlightAlerts: !$scope.highlightAlerts ? 0 : undefined,
                 zoom: (function() {
                     if ((typeof $scope.zoom.x != "undefined")
                         && (typeof $scope.zoom.y != "undefined")
@@ -533,6 +574,35 @@ perf.controller('GraphsCtrl', [
                                          jobIdData: _.pluck(response.data[series.signature],
                                              'job_id')
                                      };
+                                 }).then(function() {
+                                     var repo = _.find($rootScope.repos, { name: series.projectName });
+                                     return PhAlerts.getAlertSummaries({
+                                         seriesSignature: series.signature,
+                                         repository: repo.id }).then(function(data) {
+                                             series.relatedAlertSummaries = data.results;
+/*
+                                             var alertData = [];
+                                             _.forEach(data.results, function(alertSummary) {
+                                                 var offset = series.flotSeries.resultSetData.indexOf(alertSummary.result_set_id);
+                                                 alertData[alertData.length] =
+                                                     series.flotSeries.data[offset];
+                                             });
+                                             series.flotAlertSeries = {
+                                                 lines: { show: false },
+                                                 points: { show: series.visible,
+                                                           symbol: function(ctx, x, y, radius, shadow) {
+                                                               console.log(ctx.canvas.height);
+                                                               ctx.font = "20px FontAwesome";
+                                                               ctx.fillStyle = "rgba(255, 0, 0, 1.0)";
+                                                               ctx.textAlign = 'center';
+                                                               ctx.fillText("\uf071", x, y + 5);
+                                                           }
+                                                         },
+                                                 data: alertData,
+                                                 fill: false,
+                                             };
+*/
+                                         });
                                  });
         }
 
@@ -677,6 +747,9 @@ perf.controller('GraphsCtrl', [
                     $scope.seriesList = [];
                     if (_.isString($stateParams.series)) {
                         $stateParams.series = [$stateParams.series];
+                    }
+                    if ($stateParams.highlightAlerts) {
+                        $scope.highlightAlerts = parseInt($stateParams.highlightAlerts);
                     }
                     if ($stateParams.highlightedRevisions) {
                         if (typeof($stateParams.highlightedRevisions) === 'string') {
