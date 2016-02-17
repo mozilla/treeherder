@@ -17,6 +17,11 @@ body {
     margin-bottom: 10px; /* Breathing space for run-data */
 }
 
+.navbar > li > a, .navbar-default > li > a, .navbar-nav > li > a {
+    padding: 0;
+    line-height: inherit;
+}
+
 #fv-logo {
     padding: 14px 15px 0 15px;
     border: none;
