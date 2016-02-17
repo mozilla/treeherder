@@ -133,16 +133,6 @@ treeherder.filter('getRevisionUrl', ['thServiceDomain', function(thServiceDomain
     };
 }]);
 
-treeherder.filter('expectedString', function() {
-    return function(line) {
-        var rv = "<strong class=\"failure-line-status\">" + line.status + "</strong>";
-        if (line.expected !== "PASS" && line.expected !== "OK") {
-            rv += " (expected <strong>" + line.expected + "</strong>)";
-        }
-        return rv;
-    };
-});
-
 treeherder.filter('alertStatus', [
     'phAlertSummaryResolutionMap', function(phAlertSummaryResolutionMap) {
         return function(resolutionId) {
