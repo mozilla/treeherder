@@ -142,6 +142,12 @@ perf.controller('CompareChooserCtrl', [
                     }
                 );
             };
+
+            // if we have a try push prepopulated, automatically offer a new revision
+            if ($scope.newProject.name === 'try' && $scope.newRevision.length === 12) {
+                $scope.updateNewRevisionTips();
+                $scope.getPreviousRevision();
+            }
         });
     }]);
 
