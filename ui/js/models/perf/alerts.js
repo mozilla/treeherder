@@ -149,6 +149,10 @@ treeherder.factory('PhAlerts', [
                         params[params.length] = ("alerts__series_signature__signature_hash=" +
                                                  options.seriesSignature);
                     }
+                    if (options && !_.isUndefined(options.repository)) {
+                        params[params.length] = ("repository=" +
+                                                 options.repository);
+                    }
 
                     if (params.length) {
                         href += "?" + params.join("&");
