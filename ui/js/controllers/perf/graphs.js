@@ -10,7 +10,6 @@ perf.controller('GraphsCtrl', [
                         PhAlerts, ThRepositoryModel, ThOptionCollectionModel,
                         ThResultSetModel, phTimeRanges, phDefaultTimeRangeValue) {
         var availableColors = [ 'red', 'green', 'blue', 'orange', 'purple' ];
-        var optionCollectionMap = null;
 
         $scope.highlightedRevisions = [ undefined, undefined ];
         $scope.highlightAlerts = true;
@@ -607,38 +606,40 @@ perf.controller('GraphsCtrl', [
                                          propsHash[partialSeries.project][partialSeries.signature] = data[partialSeries.signature];
                                      });
                 })).then(function() {
-                    // create a new seriesList in the correct order
-                    partialSeriesList.forEach(function(partialSeries) {
-                        var seriesSummary = PhSeries.getSeriesSummary(
-                            partialSeries.project,
-                            partialSeries.signature,
-                            propsHash[partialSeries.project][partialSeries.signature],
-                            optionCollectionMap);
-                        seriesSummary.projectName = partialSeries.project;
-                        seriesSummary.visible = partialSeries.visible;
-                        seriesSummary.color = availableColors.pop();
-                        seriesSummary.highlighted = partialSeries.highlighted;
-                        $scope.seriesList.push(seriesSummary);
-                    });
-                    $q.all($scope.seriesList.map(getSeriesData)).then(function() {
-                        plotGraph();
-                        updateDocumentTitle();
+                    ThOptionCollectionModel.getMap().then(
+                        function(optionCollectionMap) {
+                            // create a new seriesList in the correct order
+                            partialSeriesList.forEach(function(partialSeries) {
+                                var seriesSummary = PhSeries.getSeriesSummary(
+                                    partialSeries.project,
+                                    partialSeries.signature,
+                                    propsHash[partialSeries.project][partialSeries.signature],
+                                    optionCollectionMap);
+                                seriesSummary.projectName = partialSeries.project;
+                                seriesSummary.visible = partialSeries.visible;
+                                seriesSummary.color = availableColors.pop();
+                                seriesSummary.highlighted = partialSeries.highlighted;
+                                $scope.seriesList.push(seriesSummary);
+                            });
+                            $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+                                plotGraph();
+                                updateDocumentTitle();
 
-                        if ($scope.selectedDataPoint) {
-                            showTooltip($scope.selectedDataPoint);
-                        }
-                    });
-                },
-                         function(error) {
-                             if (error.statusText) {
-                                 error = "HTTP Error: " + error.statusText;
-                             }
-                             // we could probably do better than print this
-                             // rather useless error, but at least this gives
-                             // a hint on what the problem is
-                             alert("Error loading performance data\n\n" + error);
-                         });
-        }
+                                if ($scope.selectedDataPoint) {
+                                    showTooltip($scope.selectedDataPoint);
+                                }
+                            });
+                        });
+                }, function(error) {
+                    if (error.statusText) {
+                        error = "HTTP Error: " + error.statusText;
+                    }
+                    // we could probably do better than print this
+                    // rather useless error, but at least this gives
+                    // a hint on what the problem is
+                    alert("Error loading performance data\n\n" + error);
+                });
+        };
 
         $scope.removeSeries = function(projectName, signature) {
             var newSeriesList = [];
@@ -684,89 +685,86 @@ perf.controller('GraphsCtrl', [
             plotGraph();
         };
 
-        ThOptionCollectionModel.getMap().then(
-            function(_optionCollectionMap) {
-                optionCollectionMap = _optionCollectionMap;
+        ThRepositoryModel.load().then(function() {
+            if ($stateParams.timerange) {
+                var timeRange = _.find(phTimeRanges,
+                                       {'value': parseInt($stateParams.timerange)});
+                $scope.myTimerange = timeRange;
+            } else {
+                $scope.myTimerange = _.find(phTimeRanges,
+                                            {'value': phDefaultTimeRangeValue});
+            }
+            $scope.timeRangeChanged = function() {
+                $scope.zoom = {};
+                deselectDataPoint();
 
-                if ($stateParams.timerange) {
-                    var timeRange = _.find(phTimeRanges,
-                                           {'value': parseInt($stateParams.timerange)});
-                    $scope.myTimerange = timeRange;
-                } else {
-                    $scope.myTimerange = _.find(phTimeRanges,
-                                                {'value': phDefaultTimeRangeValue});
-                }
-                $scope.timeRangeChanged = function() {
-                    $scope.zoom = {};
-                    deselectDataPoint();
+                updateDocument();
+                // refetch and re-render all graph data
+                $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+                    plotGraph();
+                });
+            };
 
-                    updateDocument();
-                    // refetch and re-render all graph data
-                    $q.all($scope.seriesList.map(getSeriesData)).then(function() {
-                        plotGraph();
-                    });
+            if ($stateParams.zoom) {
+                var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '');
+                var zoomArray = zoomString.split(",");
+                var zoomObject = {
+                    "x": zoomArray.slice(0,2),
+                    "y": zoomArray.slice(2,4)
                 };
+                $scope.zoom = (zoomString) ? zoomObject : [];
+            } else {
+                $scope.zoom = [];
+            }
 
-
-                if ($stateParams.zoom) {
-                    var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '');
-                    var zoomArray = zoomString.split(",");
-                    var zoomObject = {
-                        "x": zoomArray.slice(0,2),
-                        "y": zoomArray.slice(2,4)
-                    };
-                    $scope.zoom = (zoomString) ? zoomObject : [];
-                } else {
-                    $scope.zoom = [];
+            if ($stateParams.series) {
+                $scope.seriesList = [];
+                if (_.isString($stateParams.series)) {
+                    $stateParams.series = [$stateParams.series];
                 }
-
-                if ($stateParams.series) {
-                    $scope.seriesList = [];
-                    if (_.isString($stateParams.series)) {
-                        $stateParams.series = [$stateParams.series];
-                    }
-                    if ($stateParams.highlightAlerts) {
-                        $scope.highlightAlerts = parseInt($stateParams.highlightAlerts);
-                    }
-                    if ($stateParams.highlightedRevisions) {
-                        if (typeof($stateParams.highlightedRevisions) === 'string') {
-                            $scope.highlightedRevisions = [$stateParams.highlightedRevisions];
-                        } else {
-                            $scope.highlightedRevisions = $stateParams.highlightedRevisions;
-                        }
+                if ($stateParams.highlightAlerts) {
+                    $scope.highlightAlerts = parseInt($stateParams.highlightAlerts);
+                }
+                if ($stateParams.highlightedRevisions) {
+                    if (typeof($stateParams.highlightedRevisions) === 'string') {
+                        $scope.highlightedRevisions = [$stateParams.highlightedRevisions];
                     } else {
-                        $scope.highlightedRevisions = ['', ''];
+                        $scope.highlightedRevisions = $stateParams.highlightedRevisions;
                     }
-
-                    // we only store the signature + project name in the url, we need to
-                    // fetch everything else from the server
-                    var partialSeriesList = $stateParams.series.map(function(encodedSeries) {
-                        var partialSeriesString = decodeURIComponent(encodedSeries).replace(/[\[\]"]/g, '');
-                        var partialSeriesArray = partialSeriesString.split(",");
-                        var partialSeriesObject = {
-                            "project":  partialSeriesArray[0],
-                            "signature":  partialSeriesArray[1],
-                            "visible": (partialSeriesArray[2] == 0) ? false : true
-                        };
-                        return partialSeriesObject;
-                    });
-                    addSeriesList(partialSeriesList);
                 } else {
-                    $scope.seriesList = [];
-                    addSeriesList([]);
+                    $scope.highlightedRevisions = ['', ''];
                 }
-                if ($stateParams.selected) {
-                    var tooltipString = decodeURIComponent($stateParams.selected).replace(/[\[\]"]/g, '');
-                    var tooltipArray = tooltipString.split(",");
-                    var tooltip = {
-                        projectName: tooltipArray[0],
-                        signature: tooltipArray[1],
-                        resultSetId: parseInt(tooltipArray[2]),
-                        jobId: (tooltipArray[3] !== undefined) ? parseInt(tooltipArray[3]) : null
+
+                // we only store the signature + project name in the url, we need to
+                // fetch everything else from the server
+                var partialSeriesList = $stateParams.series.map(function(encodedSeries) {
+                    var partialSeriesString = decodeURIComponent(encodedSeries).replace(/[\[\]"]/g, '');
+                    var partialSeriesArray = partialSeriesString.split(",");
+                    var partialSeriesObject = {
+                            "project":  partialSeriesArray[0],
+                        "signature":  partialSeriesArray[1],
+                        "visible": (partialSeriesArray[2] == 0) ? false : true
                     };
-                    $scope.selectedDataPoint = (tooltipString) ? tooltip : null;
-                }
-                ThRepositoryModel.load().then(function() {
+                    return partialSeriesObject;
+                });
+                addSeriesList(partialSeriesList);
+            } else {
+                $scope.seriesList = [];
+                addSeriesList([]);
+            }
+            if ($stateParams.selected) {
+                var tooltipString = decodeURIComponent($stateParams.selected).replace(/[\[\]"]/g, '');
+                var tooltipArray = tooltipString.split(",");
+                var tooltip = {
+                    projectName: tooltipArray[0],
+                    signature: tooltipArray[1],
+                    resultSetId: parseInt(tooltipArray[2]),
+                    jobId: (tooltipArray[3] !== undefined) ? parseInt(tooltipArray[3]) : null
+                };
+                $scope.selectedDataPoint = (tooltipString) ? tooltip : null;
+            }
+            ThOptionCollectionModel.getMap().then(
+                function(optionCollectionMap) {
 
                     $scope.addTestData = function(option, seriesSignature) {
                         var defaultProjectName, defaultPlatform;
