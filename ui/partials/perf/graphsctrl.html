@@ -31,14 +31,17 @@
       <div id="overview-plot"></div>
       <div id="graph"></div>
       <div id="graph-bottom" ng-show="seriesList.length > 0">
-        Highlight revisions:
-        <input type="text" maxlength="12" ng-change="updateHighlightedRevisions()" placeholder="12 character hg revision" ng-model="highlightedRevisions[0]">
-        </input>
+        Highlight revisions: 
+        <input type="text" maxlength="12" ng-change="updateHighlightedRevisions()" placeholder="12 character hg revision" ng-model="highlightedRevisions[0]"></input>
         <span class="reset-highlight-button" ng-show="highlightedRevisions[0].length > 0" ng-click="resetHighlight(0)">&#10006;</span>
         &nbsp;&nbsp;
-        <input type="text" maxlength="12" ng-change="updateHighlightedRevisions()" placeholder="12 character hg revision" ng-model="highlightedRevisions[1]">
-        </input>
+        <input type="text" maxlength="12" ng-change="updateHighlightedRevisions()" placeholder="12 character hg revision" ng-model="highlightedRevisions[1]"></input>
         <span class="reset-highlight-button" ng-show="highlightedRevisions[1].length > 0" ng-click="resetHighlight(1)">&#10006;</span>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-change="updateHighlightedRevisions()" ng-model="highlightAlerts">Highlight alerts</input>
+          </label>
+        </div>
       </div>
     </div>
     <div class="graph-right-padding"></div>
@@ -66,6 +69,11 @@
             <a ng-href="#/comparesubtest?originalProject={{tooltipContent.project.name}}&newProject={{tooltipContent.project.name}}&originalRevision={{tooltipContent.prevRevision}}&newRevision={{tooltipContent.revision}}&originalSignature={{selectedDataPoint.signature}}&newSignature={{selectedDataPoint.signature}}" target="_blank">compare</a>)
           </span>
         </p>
+        <p ng-show="tooltipContent.alertSummary">
+          <i class="text-warning fa fa-exclamation-circle"></i>
+          <a href="perf.html#/alerts?id={{tooltipContent.alertSummary.id}}">
+            Alert #{{tooltipContent.alertSummary.id}}</a>
+          <span class="text-muted">({{tooltipContent.alertSummary.getStatusText()}})</span>
         <p ng-hide="tooltipContent.revision">
           <span ng-hide="tooltipContent.revisionInfoAvailable">Revision info unavailable</span>
           <span ng-show="tooltipContent.revisionInfoAvailable">Loading revision...</span>
