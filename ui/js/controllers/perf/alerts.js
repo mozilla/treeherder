@@ -44,7 +44,7 @@ perf.factory('PhBugs', [
                                 } else {
                                     // assume suitekey or testkey will work otherwise
                                     if (alert.series_signature.test) {
-                                        return prefix + testkey;
+                                        return prefix + alert.series_signature.test;
                                     }
                                     return prefix + suitekey;
                                 }
