@@ -1267,12 +1267,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         has_text_log_summary = False
         if artifacts:
             artifacts = ArtifactsModel.serialize_artifact_json_blobs(artifacts)
-            # the artifacts in this list could be ones that should have
-            # bug suggestions generated for them.  If so, queue them to be
-            # scheduled for asynchronous generation.
-            tls_list = error_summary.get_artifacts_that_need_bug_suggestions(
-                artifacts)
-            async_artifact_list.extend(tls_list)
 
             # need to add job guid to artifacts, since they likely weren't
             # present in the beginning
@@ -1280,10 +1274,24 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 if not all(k in artifact for k in ("name", "type", "blob")):
                     raise JobDataError(
                         "Artifact missing properties: {}".format(artifact))
+                # Ensure every artifact has a ``job_guid`` value.
+                # It is legal to submit an artifact that doesn't have a
+                # ``job_guid`` value.  But, if missing, it should inherit that
+                # value from the job itself.  It needs to be there before the
+                # later call to ``get_artifacts_that_need_bug_suggestions``
+                # to determine if we should generate a "Bug suggestions"
+                # artifact based on a passed-in "text_log_summary".
+                if "job_guid" not in artifact:
+                    artifact["job_guid"] = job_guid
                 artifact_placeholder = artifact.copy()
-                artifact_placeholder['job_guid'] = job_guid
                 artifact_placeholders.append(artifact_placeholder)
 
+            # the artifacts in this list could be ones that should have
+            # bug suggestions generated for them.  If so, queue them to be
+            # scheduled for asynchronous generation.
+            tls_list = error_summary.get_artifacts_that_need_bug_suggestions(
+                artifacts)
+            async_artifact_list.extend(tls_list)
             has_text_log_summary = any(x for x in artifacts
                                        if x['name'] == 'text_log_summary')
 
