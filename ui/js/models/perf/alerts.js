@@ -2,9 +2,9 @@
 
 treeherder.factory('PhAlerts', [
     '$http', '$q', 'thServiceDomain', 'ThOptionCollectionModel', 'PhSeries',
-    'phAlertSummaryStatusMap', 'phAlertStatusMap',
+    'phAlertSummaryStatusMap', 'phAlertStatusMap', 'thPerformanceBranches',
     function($http, $q, thServiceDomain, ThOptionCollectionModel, PhSeries,
-             phAlertSummaryStatusMap, phAlertStatusMap) {
+             phAlertSummaryStatusMap, phAlertStatusMap, thPerformanceBranches) {
 
         var Alert = function(alertData, optionCollectionMap) {
             _.assign(this, alertData);
@@ -15,6 +15,19 @@ treeherder.factory('PhAlerts', [
         Alert.prototype.getStatusText = function() {
             return _.result(_.find(phAlertStatusMap, {id: this.status}),
                             'text');
+        };
+        Alert.prototype.getGraphsURL = function(timeRange, alertRepository) {
+            var signature = this.series_signature.signature_hash;
+            var url = "#/graphs?timerange=" + timeRange +
+                "&series=[" + [alertRepository, signature, 1] + "]" +
+                "&selected=[" + [alertRepository, signature,] + "]";
+            _.forEach(thPerformanceBranches, function(performanceBranch) {
+                if (performanceBranch !== alertRepository) {
+                    url += "&series=[" + [performanceBranch, signature, 0] + "]";
+                }
+            });
+
+            return url;
         };
         Alert.prototype.modify = function(modification) {
             return $http.put(thServiceDomain +
