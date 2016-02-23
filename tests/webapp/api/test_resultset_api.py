@@ -29,8 +29,8 @@ def test_resultset_list(webapp, eleven_jobs_stored, jm, test_project):
         u'repository_id',
         u'author',
         u'comments',
-        u'revision_hash',
         u'revision',
+        u'revision_hash',
         u'revisions',
         u'revision_count',
         u'revisions_uri',
@@ -85,18 +85,18 @@ def test_resultset_list_single_short_revision(webapp, eleven_jobs_stored, jm, te
 
     resp = webapp.get(
         reverse("resultset-list", kwargs={"project": jm.project}),
-        {"revision": "21fb3eed1b5f"}
+        {"revision": "45f8637cb9f7"}
     )
     assert resp.status_int == 200
     results = resp.json['results']
     meta = resp.json['meta']
     assert len(results) == 1
-    assert set([rs["revision"] for rs in results]) == {"21fb3eed1b5f"}
+    assert set([rs["revision"] for rs in results]) == {"45f8637cb9f78f19cb8463ff174e81756805d8cf"}
     assert(meta == {
         u'count': 1,
-        u'revision': u'21fb3eed1b5f',
+        u'revision': u'45f8637cb9f7',
         u'filter_params': {
-            u'revision': "21fb3eed1b5f"
+            u'revisions_short_revision': "45f8637cb9f7"
         },
         u'repository': test_project}
     )
@@ -109,18 +109,18 @@ def test_resultset_list_single_long_revision(webapp, eleven_jobs_stored, jm, tes
 
     resp = webapp.get(
         reverse("resultset-list", kwargs={"project": jm.project}),
-        {"revision": "21fb3eed1b5f3456789012345678901234567890"}
+        {"revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf"}
     )
     assert resp.status_int == 200
     results = resp.json['results']
     meta = resp.json['meta']
     assert len(results) == 1
-    assert set([rs["revision"] for rs in results]) == {"21fb3eed1b5f"}
+    assert set([rs["revision"] for rs in results]) == {"45f8637cb9f78f19cb8463ff174e81756805d8cf"}
     assert(meta == {
         u'count': 1,
-        u'revision': u'21fb3eed1b5f3456789012345678901234567890',
+        u'revision': u'45f8637cb9f78f19cb8463ff174e81756805d8cf',
         u'filter_params': {
-            u'revision__in': u'21fb3eed1b5f3456789012345678901234567890,21fb3eed1b5f'
+            u'revisions_long_revision': u'45f8637cb9f78f19cb8463ff174e81756805d8cf'
         },
         u'repository': test_project}
     )
@@ -144,12 +144,12 @@ def test_resultset_list_single_long_revision_stored_long(webapp, sample_resultse
     results = resp.json['results']
     meta = resp.json['meta']
     assert len(results) == 1
-    assert set([rs["revision"] for rs in results]) == {"21fb3eed1b5f"}
+    assert set([rs["revision"] for rs in results]) == {"21fb3eed1b5f3456789012345678901234567890"}
     assert(meta == {
         u'count': 1,
         u'revision': u'21fb3eed1b5f3456789012345678901234567890',
         u'filter_params': {
-            u'revision__in': u'21fb3eed1b5f3456789012345678901234567890,21fb3eed1b5f'
+            u'revisions_long_revision': u'21fb3eed1b5f3456789012345678901234567890'
         },
         u'repository': test_project}
     )
@@ -162,24 +162,27 @@ def test_resultset_list_filter_by_revision(webapp, eleven_jobs_stored, jm, test_
 
     resp = webapp.get(
         reverse("resultset-list", kwargs={"project": jm.project}),
-        {"fromchange": "21fb3eed1b5f", "tochange": "909f55c626a8"}
+        {"fromchange": "130965d3df6c", "tochange": "f361dcb60bbe"}
     )
     assert resp.status_int == 200
     results = resp.json['results']
     meta = resp.json['meta']
     assert len(results) == 4
-    assert set([rs["revision"] for rs in results]) == set(
-        ["909f55c626a8", "71d49fee325a", "bb57e9f67223", "21fb3eed1b5f"]
-    )
+    assert set([rs["revision"] for rs in results]) == {
+        u'130965d3df6c9a1093b4725f3b877eaef80d72bc',
+        u'7f417c3505e3d2599ac9540f02e3dbee307a3963',
+        u'a69390334818373e2d7e6e9c8d626a328ed37d47',
+        u'f361dcb60bbedaa01257fbca211452972f7a74b2'
+    }
     assert(meta == {
         u'count': 4,
-        u'fromchange': u'21fb3eed1b5f',
+        u'fromchange': u'130965d3df6c',
         u'filter_params': {
             u'push_timestamp__gte': 1384363842,
             u'push_timestamp__lte': 1384365942
         },
         u'repository': test_project,
-        u'tochange': u'909f55c626a8'}
+        u'tochange': u'f361dcb60bbe'}
     )
 
 
@@ -204,15 +207,18 @@ def test_resultset_list_filter_by_date(webapp, initial_data,
     results = resp.json['results']
     meta = resp.json['meta']
     assert len(results) == 4
-    assert set([rs["revision"] for rs in results]) == set(
-        ["909f55c626a8", "71d49fee325a", "bb57e9f67223", "668424578a0d"]
-    )
+    assert set([rs["revision"] for rs in results]) == {
+        u'ce17cad5d554cfffddee13d1d8421ae9ec5aad82',
+        u'7f417c3505e3d2599ac9540f02e3dbee307a3963',
+        u'a69390334818373e2d7e6e9c8d626a328ed37d47',
+        u'f361dcb60bbedaa01257fbca211452972f7a74b2'
+    }
     assert(meta == {
         u'count': 4,
         u'enddate': u'2013-08-13',
         u'filter_params': {
             u'push_timestamp__gte': 1376118000.0,
-            u'push_timestamp__lt': 1376463600.0
+            u'push_timestamp__lt':  1376463600.0
         },
         u'repository': test_project,
         u'startdate': u'2013-08-10'}
@@ -312,12 +318,12 @@ def test_resultset_create(sample_resultset, jm, initial_data, mock_post_json):
     test_utils.post_collection(jm.project, trsc)
 
     stored_objs = jm.get_dhub().execute(
-        proc="jobs_test.selects.resultset_by_rev_hash",
-        placeholders=[sample_resultset[0]['revision_hash']]
+        proc="jobs_test.selects.resultset_by_long_revision",
+        placeholders=[sample_resultset[0]['revision']]
     )
 
     assert len(stored_objs) == 1
-    assert stored_objs[0]['revision_hash'] == sample_resultset[0]['revision_hash']
+    assert stored_objs[0]['long_revision'] == sample_resultset[0]['revision']
 
     jm.disconnect()
 

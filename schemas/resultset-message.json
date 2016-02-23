@@ -19,6 +19,11 @@
       "description":          "Identifier for the result-set that was created.",
       "type":                 "string"
     },
+    "revision": {
+      "title":                "Top Revision Identifier",
+      "description":          "Identifier for the result-set that was created.",
+      "type":                 "string"
+    },
     "repository_url": {
       "title":                "Repository URL",
       "description":          "URL for the repository for the revision.",
@@ -26,5 +31,5 @@
     }
   },
   "additionalProperties":     true,
-  "required": ["version", "revision_hash"]
+  "required": ["version", "revision_hash", "revision"]
 }

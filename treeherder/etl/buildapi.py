@@ -102,13 +102,11 @@ class Builds4hTransformerMixin(object):
                 if common.is_blacklisted_buildername(buildername):
                     continue
 
-                prop['short_revision'] = prop['revision'][0:12]
-
             except KeyError as e:
                 logger.warning("skipping builds-4hr job %s since missing property: %s", build['id'], str(e))
                 continue
 
-            revisions[project].append(prop['short_revision'])
+            revisions[project].append(prop['revision'])
 
         revisions_lookup = common.lookup_revisions(revisions)
 
@@ -129,10 +127,9 @@ class Builds4hTransformerMixin(object):
                     continue
                 if common.is_blacklisted_buildername(buildername):
                     continue
-                # todo: Continue using short revisions until Bug 1199364
                 resultset = common.get_resultset(project,
                                                  revisions_lookup,
-                                                 prop['short_revision'],
+                                                 prop['revision'],
                                                  missing_resultsets,
                                                  logger)
             except KeyError:
@@ -157,7 +154,7 @@ class Builds4hTransformerMixin(object):
                 continue
 
             treeherder_data = {
-                'revision_hash': resultset['revision_hash'],
+                'revision': prop['revision'],
                 'resultset_id': resultset['id'],
                 'project': project,
                 'coalesced': []
@@ -331,7 +328,7 @@ class PendingRunningTransformerMixin(object):
                         continue
 
                     treeherder_data = {
-                        'revision_hash': resultset['revision_hash'],
+                        'revision': revision,
                         'resultset_id': resultset['id'],
                         'project': project,
                     }
