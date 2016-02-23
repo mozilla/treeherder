@@ -52,7 +52,7 @@ def test_ingest_pulse_jobs(pulse_jobs, test_project, jm, result_set_stored,
     """
 
     jl = JobLoader()
-    jl.process_job_list(pulse_jobs, raise_errors=True)
+    jl.process_job_list(pulse_jobs)
 
     jobs = jm.get_job_list(0, 10)
     assert len(jobs) == 4
@@ -106,7 +106,7 @@ def test_transition_pending_retry_fail_stays_retry(first_job, jm, mock_log_parse
 def test_skip_unscheduled(first_job, jm, mock_log_parser):
     jl = JobLoader()
     first_job["state"] = "unscheduled"
-    jl.process_job_list([first_job], raise_errors=True)
+    jl.process_job_list([first_job])
 
     jobs = jm.get_job_list(0, 10)
     assert len(jobs) == 0
@@ -122,7 +122,7 @@ def change_state_result(test_job, job_loader, jm, new_state, new_result, exp_sta
         # support it.
         del job['logs']
 
-    job_loader.process_job_list([job], raise_errors=True)
+    job_loader.process_job_list([job])
 
     jobs = jm.get_job_list(0, 10)
     assert len(jobs) == 1
