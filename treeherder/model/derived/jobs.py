@@ -2,6 +2,7 @@ import logging
 import time
 from datetime import datetime
 
+import newrelic.agent
 from _mysql_exceptions import IntegrityError
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -806,7 +807,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return aggregate_details
 
-    def store_job_data(self, data, raise_errors=False):
+    def store_job_data(self, data):
         """
         Store JobData instances into jobs db
 
@@ -924,12 +925,16 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 # we can capture the error and associate it with the object
                 # and also skip it before generating any database errors.
             except JobDataError as e:
-                if raise_errors:
+                if settings.DEBUG:
                     raise e
+                else:
+                    newrelic.agent.record_exception(params={"job": datum})
                 continue
             except Exception as e:
-                if raise_errors:
+                if settings.DEBUG:
                     raise e
+                else:
+                    newrelic.agent.record_exception(params={"job": datum})
                 continue
 
             try:
@@ -955,9 +960,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                         [job_guid, coalesced_guid]
                     )
             except Exception as e:
-                if raise_errors:
+                if settings.DEBUG:
                     raise e
-
+                else:
+                    newrelic.agent.record_exception(params={"job": job})
         # Store all reference data and retrieve associated ids
         id_lookups = self.refdata_model.set_all_reference_data()
 
