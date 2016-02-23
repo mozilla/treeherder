@@ -2,6 +2,7 @@ import logging
 import time
 from datetime import datetime
 
+import newrelic.agent
 from _mysql_exceptions import IntegrityError
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -806,7 +807,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return aggregate_details
 
-    def store_job_data(self, data, raise_errors=False):
+    def store_job_data(self, data):
         """
         Store JobData instances into jobs db
 
@@ -911,28 +912,17 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 pass
 
         for datum in data:
-            # Make sure we can deserialize the json object
-            # without raising an exception
             try:
+                # TODO: this might be a good place to check the datum against
+                # a JSON schema to ensure all the fields are valid.  Then
+                # the exception we caught would be much more informative.  That
+                # being said, if/when we transition to only using the pulse
+                # job consumer, then the data will always be vetted with a
+                # JSON schema already.
                 job = datum['job']
                 revision_hash = datum['revision_hash']
                 coalesced = datum.get('coalesced', [])
 
-                # TODO: Need a job structure validation step here. Now that
-                # everything works in list context we cannot detect what
-                # object is responsible for what error. If we validate here
-                # we can capture the error and associate it with the object
-                # and also skip it before generating any database errors.
-            except JobDataError as e:
-                if raise_errors:
-                    raise e
-                continue
-            except Exception as e:
-                if raise_errors:
-                    raise e
-                continue
-
-            try:
                 # json object can be successfully deserialized
                 # load reference data
                 job_guid = self._load_ref_and_job_data_structs(
@@ -955,8 +945,15 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                         [job_guid, coalesced_guid]
                     )
             except Exception as e:
-                if raise_errors:
+                # we should raise the exception if DEBUG is true, or if
+                # running the unit tests.
+                if settings.DEBUG or hasattr(settings, "TREEHERDER_TEST_PROJECT"):
                     raise e
+                else:
+                    newrelic.agent.record_exception(params={"job": datum})
+
+                # skip any jobs that hit errors in these stages.
+                continue
 
         # Store all reference data and retrieve associated ids
         id_lookups = self.refdata_model.set_all_reference_data()

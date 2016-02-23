@@ -29,7 +29,7 @@ class JobLoader:
         "unknown": "unknown"
     }
 
-    def process_job_list(self, all_jobs_list, raise_errors=False):
+    def process_job_list(self, all_jobs_list):
         if not isinstance(all_jobs_list, list):
             all_jobs_list = [all_jobs_list]
 
@@ -51,8 +51,7 @@ class JobLoader:
                             logger.warn("Skipping job due to bad attribute",
                                         exc_info=1)
 
-                jobs_model.store_job_data(storeable_job_list,
-                                          raise_errors=raise_errors)
+                jobs_model.store_job_data(storeable_job_list)
 
     def transform(self, pulse_job, rs_lookup):
         """
