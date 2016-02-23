@@ -42,14 +42,21 @@ class ResultSetViewSet(viewsets.ViewSet):
                 del(filter_params[param])
                 meta[param] = v
 
+        ts_lookup = jm.get_revision_timestamp_lookup(
+            [meta[x][:12] for x in ['fromchange', 'tochange'] if x in meta]
+        )
+
         # translate these params into our own filtering mechanism
         if 'fromchange' in meta:
+            short_rev = meta['fromchange'][:12]
             filter_params.update({
-                "push_timestamp__gte": jm.get_revision_timestamp(meta['fromchange'])
+                "push_timestamp__gte": ts_lookup[short_rev]["push_timestamp"]
+
             })
         if 'tochange' in meta:
+            short_rev = meta['tochange'][:12]
             filter_params.update({
-                "push_timestamp__lte": jm.get_revision_timestamp(meta['tochange'])
+                "push_timestamp__lte": ts_lookup[short_rev]["push_timestamp"]
             })
         if 'startdate' in meta:
             filter_params.update({
@@ -63,18 +70,11 @@ class ResultSetViewSet(viewsets.ViewSet):
                 "push_timestamp__lt": to_timestamp(meta['enddate']) + 86400
             })
         if 'revision' in meta:
-            # TODO: modify to use ``short_revision`` or ``long_revision`` fields
-            # when addressing Bug 1079796
-            # It ends up that we store sometimes long, sometimes short
-            # revisions in the ``revision`` field, depending on the repo/source.
-            # (gaia, for instance).  So we must search
-            # for EITHER the short or long, when long is passed in.
-            if len(meta['revision']) > 12:
-                filter_params.update(
-                    {"revision__in": "{},{}".format(meta['revision'], meta['revision'][:12])}
-                )
-            else:
-                filter_params.update({"revision": meta['revision']})
+            # Allow the user to search by either the short or long version of
+            # a revision.
+            rev_key = "revisions_long_revision" \
+                if len(meta['revision']) == 40 else "revisions_short_revision"
+            filter_params.update({rev_key: meta['revision']})
 
         meta['filter_params'] = filter_params
 

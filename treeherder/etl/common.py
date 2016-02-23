@@ -123,17 +123,6 @@ def is_blacklisted_buildername(buildername):
     return False
 
 
-def generate_revision_hash(revisions):
-    """Builds the revision hash for a set of revisions"""
-
-    sh = hashlib.sha1()
-    sh.update(
-        ''.join(map(lambda x: str(x), revisions))
-    )
-
-    return sh.hexdigest()
-
-
 def generate_job_guid(request_id, buildername, endtime=None):
     """Converts a request_id and buildername into a guid"""
     sh = hashlib.sha1()

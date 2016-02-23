@@ -142,7 +142,6 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
 
         # Provide minimal json structure validation
         self.required_properties = {
-            'revision_hash': {'len': 50, 'cb': self.validate_existence},
             'project': {'cb': self.validate_existence},
             'job': {'type': dict, 'cb': self.validate_existence},
             'job.job_guid': {'len': 50, 'cb': self.validate_existence}
@@ -150,6 +149,9 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
 
     def add_revision_hash(self, revision_hash):
         self.data['revision_hash'] = revision_hash
+
+    def add_revision(self, revision):
+        self.data['revision'] = revision
 
     def add_coalesced_guid(self, guids):
         if guids:
@@ -250,7 +252,7 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
 
         self.data = {
 
-            'revision_hash': '',
+            'revision': '',
 
             'project': '',
 
@@ -396,7 +398,6 @@ class TreeherderResultSet(TreeherderData, ValidatorMixin):
         super(TreeherderResultSet, self).__init__(data)
 
         self.required_properties = {
-            'revision_hash': {'len': 50, 'cb': self.validate_existence},
             'revisions': {'type': list, 'cb': self.validate_existence},
             'author': {'len': 150, 'cb': self.validate_existence}
             }
@@ -406,8 +407,6 @@ class TreeherderResultSet(TreeherderData, ValidatorMixin):
         self.data = {
             # Stored in project_jobs_1.result_set.push_timestamp
             'push_timestamp': None,
-            # Stored in project_jobs_1.result_set.revision_hash
-            'revision_hash': '',
             # Stored in project_jobs_1.result_set.author
             'author': '',
             # Stored in project_jobs_1.revision, new row per revision
@@ -421,6 +420,9 @@ class TreeherderResultSet(TreeherderData, ValidatorMixin):
 
     def add_revision_hash(self, revision_hash):
         self.data['revision_hash'] = revision_hash
+
+    def add_top_revision(self, revision):
+        self.data['revision'] = revision
 
     def add_author(self, author):
         self.data['author'] = author

@@ -137,7 +137,7 @@ class TreeherderResultsetTest(DataSetup, unittest.TestCase):
             trs = TreeherderResultSet()
 
             trs.add_push_timestamp(resultset['push_timestamp'])
-            trs.add_revision_hash(resultset['revision_hash'])
+            trs.add_top_revision(resultset['revision'])
             trs.add_author(resultset['author'])
             trs.add_type('push')
 
@@ -161,22 +161,6 @@ class TreeherderResultsetTest(DataSetup, unittest.TestCase):
             trs_struct = TreeherderResultSet(resultset)
 
             self.compare_structs(trs_struct.data, resultset)
-
-    def test_revision_hash_validation(self):
-
-        trs = TreeherderResultSet(self.resultset_data[0])
-        trs.data['revision_hash'] = None
-
-        self.assertRaises(TreeherderClientError, trs.validate)
-
-    def test_revision_hash_len_validation(self):
-
-        trs = TreeherderResultSet(self.resultset_data[0])
-        trs.data['revision_hash'] = (
-            'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-            'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-
-        self.assertRaises(TreeherderClientError, trs.validate)
 
 
 class TreeherderResultSetCollectionTest(DataSetup, unittest.TestCase):
@@ -304,7 +288,7 @@ class TreeherderJobTest(DataSetup, unittest.TestCase):
 
             tj = TreeherderJob()
 
-            tj.add_revision_hash(job['revision_hash'])
+            tj.add_revision(job['revision'])
             tj.add_project(job['project'])
             tj.add_coalesced_guid(job['coalesced'])
             tj.add_job_guid(job['job']['job_guid'])

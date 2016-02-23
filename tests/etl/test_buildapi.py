@@ -116,7 +116,7 @@ def test_ingest_pending_jobs(jm, initial_data,
 
     new_jobs_were_added = etl_process.run()
     assert new_jobs_were_added is True
-    assert cache.get(CACHE_KEYS['pending']) == set([24575179])
+    assert cache.get(CACHE_KEYS['pending']) == {24575179}
 
     new_jobs_were_added = etl_process.run()
     assert new_jobs_were_added is False
@@ -139,7 +139,7 @@ def test_ingest_running_jobs(jm, initial_data,
 
     new_jobs_were_added = etl_process.run()
     assert new_jobs_were_added is True
-    assert cache.get(CACHE_KEYS['running']) == set([24767134])
+    assert cache.get(CACHE_KEYS['running']) == {24767134}
 
     new_jobs_were_added = etl_process.run()
     assert new_jobs_were_added is False
@@ -279,7 +279,7 @@ def test_ingest_builds4h_jobs_missing_branch(jm, initial_data,
 
 
 def _do_missing_resultset_test(jm, etl_process):
-    new_revision = '222222222222'
+    new_revision = "222222222222b344655ed7be9a408d2970a736c4"
     pushlog_content = json.dumps(
         {
             "pushes":
@@ -287,7 +287,7 @@ def _do_missing_resultset_test(jm, etl_process):
                     "date": 1378288232,
                     "changesets": [
                         {
-                            "node": new_revision + "b344655ed7be9a408d2970a736c4",
+                            "node": new_revision,
                             "tags": [],
                             "author": "John Doe <jdoe@mozilla.com>",
                             "branch": "default",
@@ -298,11 +298,15 @@ def _do_missing_resultset_test(jm, etl_process):
                 }}
         }
     )
-    pushlog_fake_url = "https://hg.mozilla.org/mozilla-central/json-pushes/?full=1&version=2&changeset=" + new_revision
-    responses.add(responses.GET, pushlog_fake_url,
-                  body=pushlog_content, status=200,
-                  match_querystring=True,
-                  content_type='application/json')
+
+    # pending (and sometimes running) jobs only come to us with short revisions
+    # but complete are 40, at least in our dest data.
+    for revision in [new_revision, new_revision[:12]]:
+        rev_url = "https://hg.mozilla.org/mozilla-central/json-pushes/?full=1&version=2&changeset=" + revision
+        responses.add(responses.GET, rev_url,
+                      body=pushlog_content, status=200,
+                      match_querystring=True,
+                      content_type='application/json')
 
     etl_process.run()
 

@@ -1,14 +1,13 @@
 from treeherder.etl import common
 
 
-def test_get_revision_hash(initial_data,
-                           result_set_stored, mock_fetch_json):
-    """That the correct revision_hash is retrieved if the revision exists"""
-    project = result_set_stored[0]['revisions'][0]['repository']
+def test_get_revision(initial_data, test_project,
+                      result_set_stored, mock_fetch_json):
+    """That the correct revision is retrieved if the revision exists"""
     # todo: Continue using short revisions until Bug 1199364
-    short_revision = result_set_stored[0]['revisions'][0]['revision'][:12]
-    resultset = common.lookup_revisions({project: [short_revision]})
-    assert resultset[project][short_revision]['revision_hash'] == result_set_stored[0]['revision_hash']
+    long_revision = result_set_stored[0]['revisions'][0]['revision']
+    resultset = common.lookup_revisions({test_project: [long_revision]})
+    assert resultset[test_project][long_revision]['revision'] == result_set_stored[0]['revision']
 
 
 def test_get_revision_hash_none(mock_fetch_json, test_project,

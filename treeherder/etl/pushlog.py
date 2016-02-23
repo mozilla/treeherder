@@ -5,7 +5,6 @@ from django.core.cache import cache
 
 from treeherder.client import TreeherderResultSetCollection
 from treeherder.etl.common import (fetch_json,
-                                   generate_revision_hash,
                                    get_not_found_onhold_push)
 
 from .mixins import ClientLoaderMixin
@@ -33,8 +32,6 @@ class HgPushlogTransformerMixin(object):
 
             result_set['active_status'] = push.get('active_status', 'active')
 
-            rev_hash_components = []
-
             # iterate over the revisions
             # we only want to ingest the last 200 revisions.
             for change in push['changesets'][-200:]:
@@ -44,13 +41,11 @@ class HgPushlogTransformerMixin(object):
                 revision['branch'] = change['branch']
                 revision['comment'] = change['desc']
                 revision['repository'] = repository
-                rev_hash_components.append(change['node'])
-                rev_hash_components.append(change['branch'])
 
                 # append the revision to the push
                 result_set['revisions'].append(revision)
 
-            result_set['revision_hash'] = generate_revision_hash(rev_hash_components)
+            result_set['revision'] = result_set["revisions"][-1]["revision"]
 
             if repository not in th_collections:
                 th_collections[repository] = TreeherderResultSetCollection()
