@@ -149,7 +149,7 @@
         "dvcs_type": "hg",
         "name": "addon-sdk",
         "url": "https://hg.mozilla.org/projects/addon-sdk",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "jetpack",
         "repository_group": 1,
         "description": ""
