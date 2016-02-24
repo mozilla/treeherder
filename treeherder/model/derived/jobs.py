@@ -912,32 +912,17 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 pass
 
         for datum in data:
-            # Make sure we can deserialize the json object
-            # without raising an exception
             try:
+                # TODO: this might be a good place to check the datum against
+                # a JSON schema to ensure all the fields are valid.  Then
+                # the exception we caught would be much more informative.  That
+                # being said, if/when we transition to only using the pulse
+                # job consumer, then the data will always be vetted with a
+                # JSON schema already.
                 job = datum['job']
                 revision_hash = datum['revision_hash']
                 coalesced = datum.get('coalesced', [])
 
-                # TODO: Need a job structure validation step here. Now that
-                # everything works in list context we cannot detect what
-                # object is responsible for what error. If we validate here
-                # we can capture the error and associate it with the object
-                # and also skip it before generating any database errors.
-            except JobDataError as e:
-                if settings.DEBUG:
-                    raise e
-                else:
-                    newrelic.agent.record_exception(params={"job": datum})
-                continue
-            except Exception as e:
-                if settings.DEBUG:
-                    raise e
-                else:
-                    newrelic.agent.record_exception(params={"job": datum})
-                continue
-
-            try:
                 # json object can be successfully deserialized
                 # load reference data
                 job_guid = self._load_ref_and_job_data_structs(
@@ -963,7 +948,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 if settings.DEBUG:
                     raise e
                 else:
-                    newrelic.agent.record_exception(params={"job": job})
+                    newrelic.agent.record_exception(params={"job": datum})
+
+                # skip any jobs that hit errors in these stages.
+                continue
+
         # Store all reference data and retrieve associated ids
         id_lookups = self.refdata_model.set_all_reference_data()
 
