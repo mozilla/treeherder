@@ -895,5 +895,31 @@
         "repository_group": 2,
         "description": ""
     }
+},
+{
+    "pk": 73,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "mozilla-esr45",
+        "url": "https://hg.mozilla.org/releases/mozilla-esr45",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 2,
+        "description": ""
+    }
+},
+{
+    "pk": 74,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "comm-esr45",
+        "url": "https://hg.mozilla.org/releases/comm-esr45",
+        "active_status": "active",
+        "codebase": "comm",
+        "repository_group": 2,
+        "description": ""
+    }
 }
 ]
