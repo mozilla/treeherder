@@ -6,13 +6,12 @@ treeherder.directive(
         return {
             templateUrl: 'partials/perf/comparetable.html',
             scope: {
+                frameworks: '=',
                 titles: '=',
                 compareResults: '=',
                 testList: '=',
-                frameworkId: '=',
-                filter: '=',
-                showOnlyImportant: '=',
-                showOnlyConfident: '='
+                filterOptions: '=',
+                filterByFramework: '@'
             },
             link: function(scope, element, attrs) {
                 scope.getCompareClasses = PhCompare.getCompareClasses;
@@ -20,17 +19,18 @@ treeherder.directive(
                     return !matchText || item.toLowerCase().indexOf(matchText.toLowerCase()) > (-1);
                 }
                 function shouldBeShown(result) {
-                    return (scope.frameworkId === undefined || result.frameworkId === scope.frameworkId) &&
-                        (!scope.showOnlyImportant || result.isMeaningful) &&
-                        (!scope.showOnlyConfident || result.isConfident);
+                    return (!scope.filterByFramework || _.isUndefined(scope.filterOptions.framework) ||
+                            result.frameworkId === scope.filterOptions.framework.id) &&
+                        (!scope.filterOptions.showOnlyImportant || result.isMeaningful) &&
+                        (!scope.filterOptions.showOnlyConfident || result.isConfident);
                 }
                 function filterResult(results, key) {
-                    if (scope.filter === undefined) {
+                    if (_.isUndefined(scope.filterOptions.filter)) {
                         return results;
                     }
                     return _.filter(results, function(result) {
                         var testCondition = key + ' ' + result.name;
-                        return _.every(scope.filter.split(' '), function(matchText) {
+                        return _.every(scope.filterOptions.filter.split(' '), function(matchText) {
                             return filter(testCondition, matchText) && shouldBeShown(result);
                         });
                     });
@@ -50,7 +50,10 @@ treeherder.directive(
                     scope.hasNoResults = _.isEmpty(scope.filteredResultList);
                 }
 
-                scope.$watchGroup(['frameworkId', 'filter', 'showOnlyImportant', 'showOnlyConfident'],
+                scope.$watchGroup([
+                    'filterOptions.framework', 'filterOptions.filter',
+                    'filterOptions.showOnlyImportant',
+                    'filterOptions.showOnlyConfident'],
                                   function() {
                                       updateFilteredTestList();
                                   });

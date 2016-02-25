@@ -14,38 +14,13 @@
         <strong>tests with no results:</strong>
         {{testNoResults}}
       </div>
-      <form class="form-inline">
-        <div class="form-group">
-          <select ng-model="filterOptions.framework"
-                  ng-options="framework.name for framework in frameworks track by framework.id"
-                  ng-change="updateFilters()"/>
-        </div>
-        &nbsp;
-        <div class="form-group">
-            <input id="filter" type="text" class="form-control" ng-model="filterOptions.filter" placeholder="filter text e.g. linux tp5o" ng-change="updateFilters()" ng-model-options="{debounce: 250}"/>
-        </div>
-        <div class="checkbox" uib-tooltip="Non-trivial changes (2%+)">
-          <label>
-            <input type="checkbox" ng-model="filterOptions.showOnlyImportant" ng-change="updateFilters()"/>
-            Show only important changes
-          </label>
-        </div>
-        <div class="checkbox" uib-tooltip="At least 6 datapoints OR 2+ datapoints and a large difference">
-          <label>
-            <input type="checkbox" ng-model="filterOptions.showOnlyConfident" ng-change="updateFilters()"/>
-            Hide uncertain results
-          </label>
-        </div>
-      </form>
-      <hr/>
       <ph-compare-table
          titles="titles"
          test-list="testList"
          compare-results="compareResults"
-         framework-id="filterOptions.framework.id"
-         filter="filterOptions.filter"
-         show-only-important="filterOptions.showOnlyImportant"
-         show-only-confident="filterOptions.showOnlyConfident">
+         frameworks="frameworks"
+         filter-options="filterOptions"
+         filter-by-framework="1">
       </ph-compare-table>
     </div>
   </div>

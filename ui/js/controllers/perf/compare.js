@@ -302,20 +302,6 @@ perf.controller('CompareResultsCtrl', [
         $scope.dataLoading = true;
         $scope.getCompareClasses = PhCompare.getCompareClasses;
 
-        $scope.updateFilters = function() {
-            $state.transitionTo('compare', {
-                framework: $scope.filterOptions.framework.id,
-                filter: $scope.filterOptions.filter,
-                showOnlyImportant: Boolean($scope.filterOptions.showOnlyImportant) ? undefined : 0,
-                showOnlyConfident: Boolean($scope.filterOptions.showOnlyConfident) ? 1 : undefined
-            }, {
-                location: true,
-                inherit: true,
-                relative: $state.$current,
-                notify: false
-            });
-        };
-
         var optionCollectionMap = {};
         var loadRepositories = ThRepositoryModel.load();
         var loadOptions = ThOptionCollectionModel.getMap().then(
@@ -346,6 +332,24 @@ perf.controller('CompareResultsCtrl', [
                 showOnlyConfident: $stateParams.showOnlyConfident !== undefined ||
                     parseInt($stateParams.showOnlyConfident)
             };
+
+            $scope.$watchGroup(['filterOptions.frameworkId',
+                                'filterOptions.filter',
+                                'filterOptions.showOnlyImportant',
+                                'filterOptions.showOnlyConfident'],
+                     function() {
+                         $state.transitionTo('compare', {
+                             framework: $scope.filterOptions.framework.id,
+                             filter: $scope.filterOptions.filter,
+                             showOnlyImportant: Boolean($scope.filterOptions.showOnlyImportant) ? undefined : 0,
+                             showOnlyConfident: Boolean($scope.filterOptions.showOnlyConfident) ? 1 : undefined
+                         }, {
+                             location: true,
+                             inherit: true,
+                             relative: $state.$current,
+                             notify: false
+                         });
+                     });
 
             $scope.originalProject = ThRepositoryModel.getRepo(
                 $stateParams.originalProject);
@@ -401,6 +405,30 @@ perf.controller('CompareSubtestResultsCtrl', [
             $scope.subtestTitle = ($scope.platformList[0].split(' ')[0] + " " +
                                    $scope.testList[0].split(' ')[0]);
             window.document.title = $scope.subtestTitle + " subtest comparison";
+
+            $scope.filterOptions = {
+                filter: $stateParams.filter || "",
+                showOnlyImportant: $stateParams.showOnlyImportant !== undefined &&
+                    parseInt($stateParams.showOnlyImportant),
+                showOnlyConfident: $stateParams.showOnlyConfident !== undefined &&
+                    parseInt($stateParams.showOnlyConfident)
+            };
+
+            $scope.$watchGroup(['filterOptions.filter',
+                                'filterOptions.showOnlyImportant',
+                                'filterOptions.showOnlyConfident'],
+                     function() {
+                         $state.transitionTo('comparesubtest', {
+                             filter: $scope.filterOptions.filter,
+                             showOnlyImportant: Boolean($scope.filterOptions.showOnlyImportant) ? 1 : undefined,
+                             showOnlyConfident: Boolean($scope.filterOptions.showOnlyConfident) ? 1 : undefined
+                         }, {
+                             location: true,
+                             inherit: true,
+                             relative: $state.$current,
+                             notify: false
+                         });
+                     });
 
             $scope.testList.forEach(function(testName) {
                 $scope.titles[testName] = $scope.platformList[0] + ': ' +

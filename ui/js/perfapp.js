@@ -21,11 +21,11 @@ perf.config(function($compileProvider, $httpProvider, $stateProvider, $urlRouter
         controller: 'GraphsCtrl'
     }).state('compare', {
         templateUrl: 'partials/perf/comparectrl.html',
-        url: '/compare?originalProject&originalRevision&newProject&newRevision&hideMinorChanges&framework&filter&showOnlyImportant&showOnlyConfident',
+        url: '/compare?originalProject&originalRevision&newProject&newRevision&hideMinorChanges&framework&filter&showOnlyImportant&showOnlyConfidentw',
         controller: 'CompareResultsCtrl'
     }).state('comparesubtest', {
         templateUrl: 'partials/perf/comparesubtestctrl.html',
-        url: '/comparesubtest?originalProject&originalRevision&newProject&newRevision&originalSignature&newSignature',
+        url: '/comparesubtest?originalProject&originalRevision&newProject&newRevision&originalSignature&newSignature&filter&showOnlyImportant&showOnlyConfident',
         controller: 'CompareSubtestResultsCtrl'
     }).state('comparechooser', {
         title: 'Compare',
