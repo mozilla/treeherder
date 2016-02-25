@@ -2,9 +2,9 @@
 
 perf.controller('e10sCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$http',
-    'ThOptionCollectionModel', 'PhSeries', 'PhCompare',
+    'ThOptionCollectionModel', 'PhSeries', 'PhCompare', 'thServiceDomain',
     function e10sCtrl($state, $stateParams, $scope, $rootScope, $q, $http,
-                      ThOptionCollectionModel, PhSeries, PhCompare) {
+                      ThOptionCollectionModel, PhSeries, PhCompare, thServiceDomain) {
         var projectName = 'mozilla-inbound';
         var interval = 86400*2;
 
