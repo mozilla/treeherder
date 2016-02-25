@@ -21,17 +21,22 @@ perf.config(function($compileProvider, $httpProvider, $stateProvider, $urlRouter
         controller: 'GraphsCtrl'
     }).state('compare', {
         templateUrl: 'partials/perf/comparectrl.html',
-        url: '/compare?originalProject&originalRevision&newProject&newRevision&hideMinorChanges&framework&filter&showOnlyImportant&showOnlyConfident',
+        url: '/compare?originalProject&originalRevision&newProject&newRevision&hideMinorChanges&framework&filter&showOnlyImportant&showOnlyConfidentw',
         controller: 'CompareResultsCtrl'
     }).state('comparesubtest', {
         templateUrl: 'partials/perf/comparesubtestctrl.html',
-        url: '/comparesubtest?originalProject&originalRevision&newProject&newRevision&originalSignature&newSignature',
+        url: '/comparesubtest?originalProject&originalRevision&newProject&newRevision&originalSignature&newSignature&filter&showOnlyImportant&showOnlyConfident',
         controller: 'CompareSubtestResultsCtrl'
     }).state('comparechooser', {
         title: 'Compare',
         templateUrl: 'partials/perf/comparechooserctrl.html',
         url: '/comparechooser?originalProject&originalRevision&newProject&newRevision',
         controller: 'CompareChooserCtrl'
+    }).state('e10s', {
+        title: 'e10s talos dashboard',
+        templateUrl: 'partials/perf/e10s.html',
+        url: '/e10s?&filter&showOnlyImportant&showOnlyConfident',
+        controller: 'e10sCtrl'
     });
 
     $urlRouterProvider.otherwise('/graphs');

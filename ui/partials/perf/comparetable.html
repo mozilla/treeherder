@@ -1,11 +1,34 @@
+<form class="form-inline">
+  <div class="form-group" ng-show="filterByFramework">
+    <select ng-model="filterOptions.framework"
+            ng-options="framework.name for framework in frameworks track by framework.id"/>
+    &nbsp;
+  </div>
+  <div class="form-group">
+    <input id="filter" type="text" class="form-control" ng-model="filterOptions.filter" placeholder="filter text e.g. linux tp5o" ng-model-options="{debounce: 250}"/>
+  </div>
+  <div class="checkbox" uib-tooltip="Non-trivial changes (2%+)">
+    <label>
+      <input type="checkbox" ng-model="filterOptions.showOnlyImportant"/>
+      Show only important changes
+    </label>
+  </div>
+  <div class="checkbox" uib-tooltip="At least 6 datapoints OR 2+ datapoints and a large difference">
+    <label>
+      <input type="checkbox" ng-model="filterOptions.showOnlyConfident"/>
+      Hide uncertain results
+    </label>
+  </div>
+</form>
+<hr/>
 <table class="table table-condensed compare-table" style="table-layout: fixed;" ng-repeat="compareResults in filteredResultList | orderBy: 'testName'">
   <tbody>
     <tr class="subtest-header">
       <!-- Manually specify table widths because it's just easier this way -->
       <th class="test-title"><span style=" word-wrap: break-word;">{{titles[compareResults.testName]}}</span></th>
-      <th style="width: 140px;">Base</th>
+      <th style="width: 140px;">{{baseTitle}}</th>
       <th style="width: 30px;"><!-- less than / greater than --></th>
-      <th style="width: 140px;">New</th>
+      <th style="width: 140px;">{{newTitle}}</th>
       <th style="width: 80px;">Delta</th>
       <th style="width: 120px"><!-- Graphical difference --></th>
       <th style="width: 100px;">Confidence</th>

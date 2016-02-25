@@ -16,16 +16,21 @@ treeherder.factory('PhAlerts', [
             return _.result(_.find(phAlertStatusMap, {id: this.status}),
                             'text');
         };
-        Alert.prototype.getGraphsURL = function(timeRange, alertRepository) {
+        Alert.prototype.getGraphsURL = function(timeRange, alertRepository,
+                                                performanceFramework) {
             var signature = this.series_signature.signature_hash;
             var url = "#/graphs?timerange=" + timeRange +
                 "&series=[" + [alertRepository, signature, 1] + "]" +
                 "&selected=[" + [alertRepository, signature,] + "]";
-            _.forEach(thPerformanceBranches, function(performanceBranch) {
-                if (performanceBranch !== alertRepository) {
-                    url += "&series=[" + [performanceBranch, signature, 0] + "]";
-                }
-            });
+
+            // for talos only, automatically add related branches
+            if (performanceFramework.name === "talos") {
+                _.forEach(thPerformanceBranches, function(performanceBranch) {
+                    if (performanceBranch !== alertRepository) {
+                        url += "&series=[" + [performanceBranch, signature, 0] + "]";
+                    }
+                });
+            }
 
             return url;
         };

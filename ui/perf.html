@@ -31,6 +31,7 @@
       <a ng-class="{active: $state.includes('graphs')}" class="btn btn-view-nav" ui-sref="graphs">Graphs</a>
       <a ng-class="{active: $state.current.name.indexOf('compare') >= 0}" class="btn btn-view-nav" ui-sref="comparechooser">Compare</a>
       <a ng-class="{active: $state.current.name.indexOf('alerts') >= 0}" class="btn btn-view-nav" ui-sref="alerts({id: null, status: null, framework: null, filter: null, hideImprovements: null})">Alerts</a>
+      <a ng-class="{active: $state.current.name.indexOf('e10s') >= 0}" class="btn btn-view-nav" ui-sref="e10s">e10s</a>
       <div class="nav navbar-nav navbar-right">
         <!-- Help Menu -->
         <span class="dropdown">
@@ -92,6 +93,7 @@
   <script src="js/controllers/perf/compare.js"></script>
   <script src="js/controllers/perf/graphs.js"></script>
   <script src="js/controllers/perf/alerts.js"></script>
+  <script src="js/controllers/perf/e10s.js"></script>
   <script src="js/directives/treeherder/persona.js"></script>
   <script src="js/directives/perf/compare.js"></script>
   <script src="js/perfapp.js"></script>
