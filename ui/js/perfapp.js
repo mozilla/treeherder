@@ -32,6 +32,11 @@ perf.config(function($compileProvider, $httpProvider, $stateProvider, $urlRouter
         templateUrl: 'partials/perf/comparechooserctrl.html',
         url: '/comparechooser?originalProject&originalRevision&newProject&newRevision',
         controller: 'CompareChooserCtrl'
+    }).state('e10s', {
+        title: 'e10s talos dashboard',
+        templateUrl: 'partials/perf/e10s.html',
+        url: '/e10s?&filter&showOnlyImportant&showOnlyConfident',
+        controller: 'e10sCtrl'
     });
 
     $urlRouterProvider.otherwise('/graphs');

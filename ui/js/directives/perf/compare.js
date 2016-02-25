@@ -6,6 +6,8 @@ treeherder.directive(
         return {
             templateUrl: 'partials/perf/comparetable.html',
             scope: {
+                baseTitle: '@',
+                newTitle: '@',
                 frameworks: '=',
                 titles: '=',
                 compareResults: '=',
@@ -14,6 +16,13 @@ treeherder.directive(
                 filterByFramework: '@'
             },
             link: function(scope, element, attrs) {
+                if (!scope.baseTitle) {
+                    scope.baseTitle = "Base";
+                }
+                if (!scope.newTitle) {
+                    scope.newTitle = "New";
+                }
+
                 scope.getCompareClasses = PhCompare.getCompareClasses;
                 function filter(item, matchText) {
                     return !matchText || item.toLowerCase().indexOf(matchText.toLowerCase()) > (-1);

@@ -44,6 +44,8 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thSe
         var options = _getSeriesOptions(signatureProps, optionCollectionMap);
 
         return { name: _getSeriesName(signatureProps, optionCollectionMap),
+                 suite: signatureProps['suite'],
+                 test: signatureProps['test'] || null,
                  projectName: projectName, signature: signature,
                  platform: platform, options: options,
                  frameworkId: signatureProps.framework_id,
