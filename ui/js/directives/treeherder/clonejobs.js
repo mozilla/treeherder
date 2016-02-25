@@ -197,12 +197,20 @@ treeherder.directive('thCloneJobs', [
                     });
                     if (isGroupExpanded(gi.jgObj)) {
                         gi.jgObj.groupState = "collapsed";
-                        addGroupJobsAndCounts(gi.jgObj, gi.platformGroupEl);
+                        // fade out to hidden, then show again
+                        gi.grpJobList.fadeOut("fast", function() {
+                            gi.grpJobList.show();
+                            addGroupJobsAndCounts(gi.jgObj, gi.platformGroupEl);
+                        });
                     } else {
                         gi.grpCountList.empty();
                         gi.jgObj.groupState = "expanded";
-                        gi.grpJobList.empty();
-                        gi.grpJobList.append(renderJobBtnEls(gi.jgObj));
+                        // render as hidden initially, then fade in
+                        gi.grpJobList.hide();
+                        gi.grpJobList.html(renderJobBtnEls(gi.jgObj));
+                        gi.grpJobList.fadeIn("fast", function() {
+                            gi.grpJobList.css("opacity", "");
+                        });
                     }
                 }
             }
