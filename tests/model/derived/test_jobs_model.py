@@ -363,7 +363,7 @@ def test_store_result_set_data(jm, initial_data, sample_resultset):
     )
     revision_ids = jm.get_dhub().execute(
         proc="jobs_test.selects.revision_ids",
-        key_column='revision',
+        key_column='short_revision',
         return_type='dict'
     )
 

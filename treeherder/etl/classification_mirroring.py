@@ -56,7 +56,7 @@ class ElasticsearchDocRequest(object):
             # with TBPL's legacy output format.
             "starttime": str(job_data["start_timestamp"]),
             "tree": self.project,
-            "rev": revision_list[0]["revision"],
+            "rev": revision_list[0]["short_revision"],
             "bug": str(self.bug_id),
             "who": self.who,
             "timestamp": str(self.classification_timestamp),

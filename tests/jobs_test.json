@@ -31,7 +31,7 @@
             "sql": "SELECT res.push_timestamp,
                            rev.comments,
                            rev.repository_id,
-                           rev.revision
+                           rev.short_revision
                 FROM `revision` as rev
                 LEFT JOIN `revision_map` as revmap
                     ON rev.id = revmap.revision_id
@@ -52,7 +52,7 @@
             "host_type": "master_host"
         },
         "revision_ids": {
-            "sql": "SELECT `id`, `revision` FROM `revision`",
+            "sql": "SELECT `id`, `short_revision` FROM `revision`",
             "host_type": "master_host"
         },
         "revision_map": {
