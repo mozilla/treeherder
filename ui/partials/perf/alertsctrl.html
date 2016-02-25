@@ -123,7 +123,7 @@
             </span>
           </span>)&nbsp;&nbsp;
           <span class="result-links">
-            <a href="{{alert.getGraphsURL(alertSummary.resultSetMetadata.timeRange, alertSummary.repository)}}" target="_blank">graph</a>
+            <a href="{{alert.getGraphsURL(alertSummary.resultSetMetadata.timeRange, alertSummary.repository, alertSummary.framework)}}" target="_blank">graph</a>
             <span> · </span>
             <a href="#/comparesubtest?originalProject={{alertSummary.repository}}&originalRevision={{alertSummary.prevResultSetMetadata.revision}}&newProject={{alertSummary.repository}}&newRevision={{alertSummary.resultSetMetadata.revision}}&originalSignature={{alert.series_signature.signature_hash}}&newSignature={{alert.series_signature.signature_hash}}" target="_blank">subtests</a>
           </span>

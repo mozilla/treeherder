@@ -17,14 +17,14 @@ treeherder.factory('PhAlerts', [
                             'text');
         };
         Alert.prototype.getGraphsURL = function(timeRange, alertRepository,
-                                                performanceFramework) {
+                                                performanceFrameworkId) {
             var signature = this.series_signature.signature_hash;
             var url = "#/graphs?timerange=" + timeRange +
                 "&series=[" + [alertRepository, signature, 1] + "]" +
                 "&selected=[" + [alertRepository, signature,] + "]";
 
             // for talos only, automatically add related branches
-            if (performanceFramework.name === "talos") {
+            if (performanceFrameworkId === 1) {
                 _.forEach(thPerformanceBranches, function(performanceBranch) {
                     if (performanceBranch !== alertRepository) {
                         url += "&series=[" + [performanceBranch, signature, 0] + "]";
