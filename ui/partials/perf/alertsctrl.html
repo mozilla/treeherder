@@ -1,93 +1,207 @@
-<div class="container-fluid">
-  <div class="alert alert-danger" role="alert">
-    Perfherder alerts are experimental and not to be trusted (yet)
+<div class="container-fluid alerts-container">
+  <div class="alert alert-warning" ng-show="!user.is_staff" role="alert">
+    You must be logged into perfherder/treeherder and be a sheriff to make changes
   </div>
+  <form class="form-inline">
+    <span ng-if="!alertId" ng-cloak>
+      <div class="form-group">
+        <select ng-model="filterOptions.status"
+                ng-options="status.text for status in statuses track by status.id"
+                ng-change="filtersUpdated()"/>
+      </div>
+      &nbsp;
+      <div class="form-group">
+        <select ng-model="filterOptions.framework"
+                ng-options="framework.name for framework in frameworks track by framework.id"
+                ng-change="filtersUpdated()"/>
+      </div>
+      &nbsp;
+    </span>
+    <div class="form-group">
+      <input id="filter" type="text" class="form-control" ng-model="filterOptions.filter" placeholder="filter text e.g. linux tp5o" ng-change="filtersUpdated()"/>
+    </div>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="filterOptions.hideImprovements" ng-change="filtersUpdated()"/>
+        Hide improvements
+      </label>
+    </div>
+  </form>
   <hr/>
-  <div class="panel panel-default" ng-repeat="alertSummary in alertSummaries">
-    <div class="panel-heading">
-      <a href="#/alerts?id={{alertSummary.id}}" class="alert-title">{{alertSummary.title}} <span class="fa fa-external-link icon-superscript"/></a>
-      <ul class="list-unstyled alert-metadata">
-        <li>{{alertSummary.platforms.join(' / ')}}</li>
-        <li>{{alertSummary.resultSetMetadata.dateStr}}</li>
-        <li ng-if="alertSummary.pushURL">
-          <a href="{{alertSummary.pushURL}}">{{alertSummary.resultSetMetadata.revision}}…{{alertSummary.prevResultSetMetadata.revision}}</a>
-        </li>
-        <li ng-if="!alertSummary.pushURL">
+  <p class="lead text-center" ng-show="alertSummaries && !alertSummaries.length">
+    No alerts for framework "{{filterOptions.framework.name}}" with status "{{filterOptions.status.text}}"
+  </p>
+  <div class="panel panel-default alert-summary" ng-repeat="alertSummary in alertSummaries" ng-if="alertSummary.anyVisible">
+    <div class="panel-heading alert-summary-heading">
+      <div class="alert-summary-header-element">
+        <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alertSummary.allSelected" ng-change="selectNoneOrSelectAll(alertSummary)"/><!-- select 'em all checkbox -->
+      </div>
+      <div class="alert-summary-title">
+        <a class="anchor" href="#/alerts?id={{alertSummary.id}}" ng-class="{'alert-summary-title-invalid': alertSummary.status==4}">
+          Alert #{{alertSummary.id}} - {{alertSummary.repository}} - {{alertSummary.getTitle()}} <span class="fa fa-external-link icon-superscript"/>
+        </a>
+        <br/>
+        {{alertSummary.resultSetMetadata.dateStr}}
+        ·
+        <span ng-if="alertSummary.resultSetMetadata && alertSummary.resultSetMetadata" title="{{alertSummary.resultSetMetadata.comments}}" uib-dropdown>
+          <button id="push-dropdown" class="btn btn-link dropdown" uib-dropdown-toggle>
+            {{alertSummary.resultSetMetadata.revision}}<span class="caret"></span>
+          </button>
+          <ul class="uib-dropdown-menu" aria-labelledby="push-dropdown">
+            <li role="menuitem"><a href="{{alertSummary.jobsURL}}" target="_blank">Jobs</a></li>
+            <li role="menuitem"><a href="{{alertSummary.pushlogURL}}" target="_blank">Pushlog</a></li>
+          </ul>
+        </span>
+        <span ng-show="alertSummary.bug_number"> ·
+          <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{alertSummary.bug_number}}" target="_blank">
+            Bug {{alertSummary.bug_number}}
+          </a>
+        </span>
+        <span ng-if="!alertSummary.resultSetMetadata || !alertSummary.resultSetMetadata" class="text-danger">
           <!-- This shouldn't happen in production, only in development -->
-          <span class="text-danger">Unknown revision(s)</span>
-        </li>
-      </ul>
+          Unknown revision(s)
+        </span>
+      </div>
+      <div class="alert-summary-header-element">
+      </div>
+      <div class="alert-summary-header-element alert-summary-date">
+        <div ng-show="!user.is_staff" style="padding: 6px;">
+          {{alertSummary.getStatusText()}}
+        </div>
+        <div ng-show="user.is_staff" class="btn-group" uib-dropdown>
+          <button id="status-dropdown" class="btn btn-link status-dropdown" uib-dropdown-toggle>
+{{alertSummary.getStatusText()}}
+            <span class="caret"></span>
+          </button>
+          <ul class="uib-dropdown-menu" aria-labelledby="status-dropdown">
+            <li role="menuitem" ng-show="!alertSummary.bug_number">
+              <a ng-click="fileBug(alertSummary)">File bug</a>
+            </li>
+            <li role="menuitem" ng-show="!alertSummary.bug_number">
+              <a ng-click="linkToBug(alertSummary)">Link to bug</a>
+            </li>
+            <li role="menuitem" ng-show="alertSummary.bug_number">
+              <a ng-click="unlinkBug(alertSummary)">Unlink from bug</a>
+            </li>
+            <li role="menuitem" ng-if="alertSummary.isResolved()">
+              <a ng-click="alertSummary.markInvestigating()">Re-open</a>
+            </li>
+            <li role="menuitem"
+                ng-if="alertSummary.isInvestigating() || (alertSummary.isResolved() && !alertSummary.isWontfix())">
+              <a ng-click="alertSummary.markWontfix()">Mark as "won't fix"</a>
+            </li>
+            <li role="menuitem"
+                ng-if="alertSummary.isInvestigating() || (alertSummary.isResolved() && !alertSummary.isBackedout())">
+              <a ng-click="alertSummary.markBackedout()">Mark as backed out</a>
+            </li>
+            <li role="menuitem"
+                ng-if="alertSummary.isInvestigating() || (alertSummary.isResolved() && !alertSummary.isFixed())">
+              <a ng-click="alertSummary.markFixed()">Mark as fixed</a>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
-    <div class="panel-body">
-      <h4>Alerts</h4>
-      <table class="table table-striped compare-table">
-        <tr>
-          <!-- Manually specify table widths because it's just easier this way -->
-          <th class="test-title">
-            <span style=" word-wrap: break-word;">
-              Test
-            </span>
-          </th>
-          <th style="width: 140px;">Previous</th>
-          <th style="width: 30px;"><!-- less than / greater than --></th>
-          <th style="width: 140px;">New</th>
-          <th style="width: 80px;">Delta</th>
-          <th style="width: 120px"><!-- Graphical difference --></th>
-          <th style="width: 100px;">Confidence</th>
-        </tr>
-        <tr ng-repeat="alert in alertSummary.alerts">
-          <td class="test-title">
-            {{alert.title}}&nbsp;&nbsp;
-            <span class="result-links">
-              <a href="#/graphs?timerange={{alertSummary.resultSetMetadata.timeRange}}&series=[{{alertSummary.repository}},{{alert.series_signature.signature_hash}},1]&highlightedRevisions={{alertSummary.resultSetMetadata.revision}}">graph</a>
-            </span>
-          </td>
-          <td>{{alert.prev_value}}</td>
-          <td>
-            <span ng-class="{'compare-improvement': !alert.is_regression, 'compare-regression': alert.is_regression}">
-              <span ng-if="alert.prev_value < alert.new_value">
-                &lt;
-              </span>
-              <span ng-if="alert.prev_value > alert.new_value">
-                &gt;
-              </span>
-            </span>
-          </td>
-          <td>{{alert.new_value}}</td>
-          <td><span class="detail-hint" tooltip="Absolute difference: {{alert.amount_abs}}">{{alert.amount_pct}}%</span></td>
-          <td>
-            <div ng-if="alert.is_regression" style="margin: auto; width: 80%;"
-                 tooltip="Relative magnitude of change (scale from 0 - 20%+)">
-              <div class="bar bar-scale"
-                   style="width: {{100 - getCappedMagnitude(alert.amount_pct)}}%; height: 1em; float: left;">
-              </div>
-              <div class="bar bar-regression"
-                   style="width: {{getCappedMagnitude(alert.amount_pct)}}%; float: left;">
-              </div>
-            </div>
-            <div ng-if="!alert.is_regression" style="margin: auto; width: 80%;"
-                 tooltip="Relative magnitude of change (scale from 0 - 20%+)">
-              <div class="bar bar-improvement"
-                   style="width: {{getCappedMagnitude(alert.amount_pct)}}%; float: left;">
-              </div>
-              <div class="bar bar-scale"
-                   style="width: {{100 - getCappedMagnitude(alert.amount_pct)}}%; float: left; ">
-              </div>
-            </div>
-          </td>
 
-          <td>
-            <span class="detail-hint"
-                  tooltip="Confidence value as calculated by Perfherder alerts. Note that this is NOT the same as the calculation used in the compare view"
-                  tooltip-placement="left">
-              {{alert.t_value}}
+    <table class="table table-compact compare-table">
+      <tr ng-repeat="alert in alertSummary.alerts" ng-show="alert.visible">
+        <td class="alert-checkbox">
+          <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alert.selected" ng-change="alertSelected(alertSummary)"/>
+        </td>
+        <td class="alert-title">
+          <span ng-class="{'alert-strike': alert.isInvalid() || (alert.related_summary_id && alert.related_summary_id !== alertSummary.id)}">
+            {{alert.title}}
+          </span>
+          &nbsp;(<span ng-class="{'alert-invalid': alert.isInvalid(), 'alert-untriaged': alert.isUntriaged()}">{{alert.getStatusText()}}</span><span ng-show="alert.related_summary_id">
+            <!-- Reassigned or downstream *to* another alert -->
+            <span ng-if="alert.related_summary_id !== alertSummary.id">
+              to <a href="#/alerts?id={{alert.related_summary_id}}" target="_blank">alert #{{alert.related_summary_id}}</a>
             </span>
-          </td>
-        </tr>
-      </table>
+            <!-- Reassigned or downstream *from* the another alert -->
+            <span ng-if="alert.related_summary_id === alertSummary.id">
+              from <a href="#/alerts?id={{alert.summary_id}}" target="_blank">alert #{{alert.summary_id}}</a>
+            </span>
+          </span>)&nbsp;&nbsp;
+          <span class="result-links">
+            <a href="{{alert.getGraphsURL(alertSummary.resultSetMetadata.timeRange, alertSummary.repository, alertSummary.framework)}}" target="_blank">graph</a>
+            <span> · </span>
+            <a href="#/comparesubtest?originalProject={{alertSummary.repository}}&originalRevision={{alertSummary.prevResultSetMetadata.revision}}&newProject={{alertSummary.repository}}&newRevision={{alertSummary.resultSetMetadata.revision}}&originalSignature={{alert.series_signature.signature_hash}}&newSignature={{alert.series_signature.signature_hash}}" target="_blank">subtests</a>
+          </span>
+        </td>
+        <td class="alert-value">{{alert.prev_value}}</td>
+        <td class="alert-comparison">
+          <span ng-class="{'compare-improvement': !alert.is_regression, 'compare-regression': alert.is_regression}">
+            <span ng-if="alert.prev_value < alert.new_value">
+              &lt;
+            </span>
+            <span ng-if="alert.prev_value > alert.new_value">
+              &gt;
+            </span>
+          </span>
+        </td>
+        <td class="alert-value">{{alert.new_value}}</td>
+        <td class="alert-pct-difference"><span class="detail-hint" uib-tooltip="Absolute difference: {{alert.amount_abs}}">{{alert.amount_pct}}%</span></td>
+        <td class="alert-graphical-difference">
+          <div ng-if="alert.is_regression" style="margin: auto; width: 80%;"
+               uib-tooltip="Relative magnitude of change (scale from 0 - 20%+)">
+            <div class="bar bar-scale"
+                 style="width: {{100 - getCappedMagnitude(alert.amount_pct)}}%; height: 1em; float: left;">
+            </div>
+            <div class="bar bar-regression"
+                 style="width: {{getCappedMagnitude(alert.amount_pct)}}%; float: left;">
+            </div>
+          </div>
+          <div ng-if="!alert.is_regression" style="margin: auto; width: 80%;"
+               uib-tooltip="Relative magnitude of change (scale from 0 - 20%+)">
+            <div class="bar bar-improvement"
+                 style="width: {{getCappedMagnitude(alert.amount_pct)}}%; float: left;">
+            </div>
+            <div class="bar bar-scale"
+                 style="width: {{100 - getCappedMagnitude(alert.amount_pct)}}%; float: left; ">
+            </div>
+          </div>
+        </td>
+        <td class="alert-confidence">
+          <span class="detail-hint"
+                uib-tooltip="Confidence value as calculated by Perfherder alerts. Note that this is NOT the same as the calculation used in the compare view"
+                tooltip-placement="left">
+            {{alert.t_value}}
+          </span>
+        </td>
+      </tr>
+    </table>
+    <div class="panel-body" uib-collapse="!anySelected(alertSummary.alerts)">
+      <button ng-if="anySelectedAndTriaged(alertSummary.alerts)" class="btn btn-warning" role="button"
+              ng-click="resetAlerts(alertSummary)" title="Reset selected alerts to untriaged">
+        Reset
+      </button>
+      <span ng-if="!anySelectedAndTriaged(alertSummary.alerts)">
+        <button class="btn btn-default" role="button"
+                ng-click="markAlertsAcknowledged(alertSummary)" title="Acknowledge selected alerts as valid">
+          <span class="fa fa-check"></span> Acknowledge
+        </button>
+        <button class="btn btn-default" role="button"
+                ng-click="markAlertsInvalid(alertSummary)" title="Mark selected alerts as invalid">
+          <span class="fa fa-ban"></span> Mark invalid
+        </button>
+        <button class="btn btn-default" role="button"
+                ng-click="markAlertsDownstream(alertSummary)"
+                title="Mark selected alerts as downstream from an alert summary on another branch">
+          <span class="fa fa-level-down"></span> Mark downstream
+        </button>
+        <button class="btn btn-default" role="button"
+                ng-click="reassignAlerts(alertSummary)"
+                title="Reassign selected alerts to another alert summary on the same branch">
+          <span class="fa fa-arrow-circle-o-right"></span> Reassign
+        </button>
+      </span>
     </div>
   </div>
+  <p class="text-muted" ng-if="numFilteredAlertSummaries > 0">
+    {{numFilteredAlertSummaries}} alerts not displayed because they had no changes matching filter criteria
+  </p>
 </div>
+
 <div class="well" ng-show="getMoreAlertSummariesHref">
     <div class="btn btn-default btn-sm"
          ng-click="getMoreAlertSummaries(count)">

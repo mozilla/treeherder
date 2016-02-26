@@ -19,14 +19,14 @@ from treeherder.perf.models import (PerformanceDatum,
 
 def _add_series(pc, project_name, signature_hash, signature_props, verbosity):
     if verbosity == 3:
-        print signature_hash
+        print(signature_hash)
 
     try:
         option_collection = OptionCollection.objects.get(
             option_collection_hash=signature_props['option_collection_hash'])
     except OptionCollection.DoesNotExist:
-        print "Option collection for {} ({}) does not exist".format(
-            signature_hash, signature_props)
+        print("Option collection for {} ({}) does not exist".format(
+            signature_hash, signature_props))
         raise
 
     # can't use "get" for platform because we currently have more than one platform
@@ -139,7 +139,7 @@ class Command(BaseCommand):
             for future in futures:
                 try:
                     future.result()
-                except Exception, e:
+                except Exception as e:
                     self.stderr.write("FAIL: {}".format(e))
                     # shutdown any pending tasks and exit (if something
                     # is in progress, no wait to stop it)

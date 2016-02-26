@@ -2,9 +2,10 @@ import logging
 from datetime import datetime
 
 import requests
-import simplejson as json
 from django.conf import settings
+from requests_hawk import HawkAuth
 
+from treeherder.etl.common import make_request
 from treeherder.model.derived import (ArtifactsModel,
                                       JobsModel)
 
@@ -64,16 +65,14 @@ class ElasticsearchDocRequest(object):
 
     def send_request(self):
         """
-        Send request to Elasticsearch.
+        Submit classification report to Elasticsearch, via OrangeFactor's API.
         """
-        es_host = settings.ES_HOST
-        es_endpoint = "/bugs/bug_info/"
-        es_url = "".join([es_host, es_endpoint])
-        logger.info("Sending data to %s: %s", es_url, self.body)
-        headers = {'Content-Type': 'text/plain', 'Connection': 'close'}
-        r = requests.post(es_url, data=json.dumps(self.body), headers=headers, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
+        url = settings.ORANGEFACTOR_SUBMISSION_URL
+        auth = HawkAuth(id=settings.ORANGEFACTOR_HAWK_ID, key=settings.ORANGEFACTOR_HAWK_KEY)
+        logger.info("Submitting %s job %s's classification of bug %s to OrangeFactor", self.project, self.job_id, self.bug_id)
         try:
-            r.raise_for_status()
-        except requests.exceptions.HTTPError:
-            logger.error("HTTPError %s submitting to %s: %s", r.status_code, es_url, r.text)
+            make_request(url, method='POST', json=self.body, auth=auth)
+        except requests.exceptions.HTTPError as e:
+            r = e.response
+            logger.error("HTTPError %s submitting to %s: %s", r.status_code, url, r.text)
             raise

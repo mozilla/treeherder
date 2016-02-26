@@ -43,9 +43,9 @@ class Command(BaseCommand):
 
             if not options['profile']:
                 for name, artifact in artifact_bc.artifacts.items():
-                    print "%s, %s" % (name, json.dumps(artifact))
+                    print("%s, %s" % (name, json.dumps(artifact)))
 
         if options['profile']:
-            print "Timings: %s" % times
-            print "Average: %s" % (sum(times)/len(times))
-            print "Total: %s" % sum(times)
+            print("Timings: %s" % times)
+            print("Average: %s" % (sum(times)/len(times)))
+            print("Total: %s" % sum(times))

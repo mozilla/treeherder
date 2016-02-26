@@ -1,10 +1,11 @@
 import logging
 from contextlib import closing
 
-import requests
 from django.conf import settings
 from django.utils.six import BytesIO
 from mozlog.structured import reader
+
+from treeherder.etl.common import make_request
 
 from .parsers import (PerformanceParser,
                       StepParser,
@@ -154,10 +155,8 @@ class MozlogArtifactBuilder(ArtifactBuilderBase):
 
     def get_log_handle(self, url):
         """Hook to get a handle to the log with this url"""
-        return closing(BytesIO(requests.get(
-               url,
-               timeout=settings.TREEHERDER_REQUESTS_TIMEOUT
-        ).content))
+        response = make_request(url)
+        return closing(BytesIO(response).content)
 
     def parse_log(self):
         """

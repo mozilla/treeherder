@@ -2,7 +2,9 @@ Installation
 ============
 
 You can work on the UI without needing a VM, by using web-server.js.
-There are a few limitations, such as Persona login not working (bug 1168797), but it works well enough for quick testing. For instructions on how to serve the UI with working URL rewriting, see the Vagrant instructions.
+There are a few limitations, such as Persona login not working (`bug 1168797`_), but it works well enough for quick testing. For instructions on how to serve the UI with working URL rewriting, see the Vagrant instructions.
+
+.. _bug 1168797: https://bugzilla.mozilla.org/show_bug.cgi?id=1168797
 
 Cloning the Repo
 ----------------

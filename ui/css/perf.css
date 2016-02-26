@@ -11,11 +11,6 @@ from { opacity: 1; }
 to { opacity: 0; }
 }
 
-.graph-legend .series-inactive {
-  border-color: #D3D3D3;
-  color: #D3D3D3;
-}
-
 .ph-horizontal-layout {
   display: flex;
   flex-flow: row;
@@ -34,13 +29,34 @@ to { opacity: 0; }
 
 #graph { width: 100%; height: 300px; margin-bottom: 30px; cursor: crosshair; }
 
-.graph-legend-table { table-layout:fixed; }
+.graph-legend-table {
+    table-layout: fixed;
+}
 
-.graph-legend { padding: 4px; text-overflow: ellipsis; table-layout:fixed; font-size: 12px; }
+.graph-legend-table tbody > tr > td {
+    padding: 0px;
+}
 
-.graph-legend-table .show-hide-check{
-  float:right;
+.graph-legend {
+    padding: 8px 20px 8px 8px;
+    text-overflow: ellipsis;
+    font-size: 12px;
+    border-left: 10px solid;
+}
+
+.graph-legend .series-inactive {
+  border-color: #D3D3D3;
+  color: #D3D3D3;
+}
+
+.graph-legend-table .close {
+    margin-right: 6px;
+}
+
+.graph-legend-table .show-hide-check {
+  float: right;
   margin-top: -20px;
+  margin-right: 6px;
 }
 
 .graph-right-padding { flex: none; width: 200px; }
@@ -301,6 +317,10 @@ td.compare-regression {
   font-weight: bold;
 }
 
+td.compare-notsure {
+  background-image: linear-gradient(to bottom, #FF9500, #FFCB00);
+}
+
 span.compare-improvement {
     color: #80BB2E;
 }
@@ -309,8 +329,8 @@ span.compare-regression {
     color: #B20000;
 }
 
-.compare-notsure {
-  background-image: linear-gradient(to bottom, #FF9500, #FFCB00);
+span.compare-notsure {
+    color: #FF9500;
 }
 
 .bar {
@@ -332,20 +352,86 @@ span.compare-regression {
   background-color: red;
 }
 
-.alert-title {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 4px;
-    color: #333;
+.alerts-container {
+    padding-left: 90px;
+    padding-right: 90px;
 }
 
-.alert-title .icon-superscript {
+.alert-summary a {
+    cursor: pointer;
+}
+
+.alert-summary-heading {
+  display: flex;
+  flex-flow: row;
+  padding: 0px;
+}
+
+.alert-summary-header-element {
+    flex: none;
+    padding: 8px;
+}
+
+.alert-summary-title {
+    flex: auto;
+    padding: 8px 4px;
+}
+
+.alert-summary-title .anchor {
+    color: #333;
+    font-weight: bold;
+}
+
+.alert-summary-title .icon-superscript {
   vertical-align: super;
   font-size: 0.625em;
   margin-left: -0.2em;
 }
 
-.alert-metadata ul {
-    padding-top: 4px;
+.dropdown {
+    padding: 0px;
+    vertical-align: inherit;
 }
 
+.dropdown .caret {
+    margin-left: 2px;
+}
+
+.alert-summary-date {
+    width: 160px;
+    text-align: right;
+}
+
+/* Table widths for alerts */
+td.alert-checkbox {
+    width: 30px;
+}
+td.alert-title {
+    text-align: left;
+}
+td.alert-value {
+    width: 140px;
+}
+td.alert-comparison { /* e.g. "<" */
+    width: 30px;
+}
+td.alert-pct-difference {
+    width: 80px;
+}
+td.alert-graphical-difference {
+    width: 120px;
+}
+td.alert-confidence {
+    width: 100px;
+}
+
+/* Various styles for individual alerts ("changes" in UI) */
+.alert-untriaged {
+    color: #3c763d;
+}
+.alert-invalid {
+    color: #a94442;
+}
+.alert-strike {
+    text-decoration: line-through;
+}

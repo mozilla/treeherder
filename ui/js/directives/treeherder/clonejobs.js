@@ -127,11 +127,10 @@ treeherder.directive('thCloneJobs', [
         var selectJob = function(job, job_selection_type) {
             var jobKey = getJobMapKey(job);
             var jobEl = $('.' + jobKey);
-
             clickJobCb({}, jobEl, job, job_selection_type);
             scrollToElement(jobEl);
 
-            ThResultSetStore.setSelectedJob($rootScope.repoName, jobEl, job);
+            ThResultSetStore.setSelectedJob($rootScope.repoName, job);
         };
 
         var setSelectJobStyles = function(el){
@@ -146,11 +145,13 @@ treeherder.directive('thCloneJobs', [
         var clearSelectJobStyles = function() {
             var lastJobSelected = ThResultSetStore.getSelectedJob(
                 $rootScope.repoName);
-
-            if (!_.isEmpty(lastJobSelected.el)) {
-                lastJobSelected.el.removeClass(selectedBtnCls);
-                lastJobSelected.el.removeClass(largeBtnCls);
-                lastJobSelected.el.addClass(btnCls);
+            if (!_.isEmpty(lastJobSelected.job)) {
+                var el = $('.' + getJobMapKey(lastJobSelected.job));
+                if (!_.isEmpty(el) && !(typeof el === 'string')) {
+                    el.removeClass(selectedBtnCls);
+                    el.removeClass(largeBtnCls);
+                    el.addClass(btnCls);
+                }
             }
 
             // if a job was previously selected that is now inside a count,
@@ -187,6 +188,13 @@ treeherder.directive('thCloneJobs', [
                 var groupMap =  ThResultSetStore.getGroupMap($rootScope.repoName);
                 var gi = getGroupInfo(el, groupMap);
                 if (gi) {
+                    gi.jgObj.jobs.forEach(function(job) {
+                        // Keep track of visibility with this property. This
+                        // way down stream job consumers don't need to repeatedly
+                        // call showJob
+                        job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' + job.signature;
+                        job.visible = filterWithRunnable(job);
+                    });
                     if (isGroupExpanded(gi.jgObj)) {
                         gi.jgObj.groupState = "collapsed";
                         addGroupJobsAndCounts(gi.jgObj, gi.platformGroupEl);
@@ -194,7 +202,7 @@ treeherder.directive('thCloneJobs', [
                         gi.grpCountList.empty();
                         gi.jgObj.groupState = "expanded";
                         gi.grpJobList.empty();
-                        addJobBtnEls(gi.jgObj, gi.grpJobList);
+                        gi.grpJobList.append(renderJobBtnEls(gi.jgObj));
                     }
                 }
             }
@@ -219,7 +227,7 @@ treeherder.directive('thCloneJobs', [
             return visible;
         };
 
-        var addJobBtnEls = function(jgObj, jobList) {
+        var renderJobBtnEls = function(jgObj) {
             var lastJobSelected = ThResultSetStore.getSelectedJob($rootScope.repoName);
             var job, l;
             var jobBtnArray = [];
@@ -228,18 +236,18 @@ treeherder.directive('thCloneJobs', [
 
                 job = jgObj.jobs[l];
 
-
-                job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' +
-                    job.signature;
-
-                // Keep track of visibility with this property. This
-                // way down stream job consumers don't need to repeatedly
-                // call showJob
-                job.visible = filterWithRunnable(job);
-
                 addJobBtnToArray(job, lastJobSelected, jobBtnArray);
             }
-            jobList.append(jobBtnArray);
+            return jobBtnArray;
+        };
+
+        var getJobBtnEls = function(jgObj) {
+            var jobBtnArray = renderJobBtnEls(jgObj);
+            var jobBtnHTML = "";
+            jobBtnArray.forEach(function(element) {
+                jobBtnHTML += element;
+            });
+            return jobBtnHTML;
         };
 
         var addJobBtnToArray = function(job, lastJobSelected, jobBtnArray) {
@@ -249,32 +257,25 @@ treeherder.directive('thCloneJobs', [
             jobStatus.key = getJobMapKey(job);
             jobStatus.value = job.job_type_symbol;
             jobStatus.title = getHoverText(job);
-
+            jobStatus.extraClasses = "";
+            jobStatus.extraClasses += job.visible ? " filter-shown" : "";
+            if( !_.isEmpty(lastJobSelected.job) &&
+                (lastJobSelected.job.id === job.id)){
+                jobStatus.extraClasses += " " + largeBtnCls + " " + selectedBtnCls;
+            } else {
+                jobStatus.extraClasses += " " + btnCls;
+            }
             if (thResultStatus(job) === "runnable") {
                 jobStatus.buildername = job.ref_data_name;
-                jobBtn = $(runnableJobBtnInterpolator(jobStatus));
-
                 if (ThResultSetStore.isRunnableJobSelected($rootScope.repoName,
                                                            job.result_set_id,
                                                            jobStatus.buildername)) {
-                    jobBtn.addClass("runnable-job-btn-selected");
+                    jobStatus.extraClasses += " runnable-job-btn-selected";
                 }
+                jobBtn = runnableJobBtnInterpolator(jobStatus);
             } else {
-                jobBtn = $(jobBtnInterpolator(jobStatus));
+                jobBtn = jobBtnInterpolator(jobStatus);
             }
-
-            // If the job is currently selected make sure to re-apply
-            // the job selection styles
-            if( !_.isEmpty(lastJobSelected.job) &&
-                (lastJobSelected.job.id === job.id)){
-
-                setSelectJobStyles(jobBtn);
-
-                //Update the selected job element to the current one
-                ThResultSetStore.setSelectedJob($rootScope.repoName, jobBtn, job);
-            }
-            showHideElement(jobBtn, job.visible);
-
             jobBtnArray.push(jobBtn);
             // add a zero-width space between spans so they can wrap
             jobBtnArray.push(' ');
@@ -300,7 +301,8 @@ treeherder.directive('thCloneJobs', [
          * Each job receives a corresponding resultState which determines its
          * display.
          */
-        var addGroupJobsAndCounts = function(jgObj, platformGroup) {
+
+        var renderGroupJobsAndCounts = function(jgObj) {
             var jobCountBtnArray = [];
             var jobBtnArray = [];
             var stateCounts = {};
@@ -308,15 +310,11 @@ treeherder.directive('thCloneJobs', [
             var typeSymbolCounts = _.countBy(jgObj.jobs, "job_type_symbol");
 
             _.forEach(jgObj.jobs, function(job) {
-                job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' +
-                    job.signature;
 
                 // Set the resultState
                 var resultStatus = thResultStatus(job);
                 var countInfo = thResultStatusInfo(resultStatus,
                                                 job.failure_classification_id);
-
-                job.visible = filterWithRunnable(job);
 
                 // Even if a job is not visible, add it to the DOM as hidden.  This is
                 // important because it can still be "selected" when not visible
@@ -357,16 +355,26 @@ treeherder.directive('thCloneJobs', [
                     addJobBtnToArray(countInfo.lastJob, lastJobSelected, jobBtnArray);
                 } else {
                     // with more than 1 job for the status, add it as a count
-                    countInfo.value = countInfo.count;
-                    countInfo.title = countInfo.count + " " + countInfo.countText + " jobs in group";
-                    countInfo.btnClass = countInfo.btnClass + "-count";
-                    var jobCountBtn = $(jobGroupCountInterpolator(countInfo));
-                    showHideElement(jobCountBtn, true);
-                    jobCountBtnArray.push(jobCountBtn);
+                    jobCountBtnArray.push(jobGroupCountInterpolator({
+                        value: countInfo.count,
+                        title: countInfo.count + " " + countInfo.countText + " jobs in group",
+                        btnClass: countInfo.btnClass + "-count",
+                        visibleClass: "filter-shown",
+                        selectedClasses: countInfo.selectedClasses
+                    }));
                     jobCountBtnArray.push(' ');
                 }
             });
+            return {
+                jobBtnArray: jobBtnArray,
+                jobCountBtnArray: jobCountBtnArray
+            };
+        };
 
+        var addGroupJobsAndCounts = function(jgObj, platformGroup) {
+            var btnArrays = renderGroupJobsAndCounts(jgObj);
+            var jobBtnArray = btnArrays.jobBtnArray;
+            var jobCountBtnArray = btnArrays.jobCountBtnArray;
             platformGroup.find(".group-job-list").html(jobBtnArray);
             platformGroup.find(".group-count-list").html(jobCountBtnArray);
         };
@@ -415,7 +423,7 @@ treeherder.directive('thCloneJobs', [
                         _.bind(clickJobCb, this, ev, el, job)();
                 }
 
-                ThResultSetStore.setSelectedJob($rootScope.repoName, el, job);
+                ThResultSetStore.setSelectedJob($rootScope.repoName, job);
 
             } else {
                 _.bind(clickGroupCb, this, el)();
@@ -522,33 +530,43 @@ treeherder.directive('thCloneJobs', [
             el.addClass(col12Cls);
         };
 
-        var renderJobTableRow = function(row, jobTdEl, jobGroups) {
-
+        var getJobTableRowHTML = function(jobGroups) {
             //Empty the job column before populating it
-            jobTdEl.empty();
-
-            var jgObj, jobGroup, i;
-            for (i=0; i<jobGroups.length; i++) {
-
-                jgObj = jobGroups[i];
-
-                if (jgObj.symbol !== '?') {
+            var btnHTML = "", countBtnHTML = "", jobTdHtml = "";
+            jobGroups.forEach(function(jobGroup) {
+                if (jobGroup.symbol !== '?') {
                     // Job group detected, add job group symbols
-                    jobGroups[i].grkey = jgObj.mapKey;
-                    jobGroups[i].collapsed = true;
-                    jobGroup = $(jobGroupInterpolator(jobGroups[i]));
-                    jobTdEl.append(jobGroup);
-
-                    if (isGroupExpanded(jgObj)) {
-                        addJobBtnEls(jgObj, jobGroup.find(".group-job-list"));
+                    if (isGroupExpanded(jobGroup)) {
+                        btnHTML = getJobBtnEls(jobGroup);
                     } else {
-                        addGroupJobsAndCounts(jgObj, jobGroup);
+                        var btnArrays = renderGroupJobsAndCounts(jobGroup);
+                        btnHTML = "";
+                        btnArrays.jobBtnArray.forEach(function(element) {
+                            btnHTML += element;
+                        });
+                        countBtnHTML = "";
+                        btnArrays.jobCountBtnArray.forEach(function(element) {
+                            countBtnHTML += element;
+                        });
                     }
+                    jobTdHtml += jobGroupInterpolator({
+                        btnHTML: btnHTML,
+                        countBtnHTML: countBtnHTML,
+                        symbol: jobGroup.symbol,
+                        name: jobGroup.name,
+                        grkey: jobGroup.grkey,
+                        display: (btnHTML.indexOf('filter-shown') !== -1 || countBtnHTML.indexOf('filter-shown') !== -1) ? 'inline' : 'none'
+                    });
                 } else {
                     // Add the job btn spans
-                    addJobBtnEls(jgObj, jobTdEl);
+                    jobTdHtml += getJobBtnEls(jobGroup);
                 }
-            }
+            });
+            return jobTdHtml;
+        };
+
+        var renderJobTableRow = function(row, jobTdEl, jobGroups) {
+            jobTdEl.html(getJobTableRowHTML(jobGroups));
             row.append(jobTdEl);
             filterPlatform(row);
         };
@@ -616,9 +634,15 @@ treeherder.directive('thCloneJobs', [
                 if (resetGroupState) {
                     delete gi.jgObj.groupState;
                 }
-
+                gi.jgObj.jobs.forEach(function(job) {
+                    // Keep track of visibility with this property. This
+                    // way down stream job consumers don't need to repeatedly
+                    // call showJob
+                    job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' + job.signature;
+                    job.visible = filterWithRunnable(job);
+                });
                 if (isGroupExpanded(gi.jgObj)) {
-                    addJobBtnEls(gi.jgObj, gi.platformGroupEl.find(".group-job-list"));
+                    gi.platformGroupEl.find(".group-job-list").append(renderJobBtnEls(gi.jgObj));
                 } else {
                     addGroupJobsAndCounts(gi.jgObj, gi.platformGroupEl);
                 }
@@ -701,7 +725,7 @@ treeherder.directive('thCloneJobs', [
 
         var updateJobs = function(platformData){
             angular.forEach(platformData, function(value, platformId) {
-
+                addAdditionalJobParameters(value.jobGroups);
                 if(value.resultsetId !== this.resultset.id){
                     //Confirm we are the correct result set
                     return;
@@ -713,7 +737,6 @@ treeherder.directive('thCloneJobs', [
                 platformName = thPlatformName(value.platformName);
 
                 rowEl = document.getElementById(platformId);
-
                 if(!rowEl){
                     //First job for this platform found, which means we need
                     //to create the platform and job td elements and the
@@ -845,6 +868,9 @@ treeherder.directive('thCloneJobs', [
                       in the UI. Use defer to avoid rendering jankiness
                       here.
                         **************/
+                        rsMap[resultSetId].rs_obj.platforms.forEach(function(platform) {
+                            addAdditionalJobParameters(platform.groups);
+                        });
                         _.defer(
                             generateJobElements,
                             resultsetAggregateId,
@@ -872,64 +898,55 @@ treeherder.directive('thCloneJobs', [
             });
 
         };
-
+        var addAdditionalJobParameters = function(groups) {
+            groups.forEach(function(jobGroup) {
+                if (jobGroup.symbol !== '?') {
+                    jobGroup.grkey = jobGroup.mapKey;
+                    jobGroup.collapsed = true;
+                }
+                jobGroup.jobs.forEach(function(job) {
+                    // Keep track of visibility with this property. This
+                    // way down stream job consumers don't need to repeatedly
+                    // call showJob
+                    job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' + job.signature;
+                    job.visible = filterWithRunnable(job);
+                });
+            });
+        };
         var generateJobElements = function(resultsetAggregateId, resultset) {
-
             var tableEl = $('#' + resultsetAggregateId);
-
             var waitSpanEl = $(tableEl).prev();
             $(waitSpanEl).css('display', 'none');
-
-            var name, option, platformId, platformKey, row, platformTd, jobTdEl, j;
-            for (j=0; j<resultset.platforms.length; j++) {
-
-                platformId = thAggregateIds.getPlatformRowId(
+            var tableHtml = "";
+            resultset.platforms.forEach(function(platform) {
+                var platformId = thAggregateIds.getPlatformRowId(
                     $rootScope.repoName,
                     resultset.id,
-                    resultset.platforms[j].name,
-                    resultset.platforms[j].option
+                    platform.name,
+                    platform.option
                 );
 
-                row = $('#' + platformId);
-
-                if($(row).prop('tagName') !== 'TR'){
-                    // First time the row is being created
-                    row = $('<tr></tr>');
-                    row.prop('id', platformId);
-                } else {
-                    // Clear and re-write the div content if it
-                    // already exists
-                    $(row).empty();
-                }
-
-                name = thPlatformName(resultset.platforms[j].name);
-                option = resultset.platforms[j].option;
-
+                // We first determine whether the row has some visible element
+                var anyVisible = _.some(platform.groups, function(jobGroup) {
+                    return _.some(jobGroup.jobs, {visible: true});
+                });
+                var display_style = anyVisible ? "table-row" : "none";
+                var rowHtml = '<tr id="' + platformId + '" style="display: ' + display_style + ';">';
                 //Add platforms
-                platformTd = platformInterpolator(
+                rowHtml += platformInterpolator(
                     {
-                        'name':name, 'option':option,
+                        'name':thPlatformName(platform.name), 'option':platform.option,
                         'id':thAggregateIds.getPlatformRowId(
                             resultset.id,
-                            resultset.platforms[j].name,
-                            resultset.platforms[j].option
+                            platform.name,
+                            platform.option
                         )
                     }
                 );
-
-                row.append(platformTd);
-
-                // Render the row of job data
-                jobTdEl = $( thCloneHtml.get('jobTdClone').text );
-
-                platformKey = ThResultSetStore.getPlatformKey(
-                    resultset.platforms[j].name, resultset.platforms[j].option
-                );
-
-                renderJobTableRow(row, jobTdEl, resultset.platforms[j].groups);
-
-                tableEl.append(row);
-            }
+                rowHtml += '<td class="job-row">' + getJobTableRowHTML(platform.groups) + '</td></tr>';
+                tableHtml += rowHtml;
+            });
+            tableEl.html(tableHtml);
         };
 
         var $scope = null;
@@ -959,6 +976,9 @@ treeherder.directive('thCloneJobs', [
             element.append(targetEl);
 
             if (scope.resultset.platforms !== undefined) {
+                scope.resultset.platforms.forEach(function(platform) {
+                    addAdditionalJobParameters(platform.groups);
+                });
                 generateJobElements(
                     resultsetAggregateId, scope.resultset);
             } else {

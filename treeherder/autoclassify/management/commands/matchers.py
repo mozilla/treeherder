@@ -21,7 +21,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if not (options["add"] or options["remove"]):
             for item in Matcher.objects.all():
-                print item.name
+                print(item.name)
 
         if options["add"]:
             new = Matcher(name=options["add"])

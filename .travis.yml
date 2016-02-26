@@ -11,7 +11,7 @@ matrix:
     - env: linters
       sudo: false
       language: python
-      python: "2.7"
+      python: "2.7.11"
       cache:
         directories:
           - ~/venv
@@ -21,9 +21,10 @@ matrix:
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
         - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv ~/venv; fi
         - source ~/venv/bin/activate
+        - pip install -U pip==8.0.2
       install:
         - npm install
-        - ./bin/peep.py install --disable-pip-version-check -r requirements/common.txt -r requirements/dev.txt
+        - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
       script:
         - grunt checkjs
         - flake8 --show-source
@@ -32,7 +33,7 @@ matrix:
     - env: ui-tests
       sudo: false
       language: node_js
-      node_js: "4.2.1"
+      node_js: "5.3.0"
       cache:
         # Note: This won't re-use the same cache as the linters job,
         # since caches are tied to the language/version combination.
@@ -54,7 +55,7 @@ matrix:
       sudo: required
       dist: trusty
       language: python
-      python: "2.7"
+      python: "2.7.11"
       services:
         - rabbitmq
         - memcached
@@ -62,10 +63,9 @@ matrix:
         # Manually install mysql 5.6 since the default is v5.5.
         - sudo apt-get -qq update
         - sudo apt-get -qq install mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
+        - pip install -U pip==8.0.2
       install:
-        # This uses pip rather than peep, since it takes half the time, and unlike the other
-        # jobs, this one cannot use caching. The hashes are validated in the linters job.
-        - pip install --disable-pip-version-check -r requirements/common.txt -r requirements/dev.txt
+        - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
       script:
         - py.test tests/ --runslow --ignore=tests/e2e/ --ignore=tests/etl/ --ignore=tests/log_parser/
 
@@ -75,7 +75,7 @@ matrix:
       sudo: required
       dist: trusty
       language: python
-      python: "2.7"
+      python: "2.7.11"
       services:
         - rabbitmq
         - memcached
@@ -83,10 +83,9 @@ matrix:
         # Manually install mysql 5.6 since the default is v5.5.
         - sudo apt-get -qq update
         - sudo apt-get -qq install mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
+        - pip install -U pip==8.0.2
       install:
-        # This uses pip rather than peep, since it takes half the time, and unlike the other
-        # jobs, this one cannot use caching. The hashes are validated in the linters job.
-        - pip install --disable-pip-version-check -r requirements/common.txt -r requirements/dev.txt
+        - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
       script:
         - py.test tests/e2e/ tests/etl/ tests/log_parser/ --runslow
 

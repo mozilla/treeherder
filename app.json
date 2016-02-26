@@ -1,5 +1,0 @@
-{
-  "scripts": {
-    "post-release": "./manage.py migrate --noinput && ./manage.py load_initial_data && ./manage.py init_datasources"
-  }
-}

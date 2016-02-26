@@ -30,12 +30,24 @@
       </span>
       <a ng-class="{active: $state.includes('graphs')}" class="btn btn-view-nav" ui-sref="graphs">Graphs</a>
       <a ng-class="{active: $state.current.name.indexOf('compare') >= 0}" class="btn btn-view-nav" ui-sref="comparechooser">Compare</a>
-      <a ng-class="{active: $state.current.name.indexOf('alerts') >= 0}" class="btn btn-view-nav" ui-sref="alerts">Alerts</a>
-      <ul class="nav navbar-nav navbar-right">
-        <li>
-          <persona-buttons></persona-buttons>
-        </li>
-      </ul>
+      <a ng-class="{active: $state.current.name.indexOf('alerts') >= 0}" class="btn btn-view-nav" ui-sref="alerts({id: null, status: null, framework: null, filter: null, hideImprovements: null})">Alerts</a>
+      <a ng-class="{active: $state.current.name.indexOf('e10s') >= 0}" class="btn btn-view-nav" ui-sref="e10s">e10s</a>
+      <div class="nav navbar-nav navbar-right">
+        <!-- Help Menu -->
+        <span class="dropdown">
+          <button id="helpLabel" title="Perfherder help" role="button"
+                  href="#" data-toggle="dropdown" data-target="#"
+                  class="btn btn-view-nav btn-right-navbar nav-help-btn">
+            <span class="fa fa-question-circle lightgray nav-help-icon"></span>
+            <span class="fa fa-angle-down lightgray"></span>
+          </button>
+          <ul class="dropdown-menu icon-menu" role="menu" aria-labelledby="helpLabel"
+              ng-include="'partials/perf/helpMenu.html'">
+          </ul>
+        </span>
+        <!-- Persona login -->
+        <persona-buttons></persona-buttons>
+      </div>
     </div>
   </nav>
   <div style="padding-top: 20px;"></div>
@@ -55,7 +67,7 @@
   <script src="vendor/angular/angular-ui-router.js"></script>
   <script src="vendor/angular/angular-sanitize.js"></script>
   <script src="vendor/angular-local-storage.min.js"></script>
-  <script src="vendor/ui-bootstrap-tpls-0.13.0.js"></script>
+  <script src="vendor/ui-bootstrap-tpls-0.14.3.js"></script>
   <script src="vendor/bootstrap.js"></script>
   <script src="vendor/jquery.flot.js"></script>
   <script src="vendor/jquery.flot.time.js"></script>
@@ -69,15 +81,19 @@
   <script src="js/models/option_collection.js"></script>
   <script src="js/services/main.js"></script>
   <script src="js/services/log.js"></script>
+  <script src="js/services/jsonpushes.js"></script>
   <script src="js/models/repository.js"></script>
   <script src="js/models/job.js"></script>
   <script src="js/models/runnable_job.js"></script>
   <script src="js/models/resultset.js"></script>
   <script src="js/models/user.js"></script>
   <script src="js/perf.js"></script>
+  <script src="js/models/perf/performance_framework.js"></script>
+  <script src="js/models/perf/alerts.js"></script>
   <script src="js/controllers/perf/compare.js"></script>
   <script src="js/controllers/perf/graphs.js"></script>
   <script src="js/controllers/perf/alerts.js"></script>
+  <script src="js/controllers/perf/e10s.js"></script>
   <script src="js/directives/treeherder/persona.js"></script>
   <script src="js/directives/perf/compare.js"></script>
   <script src="js/perfapp.js"></script>

@@ -6,15 +6,32 @@ description: |
 id: "jobDefinition"
 type: "object"
 properties:
-  jobGuid:
-    title: "jobGuid"
+  taskId:
+    title: "taskId"
+    descriptio: |
+      This could just be what was formerly submitted as a job_guid in the
+      REST API.
     type: "string"
     pattern: "^[A-Za-z0-9_/+-]+$"
     minLength: 1
     maxLength: 50
+  retryId:
+    title: "retryId"
+    description: |
+      The infrastructure retry iteration on this job.  The number of times this
+      job has been retried by the infrastructure.
+      If it's the 1st time running, then it should be 0. If this is the first
+      retry, it will be 1, etc.
+    type: "integer"
+    default: 0
+    minimum: 0
+
+  isRetried:
+    description: True indicates this job has been retried.
+    type: "boolean"
 
   origin:
-    anyOf:
+    oneOf:
       - type: "object"
         properties:
           kind:
@@ -39,7 +56,15 @@ properties:
           kind:
             type: "string"
             enum: ['github.com']
-          project:
+          owner:
+            description: |
+              This could be the organization or the individual git username
+              depending on who owns the repo.
+            type: "string"
+            pattern: "^[0-9a-f]+$"
+            minLength: 1
+            maxLength: 50
+          projectName:
             type: "string"
             pattern: "^[0-9a-f]+$"
             minLength: 1
@@ -60,8 +85,16 @@ properties:
         type: "string"
         # spaces and "?" are not valid for job symbols
         pattern: "^[A-Za-z0-9._-]+$"
-        minLength: 1
+        minLength: 0
         maxLength: 25
+      chunkId:
+        title: "chunkId"
+        type: "integer"
+        minimum: 1
+      chunkCount:
+        title: "chunkCount"
+        type: "integer"
+        minimum: 1
       groupSymbol:
         title: "group symbol"
         type: "string"
@@ -82,7 +115,6 @@ properties:
         minLength: 1
         maxLength: 100
     required:
-      - jobSymbol
       - groupSymbol
 
 
@@ -116,19 +148,18 @@ properties:
       - unknown
   jobKind:
     type: "string"
+    default: "other"
     enum:
       - build
       - test
+      - other
   tier:
     type: "integer"
     minimum: 1
     maximum: 3
 
-  isRetried:
-    description: True indicates this job has been retried.
-    type: "boolean"
-
   coalesced:
+    description: The job guids that were coalesced to this job.
     title: "coalesced"
     type: "array"
     items:
@@ -150,14 +181,18 @@ properties:
     type: "string"
     format: "date-time"
 
-  optionCollection:
-    title: "option collection"
+  labels:
+    title: "labels"
     description: |
-      Options are a dimension of a platform.  The values here can vary wildly,
-      so most strings are valid for this.  The list of options that are used
+      Labels are a dimension of a platform.  The values here can vary wildly,
+      so most strings are valid for this.  The list of labels that are used
       is maleable going forward.
 
-      Some examples of options that have been used:
+      These were formerly known as "Options" within "Option Collections" but
+      calling labels now so they can be understood to be just strings that
+      denotes a characteristic of the job.
+
+      Some examples of labels that have been used:
         opt    Optimize Compiler GCC optimize flags
         debug  Debug flags passed in
         pgo    Profile Guided Optimization - Like opt, but runs with profiling, then builds again using that profiling
@@ -170,9 +205,10 @@ properties:
       maxLength: 50
       pattern: "^[A-Za-z0-9_-]+$"
 
-  who:
-    title: "who"
-    format: "email"
+  owner:
+    description: |
+      Description of who submitted the job: gaia | scheduler name | username | email
+    title: "owner"
     type: "string"
     minLength: 1
     maxLength: 50
@@ -204,28 +240,44 @@ properties:
   runMachine:
     $ref: "#/definitions/machine"
 
-  artifacts:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        type:
-          type: "string"
-          enum: ["json", "text"]
-        name:
+  jobInfo:
+    description: |
+      Definition of the Job Info for a job.  These are extra data
+      fields that go along with a job that will be displayed in
+      the details panel within Treeherder.
+    id: "jobInfo"
+    type: object
+    properties:
+      summary:
+        type: string
+        description: |
+          Plain text description of the job and its state.  Submitted with
+          the final message about a task.
+      links:
+        type: array
+        items:
+        - type: object
           description: |
-            The artifact name can be anything.  But when the name ``text_log_summary`` is used
-            then treeherder uses that as the summary file for the Log Viewer in the UI.
-          type: "string"
-          minLength: 1
-          maxLength: 50
-        blob:
-          type: "string"
-          minLength: 1
-      required:
-        - type
-        - name
-        - blob
+            List of URLs shown as key/value pairs.  Shown as:
+            "<label>: <linkText>" where linkText will be a link to the url.
+          properties:
+            url:
+              type: string
+              format: url
+            linkText:
+              type: string
+              minLength: 1
+              maxLength: 50
+            label:
+              type: string
+              minLength: 1
+              maxLength: 50
+          additionalProperties: false
+          required:
+          - url
+          - linkText
+          - label
+    additionalProperties: false
 
   logs:
     type: "array"
@@ -241,11 +293,76 @@ properties:
           type: "string"
           minLength: 1
           maxLength: 50
+        steps:
+          type: array
+          description: |
+            This object defines what is seen in the Treeherder Log Viewer.
+            These values can be submitted here, or they will be generated
+            by Treeherder's internal log parsing process from the
+            submitted log.  If this value is submitted, Treeherder will
+            consider the log already parsed and skip parsing.
+          items:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    line:
+                      type: string
+                      minLength: 1
+                      maxLength: 255
+                    linenumber:
+                      type: integer
+                      minimum: 0
+                  additionalProperties: false
+              name:
+                type: string
+                minLength: 1
+                maxLength: 255
+              timeStarted:
+                type: string
+                format: date-time
+              timeFinished:
+                type: string
+                format: date-time
+              lineStarted:
+                type: integer
+                minimum: 0
+              lineFinished:
+                type: integer
+                minimum: 0
+              result:
+                type: string
+                enum:
+                  - success
+                  - fail
+                  - exception
+                  - canceled
+                  - unknown
+            required:
+            - name
+            - timeStarted
+            - lineStarted
+            - lineFinished
+            - timeFinished
+            - result
+        errorsTruncated:
+          type: boolean
+          description: |
+            If true, indicates that the number of errors in the log was too
+            large and not all of those lines are indicated here.
+      additionalProperties: false
       required: [url, name]
+
+  extra:
+    type: "object"
+    description: Extra information that Treeherder reads on a best-effort basis
 
 additionalProperties: false
 required:
-  - jobGuid
+  - taskId
   - origin
   - display
   - state

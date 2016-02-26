@@ -274,6 +274,22 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
+        'regex': re.compile(r'android 4\.4 armv7 api 15', re.IGNORECASE),
+        'attributes': {
+            'os': 'android',
+            'os_platform': 'android-4-4-armv7-api15',
+            'arch': 'armv7',
+        }
+    },
+    {
+        'regex': re.compile(r'android 4\.3 armv7 api 15', re.IGNORECASE),
+        'attributes': {
+            'os': 'android',
+            'os_platform': 'android-4-3-armv7-api15',
+            'arch': 'armv7',
+        }
+    },
+    {
         'regex': re.compile(r'android 4\.2 x86', re.IGNORECASE),
         'attributes': {
             'os': 'android',
@@ -294,6 +310,14 @@ PLATFORMS_BUILDERNAME = [
         'attributes': {
             'os': 'android',
             'os_platform': 'android-4-0-armv7-api11',
+            'arch': 'armv7',
+        }
+    },
+    {
+        'regex': re.compile(r'android (?:4\.0 )?armv7 api 15', re.IGNORECASE),
+        'attributes': {
+            'os': 'android',
+            'os_platform': 'android-4-0-armv7-api15',
             'arch': 'armv7',
         }
     },
@@ -470,6 +494,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'mochitest-(?:web)?gl-e10s'), "name": "Mochitest e10s WebGL"},
     {"regex": re.compile(r'mochitest-e10s'), "name": "Mochitest e10s"},
     {"regex": re.compile(r'mochitest-browser-chrome'), "name": "Mochitest Browser Chrome"},
+    {"regex": re.compile(r'mochitest-browser-screenshots'), "name": "Mochitest Browser Screenshots"},
     {"regex": re.compile(r'mochitest-devtools-chrome'), "name": "Mochitest DevTools Browser Chrome"},
     {"regex": re.compile(r'mochitest-jetpack'), "name": "Mochitest Jetpack"},
     {"regex": re.compile(r'mochitest-metro-chrome'), "name": "Mochitest Metro Browser Chrome"},
@@ -478,6 +503,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'mochitest-(?:web)?gl'), "name": "Mochitest WebGL"},
     {"regex": re.compile(r'mochitest-oop'), "name": "Mochitest OOP"},
     {"regex": re.compile(r'mochitest-chrome'), "name": "Mochitest Chrome"},
+    {"regex": re.compile(r'mochitest-push-e10s'), "name": "Mochitest e10s Push"},
     {"regex": re.compile(r'mochitest-push'), "name": "Mochitest Push"},
     {"regex": re.compile(r'mochitest'), "name": "Mochitest"},
     {"regex": re.compile(r'webapprt-chrome$'), "name": "Webapprt Chrome"},
@@ -677,6 +703,7 @@ GROUP_NAMES = {
     "Mochitest": "Mochitest",
     "Mochitest Push": "Mochitest",
     "Mochitest Browser Chrome": "Mochitest",
+    "Mochitest Browser Screenshots": "Mochitest",
     "Mochitest Chrome": "Mochitest",
     "Mochitest DevTools Browser Chrome": "Mochitest",
     "Mochitest WebGL": "Mochitest",
@@ -691,6 +718,7 @@ GROUP_NAMES = {
     "Mochitest e10s Browser Chrome": "Mochitest e10s",
     "Mochitest e10s DevTools Browser Chrome": "Mochitest e10s",
     "Mochitest e10s Other": "Mochitest e10s",
+    "Mochitest e10s Push": "Mochitest e10s",
     "Mochitest e10s WebGL": "Mochitest e10s",
     "Mochitest csb": "Mochitest csb",
     "Mochitest OOP": "Mochitest OOP",
@@ -886,6 +914,7 @@ SYMBOLS = {
     "Mochitest": "M",
     "Mochitest Push": "p",
     "Mochitest Browser Chrome": "bc",
+    "Mochitest Browser Screenshots": "ss",
     "Mochitest Chrome": "c",
     "Mochitest DevTools Browser Chrome": "dt",
     "Mochitest WebGL": "gl",
@@ -897,6 +926,7 @@ SYMBOLS = {
     "Mochitest e10s Browser Chrome": "bc",
     "Mochitest e10s DevTools Browser Chrome": "dt",
     "Mochitest e10s Other": "oth",
+    "Mochitest e10s Push": "p",
     "Mochitest e10s WebGL": "gl",
     "Mochitest csb": "M-csb",
     "Mochitest OOP": "M-oop",

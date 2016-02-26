@@ -21,8 +21,9 @@ class JsonExtractorMixin(object):
         req = urllib2.Request(url)
         req.add_header('Accept', 'application/json')
         req.add_header('Content-Type', 'application/json')
+        req.add_header('User-Agent', settings.TREEHERDER_USER_AGENT)
         try:
-            handler = urllib2.urlopen(req, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
+            handler = urllib2.urlopen(req, timeout=settings.REQUESTS_TIMEOUT)
             encoding = handler.info().get('Content-Encoding')
             if encoding and 'gzip' in encoding:
                 buf = StringIO(handler.read())
@@ -41,9 +42,10 @@ class JsonLoaderMixin(object):
     def load(self, url, data):
         req = urllib2.Request(url)
         req.add_header('Content-Type', 'application/json')
+        req.add_header('User-Agent', settings.TREEHERDER_USER_AGENT)
         if not data:
             data = None
-        return urllib2.urlopen(req, json.dumps(data),  timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
+        return urllib2.urlopen(req, json.dumps(data),  timeout=settings.REQUESTS_TIMEOUT)
 
 
 class ResultSetsLoaderMixin(JsonLoaderMixin):
@@ -82,7 +84,7 @@ class ResultSetsLoaderMixin(JsonLoaderMixin):
                 logger.error("ResultSet loading failed: {0}".format(message['message']))
 
 
-class OAuthLoaderMixin(object):
+class ClientLoaderMixin(object):
 
     def load(self, th_collections, chunk_size=1):
         if th_collections:

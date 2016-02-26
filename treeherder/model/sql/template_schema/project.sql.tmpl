@@ -95,7 +95,7 @@ DROP TABLE IF EXISTS `job`;
  *  start_timestamp - Time the job was started.
  *  end_timestamp - Time the job completed.
  *  last_modified - The last time the job was modified
- *  running_eta - ETA to a completed state. A rolling average over a 6 hr window of end_timestamp - start_timestamp, recomputed every 30 min.
+ *  running_eta - The estimated job duration as recorded in the job_duration table at time of submission.
  **************************/
 CREATE TABLE `job` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -145,51 +145,6 @@ CREATE TABLE `job` (
   KEY `idx_tier` (`tier`),
   KEY `idx_active_status` (`active_status`),
   CONSTRAINT `fk_result_set` FOREIGN KEY (`result_set_id`) REFERENCES `result_set` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
-DROP TABLE IF EXISTS `job_eta`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
---
--- Table structure for table `job_eta`
---
-/*************************
- * Table: job_eta
- *
- * This table holds a timeline of eta trends for pending and running jobs
- *
- * Population Method: dynamic from incoming data
- *
- * Example Data:
- *
- *  signature - References treeherder_reference_1.buildbot_buildernames.signature
- *  state - pending | running
- *  avg_sec - A rolling average over a 12 hr window in seconds
- *  median_sec - The median of the sample range
- *  min_sec - The minimum value of the sample range
- *  max_sec - The minimum value of the sample range
- *  std - Of the of avg_sec
- *  sample_count - The number of samples used in the rolling average
- *  submit_timestamp - The timestamp the eta data was computed and entered
- *************************/
-CREATE TABLE `job_eta` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `signature` varchar(50) DEFAULT NULL,
-  `state` varchar(25) COLLATE utf8_bin NOT NULL,
-  `avg_sec` int(10) unsigned NOT NULL,
-  `median_sec` int(10) unsigned NOT NULL,
-  `min_sec` int(10) unsigned NOT NULL,
-  `max_sec` int(10) unsigned NOT NULL,
-  `std` int(10) unsigned NOT NULL,
-  `sample_count` int(10) unsigned NOT NULL,
-  `submit_timestamp` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_state` (`state`),
-  KEY `idx_avg_sec` (`avg_sec`),
-  KEY `idx_median_sec` (`median_sec`),
-  KEY `idx_sample_count` (`sample_count`),
-  KEY `idx_submit_timestamp` (`submit_timestamp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

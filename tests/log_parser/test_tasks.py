@@ -48,7 +48,7 @@ def mock_mozlog_get_log_handler(monkeypatch):
     def _get_log_handle(mockself, url):
         response = urllib2.urlopen(
                url,
-               timeout=settings.TREEHERDER_REQUESTS_TIMEOUT
+               timeout=settings.REQUESTS_TIMEOUT
         )
         return gzip.GzipFile(fileobj=BytesIO(response.read()))
 
@@ -58,7 +58,7 @@ def mock_mozlog_get_log_handler(monkeypatch):
 
 
 def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset,
-                   mock_post_json, mock_get_remote_content):
+                   test_repository, mock_post_json, mock_fetch_json):
     """
     check that at least 3 job_artifacts get inserted when running
     a parse_log task for a successful job
@@ -96,8 +96,8 @@ def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset,
 # json-log parsing is disabled due to bug 1152681.
 @pytest.mark.xfail
 def test_parse_mozlog_log(jm, initial_data, jobs_with_local_mozlog_log,
-                          sample_resultset, mock_post_json,
-                          mock_get_remote_content,
+                          sample_resultset, test_repository, mock_post_json,
+                          mock_fetch_json,
                           mock_mozlog_get_log_handler
                           ):
     """
@@ -139,8 +139,8 @@ def test_parse_mozlog_log(jm, initial_data, jobs_with_local_mozlog_log,
 
 
 def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
-                                  sample_resultset, mock_post_json,
-                                  mock_get_remote_content
+                                  sample_resultset, test_repository, mock_post_json,
+                                  mock_fetch_json
                                   ):
     """
     check that at least 3 job_artifacts get inserted when running

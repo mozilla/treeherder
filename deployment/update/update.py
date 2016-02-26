@@ -43,14 +43,14 @@ def update(ctx):
     # Create/populate a virtualenv that will be rsynced later along with the source.
     with ctx.lcd(settings.SRC_DIR):
         activate_script = os.path.join(settings.SRC_DIR, 'venv', 'bin', 'activate_this.py')
-        # Peep doesn't yet cache downloaded files, so we reuse the virtualenv to speed up deploys.
+        # We reuse the virtualenv to speed up deploys.
         if not os.path.exists(activate_script):
             ctx.local('virtualenv --python=python2.7 venv')
         # Activate virtualenv.
         execfile(activate_script, dict(__file__=activate_script))
-        # Install requirements using peep, so hashes are verified.
+        # Install requirements using pip v8's new hash-checking mode.
         with ctx.lcd(th_service_src):
-            ctx.local('python2.7 bin/peep.py install -r requirements/common.txt')
+            ctx.local('pip2.7 install --require-hashes -r requirements/common.txt')
         # Make the virtualenv relocatable since paths are hard-coded by default.
         ctx.local('virtualenv --relocatable venv')
         # Fix lib64 symlink to be relative instead of absolute.
@@ -59,10 +59,6 @@ def update(ctx):
             ctx.local('ln -s lib lib64')
 
     with ctx.lcd(th_service_src):
-        # Once we no longer use credentials.json, everything below apart from
-        # collectstatic should be performed on one of the stage/prod specific
-        # nodes at the end of the deploy, rather than on the admin node.
-
         # Install nodejs non-dev packages, needed for the grunt build.
         ctx.local("npm install --production")
         # Generate the UI assets in the `dist/` directory.
@@ -82,8 +78,6 @@ def update(ctx):
         run_local_with_env(ctx, "python2.7 manage.py load_initial_data")
         # Populate the datasource table and create the connected databases.
         run_local_with_env(ctx, "python2.7 manage.py init_datasources")
-        # Update oauth credentials.
-        run_local_with_env(ctx, "python2.7 manage.py export_project_credentials")
 
 
 @task

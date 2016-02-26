@@ -1,29 +1,14 @@
-# Install python and common packages for project
-
-$python_devel = $operatingsystem ? {
-    ubuntu => "python-dev",
-    default => "python-devel",
-}
-
-$libxml2 = $operatingsystem ? {
-    ubuntu => "libxml2-dev",
-    default => "libxml2-devel",
-}
-
-$site_packages = $operatingsystem ? {
-    ubuntu => "lib/python2.7/site-packages",
-    default => "lib64/python2.7/site-packages",
-}
-
 class python {
 
-  # Python2.7 is already installed, but we need to update it to the
-  # latest version from the third party PPA.
-  package{["python2.7",
-           $python_devel,
-           "gcc",
-           "git",
-           $libxml2]:
+  package{[# Python2.7 is already installed, but we need to update it to the
+           # latest version from the third party PPA.
+           "python2.7",
+           # Required by MySQLdb.
+           "python-dev",
+           # Required by pylibmc.
+           "libmemcached-dev",
+           # To improve the UX of the Vagrant environment.
+           "git"]:
     ensure => "latest",
   }
 
@@ -33,14 +18,14 @@ class python {
     command => "curl https://bootstrap.pypa.io/get-pip.py | sudo python -",
     creates => "/usr/local/bin/pip",
     require => [
-      Package[$python_devel],
+      Package["python-dev"],
     ],
   }
 
   exec { "install-virtualenv":
     cwd => "/tmp",
     user => "${APP_USER}",
-    command => "sudo pip install virtualenv==12.1.1",
+    command => "sudo pip install virtualenv==14.0.1",
     creates => "/usr/local/bin/virtualenv",
     require => Exec["install-pip"],
   }
@@ -61,11 +46,11 @@ class python {
     user => "${APP_USER}",
   }
 
-  exec{"peep-install-common":
+  exec{"pip-install-common":
     require => Exec['create-virtualenv'],
     user => "${APP_USER}",
     cwd => '/tmp',
-    command => "${VENV_DIR}/bin/python ${PROJ_DIR}/bin/peep.py install -r ${PROJ_DIR}/requirements/common.txt",
+    command => "${VENV_DIR}/bin/pip install --disable-pip-version-check --require-hashes -r ${PROJ_DIR}/requirements/common.txt",
     timeout => 1800,
   }
 

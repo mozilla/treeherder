@@ -90,7 +90,6 @@
               <td ng-if="property.label == 'Revision'" class="break-word">
                 <a href="{{::property.value | getRevisionUrl:repoName}}"
                    title="Open resultset"
-                   class="repo-link"
                    ng-cloak>{{property.value}}</a>
               </td>
               <td ng-if="property.label != 'Revision'"
@@ -127,7 +126,6 @@
     <script src="vendor/angular/angular-cookies.js"></script>
     <script src="vendor/angular/angular-sanitize.js"></script>
     <script src="vendor/angular-local-storage.min.js"></script>
-    <script src="vendor/ui-bootstrap-tpls-0.13.0.js"></script>
     <script src="vendor/bootstrap.js"></script>
     <script src="vendor/lodash.min.js"></script>
     <script src="vendor/resizer.js"></script>

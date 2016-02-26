@@ -10,7 +10,7 @@ from requests_hawk import HawkAuth
 # When releasing a new version to PyPI please also file a bug to request
 # that it is uploaded to http://pypi.pub.build.mozilla.org/pub/ too.
 # See bug 1191498 for an example of this.
-__version__ = '1.8.0'
+__version__ = '2.0.1'
 
 logger = logging.getLogger(__name__)
 
@@ -621,12 +621,11 @@ class TreeherderClient(object):
 
     def __init__(
             self, protocol='https', host='treeherder.mozilla.org',
-            timeout=120, auth=None, client_id=None, secret=None):
+            timeout=120, client_id=None, secret=None):
         """
         :param protocol: protocol to use (http or https)
         :param host: treeherder host to post to
         :param timeout: maximum time it can take for a request to complete
-        :param auth: an instance of HawkAuth/TreeherderAuth holding the auth credentials (deprecated)
         :param client_id: the Treeherder API credentials client ID
         :param secret: the Treeherder API credentials secret
         """
@@ -639,16 +638,8 @@ class TreeherderClient(object):
         self.protocol = protocol
         self.timeout = timeout
 
-        if auth:
-            logger.warning('The `auth` param is deprecated. Pass the new Hawk credentials '
-                           'as `client_id` and `secret` instead (see bug 1212936).')
-            self.auth = auth
-        elif client_id and secret:
-            self.auth = HawkAuth(credentials={
-                'id': client_id,
-                'key': secret,
-                'algorithm': 'sha256'
-            })
+        if client_id and secret:
+            self.auth = HawkAuth(id=client_id, key=secret)
         else:
             self.auth = None
 
@@ -659,7 +650,7 @@ class TreeherderClient(object):
             )
 
     def _get_uri(self, endpoint):
-        uri = '{0}://{1}/api/{2}'.format(
+        uri = '{0}://{1}/api/{2}/'.format(
             self.protocol, self.host, endpoint)
 
         return uri
@@ -696,38 +687,33 @@ class TreeherderClient(object):
                             headers=self.REQUEST_HEADERS)
         try:
             resp.raise_for_status()
-        except HTTPError as e:
-            response = e.response
-            logger.error("Error submitting data to %s" % response.request.url)
-            logger.error("Request headers: %s" % response.request.headers)
-            logger.error("Response headers: %s" % response.headers)
-            logger.error("Response body: %s" % response.content)
+        except HTTPError:
+            logger.error("HTTPError %s requesting %s: %s",
+                         resp.status_code, resp.request.url, resp.content)
+            logger.debug("Request headers: %s", resp.request.headers)
+            logger.debug("Response headers: %s", resp.headers)
             raise
 
         return resp.json()
 
-    def _post_json(self, project, endpoint, data,
-                   timeout, auth):
+    def _post_json(self, project, endpoint, data, timeout):
         if timeout is None:
             timeout = self.timeout
-
-        auth = auth or self.auth
 
         uri = self._get_project_uri(project, endpoint)
 
         resp = requests.post(uri, json=data,
                              headers=self.REQUEST_HEADERS,
-                             timeout=timeout, auth=auth)
+                             timeout=timeout, auth=self.auth)
 
         try:
             resp.raise_for_status()
-        except HTTPError as e:
-            response = e.response
-            logger.error("Error submitting data to %s" % response.request.url)
-            logger.error("Request headers: %s" % response.request.headers)
-            logger.error("Request body: %s" % response.request.body)
-            logger.error("Response headers: %s" % response.headers)
-            logger.error("Response body: %s" % response.content)
+        except HTTPError:
+            logger.error("HTTPError %s submitting to %s: %s",
+                         resp.status_code, resp.request.url, resp.content)
+            logger.debug("Request headers: %s", resp.request.headers)
+            logger.debug("Request body: %s", resp.request.body)
+            logger.debug("Response headers: %s", resp.headers)
             raise
 
     def get_option_collection_hash(self):
@@ -911,21 +897,14 @@ class TreeherderClient(object):
         response = self._get_json(self.ARTIFACTS_ENDPOINT, None, project, **params)
         return response
 
-    def post_collection(self, project, collection_inst, timeout=None, auth=None):
+    def post_collection(self, project, collection_inst, timeout=None):
         """
         Sends a treeherder collection to the server
 
         :param project: project to submit data for
         :param collection_inst: a TreeherderCollection instance
         :param timeout: custom timeout in seconds (defaults to class timeout)
-        :param auth: an instance of HawkAuth/TreeherderAuth (deprecated)
         """
-        if auth:
-            logger.warning('The `auth` param is deprecated. Pass the new Hawk credentials '
-                           'to the TreeherderClient constructor instead (see bug 1212936).')
-        else:
-            auth = self.auth
-
         if not isinstance(collection_inst, TreeherderCollection):
             msg = '{0} should be an instance of TreeherderCollection'.format(
                 type(collection_inst))
@@ -944,11 +923,9 @@ class TreeherderClient(object):
         collection_inst.validate()
 
         self._post_json(project, collection_inst.endpoint_base,
-                        collection_inst.get_collection_data(),
-                        timeout, auth)
+                        collection_inst.get_collection_data(), timeout)
 
-    def update_parse_status(self, project, job_log_url_id,
-                            parse_status, timeout=None, auth=None):
+    def update_parse_status(self, project, job_log_url_id, parse_status, timeout=None):
         """
         Updates the parsing status of a treeherder job
 
@@ -956,17 +933,9 @@ class TreeherderClient(object):
         :param parse_status: string representing parse status of a treeherder
                              job
         :param timeout: custom timeout in seconds (defaults to class timeout)
-        :param auth: an instance of HawkAuth/TreeherderAuth (deprecated)
         """
-        if auth:
-            logger.warning('The `auth` param is deprecated. Pass the new Hawk credentials '
-                           'to the TreeherderClient constructor instead (see bug 1212936).')
-        else:
-            auth = self.auth
-
         self._post_json(project, self.UPDATE_ENDPOINT.format(job_log_url_id),
-                        {'parse_status': parse_status},
-                        timeout, auth)
+                        {'parse_status': parse_status}, timeout)
 
 
 class TreeherderClientError(Exception):

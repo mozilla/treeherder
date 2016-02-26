@@ -5,9 +5,9 @@ from treeherder.client import TreeherderClient
 from treeherder.model.derived.refdata import RefDataManager
 
 
-def post_collection(project, th_collection, auth=None):
+def post_collection(project, th_collection):
 
-    client = TreeherderClient(protocol='http', host='localhost', auth=None)
+    client = TreeherderClient(protocol='http', host='localhost')
     return client.post_collection(project, th_collection)
 
 
@@ -266,31 +266,3 @@ def load_exp(filename):
         except ValueError:
             # if it's not parse-able, return an empty dict
             return {}
-
-
-def unicode_keys(d):
-    return dict([(unicode(k), v) for k, v in d.items()])
-
-
-def clean_source_blob_dict(src):
-    """Fix a few fields so they're easier to compare"""
-    src["push_timestamp"] = long(src["push_timestamp"])
-    return src
-
-
-def clean_job_blob_dict(job):
-    """Fix a few fields so they're easier to compare"""
-    job["start_timestamp"] = long(job["start_timestamp"])
-    job["submit_timestamp"] = long(job["submit_timestamp"])
-    job["end_timestamp"] = long(job["end_timestamp"])
-    job["result"] = unicode(job["result"])
-
-    # move artifact logs to log_references area for comparison
-    try:
-        artlog = job["artifact"]["log_urls"]
-        job["log_references"].extend(artlog)
-        del(job["artifact"]["log_urls"])
-    except KeyError:
-        pass  # no problem
-
-    return job

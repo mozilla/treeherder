@@ -173,12 +173,20 @@ treeherder.factory('ThResultSetStore', [
                             repoName,
                             resultSet
                         );
+                        updateUnclassifiedFailureCountForTiers(repoName);
                         $rootScope.$emit(thEvents.applyNewJobs, resultSetId);
                     });
             } else {
                 return $q.defer().resolve();
             }
         };
+
+        $rootScope.$on(thEvents.recalculateUnclassified, function() {
+            $timeout(updateUnclassifiedFailureCountForTiers, 0, true, $rootScope.repoName);
+        });
+        $rootScope.$on(thEvents.jobsClassified, function() {
+            $timeout(updateUnclassifiedFailureCountForTiers, 0, true, $rootScope.repoName);
+        });
 
         var addRepository = function(repoName){
             //Initialize a new repository in the repositories structure
@@ -209,7 +217,6 @@ treeherder.factory('ThResultSetStore', [
                     // selected job is being re-rendered, knowing which one is
                     // selected here in the model will allow us to apply the
                     // correct styling to it.
-                    lastJobElSelected:{},
                     lastJobObjSelected:{},
 
                     // maps to help finding objects to update/add
@@ -217,6 +224,8 @@ treeherder.factory('ThResultSetStore', [
                     jobMap:{},
                     grpMap:{},
                     unclassifiedFailureMap: {},
+                    // count of unclassified for the currently enabled tiers
+                    unclassifiedFailureCountForTiers: 0,
                     //used as the offset in paging
                     rsMapOldestTimestamp:null,
                     resultSets:[],
@@ -255,14 +264,12 @@ treeherder.factory('ThResultSetStore', [
         };
 
         var getSelectedJob = function(repoName){
-            return { el:repositories[repoName].lastJobElSelected,
-                     job:repositories[repoName].lastJobObjSelected };
+            return {
+                job:repositories[repoName].lastJobObjSelected
+            };
         };
 
-        var setSelectedJob = function(
-            repoName, lastJobElSelected, lastJobObjSelected){
-
-            repositories[repoName].lastJobElSelected = lastJobElSelected;
+        var setSelectedJob = function(repoName, lastJobObjSelected) {
             repositories[repoName].lastJobObjSelected = lastJobObjSelected;
         };
 
@@ -283,6 +290,7 @@ treeherder.factory('ThResultSetStore', [
                 });
 
                 if (jobList.length === 0) {
+                    resultSet.isRunnableVisible = false;
                     thNotify.send("No new jobs available");
                 }
 
@@ -385,17 +393,34 @@ treeherder.factory('ThResultSetStore', [
 
         var updateUnclassifiedFailureMap = function(repoName, job) {
             if (thJobFilters.isJobUnclassifiedFailure(job)) {
-                repositories[repoName].unclassifiedFailureMap[job.job_guid] = true;
+                // store a job here instead of just ``true`` so that when we
+                // go back and evaluate each one to see if it matches a tier,
+                // we can.  This also allows us to check other values of the job
+                // to see if it matches the current filters.
+                repositories[repoName].unclassifiedFailureMap[job.job_guid] = job;
             } else {
                 delete repositories[repoName].unclassifiedFailureMap[job.job_guid];
             }
         };
 
-        var getUnclassifiedFailureCount = function(repoName) {
+        /**
+         * Go through map of loaded unclassified jobs and check against current
+         * enabled tiers to get this count.
+         */
+        var updateUnclassifiedFailureCountForTiers = function(repoName) {
             if (_.has(repositories, repoName)) {
+                repositories[repoName].unclassifiedFailureCountForTiers = 0;
+                _.forEach(repositories[repoName].unclassifiedFailureMap, function (job) {
+                    if (thJobFilters.isFilterSetToShow("tier", job.tier)) {
+                        repositories[repoName].unclassifiedFailureCountForTiers += 1;
+                    }
+                });
+            }
+        };
 
-                return _.size(repositories[repoName].unclassifiedFailureMap);
-
+        var getUnclassifiedFailureCount = function(repoName) {
+            if (repositories[repoName]) {
+                return repositories[repoName].unclassifiedFailureCountForTiers;
             }
             return 0;
         };
@@ -853,6 +878,7 @@ treeherder.factory('ThResultSetStore', [
              * @param count How many to fetch
              */
             repositories[repoName].loadingStatus.appending = true;
+            var isAppend = (repositories[repoName].resultSets.length > 0);
             var resultsets;
             var exclusionProfile = $location.search().exclusion_profile;
             var loadRepositories = ThRepositoryModel.load({name: repoName,
@@ -915,7 +941,9 @@ treeherder.factory('ThResultSetStore', [
                         });
                     $q.all(mapResultSetJobsPromiseList).then(function() {
                         setSelectedJobFromQueryString(repoName);
-                        registerJobsPoller();
+                        if (!isAppend) {
+                            registerJobsPoller();
+                        }
                     });
                 });
         };

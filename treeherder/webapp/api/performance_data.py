@@ -9,11 +9,17 @@ from rest_framework import (exceptions,
                             viewsets)
 from rest_framework.response import Response
 
-from performance_serializers import PerformanceAlertSummarySerializer
 from treeherder.model import models
-from treeherder.perf.models import (PerformanceAlertSummary,
+from treeherder.perf.models import (PerformanceAlert,
+                                    PerformanceAlertSummary,
                                     PerformanceDatum,
+                                    PerformanceFramework,
                                     PerformanceSignature)
+from treeherder.webapp.api.permissions import IsStaffOrReadOnly
+
+from .performance_serializers import (PerformanceAlertSerializer,
+                                      PerformanceAlertSummarySerializer,
+                                      PerformanceFrameworkSerializer)
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
@@ -47,13 +53,15 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
                 platform__in=platforms)
 
         ret = {}
-        for (signature_hash, option_collection_hash, platform, suite, test,
-             lower_is_better, extra_properties) in signature_data.values_list(
+        for (signature_hash, option_collection_hash, platform, framework,
+             suite, test, lower_is_better,
+             extra_properties) in signature_data.values_list(
                  'signature_hash',
                  'option_collection__option_collection_hash',
-                 'platform__platform', 'suite',
+                 'platform__platform', 'framework', 'suite',
                  'test', 'lower_is_better', 'extra_properties').distinct():
             ret[signature_hash] = {
+                'framework_id': framework,
                 'option_collection_hash': option_collection_hash,
                 'machine_platform': platform,
                 'suite': suite
@@ -80,6 +88,13 @@ class PerformancePlatformViewSet(viewsets.ViewSet):
         return Response(PerformanceSignature.objects.filter(
             repository=repository).values_list(
                 'platform__platform', flat=True).distinct())
+
+
+class PerformanceFrameworkViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = PerformanceFramework.objects.all()
+    serializer_class = PerformanceFrameworkSerializer
+    filter_backends = [filters.OrderingFilter]
+    ordering = 'id'
 
 
 class PerformanceDatumViewSet(viewsets.ViewSet):
@@ -139,7 +154,7 @@ class AlertSummaryPagination(pagination.CursorPagination):
     page_size = 10
 
 
-class PerformanceAlertSummaryViewSet(viewsets.ReadOnlyModelViewSet):
+class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     """ViewSet for the performance alert summary model"""
     queryset = PerformanceAlertSummary.objects.all().prefetch_related(
         'alerts', 'alerts__series_signature',
@@ -147,9 +162,27 @@ class PerformanceAlertSummaryViewSet(viewsets.ReadOnlyModelViewSet):
         'alerts__series_signature__platform',
         'alerts__series_signature__option_collection',
         'alerts__series_signature__option_collection__option')
+    permission_classes = (IsStaffOrReadOnly,)
 
     serializer_class = PerformanceAlertSummarySerializer
     filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
-    filter_fields = ['id']
+    filter_fields = ['id', 'status', 'framework', 'repository',
+                     'alerts__series_signature__signature_hash']
     ordering = ('-last_updated', '-id')
     pagination_class = AlertSummaryPagination
+
+
+class PerformanceAlertViewSet(viewsets.ModelViewSet):
+    queryset = PerformanceAlert.objects.all()
+    permission_classes = (IsStaffOrReadOnly,)
+
+    serializer_class = PerformanceAlertSerializer
+    filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
+    filter_fields = ['id']
+    ordering = ('-id')
+
+    class AlertPagination(pagination.CursorPagination):
+        ordering = ('-id')
+        page_size = 10
+
+    pagination_class = AlertPagination

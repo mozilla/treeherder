@@ -83,12 +83,20 @@ The generated Hawk ``secret`` will be output to the console, which should then
 be passed along with the chosen ``client_id`` to the TreeherderClient constructor.
 For more details see the :doc:`submitting_data` section.
 
-Users can request credentials for the deployed Mozilla Treeherder instances
+Users can generate credentials for the deployed Mozilla Treeherder instances
 (and view/delete existing ones) using the forms here:
 `stage <https://treeherder.allizom.org/credentials/>`__ /
 `production <https://treeherder.mozilla.org/credentials/>`__.
+It is recommended that the same ``client_id`` string be used for both stage
+and production.
 
-Once requested these require approval by a Treeherder administrator, here:
+The credentials must be marked as approved by a Treeherder admin before they can
+be used for submitting to the API. Request this for stage first, by filing a bug in
+`Treeherder: API <https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree%20Management&component=Treeherder%3A%20API>`__.
+Once any submission issues are resolved on stage, file a new bug requesting
+approval for production.
+
+Treeherder administrators can manage credentials here:
 `stage <https://treeherder.allizom.org/admin/credentials/credentials/>`__ /
 `production <https://treeherder.mozilla.org/admin/credentials/credentials/>`__.
 
@@ -134,37 +142,6 @@ Examples:
 This will run the sql against the database of every project. If you want to run
 against a specific project, you can do that with the `--datasources` option.
 Run `./manage.py run_sql --help` for more details.
-
-
-Running multiple Vagrant VMs
-----------------------------
-
-It's sometimes useful to be able to spin up an additional Vagrant
-environment without affecting the first. To do this, append the
-machine name `scratch` onto the standard commands. You will need to
-ensure the default VM is suspended first, since otherwise the exposed
-ports will clash.
-
-  .. code-block:: bash
-
-     $ vagrant suspend
-     $ vagrant up scratch
-       ...
-     $ vagrant status
-       Current machine states:
-       default                   saved (virtualbox)
-       scratch                   running (virtualbox)
-     $ vagrant ssh scratch
-       ...
-     $ vagrant suspend scratch
-     $ vagrant up
-     $ vagrant status
-       Current machine states:
-       default                   running (virtualbox)
-       scratch                   saved (virtualbox)
-
-If you do not provide a machine name for `up` or `ssh`, the command will
-apply to the `default` machine only.
 
 
 Building the docs locally

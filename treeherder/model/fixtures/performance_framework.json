@@ -19,5 +19,19 @@
         "fields": {
             "name": "autophone"
         }
+    },
+    {
+        "pk": 4,
+        "model": "perf.PerformanceFramework",
+        "fields": {
+            "name": "awsy"
+        }
+    },
+    {
+        "pk": 5,
+        "model": "perf.PerformanceFramework",
+        "fields": {
+            "name": "awfy"
+        }
     }
 ]

@@ -1,18 +1,41 @@
-<table class="table compare-table" style="table-layout: fixed;" ng-repeat="testName in filteredTestList">
+<form class="form-inline">
+  <div class="form-group" ng-show="filterByFramework">
+    <select ng-model="filterOptions.framework"
+            ng-options="framework.name for framework in frameworks track by framework.id"/>
+    &nbsp;
+  </div>
+  <div class="form-group">
+    <input id="filter" type="text" class="form-control" ng-model="filterOptions.filter" placeholder="filter text e.g. linux tp5o" ng-model-options="{debounce: 250}"/>
+  </div>
+  <div class="checkbox" uib-tooltip="Non-trivial changes (2%+)">
+    <label>
+      <input type="checkbox" ng-model="filterOptions.showOnlyImportant"/>
+      Show only important changes
+    </label>
+  </div>
+  <div class="checkbox" uib-tooltip="At least 6 datapoints OR 2+ datapoints and a large difference">
+    <label>
+      <input type="checkbox" ng-model="filterOptions.showOnlyConfident"/>
+      Hide uncertain results
+    </label>
+  </div>
+</form>
+<hr/>
+<table class="table table-condensed compare-table" style="table-layout: fixed;" ng-repeat="compareResults in filteredResultList | orderBy: 'testName'">
   <tbody>
     <tr class="subtest-header">
       <!-- Manually specify table widths because it's just easier this way -->
-      <th class="test-title"><span style=" word-wrap: break-word;">{{titles[testName]}}</span></th>
-      <th style="width: 140px;">Base</th>
+      <th class="test-title"><span style=" word-wrap: break-word;">{{titles[compareResults.testName]}}</span></th>
+      <th style="width: 140px;">{{baseTitle}}</th>
       <th style="width: 30px;"><!-- less than / greater than --></th>
-      <th style="width: 140px;">New</th>
+      <th style="width: 140px;">{{newTitle}}</th>
       <th style="width: 80px;">Delta</th>
       <th style="width: 120px"><!-- Graphical difference --></th>
       <th style="width: 100px;">Confidence</th>
       <th class="num-runs" style="width: 80px"># Runs</th>
       <th class="test-warning" style="width: 30px"><!-- warning if not enough --></th>
     </tr>
-    <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults[testName] | orderBy: 'name'" ng-show="filterPlatform(compareResult)">
+    <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults.results | orderBy: 'name'">
       <td class="test-title">{{compareResult.name}}&nbsp;&nbsp;
         <span class="result-links" ng-if="compareResult.links.length > 0">
           <span ng-repeat="link in compareResult.links">
@@ -42,13 +65,13 @@
                     replicates="compareResult.newRuns"></ph-average>
       </td>
       <td ng-class="getCompareClasses(compareResult)">
-        <span ng-if="compareResult.delta" class="detail-hint" tooltip="Mean difference: {{compareResult.delta|displayPrecision}} (= {{compareResult.deltaPercentage|displayPrecision}}%)">
+        <span ng-if="compareResult.delta" class="detail-hint" uib-tooltip="Mean difference: {{compareResult.delta|displayPrecision}} (= {{compareResult.deltaPercentage|displayPrecision}}%)">
           {{compareResult.deltaPercentage|displayPrecision}}%
         </span>
       </td>
       <td ng-if="compareResult.delta">
         <div ng-if="!compareResult.newIsBetter" style="margin: auto; width: 80%;"
-             tooltip="Relative magnitude of change (scale from 0 - 20%+)">
+             uib-tooltip="Relative magnitude of change (scale from 0 - 20%+)">
           <div class="bar bar-scale"
                style="width: {{100 - compareResult.magnitude}}%; height: 1em; float: left;">
           </div>
@@ -58,7 +81,7 @@
           </div>
         </div>
         <div ng-if="compareResult.newIsBetter" style="margin: auto; width: 80%;"
-             tooltip="Relative magnitude of change (scale from 0 - 20%+)">
+             uib-tooltip="Relative magnitude of change (scale from 0 - 20%+)">
           <div class="bar"
                ng-class="{'bar-improvement': compareResult.isImprovement}"
                style="width: {{compareResult.magnitude}}%; float: left;">
@@ -72,13 +95,13 @@
       <td>
         <span ng-if="compareResult.confidence && compareResult.confidenceText"
               class="detail-hint"
-              tooltip="{{compareResult.confidenceTextLong}}">
+              uib-tooltip="{{compareResult.confidenceTextLong}}">
           {{compareResult.confidence|displayPrecision}} ({{compareResult.confidenceText}})
           </span>
       </td>
       <td class="num-runs">
         <span class="detail-hint"
-              tooltip="{{compareResult.originalRuns.length}} base /  {{compareResult.newRuns.length}} new">
+              uib-tooltip="{{compareResult.originalRuns.length}} base /  {{compareResult.newRuns.length}} new">
           {{compareResult.originalRuns.length}} /
           {{compareResult.newRuns.length}}</span>
       </td>
@@ -91,16 +114,16 @@
                for confidence -- if we've done that many and we're still
                not confident in a change, more are unlikely to help)
           -->
-        <span ng-if="compareResult.isComplete && !compareResult.isConfident"
+        <span ng-if="compareResult.needsMoreRuns"
               class="glyphicon glyphicon-warning-sign text-warning"
-              tooltip="More base / new runs recommended for increased confidence in comparison"
+              uib-tooltip="More base / new runs recommended for increased confidence in comparison"
               tooltip-placement="left"
               style="cursor:default"></span>
       </td>
     </tr>
   </tbody>
 </table>
-<p class="lead text-center" ng-show="!filteredTestList.length">
+<p class="lead text-center" ng-show="hasNoResults">
   No results to show for these two revisions.
   <span ng-show="testList.length">
     Try changing your filter settings?

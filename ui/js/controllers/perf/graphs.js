@@ -1,18 +1,18 @@
 "use strict";
 
 perf.controller('GraphsCtrl', [
-    '$state', '$stateParams', '$scope', '$rootScope', '$location', '$modal',
-    'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries',
+    '$state', '$stateParams', '$scope', '$rootScope', '$location', '$uibModal',
+    'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries', 'PhAlerts',
     'ThRepositoryModel', 'ThOptionCollectionModel', 'ThResultSetModel',
     'phTimeRanges', 'phDefaultTimeRangeValue',
     function GraphsCtrl($state, $stateParams, $scope, $rootScope, $location,
-                        $modal, thServiceDomain, $http, $q, $timeout, PhSeries,
-                        ThRepositoryModel, ThOptionCollectionModel,
+                        $uibModal, thServiceDomain, $http, $q, $timeout, PhSeries,
+                        PhAlerts, ThRepositoryModel, ThOptionCollectionModel,
                         ThResultSetModel, phTimeRanges, phDefaultTimeRangeValue) {
         var availableColors = [ 'red', 'green', 'blue', 'orange', 'purple' ];
-        var optionCollectionMap = null;
 
         $scope.highlightedRevisions = [ undefined, undefined ];
+        $scope.highlightAlerts = true;
 
         $scope.timeranges = phTimeRanges;
 
@@ -71,7 +71,12 @@ perf.controller('GraphsCtrl', [
 
                 // we need the flot data for calculating values/deltas and to know where
                 // on the graph to position the tooltip
-                var index = phSeries.flotSeries.jobIdData.indexOf(dataPoint.jobId);
+                var index;
+                if (dataPoint.jobId) {
+                    index = phSeries.flotSeries.jobIdData.indexOf(dataPoint.jobId);
+                } else {
+                    index = phSeries.flotSeries.resultSetData.indexOf(dataPoint.resultSetId);
+                }
                 var flotData = {
                     series: _.find($scope.plot.getData(), function(fs) {
                         return fs.thSeries.projectName == dataPoint.projectName &&
@@ -96,18 +101,23 @@ perf.controller('GraphsCtrl', [
                           flotSeriesData[prevFlotDataPointIndex][1] : v),
                     dv = v - v0,
                     dvp = v / v0 - 1;
-
+                var alertSummary = _.find(phSeries.relatedAlertSummaries, function(alertSummary) {
+                    return alertSummary.result_set_id === dataPoint.resultSetId;
+                });
                 $scope.tooltipContent = {
-                    project: _.findWhere($scope.projects,
+                    project: _.findWhere($rootScope.repos,
                                          { name: phSeries.projectName }),
                     revisionUrl: thServiceDomain + '#/jobs?repo=' + phSeries.projectName,
+                    jobId: phSeries.flotSeries.jobIdData[index],
                     test: phSeries.name,
                     platform: phSeries.platform,
                     value: Math.round(v*1000)/1000,
                     deltaValue: dv.toFixed(1),
                     deltaPercentValue: (100 * dvp).toFixed(1),
                     date: $.plot.formatDate(new Date(t), '%a %b %d, %H:%M:%S'),
-                    retriggers: (retriggerNum['retrigger'] - 1)
+                    retriggers: (retriggerNum['retrigger'] - 1),
+                    alertSummary: alertSummary,
+                    revisionInfoAvailable: true
                 };
 
                 // Get revision information for both this datapoint and the previous
@@ -122,8 +132,15 @@ perf.controller('GraphsCtrl', [
                                    function(revisions) {
                                        $scope.tooltipContent[resultRevision.scopeKey] =
                                            revisions[0];
+                                       if ($scope.tooltipContent.prevRevision && $scope.tooltipContent.revision) {
+                                           $scope.tooltipContent.pushlogURL = $scope.tooltipContent.project.getPushLogHref({
+                                               from: $scope.tooltipContent.prevRevision,
+                                               to: $scope.tooltipContent.revision
+                                           });
+                                       }
                                    }, function(error) {
-                                       console.log("Failed to get revision: " + error.reason);
+                                       $scope.tooltipContent.revisionInfoAvailable = false;
+                                       console.log("Failed to get revision: " + error.data);
                                    });
                        });
 
@@ -319,8 +336,7 @@ perf.controller('GraphsCtrl', [
             // synchronize series visibility with flot, in case it's changed
             $scope.seriesList.forEach(function(series) {
                 series.flotSeries.points.show = series.visible;
-                series.active = true;
-                series.blockColor = series.active ? series.color : "grey";
+                series.blockColor = series.visible ? series.color : "grey";
             });
 
             // reset highlights
@@ -328,7 +344,40 @@ perf.controller('GraphsCtrl', [
                 series.highlightedPoints = [];
             });
 
-            // highlight each revision on visible serii
+            // highlight points which correspond to an alert
+            var markings = [];
+            function addHighlightedDatapoint(series, resultSetId) {
+                // add a vertical line where alerts are, for extra visibility
+                var index = series.flotSeries.resultSetData.indexOf(resultSetId);
+                if (index !== (-1)) {
+                    markings.push({
+                        color: "#ddd",
+                        lineWidth: 1,
+                        xaxis: {
+                            from: series.flotSeries.data[index][0],
+                            to: series.flotSeries.data[index][0]
+                        }
+                    });
+                }
+                // highlight the datapoints too
+                series.highlightedPoints = _.union(series.highlightedPoints,  _.compact(_.map(
+                    series.flotSeries.resultSetData,
+                    function(seriesResultSetId, index) {
+                        return resultSetId === seriesResultSetId ? index : null;
+                    })));
+            }
+
+            if ($scope.highlightAlerts) {
+                _.forEach($scope.seriesList, function(series) {
+                    if (series.visible) {
+                        _.forEach(series.relatedAlertSummaries, function(alertSummary) {
+                            addHighlightedDatapoint(series, alertSummary.result_set_id);
+                        });
+                    }
+                });
+            }
+
+            // highlight each explicitly highlighted revision on visible serii
             var highlightPromises = [];
             _.each($scope.highlightedRevisions, function(rev) {
                 if (rev && rev.length == 12) {
@@ -338,9 +387,7 @@ perf.controller('GraphsCtrl', [
                                 return ThResultSetModel.getResultSetsFromRevision(
                                     series.projectName, rev).then(
                                         function(resultSets) {
-                                            var resultSetId = resultSets[0].id;
-                                            var j = series.flotSeries.resultSetData.indexOf(resultSetId);
-                                            series.highlightedPoints.push(j);
+                                            addHighlightedDatapoint(series, resultSets[0].id);
                                         }, function(reason) {
                                             /* ignore cases where no result set exists
                                                for revision */
@@ -370,7 +417,8 @@ perf.controller('GraphsCtrl', [
                             backgroundColor: '#fff',
                             hoverable: true,
                             clickable: true,
-                            autoHighlight: false
+                            autoHighlight: false,
+                            markings: markings
                         }
                     }
                 );
@@ -469,6 +517,7 @@ perf.controller('GraphsCtrl', [
                                                    return (highlight &&
                                                            highlight.length == 12);
                                                }),
+                highlightAlerts: !$scope.highlightAlerts ? 0 : undefined,
                 zoom: (function() {
                     if ((typeof $scope.zoom.x != "undefined")
                         && (typeof $scope.zoom.y != "undefined")
@@ -525,6 +574,14 @@ perf.controller('GraphsCtrl', [
                                          jobIdData: _.pluck(response.data[series.signature],
                                              'job_id')
                                      };
+                                 }).then(function() {
+                                     series.relatedAlertSummaries = [];
+                                     var repo = _.find($rootScope.repos, { name: series.projectName });
+                                     return PhAlerts.getAlertSummaries({
+                                         seriesSignature: series.signature,
+                                         repository: repo.id }).then(function(data) {
+                                             series.relatedAlertSummaries = data.results;
+                                         });
                                  });
         }
 
@@ -549,37 +606,39 @@ perf.controller('GraphsCtrl', [
                                          propsHash[partialSeries.project][partialSeries.signature] = data[partialSeries.signature];
                                      });
                 })).then(function() {
-                    // create a new seriesList in the correct order
-                    partialSeriesList.forEach(function(partialSeries) {
-                        var seriesSummary = PhSeries.getSeriesSummary(
-                            partialSeries.project,
-                            partialSeries.signature,
-                            propsHash[partialSeries.project][partialSeries.signature],
-                            optionCollectionMap);
-                        seriesSummary.projectName = partialSeries.project;
-                        seriesSummary.visible = partialSeries.visible;
-                        seriesSummary.color = availableColors.pop();
-                        seriesSummary.highlighted = partialSeries.highlighted;
-                        $scope.seriesList.push(seriesSummary);
-                    });
-                    $q.all($scope.seriesList.map(getSeriesData)).then(function() {
-                        plotGraph();
-                        updateDocumentTitle();
+                    ThOptionCollectionModel.getMap().then(
+                        function(optionCollectionMap) {
+                            // create a new seriesList in the correct order
+                            partialSeriesList.forEach(function(partialSeries) {
+                                var seriesSummary = PhSeries.getSeriesSummary(
+                                    partialSeries.project,
+                                    partialSeries.signature,
+                                    propsHash[partialSeries.project][partialSeries.signature],
+                                    optionCollectionMap);
+                                seriesSummary.projectName = partialSeries.project;
+                                seriesSummary.visible = partialSeries.visible;
+                                seriesSummary.color = availableColors.pop();
+                                seriesSummary.highlighted = partialSeries.highlighted;
+                                $scope.seriesList.push(seriesSummary);
+                            });
+                            $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+                                plotGraph();
+                                updateDocumentTitle();
 
-                        if ($scope.selectedDataPoint) {
-                            showTooltip($scope.selectedDataPoint);
-                        }
-                    });
-                },
-                         function(error) {
-                             if (error.statusText) {
-                                 error = "HTTP Error: " + error.statusText;
-                             }
-                             // we could probably do better than print this
-                             // rather useless error, but at least this gives
-                             // a hint on what the problem is
-                             alert("Error loading performance data\n\n" + error);
-                         });
+                                if ($scope.selectedDataPoint) {
+                                    showTooltip($scope.selectedDataPoint);
+                                }
+                            });
+                        });
+                }, function(error) {
+                    if (error.statusText) {
+                        error = "HTTP Error: " + error.statusText;
+                    }
+                    // we could probably do better than print this
+                    // rather useless error, but at least this gives
+                    // a hint on what the problem is
+                    alert("Error loading performance data\n\n" + error);
+                });
         }
 
         $scope.removeSeries = function(projectName, signature) {
@@ -620,162 +679,175 @@ perf.controller('GraphsCtrl', [
 
         $scope.resetHighlight = function(i) {
             $scope.highlightedRevisions[i] = '';
-            $scope.updateHighlightedRevisions();
-        };
 
-        $scope.updateHighlightedRevisions = function() {
             // update url
             updateDocument();
             plotGraph();
         };
 
-        ThOptionCollectionModel.get_map().then(
-            function(_optionCollectionMap) {
-                optionCollectionMap = _optionCollectionMap;
+        ThRepositoryModel.load().then(function() {
+            if ($stateParams.timerange) {
+                var timeRange = _.find(phTimeRanges,
+                                       {'value': parseInt($stateParams.timerange)});
+                $scope.myTimerange = timeRange;
+            } else {
+                $scope.myTimerange = _.find(phTimeRanges,
+                                            {'value': phDefaultTimeRangeValue});
+            }
+            $scope.timeRangeChanged = function() {
+                $scope.zoom = {};
+                deselectDataPoint();
 
-                if ($stateParams.timerange) {
-                    var timeRange = _.find(phTimeRanges,
-                                           {'value': parseInt($stateParams.timerange)});
-                    $scope.myTimerange = timeRange;
-                } else {
-                    $scope.myTimerange = _.find(phTimeRanges,
-                                                {'value': phDefaultTimeRangeValue});
+                updateDocument();
+                // refetch and re-render all graph data
+                $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+                    plotGraph();
+                });
+            };
+
+            if ($stateParams.zoom) {
+                var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '');
+                var zoomArray = zoomString.split(",");
+                var zoomObject = {
+                    "x": zoomArray.slice(0,2),
+                    "y": zoomArray.slice(2,4)
+                };
+                $scope.zoom = (zoomString) ? zoomObject : [];
+            } else {
+                $scope.zoom = [];
+            }
+
+            if ($stateParams.series) {
+                $scope.seriesList = [];
+                if (_.isString($stateParams.series)) {
+                    $stateParams.series = [$stateParams.series];
                 }
-                $scope.timeRangeChanged = function() {
-                    $scope.zoom = {};
-                    deselectDataPoint();
+                if ($stateParams.highlightAlerts) {
+                    $scope.highlightAlerts = parseInt($stateParams.highlightAlerts);
+                }
+                if ($stateParams.highlightedRevisions) {
+                    if (typeof($stateParams.highlightedRevisions) === 'string') {
+                        $scope.highlightedRevisions = [$stateParams.highlightedRevisions];
+                    } else {
+                        $scope.highlightedRevisions = $stateParams.highlightedRevisions;
+                    }
+                } else {
+                    $scope.highlightedRevisions = ['', ''];
+                }
 
-                    updateDocument();
-                    // refetch and re-render all graph data
-                    $q.all($scope.seriesList.map(getSeriesData)).then(function() {
-                        plotGraph();
+                // we only store the signature + project name in the url, we need to
+                // fetch everything else from the server
+                var partialSeriesList = $stateParams.series.map(function(encodedSeries) {
+                    var partialSeriesString = decodeURIComponent(encodedSeries).replace(/[\[\]"]/g, '');
+                    var partialSeriesArray = partialSeriesString.split(",");
+                    var partialSeriesObject = {
+                        "project":  partialSeriesArray[0],
+                        "signature":  partialSeriesArray[1],
+                        "visible": (partialSeriesArray[2] == 0) ? false : true
+                    };
+                    return partialSeriesObject;
+                });
+                addSeriesList(partialSeriesList);
+            } else {
+                $scope.seriesList = [];
+                addSeriesList([]);
+            }
+            if ($stateParams.selected) {
+                var tooltipString = decodeURIComponent($stateParams.selected).replace(/[\[\]"]/g, '');
+                var tooltipArray = tooltipString.split(",");
+                var tooltip = {
+                    projectName: tooltipArray[0],
+                    signature: tooltipArray[1],
+                    resultSetId: parseInt(tooltipArray[2]),
+                    jobId: (tooltipArray[3] !== undefined) ? parseInt(tooltipArray[3]) : null
+                };
+                $scope.selectedDataPoint = (tooltipString) ? tooltip : null;
+            }
+            ThOptionCollectionModel.getMap().then(function(optionCollectionMap) {
+                $scope.addTestData = function(option, seriesSignature) {
+                    var defaultProjectName, defaultPlatform;
+                    var options = {};
+                    if ($scope.seriesList.length > 0) {
+                        var lastSeries = $scope.seriesList.slice(-1)[0];
+                        defaultProjectName = lastSeries.projectName;
+                        defaultPlatform = lastSeries.platform;
+                    }
+
+                    if (option !== undefined) {
+                        var series = _.findWhere($scope.seriesList, {"signature": seriesSignature});
+                        options = { option: option, relatedSeries: series };
+                    }
+
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'partials/perf/testdatachooser.html',
+                        controller: 'TestChooserCtrl',
+                        size: 'lg',
+                        resolve: {
+                            projects: function() {
+                                return $rootScope.repos;
+                            },
+                            optionCollectionMap: function() {
+                                return optionCollectionMap;
+                            },
+                            timeRange: function() {
+                                return $scope.myTimerange.value;
+                            },
+                            testsDisplayed: function() {
+                                return $scope.seriesList;
+                            },
+                            defaultProjectName: function() { return defaultProjectName; },
+                            defaultPlatform: function() { return defaultPlatform; },
+                            options: function() { return options; }
+                        }
+                    });
+
+                    modalInstance.opened.then(function () {
+                        window.setTimeout(function () { modalInstance.updateTestInput(); }, 0);
+                    });
+
+                    modalInstance.result.then(function(seriesList) {
+                        seriesList.forEach(function(series)  {
+                            series.hightlightedPoints = [];
+                            series.visible = true;
+                            series.color = availableColors.pop();
+                            $scope.seriesList.push(series);
+                        });
+                        if (!$scope.highlightedRevision) {
+                            $scope.highlightedRevision = '';
+                        }
+                        if (!$scope.zoom) {
+                            $scope.zoom = {};
+                        }
+                        updateDocument();
+                        $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+                            plotGraph();
+                        });
                     });
                 };
-
-
-                if ($stateParams.zoom) {
-                    var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '');
-                    var zoomArray = zoomString.split(",");
-                    var zoomObject = {
-                        "x": zoomArray.slice(0,2),
-                        "y": zoomArray.slice(2,4)
-                    };
-                    $scope.zoom = (zoomString) ? zoomObject : [];
-                } else {
-                    $scope.zoom = [];
-                }
-
-                if ($stateParams.series) {
-                    $scope.seriesList = [];
-                    if (_.isString($stateParams.series)) {
-                        $stateParams.series = [$stateParams.series];
-                    }
-                    if ($stateParams.highlightedRevisions) {
-                        if (typeof($stateParams.highlightedRevisions) === 'string') {
-                            $scope.highlightedRevisions = [$stateParams.highlightedRevisions];
-                        } else {
-                            $scope.highlightedRevisions = $stateParams.highlightedRevisions;
-                        }
-                    } else {
-                        $scope.highlightedRevisions = ['', ''];
-                    }
-
-                    // we only store the signature + project name in the url, we need to
-                    // fetch everything else from the server
-                    var partialSeriesList = $stateParams.series.map(function(encodedSeries) {
-                        var partialSeriesString = decodeURIComponent(encodedSeries).replace(/[\[\]"]/g, '');
-                        var partialSeriesArray = partialSeriesString.split(",");
-                        var partialSeriesObject = {
-                            "project":  partialSeriesArray[0],
-                            "signature":  partialSeriesArray[1],
-                            "visible": (partialSeriesArray[2] == 0) ? false : true
-                        };
-                        return partialSeriesObject;
-                    });
-                    addSeriesList(partialSeriesList);
-                } else {
-                    $scope.seriesList = [];
-                    addSeriesList([]);
-                }
-                if ($stateParams.selected) {
-                    var tooltipString = decodeURIComponent($stateParams.selected).replace(/[\[\]"]/g, '');
-                    var tooltipArray = tooltipString.split(",");
-                    var tooltip = {
-                        projectName: tooltipArray[0],
-                        signature: tooltipArray[1],
-                        resultSetId: parseInt(tooltipArray[2]),
-                        jobId: (tooltipArray[3] !== undefined) ? parseInt(tooltipArray[3]) : null
-                    };
-                    $scope.selectedDataPoint = (tooltipString) ? tooltip : null;
-                }
-                ThRepositoryModel.get_list().then(function(response) {
-
-                    $scope.projects = response.data;
-                    $scope.addTestData = function(option, seriesSignature) {
-                        var defaultProjectName, defaultPlatform;
-                        var options = {};
-                        if ($scope.seriesList.length > 0) {
-                            var lastSeries = $scope.seriesList.slice(-1)[0];
-                            defaultProjectName = lastSeries.projectName;
-                            defaultPlatform = lastSeries.platform;
-                        }
-
-                        if (option !== undefined) {
-                            var series = _.findWhere($scope.seriesList, {"signature": seriesSignature});
-                            options = { option: option, relatedSeries: series };
-                        }
-
-                        var modalInstance = $modal.open({
-                            templateUrl: 'partials/perf/testdatachooser.html',
-                            controller: 'TestChooserCtrl',
-                            size: 'lg',
-                            resolve: {
-                                projects: function() {
-                                    return $scope.projects;
-                                },
-                                optionCollectionMap: function() {
-                                    return optionCollectionMap;
-                                },
-                                timeRange: function() {
-                                    return $scope.myTimerange.value;
-                                },
-                                testsDisplayed: function() {
-                                    return $scope.seriesList;
-                                },
-                                defaultProjectName: function() { return defaultProjectName; },
-                                defaultPlatform: function() { return defaultPlatform; },
-                                options: function() { return options; }
-                            }
-                        });
-
-                        modalInstance.opened.then(function () {
-                            window.setTimeout(function () { modalInstance.updateTestInput(); }, 0);
-                        });
-
-                        modalInstance.result.then(function(seriesList) {
-                            seriesList.forEach(function(series)  {
-                                series.hightlightedPoints = [];
-                                series.visible = true;
-                                series.color = availableColors.pop();
-                                $scope.seriesList.push(series);
-                            });
-                            if (!$scope.highlightedRevision) {
-                                $scope.highlightedRevision = '';
-                            }
-                            if (!$scope.zoom) {
-                                $scope.zoom = {};
-                            }
-                            updateDocument();
-                            $q.all($scope.seriesList.map(getSeriesData)).then(function() {
-                                plotGraph();
-                            });
-                        });
-                    };
-                });
             });
+        });
     }]);
 
-perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
+perf.filter('testNameContainsWords', function() {
+    /**
+     Filter a list of test by ensuring that every word in the textFilter is
+     present in the test name.
+     **/
+    return function(tests, textFilter) {
+        if (!textFilter) {
+            return tests;
+        }
+
+        var filters = textFilter.split(/\s+/);
+        return _.filter(tests, function(test) {
+            return _.every(filters, function(filter) {
+                return test.name.indexOf(filter) !== -1;
+            });
+        });
+    };
+});
+
+perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
                                             projects, optionCollectionMap,
                                             timeRange, thServiceDomain,
                                             thDefaultRepo, PhSeries,
@@ -806,11 +878,11 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
             series[i] = _.clone(selectedSeries);
             series[i].projectName = selectedSeries.projectName;
         });
-        $modalInstance.close(series);
+        $uibModalInstance.close(series);
     };
 
     $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
     };
 
     $scope.unselectedTestList = []; // tests in the "tests" list
@@ -961,5 +1033,5 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
 
     };
 
-    $modalInstance.updateTestInput = $scope.updateTestInput;
+    $uibModalInstance.updateTestInput = $scope.updateTestInput;
 });

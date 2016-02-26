@@ -10,20 +10,6 @@ from datetime import timedelta
 from django.conf import settings
 
 
-def ref_data_json():
-    """Return reference data json structure"""
-    filename = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)),
-        "ref_data.json",
-    )
-    with open(filename) as f:
-        return f.read()
-
-
-def job_json(**kwargs):
-    return json.dumps(job_data(**kwargs))
-
-
 def job_data(**kwargs):
     jobs_obj = {
         "revision_hash": kwargs.get("revision_hash",

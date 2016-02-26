@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 import os
-import uuid
 from collections import (OrderedDict,
                          defaultdict)
 from warnings import (filterwarnings,
@@ -13,7 +12,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db import (connection,
-                       models)
+                       models,
+                       transaction)
 from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
@@ -25,8 +25,6 @@ from .fields import (BigAutoField,
 
 # the cache key is specific to the database name we're pulling the data from
 SOURCES_CACHE_KEY = "treeherder-datasources"
-REPOSITORY_LIST_CACHE_KEY = 'treeherder-repositories'
-FAILURE_CLASSIFICAION_LIST_CACHE_KEY = 'treeherder-failure-classifications'
 
 SQL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sql')
 
@@ -37,9 +35,9 @@ ACTIVE_STATUS_CHOICES = zip(ACTIVE_STATUS_LIST, ACTIVE_STATUS_LIST,)
 @python_2_unicode_compatible
 class NamedModel(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50L, db_index=True)
-    description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
+    name = models.CharField(max_length=50, db_index=True)
+    description = models.TextField(blank=True)
+    active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
     class Meta:
         abstract = True
@@ -56,10 +54,10 @@ class Product(NamedModel):
 @python_2_unicode_compatible
 class BuildPlatform(models.Model):
     id = models.AutoField(primary_key=True)
-    os_name = models.CharField(max_length=25L, db_index=True)
-    platform = models.CharField(max_length=25L, db_index=True)
-    architecture = models.CharField(max_length=25L, blank=True, db_index=True)
-    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
+    os_name = models.CharField(max_length=25, db_index=True)
+    platform = models.CharField(max_length=25, db_index=True)
+    architecture = models.CharField(max_length=25, blank=True, db_index=True)
+    active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'build_platform'
@@ -85,12 +83,12 @@ class RepositoryGroup(NamedModel):
 class Repository(models.Model):
     id = models.AutoField(primary_key=True)
     repository_group = models.ForeignKey('RepositoryGroup')
-    name = models.CharField(max_length=50L, db_index=True)
-    dvcs_type = models.CharField(max_length=25L, db_index=True)
-    url = models.CharField(max_length=255L)
-    codebase = models.CharField(max_length=50L, blank=True, db_index=True)
-    description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
+    name = models.CharField(max_length=50, db_index=True)
+    dvcs_type = models.CharField(max_length=25, db_index=True)
+    url = models.CharField(max_length=255)
+    codebase = models.CharField(max_length=50, blank=True, db_index=True)
+    description = models.TextField(blank=True)
+    active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'repository'
@@ -104,10 +102,10 @@ class Repository(models.Model):
 @python_2_unicode_compatible
 class MachinePlatform(models.Model):
     id = models.AutoField(primary_key=True)
-    os_name = models.CharField(max_length=25L, db_index=True)
-    platform = models.CharField(max_length=25L, db_index=True)
-    architecture = models.CharField(max_length=25L, blank=True, db_index=True)
-    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
+    os_name = models.CharField(max_length=25, db_index=True)
+    platform = models.CharField(max_length=25, db_index=True)
+    architecture = models.CharField(max_length=25, blank=True, db_index=True)
+    active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'machine_platform'
@@ -120,12 +118,12 @@ class MachinePlatform(models.Model):
 @python_2_unicode_compatible
 class Bugscache(models.Model):
     id = models.AutoField(primary_key=True)
-    status = models.CharField(max_length=64L, blank=True, db_index=True)
-    resolution = models.CharField(max_length=64L, blank=True, db_index=True)
-    summary = models.CharField(max_length=255L)
+    status = models.CharField(max_length=64, blank=True, db_index=True)
+    resolution = models.CharField(max_length=64, blank=True, db_index=True)
+    summary = models.CharField(max_length=255)
     crash_signature = models.TextField(blank=True)
     keywords = models.TextField(blank=True)
-    os = models.CharField(max_length=64L, blank=True)
+    os = models.CharField(max_length=64, blank=True)
     modified = models.DateTimeField(null=True, blank=True)
 
     class Meta:
@@ -139,10 +137,10 @@ class Bugscache(models.Model):
 @python_2_unicode_compatible
 class Machine(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50L, db_index=True)
+    name = models.CharField(max_length=50, db_index=True)
     first_timestamp = models.IntegerField(db_index=True)
     last_timestamp = models.IntegerField(db_index=True)
-    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
+    active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'machine'
@@ -168,10 +166,8 @@ class DatasourceManager(models.Manager):
 @python_2_unicode_compatible
 class Datasource(models.Model):
     id = models.AutoField(primary_key=True)
-    project = models.CharField(max_length=50L, unique=True)
-    name = models.CharField(max_length=128L, unique=True)
-    oauth_consumer_key = models.CharField(max_length=45L, blank=True, null=True)
-    oauth_consumer_secret = models.CharField(max_length=45L, blank=True, null=True)
+    project = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=128, unique=True)
 
     objects = DatasourceManager()
 
@@ -181,7 +177,6 @@ class Datasource(models.Model):
     @classmethod
     def reset_cache(cls):
         cache.delete(SOURCES_CACHE_KEY)
-        cache.delete(REPOSITORY_LIST_CACHE_KEY)
         cls.objects.cached()
 
     @property
@@ -205,25 +200,12 @@ class Datasource(models.Model):
             if '-' in self.name:
                 self.name = self.name.replace('-', '_')
 
-            self.oauth_consumer_key = uuid.uuid4()
-            self.oauth_consumer_secret = uuid.uuid4()
-
         # validate the model before saving
         self.full_clean()
 
         super(Datasource, self).save(*args, **kwargs)
         if inserting:
             self.create_db()
-
-    def get_oauth_consumer_secret(self, key):
-        """
-        Return the oauth consumer secret if the key provided matches the
-        the consumer key.
-        """
-        oauth_consumer_secret = None
-        if self.oauth_consumer_key == key:
-            oauth_consumer_secret = self.oauth_consumer_secret
-        return oauth_consumer_secret
 
     def dhub(self, procs_file_name):
         """
@@ -323,10 +305,10 @@ class Datasource(models.Model):
 @python_2_unicode_compatible
 class JobGroup(models.Model):
     id = models.AutoField(primary_key=True)
-    symbol = models.CharField(max_length=10L, default='?', db_index=True)
-    name = models.CharField(max_length=50L, db_index=True)
-    description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
+    symbol = models.CharField(max_length=10, default='?', db_index=True)
+    name = models.CharField(max_length=50, db_index=True)
+    description = models.TextField(blank=True)
+    active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'job_group'
@@ -340,7 +322,7 @@ class JobGroup(models.Model):
 @python_2_unicode_compatible
 class OptionCollection(models.Model):
     id = models.AutoField(primary_key=True)
-    option_collection_hash = models.CharField(max_length=40L, db_index=True)
+    option_collection_hash = models.CharField(max_length=40, db_index=True)
     option = models.ForeignKey(Option, db_index=True)
 
     class Meta:
@@ -355,10 +337,10 @@ class OptionCollection(models.Model):
 class JobType(models.Model):
     id = models.AutoField(primary_key=True)
     job_group = models.ForeignKey(JobGroup, null=True, blank=True)
-    symbol = models.CharField(max_length=10L, default='?', db_index=True)
-    name = models.CharField(max_length=50L, db_index=True)
-    description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True, default='active', db_index=True)
+    symbol = models.CharField(max_length=10, default='?', db_index=True)
+    name = models.CharField(max_length=50, db_index=True)
+    description = models.TextField(blank=True)
+    active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'job_type'
@@ -499,30 +481,45 @@ class ReferenceDataSignatures(models.Model):
 
     TODO: Rename to 'ReferenceDataSignature'.
     """
-    name = models.CharField(max_length=255L)
-    signature = models.CharField(max_length=50L, db_index=True)
-    build_os_name = models.CharField(max_length=25L, db_index=True)
-    build_platform = models.CharField(max_length=100L, db_index=True)
-    build_architecture = models.CharField(max_length=25L, db_index=True)
-    machine_os_name = models.CharField(max_length=25L, db_index=True)
-    machine_platform = models.CharField(max_length=100L, db_index=True)
-    machine_architecture = models.CharField(max_length=25L, db_index=True)
-    job_group_name = models.CharField(max_length=100L, blank=True, db_index=True)
-    job_group_symbol = models.CharField(max_length=25L, blank=True, db_index=True)
-    job_type_name = models.CharField(max_length=100L, db_index=True)
-    job_type_symbol = models.CharField(max_length=25L, blank=True, db_index=True)
-    option_collection_hash = models.CharField(max_length=64L, blank=True, db_index=True)
-    build_system_type = models.CharField(max_length=25L, blank=True, db_index=True)
-    repository = models.CharField(max_length=50L, db_index=True)
+    name = models.CharField(max_length=255)
+    signature = models.CharField(max_length=50, db_index=True)
+    build_os_name = models.CharField(max_length=25, db_index=True)
+    build_platform = models.CharField(max_length=100, db_index=True)
+    build_architecture = models.CharField(max_length=25, db_index=True)
+    machine_os_name = models.CharField(max_length=25, db_index=True)
+    machine_platform = models.CharField(max_length=100, db_index=True)
+    machine_architecture = models.CharField(max_length=25, db_index=True)
+    job_group_name = models.CharField(max_length=100, blank=True, db_index=True)
+    job_group_symbol = models.CharField(max_length=25, blank=True, db_index=True)
+    job_type_name = models.CharField(max_length=100, db_index=True)
+    job_type_symbol = models.CharField(max_length=25, blank=True, db_index=True)
+    option_collection_hash = models.CharField(max_length=64, blank=True, db_index=True)
+    build_system_type = models.CharField(max_length=25, blank=True, db_index=True)
+    repository = models.CharField(max_length=50, db_index=True)
     first_submission_timestamp = models.IntegerField(db_index=True)
     review_timestamp = models.IntegerField(null=True, blank=True, db_index=True)
-    review_status = models.CharField(max_length=12L, blank=True, db_index=True)
+    review_status = models.CharField(max_length=12, blank=True, db_index=True)
 
     class Meta:
         db_table = 'reference_data_signatures'
         # Remove if/when the model is renamed to 'ReferenceDataSignature'.
         verbose_name_plural = 'reference data signatures'
         unique_together = ('name', 'signature', 'build_system_type', 'repository')
+
+
+class JobDuration(models.Model):
+    """
+    Average job duration for each repository/job signature combination.
+
+    These are updated periodically by the calculate_durations task.
+    """
+    signature = models.CharField(max_length=50)
+    repository = models.ForeignKey(Repository)
+    average_duration = models.PositiveIntegerField()
+
+    class Meta:
+        db_table = 'job_duration'
+        unique_together = ('signature', 'repository')
 
 
 class FailureLineManager(models.Manager):
@@ -533,8 +530,9 @@ class FailureLineManager(models.Manager):
             classified_failures=None,
         )
 
-    def for_jobs(self, *jobs):
-        failures = FailureLine.objects.filter(job_guid__in=[item["job_guid"] for item in jobs])
+    def for_jobs(self, *jobs, **filters):
+        failures = FailureLine.objects.filter(job_guid__in=[item["job_guid"] for item in jobs],
+                                              **filters)
         failures_by_job = defaultdict(list)
         for item in failures:
             failures_by_job[item.job_guid].append(item)
@@ -567,6 +565,15 @@ class FailureLine(models.Model):
     stack = models.TextField(blank=True, null=True)
     stackwalk_stdout = models.TextField(blank=True, null=True)
     stackwalk_stderr = models.TextField(blank=True, null=True)
+
+    # Note that the case of best_classification = None and best_is_verified = True
+    # has the special semantic that the line is ignored and should not be considered
+    # for future autoclassifications.
+    best_classification = FlexibleForeignKey("ClassifiedFailure",
+                                             related_name="best_for_lines",
+                                             null=True)
+    best_is_verified = models.BooleanField(default=False)
+
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
@@ -578,35 +585,88 @@ class FailureLine(models.Model):
         unique_together = (
             ('job_guid', 'line')
         )
+        index_together = (
+            ('job_guid', 'repository')
+        )
 
-    def best_match(self, min_score=0):
-        match = FailureMatch.objects.filter(failure_line_id=self.id).order_by(
+    def best_automatic_match(self, min_score=0):
+        return FailureMatch.objects.filter(
+            failure_line_id=self.id,
+            score__gt=min_score).order_by(
             "-score",
-            "-classified_failure__modified").first()
+            "-classified_failure__modified").select_related(
+                'classified_failure').first()
 
-        if match and match.score > min_score:
-            return match
+    def set_classification(self, matcher, bug_number=None):
+        with transaction.atomic():
+            if bug_number:
+                classification, _ = ClassifiedFailure.objects.get_or_create(
+                    bug_number=bug_number)
+            else:
+                classification = ClassifiedFailure.objects.create()
 
-    def create_new_classification(self, matcher):
-        new_classification = ClassifiedFailure()
-        new_classification.save()
+            new_link = FailureMatch(
+                failure_line=self,
+                classified_failure=classification,
+                matcher=matcher,
+                score=1)
+            new_link.save()
 
-        new_link = FailureMatch(
-            failure_line=self,
-            classified_failure=new_classification,
-            matcher=matcher,
-            score=1,
-            is_best=True)
-        new_link.save()
+        return classification
+
+    def verify_best_classification(self, classification):
+        self.best_classification = classification
+        self.best_is_verified = True
+        self.save()
+
+    def _serialized_components(self):
+        if self.action == "test_result":
+            return ["TEST-UNEXPECTED-%s" % self.status.upper(),
+                    self.test]
+        if self.action == "log":
+            return [self.level.upper(),
+                    self.message.split("\n")[0]]
+
+    def unstructured_bugs(self):
+        components = self._serialized_components()
+        if not components:
+            return []
+
+        # Importing this at the top level causes circular import misery
+        from treeherder.model.derived import JobsModel
+        with JobsModel(self.repository.name) as jm:
+            job_id = jm.get_job_ids_by_guid([self.job_guid])[self.job_guid]["id"]
+            bug_suggestions = jm.filter_bug_suggestions(jm.bug_suggestions(job_id))
+
+        rv = []
+        ids_seen = set()
+        for item in bug_suggestions:
+            if all(component in item["search"] for component in components):
+                for suggestion in item["bugs"]["open_recent"]:
+                    if suggestion["id"] not in ids_seen:
+                        ids_seen.add(suggestion["id"])
+                        rv.append(suggestion)
+
+        return rv
 
 
 class ClassifiedFailure(models.Model):
     id = BigAutoField(primary_key=True)
     failure_lines = models.ManyToManyField(FailureLine, through='FailureMatch',
                                            related_name='classified_failures')
+    # Note that we use a bug number of 0 as a sentinal value to indicate lines that
+    # are not actually symptomatic of a real bug, but are still possible to autoclassify
     bug_number = models.PositiveIntegerField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+
+    def bug(self):
+        # Putting this here forces one query per object; there should be a way
+        # to make things more efficient
+        try:
+            return Bugscache.objects.get(id=self.bug_number)
+        except Bugscache.DoesNotExist:
+            return None
 
     # TODO: add indexes once we know which queries will be typically executed
 
@@ -614,38 +674,80 @@ class ClassifiedFailure(models.Model):
         db_table = 'classified_failure'
 
 
+class LazyClassData(object):
+    def __init__(self, type_func, setter):
+        """Descriptor object for class-level data that is lazily initialized.
+        See https://docs.python.org/2/howto/descriptor.html for details of the descriptor
+        protocol.
+
+        :param type_func: Callable of zero arguments used to initalize the data storage on
+                          first access.
+        :param setter: Callable of zero arguments used to populate the data storage
+                       after it has been initialized. Unlike type_func this can safely
+                       be used reentrantly i.e. the setter function may itself access the
+                       attribute being set.
+        """
+        self.type_func = type_func
+        self.setter = setter
+        self.value = None
+
+    def __get__(self, obj, objtype):
+        if self.value is None:
+            self.value = self.type_func()
+            self.setter()
+        return self.value
+
+    def __set__(self, obj, val):
+        self.value = val
+
+
+def _init_matchers():
+    from treeherder.autoclassify import matchers
+    matchers.register()
+
+
+def _init_detectors():
+    from treeherder.autoclassify import detectors
+    detectors.register()
+
+
 class MatcherManager(models.Manager):
-    def register_matcher(self, cls):
-        return self._register(cls, Matcher._matcher_funcs)
+    _detector_funcs = LazyClassData(OrderedDict, _init_detectors)
+    _matcher_funcs = LazyClassData(OrderedDict, _init_matchers)
 
-    def register_detector(self, cls):
-        return self._register(cls, Matcher._detector_funcs)
+    @classmethod
+    def register_matcher(cls, matcher_cls):
+        assert cls._matcher_funcs is not None
+        return cls._register(matcher_cls, cls._matcher_funcs)
 
-    def _register(self, cls, dest):
-        if cls.__name__ in dest:
+    @classmethod
+    def register_detector(cls, detector_cls):
+        assert cls._detector_funcs is not None
+        return cls._register(detector_cls, cls._detector_funcs)
+
+    @classmethod
+    def _register(cls, matcher_cls, dest):
+        if matcher_cls.__name__ in dest:
             return dest[cls.__name__]
 
-        obj = Matcher.objects.get_or_create(name=cls.__name__)[0]
+        obj, _ = Matcher.objects.get_or_create(name=matcher_cls.__name__)
 
-        instance = cls(obj)
-        dest[cls.__name__] = instance
+        instance = matcher_cls(obj)
+        dest[matcher_cls.__name__] = instance
 
         return instance
 
     def registered_matchers(self):
-        for matcher in Matcher._matcher_funcs.values():
+        for matcher in self._matcher_funcs.values():
             yield matcher
 
     def registered_detectors(self):
-        for matcher in Matcher._detector_funcs.values():
+        for matcher in self._detector_funcs.values():
             yield matcher
 
 
 class Matcher(models.Model):
     name = models.CharField(max_length=50, unique=True)
-
-    _detector_funcs = OrderedDict()
-    _matcher_funcs = OrderedDict()
 
     objects = MatcherManager()
 
@@ -661,10 +763,10 @@ class Matcher(models.Model):
 class FailureMatch(models.Model):
     id = BigAutoField(primary_key=True)
     failure_line = FlexibleForeignKey(FailureLine, related_name="matches")
-    classified_failure = FlexibleForeignKey(ClassifiedFailure)
+    classified_failure = FlexibleForeignKey(ClassifiedFailure, related_name="matches")
+
     matcher = models.ForeignKey(Matcher)
     score = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
-    is_best = models.BooleanField(default=False)
 
     # TODO: add indexes once we know which queries will be typically executed
 
@@ -682,9 +784,9 @@ class RunnableJob(models.Model):
     build_platform = models.ForeignKey(BuildPlatform)
     machine_platform = models.ForeignKey(MachinePlatform)
     job_type = models.ForeignKey(JobType)
-    option_collection_hash = models.CharField(max_length=64L)
-    ref_data_name = models.CharField(max_length=255L)
-    build_system_type = models.CharField(max_length=25L)
+    option_collection_hash = models.CharField(max_length=64)
+    ref_data_name = models.CharField(max_length=255)
+    build_system_type = models.CharField(max_length=25)
     repository = models.ForeignKey(Repository)
     last_touched = models.DateTimeField(auto_now=True)
 

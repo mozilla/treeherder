@@ -2,7 +2,7 @@ import logging
 import time
 from datetime import datetime
 
-import simplejson as json
+import newrelic.agent
 from _mysql_exceptions import IntegrityError
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -12,7 +12,9 @@ from treeherder.events.publisher import JobStatusPublisher
 from treeherder.model import (error_summary,
                               utils)
 from treeherder.model.models import (Datasource,
-                                     ExclusionProfile)
+                                     ExclusionProfile,
+                                     JobDuration,
+                                     Repository)
 from treeherder.model.tasks import (populate_error_summary,
                                     publish_job_action,
                                     publish_resultset,
@@ -60,12 +62,24 @@ class JobsModel(TreeherderModelBase):
             "job_guid": "j.job_guid",
             "job_coalesced_to_guid": "j.job_coalesced_to_guid",
             "result_set_id": "j.result_set_id",
+            "platform": "mp.platform",
             "build_platform_id": "j.build_platform_id",
-            "build_system_type": "j.build_system_type",
+            "build_platform": "bp.platform",
+            "build_os": "bp.os_name",
+            "build_architecture": "bp.architecture",
+            "build_system_type": "rds.build_system_type",
             "machine_platform_id": "j.machine_platform_id",
+            "machine_platform_os": "mp.os_name",
+            "machine_platform_architecture": "mp.architecture",
             "machine_id": "j.machine_id",
+            "machine_name": "m.name",
             "option_collection_hash": "j.option_collection_hash",
             "job_type_id": "j.job_type_id",
+            "job_type_symbol": "jt.symbol",
+            "job_type_name": "jt.name",
+            "job_group_id": "jg.id",
+            "job_group_symbol": "jg.symbol",
+            "job_group_name": "jg.name",
             "product_id": "j.product_id",
             "failure_classification_id": "j.failure_classification_id",
             "who": "j.who",
@@ -77,6 +91,7 @@ class JobsModel(TreeherderModelBase):
             "end_timestamp": "j.end_timestamp",
             "last_modified": "j.last_modified",
             "signature": "j.signature",
+            "ref_data_name": "rds.name",
             "tier": "j.tier"
         },
         "result_set": {
@@ -109,6 +124,8 @@ class JobsModel(TreeherderModelBase):
         "jobs.deletes.cycle_bug_job_map",
         "jobs.deletes.cycle_job",
     ]
+
+    LOWER_TIERS = [2, 3]
 
     @classmethod
     def create(cls, project):
@@ -437,7 +454,7 @@ class JobsModel(TreeherderModelBase):
         except IntegrityError as e:
             raise JobDataIntegrityError(e)
 
-        if settings.MIRROR_CLASSIFICATIONS:
+        if settings.ORANGEFACTOR_HAWK_KEY:
             job = self.get_job(job_id)[0]
             if job["state"] == "completed":
                 # importing here to avoid an import loop
@@ -467,76 +484,30 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
-    def calculate_eta(self, sample_window_seconds, debug):
-
+    def calculate_durations(self, sample_window_seconds, debug):
         # Get the most recent timestamp from jobs
-        max_timestamp = self.execute(
-            proc='jobs.selects.get_max_job_submit_timestamp',
+        max_start_timestamp = self.execute(
+            proc='jobs.selects.get_max_job_start_timestamp',
             return_type='iter',
             debug_show=self.DEBUG
-        ).get_column_data('submit_timestamp')
+        ).get_column_data('start_timestamp')
 
-        if max_timestamp:
+        if not max_start_timestamp:
+            return
 
-            time_window = int(max_timestamp) - sample_window_seconds
+        time_window = int(max_start_timestamp) - sample_window_seconds
+        average_durations = self.execute(
+            proc='jobs.selects.get_average_job_durations',
+            placeholders=[time_window],
+            return_type='tuple',
+            debug_show=self.DEBUG
+        )
 
-            eta_groups = self.execute(
-                proc='jobs.selects.get_eta_groups',
-                placeholders=[time_window],
-                key_column='signature',
-                return_type='dict',
-                debug_show=self.DEBUG
-            )
-
-            placeholders = []
-            submit_timestamp = int(time.time())
-            for signature in eta_groups:
-
-                running_samples = map(
-                    lambda x: int(x or 0),
-                    eta_groups[signature]['running_samples'].split(','))
-
-                running_median = self.get_median_from_sorted_list(
-                    sorted(running_samples))
-
-                placeholders.append(
-                    [
-                        signature,
-                        'running',
-                        eta_groups[signature]['running_avg_sec'],
-                        running_median,
-                        eta_groups[signature]['running_min_sec'],
-                        eta_groups[signature]['running_max_sec'],
-                        eta_groups[signature]['running_std'],
-                        len(running_samples),
-                        submit_timestamp
-                    ])
-
-            self.execute(
-                proc='jobs.inserts.set_job_eta',
-                placeholders=placeholders,
-                executemany=True,
-                debug_show=self.DEBUG
-            )
-
-    def get_median_from_sorted_list(self, sorted_list):
-
-        length = len(sorted_list)
-
-        if length == 0:
-            return 0
-
-        # Cannot take the median with only on sample,
-        # return it
-        elif length == 1:
-            return sorted_list[0]
-
-        elif not length % 2:
-            return round(
-                (sorted_list[length / 2] + sorted_list[length / 2 - 1]) / 2, 0
-            )
-
-        return round(sorted_list[length / 2], 0)
+        repository = Repository.objects.get(name=self.project)
+        for job in average_durations:
+            JobDuration.objects.update_or_create(signature=job['signature'],
+                                                 repository=repository,
+                                                 defaults={'average_duration': job['average_duration']})
 
     def cycle_data(self, cycle_interval, chunk_size, sleep_time):
         """Delete data older than cycle_interval, splitting the target data
@@ -836,13 +807,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return aggregate_details
 
-    def get_oauth_consumer_secret(self, key):
-        """Consumer secret for oauth"""
-        ds = self.get_datasource()
-        secret = ds.get_oauth_consumer_secret(key)
-        return secret
-
-    def store_job_data(self, data, raise_errors=False):
+    def store_job_data(self, data):
         """
         Store JobData instances into jobs db
 
@@ -923,45 +888,41 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         async_error_summary_list = []
 
-        # get the tier-2 data signatures for this project.
+        # get the lower tier data signatures for this project.
         # if there are none, then just return an empty list
-        tier_2_signatures = []
-        try:
-            tier_2 = ExclusionProfile.objects.get(name="Tier-2")
-            # tier_2_blob = json.loads(tier_2['flat_exclusion'])
-            tier_2_signatures = set(tier_2.flat_exclusion[self.project])
-        except KeyError:
-            # may be no tier 2 jobs for the current project
-            # and that's ok.
-            pass
-        except ObjectDoesNotExist:
-            # if this profile doesn't exist, then no second tier jobs
-            # and that's ok.
-            pass
+        # this keeps track of them order (2, then 3) so that the latest
+        # will have precedence.  If a job signature is in both Tier-2 and
+        # Tier-3, then it will end up in Tier-3.
+        lower_tier_signatures = []
+        for tier_num in self.LOWER_TIERS:
+            tier_info = {"tier": tier_num}
+            try:
+                lower_tier = ExclusionProfile.objects.get(
+                    name="Tier-{}".format(tier_num))
+                signatures = set(lower_tier.flat_exclusion[self.project])
+                tier_info["signatures"] = signatures
+                lower_tier_signatures.append(tier_info)
+            except KeyError:
+                # may be no jobs of this tier for the current project
+                # and that's ok.
+                pass
+            except ObjectDoesNotExist:
+                # if this profile doesn't exist, then no jobs of this tier
+                # and that's ok.
+                pass
 
         for datum in data:
-            # Make sure we can deserialize the json object
-            # without raising an exception
             try:
+                # TODO: this might be a good place to check the datum against
+                # a JSON schema to ensure all the fields are valid.  Then
+                # the exception we caught would be much more informative.  That
+                # being said, if/when we transition to only using the pulse
+                # job consumer, then the data will always be vetted with a
+                # JSON schema already.
                 job = datum['job']
                 revision_hash = datum['revision_hash']
                 coalesced = datum.get('coalesced', [])
 
-                # TODO: Need a job structure validation step here. Now that
-                # everything works in list context we cannot detect what
-                # object is responsible for what error. If we validate here
-                # we can capture the error and associate it with the object
-                # and also skip it before generating any database errors.
-            except JobDataError as e:
-                if raise_errors:
-                    raise e
-                continue
-            except Exception as e:
-                if raise_errors:
-                    raise e
-                continue
-
-            try:
                 # json object can be successfully deserialized
                 # load reference data
                 job_guid = self._load_ref_and_job_data_structs(
@@ -974,7 +935,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     log_placeholders,
                     artifact_placeholders,
                     retry_job_guids,
-                    tier_2_signatures,
+                    lower_tier_signatures,
                     async_error_summary_list
                 )
 
@@ -984,13 +945,20 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                         [job_guid, coalesced_guid]
                     )
             except Exception as e:
-                if raise_errors:
+                # we should raise the exception if DEBUG is true, or if
+                # running the unit tests.
+                if settings.DEBUG or hasattr(settings, "TREEHERDER_TEST_PROJECT"):
                     raise e
+                else:
+                    newrelic.agent.record_exception(params={"job": datum})
+
+                # skip any jobs that hit errors in these stages.
+                continue
 
         # Store all reference data and retrieve associated ids
         id_lookups = self.refdata_model.set_all_reference_data()
 
-        job_eta_times = self.get_job_eta_times(
+        average_job_durations = self.get_average_job_durations(
             id_lookups['reference_data_signatures']
         )
 
@@ -1013,7 +981,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 job_guid_list,
                 job_update_placeholders,
                 result_set_ids,
-                job_eta_times,
+                average_job_durations,
                 push_timestamps
             )
 
@@ -1161,7 +1129,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         self, job, revision_hash, revision_hash_lookup,
         unique_revision_hashes, rh_where_in, job_placeholders,
         log_placeholders, artifact_placeholders, retry_job_guids,
-        tier_2_signatures, async_artifact_list
+        lower_tier_signatures, async_artifact_list
     ):
         """
         Take the raw job object after etl and convert it to job_placeholders.
@@ -1255,9 +1223,17 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
              option_collection_hash]
         )
 
-        job_tier = job.get('tier') or 1
+        tier = job.get('tier') or 1
         # job tier signatures override the setting from the job structure
-        tier = 2 if signature in tier_2_signatures else job_tier
+        # Check the signatures list for any supported LOWER_TIERS that have
+        # an active exclusion profile.
+
+        # As stated elsewhere, a job will end up in the lowest tier where its
+        # signature belongs.  So if a signature is in Tier-2 and Tier-3, it
+        # will end up in 3.
+        for tier_info in lower_tier_signatures:
+            if signature in tier_info["signatures"]:
+                tier = tier_info["tier"]
 
         job_placeholders.append([
             job_guid,
@@ -1277,7 +1253,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             self.get_number(job.get('submit_timestamp')),
             self.get_number(job.get('start_timestamp')),
             self.get_number(job.get('end_timestamp')),
-            0,                      # idx:17, replace with running_avg_sec
+            0,                      # idx:17, replace with average job duration
             tier,
             job_guid,
             get_guid_root(job_guid)  # will be the same except for ``retry`` jobs
@@ -1288,12 +1264,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         has_text_log_summary = False
         if artifacts:
             artifacts = ArtifactsModel.serialize_artifact_json_blobs(artifacts)
-            # the artifacts in this list could be ones that should have
-            # bug suggestions generated for them.  If so, queue them to be
-            # scheduled for asynchronous generation.
-            tls_list = error_summary.get_artifacts_that_need_bug_suggestions(
-                artifacts)
-            async_artifact_list.extend(tls_list)
 
             # need to add job guid to artifacts, since they likely weren't
             # present in the beginning
@@ -1301,10 +1271,24 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 if not all(k in artifact for k in ("name", "type", "blob")):
                     raise JobDataError(
                         "Artifact missing properties: {}".format(artifact))
+                # Ensure every artifact has a ``job_guid`` value.
+                # It is legal to submit an artifact that doesn't have a
+                # ``job_guid`` value.  But, if missing, it should inherit that
+                # value from the job itself.  It needs to be there before the
+                # later call to ``get_artifacts_that_need_bug_suggestions``
+                # to determine if we should generate a "Bug suggestions"
+                # artifact based on a passed-in "text_log_summary".
+                if "job_guid" not in artifact:
+                    artifact["job_guid"] = job_guid
                 artifact_placeholder = artifact.copy()
-                artifact_placeholder['job_guid'] = job_guid
                 artifact_placeholders.append(artifact_placeholder)
 
+            # the artifacts in this list could be ones that should have
+            # bug suggestions generated for them.  If so, queue them to be
+            # scheduled for asynchronous generation.
+            tls_list = error_summary.get_artifacts_that_need_bug_suggestions(
+                artifacts)
+            async_artifact_list.extend(tls_list)
             has_text_log_summary = any(x for x in artifacts
                                        if x['name'] == 'text_log_summary')
 
@@ -1340,7 +1324,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
     def _set_data_ids(
         self, index, job_placeholders, id_lookups,
         job_guid_list, job_update_placeholders,
-        result_set_ids, job_eta_times, push_timestamps
+        result_set_ids, average_job_durations, push_timestamps
     ):
         """
         Supplant ref data with ids and create update placeholders
@@ -1419,9 +1403,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             job_guid_list.append(job_guid_root)
 
         reference_data_signature = job_placeholders[index][1]
-        running_avg_sec = job_eta_times.get(reference_data_signature, {}).get('running', 0)
+        average_duration = average_job_durations.get(reference_data_signature, 0)
 
-        job_placeholders[index][self.JOB_PH_RUNNING_AVG] = running_avg_sec
+        job_placeholders[index][self.JOB_PH_RUNNING_AVG] = average_duration
 
         # Load job_update_placeholders
         if job_state != 'pending':
@@ -1458,35 +1442,15 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return self.get_job_ids_by_guid(job_guid_list)
 
-    def get_job_eta_times(self, reference_data_signatures):
+    def get_average_job_durations(self, reference_data_signatures):
+        if not reference_data_signatures:
+            return {}
 
-        eta_lookup = {}
-
-        if len(reference_data_signatures) == 0:
-            return eta_lookup
-
-        rds_where_in_clause = ','.join(['%s'] * len(reference_data_signatures))
-
-        job_eta_data = self.execute(
-            proc='jobs.selects.get_last_eta_by_signatures',
-            debug_show=self.DEBUG,
-            replace=[rds_where_in_clause],
-            placeholders=reference_data_signatures)
-
-        for eta_data in job_eta_data:
-
-            signature = eta_data['signature']
-            state = eta_data['state']
-
-            if signature not in eta_lookup:
-                eta_lookup[signature] = {}
-
-            if state not in eta_lookup[signature]:
-                eta_lookup[signature][state] = {}
-
-            eta_lookup[signature][state] = eta_data['avg_sec']
-
-        return eta_lookup
+        repository = Repository.objects.get(name=self.project)
+        durations = JobDuration.objects.filter(signature__in=reference_data_signatures,
+                                               repository=repository
+                                               ).values_list('signature', 'average_duration')
+        return dict(durations)
 
     def get_job_ids_by_guid(self, job_guid_list):
 
@@ -1917,16 +1881,6 @@ class JobData(dict):
         """Initialize ``JobData`` with a data dict and a context list."""
         self.context = context or []
         super(JobData, self).__init__(data)
-
-    @classmethod
-    def from_json(cls, json_blob):
-        """Create ``JobData`` from a JSON string."""
-        try:
-            data = json.loads(json_blob)
-        except ValueError as e:
-            raise JobDataError("Malformed JSON: {0}".format(e))
-
-        return cls(data)
 
     def __getitem__(self, name):
         """Get a data value, raising ``JobDataError`` if missing."""

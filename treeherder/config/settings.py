@@ -19,13 +19,6 @@ TREEHERDER_REQUEST_HOST = env("TREEHERDER_REQUEST_HOST", default="local.treeherd
 # Default to retaining data for ~4 months.
 DATA_CYCLE_DAYS = env.int("DATA_CYCLE_DAYS", default=120)
 
-# Remove once stage/prod have transitioned to using BROKER_URL
-RABBITMQ_USER = env("TREEHERDER_RABBITMQ_USER", default="guest")
-RABBITMQ_PASSWORD = env("TREEHERDER_RABBITMQ_PASSWORD", default="guest")
-RABBITMQ_VHOST = env("TREEHERDER_RABBITMQ_VHOST", default="/")
-RABBITMQ_HOST = env("TREEHERDER_RABBITMQ_HOST", default="localhost")
-RABBITMQ_PORT = env("TREEHERDER_RABBITMQ_PORT", default="5672")
-
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY")
 
@@ -50,6 +43,9 @@ MEDIA_URL = "/media/"
 # e.g. the build size tests will alert on every commit)
 PERFHERDER_REGRESSION_THRESHOLD = 2
 
+# Only generate alerts for data newer than this time in seconds in perfherder
+PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)
+
 # Create hashed+gzipped versions of assets during collectstatic,
 # which will then be served by WhiteNoise with a suitable max-age.
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
@@ -69,6 +65,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 MIDDLEWARE_CLASSES = [
+    'django.middleware.gzip.GZipMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -119,7 +116,6 @@ INSTALLED_APPS = [
     'treeherder.webapp',
     'treeherder.log_parser',
     'treeherder.etl',
-    'treeherder.workers',
     'treeherder.embed',
     'treeherder.perf',
     'treeherder.autoclassify',
@@ -188,9 +184,10 @@ CELERY_QUEUES = (
     Queue('buildapi_4hr', Exchange('default'), routing_key='buildapi_4hr'),
     Queue('fetch_allthethings', Exchange('default'), routing_key='fetch_allthethings'),
     Queue('cycle_data', Exchange('default'), routing_key='cycle_data'),
-    Queue('calculate_eta', Exchange('default'), routing_key='calculate_eta'),
+    Queue('calculate_durations', Exchange('default'), routing_key='calculate_durations'),
     Queue('fetch_bugs', Exchange('default'), routing_key='fetch_bugs'),
-    Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs')
+    Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs'),
+    Queue('generate_perf_alerts', Exchange('default'), routing_key='generate_perf_alerts'),
 )
 
 CELERY_ACCEPT_CONTENT = ['json']
@@ -251,12 +248,12 @@ CELERYBEAT_SCHEDULE = {
             'queue': 'cycle_data'
         }
     },
-    'calculate-eta-every-6-hours': {
-        'task': 'calculate-eta',
+    'calculate-durations-every-6-hours': {
+        'task': 'calculate-durations',
         'schedule': timedelta(hours=6),
         'relative': True,
         'options': {
-            'queue': 'calculate_eta'
+            'queue': 'calculate_durations'
         }
     },
     'fetch-bugs-every-hour': {
@@ -280,12 +277,11 @@ REST_FRAMEWORK = {
     ),
     'EXCEPTION_HANDLER': 'treeherder.webapp.api.exceptions.exception_handler',
     'DEFAULT_THROTTLE_CLASSES': (
-        'treeherder.webapp.api.throttling.OauthKeyThrottle',
-        'treeherder.webapp.api.throttling.HawkClientThrottle'
+        'treeherder.webapp.api.throttling.HawkClientThrottle',
     ),
     'DEFAULT_THROTTLE_RATES': {
         'jobs': '220/minute',
-        'resultset': '220/minute'
+        'resultset': '400/minute'  # temporary increase: https://bugzilla.mozilla.org/show_bug.cgi?id=1232776
     },
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'DEFAULT_VERSION': '1.0',
@@ -293,11 +289,12 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
         'hawkrest.HawkAuthentication',
-        'treeherder.webapp.api.auth.TwoLeggedOauthAuthentication',
-    )
+    ),
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }
 
 SITE_URL = env("SITE_URL", default="http://local.treeherder.mozilla.org")
+APPEND_SLASH = False
 
 BUILDAPI_PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-pending.js"
 BUILDAPI_RUNNING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-running.js"
@@ -318,6 +315,10 @@ FAILURE_LINES_CUTOFF = 35
 
 BZ_API_URL = "https://bugzilla.mozilla.org"
 
+ORANGEFACTOR_SUBMISSION_URL = "https://brasstacks.mozilla.com/orangefactor/api/saveclassification"
+ORANGEFACTOR_HAWK_ID = "treeherder"
+ORANGEFACTOR_HAWK_KEY = env("ORANGEFACTOR_HAWK_KEY", default=None)
+
 # this setting allows requests from any host
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -329,13 +330,13 @@ ALLOWED_HOSTS = env.list("TREEHERDER_ALLOWED_HOSTS", default=[".mozilla.org", ".
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# Set this to True to submit bug associations to Elasticsearch.
-MIRROR_CLASSIFICATIONS = True
-ES_HOST = "http://of-elasticsearch-zlb.webapp.scl3.mozilla.com:9200"
+# Enable integration between autoclassifier and jobs
+AUTOCLASSIFY_JOBS = env.bool("AUTOCLASSIFY_JOBS", default=False)
 
 # timeout for requests to external sources
 # like ftp.mozilla.org or hg.mozilla.org
-TREEHERDER_REQUESTS_TIMEOUT = 30
+REQUESTS_TIMEOUT = 30
+TREEHERDER_USER_AGENT = 'treeherder/{}'.format(TREEHERDER_REQUEST_HOST)
 
 # The pulse uri that is passed to kombu
 PULSE_URI = env("PULSE_URI", default="amqps://guest:guest@pulse.mozilla.org/")
@@ -419,14 +420,13 @@ DATABASES = {
 }
 
 # Setup ssl connection for aws rds.
-# Now that we're using django-environ this can be removed after
-# the Heroku env variables are updated with += `?ssl=...`.
+# Can be removed when django-environ supports setting this:
+# https://github.com/joke2k/django-environ/issues/72
 if env.bool('IS_HEROKU', default=False):
-    ca_path = '/app/deployment/aws/combined-ca-bundle.pem'
     for db_name in DATABASES:
         DATABASES[db_name]['OPTIONS'] = {
             'ssl': {
-                'ca': ca_path
+                'ca': '/app/deployment/aws/combined-ca-bundle.pem'
             }
         }
 
@@ -435,7 +435,7 @@ MEMCACHED_LOCATION = TREEHERDER_MEMCACHED.strip(',').split(',')
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+        "BACKEND": "django_pylibmc.memcached.PyLibMCCache",
         "LOCATION": MEMCACHED_LOCATION,
         # Cache forever
         "TIMEOUT": None,
@@ -455,17 +455,8 @@ CACHES = {
 
 KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX
 
-# celery broker setup
-# BROKER_URL is replacing the separate variables, however we need to
-# support both until stage/prod have BROKER_URL set.
-BROKER_URL = env('BROKER_URL',
-                 default='amqp://{0}:{1}@{2}:{3}/{4}'.format(
-                    RABBITMQ_USER,
-                    RABBITMQ_PASSWORD,
-                    RABBITMQ_HOST,
-                    RABBITMQ_PORT,
-                    RABBITMQ_VHOST
-                 ))
+# Celery broker setup
+BROKER_URL = env('BROKER_URL')
 
 # This code handles the memcachier service on heroku.
 if env.bool('IS_HEROKU', default=False):
@@ -473,9 +464,6 @@ if env.bool('IS_HEROKU', default=False):
     CACHES['default'].update(
         memcacheify().get('default')
     )
-
-if env('CLOUDAMQP_URL', default=None):
-    BROKER_URL = env('CLOUDAMQP_URL')
 
 CELERY_IGNORE_RESULT = True
 

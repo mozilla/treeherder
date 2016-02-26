@@ -218,7 +218,7 @@ class StepParser(ParserBase):
             "errors": step_errors,
             "error_count": step_error_count
         })
-        self.set_duration()
+        self.current_step["duration"] = self.calculate_duration()
         # Append errors from current step to "all_errors" field
         self.artifact["all_errors"].extend(step_errors)
         # reset the sub_parser for the next step
@@ -243,22 +243,26 @@ class StepParser(ParserBase):
             match = "{0}.0".format(match)
         return datetime.datetime.strptime(match, self.DATE_FORMAT)
 
-    def set_duration(self):
+    def calculate_duration(self):
         """Sets duration for the step in seconds."""
         started_string = self.current_step["started"]
         finished_string = self.current_step["finished"]
         if not (started_string and finished_string):
             # Handle the dummy steps (created to hold Taskcluster log content that
             # is between step markers), which have no recorded start/finish time.
-            self.current_step["duration"] = None
-            return
-        start_time = self.parsetime(started_string)
-        finish_time = self.parsetime(finished_string)
+            return None
+        try:
+            start_time = self.parsetime(started_string)
+            finish_time = self.parsetime(finished_string)
+        except ValueError:
+            # Gracefully fail if the dates were malformed in the log,
+            # otherwise we won't get an error summary at all.
+            return None
         td = finish_time - start_time
         secs = (
             td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6
         ) / 10.0**6
-        self.current_step["duration"] = int(round(secs))
+        return int(round(secs))
 
     @property
     def steps(self):
@@ -373,6 +377,7 @@ class ErrorParser(ParserBase):
         "Automation Error:",
         "command timed out:",
         "wget: unable ",
+        "TEST-VALGRIND-ERROR",
     )
 
     RE_ERR_MATCH = re.compile((

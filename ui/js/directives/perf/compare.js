@@ -2,47 +2,70 @@
 
 treeherder.directive(
     'phCompareTable',
-    ['PhCompare', 'phUnreliablePlatforms', function(PhCompare, phUnreliablePlatforms) {
+    ['PhCompare', function(PhCompare) {
         return {
             templateUrl: 'partials/perf/comparetable.html',
             scope: {
+                baseTitle: '@',
+                newTitle: '@',
+                frameworks: '=',
                 titles: '=',
                 compareResults: '=',
                 testList: '=',
-                testFilter: '=',
-                platformFilter: '=',
-                showOnlyImportant: '=',
-                showOnlyConfident: '=',
-                showUnreliablePlatforms: '='
+                filterOptions: '=',
+                filterByFramework: '@'
             },
             link: function(scope, element, attrs) {
+                if (!scope.baseTitle) {
+                    scope.baseTitle = "Base";
+                }
+                if (!scope.newTitle) {
+                    scope.newTitle = "New";
+                }
+
                 scope.getCompareClasses = PhCompare.getCompareClasses;
                 function filter(item, matchText) {
                     return !matchText || item.toLowerCase().indexOf(matchText.toLowerCase()) > (-1);
                 }
-                scope.filterTest = function(item) {
-                    return filter(item, scope.testFilter);
-                };
-                scope.filterPlatform = function(result) {
-                    return filter(result.name, scope.platformFilter) &&
-                        (!scope.showOnlyImportant || result.isMeaningful) &&
-                        (!scope.showOnlyConfident || result.isConfident) &&
-                        (scope.showUnreliablePlatforms || !_.contains(
-                            phUnreliablePlatforms, result.name));
-                };
-                function updateFilteredTestList() {
-                    scope.filteredTestList = _.filter(_.keys(scope.compareResults), function(testName) {
-                        return scope.filterTest(scope.titles[testName]) &&
-                            _.any(_.map(scope.compareResults[testName], function(result) {
-                                return scope.filterPlatform(result);
-                            }));
-                    }).sort();
+                function shouldBeShown(result) {
+                    return (!scope.filterByFramework || _.isUndefined(scope.filterOptions.framework) ||
+                            result.frameworkId === scope.filterOptions.framework.id) &&
+                        (!scope.filterOptions.showOnlyImportant || result.isMeaningful) &&
+                        (!scope.filterOptions.showOnlyConfident || result.isConfident);
                 }
-                scope.$watchGroup(['testFilter', 'platformFilter',
-                                   'showOnlyImportant', 'showOnlyConfident',
-                                   'showUnreliablePlatforms'], function() {
-                    updateFilteredTestList();
-                });
+                function filterResult(results, key) {
+                    if (_.isUndefined(scope.filterOptions.filter)) {
+                        return results;
+                    }
+                    return _.filter(results, function(result) {
+                        var testCondition = key + ' ' + result.name;
+                        return _.every(scope.filterOptions.filter.split(' '), function(matchText) {
+                            return filter(testCondition, matchText) && shouldBeShown(result);
+                        });
+                    });
+                }
+
+                function updateFilteredTestList() {
+                    scope.filteredResultList = {};
+                    _.forEach(scope.compareResults, function(result, key) {
+                        var compareResults = filterResult(result, key);
+                        if (compareResults.length > 0) {
+                            scope.filteredResultList[key] = compareResults;
+                        }
+                    });
+                    scope.filteredResultList = _.map(_.keys(scope.filteredResultList), function(testName) {
+                        return {'testName': testName, 'results': scope.filteredResultList[testName]};
+                    });
+                    scope.hasNoResults = _.isEmpty(scope.filteredResultList);
+                }
+
+                scope.$watchGroup([
+                    'filterOptions.framework', 'filterOptions.filter',
+                    'filterOptions.showOnlyImportant',
+                    'filterOptions.showOnlyConfident'],
+                                  function() {
+                                      updateFilteredTestList();
+                                  });
                 updateFilteredTestList();
             }
         };

@@ -1,127 +1,90 @@
 # Packages that are shared between deployment and dev environments.
 
-# sha256: pRec3pItK04EXuWxHocyPud9NjrkApT8glLyXWoOrwY
-gunicorn==19.3.0
+gunicorn==19.4.3 --hash=sha256:ddd0302aecac53d0b540909efef51d3725457b57bf98d6ee49da4a2c5029cd8a
 
-# sha256: HCXe64vZm2Kwo-ODYV_ohOwRTOTDu-udw53RQU7cKU0
-whitenoise==2.0.4
+wsgi-sslify==1.0.1 --hash=sha256:cde368fda0fb9958dd58bc2cb955d0bf3df1b79c132d97cee90be5fda34a5089
 
-# sha256: j7aT7P5M1v-a4xNv8KHqpKyuAa8ie7geZG3CutMpXM8
-Django==1.8.7
+whitenoise==2.0.6 --hash=sha256:826ffe5d608c9dc8daebef1b0b43d01f7958f17c2fce36e75c80e26160172c4f
 
-# sha256: 2_WWGNWp7_Fy0lAh82YUvlrwUB5FJ5dcpQS5WGPxT-0
-celery==3.1.18
+Django==1.8.7 --hash=sha256:8fb693ecfe4cd6ff9ae3136ff0a1eaa4acae01af227bb81e646dc2bad3295ccf
 
-# sha256: _qhlOuS4en6wmWWUCfCeaANqe4PwoVoLxq7629mKUdw
-kombu==3.0.26
+celery==3.1.19 --hash=sha256:434b4e62308428b0e83fbcd1cebb8853beb230237b1b23484063fcf1ff610b6e
 
-# sha256: Y9f3sUog8p90Mlpp5ttFkl6vbjoAPqtGwCNP0FCoyT8
-simplejson==3.7.3
+kombu==3.0.32 --hash=sha256:406c9f4cad1d11ac07b245ae215f6d8ee127db63e8331e0c87108bbaf1791c8e
 
-# sha256: KXli8j9mkLQbdp9g67m0Oy3k8jGLnFCLkqAvCrPth4s
-newrelic==2.58.1.44
+simplejson==3.8.1 --hash=sha256:428ac8f3219c78fb04ce05895d5dff9bd813c05a9a7922c53dc879cd32a12493
+
+newrelic==2.60.0.46 --hash=sha256:17d598fccca0845c0337e5276d40d65f951afea6adf9bd9172cff3a87f2ef294
+
+# Required by wsgi-sslify
+werkzeug==0.11.3 --hash=sha256:69491b5305157c3c6e0f04a701984d6ae77fd729fc1c9acd25077f1df385326b
 
 # Required by datasource
-# sha256: gRBAtkfl1WhvhNtBXv1pfmJQAIsRK2kJunesBZ4UDHQ
-MySQL-python==1.2.5
+MySQL-python==1.2.5 --hash=sha256:811040b647e5d5686f84db415efd697e6250008b112b6909ba77ac059e140c74
 
 # Required by celery
-# sha256: aI-UZrHDrhQQY4Hm29MoEV51xSYMVC60jmxGkx9pKMw
-billiard==3.3.0.20
-# sha256: TWTtG54OcwlfXPqH8Ol920yEAEno7-t-Y7RhGLodYjo
-pytz==2015.4
+billiard==3.3.0.22 --hash=sha256:d216181387317f8696c6d1c80a2491258d037493c1f0c6eb58992a549481e77e
+pytz==2015.7 --hash=sha256:3ede470d3d17ba3c07638dfa0d10452bc1b6e5ad326127a65ba77e6aaeb11bec
 
 # Required by kombu
-# sha256: 406XZaYSD0ZkwSD0GYp4bDmg-35KWb0ZotbjqIS2OIk
-amqp==1.4.6
-# sha256: N4Ethjya0-NcBzTELgvwMgzow77YLNIK1UyzTRWBV7o
-anyjson==0.3.3
+amqp==1.4.8 --hash=sha256:94d2a68227e7984bd40f5f71c6839730622aff8a4633f29ede1ffdd0d240795e
+anyjson==0.3.3 --hash=sha256:37812d863c9ad3e35c0734c42e0bf0320ce8c3bed82cd20ad54cb34d158157ba
 
 # Required by mozlog
-# sha256: 7cVxMGHxCWYEi_a0DZpRSzgeC6hJxk4DTE72wYR9MAc
-blessings==1.6
+blessings==1.6 --hash=sha256:edc5713061f10966048bf6b40d9a514b381e0ba849c64e034c4ef6c1847d3007
 
-# python-memcached v1.54 has a performance regression, don't update until
-# https://github.com/linsomniac/python-memcached/issues/71 is fixed.
-# sha256: vPcTcdmXu0ajFop7Y6rma1bMyswCWvkxDbQxVoHviGg
-python-memcached==1.53
+jsonschema==2.5.1 --hash=sha256:71e7b3bcf9fca408bcb65bb60892f375d3abdd2e4f296eeeb8fe0bbbfcde598e
 
-# sha256: ceezvPn8pAi8tlu2CJLzddOr3S5PKW7uuP4Lu_zeWY4
-jsonschema==2.5.1
+djangorestframework==3.3.2 --hash=sha256:5634b1ff56581bf0fe4075e86227fc9693c1ca031c7213c9ae942c445c24817b
 
-# sha256: IJxixh3NSkTNC1M30mHCjbasWoUWtaCzJyKI87QHXWA
-djangorestframework==3.2.4
+django-rest-swagger==0.3.4 --hash=sha256:f3133aa71035e9ecb62128da5a25bd0bebb3675d7d748fd6efc1845b501b881e
 
-# sha256: 8xM6pxA16ey2ISjaWiW9C-uzZ119dI_W78GEW1AbiB4
-django-rest-swagger==0.3.4
+drf-extensions==0.2.8 --hash=sha256:9aafa131f66afbe316e0e5f5b0a23699411f5be25aa74188d1e0773179cd341b
 
-# sha256: mq-hMfZq--MW4OX1sKI2mUEfW-Jap0GI0eB3MXnNNBs
-drf-extensions==0.2.8
+django-cors-headers==1.1.0 --hash=sha256:fcd96e2be47c8eef34c650e007a6d546e19e7ee61041b89edbbbbe7619aa3987
 
-# sha256: _NluK-R8ju80xlDgB6bVRuGefuYQQbie27u-dhmqOYc
-django-cors-headers==1.1.0
+django-browserid==1.0.2 --hash=sha256:9eb896c58628f5c72c067964cd25b69742c91464d85ec51f4becc62982c70401
 
-# sha256: 56MxTtRt0kOTkYZwt6EVbkuvODGJ9kSz5hIbocv7wvk
-django-browserid==1.0.0
+jsonfield==1.0.3 --hash=sha256:7e7f73a675c518712badd783279e26d164140f3fc2ed7a32102c3d08a6a2a4a7
 
-# sha256: FbXEIwH0bdYxE_EhSw2BqLFiVPZahtPDKhtSKX8yZuY
-oauth2==1.9.0.post1
+mozlog==3.1 --hash=sha256:fc4e02a40bf485f25e9d3f9c55007bc36eb27bfa5a107512df5f190e8905bd75
 
-# sha256: fn9zpnXFGHErrdeDJ54m0WQUDz_C7XoyECw9CKaipKc
-jsonfield==1.0.3
+futures==3.0.3 --hash=sha256:04afa2a06ab7dcca9d81717b420a7a14826061e9b2614a5c77dd24c75ccf97e4
 
-# sha256: TpIokjaxi2V7uT5bnU7EAlBx79wJMNJZs03CMjndfQ4
-mozlog==3.0
-
-# sha256: BK-ioGq33MqdgXF7Qgp6FIJgYemyYUpcd90kx1zPl-Q
-futures==3.0.3
-
-# sha256: e2KpUXwldQ0DgJB2BTdY1XQN5FqMbG2RlMLAiFtKPqI
-https://github.com/jeads/datasource/archive/v0.10.0.tar.gz#egg=datasource==0.10.0
+https://github.com/jeads/datasource/archive/v0.10.0.tar.gz#egg=datasource==0.10.0 \
+    --hash=sha256:7b62a9517c25750d03809076053758d5740de45a8c6c6d9194c2c0885b4a3ea2
 
 # Required by jsonschema
-# sha256: ajt0IEMrCBfvGSrvNBzXZuGZgBqQyn_jGfnV_KQO3aI
-functools32==3.2.3.post1
+functools32==3.2.3-2 --hash=sha256:f6253dfbe0538ad2e387bd8fdfd9293c925d63553f5813c4e587745416501e6d
 
 # Required by django-rest-swagger
-# sha256: 5iV-UI2Ku_tt3Y7DV-M1ifH0ixWZEn8jsBcSTZCw__c
-Unipath==1.1
+Unipath==1.1 --hash=sha256:e6257e508d8abbfb6ddd8ec357e33589f1f48b1599127f23b017124d90b0fff7
 
 # Required by django-rest-swagger
-# sha256: w2yTiocuX_SUk4szsUqqFWy0OexnVI_Ks1Nbt4sIRug
-PyYAML==3.11
+PyYAML==3.11 --hash=sha256:c36c938a872e5ff494938b33b14aaa156cb439ec67548fcab3535bb78b0846e8
 
 # Used directly plus required by django-browserid, WebTest & responses
-# sha256: IPl2zc4CpCtpzoDp4DiXpRgUs21EizcohUYIbrxHMUY
-requests==2.7.0
-
-# Required by oauth2
-# sha256: w6uhyVOXEVUfTYPoV7MWtRNKHE3c6YqHW3Anvn3W2Yg
-httplib2==0.9.2
+requests==2.9.1 --hash=sha256:113fbba5531a9e34945b7d36b33a084e8ba5d0664b703c81a7c572d91919a5b8
 
 # Required by django.contrib.migrations
-# sha256: Z4xsNspLAUBRd9qLhO7PkuySyfbHYjlsllu10wXyD4E
-sqlparse==0.1.16
+sqlparse==0.1.18 --hash=sha256:39b196c4a06f76d6ac82f029457ca961f662a8bbbb2694eb1dfe4f2b68a2d7cf
 
-# sha256: cM9SH4fmT03Srrh87QBtyY9iHizbOBNPvLz2MJ_eYkQ
-django-environ==0.4.0
+django-environ==0.4.0 --hash=sha256:70cf521f87e64f4dd2aeb87ced006dc98f621e2cdb38134fbcbcf6309fde6244
 
 # required by mohawk & django-environ
-# sha256: QYqTw5en7asj5ViNvAZ6x0pyPts9VBvUk295R252Rdo
-six==1.9.0
+six==1.10.0 --hash=sha256:0ff78c403d9bccf5a425a6d31a12aa6b47f1c21ca4dc2573a7e2f32a97335eb1
 
 # Required by hawkrest and requests-hawk
-# sha256: SNZPN8Hy9utro7Xy2LDByQ4offLtH9-Ah0_tDDYJ61I
-mohawk==0.3.0
+mohawk==0.3.1 --hash=sha256:a081a4f9d8a1a13d4e26ac70ab1f3d1cea53035afdbc7ba4600d2d50d82db84d
 
-# sha256: O2dezcmG-fVp0tBBTcVNldgecGVmfgWWqdXd73v2Q5g
-hawkrest==0.0.8
+hawkrest==0.0.9 --hash=sha256:3b7f7c464a9d36c3d23873b8572d97a407960265635ab74880e14069eecb7f11
 
-# sha256: KuY89HXwvQSbci-sIIE9Yq7cFJV91aO_ANEg0rVARGA
-python-dateutil==2.4.2
+python-dateutil==2.4.2 --hash=sha256:2ae63cf475f0bd049b722fac20813d62aedc14957dd5a3bf00d120d2b5404460
 
-# sha256: Z1L5dgnjtpS42jP4T96FV4AIil_C-Vqjw5t69hdRcqQ
-requests-hawk==0.2.0
+requests-hawk==1.0.0 --hash=sha256:c2626ab31ebef0c81b97781c44c2275bfcc6d8e8520fc4ced495f0f386f8fe26
 
-# sha256: AMxHk1r7vYMmD90oOwqnkOZY0qcZIgSfbkZ9yooSRTc
-django-filter==0.11.0
+django-filter==0.11.0 --hash=sha256:00cc47935afbbd83260fdd283b0aa790e658d2a71922049f6e467dca8a124537
+
+pylibmc==1.5.0 --hash=sha256:16255595616a6d78cd786a55cc6431da5b7accf46512df854712a0cdbb3acfaa
+
+django-pylibmc==0.6.1 --hash=sha256:9cffdee703aaf9ebc029d9dbdee8abdd0723564b95e4b2ac59e4a668b8e58f93

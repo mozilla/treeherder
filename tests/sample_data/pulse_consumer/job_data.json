@@ -1,14 +1,14 @@
 [
   {
-    "jobGuid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33",
+    "taskId": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33",
     "origin": {
       "kind": "hg.mozilla.org",
       "project": "set by test",
-      "revision": "set by test"
+      "revision": "1234567890123456789012345678901234567890"
     },
 
     "display": {
-      "jobSymbol": "P1",
+      "jobSymbol": "P",
       "jobName": "Pulse Ingestion Test",
       "groupSymbol": "PI",
       "groupName": "PulseIngestion"
@@ -31,7 +31,7 @@
       "architecture": "x86_64"
     },
 
-    "who": "thedude@lebowski.com",
+    "owner": "thedude@lebowski.com",
     "reason": "scheduler",
     "productName": "Oscillation Overthruster",
 
@@ -39,39 +39,47 @@
     "timeStarted": "2014-12-19T17:39:57-08:00",
     "timeCompleted": "2014-12-19T18:39:57-08:00",
 
+    "labels": ["debug"],
+
     "logs": [
       {
         "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
-        "parseStatus": "parsed",
         "name": "builds-4h"
       }
     ],
-    "artifacts": [
-      {
-        "type": "json",
-        "name": "Artie Fact",
-        "blob": "{\"some\": \"value\"}"
-      }
-    ]
+    "jobInfo": {
+      "links": [
+        {
+          "url": "http://mozilla-releng-blobs.s3.amazonaws.com/blobs/Mozilla-Inbound-Non-PGO/sha512/05c7f57df6583c6351c6b49e439e2678e0f43c2e5b66695ea7d096a7519e1805f441448b5ffd4cc3b80b8b2c74b244288fda644f55ed0e226ef4e25ba02ca466",
+          "linkText": "svgr-e10s_errorsummary.log",
+          "label": "artifact uploaded"
+        },
+        {
+          "url": "http://mozilla-releng-blobs.s3.amazonaws.com/blobs/Mozilla-Inbound-Non-PGO/sha512/a6b13038a5ea71b0975580904e35e08c9d965949c07eb8a12f75eb33f1ec9af1da6f4197c424d850deadebf631aa71da3c0d57a59ec9d82a419aa8c4644a2905",
+          "linkText": "svgr-e10s_raw.log",
+          "label": "artifact uploaded"
+        }
+      ]
+    }
   },
+
   {
-    "jobGuid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf34",
+    "taskId": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf34",
+    "retryId": 0,
     "origin": {
       "kind": "hg.mozilla.org",
       "project": "set by test",
-      "revision": "set by test"
+      "revision": "1234567890123456789012345678901234567890"
     },
-
     "display": {
-      "jobSymbol": "P2",
+      "jobSymbol": "P",
+      "chunkId": 2,
       "jobName": "Pulse Ingestion Test",
       "groupSymbol": "?",
       "groupName": "unknown"
     },
-
     "state": "running",
     "jobKind": "test",
-
     "runMachine": {
       "name": "bld-linux64-ec2-104",
       "platform": "linux64",
@@ -84,25 +92,30 @@
       "os": "linux",
       "architecture": "x86_64"
     },
-
-    "who": "thedude@lebowski.com",
+    "owner": "thedude@lebowski.com",
     "reason": "scheduler",
     "productName": "Oscillation Overthruster",
-
     "timeScheduled": "2014-12-19T16:39:57-08:00",
     "timeStarted": "2014-12-19T17:39:57-08:00",
-    "timeCompleted": "2014-12-19T18:39:57-08:00"
+    "timeCompleted": "2014-12-19T18:39:57-08:00",
+    "labels": [
+      "debug",
+      "opt"
+    ]
   },
+
   {
-    "jobGuid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35",
+    "taskId": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35",
+    "retryId": 0,
+    "isRetried": true,
     "origin": {
       "kind": "hg.mozilla.org",
       "project": "set by test",
-      "revision": "set by test"
+      "revision": "1234567890123456789012345678901234567890"
     },
 
     "display": {
-      "jobSymbol": "P3",
+      "chunkId": 3,
       "jobName": "Pulse Ingestion Test",
       "groupSymbol": "PI",
       "groupName": "PulseIngestion"
@@ -125,7 +138,7 @@
       "architecture": "x86_64"
     },
 
-    "who": "thedude@lebowski.com",
+    "owner": "thedude@lebowski.com",
     "reason": "scheduler",
 
     "timeScheduled": "2014-12-19T16:39:57-08:00",
@@ -135,16 +148,109 @@
     "logs": [
       {
         "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
-        "parseStatus": "parsed",
+        "name": "builds-4h",
+        "steps": [
+          {
+            "name": "downloading to oauth.txt",
+            "timeStarted": "2016-02-02T14:20:05-08:00",
+            "lineStarted": 231,
+            "lineFinished": 232,
+            "timeFinished": "2016-02-02T14:27:05-08:00",
+            "result": "success"
+          },
+          {
+            "errors": [
+              {
+                "line": "14:38:05     INFO -  PROCESS | 16672 | [Child 17361] ###!!! ABORT: Aborting on channel error.: file /builds/slave/m-in-l64-000000000000000000000/build/src/ipc/glue/MessageChannel.cpp, line 1823",
+                "linenumber": 3211
+              },
+              {
+                "line": "14:38:05     INFO -  TEST-UNEXPECTED-ERROR | tart | TIMEOUT: TART",
+                "linenumber": 3212
+              },
+              {
+                "line": "14:38:05    ERROR -  Traceback (most recent call last):",
+                "linenumber": 3213
+              }
+            ],
+            "name": "'/tools/buildbot/bin/python scripts/scripts/talos_script.py ...' failed",
+            "timeStarted": "2016-02-02T14:27:05-07:00",
+            "lineStarted": 234,
+            "lineFinished": 3269,
+            "timeFinished": "2016-02-02T14:38:09-08:00",
+            "result": "fail"
+          }
+        ],
+        "errorsTruncated": false
+      }
+    ],
+    "extra": {
+      "artifacts": [
+        {
+          "blob": {"fee": "foo"},
+          "type": "json",
+          "name": "Bug suggestions"
+        }
+      ]
+    }
+
+  },
+  {
+    "taskId": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35",
+    "retryId": 3,
+    "origin": {
+      "kind": "hg.mozilla.org",
+      "project": "set by test",
+      "revision": "1234567890123456789012345678901234567890"
+    },
+
+    "display": {
+      "chunkId": 3,
+      "jobName": "Pulse Ingestion Test",
+      "groupSymbol": "PI",
+      "groupName": "PulseIngestion"
+    },
+
+    "state": "completed",
+    "result": "fail",
+    "jobKind": "test",
+
+    "runMachine": {
+      "name": "bld-linux64-ec2-104",
+      "platform": "linux64",
+      "os": "linux",
+      "architecture": "x86_64"
+    },
+    "buildMachine": {
+      "name": "bld-linux64-ec2-104",
+      "platform": "linux64",
+      "os": "linux",
+      "architecture": "x86_64"
+    },
+
+    "owner": "thedude@lebowski.com",
+    "reason": "scheduler",
+
+    "timeScheduled": "2014-12-19T16:39:57-08:00",
+    "timeStarted": "2014-12-19T17:39:57-08:00",
+    "timeCompleted": "2014-12-19T18:39:57-08:00",
+
+    "logs": [
+      {
+        "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
         "name": "builds-4h"
       }
     ],
-    "artifacts": [
-      {
-        "type": "json",
-        "name": "Artie Fact",
-        "blob": "{\"some\": \"value\"}"
-      }
-    ]
+    "extra": {
+      "artifacts": [
+        {
+          "blob": {"fee": "foo"},
+          "type": "json",
+          "name": "quagmire"
+        }
+      ]
+    }
+
   }
+
 ]

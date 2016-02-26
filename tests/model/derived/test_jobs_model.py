@@ -8,6 +8,7 @@ from tests import test_utils
 from tests.sample_data_generator import (job_data,
                                          result_set)
 from treeherder.model.derived import ArtifactsModel
+from treeherder.model.models import JobDuration
 
 slow = pytest.mark.slow
 xfail = pytest.mark.xfail
@@ -31,7 +32,7 @@ def test_disconnect(jm):
 
 
 def test_ingest_single_sample_job(jm, refdata, sample_data, initial_data,
-                                  mock_log_parser, sample_resultset):
+                                  sample_resultset, test_repository, mock_log_parser):
     """Process a single job structure in the job_data.txt file"""
     job_data = sample_data.job_data[:1]
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
@@ -40,7 +41,8 @@ def test_ingest_single_sample_job(jm, refdata, sample_data, initial_data,
     refdata.disconnect()
 
 
-def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data, sample_resultset, mock_log_parser):
+def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data,
+                                sample_resultset, test_repository, mock_log_parser):
     """
     @@@ - Re-enable when our job_data.txt has been re-created with
           correct data.
@@ -81,7 +83,7 @@ def test_get_inserted_row_ids(jm, sample_resultset, test_repository):
 
 
 def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data, initial_data,
-                                            mock_log_parser, sample_resultset):
+                                            sample_resultset, test_repository, mock_log_parser):
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
     job = job_data[0]['job']
@@ -117,7 +119,7 @@ def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data, initial_da
 
 
 def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data, initial_data,
-                                                       mock_log_parser, sample_resultset):
+                                                       sample_resultset, test_repository, mock_log_parser):
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
     job = job_data[0]['job']
@@ -161,7 +163,7 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data,
 
 
 def test_ingest_retry_sample_job_no_running(jm, refdata, sample_data, initial_data,
-                                            mock_log_parser, sample_resultset):
+                                            sample_resultset, test_repository, mock_log_parser):
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
     job = job_data[0]['job']
@@ -186,8 +188,45 @@ def test_ingest_retry_sample_job_no_running(jm, refdata, sample_data, initial_da
     assert jl[0]['result'] == 'retry'
 
 
+def test_calculate_durations(jm, test_repository, mock_log_parser):
+    """
+    Test the calculation of average job durations and their use during
+    subsequent job ingestion.
+    """
+    rs = result_set()
+    jm.store_result_set_data([rs])
+    now = int(time.time())
+
+    first_job_duration = 120
+    first_job = job_data(revision_hash=rs['revision_hash'],
+                         start_timestamp=now,
+                         end_timestamp=now + first_job_duration)
+    jm.store_job_data([first_job])
+
+    # Generate average duration based on the first job.
+    call_command('calculate_durations')
+
+    # Ingest the same job type again to check that the pre-generated
+    # average duration is used during ingestion.
+    second_job_duration = 142
+    second_job = job_data(revision_hash=rs['revision_hash'],
+                          start_timestamp=now,
+                          end_timestamp=now + second_job_duration,
+                          job_guid='a-different-unique-guid')
+    jm.store_job_data([second_job])
+    ingested_second_job = jm.get_job(2)[0]
+    assert ingested_second_job['running_eta'] == first_job_duration
+
+    # Check that the average duration is updated now that there are two jobs.
+    call_command('calculate_durations')
+    durations = JobDuration.objects.all()
+    assert len(durations) == 1
+    expected_duration = int(round((first_job_duration + second_job_duration) / 2))
+    assert durations[0].average_duration == expected_duration
+
+
 def test_cycle_all_data(jm, refdata, sample_data, initial_data,
-                        sample_resultset, mock_log_parser):
+                        sample_resultset, test_repository, mock_log_parser):
     """
     Test cycling the sample data
     """
@@ -220,7 +259,7 @@ def test_cycle_all_data(jm, refdata, sample_data, initial_data,
 
 
 def test_cycle_one_job(jm, refdata, sample_data, initial_data,
-                       sample_resultset, mock_log_parser):
+                       sample_resultset, test_repository, mock_log_parser):
     """
     Test cycling one job in a group of jobs to confirm there are no
     unexpected deletions
@@ -266,7 +305,7 @@ def test_cycle_one_job(jm, refdata, sample_data, initial_data,
 
 
 def test_cycle_all_data_in_chunks(jm, refdata, sample_data, initial_data,
-                                  sample_resultset, mock_log_parser):
+                                  sample_resultset, test_repository, mock_log_parser):
     """
     Test cycling the sample data in chunks.
     """
@@ -299,7 +338,7 @@ def test_cycle_all_data_in_chunks(jm, refdata, sample_data, initial_data,
     assert len(jobs_after) == 0
 
 
-def test_bad_date_value_ingestion(jm, initial_data, mock_log_parser):
+def test_bad_date_value_ingestion(jm, initial_data, test_repository, mock_log_parser):
     """
     Test ingesting an blob with bad date value
 
@@ -346,10 +385,10 @@ def test_store_result_set_data(jm, initial_data, sample_resultset):
 
     # Confirm the data structures returned match what's stored in
     # the database
-    print '<><>EXP'
-    print data['result_set_ids']
-    print '<><>ACT'
-    print result_set_ids
+    print('<><>EXP')
+    print(data['result_set_ids'])
+    print('<><>ACT')
+    print(result_set_ids)
 
     assert data['result_set_ids'] == result_set_ids
     assert data['revision_ids'] == revision_ids
@@ -365,7 +404,7 @@ def test_store_result_set_revisions(jm, initial_data, sample_resultset):
 
 
 def test_get_job_data(jm, test_project, refdata, sample_data, initial_data,
-                      mock_log_parser, sample_resultset):
+                      sample_resultset, test_repository, mock_log_parser):
 
     target_len = 10
     job_data = sample_data.job_data[:target_len]
@@ -378,7 +417,7 @@ def test_get_job_data(jm, test_project, refdata, sample_data, initial_data,
 
 
 def test_remove_existing_jobs_single_existing(jm, sample_data, initial_data, refdata,
-                                              mock_log_parser, sample_resultset):
+                                              sample_resultset, test_repository, mock_log_parser):
     """Remove single existing job prior to loading"""
 
     job_data = sample_data.job_data[:1]
@@ -393,7 +432,7 @@ def test_remove_existing_jobs_single_existing(jm, sample_data, initial_data, ref
 
 
 def test_remove_existing_jobs_one_existing_one_new(jm, sample_data, initial_data, refdata,
-                                                   mock_log_parser, sample_resultset):
+                                                   sample_resultset, test_repository, mock_log_parser):
     """Remove single existing job prior to loading"""
 
     job_data = sample_data.job_data[:1]
@@ -405,7 +444,7 @@ def test_remove_existing_jobs_one_existing_one_new(jm, sample_data, initial_data
 
 
 def test_ingesting_skip_existing(jm, sample_data, initial_data, refdata,
-                                 mock_log_parser, sample_resultset):
+                                 sample_resultset, test_repository, mock_log_parser):
     """Remove single existing job prior to loading"""
 
     job_data = sample_data.job_data[:1]

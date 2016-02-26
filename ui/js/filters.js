@@ -132,3 +132,10 @@ treeherder.filter('classified', function() {
         return matches.some(function(x) {return x.is_best;}) ? "CLASSIFIED" : "UNCLASSIFIED";
     };
 });
+
+treeherder.filter('alertStatus', [
+    'phAlertSummaryResolutionMap', function(phAlertSummaryResolutionMap) {
+        return function(resolutionId) {
+            return phAlertSummaryResolutionMap[resolutionId];
+        };
+    }]);

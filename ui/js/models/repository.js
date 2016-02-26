@@ -2,9 +2,9 @@
 
 treeherder.factory('ThRepositoryModel', [
     '$http', 'thUrl', '$rootScope', 'ThLog', '$interval',
-    'treeStatus', 'thRepoGroupOrder',
+    '$q', 'treeStatus', 'thRepoGroupOrder',
     function(
-        $http, thUrl, $rootScope, ThLog, $interval,
+        $http, thUrl, $rootScope, ThLog, $interval, $q,
         treeStatus, thRepoGroupOrder) {
 
         var $log = new ThLog("ThRepositoryModel");
@@ -114,11 +114,26 @@ treeherder.factory('ThRepositoryModel', [
                                 }
                                 return this.url + '/rev/' + revision;
                             },
-                            getPushLogHref: function(revision) {
+                            getPushLogHref: function(arg) {
                                 if (this.dvcs_type == 'git') {
-                                    return this.getRevisionHref(revision);
+                                    // if git, assume github
+                                    if (typeof(arg) === 'string') {
+                                        return this.getRevisionHref(arg);
+                                    } else if (arg && arg.from && arg.to) {
+                                        return this.url + '/compare/' + arg.from + '...' +
+                                            arg.to;
+                                    }
+                                } else {
+                                    // otherwise assume mercurial
+                                    if (typeof(arg) === 'string') {
+                                        return this.pushlogURL + '?changeset=' + arg;
+                                    } else if (arg && arg.from && arg.to) {
+                                        return this.pushlogURL + '?fromchange=' +
+                                            arg.from +'&tochange=' + arg.to;
+                                    }
                                 }
-                                return this.pushlogURL + '?changeset=' + revision;
+                                // if we get here, undefined
+                                return "";
                             }
                         };
 
@@ -145,6 +160,9 @@ treeherder.factory('ThRepositoryModel', [
                 if (options.name) {
                     setCurrent(options.name);
                 }
+                return $q(function(resolve, reject) {
+                    resolve('Already loaded');
+                });
             }
         };
 

@@ -11,7 +11,7 @@
           <select id="original-project-selector" class="form-control" ng-model="originalProject" ng-options="project.name for project in projects"  ng-change="updateOriginalRevisionTips()"/>
           <label for="original-revision-input">Revision</label>
           <div class="form-group" ng-class="{'has-error': originalRevisionError}">
-            <input id="original-revision-input" maxlength="12" class="form-control" type="text" ng-model="originalRevision"/>
+            <input id="original-revision-input" maxlength="12" class="form-control" type="text" ng-model="originalRevision" placeholder="Select or enter a revision"/>
             <div class="input-group-btn">
               <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Recent <span class="caret"></span></button>
@@ -27,21 +27,23 @@
         <div class="panel-heading">New</div>
         <div class="panel-body">
           <label for="new-project-selector">Project</label>
-          <select id="new-project-selector" class="form-control" ng-model="newProject" ng-options="project.name for project in projects" ng-change="updateNewRevisionTips()"/>
+          <select id="new-project-selector" class="form-control" ng-model="newProject" ng-options="project.name for project in projects" ng-change="updateNewRevisionTips();getPreviousRevision()"/>
           <label for="new-revision-input">Revision</label>
             <div class="form-group" ng-class="{'has-error': newRevisionError}">
-            <input id="new-revision-input" maxlength="12" class="form-control" type="text" ng-model="newRevision"/>
+            <input id="new-revision-input" maxlength="12" class="form-control" type="text" ng-model="newRevision" placeholder="Select or enter a revision" ng-change="getPreviousRevision()"/>
             <div class="input-group-btn">
               <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Recent <span class="caret"></span></button>
               <ul class="dropdown-menu dropdown-menu-right" >
-                <li ng-repeat="tip in newTipList"><a ng-click="getNewTipRevision(tip.revision)">
+                <li ng-repeat="tip in newTipList"><a ng-click="getNewTipRevision(tip.revision);getPreviousRevision()">
                 {{tip.revision}} {{tip.author}}
                 </a></li>
               </ul>
             </div>
             </div>
-            <label class="control-label" style="color:#A94442" ng-show="newRevisionError">{{newRevisionError}}"</label>
+            <label class="control-label" style="color:#A94442" ng-show="newRevisionError">{{newRevisionError}}</label>
+            <a href="" ng-show="proposedRevision" ng-click="setProposedRevision()">Set the base revision to be the previous of this one.</a>
+            <p class="help-block" ng-show="proposedRevisionLoading"><i class="fa fa-spinner fa-pulse"></i> Attempting to automatically find base revision...</p>
         </div>
       </div>
       <div class="spacer"></div>

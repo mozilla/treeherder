@@ -81,7 +81,7 @@ class RunnableJobsProcess(JsonExtractorMixin,
                 job_type, _ = JobType.objects.get_or_create(
                     name=datum['job_type_name'],
                     symbol=datum['job_type_symbol'],
-                    job_group=job_group
+                    defaults={'job_group': job_group}
                 )
 
                 option_collection_hash = self.get_option_collection_hash(

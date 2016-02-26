@@ -214,15 +214,18 @@ module.exports = function(grunt) {
             },
             perf: {
                 cwd: 'ui',
-                src: 'partials/perf/*.html',
+                src: ['partials/main/persona_buttons.html',
+                      'partials/main/thLogoutMenu.html',
+                      'partials/perf/*.html',
+                      'partials/perf/*.tmpl'],
                 dest: 'dist/js/perf.min.js',
                 options: {
                     usemin: 'dist/js/perf.min.js',
                     append: true,
                     htmlmin: {
+                        // intentionally NOT collapsing whitespace here,
+                        // so perf regression templates are handled correctly
                         collapseBooleanAttributes:      true,
-                        collapseWhitespace:             true,
-                        conservativeCollapse:           true,
                         removeAttributeQuotes:          true,
                         removeComments:                 true,
                         removeEmptyAttributes:          true,

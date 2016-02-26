@@ -7,7 +7,6 @@ treeherderApp.controller('SheriffCtrl', [
         $scope, $rootScope, ThBuildPlatformModel, ThJobTypeModel, thEvents,
         ThRepositoryModel, ThOptionCollectionModel,
         ThJobExclusionModel, ThExclusionProfileModel, thNotify, $q) {
-
         // fetch the reference data
         $scope.exclusions = [];
         $scope.exclusions_map = {};
@@ -101,7 +100,7 @@ treeherderApp.controller('SheriffCtrl', [
         // initialize the list of option collections
         $scope.master_option_collections = [];
 
-        ThOptionCollectionModel.get_map().then(function(optCollectionMap) {
+        ThOptionCollectionModel.getMap().then(function(optCollectionMap) {
             // the string representations of the option collections
             $scope.master_option_collections = _.values(optCollectionMap);
 

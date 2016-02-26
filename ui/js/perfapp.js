@@ -10,28 +10,33 @@ perf.config(function($compileProvider, $httpProvider, $stateProvider, $urlRouter
     $httpProvider.useApplyAsync(true);
 
     $stateProvider.state('alerts', {
-        title: 'Perfherder Alerts',
+        title: 'Alerts',
         templateUrl: 'partials/perf/alertsctrl.html',
-        url: '/alerts?id',
+        url: '/alerts?id&status&framework&filter&hideImprovements',
         controller: 'AlertsCtrl'
     }).state('graphs', {
-        title: 'Perfherder Graphs',
+        title: 'Graphs',
         templateUrl: 'partials/perf/graphsctrl.html',
-        url: '/graphs?timerange&series&highlightedRevisions&zoom&selected',
+        url: '/graphs?timerange&series&highlightedRevisions&highlightAlerts&zoom&selected',
         controller: 'GraphsCtrl'
     }).state('compare', {
         templateUrl: 'partials/perf/comparectrl.html',
-        url: '/compare?originalProject&originalRevision&newProject&newRevision&hideMinorChanges&showExcludedPlatforms&filterTest&filterPlatform&showOnlyImportant&showOnlyConfident&showUnreliablePlatforms',
+        url: '/compare?originalProject&originalRevision&newProject&newRevision&hideMinorChanges&framework&filter&showOnlyImportant&showOnlyConfidentw',
         controller: 'CompareResultsCtrl'
     }).state('comparesubtest', {
         templateUrl: 'partials/perf/comparesubtestctrl.html',
-        url: '/comparesubtest?originalProject&originalRevision&newProject&newRevision&originalSignature&newSignature',
+        url: '/comparesubtest?originalProject&originalRevision&newProject&newRevision&originalSignature&newSignature&filter&showOnlyImportant&showOnlyConfident',
         controller: 'CompareSubtestResultsCtrl'
     }).state('comparechooser', {
-        title: 'Perfherder Compare',
+        title: 'Compare',
         templateUrl: 'partials/perf/comparechooserctrl.html',
         url: '/comparechooser?originalProject&originalRevision&newProject&newRevision',
         controller: 'CompareChooserCtrl'
+    }).state('e10s', {
+        title: 'e10s talos dashboard',
+        templateUrl: 'partials/perf/e10s.html',
+        url: '/e10s?&filter&showOnlyImportant&showOnlyConfident',
+        controller: 'e10sCtrl'
     });
 
     $urlRouterProvider.otherwise('/graphs');

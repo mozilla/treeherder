@@ -184,6 +184,10 @@ treeherder.provider('thEvents', function() {
             // fired when a global filter has changed
             globalFilterChanged: "status-filter-changed-EVT",
 
+            // after something happened that requires the number
+            // of unclassified jobs by tier to be recalculated
+            recalculateUnclassified: "recalc-unclassified-EVT",
+
             groupStateChanged: "group-state-changed-EVT",
 
             toggleRevisions: "toggle-revisions-EVT",

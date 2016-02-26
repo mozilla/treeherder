@@ -1,6 +1,7 @@
 import logging
 
 from celery import task
+from django.conf import settings
 from django.core.management import call_command
 
 from treeherder import celery_app
@@ -59,8 +60,9 @@ def store_error_summary(project, job_log_url, job_guid):
     try:
         logger.info('Running store_error_summary')
         call_command('store_error_summary', job_log_url, job_guid, project)
-        celery_app.send_task('autoclassify',
-                             [project, job_guid],
-                             routing_key='autoclassify')
-    except Exception, e:
+        if settings.AUTOCLASSIFY_JOBS:
+            celery_app.send_task('autoclassify',
+                                 [project, job_guid],
+                                 routing_key='autoclassify')
+    except Exception as e:
         store_error_summary.retry(exc=e, countdown=(1 + store_error_summary.request.retries) * 60)

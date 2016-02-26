@@ -14,21 +14,26 @@ import os
 # os.environ["DJANGO_SETTINGS_MODULE"] = "treeherder.config.settings"
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "treeherder.config.settings")
 
+import environ
 from django.core.cache.backends.memcached import BaseMemcachedCache
-from django.core.wsgi import get_wsgi_application
+from django.core.wsgi import get_wsgi_application as django_app
+from wsgi_sslify import sslify
 
 from treeherder.config.whitenoise_custom import CustomWhiteNoise
 
-# This application object is used by any WSGI server configured to use this
-# file. This includes Django's development server, if the WSGI_APPLICATION
-# setting points here.
-application = get_wsgi_application()
+env = environ.Env()
 
 # Wrap the Django WSGI app with WhiteNoise so the UI can be served by gunicorn
 # in production, avoiding the need for Apache/nginx on Heroku. WhiteNoise will
 # serve the Django static files at /static/ and also those in the directory
 # referenced by WHITENOISE_ROOT at the site root.
-application = CustomWhiteNoise(application)
+application = CustomWhiteNoise(django_app())
+
+if env.bool('IS_HEROKU', default=False):
+    # Redirect HTTP requests to HTTPS and set an HSTS header.
+    # Required since the equivalent Django features will not be
+    # able to alter requests that were served by WhiteNoise.
+    application = sslify(application)
 
 # Fix django closing connection to MemCachier after every request:
 # https://code.djangoproject.com/ticket/11331

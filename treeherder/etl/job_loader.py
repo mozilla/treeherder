@@ -13,8 +13,6 @@ logger = logging.getLogger(__name__)
 
 class JobLoader:
     """Validate, transform and load a list of Jobs"""
-    jobs_schema = None
-    artifact_schema = None
 
     TEST_RESULT_MAP = {
         "success": "success",
@@ -31,7 +29,7 @@ class JobLoader:
         "unknown": "unknown"
     }
 
-    def process_job_list(self, all_jobs_list, raise_errors=False):
+    def process_job_list(self, all_jobs_list):
         if not isinstance(all_jobs_list, list):
             all_jobs_list = [all_jobs_list]
 
@@ -53,8 +51,7 @@ class JobLoader:
                             logger.warn("Skipping job due to bad attribute",
                                         exc_info=1)
 
-                jobs_model.store_job_data(storeable_job_list,
-                                          raise_errors=raise_errors)
+                jobs_model.store_job_data(storeable_job_list)
 
     def transform(self, pulse_job, rs_lookup):
         """
@@ -65,20 +62,21 @@ class JobLoader:
         We can rely on the structure of ``pulse_job`` because it will
         already have been validated against the JSON Schema at this point.
         """
-        return {
+        job_guid = self._get_job_guid(pulse_job)
+        x = {
             # todo: Continue using short revisions until Bug 1199364
             "revision_hash": rs_lookup[pulse_job["origin"]["revision"][:12]]["revision_hash"],
             "job": {
-                "job_guid": pulse_job["jobGuid"],
+                "job_guid": job_guid,
                 "name": pulse_job["display"].get("jobName", "unknown"),
-                "job_symbol": pulse_job["display"].get("jobSymbol"),
+                "job_symbol": self._get_job_symbol(pulse_job),
                 "group_name": pulse_job["display"].get("groupName", "unknown"),
                 "group_symbol": pulse_job["display"].get("groupSymbol"),
                 "product_name": pulse_job.get("productName", "unknown"),
                 "state": pulse_job["state"],
                 "result": self._get_result(pulse_job),
                 "reason": pulse_job.get("reason", "unknown"),
-                "who": pulse_job.get("who", "unknown"),
+                "who": pulse_job.get("owner", "unknown"),
                 "tier": pulse_job.get("tier", 1),
                 "submit_timestamp": self._to_timestamp(pulse_job["timeScheduled"]),
                 "start_timestamp": self._to_timestamp(pulse_job["timeStarted"]),
@@ -88,16 +86,123 @@ class JobLoader:
                 "machine_platform": self._get_platform(pulse_job.get("runMachine", None)),
                 "option_collection": self._get_option_collection(pulse_job),
                 "log_references": self._get_log_references(pulse_job),
-                "artifacts": self._get_artifacts(pulse_job),
+                "artifacts": self._get_artifacts(pulse_job, job_guid),
             },
             "coalesced": pulse_job.get("coalesced", [])
         }
+        return x
 
-    def _get_artifacts(self, job):
-        pulse_artifacts = job.get("artifacts", [])
-        for artifact in pulse_artifacts:
-            artifact["job_guid"] = job["jobGuid"]
+    def _get_job_guid(self, job):
+        guid_parts = [job["taskId"]]
+        retry_id = job.get("retryId", 0)
+        if retry_id > 0:
+            guid_parts.append(str(retry_id))
+        return "/".join(guid_parts)
+
+    def _get_job_symbol(self, job):
+        return "{}{}".format(
+            job["display"].get("jobSymbol", ""),
+            job["display"].get("chunkId", "")
+        )
+
+    def _get_artifacts(self, job, job_guid):
+        artifact_funcs = [self._get_job_info_artifact,
+                          self._get_text_log_summary_artifact]
+        pulse_artifacts = []
+        for artifact_func in artifact_funcs:
+            artifact = artifact_func(job, job_guid)
+            if artifact:
+                pulse_artifacts.append(artifact)
+
+        # add in any arbitrary artifacts included in the "extra" section
+        pulse_artifacts.extend(self._get_extra_artifacts(job, job_guid))
         return pulse_artifacts
+
+    def _get_job_info_artifact(self, job, job_guid):
+        if "jobInfo" in job:
+
+            ji = job["jobInfo"]
+            job_details = []
+            if "summary" in ji:
+                job_details.append({
+                    "content_type": "raw_html",
+                    "value": ji["summary"]["text"],
+                    "title": ji["summary"]["label"]
+                })
+            if "links" in ji:
+                for link in ji["links"]:
+                    job_details.append({
+                        "url": link["url"],
+                        "content_type": "link",
+                        "value": link["linkText"],
+                        "title": link["label"]
+                    })
+
+            artifact = {
+                "blob": {
+                    "job_details": job_details
+                },
+                "type": "json",
+                "name": "Job Info",
+                "job_guid": job_guid
+            }
+            return artifact
+
+    def _get_text_log_summary_artifact(self, job, job_guid):
+        # We can only have one text_log_summary artifact,
+        # so pick the first log with steps to create it.
+
+        if "logs" in job:
+            for log in job["logs"]:
+                if "steps" in log:
+                    all_errors = []
+                    old_steps = log["steps"]
+                    new_steps = []
+
+                    for idx, step in enumerate(old_steps):
+                        errors = step.get("errors", [])
+                        error_count = len(errors)
+                        if error_count:
+                            all_errors.extend(errors)
+
+                        started = self._to_timestamp(step["timeStarted"])
+                        finished = self._to_timestamp(step["timeFinished"])
+                        new_steps.append({
+                            "name": step["name"],
+                            "result": self._get_step_result(job, step["result"]),
+                            "started": started,
+                            "finished": finished,
+                            "started_linenumber": step["lineStarted"],
+                            "finished_linenumber": step["lineFinished"],
+                            "errors": errors,
+                            "error_count": error_count,
+                            "duration": finished - started,
+                            "order": idx
+                        })
+
+                    return {
+                        "blob": {
+                            "step_data": {
+                                "all_errors": all_errors,
+                                "steps": new_steps,
+                                "errors_truncated": log.get("errorsTruncated")
+                            },
+                            "logurl": log["url"]
+                        },
+                        "type": "json",
+                        "name": "text_log_summary",
+                        "job_guid": job_guid
+                    }
+
+    def _get_extra_artifacts(self, job, job_guid):
+        artifacts = []
+        if "extra" in job and "artifacts" in job["extra"]:
+            for extra_artifact in job["extra"]["artifacts"]:
+                artifact = extra_artifact
+                artifact["job_guid"] = job_guid
+                artifacts.append(artifact)
+
+        return artifacts
 
     def _get_log_references(self, job):
         log_references = []
@@ -105,15 +210,15 @@ class JobLoader:
             log_references.append({
                 "name": logref["name"],
                 "url": logref["url"],
-                "parse_status": logref.get("parseStatus", "pending")
+                "parse_status": "parsed" if "steps" in logref else "pending"
             })
         return log_references
 
     def _get_option_collection(self, job):
         option_collection = {"opt": True}
-        if "optionCollection" in job:
+        if "labels" in job:
             option_collection = {}
-            for option in job["optionCollection"]:
+            for option in job["labels"]:
                 option_collection[option] = True
         return option_collection
 
@@ -137,13 +242,17 @@ class JobLoader:
 
     def _get_result(self, job):
         if job["state"] == "completed":
-            resmap = self.BUILD_RESULT_MAP if job["jobKind"] == "build" else self.TEST_RESULT_MAP
+            resmap = self.TEST_RESULT_MAP if job["jobKind"] == "test" else self.BUILD_RESULT_MAP
             result = job.get("result", "unknown")
             if job.get("isRetried", False):
                 return "retry"
             else:
                 return resmap[result]
         return "unknown"
+
+    def _get_step_result(self, job, result):
+        resmap = self.TEST_RESULT_MAP if job["jobKind"] == "test" else self.BUILD_RESULT_MAP
+        return resmap[result]
 
     def _get_validated_jobs_by_project(self, jobs_list):
         validated_jobs = defaultdict(list)

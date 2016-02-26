@@ -111,11 +111,11 @@ treeherder.directive('thWatchedRepoInfoDropDown', [
     }]);
 
 
-treeherder.directive('thRepoDropdownContainer', [
+treeherder.directive('thCheckboxDropdownContainer', [
     'ThLog', '$rootScope', 'thEvents',
     function (ThLog, $rootScope, thEvents) {
 
-        var $log = new ThLog("thRepoDropdownContainer");
+        var $log = new ThLog("thCheckboxDropdownContainer");
 
         return {
             restrict: "A",
@@ -131,16 +131,13 @@ treeherder.directive('thRepoDropdownContainer', [
                     }
                 });
 
-                $('.repo-dropdown-menu').on({
+                $('.checkbox-dropdown-menu').on({
                     "click": function(ev) {
-                        if ($(ev.target).hasClass(".repo-link") || $(ev.target).hasClass(".repo-checkbox")) {
+                        if ($(ev.target).hasClass("dropdown-link") ||
+                            $(ev.target).parent().hasClass("dropdown-link")) {
                             scope.closeable = false;
                         }
-                        $log.debug("repo menu dropdown", "click", scope.closeable, ev.target.className);
-                    },
-                    "mouseup": function(ev) {
-                        scope.closeable = false;
-                        $log.debug("repo menu dropdown", "mouseup", scope.closeable, ev.target.className);
+                        $log.debug("menu dropdown", "click", scope.closeable, ev.target.className);
                     }
                 });
 
@@ -159,9 +156,9 @@ treeherder.directive('thRepoMenuItem', [
             replace: true,
             link: function(scope, element, attrs) {
                 var elem = $(element);
-                elem.find('.repo-link').prop('href', scope.urlBasePath + "?repo=" + scope.repo.name);
+                elem.find('.dropdown-link').prop('href', scope.urlBasePath + "?repo=" + scope.repo.name);
                 if (scope.repo.name === scope.repoName) {
-                    elem.find('.repo-checkbox').prop('disabled', 'disabled');
+                    elem.find('.dropdown-checkbox').prop('disabled', 'disabled');
                 }
 
             },

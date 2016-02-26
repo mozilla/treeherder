@@ -11,18 +11,13 @@
               <span aria-hidden="true">&times;</span>
               <span class="sr-only">Remove series</span>
             </button>
-            <table>
-              <tr>
-                <td width="10px" class="graph-legend" style="padding: 4px; background-color: {{series.blockColor}}" ></td>
-                <td class="graph-legend" ng-class="{'series-inactive':!series.active}">
-                  <b>{{series.name}}</b><br/>
-                  <a href="#" ng-click="addTestData('addRelatedBranches', series.signature)" title="Add related branches">{{series.projectName}}</a><br/>
-                  <a href="#" ng-click="addTestData('addRelatedPlatform', series.signature)" title="Add related platforms">{{series.platform}}</a><br/>
-                  <div class="signature"><small>{{series.signature}}</small></div>
-                </td>
-              </tr>
-            </table>
-            <input title="Show/Hide series" type="checkbox" ng-model="series.visible" class="show-hide-check" ng-click="showHideSeries(series.signature)">
+              <div class="graph-legend" style="border-left-color: {{series.blockColor}}" ng-class="{'series-inactive':!series.visible}">
+                <b>{{series.name}}</b><br/>
+                <a href="#" ng-click="addTestData('addRelatedBranches', series.signature)" title="Add related branches">{{series.projectName}}</a><br/>
+                <a href="#" ng-click="addTestData('addRelatedPlatform', series.signature)" title="Add related platforms">{{series.platform}}</a><br/>
+                <div class="signature"><small>{{series.signature}}</small></div>
+              </div>
+              <input title="Show/Hide series" type="checkbox" ng-model="series.visible" class="show-hide-check" ng-click="showHideSeries(series.signature)">
           </td>
         </tr>
       </table>
@@ -36,14 +31,17 @@
       <div id="overview-plot"></div>
       <div id="graph"></div>
       <div id="graph-bottom" ng-show="seriesList.length > 0">
-        Highlight revisions:
-        <input type="text" maxlength="12" ng-change="updateHighlightedRevisions()" placeholder="12 character hg revision" ng-model="highlightedRevisions[0]">
-        </input>
+        Highlight revisions: 
+        <input type="text" maxlength="12" ng-change="updateHighlightedRevisions()" placeholder="12 character hg revision" ng-model="highlightedRevisions[0]"></input>
         <span class="reset-highlight-button" ng-show="highlightedRevisions[0].length > 0" ng-click="resetHighlight(0)">&#10006;</span>
         &nbsp;&nbsp;
-        <input type="text" maxlength="12" ng-change="updateHighlightedRevisions()" placeholder="12 character hg revision" ng-model="highlightedRevisions[1]">
-        </input>
+        <input type="text" maxlength="12" ng-change="updateHighlightedRevisions()" placeholder="12 character hg revision" ng-model="highlightedRevisions[1]"></input>
         <span class="reset-highlight-button" ng-show="highlightedRevisions[1].length > 0" ng-click="resetHighlight(1)">&#10006;</span>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-change="updateHighlightedRevisions()" ng-model="highlightAlerts">Highlight alerts</input>
+          </label>
+        </div>
       </div>
     </div>
     <div class="graph-right-padding"></div>
@@ -63,13 +61,23 @@
       </div>
       <div>
         <p ng-show="tooltipContent.revision">
-          <a id="tt-cset" ng-href="{{tooltipContent.revision | getRevisionUrl:tooltipContent.project.name}}" target="_blank"><span ng-bind="tooltipContent.revision"></span></a>
+          <a id="tt-cset" ng-href="{{tooltipContent.pushlogURL}}" target="_blank">
+            <span ng-bind="tooltipContent.revision"></span>
+          </a>
           <span ng-show="tooltipContent.prevRevision && tooltipContent.revision">
-            (<a id="tt-cset" ng-href="{{tooltipContent.project.url}}/pushloghtml?fromchange={{tooltipContent.prevRevision}}&tochange={{tooltipContent.revision}}" target="_blank">pushlog</a>,
+            (<a id="tt-cset" ng-href="{{tooltipContent.revision | getRevisionUrl:tooltipContent.project.name}}&selectedJob={{tooltipContent.jobId}}&group_state=expanded" target="_blank">job</a>,
             <a ng-href="#/comparesubtest?originalProject={{tooltipContent.project.name}}&newProject={{tooltipContent.project.name}}&originalRevision={{tooltipContent.prevRevision}}&newRevision={{tooltipContent.revision}}&originalSignature={{selectedDataPoint.signature}}&newSignature={{selectedDataPoint.signature}}" target="_blank">compare</a>)
           </span>
         </p>
-        <p ng-hide="tooltipContent.revision">Loading revision...</p>
+        <p ng-show="tooltipContent.alertSummary">
+          <i class="text-warning fa fa-exclamation-circle"></i>
+          <a href="perf.html#/alerts?id={{tooltipContent.alertSummary.id}}">
+            Alert #{{tooltipContent.alertSummary.id}}</a>
+          <span class="text-muted">({{tooltipContent.alertSummary.getStatusText()}})</span>
+        <p ng-hide="tooltipContent.revision">
+          <span ng-hide="tooltipContent.revisionInfoAvailable">Revision info unavailable</span>
+          <span ng-show="tooltipContent.revisionInfoAvailable">Loading revision...</span>
+        </p>
         <p id="tt-t" class="small" ng-bind="tooltipContent.date"></p>
         <p id="tt-v" class="small" ng-show="tooltipContent.retriggers > 0">Retriggers: {{tooltipContent.retriggers}}</p>
       </div>

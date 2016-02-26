@@ -45,16 +45,15 @@ treeherder.factory('thJobFilters', [
 
         // default filter values, when a filter is not specified in the query string
         var DEFAULTS = {
-            resultStatus: {
-                values: thResultStatusList.defaultFilters()
-            },
-            classifiedState: {
-                values: ['classified', 'unclassified']
-            }
+            resultStatus: thResultStatusList.defaultFilters(),
+            classifiedState: ['classified', 'unclassified'],
+            tier: ["1", "2"]
         };
 
         // failure classification ids that should be shown in "unclassified" mode
         var UNCLASSIFIED_IDS = [1, 7];
+
+        var TIERS = ["1", "2", "3"];
 
         // used with field-filters to determine how to match the value against the
         // job field.
@@ -152,7 +151,12 @@ treeherder.factory('thJobFilters', [
 
         var getFieldFiltersObj = function() {
             var fieldFilters = {};
-            var locationSearch = $location.search();
+            // get the search params and lay any defaults over it so we test
+            // against those as well.
+            var locationSearch = _.defaults(_.clone($location.search()),
+                                            _.mapKeys(DEFAULTS, function(value, key) {
+                                                return _withPrefix(key);
+                                            }));
             _.each(locationSearch, function(values, field) {
                 if (_isFieldFilter(field)) {
                     if (field === QS_SEARCH_STR) {
@@ -160,7 +164,7 @@ treeherder.factory('thJobFilters', [
                         fieldFilters[_withoutPrefix(field)] = decodeURIComponent(values).replace(/ +(?= )/g, ' ').toLowerCase().split(' ');
                     } else {
                         var lowerVals = _.map(_toArray(values),
-                                              function(v) {return v.toLowerCase();});
+                                              function(v) {return String(v).toLowerCase();});
                         fieldFilters[_withoutPrefix(field)] = lowerVals;
                     }
                 }
@@ -173,7 +177,7 @@ treeherder.factory('thJobFilters', [
             if (filters) {
                 return _toArray(filters);
             } else if (DEFAULTS.hasOwnProperty(_withoutPrefix(field))) {
-                return DEFAULTS[_withoutPrefix(field)].values.slice();
+                return DEFAULTS[_withoutPrefix(field)].slice();
             }
             return [];
         };
@@ -218,29 +222,30 @@ treeherder.factory('thJobFilters', [
                     if (!_.isUndefined(jobFieldValue)) {
                         // if a filter is added somehow, but the job object doesn't
                         // have that field, then don't filter.  Consider it a pass.
+                        jobFieldValue = String(jobFieldValue).toLowerCase();
 
                         switch (FIELD_CHOICES[field].matchType) {
 
                             case MATCH_TYPE.substr:
-                                if (!_containsSubstr(values, jobFieldValue.toLowerCase())) {
+                                if (!_containsSubstr(values, jobFieldValue)) {
                                     return false;
                                 }
                                 break;
 
                             case MATCH_TYPE.searchStr:
-                                if (!_containsAllSubstr(values, jobFieldValue.toLowerCase())) {
+                                if (!_containsAllSubstr(values, jobFieldValue)) {
                                     return false;
                                 }
                                 break;
 
                             case MATCH_TYPE.exactstr:
-                                if (!_.contains(values, jobFieldValue.toLowerCase())) {
+                                if (!_.contains(values, jobFieldValue)) {
                                     return false;
                                 }
                                 break;
 
                             case MATCH_TYPE.choice:
-                                if (!_.contains(values, String(jobFieldValue).toLowerCase())) {
+                                if (!_.contains(values, jobFieldValue)) {
                                     return false;
                                 }
                                 break;
@@ -326,7 +331,9 @@ treeherder.factory('thJobFilters', [
             for (var i = 0; i < values.length; i++) {
                 action(field, values[i]);
             }
-            $rootScope.$emit(thEvents.globalFilterChanged);
+            // Don't emit the filter changed state here: we'll
+            // do that when the URL change signal gets fired (see
+            // the locationChangeSuccess event, above)
         };
 
         var toggleInProgress = function() {
@@ -340,6 +347,10 @@ treeherder.factory('thJobFilters', [
             } else {
                 rsValues = _.uniq(rsValues.concat(resultStatuses));
             }
+            // remove all query string params for this field if we match the defaults
+            if (_matchesDefaults(RESULT_STATUS, rsValues)) {
+                rsValues = null;
+            }
             $location.search(QS_RESULT_STATUS, rsValues);
         };
 
@@ -352,13 +363,8 @@ treeherder.factory('thJobFilters', [
             }
         };
 
-        var toggleTier1Only = function() {
-            $log.debug("toggleTier1Only");
-            if (_.contains(_getFiltersOrDefaults('tier'), '1')) {
-                removeFilter('tier', '1');
-            } else {
-                addFilter('tier', '1');
-            }
+        var isFilterSetToShow = function(field, value) {
+            return _.contains(_getFiltersOrDefaults(field), String(value));
         };
 
         /**
@@ -377,13 +383,13 @@ treeherder.factory('thJobFilters', [
         var setOnlyCoalesced = function() {
             var locationSearch = _.clone($location.search());
             locationSearch[QS_RESULT_STATUS] = "coalesced";
-            locationSearch[QS_CLASSIFIED_STATE]= DEFAULTS.classifiedState.values.slice();
+            locationSearch[QS_CLASSIFIED_STATE]= DEFAULTS.classifiedState.slice();
             $location.search(locationSearch);
         };
 
         var getClassifiedStateArray = function() {
             var arr = _toArray($location.search()[QS_CLASSIFIED_STATE]) ||
-                DEFAULTS.classifiedState.values;
+                DEFAULTS.classifiedState;
             return arr.slice();
         };
 
@@ -417,7 +423,7 @@ treeherder.factory('thJobFilters', [
 
         var getResultStatusArray = function() {
             var arr = _toArray($location.search()[QS_RESULT_STATUS]) ||
-                DEFAULTS.resultStatus.values;
+                DEFAULTS.resultStatus;
             return arr.slice();
         };
 
@@ -467,7 +473,7 @@ treeherder.factory('thJobFilters', [
             if (field === 'platform') {
                 result = thPlatformName(result) + " " + job.platform_option;
             }
-            return String(result);
+            return result;
         };
 
         /**
@@ -481,8 +487,8 @@ treeherder.factory('thJobFilters', [
         var _matchesDefaults = function(field, values) {
             $log.debug("_matchesDefaults", field, values);
             if (DEFAULTS.hasOwnProperty(field)) {
-                return values.length === DEFAULTS[field].values.length &&
-                    _.intersection(DEFAULTS[field].values, values).length === DEFAULTS[field].values.length;
+                return values.length === DEFAULTS[field].length &&
+                    _.intersection(DEFAULTS[field], values).length === DEFAULTS[field].length;
             }
             return false;
         };
@@ -561,7 +567,6 @@ treeherder.factory('thJobFilters', [
             toggleResultStatuses: toggleResultStatuses,
             toggleInProgress: toggleInProgress,
             toggleUnclassifiedFailures: toggleUnclassifiedFailures,
-            toggleTier1Only: toggleTier1Only,
             setOnlyCoalesced: setOnlyCoalesced,
 
             // filter data read-only accessors
@@ -570,12 +575,14 @@ treeherder.factory('thJobFilters', [
             getFieldFiltersObj: getFieldFiltersObj,
             getResultStatusArray: getResultStatusArray,
             isJobUnclassifiedFailure: isJobUnclassifiedFailure,
+            isFilterSetToShow: isFilterSetToShow,
             stripFiltersFromQueryString: stripFiltersFromQueryString,
             getFieldChoices: getFieldChoices,
 
             // CONSTANTS
             classifiedState: CLASSIFIED_STATE,
-            resultStatus: RESULT_STATUS
+            resultStatus: RESULT_STATUS,
+            tiers: TIERS
         };
         return api;
     }]);

@@ -10,10 +10,8 @@ from requests import Request
 from requests_hawk import HawkAuth
 from webtest.app import TestApp
 
-from tests.sampledata import SampleData
 from treeherder.client import TreeherderClient
 from treeherder.config.wsgi import application
-from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.model.derived.jobs import JobsModel
 
 
@@ -105,7 +103,7 @@ def add_test_procs_file(dhub, key, filename):
 @pytest.fixture(scope='session')
 def sample_data():
     """Returns a SampleData() object"""
-    from sampledata import SampleData
+    from .sampledata import SampleData
     return SampleData()
 
 
@@ -160,7 +158,7 @@ def mock_log_parser(monkeypatch):
 
 
 @pytest.fixture
-def result_set_stored(jm, initial_data, sample_resultset):
+def result_set_stored(jm, initial_data, sample_resultset, test_repository):
 
     jm.store_result_set_data(sample_resultset)
 
@@ -215,7 +213,7 @@ def mock_message_broker(monkeypatch):
 
 
 @pytest.fixture
-def resultset_with_three_jobs(jm, sample_data, sample_resultset):
+def resultset_with_three_jobs(jm, sample_data, sample_resultset, test_repository):
     """
     Stores a number of jobs in the same resultset.
     """
@@ -246,7 +244,7 @@ def resultset_with_three_jobs(jm, sample_data, sample_resultset):
 
 
 @pytest.fixture
-def eleven_jobs_stored(jm, sample_data, sample_resultset, mock_log_parser):
+def eleven_jobs_stored(jm, sample_data, sample_resultset, test_repository, mock_log_parser):
     """stores a list of 11 job samples"""
 
     jm.store_result_set_data(sample_resultset)
@@ -277,22 +275,12 @@ def eleven_jobs_stored(jm, sample_data, sample_resultset, mock_log_parser):
 
 
 @pytest.fixture
-def set_oauth_credentials():
-    OAuthCredentials.set_credentials(SampleData.get_credentials())
-
-
-@pytest.fixture
 def mock_post_json(monkeypatch, client_credentials):
-    def _post_json(th_client, project, endpoint, data,
-                   timeout=None, auth=None):
-
-        auth = auth or th_client.auth
+    def _post_json(th_client, project, endpoint, data, timeout=None):
+        auth = th_client.auth
         if not auth:
-            auth = HawkAuth(credentials={
-                'id': client_credentials.client_id,
-                'key': str(client_credentials.secret),
-                'algorithm': 'sha256'
-            })
+            auth = HawkAuth(id=client_credentials.client_id,
+                            key=str(client_credentials.secret))
         app = TestApp(application)
         uri = th_client._get_project_uri(project, endpoint)
         req = Request('POST', uri, json=data, auth=auth)
@@ -311,14 +299,14 @@ def mock_post_json(monkeypatch, client_credentials):
 
 
 @pytest.fixture
-def mock_get_remote_content(monkeypatch):
-    def _get_remote_content(url, params=None):
+def mock_fetch_json(monkeypatch):
+    def _fetch_json(url, params=None):
         response = TestApp(application).get(url, params=params, status=200)
         return response.json
 
     import treeherder.etl.common
     monkeypatch.setattr(treeherder.etl.common,
-                        'get_remote_content', _get_remote_content)
+                        'fetch_json', _fetch_json)
 
 
 @pytest.fixture
@@ -482,3 +470,35 @@ def client_credentials(request, api_user):
     request.addfinalizer(fin)
 
     return client_credentials
+
+
+@pytest.fixture
+def test_perf_signature(test_repository):
+    from treeherder.model.models import (MachinePlatform,
+                                         Option,
+                                         OptionCollection)
+    from treeherder.perf.models import (PerformanceFramework,
+                                        PerformanceSignature)
+
+    framework = PerformanceFramework.objects.create(
+        name='test_talos')
+    option = Option.objects.create(name='opt')
+    option_collection = OptionCollection.objects.create(
+        option_collection_hash='my_option_hash',
+        option=option)
+    platform = MachinePlatform.objects.create(
+        os_name='win',
+        platform='win7',
+        architecture='x86',
+        active_status='active')
+
+    signature = PerformanceSignature.objects.create(
+        repository=test_repository,
+        signature_hash=(40*'t'),
+        framework=framework,
+        platform=platform,
+        option_collection=option_collection,
+        suite='mysuite',
+        test='mytest'
+    )
+    return signature

@@ -66,21 +66,26 @@ treeherder.controller('PluginCtrl', [
             var successTab = "jobDetails";
             var failTab = "failureSummary";
 
-            // show/hide Talos panel if this is a Talos job and default to
-            // Talos if the job was a ``success``
-            $scope.tabService.tabs.talos.enabled = (job.job_group_name.indexOf('Talos') !== -1);
-            if ($scope.tabService.tabs.talos.enabled) {
-                successTab = "talos";
-            }
-
             // Error Classification/autoclassify special handling
             if ($scope.tabService.tabs.autoClassification.enabled) {
                 failTab = "autoClassification";
             }
 
-            // set the selected tab
+            $scope.tabService.tabs.perfDetails.enabled = false;
             if (thResultStatus(job) === 'success') {
                 $scope.tabService.selectedTab = successTab;
+
+                // If successful, check if performance data exists, if so,
+                // load and switch to it
+                $http.get(thServiceDomain + '/api/project/' + $scope.repoName +
+                          '/performance/data/?job_id=' + job.id).then(function(response) {
+                              // show/hide Performance panel and default to
+                              // it if such data exists and job is not build
+                              if (!_.isEmpty(response.data) && job.job_type_name !== "Build") {
+                                  $scope.tabService.tabs.perfDetails.enabled = true;
+                                  $scope.tabService.selectedTab = "perfDetails";
+                              }
+                          });
             } else {
                 $scope.tabService.selectedTab = failTab;
             }
@@ -135,11 +140,13 @@ treeherder.controller('PluginCtrl', [
                 ]).then(function(results){
                     //the first result comes from the job detail promise
                     $scope.job = results[0];
-                    $scope.eta = $scope.job.get_current_eta();
-                    $scope.eta_abs = Math.abs($scope.job.get_current_eta());
-                    $scope.typical_eta = $scope.job.get_typical_eta();
+                    if ($scope.job.state =='running') {
+                        $scope.eta = $scope.job.running_time_remaining();
+                        $scope.eta_abs = Math.abs($scope.eta);
+                    }
+                    $scope.average_duration = $scope.job.get_average_duration();
                     $scope.jobRevision = ThResultSetStore.getSelectedJob($scope.repoName).job.revision;
-                    $scope.jobIds = results[4];
+                    $scope.performanceSignaturesForJob = results[4];
 
                     // set the tab options and selections based on the selected job
                     initializeTabs($scope.job);
@@ -176,8 +183,8 @@ treeherder.controller('PluginCtrl', [
                             }
                             return result;
                         }, []);
-                        if ($scope.jobIds !== null) {
-                            var signatureList = _.keys($scope.jobIds);
+                        if ($scope.performanceSignaturesForJob !== null) {
+                            var signatureList = _.keys($scope.performanceSignaturesForJob);
                             var seriesList = [];
                             $scope.perfJobDetail = [];
                             $q.all(_.chunk(signatureList, 20).map(function(signatureChunk) {
@@ -207,7 +214,7 @@ treeherder.controller('PluginCtrl', [
                                         $scope.repoName+ ',' + series.signature + ',1]&selected=[' +
                                         $scope.repoName + ',' +  series.signature + ',' +
                                         $scope.job['result_set_id'] + ',' + $scope.job['id'] + ']';
-                                    detail['value'] = $scope.jobIds[series.signature][0].value;
+                                    detail['value'] = $scope.performanceSignaturesForJob[series.signature][0].value;
                                     detail['title'] = series.suite;
                                     if (series.hasOwnProperty('test') && series.test.toLowerCase() !== series.suite) {
                                         detail['title'] += '_' + series.test.toLowerCase();
@@ -300,16 +307,22 @@ treeherder.controller('PluginCtrl', [
             var starttime = $scope.job.start_timestamp || $scope.job.submit_timestamp;
             duration = numberFilter((endtime-starttime)/60, 0) + " minute(s)";
 
-            $scope.visibleTimeFields.duration = duration;
-
             if ($scope.job.start_timestamp) {
                 $scope.visibleTimeFields.startTime = dateFilter(
                     $scope.job.start_timestamp*1000, thDateFormat);
+                $scope.visibleTimeFields.duration = duration;
+            } else {
+                $scope.visibleTimeFields.duration = "Not started (queued for " + duration + ")";
             }
+
             if ($scope.job.end_timestamp) {
                 $scope.visibleTimeFields.endTime = dateFilter(
                     $scope.job.end_timestamp*1000, thDateFormat);
             }
+
+            // Scroll the job details pane to the top during job selection
+            var jobDetailsPane = document.getElementById('job-details-pane');
+            jobDetailsPane.scrollTop = 0;
         };
 
         $scope.getCountPinnedJobs = function() {

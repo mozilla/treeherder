@@ -40,22 +40,6 @@ class TreeherderModelBase(object):
         """String representation is project name."""
         return self.project
 
-    @classmethod
-    def get_oauth_credentials(cls):
-
-        credentials = {}
-
-        for source in Datasource.objects.cached():
-
-            if source.oauth_consumer_key and source.oauth_consumer_secret:
-
-                credentials[source.project] = {
-                    'consumer_key': source.oauth_consumer_key,
-                    'consumer_secret': source.oauth_consumer_secret
-                }
-
-        return credentials
-
     def get_dhub(self, procs_file_name=None):
         """
         The configured datahub
@@ -78,33 +62,6 @@ class TreeherderModelBase(object):
 
         return self.source
 
-    def get_inserted_row_ids(self, dhub):
-        """
-        InnoDB guarantees sequential numbers for AUTO INCREMENT when doing
-        bulk inserts, provided innodb_autoinc_lock_mode is set to 0
-        (traditional) or 1 (consecutive).
-
-        Consequently you can get the first ID from LAST_INSERT_ID() and the
-        last by adding ROW_COUNT()-1
-
-        ref: http://stackoverflow.com/questions/7333524/how-can-i-insert-many-rows-into-a-mysql-table-and-get-ids-back
-
-        NOTE: The cursor rowcount is always one for a
-              INSERT INTO/SELECT FROM DUAL WHERE NOT EXISTS query otherwise
-              it's equal to the number of rows inserted or updated.
-        """
-
-        row_count = dhub.connection['master_host']['cursor'].rowcount
-        ids = []
-
-        if row_count > 0:
-            last_id = dhub.connection['master_host']['cursor'].lastrowid
-            ids.extend(
-                list(range(last_id - (row_count - 1), last_id + 1))
-            )
-
-        return ids
-
     def _process_conditions(self, conditions, allowed_fields=None):
         """Transform a list of conditions into a list of placeholders and
         replacement strings to feed a datahub.execute statement."""
@@ -113,7 +70,7 @@ class TreeherderModelBase(object):
         if conditions:
             for column, condition in conditions.items():
                 if allowed_fields is None or column in allowed_fields:
-                    if column in allowed_fields:
+                    if allowed_fields and column in allowed_fields:
                         # we need to get the db column string from the passed
                         # in querystring column.  It could be the same, but
                         # often it will have a table prefix for the column.

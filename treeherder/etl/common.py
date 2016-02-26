@@ -1,9 +1,13 @@
 import hashlib
+import logging
+import re
 import time
 
 import requests
-import simplejson as json
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
+REVISION_SHA_RE = re.compile(r'^[a-f\d]{12,40}$', re.IGNORECASE)
 
 
 class JobDataError(ValueError):
@@ -26,15 +30,6 @@ class JobData(dict):
         self.context = context or []
         super(JobData, self).__init__(data)
 
-    @classmethod
-    def from_json(cls, json_blob):
-        """Create ``JobData`` from a JSON string."""
-        try:
-            data = json.loads(json_blob)
-        except ValueError as e:
-            raise JobDataError("Malformed JSON: {0}".format(e))
-        return cls(data)
-
     def __getitem__(self, name):
         """Get a data value, raising ``JobDataError`` if missing."""
         full_context = list(self.context) + [name]
@@ -52,14 +47,30 @@ class JobData(dict):
         return value
 
 
-def get_remote_content(url, params=None):
-    """A thin layer of abstraction over requests. """
-    resp = requests.get(url,
-                        params=params,
-                        headers={'Accept': 'application/json'},
-                        timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
-    resp.raise_for_status()
-    return resp.json()
+def make_request(url, method='GET', headers=None,
+                 timeout=settings.REQUESTS_TIMEOUT, **kwargs):
+    """A wrapper around requests to set defaults & call raise_for_status()."""
+    headers = headers or {}
+    headers['User-Agent'] = settings.TREEHERDER_USER_AGENT
+    response = requests.request(method,
+                                url,
+                                headers=headers,
+                                timeout=timeout,
+                                **kwargs)
+    response.raise_for_status()
+    return response
+
+
+def fetch_json(url, params=None):
+    response = make_request(url,
+                            params=params,
+                            headers={'Accept': 'application/json'})
+    return response.json()
+
+
+def fetch_text(url):
+    response = make_request(url)
+    return response.text
 
 
 def lookup_revisions(revision_dict):
@@ -78,6 +89,38 @@ def lookup_revisions(revision_dict):
         if lookup_content:
             lookup[project] = lookup_content
     return lookup
+
+
+def should_skip_project(project, valid_projects, project_filter):
+    if project_filter and project != project_filter:
+        return True
+    if project not in valid_projects:
+        logger.info("Skipping unknown branch: %s", project)
+        return True
+    return False
+
+
+def should_skip_revision(revision, revision_filter):
+    if revision_filter and revision != revision_filter:
+        return True
+    if not revision or not REVISION_SHA_RE.match(revision):
+        logger.info("Skipping invalid revision SHA: %s", revision)
+        return True
+    return False
+
+
+def is_blacklisted_buildername(buildername):
+    if buildername.endswith(' l10n dep'):
+        # These l10n jobs specify the l10n repo revision under 'revision', rather
+        # than the gecko revision. If we did not skip these, it would result in
+        # fetch_missing_resultsets requests that were guaranteed to 404.
+        # This needs to be fixed upstream in builds-*.js by bug 1125433.
+        # We have to blacklist by buildername rather than comparing the
+        # l10n_revision property, since the latter is not available in
+        # builds-{pending,running}.
+        logger.info("Skipping blacklisted buildername: %s", buildername)
+        return True
+    return False
 
 
 def generate_revision_hash(revisions):

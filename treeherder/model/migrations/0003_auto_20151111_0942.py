@@ -14,11 +14,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='referencedatasignatures',
             name='build_platform',
-            field=models.CharField(max_length=100L, db_index=True),
+            field=models.CharField(max_length=100, db_index=True),
         ),
         migrations.AlterField(
             model_name='referencedatasignatures',
             name='machine_platform',
-            field=models.CharField(max_length=100L, db_index=True),
+            field=models.CharField(max_length=100, db_index=True),
         ),
     ]
