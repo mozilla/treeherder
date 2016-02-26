@@ -456,8 +456,9 @@ def test_ingesting_skip_existing(jm, sample_data, initial_data, refdata,
     assert len(jl) == 2
 
 
-def test_ingest_job_with_updated_job_group(jm, refdata, sample_data, initial_data,
-                                           mock_log_parser, result_set_stored):
+def test_ingest_job_with_updated_job_group(jm,
+                                           sample_data, mock_log_parser,
+                                           result_set_stored):
     """
     When a job_type is associated with a job group on data ingestion,
     that association will not updated ingesting a new job with the same
