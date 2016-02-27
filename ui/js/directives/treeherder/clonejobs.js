@@ -786,7 +786,6 @@ treeherder.directive('thCloneJobs', [
         };
 
         var registerCustomEventCallbacks = function(scope, element, attrs){
-
             //Register rootScope custom event listeners that require
             //access to the anguler level resultset scope
             //
@@ -913,11 +912,28 @@ treeherder.directive('thCloneJobs', [
                 });
             });
         };
+
+        var compareResultSets = function(oldresultset, resultset) {
+            oldresultset.platforms.forEach(function(platform, i) {
+                platform.groups.forEach(function(group, j) {
+                    group.jobs.forEach(function(job, k) {
+                        if (job.visible != resultset.platforms[i].groups[j].jobs[k].visible) {
+                            return false;
+                        }
+                    });
+                });
+            });
+            return true;
+        };
+
         var generateJobElements = function(resultsetAggregateId, resultset) {
+            var old_resultset;
             var tableEl = $('#' + resultsetAggregateId);
             var waitSpanEl = $(tableEl).prev();
             $(waitSpanEl).css('display', 'none');
+            do {
             var tableHtml = "";
+            old_resultset = JSON.parse(JSON.stringify(resultset));
             resultset.platforms.forEach(function(platform) {
                 var platformId = thAggregateIds.getPlatformRowId(
                     $rootScope.repoName,
@@ -947,6 +963,11 @@ treeherder.directive('thCloneJobs', [
                 tableHtml += rowHtml;
             });
             tableEl.html(tableHtml);
+            // Not too sure whether I need to run this function
+            resultset.platforms.forEach(function(platform) {
+                addAdditionalJobParameters(platform.groups);
+            });
+            } while(!compareResultSets(old_resultset, resultset));
         };
 
         var $scope = null;
