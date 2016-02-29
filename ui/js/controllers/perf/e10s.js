@@ -15,10 +15,10 @@ perf.controller('e10sCtrl', [
 
         $scope.filterOptions = {
             filter: $stateParams.filter || "",
-            showOnlyImportant: $stateParams.showOnlyImportant !== undefined &&
-                parseInt($stateParams.showOnlyImportant),
-            showOnlyConfident: $stateParams.showOnlyConfident !== undefined &&
-                parseInt($stateParams.showOnlyConfident)
+            showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
+                                       parseInt($stateParams.showOnlyImportant)),
+            showOnlyConfident: Boolean($stateParams.showOnlyConfident !== undefined &&
+                                       parseInt($stateParams.showOnlyConfident))
         };
 
         $scope.$watchGroup(['filterOptions.filter',
