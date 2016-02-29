@@ -137,10 +137,11 @@ class TreeherderResultsetTest(DataSetup, unittest.TestCase):
             trs = TreeherderResultSet()
 
             trs.add_push_timestamp(resultset['push_timestamp'])
-            trs.add_top_revision(resultset['revision'])
+            trs.add_revision(resultset['revision'])
             trs.add_author(resultset['author'])
             trs.add_type('push')
 
+            revisions = []
             for revision in resultset['revisions']:
 
                 tr = TreeherderRevision()
@@ -150,7 +151,9 @@ class TreeherderResultsetTest(DataSetup, unittest.TestCase):
                 tr.add_comment(revision['comment'])
                 tr.add_repository(revision['repository'])
 
-                trs.add_revision(tr)
+                revisions.append(tr)
+
+            trs.add_revisions(revisions)
 
             self.compare_structs(trs.data, resultset)
 

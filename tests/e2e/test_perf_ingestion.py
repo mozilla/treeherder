@@ -95,6 +95,7 @@ def test_post_perf_artifact_revision_hash(test_project, test_repository,
     tj = client.TreeherderJob({
         'project': test_repository.name,
         'revision_hash': result_set_stored[0]['revision'],
+        'revision': result_set_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',

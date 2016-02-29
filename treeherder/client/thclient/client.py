@@ -142,12 +142,17 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
 
         # Provide minimal json structure validation
         self.required_properties = {
+            'revision': {'len': 40, 'cb': self.validate_existence},
             'project': {'cb': self.validate_existence},
             'job': {'type': dict, 'cb': self.validate_existence},
             'job.job_guid': {'len': 50, 'cb': self.validate_existence}
             }
 
     def add_revision_hash(self, revision_hash):
+        """
+        DEPRECATED:  Use ``add_revision`` to add the 40 character top
+        revision for this job.
+        """
         self.data['revision_hash'] = revision_hash
 
     def add_revision(self, revision):
@@ -398,6 +403,7 @@ class TreeherderResultSet(TreeherderData, ValidatorMixin):
         super(TreeherderResultSet, self).__init__(data)
 
         self.required_properties = {
+            'revision': {'len': 40, 'cb': self.validate_existence},
             'revisions': {'type': list, 'cb': self.validate_existence},
             'author': {'len': 150, 'cb': self.validate_existence}
             }
@@ -407,6 +413,8 @@ class TreeherderResultSet(TreeherderData, ValidatorMixin):
         self.data = {
             # Stored in project_jobs_1.result_set.push_timestamp
             'push_timestamp': None,
+            # Stored in project_jobs_1.result_set.long_revision
+            'revision': '',
             # Stored in project_jobs_1.result_set.author
             'author': '',
             # Stored in project_jobs_1.revision, new row per revision
@@ -418,25 +426,15 @@ class TreeherderResultSet(TreeherderData, ValidatorMixin):
     def add_push_timestamp(self, push_timestamp):
         self.data['push_timestamp'] = push_timestamp
 
-    def add_revision_hash(self, revision_hash):
-        self.data['revision_hash'] = revision_hash
-
-    def add_top_revision(self, revision):
-        self.data['revision'] = revision
-
     def add_author(self, author):
         self.data['author'] = author
 
     def add_revisions(self, revisions):
-        if revisions:
-            self.data['revisions'] = revisions
+        for revision in revisions:
+            self.data['revisions'].append(revision.data)
 
     def add_revision(self, revision):
-        if revision:
-
-            revision.validate()
-
-            self.data['revisions'].append(revision.data)
+        self.data['revision'] = revision
 
     def add_type(self, resultset_type):
         self.data['type'] = resultset_type

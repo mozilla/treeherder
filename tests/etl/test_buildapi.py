@@ -301,6 +301,8 @@ def _do_missing_resultset_test(jm, etl_process):
 
     # pending (and sometimes running) jobs only come to us with short revisions
     # but complete are 40, at least in our dest data.
+    # So, for our tests, we may check json-pushes for either a long or a short
+    # revision.  We need to add both to ``responses`` here.
     for revision in [new_revision, new_revision[:12]]:
         rev_url = "https://hg.mozilla.org/mozilla-central/json-pushes/?full=1&version=2&changeset=" + revision
         responses.add(responses.GET, rev_url,
