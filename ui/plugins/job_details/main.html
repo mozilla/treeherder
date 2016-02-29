@@ -5,6 +5,9 @@
       <span ng-if="line.content_type != 'TalosResult'" ng-switch on="line.content_type">
         <a ng-switch-when="link" title="{{line.value}}"
            href="{{line.url}}" target="_blank">{{line.value}}</a>
+        <span ng-if="line.value.endsWith('raw.log')">
+          - <a title="{{line.value}}" href="http://mozilla.github.io/wptview/#/?urls={{line.url | encodeURIComponent}},{{job_details[job_details.length - 1].value | encodeURIComponent}}">open in wptview</a>
+        </span>
         <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
         <span title="{{line.value}}" ng-switch-when="object">{{line.value}}</span>
         <span title="{{line.value}}" ng-switch-default>{{line.value}}</span>

@@ -139,3 +139,8 @@ treeherder.filter('alertStatus', [
             return phAlertSummaryResolutionMap[resolutionId];
         };
     }]);
+
+//http://stackoverflow.com/questions/16630471/how-can-i-invoke-encodeuricomponent-from-angularjs-template
+treeherder.filter('encodeURIComponent', function() {
+    return window.encodeURIComponent;
+});
