@@ -35,7 +35,7 @@ perf.config(function($compileProvider, $httpProvider, $stateProvider, $urlRouter
     }).state('e10s', {
         title: 'e10s talos dashboard',
         templateUrl: 'partials/perf/e10s.html',
-        url: '/e10s?&filter&showOnlyImportant&showOnlyConfident',
+        url: '/e10s?&filter&showOnlyImportant&showOnlyConfident&showOnlyBlockers',
         controller: 'e10sCtrl'
     });
 

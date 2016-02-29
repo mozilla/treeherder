@@ -322,6 +322,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                     // - .newIsBetter              // is new result better or worse (even if unsure)
                                     // - .isImprovement            // is new result better + we're confident about it
                                     // - .isRegression             // is new result worse + we're confident about it
+                                    // - .isBlocker                // new result matches "blocker" criteria
                                     // - .delta
                                     // - .deltaPercentage
                                     // - .confidence               // t-test value
@@ -332,7 +333,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                     // - .className
                                     // - .magnitude
                                     // - .marginDirection
-                                    getCounterMap: function getDisplayLineData(testName, originalData, newData) {
+                                    getCounterMap: function getDisplayLineData(testName, originalData, newData, blockerCriteria) {
 
                                         function removeZeroes(values) {
                                             return _.filter(values, function(v){
@@ -433,6 +434,14 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                         }
                                         cmap.isRegression = (cmap.className == 'compare-regression');
                                         cmap.isImprovement = (cmap.className == 'compare-improvement');
+                                        if (!_.isUndefined(blockerCriteria) &&
+                                            !_.isUndefined(blockerCriteria[testName]) &&
+                                            cmap.isRegression &&
+                                            cmap.deltaPercentage > blockerCriteria[testName]) {
+                                            cmap.isBlocker = true;
+                                        } else {
+                                            cmap.isBlocker = false;
+                                        }
                                         cmap.isMeaningful = (cmap.className != "");
                                         cmap.isComplete = (cmap.originalRuns.length &&
                                                            cmap.newRuns.length);

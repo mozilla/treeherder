@@ -7,6 +7,33 @@ perf.controller('e10sCtrl', [
                       ThOptionCollectionModel, PhSeries, PhCompare, thServiceDomain) {
         var projectName = 'mozilla-inbound';
         var interval = 86400*2;
+        var blockers = {
+            "cart summary": 2.0,
+            "damp summary": 2.0,
+            "dromaeo_css summary": 2.0,
+            "dromaeo_dom summary": 2.0,
+            "glterrain summary": 5.0,
+            "kraken summary": 2.0,
+            "sessionrestore": 5.0,
+            "sessionrestore_no_auto_restore": 5.0,
+            "tart summary": 5.0,
+            "tcanvasmark summary": 5.0,
+            "tp5o % Processor Time": 2.0,
+            "tp5o Main_RSS": 2.0,
+            "tp5o Modified Page List Bytes": 2.0,
+            "tp5o Private Bytes": 2.0,
+            "tp5o XRes": 2.0,
+            "tp5o responsiveness": 2.0,
+            "tp5o summary": 5.0,
+            "tp5o_scroll summary": 2.0,
+            "tpaint": 5.0,
+            "tps summary": 5.0,
+            "tresize": 5.0,
+            "ts_paint": 2.0,
+            "tscrollx": 2.0,
+            "tsvgr_opacity summary": 5.0,
+            "tsvgx summary": 5.0
+        };
 
         $scope.testList = [];
         $scope.dataLoading = true;
@@ -18,17 +45,20 @@ perf.controller('e10sCtrl', [
             showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
                                        parseInt($stateParams.showOnlyImportant)),
             showOnlyConfident: Boolean($stateParams.showOnlyConfident !== undefined &&
-                                       parseInt($stateParams.showOnlyConfident))
+                                       parseInt($stateParams.showOnlyConfident)),
+            showOnlyBlockers: Boolean($stateParams.showOnlyBlockers !== undefined &&
+                                      parseInt($stateParams.showOnlyBlockers))
         };
-
         $scope.$watchGroup(['filterOptions.filter',
                             'filterOptions.showOnlyImportant',
-                            'filterOptions.showOnlyConfident'],
+                            'filterOptions.showOnlyConfident',
+                            'filterOptions.showOnlyBlockers'],
                            function() {
                                $state.transitionTo('e10s', {
                                    filter: $scope.filterOptions.filter,
                                    showOnlyImportant: Boolean($scope.filterOptions.showOnlyImportant) ? 1 : undefined,
-                                   showOnlyConfident: Boolean($scope.filterOptions.showOnlyConfident) ? 1 : undefined
+                                   showOnlyConfident: Boolean($scope.filterOptions.showOnlyConfident) ? 1 : undefined,
+                                   showOnlyBlockers: Boolean($scope.filterOptions.showOnlyBlockers) ? 1 : undefined
                                }, {
                                    location: true,
                                    inherit: true,
@@ -90,7 +120,7 @@ perf.controller('e10sCtrl', [
                             if (e10sSig && baseSig) {
                                 var cmap = PhCompare.getCounterMap(
                                     testName, resultsMap['base'][baseSig],
-                                    resultsMap['e10s'][e10sSig]);
+                                    resultsMap['e10s'][e10sSig], blockers);
                                 cmap.name = platform + ' ' + (platform === 'osx-10-10' ? 'opt' : 'pgo');
                                 cmap.links = [{
                                     title: 'graph',

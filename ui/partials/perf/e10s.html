@@ -11,13 +11,19 @@
         will take a while to be reflected in results. When in doubt, check the graphs
         by hovering over each line.
       </p>
-    <ph-compare-table
-       base-title="non-e10s"
-       new-title="e10s"
-       titles="titles"
-       test-list="testList"
-       compare-results="compareResults"
-       filter-options="filterOptions">
-    </ph-compare-table>
+      <p>For more information on what is considered "acceptable" in terms of a Talos
+        regression, see
+        <a href="https://wiki.mozilla.org/index.php?title=Electrolysis/Release_Criteria">
+          the official e10s release criteria</a>.
+      </p>
+      <ph-compare-table
+         base-title="non-e10s"
+         new-title="e10s"
+         titles="titles"
+         test-list="testList"
+         compare-results="compareResults"
+         filter-options="filterOptions"
+         release-blocker-criteria="1">
+      </ph-compare-table>
   </div>
 </div>

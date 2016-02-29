@@ -13,7 +13,8 @@ treeherder.directive(
                 compareResults: '=',
                 testList: '=',
                 filterOptions: '=',
-                filterByFramework: '@'
+                filterByFramework: '@',
+                releaseBlockerCriteria: '@'
             },
             link: function(scope, element, attrs) {
                 if (!scope.baseTitle) {
@@ -28,10 +29,12 @@ treeherder.directive(
                     return !matchText || item.toLowerCase().indexOf(matchText.toLowerCase()) > (-1);
                 }
                 function shouldBeShown(result) {
-                    return (!scope.filterByFramework || _.isUndefined(scope.filterOptions.framework) ||
+                    return (!scope.filterByFramework ||
+                            _.isUndefined(scope.filterOptions.framework) ||
                             result.frameworkId === scope.filterOptions.framework.id) &&
                         (!scope.filterOptions.showOnlyImportant || result.isMeaningful) &&
-                        (!scope.filterOptions.showOnlyConfident || result.isConfident);
+                        (!scope.filterOptions.showOnlyConfident || result.isConfident) &&
+                        (!scope.filterOptions.showOnlyBlockers || result.isBlocker);
                 }
                 function filterResult(results, key) {
                     if (_.isUndefined(scope.filterOptions.filter)) {
@@ -60,9 +63,11 @@ treeherder.directive(
                 }
 
                 scope.$watchGroup([
-                    'filterOptions.framework', 'filterOptions.filter',
+                    'filterOptions.framework',
+                    'filterOptions.filter',
                     'filterOptions.showOnlyImportant',
-                    'filterOptions.showOnlyConfident'],
+                    'filterOptions.showOnlyConfident',
+                    'filterOptions.showOnlyBlockers'],
                                   function() {
                                       updateFilteredTestList();
                                   });

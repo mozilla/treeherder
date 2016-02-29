@@ -19,6 +19,12 @@
       Hide uncertain results
     </label>
   </div>
+  <div ng-if="releaseBlockerCriteria" class="checkbox">
+    <label>
+      <input type="checkbox" ng-model="filterOptions.showOnlyBlockers"/>
+      Show only regressions blocking release
+    </label>
+  </div>
 </form>
 <hr/>
 <table class="table table-condensed compare-table" style="table-layout: fixed;" ng-repeat="compareResults in filteredResultList | orderBy: 'testName'">
