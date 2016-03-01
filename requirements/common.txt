@@ -6,7 +6,7 @@ wsgi-sslify==1.0.1 --hash=sha256:cde368fda0fb9958dd58bc2cb955d0bf3df1b79c132d97c
 
 whitenoise==2.0.6 --hash=sha256:826ffe5d608c9dc8daebef1b0b43d01f7958f17c2fce36e75c80e26160172c4f
 
-Django==1.8.7 --hash=sha256:8fb693ecfe4cd6ff9ae3136ff0a1eaa4acae01af227bb81e646dc2bad3295ccf
+Django==1.8.10 --hash=sha256:471b41cb53d675138475b488c429424ed143e57ad755a2c8ab1206ac30490284
 
 celery==3.1.19 --hash=sha256:434b4e62308428b0e83fbcd1cebb8853beb230237b1b23484063fcf1ff610b6e
 
