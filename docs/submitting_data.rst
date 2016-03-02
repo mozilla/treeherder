@@ -25,17 +25,18 @@ Resultset Collections
 
 Resultset collections contain meta data associated with a github pull request
 or a push to mercurial or any event that requires tests to be run on a
-repository.  The most critical part of each resultset is the `revision_hash`.
-This is used as an identifier to associate test job data with. It can be any
-unique string of 50 characters at most. A resultset collection has the
+repository.  The most critical part of each resultset is the `revision`.
+This is used as an identifier to associate test job data with. This is the
+commit SHA of the top commit for the push.  It should be 40 characters, but
+can be a 12 character revision in some cases.  A resultset collection has the
 following data structure:
 
 .. code-block:: python
 
     [
         {
-            # unique identifier for a result set, can be any unique character string no longer than 50 characters
-            'revision_hash': '45f8637cb9f78f19cb8463ff174e81756805d8cf',
+            # The top-most revision in the list of commits for a push.
+            'revision': '45f8637cb9f78f19cb8463ff174e81756805d8cf',
             'author': 'somebody@somewhere.com',
             'push_timestamp': 1384353511,
             'type': 'push',
@@ -58,8 +59,9 @@ Job Collections
 ---------------
 
 Job collections can contain test results from any kind of test. The
-`revision_hash` provided should match the associated `revision_hash` in the
-resultset structure. The `job_guid` provided can be any unique string of 50
+`revision` provided should match the associated `revision` in the
+resultset structure. The `revision` is the top-most revision in the push.
+The `job_guid` provided can be any unique string of 50
 characters at most. A job collection has the following data structure.
 
 .. code-block:: python
@@ -68,7 +70,7 @@ characters at most. A job collection has the following data structure.
         {
             'project': 'mozilla-inbound',
 
-            'revision_hash': '4317d9e5759d58852485a7a808095a44bc806e19',
+            'revision': '4317d9e5759d58852485a7a808095a44bc806e19',
 
             'job': {
 
@@ -179,7 +181,7 @@ data structures to send, do something like this.
         trs = trsc.get_resultset()
 
         trs.add_push_timestamp( data['push_timestamp'] )
-        trs.add_revision_hash( data['revision_hash'] )
+        trs.add_revision( data['revision'] )
         trs.add_type( data['type'] )
         trs.add_artifact( 'push_data', 'push', { 'stuff':[1,2,3,4,5] } )
 
@@ -230,7 +232,7 @@ structures to send, do something like this:
 
         tj = tjc.get_job()
 
-        tj.add_revision_hash( data['revision_hash'] )
+        tj.add_revision( data['revision'] )
         tj.add_project( data['project'] )
         tj.add_coalesced_guid( data['coalesced'] )
         tj.add_job_guid( data['job_guid'] )
