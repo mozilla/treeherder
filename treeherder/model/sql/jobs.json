@@ -619,11 +619,10 @@
         "get_revision_resultset_lookup":{
             "sql":"SELECT
                       rs.id,
-                      rs.long_revision,
                       rs.push_timestamp,
                       rs.active_status,
                       revision.id as revision_id,
-                      revision.revision,
+                      revision.long_revision,
                       revision.short_revision
                    FROM result_set AS rs
                    INNER JOIN revision_map

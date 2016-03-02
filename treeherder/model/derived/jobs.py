@@ -605,8 +605,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         return data
 
     def get_result_set_ids(self, revisions, where_in_list):
-        """Return the  a dictionary of revision to id mappings given
-           a list of revisions and a where_in_list.
+        """ Return a dictionary of revision to id mappings given
+            a list of revisions and a where_in_list.
+
+            This query doesn't have any joins, so it's faster than
 
             revisions = [ revision1, revision2, ... ]
             where_in_list = [ %s, %s, %s ... ]
@@ -633,8 +635,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         return result_set_id_lookup
 
     def get_result_set_list_by_ids(self, result_set_ids):
+        """Given a list of result_set_ids, fetch the matching resultsets."""
 
-        conditions = {'id': set([('IN', tuple(result_set_ids))])}
+        conditions = {'id': {('IN', tuple(result_set_ids))}}
 
         replace_str, placeholders = self._process_conditions(
             conditions, self.INDEXED_COLUMNS['result_set']
@@ -719,7 +722,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
     def get_revision_resultset_lookup(self, revision_list):
         """
-        Create a list of revision->resultset lookups from a list of revision
+        Create a revision->resultset lookup from a list of revisions
+
+        This will map ALL revision/commits that are within this resultset, not
+        just the top revision.  It will also map both short and long revisions
+        to their resultsets because users might search by either.
 
         This will retrieve non-active resultsets as well.  Some of the data
         ingested has mixed up revisions that show for jobs, but are not in
@@ -731,16 +738,31 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         But we skip ingesting the job, because the resultset is not active.
         """
+
+        if not revision_list:
+            return []
+
+        # Build params to search for both long and short revisions.
+        long_revision_list = [x for x in revision_list if len(x) == 40]
         short_revision_list = [x[:12] for x in revision_list]
-        long_rev_list_repl = ",".join(["%s"] * len(revision_list))
+        long_rev_list_repl = ",".join(["%s"] * len(long_revision_list))
         short_rev_list_repl = ",".join(["%s"] * len(short_revision_list))
 
-        replacement = " AND (revision IN ({})  OR revision.short_revision IN ({}))".format(
-            long_rev_list_repl, short_rev_list_repl
-        )
+        # It's possible that only 12 char revisions were passed in, so the
+        # ``long_revision_list`` would be zero length.  If it is, then this
+        # adds nothing to the where clause.
+        long_revision_or = ""
+        if long_revision_list:
+            long_revision_or = " OR revision.long_revision IN ({})".format(
+                long_rev_list_repl
+            )
 
-        placeholders = revision_list + short_revision_list + \
-            [0, len(revision_list) + len(short_revision_list)]
+        replacement = " AND (revision.short_revision IN ({}) {})".format(
+            short_rev_list_repl, long_revision_or
+        )
+        placeholders = short_revision_list + long_revision_list + \
+            [0, len(short_revision_list) + len(long_revision_list)]
+
         proc = "jobs.selects.get_revision_resultset_lookup"
         lookups = self.execute(
             proc=proc,
@@ -748,12 +770,16 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             debug_show=self.DEBUG,
             replace=[replacement],
             return_type="dict",
-            key_column="revision"
+            key_column="long_revision"
         )
+
+        # ``lookups`` will be keyed ONLY by long_revision, at this point.
+        # Add the resultsets keyed by short_revision.
         short_rev_lookup = {}
         for rev, rs in lookups.iteritems():
             short_rev_lookup[rev[:12]] = rs
         lookups.update(short_rev_lookup)
+
         return lookups
 
     def get_resultset_revisions_list(self, result_set_id):
@@ -980,13 +1006,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # Store all reference data and retrieve associated ids
         id_lookups = self.refdata_model.set_all_reference_data()
 
+        id_lookups["result_set"] = self.get_result_set_ids(
+            unique_revisions, rev_where_in
+        )
         average_job_durations = self.get_average_job_durations(
             id_lookups['reference_data_signatures']
-        )
-
-        # Store all revisions and retrieve result_set_ids
-        result_set_ids = self.get_result_set_ids(
-            unique_revisions, rev_where_in
         )
 
         job_update_placeholders = []
@@ -1002,7 +1026,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 id_lookups,
                 job_guid_list,
                 job_update_placeholders,
-                result_set_ids,
                 average_job_durations,
                 push_timestamps
             )
@@ -1368,7 +1391,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
     def _set_data_ids(
         self, index, job_placeholders, id_lookups,
         job_guid_list, job_update_placeholders,
-        result_set_ids, average_job_durations, push_timestamps
+        average_job_durations, push_timestamps
     ):
         """
         Supplant ref data with ids and create update placeholders
@@ -1408,7 +1431,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # Load job_placeholders
 
         # replace revision with id
-        result_set = result_set_ids[revision]
+        result_set = id_lookups["result_set"][revision]
         job_placeholders[index][
             self.JOB_PH_RESULT_SET_ID] = result_set['id']
         push_timestamps[result_set['id']] = result_set['push_timestamp']
@@ -1457,7 +1480,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             job_update_placeholders.append([
                 job_guid,
                 job_coalesced_to_guid,
-                result_set_ids[revision]['id'],
+                result_set['id'],
                 id_lookups['machines'][machine_name]['id'],
                 option_collection_hash,
                 id_lookups['job_types'][job_type_key]['id'],
@@ -1843,25 +1866,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             'revision_ids': revision_id_lookup,
             'inserted_result_set_ids': inserted_result_set_ids
         }
-
-    def get_revision_timestamp_lookup(self, short_revision_list):
-        """Get the push timestamp of the resultset for a revision"""
-        if not short_revision_list:
-            return []
-
-        replacement = ",".join(["%s"] * len(short_revision_list))
-        replacement = " AND revision.short_revision IN (" + replacement + ") "
-
-        proc = "jobs.selects.get_revision_resultset_lookup"
-        lookups = self.execute(
-            proc=proc,
-            placeholders=short_revision_list + [0, len(short_revision_list)],
-            debug_show=self.DEBUG,
-            replace=[replacement],
-            return_type="dict",
-            key_column="short_revision"
-        )
-        return lookups
 
     def get_exclusion_profile_signatures(self, exclusion_profile):
         """Retrieve the reference data signatures associates to an exclusion profile"""

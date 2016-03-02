@@ -42,21 +42,22 @@ class ResultSetViewSet(viewsets.ViewSet):
                 del(filter_params[param])
                 meta[param] = v
 
-        ts_lookup = jm.get_revision_timestamp_lookup(
-            [meta[x][:12] for x in ['fromchange', 'tochange'] if x in meta]
+        # create a timestamp lookup based on the from/to change params that may
+        # exist. This means we only make 1 DB query rather than 2, if we have
+        # both a ``fromchange`` and a ``tochange`` value.
+        ts_lookup = jm.get_revision_resultset_lookup(
+            [meta[x] for x in ['fromchange', 'tochange'] if x in meta]
         )
 
         # translate these params into our own filtering mechanism
         if 'fromchange' in meta:
-            short_rev = meta['fromchange'][:12]
             filter_params.update({
-                "push_timestamp__gte": ts_lookup[short_rev]["push_timestamp"]
+                "push_timestamp__gte": ts_lookup[meta['fromchange']]["push_timestamp"]
 
             })
         if 'tochange' in meta:
-            short_rev = meta['tochange'][:12]
             filter_params.update({
-                "push_timestamp__lte": ts_lookup[short_rev]["push_timestamp"]
+                "push_timestamp__lte": ts_lookup[meta['tochange']]["push_timestamp"]
             })
         if 'startdate' in meta:
             filter_params.update({

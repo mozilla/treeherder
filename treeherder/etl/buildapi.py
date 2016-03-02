@@ -154,7 +154,7 @@ class Builds4hTransformerMixin(object):
                 continue
 
             treeherder_data = {
-                'revision': resultset['revision'],
+                'revision': resultset['long_revision'],
                 'resultset_id': resultset['id'],
                 'project': project,
                 'coalesced': []
@@ -328,7 +328,7 @@ class PendingRunningTransformerMixin(object):
                         continue
 
                     treeherder_data = {
-                        'revision': resultset['revision'],
+                        'revision': resultset['long_revision'],
                         'resultset_id': resultset['id'],
                         'project': project,
                     }
