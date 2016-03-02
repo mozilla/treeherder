@@ -36,8 +36,7 @@ def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
 
     rev_to_push = set()
     for push in json.loads(pushlog_content)['pushes'].values():
-        # Add each rev to the set remember we shorten them all down to 12 chars
-        rev_to_push.add(push['changesets'][-1]['node'][0:12])
+        rev_to_push.add(push['changesets'][-1]['node'])
 
     # Ensure for each push we sent a pulse notification...
     for _ in range(0, push_num):

@@ -46,7 +46,7 @@
       "product_name": "spidermonkey",
       "desc": "Linux x86-64 mozilla-inbound spidermonkey_info-warnaserr build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -96,7 +96,7 @@
       "product_name": "spidermonkey",
       "desc": "Linux mozilla-inbound spidermonkey_info-warnaserr build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -146,7 +146,7 @@
       "product_name": "mobile",
       "desc": "Android 4.2 x86 mozilla-inbound build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -196,7 +196,7 @@
       "product_name": "b2g",
       "desc": "b2g_mozilla-inbound_macosx64_gecko build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -246,7 +246,7 @@
       "product_name": "spidermonkey",
       "desc": "Linux x86-64 mozilla-inbound leak test spidermonkey_info-warnaserrdebug build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -296,7 +296,7 @@
       "product_name": "spidermonkey",
       "desc": "Linux mozilla-inbound leak test spidermonkey_info-warnaserrdebug build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -346,7 +346,7 @@
       "product_name": "mobile",
       "desc": "Android 2.2 mozilla-inbound build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -396,7 +396,7 @@
       "product_name": "firefox",
       "desc": "Linux x86-64 mozilla-inbound valgrind"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -446,7 +446,7 @@
       "product_name": "mobile",
       "desc": "Android 2.2 Armv6 mozilla-inbound build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -496,7 +496,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound debug test marionette"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -546,7 +546,7 @@
       "product_name": "spidermonkey",
       "desc": "Linux x86-64 mozilla-inbound leak test spidermonkey_tier_1-generational build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -596,7 +596,7 @@
       "product_name": "firefox",
       "desc": "Rev5 MacOSX Mountain Lion 10.8 mozilla-inbound debug test xpcshell"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": [
       "9089054a852ee1ccf52701d221b1161a7d2711c7",
       "a399cc62749ab10d2139468e95ad8a51163161a6",
@@ -650,7 +650,7 @@
       "product_name": "firefox",
       "desc": "Rev5 MacOSX Mountain Lion 10.8 mozilla-inbound debug test cppunit"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": [
       "b063baf6b9f68605579da55a8de997ef4c177672",
       "7622c81c68140de50cf74f903cb38ff8053a3ff6",
@@ -704,7 +704,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound debug test cppunit"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -754,7 +754,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 mozilla-inbound opt test reftest-ipc"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -804,7 +804,7 @@
       "product_name": "firefox",
       "desc": "Rev5 MacOSX Mountain Lion 10.8 mozilla-inbound debug test marionette"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -854,7 +854,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound debug test mochitest-3"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -904,7 +904,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound debug test mochitest-4"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -954,7 +954,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound debug test crashtest"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1004,7 +1004,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 mozilla-inbound opt test mochitest-2"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1054,7 +1054,7 @@
       "product_name": "firefox",
       "desc": "Rev5 MacOSX Mountain Lion 10.8 mozilla-inbound debug test mochitest-4"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1104,7 +1104,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 mozilla-inbound opt test cppunit"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1154,7 +1154,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 mozilla-inbound opt test crashtest"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1204,7 +1204,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound debug test mochitest-5"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1254,7 +1254,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound debug test mochitest-2"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1304,7 +1304,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 mozilla-inbound opt test crashtest-ipc"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1354,7 +1354,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu HW 12.04 mozilla-inbound talos chromez"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1404,7 +1404,7 @@
       "product_name": "firefox",
       "desc": "Rev5 MacOSX Mountain Lion 10.8 mozilla-inbound debug test mochitest-3"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": [
       "b608ed870b6f0399abea80fb9bd93de272e07591",
       "56adef584122ce1c9cf54e7d25b9f00b003f6d61",
@@ -1458,7 +1458,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 mozilla-inbound opt test mochitest-4"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1508,7 +1508,7 @@
       "product_name": "firefox",
       "desc": "Rev5 MacOSX Mountain Lion 10.8 mozilla-inbound debug test crashtest"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1558,7 +1558,7 @@
       "product_name": "mobile",
       "desc": "Android 2.2 Debug mozilla-inbound build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1608,7 +1608,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound debug test xpcshell"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1658,7 +1658,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu HW 12.04 mozilla-inbound talos tp5o"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1708,7 +1708,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 mozilla-inbound opt test mochitest-3"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1758,7 +1758,7 @@
       "product_name": "firefox",
       "desc": "Rev5 MacOSX Mountain Lion 10.8 mozilla-inbound debug test mochitest-2"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1808,7 +1808,7 @@
       "product_name": "firefox",
       "desc": "Rev5 MacOSX Mountain Lion 10.8 mozilla-inbound debug test mochitest-5"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1858,7 +1858,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 mozilla-inbound opt test mochitest-5"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1908,7 +1908,7 @@
       "product_name": "firefox",
       "desc": "Linux x86-64 mozilla-inbound pgo-build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -1958,7 +1958,7 @@
       "product_name": "spidermonkey",
       "desc": "Linux x86-64 mozilla-inbound leak test spidermonkey_tier_1-rootanalysis build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -2008,7 +2008,7 @@
       "product_name": "firefox",
       "desc": "Linux mozilla-inbound build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -2058,7 +2058,7 @@
       "product_name": "firefox",
       "desc": "Linux x86-64 mozilla-inbound debug static analysis build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -2108,7 +2108,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound debug test jetpack"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -2158,7 +2158,7 @@
       "product_name": "firefox",
       "desc": "Rev5 MacOSX Mountain Lion 10.8 mozilla-inbound debug test jsreftest"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": [
       "77e4adbdc4c921c29bc9b0a417b2a18ae476c350",
       "2b927d5367487269015be994e7ebae3bc673b388",
@@ -2212,7 +2212,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu HW 12.04 mozilla-inbound talos svgr"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -2262,7 +2262,7 @@
       "product_name": "firefox",
       "desc": "Rev5 MacOSX Mountain Lion 10.8 mozilla-inbound debug test jetpack"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -2312,7 +2312,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 mozilla-inbound opt test reftest-no-accel"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -2362,7 +2362,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 mozilla-inbound opt test jetpack"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -2412,7 +2412,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu ASAN VM 12.04 x64 mozilla-inbound opt test crashtest"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -2462,7 +2462,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu ASAN VM 12.04 x64 mozilla-inbound opt test cppunit"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -2512,7 +2512,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound talos other"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": [
       "10680ca8e9e09370ab14695dba5c98be4d212980",
       "f7de5833ec52d30db425c6f7a31dad11e3a41bb0"
@@ -2565,7 +2565,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound debug test jsreftest"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -2615,7 +2615,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 mozilla-inbound opt test mochitest-other"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -2665,7 +2665,7 @@
       "product_name": "firefox",
       "desc": "OS X 10.7 64-bit mozilla-inbound leak test build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -2715,7 +2715,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu HW 12.04 mozilla-inbound talos dromaeojs"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -2765,7 +2765,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 mozilla-inbound opt test xpcshell"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -2815,7 +2815,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu ASAN VM 12.04 x64 mozilla-inbound opt test mochitest-2"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -2865,7 +2865,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu ASAN VM 12.04 x64 mozilla-inbound opt test mochitest-4"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -2915,7 +2915,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound opt test mochitest-2"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -2965,7 +2965,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound opt test mochitest-4"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": [
       "a4c2aa8c2173dc5fb179100fe92125a277c89aea",
       "1b209420f170905694de820b55843d85a6bb09a3"
@@ -3018,7 +3018,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound opt test mochitest-5"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": [
       "f9611eac6e4fdb73e4fa3619d73139893ca91636",
       "27ec2efd3a407b6ee993a442db594fe376596264"
@@ -3071,7 +3071,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound opt test mochitest-3"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": [
       "ac58fae0f927520179cda5393a75301c386af0e1",
       "c45653dd299d304dc0836734f7f2b6a45d644be8"
@@ -3124,7 +3124,7 @@
       "product_name": "firefox",
       "desc": "linux64-br-haz_mozilla-inbound_dep"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -3174,7 +3174,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 mozilla-inbound opt test jsreftest"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -3224,7 +3224,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu ASAN VM 12.04 x64 mozilla-inbound opt test jetpack"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -3274,7 +3274,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound talos chromez"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": [
       "2714ae831aed550416f89c2dcce10bb22132ec26",
       "322bc755cf314a6f4e25ac3fb6cf1921824150be"
@@ -3327,7 +3327,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound opt test crashtest"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": [
       "710b9e36329b3f35519a5a927a6958c4eb378e27",
       "7bc26211810a85ead8e597e7059f70236382539f"
@@ -3380,7 +3380,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound opt test cppunit"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": [
       "fa81d901cefb7c4063d6119ab7847f43ba5701e9",
       "d81b12eea1b9afdbc2c69217cb8b8a506b6712d8"
@@ -3433,7 +3433,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 x64 mozilla-inbound opt test cppunit"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -3483,7 +3483,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 x64 mozilla-inbound opt test crashtest"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -3533,7 +3533,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu HW 12.04 x64 mozilla-inbound talos other"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -3583,7 +3583,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound debug test mochitest-other"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -3633,7 +3633,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 mozilla-inbound opt test mochitest-1"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -3683,7 +3683,7 @@
       "product_name": "firefox",
       "desc": "Rev5 MacOSX Mountain Lion 10.8 mozilla-inbound debug test mochitest-other"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -3733,7 +3733,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu ASAN VM 12.04 x64 mozilla-inbound opt test mochitest-3"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -3783,7 +3783,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound talos tp5o"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": [
       "08d49e10e36ad7bec3dbe4cb2fc6a22c5856923d",
       "2f067249258c2c7d59b56ecf41899e62c0e92503"
@@ -3836,7 +3836,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound opt test jsreftest"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": [
       "bb8fff27521460082e769239f99f9bf602965795",
       "420d3cf4525848228de2852427da4c786b2d33a2"
@@ -3889,7 +3889,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound opt test xpcshell"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": [
       "4e81f9ce4a830d3edc27feebf576f15bbbb6e385",
       "31145f75ad463b5e22bc6465441ab076d6174b09"
@@ -3942,7 +3942,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound opt test jetpack"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": [
       "123dbace414ad7017715e2f0275dc6df672fce26",
       "e35e3a151868c8cb98f7b8dad971a01bfd2f5a96"
@@ -3995,7 +3995,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 x64 mozilla-inbound opt test mochitest-4"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -4045,7 +4045,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 x64 mozilla-inbound opt test mochitest-2"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -4095,7 +4095,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 x64 mozilla-inbound opt test mochitest-5"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -4145,7 +4145,7 @@
       "product_name": "b2g",
       "desc": "b2g_mozilla-inbound_linux32_gecko build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -4195,7 +4195,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound opt test mochitest-other"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": [
       "879c57a1f134f205beb43f11f315c0995bc1cf21",
       "c0f1f49010366e4db82f4add2c8c0d63729a2b6a"
@@ -4248,7 +4248,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 x64 mozilla-inbound opt test mochitest-3"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -4298,7 +4298,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 x64 mozilla-inbound opt test jetpack"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -4348,7 +4348,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu HW 12.04 x64 mozilla-inbound talos chromez"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -4398,7 +4398,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu HW 12.04 x64 mozilla-inbound talos tp5o"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -4448,7 +4448,7 @@
       "product_name": "firefox",
       "desc": "Linux x86-64 mozilla-inbound build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -4498,7 +4498,7 @@
       "product_name": "firefox",
       "desc": "Linux x86-64 mozilla-inbound asan build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -4548,7 +4548,7 @@
       "product_name": "b2g",
       "desc": "b2g_mozilla-inbound_linux64_gecko build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -4598,7 +4598,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound debug test mochitest-1"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -4648,7 +4648,7 @@
       "product_name": "firefox",
       "desc": "Rev5 MacOSX Mountain Lion 10.8 mozilla-inbound debug test mochitest-1"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -4698,7 +4698,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu ASAN VM 12.04 x64 mozilla-inbound opt test jsreftest"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -4748,7 +4748,7 @@
       "product_name": "b2g",
       "desc": "b2g_ubuntu64_vm mozilla-inbound opt test gaia-ui-test"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -4798,7 +4798,7 @@
       "product_name": "firefox",
       "desc": "OS X 10.7 mozilla-inbound build"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -4848,7 +4848,7 @@
       "product_name": "firefox",
       "desc": "Rev5 MacOSX Mountain Lion 10.8 mozilla-inbound debug test reftest"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -4898,7 +4898,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound talos dromaeojs"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": [
       "c93e5414e9b9b7031f5e734c41e30f6a8b497c10",
       "4a8a64ef77718a42e950ac293ba50997c44e4ca1"
@@ -4951,7 +4951,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound talos svgr"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": [
       "06ded831686ae9323b3b9753ccb3bc95a3cc74c4",
       "cfaa0f9af4f73556257d7b255333e57ce8ba6e53"
@@ -5004,7 +5004,7 @@
       "product_name": "firefox",
       "desc": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound opt test mochitest-1"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   },
   {
@@ -5054,7 +5054,7 @@
       "product_name": "firefox",
       "desc": "Ubuntu VM 12.04 x64 mozilla-inbound opt test mochitest-other"
     },
-    "revision_hash": "4317d9e5759d58852485a7a808095a44bc806e19",
+    "revision": "4317d9e5759d58852485a7a808095a44bc806e19",
     "coalesced": []
   }
 ]
