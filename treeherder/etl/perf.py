@@ -67,9 +67,8 @@ def _get_signature_hash(signature_properties):
     return sha.hexdigest()
 
 
-def load_perf_artifacts(project_name, reference_data, job_data, datum):
-    blob = json.loads(datum['blob'])
-    perf_datum = blob['performance_data']
+def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
+                        perf_datum):
     validate(perf_datum, PERFHERDER_SCHEMA)
 
     if 'e10s' in reference_data.get('job_group_symbol', ''):
@@ -92,7 +91,6 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
     is_try_repository = repository.repository_group.name == 'try'
 
     # data for performance series
-    job_guid = datum["job_guid"]
     job_id = job_data[job_guid]['id']
     result_set_id = job_data[job_guid]['result_set_id']
     push_timestamp = datetime.datetime.fromtimestamp(
@@ -180,6 +178,20 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
             if datum_created and (not is_try_repository):
                 generate_alerts.apply_async(args=[signature.id],
                                             routing_key='generate_perf_alerts')
+
+
+def load_perf_artifacts(project_name, reference_data, job_data, datum):
+    blob = json.loads(datum['blob'])
+    performance_data = blob['performance_data']
+    job_guid = datum["job_guid"]
+
+    if type(performance_data) == list:
+        for perfdatum in performance_data:
+            _load_perf_artifact(project_name, reference_data, job_data,
+                                job_guid, perfdatum)
+    else:
+        _load_perf_artifact(project_name, reference_data, job_data,
+                            job_guid, performance_data)
 
 
 def _calculate_summary_value(results):
