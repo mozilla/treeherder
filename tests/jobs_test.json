@@ -47,12 +47,12 @@
             "sql": "SELECT * FROM `job` WHERE `job_guid` = ?",
             "host_type": "master_host"
         },
-        "resultset_by_rev_hash": {
-            "sql": "SELECT * FROM `result_set` WHERE `revision_hash` = ?",
+        "resultset_by_long_revision": {
+            "sql": "SELECT * FROM `result_set` WHERE `long_revision` = ?",
             "host_type": "master_host"
         },
         "revision_ids": {
-            "sql": "SELECT `id`, `revision` FROM `revision`",
+            "sql": "SELECT `id`, `revision`, `long_revision` FROM `revision`",
             "host_type": "master_host"
         },
         "revision_map": {
@@ -60,7 +60,7 @@
             "host_type": "master_host"
         },
         "result_set_ids": {
-            "sql": "SELECT `id`, `push_timestamp`, `revision_hash` FROM `result_set`",
+            "sql": "SELECT `id`, `push_timestamp`, `revision_hash`, `long_revision`, `short_revision` FROM `result_set`",
             "host_type": "master_host"
         },
         "result_sets": {

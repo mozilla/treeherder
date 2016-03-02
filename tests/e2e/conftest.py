@@ -75,7 +75,7 @@ def completed_jobs_stored(
     """
     stores a list of buildapi completed jobs
     """
-    completed_jobs['revision_hash'] = result_set_stored[0]['revision_hash']
+    completed_jobs['revision'] = result_set_stored[0]['revision']
     completed_jobs.update({'project': jm.project})
 
     tjc = TreeherderJobCollection()

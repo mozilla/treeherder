@@ -27,7 +27,7 @@
         "request_times": {
           "27949897": 1376416924
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "tests-try-win64_vm-opt-unittest",
         "script_repo_revision": "8d8602c57d3e",
         "slavebuilddir": "test",
@@ -85,7 +85,7 @@
         "request_times": {
           "27997895": 1376494162
         },
-        "revision": "45f8637cb9f7599786e7bdf2d4ec9ec25e08d330",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "try-firefox",
         "slavebuilddir": "try-osx64-d-000000000000000000",
         "slavename": "bld-lion-r5-017",
@@ -149,7 +149,7 @@
         "request_times": {
           "28003842": 1376501127
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "slavebuilddir": "m-in-w32-pgo-00000000000000000",
         "slavename": "w64-ix-slave18",
         "sourcestamp": "355dcff578b6",
@@ -221,7 +221,7 @@
         "request_times": {
           "28004256": 1376502082
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "mozilla-inbound-firefox",
         "slavebuilddir": "m-in-w32-d-0000000000000000000",
         "slavename": "w64-ix-slave88",
@@ -284,7 +284,7 @@
         "request_times": {
           "28004430": 1376502382
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "mozilla-aurora-firefox",
         "slavebuilddir": "m-aurora-w32-00000000000000000",
         "slavename": "w64-ix-slave133",
@@ -347,7 +347,7 @@
         "request_times": {
           "28004432": 1376502383
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "try-firefox",
         "slavebuilddir": "try-w32-d-00000000000000000000",
         "slavename": "w64-ix-slave29",
@@ -409,7 +409,7 @@
         "request_times": {
           "28004424": 1376502382
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "mozilla-aurora-firefox",
         "slavebuilddir": "m-aurora-lx-000000000000000000",
         "slavename": "bld-linux64-ec2-048",
@@ -479,7 +479,7 @@
         "request_times": {
           "28004426": 1376502382
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "mozilla-aurora-firefox",
         "slavebuilddir": "m-aurora-l64-00000000000000000",
         "slavename": "bld-linux64-ec2-479",
@@ -534,7 +534,7 @@
         "request_times": {
           "28005070": 1376502662
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "tests-fx-team-lion-debug-unittest",
         "script_repo_revision": "2f85052176f2",
         "slavebuilddir": "test",
@@ -579,7 +579,7 @@
         "request_times": {
           "28004999": 1376502655
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "tests-fx-team-snowleopard-debug-unittest",
         "script_repo_revision": "2f85052176f2",
         "slavebuilddir": "test",
@@ -623,7 +623,7 @@
         "request_times": {
           "28006073": 1376503805
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "tests-try-fedora-debug-unittest",
         "script_repo_revision": "2f85052176f2",
         "slavebuilddir": "test",
@@ -667,7 +667,7 @@
         "request_times": {
           "28006074": 1376503805
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "tests-try-ubuntu32_vm-debug-unittest",
         "script_repo_revision": "2f85052176f2",
         "slavebuilddir": "test",
@@ -714,7 +714,7 @@
           "28005220": 1376502844,
           "28006065": 1376503803
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "tests-mozilla-inbound-lion-debug-unittest",
         "script_repo_revision": "2f85052176f2",
         "slavebuilddir": "test",
@@ -762,7 +762,7 @@
           "28005207": 1376502844,
           "28006052": 1376503803
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "tests-mozilla-inbound-snowleopard-debug-unittest",
         "script_repo_revision": "2f85052176f2",
         "slavebuilddir": "test",
@@ -807,7 +807,7 @@
         "request_times": {
           "28006094": 1376503926
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "tests-try-fedora-debug-unittest",
         "script_repo_revision": "2f85052176f2",
         "slavebuilddir": "test",
@@ -854,7 +854,7 @@
         "request_times": {
           "28006144": 1376503997
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_3-0000000000",
@@ -901,7 +901,7 @@
         "request_times": {
           "28006143": 1376503997
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_2-0000000000",
@@ -948,7 +948,7 @@
         "request_times": {
           "28006142": 1376503997
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_1-0000000000",
@@ -995,7 +995,7 @@
         "request_times": {
           "28006147": 1376503997
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_6-0000000000",
@@ -1042,7 +1042,7 @@
         "request_times": {
           "28006148": 1376503997
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_7-0000000000",
@@ -1089,7 +1089,7 @@
         "request_times": {
           "28006146": 1376503997
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_5-0000000000",
@@ -1136,7 +1136,7 @@
         "request_times": {
           "28006150": 1376503997
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_9-0000000000",
@@ -1183,7 +1183,7 @@
         "request_times": {
           "28006149": 1376503997
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_8-0000000000",
@@ -1230,7 +1230,7 @@
         "request_times": {
           "28006151": 1376503997
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_10-000000000",
@@ -1277,7 +1277,7 @@
         "request_times": {
           "28006145": 1376503997
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_4-0000000000",
@@ -1322,7 +1322,7 @@
         "request_times": {
           "28006196": 1376504041
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "tests-fx-team-fedora-debug-unittest",
         "script_repo_revision": "2f85052176f2",
         "slavebuilddir": "test",
@@ -1367,7 +1367,7 @@
         "request_times": {
           "28006189": 1376504039
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "tests-fx-team-ubuntu32_vm-debug-unittest",
         "script_repo_revision": "2f85052176f2",
         "slavebuilddir": "test",
@@ -1412,7 +1412,7 @@
         "request_times": {
           "28006530": 1376504335
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "tests-mozilla-inbound-fedora-debug-unittest",
         "script_repo_revision": "2f85052176f2",
         "slavebuilddir": "test",
@@ -1456,7 +1456,7 @@
         "request_times": {
           "28006558": 1376504346
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "tests-try-fedora-debug-unittest",
         "script_repo_revision": "2f85052176f2",
         "slavebuilddir": "test",
@@ -1515,7 +1515,7 @@
         "request_times": {
           "28006029": 1376503770
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "try-firefox",
         "slavebuilddir": "try-lx-d-000000000000000000000",
         "slavename": "try-linux64-ec2-003",
@@ -1562,7 +1562,7 @@
         "request_times": {
           "28006311": 1376504104
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "tests-mozilla-inbound-lion-debug-unittest",
         "script_repo_revision": "2f85052176f2",
         "slavebuilddir": "test",
@@ -1607,7 +1607,7 @@
         "request_times": {
           "27999325": 1376495343
         },
-        "revision": "45f8637cb9f7",
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "scheduler": "tests-date-win64_vm-opt-unittest",
         "script_repo_revision": "2f85052176f2",
         "slavebuilddir": "test",

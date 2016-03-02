@@ -42,7 +42,7 @@ def test_elasticsearch_doc_request_body(test_project, eleven_jobs_stored):
         "buildtype": "debug",
         "starttime": "1384353553",
         "tree": test_project,
-        "rev": "cdfe03e77e66",
+        "rev": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "bug": str(bug_id),
         "who": who,
         "timestamp": str(classification_timestamp),

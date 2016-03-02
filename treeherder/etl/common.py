@@ -84,7 +84,7 @@ def lookup_revisions(revision_dict):
         revision_list = list(set(revisions))
 
         with JobsModel(project) as jm:
-            lookup_content = jm.get_revision_resultset_lookup(revision_list)
+            lookup_content = jm.get_resultset_all_revision_lookup(revision_list)
 
         if lookup_content:
             lookup[project] = lookup_content
@@ -121,17 +121,6 @@ def is_blacklisted_buildername(buildername):
         logger.info("Skipping blacklisted buildername: %s", buildername)
         return True
     return False
-
-
-def generate_revision_hash(revisions):
-    """Builds the revision hash for a set of revisions"""
-
-    sh = hashlib.sha1()
-    sh.update(
-        ''.join(map(lambda x: str(x), revisions))
-    )
-
-    return sh.hexdigest()
 
 
 def generate_job_guid(request_id, buildername, endtime=None):
