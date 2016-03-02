@@ -218,14 +218,9 @@ class ResultSetViewSet(viewsets.ViewSet):
         """
         POST method implementation
         """
-        username = request.META['hawk.receiver'].parsed_header['id']
         # check if any revisions are shorter than the expected 40 characters
         # The volume of resultsets is fairly low, so this loop won't be
         # onerous.
-        # It could be argued to do this in ``store_result_set_data`` instead,
-        # but doing it here allows us to have access to the hawk user id
-        # so we know the source of the bad data.  This way it will show
-        # up as an error in New Relic, and we can contact the source.
         for resultset in request.data:
             for revision in resultset['revisions']:
                 try:
@@ -233,8 +228,7 @@ class ResultSetViewSet(viewsets.ViewSet):
                         raise ValueError("Revision < 40 characters")
                 except:
                     params = {
-                        "revision": revision["revision"],
-                        "username": username
+                        "revision": revision["revision"]
                     }
                     newrelic.agent.record_exception(params=params)
 

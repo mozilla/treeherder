@@ -328,7 +328,7 @@ class PendingRunningTransformerMixin(object):
                         continue
 
                     treeherder_data = {
-                        'revision': resultset['long_revision'],
+                        'revision': revision,
                         'resultset_id': resultset['id'],
                         'project': project,
                     }

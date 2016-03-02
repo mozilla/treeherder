@@ -955,7 +955,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 # the exception we caught would be much more informative.  That
                 # being said, if/when we transition to only using the pulse
                 # job consumer, then the data will always be vetted with a
-                # JSON schema already.
+                # JSON schema before we get to this point.
                 job = datum['job']
                 coalesced = datum.get('coalesced', [])
 
@@ -970,6 +970,12 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 revision = datum.get("revision", None)
                 if not revision:
                     revision = self._get_revision_from_revision_hash(datum)
+                    newrelic.agent.record_exception(
+                        exc=ValueError("job submitted with revision_hash but no revision"),
+                        params={
+                            "revision_hash": datum["revision_hash"]
+                        }
+                    )
 
                 # json object can be successfully deserialized
                 # load reference data
