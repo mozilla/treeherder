@@ -604,36 +604,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         )
         return data
 
-    def get_result_set_ids(self, revisions, where_in_list):
-        """ Return a dictionary of revision to id mappings given
-            a list of revisions and a where_in_list.
-
-            This query doesn't have any joins, so it's faster than
-
-            revisions = [ revision1, revision2, ... ]
-            where_in_list = [ %s, %s, %s ... ]
-
-            returns:
-
-            {
-              revision1:{id: id1, push_timestamp: pt1},
-              revision2:{id: id2, push_timestamp: pt2},
-              ...
-                }
-            """
-        result_set_id_lookup = {}
-
-        if revisions:
-            result_set_id_lookup = self.execute(
-                proc='jobs.selects.get_result_set_ids',
-                placeholders=revisions,
-                replace=[where_in_list],
-                debug_show=self.DEBUG,
-                key_column='long_revision',
-                return_type='dict')
-
-        return result_set_id_lookup
-
     def get_result_set_list_by_ids(self, result_set_ids):
         """Given a list of result_set_ids, fetch the matching resultsets."""
 
@@ -913,7 +883,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # Structures supporting resultset SQL
         revision_lookup = set()
         unique_revisions = []
-        rev_where_in = []
 
         # Structures supporting job SQL
         job_placeholders = []
@@ -984,7 +953,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     revision,
                     revision_lookup,
                     unique_revisions,
-                    rev_where_in,
                     job_placeholders,
                     log_placeholders,
                     artifact_placeholders,
@@ -1012,8 +980,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # Store all reference data and retrieve associated ids
         id_lookups = self.refdata_model.set_all_reference_data()
 
-        id_lookups["result_set"] = self.get_result_set_ids(
-            unique_revisions, rev_where_in
+        id_lookups["result_set"] = self.get_revision_resultset_lookup(
+            unique_revisions
         )
         average_job_durations = self.get_average_job_durations(
             id_lookups['reference_data_signatures']
@@ -1200,7 +1168,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
     def _load_ref_and_job_data_structs(
         self, job, revision, revision_lookup,
-        unique_revisions, rev_where_in, job_placeholders,
+        unique_revisions, job_placeholders,
         log_placeholders, artifact_placeholders, retry_job_guids,
         lower_tier_signatures, async_artifact_list
     ):
@@ -1219,7 +1187,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # for result_set entry
         if revision not in revision_lookup:
             unique_revisions.append(revision)
-            rev_where_in.append('%s')
 
         build_os_name = job.get(
             'build_platform', {}).get('os_name', 'unknown')
@@ -1709,7 +1676,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # TODO: Confirm whether we need to do a lookup in this loop in the
         #   memcache to reduce query overhead
         for result in result_sets:
-            print result
             if "revision" in result:
                 top_revision = result["revision"]
             else:
@@ -1839,8 +1805,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
                 rs_revision = revision_to_rs_revision_lookup[revision]
                 revision_id = revision_id_lookup[revision]['id']
-                # import pprint
-                # pprint.pprint(result_set_id_lookup)
                 result_set_id = result_set_id_lookup[rs_revision]['id']
 
                 revision_map_placeholders.append(

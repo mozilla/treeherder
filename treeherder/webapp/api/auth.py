@@ -1,5 +1,4 @@
 import newrelic.agent
-
 from rest_framework import exceptions
 
 from treeherder.credentials.models import Credentials

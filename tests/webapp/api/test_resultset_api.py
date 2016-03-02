@@ -90,7 +90,6 @@ def test_resultset_list_single_short_revision(webapp, eleven_jobs_stored, jm, te
     assert resp.status_int == 200
     results = resp.json['results']
     meta = resp.json['meta']
-    print results[0]
     assert len(results) == 1
     assert set([rs["revision"] for rs in results]) == {"45f8637cb9f78f19cb8463ff174e81756805d8cf"}
     assert(meta == {

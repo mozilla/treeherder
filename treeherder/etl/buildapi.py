@@ -154,7 +154,7 @@ class Builds4hTransformerMixin(object):
                 continue
 
             treeherder_data = {
-                'revision': resultset['long_revision'],
+                'revision': prop['revision'],
                 'resultset_id': resultset['id'],
                 'project': project,
                 'coalesced': []
