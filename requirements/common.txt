@@ -1,6 +1,6 @@
 # Packages that are shared between deployment and dev environments.
 
-gunicorn==19.4.3 --hash=sha256:ddd0302aecac53d0b540909efef51d3725457b57bf98d6ee49da4a2c5029cd8a
+gunicorn==19.4.5 --hash=sha256:c57f1b005a4b90933303c8deed9bedeb509331aa6a0a990023a5796e52bd8988
 
 wsgi-sslify==1.0.1 --hash=sha256:cde368fda0fb9958dd58bc2cb955d0bf3df1b79c132d97cee90be5fda34a5089
 
