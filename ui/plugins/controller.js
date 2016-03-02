@@ -128,7 +128,7 @@ treeherder.controller('PluginCtrl', [
                     job_id,
                     {timeout: selectJobPromise});
 
-                var jobIdPromise = PhSeries.getSeriesByJobId(
+                var phSeriesPromise = PhSeries.getSeriesByJobId(
                     $scope.repoName, job_id);
 
                 return $q.all([
@@ -136,8 +136,9 @@ treeherder.controller('PluginCtrl', [
                     buildapiArtifactPromise,
                     jobInfoArtifactPromise,
                     jobLogUrlPromise,
-                    jobIdPromise
+                    phSeriesPromise
                 ]).then(function(results){
+
                     //the first result comes from the job detail promise
                     $scope.job = results[0];
                     if ($scope.job.state =='running') {
@@ -146,7 +147,6 @@ treeherder.controller('PluginCtrl', [
                     }
                     $scope.average_duration = $scope.job.get_average_duration();
                     $scope.jobRevision = ThResultSetStore.getSelectedJob($scope.repoName).job.revision;
-                    $scope.performanceSignaturesForJob = results[4];
 
                     // set the tab options and selections based on the selected job
                     initializeTabs($scope.job);
@@ -183,47 +183,6 @@ treeherder.controller('PluginCtrl', [
                             }
                             return result;
                         }, []);
-                        if ($scope.performanceSignaturesForJob !== null) {
-                            var signatureList = _.keys($scope.performanceSignaturesForJob);
-                            var seriesList = [];
-                            $scope.perfJobDetail = [];
-                            $q.all(_.chunk(signatureList, 20).map(function(signatureChunk) {
-                                var url = '/performance/signatures/?signature=' + signatureChunk.pop();
-                                signatureChunk.forEach(function(signature) {
-                                    url = url + '&signature=' + signature;
-                                });
-                                return $http.get(thUrl.getProjectUrl(url, $scope.repoName)).then(
-                                    function(response) {
-                                        _.map(response.data, function(series, key) {
-                                            series['signature'] = key;
-                                            seriesList.push(series);
-                                        });
-                                    });
-                            })).then(function(){
-                                var allSubtestSignatures = _.flatten(_.map(seriesList, function(series) {
-                                    return series.subtest_signatures ? series.subtest_signatures : [];
-                                }));
-                                _.forEach(seriesList, function(series) {
-                                    if (!series.subtest_signatures) {
-                                        if (_.contains(allSubtestSignatures, series.signature)) {
-                                            return;
-                                        }
-                                    }
-                                    var detail = {};
-                                    detail['url'] = thServiceDomain + '/perf.html#/graphs?series=[' +
-                                        $scope.repoName+ ',' + series.signature + ',1]&selected=[' +
-                                        $scope.repoName + ',' +  series.signature + ',' +
-                                        $scope.job['result_set_id'] + ',' + $scope.job['id'] + ']';
-                                    detail['value'] = $scope.performanceSignaturesForJob[series.signature][0].value;
-                                    detail['title'] = series.suite;
-                                    if (series.hasOwnProperty('test') && series.test.toLowerCase() !== series.suite) {
-                                        detail['title'] += '_' + series.test.toLowerCase();
-                                    }
-
-                                    $scope.perfJobDetail.push(detail);
-                                });
-                            });
-                        }
                     }
 
                     // the fourth result comes from the jobLogUrl artifact
@@ -269,6 +228,50 @@ treeherder.controller('PluginCtrl', [
                     $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
                     $scope.lvFullUrl = location.origin + "/" + $scope.lvUrl;
                     $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
+
+                    var performanceSignaturesForJob = results[4];
+                    if (performanceSignaturesForJob) {
+                        var seriesList = [];
+                        $scope.perfJobDetail = [];
+                        $q.all(_.chunk(_.keys(performanceSignaturesForJob), 20).map(function(signatureChunk) {
+                            var url = '/performance/signatures/?signature=' + signatureChunk.pop();
+                            signatureChunk.forEach(function(signature) {
+                                url = url + '&signature=' + signature;
+                            });
+                            return $http.get(thUrl.getProjectUrl(url, $scope.repoName)).then(
+                                function(response) {
+                                    _.forEach(response.data, function(series, key) {
+                                        series['signature'] = key;
+                                        seriesList.push(series);
+                                    });
+                                });
+                        })).then(function(){
+                            var allSubtestSignatures = _.flatten(_.map(seriesList, function(series) {
+                                return series.subtest_signatures ? series.subtest_signatures : [];
+                            }));
+                            _.forEach(seriesList, function(series) {
+                                if (!series.subtest_signatures) {
+                                    if (_.contains(allSubtestSignatures, series.signature)) {
+                                        // skip series which are subtests of another series
+                                        return;
+                                    }
+                                }
+                                var detail = {
+                                    url: thServiceDomain + '/perf.html#/graphs?series=[' +
+                                        $scope.repoName+ ',' + series.signature + ',1]&selected=[' +
+                                        $scope.repoName + ',' +  series.signature + ',' +
+                                        $scope.job['result_set_id'] + ',' + $scope.job['id'] + ']',
+                                    value: performanceSignaturesForJob[series.signature][0].value,
+                                    title: series.suite
+                                };
+                                if (series.hasOwnProperty('test') && series.test.toLowerCase() !== series.suite) {
+                                    detail['title'] += '_' + series.test.toLowerCase();
+                                }
+
+                                $scope.perfJobDetail.push(detail);
+                            });
+                        });
+                    }
 
                     updateVisibleFields();
                     $scope.updateClassifications();
