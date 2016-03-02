@@ -68,7 +68,7 @@
         },
         "set_result_set":{
 
-            "sql":"INSERT INTO `result_set` (`author`, `revision_hash`, `long_revision`,`short_revision`,`push_timestamp`, `active_status`)
+            "sql":"INSERT INTO `result_set` (`author`,`revision_hash`,`long_revision`,`short_revision`,`push_timestamp`, `active_status`)
                 SELECT ?,?,?,?,?,?
                 FROM DUAL
                 WHERE NOT EXISTS (

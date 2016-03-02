@@ -881,8 +881,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             return
 
         # Structures supporting resultset SQL
-        revision_lookup = set()
-        unique_revisions = []
+        unique_revisions = set()
 
         # Structures supporting job SQL
         job_placeholders = []
@@ -951,7 +950,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 job_guid = self._load_ref_and_job_data_structs(
                     job,
                     revision,
-                    revision_lookup,
                     unique_revisions,
                     job_placeholders,
                     log_placeholders,
@@ -1167,8 +1165,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         return rh[0]["long_revision"]
 
     def _load_ref_and_job_data_structs(
-        self, job, revision, revision_lookup,
-        unique_revisions, job_placeholders,
+        self, job, revision, unique_revisions, job_placeholders,
         log_placeholders, artifact_placeholders, retry_job_guids,
         lower_tier_signatures, async_artifact_list
     ):
@@ -1185,8 +1182,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         # Store revision to support SQL construction
         # for result_set entry
-        if revision not in revision_lookup:
-            unique_revisions.append(revision)
+        unique_revisions.add(revision)
 
         build_os_name = job.get(
             'build_platform', {}).get('os_name', 'unknown')
