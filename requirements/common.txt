@@ -17,7 +17,7 @@ simplejson==3.8.2 --hash=sha256:d58439c548433adcda98e695be53e526ba940a4b9c44fb9a
 newrelic==2.60.0.46 --hash=sha256:17d598fccca0845c0337e5276d40d65f951afea6adf9bd9172cff3a87f2ef294
 
 # Required by wsgi-sslify
-werkzeug==0.11.3 --hash=sha256:69491b5305157c3c6e0f04a701984d6ae77fd729fc1c9acd25077f1df385326b
+Werkzeug==0.11.4 --hash=sha256:7db3cb2d4725be0680abf64a45b18229186f03ad8b9989abbe053f9357b17b37
 
 # Required by datasource
 MySQL-python==1.2.5 --hash=sha256:811040b647e5d5686f84db415efd697e6250008b112b6909ba77ac059e140c74
