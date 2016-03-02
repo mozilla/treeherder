@@ -49,7 +49,7 @@ jsonfield==1.0.3 --hash=sha256:7e7f73a675c518712badd783279e26d164140f3fc2ed7a321
 
 mozlog==3.1 --hash=sha256:fc4e02a40bf485f25e9d3f9c55007bc36eb27bfa5a107512df5f190e8905bd75
 
-futures==3.0.3 --hash=sha256:04afa2a06ab7dcca9d81717b420a7a14826061e9b2614a5c77dd24c75ccf97e4
+futures==3.0.5 --hash=sha256:f7f16b6bf9653a918a03f1f2c2d62aac0cd64b1bc088e93ea279517f6b61120b
 
 https://github.com/jeads/datasource/archive/v0.10.0.tar.gz#egg=datasource==0.10.0 \
     --hash=sha256:7b62a9517c25750d03809076053758d5740de45a8c6c6d9194c2c0885b4a3ea2
