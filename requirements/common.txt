@@ -75,7 +75,7 @@ django-environ==0.4.0 --hash=sha256:70cf521f87e64f4dd2aeb87ced006dc98f621e2cdb38
 six==1.10.0 --hash=sha256:0ff78c403d9bccf5a425a6d31a12aa6b47f1c21ca4dc2573a7e2f32a97335eb1
 
 # Required by hawkrest and requests-hawk
-mohawk==0.3.1 --hash=sha256:a081a4f9d8a1a13d4e26ac70ab1f3d1cea53035afdbc7ba4600d2d50d82db84d
+mohawk==0.3.2.1 --hash=sha256:46e98d8349f927b40227f1a9f0021509fedcf0398e1feb22dac954010f625f1d
 
 hawkrest==0.0.9 --hash=sha256:3b7f7c464a9d36c3d23873b8572d97a407960265635ab74880e14069eecb7f11
 
