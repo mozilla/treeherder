@@ -1,6 +1,6 @@
 # Dependencies needed only for development/testing.
 
-pytest==2.8.5 --hash=sha256:f51855b27cf77b0b2faac75c630087ae7b48cff22b2bdbf4b63ba66f5790af98
+pytest==2.9.0 --hash=sha256:8429b6803ca95ad179ad2db53233c42aec0323279347bb6bdc652bba4e2bfb49
 
 datadiff==2.0.0 --hash=sha256:54049440a896de5247ee2e7b7aa5425f939ac832c37edb2101f8d3036e89caa8
 
