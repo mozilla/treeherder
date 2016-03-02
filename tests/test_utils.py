@@ -47,7 +47,7 @@ def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
         if 'sources' in blob:
             del blob['sources']
 
-        blob['revision_hash'] = sample_resultset[resultset_index]['revision_hash']
+        blob['revision'] = sample_resultset[resultset_index]['revision']
 
         blobs.append(blob)
 
@@ -81,7 +81,7 @@ def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
 
             job_types_ref.add(job.get('name', 'unknown'))
             products_ref.add(job.get('product_name', 'unknown'))
-            result_sets_ref.add(blob['revision_hash'])
+            result_sets_ref.add(blob['revision'])
 
             log_url_list = job.get('log_references', [])
             for log_data in log_url_list:
@@ -193,13 +193,13 @@ def verify_products(refdata, products_ref):
 
 def verify_result_sets(jm, result_sets_ref):
 
-    revision_hashes = jm.get_dhub().execute(
-        proc='jobs.selects.get_all_result_set_revision_hashes',
-        key_column='revision_hash',
+    revisions = jm.get_dhub().execute(
+        proc='jobs.selects.get_all_result_set_revisions',
+        key_column='long_revision',
         return_type='set'
     )
 
-    assert result_sets_ref.issubset(revision_hashes)
+    assert result_sets_ref.issubset(revisions)
 
 
 def verify_log_urls(jm, log_urls_ref):

@@ -31,18 +31,12 @@ def transformed_pulse_jobs(sample_data, test_project):
     return jobs
 
 
-def test_job_transformation(pulse_jobs, transformed_pulse_jobs, result_set_stored):
-    revision = result_set_stored[0]["revisions"][0]["revision"][:12]
-    rs_lookup = {revision: {"revision_hash": "123"}}
+def test_job_transformation(pulse_jobs, transformed_pulse_jobs):
     jl = JobLoader()
     validated_jobs = jl._get_validated_jobs_by_project(pulse_jobs)
     import json
-    import pprint
     for (idx, job) in enumerate(validated_jobs["test_treeherder_jobs"]):
-        xformed = jl.transform(job, rs_lookup)
-        pprint.pprint(xformed)
-        # assert transformed_pulse_jobs[idx] == jl.transform(job, rs_lookup)
-        assert transformed_pulse_jobs[idx] == json.loads(json.dumps(jl.transform(job, rs_lookup)))
+        assert transformed_pulse_jobs[idx] == json.loads(json.dumps(jl.transform(job)))
 
 
 def test_ingest_pulse_jobs(pulse_jobs, test_project, jm, result_set_stored,

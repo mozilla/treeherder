@@ -44,11 +44,7 @@ def test_ingest_single_sample_job(jm, refdata, sample_data, initial_data,
 def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data,
                                 sample_resultset, test_repository, mock_log_parser):
     """
-    @@@ - Re-enable when our job_data.txt has been re-created with
-          correct data.
-
     Process each job structure in the job_data.txt file and verify.
-
     """
     job_data = sample_data.job_data
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
@@ -87,7 +83,7 @@ def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data, initial_da
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
     job = job_data[0]['job']
-    job_data[0]['revision_hash'] = sample_resultset[0]['revision_hash']
+    job_data[0]['revision'] = sample_resultset[0]['revision']
 
     jm.store_result_set_data(sample_resultset)
 
@@ -123,7 +119,7 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data,
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
     job = job_data[0]['job']
-    job_data[0]['revision_hash'] = sample_resultset[0]['revision_hash']
+    job_data[0]['revision'] = sample_resultset[0]['revision']
     job_guid_root = job['job_guid']
 
     jm.store_result_set_data(sample_resultset)
@@ -167,7 +163,7 @@ def test_ingest_retry_sample_job_no_running(jm, refdata, sample_data, initial_da
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
     job = job_data[0]['job']
-    job_data[0]['revision_hash'] = sample_resultset[0]['revision_hash']
+    job_data[0]['revision'] = sample_resultset[0]['revision']
 
     jm.store_result_set_data(sample_resultset)
 
@@ -198,7 +194,7 @@ def test_calculate_durations(jm, test_repository, mock_log_parser):
     now = int(time.time())
 
     first_job_duration = 120
-    first_job = job_data(revision_hash=rs['revision_hash'],
+    first_job = job_data(revision=rs['revision'],
                          start_timestamp=now,
                          end_timestamp=now + first_job_duration)
     jm.store_job_data([first_job])
@@ -209,7 +205,7 @@ def test_calculate_durations(jm, test_repository, mock_log_parser):
     # Ingest the same job type again to check that the pre-generated
     # average duration is used during ingestion.
     second_job_duration = 142
-    second_job = job_data(revision_hash=rs['revision_hash'],
+    second_job = job_data(revision=rs['revision'],
                           start_timestamp=now,
                           end_timestamp=now + second_job_duration,
                           job_guid='a-different-unique-guid')
@@ -345,7 +341,7 @@ def test_bad_date_value_ingestion(jm, initial_data, test_repository, mock_log_pa
     """
     rs = result_set()
     blob = job_data(start_timestamp="foo",
-                    revision_hash=rs['revision_hash'])
+                    revision=rs['revision'])
 
     jm.store_result_set_data([rs])
     jm.store_job_data([blob])
@@ -358,7 +354,7 @@ def test_store_result_set_data(jm, initial_data, sample_resultset):
 
     result_set_ids = jm.get_dhub().execute(
         proc="jobs_test.selects.result_set_ids",
-        key_column='revision_hash',
+        key_column='long_revision',
         return_type='dict'
     )
     revision_ids = jm.get_dhub().execute(
@@ -367,20 +363,19 @@ def test_store_result_set_data(jm, initial_data, sample_resultset):
         return_type='dict'
     )
 
-    revision_hashes = set()
+    rs_revisions = set()
     revisions = set()
 
     for datum in sample_resultset:
-        revision_hashes.add(datum['revision_hash'])
+        rs_revisions.add(datum['revision'])
         for revision in datum['revisions']:
-            # todo: Continue using short revisions until Bug 1199364
-            revisions.add(revision['revision'][:12])
+            revisions.add(revision['revision'])
 
     jm.disconnect()
 
-    # Confirm all of the revision_hashes and revisions in the
+    # Confirm all of the pushes and revisions in the
     # sample_resultset have been stored
-    assert set(data['result_set_ids'].keys()) == revision_hashes
+    assert set(data['result_set_ids'].keys()) == rs_revisions
     assert set(data['revision_ids'].keys()) == revisions
 
     # Confirm the data structures returned match what's stored in
@@ -466,7 +461,7 @@ def test_ingest_job_with_updated_job_group(jm, refdata, sample_data, initial_dat
     first_job = sample_data.job_data[0]
     first_job["job"]["group_name"] = "first group name"
     first_job["job"]["group_symbol"] = "1"
-    first_job["revision_hash"] = result_set_stored[0]["revision_hash"]
+    first_job["revision"] = result_set_stored[0]["revision"]
     jm.store_job_data([first_job])
 
     second_job = copy.deepcopy(first_job)
@@ -475,7 +470,7 @@ def test_ingest_job_with_updated_job_group(jm, refdata, sample_data, initial_dat
     second_job["job"]["job_guid"] = second_job_guid
     second_job["job"]["group_name"] = "second group name"
     second_job["job"]["group_symbol"] = "2"
-    second_job["revision_hash"] = result_set_stored[0]["revision_hash"]
+    second_job["revision"] = result_set_stored[0]["revision"]
 
     jm.store_job_data([second_job])
 
@@ -487,6 +482,32 @@ def test_ingest_job_with_updated_job_group(jm, refdata, sample_data, initial_dat
     second_job_group_name = second_job_stored[0]["job_group_name"]
 
     assert first_job_group_name == second_job_group_name
+
+
+def test_ingest_job_with_revision_hash(jm, initial_data, test_repository, refdata, sample_data,
+                                       mock_log_parser, sample_resultset):
+    """
+    Test ingesting a job with only a revision hash, no revision.  And the
+    revision_hash must NOT be the same SHA value as the top revision.
+
+    This can happen if a user submits a new resultset in the API with their
+    own revision_hash value.  If we just use the latest revision value, then
+    their subsequent job submissions with the revision_hash they generated
+    will fail and the jobs will be skipped.
+    """
+    revision_hash = "12345abc"
+    resultset = sample_resultset[0].copy()
+    resultset["revision_hash"] = revision_hash
+    del resultset["revision"]
+    jm.store_result_set_data([resultset])
+
+    first_job = sample_data.job_data[0]
+    first_job["revision_hash"] = revision_hash
+    del first_job["revision"]
+    jm.store_job_data([first_job])
+
+    jl = jm.get_job_list(0, 10)
+    assert len(jl) == 1
 
 
 def test_retry_on_operational_failure(jm, initial_data, monkeypatch):

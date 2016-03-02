@@ -1,6 +1,6 @@
 [
   {
-    "revision_hash": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
+    "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
     "push_timestamp": 1384353511,
     "revisions": [
       {
@@ -8,12 +8,12 @@
         "repository": "test_treeherder_jobs",
         "author": "Eric Chou <echou@mozilla.com>",
         "branch": "default",
-        "revision": "cdfe03e77e663456789012345678901234567890"
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf"
       }
     ]
   },
   {
-    "revision_hash": "b11529c9865a4dee3a93d63d119ebb89fcbbdf69",
+    "revision": "b11529c9865a4dee3a93d63d119ebb89fcbbdf69",
     "push_timestamp": 1384347643,
     "revisions": [
       {
@@ -21,12 +21,12 @@
         "repository": "test_treeherder_jobs",
         "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
         "branch": "default",
-        "revision": "86847a33f0883456789012345678901234567890"
+        "revision": "b11529c9865a4dee3a93d63d119ebb89fcbbdf69"
       }
     ]
   },
   {
-    "revision_hash": "130965d3df6c9a1093b4725f3b877eaef80d72bc",
+    "revision": "130965d3df6c9a1093b4725f3b877eaef80d72bc",
     "push_timestamp": 1384363842,
     "revisions": [
       {
@@ -34,12 +34,12 @@
         "repository": "test_treeherder_jobs",
         "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
         "branch": "default",
-        "revision": "21fb3eed1b5f3456789012345678901234567890"
+        "revision": "130965d3df6c9a1093b4725f3b877eaef80d72bc"
       }
     ]
   },
   {
-    "revision_hash": "9d54ce168c996edaf211bf0edb20462675ad6ea1",
+    "revision": "9d54ce168c996edaf211bf0edb20462675ad6ea1",
     "push_timestamp": 1384358742,
     "revisions": [
       {
@@ -47,12 +47,12 @@
         "repository": "test_treeherder_jobs",
         "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
         "branch": "default",
-        "revision": "e31d2a7267b93456789012345678901234567890"
+        "revision": "9d54ce168c996edaf211bf0edb20462675ad6ea1"
       }
     ]
   },
   {
-    "revision_hash": "a69390334818373e2d7e6e9c8d626a328ed37d47",
+    "revision": "a69390334818373e2d7e6e9c8d626a328ed37d47",
     "push_timestamp": 1384365342,
     "revisions": [
       {
@@ -60,12 +60,12 @@
         "repository": "test_treeherder_jobs",
         "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
         "branch": "default",
-        "revision": "71d49fee325a3456789012345678901234567890"
+        "revision": "a69390334818373e2d7e6e9c8d626a328ed37d47"
       }
     ]
   },
   {
-    "revision_hash": "7f417c3505e3d2599ac9540f02e3dbee307a3963",
+    "revision": "7f417c3505e3d2599ac9540f02e3dbee307a3963",
     "push_timestamp": 1384364465,
     "revisions": [
       {
@@ -73,12 +73,12 @@
         "repository": "test_treeherder_jobs",
         "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
         "branch": "default",
-        "revision": "bb57e9f672233456789012345678901234567890"
+        "revision": "7f417c3505e3d2599ac9540f02e3dbee307a3963"
       }
     ]
   },
   {
-    "revision_hash": "f361dcb60bbedaa01257fbca211452972f7a74b2",
+    "revision": "f361dcb60bbedaa01257fbca211452972f7a74b2",
     "push_timestamp": 1384365942,
     "revisions": [
       {
@@ -86,12 +86,12 @@
         "repository": "test_treeherder_jobs",
         "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
         "branch": "default",
-        "revision": "909f55c626a83456789012345678901234567890"
+        "revision": "f361dcb60bbedaa01257fbca211452972f7a74b2"
       }
     ]
   },
   {
-    "revision_hash": "ce17cad5d554cfffddee13d1d8421ae9ec5aad82",
+    "revision": "ce17cad5d554cfffddee13d1d8421ae9ec5aad82",
     "push_timestamp": 1384366574,
     "revisions": [
       {
@@ -99,12 +99,12 @@
         "repository": "test_treeherder_jobs",
         "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
         "branch": "default",
-        "revision": "668424578a0d3456789012345678901234567890"
+        "revision": "ce17cad5d554cfffddee13d1d8421ae9ec5aad82"
       }
     ]
   },
   {
-    "revision_hash": "ccc02c89ecc109844707eac9203d377a9dca7c0c",
+    "revision": "997b28cb87373456789012345678901234567890",
     "push_timestamp": 1384367498,
     "revisions": [
       {
@@ -112,7 +112,7 @@
         "repository": "test_treeherder_jobs",
         "author": "Henri Sivonen <hsivonen@hsivonen.fi>",
         "branch": "default",
-        "revision": "14ed3e7e606e3456789012345678901234567890"
+        "revision": "ccc02c89ecc109844707eac9203d377a9dca7c0c"
       },
       {
         "comment": "Bug 929261 - Fix for GetElementIC. r=shu, a=abillings",
@@ -180,7 +180,7 @@
     ]
   },
   {
-    "revision_hash": "26b1b814be96c1902561872049de1579549e0c29",
+    "revision": "26b1b814be96c1902561872049de1579549e0c29",
     "push_timestamp": 1384377343,
     "revisions": [
       {
@@ -188,7 +188,7 @@
         "repository": "test_treeherder_jobs",
         "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
         "branch": "default",
-        "revision": "65ac3b2aa05f3456789012345678901234567890"
+        "revision": "26b1b814be96c1902561872049de1579549e0c29"
       }
     ]
   }

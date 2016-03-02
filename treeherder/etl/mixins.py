@@ -56,7 +56,7 @@ class ResultSetsLoaderMixin(JsonLoaderMixin):
         [
             {
                 "push_timestamp": 12345678,
-                "revision_hash": "d62d628d5308f2b9ee81be755140d77f566bb400",
+                "revision": "d62d628d5308f2b9ee81be755140d77f566bb400",
                 "revisions": [
                     {
                         "id": "d62d628d5308f2b9ee81be755140d77f566bb400",
