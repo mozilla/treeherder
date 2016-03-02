@@ -70,7 +70,7 @@ def test_parse_log(jm, jobs_with_local_log, sample_resultset,
     for job in jobs:
         # make this a successful job, to check it's still parsed for errors
         job['job']['result'] = "success"
-        job['revision_hash'] = sample_resultset[0]['revision_hash']
+        job['revision'] = sample_resultset[0]['revision']
 
     jm.store_job_data(jobs)
 
@@ -109,7 +109,7 @@ def test_parse_mozlog_log(jm, jobs_with_local_mozlog_log,
     jobs = jobs_with_local_mozlog_log
     for job in jobs:
         job['job']['result'] = "testfailed"
-        job['revision_hash'] = sample_resultset[0]['revision_hash']
+        job['revision'] = sample_resultset[0]['revision']
 
     jm.store_job_data(jobs)
 
@@ -152,7 +152,7 @@ def test_bug_suggestions_artifact(jm, jobs_with_local_log,
     jobs = jobs_with_local_log
     for job in jobs:
         job['job']['result'] = "testfailed"
-        job['revision_hash'] = sample_resultset[0]['revision_hash']
+        job['revision'] = sample_resultset[0]['revision']
 
     jm.store_job_data(jobs)
 

@@ -37,15 +37,12 @@ class JobLoader:
 
         for project, job_list in validated_jobs.items():
             with JobsModel(project) as jobs_model:
-                # todo: Continue using short revisions until Bug 1199364
-                rs_lookup = jobs_model.get_revision_resultset_lookup(
-                    [x["origin"]["revision"][:12] for x in job_list])
                 storeable_job_list = []
                 for pulse_job in job_list:
                     if pulse_job["state"] != "unscheduled":
                         try:
                             storeable_job_list.append(
-                                self.transform(pulse_job, rs_lookup)
+                                self.transform(pulse_job)
                             )
                         except AttributeError:
                             logger.warn("Skipping job due to bad attribute",
@@ -53,7 +50,7 @@ class JobLoader:
 
                 jobs_model.store_job_data(storeable_job_list)
 
-    def transform(self, pulse_job, rs_lookup):
+    def transform(self, pulse_job):
         """
         Transform a pulse job into a job that can be written to disk.  Log
         References and artifacts will also be transformed and loaded with the
@@ -64,8 +61,7 @@ class JobLoader:
         """
         job_guid = self._get_job_guid(pulse_job)
         x = {
-            # todo: Continue using short revisions until Bug 1199364
-            "revision_hash": rs_lookup[pulse_job["origin"]["revision"][:12]]["revision_hash"],
+            "revision": pulse_job["origin"]["revision"],
             "job": {
                 "job_guid": job_guid,
                 "name": pulse_job["display"].get("jobName", "unknown"),

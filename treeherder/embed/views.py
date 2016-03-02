@@ -12,7 +12,7 @@ class ResultsetStatusView(TemplateView):
         assert "repository" in kwargs and "revision" in kwargs
         context = super(ResultsetStatusView, self).get_context_data(**kwargs)
         with JobsModel(kwargs['repository']) as jm:
-            resultset_list = jm.get_revision_resultset_lookup(
+            resultset_list = jm.get_resultset_all_revision_lookup(
                 [kwargs['revision']])
             if not resultset_list:
                 raise Http404("No resultset found for revision {0}".format(
