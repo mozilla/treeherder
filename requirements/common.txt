@@ -79,7 +79,7 @@ mohawk==0.3.1 --hash=sha256:a081a4f9d8a1a13d4e26ac70ab1f3d1cea53035afdbc7ba4600d
 
 hawkrest==0.0.9 --hash=sha256:3b7f7c464a9d36c3d23873b8572d97a407960265635ab74880e14069eecb7f11
 
-python-dateutil==2.4.2 --hash=sha256:2ae63cf475f0bd049b722fac20813d62aedc14957dd5a3bf00d120d2b5404460
+python-dateutil==2.5.0 --hash=sha256:3615baa560c215466332b78d1cfbc1214ff23dad8e0d8c0e473e03640007c167
 
 requests-hawk==1.0.0 --hash=sha256:c2626ab31ebef0c81b97781c44c2275bfcc6d8e8520fc4ced495f0f386f8fe26
 
