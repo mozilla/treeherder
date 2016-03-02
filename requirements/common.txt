@@ -43,7 +43,7 @@ drf-extensions==0.2.8 --hash=sha256:9aafa131f66afbe316e0e5f5b0a23699411f5be25aa7
 
 django-cors-headers==1.1.0 --hash=sha256:fcd96e2be47c8eef34c650e007a6d546e19e7ee61041b89edbbbbe7619aa3987
 
-django-browserid==1.0.2 --hash=sha256:9eb896c58628f5c72c067964cd25b69742c91464d85ec51f4becc62982c70401
+django-browserid==2.0.1 --hash=sha256:ab3a6cb78121b34816a99548596b9b66d8fec9b51d5709a21d15b243ea6ad8ad
 
 jsonfield==1.0.3 --hash=sha256:7e7f73a675c518712badd783279e26d164140f3fc2ed7a32102c3d08a6a2a4a7
 
