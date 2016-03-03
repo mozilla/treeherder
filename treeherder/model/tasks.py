@@ -124,52 +124,6 @@ def publish_resultset_runnable_job_action(project, resultset_id, requester,
     )
 
 
-@task(name='publish-resultset')
-def publish_resultset(project, ids):
-    # If we don't have a publisher (because of missing configs), then we can't
-    # publish any pulse messages. This is okay, local installs etc. doesn't
-    # need to publish on pulse, and requiring a pulse user is adding more
-    # overhead to an already large development setup process.
-    publisher = pulse_connection.get_publisher()
-    if not publisher:
-        return
-
-    from treeherder.model.derived.jobs import JobsModel
-
-    with JobsModel(project) as jm:
-        # Publish messages with new result-sets
-        for entry in jm.get_result_set_list_by_ids(ids):
-            repository = jm.refdata_model.get_repository_info(entry['repository_id'])
-
-            if repository is None:
-                return
-
-            entry['repository_url'] = repository['url']
-
-            # Don't expose these properties, they are internal, at least that's
-            # what I think without documentation I have no clue... what any of
-            # this is
-            del entry['revisions']      # Not really internal, but too big
-            del entry['repository_id']
-
-            # Set required properties
-            entry['version'] = 1
-            entry['project'] = project
-            # Property revision_hash should already be there, I suspect it is the
-            # result-set identifier...
-
-            # publish the data to pulse
-            publisher.new_result_set(**entry)
-
-            # Basically, I have no idea what context this runs and was inherently
-            # unable to make kombu with or without pyamqp, etc. confirm-publish,
-            # so we're stuck with this super ugly hack where we just close the
-            # connection so that if the process context is destroyed then at least
-            # messages will still get published... Well, assuming nothing goes
-            # wrong, because we're not using confirm channels for publishing...
-            publisher.connection.release()
-
-
 @task(name='populate-error-summary')
 def populate_error_summary(project, artifacts, job_id_lookup):
     """

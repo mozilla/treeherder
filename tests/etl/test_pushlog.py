@@ -11,7 +11,7 @@ from treeherder.etl.pushlog import (HgPushlogProcess,
 
 def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
                            test_repository, mock_post_json,
-                           activate_responses, pulse_resultset_consumer):
+                           activate_responses):
     """ingesting a number of pushes should populate result set and revisions"""
 
     pushlog_path = os.path.join(test_base_dir, 'sample_data', 'hg_pushlog.json')
@@ -33,19 +33,6 @@ def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
     )
 
     assert len(pushes_stored) == push_num
-
-    rev_to_push = set()
-    for push in json.loads(pushlog_content)['pushes'].values():
-        # Add each rev to the set remember we shorten them all down to 12 chars
-        rev_to_push.add(push['changesets'][-1]['node'][0:12])
-
-    # Ensure for each push we sent a pulse notification...
-    for _ in range(0, push_num):
-        message = pulse_resultset_consumer.get(block=True, timeout=2)
-        content = message.payload
-        assert content['revision'] in rev_to_push
-        # Ensure we don't match the same revision twice...
-        rev_to_push.remove(content['revision'])
 
     revisions_stored = jm.get_dhub().execute(
         proc="jobs_test.selects.revision_ids",

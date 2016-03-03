@@ -17,7 +17,6 @@ from treeherder.model.models import (Datasource,
                                      Repository)
 from treeherder.model.tasks import (populate_error_summary,
                                     publish_job_action,
-                                    publish_resultset,
                                     publish_resultset_action)
 
 from .artifacts import ArtifactsModel
