@@ -203,19 +203,6 @@
                     WHERE `name` = ?",
             "host_type":"read_host"
         },
-        "get_repository_info":{
-            "sql": "SELECT *
-                    FROM `repository`
-                    WHERE `id` = ?  AND `active_status` = 'active'",
-            "host_type":"read_host"
-        },
-        "get_all_repository_info":{
-            "sql": "SELECT *
-                    FROM `repository`
-                    WHERE
-                        `active_status` = 'active'",
-            "host_type":"read_host"
-        },
         "get_all_option_collections":{
             "sql":"SELECT option_collection_hash,
                         GROUP_CONCAT( name SEPARATOR ' ' ) as opt

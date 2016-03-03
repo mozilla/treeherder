@@ -354,11 +354,6 @@ def pulse_consumer(exchange, request):
 
 
 @pytest.fixture
-def pulse_resultset_consumer(request):
-    return pulse_consumer('new-result-set', request)
-
-
-@pytest.fixture
 def pulse_action_consumer(request):
     return pulse_consumer('job-actions', request)
 

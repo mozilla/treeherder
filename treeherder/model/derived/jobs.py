@@ -17,7 +17,6 @@ from treeherder.model.models import (Datasource,
                                      Repository)
 from treeherder.model.tasks import (populate_error_summary,
                                     publish_job_action,
-                                    publish_resultset,
                                     publish_resultset_action)
 
 from .artifacts import ArtifactsModel
@@ -1852,13 +1851,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             )
         else:
             revision_id_lookup = []
-
-        if len(inserted_result_set_ids) > 0:
-            # Queue an event to notify pulse of these new resultsets
-            publish_resultset.apply_async(
-                args=[self.project, inserted_result_set_ids],
-                routing_key='publish_to_pulse'
-            )
 
         return {
             'result_set_ids': result_set_id_lookup,
