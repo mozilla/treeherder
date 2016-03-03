@@ -5,7 +5,7 @@
       <span ng-if="line.content_type != 'TalosResult'" ng-switch on="line.content_type">
         <a ng-switch-when="link" title="{{line.value}}"
            href="{{line.url}}" target="_blank">{{line.value}}</a>
-        <a title="{{line.value}}" href="http://mozilla.github.io/wptview/#/?urls={{line.url}},{{job_details[job_details.length - 1].value}}" ng-show="line.value.endsWith('raw.log')">Open!</a>
+        <a title="{{line.value}}" href="http://mozilla.github.io/wptview/#/?urls={{line.url}},{{job_details[job_details.length - 1].value}}" ng-if="line.value.endsWith('raw.log')">Open!</a>
         <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
         <span title="{{line.value}}" ng-switch-when="object">{{line.value}}</span>
         <span title="{{line.value}}" ng-switch-default>{{line.value}}</span>
