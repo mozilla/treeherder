@@ -258,27 +258,6 @@ def test_add_job_type(refdata):
     assert row_data == expected
 
 
-def test_get_repository_info(refdata, repository_id):
-    """test get_repository_info retrieves the right informations"""
-
-    info = refdata.get_repository_info(repository_id)
-
-    expected = {
-        "dvcs_type": "hg",
-        "name": "mozilla-central",
-        "url": "https://hg.mozilla.org/mozilla-central",
-        "active_status": "active",
-        "codebase": "gecko",
-        "repository_group_id": 1,
-        "description": ""
-    }
-
-    refdata.disconnect()
-
-    for k, v in expected.items():
-        assert info[k] == v
-
-
 @pytest.fixture
 def sample_bugs(test_base_dir):
     filename = os.path.join(

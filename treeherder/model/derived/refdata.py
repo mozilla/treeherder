@@ -1161,18 +1161,6 @@ class RefDataManager(object):
 
         return id_iter.get_column_data('id')
 
-    def get_repository_info(self, repository_id):
-        """retrieves all the attributes of a repository"""
-
-        repo = self.execute(
-            proc='reference.selects.get_repository_info',
-            placeholders=[repository_id],
-            debug_show=self.DEBUG,
-            return_type='iter')
-        # retrieve the first elem from DataIterator
-        for r in repo:
-            return r
-
     def get_all_repository_info(self):
         return self.execute(
             proc='reference.selects.get_all_repository_info',
