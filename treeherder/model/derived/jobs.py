@@ -1,6 +1,7 @@
 import logging
 import time
 from datetime import datetime
+from hashlib import sha1
 
 import newrelic.agent
 from _mysql_exceptions import IntegrityError
@@ -11,9 +12,18 @@ from treeherder.etl.common import get_guid_root
 from treeherder.events.publisher import JobStatusPublisher
 from treeherder.model import (error_summary,
                               utils)
-from treeherder.model.models import (Datasource,
+from treeherder.model.models import (BuildPlatform,
+                                     Datasource,
                                      ExclusionProfile,
                                      JobDuration,
+                                     JobGroup,
+                                     JobType,
+                                     Machine,
+                                     MachinePlatform,
+                                     Option,
+                                     OptionCollection,
+                                     Product,
+                                     ReferenceDataSignatures,
                                      Repository)
 from treeherder.model.tasks import (populate_error_summary,
                                     publish_job_action,
@@ -911,6 +921,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 # and that's ok.
                 pass
 
+        reference_data_signatures = set()
         for datum in data:
             try:
                 # TODO: this might be a good place to check the datum against
@@ -925,7 +936,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
                 # json object can be successfully deserialized
                 # load reference data
-                job_guid = self._load_ref_and_job_data_structs(
+                (job_guid, reference_data_signature) = self._load_ref_and_job_data_structs(
                     job,
                     revision_hash,
                     revision_hash_lookup,
@@ -938,7 +949,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     lower_tier_signatures,
                     async_error_summary_list
                 )
-
+                reference_data_signatures.add(reference_data_signature)
                 for coalesced_guid in coalesced:
                     coalesced_job_guid_placeholders.append(
                         # coalesced to guid, coalesced guid
@@ -955,11 +966,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 # skip any jobs that hit errors in these stages.
                 continue
 
-        # Store all reference data and retrieve associated ids
-        id_lookups = self.refdata_model.set_all_reference_data()
-
         average_job_durations = self.get_average_job_durations(
-            id_lookups['reference_data_signatures']
+            reference_data_signatures
         )
 
         # Store all revision hashes and retrieve result_set_ids
@@ -977,7 +985,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             self._set_data_ids(
                 index,
                 job_placeholders,
-                id_lookups,
                 job_guid_list,
                 job_update_placeholders,
                 result_set_ids,
@@ -1148,52 +1155,62 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             unique_revision_hashes.append(revision_hash)
             rh_where_in.append('%s')
 
-        build_os_name = job.get(
-            'build_platform', {}).get('os_name', 'unknown')
-        build_platform = job.get(
-            'build_platform', {}).get('platform', 'unknown')
-        build_architecture = job.get(
-            'build_platform', {}).get('architecture', 'unknown')
+        (build_platform, _) = BuildPlatform.objects.get_or_create(
+            os_name=job.get('build_platform', {}).get('os_name', 'unknown'),
+            platform=job.get('build_platform', {}).get('platform', 'unknown'),
+            architecture=job.get('build_platform', {}).get('architecture',
+                                                           'unknown'))
 
-        build_platform_key = self.refdata_model.add_build_platform(
-            build_os_name, build_platform, build_architecture
-        )
+        (machine_platform, _) = MachinePlatform.objects.get_or_create(
+            os_name=job.get('machine_platform', {}).get('os_name', 'unknown'),
+            platform=job.get('machine_platform', {}).get('platform', 'unknown'),
+            architecture=job.get('machine_platform', {}).get('architecture',
+                                                             'unknown'))
 
-        machine_os_name = job.get(
-            'machine_platform', {}).get('os_name', 'unknown')
-        machine_platform = job.get(
-            'machine_platform', {}).get('platform', 'unknown')
-        machine_architecture = job.get(
-            'machine_platform', {}).get('architecture', 'unknown')
+        option_names = job.get('option_collection', [])
+        option_collection_hash = OptionCollection.calculate_hash(
+            option_names)
+        if not OptionCollection.objects.filter(
+                option_collection_hash=option_collection_hash).exists():
+            # in the unlikely event that we haven't seen this set of options
+            # before, add the appropriate database rows
+            options = []
+            for option_name in option_names:
+                (option, _) = Option.objects.get_or_create(name=option_name)
+                options.append(option)
+            for option in options:
+                OptionCollection.objects.create(
+                    option_collection_hash=option_collection_hash,
+                    option=option)
 
-        machine_platform_key = self.refdata_model.add_machine_platform(
-            machine_os_name, machine_platform, machine_architecture
-        )
+        machine_timestamp = job.get("end_timestamp", time.time())
+        (machine, _) = Machine.objects.get_or_create(
+            name=job.get('machine', 'unknown'),
+            defaults={'first_timestamp': machine_timestamp,
+                      'last_timestamp': machine_timestamp})
+        if machine.last_timestamp < machine_timestamp:
+            machine.last_timestamp = machine_timestamp
+            machine.save()
 
-        option_collection_hash = self.refdata_model.add_option_collection(
-            job.get('option_collection', [])
-        )
+        # if a job with this symbol and name exists, always
+        # use its default group (even if that group is different
+        # from that specified)
+        (job_type, _) = JobType.objects.get_or_create(
+            symbol=job.get('job_symbol') or 'unknown',
+            name=job.get('name') or 'unknown')
+        if job_type.job_group:
+            job_group = job_type.job_group
+        else:
+            (job_group, _) = JobGroup.objects.get_or_create(
+                name=job.get('group_name') or 'unknown',
+                symbol=job.get('group_symbol') or 'unknown')
+            job_type.job_group = job_group
+            job_type.save()
 
-        machine = job.get('machine', 'unknown')
-        self.refdata_model.add_machine(
-            machine,
-            long(job.get("end_timestamp", time.time()))
-        )
-
-        job_type = job.get('name', 'unknown')
-        job_symbol = job.get('job_symbol', 'unknown')
-
-        group_name = job.get('group_name', 'unknown')
-        group_symbol = job.get('group_symbol', 'unknown')
-
-        job_type_key = self.refdata_model.add_job_type(
-            job_type, job_symbol, group_name, group_symbol
-        )
-
-        product = job.get('product_name', 'unknown')
-        if len(product.strip()) == 0:
-            product = 'unknown'
-        self.refdata_model.add_product(product)
+        product_name = job.get('product_name', 'unknown')
+        if len(product_name.strip()) == 0:
+            product_name = 'unknown'
+        (product, _) = Product.objects.get_or_create(name=product_name)
 
         job_guid = job['job_guid']
         job_guid = job_guid[0:50]
@@ -1212,16 +1229,41 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         build_system_type = job.get('build_system_type', 'buildbot')
 
-        # Should be the buildername in the case of buildbot
-        reference_data_name = job.get('reference_data_name', None)
+        sh = sha1()
+        sh.update(''.join(
+            map(lambda x: str(x),
+                [build_system_type, self.project, build_platform.os_name,
+                 build_platform.platform, build_platform.architecture,
+                 machine_platform.os_name, machine_platform.platform,
+                 machine_platform.architecture,
+                 job_group.name, job_group.symbol, job_type.name,
+                 job_type.symbol, option_collection_hash])))
+        signature_hash = sh.hexdigest()
 
-        signature = self.refdata_model.add_reference_data_signature(
-            reference_data_name, build_system_type, self.project,
-            [build_system_type, self.project, build_os_name, build_platform, build_architecture,
-             machine_os_name, machine_platform, machine_architecture,
-             group_name, group_symbol, job_type, job_symbol,
-             option_collection_hash]
-        )
+        # Should be the buildername in the case of buildbot (if not provided
+        # default to using the signature hash)
+        reference_data_name = job.get('reference_data_name', None)
+        if not reference_data_name:
+            reference_data_name = signature_hash
+
+        (signature, _) = ReferenceDataSignatures.objects.get_or_create(
+            name=reference_data_name,
+            signature=signature_hash,
+            build_os_name=build_platform.os_name,
+            build_platform=build_platform.platform,
+            build_architecture=build_platform.architecture,
+            machine_os_name=machine_platform.os_name,
+            machine_platform=machine_platform.platform,
+            machine_architecture=machine_platform.architecture,
+            job_group_name=job_group.name,
+            job_group_symbol=job_group.symbol,
+            job_type_name=job_type.name,
+            job_type_symbol=job_type.symbol,
+            option_collection_hash=option_collection_hash,
+            build_system_type=build_system_type,
+            repository=self.project, defaults={
+                'first_submission_timestamp': time.time()
+            })
 
         tier = job.get('tier') or 1
         # job tier signatures override the setting from the job structure
@@ -1232,20 +1274,20 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # signature belongs.  So if a signature is in Tier-2 and Tier-3, it
         # will end up in 3.
         for tier_info in lower_tier_signatures:
-            if signature in tier_info["signatures"]:
+            if signature_hash in tier_info["signatures"]:
                 tier = tier_info["tier"]
 
         job_placeholders.append([
             job_guid,
-            signature,
+            signature_hash,
             None,                   # idx:2, job_coalesced_to_guid,
             revision_hash,          # idx:3, replace with result_set_id
-            build_platform_key,     # idx:4, replace with build_platform_id
-            machine_platform_key,   # idx:5, replace with machine_platform_id
-            machine,                # idx:6, replace with machine_id
-            option_collection_hash,  # idx:7
-            job_type_key,           # idx:8, replace with job_type_id
-            product,                # idx:9, replace with product_id
+            build_platform.id,
+            machine_platform.id,
+            machine.id,
+            option_collection_hash,
+            job_type.id,
+            product.id,
             who,
             reason,
             job.get('result', 'unknown'),  # idx:12, this is typically an int
@@ -1313,7 +1355,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
                 log_placeholders.append([job_guid, name, url, parse_status])
 
-        return job_guid
+        return (job_guid, signature_hash)
 
     def get_number(self, s):
         try:
@@ -1322,7 +1364,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             return 0
 
     def _set_data_ids(
-        self, index, job_placeholders, id_lookups,
+        self, index, job_placeholders,
         job_guid_list, job_update_placeholders,
         result_set_ids, average_job_durations, push_timestamps
     ):
@@ -1344,16 +1386,12 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             self.JOB_PH_COALESCED_TO_GUID]
         revision_hash = job_placeholders[index][
             self.JOB_PH_RESULT_SET_ID]
-        build_platform_key = job_placeholders[index][
-            self.JOB_PH_BUILD_PLATFORM_KEY]
-        machine_platform_key = job_placeholders[index][
-            self.JOB_PH_MACHINE_PLATFORM_KEY]
-        machine_name = job_placeholders[index][
+        machine_id = job_placeholders[index][
             self.JOB_PH_MACHINE_NAME]
         option_collection_hash = job_placeholders[index][
             self.JOB_PH_OPTION_COLLECTION_HASH]
-        job_type_key = job_placeholders[index][self.JOB_PH_TYPE_KEY]
-        product_type = job_placeholders[index][self.JOB_PH_PRODUCT_TYPE]
+        job_type_id = job_placeholders[index][self.JOB_PH_TYPE_KEY]
+        product_id = job_placeholders[index][self.JOB_PH_PRODUCT_TYPE]
         who = job_placeholders[index][self.JOB_PH_WHO]
         reason = job_placeholders[index][self.JOB_PH_REASON]
         result = job_placeholders[index][self.JOB_PH_RESULT]
@@ -1368,28 +1406,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         job_placeholders[index][
             self.JOB_PH_RESULT_SET_ID] = result_set['id']
         push_timestamps[result_set['id']] = result_set['push_timestamp']
-
-        # replace build_platform_key with id
-        build_platform_id = id_lookups['build_platforms'][build_platform_key]['id']
-        job_placeholders[index][
-            self.JOB_PH_BUILD_PLATFORM_KEY] = build_platform_id
-
-        # replace machine_platform_key with id
-        machine_platform_id = id_lookups['machine_platforms'][machine_platform_key]['id']
-        job_placeholders[index][
-            self.JOB_PH_MACHINE_PLATFORM_KEY] = machine_platform_id
-
-        # replace machine with id
-        job_placeholders[index][
-            self.JOB_PH_MACHINE_NAME] = id_lookups['machines'][machine_name]['id']
-
-        # replace job_type with id
-        job_type_id = id_lookups['job_types'][job_type_key]['id']
-        job_placeholders[index][self.JOB_PH_TYPE_KEY] = job_type_id
-
-        # replace product_type with id
-        job_placeholders[index][
-            self.JOB_PH_PRODUCT_TYPE] = id_lookups['products'][product_type]['id']
 
         job_guid_list.append(job_guid)
 
@@ -1414,10 +1430,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 job_guid,
                 job_coalesced_to_guid,
                 result_set_ids[revision_hash]['id'],
-                id_lookups['machines'][machine_name]['id'],
+                machine_id,
                 option_collection_hash,
-                id_lookups['job_types'][job_type_key]['id'],
-                id_lookups['products'][product_type]['id'],
+                job_type_id,
+                product_id,
                 who,
                 reason,
                 result,

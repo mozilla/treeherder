@@ -1,117 +1,5 @@
 {
     "inserts":{
-        "create_reference_data_signature":{
-            "sql": "INSERT INTO `reference_data_signatures` (
-                        `name`, `signature`, `build_system_type`, `repository`, `build_os_name`,
-                        `build_platform`, `build_architecture`, `machine_os_name`,
-                        `machine_platform`, `machine_architecture`,
-                        `job_group_name`, `job_group_symbol`, `job_type_name`, `job_type_symbol`,
-                        `option_collection_hash`, `first_submission_timestamp`)
-                    SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-                    FROM DUAL
-                    WHERE NOT EXISTS (
-                    SELECT `name`, `signature`, `build_system_type`, `repository`
-                    FROM `reference_data_signatures`
-                    WHERE `name` = ? AND `signature` = ? AND `build_system_type` = ? AND `repository` = ?
-                    )",
-            "host_type":"master_host"
-        },
-        "create_build_platform":{
-            "sql": "INSERT INTO `build_platform` (`os_name`, `platform`, `architecture`, `active_status`)
-                    SELECT ?, ?, ?, 'active'
-                    FROM DUAL
-                    WHERE NOT EXISTS (
-                    SELECT `os_name`, `platform`, `architecture`
-                    FROM `build_platform`
-                    WHERE `os_name` = ? AND `platform` = ? AND `architecture` = ?
-                    )",
-            "host_type":"master_host"
-        },
-
-        "create_job_group":{
-            "sql":"INSERT INTO `job_group` (`name`, `symbol`, `description`, `active_status`)
-                   SELECT ?, ?, 'fill me', 'active'
-                    FROM DUAL
-                    WHERE NOT EXISTS (
-                    SELECT `name`
-                    FROM `job_group`
-                    WHERE `name` = ? AND `symbol` = ?
-                    )",
-            "host_type":"master_host"
-        },
-
-        "create_job_type":{
-            "sql":"INSERT INTO `job_type` (`name`, `symbol`, `description`, `active_status`)
-                   SELECT ?, ?, 'fill me', 'active'
-                    FROM DUAL
-                    WHERE NOT EXISTS (
-                    SELECT `name`
-                    FROM `job_type`
-                    WHERE `name` = ? AND `symbol` = ?
-                    )",
-            "host_type":"master_host"
-        },
-
-        "create_machine" : {
-            "sql": "INSERT INTO `machine` (`name`, `first_timestamp`, `last_timestamp`, `active_status`)
-                    SELECT ?, ?, ?, 'active'
-                    FROM DUAL
-                    WHERE NOT EXISTS (
-                    SELECT `name`
-                    FROM `machine`
-                    WHERE `name` = ?
-                    )",
-            "host_type":"master_host"
-        },
-
-        "create_machine_platform":{
-            "sql": "INSERT INTO `machine_platform` (`os_name`, `platform`, `architecture`, `active_status`)
-                    SELECT ?, ?, ?, 'active'
-                    FROM DUAL
-                    WHERE NOT EXISTS (
-                    SELECT `os_name`, `platform`, `architecture`
-                    FROM `machine_platform`
-                    WHERE `os_name` = ? AND `platform` = ? AND `architecture` = ?
-                    )",
-            "host_type":"master_host"
-        },
-
-        "create_option":{
-            "sql":"INSERT INTO `option` (`name`, `description`, `active_status`)
-                   SELECT ?, 'fill me', 'active'
-                    FROM DUAL
-                    WHERE NOT EXISTS (
-                    SELECT `name`
-                    FROM `option`
-                    WHERE `name` = ?
-                    )",
-            "host_type":"master_host"
-        },
-
-        "create_option_collection":{
-            "sql": "INSERT INTO `option_collection` (`option_collection_hash`, `option_id`)
-                    SELECT ?, ?
-                    FROM DUAL
-                    WHERE NOT EXISTS(
-                    SELECT `option_collection_hash`, `option_id`
-                    FROM `option_collection`
-                    WHERE `option_collection_hash` = ? AND `option_id` = ?
-                    )",
-            "host_type":"master_host"
-        },
-
-        "create_product":{
-            "sql": "INSERT INTO `product` (`name`, `description`, `active_status`)
-                    SELECT ?, 'fill me', 'active'
-                    FROM DUAL
-                    WHERE NOT EXISTS (
-                    SELECT `name`
-                    FROM `product`
-                    WHERE `name` = ?
-                    )",
-            "host_type":"master_host"
-        },
-
         "create_bugscache":{
             "sql":"INSERT INTO `bugscache` (`id`, `status`, `resolution`, `summary`, `crash_signature`, `keywords`, `os`, `modified`)
                    SELECT ?, ?, ?, ?, ?, ?, ?, ?
@@ -266,12 +154,6 @@
         }
     },
     "updates":{
-        "update_machine_timestamp":{
-            "sql": "UPDATE `machine`
-                    SET `last_timestamp` = ?
-                    WHERE `name` = ?",
-            "host_type":"master_host"
-        },
         "update_bugscache":{
             "sql": "UPDATE `bugscache`
                     SET `id` = ?,
@@ -283,23 +165,6 @@
                         `os` = ?,
                         `modified` = ?
                     WHERE `id` = ?",
-            "host_type":"master_host"
-        },
-        "update_job_type_group_id":{
-
-            "sql":"UPDATE `job_type`
-                   SET `job_group_id` = ?
-                   WHERE `name` = ? AND `symbol` = ?",
-
-
-            "host_type":"master_host"
-        },
-        "update_job_type_group_id":{
-
-            "sql":"UPDATE `job_type`
-                   SET `job_group_id` = ?
-                   WHERE `name` = ? AND `symbol` = ?",
-
             "host_type":"master_host"
         }
     },

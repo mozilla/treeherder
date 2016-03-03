@@ -2,7 +2,6 @@ import json
 
 from tests.sampledata import SampleData
 from treeherder.client import TreeherderClient
-from treeherder.model.derived.refdata import RefDataManager
 
 
 def post_collection(project, th_collection):
@@ -62,18 +61,18 @@ def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
             job = blob['job']
 
             build_platforms_ref.add(
-                RefDataManager.get_platform_key(
-                    job.get('build_platform', {}).get('os_name', 'unkown'),
-                    job.get('build_platform', {}).get('platform', 'unkown'),
+                "-".join([
+                    job.get('build_platform', {}).get('os_name', 'unknown'),
+                    job.get('build_platform', {}).get('platform', 'unknown'),
                     job.get('build_platform', {}).get('architecture', 'unknown')
-                ))
+                ]))
 
             machine_platforms_ref.add(
-                RefDataManager.get_platform_key(
+                "-".join([
                     job.get('machine_platform', {}).get('os_name', 'unkown'),
                     job.get('machine_platform', {}).get('platform', 'unkown'),
                     job.get('machine_platform', {}).get('architecture', 'unknown')
-                ))
+                ]))
 
             machines_ref.add(job.get('machine', 'unknown'))
 
@@ -121,11 +120,11 @@ def verify_build_platforms(refdata, build_platforms_ref):
     build_platforms_set = set()
     for build_platform in build_platforms:
         build_platforms_set.add(
-            RefDataManager.get_platform_key(
+            "-".join([
                 build_platform.get('os_name'),
                 build_platform.get('platform'),
                 build_platform.get('architecture')
-            ))
+            ]))
 
     assert build_platforms_ref.issubset(build_platforms_set)
 
@@ -138,11 +137,11 @@ def verify_machine_platforms(refdata, machine_platforms_ref):
     machine_platforms_set = set()
     for machine_platform in machine_platforms:
         machine_platforms_set.add(
-            RefDataManager.get_platform_key(
+            "-".join([
                 machine_platform.get('os_name'),
                 machine_platform.get('platform'),
                 machine_platform.get('architecture')
-            ))
+            ]))
 
     assert machine_platforms_ref.issubset(machine_platforms_set)
 
