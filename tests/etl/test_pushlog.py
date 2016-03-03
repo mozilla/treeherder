@@ -38,14 +38,6 @@ def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
     for push in json.loads(pushlog_content)['pushes'].values():
         rev_to_push.add(push['changesets'][-1]['node'])
 
-    # Ensure for each push we sent a pulse notification...
-    for _ in range(0, push_num):
-        message = pulse_resultset_consumer.get(block=True, timeout=2)
-        content = message.payload
-        assert content['revision'] in rev_to_push
-        # Ensure we don't match the same revision twice...
-        rev_to_push.remove(content['revision'])
-
     revisions_stored = jm.get_dhub().execute(
         proc="jobs_test.selects.revision_ids",
         return_type='tuple'
