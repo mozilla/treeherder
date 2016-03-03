@@ -31,7 +31,6 @@ treeherder.factory('ThResultSetStore', [
         // the primary data model
         var repositories = {};
 
-        var resultSetPollers = {};
         var resultSetPollInterval = 60000;
         var jobPollInterval = 60000;
         var lastJobUpdate = null;
@@ -72,9 +71,15 @@ treeherder.factory('ThResultSetStore', [
                 if ((rsData.resultSets.length > 0) &&
                     (!rsData.loadingStatus.prepending)) {
                     if (doResultSetPolling(rsPollingParams)) {
+                        // Get all resultsets from the oldest we have in memory
+                        // to the newest possible.  This is so that, if a
+                        // resultset has been created on the server out of
+                        // order with regards to its push_timestamp, we will
+                        // still pick it up.
+                        var fromChangeRev = rsData.resultSets[rsData.resultSets.length - 1].revision;
                         ThResultSetModel.getResultSetsFromChange(
                             $rootScope.repoName,
-                            rsData.resultSets[0].revision,
+                            fromChangeRev,
                             rsPollingParams
                         ).then(function(data) {
                             prependResultSets($rootScope.repoName, data.data);
@@ -97,16 +102,19 @@ treeherder.factory('ThResultSetStore', [
         /**
          * Some URL conditions will prevent polling after the initial set of
          * result sets is loaded.
+         *
+         * Formerly, we wouldn't poll for resultsets if the most recent loaded
+         * resultset matched the url param of ``tochange``.
+         * But it is now possible (however unlikely) to get resultsets out of
+         * order (due to resultset auto-creation or created via the resultset
+         * creation API).
+         * So we don't have that limitation any longer.  You may have the latest
+         * resultset, but an older one comes in that is between (wrt
+         * push_timestamp) two resultsets you have loaded.  We want to fill
+         * in that gap.
          */
         var doResultSetPolling = function(rsParams) {
-            if (_.has(rsParams, 'revision')) {
-                return false;
-            } else if (_.has(rsParams, "tochange") &&
-                       rsParams.tochange === repositories[$rootScope.repoName].resultSets[0].revision
-                      ) {
-                return false;
-            }
-            return true;
+            return (!_.has(rsParams, 'revision'));
         };
 
         var pollJobs = function(){
