@@ -45,7 +45,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         # create a timestamp lookup based on the from/to change params that may
         # exist. This means we only make 1 DB query rather than 2, if we have
         # both a ``fromchange`` and a ``tochange`` value.
-        ts_lookup = jm.get_revision_resultset_lookup(
+        ts_lookup = jm.get_resultset_all_revision_lookup(
             [meta[x] for x in ['fromchange', 'tochange'] if x in meta]
         )
 

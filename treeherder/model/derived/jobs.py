@@ -603,6 +603,111 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         )
         return data
 
+    def _add_short_revision_lookups(self, lookup):
+        short_rev_lookup = {}
+        for rev, rs in lookup.iteritems():
+            short_rev_lookup[rev[:12]] = rs
+        lookup.update(short_rev_lookup)
+
+    def _get_short_and_long_revision_query_params(self, revision_list,
+                                                  short_revision_field="short_revision",
+                                                  long_revision_field="long_revision"):
+        """Build params to search for both long and short revisions."""
+
+        long_revision_list = [x for x in revision_list if len(x) == 40]
+        short_revision_list = [x[:12] for x in revision_list]
+        long_rev_list_repl = ",".join(["%s"] * len(long_revision_list))
+        short_rev_list_repl = ",".join(["%s"] * len(short_revision_list))
+
+        # It's possible that only 12 char revisions were passed in, so the
+        # ``long_revision_list`` would be zero length.  If it is, then this
+        # adds nothing to the where clause.
+        long_revision_or = ""
+        if long_revision_list:
+            long_revision_or = " OR {} IN ({})".format(
+                long_revision_field,
+                long_rev_list_repl
+            )
+
+        replacement = " AND ({} IN ({}) {})".format(
+            short_revision_field,
+            short_rev_list_repl,
+            long_revision_or
+        )
+        placeholders = short_revision_list + long_revision_list
+
+        return {
+            "replacement": [replacement],
+            "placeholders": placeholders
+        }
+
+    def get_resultset_all_revision_lookup(self, revision_list):
+        """
+        Create a revision->resultset lookup from a list of revisions
+
+        This will map ALL revision/commits that are within this resultset, not
+        just the top revision.  It will also map both short and long revisions
+        to their resultsets because users might search by either.
+
+        This will retrieve non-active resultsets as well.  Some of the data
+        ingested has mixed up revisions that show for jobs, but are not in
+        the right repository in builds4hr/running/pending.  So we ingest those
+        bad resultsets/revisions as non-active so that we don't keep trying
+        to re-ingest them.  Allowing this query to retrieve non ``active``
+        resultsets means we will avoid re-doing that work by detecting that
+        we've already ingested it.
+
+        But we skip ingesting the job, because the resultset is not active.
+        """
+
+        if not revision_list:
+            return {}
+
+        # Build params to search for both long and short revisions.
+        params = self._get_short_and_long_revision_query_params(
+            revision_list,
+            "revision.short_revision",
+            "revision.long_revision")
+
+        proc = "jobs.selects.get_resultset_all_revision_lookup"
+        lookup = self.execute(
+            proc=proc,
+            placeholders=params["placeholders"],
+            debug_show=self.DEBUG,
+            replace=params["replacement"],
+            return_type="dict",
+            key_column="long_revision"
+        )
+
+        # ``lookups`` will be keyed ONLY by long_revision, at this point.
+        # Add the resultsets keyed by short_revision.
+        self._add_short_revision_lookups(lookup)
+        return lookup
+
+    def get_resultset_top_revision_lookup(self, revision_list):
+        """
+        Create a revision->resultset lookup only for top revisions of the RS
+
+        This lookup does NOT search any revision but the top revision
+        for the resultset.  It also does not do a JOIN to the revisions
+        table.  So if the resutlset has no revisions mapped to it, that's
+        ok.
+        """
+        if not revision_list:
+            return {}
+
+        # Build params to search for both long and short revisions.
+        params = self._get_short_and_long_revision_query_params(revision_list)
+        lookup = self.execute(
+            proc='jobs.selects.get_resultset_top_revision_lookup',
+            placeholders=params["placeholders"],
+            replace=params["replacement"],
+            debug_show=self.DEBUG,
+            key_column='long_revision',
+            return_type='dict')
+
+        return lookup
+
     def get_result_set_list_by_ids(self, result_set_ids):
         """Given a list of result_set_ids, fetch the matching resultsets."""
 
@@ -688,68 +793,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             return_list.append(list_item)
 
         return return_list
-
-    def get_revision_resultset_lookup(self, revision_list):
-        """
-        Create a revision->resultset lookup from a list of revisions
-
-        This will map ALL revision/commits that are within this resultset, not
-        just the top revision.  It will also map both short and long revisions
-        to their resultsets because users might search by either.
-
-        This will retrieve non-active resultsets as well.  Some of the data
-        ingested has mixed up revisions that show for jobs, but are not in
-        the right repository in builds4hr/running/pending.  So we ingest those
-        bad resultsets/revisions as non-active so that we don't keep trying
-        to re-ingest them.  Allowing this query to retrieve non ``active``
-        resultsets means we will avoid re-doing that work by detecting that
-        we've already ingested it.
-
-        But we skip ingesting the job, because the resultset is not active.
-        """
-
-        if not revision_list:
-            return []
-
-        # Build params to search for both long and short revisions.
-        long_revision_list = [x for x in revision_list if len(x) == 40]
-        short_revision_list = [x[:12] for x in revision_list]
-        long_rev_list_repl = ",".join(["%s"] * len(long_revision_list))
-        short_rev_list_repl = ",".join(["%s"] * len(short_revision_list))
-
-        # It's possible that only 12 char revisions were passed in, so the
-        # ``long_revision_list`` would be zero length.  If it is, then this
-        # adds nothing to the where clause.
-        long_revision_or = ""
-        if long_revision_list:
-            long_revision_or = " OR revision.long_revision IN ({})".format(
-                long_rev_list_repl
-            )
-
-        replacement = " AND (revision.short_revision IN ({}) {})".format(
-            short_rev_list_repl, long_revision_or
-        )
-        placeholders = short_revision_list + long_revision_list + \
-            [0, len(short_revision_list) + len(long_revision_list)]
-
-        proc = "jobs.selects.get_revision_resultset_lookup"
-        lookups = self.execute(
-            proc=proc,
-            placeholders=placeholders,
-            debug_show=self.DEBUG,
-            replace=[replacement],
-            return_type="dict",
-            key_column="long_revision"
-        )
-
-        # ``lookups`` will be keyed ONLY by long_revision, at this point.
-        # Add the resultsets keyed by short_revision.
-        short_rev_lookup = {}
-        for rev, rs in lookups.iteritems():
-            short_rev_lookup[rev[:12]] = rs
-        lookups.update(short_rev_lookup)
-
-        return lookups
 
     def get_resultset_revisions_list(self, result_set_id):
         """
@@ -977,7 +1020,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # Store all reference data and retrieve associated ids
         id_lookups = self.refdata_model.set_all_reference_data()
 
-        id_lookups["result_set"] = self.get_revision_resultset_lookup(
+        id_lookups["result_set"] = self.get_resultset_all_revision_lookup(
             unique_revisions
         )
         average_job_durations = self.get_average_job_durations(
@@ -1730,16 +1773,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         # Retrieve a list of revisions that have already been stored
         # in the list of unique_revisions. Use it to determine the new
-        # result_sets found to publish to pulse.
-        where_in_clause = ','.join(where_in_list)
-        result_set_ids_before = self.execute(
-            proc='jobs.selects.get_result_set_ids',
-            placeholders=unique_rs_revisions,
-            replace=[where_in_clause],
-            key_column='long_revision',
-            return_type='set',
-            debug_show=self.DEBUG
-        )
+        # result_sets
+        result_set_ids_before = self.get_resultset_top_revision_lookup(unique_rs_revisions).keys()
 
         # Insert new result sets
         self.execute(
@@ -1752,14 +1787,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         lastrowid = self.get_dhub().connection['master_host']['cursor'].lastrowid
 
         # Retrieve new and already existing result set ids
-        result_set_id_lookup = self.execute(
-            proc='jobs.selects.get_result_set_ids',
-            placeholders=unique_rs_revisions,
-            replace=[where_in_clause],
-            key_column='long_revision',
-            return_type='dict',
-            debug_show=self.DEBUG
-        )
+        result_set_id_lookup = self.get_resultset_top_revision_lookup(unique_rs_revisions)
 
         # identify the newly inserted result sets
         result_set_ids_after = set(result_set_id_lookup.keys())

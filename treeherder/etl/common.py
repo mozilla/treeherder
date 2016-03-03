@@ -84,7 +84,7 @@ def lookup_revisions(revision_dict):
         revision_list = list(set(revisions))
 
         with JobsModel(project) as jm:
-            lookup_content = jm.get_revision_resultset_lookup(revision_list)
+            lookup_content = jm.get_resultset_all_revision_lookup(revision_list)
 
         if lookup_content:
             lookup[project] = lookup_content

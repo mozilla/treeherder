@@ -562,16 +562,11 @@
             "host_type": "read_host"
 
         },
-        "get_result_set_ids":{
+        "get_resultset_top_revision_lookup":{
             "sql":"SELECT `id`, `short_revision`, `long_revision`, `revision_hash`, `push_timestamp`
                    FROM `result_set`
-                   WHERE `active_status` in ('active', 'onhold') AND `long_revision` IN (REP0)",
-            "host_type": "master_host"
-        },
-        "get_result_set_ids_by_revision":{
-            "sql":"SELECT `id`, `short_revision`, `long_revision`, `push_timestamp`
-                   FROM `result_set`
-                   WHERE `active_status` in ('active', 'onhold') AND `long_revision` IN (REP0)",
+                   WHERE `active_status` in ('active', 'onhold')
+                   REP0",
             "host_type": "master_host"
         },
         "get_all_result_set_revisions":{
@@ -616,7 +611,7 @@
                    ",
             "host_type": "read_host"
         },
-        "get_revision_resultset_lookup":{
+        "get_resultset_all_revision_lookup":{
             "sql":"SELECT
                       rs.id,
                       rs.push_timestamp,
@@ -632,7 +627,6 @@
                    WHERE 1
                    REP0
                    ORDER BY rs.push_timestamp DESC
-                   LIMIT ?,?
                    ",
             "host_type": "read_host"
         },
