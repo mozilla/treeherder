@@ -7,7 +7,8 @@ from _mysql_exceptions import IntegrityError
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from treeherder.etl.common import get_guid_root
+from treeherder.etl.common import (fetch_missing_resultsets,
+                                   get_guid_root)
 from treeherder.events.publisher import JobStatusPublisher
 from treeherder.model import (error_summary,
                               utils)
@@ -708,6 +709,36 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return lookup
 
+    def _create_missing_resultsets(self, resultset_lookup, all_revisions):
+        """Create any missing resultsets and update the revision_lookup"""
+
+        # revision_lookup here will have both short and long revisions,
+        # so this list will filter properly, whether entries in all_revisions
+        # are long or short.
+        missing_revisions = [x for x in all_revisions if x not in resultset_lookup]
+
+        if missing_revisions:
+            result_sets = []
+            for new_rev in missing_revisions:
+                result_sets.append({
+                    "revision": new_rev,
+                    "push_timestamp": 0,
+                    "author": "pending...",
+                    "revisions": []
+                })
+            self.store_result_set_data(result_sets)
+
+            new_lookup = self.get_resultset_top_revision_lookup(missing_revisions)
+            resultset_lookup.update(new_lookup)
+
+            # schedule async task to fill in the details of these
+            # resultsets
+            fetch_missing_resultsets("store_job_data",
+                                     {self.project: new_lookup.keys()},
+                                     logger)
+
+        return resultset_lookup
+
     def get_result_set_list_by_ids(self, result_set_ids):
         """Given a list of result_set_ids, fetch the matching resultsets."""
 
@@ -1021,9 +1052,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # Store all reference data and retrieve associated ids
         id_lookups = self.refdata_model.set_all_reference_data()
 
-        id_lookups["result_set"] = self.get_resultset_all_revision_lookup(
-            unique_revisions
-        )
+        rs_lookup = self.get_resultset_all_revision_lookup(unique_revisions)
+        self._create_missing_resultsets(rs_lookup, unique_revisions)
+
+        id_lookups["result_set"] = rs_lookup
+
         average_job_durations = self.get_average_job_durations(
             id_lookups['reference_data_signatures']
         )
@@ -1676,6 +1709,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         Build single queries to add new result_sets, revisions, and
         revision_map for a list of result_sets.
 
+        Determine which ones we already have, which ones we need and
+        which ones we need to update.
+
         result_sets = [
             {
              "revision": "8afdb7debc82a8b6e0d56449dfdf916c77a7bf80",
@@ -1702,13 +1738,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         if not result_sets:
             return {}
 
-        # result_set data structures
-        result_set_placeholders = []
-        unique_rs_revisions = []
-        where_in_list = []
-
         # revision data structures
-        repository_id_lookup = dict()
         revision_placeholders = []
         all_revisions = []
         rev_where_in_list = []
@@ -1716,18 +1746,140 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # revision_map structures
         revision_to_rs_revision_lookup = dict()
 
-        # TODO: Confirm whether we need to do a lookup in this loop in the
-        #   memcache to reduce query overhead
+        unique_rs_revisions = self._get_unique_revisions(result_sets)
+
+        # Retrieve a list of revisions that have already been stored
+        # in the list of unique_revisions. Use it to determine the new
+        # result_sets.  Key this off of both long and short revisions since
+        # we can get either
+        resultsets_before = self.get_resultset_top_revision_lookup(
+            unique_rs_revisions)
+        self._add_short_revision_lookups(resultsets_before)
+        resultset_revisions_before = resultsets_before.keys()
+
+        # UPDATE any resultsets that are incomplete
+        #
+        resultset_updates = self._get_resultset_updates(
+            result_sets, resultsets_before)
+        self._modify_resultsets(resultset_updates,
+                                "jobs.updates.update_result_set",
+                                revision_placeholders,
+                                all_revisions, rev_where_in_list,
+                                revision_to_rs_revision_lookup)
+
+        # INSERT any resultsets we don't already have
+        #
+        resultset_inserts = self._get_resultset_inserts(
+            result_sets, resultset_revisions_before, unique_rs_revisions)
+
+        self._modify_resultsets(resultset_inserts,
+                                "jobs.inserts.set_result_set",
+                                revision_placeholders,
+                                all_revisions, rev_where_in_list,
+                                revision_to_rs_revision_lookup)
+
+        lastrowid = self.get_dhub().connection['master_host']['cursor'].lastrowid
+
+        # Retrieve new, updated and already existing result sets that
+        # match all the revisions sent in during this request
+        result_set_id_lookup = self.get_resultset_top_revision_lookup(
+            unique_rs_revisions)
+
+        # identify the newly inserted result sets
+        result_set_ids_after = set(result_set_id_lookup.keys())
+        inserted_result_sets = result_set_ids_after.difference(
+            resultset_revisions_before
+        )
+
+        inserted_result_set_ids = []
+
+        # If cursor.lastrowid is > 0 rows were inserted on this
+        # cursor. When new rows are inserted, determine the new
+        # result_set ids and submit publish to pulse tasks.
+        if inserted_result_sets and lastrowid > 0:
+
+            for revision in inserted_result_sets:
+                inserted_result_set_ids.append(
+                    result_set_id_lookup[revision]['id']
+                )
+
+        # Revisions don't get updated, if we have conflicts here, they
+        # are just skipped.  This will insert revisions for both new
+        # resultsets and resultset skeletons that were just updated.
+        # Resultset skeletons don't get revisions till we insert them here.
+        revision_id_lookup = self._insert_revisions(
+            revision_placeholders, all_revisions, rev_where_in_list,
+            revision_to_rs_revision_lookup, result_set_id_lookup)
+
+        return {
+            'result_set_ids': result_set_id_lookup,
+            'revision_ids': revision_id_lookup,
+            'inserted_result_set_ids': inserted_result_set_ids
+        }
+
+    def _get_resultset_updates(self, result_sets,
+                               resultsets_before):
+        rs_need_update = {}
+        for rev, resultset in resultsets_before.iteritems():
+            if resultset["push_timestamp"] == 0:
+                rs_need_update[rev] = resultset
+
+        resultset_updates = []
+        if rs_need_update:
+            for rs in result_sets:
+                rev = rs["revision"]
+                need_update = rs_need_update.get(rev, rs_need_update[rev[:12]])
+                # we don't want to update the revision_hash, so we need
+                # to reset the new resultset values with the existing revision_hash
+                rs["revision_hash"] = need_update["revision_hash"]
+                resultset_updates.append(rs)
+
+        return resultset_updates
+
+    def _get_resultset_inserts(self, result_sets,
+                               resultset_revisions_before,
+                               unique_rs_revisions):
+        revisions_need_insert = unique_rs_revisions.difference(
+            resultset_revisions_before)
+
+        resultset_inserts = [x for x in result_sets
+                             if x["revision"] in revisions_need_insert]
+        return resultset_inserts
+
+    def _get_unique_revisions(self, result_sets):
+        unique_rs_revisions = set()
         for result in result_sets:
             if "revision" in result:
-                top_revision = result["revision"]
+                unique_rs_revisions.add(result["revision"])
+                unique_rs_revisions.add(result["revision"][:12])
             else:
                 top_revision = result['revisions'][-1]['revision']
+                result["revision"] = top_revision
+                unique_rs_revisions.add(top_revision)
+                unique_rs_revisions.add(top_revision[:12])
                 newrelic.agent.record_exception(
                     exc=ValueError(
                         "New resultset submitted without ``revision`` value"),
                     params={"revision": top_revision}
                 )
+        return unique_rs_revisions
+
+    def _modify_resultsets(self, result_sets,
+                           procedure,
+                           revision_placeholders,
+                           all_revisions, rev_where_in_list,
+                           revision_to_rs_revision_lookup):
+        """
+        Either insert or update resultsets, based on the ``procedure``.
+        """
+        # result_set data structures
+        result_set_placeholders = []
+        unique_rs_revisions = set()
+        where_in_list = []
+        repository_id_lookup = dict()
+
+        for result in result_sets:
+            top_revision = result["revision"]
             revision_hash = result.get("revision_hash", top_revision)
             short_top_revision = top_revision[:12]
             result_set_placeholders.append(
@@ -1738,11 +1890,12 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     short_top_revision,
                     result['push_timestamp'],
                     result.get('active_status', 'active'),
-                    top_revision
+                    top_revision,
+                    short_top_revision
                 ]
             )
             where_in_list.append('%s')
-            unique_rs_revisions.append(top_revision)
+            unique_rs_revisions.add(top_revision)
 
             for rev_datum in result['revisions']:
 
@@ -1777,42 +1930,17 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 rev_where_in_list.append('%s')
                 revision_to_rs_revision_lookup[long_revision] = top_revision
 
-        # Retrieve a list of revisions that have already been stored
-        # in the list of unique_revisions. Use it to determine the new
-        # result_sets
-        result_set_ids_before = self.get_resultset_top_revision_lookup(unique_rs_revisions).keys()
-
-        # Insert new result sets
         self.execute(
-            proc='jobs.inserts.set_result_set',
+            proc=procedure,
             placeholders=result_set_placeholders,
             executemany=True,
             debug_show=self.DEBUG
         )
 
-        lastrowid = self.get_dhub().connection['master_host']['cursor'].lastrowid
-
-        # Retrieve new and already existing result set ids
-        result_set_id_lookup = self.get_resultset_top_revision_lookup(unique_rs_revisions)
-
-        # identify the newly inserted result sets
-        result_set_ids_after = set(result_set_id_lookup.keys())
-        inserted_result_sets = result_set_ids_after.difference(
-            result_set_ids_before
-        )
-
-        inserted_result_set_ids = []
-
-        # If cursor.lastrowid is > 0 rows were inserted on this
-        # cursor. When new rows are inserted, determine the new
-        # result_set ids and submit publish to pulse tasks.
-        if inserted_result_sets and lastrowid > 0:
-
-            for revision in inserted_result_sets:
-                inserted_result_set_ids.append(
-                    result_set_id_lookup[revision]['id']
-                )
-
+    def _insert_revisions(self, revision_placeholders,
+                          all_revisions, rev_where_in_list,
+                          revision_to_rs_revision_lookup,
+                          result_set_id_lookup):
         if all_revisions:
             # Insert new revisions
             self.execute(
@@ -1857,12 +1985,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             )
         else:
             revision_id_lookup = []
-
-        return {
-            'result_set_ids': result_set_id_lookup,
-            'revision_ids': revision_id_lookup,
-            'inserted_result_set_ids': inserted_result_set_ids
-        }
+        return revision_id_lookup
 
     def get_exclusion_profile_signatures(self, exclusion_profile):
         """Retrieve the reference data signatures associates to an exclusion profile"""

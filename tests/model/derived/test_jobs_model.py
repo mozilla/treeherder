@@ -2,6 +2,7 @@ import copy
 import time
 
 import pytest
+import responses
 from django.core.management import call_command
 
 from tests import test_utils
@@ -12,6 +13,52 @@ from treeherder.model.models import JobDuration
 
 slow = pytest.mark.slow
 xfail = pytest.mark.xfail
+
+
+def get_pushlog_content(rev, idx):
+    return {
+        "pushes":
+            {"33270": {
+                "date": 1378288232 + idx,
+                "changesets": [
+                    {
+                        "node": rev,
+                        "tags": [],
+                        "author": "John Doe {}".format(idx),
+                        "branch": "default",
+                        "desc": "bug 909264 - control characters"
+                    }
+                ],
+                "user": "jdoe{}@mozilla.com".format(idx)
+            }}
+    }
+
+
+def get_completed_resultset(rev, idx):
+    return {
+            'author': u'jdoe{}@mozilla.com'.format(idx),
+            'comments': u'bug 909264 - control characters',
+            'push_timestamp': 1378288232L + idx,
+            'repository_id': 75L,
+            'revision': rev,
+            'revision_count': 1,
+            'revision_hash': rev,
+            'revisions': [{'author': u'John Doe {}'.format(idx),
+                           'comments': u'bug 909264 - control '
+                                       u'characters',
+                           'repository_id': 75L,
+                           'revision':rev}]
+        }
+
+def add_pushlog_response(revisions):
+    for idx, revision in enumerate(revisions):
+        for changeset in [revision, revision[:12]]:
+            rev_url = "https://hg.mozilla.org/mozilla-central/json-pushes/?full=1&version=2&changeset=" + changeset
+            responses.add(responses.GET, rev_url,
+                          json=get_pushlog_content(revision, idx),
+                          status=200,
+                          match_querystring=True,
+                          content_type='application/json')
 
 
 def test_unicode(jm):
@@ -51,6 +98,166 @@ def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data,
 
     jm.disconnect()
     refdata.disconnect()
+
+
+def test_missing_resultsets_some(jm, refdata, sample_data,
+                                 initial_data, sample_resultset,
+                                 test_repository, mock_log_parser,
+                                 mock_get_resultset, mock_post_json,
+                                 activate_responses):
+    """
+    Ingest some sample jobs, some of which will be missing a resultset.
+
+    When a resultset is missing, then create a dummy and schedule to have it
+    filled in with the rest of the data.
+    """
+    job_data = sample_data.job_data[:10]
+    missing_revisions = [
+        "f185cde033f50405729191e325594161a8ddf25b",
+        "adfae83c382e16042b27d1fc62125905fcf76096",
+        "7c7fe4da388c108de2867a695d472f5cbab3c2a1",
+    ]
+
+    add_pushlog_response(missing_revisions)
+
+    for idx, job in enumerate(job_data[:len(missing_revisions)]):
+        job["revision"] = missing_revisions[idx]
+
+    jm.store_job_data(job_data)
+
+    jobs = jm.get_job_list(0, 20)
+    assert len(jobs) == 10
+    test_utils.verify_result_sets(jm, set(missing_revisions))
+
+    # get the resultsets that were created as skeletons and should have now been
+    # filled-in by the async task
+    resultsets = jm.get_result_set_list(
+        0, len(missing_revisions),
+        conditions={"long_revision": {("IN", tuple(missing_revisions))}}
+    )
+    # don't compare id field, unreliable
+    for rs in resultsets:
+        del rs["id"]
+
+    exp_resultsets = []
+    for idx, rev in enumerate(missing_revisions):
+        exp_resultsets.append(get_completed_resultset(rev, idx))
+
+    # resultsets will come in descending order by push_timestamp, so
+    # must reverse exp_resultsets
+    exp_resultsets.reverse()
+
+    assert resultsets == exp_resultsets
+
+
+def test_missing_resultsets_all(jm, refdata, sample_data,
+                                initial_data, sample_resultset,
+                                test_repository, mock_log_parser,
+                                mock_get_resultset, mock_post_json,
+                                activate_responses):
+    """
+    Ingest some sample jobs, ALL of which will be missing a resultset.
+
+    This test is in contrast to ``test_missing_resultsets_some`` to check that,
+    during processing, having some lists empty and others not will still work
+    properly.
+
+    When a resultset is missing, then create a dummy and schedule to have it
+    filled in with the rest of the data.
+    """
+    job_data = sample_data.job_data[:3]
+    missing_revisions = [
+        "f185cde033f50405729191e325594161a8ddf25b",
+        "adfae83c382e16042b27d1fc62125905fcf76096",
+        "7c7fe4da388c108de2867a695d472f5cbab3c2a1",
+    ]
+
+    add_pushlog_response(missing_revisions)
+
+    for idx, job in enumerate(job_data[:len(missing_revisions)]):
+        job["revision"] = missing_revisions[idx]
+
+    jm.store_job_data(job_data)
+
+    jobs = jm.get_job_list(0, 20)
+    assert len(jobs) == 3
+    test_utils.verify_result_sets(jm, set(missing_revisions))
+
+    # get the resultsets that were created as skeletons and should have now been
+    # filled-in by the async task
+    resultsets = jm.get_result_set_list(
+        0, len(missing_revisions),
+        conditions={"long_revision": {("IN", tuple(missing_revisions))}}
+    )
+    # don't compare id field, unreliable
+    for rs in resultsets:
+        del rs["id"]
+
+    exp_resultsets = []
+    for idx, rev in enumerate(missing_revisions):
+        exp_resultsets.append(get_completed_resultset(rev, idx))
+
+    # resultsets will come in descending order by push_timestamp, so
+    # must reverse exp_resultsets
+    exp_resultsets.reverse()
+
+    assert resultsets == exp_resultsets
+
+
+def test_ingest_jobs_with_missing_resultsets_short_revision(
+        jm, refdata, sample_data, initial_data, sample_resultset,
+        test_repository, mock_log_parser, mock_get_resultset,
+        mock_fetch_json, mock_post_json, activate_responses):
+    """
+    Ingest a sample job with a short revision.
+
+    Should create an skeleton resultset that fills in and gets the long
+    revision
+    """
+    job_data = sample_data.job_data[0]
+    missing_revisions = [
+        "f185cde033f5"
+    ]
+
+    add_pushlog_response(["f185cde033f50405729191e325594161a8ddf25b"])
+
+    job_data["revision"] = missing_revisions[0]
+
+    jm.store_job_data([job_data])
+
+    jobs = jm.get_job_list(0, 20)
+    assert len(jobs) == 1
+
+    resultsets = jm.get_resultset_top_revision_lookup(missing_revisions)
+    assert len(resultsets) == len(missing_revisions)
+
+    # get the resultsets that were created as skeletons and should have now been
+    # filled-in by the async task
+    full_resultsets = jm.get_result_set_list(
+        0, 2,
+        conditions={"short_revision": {("IN", tuple(missing_revisions))}}
+    )
+
+    # don't compare id field, unreliable
+    for rs in full_resultsets:
+        del rs["id"]
+
+    assert full_resultsets == [
+        {
+            'author': u'jdoe0@mozilla.com',
+            'comments': u'bug 909264 - control characters',
+            'push_timestamp': 1378288232L,
+            'repository_id': 75L,
+            'revision': u'f185cde033f50405729191e325594161a8ddf25b',
+            'revision_count': 1,
+            'revision_hash': u'f185cde033f5',
+            'revisions': [{'author': u'John Doe 0',
+                           'comments': u'bug 909264 - control characters',
+                           'repository_id': 75L,
+                           'revision':
+                               u'f185cde033f50405729191e325594161a8ddf25b'}]
+        }
+    ]
 
 
 def test_get_inserted_row_ids(jm, sample_resultset, test_repository):
