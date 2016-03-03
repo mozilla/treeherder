@@ -154,7 +154,7 @@ def fetch_missing_resultsets(source, missing_resultsets, logger):
     """
     for k, v in missing_resultsets.iteritems():
         missing_resultsets[k] = list(v)
-
+    print "missing resultset call"
     logger.warn(
         "Found {0} jobs with missing resultsets.  Scheduling re-fetch: {1}".format(
             source,
