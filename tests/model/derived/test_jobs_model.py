@@ -1,4 +1,6 @@
 import copy
+import json
+import responses
 import time
 
 import pytest
@@ -51,6 +53,144 @@ def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data,
 
     jm.disconnect()
     refdata.disconnect()
+
+
+def test_ingest_jobs_with_missing_resultsets(jm, refdata, sample_data,
+                                             initial_data, sample_resultset,
+                                             test_repository, mock_log_parser,
+                                             mock_get_resultset, mock_fetch_json, mock_post_json, activate_responses):
+    """
+    Ingest some sample jobs, some of which will be missing a resultset.
+
+    When a resultset is missing, then create a dummy and schedule to have it
+    filled in with the rest of the data.
+    """
+    job_data = sample_data.job_data[:10]
+    missing_revisions = [
+        "f185cde033f50405729191e325594161a8ddf25b",
+        "adfae83c382e16042b27d1fc62125905fcf76096",
+        "7c7fe4da388c108de2867a695d472f5cbab3c2a1"
+    ]
+
+    # TODO: make the returned content be accurate wrt revisions, etc.
+    # then verify that things update correctly.  It will make this a pretty big
+    # test case.  Maybe I could break it up a bit
+    #
+    # make a separate case that goes from an RS needing update to updating it
+    #
+    # but should also test when there's new ones, update ones and existing ones
+    # and all combinations.  When some lists are empty is a spot for danger.
+
+    def get_pushlog_content(revision, idx):
+        return json.dumps(
+            {
+                "pushes":
+                    {"33270": {
+                        "date": 1378288232 + idx,
+                        "changesets": [
+                            {
+                                "node": revision,
+                                "tags": [],
+                                "author": "John Doe {}".format(idx),
+                                "branch": "default",
+                                "desc": "bug 909264 - control characters"
+                            }
+                        ],
+                        "user": "jdoe{}@mozilla.com".format(idx)
+                    }}
+            }
+        )
+
+    for idx, revision in enumerate(missing_revisions):
+        rev_url = "https://hg.mozilla.org/mozilla-central/json-pushes/?" + \
+                  "full=1&version=2&changeset=" + revision
+        responses.add(responses.GET, rev_url,
+                      body=get_pushlog_content(revision, idx), status=200,
+                      match_querystring=True,
+                      content_type='application/json')
+
+    for idx, job in enumerate(job_data[:3]):
+        job["revision"] = missing_revisions[idx]
+
+    jm.store_job_data(job_data)
+
+    result_set_ids = jm.get_dhub().execute(
+        proc="jobs_test.selects.result_set_ids",
+        key_column='long_revision',
+        return_type='dict'
+    )
+
+    print
+    print "result_set keys"
+    print result_set_ids.keys()
+    jobs = jm.get_job_list(0, 20)
+    assert len(jobs) == 10
+    test_utils.verify_result_sets(jm, set(missing_revisions))
+
+    # get the resultsets that were created as skeletons and should have now been
+    # filled-in by the async task
+    resultsets = jm.get_result_set_list(0, 3,
+      conditions={"long_revision": {("IN", tuple(missing_revisions))}})
+
+    import pprint
+    print
+    print "resultsets list will be empty if they have no revisions"
+    pprint.pprint(resultsets)
+
+    # todo: these exp values are totally wrong right now...
+    assert resultsets == [
+        {
+            'author': u'jdoe2@mozilla.com',
+            'comments': u'bug 909264 - control characters',
+            'id': 11L,
+            'push_timestamp': 1378288234L,
+            'repository_id': 75L,
+            'revision':
+                u'7c7fe4da388c108de2867a695d472f5cbab3c2a1',
+            'revision_count': 1,
+            'revision_hash':
+                u'7c7fe4da388c108de2867a695d472f5cbab3c2a1',
+            'revisions': [{'author': u'John Doe 2',
+                           'comments': u'bug 909264 - control '
+                                       u'characters',
+                           'repository_id': 75L,
+                           'revision':
+                               u'7c7fe4da388c108de2867a695d472f5cbab3c2a1'}]
+        },
+        {
+            'author': u'jdoe1@mozilla.com',
+            'comments': u'bug 909264 - control characters',
+            'id': 13L,
+            'push_timestamp': 1378288233L,
+            'repository_id': 75L,
+            'revision':
+                u'adfae83c382e16042b27d1fc62125905fcf76096',
+            'revision_count': 1,
+            'revision_hash':
+                u'adfae83c382e16042b27d1fc62125905fcf76096',
+            'revisions': [{'author': u'John Doe 1',
+                           'comments': u'bug 909264 - control '
+                                       u'characters',
+                           'repository_id': 75L,
+                           'revision':
+                               u'adfae83c382e16042b27d1fc62125905fcf76096'}]
+        },
+        {
+            'author': u'jdoe0@mozilla.com',
+            'comments': u'bug 909264 - control characters',
+            'id': 12L,
+            'push_timestamp': 1378288232L,
+            'repository_id': 75L,
+            'revision': u'f185cde033f50405729191e325594161a8ddf25b',
+            'revision_count': 1,
+            'revision_hash': u'f185cde033f50405729191e325594161a8ddf25b',
+            'revisions': [{'author': u'John Doe 0',
+                           'comments': u'bug 909264 - control characters',
+                           'repository_id': 75L,
+                           'revision':
+                               u'f185cde033f50405729191e325594161a8ddf25b'}]
+        }
+    ]
 
 
 def test_get_inserted_row_ids(jm, sample_resultset, test_repository):

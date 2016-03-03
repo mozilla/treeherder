@@ -7,7 +7,8 @@ from _mysql_exceptions import IntegrityError
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from treeherder.etl.common import get_guid_root
+from treeherder.etl.common import (fetch_missing_resultsets,
+                                   get_guid_root)
 from treeherder.events.publisher import JobStatusPublisher
 from treeherder.model import (error_summary,
                               utils)
@@ -708,6 +709,36 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return lookup
 
+    def _create_missing_resultsets(self, resultset_lookup, all_revisions):
+        """Create any missing resultsets and update the revision_lookup"""
+
+        # revision_lookup here will have both short and long revisions,
+        # so this list will filter properly, whether entries in all_revisions
+        # are long or short.
+        missing_revisions = [x for x in all_revisions if x not in resultset_lookup]
+
+        if missing_revisions:
+            result_sets = []
+            for new_rev in missing_revisions:
+                result_sets.append({
+                    "revision": new_rev,
+                    "push_timestamp": 0,
+                    "author": "pending...",
+                    "revisions": []
+                })
+            self.store_result_set_data(result_sets)
+
+            new_lookup = self.get_resultset_top_revision_lookup(missing_revisions)
+            resultset_lookup.update(new_lookup)
+
+            # schedule async task to fill in the details of these
+            # resultsets
+            fetch_missing_resultsets("store_job_data",
+                                     {self.project: new_lookup.keys()},
+                                     logger)
+
+        return resultset_lookup
+
     def get_result_set_list_by_ids(self, result_set_ids):
         """Given a list of result_set_ids, fetch the matching resultsets."""
 
@@ -979,13 +1010,13 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
                 revision = datum.get("revision", None)
                 if not revision:
+                    revision = self._get_revision_from_revision_hash(datum)
                     newrelic.agent.record_exception(
                         exc=ValueError("job submitted with revision_hash but no revision"),
                         params={
                             "revision_hash": datum["revision_hash"]
                         }
                     )
-                    revision = self._get_revision_from_revision_hash(datum)
 
                 # json object can be successfully deserialized
                 # load reference data
@@ -1021,9 +1052,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # Store all reference data and retrieve associated ids
         id_lookups = self.refdata_model.set_all_reference_data()
 
-        id_lookups["result_set"] = self.get_resultset_all_revision_lookup(
-            unique_revisions
-        )
+        rs_lookup = self.get_resultset_all_revision_lookup(unique_revisions)
+        self._create_missing_resultsets(rs_lookup, unique_revisions)
+
+        id_lookups["result_set"] = rs_lookup
+
         average_job_durations = self.get_average_job_durations(
             id_lookups['reference_data_signatures']
         )
@@ -1702,10 +1735,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         if not result_sets:
             return {}
 
-        # result_set data structures
-        result_set_placeholders = []
-        unique_rs_revisions = []
-        where_in_list = []
+        print "<><><> trying to ingest:"
+        print result_sets
 
         # revision data structures
         repository_id_lookup = dict()
@@ -1716,89 +1747,84 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # revision_map structures
         revision_to_rs_revision_lookup = dict()
 
-        # TODO: Confirm whether we need to do a lookup in this loop in the
-        #   memcache to reduce query overhead
+        # idea here:
+        # call get_resultset_top_revision_lookup here
+        # split that into 3 lists:
+        #   1. existing, complete (still update revisions, just in case)
+        #   2. existing, skeleton, needs updating
+        #   3. missing, needs insert
+        #
+        # I will still need to attempt to insert the revisions for all of them
+        #
+        # determine #2 list by push_timestamp of 0.  Seems a little hacky, but
+        # maybe ok.
+        #
+        # I may be able to skip using fetch_missing for buildapi, because the
+        # job ingestion would catch it?.
+
+        # loop through al the resutlsets and get the revisions.  Then we
+        # will determine which ones we already have, which ones we need and
+        # which ones we need to update.
+        unique_rs_revisions = set()
         for result in result_sets:
             if "revision" in result:
-                top_revision = result["revision"]
+                unique_rs_revisions.add(result["revision"])
             else:
                 top_revision = result['revisions'][-1]['revision']
+                result["revision"] = top_revision
+                unique_rs_revisions.add(top_revision)
                 newrelic.agent.record_exception(
                     exc=ValueError(
                         "New resultset submitted without ``revision`` value"),
                     params={"revision": top_revision}
                 )
-            revision_hash = result.get("revision_hash", top_revision)
-            short_top_revision = top_revision[:12]
-            result_set_placeholders.append(
-                [
-                    result.get('author', 'unknown@somewhere.com'),
-                    revision_hash,
-                    top_revision,
-                    short_top_revision,
-                    result['push_timestamp'],
-                    result.get('active_status', 'active'),
-                    top_revision
-                ]
-            )
-            where_in_list.append('%s')
-            unique_rs_revisions.append(top_revision)
-
-            for rev_datum in result['revisions']:
-
-                # Retrieve the associated repository id just once
-                # and provide handling for multiple repositories
-                if rev_datum['repository'] not in repository_id_lookup:
-                    repository_id = self.refdata_model.get_repository_id(
-                        rev_datum['repository']
-                    )
-                    repository_id_lookup[rev_datum['repository']] = repository_id
-
-                # We may not have a comment in the push data
-                comment = rev_datum.get(
-                    'comment', None
-                )
-
-                repository_id = repository_id_lookup[rev_datum['repository']]
-                long_revision = rev_datum['revision']
-                short_revision = long_revision[:12]
-                revision_placeholders.append(
-                    [long_revision,
-                     short_revision,
-                     long_revision,
-                     rev_datum['author'],
-                     comment,
-                     repository_id,
-                     long_revision,
-                     repository_id]
-                )
-
-                all_revisions.append(long_revision)
-                rev_where_in_list.append('%s')
-                revision_to_rs_revision_lookup[long_revision] = top_revision
 
         # Retrieve a list of revisions that have already been stored
         # in the list of unique_revisions. Use it to determine the new
         # result_sets
-        result_set_ids_before = self.get_resultset_top_revision_lookup(unique_rs_revisions).keys()
+        resultsets_before = self.get_resultset_top_revision_lookup(
+            unique_rs_revisions)
+        resultset_revisions_before = resultsets_before.keys()
 
-        # Insert new result sets
-        self.execute(
-            proc='jobs.inserts.set_result_set',
-            placeholders=result_set_placeholders,
-            executemany=True,
-            debug_show=self.DEBUG
-        )
+        # of those before, find the ones that need updating
+        resultsets_need_update = {}
+        for rev, resultset in resultsets_before.iteritems():
+            if resultset["push_timestamp"] == 0:
+                resultsets_need_update[rev] = resultset
+        resultsets_need_update_revisions = resultsets_need_update.keys()
+
+        revisions_need_insert = unique_rs_revisions.difference(
+            resultset_revisions_before)
+
+        resultset_updates = [x for x in result_sets if x["revision"] in resultsets_need_update_revisions]
+        resultsets_need_insert = [x for x in result_sets if x["revision"] in revisions_need_insert]
+
+        self._insert_resultsets(resultsets_need_insert,
+                                revision_placeholders,
+                                all_revisions, rev_where_in_list,
+                                revision_to_rs_revision_lookup)
+
+        self._update_resultsets(resultset_updates,
+                                revision_placeholders,
+                                all_revisions, rev_where_in_list,
+                                revision_to_rs_revision_lookup)
+
+        # find any resultsets that exist, but are skeletons and need updating
+        # these should be removed from the list that we attempt to insert
+        # or they will just fail on insert.
+        # resultsets_needing_update = self.get_incomplete_resultsets(
+        #     unique_rs_revisions)
 
         lastrowid = self.get_dhub().connection['master_host']['cursor'].lastrowid
 
-        # Retrieve new and already existing result set ids
-        result_set_id_lookup = self.get_resultset_top_revision_lookup(unique_rs_revisions)
+        # Retrieve new and already existing result sets
+        result_set_id_lookup = self.get_resultset_top_revision_lookup(
+            unique_rs_revisions)
 
         # identify the newly inserted result sets
         result_set_ids_after = set(result_set_id_lookup.keys())
         inserted_result_sets = result_set_ids_after.difference(
-            result_set_ids_before
+            resultset_revisions_before
         )
 
         inserted_result_set_ids = []
@@ -1863,6 +1889,148 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             'revision_ids': revision_id_lookup,
             'inserted_result_set_ids': inserted_result_set_ids
         }
+
+    def _insert_resultsets(self, resultsets, revision_placeholders,
+                           all_revisions, rev_where_in_list,
+                           revision_to_rs_revision_lookup):
+        # result_set data structures
+        result_set_placeholders = []
+        unique_rs_revisions = set()
+        where_in_list = []
+        repository_id_lookup = dict()
+
+
+        for result in resultsets:
+            top_revision = result["revision"]
+            revision_hash = result.get("revision_hash", top_revision)
+            short_top_revision = top_revision[:12]
+            result_set_placeholders.append(
+                [
+                    result.get('author', 'unknown@somewhere.com'),
+                    revision_hash,
+                    top_revision,
+                    short_top_revision,
+                    result['push_timestamp'],
+                    result.get('active_status', 'active'),
+                    top_revision
+                ]
+            )
+            where_in_list.append('%s')
+            unique_rs_revisions.add(top_revision)
+
+            for rev_datum in result['revisions']:
+
+                # Retrieve the associated repository id just once
+                # and provide handling for multiple repositories
+                if rev_datum['repository'] not in repository_id_lookup:
+                    repository_id = self.refdata_model.get_repository_id(
+                        rev_datum['repository']
+                    )
+                    repository_id_lookup[rev_datum['repository']] = repository_id
+
+                # We may not have a comment in the push data
+                comment = rev_datum.get(
+                    'comment', None
+                )
+
+                repository_id = repository_id_lookup[rev_datum['repository']]
+                long_revision = rev_datum['revision']
+                short_revision = long_revision[:12]
+                revision_placeholders.append(
+                    [long_revision,
+                     short_revision,
+                     long_revision,
+                     rev_datum['author'],
+                     comment,
+                     repository_id,
+                     long_revision,
+                     repository_id]
+                )
+
+                all_revisions.append(long_revision)
+                rev_where_in_list.append('%s')
+                revision_to_rs_revision_lookup[long_revision] = top_revision
+
+        # Insert new result sets
+        self.execute(
+            proc='jobs.inserts.set_result_set',
+            placeholders=result_set_placeholders,
+            executemany=True,
+            debug_show=self.DEBUG
+        )
+
+    def _update_resultsets(self, resultsets, revision_placeholders,
+                           all_revisions, rev_where_in_list,
+                           revision_to_rs_revision_lookup):
+        # result_set data structures
+        result_set_placeholders = []
+        unique_rs_revisions = set()
+        where_in_list = []
+        repository_id_lookup = dict()
+
+
+        for result in resultsets:
+
+            print "========= this result==========="
+            print result
+            top_revision = result["revision"]
+            revision_hash = result.get("revision_hash", top_revision)
+            short_top_revision = top_revision[:12]
+            result_set_placeholders.append(
+                [
+                    result.get('author', 'unknown@somewhere.com'),
+                    revision_hash,
+                    top_revision,
+                    short_top_revision,
+                    result['push_timestamp'],
+                    result.get('active_status', 'active'),
+                    top_revision,
+                    short_top_revision
+                ]
+            )
+            where_in_list.append('%s')
+            unique_rs_revisions.add(top_revision)
+
+            for rev_datum in result['revisions']:
+
+                # Retrieve the associated repository id just once
+                # and provide handling for multiple repositories
+                if rev_datum['repository'] not in repository_id_lookup:
+                    repository_id = self.refdata_model.get_repository_id(
+                        rev_datum['repository']
+                    )
+                    repository_id_lookup[rev_datum['repository']] = repository_id
+
+                # We may not have a comment in the push data
+                comment = rev_datum.get(
+                    'comment', None
+                )
+
+                repository_id = repository_id_lookup[rev_datum['repository']]
+                long_revision = rev_datum['revision']
+                short_revision = long_revision[:12]
+                revision_placeholders.append(
+                    [long_revision,
+                     short_revision,
+                     long_revision,
+                     rev_datum['author'],
+                     comment,
+                     repository_id,
+                     long_revision,
+                     repository_id]
+                )
+
+                all_revisions.append(long_revision)
+                rev_where_in_list.append('%s')
+                revision_to_rs_revision_lookup[long_revision] = top_revision
+
+        # update existing result sets
+        self.execute(
+            proc='jobs.updates.update_result_set',
+            placeholders=result_set_placeholders,
+            executemany=True,
+            debug_show=self.DEBUG
+        )
 
     def get_exclusion_profile_signatures(self, exclusion_profile):
         """Retrieve the reference data signatures associates to an exclusion profile"""
