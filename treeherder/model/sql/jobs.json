@@ -75,6 +75,7 @@
                     SELECT `long_revision`, `push_timestamp`
                     FROM `result_set`
                     WHERE `long_revision` = ?
+                    OR `short_revision` = ?
                 )",
 
             "host_type":"master_host"
@@ -257,6 +258,21 @@
                 SET    `parse_status` = ?
                 WHERE  `id` = ?
                 AND `active_status` = 'active'",
+            "host_type":"master_host"
+        },
+        "update_result_set":{
+
+            "sql":"UPDATE `result_set`
+                   SET
+                   `author` = ?,
+                   `revision_hash` = ?,
+                   `long_revision` = ?,
+                   `short_revision` = ?,
+                   `push_timestamp` = ?,
+                   `active_status` = ?
+                WHERE long_revision = ?
+                  OR short_revision = ?",
+
             "host_type":"master_host"
         }
     },

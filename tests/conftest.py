@@ -1,3 +1,4 @@
+import copy
 import datetime
 import json
 import os
@@ -109,7 +110,7 @@ def test_base_dir():
 
 @pytest.fixture
 def sample_resultset(sample_data):
-    return sample_data.resultset_data
+    return copy.deepcopy(sample_data.resultset_data)
 
 
 @pytest.fixture
