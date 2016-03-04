@@ -1,7 +1,6 @@
 import logging
 
-from celery import (chord,
-                    task)
+from celery import task
 from django.conf import settings
 from django.core.management import call_command
 
@@ -11,6 +10,8 @@ from treeherder.log_parser.utils import (expand_log_url,
                                          extract_text_log_artifacts,
                                          is_parsed,
                                          post_log_artifacts)
+from treeherder.workers.taskset import (create_taskset,
+                                        taskset)
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,7 @@ def parse_job_logs(project, tasks):
     for job_guid, task_list in tasks.iteritems():
         callback_group = []
         tasks = []
+
         logger.error("parse_job_logs for job %s" % job_guid)
         for t in task_list:
             signature = task_funcs[t["func_name"]].si(project,
@@ -57,31 +59,27 @@ def parse_job_logs(project, tasks):
                     callback_priority = priority
 
             if t["func_name"] in ["parse_log", "store_error_summary"]:
-                logger.error("Adding task %s for job %s to callback group" % (t["func_name"], job_guid))
                 tasks.append(t["func_name"])
                 callback_group.append(signature)
             else:
-                logger.error("Fire and forget scheduling task %s for job %s " % (t["func_name"], job_guid))
                 signature.apply_async()
 
         if not callback_group:
             continue
 
-        logger.error("Scheduling log parsing for job %s" % job_guid)
-        logger.error("Callback %s for job %s" % ("after_logs_parsed.%s" % callback_priority,
-                                                 job_guid))
         callback = after_logs_parsed.si(project, job_guid, callback_priority, tasks)
         callback.set(routing_key="after_logs_parsed.%s" % callback_priority)
-        chord(callback_group, callback)()
-        logger.error("parse_job_logs complete for job %s" % (job_guid,))
+        create_taskset(callback_group, callback)
 
 
 @task(name='log-parser', max_retries=10)
+@taskset
 @parser_task
 def parse_log(project, job_guid, job_log_url):
     """
     Call ArtifactBuilderCollection on the given job.
     """
+    logger.error("Running parse_log for job %s" % job_guid)
     post_log_artifacts(project,
                        job_guid,
                        job_log_url,
@@ -112,39 +110,36 @@ def parse_json_log(project, job_guid, job_log_url):
                        parse_json_log,
                        extract_json_log_artifacts,
                        )
-    logger.error('parse_json_log complete for job %s' % job_guid)
 
     return True
 
 
 @task(name='store-error-summary', max_retries=10)
+@taskset
 @parser_task
 def store_error_summary(project, job_guid, job_log_url):
     """This task is a wrapper for the store_error_summary command."""
     try:
-        logger.error('Running store_error_summary')
+        logger.error('Running store_error_summary for job %s' % job_guid)
         call_command('store_error_summary', project, job_guid, job_log_url['url'])
     except Exception as e:
         store_error_summary.retry(exc=e, countdown=(1 + store_error_summary.request.retries) * 60)
-    logger.error('Completed store_error_summary for job %s' % job_guid)
 
     return True
 
 
 @task(name='after-logs-parsed', max_retries=10)
 def after_logs_parsed(project, job_guid, priority, tasks):
-    logger.error("after_logs_parsed for job %s priority %s" % (job_guid, priority))
+    logger.error("Running after_logs_parsed for job %s priority %s" % (job_guid, priority))
 
     signatures = []
 
     if "parse_log" in tasks and "store_error_summary" in tasks:
-        logger.error('Scheduling crossreference_error_lines for job %s' % job_guid)
         crossreference_task = crossreference_error_lines.s(project, job_guid)
         crossreference_task.set(routing_key="crossreference_error_lines.%s" % priority)
         signatures = [crossreference_task]
 
         if settings.AUTOCLASSIFY_JOBS:
-            logger.error('Scheduling autoclassify for job %s' % job_guid)
             classify_task = autoclassify.s(project, job_guid)
             classify_task.set(routing_key="autoclassify.%s" % priority)
             signatures.append(classify_task)
@@ -163,6 +158,5 @@ def crossreference_error_lines(project, job_guid):
         call_command('crossreference_error_lines', project, job_guid)
     except Exception, e:
         crossreference_error_lines.retry(exc=e, countdown=(1 + crossreference_error_lines.request.retries) * 60)
-    logger.error("Completed crossreference-error-lines for %s" % job_guid)
 
     return True
