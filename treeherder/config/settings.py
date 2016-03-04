@@ -205,26 +205,6 @@ CELERY_QUEUES = [
     Queue('generate_perf_alerts', Exchange('default'), routing_key='generate_perf_alerts'),
 ]
 
-
-class CeleryRouter(object):
-    queue_by_key = {item.routing_key: item.name for item in CELERY_QUEUES}
-
-    def route_for_task(self, task, args=None, kwargs=None):
-        import logging
-        if task == 'celery.chord_unlock':
-            callback_signature = args[1]
-            options = callback_signature.get('options')
-            if options:
-                routing_key = options.get('routing_key')
-                if routing_key:
-                    rv = {'queue': self.queue_by_key[routing_key],
-                          'routing_key': routing_key}
-                    logging.error("Routed to: %r" % (rv,))
-                    return rv
-
-
-CELERY_ROUTES = [CeleryRouter()]
-
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -507,10 +487,7 @@ if env.bool('IS_HEROKU', default=False):
         memcacheify().get('default')
     )
 
-CELERY_RESULT_BACKEND = "db+%s" % (env('DATABASE_URL'),)
-
-if env.bool('IS_HEROKU', default=False):
-    CELERY_RESULT_ENGINE_OPTIONS = {'connect_args': DATABASES['default']['OPTIONS']}
+CELERY_IGNORE_RESULT = True
 
 API_HOSTNAME = SITE_URL
 
