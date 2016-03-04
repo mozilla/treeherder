@@ -840,3 +840,12 @@ class TextLogSummaryLine(models.Model):
 
     class Meta:
         db_table = 'text_log_summary_line'
+
+
+class TaskSetMeta(models.Model):
+    id = BigAutoField(primary_key=True)
+    count = models.IntegerField()
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'task_set_meta'
