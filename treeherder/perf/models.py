@@ -57,7 +57,13 @@ class PerformanceSignature(models.Model):
         unique_together = ('repository', 'signature_hash')
 
     def __str__(self):
-        return self.signature_hash
+        name = self.suite
+        if self.test:
+            name += " {}".format(self.test)
+        else:
+            name += " summary"
+        return "{} {} {} {}".format(self.signature_hash, name, self.platform,
+                                    self.last_updated)
 
 
 @python_2_unicode_compatible
@@ -186,7 +192,8 @@ class PerformanceAlertSummary(models.Model):
                            'result_set_id')
 
     def __str__(self):
-        return "{} {}".format(self.repository, self.result_set_id)
+        return "{} {} {}-{}".format(self.framework, self.repository,
+                                    self.prev_result_set_id, self.result_set_id)
 
 
 @python_2_unicode_compatible
