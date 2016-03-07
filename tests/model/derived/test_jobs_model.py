@@ -5,10 +5,13 @@ import pytest
 from django.core.management import call_command
 
 from tests import test_utils
+from tests.autoclassify.utils import (create_failure_lines,
+                                      test_line)
 from tests.sample_data_generator import (job_data,
                                          result_set)
 from treeherder.model.derived import ArtifactsModel
-from treeherder.model.models import (JobDuration,
+from treeherder.model.models import (FailureLine,
+                                     JobDuration,
                                      JobGroup)
 
 slow = pytest.mark.slow
@@ -227,7 +230,8 @@ def test_calculate_durations(jm, test_repository, mock_log_parser):
 
 
 def test_cycle_all_data(jm, refdata, sample_data, initial_data,
-                        sample_resultset, test_repository, mock_log_parser):
+                        sample_resultset, test_repository, mock_log_parser,
+                        failure_lines):
     """
     Test cycling the sample data
     """
@@ -255,12 +259,14 @@ def test_cycle_all_data(jm, refdata, sample_data, initial_data,
 
     assert len(jobs_after) == len(jobs_before) - len(jobs_to_be_deleted)
 
-    # There should be no jobs after cycling
+    # There should be no jobs or failure lines after cycling
     assert len(jobs_after) == 0
+    assert FailureLine.objects.count() == 0
 
 
 def test_cycle_one_job(jm, refdata, sample_data, initial_data,
-                       sample_resultset, test_repository, mock_log_parser):
+                       sample_resultset, test_repository, mock_log_parser,
+                       failure_lines):
     """
     Test cycling one job in a group of jobs to confirm there are no
     unexpected deletions
@@ -268,6 +274,13 @@ def test_cycle_one_job(jm, refdata, sample_data, initial_data,
 
     job_data = sample_data.job_data[:20]
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset, False)
+
+    job_not_deleted = jm.get_job(2)[0]
+
+    failure_lines_remaining = create_failure_lines(test_repository,
+                                                   job_not_deleted["job_guid"],
+                                                   [(test_line, {}),
+                                                    (test_line, {"subtest": "subtest2"})])
 
     time_now = time.time()
     cycle_date_ts = int(time_now - 7 * 24 * 3600)
@@ -304,6 +317,9 @@ def test_cycle_one_job(jm, refdata, sample_data, initial_data,
 
     assert len(jobs_after) == len(jobs_before) - len(jobs_to_be_deleted)
 
+    assert (set(item.id for item in FailureLine.objects.all()) ==
+            set(item.id for item in failure_lines_remaining))
+
 
 def test_cycle_all_data_in_chunks(jm, refdata, sample_data, initial_data,
                                   sample_resultset, test_repository, mock_log_parser):
@@ -327,6 +343,11 @@ def test_cycle_all_data_in_chunks(jm, refdata, sample_data, initial_data,
         placeholders=[time_now - 24 * 3600]
     )
 
+    job = jm.get_job(jobs_to_be_deleted[0]['id'])[0]
+    create_failure_lines(test_repository,
+                         job["job_guid"],
+                         [(test_line, {})] * 7)
+
     jobs_before = jm.execute(proc="jobs_test.selects.jobs")
 
     call_command('cycle_data', sleep_time=0, days=1, chunk_size=3)
@@ -337,6 +358,7 @@ def test_cycle_all_data_in_chunks(jm, refdata, sample_data, initial_data,
 
     # There should be no jobs after cycling
     assert len(jobs_after) == 0
+    assert len(FailureLine.objects.all()) == 0
 
 
 def test_bad_date_value_ingestion(jm, initial_data, test_repository, mock_log_parser):
