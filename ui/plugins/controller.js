@@ -183,6 +183,7 @@ treeherder.controller('PluginCtrl', [
                             }
                             return result;
                         }, []);
+                        $scope.buildernameIndex = _.findIndex($scope.job_details, {title: "Buildername"});
                     }
 
                     // the fourth result comes from the jobLogUrl artifact
