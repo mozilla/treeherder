@@ -40,7 +40,7 @@ class PerformanceSignature(models.Model):
     test = models.CharField(max_length=80, blank=True)
     lower_is_better = models.BooleanField(default=True)
     last_updated = models.DateTimeField(db_index=True, null=True)  # null=True only temporary, until we update old entries
-
+    parent_signature = models.ForeignKey('self', null=True, blank=True)
     # extra properties to distinguish the test (that don't fit into
     # option collection for whatever reason)
     extra_properties = JSONField(max_length=1024)
