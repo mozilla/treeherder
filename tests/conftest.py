@@ -286,7 +286,7 @@ def mock_post_json(monkeypatch, client_credentials):
         req = Request('POST', uri, json=data, auth=auth)
         prepped_request = req.prepare()
 
-        getattr(app, 'post')(
+        return getattr(app, 'post')(
             prepped_request.url,
             params=json.dumps(data),
             content_type='application/json',

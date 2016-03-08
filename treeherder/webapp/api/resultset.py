@@ -237,9 +237,10 @@ class ResultSetViewSet(viewsets.ViewSet):
                     }
                     newrelic.agent.record_exception(params=params)
 
-        jm.store_result_set_data(request.data)
+        stored_resultsets = jm.store_result_set_data(request.data)
 
-        return Response({"message": "well-formed JSON stored"})
+        return Response({"message": "well-formed JSON stored",
+                         "resultsets": stored_resultsets["result_set_ids"].values()})
 
     @detail_route()
     @with_jobs

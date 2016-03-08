@@ -1776,13 +1776,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             debug_show=self.DEBUG
         )
 
-        if len(inserted_result_set_ids) > 0:
-            # Queue an event to notify pulse of these new resultsets
-            publish_resultset.apply_async(
-                args=[self.project, inserted_result_set_ids],
-                routing_key='publish_to_pulse'
-            )
-
         return {
             'result_set_ids': result_set_id_lookup,
             'revision_ids': revision_id_lookup,
