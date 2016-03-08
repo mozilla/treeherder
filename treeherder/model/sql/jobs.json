@@ -563,7 +563,7 @@
 
         },
         "get_result_set_ids":{
-            "sql":"SELECT `id`, `revision_hash`, `push_timestamp`
+            "sql":"SELECT `id`, `revision_hash`, `long_revision`, `push_timestamp`
                    FROM `result_set`
                    WHERE `active_status` in ('active', 'onhold') AND `revision_hash` IN (REP0)",
             "host_type": "master_host"

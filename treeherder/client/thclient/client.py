@@ -708,6 +708,7 @@ class TreeherderClient(object):
 
         try:
             resp.raise_for_status()
+            return resp
         except HTTPError:
             logger.error("HTTPError %s submitting to %s: %s",
                          resp.status_code, resp.request.url, resp.content)
@@ -922,8 +923,8 @@ class TreeherderClient(object):
 
         collection_inst.validate()
 
-        self._post_json(project, collection_inst.endpoint_base,
-                        collection_inst.get_collection_data(), timeout)
+        return self._post_json(project, collection_inst.endpoint_base,
+                               collection_inst.get_collection_data(), timeout)
 
     def update_parse_status(self, project, job_log_url_id, parse_status, timeout=None):
         """
