@@ -163,4 +163,11 @@
   <div ng-if="status() === 'empty'">
     <span>No lines to classify</span>
   </div>
+
+  <div ng-if="status() === 'loading'" class="overlay">
+    <div>
+      <span class="fa fa-spinner fa-pulse th-spinner-lg"></span>
+    </div>
+  </div>
+
 </div>
