@@ -1811,7 +1811,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             raise ValueError("Invalid log parsing priority '%s'" % priority)
 
         task_types = {
-            "errorsummary_json": ("store_error_summary", "store_error_summary"),
+            "errorsummary_json": ("store_failure_lines", "store_failure_lines"),
             "buildbot_text": ("parse_log", "log_parser")
         }
 
@@ -1840,8 +1840,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 "job_log_url": log_obj
             })
 
-        parse_job_logs.apply_async(args=(self.project, tasks),
-                                   routing_key="parse_job_logs")
+        parse_job_logs(self.project, tasks)
 
     def get_job_log_url_detail(self, job_log_url_id):
         obj = self.execute(

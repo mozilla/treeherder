@@ -7,8 +7,7 @@ from treeherder.model.models import FailureLine
 from ..sampledata import SampleData
 
 
-def test_store_error_summary(activate_responses, test_repository, jm,
-                             eleven_jobs_stored):
+def test_store_error_summary(activate_responses, test_repository, jm, eleven_jobs_stored):
     log_path = SampleData().get_log_path("plain-chunked_errorsummary.log")
     log_url = 'http://my-log.mozilla.org'
 
@@ -20,7 +19,7 @@ def test_store_error_summary(activate_responses, test_repository, jm,
 
     jm._insert_log_urls([[job["id"], "errorsummary_json", log_url, "pending"]])
 
-    call_command('store_error_summary', jm.project, job['job_guid'], log_url)
+    call_command('store_failure_lines', jm.project, job['job_guid'], log_url)
 
     assert FailureLine.objects.count() == 1
 
@@ -31,8 +30,8 @@ def test_store_error_summary(activate_responses, test_repository, jm,
     assert failure.repository == test_repository
 
 
-def test_store_error_summary_truncated(activate_responses, test_repository,
-                                       jm, eleven_jobs_stored, monkeypatch):
+def test_store_error_summary_truncated(activate_responses, test_repository, jm,
+                                       eleven_jobs_stored, monkeypatch):
     log_path = SampleData().get_log_path("plain-chunked_errorsummary_10_lines.log")
     log_url = 'http://my-log.mozilla.org'
 
@@ -46,7 +45,7 @@ def test_store_error_summary_truncated(activate_responses, test_repository,
 
     jm._insert_log_urls([[job["id"], "errorsummary_json", log_url, "pending"]])
 
-    call_command('store_error_summary', jm.project, job['job_guid'], log_url)
+    call_command('store_failure_lines', jm.project, job['job_guid'], log_url)
 
     assert FailureLine.objects.count() == 5 + 1
 
