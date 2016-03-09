@@ -29,12 +29,9 @@ log_parser_hp,\
 log_parser_json,\
 log_parser_json_fail,\
 log_parser_json_hp,\
-log_store_error_summary,\
-log_store_error_summary_fail,\
-log_store_error_summary_hp,\
-log_after_parsed,\
-log_after_parsed_fail,\
-log_after_parsed_hp,\
+log_store_failure_lines,\
+log_store_failure_lines_fail,\
+log_store_failure_lines_hp,\
 log_crossreference_error_lines,\
 log_crossreference_error_lines_fail,\
 log_crossreference_error_lines_hp,\
