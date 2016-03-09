@@ -126,7 +126,8 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                     'platform': platform,
                     'framework': framework,
                     'extra_properties': extra_properties,
-                    'lower_is_better': subtest.get('lowerIsBetter', True)
+                    'lower_is_better': subtest.get('lowerIsBetter', True),
+                    'last_updated': push_timestamp
                 })
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
                 repository=repository,

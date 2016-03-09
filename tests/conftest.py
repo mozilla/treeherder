@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 
@@ -499,6 +500,7 @@ def test_perf_signature(test_repository):
         platform=platform,
         option_collection=option_collection,
         suite='mysuite',
-        test='mytest'
+        test='mytest',
+        last_updated=datetime.datetime.now()
     )
     return signature
