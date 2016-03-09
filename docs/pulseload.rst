@@ -26,6 +26,17 @@ Vagrant, or in your ``config/settings_local.py`` file.  For example::
         }
     ]
 
+You also need to create the celery ``Queue`` for running pulse-related
+tasks. This can also be defined in the ``config/settings_local.py``
+file, but as it modifies an existing environment variable, it must be
+defined in an ``update(settings)`` function::
+
+    def update(settings):
+        from kombu import Exchange, Queue
+        settings['CELERY_QUEUES'].append(
+            Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs'))
+
+
 To be able to ingest from exchanges, you need to create a Pulse user with
 `Pulse Guardian`_, so
 Treeherder can create your Queues for listening to the Pulse exchanges.  For
