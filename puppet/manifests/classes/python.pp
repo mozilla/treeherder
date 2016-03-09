@@ -25,7 +25,7 @@ class python {
   exec { "install-virtualenv":
     cwd => "/tmp",
     user => "${APP_USER}",
-    command => "sudo pip install virtualenv==14.0.1",
+    command => "sudo pip install virtualenv==15.0.0",
     creates => "/usr/local/bin/virtualenv",
     require => Exec["install-pip"],
   }
