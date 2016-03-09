@@ -1,9 +1,9 @@
 "use strict";
 
 treeherder.controller('BugsPluginCtrl', [
-    '$scope', 'ThLog', 'ThJobArtifactModel','$q', 'thTabs', '$timeout',
+    '$scope', 'ThLog', 'ThJobArtifactModel','$q', 'thTabs', '$timeout', '$modal',
     function BugsPluginCtrl(
-        $scope, ThLog, ThJobArtifactModel, $q, thTabs, $timeout) {
+        $scope, ThLog, ThJobArtifactModel, $q, thTabs, $timeout, $modal) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -75,6 +75,52 @@ treeherder.controller('BugsPluginCtrl', [
                     thTabs.tabs.failureSummary.is_loading = false;
                 });
             }
+        };
+
+        $scope.fileBug = function(event) {
+            var target = event.target;
+            // Click target is sometimes the icon in the button, not the button
+            if(target.tagName.toLowerCase() == "i" && target.className.search("fa-bug") >= 0) {
+                target = target.parentNode;
+            }
+            var summary = target.nextElementSibling.textContent;
+            var allFailures = [];
+            var allFailuresFinder = $(".failure-summary-list .job-tabs-content");
+
+            for( var i=0; i<allFailuresFinder.length; i++) {
+                allFailures.push(allFailuresFinder[i].textContent.trim().split(" | "));
+            }
+
+            var modalInstance = $modal.open({
+                templateUrl: 'partials/main/intermittent.html',
+                controller: 'BugFilerCtrl',
+                size: 'lg',
+                resolve: {
+                    summary: function() {
+                        return summary;
+                    },
+                    fullLog: function() {
+                        return $('.raw-log-icon')[0].href;
+                    },
+                    parsedLog: function() {
+                        return $('#logviewer-btn')[0].href;
+                    },
+                    reftest: function() {
+                        return $scope.selectedJob.job_group_name.search("Reftest") >= 0 ?
+                            $('#reftestviewer-btn')[0].href : "";
+                    },
+                    selectedJob: function() {
+                        return $scope.selectedJob;
+                    },
+                    allFailures: function() {
+                        return allFailures;
+                    }
+                }
+            });
+
+            modalInstance.opened.then(function () {
+                window.setTimeout(function () { modalInstance.initiate(); }, 0);
+            });
         };
     }
 ]);
