@@ -27,6 +27,7 @@ matrix:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
       script:
         - grunt checkjs
+        - python lints/queuelint.py
         - flake8 --show-source
         - isort --check-only --diff --quiet
 
