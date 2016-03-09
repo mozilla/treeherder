@@ -2,13 +2,13 @@
 
 treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$routeParams', '$location', 'ThLog',
-    'ThRepositoryModel', 'thPinboard', 'thNotify',
+    'ThRepositoryModel', 'thPinboard',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
     'thDefaultRepo', 'thJobNavSelectors', 'thTabs',
     function MainController(
         $scope, $rootScope, $routeParams, $location, ThLog,
-        ThRepositoryModel, thPinboard, thNotify,
+        ThRepositoryModel, thPinboard,
         thClassificationTypes, thEvents, $interval, $window,
         ThExclusionProfileModel, thJobFilters, ThResultSetStore,
         thDefaultRepo, thJobNavSelectors, thTabs) {
@@ -497,5 +497,6 @@ treeherderApp.controller('MainCtrl', [
         $scope.pinboardCount = thPinboard.count;
         $scope.pinnedJobs = thPinboard.pinnedJobs;
         $scope.jobFilters = thJobFilters;
+
     }
 ]);

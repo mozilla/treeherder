@@ -267,3 +267,90 @@ treeherder.value("thJobNavSelectors",
 treeherder.value("thPerformanceBranches", [
     "mozilla-inbound", "mozilla-central", "fx-team"
 ]);
+
+treeherder.value("thBugzillaProductObject", {
+    "accessible":
+        ["Core :: Disability Access APIs","Firefox :: Disability Access"],
+    "addon-sdk":
+        ["Add-on SDK :: General"],
+    "b2g":
+        ["Firefox OS :: General"],
+    "browser":
+        ["Firefox :: General"],
+    "build":
+        ["Core :: Build Config"],
+    "caps":
+        ["Core :: Security: CAPS"],
+    "config":
+        ["Firefox :: Build Config","Core :: Build Config","Firefox for Android :: Build Config & IDE Support"],
+    "db":
+        ["Toolkit :: Storage"],
+    "devtools":
+        ["Firefox :: Developer Tools"],
+    "docshell":
+        ["Core :: Document Navigation"],
+    "dom":
+        ["Core :: DOM"],
+    "editor":
+        ["Core :: Editor"],
+    "embedding":
+        ["Core :: Embedding: APIs"],
+    "gfx":
+        ["Core :: Graphics","Core :: Graphics: Layers","Core :: Graphics: Text"],
+    "gradle":
+        ["Core :: Build Config"],
+    "hal":
+        ["Core :: Hardware Abstraction Layer (HAL)"],
+    "image":
+        ["Core :: ImageLib"],
+    "intl":
+        ["Core :: Internationalization"],
+    "ipc":
+        ["Core :: IPC","Core :: DOM: Content Processes"],
+    "js":
+        ["Core :: Javascript Engine","Core :: Javascript Engine: Jit","Core :: Javascript Engine: GC","Core :: Javascript Engine: Internationalization API","Core :: Javascript Engine: Standard Library"],
+    "layout":
+        ["Core :: Layout"],
+    "media":
+        ["Core :: Audio/Video"],
+    "memory":
+        ["Core :: Memory Allocator"],
+    "mfbt":
+        ["Core :: MFBT"],
+    "mobile":
+        ["Firefox for Android :: General"],
+    "mozglue":
+        ["Core :: mozglue"],
+    "netwerk":
+        ["Core :: Networking"],
+    "nsprpub":
+        ["NSPR :: NSPR"],
+    "parser":
+        ["Core :: HTML: Parser"],
+    "rdf":
+        ["Core :: RDF"],
+    "security":
+        ["Core :: Security","Firefox :: Security"],
+    "services":
+        ["Core :: Web Services"],
+    "startupcache":
+        ["Core :: XPCOM"],
+    "storage":
+        ["Toolkit :: Storage"],
+    "testing":
+        ["Testing :: General"],
+    "toolkit":
+        ["Toolkit :: General"],
+    "view":
+        ["Core :: Layout"],
+    "webapprt":
+        ["Firefox :: Webapp Runtime"],
+    "widget":
+        ["Core :: Widget"],
+    "xpcom":
+        ["Core :: XPCOM"],
+    "xpfe":
+        ["Core :: XUL"],
+    "xulrunner":
+        ["Toolkit :: XULRunner"]
+});
