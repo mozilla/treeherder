@@ -473,12 +473,15 @@ treeherder.factory('ThStructuredLine', ['ThClassificationOption',
                     if (data.best_is_verified) {
                         if (data.best_classification === null ||
                             data.best_classification.bug_number === 0) {
-                            return 'ignored';
+                            var rv = 'ignored';
                         } else {
-                            return 'verified';
+                            rv = 'verified';
                         }
                     }
-                    return 'pending';
+                    else {
+                        rv = 'pending';
+                    }
+                    return rv;
                 },
 
                 get canSave() {
@@ -761,6 +764,9 @@ treeherder.controller('ClassificationPluginCtrl', [
             requestPromise = $q.defer();
 
             thTabs.tabs.autoClassification.is_loading = true;
+            if (!$scope.hasOwnProperty("triedLoad")) {
+                $scope.triedLoad = false;
+            }
 
             //TODO code for checking that everything has loaded
             var checkLoaded = $q.defer();
@@ -780,6 +786,9 @@ treeherder.controller('ClassificationPluginCtrl', [
                             .then(function(data) {
                                 $scope.failureLines = buildFailureLineOptions(data);
                                 thTabs.tabs.autoClassification.is_loading = false;
+                            })
+                            .finally(function() {
+                                $scope.triedLoad = true;
                             });
                     }
                 });
@@ -884,10 +893,13 @@ treeherder.controller('ClassificationPluginCtrl', [
         };
 
         $scope.status = function() {
-            if (thTabs.tabs.autoClassification.is_loading) {
-                return 'loading';
-            } else if (!$scope.hasOwnProperty('failureLines')) {
-                return 'waiting';
+            if (thTabs.tabs.autoClassification.is_loading ||
+                !$scope.hasOwnProperty('failureLines')) {
+                if (!$scope.triedLoad) {
+                    return 'waiting';
+                } else {
+                    return 'loading';
+                }
             } else if ($scope.failureLines.length === 0) {
                 return 'empty';
             } else if ($scope.pendingLines().length === 0) {
