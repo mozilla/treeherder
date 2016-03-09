@@ -156,6 +156,27 @@ def test_load_generic_data(test_project, test_repository,
                             'value': 40.0
                         }
                     ]
+                },
+                {
+                    'name': 'cheezburger metrics 2',
+                    'lowerIsBetter': False,
+                    'value': 10.0,
+                    'subtests': [
+                        {
+                            'name': 'test1',
+                            'value': 20.0
+                        }
+                    ]
+                },
+                {
+                    'name': 'cheezburger metrics 3',
+                    'value': 10.0,
+                    'subtests': [
+                        {
+                            'name': 'test1',
+                            'value': 20.0
+                        }
+                    ]
                 }
             ]
         }
@@ -169,35 +190,36 @@ def test_load_generic_data(test_project, test_repository,
 
     load_perf_artifacts(test_repository.name, perf_reference_data,
                         perf_job_data, submit_datum)
-    assert 4 == PerformanceSignature.objects.all().count()
+    assert 8 == PerformanceSignature.objects.all().count()
     assert 1 == PerformanceFramework.objects.all().count()
     framework = PerformanceFramework.objects.all()[0]
     assert framework_name == framework.name
 
     perf_datum = datum['blob']
 
-    # verify summary, then subtests
     push_timestamp = perf_job_data['fake_job_guid']['push_timestamp']
     pushtime = datetime.datetime.fromtimestamp(push_timestamp)
-    _verify_signature_datum(test_repository.name,
-                            perf_datum['framework']['name'],
-                            perf_datum['suites'][0]['name'],
-                            '',
-                            'my_option_hash',
-                            'my_platform',
-                            perf_datum['suites'][0]['lowerIsBetter'],
-                            perf_datum['suites'][0]['value'],
-                            pushtime)
-    for subtest in perf_datum['suites'][0]['subtests']:
+    for suite in perf_datum['suites']:
+        # verify summary, then subtests
         _verify_signature_datum(test_repository.name,
                                 perf_datum['framework']['name'],
-                                perf_datum['suites'][0]['name'],
-                                subtest['name'],
+                                suite['name'],
+                                '',
                                 'my_option_hash',
                                 'my_platform',
-                                subtest.get('lowerIsBetter', True),
-                                subtest['value'],
+                                suite.get('lowerIsBetter', True),
+                                suite['value'],
                                 pushtime)
+        for subtest in suite['subtests']:
+            _verify_signature_datum(test_repository.name,
+                                    perf_datum['framework']['name'],
+                                    suite['name'],
+                                    subtest['name'],
+                                    'my_option_hash',
+                                    'my_platform',
+                                    subtest.get('lowerIsBetter', True),
+                                    subtest['value'],
+                                    pushtime)
 
     # send another datum, a little later, verify that signature's
     # `last_updated` is changed accordingly
