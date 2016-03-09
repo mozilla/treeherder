@@ -96,9 +96,8 @@ def store_failure_lines(project, job_guid, job_log_url, priority):
         logger.error('Running store_failure_lines for job %s' % job_guid)
         call_command('store_failure_lines', project, job_guid, job_log_url['url'])
         if settings.AUTOCLASSIFY_JOBS:
-            classify_task = autoclassify.s(project, job_guid,
-                                           routing_key="autoclassify.%s" % priority)
-            classify_task.apply_async()
+            autoclassify.apply_async(args=[project, job_guid],
+                                     routing_key="autoclassify.%s" % priority)
 
     except Exception as e:
         store_failure_lines.retry(exc=e, countdown=(1 + store_failure_lines.request.retries) * 60)
