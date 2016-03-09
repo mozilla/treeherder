@@ -1,0 +1,63 @@
+/*
+ * Intermittent Bug Filer
+ */
+#modalForm {
+    padding: 20px;
+}
+
+#modalSummarylabel {
+  margin-top: -5px;
+}
+
+#modalSummary {
+    width:80%;
+}
+
+#modalComment {
+    width:80%;
+    height:150px;
+}
+
+#modalForm > div:not(#modalLogLinkCheckboxes) > label, #productFinderButton {
+    float:left;
+    padding: 5px;
+}
+
+#modalLogLinkCheckboxes {
+    padding-left:15px;
+    padding-bottom:5px;
+    color: #337AB7;
+}
+
+#modalLogLinkCheckboxes a {
+    color:inherit;
+}
+
+#modalForm > div:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+#modalBottomDiv {
+    padding:5px;
+    width:650px;
+}
+
+#modalBottomDiv button {
+    /* float:right; */
+}
+
+#failureSummaryGroup.collapsed #modalFailureList {
+  display:none;
+}
+
+#modalFailureList {
+  width: 80%;
+  padding: 5px;
+  max-height: 250px;
+  overflow: auto;
+  clear:both;
+}

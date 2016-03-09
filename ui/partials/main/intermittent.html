@@ -1,0 +1,55 @@
+<form id="modalForm">
+  <h2> Intermittent Bug Filer </h2>
+
+  <input name="modalProductFinderSearch" id="modalProductFinderSearch" ng-keydown="productSearchEnter($event)"
+         ng-model="productSearch" type="text" placeholder="Firefox" uib-tooltip="Manually search for a product" />
+  <button name="modalProductFinderButton" id="modalProductFinderButton"
+          type="button" ng-click="findProduct()" prevent-default-on-left-click>Find Product</button>
+  <div>
+    <fieldset id="suggestedProducts">
+      <div ng-repeat="product in suggestedProducts" ng-init="$last && focusProduct()">
+        <input type="radio" value="{{product}}"
+               name="productGroup" id="modalProductSuggestion{{$id}}"/>
+        <label for="modalProductSuggestion{{$id}}">{{product}}</label>
+      </div>
+    </fieldset>
+  </div>
+
+  <br/><br/>
+
+  <div id="failureSummaryGroup" class="collapsed">
+    <label id="modalSummarylabel" for="modalSummary">Summary:</label>
+    <input id="modalSummary" type="text" placeholder="Intermittent..." maxlength="255" ng-model="modalSummary" />
+    <a class="btn btn-xs failure-expando-closed" uib-tooltip="Show all failure lines for this job"
+       ng-click="toggleFailures($event)">
+      <i class="fa fa-chevron-right"></i>
+    </a>
+    <textarea id="modalFailureList"></textarea>
+  </div>
+
+  <div id="modalLogLinkCheckboxes">
+    <label>
+      <input id="modalParsedLog" type="checkbox" checked="true" />
+      <a target="_blank">Include Parsed Log Link</a>
+    </label><br/>
+    <label>
+      <input id="modalFullLog" type="checkbox" checked="true" />
+      <a target="_blank">Include Full Log Link</a>
+    </label><br/>
+    <label id="modalReftestLogLabel" ng-if="isReftest()">
+      <input id="modalReftestLog" type="checkbox" />
+      <a target="_blank">Include Reftest Viewer Link</a>
+    </label>
+  </div>
+
+  <div id="modalCommentDiv">
+    <label id="modalCommentlabel" for="modalComment">Comment:</label>
+    <textarea id="modalComment" type="textarea" placeholder=""></textarea>
+  </div>
+
+  <div id="modalBottomDiv">
+    <button name="modalCancelButton" id="modalCancelButton" type="button" ng-click="cancelFiler()"> Cancel </button>
+    <button name="modalSubmitButton" id="modalSubmitButton" type="button" ng-click="submitFiler()"> Submit Bug </button>
+  </div>
+</form>
+
