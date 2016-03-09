@@ -127,6 +127,11 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                     'framework': framework,
                     'extra_properties': extra_properties,
                     'lower_is_better': subtest.get('lowerIsBetter', True),
+                    'should_alert': subtest.get('shouldAlert'),
+                    'alert_threshold': subtest.get('alertThreshold'),
+                    'min_back_window': subtest.get('minBackWindow'),
+                    'max_back_window': subtest.get('maxBackWindow'),
+                    'fore_window': subtest.get('foreWindow'),
                     'last_updated': push_timestamp
                 })
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
@@ -137,10 +142,14 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                 push_timestamp=push_timestamp,
                 defaults={'value': subtest['value']})
 
-            # if there is no summary, we should schedule a generate alerts
-            # task for the subtest, since we have new data
-            if (datum_created and (not is_try_repository) and
-                suite.get('value') is None):
+            # by default if there is no summary, we should schedule a
+            # generate alerts task for the subtest, since we have new data
+            # (this can be over-ridden by the optional "should alert"
+            # property)
+            if signature.should_alert or (signature.should_alert is None and
+                                          (datum_created and
+                                           (not is_try_repository) and
+                                           suite.get('value') is None)):
                 generate_alerts.apply_async(args=[signature.id],
                                             routing_key='generate_perf_alerts')
 
@@ -158,7 +167,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
             summary_signature_hash = _get_signature_hash(
                 summary_properties)
 
-            signature, _ = PerformanceSignature.objects.get_or_create(
+            signature, _ = PerformanceSignature.objects.update_or_create(
                 repository=repository, signature_hash=summary_signature_hash,
                 defaults={
                     'test': '',
@@ -168,6 +177,11 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                     'framework': framework,
                     'extra_properties': extra_summary_properties,
                     'lower_is_better': suite.get('lowerIsBetter', True),
+                    'should_alert': suite.get('shouldAlert'),
+                    'alert_threshold': suite.get('alertThreshold'),
+                    'min_back_window': suite.get('minBackWindow'),
+                    'max_back_window': suite.get('maxBackWindow'),
+                    'fore_window': suite.get('foreWindow'),
                     'last_updated': push_timestamp
                 })
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
@@ -177,7 +191,8 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                 signature=signature,
                 push_timestamp=push_timestamp,
                 defaults={'value': suite['value']})
-            if datum_created and (not is_try_repository):
+            if (signature.should_alert is not False and datum_created and
+                (not is_try_repository)):
                 generate_alerts.apply_async(args=[signature.id],
                                             routing_key='generate_perf_alerts')
 

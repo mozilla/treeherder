@@ -45,6 +45,14 @@ class PerformanceSignature(models.Model):
     # option collection for whatever reason)
     extra_properties = JSONField(max_length=1024)
 
+    # these properties override the default settings for how alert
+    # generation works
+    should_alert = models.NullBooleanField()
+    alert_threshold = models.FloatField(null=True)
+    min_back_window = models.IntegerField(null=True)
+    max_back_window = models.IntegerField(null=True)
+    fore_window = models.IntegerField(null=True)
+
     class Meta:
         db_table = 'performance_signature'
         # make sure there is only one signature per repository with a
@@ -62,6 +70,7 @@ class PerformanceSignature(models.Model):
             name += " {}".format(self.test)
         else:
             name += " summary"
+
         return "{} {} {} {}".format(self.signature_hash, name, self.platform,
                                     self.last_updated)
 

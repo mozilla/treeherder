@@ -63,7 +63,10 @@ def perf_reference_data():
 def _generate_perf_data_range(test_project, test_repository,
                               perf_option_collection, perf_platform,
                               perf_reference_data,
-                              create_perf_framework=True):
+                              create_perf_framework=True,
+                              add_suite_value=False,
+                              extra_suite_metadata=None,
+                              extra_subtest_metadata=None):
     framework_name = "cheezburger"
     if create_perf_framework:
         PerformanceFramework.objects.create(name=framework_name)
@@ -96,6 +99,14 @@ def _generate_perf_data_range(test_project, test_repository,
                 ]
             }
         }
+        if add_suite_value:
+            datum['blob']['suites'][0]['value'] = value
+        if extra_suite_metadata:
+            datum['blob']['suites'][0].update(extra_suite_metadata)
+        if extra_subtest_metadata:
+            datum['blob']['suites'][0]['subtests'][0].update(
+                extra_subtest_metadata)
+
         # the perf data adapter expects unserialized performance data
         submit_datum = copy.copy(datum)
         submit_datum['blob'] = json.dumps({
@@ -107,7 +118,9 @@ def _generate_perf_data_range(test_project, test_repository,
 
 def _verify_signature_datum(repo_name, framework_name, suitename,
                             testname, option_collection_hash, platform,
-                            lower_is_better, value, push_timestamp):
+                            lower_is_better, value, push_timestamp,
+                            alert_threshold=None, min_back_window=None,
+                            max_back_window=None, fore_window=None):
     repository = Repository.objects.get(name=repo_name)
     signature = PerformanceSignature.objects.get(suite=suitename,
                                                  test=testname)
@@ -117,6 +130,10 @@ def _verify_signature_datum(repo_name, framework_name, suitename,
     assert signature.last_updated == push_timestamp
     assert signature.repository == repository
     assert signature.lower_is_better == lower_is_better
+    assert signature.alert_threshold == alert_threshold
+    assert signature.min_back_window == min_back_window
+    assert signature.max_back_window == max_back_window
+    assert signature.fore_window == fore_window
 
     datum = PerformanceDatum.objects.get(signature=signature)
     assert datum.value == value
@@ -323,25 +340,144 @@ def test_no_performance_framework(test_project, test_repository,
     assert 0 == PerformanceDatum.objects.all().count()
 
 
+@pytest.mark.parametrize(('add_suite_value',
+                          'extra_suite_metadata',
+                          'extra_subtest_metadata',
+                          'expected_subtest_alert',
+                          'expected_suite_alert'), [
+                              (False, None, None, True, False),
+                              (True, None, None, False, True),
+                              (True, {'shouldAlert': False}, None, False,
+                               False),
+                              (True, {'shouldAlert': False},
+                               {'shouldAlert': True}, True, False),
+                              (True, None, {'shouldAlert': True}, True, True),
+                              (True, {'shouldAlert': True},
+                               {'shouldAlert': True}, True, True),
+                          ])
 def test_alert_generation(test_project, test_repository,
                           perf_option_collection, perf_platform,
-                          perf_reference_data):
+                          perf_reference_data, add_suite_value,
+                          extra_suite_metadata, extra_subtest_metadata,
+                          expected_subtest_alert, expected_suite_alert):
     _generate_perf_data_range(test_project, test_repository,
                               perf_option_collection, perf_platform,
-                              perf_reference_data)
+                              perf_reference_data,
+                              add_suite_value=add_suite_value,
+                              extra_suite_metadata=extra_suite_metadata,
+                              extra_subtest_metadata=extra_subtest_metadata)
+
+    expected_num_alerts = len(filter(lambda x: x is True, [expected_suite_alert,
+                                                           expected_subtest_alert]))
 
     # validate that a performance alert was generated
-    assert 1 == PerformanceAlert.objects.all().count()
-    assert 1 == PerformanceAlertSummary.objects.all().count()
+    assert expected_num_alerts == PerformanceAlert.objects.all().count()
 
-    summary = PerformanceAlertSummary.objects.get(id=1)
-    assert summary.result_set_id == 15
-    assert summary.prev_result_set_id == 14
+    # check # of alerts, validate summary if present
+    if expected_num_alerts > 0:
+        assert 1 == PerformanceAlertSummary.objects.all().count()
+        summary = PerformanceAlertSummary.objects.get(id=1)
+        assert summary.result_set_id == 15
+        assert summary.prev_result_set_id == 14
+    else:
+        assert 0 == PerformanceAlertSummary.objects.all().count()
 
-    alert = PerformanceAlert.objects.get(id=1)
-    assert alert.is_regression
-    assert alert.amount_abs == 1
-    assert alert.amount_pct == 100
+    # validate suite alert if it [should be] present
+    if expected_suite_alert:
+        alert = PerformanceAlert.objects.get(series_signature__test='')
+        assert alert.series_signature.suite == 'cheezburger metrics'
+        assert alert.series_signature.test == ''
+        assert alert.is_regression
+        assert alert.amount_abs == 1
+        assert alert.amount_pct == 100
+
+    # validate subtest alert if it [should be] present
+    if expected_subtest_alert:
+        alert = PerformanceAlert.objects.get(series_signature__test='test1')
+        assert alert.series_signature.suite == 'cheezburger metrics'
+        assert alert.series_signature.test == 'test1'
+        assert alert.is_regression
+        assert alert.amount_abs == 1
+        assert alert.amount_pct == 100
+
+
+def test_alert_generation_parameters(test_project, test_repository,
+                                     perf_option_collection, perf_platform,
+                                     perf_job_data, perf_reference_data):
+    # this test is mainly focused around making sure that we correctly
+    # update the series signature with the correct alert generation
+    # parameters: testing the alert generation itself happens in
+    # tests/perfalert
+    PerformanceFramework.objects.create(name="cheezburger")
+    datum = {
+        'job_guid': 'fake_job_guid',
+        'name': 'test',
+        'type': 'test',
+        'blob': {
+            'framework': {'name': "cheezburger"},
+            'suites': [
+                {
+                    'name': 'cheezburger metrics',
+                    'minBackWindow': 1,
+                    'maxBackWindow': 1,
+                    'foreWindow': 1,
+                    'alertThreshold': 1,
+                    'value': 10.0,
+                    'subtests': [
+                        {
+                            'name': 'test1',
+                            'minBackWindow': 1,
+                            'maxBackWindow': 1,
+                            'foreWindow': 1,
+                            'alertThreshold': 1,
+                            'value': 10.0,
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
+    # the perf data adapter expects unserialized performance data
+    submit_datum = copy.copy(datum)
+    submit_datum['blob'] = json.dumps({
+        'performance_data': submit_datum['blob']
+    })
+
+    load_perf_artifacts(test_repository.name, perf_reference_data,
+                        perf_job_data, submit_datum)
+
+    push_timestamp = perf_job_data['fake_job_guid']['push_timestamp']
+    pushtime = datetime.datetime.fromtimestamp(push_timestamp)
+    perf_datum = datum['blob']
+    suite = perf_datum['suites'][0]
+
+    _verify_signature_datum(test_repository.name,
+                            perf_datum['framework']['name'],
+                            suite['name'],
+                            '',
+                            'my_option_hash',
+                            'my_platform',
+                            True,
+                            suite['value'],
+                            pushtime,
+                            alert_threshold=1,
+                            min_back_window=1,
+                            max_back_window=1,
+                            fore_window=1)
+    _verify_signature_datum(test_repository.name,
+                            perf_datum['framework']['name'],
+                            suite['name'],
+                            suite['subtests'][0]['name'],
+                            'my_option_hash',
+                            'my_platform',
+                            True,
+                            suite['value'],
+                            pushtime,
+                            alert_threshold=1,
+                            min_back_window=1,
+                            max_back_window=1,
+                            fore_window=1)
 
 
 def test_alert_generation_try(test_project, test_repository,

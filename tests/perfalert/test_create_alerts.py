@@ -124,3 +124,32 @@ def test_no_alerts_with_old_data(
 
     assert PerformanceAlert.objects.count() == 0
     assert PerformanceAlertSummary.objects.count() == 0
+
+
+def test_custom_alert_threshold(
+        test_project, test_repository, test_perf_signature):
+
+    test_perf_signature.alert_threshold = 200.0
+    test_perf_signature.save()
+
+    # under default settings, this set of data would generate
+    # 2 alerts, but we'll set an artificially high threshold
+    # of 200% that should only generate 1
+    INTERVAL = 60
+    now = time.time()
+    for (t, v) in zip([i for i in range(INTERVAL)],
+                      ([0.5 for i in range(INTERVAL/3)] +
+                       [0.6 for i in range(INTERVAL/3)] +
+                       [2.0 for i in range(INTERVAL/3)])):
+        PerformanceDatum.objects.create(
+            repository=test_repository,
+            result_set_id=t,
+            job_id=t,
+            signature=test_perf_signature,
+            push_timestamp=datetime.datetime.fromtimestamp(now + t),
+            value=v)
+
+    generate_new_alerts_in_series(test_perf_signature)
+
+    assert PerformanceAlert.objects.count() == 1
+    assert PerformanceAlertSummary.objects.count() == 1
