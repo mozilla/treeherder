@@ -221,6 +221,11 @@ def test_load_generic_data(test_project, test_repository,
                                     subtest['value'],
                                     pushtime)
 
+    summary_signature = PerformanceSignature.objects.get(
+        suite=perf_datum['suites'][0]['name'], test='')
+    subtest_signatures = PerformanceSignature.objects.filter(
+        parent_signature=summary_signature).values_list('signature_hash', flat=True)
+    assert len(subtest_signatures) == 3
     # send another datum, a little later, verify that signature's
     # `last_updated` is changed accordingly
     perf_job_data['fake_job_guid']['push_timestamp'] += 1
