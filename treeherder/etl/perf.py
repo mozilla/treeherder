@@ -115,6 +115,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
             }
             subtest_metadata.update(reference_data)
             subtest_properties.append(subtest_metadata)
+        subtest_properties.sort(key=lambda s: s['test'])
 
         # if we have a summary value, create or get its signature by all its subtest
         # properties.
