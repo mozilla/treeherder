@@ -305,7 +305,6 @@ def _do_missing_resultset_test(jm, etl_process):
     # revision.  We need to add both to ``responses`` here.
     for revision in [new_revision, new_revision[:12]]:
         rev_url = "https://hg.mozilla.org/mozilla-central/json-pushes/?full=1&version=2&changeset=" + revision
-        print "adding response for: {}".format(rev_url)
         responses.add(responses.GET, rev_url,
                       body=pushlog_content, status=200,
                       match_querystring=True,

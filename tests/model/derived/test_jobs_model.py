@@ -104,6 +104,7 @@ def test_ingest_jobs_with_missing_resultsets(jm, refdata, sample_data,
     for idx, revision in enumerate(missing_revisions):
         rev_url = "https://hg.mozilla.org/mozilla-central/json-pushes/?" + \
                   "full=1&version=2&changeset=" + revision
+        print "adding response for: {}".format(rev_url)
         responses.add(responses.GET, rev_url,
                       body=get_pushlog_content(revision, idx),
                       status=200,
