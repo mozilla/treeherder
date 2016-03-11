@@ -1735,11 +1735,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         if not result_sets:
             return {}
 
-        print "<><><> trying to ingest:"
-        print result_sets
-
         # revision data structures
-        repository_id_lookup = dict()
         revision_placeholders = []
         all_revisions = []
         rev_where_in_list = []
@@ -1791,15 +1787,19 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         for rev, resultset in resultsets_before.iteritems():
             if resultset["push_timestamp"] == 0:
                 resultsets_need_update[rev] = resultset
-        resultsets_need_update_revisions = resultsets_need_update.keys()
 
+        # the top revisions of the resultsets we have updates for
+        revisions_need_update = resultsets_need_update.keys()
+        # the top revisions of the resultsets that need insert
         revisions_need_insert = unique_rs_revisions.difference(
             resultset_revisions_before)
 
-        resultset_updates = [x for x in result_sets if x["revision"] in resultsets_need_update_revisions]
-        resultsets_need_insert = [x for x in result_sets if x["revision"] in revisions_need_insert]
+        resultset_updates = [x for x in result_sets
+                             if x["revision"] in revisions_need_update]
+        resultset_inserts = [x for x in result_sets
+                             if x["revision"] in revisions_need_insert]
 
-        self._insert_resultsets(resultsets_need_insert,
+        self._insert_resultsets(resultset_inserts,
                                 revision_placeholders,
                                 all_revisions, rev_where_in_list,
                                 revision_to_rs_revision_lookup)
@@ -1809,15 +1809,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                                 all_revisions, rev_where_in_list,
                                 revision_to_rs_revision_lookup)
 
-        # find any resultsets that exist, but are skeletons and need updating
-        # these should be removed from the list that we attempt to insert
-        # or they will just fail on insert.
-        # resultsets_needing_update = self.get_incomplete_resultsets(
-        #     unique_rs_revisions)
-
         lastrowid = self.get_dhub().connection['master_host']['cursor'].lastrowid
 
-        # Retrieve new and already existing result sets
+        # Retrieve new, updated and already existing result sets that
+        # match all the revisions sent in during this request
         result_set_id_lookup = self.get_resultset_top_revision_lookup(
             unique_rs_revisions)
 
@@ -1839,6 +1834,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     result_set_id_lookup[revision]['id']
                 )
 
+        # Revisions don't get updated, if we have conflicts here, they
+        # are just skipped.  This will insert revisions for both new
+        # resultsets and resultset skeletons that were just updated.
+        # Resultset skeletons don't get revisions till we insert them here.
         if all_revisions:
             # Insert new revisions
             self.execute(
@@ -1887,7 +1886,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         return {
             'result_set_ids': result_set_id_lookup,
             'revision_ids': revision_id_lookup,
-            'inserted_result_set_ids': inserted_result_set_ids
+            'inserted_result_set_ids': inserted_result_set_ids,
+            'updated_result_set_ids': revisions_need_update
         }
 
     def _insert_resultsets(self, resultsets, revision_placeholders,
@@ -1898,7 +1898,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         unique_rs_revisions = set()
         where_in_list = []
         repository_id_lookup = dict()
-
 
         for result in resultsets:
             top_revision = result["revision"]
@@ -1967,7 +1966,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         unique_rs_revisions = set()
         where_in_list = []
         repository_id_lookup = dict()
-
 
         for result in resultsets:
 
