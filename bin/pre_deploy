@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Tasks run after the Heroku buildpack compile, but prior to the deploy.
+# If failures occur, the deploy will not proceed.
+
+set -euo pipefail
+
+echo "-----> PRE-DEPLOY: Running Django migration..."
+./manage.py migrate --noinput
+
+echo "-----> PRE-DEPLOY: Loading initial data..."
+./manage.py load_initial_data
+
+echo "-----> PRE-DEPLOY: Initialising datasources..."
+./manage.py init_datasources
+
+echo "-----> PRE-DEPLOY: Complete!"
