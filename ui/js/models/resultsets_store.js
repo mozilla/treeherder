@@ -354,7 +354,7 @@ treeherder.factory('ThResultSetStore', [
                 // groups
                 for (var gp_i = 0; gp_i < pl_obj.groups.length; gp_i++) {
                     var gr_obj = pl_obj.groups[gp_i];
-                    gr_obj.mapKey = thAggregateIds.getGroupMapKey(rs_obj.id, gr_obj.symbol, pl_obj.name, pl_obj.option);
+                    gr_obj.mapKey = thAggregateIds.getGroupMapKey(rs_obj.id, gr_obj.symbol, gr_obj.tier, pl_obj.name, pl_obj.option);
 
                     var grMapElement = {
                         grp_obj: gr_obj,
@@ -1024,7 +1024,7 @@ treeherder.factory('ThResultSetStore', [
 
             var name = job.job_group_name;
             var symbol = job.job_group_symbol;
-            var mapKey = thAggregateIds.getGroupMapKey(job.result_set_id, symbol, job.platform, job.platform_option);
+            var mapKey = thAggregateIds.getGroupMapKey(job.result_set_id, symbol, tier, job.platform, job.platform_option);
             var tier;
 
             if (job.tier && job.tier !== 1) {
