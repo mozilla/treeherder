@@ -71,7 +71,6 @@ def test_ingest_jobs_with_missing_resultsets(jm, refdata, sample_data,
     job_data = sample_data.job_data[:10]
     missing_revisions = [
         "f185cde033f50405729191e325594161a8ddf25b",
-        "7c7fe4da388c108de2867a695d472f5cbab3c2a1",
         "adfae83c382e16042b27d1fc62125905fcf76096",
     ]
 
@@ -123,7 +122,7 @@ def test_ingest_jobs_with_missing_resultsets(jm, refdata, sample_data,
     # get the resultsets that were created as skeletons and should have now been
     # filled-in by the async task
     resultsets = jm.get_result_set_list(
-        0, 3,
+        0, 2,
         conditions={"long_revision": {("IN", tuple(missing_revisions))}}
     )
 
