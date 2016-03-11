@@ -58,7 +58,10 @@ def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data,
 def test_ingest_jobs_with_missing_resultsets(jm, refdata, sample_data,
                                              initial_data, sample_resultset,
                                              test_repository, mock_log_parser,
-                                             mock_get_resultset, mock_fetch_json, mock_post_json, activate_responses):
+                                             mock_get_resultset,
+                                             mock_fetch_json,
+                                             mock_post_json,
+                                             activate_responses):
     """
     Ingest some sample jobs, some of which will be missing a resultset.
 
@@ -72,16 +75,13 @@ def test_ingest_jobs_with_missing_resultsets(jm, refdata, sample_data,
         "7c7fe4da388c108de2867a695d472f5cbab3c2a1"
     ]
 
-    # TODO: make the returned content be accurate wrt revisions, etc.
-    # then verify that things update correctly.  It will make this a pretty big
-    # test case.  Maybe I could break it up a bit
-    #
+    # TODO
     # make a separate case that goes from an RS needing update to updating it
     #
     # but should also test when there's new ones, update ones and existing ones
     # and all combinations.  When some lists are empty is a spot for danger.
 
-    def get_pushlog_content(revision, idx):
+    def get_pushlog_content(rev, idx):
         return json.dumps(
             {
                 "pushes":
@@ -89,7 +89,7 @@ def test_ingest_jobs_with_missing_resultsets(jm, refdata, sample_data,
                         "date": 1378288232 + idx,
                         "changesets": [
                             {
-                                "node": revision,
+                                "node": rev,
                                 "tags": [],
                                 "author": "John Doe {}".format(idx),
                                 "branch": "default",
@@ -105,7 +105,8 @@ def test_ingest_jobs_with_missing_resultsets(jm, refdata, sample_data,
         rev_url = "https://hg.mozilla.org/mozilla-central/json-pushes/?" + \
                   "full=1&version=2&changeset=" + revision
         responses.add(responses.GET, rev_url,
-                      body=get_pushlog_content(revision, idx), status=200,
+                      body=get_pushlog_content(revision, idx),
+                      status=200,
                       match_querystring=True,
                       content_type='application/json')
 
@@ -114,15 +115,6 @@ def test_ingest_jobs_with_missing_resultsets(jm, refdata, sample_data,
 
     jm.store_job_data(job_data)
 
-    result_set_ids = jm.get_dhub().execute(
-        proc="jobs_test.selects.result_set_ids",
-        key_column='long_revision',
-        return_type='dict'
-    )
-
-    print
-    print "result_set keys"
-    print result_set_ids.keys()
     jobs = jm.get_job_list(0, 20)
     assert len(jobs) == 10
     test_utils.verify_result_sets(jm, set(missing_revisions))
@@ -134,12 +126,6 @@ def test_ingest_jobs_with_missing_resultsets(jm, refdata, sample_data,
         conditions={"long_revision": {("IN", tuple(missing_revisions))}}
     )
 
-    import pprint
-    print
-    print "resultsets list will be empty if they have no revisions"
-    pprint.pprint(resultsets)
-
-    # todo: these exp values are totally wrong right now...
     assert resultsets == [
         {
             'author': u'jdoe2@mozilla.com',
