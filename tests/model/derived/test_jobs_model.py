@@ -1,9 +1,9 @@
 import copy
 import json
-import responses
 import time
 
 import pytest
+import responses
 from django.core.management import call_command
 
 from tests import test_utils
