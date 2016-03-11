@@ -71,8 +71,8 @@ def test_ingest_jobs_with_missing_resultsets(jm, refdata, sample_data,
     job_data = sample_data.job_data[:10]
     missing_revisions = [
         "f185cde033f50405729191e325594161a8ddf25b",
+        "7c7fe4da388c108de2867a695d472f5cbab3c2a1",
         "adfae83c382e16042b27d1fc62125905fcf76096",
-        "7c7fe4da388c108de2867a695d472f5cbab3c2a1"
     ]
 
     # TODO
