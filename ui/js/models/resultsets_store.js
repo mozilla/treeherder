@@ -1020,26 +1020,20 @@ treeherder.factory('ThResultSetStore', [
             );
         };
 
-        /*
-         * If the job's Tier is other than 1, then use the Tier string as the group
-         * name rather than the group itself.
-         */
         var getJobGroupInfo = function(job) {
 
             var name = job.job_group_name;
             var symbol = job.job_group_symbol;
             var mapKey = thAggregateIds.getGroupMapKey(job.result_set_id, symbol, job.platform, job.platform_option);
+            var tier;
 
             if (job.tier && job.tier !== 1) {
                 if (symbol === "?") {
                     symbol = "";
                 }
-                var tierLabel = symbol + "[Tier-" + job.tier + "]";
-                name = tierLabel;
-                symbol = tierLabel;
+                tier = job.tier;
             }
-
-            return {name: name, symbol: symbol, mapKey: mapKey};
+            return {name: name, tier: tier, symbol: symbol, mapKey: mapKey};
         };
 
         /*
@@ -1075,12 +1069,14 @@ treeherder.factory('ThResultSetStore', [
                 var groupInfo = getJobGroupInfo(job);
                 // search for the right group
                 var group = _.find(platform.groups, function(group){
-                    return groupInfo.symbol === group.symbol;
+                    return (groupInfo.symbol === group.symbol &&
+                            groupInfo.tier === group.tier);
                 });
                 if(_.isUndefined(group)){
                     group = {
                         name: groupInfo.name,
                         symbol: groupInfo.symbol,
+                        tier: groupInfo.tier,
                         jobs: []
                     };
                     platform.groups.push(group);
@@ -1147,8 +1143,7 @@ treeherder.factory('ThResultSetStore', [
                             });
                         });
                         platform.groups = _.sortBy(platform.groups, function(group){
-                            //remove all visual additions for Tier during sort
-                            return jobGroupOrder[group.symbol.split("[", 1)];
+                            return jobGroupOrder[group.symbol];
                         });
                     });
                     groupedJobs.platforms = _.sortBy(groupedJobs.platforms, function(platform){
