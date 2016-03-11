@@ -110,7 +110,7 @@ def test_ingest_jobs_with_missing_resultsets(jm, refdata, sample_data,
                       match_querystring=True,
                       content_type='application/json')
 
-    for idx, job in enumerate(job_data[:3]):
+    for idx, job in enumerate(job_data[:len(missing_revisions)]):
         job["revision"] = missing_revisions[idx]
 
     jm.store_job_data(job_data)
@@ -122,7 +122,7 @@ def test_ingest_jobs_with_missing_resultsets(jm, refdata, sample_data,
     # get the resultsets that were created as skeletons and should have now been
     # filled-in by the async task
     resultsets = jm.get_result_set_list(
-        0, 2,
+        0, len(missing_revisions),
         conditions={"long_revision": {("IN", tuple(missing_revisions))}}
     )
 
