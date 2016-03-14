@@ -699,8 +699,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         # Build params to search for both long and short revisions.
         params = self._get_short_and_long_revision_query_params(revision_list)
-        print "short and long params"
-        print params
         lookup = self.execute(
             proc='jobs.selects.get_resultset_top_revision_lookup',
             placeholders=params["placeholders"],
@@ -1763,8 +1761,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         #
         resultset_updates = self._get_resultset_updates(
             result_sets, resultsets_before)
-        print "UPDATES"
-        print resultset_updates
         self._modify_resultsets(resultset_updates,
                                 "jobs.updates.update_result_set",
                                 revision_placeholders,
@@ -1776,8 +1772,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         resultset_inserts = self._get_resultset_inserts(
             result_sets, resultset_revisions_before, unique_rs_revisions)
 
-        print "INSERTS"
-        print resultset_inserts
         self._modify_resultsets(resultset_inserts,
                                 "jobs.inserts.set_result_set",
                                 revision_placeholders,

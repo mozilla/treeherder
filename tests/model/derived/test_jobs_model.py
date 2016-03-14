@@ -17,43 +17,33 @@ xfail = pytest.mark.xfail
 
 
 def get_pushlog_content(rev, idx):
-    return json.dumps(
-        {
-            "pushes":
-                {"33270": {
-                    "date": 1378288232 + idx,
-                    "changesets": [
-                        {
-                            "node": rev,
-                            "tags": [],
-                            "author": "John Doe {}".format(idx),
-                            "branch": "default",
-                            "desc": "bug 909264 - control characters"
-                        }
-                    ],
-                    "user": "jdoe{}@mozilla.com".format(idx)
-                }}
-        }
-    )
+    return {
+        "pushes":
+            {"33270": {
+                "date": 1378288232 + idx,
+                "changesets": [
+                    {
+                        "node": rev,
+                        "tags": [],
+                        "author": "John Doe {}".format(idx),
+                        "branch": "default",
+                        "desc": "bug 909264 - control characters"
+                    }
+                ],
+                "user": "jdoe{}@mozilla.com".format(idx)
+            }}
+    }
 
 
 def add_pushlog_response(revisions):
     for idx, revision in enumerate(revisions):
-        rev_url = "https://hg.mozilla.org/mozilla-central/json-pushes/?" + \
-                  "full=1&version=2&changeset=" + revision
-        responses.add(responses.GET, rev_url,
-                      body=get_pushlog_content(revision, idx),
-                      status=200,
-                      match_querystring=True,
-                      content_type='application/json')
-        rev_url = "https://hg.mozilla.org/mozilla-central/json-pushes/?" + \
-                  "full=1&version=2&changeset=" + revision[:12]
-        print "adding response for: {}".format(rev_url)
-        responses.add(responses.GET, rev_url,
-                      body=get_pushlog_content(revision, idx),
-                      status=200,
-                      match_querystring=True,
-                      content_type='application/json')
+        for changeset in [revision, revision[:12]]:
+            rev_url = "https://hg.mozilla.org/mozilla-central/json-pushes/?full=1&version=2&changeset=" + changeset
+            responses.add(responses.GET, rev_url,
+                          json=get_pushlog_content(revision, idx),
+                          status=200,
+                          match_querystring=True,
+                          content_type='application/json')
 
 
 def test_unicode(jm):
@@ -99,7 +89,6 @@ def test_ingest_jobs_with_missing_resultsets(jm, refdata, sample_data,
                                              initial_data, sample_resultset,
                                              test_repository, mock_log_parser,
                                              mock_get_resultset,
-                                             mock_fetch_json,
                                              mock_post_json,
                                              activate_responses):
     """
