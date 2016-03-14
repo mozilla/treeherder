@@ -7,7 +7,8 @@ from _mysql_exceptions import IntegrityError
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from treeherder.etl.common import get_guid_root
+from treeherder.etl.common import (fetch_missing_resultsets,
+                                   get_guid_root)
 from treeherder.events.publisher import JobStatusPublisher
 from treeherder.model import (error_summary,
                               utils)
@@ -96,7 +97,8 @@ class JobsModel(TreeherderModelBase):
         "result_set": {
             "id": "rs.id",
             "revision_hash": "rs.revision_hash",
-            "revision": "revision.revision",
+            "revisions_long_revision": "revision.long_revision",
+            "revisions_short_revision": "revision.short_revision",
             "short_revision": "rs.short_revision",
             "long_revision": "rs.long_revision",
             "author": "rs.author",
@@ -602,37 +604,147 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         )
         return data
 
-    def get_result_set_ids(self, revision_hashes, where_in_list):
-        """Return the  a dictionary of revision_hash to id mappings given
-           a list of revision_hashes and a where_in_list.
+    def _add_short_revision_lookups(self, lookup):
+        short_rev_lookup = {}
+        for rev, rs in lookup.iteritems():
+            short_rev_lookup[rev[:12]] = rs
+        lookup.update(short_rev_lookup)
 
-            revision_hashes = [ revision_hash1, revision_hash2, ... ]
-            where_in_list = [ %s, %s, %s ... ]
+    def _get_short_and_long_revision_query_params(self, revision_list,
+                                                  short_revision_field="short_revision",
+                                                  long_revision_field="long_revision"):
+        """Build params to search for both long and short revisions."""
 
-            returns:
+        long_revision_list = [x for x in revision_list if len(x) == 40]
+        short_revision_list = [x[:12] for x in revision_list]
+        long_rev_list_repl = ",".join(["%s"] * len(long_revision_list))
+        short_rev_list_repl = ",".join(["%s"] * len(short_revision_list))
 
-            {
-              revision_hash1:{id: id1, push_timestamp: pt1},
-              revision_hash2:{id: id2, push_timestamp: pt2},
-              ...
-                }
-            """
-        result_set_id_lookup = {}
+        # It's possible that only 12 char revisions were passed in, so the
+        # ``long_revision_list`` would be zero length.  If it is, then this
+        # adds nothing to the where clause.
+        long_revision_or = ""
+        if long_revision_list:
+            long_revision_or = " OR {} IN ({})".format(
+                long_revision_field,
+                long_rev_list_repl
+            )
 
-        if revision_hashes:
-            result_set_id_lookup = self.execute(
-                proc='jobs.selects.get_result_set_ids',
-                placeholders=revision_hashes,
-                replace=[where_in_list],
-                debug_show=self.DEBUG,
-                key_column='revision_hash',
-                return_type='dict')
+        replacement = " AND ({} IN ({}) {})".format(
+            short_revision_field,
+            short_rev_list_repl,
+            long_revision_or
+        )
+        placeholders = short_revision_list + long_revision_list
 
-        return result_set_id_lookup
+        return {
+            "replacement": [replacement],
+            "placeholders": placeholders
+        }
+
+    def get_resultset_all_revision_lookup(self, revision_list):
+        """
+        Create a revision->resultset lookup from a list of revisions
+
+        This will map ALL revision/commits that are within this resultset, not
+        just the top revision.  It will also map both short and long revisions
+        to their resultsets because users might search by either.
+
+        This will retrieve non-active resultsets as well.  Some of the data
+        ingested has mixed up revisions that show for jobs, but are not in
+        the right repository in builds4hr/running/pending.  So we ingest those
+        bad resultsets/revisions as non-active so that we don't keep trying
+        to re-ingest them.  Allowing this query to retrieve non ``active``
+        resultsets means we will avoid re-doing that work by detecting that
+        we've already ingested it.
+
+        But we skip ingesting the job, because the resultset is not active.
+        """
+
+        if not revision_list:
+            return {}
+
+        # Build params to search for both long and short revisions.
+        params = self._get_short_and_long_revision_query_params(
+            revision_list,
+            "revision.short_revision",
+            "revision.long_revision")
+
+        proc = "jobs.selects.get_resultset_all_revision_lookup"
+        lookup = self.execute(
+            proc=proc,
+            placeholders=params["placeholders"],
+            debug_show=self.DEBUG,
+            replace=params["replacement"],
+            return_type="dict",
+            key_column="long_revision"
+        )
+
+        # ``lookups`` will be keyed ONLY by long_revision, at this point.
+        # Add the resultsets keyed by short_revision.
+        self._add_short_revision_lookups(lookup)
+        return lookup
+
+    def get_resultset_top_revision_lookup(self, revision_list):
+        """
+        Create a revision->resultset lookup only for top revisions of the RS
+
+        This lookup does NOT search any revision but the top revision
+        for the resultset.  It also does not do a JOIN to the revisions
+        table.  So if the resutlset has no revisions mapped to it, that's
+        ok.
+        """
+        if not revision_list:
+            return {}
+
+        # Build params to search for both long and short revisions.
+        params = self._get_short_and_long_revision_query_params(revision_list)
+        # print "short and long params"
+        # print params
+        lookup = self.execute(
+            proc='jobs.selects.get_resultset_top_revision_lookup',
+            placeholders=params["placeholders"],
+            replace=params["replacement"],
+            debug_show=self.DEBUG,
+            key_column='long_revision',
+            return_type='dict')
+
+        return lookup
+
+    def _create_missing_resultsets(self, resultset_lookup, all_revisions):
+        """Create any missing resultsets and update the revision_lookup"""
+
+        # revision_lookup here will have both short and long revisions,
+        # so this list will filter properly, whether entries in all_revisions
+        # are long or short.
+        missing_revisions = [x for x in all_revisions if x not in resultset_lookup]
+
+        if missing_revisions:
+            result_sets = []
+            for new_rev in missing_revisions:
+                result_sets.append({
+                    "revision": new_rev,
+                    "push_timestamp": 0,
+                    "author": "pending...",
+                    "revisions": []
+                })
+            self.store_result_set_data(result_sets)
+
+            new_lookup = self.get_resultset_top_revision_lookup(missing_revisions)
+            resultset_lookup.update(new_lookup)
+
+            # schedule async task to fill in the details of these
+            # resultsets
+            fetch_missing_resultsets("store_job_data",
+                                     {self.project: new_lookup.keys()},
+                                     logger)
+
+        return resultset_lookup
 
     def get_result_set_list_by_ids(self, result_set_ids):
+        """Given a list of result_set_ids, fetch the matching resultsets."""
 
-        conditions = {'id': set([('IN', tuple(result_set_ids))])}
+        conditions = {'id': {('IN', tuple(result_set_ids))}}
 
         replace_str, placeholders = self._process_conditions(
             conditions, self.INDEXED_COLUMNS['result_set']
@@ -715,35 +827,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return return_list
 
-    def get_revision_resultset_lookup(self, revision_list):
-        """
-        Create a list of revision->resultset lookups from a list of revision
-
-        This will retrieve non-active resultsets as well.  Some of the data
-        ingested has mixed up revisions that show for jobs, but are not in
-        the right repository in builds4hr/running/pending.  So we ingest those
-        bad resultsets/revisions as non-active so that we don't keep trying
-        to re-ingest them.  Allowing this query to retrieve non ``active``
-        resultsets means we will avoid re-doing that work by detecting that
-        we've already ingested it.
-
-        But we skip ingesting the job, because the resultset is not active.
-        """
-
-        replacement = ",".join(["%s"] * len(revision_list))
-        replacement = " AND revision IN (" + replacement + ") "
-
-        proc = "jobs.selects.get_revision_resultset_lookup"
-        lookups = self.execute(
-            proc=proc,
-            placeholders=revision_list + [0, len(revision_list)],
-            debug_show=self.DEBUG,
-            replace=[replacement],
-            return_type="dict",
-            key_column="revision"
-        )
-        return lookups
-
     def get_resultset_revisions_list(self, result_set_id):
         """
         Return the revisions for the given resultset
@@ -813,7 +896,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         Example:
         [
             {
-                "revision_hash": "24fd64b8251fac5cf60b54a915bffa7e51f636b5",
+                "revision": "24fd64b8251fac5cf60b54a915bffa7e51f636b5",
                 "job": {
                     "job_guid": "d19375ce775f0dc166de01daa5d2e8a73a8e8ebf",
                     "name": "xpcshell",
@@ -872,10 +955,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         if not data:
             return
 
-        # Structures supporting revision_hash SQL
-        revision_hash_lookup = set()
-        unique_revision_hashes = []
-        rh_where_in = []
+        # Structures supporting resultset SQL
+        unique_revisions = set()
 
         # Structures supporting job SQL
         job_placeholders = []
@@ -917,19 +998,34 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 # the exception we caught would be much more informative.  That
                 # being said, if/when we transition to only using the pulse
                 # job consumer, then the data will always be vetted with a
-                # JSON schema already.
+                # JSON schema before we get to this point.
                 job = datum['job']
-                revision_hash = datum['revision_hash']
                 coalesced = datum.get('coalesced', [])
+
+                # For a time, we need to backward support jobs submited with either a
+                # ``revision_hash`` or a ``revision``.  Eventually, we will
+                # migrate to ONLY ``revision``.  But initially, we will need
+                # to find the revision from the revision_hash.
+                rs_fields = ["revision", "revision_hash"]
+                assert any([x for x in rs_fields if x in datum]), \
+                    "Job must have either ``revision`` or ``revision_hash``"
+
+                revision = datum.get("revision", None)
+                if not revision:
+                    revision = self._get_revision_from_revision_hash(datum)
+                    newrelic.agent.record_exception(
+                        exc=ValueError("job submitted with revision_hash but no revision"),
+                        params={
+                            "revision_hash": datum["revision_hash"]
+                        }
+                    )
 
                 # json object can be successfully deserialized
                 # load reference data
                 job_guid = self._load_ref_and_job_data_structs(
                     job,
-                    revision_hash,
-                    revision_hash_lookup,
-                    unique_revision_hashes,
-                    rh_where_in,
+                    revision,
+                    unique_revisions,
                     job_placeholders,
                     log_placeholders,
                     artifact_placeholders,
@@ -947,6 +1043,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 # we should raise the exception if DEBUG is true, or if
                 # running the unit tests.
                 if settings.DEBUG or hasattr(settings, "TREEHERDER_TEST_PROJECT"):
+                    logger.exception(e)
                     raise e
                 else:
                     newrelic.agent.record_exception(params={"job": datum})
@@ -957,13 +1054,13 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # Store all reference data and retrieve associated ids
         id_lookups = self.refdata_model.set_all_reference_data()
 
+        rs_lookup = self.get_resultset_all_revision_lookup(unique_revisions)
+        self._create_missing_resultsets(rs_lookup, unique_revisions)
+
+        id_lookups["result_set"] = rs_lookup
+
         average_job_durations = self.get_average_job_durations(
             id_lookups['reference_data_signatures']
-        )
-
-        # Store all revision hashes and retrieve result_set_ids
-        result_set_ids = self.get_result_set_ids(
-            unique_revision_hashes, rh_where_in
         )
 
         job_update_placeholders = []
@@ -979,7 +1076,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 id_lookups,
                 job_guid_list,
                 job_update_placeholders,
-                result_set_ids,
                 average_job_durations,
                 push_timestamps
             )
@@ -1124,9 +1220,34 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return new_data
 
+    def _get_revision_from_revision_hash(self, job_datum):
+        """
+        Find a revision based on a revision_hash, if possible
+
+        This function only exists for backward-compatibility.  This is needed
+        while we have older resultsets that were storing their revision_hashes
+        the old way, rather than just using their revisions.  And for any jobs
+        that use the old revision_hashes through the API as the way to
+        identify what resultset owns the current job.
+
+        Once jobs are no longer submitted with revision_hashes, then we can
+        remove this function.
+        """
+
+        proc = "jobs.selects.get_revision_from_revision_hash"
+        rh = self.execute(
+            placeholders=[job_datum["revision_hash"]],
+            proc=proc,
+            debug_show=self.DEBUG,
+        )
+        if not len(rh):
+            logger.error("Revision hash not found: {}".format(
+                job_datum["revision_hash"]))
+            # allow the next line to except out and be handled later.
+        return rh[0]["long_revision"]
+
     def _load_ref_and_job_data_structs(
-        self, job, revision_hash, revision_hash_lookup,
-        unique_revision_hashes, rh_where_in, job_placeholders,
+        self, job, revision, unique_revisions, job_placeholders,
         log_placeholders, artifact_placeholders, retry_job_guids,
         lower_tier_signatures, async_artifact_list
     ):
@@ -1141,11 +1262,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         ``pending``/``running`` job and update it with this ``retry`` job.
         """
 
-        # Store revision_hash to support SQL construction
+        # Store revision to support SQL construction
         # for result_set entry
-        if revision_hash not in revision_hash_lookup:
-            unique_revision_hashes.append(revision_hash)
-            rh_where_in.append('%s')
+        unique_revisions.add(revision)
 
         build_os_name = job.get(
             'build_platform', {}).get('os_name', 'unknown')
@@ -1238,7 +1357,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             job_guid,
             signature,
             None,                   # idx:2, job_coalesced_to_guid,
-            revision_hash,          # idx:3, replace with result_set_id
+            revision,               # idx:3, replace with result_set_id
             build_platform_key,     # idx:4, replace with build_platform_id
             machine_platform_key,   # idx:5, replace with machine_platform_id
             machine,                # idx:6, replace with machine_id
@@ -1323,7 +1442,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
     def _set_data_ids(
         self, index, job_placeholders, id_lookups,
         job_guid_list, job_update_placeholders,
-        result_set_ids, average_job_durations, push_timestamps
+        average_job_durations, push_timestamps
     ):
         """
         Supplant ref data with ids and create update placeholders
@@ -1341,7 +1460,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             self.JOB_PH_JOB_GUID]
         job_coalesced_to_guid = job_placeholders[index][
             self.JOB_PH_COALESCED_TO_GUID]
-        revision_hash = job_placeholders[index][
+        revision = job_placeholders[index][
             self.JOB_PH_RESULT_SET_ID]
         build_platform_key = job_placeholders[index][
             self.JOB_PH_BUILD_PLATFORM_KEY]
@@ -1362,8 +1481,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         # Load job_placeholders
 
-        # replace revision_hash with id
-        result_set = result_set_ids[revision_hash]
+        # replace revision with id
+        result_set = id_lookups["result_set"][revision]
         job_placeholders[index][
             self.JOB_PH_RESULT_SET_ID] = result_set['id']
         push_timestamps[result_set['id']] = result_set['push_timestamp']
@@ -1412,7 +1531,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             job_update_placeholders.append([
                 job_guid,
                 job_coalesced_to_guid,
-                result_set_ids[revision_hash]['id'],
+                result_set['id'],
                 id_lookups['machines'][machine_name]['id'],
                 option_collection_hash,
                 id_lookups['job_types'][job_type_key]['id'],
@@ -1592,9 +1711,12 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         Build single queries to add new result_sets, revisions, and
         revision_map for a list of result_sets.
 
+        Determine which ones we already have, which ones we need and
+        which ones we need to update.
+
         result_sets = [
             {
-             "revision_hash": "8afdb7debc82a8b6e0d56449dfdf916c77a7bf80",
+             "revision": "8afdb7debc82a8b6e0d56449dfdf916c77a7bf80",
              "push_timestamp": 1378293517,
              "author": "some-sheriff@mozilla.com",
              "revisions": [
@@ -1603,7 +1725,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     "repository": "test_treeherder",
                     "author": "John Doe <jdoe@mozilla.com>",
                     "branch": "default",
-                    "revision": "2c25d2bbbcd6"
+                    "revision": "8afdb7debc82a8b6e0d56449dfdf916c77a7bf80"
                     },
                 ...
                 ]
@@ -1618,38 +1740,165 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         if not result_sets:
             return {}
 
-        # result_set data structures
-        revision_hash_placeholders = []
-        unique_revision_hashes = []
-        where_in_list = []
-
         # revision data structures
-        repository_id_lookup = dict()
         revision_placeholders = []
         all_revisions = []
         rev_where_in_list = []
 
         # revision_map structures
-        revision_to_rhash_lookup = dict()
+        revision_to_rs_revision_lookup = dict()
 
-        # TODO: Confirm whether we need to do a lookup in this loop in the
-        #   memcache to reduce query overhead
+        unique_rs_revisions = self._get_unique_revisions(result_sets)
+
+        # Retrieve a list of revisions that have already been stored
+        # in the list of unique_revisions. Use it to determine the new
+        # result_sets.  Key this off of both long and short revisions since
+        # we can get either
+        resultsets_before = self.get_resultset_top_revision_lookup(
+            unique_rs_revisions)
+        self._add_short_revision_lookups(resultsets_before)
+        resultset_revisions_before = resultsets_before.keys()
+
+        # UPDATE any resultsets that are incomplete
+        #
+        resultset_updates = self._get_resultset_updates(
+            result_sets, resultsets_before)
+        self._modify_resultsets(resultset_updates,
+                                "jobs.updates.update_result_set",
+                                revision_placeholders,
+                                all_revisions, rev_where_in_list,
+                                revision_to_rs_revision_lookup)
+
+        # INSERT any resultsets we don't already have
+        #
+        resultset_inserts = self._get_resultset_inserts(
+            result_sets, resultset_revisions_before, unique_rs_revisions)
+
+        self._modify_resultsets(resultset_inserts,
+                                "jobs.inserts.set_result_set",
+                                revision_placeholders,
+                                all_revisions, rev_where_in_list,
+                                revision_to_rs_revision_lookup)
+
+        lastrowid = self.get_dhub().connection['master_host']['cursor'].lastrowid
+
+        # Retrieve new, updated and already existing result sets that
+        # match all the revisions sent in during this request
+        result_set_id_lookup = self.get_resultset_top_revision_lookup(
+            unique_rs_revisions)
+
+        # identify the newly inserted result sets
+        result_set_ids_after = set(result_set_id_lookup.keys())
+        inserted_result_sets = result_set_ids_after.difference(
+            resultset_revisions_before
+        )
+
+        inserted_result_set_ids = []
+
+        # If cursor.lastrowid is > 0 rows were inserted on this
+        # cursor. When new rows are inserted, determine the new
+        # result_set ids and submit publish to pulse tasks.
+        if inserted_result_sets and lastrowid > 0:
+
+            for revision in inserted_result_sets:
+                inserted_result_set_ids.append(
+                    result_set_id_lookup[revision]['id']
+                )
+
+        # Revisions don't get updated, if we have conflicts here, they
+        # are just skipped.  This will insert revisions for both new
+        # resultsets and resultset skeletons that were just updated.
+        # Resultset skeletons don't get revisions till we insert them here.
+        revision_id_lookup = self._insert_revisions(
+            revision_placeholders, all_revisions, rev_where_in_list,
+            revision_to_rs_revision_lookup, result_set_id_lookup)
+
+        return {
+            'result_set_ids': result_set_id_lookup,
+            'revision_ids': revision_id_lookup,
+            'inserted_result_set_ids': inserted_result_set_ids
+        }
+
+    def _get_resultset_updates(self, result_sets,
+                               resultsets_before):
+        rs_need_update = {}
+        for rev, resultset in resultsets_before.iteritems():
+            if resultset["push_timestamp"] == 0:
+                rs_need_update[rev] = resultset
+
+        resultset_updates = []
+        if rs_need_update:
+            for rs in result_sets:
+                rev = rs["revision"]
+                need_update = rs_need_update.get(rev, rs_need_update[rev[:12]])
+                # we don't want to update the revision_hash, so we need
+                # to reset the new resultset values with the existing revision_hash
+                rs["revision_hash"] = need_update["revision_hash"]
+                resultset_updates.append(rs)
+
+        return resultset_updates
+
+    def _get_resultset_inserts(self, result_sets,
+                               resultset_revisions_before,
+                               unique_rs_revisions):
+        revisions_need_insert = unique_rs_revisions.difference(
+            resultset_revisions_before)
+
+        resultset_inserts = [x for x in result_sets
+                             if x["revision"] in revisions_need_insert]
+        return resultset_inserts
+
+    def _get_unique_revisions(self, result_sets):
+        unique_rs_revisions = set()
         for result in result_sets:
-            top_revision = result['revisions'][-1]['revision']
+            if "revision" in result:
+                unique_rs_revisions.add(result["revision"])
+                unique_rs_revisions.add(result["revision"][:12])
+            else:
+                top_revision = result['revisions'][-1]['revision']
+                result["revision"] = top_revision
+                unique_rs_revisions.add(top_revision)
+                unique_rs_revisions.add(top_revision[:12])
+                newrelic.agent.record_exception(
+                    exc=ValueError(
+                        "New resultset submitted without ``revision`` value"),
+                    params={"revision": top_revision}
+                )
+        return unique_rs_revisions
+
+    def _modify_resultsets(self, result_sets,
+                           procedure,
+                           revision_placeholders,
+                           all_revisions, rev_where_in_list,
+                           revision_to_rs_revision_lookup):
+        """
+        Either insert or update resultsets, based on the ``procedure`` passed
+        in.
+        """
+        # result_set data structures
+        result_set_placeholders = []
+        unique_rs_revisions = set()
+        where_in_list = []
+        repository_id_lookup = dict()
+
+        for result in result_sets:
+            top_revision = result["revision"]
+            revision_hash = result.get("revision_hash", top_revision)
             short_top_revision = top_revision[:12]
-            revision_hash_placeholders.append(
+            result_set_placeholders.append(
                 [
                     result.get('author', 'unknown@somewhere.com'),
-                    result['revision_hash'],
+                    revision_hash,
                     top_revision,
                     short_top_revision,
                     result['push_timestamp'],
                     result.get('active_status', 'active'),
-                    result['revision_hash']
+                    top_revision,
+                    short_top_revision
                 ]
             )
             where_in_list.append('%s')
-            unique_revision_hashes.append(result['revision_hash'])
+            unique_rs_revisions.add(top_revision)
 
             for rev_datum in result['revisions']:
 
@@ -1667,126 +1916,79 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 )
 
                 repository_id = repository_id_lookup[rev_datum['repository']]
-                short_revision = rev_datum['revision'][:12]
+                long_revision = rev_datum['revision']
+                short_revision = long_revision[:12]
                 revision_placeholders.append(
-                    [rev_datum['revision'],
+                    [long_revision,
                      short_revision,
-                     short_revision,
+                     long_revision,
                      rev_datum['author'],
                      comment,
                      repository_id,
-                     short_revision,
+                     long_revision,
                      repository_id]
                 )
 
-                all_revisions.append(short_revision)
+                all_revisions.append(long_revision)
                 rev_where_in_list.append('%s')
-                revision_to_rhash_lookup[short_revision] = result['revision_hash']
+                revision_to_rs_revision_lookup[long_revision] = top_revision
 
-        # Retrieve a list of revision_hashes that have already been stored
-        # in the list of unique_revision_hashes. Use it to determine the new
-        # result_sets found to publish to pulse.
-        where_in_clause = ','.join(where_in_list)
-        result_set_ids_before = self.execute(
-            proc='jobs.selects.get_result_set_ids',
-            placeholders=unique_revision_hashes,
-            replace=[where_in_clause],
-            key_column='revision_hash',
-            return_type='set',
-            debug_show=self.DEBUG
-        )
-
-        # Insert new result sets
         self.execute(
-            proc='jobs.inserts.set_result_set',
-            placeholders=revision_hash_placeholders,
+            proc=procedure,
+            placeholders=result_set_placeholders,
             executemany=True,
             debug_show=self.DEBUG
         )
 
-        lastrowid = self.get_dhub().connection['master_host']['cursor'].lastrowid
-
-        # Retrieve new and already existing result set ids
-        result_set_id_lookup = self.execute(
-            proc='jobs.selects.get_result_set_ids',
-            placeholders=unique_revision_hashes,
-            replace=[where_in_clause],
-            key_column='revision_hash',
-            return_type='dict',
-            debug_show=self.DEBUG
-        )
-
-        # identify the newly inserted result sets
-        result_set_ids_after = set(result_set_id_lookup.keys())
-        inserted_result_sets = result_set_ids_after.difference(
-            result_set_ids_before
-        )
-
-        inserted_result_set_ids = []
-
-        # If cursor.lastrowid is > 0 rows were inserted on this
-        # cursor. When new rows are inserted, determine the new
-        # result_set ids and submit publish to pulse tasks.
-        if inserted_result_sets and lastrowid > 0:
-
-            for revision_hash in inserted_result_sets:
-                inserted_result_set_ids.append(
-                    result_set_id_lookup[revision_hash]['id']
-                )
-
-        # Insert new revisions
-        self.execute(
-            proc='jobs.inserts.set_revision',
-            placeholders=revision_placeholders,
-            executemany=True,
-            debug_show=self.DEBUG
-        )
-
-        # Retrieve new revision ids
-        rev_where_in_clause = ','.join(rev_where_in_list)
-        revision_id_lookup = self.execute(
-            proc='jobs.selects.get_revisions',
-            placeholders=all_revisions,
-            replace=[rev_where_in_clause],
-            key_column='revision',
-            return_type='dict',
-            debug_show=self.DEBUG
-        )
-
-        # Build placeholders for revision_map
-        revision_map_placeholders = []
-        for revision in revision_id_lookup:
-
-            revision_hash = revision_to_rhash_lookup[revision]
-            revision_id = revision_id_lookup[revision]['id']
-            result_set_id = result_set_id_lookup[revision_hash]['id']
-
-            revision_map_placeholders.append(
-                [revision_id,
-                 result_set_id,
-                 revision_id,
-                 result_set_id]
+    def _insert_revisions(self, revision_placeholders,
+                          all_revisions, rev_where_in_list,
+                          revision_to_rs_revision_lookup,
+                          result_set_id_lookup):
+        if all_revisions:
+            # Insert new revisions
+            self.execute(
+                proc='jobs.inserts.set_revision',
+                placeholders=revision_placeholders,
+                executemany=True,
+                debug_show=self.DEBUG
             )
 
-        # Insert new revision_map entries
-        self.execute(
-            proc='jobs.inserts.set_revision_map',
-            placeholders=revision_map_placeholders,
-            executemany=True,
-            debug_show=self.DEBUG
-        )
+            # Retrieve new revision ids
+            rev_where_in_clause = ','.join(rev_where_in_list)
+            revision_id_lookup = self.execute(
+                proc='jobs.selects.get_revisions',
+                placeholders=all_revisions,
+                replace=[rev_where_in_clause],
+                key_column='long_revision',
+                return_type='dict',
+                debug_show=self.DEBUG
+            )
 
-        return {
-            'result_set_ids': result_set_id_lookup,
-            'revision_ids': revision_id_lookup,
-            'inserted_result_set_ids': inserted_result_set_ids
-        }
+            # Build placeholders for revision_map
+            revision_map_placeholders = []
+            for revision in revision_id_lookup:
 
-    def get_revision_timestamp(self, rev):
-        """Get the push timestamp of the resultset for a revision"""
-        return self.get_revision_resultset_lookup([rev])[rev][
-            "push_timestamp"
-        ]
+                rs_revision = revision_to_rs_revision_lookup[revision]
+                revision_id = revision_id_lookup[revision]['id']
+                result_set_id = result_set_id_lookup[rs_revision]['id']
+
+                revision_map_placeholders.append(
+                    [revision_id,
+                     result_set_id,
+                     revision_id,
+                     result_set_id]
+                )
+
+            # Insert new revision_map entries
+            self.execute(
+                proc='jobs.inserts.set_revision_map',
+                placeholders=revision_map_placeholders,
+                executemany=True,
+                debug_show=self.DEBUG
+            )
+        else:
+            revision_id_lookup = []
+        return revision_id_lookup
 
     def get_exclusion_profile_signatures(self, exclusion_profile):
         """Retrieve the reference data signatures associates to an exclusion profile"""

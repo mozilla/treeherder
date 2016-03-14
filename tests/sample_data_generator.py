@@ -12,8 +12,8 @@ from django.conf import settings
 
 def job_data(**kwargs):
     jobs_obj = {
-        "revision_hash": kwargs.get("revision_hash",
-                                    "24fd64b8251fac5cf60b54a915bffa7e51f636b5"),
+        "revision": kwargs.get("revision",
+                               "24fd64b8251fac5cf60b54a915bffa7e51f636b5"),
         "job": {
 
             u"build_platform": build_platform(**kwargs.pop("build_platform", {})),

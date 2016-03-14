@@ -80,7 +80,7 @@ def test_post_job_with_parsed_log(test_project, result_set_stored,
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tj = client.TreeherderJob({
         'project': test_project,
-        'revision_hash': result_set_stored[0]['revision_hash'],
+        'revision': result_set_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
@@ -122,7 +122,7 @@ def test_post_job_with_text_log_summary_artifact_parsed(
     tjc = client.TreeherderJobCollection()
     tj = client.TreeherderJob({
         'project': test_project,
-        'revision_hash': result_set_stored[0]['revision_hash'],
+        'revision': result_set_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
@@ -171,7 +171,7 @@ def test_post_job_with_text_log_summary_artifact_parsed_dict_blob(
     tjc = client.TreeherderJobCollection()
     tj = client.TreeherderJob({
         'project': test_project,
-        'revision_hash': result_set_stored[0]['revision_hash'],
+        'revision': result_set_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
@@ -221,7 +221,7 @@ def test_post_job_with_text_log_summary_artifact_pending(
     tjc = client.TreeherderJobCollection()
     tj = client.TreeherderJob({
         'project': test_project,
-        'revision_hash': result_set_stored[0]['revision_hash'],
+        'revision': result_set_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
@@ -275,7 +275,7 @@ def test_post_job_with_text_log_summary_and_bug_suggestions_artifact(
     tjc = client.TreeherderJobCollection()
     tj = client.TreeherderJob({
         'project': test_project,
-        'revision_hash': result_set_stored[0]['revision_hash'],
+        'revision': result_set_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
@@ -336,7 +336,7 @@ def test_post_job_artifacts_by_add_artifact(
     tjc = client.TreeherderJobCollection()
     tj = client.TreeherderJob({
         'project': test_project,
-        'revision_hash': result_set_stored[0]['revision_hash'],
+        'revision': result_set_stored[0]['revision'],
         "job": {
             "artifacts": [],
             "job_guid": job_guid,
@@ -390,7 +390,7 @@ def test_post_job_with_tier(test_project, result_set_stored,
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tj = client.TreeherderJob({
         'project': test_project,
-        'revision_hash': result_set_stored[0]['revision_hash'],
+        'revision': result_set_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
@@ -415,7 +415,7 @@ def test_post_job_with_default_tier(test_project, result_set_stored,
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tj = client.TreeherderJob({
         'project': test_project,
-        'revision_hash': result_set_stored[0]['revision_hash'],
+        'revision': result_set_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',

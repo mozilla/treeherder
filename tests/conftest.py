@@ -176,7 +176,7 @@ def mock_get_resultset(monkeypatch, result_set_stored):
             params[k] = {
                 rev: {
                     'id': 1,
-                    'revision_hash': result_set_stored[0]['revision_hash']
+                    'revision': result_set_stored[0]['revision']
                 }
             }
         return params
@@ -235,7 +235,7 @@ def resultset_with_three_jobs(jm, sample_data, sample_resultset, test_repository
         if 'log_references' in blob['job']:
             del blob['job']['log_references']
 
-        blob['revision_hash'] = resultset['revision_hash']
+        blob['revision'] = resultset['revision']
         blob['job']['state'] = 'pending'
         blobs.append(blob)
 
@@ -266,7 +266,7 @@ def eleven_jobs_stored(jm, sample_data, sample_resultset, test_repository, mock_
         if 'sources' in blob:
             del blob['sources']
 
-        blob['revision_hash'] = sample_resultset[resultset_index]['revision_hash']
+        blob['revision'] = sample_resultset[resultset_index]['revision']
 
         blobs.append(blob)
 
