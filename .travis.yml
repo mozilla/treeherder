@@ -67,7 +67,7 @@ matrix:
       install:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
       script:
-        - py.test tests/ -k test_ingest_jobs_with_missing_resultsets --runslow --ignore=tests/e2e/ --ignore=tests/etl/ --ignore=tests/log_parser/
+        - py.test tests/ --runslow --ignore=tests/e2e/ --ignore=tests/etl/ --ignore=tests/log_parser/
 
     - env: python-tests-e2e-etl-and-logparser
       # Once mysql 5.6 is available on the container infra, we should switch back
