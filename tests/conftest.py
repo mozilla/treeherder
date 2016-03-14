@@ -301,7 +301,7 @@ def mock_post_json(monkeypatch, client_credentials):
 @pytest.fixture
 def mock_fetch_json(monkeypatch):
     def _fetch_json(url, params=None):
-        response = TestApp(application).get(url, params=params, status=200)
+        response = TestApp(application).get(url, params=params, status=404)
         return response.json
 
     import treeherder.etl.common

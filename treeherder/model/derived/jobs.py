@@ -699,8 +699,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         # Build params to search for both long and short revisions.
         params = self._get_short_and_long_revision_query_params(revision_list)
-        print "short and long params"
-        print params
+        # print "short and long params"
+        # print params
         lookup = self.execute(
             proc='jobs.selects.get_resultset_top_revision_lookup',
             placeholders=params["placeholders"],
