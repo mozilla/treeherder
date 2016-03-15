@@ -6,6 +6,7 @@ from rest_framework.test import APIClient
 
 from tests import test_utils
 from treeherder.client import TreeherderResultSetCollection
+from treeherder.model.models import FailureClassification
 from treeherder.webapp.api import utils
 
 
@@ -61,7 +62,7 @@ def test_resultset_list_bad_project(webapp, jm):
     assert resp.json == {"detail": "No project with name foo"}
 
 
-def test_resultset_list_empty_rs_still_show(webapp, initial_data,
+def test_resultset_list_empty_rs_still_show(webapp, test_repository,
                                             sample_resultset, jm):
     """
     test retrieving a resultset list, when the resultset has no jobs.
@@ -126,7 +127,9 @@ def test_resultset_list_single_long_revision(webapp, eleven_jobs_stored, jm, tes
     )
 
 
-def test_resultset_list_single_long_revision_stored_long(webapp, sample_resultset, jm, test_project):
+def test_resultset_list_single_long_revision_stored_long(webapp, test_repository,
+                                                         sample_resultset, jm,
+                                                         test_project):
     """
     test retrieving a resultset list with store long revision, filtered by a single long revision
     """
@@ -183,7 +186,7 @@ def test_resultset_list_filter_by_revision(webapp, eleven_jobs_stored, jm, test_
     )
 
 
-def test_resultset_list_filter_by_date(webapp, initial_data,
+def test_resultset_list_filter_by_date(webapp, test_repository,
                                        sample_resultset, jm, test_project):
     """
     test retrieving a resultset list, filtered by a date range
@@ -221,7 +224,7 @@ def test_resultset_list_filter_by_date(webapp, initial_data,
     jm.disconnect()
 
 
-def test_resultset_list_without_jobs(webapp, initial_data,
+def test_resultset_list_without_jobs(webapp, test_repository,
                                      sample_resultset, jm, test_project):
     """
     test retrieving a resultset list without jobs
@@ -293,7 +296,7 @@ def test_result_set_detail_bad_project(webapp, jm):
     assert resp.json == {"detail": "No project with name foo"}
 
 
-def test_resultset_create(jm, initial_data, test_repository, sample_resultset,
+def test_resultset_create(jm, test_repository, sample_resultset,
                           mock_post_json):
     """
     test posting data to the resultset endpoint via webtest.
@@ -365,10 +368,12 @@ def test_resultset_cancel_all(jm, resultset_with_three_jobs, pulse_action_consum
     user.delete()
 
 
-def test_resultset_status(webapp, eleven_jobs_stored, jm, initial_data):
+def test_resultset_status(jm, webapp, eleven_jobs_stored):
     """
     test retrieving the status of a resultset
     """
+    # create a failure classification corresponding to "not successful"
+    FailureClassification.objects.create(id=2, name="fixed by commit")
 
     rs_list = jm.get_result_set_list(0, 10)
     rs = rs_list[0]

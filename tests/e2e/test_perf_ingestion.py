@@ -8,9 +8,9 @@ from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceSignature)
 
 
-def test_post_talos_artifact(test_project, test_repository, result_set_stored,
+def test_post_talos_artifact(jobs_ds, test_repository, result_set_stored,
                              mock_post_json):
-    test_repository.save()
+    PerformanceFramework.objects.get_or_create(name='talos')
 
     tjc = client.TreeherderJobCollection()
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
@@ -33,7 +33,7 @@ def test_post_talos_artifact(test_project, test_repository, result_set_stored,
 
     tjc.add(tj)
 
-    post_collection(test_project, tjc)
+    post_collection(test_repository.name, tjc)
 
     # we'll just validate that we got the expected number of results for
     # talos (we have validation elsewhere for the actual data adapters)
@@ -41,9 +41,8 @@ def test_post_talos_artifact(test_project, test_repository, result_set_stored,
     assert PerformanceDatum.objects.count() == 1
 
 
-def test_post_perf_artifact(test_project, test_repository, result_set_stored,
+def test_post_perf_artifact(jobs_ds, test_repository, result_set_stored,
                             mock_post_json):
-    test_repository.save()
     PerformanceFramework.objects.get_or_create(name='cheezburger')
 
     tjc = client.TreeherderJobCollection()
@@ -79,7 +78,7 @@ def test_post_perf_artifact(test_project, test_repository, result_set_stored,
 
     tjc.add(tj)
 
-    post_collection(test_project, tjc)
+    post_collection(test_repository.name, tjc)
 
     # we'll just validate that we got the expected number of results for
     # talos (we have validation elsewhere for the actual data adapters)
@@ -87,9 +86,8 @@ def test_post_perf_artifact(test_project, test_repository, result_set_stored,
     assert PerformanceDatum.objects.all().count() == 3
 
 
-def test_post_perf_artifact_multiple(test_project, test_repository,
+def test_post_perf_artifact_multiple(jobs_ds, test_repository,
                                      result_set_stored, mock_post_json):
-    test_repository.save()
     PerformanceFramework.objects.get_or_create(name='cheezburger')
     perfobj = {
         "framework": {"name": "cheezburger"},
@@ -127,7 +125,7 @@ def test_post_perf_artifact_multiple(test_project, test_repository,
 
     tjc.add(tj)
 
-    post_collection(test_project, tjc)
+    post_collection(test_repository.name, tjc)
 
     # we'll just validate that we got the expected number of results for
     # talos (we have validation elsewhere for the actual data adapters)

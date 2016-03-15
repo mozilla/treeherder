@@ -6,7 +6,6 @@ import kombu
 import pytest
 import responses
 from django.conf import settings
-from django.core.management import call_command
 from requests import Request
 from requests_hawk import HawkAuth
 from webtest.app import TestApp
@@ -51,11 +50,6 @@ def increment_cache_key_prefix():
     cache.key_prefix = "t{0}".format(key_prefix_counter)
 
 
-@pytest.fixture()
-def initial_data(transactional_db):
-    call_command('load_initial_data')
-
-
 @pytest.fixture
 def jobs_ds(request, transactional_db):
     from treeherder.model.models import Datasource
@@ -69,7 +63,7 @@ def jobs_ds(request, transactional_db):
 
 
 @pytest.fixture
-def jm(request, jobs_ds):
+def jm(request, test_repository, jobs_ds):
     """ Give a test access to a JobsModel instance. """
     model = JobsModel(jobs_ds.project)
 
@@ -124,7 +118,7 @@ def test_project(jm):
 
 
 @pytest.fixture
-def test_repository(jm, transactional_db):
+def test_repository(transactional_db):
     from treeherder.model.models import Repository, RepositoryGroup
 
     RepositoryGroup.objects.create(
@@ -133,15 +127,16 @@ def test_repository(jm, transactional_db):
         description=""
     )
 
-    return Repository.objects.create(
+    r = Repository.objects.create(
         dvcs_type="hg",
-        name=jm.project,
+        name=settings.TREEHERDER_TEST_PROJECT,
         url="https://hg.mozilla.org/mozilla-central",
         active_status="active",
         codebase="gecko",
         repository_group_id=1,
         description=""
     )
+    return r
 
 
 @pytest.fixture
@@ -159,8 +154,7 @@ def mock_log_parser(monkeypatch):
 
 
 @pytest.fixture
-def result_set_stored(jm, initial_data, sample_resultset, test_repository):
-
+def result_set_stored(jm, sample_resultset):
     jm.store_result_set_data(sample_resultset)
 
     return sample_resultset
@@ -374,7 +368,7 @@ def mock_error_summary(monkeypatch):
 
 
 @pytest.fixture
-def failure_lines(jm, eleven_jobs_stored, initial_data):
+def failure_lines(jm, eleven_jobs_stored):
     from treeherder.model.models import RepositoryGroup, Repository
     from tests.autoclassify.utils import test_line, create_failure_lines
 
@@ -391,7 +385,7 @@ def failure_lines(jm, eleven_jobs_stored, initial_data):
 
 
 @pytest.fixture
-def classified_failures(request, jm, eleven_jobs_stored, initial_data, failure_lines):
+def classified_failures(request, jm, eleven_jobs_stored, failure_lines):
     from treeherder.model.models import ClassifiedFailure, FailureMatch, Matcher
     from treeherder.autoclassify import detectors
 
