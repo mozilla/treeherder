@@ -9,7 +9,7 @@ from treeherder.etl.pushlog import (HgPushlogProcess,
                                     MissingHgPushlogProcess)
 
 
-def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
+def test_ingest_hg_pushlog(jm, test_base_dir,
                            test_repository, mock_post_json,
                            activate_responses):
     """ingesting a number of pushes should populate result set and revisions"""
@@ -42,7 +42,7 @@ def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
     assert len(revisions_stored) == 15
 
 
-def test_ingest_hg_pushlog_already_stored(jm, initial_data, test_base_dir,
+def test_ingest_hg_pushlog_already_stored(jm, test_base_dir,
                                           test_repository, mock_post_json, activate_responses):
     """test that trying to ingest a push already stored doesn't doesn't affect
     all the pushes in the request,
@@ -98,7 +98,7 @@ def test_ingest_hg_pushlog_already_stored(jm, initial_data, test_base_dir,
     assert len(pushes_stored) == 2
 
 
-def test_ingest_hg_pushlog_not_found_in_json_pushes(jm, initial_data, test_base_dir,
+def test_ingest_hg_pushlog_not_found_in_json_pushes(jm, test_base_dir,
                                                     test_repository, mock_post_json,
                                                     activate_responses):
     """
@@ -132,7 +132,7 @@ def test_ingest_hg_pushlog_not_found_in_json_pushes(jm, initial_data, test_base_
     assert len(revisions_stored) == 1
 
 
-def test_ingest_hg_pushlog_cache_last_push(jm, initial_data, test_repository,
+def test_ingest_hg_pushlog_cache_last_push(jm, test_repository,
                                            test_base_dir, mock_post_json,
                                            activate_responses):
     """
@@ -158,7 +158,7 @@ def test_ingest_hg_pushlog_cache_last_push(jm, initial_data, test_repository,
     assert cache.get(cache_key) == max_push_id
 
 
-def test_empty_json_pushes(jm, initial_data, test_base_dir,
+def test_empty_json_pushes(jm, test_base_dir,
                            test_repository, mock_post_json,
                            activate_responses):
     """

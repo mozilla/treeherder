@@ -11,7 +11,7 @@ from ..sampledata import SampleData
 
 
 @pytest.fixture
-def jobs_with_local_log(initial_data):
+def jobs_with_local_log():
     log = ("mozilla-inbound_ubuntu64_vm-debug_test-"
            "mochitest-other-bm53-tests1-linux-build122")
     sample_data = SampleData()
@@ -26,7 +26,7 @@ def jobs_with_local_log(initial_data):
 
 
 @pytest.fixture
-def jobs_with_local_mozlog_log(initial_data):
+def jobs_with_local_mozlog_log():
     log = ("plain-chunked_raw.log")
     sample_data = SampleData()
     url = "file://{0}".format(
@@ -57,8 +57,8 @@ def mock_mozlog_get_log_handler(monkeypatch):
                         'get_log_handle', _get_log_handle)
 
 
-def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset,
-                   test_repository, mock_post_json, mock_fetch_json):
+def test_parse_log(jm, jobs_with_local_log, sample_resultset,
+                   mock_post_json, mock_fetch_json):
     """
     check that at least 3 job_artifacts get inserted when running
     a parse_log task for a successful job
@@ -95,8 +95,8 @@ def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset,
 
 # json-log parsing is disabled due to bug 1152681.
 @pytest.mark.xfail
-def test_parse_mozlog_log(jm, initial_data, jobs_with_local_mozlog_log,
-                          sample_resultset, test_repository, mock_post_json,
+def test_parse_mozlog_log(jm, jobs_with_local_mozlog_log,
+                          sample_resultset, mock_post_json,
                           mock_fetch_json,
                           mock_mozlog_get_log_handler
                           ):
@@ -138,8 +138,8 @@ def test_parse_mozlog_log(jm, initial_data, jobs_with_local_mozlog_log,
     assert len(fails) == 3
 
 
-def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
-                                  sample_resultset, test_repository, mock_post_json,
+def test_bug_suggestions_artifact(jm, jobs_with_local_log,
+                                  sample_resultset, mock_post_json,
                                   mock_fetch_json
                                   ):
     """

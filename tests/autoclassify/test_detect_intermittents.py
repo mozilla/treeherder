@@ -12,7 +12,7 @@ from .utils import (create_failure_lines,
 
 
 @pytest.mark.skipif(True, reason="Awaiting landing of Bug 1177519")
-def test_detect_intermittents(activate_responses, jm, eleven_jobs_stored, initial_data,
+def test_detect_intermittents(activate_responses, jm, eleven_jobs_stored,
                               failure_lines, classified_failures, retriggers):
 
     repository = Repository.objects.get(name=jm.project)
