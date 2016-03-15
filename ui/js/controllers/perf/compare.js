@@ -327,10 +327,10 @@ perf.controller('CompareResultsCtrl', [
                     id: parseInt($stateParams.framework)
                 }) || $scope.frameworks[0],
                 filter: $stateParams.filter || "",
-                showOnlyImportant: $stateParams.showOnlyImportant === undefined ||
-                    parseInt($stateParams.showOnlyImportant),
-                showOnlyConfident: $stateParams.showOnlyConfident !== undefined ||
-                    parseInt($stateParams.showOnlyConfident)
+                showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
+                                           parseInt($stateParams.showOnlyImportant)),
+                showOnlyConfident: Boolean($stateParams.showOnlyConfident !== undefined &&
+                                           parseInt($stateParams.showOnlyConfident))
             };
 
             $scope.$watchGroup(['filterOptions.frameworkId',
@@ -408,10 +408,10 @@ perf.controller('CompareSubtestResultsCtrl', [
 
             $scope.filterOptions = {
                 filter: $stateParams.filter || "",
-                showOnlyImportant: $stateParams.showOnlyImportant !== undefined &&
-                    parseInt($stateParams.showOnlyImportant),
-                showOnlyConfident: $stateParams.showOnlyConfident !== undefined &&
-                    parseInt($stateParams.showOnlyConfident)
+                showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
+                                           parseInt($stateParams.showOnlyImportant)),
+                showOnlyConfident: Boolean($stateParams.showOnlyConfident !== undefined &&
+                                           parseInt($stateParams.showOnlyConfident))
             };
 
             $scope.$watchGroup(['filterOptions.filter',

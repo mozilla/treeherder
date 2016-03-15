@@ -195,15 +195,18 @@ treeherder.directive('thCloneJobs', [
                         job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' + job.signature;
                         job.visible = filterWithRunnable(job);
                     });
+                    gi.grpCountList.hide();
+                    gi.grpJobList.hide();
                     if (isGroupExpanded(gi.jgObj)) {
                         gi.jgObj.groupState = "collapsed";
                         addGroupJobsAndCounts(gi.jgObj, gi.platformGroupEl);
                     } else {
-                        gi.grpCountList.empty();
                         gi.jgObj.groupState = "expanded";
-                        gi.grpJobList.empty();
-                        gi.grpJobList.append(renderJobBtnEls(gi.jgObj));
+                        gi.grpCountList.empty();
+                        gi.grpJobList.html(renderJobBtnEls(gi.jgObj));
                     }
+                    gi.grpJobList.fadeIn();
+                    gi.grpCountList.fadeIn();
                 }
             }
         };
@@ -553,6 +556,7 @@ treeherder.directive('thCloneJobs', [
                         btnHTML: btnHTML,
                         countBtnHTML: countBtnHTML,
                         symbol: jobGroup.symbol,
+                        tier: jobGroup.tier,
                         name: jobGroup.name,
                         grkey: jobGroup.grkey,
                         display: (btnHTML.indexOf('filter-shown') !== -1 || countBtnHTML.indexOf('filter-shown') !== -1) ? 'inline' : 'none'

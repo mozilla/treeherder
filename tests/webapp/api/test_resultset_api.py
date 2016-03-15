@@ -293,7 +293,8 @@ def test_result_set_detail_bad_project(webapp, jm):
     assert resp.json == {"detail": "No project with name foo"}
 
 
-def test_resultset_create(sample_resultset, jm, initial_data, mock_post_json):
+def test_resultset_create(jm, initial_data, test_repository, sample_resultset,
+                          mock_post_json):
     """
     test posting data to the resultset endpoint via webtest.
     extected result are:
@@ -302,14 +303,23 @@ def test_resultset_create(sample_resultset, jm, initial_data, mock_post_json):
     - 1 resultset stored in the jobs schema
     """
 
-    trsc = TreeherderResultSetCollection()
+    # store the first two, so we submit all, but should properly not re-
+    # add the others.
 
+    jm.store_result_set_data(sample_resultset[:2])
+
+    trsc = TreeherderResultSetCollection()
+    exp_revision_hashes = set()
     for rs in sample_resultset:
         rs.update({'author': 'John Doe'})
         result_set = trsc.get_resultset(rs)
         trsc.add(result_set)
+        exp_revision_hashes.add(rs["revision_hash"])
 
-    test_utils.post_collection(jm.project, trsc)
+    resp = test_utils.post_collection(jm.project, trsc)
+
+    act_revision_hashes = {x["revision_hash"] for x in resp.json["resultsets"]}
+    assert exp_revision_hashes == act_revision_hashes
 
     stored_objs = jm.get_dhub().execute(
         proc="jobs_test.selects.resultset_by_rev_hash",

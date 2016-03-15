@@ -198,7 +198,9 @@
                 <span class="disabled job-group" title="{{ name }}"
                       data-grkey="{{ grkey }}">
                     <span class="group-symbol"
-                          ignore-job-clear-on-click>{{ symbol }}</span>
+                          ignore-job-clear-on-click>{{ symbol }}{{(tier) ?
+                      '<span class="small text-muted">[tier ' + tier + ']</span>': ""}}
+                    </span>
                     <span class="group-content">
                         <span class="group-job-list">
                             {{ btnHTML }}

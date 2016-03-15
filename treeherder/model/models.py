@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import os
 from collections import (OrderedDict,
                          defaultdict)
+from hashlib import sha1
 from warnings import (filterwarnings,
                       resetwarnings)
 
@@ -324,6 +325,15 @@ class OptionCollection(models.Model):
     id = models.AutoField(primary_key=True)
     option_collection_hash = models.CharField(max_length=40, db_index=True)
     option = models.ForeignKey(Option, db_index=True)
+
+    @staticmethod
+    def calculate_hash(options):
+        """returns an option_collection_hash given a list of options"""
+        options = sorted(list(options))
+        sha_hash = sha1()
+        # equivalent to loop over the options and call sha_hash.update()
+        sha_hash.update(''.join(options))
+        return sha_hash.hexdigest()
 
     class Meta:
         db_table = 'option_collection'

@@ -32,15 +32,16 @@ class PerformanceSignature(models.Model):
                                       ],
                                       db_index=True)
 
-    repository = models.ForeignKey(Repository, null=True)  # null=True only temporary, until we update old entries
+    repository = models.ForeignKey(Repository)
     framework = models.ForeignKey(PerformanceFramework)
     platform = models.ForeignKey(MachinePlatform)
     option_collection = models.ForeignKey(OptionCollection)
     suite = models.CharField(max_length=80)
     test = models.CharField(max_length=80, blank=True)
     lower_is_better = models.BooleanField(default=True)
-    last_updated = models.DateTimeField(db_index=True, null=True)  # null=True only temporary, until we update old entries
-
+    last_updated = models.DateTimeField(db_index=True)
+    parent_signature = models.ForeignKey('self', related_name='subtests',
+                                         null=True, blank=True)
     # extra properties to distinguish the test (that don't fit into
     # option collection for whatever reason)
     extra_properties = JSONField(max_length=1024)
@@ -57,7 +58,13 @@ class PerformanceSignature(models.Model):
         unique_together = ('repository', 'signature_hash')
 
     def __str__(self):
-        return self.signature_hash
+        name = self.suite
+        if self.test:
+            name += " {}".format(self.test)
+        else:
+            name += " summary"
+        return "{} {} {} {}".format(self.signature_hash, name, self.platform,
+                                    self.last_updated)
 
 
 @python_2_unicode_compatible
@@ -186,7 +193,8 @@ class PerformanceAlertSummary(models.Model):
                            'result_set_id')
 
     def __str__(self):
-        return "{} {}".format(self.repository, self.result_set_id)
+        return "{} {} {}-{}".format(self.framework, self.repository,
+                                    self.prev_result_set_id, self.result_set_id)
 
 
 @python_2_unicode_compatible

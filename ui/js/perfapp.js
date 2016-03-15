@@ -21,7 +21,7 @@ perf.config(function($compileProvider, $httpProvider, $stateProvider, $urlRouter
         controller: 'GraphsCtrl'
     }).state('compare', {
         templateUrl: 'partials/perf/comparectrl.html',
-        url: '/compare?originalProject&originalRevision&newProject&newRevision&hideMinorChanges&framework&filter&showOnlyImportant&showOnlyConfidentw',
+        url: '/compare?originalProject&originalRevision&newProject&newRevision&hideMinorChanges&framework&filter&showOnlyImportant&showOnlyConfident',
         controller: 'CompareResultsCtrl'
     }).state('comparesubtest', {
         templateUrl: 'partials/perf/comparesubtestctrl.html',
@@ -35,8 +35,12 @@ perf.config(function($compileProvider, $httpProvider, $stateProvider, $urlRouter
     }).state('e10s', {
         title: 'e10s talos dashboard',
         templateUrl: 'partials/perf/e10s.html',
-        url: '/e10s?&filter&showOnlyImportant&showOnlyConfident',
+        url: '/e10s?filter&showOnlyImportant&showOnlyConfident&showOnlyBlockers',
         controller: 'e10sCtrl'
+    }).state('e10s_comparesubtest', {
+        templateUrl: 'partials/perf/e10s-subtest.html',
+        url: '/e10s_comparesubtest?filter&showOnlyImportant&showOnlyConfident&baseSignature&e10sSignature',
+        controller: 'e10sSubtestCtrl'
     });
 
     $urlRouterProvider.otherwise('/graphs');

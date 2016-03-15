@@ -8,7 +8,8 @@ from tests import test_utils
 from tests.sample_data_generator import (job_data,
                                          result_set)
 from treeherder.model.derived import ArtifactsModel
-from treeherder.model.models import JobDuration
+from treeherder.model.models import (JobDuration,
+                                     JobGroup)
 
 slow = pytest.mark.slow
 xfail = pytest.mark.xfail
@@ -456,8 +457,8 @@ def test_ingesting_skip_existing(jm, sample_data, initial_data, refdata,
     assert len(jl) == 2
 
 
-def test_ingest_job_with_updated_job_group(jm, refdata, sample_data, initial_data,
-                                           mock_log_parser, result_set_stored):
+def test_ingest_job_with_updated_job_group(jm, sample_data, mock_log_parser,
+                                           result_set_stored):
     """
     When a job_type is associated with a job group on data ingestion,
     that association will not updated ingesting a new job with the same
@@ -487,6 +488,10 @@ def test_ingest_job_with_updated_job_group(jm, refdata, sample_data, initial_dat
     second_job_group_name = second_job_stored[0]["job_group_name"]
 
     assert first_job_group_name == second_job_group_name
+
+    # make sure also we didn't create a new job group
+    with pytest.raises(JobGroup.DoesNotExist):
+        JobGroup.objects.get(name="second group name")
 
 
 def test_retry_on_operational_failure(jm, initial_data, monkeypatch):

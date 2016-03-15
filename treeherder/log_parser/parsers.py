@@ -488,8 +488,7 @@ class PerformanceParser(ParserBase):
         if match:
             # this will throw an exception if the json parsing breaks, but
             # that's the behaviour we want
-            self.artifact = json.loads(match.group(1))
-            # at some point in the future we might want to allow a job to
-            # specify multiple performance artifacts, but for now we'll
-            # just stop here
-            self.complete = True
+            self.artifact.append(json.loads(match.group(1)))
+            # don't mark as complete, in case there are multiple performance
+            # artifacts
+            # self.complete = True
