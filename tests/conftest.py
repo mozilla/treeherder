@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 
@@ -286,7 +287,7 @@ def mock_post_json(monkeypatch, client_credentials):
         req = Request('POST', uri, json=data, auth=auth)
         prepped_request = req.prepare()
 
-        getattr(app, 'post')(
+        return getattr(app, 'post')(
             prepped_request.url,
             params=json.dumps(data),
             content_type='application/json',
@@ -351,11 +352,6 @@ def pulse_consumer(exchange, request):
 
     request.addfinalizer(fin)
     return simpleQueue
-
-
-@pytest.fixture
-def pulse_resultset_consumer(request):
-    return pulse_consumer('new-result-set', request)
 
 
 @pytest.fixture
@@ -499,6 +495,7 @@ def test_perf_signature(test_repository):
         platform=platform,
         option_collection=option_collection,
         suite='mysuite',
-        test='mytest'
+        test='mytest',
+        last_updated=datetime.datetime.now()
     )
     return signature

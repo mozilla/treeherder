@@ -60,7 +60,7 @@
             "host_type": "master_host"
         },
         "result_set_ids": {
-            "sql": "SELECT `id`, `push_timestamp`, `revision_hash` FROM `result_set`",
+            "sql": "SELECT `id`, `push_timestamp`, `long_revision`, `revision_hash` FROM `result_set`",
             "host_type": "master_host"
         },
         "result_sets": {

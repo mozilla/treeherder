@@ -74,6 +74,12 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
                 # test may be empty in case of a summary test, leave it empty
                 # then
                 ret[signature_hash]['test'] = test
+            else:
+                # if it's a summary test, we will query subtests signature for it
+                ret[signature_hash]['subtest_signatures'] = signature_data.filter(
+                        parent_signature__signature_hash__exact=signature_hash
+                ).values_list('signature_hash', flat=True)
+
             ret[signature_hash].update(json.loads(extra_properties))
 
         return Response(ret)

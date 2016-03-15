@@ -556,6 +556,7 @@ treeherder.directive('thCloneJobs', [
                         btnHTML: btnHTML,
                         countBtnHTML: countBtnHTML,
                         symbol: jobGroup.symbol,
+                        tier: jobGroup.tier,
                         name: jobGroup.name,
                         grkey: jobGroup.grkey,
                         display: (btnHTML.indexOf('filter-shown') !== -1 || countBtnHTML.indexOf('filter-shown') !== -1) ? 'inline' : 'none'
