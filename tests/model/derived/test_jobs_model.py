@@ -47,8 +47,9 @@ def get_completed_resultset(rev, idx):
                            'comments': u'bug 909264 - control '
                                        u'characters',
                            'repository_id': 75L,
-                           'revision':rev}]
+                           'revision': rev}]
         }
+
 
 def add_pushlog_response(revisions):
     for idx, revision in enumerate(revisions):
