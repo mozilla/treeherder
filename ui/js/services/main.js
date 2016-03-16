@@ -256,3 +256,28 @@ treeherder.factory('thJobSearchStr', [
                 "(" + job.job_type_symbol + ")";
         };
     }]);
+
+treeherder.factory('thExtendProperties', [
+    /* Version of _.extend that works with property descriptors */
+    function() {
+        return function(dest, src) {
+            if (dest !== src) {
+                for (var key in src) {
+                    if (!src.hasOwnProperty(key)) {
+                        continue;
+                    }
+                    var descriptor = Object.getOwnPropertyDescriptor(src, key);
+                    if (descriptor && descriptor.get) {
+                        Object.defineProperty(dest, key,
+                                              {get: descriptor.get,
+                                               set: descriptor.set,
+                                               enumerable: descriptor.enumerable,
+                                               configurable: descriptor.configurable});
+                    } else {
+                        dest[key] = src[key];
+                    }
+                }
+            }
+            return dest;
+        };
+    }]);
