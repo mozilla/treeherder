@@ -41,12 +41,12 @@ pulse_connection = LazyPublisher()
 
 
 # Run a maximum of 1 per hour
-@task(name='cycle-data', rate_limit='1/h', ignore_result=True)
+@task(name='cycle-data', rate_limit='1/h')
 def cycle_data():
     call_command('cycle_data')
 
 
-@task(name='calculate-durations', rate_limit='1/h', ignore_result=True)
+@task(name='calculate-durations', rate_limit='1/h')
 def calculate_durations(sample_window_seconds=21600, debug=False):
     from treeherder.model.derived.jobs import JobsModel
 
@@ -58,7 +58,7 @@ def calculate_durations(sample_window_seconds=21600, debug=False):
             jm.calculate_durations(sample_window_seconds, debug)
 
 
-@task(name='publish-job-action', ignore_result=True)
+@task(name='publish-job-action')
 def publish_job_action(project, action, job_id, requester):
     """
     Generic task to issue pulse notifications when jobs actions occur
@@ -92,7 +92,7 @@ def publish_job_action(project, action, job_id, requester):
         )
 
 
-@task(name='publish-resultset-action', ignore_result=True)
+@task(name='publish-resultset-action')
 def publish_resultset_action(project, action, resultset_id, requester, times=1):
     publisher = pulse_connection.get_publisher()
     if not publisher:
@@ -122,7 +122,6 @@ def publish_resultset_runnable_job_action(project, resultset_id, requester,
         resultset_id=resultset_id,
         buildernames=buildernames
     )
-
 
 
 @task(name='populate-error-summary')
