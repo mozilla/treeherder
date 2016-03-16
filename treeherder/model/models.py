@@ -138,7 +138,7 @@ class Bugscache(models.Model):
 @python_2_unicode_compatible
 class Machine(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50, db_index=True)
+    name = models.CharField(max_length=50, unique=True, db_index=True)
     first_timestamp = models.IntegerField(db_index=True)
     last_timestamp = models.IntegerField(db_index=True)
     active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
@@ -507,8 +507,6 @@ class ReferenceDataSignatures(models.Model):
     build_system_type = models.CharField(max_length=25, blank=True, db_index=True)
     repository = models.CharField(max_length=50, db_index=True)
     first_submission_timestamp = models.IntegerField(db_index=True)
-    review_timestamp = models.IntegerField(null=True, blank=True, db_index=True)
-    review_status = models.CharField(max_length=12, blank=True, db_index=True)
 
     class Meta:
         db_table = 'reference_data_signatures'
