@@ -1,10 +1,4 @@
 import logging
-from contextlib import closing
-
-from django.conf import settings
-from django.utils.six import BytesIO
-
-from treeherder.etl.common import make_request
 
 from .parsers import (PerformanceParser,
                       StepParser,

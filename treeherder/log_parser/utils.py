@@ -9,7 +9,6 @@ from treeherder.client import (TreeherderArtifactCollection,
                                TreeherderClient)
 from treeherder.credentials.models import Credentials
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
-from treeherder.log_parser.artifactbuilders import MozlogArtifactBuilder
 from treeherder.model.derived import JobsModel
 from treeherder.model.error_summary import get_error_summary_artifacts
 
