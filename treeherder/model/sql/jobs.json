@@ -297,7 +297,7 @@
         },
 
         "get_jobs_to_cycle":{
-            "sql":"SELECT id FROM job WHERE submit_timestamp < ?",
+            "sql":"SELECT id, job_guid FROM job WHERE submit_timestamp < ?",
             "host_type":"master_host"
         },
 
