@@ -93,51 +93,6 @@ def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset,
     assert len(job_artifacts) >= 3
 
 
-# json-log parsing is disabled due to bug 1152681.
-@pytest.mark.xfail
-def test_parse_mozlog_log(jm, initial_data, jobs_with_local_mozlog_log,
-                          sample_resultset, test_repository, mock_post_json,
-                          mock_fetch_json,
-                          mock_mozlog_get_log_handler
-                          ):
-    """
-    check parsing the structured log creates a ``structured-faults`` artifact
-    """
-
-    jm.store_result_set_data(sample_resultset)
-
-    jobs = jobs_with_local_mozlog_log
-    for job in jobs:
-        job['job']['result'] = "testfailed"
-        job['revision_hash'] = sample_resultset[0]['revision_hash']
-
-    jm.store_job_data(jobs)
-
-    job_id = jm.get_dhub().execute(
-        proc="jobs_test.selects.row_by_guid",
-        placeholders=[jobs[0]['job']['job_guid']]
-    )[0]['id']
-
-    job_artifacts = jm.get_dhub().execute(
-        proc="jobs_test.selects.job_artifact",
-        placeholders=[job_id]
-    )
-
-    jm.disconnect()
-
-    artifact = [x for x in job_artifacts if x['name'] == 'json_log_summary']
-    assert len(artifact) >= 1
-
-    all_errors = json.loads(zlib.decompress(artifact[0]['blob']))['all_errors']
-    warnings = [x for x in all_errors if
-                x['action'] == 'log' and x['level'] == "WARNING"]
-    fails = [x for x in all_errors if
-             x['action'] == 'test_status' and x['status'] == "FAIL"]
-
-    assert len(warnings) == 106
-    assert len(fails) == 3
-
-
 def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
                                   sample_resultset, test_repository, mock_post_json,
                                   mock_fetch_json
