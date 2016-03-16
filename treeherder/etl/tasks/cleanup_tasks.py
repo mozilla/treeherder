@@ -9,7 +9,7 @@ from treeherder.model.derived import RefDataManager
 logger = logging.getLogger(__name__)
 
 
-@task(name='fetch-missing-push-logs', ignore_result=True)
+@task(name='fetch-missing-push-logs')
 def fetch_missing_push_logs(missing_pushlogs):
     """
     Run several fetch_hg_push_log subtasks, one per repository
@@ -30,7 +30,7 @@ def fetch_missing_push_logs(missing_pushlogs):
                     )
 
 
-@task(name='fetch-missing-hg-push-logs', time_limit=3 * 60, ignore_result=True)
+@task(name='fetch-missing-hg-push-logs', time_limit=3 * 60)
 def fetch_missing_hg_push_logs(repo_name, repo_url, resultset):
     """
     Run a HgPushlog etl process

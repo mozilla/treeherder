@@ -11,7 +11,7 @@ from treeherder.etl.pushlog import HgPushlogProcess
 from treeherder.model.derived import RefDataManager
 
 
-@task(name='fetch-buildapi-pending', time_limit=3 * 60, ignore_result=True)
+@task(name='fetch-buildapi-pending', time_limit=3 * 60)
 def fetch_buildapi_pending():
     """
     Fetches the buildapi pending jobs api and load them
@@ -19,7 +19,7 @@ def fetch_buildapi_pending():
     PendingJobsProcess().run()
 
 
-@task(name='fetch-buildapi-running', time_limit=3 * 60, ignore_result=True)
+@task(name='fetch-buildapi-running', time_limit=3 * 60)
 def fetch_buildapi_running():
     """
     Fetches the buildapi running jobs api and load them
@@ -27,7 +27,7 @@ def fetch_buildapi_running():
     RunningJobsProcess().run()
 
 
-@task(name='fetch-buildapi-build4h', time_limit=3 * 60, ignore_result=True)
+@task(name='fetch-buildapi-build4h', time_limit=3 * 60)
 def fetch_buildapi_build4h():
     """
     Fetches the buildapi running jobs api and load them
@@ -35,7 +35,7 @@ def fetch_buildapi_build4h():
     Builds4hJobsProcess().run()
 
 
-@task(name='fetch-allthethings', time_limit=10 * 60, ignore_result=True)
+@task(name='fetch-allthethings', time_limit=10 * 60)
 def fetch_allthethings():
     """
     Fetches possible jobs from allthethings and load them
@@ -43,7 +43,7 @@ def fetch_allthethings():
     RunnableJobsProcess().run()
 
 
-@task(name='fetch-push-logs', ignore_result=True)
+@task(name='fetch-push-logs')
 def fetch_push_logs():
     """
     Run several fetch_hg_push_log subtasks, one per repository
@@ -57,7 +57,7 @@ def fetch_push_logs():
                 )
 
 
-@task(name='fetch-hg-push-logs', time_limit=3 * 60, ignore_result=True)
+@task(name='fetch-hg-push-logs', time_limit=3 * 60)
 def fetch_hg_push_log(repo_name, repo_url):
     """
     Run a HgPushlog etl process
