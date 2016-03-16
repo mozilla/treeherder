@@ -54,21 +54,6 @@ def extract_text_log_artifacts(project, log_url, job_guid):
     return artifact_list
 
 
-def extract_json_log_artifacts(project, log_url, job_guid):
-    """ Generate a summary artifact for the mozlog json log. """
-    logger.debug("Parsing JSON log at url: {0}".format(log_url))
-
-    ab = MozlogArtifactBuilder(log_url)
-    ab.parse_log()
-
-    return [{
-        "job_guid": job_guid,
-        "name": ab.name,
-        "type": 'json',
-        "blob": json.dumps(ab.get_artifact())
-    }]
-
-
 def post_log_artifacts(project,
                        job_guid,
                        job_log_url,
