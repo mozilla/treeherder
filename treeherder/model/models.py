@@ -56,7 +56,7 @@ class Product(NamedModel):
 class BuildPlatform(models.Model):
     id = models.AutoField(primary_key=True)
     os_name = models.CharField(max_length=25, db_index=True)
-    platform = models.CharField(max_length=25, db_index=True)
+    platform = models.CharField(max_length=100, db_index=True)
     architecture = models.CharField(max_length=25, blank=True, db_index=True)
     active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
@@ -104,7 +104,7 @@ class Repository(models.Model):
 class MachinePlatform(models.Model):
     id = models.AutoField(primary_key=True)
     os_name = models.CharField(max_length=25, db_index=True)
-    platform = models.CharField(max_length=25, db_index=True)
+    platform = models.CharField(max_length=100, db_index=True)
     architecture = models.CharField(max_length=25, blank=True, db_index=True)
     active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
