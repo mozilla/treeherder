@@ -53,7 +53,8 @@ def fetch_push_logs():
         for repo in repos:
             if repo['dvcs_type'] == 'hg':
                 fetch_hg_push_log.apply_async(
-                    args=(repo['name'], repo['url'])
+                    args=(repo['name'], repo['url']),
+                    routing_key='pushlog'
                 )
 
 
