@@ -1,31 +1,5 @@
 "use strict";
 
-// TODO: move these into services or something
-var isValidBugNumber = function(bug_number) {
-    return parseInt(bug_number) >= 0;
-};
-
-var extendProperties = function(dest, src) {
-    if (dest !== src) {
-        for (var key in src) {
-            if (!src.hasOwnProperty(key)) {
-                continue;
-            }
-            var descriptor = Object.getOwnPropertyDescriptor(src, key);
-            if (descriptor && descriptor.get) {
-                Object.defineProperty(dest, key,
-                                      {get: descriptor.get,
-                                       set: descriptor.set,
-                                       enumerable: descriptor.enumerable,
-                                       configurable: descriptor.configurable});
-            } else {
-                dest[key] = src[key];
-            }
-        }
-    }
-    return dest;
-};
-
 var isHelpfulLine = function(lineData) {
     lineData = lineData.replace(/\s*(.*)\s*/, "$1");
 
@@ -53,10 +27,10 @@ var isHelpfulLine = function(lineData) {
     return lineData.length > 4 && !blacklist.hasOwnProperty(lineData);
 };
 
-treeherder.factory('ThClassificationOption', [
-    function() {
+treeherder.factory('ThClassificationOption', ['thExtendProperties',
+    function(thExtendProperties) {
         var ThClassificationOption = function(type, id, bugNumber, bugSummary, matches) {
-            extendProperties(this, {
+            thExtendProperties(this, {
                 type: type,
                 id: id,
                 bugNumber: bugNumber || null,
@@ -76,13 +50,16 @@ treeherder.factory('ThClassificationOption', [
 ]);
 
 treeherder.factory('ThStructuredLinePersist', ['$q',
+                                               'thExtendProperties',
+                                               'thValidBugNumber',
                                                'thNotify',
                                                'thTabs',
                                                'ThFailureLinesModel',
                                                'ThClassifiedFailuresModel',
-    function($q, thNotify, thTabs, ThFailureLinesModel, ThClassifiedFailuresModel) {
+    function($q, thExtendProperties, thValidBugNumber, thNotify, thTabs, ThFailureLinesModel,
+             ThClassifiedFailuresModel) {
         /*
-         When saving a structured line, we need to accound for the following cases:
+         When saving a structured line, we need to account for the following cases:
 
          * An autoclassified failure with an existing bug number is selected.
            In this case we set the best classification of the failure line to
@@ -167,7 +144,7 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
 
         var persistInterface = {
             save: function(line) {
-                if (line.bugNumber && !isValidBugNumber(line.bugNumber)) {
+                if (line.bugNumber && !thValidBugNumber(line.bugNumber)) {
                     thNotify.send("Invalid bug number: " + line.bugNumber, "danger", true);
                     return;
                 }
@@ -275,14 +252,15 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
             }
         };
 
-        extendProperties(ThStructuredLinePersist, persistInterface);
+        thExtendProperties(ThStructuredLinePersist, persistInterface);
 
         return ThStructuredLinePersist;
     }]
 );
 
-treeherder.factory('ThUnstructuredLinePersist', ['thNotify', 'ThTextLogSummaryLineModel',
-    function(thNotify, ThTextLogSummaryLineModel) {
+treeherder.factory('ThUnstructuredLinePersist', [
+    'thExtendProperties', 'thNotify', 'ThTextLogSummaryLineModel',
+    function(thExtendProperties, thNotify, ThTextLogSummaryLineModel) {
         var ThUnstructuredLinePersist = function(thNotify, ThTextLogSummaryLineModel) {};
 
         var persistInterface = {
@@ -302,14 +280,17 @@ treeherder.factory('ThUnstructuredLinePersist', ['thNotify', 'ThTextLogSummaryLi
             }
         };
 
-        extendProperties(ThUnstructuredLinePersist, persistInterface);
+        thExtendProperties(ThUnstructuredLinePersist, persistInterface);
 
         return ThUnstructuredLinePersist;
     }
 ]);
-treeherder.factory('ThStructuredLine', ['ThClassificationOption',
+treeherder.factory('ThStructuredLine', ['thExtendProperties',
+                                        'thValidBugNumber',
+                                        'ThClassificationOption',
                                         'ThStructuredLinePersist',
-    function (ThClassificationOption, ThStructuredLinePersist) {
+    function (thExtendProperties, thValidBugNumber, ThClassificationOption,
+              ThStructuredLinePersist) {
 
         function getClassifiedFailureMatcher(matchers, matches) {
             var matchesByClassifiedFailure = {};
@@ -486,7 +467,7 @@ treeherder.factory('ThStructuredLine', ['ThClassificationOption',
 
                 get canSave() {
                     return (this.selectedOption.type === "ignore" ||
-                            isValidBugNumber(this.selectedOption.bugNumber));
+                            thValidBugNumber(this.selectedOption.bugNumber));
                 },
 
                 get bugNumber() {
@@ -563,9 +544,9 @@ treeherder.factory('ThStructuredLine', ['ThClassificationOption',
             };
 
             // Set options and best
-            extendProperties(lineInterface, buildUIData(data, matchers));
+            thExtendProperties(lineInterface, buildUIData(data, matchers));
 
-            extendProperties(this, lineInterface);
+            thExtendProperties(this, lineInterface);
         };
 
         ThStructuredLine.saveAll = function(lines) {
@@ -577,9 +558,12 @@ treeherder.factory('ThStructuredLine', ['ThClassificationOption',
 
 ]);
 
-treeherder.factory('ThUnstructuredLine', ['ThClassificationOption',
+treeherder.factory('ThUnstructuredLine', ['thExtendProperties',
+                                          'thValidBugNumber',
+                                          'ThClassificationOption',
                                           'ThUnstructuredLinePersist',
-    function (ThClassificationOption, ThUnstructuredLinePersist) {
+    function (thExtendProperties, thValidBugNumber, ThClassificationOption,
+              ThUnstructuredLinePersist) {
         function bugSuggestionOptions(bugSuggestions) {
             var options = [];
 
@@ -640,7 +624,7 @@ treeherder.factory('ThUnstructuredLine', ['ThClassificationOption',
                 get canSave() {
                     return this.id && this.selectedOption &&
                         (this.selectedOption.type === "ignore" ||
-                         isValidBugNumber(this.selectedOption.bugNumber));
+                         thValidBugNumber(this.selectedOption.bugNumber));
                 },
 
                 get bugNumber() {
@@ -687,9 +671,9 @@ treeherder.factory('ThUnstructuredLine', ['ThClassificationOption',
             };
 
             // Set options and best
-            extendProperties(lineInterface, buildUIData(data));
+            thExtendProperties(lineInterface, buildUIData(data));
 
-            extendProperties(this, lineInterface);
+            thExtendProperties(this, lineInterface);
         };
 
         ThUnstructuredLine.saveAll = function(lines) {
