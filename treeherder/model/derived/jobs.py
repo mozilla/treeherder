@@ -13,7 +13,6 @@ from treeherder.etl.common import get_guid_root
 from treeherder.events.publisher import JobStatusPublisher
 from treeherder.model import (error_summary,
                               utils)
-
 from treeherder.model.models import (BuildPlatform,
                                      ClassifiedFailure,
                                      Datasource,
