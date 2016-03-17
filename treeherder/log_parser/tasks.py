@@ -44,7 +44,7 @@ def parse_job_logs(project, tasks):
         callback_group = []
         tasks = []
 
-        logger.error("parse_job_logs for job %s" % job_guid)
+        logger.debug("parse_job_logs for job %s" % job_guid)
         for t in task_list:
 
             priority = t["routing_key"].rsplit(".", 1)[1] if "routing_key" in t else "normal"
@@ -79,7 +79,7 @@ def parse_log(project, job_guid, job_log_url, _priority):
     """
     Call ArtifactBuilderCollection on the given job.
     """
-    logger.error("Running parse_log for job %s" % job_guid)
+    logger.debug("Running parse_log for job %s" % job_guid)
     post_log_artifacts(project,
                        job_guid,
                        job_log_url,
@@ -93,7 +93,7 @@ def parse_log(project, job_guid, job_log_url, _priority):
 def store_failure_lines(project, job_guid, job_log_url, priority):
     """This task is a wrapper for the store_failure_lines command."""
     try:
-        logger.error('Running store_failure_lines for job %s' % job_guid)
+        logger.debug('Running store_failure_lines for job %s' % job_guid)
         call_command('store_failure_lines', project, job_guid, job_log_url)
         if settings.AUTOCLASSIFY_JOBS:
             autoclassify.apply_async(args=[project, job_guid],
@@ -106,7 +106,7 @@ def store_failure_lines(project, job_guid, job_log_url, priority):
 @task(name='crossreference-error-lines', max_retries=10)
 def crossreference_error_lines(project, job_guid, tasks):
     """This task is a wrapper for the crossreference error lines command."""
-    logger.error("Running crossreference-error-lines for %s" % job_guid)
+    logger.debug("Running crossreference-error-lines for %s" % job_guid)
     if not("parse_log" in tasks and "store_failure_lines" in tasks):
         return
     try:
