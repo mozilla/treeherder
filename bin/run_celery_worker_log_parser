@@ -26,9 +26,6 @@ parse_job_logs_hp,\
 log_parser,\
 log_parser_fail,\
 log_parser_hp,\
-log_parser_json,\
-log_parser_json_fail,\
-log_parser_json_hp,\
 log_store_failure_lines,\
 log_store_failure_lines_fail,\
 log_store_failure_lines_hp,\
