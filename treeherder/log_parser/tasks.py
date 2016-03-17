@@ -94,7 +94,7 @@ def store_failure_lines(project, job_guid, job_log_url, priority):
     """This task is a wrapper for the store_failure_lines command."""
     try:
         logger.error('Running store_failure_lines for job %s' % job_guid)
-        call_command('store_failure_lines', project, job_guid, job_log_url['url'])
+        call_command('store_failure_lines', project, job_guid, job_log_url)
         if settings.AUTOCLASSIFY_JOBS:
             autoclassify.apply_async(args=[project, job_guid],
                                      routing_key="autoclassify.%s" % priority)

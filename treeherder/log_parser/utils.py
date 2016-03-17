@@ -22,7 +22,7 @@ def expand_log_url(project, job_guid, job_log_url):
     """
     if isinstance(job_log_url, types.StringTypes):
         with JobsModel(project) as jm:
-            job_id = jm.get_job_ids_by_guid([job_guid])[job_guid]
+            job_id = jm.get_job_ids_by_guid([job_guid])[job_guid]['id']
             return jm.get_job_log_url_by_url(job_id, job_log_url)
 
     return job_log_url
