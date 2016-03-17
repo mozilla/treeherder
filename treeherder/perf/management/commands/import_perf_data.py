@@ -5,7 +5,8 @@ from urlparse import urlparse
 import concurrent.futures
 from django.core.management.base import (BaseCommand,
                                          CommandError)
-from django.db import transaction
+from django.db import (IntegrityError,
+                       transaction)
 
 from treeherder.client import (PerfherderClient,
                                PerformanceTimeInterval)
@@ -56,7 +57,8 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity):
             'option_collection': option_collection,
             'platform': platform,
             'framework': framework,
-            'extra_properties': extra_properties
+            'extra_properties': extra_properties,
+            'last_updated': datetime.datetime.fromtimestamp(0)
         })
 
     series = pc.get_performance_data(
@@ -64,6 +66,23 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity):
         time_interval=PerformanceTimeInterval.ONE_YEAR)[signature_hash]
 
     with transaction.atomic():
+        new_series = []
+        latest_timestamp = datetime.datetime.fromtimestamp(0)
+        for datum in series:
+            timestamp = datetime.datetime.fromtimestamp(datum['push_timestamp'])
+            new_series.append(PerformanceDatum(
+                repository=repository,
+                result_set_id=datum['result_set_id'],
+                job_id=datum['job_id'],
+                signature=signature,
+                value=datum['value'],
+                push_timestamp=timestamp))
+            if timestamp > latest_timestamp:
+                latest_timestamp = timestamp
+
+    try:
+        PerformanceDatum.objects.bulk_create(new_series)
+    except IntegrityError:
         for datum in series:
             PerformanceDatum.objects.get_or_create(
                 repository=repository,
@@ -72,6 +91,9 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity):
                 signature=signature,
                 value=datum['value'],
                 push_timestamp=datetime.datetime.fromtimestamp(datum['push_timestamp']))
+
+    signature.last_updated = latest_timestamp
+    signature.save()
 
 
 class Command(BaseCommand):
