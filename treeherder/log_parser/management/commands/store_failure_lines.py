@@ -1,3 +1,4 @@
+import json
 import logging
 from cStringIO import StringIO
 from itertools import islice
@@ -28,12 +29,18 @@ class Command(BaseCommand):
             raise CommandError('3 arguments required, %s given' % len(args))
 
         try:
-            log_obj = expand_log_url(repository_name, job_guid, log_url_or_obj)
-            log_url = log_obj["url"]
+            log_obj = json.loads(log_url_or_obj)
         except ValueError:
-            # This log_url either isn't in the database, or there are multiple possible
-            # urls in the database, so we will be unable to update the pending state
-            log_obj = None
+            try:
+                log_obj = expand_log_url(repository_name, job_guid, log_url_or_obj)
+            except ValueError:
+                # This log_url either isn't in the database, or there are multiple possible
+                # urls in the database, so we will be unable to update the pending state
+                log_obj = None
+
+        if log_obj:
+            log_url = log_obj["url"]
+        else:
             log_url = log_url_or_obj
 
         log_text = fetch_text(log_url)
