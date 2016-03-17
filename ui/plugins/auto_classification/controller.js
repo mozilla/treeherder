@@ -94,7 +94,7 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
                 .then(function (response) {
                     thNotify.send("Classification saved", "success");
                 }, function (errorResp) {
-                    thNotify.send("Error saving classification", "danger");
+                    thNotify.send("Error saving classification", "danger", true);
                 })
                 .finally(function () {
                     thTabs.tabs.autoClassification.update();
@@ -325,7 +325,7 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
             // that in later.
 
             _.forEach(classifiedFailures, function(cf) {
-                if (cf.bug_number !== null && cf.bug_number != 0) {
+                if (cf.bug_number !== null && cf.bug_number !== 0) {
                     var bug_summary = cf.bug ? cf.bug.summary : "";
                     var option = new ThClassificationOption("classified_failure",
                                                             cf.id,
@@ -382,7 +382,7 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
                                           function(item) {
                                               return item.id !== best.id;
                                           });
-                } else if (best && best.bugNumber == 0) {
+                } else if (best && best.bugNumber === 0) {
                     return "ignore"; // This is a sentinal value we use when constructing the
                                      // ignore options later so that we can replace the best
                 } else {
@@ -451,10 +451,11 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
                 },
 
                 get status() {
+                    var rv;
                     if (data.best_is_verified) {
                         if (data.best_classification === null ||
                             data.best_classification.bug_number === 0) {
-                            var rv = 'ignored';
+                            rv = 'ignored';
                         } else {
                             rv = 'verified';
                         }
@@ -471,7 +472,7 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
                 },
 
                 get bugNumber() {
-                    if (this.selectedOption.type == "ignore") {
+                    if (this.selectedOption.type === "ignore") {
                         return null;
                     }
                     return this.selectedOption.bugNumber;
@@ -492,13 +493,13 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
                 get updateText() {
                     var selected = this.selectedOption;
 
-                    if (selected.type == "ignore") {
+                    if (selected.type === "ignore") {
                         return ["Ignore"];
                     } else if(this.best && !this.best.hasBug) {
                         return ["Update", "Create"];
-                    } else if (selected == this.best) {
+                    } else if (selected === this.best) {
                         return ["Verify"];
-                    } else if (selected.type == "classified_failure") {
+                    } else if (selected.type === "classified_failure") {
                         return ["Reclassify"];
                     } else if (selected.type === "unstructured_bug" ||
                                selected.type === "manual") {
@@ -517,9 +518,9 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
                         return "Ignore";
                     } else if (this.best && !this.best.hasBug) {
                         return this.updateSelectOption;
-                    } else if (selected.type == "unstructured_bug" ||
-                               selected.type == "manual" ||
-                               (selected.type == "ignore" && selected.always)) {
+                    } else if (selected.type === "unstructured_bug" ||
+                               selected.type === "manual" ||
+                               (selected.type === "ignore" && selected.always)) {
                         return "Create";
                     } else {
                         return "Select";
@@ -530,7 +531,7 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
                     if (this.status === 'verified') {
                         return this.data.best_classification;
                     } else if (this.best && !this.best.hasBug &&
-                               this.updateSelectOption == "Update") {
+                               this.updateSelectOption === "Update") {
                         return this.best.id;
                     } else if (this.selectedOption.type === "classified_failure") {
                         return this.selectedOption.id;
@@ -628,9 +629,9 @@ treeherder.factory('ThUnstructuredLine', ['thExtendProperties',
                 },
 
                 get bugNumber() {
-                    if(this.selectedOption.type == "manual") {
+                    if(this.selectedOption.type === "manual") {
                         return this.selectedOption.bugNumber;
-                    } else if (this.selectedOption.type == "ignore") {
+                    } else if (this.selectedOption.type === "ignore") {
                         if (this.selected.always) {
                             return 0;
                         } else {
@@ -752,11 +753,12 @@ treeherder.controller('ClassificationPluginCtrl', [
                 $scope.triedLoad = false;
             }
 
-            //TODO code for checking that everything has loaded
-            var checkLoaded = $q.defer();
-            checkLoaded.resolve(true);
-
-            checkLoaded.promise
+            // If we have a TextLogSummaryModel then we should have enough data to
+            // load this panel
+            var checkLoaded = ThTextLogSummaryModel.get($scope.jobId,
+                                                        {timeout: requestPromise,
+                                                         cache: true});
+            checkLoaded
                 .then(function(loaded) {
                     if (!loaded) {
                         reloadPromise = $timeout(thTabs.tabs.autoClassification.update, 5000);
@@ -893,9 +895,14 @@ treeherder.controller('ClassificationPluginCtrl', [
         };
 
         $scope.ignoreClean = function() {
+            /*
+             * Mark all lines that have not got a best classification and
+             * have not been manually altered by a human as "ignore"
+             */
             _.forEach($scope.pendingLines(),
                       function(line) {
                           if (!line.dirty && !line.best) {
+                              // Set the selected option to the ignore option
                               line.selectedOptionIndex =
                                   _.findLastIndex(line.options,
                                                   function(x) {
