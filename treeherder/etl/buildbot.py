@@ -63,30 +63,6 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile(r'^(?:Linux|Ubuntu).*VM.*x64.*', re.IGNORECASE),
-        'attributes': {
-            'os': 'linux',
-            'os_platform': 'linux64-vm',
-            'arch': 'x86_64',
-        }
-    },
-    {
-        'regex': re.compile(r'.*(?:Linux|ubuntu64).*vm.*', re.IGNORECASE),
-        'attributes': {
-            'os': 'linux',
-            'os_platform': 'linux64-vm',
-            'arch': 'x86_64',
-        }
-    },
-    {
-        'regex': re.compile(r'^(?:Linux|Ubuntu).*x64.*', re.IGNORECASE),
-        'attributes': {
-            'os': 'linux',
-            'os_platform': 'linux64',
-            'arch': 'x86_64',
-        }
-    },
-    {
         'regex': re.compile(r'(?:linux|ubuntu).*64.+|dxr', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
