@@ -1,4 +1,5 @@
 import copy
+import json
 import time
 from optparse import make_option
 
@@ -61,6 +62,8 @@ class Command(BaseCommand):
             'option_collection_hash': old_signature.option_collection.option_collection_hash,
             'machine_platform': old_signature.platform.platform
         }
+        if revised_extra_properties.get('test_options'):
+            reference_data.update({'test_options': json.dumps(revised_extra_properties['test_options'])})
         subtest_properties = []
         for subtest_signature in subtest_signatures:
             subtest_metadata = {
@@ -77,7 +80,6 @@ class Command(BaseCommand):
             'subtest_properties': subtest_properties
         }
         summary_properties.update(reference_data)
-        summary_properties.update(revised_extra_properties)
         summary_hash = _get_signature_hash(summary_properties)
         updated_signature = PerformanceSignature.objects.filter(
             repository=old_signature.repository,

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+echo "Checking CELERY_QUEUES matches Procfile"
+./lints/queuelint.py || { exit 1; }
+
 echo "Running flake8"
 flake8 || { echo "flake8 errors found!"; exit 1; }
 

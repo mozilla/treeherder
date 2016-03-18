@@ -56,7 +56,7 @@ class Product(NamedModel):
 class BuildPlatform(models.Model):
     id = models.AutoField(primary_key=True)
     os_name = models.CharField(max_length=25, db_index=True)
-    platform = models.CharField(max_length=25, db_index=True)
+    platform = models.CharField(max_length=100, db_index=True)
     architecture = models.CharField(max_length=25, blank=True, db_index=True)
     active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
@@ -104,7 +104,7 @@ class Repository(models.Model):
 class MachinePlatform(models.Model):
     id = models.AutoField(primary_key=True)
     os_name = models.CharField(max_length=25, db_index=True)
-    platform = models.CharField(max_length=25, db_index=True)
+    platform = models.CharField(max_length=100, db_index=True)
     architecture = models.CharField(max_length=25, blank=True, db_index=True)
     active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
@@ -138,7 +138,7 @@ class Bugscache(models.Model):
 @python_2_unicode_compatible
 class Machine(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50, db_index=True)
+    name = models.CharField(max_length=50, unique=True, db_index=True)
     first_timestamp = models.IntegerField(db_index=True)
     last_timestamp = models.IntegerField(db_index=True)
     active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
@@ -507,8 +507,6 @@ class ReferenceDataSignatures(models.Model):
     build_system_type = models.CharField(max_length=25, blank=True, db_index=True)
     repository = models.CharField(max_length=50, db_index=True)
     first_submission_timestamp = models.IntegerField(db_index=True)
-    review_timestamp = models.IntegerField(null=True, blank=True, db_index=True)
-    review_status = models.CharField(max_length=12, blank=True, db_index=True)
 
     class Meta:
         db_table = 'reference_data_signatures'
@@ -581,7 +579,10 @@ class FailureLine(models.Model):
     # for future autoclassifications.
     best_classification = FlexibleForeignKey("ClassifiedFailure",
                                              related_name="best_for_lines",
-                                             null=True)
+                                             null=True,
+                                             db_index=True,
+                                             on_delete=models.SET_NULL)
+
     best_is_verified = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True)
@@ -772,8 +773,12 @@ class Matcher(models.Model):
 
 class FailureMatch(models.Model):
     id = BigAutoField(primary_key=True)
-    failure_line = FlexibleForeignKey(FailureLine, related_name="matches")
-    classified_failure = FlexibleForeignKey(ClassifiedFailure, related_name="matches")
+    failure_line = FlexibleForeignKey(FailureLine,
+                                      related_name="matches",
+                                      on_delete=models.CASCADE)
+    classified_failure = FlexibleForeignKey(ClassifiedFailure,
+                                            related_name="matches",
+                                            on_delete=models.CASCADE)
 
     matcher = models.ForeignKey(Matcher)
     score = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)

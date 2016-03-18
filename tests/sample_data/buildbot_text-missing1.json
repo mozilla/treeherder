@@ -122,7 +122,7 @@
         "request_times": {
           "52167028": 1412762523
         },
-        "revision": "222222222222902057b6f698a5ca9f78aea25d06",
+        "revision": "222222222222b344655ed7be9a408d2970a736c4",
         "scheduler": "mozilla-central nightly",
         "slavebuilddir": "m-cen-w32-ntly-000000000000000",
         "slavename": "b-2008-ix-0140",

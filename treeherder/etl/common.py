@@ -84,7 +84,7 @@ def lookup_revisions(revision_dict):
         revision_list = list(set(revisions))
 
         with JobsModel(project) as jm:
-            lookup_content = jm.get_revision_resultset_lookup(revision_list)
+            lookup_content = jm.get_resultset_all_revision_lookup(revision_list)
 
         if lookup_content:
             lookup[project] = lookup_content
@@ -124,7 +124,10 @@ def is_blacklisted_buildername(buildername):
 
 
 def generate_revision_hash(revisions):
-    """Builds the revision hash for a set of revisions"""
+    """
+    Builds the revision hash for a set of revisions
+    TODO: Remove this with Bug 1257602 is addressed
+    """
 
     sh = hashlib.sha1()
     sh.update(

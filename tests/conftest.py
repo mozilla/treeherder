@@ -6,7 +6,6 @@ import kombu
 import pytest
 import responses
 from django.conf import settings
-from django.core.management import call_command
 from requests import Request
 from requests_hawk import HawkAuth
 from webtest.app import TestApp
@@ -51,11 +50,6 @@ def increment_cache_key_prefix():
     cache.key_prefix = "t{0}".format(key_prefix_counter)
 
 
-@pytest.fixture()
-def initial_data(transactional_db):
-    call_command('load_initial_data')
-
-
 @pytest.fixture
 def jobs_ds(request, transactional_db):
     from treeherder.model.models import Datasource
@@ -69,7 +63,7 @@ def jobs_ds(request, transactional_db):
 
 
 @pytest.fixture
-def jm(request, jobs_ds):
+def jm(request, test_repository, jobs_ds):
     """ Give a test access to a JobsModel instance. """
     model = JobsModel(jobs_ds.project)
 
@@ -124,7 +118,7 @@ def test_project(jm):
 
 
 @pytest.fixture
-def test_repository(jm, transactional_db):
+def test_repository(transactional_db):
     from treeherder.model.models import Repository, RepositoryGroup
 
     RepositoryGroup.objects.create(
@@ -133,15 +127,16 @@ def test_repository(jm, transactional_db):
         description=""
     )
 
-    return Repository.objects.create(
+    r = Repository.objects.create(
         dvcs_type="hg",
-        name=jm.project,
+        name=settings.TREEHERDER_TEST_PROJECT,
         url="https://hg.mozilla.org/mozilla-central",
         active_status="active",
         codebase="gecko",
         repository_group_id=1,
         description=""
     )
+    return r
 
 
 @pytest.fixture
@@ -159,8 +154,7 @@ def mock_log_parser(monkeypatch):
 
 
 @pytest.fixture
-def result_set_stored(jm, initial_data, sample_resultset, test_repository):
-
+def result_set_stored(jm, sample_resultset):
     jm.store_result_set_data(sample_resultset)
 
     return sample_resultset
@@ -176,7 +170,7 @@ def mock_get_resultset(monkeypatch, result_set_stored):
             params[k] = {
                 rev: {
                     'id': 1,
-                    'revision_hash': result_set_stored[0]['revision_hash']
+                    'revision': result_set_stored[0]['revision']
                 }
             }
         return params
@@ -235,7 +229,7 @@ def resultset_with_three_jobs(jm, sample_data, sample_resultset, test_repository
         if 'log_references' in blob['job']:
             del blob['job']['log_references']
 
-        blob['revision_hash'] = resultset['revision_hash']
+        blob['revision'] = resultset['revision']
         blob['job']['state'] = 'pending'
         blobs.append(blob)
 
@@ -266,7 +260,7 @@ def eleven_jobs_stored(jm, sample_data, sample_resultset, test_repository, mock_
         if 'sources' in blob:
             del blob['sources']
 
-        blob['revision_hash'] = sample_resultset[resultset_index]['revision_hash']
+        blob['revision'] = sample_resultset[resultset_index]['revision']
 
         blobs.append(blob)
 
@@ -374,24 +368,19 @@ def mock_error_summary(monkeypatch):
 
 
 @pytest.fixture
-def failure_lines(jm, eleven_jobs_stored, initial_data):
-    from treeherder.model.models import RepositoryGroup, Repository
+def failure_lines(jm, eleven_jobs_stored, test_repository):
     from tests.autoclassify.utils import test_line, create_failure_lines
 
     job = jm.get_job(1)[0]
 
-    repository_group = RepositoryGroup.objects.create(name="repo_group")
-    repository = Repository.objects.create(name=jm.project,
-                                           repository_group=repository_group)
-
-    return create_failure_lines(repository,
+    return create_failure_lines(test_repository,
                                 job["job_guid"],
                                 [(test_line, {}),
                                  (test_line, {"subtest": "subtest2"})])
 
 
 @pytest.fixture
-def classified_failures(request, jm, eleven_jobs_stored, initial_data, failure_lines):
+def classified_failures(request, jm, eleven_jobs_stored, failure_lines):
     from treeherder.model.models import ClassifiedFailure, FailureMatch, Matcher
     from treeherder.autoclassify import detectors
 

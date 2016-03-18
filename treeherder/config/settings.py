@@ -160,7 +160,7 @@ LOGGING = {
     }
 }
 
-CELERY_QUEUES = (
+CELERY_QUEUES = [
     Queue('default', Exchange('default'), routing_key='default'),
     # queue for failed jobs/logs
     Queue('log_parser_fail', Exchange('default'), routing_key='parse_log.failures'),
@@ -186,9 +186,8 @@ CELERY_QUEUES = (
     Queue('cycle_data', Exchange('default'), routing_key='cycle_data'),
     Queue('calculate_durations', Exchange('default'), routing_key='calculate_durations'),
     Queue('fetch_bugs', Exchange('default'), routing_key='fetch_bugs'),
-    Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs'),
     Queue('generate_perf_alerts', Exchange('default'), routing_key='generate_perf_alerts'),
-)
+]
 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
@@ -404,7 +403,11 @@ if env.bool("ENABLE_LOCAL_SETTINGS_FILE", default=False):
     # Note: All the configs below this import will take precedence over what is
     # defined in settings_local.py!
     try:
+        assert "update" not in globals()
         from .settings_local import *
+        if "update" in globals():
+            update(globals())
+            del globals()['update']
     except ImportError:
         pass
 

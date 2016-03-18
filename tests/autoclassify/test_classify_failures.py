@@ -10,7 +10,7 @@ from .utils import (create_failure_lines,
 
 
 @pytest.mark.skipif(True, reason="Awaiting landing of Bug 1177519")
-def test_classify_test_failure(activate_responses, jm, eleven_jobs_stored, initial_data,
+def test_classify_test_failure(activate_responses, jm, eleven_jobs_stored,
                                failure_lines, classified_failures):
 
     repository = Repository.objects.get(name=jm.project)

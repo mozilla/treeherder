@@ -33,6 +33,7 @@ class HgPushlogTransformerMixin(object):
 
             result_set['active_status'] = push.get('active_status', 'active')
 
+            # TODO: Remove this with Bug 1257602 is addressed
             rev_hash_components = []
 
             # iterate over the revisions
@@ -51,6 +52,7 @@ class HgPushlogTransformerMixin(object):
                 result_set['revisions'].append(revision)
 
             result_set['revision_hash'] = generate_revision_hash(rev_hash_components)
+            result_set['revision'] = result_set["revisions"][-1]["revision"]
 
             if repository not in th_collections:
                 th_collections[repository] = TreeherderResultSetCollection()

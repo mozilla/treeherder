@@ -2,14 +2,13 @@ import responses
 from django.conf import settings
 from django.core.management import call_command
 
-from treeherder.model.models import (FailureLine,
-                                     Repository,
-                                     RepositoryGroup)
+from treeherder.model.models import FailureLine
 
 from ..sampledata import SampleData
 
 
-def test_store_error_summary(activate_responses, jm, eleven_jobs_stored, initial_data):
+def test_store_error_summary(activate_responses, test_repository, jm,
+                             eleven_jobs_stored):
     log_path = SampleData().get_log_path("plain-chunked_errorsummary.log")
     log_url = 'http://my-log.mozilla.org'
 
@@ -18,9 +17,6 @@ def test_store_error_summary(activate_responses, jm, eleven_jobs_stored, initial
                       body=log_handler.read(), status=200)
 
     job = jm.get_job(1)[0]
-    repository_group = RepositoryGroup.objects.create(name="repo_group")
-    repository = Repository.objects.create(name=jm.project,
-                                           repository_group=repository_group)
 
     call_command('store_error_summary', log_url, job['job_guid'], jm.project)
 
@@ -30,11 +26,11 @@ def test_store_error_summary(activate_responses, jm, eleven_jobs_stored, initial
 
     assert failure.job_guid == job['job_guid']
 
-    assert failure.repository == repository
+    assert failure.repository == test_repository
 
 
-def test_store_error_summary_truncated(activate_responses, jm, eleven_jobs_stored,
-                                       initial_data, monkeypatch):
+def test_store_error_summary_truncated(activate_responses, test_repository,
+                                       jm, eleven_jobs_stored, monkeypatch):
     log_path = SampleData().get_log_path("plain-chunked_errorsummary_10_lines.log")
     log_url = 'http://my-log.mozilla.org'
 
@@ -45,9 +41,6 @@ def test_store_error_summary_truncated(activate_responses, jm, eleven_jobs_store
                       body=log_handler.read(), status=200)
 
     job = jm.get_job(1)[0]
-    repository_group = RepositoryGroup.objects.create(name="repo_group")
-    repository = Repository.objects.create(name=jm.project,
-                                           repository_group=repository_group)
 
     call_command('store_error_summary', log_url, job['job_guid'], jm.project)
 
@@ -57,4 +50,4 @@ def test_store_error_summary_truncated(activate_responses, jm, eleven_jobs_store
 
     assert failure.job_guid == job['job_guid']
 
-    assert failure.repository == repository
+    assert failure.repository == test_repository

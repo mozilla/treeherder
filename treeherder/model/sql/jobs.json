@@ -68,13 +68,13 @@
         },
         "set_result_set":{
 
-            "sql":"INSERT INTO `result_set` (`author`, `revision_hash`,`long_revision`,`short_revision`,`push_timestamp`, `active_status`)
+            "sql":"INSERT INTO `result_set` (`author`,`revision_hash`,`long_revision`,`short_revision`,`push_timestamp`, `active_status`)
                 SELECT ?,?,?,?,?,?
                 FROM DUAL
                 WHERE NOT EXISTS (
-                    SELECT `revision_hash`, `push_timestamp`
+                    SELECT `long_revision`, `push_timestamp`
                     FROM `result_set`
-                    WHERE `revision_hash` = ?
+                    WHERE `long_revision` = ?
                 )",
 
             "host_type":"master_host"
@@ -94,7 +94,7 @@
                 WHERE NOT EXISTS (
                     SELECT `revision`
                     FROM `revision`
-                    WHERE `revision` = ? AND `repository_id` = ?
+                    WHERE `long_revision` = ? AND `repository_id` = ?
                 )",
 
             "host_type":"master_host"
@@ -297,7 +297,7 @@
         },
 
         "get_jobs_to_cycle":{
-            "sql":"SELECT id FROM job WHERE submit_timestamp < ?",
+            "sql":"SELECT id, job_guid FROM job WHERE submit_timestamp < ?",
             "host_type":"master_host"
         },
 
@@ -562,27 +562,29 @@
             "host_type": "read_host"
 
         },
-        "get_result_set_ids":{
-            "sql":"SELECT `id`, `revision_hash`, `long_revision`, `push_timestamp`
+        "get_resultset_top_revision_lookup":{
+            "sql":"SELECT `id`, `short_revision`, `long_revision`, `revision_hash`, `push_timestamp`
                    FROM `result_set`
-                   WHERE `active_status` in ('active', 'onhold') AND `revision_hash` IN (REP0)",
+                   WHERE `active_status` in ('active', 'onhold')
+                   REP0",
             "host_type": "master_host"
         },
-        "get_all_result_set_revision_hashes":{
-            "sql":"SELECT `revision_hash`
+        "get_all_result_set_revisions":{
+            "sql":"SELECT `long_revision`
                    FROM `result_set`
                    WHERE `active_status` = 'active'",
             "host_type": "read_host"
         },
         "get_revisions":{
-            "sql":"SELECT `id`, `revision` FROM `revision`
-                   WHERE `active_status` = 'active' AND `revision` IN (REP0)",
+            "sql":"SELECT `id`, `revision`, `long_revision` FROM `revision`
+                   WHERE `active_status` = 'active' AND `long_revision` IN (REP0)",
 
             "host_type": "master_host"
         },
         "get_result_set_list_by_ids":{
             "sql":"SELECT rs.id,
                           rs.author,
+                          rs.long_revision,
                           rs.revision_hash,
                           rs.push_timestamp
                    FROM result_set AS rs
@@ -595,6 +597,7 @@
             "sql":"SELECT DISTINCT
                       rs.id,
                       rs.author,
+                      rs.long_revision,
                       rs.revision_hash,
                       rs.push_timestamp
                    FROM result_set AS rs
@@ -608,14 +611,14 @@
                    ",
             "host_type": "read_host"
         },
-        "get_revision_resultset_lookup":{
+        "get_resultset_all_revision_lookup":{
             "sql":"SELECT
                       rs.id,
-                      rs.revision_hash,
                       rs.push_timestamp,
                       rs.active_status,
                       revision.id as revision_id,
-                      revision.revision
+                      revision.long_revision,
+                      revision.short_revision
                    FROM result_set AS rs
                    INNER JOIN revision_map
                       ON rs.id = revision_map.result_set_id
@@ -624,7 +627,14 @@
                    WHERE 1
                    REP0
                    ORDER BY rs.push_timestamp DESC
-                   LIMIT ?,?
+                   ",
+            "host_type": "read_host"
+        },
+        "get_revision_from_revision_hash":{
+            "sql":"SELECT
+                      rs.long_revision
+                   FROM result_set AS rs
+                   WHERE rs.revision_hash = ?
                    ",
             "host_type": "read_host"
         },
