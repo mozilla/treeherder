@@ -40,5 +40,12 @@
         "fields": {
             "name": "platform_microbench"
         }
+    },
+    {
+        "pk": 7,
+        "model": "perf.PerformanceFramework",
+        "fields": {
+            "name": "talos-aws"
+        }
     }
 ]
