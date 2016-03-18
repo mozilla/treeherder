@@ -65,7 +65,7 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity):
         project_name, signatures=signature_hash,
         time_interval=PerformanceTimeInterval.ONE_YEAR)[signature_hash]
 
-    with transaction.atomic():
+    try:
         new_series = []
         latest_timestamp = datetime.datetime.fromtimestamp(0)
         for datum in series:
@@ -80,20 +80,20 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity):
             if timestamp > latest_timestamp:
                 latest_timestamp = timestamp
 
-    try:
         PerformanceDatum.objects.bulk_create(new_series)
-    except IntegrityError:
-        for datum in series:
-            PerformanceDatum.objects.get_or_create(
-                repository=repository,
-                result_set_id=datum['result_set_id'],
-                job_id=datum['job_id'],
-                signature=signature,
-                value=datum['value'],
-                push_timestamp=datetime.datetime.fromtimestamp(datum['push_timestamp']))
+        signature.last_updated = latest_timestamp
+        signature.save()
 
-    signature.last_updated = latest_timestamp
-    signature.save()
+    except IntegrityError:
+        with transaction.atomic():
+            for datum in series:
+                PerformanceDatum.objects.get_or_create(
+                    repository=repository,
+                    result_set_id=datum['result_set_id'],
+                    job_id=datum['job_id'],
+                    signature=signature,
+                    value=datum['value'],
+                    push_timestamp=datetime.datetime.fromtimestamp(datum['push_timestamp']))
 
 
 class Command(BaseCommand):
