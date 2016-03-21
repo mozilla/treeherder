@@ -1556,6 +1556,16 @@ buildernames = [
       'platform': {'arch': 'x86_64',
                    'os': 'win',
                    'os_platform': 'windows8-64'}}),
+    ('release-mozilla-beta_firefox_macosx64_l10n_repack',
+     {'build_type': 'opt',
+      'job_type': 'repack',
+      'name': {'group_name': 'L10n Repack',
+               'group_symbol': 'L10n',
+               'name': 'L10n Repack',
+               'job_symbol': 'B'},
+      'platform': {'arch': 'x86_64',
+                   'os': 'mac',
+                   'os_platform': 'osx-10-10'}}),
 ]
 
 
