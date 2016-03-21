@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Tasks run after the Heroku buildpack compile, but prior to the deploy.
+# Failures will block the deploy unless `IGNORE_PREDEPLOY_ERRORS` is set.
+
+if [[ -v IGNORE_PREDEPLOY_ERRORS ]]; then
+    echo "-----> PRE-DEPLOY: Warning: Ignoring errors during pre-deploy!"
+else
+    # Make non-zero exit codes & other errors fatal.
+    set -euo pipefail
+fi
+
+echo "-----> PRE-DEPLOY: Running Django migration..."
+./manage.py migrate --noinput
+
+echo "-----> PRE-DEPLOY: Loading initial data..."
+./manage.py load_initial_data
+
+echo "-----> PRE-DEPLOY: Initialising datasources..."
+./manage.py init_datasources
+
+echo "-----> PRE-DEPLOY: Reporting deployment to New Relic..."
+# eg: "v750: Deploy 5d6b1f0"
+DESCRIPTION="$HEROKU_RELEASE_VERSION: $HEROKU_SLUG_DESCRIPTION"
+# Use the revision from the live site rather than a local file generated during
+# buildpack compile, so that in the case of deploy failures it's up to date.
+OLD_REVISION="$(curl --silent --show-error --fail --retry 5 --retry-max-time 15 $SITE_URL/revision.txt)"
+CHANGELOG="https://github.com/mozilla/treeherder/compare/$OLD_REVISION...$HEROKU_SLUG_COMMIT"
+# The author of the deploy isn't currently available to us. Have filed:
+# https://help.heroku.com/tickets/343783
+USER="Heroku"
+# Report the deploy to New Relic using their Python agent. In addition to
+# the passed arguments, record-deploy references the environment variables
+# `NEW_RELIC_APP_NAME` and `NEW_RELIC_API_KEY`.
+newrelic-admin record-deploy "$NEW_RELIC_CONFIG_FILE" \
+                             "$DESCRIPTION" \
+                             "$HEROKU_SLUG_COMMIT" \
+                             "$CHANGELOG" \
+                             "$USER"
+
+echo "-----> PRE-DEPLOY: Complete!"

@@ -94,22 +94,38 @@ treeherder.factory('PhAlerts', [
         };
         AlertSummary.prototype.getTitle = function(options) {
             var title;
-            if (this.alerts.length > 1) {
-                title = _.min(_.pluck(this.alerts, 'amount_pct')) + " - " +
-                    _.max(_.pluck(this.alerts, 'amount_pct')) + "%";
-            } else if (this.alerts.length === 1) {
-                title = this.alerts[0].amount_pct + "%";
+
+            // we should never include downstream alerts in the description
+            var alertSummary = this;
+            var alertsInSummary = _.filter(this.alerts, function(alert) {
+                return (alert.status !== phAlertStatusMap.DOWNSTREAM.id ||
+                        alert.summary_id == alertSummary.id);
+            });
+
+            // figure out if there are any regressions -- if there are,
+            // the summary should only incorporate those. if there
+            // aren't, then use all of them (that aren't downstream,
+            // see above)
+            if (_.any(_.pluck(alertsInSummary, 'is_regression'))) {
+                alertsInSummary = _.filter(alertsInSummary, 'is_regression');
+            }
+
+            if (alertsInSummary.length > 1) {
+                title = _.min(_.pluck(alertsInSummary, 'amount_pct')) + " - " +
+                    _.max(_.pluck(alertsInSummary, 'amount_pct')) + "%";
+            } else if (alertsInSummary.length === 1) {
+                title = alertsInSummary[0].amount_pct + "%";
             } else {
                 title = "Empty alert";
             }
             // add test info
             title += " " + _.uniq(
-                _.map(this.alerts, function(a) {
+                _.map(alertsInSummary, function(a) {
                     return PhSeries.getTestName(a.series_signature, { abbreviate:true });
                 })).sort().join(' / ');
             // add platform info
             title += " (" + _.uniq(
-                _.map(this.alerts, function(a) {
+                _.map(alertsInSummary, function(a) {
                     return a.series_signature.machine_platform;
                 })).sort().join(', ') + ')';
             return title;

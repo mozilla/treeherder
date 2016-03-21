@@ -60,7 +60,7 @@
       "product_name": "Oscillation Overthruster",
       "end_timestamp": 1419043197.0
     },
-    "revision_hash": "123",
+    "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
     "coalesced": []
   },
   {
@@ -97,7 +97,7 @@
       "product_name": "Oscillation Overthruster",
       "end_timestamp": 1419043197.0
     },
-    "revision_hash": "123",
+    "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
     "coalesced": []
   },
   {
@@ -210,7 +210,7 @@
       "product_name": "unknown",
       "end_timestamp": 1419043197.0
     },
-    "revision_hash": "123",
+    "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
     "coalesced": []
   },
   {
@@ -259,7 +259,7 @@
       "product_name": "unknown",
       "end_timestamp": 1419043197.0
     },
-    "revision_hash": "123",
+    "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
     "coalesced": []
   }
 ]

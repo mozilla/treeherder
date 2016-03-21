@@ -48,7 +48,7 @@ def do_test(log):
     # assert act == exp, json.dumps(act, indent=4)
 
 
-def test_crashtest_passing(initial_data):
+def test_crashtest_passing():
     """Process a job with a single log reference."""
 
     do_test(
@@ -56,7 +56,7 @@ def test_crashtest_passing(initial_data):
     )
 
 
-def test_mochitest_pass(initial_data):
+def test_mochitest_pass():
     """Process a job with a single log reference."""
 
     do_test(
@@ -64,14 +64,14 @@ def test_mochitest_pass(initial_data):
     )
 
 
-def test_duration_gt_1hr(initial_data):
+def test_duration_gt_1hr():
     do_test(
         "mozilla-central-win32-pgo-bm85-build1-build111"
     )
 
 
 @slow
-def test_mochitest_fail(initial_data):
+def test_mochitest_fail():
     """Process a job with a single log reference."""
 
     do_test(
@@ -79,7 +79,7 @@ def test_mochitest_fail(initial_data):
     )
 
 
-def test_mochitest_process_crash(initial_data):
+def test_mochitest_process_crash():
     """Test a mochitest log that has PROCESS-CRASH """
 
     do_test(
@@ -88,7 +88,7 @@ def test_mochitest_process_crash(initial_data):
 
 
 @slow
-def test_jetpack_fail(initial_data):
+def test_jetpack_fail():
     """Process a job with a single log reference."""
 
     do_test(
@@ -97,7 +97,7 @@ def test_jetpack_fail(initial_data):
 
 
 @slow
-def test_crash_1(initial_data):
+def test_crash_1():
     """Test from old log parser"""
     do_test(
         "crash-1"
@@ -105,7 +105,7 @@ def test_crash_1(initial_data):
 
 
 @slow
-def test_crash_2(initial_data):
+def test_crash_2():
     """Test from old log parser"""
     do_test(
         "crash-2"
@@ -113,7 +113,7 @@ def test_crash_2(initial_data):
 
 
 @slow
-def test_crash_mac_1(initial_data):
+def test_crash_mac_1():
     """Test from old log parser"""
     do_test(
         "crash-mac-1"
@@ -121,7 +121,7 @@ def test_crash_mac_1(initial_data):
 
 
 @slow
-def test_crashtest_timeout(initial_data):
+def test_crashtest_timeout():
     """Test from old log parser"""
     do_test(
         "crashtest-timeout"
@@ -129,7 +129,7 @@ def test_crashtest_timeout(initial_data):
 
 
 @slow
-def test_jsreftest_fail(initial_data):
+def test_jsreftest_fail():
     """Test from old log parser"""
     do_test(
         "jsreftest-fail"
@@ -137,7 +137,7 @@ def test_jsreftest_fail(initial_data):
 
 
 @slow
-def test_jsreftest_timeout_crash(initial_data):
+def test_jsreftest_timeout_crash():
     """Test from old log parser"""
     do_test(
         "jsreftest-timeout-crash"
@@ -145,7 +145,7 @@ def test_jsreftest_timeout_crash(initial_data):
 
 
 @slow
-def test_leaks_1(initial_data):
+def test_leaks_1():
     """Test from old log parser"""
     do_test(
         "leaks-1"
@@ -153,7 +153,7 @@ def test_leaks_1(initial_data):
 
 
 @slow
-def test_mochitest_test_end(initial_data):
+def test_mochitest_test_end():
     """Test from old log parser"""
     do_test(
         "mochitest-test-end"
@@ -161,7 +161,7 @@ def test_mochitest_test_end(initial_data):
 
 
 @slow
-def test_multiple_timeouts(initial_data):
+def test_multiple_timeouts():
     """Test from old log parser"""
     do_test(
         "multiple-timeouts"
@@ -169,7 +169,7 @@ def test_multiple_timeouts(initial_data):
 
 
 @slow
-def test_opt_objc_exception(initial_data):
+def test_opt_objc_exception():
     """Test from old log parser"""
     do_test(
         "opt-objc-exception"
@@ -177,7 +177,7 @@ def test_opt_objc_exception(initial_data):
 
 
 @slow
-def test_reftest_fail_crash(initial_data):
+def test_reftest_fail_crash():
     """Test from old log parser"""
     do_test(
         "reftest-fail-crash"
@@ -185,7 +185,7 @@ def test_reftest_fail_crash(initial_data):
 
 
 @slow
-def test_reftest_jserror(initial_data):
+def test_reftest_jserror():
     """Test from old log parser"""
     do_test(
         "reftest-jserror"
@@ -193,7 +193,7 @@ def test_reftest_jserror(initial_data):
 
 
 @slow
-def test_reftest_opt_fail(initial_data):
+def test_reftest_opt_fail():
     """Test from old log parser"""
     do_test(
         "reftest-opt-fail"
@@ -201,7 +201,7 @@ def test_reftest_opt_fail(initial_data):
 
 
 @slow
-def test_reftest_timeout(initial_data):
+def test_reftest_timeout():
     """Test from old log parser"""
     do_test(
         "reftest-timeout"
@@ -209,49 +209,49 @@ def test_reftest_timeout(initial_data):
 
 
 @slow
-def test_tinderbox_exception(initial_data):
+def test_tinderbox_exception():
     """Test from old log parser"""
     do_test(
         "tinderbox-exception"
     )
 
 
-def test_xpcshell_crash(initial_data):
+def test_xpcshell_crash():
     """Test from old log parser"""
     do_test(
         "xpcshell-crash"
     )
 
 
-def test_xpcshell_multiple(initial_data):
+def test_xpcshell_multiple():
     """Test from old log parser"""
     do_test(
         "xpcshell-multiple"
     )
 
 
-def test_xpcshell_timeout(initial_data):
+def test_xpcshell_timeout():
     """Test from old log parser"""
     do_test(
         "xpcshell-timeout"
     )
 
 
-def test_extreme_log_line_length_truncation(initial_data):
+def test_extreme_log_line_length_truncation():
     """This log has lines that are huge.  Ensure we truncate the lines to 100"""
     do_test(
         "mozilla-central_ubuntu64_hw_test-androidx86-set-4-bm103-tests1-linux-build369"
     )
 
 
-def test_too_many_error_lines_truncation(initial_data):
+def test_too_many_error_lines_truncation():
     """This log has a large number of lines that match the error regex. Ensure we truncate to 100 lines."""
     do_test(
         "large-number-of-error-lines"
     )
 
 
-def test_taskcluster_missing_finish_marker(initial_data):
+def test_taskcluster_missing_finish_marker():
     """
     A log from a Taskcluster job, where there was an infrastructure problem,
     and so the final step finish marker is missing. There is also log content

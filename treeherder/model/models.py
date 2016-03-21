@@ -56,7 +56,7 @@ class Product(NamedModel):
 class BuildPlatform(models.Model):
     id = models.AutoField(primary_key=True)
     os_name = models.CharField(max_length=25, db_index=True)
-    platform = models.CharField(max_length=25, db_index=True)
+    platform = models.CharField(max_length=100, db_index=True)
     architecture = models.CharField(max_length=25, blank=True, db_index=True)
     active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
@@ -104,7 +104,7 @@ class Repository(models.Model):
 class MachinePlatform(models.Model):
     id = models.AutoField(primary_key=True)
     os_name = models.CharField(max_length=25, db_index=True)
-    platform = models.CharField(max_length=25, db_index=True)
+    platform = models.CharField(max_length=100, db_index=True)
     architecture = models.CharField(max_length=25, blank=True, db_index=True)
     active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
@@ -579,7 +579,10 @@ class FailureLine(models.Model):
     # for future autoclassifications.
     best_classification = FlexibleForeignKey("ClassifiedFailure",
                                              related_name="best_for_lines",
-                                             null=True)
+                                             null=True,
+                                             db_index=True,
+                                             on_delete=models.SET_NULL)
+
     best_is_verified = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True)
@@ -770,8 +773,12 @@ class Matcher(models.Model):
 
 class FailureMatch(models.Model):
     id = BigAutoField(primary_key=True)
-    failure_line = FlexibleForeignKey(FailureLine, related_name="matches")
-    classified_failure = FlexibleForeignKey(ClassifiedFailure, related_name="matches")
+    failure_line = FlexibleForeignKey(FailureLine,
+                                      related_name="matches",
+                                      on_delete=models.CASCADE)
+    classified_failure = FlexibleForeignKey(ClassifiedFailure,
+                                            related_name="matches",
+                                            on_delete=models.CASCADE)
 
     matcher = models.ForeignKey(Matcher)
     score = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)

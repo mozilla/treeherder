@@ -104,7 +104,7 @@
     </div>
 
     <table class="table table-compact compare-table">
-      <tr ng-repeat="alert in alertSummary.alerts" ng-show="alert.visible">
+      <tr ng-repeat="alert in alertSummary.alerts | orderBy: 'title'" ng-show="alert.visible">
         <td class="alert-checkbox">
           <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alert.selected" ng-change="alertSelected(alertSummary)"/>
         </td>
