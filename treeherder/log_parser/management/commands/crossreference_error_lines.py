@@ -37,7 +37,9 @@ class Command(BaseCommand):
         with JobsModel(repository_name) as jm:
             job = jm.get_job_ids_by_guid([job_guid]).get(job_guid)
             if job is None:
-                raise CommandError('Unknown job %s' % job_guid)
+                logger.error('crossreference_error_lines: No job for '
+                             '{0} job_guid {1}'.format(repository, job_guid))
+                return
 
         with ArtifactsModel(repository_name) as am:
             conditions = {
