@@ -14,20 +14,11 @@ import os
 # os.environ["DJANGO_SETTINGS_MODULE"] = "treeherder.config.settings"
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "treeherder.config.settings")
 
-import environ
 from django.core.cache.backends.memcached import BaseMemcachedCache
-from django.core.wsgi import get_wsgi_application as django_app
-from wsgi_sslify import sslify
+from django.core.wsgi import get_wsgi_application
 
-env = environ.Env()
 
-application = django_app()
-
-if env.bool('IS_HEROKU', default=False):
-    # Redirect HTTP requests to HTTPS and set an HSTS header.
-    # Required since the equivalent Django features will not be
-    # able to alter requests that were served by WhiteNoise.
-    application = sslify(application)
+application = get_wsgi_application()
 
 # Fix django closing connection to MemCachier after every request:
 # https://code.djangoproject.com/ticket/11331

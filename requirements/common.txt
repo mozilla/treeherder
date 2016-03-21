@@ -2,8 +2,6 @@
 
 gunicorn==19.4.5 --hash=sha256:c57f1b005a4b90933303c8deed9bedeb509331aa6a0a990023a5796e52bd8988
 
-wsgi-sslify==1.0.1 --hash=sha256:cde368fda0fb9958dd58bc2cb955d0bf3df1b79c132d97cee90be5fda34a5089
-
 whitenoise==3.0 --hash=sha256:2537cf2b0c12e1c8beaa23605076344a89d08b686592abffddb6ba13b284a8c6
 
 # Used by the Whitenoise CLI tool to provide Brotli-compressed versions of static files.
@@ -21,9 +19,6 @@ kombu==3.0.33 --hash=sha256:6741a5d7e8b8f53151aabd47fd3df1195aed540b169b2d7684b9
 simplejson==3.8.2 --hash=sha256:d58439c548433adcda98e695be53e526ba940a4b9c44fb9a05d92cd495cdd47f
 
 newrelic==2.60.0.46 --hash=sha256:17d598fccca0845c0337e5276d40d65f951afea6adf9bd9172cff3a87f2ef294
-
-# Required by wsgi-sslify
-Werkzeug==0.11.4 --hash=sha256:7db3cb2d4725be0680abf64a45b18229186f03ad8b9989abbe053f9357b17b37
 
 # Required by datasource
 MySQL-python==1.2.5 --hash=sha256:811040b647e5d5686f84db415efd697e6250008b112b6909ba77ac059e140c74

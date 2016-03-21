@@ -66,6 +66,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 MIDDLEWARE_CLASSES = [
+    # Redirect to HTTPS/set HSTS and other security headers.
+    'django.middleware.security.SecurityMiddleware',
     # Allows both Django static files and those specified via `WHITENOISE_ROOT`
     # to be served by WhiteNoise, avoiding the need for Apache/nginx on Heroku.
     'treeherder.config.whitenoise_custom.CustomWhiteNoise',
@@ -335,6 +337,10 @@ ALLOWED_HOSTS = env.list("TREEHERDER_ALLOWED_HOSTS", default=[".mozilla.org", ".
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+if env.bool('IS_HEROKU', default=False):
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = timedelta(days=365)
 
 # Enable integration between autoclassifier and jobs
 AUTOCLASSIFY_JOBS = env.bool("AUTOCLASSIFY_JOBS", default=False)
