@@ -830,3 +830,12 @@ class RunnableJob(models.Model):
         return "{0} {1} {2}".format(self.id,
                                     self.ref_data_name,
                                     self.build_system_type)
+
+
+class TaskSetMeta(models.Model):
+    id = BigAutoField(primary_key=True)
+    count = models.IntegerField()
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'task_set_meta'
