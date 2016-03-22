@@ -1,9 +1,9 @@
 import re
 
-from whitenoise.django import DjangoWhiteNoise
+from whitenoise.middleware import WhiteNoiseMiddleware
 
 
-class CustomWhiteNoise(DjangoWhiteNoise):
+class CustomWhiteNoise(WhiteNoiseMiddleware):
 
     # Matches grunt-cache-busting's style of hash filenames.
     IMMUTABLE_FILE_RE = re.compile(r'\.min-[a-f0-9]{32}\.(js|css)$')
