@@ -1,8 +1,6 @@
 from django.core.management import call_command
 
 from treeherder.model.models import (FailureLine,
-                                     Repository,
-                                     RepositoryGroup,
                                      TextLogSummary,
                                      TextLogSummaryLine)
 
@@ -12,13 +10,9 @@ from ..autoclassify.utils import (create_bug_suggestions_failures,
                                   test_line)
 
 
-def test_crossreference_error_lines(activate_responses, jm,
-                                    eleven_jobs_stored, initial_data):
+def test_crossreference_error_lines(test_repository, activate_responses, jm,
+                                    eleven_jobs_stored):
     job = jm.get_job(1)[0]
-
-    repository_group = RepositoryGroup.objects.create(name="repo_group")
-    repository = Repository.objects.create(name=jm.project,
-                                           repository_group=repository_group)
 
     lines = [(test_line, {}),
              (test_line, {"subtest": "subtest2"}),
@@ -26,18 +20,18 @@ def test_crossreference_error_lines(activate_responses, jm,
              (test_line, {"expected": "ERROR"}),
              (test_line, {"message": "message2"})]
 
-    create_failure_lines(repository, job["job_guid"], lines)
+    create_failure_lines(test_repository, job["job_guid"], lines)
 
-    create_summary_lines_failures(repository.name, job, lines)
-    create_bug_suggestions_failures(repository.name, job, lines)
+    create_summary_lines_failures(test_repository.name, job, lines)
+    create_bug_suggestions_failures(test_repository.name, job, lines)
 
-    call_command('crossreference_error_lines', repository.name, job['job_guid'])
+    call_command('crossreference_error_lines', test_repository.name, job['job_guid'])
 
     summary = TextLogSummary.objects.all()
     assert len(summary) == 1
     summary = summary[0]
 
-    assert summary.repository == repository
+    assert summary.repository == test_repository
     assert summary.job_guid == job["job_guid"]
 
     summary_lines = TextLogSummaryLine.objects.all()
@@ -54,13 +48,9 @@ def test_crossreference_error_lines(activate_responses, jm,
         assert summary_line.bug_number is None
 
 
-def test_crossreference_error_lines_truncated(activate_responses, jm,
-                                              eleven_jobs_stored, initial_data):
+def test_crossreference_error_lines_truncated(test_repository, activate_responses, jm,
+                                              eleven_jobs_stored):
     job = jm.get_job(1)[0]
-
-    repository_group = RepositoryGroup.objects.create(name="repo_group")
-    repository = Repository.objects.create(name=jm.project,
-                                           repository_group=repository_group)
 
     lines = [(test_line, {}),
              (test_line, {"subtest": "subtest2"}),
@@ -69,26 +59,22 @@ def test_crossreference_error_lines_truncated(activate_responses, jm,
              (test_line, {"message": "message2"}),
              ]
 
-    create_failure_lines(repository, job["job_guid"],
+    create_failure_lines(test_repository, job["job_guid"],
                          lines[:-1] + [({"action": "truncated"}, {})])
 
-    create_summary_lines_failures(repository.name, job, lines)
-    create_bug_suggestions_failures(repository.name, job, lines)
+    create_summary_lines_failures(test_repository.name, job, lines)
+    create_bug_suggestions_failures(test_repository.name, job, lines)
 
-    call_command('crossreference_error_lines', repository.name, job['job_guid'])
+    call_command('crossreference_error_lines', test_repository.name, job['job_guid'])
 
     summary_lines = TextLogSummaryLine.objects.all()
     assert len(summary_lines) == len(lines)
     assert summary_lines[len(summary_lines) - 1].failure_line is None
 
 
-def test_crossreference_error_lines_missing(activate_responses, jm,
-                                            eleven_jobs_stored, initial_data):
+def test_crossreference_error_lines_missing(test_repository, activate_responses, jm,
+                                            eleven_jobs_stored):
     job = jm.get_job(1)[0]
-
-    repository_group = RepositoryGroup.objects.create(name="repo_group")
-    repository = Repository.objects.create(name=jm.project,
-                                           repository_group=repository_group)
 
     lines = [(test_line, {}),
              (test_line, {"subtest": "subtest2"}),
@@ -97,12 +83,12 @@ def test_crossreference_error_lines_missing(activate_responses, jm,
              (test_line, {"message": "message2"}),
              ]
 
-    create_failure_lines(repository, job["job_guid"], lines[1:])
+    create_failure_lines(test_repository, job["job_guid"], lines[1:])
 
-    create_summary_lines_failures(repository.name, job, lines)
-    create_bug_suggestions_failures(repository.name, job, lines)
+    create_summary_lines_failures(test_repository.name, job, lines)
+    create_bug_suggestions_failures(test_repository.name, job, lines)
 
-    call_command('crossreference_error_lines', repository.name, job['job_guid'])
+    call_command('crossreference_error_lines', test_repository.name, job['job_guid'])
 
     failure_lines = FailureLine.objects.all()
     summary_lines = TextLogSummaryLine.objects.all()
