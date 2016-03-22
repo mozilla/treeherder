@@ -2,10 +2,10 @@
 
 failureViewerApp.controller('FailureViewerCtrl', [
     '$q', '$location', '$rootScope', '$scope', '$window',
-    'thNotify', 'ThClassifiedFailuresModel',
+    'thUrl', 'thNotify', 'ThClassifiedFailuresModel',
     function FailureViewer(
         $q, $location, $rootScope, $scope, $window,
-        thNotify, ThClassifiedFailuresModel) {
+        thUrl, thNotify, ThClassifiedFailuresModel) {
 
         $rootScope.urlBasePath = $location.absUrl().split('failureviewer')[0];
 
@@ -47,5 +47,6 @@ failureViewerApp.controller('FailureViewerCtrl', [
             }
         });
 
+        $scope.getBugUrl = thUrl.getBugUrl;
     }
 ]);
