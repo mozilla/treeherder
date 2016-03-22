@@ -106,6 +106,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
+    # Disable Django's own staticfiles handling in favour of WhiteNoise, for
+    # greater consistency between gunicorn and `./manage.py runserver`.
+    'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'django.contrib.admin',
     # 3rd party apps
