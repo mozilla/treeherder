@@ -6,6 +6,12 @@ wsgi-sslify==1.0.1 --hash=sha256:cde368fda0fb9958dd58bc2cb955d0bf3df1b79c132d97c
 
 whitenoise==3.0 --hash=sha256:2537cf2b0c12e1c8beaa23605076344a89d08b686592abffddb6ba13b284a8c6
 
+# Used by the Whitenoise CLI tool to provide Brotli-compressed versions of static files.
+# There is not yet an official package on PyPI:
+# https://github.com/google/brotli/issues/72
+https://github.com/google/brotli/archive/v0.3.0.zip#egg=Brotli==0.3.0 \
+    --hash=sha256:0e1e88c74b5a4c9c39123fe8adfdce6262c80524398367420475716389d70791
+
 Django==1.8.10 --hash=sha256:471b41cb53d675138475b488c429424ed143e57ad755a2c8ab1206ac30490284
 
 celery==3.1.20 --hash=sha256:3071b71ef8c43178ace8435002b11f2ff06db7690f07d960540eab7f4183ddf7

@@ -7,6 +7,8 @@ class python {
            "python-dev",
            # Required by pylibmc.
            "libmemcached-dev",
+           # Required by Brotli.
+           "g++",
            # To improve the UX of the Vagrant environment.
            "git"]:
     ensure => "latest",
