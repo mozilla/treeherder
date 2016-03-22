@@ -9,8 +9,8 @@ class CustomWhiteNoise(DjangoWhiteNoise):
     IMMUTABLE_FILE_RE = re.compile(r'\.min-[a-f0-9]{32}\.(js|css)$')
     INDEX_NAME = 'index.html'
 
-    def add_files(self, *args, **kwargs):
-        super(CustomWhiteNoise, self).add_files(*args, **kwargs)
+    def update_files_dictionary(self, *args):
+        super(CustomWhiteNoise, self).update_files_dictionary(*args)
         index_page_suffix = "/" + self.INDEX_NAME
         index_name_length = len(self.INDEX_NAME)
         index_files = {}

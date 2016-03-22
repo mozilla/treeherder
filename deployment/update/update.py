@@ -69,7 +69,7 @@ def update(ctx):
         # WhiteNoise can then serve in preference to the originals. This is required
         # since WhiteNoise's Django storage backend only gzips assets handled by
         # collectstatic, and so does not affect files in the `dist/` directory.
-        ctx.local("python2.7 -m whitenoise.gzip dist")
+        ctx.local("python2.7 -m whitenoise.compress dist")
         # Collect the static files (eg for the Persona or Django admin UI)
         run_local_with_env(ctx, "python2.7 manage.py collectstatic --noinput")
         # Update the database schema, if necessary.

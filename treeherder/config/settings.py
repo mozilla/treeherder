@@ -48,7 +48,7 @@ PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)
 
 # Create hashed+gzipped versions of assets during collectstatic,
 # which will then be served by WhiteNoise with a suitable max-age.
-STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 TEMPLATE_LOADERS = [
     "django.template.loaders.filesystem.Loader",

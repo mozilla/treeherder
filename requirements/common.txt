@@ -4,7 +4,7 @@ gunicorn==19.4.5 --hash=sha256:c57f1b005a4b90933303c8deed9bedeb509331aa6a0a99002
 
 wsgi-sslify==1.0.1 --hash=sha256:cde368fda0fb9958dd58bc2cb955d0bf3df1b79c132d97cee90be5fda34a5089
 
-whitenoise==2.0.6 --hash=sha256:826ffe5d608c9dc8daebef1b0b43d01f7958f17c2fce36e75c80e26160172c4f
+whitenoise==3.0 --hash=sha256:2537cf2b0c12e1c8beaa23605076344a89d08b686592abffddb6ba13b284a8c6
 
 Django==1.8.10 --hash=sha256:471b41cb53d675138475b488c429424ed143e57ad755a2c8ab1206ac30490284
 

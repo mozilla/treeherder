@@ -12,7 +12,7 @@ echo $SOURCE_VERSION > dist/revision.txt
 # WhiteNoise can then serve in preference to the originals. This is required
 # since WhiteNoise's Django storage backend only gzips assets handled by
 # collectstatic, and so does not affect files in the `dist/` directory.
-python -m whitenoise.gzip dist
+python -m whitenoise.compress dist
 
 # The post_compile script is run in a sub-shell, so we need to source the
 # buildpack's utils script again, so we can use set-env/set-default-env:
