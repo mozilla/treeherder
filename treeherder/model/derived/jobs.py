@@ -1260,7 +1260,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             debug_show=self.DEBUG,
         )
         if not len(rh):
-            raise ValueError("Revision hash not found: {}".format(
+            raise JobDataError("Revision hash not found: {}".format(
                 revision_hash))
         return rh[0]["long_revision"]
 
