@@ -338,7 +338,7 @@ ALLOWED_HOSTS = env.list("TREEHERDER_ALLOWED_HOSTS", default=[".mozilla.org", ".
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-if env.bool('IS_HEROKU', default=False):
+if SITE_URL.startswith('https://'):
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_SECONDS = timedelta(days=365)
 
