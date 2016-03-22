@@ -1065,7 +1065,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 else:
                     # make more fields visible in new relic for the job
                     # where we encountered the error
-                    datum = datum.update(datum.get("job", {}))
+                    datum.update(datum.get("job", {}))
                     newrelic.agent.record_exception(params=datum)
 
                 # skip any jobs that hit errors in these stages.
@@ -1262,7 +1262,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         if not len(rh):
             raise ValueError("Revision hash not found: {}".format(
                 revision_hash))
-            # allow the next line to except out and be handled later.
         return rh[0]["long_revision"]
 
     def _load_ref_and_job_data_structs(
