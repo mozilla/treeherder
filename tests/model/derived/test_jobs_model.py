@@ -57,40 +57,45 @@ def test_ingest_all_sample_jobs(jm, refdata, sample_data,
     refdata.disconnect()
 
 
-def test_missing_resultsets_some(jm, refdata, sample_data,
-                                 sample_resultset,
-                                 test_repository, mock_log_parser,
-                                 mock_get_resultset, mock_post_json,
-                                 activate_responses):
+@pytest.mark.parametrize("total_resultset_count", [3, 10])
+def test_missing_resultsets(jm, sample_data, sample_resultset, test_repository,
+                            mock_log_parser, total_resultset_count):
     """
     Ingest some sample jobs, some of which will be missing a resultset.
 
     When a resultset is missing, it should create a skeleton.  Then have it
     fill in the values by the normal resultset mechanism.
     """
-    job_data = sample_data.job_data[:10]
-    missing_revisions = [
-        "f185cde033f50405729191e325594161a8ddf25b",
-        "adfae83c382e16042b27d1fc62125905fcf76096",
-        "7c7fe4da388c108de2867a695d472f5cbab3c2a1",
-    ]
 
+    job_data = sample_data.job_data[:total_resultset_count]
     resultsets_to_store_after = sample_resultset[:3]
-    resultsets_to_store_before = sample_resultset[4:10]
+    missing_revisions = [r["revision"] for r in resultsets_to_store_after]
 
-    jm.store_result_set_data(resultsets_to_store_before)
+    if total_resultset_count > len(missing_revisions):
+        # if this is true, then some of the resultsets will get updates,
+        # and some won't, otherwise we want to have some other resultsets
+        # pre-loaded before the test.
+        resultsets_to_store_before = sample_resultset[3:total_resultset_count]
+        jm.store_result_set_data(resultsets_to_store_before)
 
     for idx, rev in enumerate(missing_revisions):
-        resultsets_to_store_after[idx]["revision"] = rev
-        resultsets_to_store_after[idx]["revisions"][-1]["revision"] = rev
-
         job_data[idx]["revision"] = rev
 
     jm.store_job_data(job_data)
 
-    jobs = jm.get_job_list(0, 20)
-    assert len(jobs) == 10
+    assert len(jm.get_job_list(0, 20)) == total_resultset_count
     test_utils.verify_result_sets(jm, set(missing_revisions))
+
+    result_set_skeletons = jm.get_dhub().execute(
+        proc='jobs_test.selects.result_sets',
+        return_type='dict',
+        key_column="long_revision",
+    )
+    for rev in missing_revisions:
+        resultset = result_set_skeletons[rev]
+        assert resultset["short_revision"] == rev[:12]
+        assert resultset["author"] == "pending..."
+        assert resultset["push_timestamp"] == 0
 
     jm.store_result_set_data(resultsets_to_store_after)
 
@@ -100,11 +105,8 @@ def test_missing_resultsets_some(jm, refdata, sample_data,
         0, len(missing_revisions),
         conditions={"long_revision": {("IN", tuple(missing_revisions))}}
     )
-    # don't compare id field, unreliable
-    for rs in updated_resultsets:
-        del rs["id"]
 
-    assert len(updated_resultsets) == 3
+    assert len(updated_resultsets) == len(missing_revisions)
     for rs in updated_resultsets:
         assert rs["push_timestamp"] > 0
         assert len(rs["revisions"]) > 0
@@ -112,65 +114,9 @@ def test_missing_resultsets_some(jm, refdata, sample_data,
     assert set(missing_revisions).issubset(act_revisions)
 
 
-def test_missing_resultsets_all(jm, refdata, sample_data,
-                                sample_resultset,
-                                test_repository, mock_log_parser,
-                                mock_get_resultset, mock_post_json,
-                                activate_responses):
-    """
-    Ingest some sample jobs, ALL of which will be missing a resultset.
-
-    This test is in contrast to ``test_missing_resultsets_some`` to check that,
-    during processing, having the list of resultsets needing update being
-    empty doesn't cause problems.
-    """
-    job_data = sample_data.job_data[:3]
-    missing_revisions = [
-        "f185cde033f50405729191e325594161a8ddf25b",
-        "adfae83c382e16042b27d1fc62125905fcf76096",
-        "7c7fe4da388c108de2867a695d472f5cbab3c2a1",
-    ]
-
-    resultsets_to_store = sample_resultset[:3]
-
-    for idx, rs in enumerate(resultsets_to_store):
-        rev = missing_revisions[idx]
-        rs["revision"] = rev
-        rs["revisions"][-1]["revision"] = rev
-
-    for idx, job in enumerate(job_data[:len(missing_revisions)]):
-        job["revision"] = missing_revisions[idx]
-
-    jm.store_job_data(job_data)
-
-    jobs = jm.get_job_list(0, 20)
-    assert len(jobs) == 3
-    test_utils.verify_result_sets(jm, set(missing_revisions))
-
-    jm.store_result_set_data(resultsets_to_store)
-
-    # get the resultsets that were created as skeletons and should have now been
-    # filled-in by the async task
-    updated_resultsets = jm.get_result_set_list(
-        0, len(missing_revisions),
-        conditions={"long_revision": {("IN", tuple(missing_revisions))}}
-    )
-    # don't compare id field, unreliable
-    for rs in updated_resultsets:
-        del rs["id"]
-
-    assert len(updated_resultsets) == 3
-    for rs in updated_resultsets:
-        assert rs["push_timestamp"] > 0
-        assert len(rs["revisions"]) > 0
-    act_revisions = {x["revision"] for x in updated_resultsets}
-    assert set(missing_revisions) == act_revisions
-
-
 def test_missing_resultsets_short_revision(
-        jm, refdata, sample_data, sample_resultset,
-        test_repository, mock_log_parser, mock_get_resultset,
-        mock_fetch_json, mock_post_json, activate_responses):
+        jm, sample_data, sample_resultset,
+        test_repository, mock_log_parser):
     """
     Ingest a sample job with a short revision.
 
@@ -178,21 +124,16 @@ def test_missing_resultsets_short_revision(
     revision
     """
     job_data = sample_data.job_data[:1]
-    missing_short_revision = "f185cde033f5"
-    missing_long_revision = "f185cde033f50405729191e325594161a8ddf25b"
 
     resultsets_to_store = sample_resultset[:1]
-
-    for idx, rs in enumerate(resultsets_to_store):
-        rs["revision"] = missing_long_revision
-        rs["revisions"][-1]["revision"] = missing_long_revision
+    missing_long_revision = resultsets_to_store[0]["revision"]
+    missing_short_revision = missing_long_revision[:12]
 
     job_data[0]["revision"] = missing_short_revision
 
     jm.store_job_data(job_data)
 
-    jobs = jm.get_job_list(0, 20)
-    assert len(jobs) == 1
+    assert len(jm.get_job_list(0, 20)) == 1
     test_utils.verify_result_sets(jm, {missing_short_revision})
 
     jm.store_result_set_data(resultsets_to_store)
@@ -203,9 +144,6 @@ def test_missing_resultsets_short_revision(
         0, 2,
         conditions={"short_revision": {("=", missing_short_revision)}}
     )
-    # don't compare id field, unreliable
-    for rs in updated_resultsets:
-        del rs["id"]
 
     assert len(updated_resultsets) == 1
     for rs in updated_resultsets:
@@ -556,7 +494,7 @@ def test_store_result_set_data(jm, sample_resultset):
 
     # Confirm all of the pushes and revisions in the
     # sample_resultset have been stored
-    assert {x for x in data['result_set_ids'].keys() if len(x) == 40} == rs_revisions
+    assert {r for r in data['result_set_ids'].keys() if len(r) == 40} == rs_revisions
     assert set(data['revision_ids'].keys()) == revisions
 
     # Confirm the data structures returned match what's stored in
