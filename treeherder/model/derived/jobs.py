@@ -35,6 +35,7 @@ from treeherder.model.models import (BuildPlatform,
 from treeherder.model.tasks import (populate_error_summary,
                                     publish_job_action,
                                     publish_resultset_action)
+from treeherder.model.utils import orm_delete
 
 from .artifacts import ArtifactsModel
 from .base import (ObjectNotFoundException,
@@ -739,7 +740,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
             # remove data from specified jobs tables that is older than max_timestamp
             self._execute_table_deletes(jobs_targets, 'jobs', sleep_time)
-            self._execute_orm_deletes(job_guid_list, chunk_size, sleep_time)
+
+            # Remove FailueLine entries for these jobs
+            orm_delete(FailureLine, FailureLine.objects.filter(job_guid__in=job_guid_list),
+                       chunk_size, sleep_time)
 
         return len(jobs_to_cycle)
 
@@ -767,18 +771,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             self.execute(
                 proc='generic.db_control.enable_foreign_key_checks',
                 debug_show=self.DEBUG)
-
-            if sleep_time:
-                # Allow some time for other queries to get through
-                time.sleep(sleep_time)
-
-    def _execute_orm_deletes(self, job_guids, chunk_size, sleep_time):
-        failure_line_ids = [item['id'] for item in
-                            FailureLine.objects.filter(job_guid__in=job_guids).values('id')]
-
-        for lower_bound in xrange(0, len(failure_line_ids), chunk_size):
-            FailureLine.objects.filter(
-                id__in=failure_line_ids[lower_bound:lower_bound+chunk_size]).delete()
 
             if sleep_time:
                 # Allow some time for other queries to get through

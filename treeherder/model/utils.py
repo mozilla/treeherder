@@ -1,7 +1,10 @@
+import logging
 import random
 import time
 
 from _mysql_exceptions import OperationalError
+
+logger = logging.getLogger(__name__)
 
 
 def get_now_timestamp():
@@ -31,3 +34,16 @@ def retry_execute(dhub, logger, retries=0, **kwargs):
             return retry_execute(dhub, logger, retries, **kwargs)
         else:
             raise
+
+
+def orm_delete(model, queryset, chunk_size, sleep_time):
+    logger.debug("Deleting from %r" % model)
+    delete_ids = [item['id'] for item in queryset.values('id')]
+
+    for lower_bound in xrange(0, len(delete_ids), chunk_size):
+        model.objects.filter(
+            id__in=delete_ids[lower_bound:lower_bound+chunk_size]).delete()
+
+        if sleep_time:
+            # Allow some time for other queries to get through
+            time.sleep(sleep_time)
