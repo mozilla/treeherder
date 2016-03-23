@@ -5,7 +5,9 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from treeherder.model.derived import JobsModel
-from treeherder.model.models import Datasource
+from treeherder.model.models import (Datasource,
+                                     TaskSetMeta)
+from treeherder.model.utils import orm_delete
 
 
 class Command(BaseCommand):
@@ -61,6 +63,12 @@ class Command(BaseCommand):
                                            options['chunk_size'],
                                            options['sleep_time'])
                 self.debug("Deleted {} jobs from {}".format(rs_deleted, project))
+
+        self.cycle_non_job_data(options['chunk_size'], options['sleep_time'])
+
+    def cycle_non_job_data(self, chunk_size, sleep_time):
+        orm_delete(TaskSetMeta, TaskSetMeta.objects.filter(count=0),
+                   chunk_size, sleep_time)
 
     def debug(self, msg):
         if self.is_debug:

@@ -12,7 +12,8 @@ from tests.sample_data_generator import (job_data,
 from treeherder.model.derived import ArtifactsModel
 from treeherder.model.models import (FailureLine,
                                      JobDuration,
-                                     JobGroup)
+                                     JobGroup,
+                                     TaskSetMeta)
 
 slow = pytest.mark.slow
 xfail = pytest.mark.xfail
@@ -355,6 +356,19 @@ def test_cycle_all_data_in_chunks(jm, refdata, sample_data,
     # There should be no jobs after cycling
     assert len(jobs_after) == 0
     assert len(FailureLine.objects.all()) == 0
+
+
+def test_cycle_task_set_meta(jm):
+    to_delete = TaskSetMeta(count=0)
+    to_delete.save()
+    to_keep = TaskSetMeta(count=1)
+    to_keep.save()
+
+    assert [item.id for item in TaskSetMeta.objects.all()] == [to_delete.id, to_keep.id]
+
+    call_command('cycle_data', sleep_time=0, days=1, chunk_size=3)
+
+    assert [item.id for item in TaskSetMeta.objects.all()] == [to_keep.id]
 
 
 def test_bad_date_value_ingestion(jm, test_repository, mock_log_parser):
