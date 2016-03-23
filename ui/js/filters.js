@@ -72,6 +72,12 @@ treeherder.filter('initials', function() {
         var words = str.split(' ');
         var first = words[0].replace(/[^A-Z]/gi, '')[0];
         var last = words.slice(-1)[0].replace(/[^A-Z]/gi, '')[0];
+        if (!first) {
+            first = "";
+        }
+        if (!last) {
+            last = "";
+        }
         var initials = first + last;
 
         return '<span class="label label-initials">' + initials + '</span>';
