@@ -739,7 +739,7 @@ class MatcherManager(models.Manager):
     @classmethod
     def _register(cls, matcher_cls, dest):
         if matcher_cls.__name__ in dest:
-            return dest[cls.__name__]
+            return dest[matcher_cls.__name__]
 
         obj, _ = Matcher.objects.get_or_create(name=matcher_cls.__name__)
 
