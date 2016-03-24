@@ -342,6 +342,17 @@ class TreeherderJobTest(DataSetup, unittest.TestCase):
             tj_dict = TreeherderJob(job)
             self.compare_structs(tj.data, tj_dict.data)
 
+    def test_error_add_artifact_no_guid(self):
+
+        tj = TreeherderJob()
+        job_data = self.job_data[0]
+
+        with self.assertRaises(TreeherderClientError):
+            tj.add_artifact(
+                job_data['job']['artifacts'][0]['name'],
+                job_data['job']['artifacts'][0]['type'],
+                job_data['job']['artifacts'][0]['blob'])
+
     def test_job_guid_validation(self):
 
         tj = TreeherderJob(self.job_data[0])

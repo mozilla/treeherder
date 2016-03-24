@@ -247,6 +247,10 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
                 )
 
     def add_artifact(self, name, artifact_type, blob):
+
+        if not self.data['job']['job_guid']:
+            raise TreeherderClientError('job guid must be set before adding '
+                                        'artifact', [])
         if blob:
             self.data['job']['artifacts'].append({
                 'name': name,
