@@ -45,7 +45,7 @@
         ·
         <span ng-if="alertSummary.resultSetMetadata && alertSummary.resultSetMetadata" title="{{alertSummary.resultSetMetadata.comments}}" uib-dropdown>
           <button id="push-dropdown" class="btn btn-link dropdown" uib-dropdown-toggle>
-            {{alertSummary.resultSetMetadata.revision}}<span class="caret"></span>
+            {{alertSummary.resultSetMetadata.revision | limitTo: 12}}<span class="caret"></span>
           </button>
           <ul class="uib-dropdown-menu" aria-labelledby="push-dropdown">
             <li role="menuitem"><a href="{{alertSummary.jobsURL}}" target="_blank">Jobs</a></li>

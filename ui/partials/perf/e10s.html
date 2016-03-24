@@ -1,29 +1,42 @@
 <div class="container-fluid">
+  <h1>Perfherder e10s dashboard</h1>
+  <p>Comparing results of all Talos tests over the last two days
+    on mozilla-inbound (using pgo configuration on all platforms that support it).
+    Because we're taking a sample over a period of time, improvements or regressions
+    will take a while to be reflected in results. When in doubt, check the graphs
+    by hovering over each line. Also, if there are no results for the default time
+    range, try specifying a longer one.
+  </p>
+  <p>For more information on what is considered "acceptable" in terms of a Talos
+    regression, see
+    <a href="https://wiki.mozilla.org/index.php?title=Electrolysis/Release_Criteria">
+      the official e10s release criteria</a>.
+  </p>
+  <div class="form-group">
+    Branch to compare:
+    <select ng-change="globalOptionsChanged(selectedRepo, selectedTimeRange)"
+            ng-model="selectedRepo"
+            ng-options="repo.name for repo in projects">
+    </select>
+    Time range to sample:
+    <select ng-model="selectedTimeRange"
+            ng-options="timeRange.text for timeRange in timeRanges track by timeRange.value"
+            ng-change="globalOptionsChanged(selectedRepo, selectedTimeRange)">
+    </select>
+  </div>
   <div ng-if="dataLoading">
     Loading all results, please wait a minute...
     <img src="img/dancing_cat.gif" />
   </div>
   <div ng-if="!dataLoading">
-      <h1>Perfherder e10s dashboard</h1>
-      <p>Comparing results of all Talos tests over the last two days
-        on mozilla-inbound (using pgo configuration on all platforms that support it).
-        Because we're taking a sample over a period of time, improvements or regressions
-        will take a while to be reflected in results. When in doubt, check the graphs
-        by hovering over each line.
-      </p>
-      <p>For more information on what is considered "acceptable" in terms of a Talos
-        regression, see
-        <a href="https://wiki.mozilla.org/index.php?title=Electrolysis/Release_Criteria">
-          the official e10s release criteria</a>.
-      </p>
-      <ph-compare-table
-         base-title="non-e10s"
-         new-title="e10s"
-         titles="titles"
-         test-list="testList"
-         compare-results="compareResults"
-         filter-options="filterOptions"
-         release-blocker-criteria="1">
-      </ph-compare-table>
+    <ph-compare-table
+       base-title="non-e10s"
+       new-title="e10s"
+       titles="titles"
+       test-list="testList"
+       compare-results="compareResults"
+       filter-options="filterOptions"
+       release-blocker-criteria="1">
+    </ph-compare-table>
   </div>
 </div>
