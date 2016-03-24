@@ -54,8 +54,10 @@ input:focus::-moz-placeholder {
   visibility: hidden;
 }
 
+/* Presently Tier menu, Similar Jobs panel */
 .checkbox {
-  min-height: 20px; /* Override bootstrap 3.3.5 for similar jobs panel */
+  min-height: 20px;
+  padding-left: 4px;
 }
 
 .dropdown-menu > li > a {
