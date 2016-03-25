@@ -33,7 +33,7 @@ treeherder.controller('BugsPluginCtrl', [
                 requestPromise = $q.defer();
 
                 ThJobArtifactModel.get_list({
-                    name: "Bug suggestions",
+                    name__in: "Bug suggestions,text_log_summary",
                     "type": "json",
                     job_id: newValue
                 }, {timeout: requestPromise})
@@ -63,7 +63,21 @@ treeherder.controller('BugsPluginCtrl', [
                             );
                             suggestions.push(suggestion);
                         });
+                        var errors = [];
+                        if (suggestions.length === 0 && artifact_list.length > 1) {
+                            var artifact = artifact_list[1];
+                            angular.forEach(artifact.blob.step_data.steps, function(step) {
+                                if (step.result !== "success") {
+                                    errors.push({
+                                        "name": step.name,
+                                        "result": step.result,
+                                        "line": step.finished_linenumber
+                                    });
+                                }
+                            });
+                        }
                         $scope.suggestions = suggestions;
+                        $scope.errors = errors;
                         $scope.bugSuggestionsLoaded = true;
                     } else if ($scope.selectedJob && $scope.logParseStatus === "parsed") {
                         $scope.bugSuggestionsLoaded = false;

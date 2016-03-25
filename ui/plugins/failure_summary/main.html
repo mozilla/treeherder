@@ -63,6 +63,16 @@
 
         </li>
 
+        <li ng-repeat="error in errors">
+            <ul>
+                <li>{{error.name}} : {{error.result}}, Check
+                  <a title="Check this line"
+                     target="_blank"
+                     href="{{::job_log_urls[0].url}}#L{{error.line}}">here</a>
+                </li>
+            </ul>
+        </li>
+
         <li ng-if="!tabs.failureSummary.is_loading && jobLogsAllParsed && bugSuggestionsLoaded && job_log_urls.length && suggestions.length == 0">
             <div class="failure-summary-line-empty">
                 <span>Failure summary is empty</span>
