@@ -1,8 +1,8 @@
 import json
-#import responses
-#import re
+# import responses
+# import re
 
-#from django.conf import settings
+# from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
