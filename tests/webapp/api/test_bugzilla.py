@@ -1,11 +1,13 @@
 import json
-# import responses
-# import re
 
-# from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
+
+
+# import responses
+# import re
+# from django.conf import settings
 
 
 def test_create_bug(webapp, eleven_jobs_stored):
