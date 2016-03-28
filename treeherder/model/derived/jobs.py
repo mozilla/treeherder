@@ -1348,6 +1348,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         build_system_type = job.get('build_system_type', 'buildbot')
 
+        reference_data_name = job.get('reference_data_name', None)
+
         sh = sha1()
         sh.update(''.join(
             map(lambda x: str(x),
@@ -1356,12 +1358,12 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                  machine_platform.os_name, machine_platform.platform,
                  machine_platform.architecture,
                  job_group.name, job_group.symbol, job_type.name,
-                 job_type.symbol, option_collection_hash])))
+                 job_type.symbol, option_collection_hash,
+                 reference_data_name])))
         signature_hash = sh.hexdigest()
 
         # Should be the buildername in the case of buildbot (if not provided
         # default to using the signature hash)
-        reference_data_name = job.get('reference_data_name', None)
         if not reference_data_name:
             reference_data_name = signature_hash
 
