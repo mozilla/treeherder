@@ -175,16 +175,17 @@ perf.controller('CompareResultsCtrl', [
                 resultSetIds = [$scope.originalResultSet.id, $scope.newResultSet.id];
             }
 
-            PhSeries.getSeriesSummaries(
+            PhSeries.getSeriesList(
                 $scope.originalProject.name,
-                timeRange,
-                optionCollectionMap,
-                { excludedPlatforms: $scope.excludedPlatforms }).then(
-                    function(originalSeriesData) {
-                        $scope.platformList = originalSeriesData.platformList;
-                        $scope.testList = originalSeriesData.testList;
+                { interval: timeRange, subtests: 0 },
+                optionCollectionMap).then(
+                    function(originalSeriesList) {
+                        $scope.platformList = _.uniq(
+                            _.map(originalSeriesList, 'platform'));
+                        $scope.testList = _.uniq(
+                            _.map(originalSeriesList, 'name'));
                         return PhCompare.getResultsMap($scope.originalProject.name,
-                                                       originalSeriesData.seriesList,
+                                                       originalSeriesList,
                                                        resultSetIds);
                     }).then(function(resultMaps) {
                         var originalResultsMap = resultMaps[$scope.originalResultSet.id];
@@ -197,16 +198,17 @@ perf.controller('CompareResultsCtrl', [
                             return;
                         }
 
-                        PhSeries.getSeriesSummaries(
+                        PhSeries.getSeriesList(
                             $scope.newProject.name,
-                            timeRange,
-                            optionCollectionMap,
-                            { excludedPlatforms: $scope.excludedPlatforms }).then(
-                                function(newSeriesData) {
-                                    $scope.platformList = _.union($scope.platformList,
-                                                                  newSeriesData.platformList).sort();
-                                    $scope.testList = _.union($scope.testList,
-                                                              newSeriesData.testList).sort();
+                            { interval: timeRange, subtests: 0 },
+                            optionCollectionMap).then(
+                                function(newSeriesList) {
+                                    $scope.platformList = _.union(
+                                        $scope.platformList,
+                                        _.uniq(newSeriesList, 'platform'));
+                                    $scope.testList = _.union(
+                                        $scope.testList,
+                                        _.uniq(newSeriesList, 'name'));
                                     return PhCompare.getResultsMap($scope.newProject.name,
                                                                    newSeriesData.seriesList,
                                                                    [$scope.newResultSet.id]);
@@ -228,10 +230,10 @@ perf.controller('CompareResultsCtrl', [
             $scope.testList.forEach(function(testName) {
                 $scope.titles[testName] = testName.replace('summary ', '');
                 $scope.platformList.forEach(function(platform) {
-                    var oldSig = _.find(Object.keys(rawResultsMap), function (sig) {
+                    var oldSig = _.find(Object.keys(rawResultsMap), function(sig) {
                         return rawResultsMap[sig].name == testName && rawResultsMap[sig].platform == platform;
                     });
-                    var newSig = _.find(Object.keys(newRawResultsMap), function (sig) {
+                    var newSig = _.find(Object.keys(newRawResultsMap), function(sig) {
                         return newRawResultsMap[sig].name == testName && newRawResultsMap[sig].platform == platform;
                     });
 
@@ -398,7 +400,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                 });
         }
 
-        function displayResults(rawResultsMap, newRawResultsMap, timeRange) {
+        function displayResults(rawResultsMap, newRawResultsMap) {
             $scope.compareResults = {};
             $scope.titles = {};
 
@@ -529,68 +531,75 @@ perf.controller('CompareSubtestResultsCtrl', [
                             resultSetIds = [$scope.originalResultSet.id, $scope.newResultSet.id];
                         }
 
-                        PhSeries.getSubtestSummaries(
+                        $q.all([PhSeries.getSeriesList(
                             $scope.originalProject.name,
-                            timeRange,
-                            optionCollectionMap,
-                            $scope.originalSignature).then(
-                                function (originalSeriesData) {
-                                    $scope.testList = originalSeriesData.testList;
-                                    $scope.platformList = originalSeriesData.platformList;
-                                    return PhCompare.getResultsMap($scope.originalProject.name,
-                                                                   originalSeriesData.seriesList,
-                                                                   resultSetIds);
-                                }).then(function(seriesMaps) {
-                                    var originalSeriesMap = seriesMaps[$scope.originalResultSet.id];
-                                    var newSeriesMap = seriesMaps[$scope.newResultSet.id];
-                                    [originalSeriesMap, newSeriesMap].forEach(function (seriesMap) {
-                                        // If there is no data for a given signature, handle it gracefully
-                                        if (seriesMap) {
-                                            Object.keys(seriesMap).forEach(function(series) {
-                                                if (!_.contains($scope.pageList, seriesMap[series].name)) {
-                                                    $scope.pageList.push(seriesMap[series].name);
-                                                }
-                                            });
-                                        }
-                                    });
+                            { signature: $scope.originalSignature },
+                            optionCollectionMap).then(function(originalSeries) {
+                                console.log(originalSeries);
+                                $scope.testList = [originalSeries[0].name];
+                                return undefined;
+                            }),
+                                PhSeries.getSeriesList(
+                                    $scope.originalProject.name,
+                                    { parent_signature: $scope.originalSignature },
+                                    optionCollectionMap).then(function(originalSubtestList) {
+                                        $scope.pageList = _.map(originalSubtestList, 'name');
+                                        $scope.platformList = _.uniq(_.map(originalSubtestList, 'platform'));
+                                        return PhCompare.getResultsMap($scope.originalProject.name,
+                                                                       originalSubtestList,
+                                                                       resultSetIds);
+                                    })
+                               ]).then(function(results) {
+                                   var originalSeriesMap = results[1][$scope.originalResultSet.id];
+                                   var newSeriesMap = results[1][$scope.newResultSet.id];
+                                   [originalSeriesMap, newSeriesMap].forEach(function(seriesMap) {
+                                       // If there is no data for a given signature, handle it gracefully
+                                       if (seriesMap) {
+                                           Object.keys(seriesMap).forEach(function(series) {
+                                               if (!_.contains($scope.pageList, seriesMap[series].name)) {
+                                                   $scope.pageList.push(seriesMap[series].name);
+                                               }
+                                           });
+                                       }
+                                   });
 
-                                    // Optimization- collect all data in a single pass
-                                    if (newSeriesMap) {
-                                        $scope.dataLoading = false;
-                                        displayResults(originalSeriesMap, newSeriesMap, timeRange);
-                                        return;
-                                    }
+                                   // Optimization- collect all data in a single pass
+                                   if (newSeriesMap) {
+                                       $scope.dataLoading = false;
+                                       displayResults(originalSeriesMap, newSeriesMap);
+                                       return;
+                                   }
 
-                                    PhSeries.getSubtestSummaries(
-                                        $scope.newProject.name,
-                                        timeRange,
-                                        optionCollectionMap,
-                                        $scope.newSignature).then(
-                                            function (newSeriesData) {
-                                                $scope.platformList = _.union($scope.platformList,
-                                                                              newSeriesData.platformList).sort();
-                                                $scope.testList = _.union($scope.testList,
-                                                                          newSeriesData.testList).sort();
+                                   PhSeries.getSeriesList(
+                                       $scope.newProject.name,
+                                       { parent_signature: $scope.newSignature },
+                                       optionCollectionMap).then(function(newSeriesList) {
+                                           $scope.platformList = _.uniq(_.union(
+                                               $scope.platformList,
+                                               _.map(newSeriesList, 'platform')));
+                                           $scope.testList = _.uniq(_.union(
+                                               $scope.testList,
+                                               _.map(newSeriesList, 'name')));
 
-                                                return PhCompare.getResultsMap($scope.newProject.name,
-                                                                               newSeriesData.seriesList,
-                                                                               [$scope.newResultSet.id]);
-                                            }).then(function(newSeriesMaps) {
-                                                var newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
-                                                // There is a chance that we haven't received data for the given signature/resultSet yet
-                                                if (newSeriesMap) {
-                                                    Object.keys(newSeriesMap).forEach(function(series) {
-                                                        if (!_.contains($scope.pageList, newSeriesMap[series].name)) {
-                                                            $scope.pageList.push(newSeriesMap[series].name);
-                                                        }
-                                                    });
-                                                } else {
-                                                    newSeriesMap = {};
-                                                }
-                                                $scope.dataLoading = false;
-                                                displayResults(originalSeriesMap, newSeriesMap, timeRange);
-                                            });
-                                });
+                                           return PhCompare.getResultsMap($scope.newProject.name,
+                                                                          newSeriesList,
+                                                                          [$scope.newResultSet.id]);
+                                       }).then(function(newSeriesMaps) {
+                                           var newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
+                                           // There is a chance that we haven't received data for the given signature/resultSet yet
+                                           if (newSeriesMap) {
+                                               Object.keys(newSeriesMap).forEach(function(series) {
+                                                   if (!_.contains($scope.pageList, newSeriesMap[series].name)) {
+                                                       $scope.pageList.push(newSeriesMap[series].name);
+                                                   }
+                                               });
+                                           } else {
+                                               newSeriesMap = {};
+                                           }
+                                           $scope.dataLoading = false;
+                                           displayResults(originalSeriesMap, newSeriesMap);
+                                       });
+                               });
                     });
                 });
             });

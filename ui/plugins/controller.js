@@ -251,12 +251,9 @@ treeherder.controller('PluginCtrl', [
                                 return series.subtest_signatures ? series.subtest_signatures : [];
                             }));
                             _.forEach(seriesList, function(series) {
-                                if (!series.subtest_signatures) {
-                                    if (_.contains(allSubtestSignatures, series.signature)) {
-                                        // skip series which are subtests of another series
-                                        return;
-                                    }
-                                }
+                                // skip series which are subtests of another series
+                                if (series.parent_signature)
+                                    return;
                                 var detail = {
                                     url: thServiceDomain + '/perf.html#/graphs?series=[' +
                                         $scope.repoName+ ',' + series.signature + ',1]&selected=[' +

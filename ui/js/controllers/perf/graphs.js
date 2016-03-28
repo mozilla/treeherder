@@ -923,32 +923,22 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
     };
 
     var loadingExtraDataPromise = $q.defer();
-    var addRelatedPlatforms = function(relatedSeries) {
-        PhSeries.getAllSeries(relatedSeries.projectName,
-            $scope.timeRange, optionCollectionMap).then(
-            function(seriesData) {
-                var platformList = seriesData.platformList;
-                platformList.forEach(function(platform) {
-                    // query all the tests with specific platform, then find
-                    // out the test which has same with the existed test
-                    var testList = _.sortBy(_.filter(seriesData.seriesList,
-                        { platform: platform }), 'name');
-                    var temp = _.findWhere(testList, {"name": relatedSeries.name});
-                    // if found something different from the series we already have,
-                    // then we push it into the testsToAdd list.
-                    if (temp !== undefined && temp.signature !== relatedSeries.signature) {
-                        $scope.testsToAdd.push(_.clone(temp));
-                    }
-                });
-            }
-        ).then(function() {
-            // resolve the testsToAdd's length after every thing was done
-            // so we don't need timeout here
-            loadingExtraDataPromise.resolve($scope.testsToAdd.length);
-        });
+    var addRelatedPlatforms = function(originalSeries) {
+        PhSeries.getSeriesList(
+            originalSeries.projectName, { interval: $scope.timeRange },
+            optionCollectionMap).then(function(seriesList) {
+                $scope.testsToAdd = _.clone(_.filter(seriesList, function(series) {
+                    return series.platform !== originalSeries.platform &&
+                        series.name === originalSeries.name;
+                }));
+            }).then(function() {
+                // resolve the testsToAdd's length after every thing was done
+                // so we don't need timeout here
+                loadingExtraDataPromise.resolve($scope.testsToAdd.length);
+            });
     };
 
-    var addRelatedBranches = function(relatedSeries) {
+    var addRelatedBranches = function(originalSeries) {
         var branchList = [];
         thPerformanceBranches.forEach(function (branch) {
             if (branch !== relatedSeries.projectName) {
@@ -957,17 +947,15 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
         });
         // get each project's series data from remote and use promise to
         // ensure each step will be executed after last on has finished
-        $q.all(branchList.map(function (project) {
-            return PhSeries.getAllSeries(project.name,
-                $scope.timeRange, optionCollectionMap);
-        })).then(function (seriesList) {
-            seriesList.forEach(function (series) {
-                var testList = _.sortBy(_.filter(series.seriesList,
-                    {platform: relatedSeries.platform}), 'name');
-                var temp = _.findWhere(testList, {"name": relatedSeries.name});
-                if (temp !== undefined)
-                    $scope.testsToAdd.push(_.clone(temp));
-            });
+        $q.all(branchList.map(function(project) {
+            return PhSeries.getSeriesList(project.name, {
+                interval: $scope.timeRange,
+                signature: originalSeries.signature
+            }, optionCollectionMap);
+        })).then(function(series) {
+            if (series.length > 0) {
+                $scope.testToAdd.push(_.clone(series[0]));
+            }
         }).then(function () {
             loadingExtraDataPromise.resolve($scope.testsToAdd.length);
         });
@@ -1012,11 +1000,12 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
             if ($scope.selectedPlatform) {
                 defaultPlatform = $scope.selectedPlatform;
             }
-            PhSeries.getSeriesByPlatform($scope.selectedProject.name,
-                $scope.timeRange, $scope.selectedPlatform, optionCollectionMap).then(
-                function(seriesData) {
+            PhSeries.getSeriesList(
+                $scope.selectedProject.name,
+                { interval: $scope.timeRange, platform: $scope.selectedPlatform },
+                optionCollectionMap).then(function(seriesList) {
                     $scope.unselectedTestList = _.sortBy(
-                        _.filter(seriesData.seriesList,
+                        _.filter(seriesList,
                                  { platform: $scope.selectedPlatform }), 'name');
                     // filter out tests which are already displayed or are
                     // already selected
