@@ -17,6 +17,7 @@ def subtests_perf_signature(test_perf_signature):
         platform=test_perf_signature.platform,
         option_collection=test_perf_signature.option_collection,
         suite='mysuite',
+        has_subtests=False,
         last_updated=datetime.datetime.now()
     )
     test_perf_signature.parent_signature = signature

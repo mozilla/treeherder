@@ -55,11 +55,12 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
         ret = {}
         for (signature_hash, option_collection_hash, platform, framework,
              suite, test, lower_is_better,
-             extra_properties) in signature_data.values_list(
+             extra_properties, has_subtests) in signature_data.values_list(
                  'signature_hash',
                  'option_collection__option_collection_hash',
                  'platform__platform', 'framework', 'suite',
-                 'test', 'lower_is_better', 'extra_properties').distinct():
+                 'test', 'lower_is_better', 'extra_properties',
+                 'has_subtests').distinct():
             ret[signature_hash] = {
                 'framework_id': framework,
                 'option_collection_hash': option_collection_hash,
@@ -79,6 +80,8 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
                 ret[signature_hash]['subtest_signatures'] = signature_data.filter(
                         parent_signature__signature_hash__exact=signature_hash
                 ).values_list('signature_hash', flat=True)
+            if has_subtests:
+                ret[signature_hash]['has_subtests'] = True
 
             ret[signature_hash].update(json.loads(extra_properties))
 
