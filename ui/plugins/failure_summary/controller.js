@@ -1,9 +1,9 @@
 "use strict";
 
 treeherder.controller('BugsPluginCtrl', [
-    '$scope', 'ThLog', 'ThJobArtifactModel','$q', 'thTabs', '$timeout',
+    '$scope', 'ThLog', 'ThJobArtifactModel','$q', 'thTabs', '$timeout', 'thUrl',
     function BugsPluginCtrl(
-        $scope, ThLog, ThJobArtifactModel, $q, thTabs, $timeout) {
+        $scope, ThLog, ThJobArtifactModel, $q, thTabs, $timeout, thUrl) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -66,12 +66,13 @@ treeherder.controller('BugsPluginCtrl', [
                         var errors = [];
                         if (suggestions.length === 0 && artifact_list.length > 1) {
                             var artifact = artifact_list[1];
+                            console.log(artifact);
                             angular.forEach(artifact.blob.step_data.steps, function(step) {
                                 if (step.result !== "success") {
                                     errors.push({
                                         "name": step.name,
                                         "result": step.result,
-                                        "line": step.finished_linenumber
+                                        "lvURL": thUrl.getLogViewerUrl(artifact.job_id) + "#L" + step.finished_linenumber
                                     });
                                 }
                             });
