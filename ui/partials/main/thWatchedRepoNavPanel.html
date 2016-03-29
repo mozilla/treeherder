@@ -18,6 +18,7 @@
         <!--Toggle Tiers filter Button-->
         <span th-checkbox-dropdown-container class="dropdown">
           <span id="tierLabel" role="button"
+                  title="Show/hide job tiers"
                   href="#" data-toggle="dropdown" data-target="#"
                   class="btn btn-view-nav btn-sm nav-menu-btn">Tiers
             <span class="fa fa-angle-down lightgray"></span>
@@ -32,7 +33,7 @@
                          class="dropdown-checkboxk"
                          ng-model="tiers[tier]"
                          ng-change="tierToggled(tier)">
-                  Show Tier {{::tier}}
+                  tier {{::tier}}
                 </label>
               </div>
             </li>

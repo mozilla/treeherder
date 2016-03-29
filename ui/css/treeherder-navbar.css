@@ -22,7 +22,7 @@
 
 .navbar .dropdown-menu {
     max-height: 600px;
-    min-width: 112px;
+    min-width: 80px;
     overflow: auto;
     margin-top: 10px;
     padding-bottom: 8px;
