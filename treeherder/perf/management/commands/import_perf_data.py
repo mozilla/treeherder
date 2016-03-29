@@ -18,7 +18,7 @@ from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceSignature)
 
 
-def _add_series(pc, project_name, signature_hash, signature_props, verbosity):
+def _add_series(pc, project_name, signature_hash, signature_props, verbosity, parent_signature=None):
     if verbosity == 3:
         print(signature_hash)
 
@@ -58,6 +58,7 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity):
             'platform': platform,
             'framework': framework,
             'extra_properties': extra_properties,
+            'parent_signature': parent_signature,
             'last_updated': datetime.datetime.fromtimestamp(0)
         })
 
@@ -153,11 +154,26 @@ class Command(BaseCommand):
             futures = []
 
             for signature_hash in signatures.get_signature_hashes():
+                # iterate over subtest signatures, if any
+                if 'subtest_signatures' in signatures[signature_hash]:
+                    # pop 'subtest_signatures' from the parent's extra properties
+                    subtests = signatures[signature_hash].pop('subtest_signatures')
+                    for subtest_hash in subtests:
+                        # add the series, setting the parent signature property
+                        futures.append(executor.submit(_add_series, pc,
+                                                       project,
+                                                       subtest_hash,
+                                                       signatures[subtest_hash],
+                                                       options['verbosity'],
+                                                       parent_signature=signature_hash))
+                # add the parent signature series
+                # ('subtest_signatures' has been removed if it exists)
                 futures.append(executor.submit(_add_series, pc,
                                                project,
                                                signature_hash,
                                                signatures[signature_hash],
                                                options['verbosity']))
+
             for future in futures:
                 try:
                     future.result()
