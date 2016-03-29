@@ -18,7 +18,7 @@ from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceSignature)
 
 
-def _add_series(pc, project_name, signature_hash, signature_props, verbosity):
+def _add_series(pc, project_name, signature_hash, signature_props, verbosity, parent_hash=None):
     if verbosity == 3:
         print(signature_hash)
 
@@ -43,27 +43,46 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity):
     extra_properties = {}
     for k in signature_props.keys():
         if k not in ['option_collection_hash', 'machine_platform',
-                     'test', 'suite']:
+                     'test', 'suite', 'has_subtests', 'parent_signature']:
             extra_properties[k] = signature_props[k]
 
     repository = Repository.objects.get(name=project_name)
 
+    defaults = {
+        'test': signature_props.get('test', ''),
+        'suite': signature_props['suite'],
+        'option_collection': option_collection,
+        'platform': platform,
+        'framework': framework,
+        'extra_properties': extra_properties,
+        'has_subtests': signature_props.get('has_subtests', False),
+        'last_updated': datetime.datetime.fromtimestamp(0)
+    }
+
+    if parent_hash:
+        # the parent PerformanceSignature object should have already been created
+        try:
+            defaults['parent_signature'] = PerformanceSignature.objects.get(
+                signature_hash=parent_hash,
+                repository=repository,
+                framework=framework)
+        except PerformanceSignature.DoesNotExist:
+            print("Cannot find parent signature with hash {} for signature {} ({})".format(
+                parent_hash, signature_hash, signature_props))
+            raise
+
     signature, _ = PerformanceSignature.objects.get_or_create(
         signature_hash=signature_hash,
         repository=repository,
-        defaults={
-            'test': signature_props.get('test', ''),
-            'suite': signature_props['suite'],
-            'option_collection': option_collection,
-            'platform': platform,
-            'framework': framework,
-            'extra_properties': extra_properties,
-            'last_updated': datetime.datetime.fromtimestamp(0)
-        })
+        defaults=defaults)
 
-    series = pc.get_performance_data(
-        project_name, signatures=signature_hash,
-        time_interval=PerformanceTimeInterval.ONE_YEAR)[signature_hash]
+    try:
+        series = pc.get_performance_data(
+            project_name, signatures=signature_hash,
+            time_interval=PerformanceTimeInterval.ONE_YEAR)[signature_hash]
+    except KeyError:
+        print("WARNING: No performance data for signature {}".format(signature_hash))
+        return
 
     try:
         new_series = []
@@ -151,13 +170,26 @@ class Command(BaseCommand):
         with concurrent.futures.ProcessPoolExecutor(
                 options['num_workers']) as executor:
             futures = []
-
+            # add signatures without parents first, then those with parents
+            with_parents = []
             for signature_hash in signatures.get_signature_hashes():
+                if 'parent_signature' in signatures[signature_hash]:
+                    with_parents.append(signature_hash)
+                else:
+                    futures.append(executor.submit(_add_series, pc,
+                                                   project,
+                                                   signature_hash,
+                                                   signatures[signature_hash],
+                                                   options['verbosity']))
+            for signature_hash in with_parents:
+                parent_hash = signatures[signature_hash]['parent_signature']
                 futures.append(executor.submit(_add_series, pc,
                                                project,
                                                signature_hash,
                                                signatures[signature_hash],
-                                               options['verbosity']))
+                                               options['verbosity'],
+                                               parent_hash=parent_hash))
+
             for future in futures:
                 try:
                     future.result()
