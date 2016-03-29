@@ -72,6 +72,11 @@ treeherder.controller('PinboardCtrl', [
                 $scope.completeClassification();
                 $scope.classification = thPinboard.createNewClassification();
 
+                // HACK: it looks like Firefox on Linux and Windows doesn't
+                // want to accept keyboard input after this change for some
+                // reason which I don't understand. Chrome (any platform)
+                // or Firefox on Mac works fine though.
+                document.activeElement.blur();
             } else {
                 thNotify.send("Must be logged in to save job classifications", "danger");
             }
