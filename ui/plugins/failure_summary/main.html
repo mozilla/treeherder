@@ -64,13 +64,16 @@
         </li>
 
         <span ng-if="errors.length > 0">
-          <span><b>Failed Buildbot Steps</b></span>
+            <div class="failure-summary-line-empty">
+                <span>No Bug Suggestions Available.</span>
+            </div>
+          <span><b>Unsuccessful Execution Steps</b></span>
           <li ng-repeat="error in errors">
               <ul>
                   <li>{{error.name}} : {{error.result}}, Check
                     <a title="Open in Log Viewer"
                        target="_blank"
-                       href="{{error.lvURL}}">here</a>
+                       href="{{error.lvURL}}">View log</a>
                   </li>
               </ul>
           </li>
