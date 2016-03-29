@@ -66,7 +66,6 @@ treeherder.controller('BugsPluginCtrl', [
                         var errors = [];
                         if (suggestions.length === 0 && artifact_list.length > 1) {
                             var artifact = artifact_list[1];
-                            console.log(artifact);
                             angular.forEach(artifact.blob.step_data.steps, function(step) {
                                 if (step.result !== "success") {
                                     errors.push({
