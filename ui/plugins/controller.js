@@ -368,7 +368,10 @@ treeherder.controller('PluginCtrl', [
                 // to the self serve api (which does not listen over pulse!).
                 ThJobModel.retrigger($scope.repoName, job_id_list).then(function() {
                     // XXX: Remove this after 1134929 is resolved.
-                    return ThJobArtifactModel.get_list({"name": "buildapi", "type": "json", "job_id__in": job_id_list.join(',')})
+                    return ThJobArtifactModel.get_list({"name": "buildapi",
+                                                        "type": "json",
+                                                        "count": job_id_list.length,
+                                                        "job_id__in": job_id_list.join(',')})
                         .then(function(data) {
                             var request_id_list = _.pluck(_.pluck(data, 'blob'), 'request_id');
                             _.each(request_id_list, function(request_id) {
