@@ -84,6 +84,11 @@ logViewerApp.controller('LogviewerCtrl', [
             $scope.selectedBegin = 'undefined';
         };
 
+        $scope.setLineNumber = function(number) {
+            $scope.selectedBegin = number;
+            $scope.selectedEnd = number;
+        };
+
         $scope.hasFailedSteps = function () {
             var steps = $scope.artifact.step_data.steps;
             for (var i = 0; i < steps.length; i++) {
@@ -269,19 +274,20 @@ logViewerApp.controller('LogviewerCtrl', [
                             if ($scope.step_data.all_errors.length == 0) {
                                 angular.element(document).ready(function () {
                                     if (isNaN($scope.selectedBegin)) {
-                                        $scope.displayLog($scope.step_data.steps[0], 'initialLoad');
-                                    } else {
-                                        moveScrollToLineNumber($scope.selectedBegin, $event);
+                                        for (var i = 0; i < $scope.step_data.steps.length; i++) {
+                                            var step = $scope.step_data.steps[i];
+                                            if (step.result !== "success") {
+                                                $scope.selectedBegin = step.started_linenumber;
+                                                $scope.selectedEnd = step.finished_linenumber;
+                                                break;
+                                            }
+                                        }
                                     }
+                                    moveScrollToLineNumber($scope.selectedBegin, $event);
                                 });
                             } else {
-                                $timeout(function() {
-                                    if (isNaN($scope.selectedBegin)) {
-                                        angular.element('.lv-error-line').first().trigger('click');
-                                    } else {
-                                        moveScrollToLineNumber($scope.selectedBegin, $event);
-                                    }
-                                }, 100);
+                                $scope.setLineNumber($scope.step_data.all_errors[0].linenumber);
+                                moveScrollToLineNumber($scope.selectedBegin, $event);
                             }
                         }
 

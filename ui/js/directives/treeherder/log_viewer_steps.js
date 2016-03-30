@@ -57,7 +57,8 @@ treeherder.directive('lvLogSteps', ['$timeout', '$q', function ($timeout, $q) {
             scope.displayLog = function (step, state) {
                 scope.displayedStep = step;
                 scope.currentLineNumber = step.started_linenumber;
-
+                scope.selectedBegin = step.started_linenumber;
+                scope.selectedEnd = step.finished_linenumber;
                 scope.loadMore({}).then(function () {
                     $timeout(function () {
                         var raw = $('.lv-log-container')[0];
