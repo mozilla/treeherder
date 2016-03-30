@@ -94,10 +94,10 @@ treeherder.factory('ThRepositoryModel', [
                 return get_list().
                     success(function(data) {
                         // FIXME: only supporting github + hg for now for pushlog
-                        // + revision info (we also assume dvcs_type git==github)
+                        // + revision info (we also assume dvcs_type git===github)
                         function Repo(props) {
                             _.assign(this, props);
-                            if (this.dvcs_type == 'git') {
+                            if (this.dvcs_type === 'git') {
                                 // FIXME: assuming master branch, which may not
                                 // always be right -- unfortunately fixing this
                                 // requires backend changes as we're not storing
@@ -109,13 +109,13 @@ treeherder.factory('ThRepositoryModel', [
                         }
                         Repo.prototype = {
                             getRevisionHref: function(revision) {
-                                if (this.dvcs_type == 'git') {
+                                if (this.dvcs_type === 'git') {
                                     return this.url + '/commit/' + revision;
                                 }
                                 return this.url + '/rev/' + revision;
                             },
                             getPushLogHref: function(arg) {
-                                if (this.dvcs_type == 'git') {
+                                if (this.dvcs_type === 'git') {
                                     // if git, assume github
                                     if (typeof(arg) === 'string') {
                                         return this.getRevisionHref(arg);
@@ -287,7 +287,7 @@ treeherder.factory('ThRepositoryModel', [
                         updateStatusesIfDone();
                     },
                     function(data) {
-                        if (data.data != null) {
+                        if (data.data !== null) {
                             newStatuses[repo] = getUnsupportedTreeStatus(repo);
                         } else {
                             newStatuses[repo] = getErrorTreeStatus(repo);

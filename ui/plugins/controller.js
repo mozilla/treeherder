@@ -141,7 +141,7 @@ treeherder.controller('PluginCtrl', [
 
                     //the first result comes from the job detail promise
                     $scope.job = results[0];
-                    if ($scope.job.state =='running') {
+                    if ($scope.job.state === 'running') {
                         $scope.eta = $scope.job.running_time_remaining();
                         $scope.eta_abs = Math.abs($scope.eta);
                     }

@@ -64,7 +64,7 @@ perf.controller('CompareChooserCtrl', [
                 $scope.proposedRevision = $scope.newRevisionError = null;
 
                 // only check for a full revision
-                if ($scope.newRevision.length != 12) return;
+                if ($scope.newRevision.length !== 12) return;
 
                 $scope.proposedRevisionLoading = true;
 
@@ -229,10 +229,10 @@ perf.controller('CompareResultsCtrl', [
                 $scope.titles[testName] = testName.replace('summary ', '');
                 $scope.platformList.forEach(function(platform) {
                     var oldSig = _.find(Object.keys(rawResultsMap), function(sig) {
-                        return rawResultsMap[sig].name == testName && rawResultsMap[sig].platform == platform;
+                        return rawResultsMap[sig].name === testName && rawResultsMap[sig].platform === platform;
                     });
                     var newSig = _.find(Object.keys(newRawResultsMap), function(sig) {
-                        return newRawResultsMap[sig].name == testName && newRawResultsMap[sig].platform == platform;
+                        return newRawResultsMap[sig].name === testName && newRawResultsMap[sig].platform === platform;
                     });
 
                     var cmap = PhCompare.getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
@@ -288,7 +288,7 @@ perf.controller('CompareResultsCtrl', [
                 function(resultSets) {
                     var resultSet = resultSets[0];
                     //TODO: this is a bit hacky to pass in 'original' as a text string
-                    if (rsid == 'original') {
+                    if (rsid === 'original') {
                         $scope.originalResultSet = resultSet;
                     } else {
                         $scope.newResultSet = resultSet;
@@ -381,7 +381,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                 function(resultSets) {
                     var resultSet = resultSets[0];
                     //TODO: this is a bit hacky to pass in 'original' as a text string
-                    if (rsid == 'original') {
+                    if (rsid === 'original') {
                         $scope.originalResultSet = resultSet;
                     } else {
                         $scope.newResultSet = resultSet;
@@ -436,7 +436,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                         // If no data for a given platform, or test, display N/A in table
                         if (resultsMap) {
                             var tempsig = _.find(Object.keys(resultsMap), function (sig) {
-                                return resultsMap[sig].name == page;
+                                return resultsMap[sig].name === page;
                             });
                         } else {
                             var tempsig = 'undefined';
@@ -449,10 +449,10 @@ perf.controller('CompareSubtestResultsCtrl', [
                     var newSig = mapsigs[1];
 
                     var cmap = PhCompare.getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
-                    if (oldSig == $scope.originalSignature ||
-                        oldSig == $scope.newSignature ||
-                        newSig == $scope.originalSignature ||
-                        newSig == $scope.newSignature) {
+                    if (oldSig === $scope.originalSignature ||
+                        oldSig === $scope.newSignature ||
+                        newSig === $scope.originalSignature ||
+                        newSig === $scope.newSignature) {
                         cmap.highlightedTest = true;
                     }
 
@@ -512,7 +512,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                     var resultSetIds = [$scope.originalResultSet.id];
 
                     // Optimization - if old/new branches are the same collect data in one pass
-                    if ($scope.originalProject == $scope.newProject) {
+                    if ($scope.originalProject === $scope.newProject) {
                         resultSetIds = [$scope.originalResultSet.id, $scope.newResultSet.id];
                     }
 

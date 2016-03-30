@@ -13,7 +13,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
             testName = testName || "summary";
         }
 
-        return suiteName == testName ? suiteName : suiteName + " " + testName;
+        return suiteName === testName ? suiteName : suiteName + " " + testName;
     };
 
     var _getSeriesOptions = function(signatureProps, optionCollectionMap) {
@@ -139,11 +139,11 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                 return {
                                     getCompareClasses: function(cr, type) {
                                         if (cr.isEmpty) return 'subtest-empty';
-                                        if (type == 'row' && cr.highlightedTest) return 'active subtest-highlighted';
-                                        if (type == 'row') return '';
-                                        if (type == 'bar' && cr.isRegression) return 'bar-regression';
-                                        if (type == 'bar' && cr.isImprovement) return 'bar-improvement';
-                                        if (type == 'bar') return '';
+                                        if (type === 'row' && cr.highlightedTest) return 'active subtest-highlighted';
+                                        if (type === 'row') return '';
+                                        if (type === 'bar' && cr.isRegression) return 'bar-regression';
+                                        if (type === 'bar' && cr.isImprovement) return 'bar-improvement';
+                                        if (type === 'bar') return '';
                                         return cr.className;
                                     },
 
@@ -253,7 +253,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                         // delta percentage (for display)
                                         cmap.deltaPercentage = math.percentOf(cmap.delta, cmap.originalValue);
                                         // arbitrary scale from 0-20% multiplied by 5, capped
-                                        // at 100 (so 20% regression == 100% bad)
+                                        // at 100 (so 20% regression === 100% bad)
                                         cmap.magnitude = Math.min(Math.abs(cmap.deltaPercentage)*5, 100);
 
                                         var abs_t_value = Math.abs(math.t_test(originalData.values, newData.values, STDDEV_DEFAULT_FACTOR));
@@ -270,8 +270,8 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                             cmap.confidenceText = "high";
                                             cmap.confidenceTextLong += "A value of 'high' indicates more confidence that there is a significant change, however you should check the historical record for the test by looking at the graph to be more sure (some noisy tests can provide inconsistent results).";
                                         }
-                                        cmap.isRegression = (cmap.className == 'compare-regression');
-                                        cmap.isImprovement = (cmap.className == 'compare-improvement');
+                                        cmap.isRegression = (cmap.className === 'compare-regression');
+                                        cmap.isImprovement = (cmap.className === 'compare-improvement');
                                         if (!_.isUndefined(blockerCriteria) &&
                                             !_.isUndefined(blockerCriteria[testName]) &&
                                             cmap.isRegression &&
@@ -280,7 +280,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                         } else {
                                             cmap.isBlocker = false;
                                         }
-                                        cmap.isMeaningful = (cmap.className != "");
+                                        cmap.isMeaningful = (cmap.className !== "");
                                         cmap.isComplete = (cmap.originalRuns.length &&
                                                            cmap.newRuns.length);
                                         cmap.isConfident = ((cmap.originalRuns.length > 1 &&
@@ -461,9 +461,9 @@ perf.factory('math', [ function() {
         // If one of the sets has only a single sample, assume its stddev is
         // the same as that of the other set (in percentage). If both sets
         // have only one sample, both will use stddev_default_factor.
-        if (lenC == 1) {
+        if (lenC === 1) {
             stddevC = valuesC[0] * stddevT / avgT;
-        } else if (lenT == 1) {
+        } else if (lenT === 1) {
             stddevT = valuesT[0] * stddevC / avgC;
         }
 

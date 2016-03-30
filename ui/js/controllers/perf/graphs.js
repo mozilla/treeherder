@@ -63,8 +63,8 @@ perf.controller('GraphsCtrl', [
                 var phSeriesIndex = _.findIndex(
                     $scope.seriesList,
                     function(s) {
-                        return s.projectName == dataPoint.projectName &&
-                            s.signature == dataPoint.signature;
+                        return s.projectName === dataPoint.projectName &&
+                            s.signature === dataPoint.signature;
                     });
                 var phSeries = $scope.seriesList[phSeriesIndex];
 
@@ -78,8 +78,8 @@ perf.controller('GraphsCtrl', [
                 }
                 var flotData = {
                     series: _.find($scope.plot.getData(), function(fs) {
-                        return fs.thSeries.projectName == dataPoint.projectName &&
-                            fs.thSeries.signature == dataPoint.signature;
+                        return fs.thSeries.projectName === dataPoint.projectName &&
+                            fs.thSeries.signature === dataPoint.signature;
                     }),
                     pointIndex: index ? index : phSeries.flotSeries.resultSetData.indexOf(dataPoint.resultSetId)
                 };
@@ -167,7 +167,7 @@ perf.controller('GraphsCtrl', [
 
                     // get new tip position after transform
                     var tipPosition = getTipPosition(tip, x, y, 10);
-                    if (tip.css('visibility') == 'hidden') {
+                    if (tip.css('visibility') === 'hidden') {
                         tip.css({ opacity: 0, visibility: 'visible', left: tipPosition.left,
                                   top: tipPosition.top + 10 });
                         tip.animate({ opacity: 1, left: tipPosition.left,
@@ -185,7 +185,7 @@ perf.controller('GraphsCtrl', [
                 window.clearTimeout($scope.showToolTipTimeout);
             }
 
-            if (!$scope.ttHideTimer && tip.css('visibility') == 'visible') {
+            if (!$scope.ttHideTimer && tip.css('visibility') === 'visible') {
                 $scope.ttHideTimer = setTimeout(function() {
                     $scope.ttHideTimer = null;
                     tip.animate({ opacity: 0, top: '+=10' },
@@ -219,8 +219,8 @@ perf.controller('GraphsCtrl', [
                 var selectedSeriesIndex = _.findIndex(
                     $scope.seriesList,
                     function(s) {
-                        return s.projectName == $scope.selectedDataPoint.projectName &&
-                            s.signature == $scope.selectedDataPoint.signature;
+                        return s.projectName === $scope.selectedDataPoint.projectName &&
+                            s.signature === $scope.selectedDataPoint.signature;
                     });
                 var selectedSeries = $scope.seriesList[selectedSeriesIndex];
                 var flotDataPoint = selectedSeries.flotSeries.jobIdData.indexOf(
@@ -379,7 +379,7 @@ perf.controller('GraphsCtrl', [
             // highlight each explicitly highlighted revision on visible serii
             var highlightPromises = [];
             _.each($scope.highlightedRevisions, function(rev) {
-                if (rev && rev.length == 12) {
+                if (rev && rev.length === 12) {
                     highlightPromises = _.union(
                         highlightPromises, $scope.seriesList.map(function(series) {
                             if (series.visible) {
@@ -450,8 +450,8 @@ perf.controller('GraphsCtrl', [
                     $('#graph').css({ cursor: item ? 'pointer' : '' });
 
                     if (item && item.series.thSeries) {
-                        if (item.seriesIndex != $scope.prevSeriesIndex ||
-                            item.dataIndex != $scope.prevDataIndex) {
+                        if (item.seriesIndex !== $scope.prevSeriesIndex ||
+                            item.dataIndex !== $scope.prevDataIndex) {
                             var seriesDataPoint = getSeriesDataPoint(item);
 
                             showTooltip(seriesDataPoint);
@@ -509,18 +509,18 @@ perf.controller('GraphsCtrl', [
                         series.signature + "," + (series.visible ? 1 : 0) +
                         "]";
                 }),
-                timerange: ($scope.myTimerange.value != phDefaultTimeRangeValue) ?
+                timerange: ($scope.myTimerange.value !== phDefaultTimeRangeValue) ?
                     $scope.myTimerange.value : undefined,
                 highlightedRevisions: _.filter($scope.highlightedRevisions,
                                                function(highlight) {
                                                    return (highlight &&
-                                                           highlight.length == 12);
+                                                           highlight.length === 12);
                                                }),
                 highlightAlerts: !$scope.highlightAlerts ? 0 : undefined,
                 zoom: (function() {
-                    if ((typeof $scope.zoom.x != "undefined")
-                        && (typeof $scope.zoom.y != "undefined")
-                        && ($scope.zoom.x != 0 && $scope.zoom.y != 0)) {
+                    if ((typeof $scope.zoom.x !== "undefined")
+                        && (typeof $scope.zoom.y !== "undefined")
+                        && ($scope.zoom.x !== 0 && $scope.zoom.y !== 0)) {
                         var modifiedZoom = ("[" + ($scope.zoom['x'].toString()
                                                    + ',' + $scope.zoom['y'].toString()) + "]").replace(/[\[\{\}\]"]+/g, '');
                         return modifiedZoom;
@@ -638,7 +638,7 @@ perf.controller('GraphsCtrl', [
             });
             $scope.seriesList = newSeriesList;
 
-            if ($scope.seriesList.length == 0) {
+            if ($scope.seriesList.length === 0) {
                 $scope.resetHighlight();
                 $scope.zoom = {};
             }
@@ -720,7 +720,7 @@ perf.controller('GraphsCtrl', [
                     var partialSeriesObject = {
                         "project":  partialSeriesArray[0],
                         "signature":  partialSeriesArray[1],
-                        "visible": (partialSeriesArray[2] == 0) ? false : true
+                        "visible": (partialSeriesArray[2] === 0) ? false : true
                     };
                     return partialSeriesObject;
                 });
@@ -836,7 +836,7 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
     $scope.addTestData = function () {
         if (($scope.testsToAdd.length + testsDisplayed.length) > 6) {
             var a = window.confirm('WARNING: Displaying more than 6 graphs at the same time is not supported in the UI. Do it anyway?');
-            if (a == true) {
+            if (a === true) {
                 addTestToGraph();
             }
         } else {
@@ -871,7 +871,7 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
             // add test back to unselected test list if we're browsing for
             // the current project/platform, otherwise just discard it
             if (test.projectName === $scope.selectedProject.name &&
-                test.platform == $scope.selectedPlatform) {
+                test.platform === $scope.selectedPlatform) {
                 $scope.unselectedTestList.push(test);
             }
 
