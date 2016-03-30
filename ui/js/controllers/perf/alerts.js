@@ -246,7 +246,7 @@ perf.controller('AlertsCtrl', [
         $scope.getMoreAlertSummariesHref = null;
         $scope.getCappedMagnitude = function(percent) {
             // arbitrary scale from 0-20% multiplied by 5, capped
-            // at 100 (so 20% regression == 100% bad)
+            // at 100 (so 20% regression === 100% bad)
             return Math.min(Math.abs(percent)*5, 100);
         };
 
@@ -492,7 +492,7 @@ perf.controller('AlertsCtrl', [
                                           function(summary) {
                                               if (summary.result_set_id === resultSet.id) {
                                                   summary.resultSetMetadata = resultSet;
-                                              } else if (summary.prev_result_set_id == resultSet.id) {
+                                              } else if (summary.prev_result_set_id === resultSet.id) {
                                                   summary.prevResultSetMetadata = resultSet;
                                               }
                                           });

@@ -42,6 +42,8 @@ class PerformanceSignature(models.Model):
     last_updated = models.DateTimeField(db_index=True)
     parent_signature = models.ForeignKey('self', related_name='subtests',
                                          null=True, blank=True)
+    has_subtests = models.BooleanField()
+
     # extra properties to distinguish the test (that don't fit into
     # option collection for whatever reason)
     extra_properties = JSONField(max_length=1024)

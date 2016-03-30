@@ -18,7 +18,7 @@ treeherder.directive('ngRightClick', [
 treeherder.directive('focusThis', ['$timeout', function($timeout) {
     return function(scope, elem, attr) {
         scope.$on('focus-this', function(event, id) {
-            if (attr.id == id) {
+            if (attr.id === id) {
                 $timeout(function() {
                     elem[0].focus();
                 }, 0);
@@ -31,7 +31,7 @@ treeherder.directive('focusThis', ['$timeout', function($timeout) {
 treeherder.directive('blurThis', ['$timeout', function($timeout) {
     return function(scope, elem, attr) {
         scope.$on('blur-this', function(event, id) {
-            if (attr.id == id) {
+            if (attr.id === id) {
                 $timeout(function() {
                     elem[0].blur();
                 }, 0);
@@ -174,9 +174,9 @@ treeherder.directive('numbersOnly', function(){
                 // this next is necessary for when using ng-required on your input.
                 // In such cases, when a letter is typed first, this parser will be called
                 // again, and the 2nd time, the value will be undefined
-                if (inputValue == undefined) return '';
+                if (inputValue === undefined) return '';
                 var transformedInput = inputValue.replace(/[^0-9]/g, '');
-                if (transformedInput!=inputValue) {
+                if (transformedInput!==inputValue) {
                     modelCtrl.$setViewValue(transformedInput);
                     modelCtrl.$render();
                 }

@@ -486,6 +486,7 @@ def test_perf_signature(test_repository):
         option_collection=option_collection,
         suite='mysuite',
         test='mytest',
+        has_subtests=False,
         last_updated=datetime.datetime.now()
     )
     return signature

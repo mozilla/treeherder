@@ -4,12 +4,11 @@ perf.value('e10sDefaultTimeRange', 86400 * 2);
 
 perf.controller('e10sCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$http',
-    'ThRepositoryModel', 'ThOptionCollectionModel', 'PhSeries', 'PhCompare',
+    'ThRepositoryModel', 'PhSeries', 'PhCompare',
     'thServiceDomain', 'thDefaultRepo', 'phTimeRanges', 'e10sDefaultTimeRange',
     function e10sCtrl($state, $stateParams, $scope, $rootScope, $q, $http,
-                      ThRepositoryModel, ThOptionCollectionModel, PhSeries,
-                      PhCompare, thServiceDomain, thDefaultRepo, phTimeRanges,
-                      e10sDefaultTimeRange) {
+                      ThRepositoryModel, PhSeries, PhCompare, thServiceDomain,
+                      thDefaultRepo, phTimeRanges, e10sDefaultTimeRange) {
         var blockers = {
             "cart summary": 2.0,
             "damp summary": 2.0,
@@ -54,19 +53,18 @@ perf.controller('e10sCtrl', [
             $scope.compareResults = {};
             $scope.titles = {};
 
-            ThOptionCollectionModel.getMap().then(function(optionCollectionMap) {
-                PhSeries.getSeriesSummaries($scope.selectedRepo.name, $scope.selectedTimeRange.value, optionCollectionMap).then(function(seriesData) {
-
-                    var seriesToMeasure = _.filter(seriesData.seriesList, function(series) {
+            PhSeries.getSeriesList(
+                $scope.selectedRepo.name,
+                { interval: $scope.selectedTimeRange.value, subtests: 0 }).then(function(seriesList) {
+                    var seriesToMeasure = _.filter(seriesList, function(series) {
                         return series.options.indexOf('pgo') >= 0 ||
                             (series.platform === 'osx-10-10' &&
                              series.options.indexOf('opt') >= 0);
                     });
-                    $scope.platformList = seriesData.platformList;
-                    // just use suite names as tests
-                    $scope.testList = _.uniq(_.map(seriesToMeasure, function(series) {
-                        return PhSeries.getTestName(series);
-                    }));
+                    $scope.platformList = _.uniq(_.map(seriesToMeasure, 'platform'));
+                    // we just use the unadorned suite name to distinguish tests in this view
+                    // (so we can mash together pgo and opt)
+                    $scope.testList = _.uniq(_.map(seriesToMeasure, 'testName'));
 
                     $q.all(_.chunk(seriesToMeasure, 20).map(function(seriesChunk) {
                         var url = thServiceDomain + '/api/project/' + $scope.selectedRepo.name +
@@ -80,10 +78,9 @@ perf.controller('e10sCtrl', [
                                 var type = (series.options.indexOf('e10s') >= 0) ? 'e10s' : 'base';
                                 resultsMap[type][signature] = {
                                     platform: series.platform,
-                                    suite: series.suite,
-                                    name: PhSeries.getTestName(series),
+                                    name: series.testName,
                                     lowerIsBetter: series.lowerIsBetter,
-                                    hasSubTests: !_.isUndefined(series.subtestSignatures),
+                                    hasSubTests: series.hasSubtests,
                                     values: _.map(data, 'value')
                                 };
                             });
@@ -93,13 +90,13 @@ perf.controller('e10sCtrl', [
                         $scope.testList.forEach(function(testName) {
                             $scope.titles[testName] = testName;
                             $scope.platformList.forEach(function(platform) {
-                                var baseSig = _.find(Object.keys(resultsMap['base']), function (sig) {
+                                var baseSig = _.find(Object.keys(resultsMap['base']), function(sig) {
                                     return resultsMap['base'][sig].name === testName &&
                                         resultsMap['base'][sig].platform === platform;
                                 });
-                                var e10sSig = _.find(Object.keys(resultsMap['e10s']), function (sig) {
+                                var e10sSig = _.find(Object.keys(resultsMap['e10s']), function(sig) {
                                     return resultsMap['e10s'][sig].name === testName &&
-                                        resultsMap['e10s'][sig].platform == platform;
+                                        resultsMap['e10s'][sig].platform === platform;
                                 });
                                 if (e10sSig && baseSig) {
                                     var cmap = PhCompare.getCounterMap(
@@ -135,7 +132,6 @@ perf.controller('e10sCtrl', [
                         });
                     });
                 });
-            });
         }
 
         // set filter options
@@ -194,10 +190,10 @@ perf.controller('e10sCtrl', [
 
 perf.controller('e10sSubtestCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$http',
-    'ThRepositoryModel', 'ThOptionCollectionModel', 'PhSeries', 'PhCompare',
+    'ThRepositoryModel', 'PhSeries', 'PhCompare',
     'thServiceDomain', 'thDefaultRepo', 'phTimeRanges', 'e10sDefaultTimeRange',
     function($state, $stateParams, $scope, $rootScope, $q, $http,
-             ThRepositoryModel, ThOptionCollectionModel, PhSeries, PhCompare, thServiceDomain,
+             ThRepositoryModel, PhSeries, PhCompare, thServiceDomain,
              thDefaultRepo, phTimeRanges, e10sDefaultTimeRange) {
 
         var baseSignature = $stateParams.baseSignature;
@@ -219,24 +215,26 @@ perf.controller('e10sSubtestCtrl', [
                 e10s: {},
                 base: {}
             };
-            ThOptionCollectionModel.getMap().then(function(optionCollectionMap) {
-                PhSeries.getAllSeries($scope.selectedRepo.name, $scope.selectedTimeRange.value, optionCollectionMap).then(function(seriesData) {
-                    var baseSeries = _.find(seriesData.seriesList, { signature: baseSignature });
-                    var e10sSeries = _.find(seriesData.seriesList, { signature: e10sSignature });
-                    var subtestSignatures = baseSeries.subtestSignatures.concat(e10sSeries.subtestSignatures);
-                    var summaryTestName = baseSeries.platform + ": " + PhSeries.getTestName(baseSeries);
-                    $scope.testList = [summaryTestName];
-                    $scope.titles[summaryTestName] = summaryTestName;
 
-                    $q.all(_.chunk(subtestSignatures, 20).map(function(seriesChunk) {
+            // get base data
+            PhSeries.getSeriesList($scope.selectedRepo.name, { signature: baseSignature }).then(function(seriesList) {
+                var summaryTestName = seriesList[0].platform + ": " + seriesList[0].test;
+                $scope.testList = [summaryTestName];
+                $scope.titles[summaryTestName] = summaryTestName;
+
+                PhSeries.getSeriesList($scope.selectedRepo.name, {
+                    interval: $scope.selectedTimeRange.value,
+                    parent_signature: [ baseSignature, e10sSignature ]
+                }).then(function(seriesList) {
+                    return $q.all(_.chunk(seriesList, 20).map(function(seriesChunk) {
                         var url = thServiceDomain + '/api/project/' + $scope.selectedRepo.name +
                             '/performance/data/?interval=' + $scope.selectedTimeRange.value +
-                            _.map(seriesChunk, function(signature) {
-                                return "&signatures=" + signature;
+                            _.map(seriesChunk, function(series) {
+                                return "&signatures=" + series.signature;
                             }).join("");
                         return $http.get(url).then(function(response) {
                             _.forIn(response.data, function(data, signature) {
-                                var series = _.find(seriesData.seriesList, { signature: signature });
+                                var series = _.find(seriesList, { signature: signature });
                                 var type = (series.options.indexOf('e10s') >= 0) ? 'e10s' : 'base';
                                 resultsMap[type][signature] = {
                                     platform: series.platform,
@@ -249,13 +247,10 @@ perf.controller('e10sSubtestCtrl', [
                         });
                     })).then(function() {
                         $scope.dataLoading = false;
-
-                        _.forEach(baseSeries.subtestSignatures, function(subtestSignature) {
-                            // find the base series
-                            var subtestSeries = _.find(seriesData.seriesList, {
-                                signature: subtestSignature
-                            });
-                            var subtestName = PhSeries.getTestName(subtestSeries);
+                        var subtestNames = _.map(resultsMap['base'], function(results, signature) {
+                            return results.name;
+                        });
+                        _.forEach(subtestNames, function(subtestName) {
                             var baseSig = _.find(Object.keys(resultsMap['base']), function (sig) {
                                 return resultsMap['base'][sig].name === subtestName;
                             });

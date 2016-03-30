@@ -128,8 +128,8 @@ treeherder.controller('PluginCtrl', [
                     job_id,
                     {timeout: selectJobPromise});
 
-                var phSeriesPromise = PhSeries.getSeriesByJobId(
-                    $scope.repoName, job_id);
+                var phSeriesPromise = PhSeries.getSeriesData(
+                    $scope.repoName, { job_id: job_id });
 
                 return $q.all([
                     jobDetailPromise,
@@ -141,7 +141,7 @@ treeherder.controller('PluginCtrl', [
 
                     //the first result comes from the job detail promise
                     $scope.job = results[0];
-                    if ($scope.job.state =='running') {
+                    if ($scope.job.state === 'running') {
                         $scope.eta = $scope.job.running_time_remaining();
                         $scope.eta_abs = Math.abs($scope.eta);
                     }
@@ -251,12 +251,9 @@ treeherder.controller('PluginCtrl', [
                                 return series.subtest_signatures ? series.subtest_signatures : [];
                             }));
                             _.forEach(seriesList, function(series) {
-                                if (!series.subtest_signatures) {
-                                    if (_.contains(allSubtestSignatures, series.signature)) {
-                                        // skip series which are subtests of another series
-                                        return;
-                                    }
-                                }
+                                // skip series which are subtests of another series
+                                if (series.parent_signature)
+                                    return;
                                 var detail = {
                                     url: thServiceDomain + '/perf.html#/graphs?series=[' +
                                         $scope.repoName+ ',' + series.signature + ',1]&selected=[' +

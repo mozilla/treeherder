@@ -2,7 +2,7 @@
 
 var perf = angular.module("perf", ['ui.router', 'ui.bootstrap', 'treeherder']);
 
-treeherder.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceDomain) {
+treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionModel', function($http, thServiceDomain, ThOptionCollectionModel) {
 
     var _getTestName = function(signatureProps, displayOptions) {
         var suiteName = signatureProps.suite;
@@ -13,7 +13,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thSe
             testName = testName || "summary";
         }
 
-        return suiteName == testName ? suiteName : suiteName + " " + testName;
+        return suiteName === testName ? suiteName : suiteName + " " + testName;
     };
 
     var _getSeriesOptions = function(signatureProps, optionCollectionMap) {
@@ -40,222 +40,60 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thSe
                                      optionCollectionMap) {
         var platform = signatureProps.machine_platform;
         var testName = signatureProps.test;
-        var subtestSignatures = signatureProps.subtest_signatures;
         var options = _getSeriesOptions(signatureProps, optionCollectionMap);
 
-        return { name: _getSeriesName(signatureProps, optionCollectionMap),
-                 suite: signatureProps['suite'],
-                 test: signatureProps['test'] || null,
-                 projectName: projectName, signature: signature,
-                 platform: platform, options: options,
-                 frameworkId: signatureProps.framework_id,
-                 lowerIsBetter: (signatureProps.lower_is_better === undefined ||
-                                 signatureProps.lower_is_better),
-                 subtestSignatures: subtestSignatures };
+        return {
+            name: _getSeriesName(signatureProps, optionCollectionMap),
+            testName: _getTestName(signatureProps), // unadorned with platform/option info
+            suite: signatureProps['suite'],
+            test: signatureProps['test'] || null,
+            signature: signature,
+            hasSubtests: signatureProps['has_subtests'] || false,
+            parentSignature: signatureProps['parent_signature'] || null,
+            projectName: projectName,
+            platform: platform,
+            options: options,
+            frameworkId: signatureProps.framework_id,
+            lowerIsBetter: (signatureProps.lower_is_better === undefined ||
+                            signatureProps.lower_is_better)
+        };
     };
-
-    var _getAllSeries = function(projectName, timeRange, optionMap) {
-        var signatureURL = thServiceDomain + '/api/project/' + projectName +
-            '/performance/signatures/?interval=' +
-            timeRange;
-
-        return $http.get(signatureURL).then(function(response) {
-            var seriesList = [];
-            var platformList = [];
-            var testList = [];
-
-            Object.keys(response.data).forEach(function(signature) {
-                var seriesSummary = _getSeriesSummary(projectName, signature,
-                                                      response.data[signature],
-                                                      optionMap);
-
-                seriesList.push(seriesSummary);
-
-                // add test/platform to lists if not yet present
-                if (!_.contains(platformList, seriesSummary.platform)) {
-                    platformList.push(seriesSummary.platform);
-                }
-                if (!_.contains(testList, seriesSummary.name)) {
-                    testList.push(seriesSummary.name);
-                }
-            });
-            return {
-                seriesList: seriesList,
-                platformList: platformList,
-                testList: testList
-            };
-        });
-    };
-
-    var _getPlatformList = function(projectName, timeRange) {
-        var platformURL = thServiceDomain + '/api/project/' + projectName +
-            '/performance/platforms/?interval=' +
-            timeRange;
-        return $http.get(platformURL).then(function(response) {
-            return {
-                platformList: response.data
-            };
-        });
-
-    };
-
-    var _getSeriesByPlatform = function(projectName, timeRange, platform, optionMap) {
-        var specifyPlatformURL = thServiceDomain + '/api/project/' + projectName +
-            '/performance/signatures/?interval=' +
-            timeRange + '&platform=' + platform;
-
-        return $http.get(specifyPlatformURL).then(function(response) {
-            var seriesList = [];
-            var testList = [];
-
-            _.keys(response.data).forEach(function(signature){
-                var seriesSummary = _getSeriesSummary(projectName, signature,
-                    response.data[signature], optionMap);
-                seriesList.push(seriesSummary);
-
-                // add test/platform to lists if not yet present
-                if (!_.contains(testList, seriesSummary.name)) {
-                    testList.push(seriesSummary.name);
-                }
-            });
-
-            return {
-                platform: platform,
-                seriesList: seriesList,
-                testList: testList
-            };
-        });
-    };
-
-    var _getSeriesByJobId = function(projectName, jobId) {
-        return $http.get(thServiceDomain + '/api/project/' + projectName +
-            '/performance/data/?job_id=' + jobId).then(function(response) {
-                if(response.data) {
-                    return response.data;
-                } else {
-                    return $q.reject("No data been found for job id " +
-                        jobId + " in project " + projectName);
-                }
-            });
-    };
-
 
     return {
         getTestName: _getTestName,
         getSeriesName: _getSeriesName,
-        getSeriesSummary: _getSeriesSummary,
-
-        getSubtestSummaries: function(projectName, timeRange, optionMap, targetSignature) {
-            return _getAllSeries(projectName, timeRange, optionMap).then(function(lists) {
-                var seriesList = [];
-                var platformList = [];
-                var subtestSignatures = [];
-                var suiteName;
-
-                //Given a signature, find the series and get subtest signatures
-                var series = _.find(lists.seriesList,
-                                    function(series) {
-                                        return series.signature == targetSignature;
-                                    });
-
-                if (series) {
-                    // if it is not a summary series, then find the summary series
-                    // corresponding to it (could be more than one) and use that
-                    if (!series.subtestSignatures) {
-                        series = _.filter(lists.seriesList,
-                                          function(s) {
-                                              return _.find(s.subtestSignatures, function(signature) {
-                                                  return signature == targetSignature;
-                                              });
-                                          });
-                    } else {
-                        // make this a list of series to work with _.map below
-                        series = [series];
-                    }
-                    subtestSignatures = _.union(_.map(series, 'subtestSignatures' ))[0];
-                    suiteName = _.union(_.map(series, 'name'))[0];
-                }
-
-                //For each subtest, find the matching series in the list and store it
-                subtestSignatures.forEach(function(signature) {
-                    var seriesSubtest = _.find(lists.seriesList, function(series) {
-                        return series.signature == signature;
-                    });
-                    seriesList.push(seriesSubtest);
-
-                    // add platform to lists if not yet present
-                    if (!_.contains(platformList, seriesSubtest.platform)) {
-                        platformList.push(seriesSubtest.platform);
-                    }
-                });
-
-                var testList = [];
-                if (suiteName) {
-                    testList = [suiteName];
-                }
-
-                return {
-                    seriesList: seriesList,
-                    platformList: platformList,
-                    testList: testList
-                };
+        getSeriesList: function(projectName, params) {
+            return ThOptionCollectionModel.getMap().then(function(optionCollectionMap) {
+                return $http.get(thServiceDomain + '/api/project/' + projectName +
+                                 '/performance/signatures/', { params: params }).then(function(response) {
+                                     return _.map(response.data, function(signatureProps, signature) {
+                                         return _getSeriesSummary(projectName, signature,
+                                                                  signatureProps,
+                                                                  optionCollectionMap);
+                                     });
+                                 });
             });
         },
-
-        getAllSeries: function(projectName, timeRange, optionMap) {
-            return _getAllSeries(projectName, timeRange, optionMap);
+        getPlatformList: function(projectName, interval) {
+            return $http.get(thServiceDomain + '/api/project/' + projectName +
+                             '/performance/platforms/', { params: { interval: interval } }).then(
+                                 function(response) {
+                                     return {
+                                         platformList: response.data
+                                     };
+                                 });
         },
-
-        getSeriesSummaries: function(projectName, timeRange, optionMap, userOptions) {
-            var seriesList = [];
-            var platformList = [];
-            var testList = [];
-
-            return _getAllSeries(projectName, timeRange, optionMap).then(function(lists) {
-                var allSubtestSignatures = _.flatten(_.map(lists.seriesList, function(series) {
-                    return series.subtestSignatures ? series.subtestSignatures : [];
-                }));
-                lists.seriesList.forEach(function(series) {
-                    // Filter out subtests with a summary signature
-                    if (!series.subtestSignatures) {
-                        if (_.contains(allSubtestSignatures, series.signature)) {
-                            return;
-                        }
-                    }
-                    // We don't generate number for tp5n, this is xperf and we collect counters
-                    if (_.contains(series.name, "tp5n"))
-                        return;
-
-                    seriesList.push(series);
-
-                    // add test/platform to lists if not yet present
-                    if (!_.contains(platformList, series.platform)) {
-                        platformList.push(series.platform);
-                    }
-                    if (!_.contains(testList, series.name)) {
-                        testList.push(series.name);
-                    }
-                }); //lists.serieslist.forEach
-
-                return {
-                    seriesList: seriesList,
-                    platformList: platformList,
-                    testList: testList
-                };
-            }); //_getAllSeries
-        },
-
-        getPlatformList: function(projectName, timeRange) {
-            return _getPlatformList(projectName, timeRange);
-        },
-
-        getSeriesByPlatform: function(prjectName, timeRange, platform, optionMap) {
-            return _getSeriesByPlatform(prjectName, timeRange, platform, optionMap);
-        },
-
-        getSeriesByJobId: function(projectName, jobId) {
-            return _getSeriesByJobId(projectName, jobId);
-        },
+        getSeriesData: function(projectName, params) {
+            return $http.get(thServiceDomain + '/api/project/' + projectName + '/performance/data/',
+                             { params: params }).then(function(response) {
+                                 if(response.data) {
+                                     return response.data;
+                                 } else {
+                                     return $q.reject("No data been found for job id " +
+                                                      jobId + " in project " + projectName);
+                                 }
+                             });
+        }
     };
 }]);
 
@@ -301,11 +139,11 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                 return {
                                     getCompareClasses: function(cr, type) {
                                         if (cr.isEmpty) return 'subtest-empty';
-                                        if (type == 'row' && cr.highlightedTest) return 'active subtest-highlighted';
-                                        if (type == 'row') return '';
-                                        if (type == 'bar' && cr.isRegression) return 'bar-regression';
-                                        if (type == 'bar' && cr.isImprovement) return 'bar-improvement';
-                                        if (type == 'bar') return '';
+                                        if (type === 'row' && cr.highlightedTest) return 'active subtest-highlighted';
+                                        if (type === 'row') return '';
+                                        if (type === 'bar' && cr.isRegression) return 'bar-regression';
+                                        if (type === 'bar' && cr.isImprovement) return 'bar-improvement';
+                                        if (type === 'bar') return '';
                                         return cr.className;
                                     },
 
@@ -415,7 +253,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                         // delta percentage (for display)
                                         cmap.deltaPercentage = math.percentOf(cmap.delta, cmap.originalValue);
                                         // arbitrary scale from 0-20% multiplied by 5, capped
-                                        // at 100 (so 20% regression == 100% bad)
+                                        // at 100 (so 20% regression === 100% bad)
                                         cmap.magnitude = Math.min(Math.abs(cmap.deltaPercentage)*5, 100);
 
                                         var abs_t_value = Math.abs(math.t_test(originalData.values, newData.values, STDDEV_DEFAULT_FACTOR));
@@ -432,8 +270,8 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                             cmap.confidenceText = "high";
                                             cmap.confidenceTextLong += "A value of 'high' indicates more confidence that there is a significant change, however you should check the historical record for the test by looking at the graph to be more sure (some noisy tests can provide inconsistent results).";
                                         }
-                                        cmap.isRegression = (cmap.className == 'compare-regression');
-                                        cmap.isImprovement = (cmap.className == 'compare-improvement');
+                                        cmap.isRegression = (cmap.className === 'compare-regression');
+                                        cmap.isImprovement = (cmap.className === 'compare-improvement');
                                         if (!_.isUndefined(blockerCriteria) &&
                                             !_.isUndefined(blockerCriteria[testName]) &&
                                             cmap.isRegression &&
@@ -442,7 +280,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                         } else {
                                             cmap.isBlocker = false;
                                         }
-                                        cmap.isMeaningful = (cmap.className != "");
+                                        cmap.isMeaningful = (cmap.className !== "");
                                         cmap.isComplete = (cmap.originalRuns.length &&
                                                            cmap.newRuns.length);
                                         cmap.isConfident = ((cmap.originalRuns.length > 1 &&
@@ -493,46 +331,35 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                     },
 
                                     getResultsMap: function(projectName, seriesList, resultSetIds) {
-                                        var url = thServiceDomain + '/api/project/' +
-                                            projectName + '/performance/' +
-                                            'data/?';
-                                        url += _.map(resultSetIds, function(resultSetId) {
-                                            return 'result_set_id=' + resultSetId;
-                                        }).join('&');
                                         var resultsMap = {};
                                         return $q.all(_.chunk(seriesList, 20).map(function(seriesChunk) {
-                                            var signatures = "";
-                                            seriesChunk.forEach(function(series) {
-                                                signatures += "&signatures=" + series.signature;
-                                            });
-                                            return $http.get(url + signatures).then(
-                                                function(response) {
-                                                    resultSetIds.forEach(function(resultSetId) {
-                                                        if (resultsMap[resultSetId] === undefined) {
-                                                            resultsMap[resultSetId] = {};
-                                                        }
-                                                        _.forIn(response.data, function(data, signature) {
-                                                            // Aggregates data from the server on a single group of values which
-                                                            // will be compared later to another group. Ends up with an object
-                                                            // with description (name/platform) and values.
-                                                            // The values are later processed at getCounterMap as the data arguments.
-                                                            var values = [];
-                                                            _.where(data, { result_set_id: resultSetId }).forEach(function(pdata) {
-                                                                values.push(pdata.value);
-                                                            });
-                                                            var seriesData = _.find(seriesList, {'signature': signature});
-                                                            if (seriesData) {
-                                                                resultsMap[resultSetId][signature] = {
-                                                                    platform: seriesData.platform,
-                                                                    name: seriesData.name,
-                                                                    lowerIsBetter: seriesData.lowerIsBetter,
-                                                                    frameworkId: seriesData.frameworkId,
-                                                                    values: values
-                                                                };
-                                                            }
+                                            return PhSeries.getSeriesData(projectName, { signatures: _.pluck(seriesChunk, 'signature'), result_set_id: resultSetIds }).then(function(seriesData) {
+                                                resultSetIds.forEach(function(resultSetId) {
+                                                    if (resultsMap[resultSetId] === undefined) {
+                                                        resultsMap[resultSetId] = {};
+                                                    }
+                                                    _.forIn(seriesData, function(data, signature) {
+                                                        // Aggregates data from the server on a single group of values which
+                                                        // will be compared later to another group. Ends up with an object
+                                                        // with description (name/platform) and values.
+                                                        // The values are later processed at getCounterMap as the data arguments.
+                                                        var values = [];
+                                                        _.where(data, { result_set_id: resultSetId }).forEach(function(pdata) {
+                                                            values.push(pdata.value);
                                                         });
+                                                        var seriesData = _.find(seriesList, {'signature': signature});
+                                                        if (seriesData) {
+                                                            resultsMap[resultSetId][signature] = {
+                                                                platform: seriesData.platform,
+                                                                name: seriesData.name,
+                                                                lowerIsBetter: seriesData.lowerIsBetter,
+                                                                frameworkId: seriesData.frameworkId,
+                                                                values: values
+                                                            };
+                                                        }
                                                     });
                                                 });
+                                            });
                                         })).then(function() {
                                             return resultsMap;
                                         });
@@ -634,9 +461,9 @@ perf.factory('math', [ function() {
         // If one of the sets has only a single sample, assume its stddev is
         // the same as that of the other set (in percentage). If both sets
         // have only one sample, both will use stddev_default_factor.
-        if (lenC == 1) {
+        if (lenC === 1) {
             stddevC = valuesC[0] * stddevT / avgT;
-        } else if (lenT == 1) {
+        } else if (lenT === 1) {
             stddevT = valuesT[0] * stddevC / avgC;
         }
 
