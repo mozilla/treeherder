@@ -4,6 +4,7 @@ from rest_framework import routers
 
 from treeherder.webapp.api import (artifact,
                                    bug,
+                                   bugzilla,
                                    job_log_url,
                                    jobs,
                                    logslice,
@@ -108,6 +109,8 @@ default_router.register(r'performance/alert',
 default_router.register(r'performance/framework',
                         performance_data.PerformanceFrameworkViewSet,
                         base_name='performance-frameworks')
+default_router.register(r'bugzilla', bugzilla.BugzillaViewSet,
+                        base_name='bugzilla')
 
 urlpatterns = [
     url(r'^project/(?P<project>[\w-]{0,50})/',
