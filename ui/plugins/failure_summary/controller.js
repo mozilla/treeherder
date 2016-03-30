@@ -1,9 +1,9 @@
 "use strict";
 
 treeherder.controller('BugsPluginCtrl', [
-    '$scope', 'ThLog', 'ThJobArtifactModel','$q', 'thTabs', '$timeout',
+    '$scope', 'ThLog', 'ThJobArtifactModel','$q', 'thTabs', '$timeout', 'thUrl',
     function BugsPluginCtrl(
-        $scope, ThLog, ThJobArtifactModel, $q, thTabs, $timeout) {
+        $scope, ThLog, ThJobArtifactModel, $q, thTabs, $timeout, thUrl) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -33,7 +33,7 @@ treeherder.controller('BugsPluginCtrl', [
                 requestPromise = $q.defer();
 
                 ThJobArtifactModel.get_list({
-                    name: "Bug suggestions",
+                    name__in: "Bug suggestions,text_log_summary",
                     "type": "json",
                     job_id: newValue
                 }, {timeout: requestPromise})
@@ -42,7 +42,7 @@ treeherder.controller('BugsPluginCtrl', [
                     // dirty check for every element pushed
                     var suggestions = [];
                     if(artifact_list.length > 0){
-                        var artifact = artifact_list[0];
+                        var artifact = _.find(artifact_list, {"name": "Bug suggestions"});
                         angular.forEach(artifact.blob, function (suggestion) {
                             suggestion.bugs.too_many_open_recent = (
                                 suggestion.bugs.open_recent.length > bug_limit
@@ -63,7 +63,21 @@ treeherder.controller('BugsPluginCtrl', [
                             );
                             suggestions.push(suggestion);
                         });
+                        var errors = [];
+                        if (suggestions.length === 0 && artifact_list.length > 1) {
+                            artifact = _.find(artifact_list, {"name": "text_log_summary"});
+                            angular.forEach(artifact.blob.step_data.steps, function(step) {
+                                if (step.result !== "success") {
+                                    errors.push({
+                                        "name": step.name,
+                                        "result": step.result,
+                                        "lvURL": thUrl.getLogViewerUrl(artifact.job_id) + "#L" + step.finished_linenumber
+                                    });
+                                }
+                            });
+                        }
                         $scope.suggestions = suggestions;
+                        $scope.errors = errors;
                         $scope.bugSuggestionsLoaded = true;
                     } else if ($scope.selectedJob && $scope.logParseStatus === "parsed") {
                         $scope.bugSuggestionsLoaded = false;
