@@ -1930,9 +1930,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 # Retrieve the associated repository id just once
                 # and provide handling for multiple repositories
                 if rev_datum['repository'] not in repository_id_lookup:
-                    repository_id = self.refdata_model.get_repository_id(
-                        rev_datum['repository']
-                    )
+                    repository_id = Repository.objects.values_list('id').get(
+                        name=rev_datum['repository'])[0]
                     repository_id_lookup[rev_datum['repository']] = repository_id
 
                 # We may not have a comment in the push data

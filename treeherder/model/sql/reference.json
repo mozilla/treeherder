@@ -85,12 +85,6 @@
 
             "host_type":"read_host"
         },
-        "get_repository_id":{
-            "sql": "SELECT `id`
-                    FROM `repository`
-                    WHERE `name` = ?",
-            "host_type":"read_host"
-        },
         "get_all_option_collections":{
             "sql":"SELECT option_collection_hash,
                         GROUP_CONCAT( name SEPARATOR ' ' ) as opt
@@ -99,13 +93,6 @@
                         ON o.id = oc.option_id
                    WHERE o.active_status = 'active'
                    GROUP BY oc.option_collection_hash",
-            "host_type":"read_host"
-        },
-        "get_all_repository_info":{
-            "sql": "SELECT *
-                    FROM `repository`
-                    WHERE
-                        `active_status` = 'active'",
             "host_type":"read_host"
         },
         "get_open_recent_bugs": {

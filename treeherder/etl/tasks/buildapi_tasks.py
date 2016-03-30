@@ -8,7 +8,7 @@ from treeherder.etl.buildapi import (Builds4hJobsProcess,
                                      PendingJobsProcess,
                                      RunningJobsProcess)
 from treeherder.etl.pushlog import HgPushlogProcess
-from treeherder.model.derived import RefDataManager
+from treeherder.model.models import Repository
 
 
 @task(name='fetch-buildapi-pending', time_limit=3 * 60)
@@ -48,14 +48,11 @@ def fetch_push_logs():
     """
     Run several fetch_hg_push_log subtasks, one per repository
     """
-    with RefDataManager() as rdm:
-        repos = filter(lambda x: x['url'], rdm.get_all_repository_info())
-        for repo in repos:
-            if repo['dvcs_type'] == 'hg':
-                fetch_hg_push_log.apply_async(
-                    args=(repo['name'], repo['url']),
-                    routing_key='pushlog'
-                )
+    for repo in Repository.objects.all(dvcs_type='hg'):
+        fetch_hg_push_log.apply_async(
+            args=(repo.name, repo.url),
+            routing_key='pushlog'
+        )
 
 
 @task(name='fetch-hg-push-logs', time_limit=3 * 60)

@@ -9,7 +9,7 @@ from treeherder.etl.buildapi import (Builds4hJobsProcess,
                                      PendingJobsProcess,
                                      RunningJobsProcess)
 from treeherder.etl.pushlog import HgPushlogProcess
-from treeherder.model.derived import RefDataManager
+from treeherder.model.models import Repository
 
 
 class Command(BaseCommand):
@@ -41,18 +41,13 @@ class Command(BaseCommand):
         (project, changeset) = args
 
         # get reference to repo
-        rdm = RefDataManager()
-        repos = filter(lambda x: x['name'] == project,
-                       rdm.get_all_repository_info())
-        if not repos:
-            raise CommandError("No project found named '%s'" % project)
-        repo = repos[0]
+        repo = Repository.objects.get(name=project)
 
         # make sure all tasks are run synchronously / immediately
         settings.CELERY_ALWAYS_EAGER = True
 
         # get hg pushlog
-        pushlog_url = '%s/json-pushes/?full=1&version=2' % repo['url']
+        pushlog_url = '%s/json-pushes/?full=1&version=2' % repo.url
 
         # ingest this particular revision for this project
         process = HgPushlogProcess()

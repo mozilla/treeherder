@@ -4,7 +4,7 @@ import urllib
 from celery import task
 
 from treeherder.etl.pushlog import MissingHgPushlogProcess
-from treeherder.model.derived import RefDataManager
+from treeherder.model.models import Repository
 
 logger = logging.getLogger(__name__)
 
@@ -14,20 +14,14 @@ def fetch_missing_push_logs(missing_pushlogs):
     """
     Run several fetch_hg_push_log subtasks, one per repository
     """
-    with RefDataManager() as rdm:
-        repos = filter(lambda x: x['url'], rdm.get_all_repository_info())
-        for repo in repos:
-            if repo['dvcs_type'] == 'hg' and repo['name'] in missing_pushlogs:
-                # we must get them one at a time, because if ANY are missing
-                # from json-pushes, it'll return a 404 for the group.
-                for resultset in missing_pushlogs[repo['name']]:
-                    fetch_missing_hg_push_logs.apply_async(args=(
-                        repo['name'],
-                        repo['url'],
-                        resultset
-                    ),
-                        routing_key='fetch_missing_push_logs'
-                    )
+    for repo in Repository.objects.filter(dvcs_type='hg'):
+        if repo.name in missing_pushlogs:
+            # we must get them one at a time, because if ANY are missing
+            # from json-pushes, it'll return a 404 for the group.
+            for resultset in missing_pushlogs[repo.name]:
+                fetch_missing_hg_push_logs.apply_async(
+                    args=(repo.name, repo.url, resultset),
+                    routing_key='fetch_missing_push_logs')
 
 
 @task(name='fetch-missing-hg-push-logs', time_limit=3 * 60)

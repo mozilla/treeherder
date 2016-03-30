@@ -109,22 +109,6 @@ class RefDataManager(object):
             return_type='dict'
         )
 
-    def get_repository_id(self, name):
-        """get the id for the given repository"""
-        id_iter = self.execute(
-            proc='reference.selects.get_repository_id',
-            placeholders=[name],
-            debug_show=self.DEBUG,
-            return_type='iter')
-
-        return id_iter.get_column_data('id')
-
-    def get_all_repository_info(self):
-        return self.execute(
-            proc='reference.selects.get_all_repository_info',
-            debug_show=self.DEBUG,
-            return_type='iter')
-
     def get_bug_numbers_list(self):
         return self.execute(
             proc='reference.selects.get_all_bug_numbers',
