@@ -42,7 +42,7 @@ treeherder.controller('BugFilerCtrl', [
             }
 
             var thisFailure = "";
-            for(var i=0;i<allFailures.length;i++) {
+            for(var i = 0; i < allFailures.length; i++) {
                 var omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR", "TEST-UNEXPECTED-TIMEOUT"];
                 for(var j=0; j < omittedLeads.length; j++) {
                     if(allFailures[i][0].search(omittedLeads[j]) >= 0) {
@@ -77,7 +77,7 @@ treeherder.controller('BugFilerCtrl', [
                     summary.shift();
                 }
             }
-    // XXX Maybe get crash signatures too?
+
             $modalInstance.possibleFilename = summary[0].split("/").pop();
 
             return [summary, $modalInstance.possibleFilename];
@@ -112,7 +112,6 @@ treeherder.controller('BugFilerCtrl', [
             var failurePathRoot = failurePath.split("/")[0];
 
             // Look up the product via the root of the failure's file path
-            // XXX THIS NEEDS TO BE MUCH MORE ROBUST
             if(thBugzillaProductObject[failurePathRoot]) {
                 suggestedProducts.push(thBugzillaProductObject[failurePathRoot][0]);
             }

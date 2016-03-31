@@ -277,8 +277,6 @@ treeherder.value("thBugzillaProductObject", {
         ["Core :: Build Config"],
     "caps":
         ["Core :: Security: CAPS"],
-    "chrome":
-        ["???"],
     "config":
         ["Firefox :: Build Config","Core :: Build Config","Firefox for Android :: Build Config & IDE Support"],
     "db":
@@ -288,13 +286,11 @@ treeherder.value("thBugzillaProductObject", {
     "docshell":
         ["Core :: Document Navigation"],
     "dom":
-        ["Core :: DOM","???"],
+        ["Core :: DOM"],
     "editor":
         ["Core :: Editor"],
     "embedding":
         ["Core :: Embedding: APIs"],
-    "extensions":
-        ["???"],
     "gfx":
         ["Core :: Graphics","Core :: Graphics: Layers","Core :: Graphics: Text"],
     "gradle":
@@ -310,31 +306,23 @@ treeherder.value("thBugzillaProductObject", {
     "js":
         ["Core :: Javascript Engine","Core :: Javascript Engine: Jit","Core :: Javascript Engine: GC","Core :: Javascript Engine: Internationalization API","Core :: Javascript Engine: Standard Library"],
     "layout":
-        ["Core :: Layout","???"],
+        ["Core :: Layout"],
     "media":
-        ["Core :: Audio/Video","???"],
+        ["Core :: Audio/Video"],
     "memory":
         ["Core :: Memory Allocator"],
     "mfbt":
         ["Core :: MFBT"],
     "mobile":
-        ["Firefox for Android :: General","???"],
-    "modules":
-        ["???"],
+        ["Firefox for Android :: General"],
     "mozglue":
         ["Core :: mozglue"],
     "netwerk":
         ["Core :: Networking"],
     "nsprpub":
         ["NSPR :: NSPR"],
-    "other-licenses":
-        ["???"],
     "parser":
         ["Core :: HTML: Parser"],
-    "probes":
-        ["???"],
-    "python":
-        ["???"],
     "rdf":
         ["Core :: RDF"],
     "security":
@@ -348,11 +336,7 @@ treeherder.value("thBugzillaProductObject", {
     "testing":
         ["Testing :: General"],
     "toolkit":
-        ["Toolkit :: General","???"],
-    "tools":
-        ["???"],
-    "uriloader":
-        ["???"],
+        ["Toolkit :: General"],
     "view":
         ["Core :: Layout"],
     "webapprt":

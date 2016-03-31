@@ -1,9 +1,9 @@
 "use strict";
 
 treeherder.controller('BugsPluginCtrl', [
-    '$scope', 'ThLog', 'ThJobArtifactModel','$q', 'thTabs', '$timeout', '$modal',
+    '$scope', 'ThLog', 'ThJobArtifactModel','$q', 'thTabs', '$timeout', '$uibModal',
     function BugsPluginCtrl(
-        $scope, ThLog, ThJobArtifactModel, $q, thTabs, $timeout, $modal) {
+        $scope, ThLog, ThJobArtifactModel, $q, thTabs, $timeout, $uibModal) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -91,7 +91,7 @@ treeherder.controller('BugsPluginCtrl', [
                 allFailures.push(allFailuresFinder[i].textContent.trim().split(" | "));
             }
 
-            var modalInstance = $modal.open({
+            var modalInstance = $uibModal.open({
                 templateUrl: 'partials/main/intermittent.html',
                 controller: 'BugFilerCtrl',
                 size: 'lg',
