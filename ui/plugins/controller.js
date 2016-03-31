@@ -128,8 +128,8 @@ treeherder.controller('PluginCtrl', [
                     job_id,
                     {timeout: selectJobPromise});
 
-                var phSeriesPromise = PhSeries.getSeriesByJobId(
-                    $scope.repoName, job_id);
+                var phSeriesPromise = PhSeries.getSeriesData(
+                    $scope.repoName, { job_id: job_id });
 
                 return $q.all([
                     jobDetailPromise,

@@ -547,41 +547,37 @@ perf.controller('GraphsCtrl', [
         }
 
         function getSeriesData(series) {
-            return $http.get(thServiceDomain + '/api/project/' +
-                             series.projectName +
-                             '/performance/data/' +
-                             '?interval=' + $scope.myTimerange.value +
-                             '&signatures=' + series.signature).then(
-                                 function(response) {
-                                     series.flotSeries = {
-                                         lines: { show: false },
-                                         points: { show: series.visible },
-                                         color: series.color,
-                                         label: series.projectName + " " + series.name,
-                                         data: _.map(
-                                         response.data[series.signature],
-                                             function(dataPoint) {
-                                                 return [
-                                                     new Date(dataPoint.push_timestamp*1000),
-                                                     dataPoint.value
-                                                 ];
-                                             }),
-                                         resultSetData: _.pluck(
-                                             response.data[series.signature],
-                                             'result_set_id'),
-                                         thSeries: jQuery.extend({}, series),
-                                         jobIdData: _.pluck(response.data[series.signature],
-                                             'job_id')
-                                     };
-                                 }).then(function() {
-                                     series.relatedAlertSummaries = [];
-                                     var repo = _.find($rootScope.repos, { name: series.projectName });
-                                     return PhAlerts.getAlertSummaries({
-                                         seriesSignature: series.signature,
-                                         repository: repo.id }).then(function(data) {
-                                             series.relatedAlertSummaries = data.results;
-                                         });
-                                 });
+            return PhSeries.getSeriesData(series.projectName, { interval: $scope.myTimerange.value, signatures: series.signature }).then(
+                function(seriesData) {
+                    series.flotSeries = {
+                        lines: { show: false },
+                        points: { show: series.visible },
+                        color: series.color,
+                        label: series.projectName + " " + series.name,
+                        data: _.map(
+                            seriesData[series.signature],
+                            function(dataPoint) {
+                                return [
+                                    new Date(dataPoint.push_timestamp*1000),
+                                    dataPoint.value
+                                ];
+                            }),
+                        resultSetData: _.pluck(
+                            seriesData[series.signature],
+                            'result_set_id'),
+                        thSeries: jQuery.extend({}, series),
+                        jobIdData: _.pluck(seriesData[series.signature],
+                                           'job_id')
+                    };
+                }).then(function() {
+                    series.relatedAlertSummaries = [];
+                    var repo = _.find($rootScope.repos, { name: series.projectName });
+                    return PhAlerts.getAlertSummaries({
+                        seriesSignature: series.signature,
+                        repository: repo.id }).then(function(data) {
+                            series.relatedAlertSummaries = data.results;
+                        });
+                });
         }
 
         function addSeriesList(partialSeriesList) {

@@ -59,19 +59,6 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
         };
     };
 
-    var _getSeriesByJobId = function(projectName, jobId) {
-        return $http.get(thServiceDomain + '/api/project/' + projectName +
-            '/performance/data/?job_id=' + jobId).then(function(response) {
-                if(response.data) {
-                    return response.data;
-                } else {
-                    return $q.reject("No data been found for job id " +
-                        jobId + " in project " + projectName);
-                }
-            });
-    };
-
-
     return {
         getTestName: _getTestName,
         getSeriesName: _getSeriesName,
@@ -96,8 +83,16 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
                                      };
                                  });
         },
-        getSeriesByJobId: function(projectName, jobId) {
-            return _getSeriesByJobId(projectName, jobId);
+        getSeriesData: function(projectName, params) {
+            return $http.get(thServiceDomain + '/api/project/' + projectName + '/performance/data/',
+                             { params: params }).then(function(response) {
+                                 if(response.data) {
+                                     return response.data;
+                                 } else {
+                                     return $q.reject("No data been found for job id " +
+                                                      jobId + " in project " + projectName);
+                                 }
+                             });
         }
     };
 }]);
@@ -336,46 +331,35 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                     },
 
                                     getResultsMap: function(projectName, seriesList, resultSetIds) {
-                                        var url = thServiceDomain + '/api/project/' +
-                                            projectName + '/performance/' +
-                                            'data/?';
-                                        url += _.map(resultSetIds, function(resultSetId) {
-                                            return 'result_set_id=' + resultSetId;
-                                        }).join('&');
                                         var resultsMap = {};
                                         return $q.all(_.chunk(seriesList, 20).map(function(seriesChunk) {
-                                            var signatures = "";
-                                            seriesChunk.forEach(function(series) {
-                                                signatures += "&signatures=" + series.signature;
-                                            });
-                                            return $http.get(url + signatures).then(
-                                                function(response) {
-                                                    resultSetIds.forEach(function(resultSetId) {
-                                                        if (resultsMap[resultSetId] === undefined) {
-                                                            resultsMap[resultSetId] = {};
-                                                        }
-                                                        _.forIn(response.data, function(data, signature) {
-                                                            // Aggregates data from the server on a single group of values which
-                                                            // will be compared later to another group. Ends up with an object
-                                                            // with description (name/platform) and values.
-                                                            // The values are later processed at getCounterMap as the data arguments.
-                                                            var values = [];
-                                                            _.where(data, { result_set_id: resultSetId }).forEach(function(pdata) {
-                                                                values.push(pdata.value);
-                                                            });
-                                                            var seriesData = _.find(seriesList, {'signature': signature});
-                                                            if (seriesData) {
-                                                                resultsMap[resultSetId][signature] = {
-                                                                    platform: seriesData.platform,
-                                                                    name: seriesData.name,
-                                                                    lowerIsBetter: seriesData.lowerIsBetter,
-                                                                    frameworkId: seriesData.frameworkId,
-                                                                    values: values
-                                                                };
-                                                            }
+                                            return PhSeries.getSeriesData(projectName, { signatures: _.pluck(seriesChunk, 'signature'), result_set_id: resultSetIds }).then(function(seriesData) {
+                                                resultSetIds.forEach(function(resultSetId) {
+                                                    if (resultsMap[resultSetId] === undefined) {
+                                                        resultsMap[resultSetId] = {};
+                                                    }
+                                                    _.forIn(seriesData, function(data, signature) {
+                                                        // Aggregates data from the server on a single group of values which
+                                                        // will be compared later to another group. Ends up with an object
+                                                        // with description (name/platform) and values.
+                                                        // The values are later processed at getCounterMap as the data arguments.
+                                                        var values = [];
+                                                        _.where(data, { result_set_id: resultSetId }).forEach(function(pdata) {
+                                                            values.push(pdata.value);
                                                         });
+                                                        var seriesData = _.find(seriesList, {'signature': signature});
+                                                        if (seriesData) {
+                                                            resultsMap[resultSetId][signature] = {
+                                                                platform: seriesData.platform,
+                                                                name: seriesData.name,
+                                                                lowerIsBetter: seriesData.lowerIsBetter,
+                                                                frameworkId: seriesData.frameworkId,
+                                                                values: values
+                                                            };
+                                                        }
                                                     });
                                                 });
+                                            });
                                         })).then(function() {
                                             return resultsMap;
                                         });
