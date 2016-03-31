@@ -18,7 +18,7 @@ from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceSignature)
 
 
-def _add_series(pc, project_name, signature_hash, signature_props, verbosity, parent_signature=None):
+def _add_series(pc, project_name, signature_hash, signature_props, verbosity, parent_hash=None):
     if verbosity == 3:
         print(signature_hash)
 
@@ -43,10 +43,22 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity, pa
     extra_properties = {}
     for k in signature_props.keys():
         if k not in ['option_collection_hash', 'machine_platform',
-                     'test', 'suite']:
+                     'test', 'suite', 'has_subtests', 'parent_signature']:
             extra_properties[k] = signature_props[k]
 
     repository = Repository.objects.get(name=project_name)
+
+    if parent_hash:
+        # the parent PerformanceSignature object should have already been created
+        try:
+            parent_signature = PerformanceSignature.objects.get(
+                signature_hash=parent_hash)
+        except PerformanceSignature.DoesNotExist:
+            print("Cannot find parent signature with hash {} for signature {} ({})".format(
+                parent_hash, signature_hash, signature_props))
+            raise
+    else:
+        parent_signature = None
 
     signature, _ = PerformanceSignature.objects.get_or_create(
         signature_hash=signature_hash,
@@ -59,6 +71,7 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity, pa
             'framework': framework,
             'extra_properties': extra_properties,
             'parent_signature': parent_signature,
+            'has_subtests': signature_props['has_subtests'],
             'last_updated': datetime.datetime.fromtimestamp(0)
         })
 
@@ -152,27 +165,25 @@ class Command(BaseCommand):
         with concurrent.futures.ProcessPoolExecutor(
                 options['num_workers']) as executor:
             futures = []
-
+            # add signatures without parents first, then those with parents
+            with_parents = []
             for signature_hash in signatures.get_signature_hashes():
-                # iterate over subtest signatures, if any
-                if 'subtest_signatures' in signatures[signature_hash]:
-                    # pop 'subtest_signatures' from the parent's extra properties
-                    subtests = signatures[signature_hash].pop('subtest_signatures')
-                    for subtest_hash in subtests:
-                        # add the series, setting the parent signature property
-                        futures.append(executor.submit(_add_series, pc,
-                                                       project,
-                                                       subtest_hash,
-                                                       signatures[subtest_hash],
-                                                       options['verbosity'],
-                                                       parent_signature=signature_hash))
-                # add the parent signature series
-                # ('subtest_signatures' has been removed if it exists)
+                if 'parent_signature' in signatures[signature_hash]:
+                    with_parents.append(signature_hash)
+                else:
+                    futures.append(executor.submit(_add_series, pc,
+                                                   project,
+                                                   signature_hash,
+                                                   signatures[signature_hash],
+                                                   options['verbosity']))
+            for signature_hash in with_parents:
+                parent_hash = signatures[signature_hash]['parent_signature']
                 futures.append(executor.submit(_add_series, pc,
                                                project,
                                                signature_hash,
                                                signatures[signature_hash],
-                                               options['verbosity']))
+                                               options['verbosity'],
+                                               parent_hash=parent_hash))
 
             for future in futures:
                 try:
