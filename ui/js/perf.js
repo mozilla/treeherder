@@ -92,7 +92,6 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thSe
     return {
         getTestName: _getTestName,
         getSeriesName: _getSeriesName,
-        getSeriesSummary: _getSeriesSummary,
         getSeriesList: function(projectName, filterOptions, optionMap) {
             return _getSignatures(projectName, filterOptions).then(function(response) {
                 return _.map(response.data, function(signatureProps, signature) {

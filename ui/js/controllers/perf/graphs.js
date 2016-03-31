@@ -587,58 +587,44 @@ perf.controller('GraphsCtrl', [
 
         function addSeriesList(partialSeriesList) {
             var propsHash = {};
-            return $q.all(partialSeriesList.map(
-                function(partialSeries) {
-                    return $http.get(thServiceDomain + '/api/project/' +
-                                     partialSeries.project + '/performance/' +
-                                     'signatures/?signature=' +
-                                     partialSeries.signature).then(function(response) {
-                                         var data = response.data;
-
-                                         if (!data[partialSeries.signature]) {
-                                             return $q.reject("Signature `" + partialSeries.signature +
-                                                     "` not found for " + partialSeries.project);
-                                         }
-
-                                         if (!propsHash[partialSeries.project]) {
-                                             propsHash[partialSeries.project] = {};
-                                         }
-                                         propsHash[partialSeries.project][partialSeries.signature] = data[partialSeries.signature];
-                                     });
-                })).then(function() {
-                    ThOptionCollectionModel.getMap().then(
-                        function(optionCollectionMap) {
-                            // create a new seriesList in the correct order
-                            partialSeriesList.forEach(function(partialSeries) {
-                                var seriesSummary = PhSeries.getSeriesSummary(
-                                    partialSeries.project,
-                                    partialSeries.signature,
-                                    propsHash[partialSeries.project][partialSeries.signature],
-                                    optionCollectionMap);
-                                seriesSummary.projectName = partialSeries.project;
-                                seriesSummary.visible = partialSeries.visible;
-                                seriesSummary.color = availableColors.pop();
-                                seriesSummary.highlighted = partialSeries.highlighted;
-                                $scope.seriesList.push(seriesSummary);
-                            });
-                            $q.all($scope.seriesList.map(getSeriesData)).then(function() {
-                                plotGraph();
-                                updateDocumentTitle();
-
-                                if ($scope.selectedDataPoint) {
-                                    showTooltip($scope.selectedDataPoint);
-                                }
-                            });
+            return ThOptionCollectionModel.getMap().then(function(optionCollectionMap) {
+                return $q.all(partialSeriesList.map(function(partialSeries) {
+                    return PhSeries.getSeriesList(
+                        partialSeries.project,
+                        { signature: partialSeries.signature },
+                        optionCollectionMap).then(function(seriesList) {
+                            console.log(seriesList);
+                            if (!seriesList.length) {
+                                return $q.reject("Signature `" + partialSeries.signature +
+                                                 "` not found for " + partialSeries.project);
+                            }
+                            var seriesSummary = seriesList[0];
+                            seriesSummary.projectName = partialSeries.project;
+                            seriesSummary.visible = partialSeries.visible;
+                            seriesSummary.color = availableColors.pop();
+                            seriesSummary.highlighted = partialSeries.highlighted;
+                            $scope.seriesList.push(seriesSummary);
                         });
+                })).then(function() {
+                    $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+                        plotGraph();
+                        updateDocumentTitle();
+                        if ($scope.selectedDataPoint) {
+                            showTooltip($scope.selectedDataPoint);
+                        }
+                    });
                 }, function(error) {
-                    if (error.statusText) {
-                        error = "HTTP Error: " + error.statusText;
-                    }
-                    // we could probably do better than print this
-                    // rather useless error, but at least this gives
-                    // a hint on what the problem is
-                    alert("Error loading performance data\n\n" + error);
+                    alert("Error loading performance signature\n\n" + error);
                 });
+            }, function(error) {
+                if (error.statusText) {
+                    error = "HTTP Error: " + error.statusText;
+                }
+                // we could probably do better than print this
+                // rather useless error, but at least this gives
+                // a hint on what the problem is
+                alert("Error loading performance data\n\n" + error);
+            });
         }
 
         $scope.removeSeries = function(projectName, signature) {
