@@ -59,23 +59,6 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
         };
     };
 
-    var _getSignatures = function(projectName, params) {
-        return $http.get(thServiceDomain + '/api/project/' + projectName +
-                         '/performance/signatures/', { params: params });
-    };
-
-    var _getPlatformList = function(projectName, timeRange) {
-        var platformURL = thServiceDomain + '/api/project/' + projectName +
-            '/performance/platforms/?interval=' +
-            timeRange;
-        return $http.get(platformURL).then(function(response) {
-            return {
-                platformList: response.data
-            };
-        });
-
-    };
-
     var _getSeriesByJobId = function(projectName, jobId) {
         return $http.get(thServiceDomain + '/api/project/' + projectName +
             '/performance/data/?job_id=' + jobId).then(function(response) {
@@ -92,19 +75,26 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
     return {
         getTestName: _getTestName,
         getSeriesName: _getSeriesName,
-        getSeriesList: function(projectName, filterOptions) {
+        getSeriesList: function(projectName, params) {
             return ThOptionCollectionModel.getMap().then(function(optionCollectionMap) {
-                return _getSignatures(projectName, filterOptions).then(function(response) {
-                    return _.map(response.data, function(signatureProps, signature) {
-                        return _getSeriesSummary(projectName, signature,
-                                                 signatureProps,
-                                                 optionCollectionMap);
-                    });
-                });
+                return $http.get(thServiceDomain + '/api/project/' + projectName +
+                                 '/performance/signatures/', { params: params }).then(function(response) {
+                                     return _.map(response.data, function(signatureProps, signature) {
+                                         return _getSeriesSummary(projectName, signature,
+                                                                  signatureProps,
+                                                                  optionCollectionMap);
+                                     });
+                                 });
             });
         },
-        getPlatformList: function(projectName, timeRange) {
-            return _getPlatformList(projectName, timeRange);
+        getPlatformList: function(projectName, interval) {
+            return $http.get(thServiceDomain + '/api/project/' + projectName +
+                             '/performance/platforms/', { params: { interval: interval } }).then(
+                                 function(response) {
+                                     return {
+                                         platformList: response.data
+                                     };
+                                 });
         },
         getSeriesByJobId: function(projectName, jobId) {
             return _getSeriesByJobId(projectName, jobId);
