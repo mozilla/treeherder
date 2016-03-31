@@ -72,15 +72,18 @@
           ng-click="save()"
           ng-disabled="!hasPinnedJobs()">save
     </button>
-    <span class="btn btn-default btn-xs dropdown-toggle save-btn-dropdown"
-          title="Additional pinboard functions"
-          ng-disabled="!hasPinnedJobs() && !hasRelatedBugs()"
+    <button class="btn btn-default btn-xs dropdown-toggle save-btn-dropdown"
+          title="{{ !hasPinnedJobs() ? 'No pinned jobs' : 'Additional pinboard functions' }}"
+          ng-disabled="!hasPinnedJobs()"
           data-toggle="dropdown">
       <span class="caret"></span>
-    </span>
+    </button>
     <ul class="dropdown-menu pull-right" role="menu">
       <li><a ng-click="saveClassificationOnly()">Save classification only</a></li>
-      <li><a ng-click="saveBugsOnly()">Save bugs only</a></li>
+      <li class="{{ !hasRelatedBugs() ? 'disabled' : '' }}"
+          title="{{ !hasRelatedBugs() ? 'No bugs selected' : '' }}">
+          <a ng-click="saveBugsOnly()">Save bugs only</a>
+      </li>
       <li><a ng-click="retriggerAllPinnedJobs()">Retrigger all</a></li>
       <li><a ng-click="unPinAll()">Clear all</a></li>
     </ul>
