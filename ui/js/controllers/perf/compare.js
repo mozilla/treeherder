@@ -153,12 +153,12 @@ perf.controller('CompareChooserCtrl', [
 
 perf.controller('CompareResultsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$location',
-    'thServiceDomain', 'ThOptionCollectionModel', 'ThRepositoryModel',
+    'thServiceDomain', 'ThRepositoryModel',
     'ThResultSetModel', '$http', '$q', '$timeout', 'PhFramework', 'PhSeries',
     'math', 'phTimeRanges', 'PhCompare',
     function CompareResultsCtrl($state, $stateParams, $scope,
                                 $rootScope, $location,
-                                thServiceDomain, ThOptionCollectionModel,
+                                thServiceDomain,
                                 ThRepositoryModel, ThResultSetModel, $http,
                                 $q, $timeout, PhFramework, PhSeries, math,
                                 phTimeRanges,
@@ -177,8 +177,7 @@ perf.controller('CompareResultsCtrl', [
 
             PhSeries.getSeriesList(
                 $scope.originalProject.name,
-                { interval: timeRange, subtests: 0 },
-                optionCollectionMap).then(
+                { interval: timeRange, subtests: 0 }).then(
                     function(originalSeriesList) {
                         $scope.platformList = _.uniq(
                             _.map(originalSeriesList, 'platform'));
@@ -200,8 +199,7 @@ perf.controller('CompareResultsCtrl', [
 
                         PhSeries.getSeriesList(
                             $scope.newProject.name,
-                            { interval: timeRange, subtests: 0 },
-                            optionCollectionMap).then(
+                            { interval: timeRange, subtests: 0 }).then(
                                 function(newSeriesList) {
                                     $scope.platformList = _.union(
                                         $scope.platformList,
@@ -304,17 +302,12 @@ perf.controller('CompareResultsCtrl', [
         $scope.dataLoading = true;
         $scope.getCompareClasses = PhCompare.getCompareClasses;
 
-        var optionCollectionMap = {};
         var loadRepositories = ThRepositoryModel.load();
-        var loadOptions = ThOptionCollectionModel.getMap().then(
-            function(_optionCollectionMap) {
-                optionCollectionMap = _optionCollectionMap;
-            });
         var loadFrameworks = PhFramework.getFrameworkList().then(
             function(frameworks) {
                 $scope.frameworks = frameworks.data;
             });
-        $q.all([loadRepositories, loadOptions, loadFrameworks]).then(function() {
+        $q.all([loadRepositories, loadFrameworks]).then(function() {
             $scope.errors = PhCompare.validateInput($stateParams.originalProject,
                                                     $stateParams.newProject,
                                                     $stateParams.originalRevision,
@@ -374,12 +367,11 @@ perf.controller('CompareResultsCtrl', [
 
 perf.controller('CompareSubtestResultsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$location',
-    'thServiceDomain', 'ThOptionCollectionModel', 'ThRepositoryModel',
+    'thServiceDomain', 'ThRepositoryModel',
     'ThResultSetModel', '$http', '$q', '$timeout', 'PhSeries', 'math',
     'PhCompare',
     function CompareSubtestResultsCtrl($state, $stateParams, $scope, $rootScope,
                                        $location, thServiceDomain,
-                                       ThOptionCollectionModel,
                                        ThRepositoryModel, ThResultSetModel,
                                        $http, $q, $timeout, PhSeries, math,
                                        PhCompare) {
@@ -485,122 +477,110 @@ perf.controller('CompareSubtestResultsCtrl', [
         $scope.dataLoading = true;
         $scope.getCompareClasses = PhCompare.getCompareClasses;
 
-        var optionCollectionMap = {};
-        var loadRepositories = ThRepositoryModel.load();
-        var loadOptions = ThOptionCollectionModel.getMap().then(
-            function(_optionCollectionMap) {
-                optionCollectionMap = _optionCollectionMap;
-            });
-        $q.all([loadRepositories, loadOptions]).then(
-            function() {
-                $scope.errors = PhCompare.validateInput($stateParams.originalProject,
-                                                        $stateParams.newProject,
-                                                        $stateParams.originalRevision,
-                                                        $stateParams.newRevision,
-                                                        $stateParams.originalSignature,
-                                                        $stateParams.newSignature);
+        ThRepositoryModel.load().then(function() {
+            $scope.errors = PhCompare.validateInput($stateParams.originalProject,
+                                                    $stateParams.newProject,
+                                                    $stateParams.originalRevision,
+                                                    $stateParams.newRevision,
+                                                    $stateParams.originalSignature,
+                                                    $stateParams.newSignature);
 
-                if ($scope.errors.length > 0) {
-                    $scope.dataLoading = false;
-                    return;
-                }
+            if ($scope.errors.length > 0) {
+                $scope.dataLoading = false;
+                return;
+            }
 
-                $scope.originalProject = ThRepositoryModel.getRepo(
-                    $stateParams.originalProject);
-                $scope.newProject = ThRepositoryModel.getRepo(
-                    $stateParams.newProject);
-                $scope.newRevision = $stateParams.newRevision;
-                $scope.originalRevision = $stateParams.originalRevision;
-                $scope.originalSignature = $stateParams.originalSignature;
-                $scope.newSignature = $stateParams.newSignature;
+            $scope.originalProject = ThRepositoryModel.getRepo(
+                $stateParams.originalProject);
+            $scope.newProject = ThRepositoryModel.getRepo(
+                $stateParams.newProject);
+            $scope.newRevision = $stateParams.newRevision;
+            $scope.originalRevision = $stateParams.originalRevision;
+            $scope.originalSignature = $stateParams.originalSignature;
+            $scope.newSignature = $stateParams.newSignature;
 
-                verifyRevision($scope.originalProject, $scope.originalRevision, "original").then(function () {
-                    verifyRevision($scope.newProject, $scope.newRevision, "new").then(function () {
-                        $scope.pageList = [];
+            verifyRevision($scope.originalProject, $scope.originalRevision, "original").then(function () {
+                verifyRevision($scope.newProject, $scope.newRevision, "new").then(function () {
+                    $scope.pageList = [];
 
-                        if ($scope.errors.length > 0) {
-                            $scope.dataLoading = false;
-                            return;
-                        }
+                    if ($scope.errors.length > 0) {
+                        $scope.dataLoading = false;
+                        return;
+                    }
 
-                        var timeRange = PhCompare.getInterval($scope.originalResultSet.push_timestamp, $scope.newResultSet.push_timestamp);
-                        var resultSetIds = [$scope.originalResultSet.id];
+                    var timeRange = PhCompare.getInterval($scope.originalResultSet.push_timestamp, $scope.newResultSet.push_timestamp);
+                    var resultSetIds = [$scope.originalResultSet.id];
 
-                        // Optimization - if old/new branches are the same collect data in one pass
-                        if ($scope.originalProject == $scope.newProject) {
-                            resultSetIds = [$scope.originalResultSet.id, $scope.newResultSet.id];
-                        }
+                    // Optimization - if old/new branches are the same collect data in one pass
+                    if ($scope.originalProject == $scope.newProject) {
+                        resultSetIds = [$scope.originalResultSet.id, $scope.newResultSet.id];
+                    }
 
-                        $q.all([PhSeries.getSeriesList(
-                            $scope.originalProject.name,
-                            { signature: $scope.originalSignature },
-                            optionCollectionMap).then(function(originalSeries) {
-                                console.log(originalSeries);
-                                $scope.testList = [originalSeries[0].name];
-                                return undefined;
-                            }),
-                                PhSeries.getSeriesList(
-                                    $scope.originalProject.name,
-                                    { parent_signature: $scope.originalSignature },
-                                    optionCollectionMap).then(function(originalSubtestList) {
-                                        $scope.pageList = _.map(originalSubtestList, 'name');
-                                        $scope.platformList = _.uniq(_.map(originalSubtestList, 'platform'));
-                                        return PhCompare.getResultsMap($scope.originalProject.name,
-                                                                       originalSubtestList,
-                                                                       resultSetIds);
-                                    })
-                               ]).then(function(results) {
-                                   var originalSeriesMap = results[1][$scope.originalResultSet.id];
-                                   var newSeriesMap = results[1][$scope.newResultSet.id];
-                                   [originalSeriesMap, newSeriesMap].forEach(function(seriesMap) {
-                                       // If there is no data for a given signature, handle it gracefully
-                                       if (seriesMap) {
-                                           Object.keys(seriesMap).forEach(function(series) {
-                                               if (!_.contains($scope.pageList, seriesMap[series].name)) {
-                                                   $scope.pageList.push(seriesMap[series].name);
+                    $q.all([PhSeries.getSeriesList(
+                        $scope.originalProject.name,
+                        { signature: $scope.originalSignature }).then(function(originalSeries) {
+                            $scope.testList = [originalSeries[0].name];
+                            return undefined;
+                        }),
+                            PhSeries.getSeriesList(
+                                $scope.originalProject.name,
+                                { parent_signature: $scope.originalSignature }).then(function(originalSubtestList) {
+                                    $scope.pageList = _.map(originalSubtestList, 'name');
+                                    $scope.platformList = _.uniq(_.map(originalSubtestList, 'platform'));
+                                    return PhCompare.getResultsMap($scope.originalProject.name,
+                                                                   originalSubtestList,
+                                                                   resultSetIds);
+                                })
+                           ]).then(function(results) {
+                               var originalSeriesMap = results[1][$scope.originalResultSet.id];
+                               var newSeriesMap = results[1][$scope.newResultSet.id];
+                               [originalSeriesMap, newSeriesMap].forEach(function(seriesMap) {
+                                   // If there is no data for a given signature, handle it gracefully
+                                   if (seriesMap) {
+                                       Object.keys(seriesMap).forEach(function(series) {
+                                           if (!_.contains($scope.pageList, seriesMap[series].name)) {
+                                               $scope.pageList.push(seriesMap[series].name);
+                                           }
+                                       });
+                                   }
+                               });
+
+                               // Optimization- collect all data in a single pass
+                               if (newSeriesMap) {
+                                   $scope.dataLoading = false;
+                                   displayResults(originalSeriesMap, newSeriesMap);
+                                   return;
+                               }
+
+                               PhSeries.getSeriesList(
+                                   $scope.newProject.name, { parent_signature: $scope.newSignature }).then(function(newSeriesList) {
+                                       $scope.platformList = _.uniq(_.union(
+                                           $scope.platformList,
+                                           _.map(newSeriesList, 'platform')));
+                                       $scope.testList = _.uniq(_.union(
+                                           $scope.testList,
+                                           _.map(newSeriesList, 'name')));
+
+                                       return PhCompare.getResultsMap($scope.newProject.name,
+                                                                      newSeriesList,
+                                                                      [$scope.newResultSet.id]);
+                                   }).then(function(newSeriesMaps) {
+                                       var newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
+                                       // There is a chance that we haven't received data for the given signature/resultSet yet
+                                       if (newSeriesMap) {
+                                           Object.keys(newSeriesMap).forEach(function(series) {
+                                               if (!_.contains($scope.pageList, newSeriesMap[series].name)) {
+                                                   $scope.pageList.push(newSeriesMap[series].name);
                                                }
                                            });
+                                       } else {
+                                           newSeriesMap = {};
                                        }
-                                   });
-
-                                   // Optimization- collect all data in a single pass
-                                   if (newSeriesMap) {
                                        $scope.dataLoading = false;
                                        displayResults(originalSeriesMap, newSeriesMap);
-                                       return;
-                                   }
-
-                                   PhSeries.getSeriesList(
-                                       $scope.newProject.name,
-                                       { parent_signature: $scope.newSignature },
-                                       optionCollectionMap).then(function(newSeriesList) {
-                                           $scope.platformList = _.uniq(_.union(
-                                               $scope.platformList,
-                                               _.map(newSeriesList, 'platform')));
-                                           $scope.testList = _.uniq(_.union(
-                                               $scope.testList,
-                                               _.map(newSeriesList, 'name')));
-
-                                           return PhCompare.getResultsMap($scope.newProject.name,
-                                                                          newSeriesList,
-                                                                          [$scope.newResultSet.id]);
-                                       }).then(function(newSeriesMaps) {
-                                           var newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
-                                           // There is a chance that we haven't received data for the given signature/resultSet yet
-                                           if (newSeriesMap) {
-                                               Object.keys(newSeriesMap).forEach(function(series) {
-                                                   if (!_.contains($scope.pageList, newSeriesMap[series].name)) {
-                                                       $scope.pageList.push(newSeriesMap[series].name);
-                                                   }
-                                               });
-                                           } else {
-                                               newSeriesMap = {};
-                                           }
-                                           $scope.dataLoading = false;
-                                           displayResults(originalSeriesMap, newSeriesMap);
-                                       });
-                               });
-                    });
+                                   });
+                           });
                 });
             });
+        });
     }]);

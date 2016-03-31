@@ -2,7 +2,7 @@
 
 var perf = angular.module("perf", ['ui.router', 'ui.bootstrap', 'treeherder']);
 
-treeherder.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceDomain) {
+treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionModel', function($http, thServiceDomain, ThOptionCollectionModel) {
 
     var _getTestName = function(signatureProps, displayOptions) {
         var suiteName = signatureProps.suite;
@@ -92,12 +92,14 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thSe
     return {
         getTestName: _getTestName,
         getSeriesName: _getSeriesName,
-        getSeriesList: function(projectName, filterOptions, optionMap) {
-            return _getSignatures(projectName, filterOptions).then(function(response) {
-                return _.map(response.data, function(signatureProps, signature) {
-                    return _getSeriesSummary(projectName, signature,
-                                             signatureProps,
-                                             optionMap);
+        getSeriesList: function(projectName, filterOptions) {
+            return ThOptionCollectionModel.getMap().then(function(optionCollectionMap) {
+                return _getSignatures(projectName, filterOptions).then(function(response) {
+                    return _.map(response.data, function(signatureProps, signature) {
+                        return _getSeriesSummary(projectName, signature,
+                                                 signatureProps,
+                                                 optionCollectionMap);
+                    });
                 });
             });
         },

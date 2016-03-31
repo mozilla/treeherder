@@ -3,12 +3,11 @@
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$location', '$uibModal',
     'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries', 'PhAlerts',
-    'ThRepositoryModel', 'ThOptionCollectionModel', 'ThResultSetModel',
-    'phTimeRanges', 'phDefaultTimeRangeValue',
+    'ThRepositoryModel', 'ThResultSetModel', 'phTimeRanges', 'phDefaultTimeRangeValue',
     function GraphsCtrl($state, $stateParams, $scope, $rootScope, $location,
                         $uibModal, thServiceDomain, $http, $q, $timeout, PhSeries,
-                        PhAlerts, ThRepositoryModel, ThOptionCollectionModel,
-                        ThResultSetModel, phTimeRanges, phDefaultTimeRangeValue) {
+                        PhAlerts, ThRepositoryModel, ThResultSetModel,
+                        phTimeRanges, phDefaultTimeRangeValue) {
         var availableColors = [ 'red', 'green', 'blue', 'orange', 'purple' ];
 
         $scope.highlightedRevisions = [ undefined, undefined ];
@@ -587,34 +586,30 @@ perf.controller('GraphsCtrl', [
 
         function addSeriesList(partialSeriesList) {
             var propsHash = {};
-            return ThOptionCollectionModel.getMap().then(function(optionCollectionMap) {
-                return $q.all(partialSeriesList.map(function(partialSeries) {
-                    return PhSeries.getSeriesList(
-                        partialSeries.project,
-                        { signature: partialSeries.signature },
-                        optionCollectionMap).then(function(seriesList) {
-                            console.log(seriesList);
-                            if (!seriesList.length) {
-                                return $q.reject("Signature `" + partialSeries.signature +
-                                                 "` not found for " + partialSeries.project);
-                            }
-                            var seriesSummary = seriesList[0];
-                            seriesSummary.projectName = partialSeries.project;
-                            seriesSummary.visible = partialSeries.visible;
-                            seriesSummary.color = availableColors.pop();
-                            seriesSummary.highlighted = partialSeries.highlighted;
-                            $scope.seriesList.push(seriesSummary);
-                        });
-                })).then(function() {
-                    $q.all($scope.seriesList.map(getSeriesData)).then(function() {
-                        plotGraph();
-                        updateDocumentTitle();
-                        if ($scope.selectedDataPoint) {
-                            showTooltip($scope.selectedDataPoint);
+            return $q.all(partialSeriesList.map(function(partialSeries) {
+                return PhSeries.getSeriesList(
+                    partialSeries.project,
+                    { signature: partialSeries.signature }).then(function(seriesList) {
+                        if (!seriesList.length) {
+                            return $q.reject("Signature `" + partialSeries.signature +
+                                             "` not found for " + partialSeries.project);
                         }
+                        var seriesSummary = seriesList[0];
+                        seriesSummary.projectName = partialSeries.project;
+                        seriesSummary.visible = partialSeries.visible;
+                        seriesSummary.color = availableColors.pop();
+                        seriesSummary.highlighted = partialSeries.highlighted;
+                        $scope.seriesList.push(seriesSummary);
                     });
-                }, function(error) {
-                    alert("Error loading performance signature\n\n" + error);
+            }, function(error) {
+                alert("Error loading performance signature\n\n" + error);
+            })).then(function() {
+                $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+                    plotGraph();
+                    updateDocumentTitle();
+                    if ($scope.selectedDataPoint) {
+                        showTooltip($scope.selectedDataPoint);
+                    }
                 });
             }, function(error) {
                 if (error.statusText) {
@@ -749,68 +744,64 @@ perf.controller('GraphsCtrl', [
                 };
                 $scope.selectedDataPoint = (tooltipString) ? tooltip : null;
             }
-            ThOptionCollectionModel.getMap().then(function(optionCollectionMap) {
-                $scope.addTestData = function(option, seriesSignature) {
-                    var defaultProjectName, defaultPlatform;
-                    var options = {};
-                    if ($scope.seriesList.length > 0) {
-                        var lastSeries = $scope.seriesList.slice(-1)[0];
-                        defaultProjectName = lastSeries.projectName;
-                        defaultPlatform = lastSeries.platform;
+
+            $scope.addTestData = function(option, seriesSignature) {
+                var defaultProjectName, defaultPlatform;
+                var options = {};
+                if ($scope.seriesList.length > 0) {
+                    var lastSeries = $scope.seriesList.slice(-1)[0];
+                    defaultProjectName = lastSeries.projectName;
+                    defaultPlatform = lastSeries.platform;
+                }
+
+                if (option !== undefined) {
+                    var series = _.findWhere($scope.seriesList, {"signature": seriesSignature});
+                    options = { option: option, relatedSeries: series };
+                }
+
+                var modalInstance = $uibModal.open({
+                    templateUrl: 'partials/perf/testdatachooser.html',
+                    controller: 'TestChooserCtrl',
+                    size: 'lg',
+                    resolve: {
+                        projects: function() {
+                            return $rootScope.repos;
+                        },
+                        timeRange: function() {
+                            return $scope.myTimerange.value;
+                        },
+                        testsDisplayed: function() {
+                            return $scope.seriesList;
+                        },
+                        defaultProjectName: function() { return defaultProjectName; },
+                        defaultPlatform: function() { return defaultPlatform; },
+                        options: function() { return options; }
                     }
+                });
 
-                    if (option !== undefined) {
-                        var series = _.findWhere($scope.seriesList, {"signature": seriesSignature});
-                        options = { option: option, relatedSeries: series };
+                modalInstance.opened.then(function () {
+                    window.setTimeout(function () { modalInstance.updateTestInput(); }, 0);
+                });
+
+                modalInstance.result.then(function(seriesList) {
+                    seriesList.forEach(function(series)  {
+                        series.hightlightedPoints = [];
+                        series.visible = true;
+                        series.color = availableColors.pop();
+                        $scope.seriesList.push(series);
+                    });
+                    if (!$scope.highlightedRevision) {
+                        $scope.highlightedRevision = '';
                     }
-
-                    var modalInstance = $uibModal.open({
-                        templateUrl: 'partials/perf/testdatachooser.html',
-                        controller: 'TestChooserCtrl',
-                        size: 'lg',
-                        resolve: {
-                            projects: function() {
-                                return $rootScope.repos;
-                            },
-                            optionCollectionMap: function() {
-                                return optionCollectionMap;
-                            },
-                            timeRange: function() {
-                                return $scope.myTimerange.value;
-                            },
-                            testsDisplayed: function() {
-                                return $scope.seriesList;
-                            },
-                            defaultProjectName: function() { return defaultProjectName; },
-                            defaultPlatform: function() { return defaultPlatform; },
-                            options: function() { return options; }
-                        }
+                    if (!$scope.zoom) {
+                        $scope.zoom = {};
+                    }
+                    updateDocument();
+                    $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+                        plotGraph();
                     });
-
-                    modalInstance.opened.then(function () {
-                        window.setTimeout(function () { modalInstance.updateTestInput(); }, 0);
-                    });
-
-                    modalInstance.result.then(function(seriesList) {
-                        seriesList.forEach(function(series)  {
-                            series.hightlightedPoints = [];
-                            series.visible = true;
-                            series.color = availableColors.pop();
-                            $scope.seriesList.push(series);
-                        });
-                        if (!$scope.highlightedRevision) {
-                            $scope.highlightedRevision = '';
-                        }
-                        if (!$scope.zoom) {
-                            $scope.zoom = {};
-                        }
-                        updateDocument();
-                        $q.all($scope.seriesList.map(getSeriesData)).then(function() {
-                            plotGraph();
-                        });
-                    });
-                };
-            });
+                });
+            };
         });
     }]);
 
@@ -834,8 +825,7 @@ perf.filter('testNameContainsWords', function() {
 });
 
 perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
-                                            projects, optionCollectionMap,
-                                            timeRange, thServiceDomain,
+                                            projects, timeRange, thServiceDomain,
                                             thDefaultRepo, PhSeries,
                                             defaultProjectName, defaultPlatform, $q,
                                             testsDisplayed, options, thPerformanceBranches) {
@@ -911,8 +901,7 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
     var loadingExtraDataPromise = $q.defer();
     var addRelatedPlatforms = function(originalSeries) {
         PhSeries.getSeriesList(
-            originalSeries.projectName, { interval: $scope.timeRange },
-            optionCollectionMap).then(function(seriesList) {
+            originalSeries.projectName, { interval: $scope.timeRange }).then(function(seriesList) {
                 $scope.testsToAdd = _.clone(_.filter(seriesList, function(series) {
                     return series.platform !== originalSeries.platform &&
                         series.name === originalSeries.name;
@@ -937,7 +926,7 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
             return PhSeries.getSeriesList(project.name, {
                 interval: $scope.timeRange,
                 signature: originalSeries.signature
-            }, optionCollectionMap);
+            });
         })).then(function(series) {
             if (series.length > 0) {
                 $scope.testToAdd.push(_.clone(series[0]));
@@ -988,8 +977,7 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
             }
             PhSeries.getSeriesList(
                 $scope.selectedProject.name,
-                { interval: $scope.timeRange, platform: $scope.selectedPlatform },
-                optionCollectionMap).then(function(seriesList) {
+                { interval: $scope.timeRange, platform: $scope.selectedPlatform }).then(function(seriesList) {
                     $scope.unselectedTestList = _.sortBy(
                         _.filter(seriesList,
                                  { platform: $scope.selectedPlatform }), 'name');
