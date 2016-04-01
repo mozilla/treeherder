@@ -48,32 +48,31 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity, pa
 
     repository = Repository.objects.get(name=project_name)
 
+    defaults = {
+        'test': signature_props.get('test', ''),
+        'suite': signature_props['suite'],
+        'option_collection': option_collection,
+        'platform': platform,
+        'framework': framework,
+        'extra_properties': extra_properties,
+        'has_subtests': signature_props.get('has_subtests', False),
+        'last_updated': datetime.datetime.fromtimestamp(0)
+    }
+
     if parent_hash:
         # the parent PerformanceSignature object should have already been created
         try:
-            parent_signature = PerformanceSignature.objects.get(
+            defaults['parent_signature'] = PerformanceSignature.objects.get(
                 signature_hash=parent_hash)
         except PerformanceSignature.DoesNotExist:
             print("Cannot find parent signature with hash {} for signature {} ({})".format(
                 parent_hash, signature_hash, signature_props))
             raise
-    else:
-        parent_signature = None
 
     signature, _ = PerformanceSignature.objects.get_or_create(
         signature_hash=signature_hash,
         repository=repository,
-        defaults={
-            'test': signature_props.get('test', ''),
-            'suite': signature_props['suite'],
-            'option_collection': option_collection,
-            'platform': platform,
-            'framework': framework,
-            'extra_properties': extra_properties,
-            'parent_signature': parent_signature,
-            'has_subtests': signature_props['has_subtests'],
-            'last_updated': datetime.datetime.fromtimestamp(0)
-        })
+        defaults=defaults)
 
     series = pc.get_performance_data(
         project_name, signatures=signature_hash,
