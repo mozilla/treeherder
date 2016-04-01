@@ -266,7 +266,7 @@ logViewerApp.controller('LogviewerCtrl', [
                         // also need to test for the 0th element for outlier jobs.
                         if ($scope.step_data.steps[0]) {
 
-                            if ($scope.step_data.all_errors.length == 0) {
+                            if ($scope.step_data.all_errors.length === 0) {
                                 angular.element(document).ready(function () {
                                     if (isNaN($scope.selectedBegin)) {
                                         $scope.displayLog($scope.step_data.steps[0], 'initialLoad');

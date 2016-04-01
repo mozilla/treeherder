@@ -340,7 +340,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 if SITE_URL.startswith('https://'):
     SECURE_SSL_REDIRECT = True
-    SECURE_HSTS_SECONDS = timedelta(days=365)
+    SECURE_HSTS_SECONDS = int(timedelta(days=365).total_seconds())
 
 # Enable integration between autoclassifier and jobs
 AUTOCLASSIFY_JOBS = env.bool("AUTOCLASSIFY_JOBS", default=False)

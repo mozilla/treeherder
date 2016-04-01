@@ -99,7 +99,7 @@ treeherder.factory('PhAlerts', [
             var alertSummary = this;
             var alertsInSummary = _.filter(this.alerts, function(alert) {
                 return (alert.status !== phAlertStatusMap.DOWNSTREAM.id ||
-                        alert.summary_id == alertSummary.id);
+                        alert.summary_id === alertSummary.id);
             });
 
             // figure out if there are any regressions -- if there are,

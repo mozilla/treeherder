@@ -29,15 +29,24 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
 
         signature_data = PerformanceSignature.objects.filter(
             repository=repository).select_related(
-                'option_collection', 'platform')
+                'parent_signature__signature_hash', 'option_collection',
+                'platform')
 
-        # filter based on signature hashes, if asked
+        parent_signature_hashes = request.query_params.getlist('parent_signature')
+        if parent_signature_hashes:
+            parent_signatures = PerformanceSignature.objects.filter(
+                repository=repository,
+                signature_hash__in=parent_signature_hashes)
+            signature_data = signature_data.filter(
+                parent_signature__in=parent_signatures)
+
+        if not int(request.query_params.get('subtests', True)):
+            signature_data = signature_data.filter(parent_signature__isnull=True)
+
         signature_hashes = request.query_params.getlist('signature')
         if signature_hashes:
-            signature_ids = PerformanceSignature.objects.filter(
-                signature_hash__in=signature_hashes).values_list('id', flat=True)
-            signature_data = signature_data.filter(id__in=list(
-                signature_ids))
+            signature_data = signature_data.filter(
+                signature_hash__in=signature_hashes)
 
         interval = request.query_params.get('interval')
         if interval:
@@ -55,11 +64,14 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
         ret = {}
         for (signature_hash, option_collection_hash, platform, framework,
              suite, test, lower_is_better,
-             extra_properties) in signature_data.values_list(
+             extra_properties, has_subtests,
+             parent_signature_hash) in signature_data.values_list(
                  'signature_hash',
                  'option_collection__option_collection_hash',
                  'platform__platform', 'framework', 'suite',
-                 'test', 'lower_is_better', 'extra_properties').distinct():
+                 'test', 'lower_is_better', 'extra_properties',
+                 'has_subtests',
+                 'parent_signature__signature_hash').distinct():
             ret[signature_hash] = {
                 'framework_id': framework,
                 'option_collection_hash': option_collection_hash,
@@ -74,11 +86,12 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
                 # test may be empty in case of a summary test, leave it empty
                 # then
                 ret[signature_hash]['test'] = test
-            else:
-                # if it's a summary test, we will query subtests signature for it
-                ret[signature_hash]['subtest_signatures'] = signature_data.filter(
-                        parent_signature__signature_hash__exact=signature_hash
-                ).values_list('signature_hash', flat=True)
+            if has_subtests:
+                ret[signature_hash]['has_subtests'] = True
+            if parent_signature_hash:
+                # this value is often null, save some bandwidth by excluding
+                # it if not present
+                ret[signature_hash]['parent_signature'] = parent_signature_hash
 
             ret[signature_hash].update(json.loads(extra_properties))
 

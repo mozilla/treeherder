@@ -129,7 +129,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
             summary_properties.update(extra_properties)
             summary_signature_hash = _get_signature_hash(
                     summary_properties)
-            signature, _ = PerformanceSignature.objects.get_or_create(
+            signature, _ = PerformanceSignature.objects.update_or_create(
                 repository=repository, signature_hash=summary_signature_hash,
                 defaults={
                     'test': '',
@@ -139,6 +139,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                     'framework': framework,
                     'extra_properties': extra_properties,
                     'lower_is_better': suite.get('lowerIsBetter', True),
+                    'has_subtests': True,
                     'last_updated': push_timestamp
                 })
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
@@ -176,6 +177,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                         'extra_properties': extra_properties,
                         'lower_is_better': subtest_metadata['lowerIsBetter'],
                         'parent_signature': summary_signature,
+                        'has_subtests': False,
                         'last_updated': push_timestamp
                     })
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
