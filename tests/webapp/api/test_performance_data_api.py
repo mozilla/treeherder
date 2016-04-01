@@ -8,7 +8,7 @@ from treeherder.perf.models import PerformanceSignature
 
 
 @pytest.fixture
-def subtests_perf_signature(test_perf_signature):
+def summary_perf_signature(test_perf_signature):
     # summary performance signature don't have test value
     signature = PerformanceSignature.objects.create(
         repository=test_perf_signature.repository,
@@ -17,6 +17,8 @@ def subtests_perf_signature(test_perf_signature):
         platform=test_perf_signature.platform,
         option_collection=test_perf_signature.option_collection,
         suite='mysuite',
+        test='',
+        has_subtests=True,
         last_updated=datetime.datetime.now()
     )
     test_perf_signature.parent_signature = signature
@@ -41,9 +43,10 @@ def test_no_summary_performance_data(webapp, test_perf_signature,
                                                                     'machine_platform']
 
 
-def test_summary_performance_data(webapp, test_repository, subtests_perf_signature,
+def test_summary_performance_data(webapp, test_repository,
+                                  summary_perf_signature,
                                   test_perf_signature, jm):
-    summary_signature_hash = subtests_perf_signature.parent_signature.signature_hash
+    summary_signature_hash = summary_perf_signature.parent_signature.signature_hash
     resp = webapp.get(reverse('performance-signatures-list',
                               kwargs={"project": jm.project}))
     assert resp.status_int == 200
@@ -57,10 +60,20 @@ def test_summary_performance_data(webapp, test_repository, subtests_perf_signatu
     assert resp.data.keys() == [test_perf_signature.signature_hash,
                                 summary_signature_hash]
 
-    summary_test_data = resp.data[summary_signature_hash]
-    assert summary_test_data['subtest_signatures'][0] == test_perf_signature.signature_hash
-    assert summary_test_data.keys() == ['suite',
-                                        'subtest_signatures',
-                                        'option_collection_hash',
-                                        'framework_id',
-                                        'machine_platform']
+    summary_properties = resp.data[summary_signature_hash]
+    assert summary_properties == {
+        'suite': 'mysuite',
+        'option_collection_hash': summary_perf_signature.option_collection.option_collection_hash,
+        'framework_id': summary_perf_signature.framework_id,
+        'machine_platform': summary_perf_signature.platform.platform,
+        'has_subtests': True
+    }
+    subtest_properties = resp.data[test_perf_signature.signature_hash]
+    assert subtest_properties == {
+        'suite': 'mysuite',
+        'test': 'mytest',
+        'option_collection_hash': summary_perf_signature.option_collection.option_collection_hash,
+        'framework_id': summary_perf_signature.framework_id,
+        'machine_platform': summary_perf_signature.platform.platform,
+        'parent_signature': summary_signature_hash
+    }

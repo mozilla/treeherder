@@ -63,7 +63,25 @@
 
         </li>
 
-        <li ng-if="!tabs.failureSummary.is_loading && jobLogsAllParsed && bugSuggestionsLoaded && job_log_urls.length && suggestions.length == 0">
+        <li>
+            <span ng-if="errors.length > 0">
+              <div>
+                <span>No Bug Suggestions Available.</span>
+              </div>
+              <span><b>Unsuccessful Execution Steps</b></span>
+              <li ng-repeat="error in errors">
+                  <ul>
+                      <li>{{error.name}} : {{error.result}}.
+                        <a title="Open in Log Viewer"
+                           target="_blank"
+                           href="{{error.lvURL}}">View log</a>
+                      </li>
+                  </ul>
+              </li>
+            </span>
+        </li>
+
+        <li ng-if="!tabs.failureSummary.is_loading && jobLogsAllParsed && bugSuggestionsLoaded && job_log_urls.length && suggestions.length == 0 && errors.length == 0">
             <div class="failure-summary-line-empty">
                 <span>Failure summary is empty</span>
             </div>
