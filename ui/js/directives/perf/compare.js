@@ -29,10 +29,7 @@ treeherder.directive(
                     return !matchText || item.toLowerCase().indexOf(matchText.toLowerCase()) > (-1);
                 }
                 function shouldBeShown(result) {
-                    return (!scope.filterByFramework ||
-                            _.isUndefined(scope.filterOptions.framework) ||
-                            result.frameworkId === scope.filterOptions.framework.id) &&
-                        (!scope.filterOptions.showOnlyImportant || result.isMeaningful) &&
+                    return (!scope.filterOptions.showOnlyImportant || result.isMeaningful) &&
                         (!scope.filterOptions.showOnlyConfident || result.isConfident) &&
                         (!scope.filterOptions.showOnlyBlockers || result.isBlocker);
                 }
@@ -63,7 +60,6 @@ treeherder.directive(
                 }
 
                 scope.$watchGroup([
-                    'filterOptions.framework',
                     'filterOptions.filter',
                     'filterOptions.showOnlyImportant',
                     'filterOptions.showOnlyConfident',

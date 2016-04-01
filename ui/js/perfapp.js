@@ -25,7 +25,7 @@ perf.config(function($compileProvider, $httpProvider, $stateProvider, $urlRouter
         controller: 'CompareResultsCtrl'
     }).state('comparesubtest', {
         templateUrl: 'partials/perf/comparesubtestctrl.html',
-        url: '/comparesubtest?originalProject&originalRevision&newProject&newRevision&originalSignature&newSignature&filter&showOnlyImportant&showOnlyConfident',
+        url: '/comparesubtest?originalProject&originalRevision&newProject&newRevision&originalSignature&newSignature&filter&showOnlyImportant&showOnlyConfident&framework',
         controller: 'CompareSubtestResultsCtrl'
     }).state('comparechooser', {
         title: 'Compare',

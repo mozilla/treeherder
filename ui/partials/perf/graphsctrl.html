@@ -66,7 +66,7 @@
           </a>
           <span ng-show="tooltipContent.prevRevision && tooltipContent.revision">
             (<a id="tt-cset" ng-href="{{tooltipContent.revision | getRevisionUrl:tooltipContent.project.name}}&selectedJob={{tooltipContent.jobId}}&group_state=expanded" target="_blank">job</a>,
-            <a ng-href="#/comparesubtest?originalProject={{tooltipContent.project.name}}&newProject={{tooltipContent.project.name}}&originalRevision={{tooltipContent.prevRevision}}&newRevision={{tooltipContent.revision}}&originalSignature={{selectedDataPoint.signature}}&newSignature={{selectedDataPoint.signature}}" target="_blank">compare</a>)
+            <a ng-href="#/comparesubtest?originalProject={{tooltipContent.project.name}}&newProject={{tooltipContent.project.name}}&originalRevision={{tooltipContent.prevRevision}}&newRevision={{tooltipContent.revision}}&originalSignature={{selectedDataPoint.signature}}&newSignature={{selectedDataPoint.signature}}&framework={{selectedDataPoint.frameworkId}}" target="_blank">compare</a>)
           </span>
         </p>
         <p ng-show="tooltipContent.alertSummary">

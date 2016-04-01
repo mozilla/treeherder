@@ -30,10 +30,10 @@ perf.controller('GraphsCtrl', [
             // retriggers but oh well, hopefully this will work for 99%
             // of cases)
             var resultSetId = flotItem.series.resultSetData[flotItem.dataIndex];
-
             return {
                 projectName: flotItem.series.thSeries.projectName,
                 signature: flotItem.series.thSeries.signature,
+                frameworkId: flotItem.series.thSeries.frameworkId,
                 resultSetId: resultSetId,
                 flotDataOffset: (flotItem.dataIndex -
                                  flotItem.series.resultSetData.indexOf(resultSetId)),
@@ -531,10 +531,12 @@ perf.controller('GraphsCtrl', [
                     }
                 })(),
                 selected: (function() {
-                    return ($scope.selectedDataPoint) ? "["
-                     + $scope.selectedDataPoint.projectName + "," + $scope.selectedDataPoint.signature
-                     + "," + $scope.selectedDataPoint.resultSetId + "," + $scope.selectedDataPoint.jobId
-                     + "]" : undefined;
+                    return ($scope.selectedDataPoint) ? "[" + [$scope.selectedDataPoint.projectName,
+                                                               $scope.selectedDataPoint.signature,
+                                                               $scope.selectedDataPoint.resultSetId,
+                                                               $scope.selectedDataPoint.jobId,
+                                                               $scope.selectedDataPoint.frameworkId]
+                        + "]" : undefined;
                 })(),
             }, {
                 location: true,
@@ -736,7 +738,8 @@ perf.controller('GraphsCtrl', [
                     projectName: tooltipArray[0],
                     signature: tooltipArray[1],
                     resultSetId: parseInt(tooltipArray[2]),
-                    jobId: (tooltipArray[3] !== undefined) ? parseInt(tooltipArray[3]) : null
+                    jobId: parseInt(tooltipArray[3]),
+                    frameworkId: parseInt(tooltipArray[4]) || 1
                 };
                 $scope.selectedDataPoint = (tooltipString) ? tooltip : null;
             }
