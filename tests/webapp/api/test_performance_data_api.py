@@ -4,7 +4,8 @@ import pytest
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
-from treeherder.perf.models import PerformanceSignature
+from treeherder.perf.models import (PerformanceFramework,
+                                    PerformanceSignature)
 
 
 @pytest.fixture
@@ -77,3 +78,41 @@ def test_summary_performance_data(webapp, test_repository,
         'machine_platform': summary_perf_signature.platform.platform,
         'parent_signature': summary_signature_hash
     }
+
+
+def test_filter_by_framework(webapp, test_repository, test_perf_signature):
+    # add a a new signature, the same as the test_perf_signature in every
+    # way, except it belongs to a different "framework"
+    new_framework = PerformanceFramework.objects.create(
+        name='test_talos_2')
+    signature2 = PerformanceSignature.objects.create(
+        repository=test_perf_signature.repository,
+        signature_hash=test_perf_signature.signature_hash,
+        framework=new_framework,
+        platform=test_perf_signature.platform,
+        option_collection=test_perf_signature.option_collection,
+        suite=test_perf_signature.suite,
+        test=test_perf_signature.test,
+        has_subtests=test_perf_signature.has_subtests,
+        last_updated=test_perf_signature.last_updated
+    )
+
+    client = APIClient()
+
+    # Filter by original framework
+    resp = client.get(reverse('performance-signatures-list',
+                              kwargs={"project": test_repository.name}) +
+                      '?framework=%s' % test_perf_signature.framework.id,
+                      format='json')
+    assert resp.status_code == 200
+    assert len(resp.data.keys()) == 1
+    assert resp.data[test_perf_signature.signature_hash]['framework_id'] == test_perf_signature.framework.id
+
+    # Filter by new framework
+    resp = client.get(reverse('performance-signatures-list',
+                              kwargs={"project": test_repository.name}) +
+                      '?framework=%s' % new_framework.id,
+                      format='json')
+    assert resp.status_code == 200
+    assert len(resp.data.keys()) == 1
+    assert resp.data[signature2.signature_hash]['framework_id'] == new_framework.id

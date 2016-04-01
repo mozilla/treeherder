@@ -131,12 +131,12 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                     summary_properties)
             signature, _ = PerformanceSignature.objects.update_or_create(
                 repository=repository, signature_hash=summary_signature_hash,
+                framework=framework,
                 defaults={
                     'test': '',
                     'suite': suite['name'],
                     'option_collection': option_collection,
                     'platform': platform,
-                    'framework': framework,
                     'extra_properties': extra_properties,
                     'lower_is_better': suite.get('lowerIsBetter', True),
                     'has_subtests': True,
@@ -166,20 +166,20 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
             value = list(subtest['value'] for subtest in suite['subtests'] if
                          subtest['name'] == subtest_metadata['test'])
             signature, _ = PerformanceSignature.objects.update_or_create(
-                    repository=repository,
-                    signature_hash=subtest_signature_hash,
-                    defaults={
-                        'test': subtest_metadata['test'],
-                        'suite': suite['name'],
-                        'option_collection': option_collection,
-                        'platform': platform,
-                        'framework': framework,
-                        'extra_properties': extra_properties,
-                        'lower_is_better': subtest_metadata['lowerIsBetter'],
-                        'parent_signature': summary_signature,
-                        'has_subtests': False,
-                        'last_updated': push_timestamp
-                    })
+                repository=repository,
+                signature_hash=subtest_signature_hash,
+                framework=framework,
+                defaults={
+                    'test': subtest_metadata['test'],
+                    'suite': suite['name'],
+                    'option_collection': option_collection,
+                    'platform': platform,
+                    'extra_properties': extra_properties,
+                    'lower_is_better': subtest_metadata['lowerIsBetter'],
+                    'parent_signature': summary_signature,
+                    'has_subtests': False,
+                    'last_updated': push_timestamp
+                })
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
                 repository=repository,
                 result_set_id=result_set_id,

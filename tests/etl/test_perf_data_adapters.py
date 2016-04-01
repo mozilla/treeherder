@@ -328,6 +328,54 @@ def test_no_performance_framework(test_project, test_repository,
     assert 0 == PerformanceDatum.objects.all().count()
 
 
+def test_same_signature_multiple_performance_frameworks(test_project,
+                                                        test_repository,
+                                                        perf_option_collection,
+                                                        perf_platform,
+                                                        perf_job_data,
+                                                        perf_reference_data):
+    framework_names = ['cheezburger1', 'cheezburger2']
+    for framework_name in framework_names:
+        PerformanceFramework.objects.create(name=framework_name)
+        datum = {
+            'job_guid': 'fake_job_guid',
+            'name': 'test',
+            'type': 'test',
+            'blob': {
+                'framework': {'name': framework_name},
+                'suites': [
+                    {
+                        'name': 'cheezburger metrics',
+                        'subtests': [
+                            {
+                                'name': 'test1',
+                                'value': 20.0,
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+        # the perf data adapter expects unserialized performance data
+        submit_datum = copy.copy(datum)
+        submit_datum['blob'] = json.dumps({
+            'performance_data': submit_datum['blob']
+        })
+
+        load_perf_artifacts(test_repository.name, perf_reference_data,
+                            perf_job_data, submit_datum)
+
+    # we should have 2 performance signature objects, one for each framework
+    # and one datum for each signature
+    for framework_name in framework_names:
+        s = PerformanceSignature.objects.get(framework__name=framework_name,
+                                             repository=test_repository,
+                                             suite='cheezburger metrics',
+                                             test='test1')
+        d = PerformanceDatum.objects.get(signature=s)
+        assert d.value == 20.0
+
+
 def test_alert_generation(test_project, test_repository,
                           perf_option_collection, perf_platform,
                           perf_reference_data):

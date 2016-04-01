@@ -48,6 +48,11 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
             signature_data = signature_data.filter(
                 signature_hash__in=signature_hashes)
 
+        frameworks = request.query_params.getlist('framework')
+        if frameworks:
+            signature_data = signature_data.filter(
+                framework__in=frameworks)
+
         interval = request.query_params.get('interval')
         if interval:
             signature_data = signature_data.filter(

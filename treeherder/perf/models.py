@@ -57,7 +57,7 @@ class PerformanceSignature(models.Model):
                            'last_updated')
         # make sure there is only one signature of any hash per
         # repository (same hash in different repositories is allowed)
-        unique_together = ('repository', 'signature_hash')
+        unique_together = ('repository', 'framework', 'signature_hash')
 
     def __str__(self):
         name = self.suite
