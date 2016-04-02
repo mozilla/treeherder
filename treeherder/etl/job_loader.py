@@ -8,6 +8,7 @@ from treeherder.etl.common import to_timestamp
 from treeherder.etl.schema import job_json_schema
 from treeherder.model.derived import DatasetNotFoundError
 from treeherder.model.derived.jobs import JobsModel
+from treeherder.model.models import PulseStore, Repository
 
 logger = logging.getLogger(__name__)
 
@@ -49,12 +50,18 @@ class JobLoader:
             newrelic.agent.add_custom_parameter("project", project)
             with JobsModel(project) as jobs_model:
                 storeable_job_list = []
+                repo = Repository.objects.get(name=project)
                 for pulse_job in job_list:
                     if pulse_job["state"] != "unscheduled":
                         try:
                             self.clean_revision(pulse_job, jobs_model)
                             storeable_job_list.append(
                                 self.transform(pulse_job)
+                            )
+                            PulseStore.objects.create(
+                                repository=repo,
+                                revision=pulse_job["origin"]["revision"],
+                                message=pulse_job
                             )
                         except AttributeError:
                             logger.warn("Skipping job due to bad attribute",

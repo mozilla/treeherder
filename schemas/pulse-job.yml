@@ -26,6 +26,9 @@ properties:
     default: 0
     minimum: 0
 
+  version:
+    type: "integer"
+
   isRetried:
     description: True indicates this job has been retried.
     type: "boolean"
