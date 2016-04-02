@@ -369,6 +369,8 @@ if SITE_URL.startswith('https://'):
 
 # Set the `X-Content-Type-Options` header to `nosniff`.
 SECURE_CONTENT_TYPE_NOSNIFF = True
+# Set the `X-XSS-Protection` header.
+SECURE_BROWSER_XSS_FILTER = True
 
 # Enable integration between autoclassifier and jobs
 AUTOCLASSIFY_JOBS = env.bool("AUTOCLASSIFY_JOBS", default=False)
