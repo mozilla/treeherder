@@ -363,6 +363,9 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 if SITE_URL.startswith('https://'):
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_SECONDS = int(timedelta(days=365).total_seconds())
+    # Mark session and CSRF cookies as being HTTPS-only.
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
 
 # Set the `X-Content-Type-Options` header to `nosniff`.
 SECURE_CONTENT_TYPE_NOSNIFF = True
