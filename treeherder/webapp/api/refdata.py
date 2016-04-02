@@ -5,8 +5,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 
 from treeherder.model import models
-from treeherder.model.derived import (JobsModel,
-                                      RefDataManager)
+from treeherder.model.derived import JobsModel
 from treeherder.webapp.api import serializers as th_serializers
 from treeherder.webapp.api.permissions import (IsOwnerOrReadOnly,
                                                IsStaffOrReadOnly)
@@ -138,14 +137,19 @@ class OptionCollectionHashViewSet(viewsets.ViewSet):
     """ViewSet for the virtual OptionCollectionHash model"""
 
     def list(self, request):
-        with RefDataManager() as rdm:
-            option_collection_hash = rdm.get_all_option_collections()
+        option_collection_map = {}
+        for (hash, option_name) in models.OptionCollection.objects.values_list(
+                'option_collection_hash', 'option__name'):
+            if not option_collection_map.get(hash):
+                option_collection_map[hash] = [option_name]
+            else:
+                option_collection_map[hash].append(option_name)
 
         ret = []
-        for (option_hash, val) in option_collection_hash.iteritems():
+        for (option_hash, option_names) in option_collection_map.iteritems():
             ret.append({'option_collection_hash': option_hash,
                         'options': [{'name': name} for
-                                    name in val['opt'].split()]})
+                                    name in option_names]})
         return Response(ret)
 
 

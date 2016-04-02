@@ -46,16 +46,6 @@
                     WHERE `active_status` = 'active' AND `name` IN (REP0)",
 
             "host_type":"read_host"
-        },
-        "get_all_option_collections":{
-            "sql":"SELECT option_collection_hash,
-                        GROUP_CONCAT( name SEPARATOR ' ' ) as opt
-                   FROM `option_collection` oc
-                   INNER JOIN `option` o
-                        ON o.id = oc.option_id
-                   WHERE o.active_status = 'active'
-                   GROUP BY oc.option_collection_hash",
-            "host_type":"read_host"
         }
     }
 }

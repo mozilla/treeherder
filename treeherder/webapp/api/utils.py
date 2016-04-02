@@ -107,15 +107,6 @@ def with_jobs(model_func):
     return use_jobs_model
 
 
-def get_option(obj, option_collections):
-    """Get the option, if there is one.  Otherwise, return None."""
-    opt = obj.get("option_collection_hash", None)
-    if (opt):
-        return option_collections[opt]['opt']
-    else:
-        return None
-
-
 def to_timestamp(datestr):
     """get a timestamp from a datestr like 2014-03-31"""
     return time.mktime(datetime.datetime.strptime(

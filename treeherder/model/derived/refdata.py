@@ -83,26 +83,3 @@ class RefDataManager(object):
     def get_db_name(self):
         """The name of the database holding the refdata tables"""
         return self.dhub.conf["default_db"]
-
-    def get_all_option_collections(self):
-        """
-        Returns all option collections in the following data structure
-
-        {
-            "hash1":{
-                option_collection_hash : "hash1",
-                opt:"opt1 opt2"
-                },
-            "hash2":{
-                option_collection_hash : "hash2",
-                opt:"opt3 opt4 opt5"
-                }
-            ...
-            }
-        """
-        return self.execute(
-            proc='reference.selects.get_all_option_collections',
-            debug_show=self.DEBUG,
-            key_column='option_collection_hash',
-            return_type='dict'
-        )
