@@ -87,8 +87,7 @@ MIDDLEWARE_CLASSES = [middleware for middleware in [
     'django.contrib.messages.middleware.MessageMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'hawkrest.middleware.HawkResponseMiddleware',
-    # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ] if middleware]
 
 if ENABLE_DEBUG_TOOLBAR:
@@ -371,6 +370,8 @@ if SITE_URL.startswith('https://'):
 SECURE_CONTENT_TYPE_NOSNIFF = True
 # Set the `X-XSS-Protection` header.
 SECURE_BROWSER_XSS_FILTER = True
+# Set the `X-Frame-Options` header, which forbids embedding of site pages in frames.
+X_FRAME_OPTIONS = 'DENY'
 
 # Enable integration between autoclassifier and jobs
 AUTOCLASSIFY_JOBS = env.bool("AUTOCLASSIFY_JOBS", default=False)
