@@ -1,9 +1,10 @@
 from urllib import urlencode
 
+import dateutil.parser
 from django.conf import settings
 
 from treeherder.etl.mixins import JsonExtractorMixin
-from treeherder.model.derived import RefDataManager
+from treeherder.model.models import Bugscache
 
 
 def get_bz_source_url():
@@ -48,9 +49,21 @@ class BzApiBugProcess(JsonExtractorMixin):
             offset += limit
 
         if bug_list:
-            for bug in bug_list:
-                # drop the timezone indicator to avoid issues with mysql
-                bug["last_change_time"] = bug["last_change_time"][0:19]
+            bugs_stored = set(Bugscache.objects.values_list('id', flat=True))
+            old_bugs = bugs_stored.difference(set(bug['id']
+                                                  for bug in bug_list))
+            Bugscache.objects.filter(id__in=old_bugs).delete()
 
-            with RefDataManager() as rdm:
-                rdm.update_bugscache(bug_list)
+            for bug in bug_list:
+                Bugscache.objects.update_or_create(
+                    id=bug['id'],
+                    defaults={
+                        'status': bug.get('status', ''),
+                        'resolution': bug.get('resolution', ''),
+                        'summary': bug.get('summary', ''),
+                        'crash_signature': bug.get('cf_crash_signature', ''),
+                        'keywords': ",".join(bug['keywords']),
+                        'os': bug.get('op_sys', ''),
+                        'modified': dateutil.parser.parse(
+                            bug['last_change_time'])
+                    })

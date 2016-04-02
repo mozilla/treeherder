@@ -1,7 +1,5 @@
 import logging
 import os
-from datetime import (datetime,
-                      timedelta)
 
 from datasource.bases.BaseHub import BaseHub
 from datasource.DataHub import DataHub
@@ -108,83 +106,6 @@ class RefDataManager(object):
             key_column='option_collection_hash',
             return_type='dict'
         )
-
-    def get_bug_numbers_list(self):
-        return self.execute(
-            proc='reference.selects.get_all_bug_numbers',
-            debug_show=self.DEBUG,
-            return_type='iter')
-
-    def delete_bugs(self, bug_ids):
-        """delete a list of bugs given the ids"""
-
-        self.execute(
-            proc='reference.deletes.delete_bugs',
-            debug_show=self.DEBUG,
-            replace=[",".join(["%s"] * len(bug_ids))],
-            placeholders=list(bug_ids))
-
-    def update_bugscache(self, bug_list):
-        """
-        Add content to the bugscache, updating/deleting/inserting
-        when necessary.
-        """
-        bugs_stored = set(bug["id"] for bug in self.get_bug_numbers_list())
-        old_bugs = bugs_stored.difference(set(bug['id']
-                                              for bug in bug_list))
-        if old_bugs:
-            self.delete_bugs(old_bugs)
-
-        placeholders = []
-        for bug in bug_list:
-            # keywords come as a list of values, we need a string instead
-            bug['keywords'] = ",".join(bug['keywords'])
-            placeholders.append([bug.get(field, None) for field in (
-                'id', 'status', 'resolution', 'summary',
-                'cf_crash_signature', 'keywords', 'op_sys', 'last_change_time', 'id')])
-
-        self.execute(
-            proc='reference.inserts.create_bugscache',
-            placeholders=placeholders,
-            executemany=True,
-            debug_show=self.DEBUG)
-
-        # removing the first placeholder because is not used in the update query
-        del placeholders[0]
-
-        self.execute(
-            proc='reference.updates.update_bugscache',
-            placeholders=placeholders,
-            executemany=True,
-            debug_show=self.DEBUG)
-
-    def get_bug_suggestions(self, search_term):
-        """
-        Retrieves two groups of bugs:
-        1) "Open recent bugs" (ie bug is not resolved & was modified in last 3 months)
-        2) "All other bugs" (ie all closed bugs + open bugs that were not modified in the last 3 months).
-        """
-
-        max_size = 50
-        # 90 days ago
-        time_limit = datetime.now() - timedelta(days=90)
-        # Wrap search term so it is used as a phrase in the full-text search.
-        search_term_fulltext = search_term.join('""')
-        # Substitute escape and wildcard characters, so the search term is used
-        # literally in the LIKE statement.
-        search_term_like = search_term.replace('=', '==').replace('%', '=%').replace('_', '=_')
-
-        open_recent = self.execute(
-            proc='reference.selects.get_open_recent_bugs',
-            placeholders=[search_term_fulltext, search_term_like, time_limit, max_size + 1],
-            debug_show=self.DEBUG)
-
-        all_others = self.execute(
-            proc='reference.selects.get_all_others_bugs',
-            placeholders=[search_term_fulltext, search_term_like, time_limit, max_size + 1],
-            debug_show=self.DEBUG)
-
-        return dict(open_recent=open_recent, all_others=all_others)
 
     def get_reference_data_signature_names(self, signatures):
 

@@ -1,18 +1,4 @@
 {
-    "inserts":{
-        "create_bugscache":{
-            "sql":"INSERT INTO `bugscache` (`id`, `status`, `resolution`, `summary`, `crash_signature`, `keywords`, `os`, `modified`)
-                   SELECT ?, ?, ?, ?, ?, ?, ?, ?
-                    FROM DUAL
-                    WHERE NOT EXISTS (
-                    SELECT `id`
-                    FROM `bugscache`
-                    WHERE `id` = ?
-                    )",
-            "host_type":"master_host"
-        }
-
-    },
     "selects":{
         "get_reference_data_signature_names":{
             "sql":"SELECT `name`, `signature` FROM `reference_data_signatures` WHERE `signature` IN (REP0)",
@@ -94,58 +80,6 @@
                    WHERE o.active_status = 'active'
                    GROUP BY oc.option_collection_hash",
             "host_type":"read_host"
-        },
-        "get_open_recent_bugs": {
-            "sql": "SELECT id, summary, crash_signature, keywords, os, resolution,
-                    MATCH (`summary`)
-                        AGAINST (? IN BOOLEAN MODE) AS relevance
-                    FROM bugscache
-                    WHERE 1
-                        AND resolution = ''
-                        AND `summary` LIKE CONCAT ('%%', ?, '%%') ESCAPE '='
-                        AND modified >= ?
-                    ORDER BY relevance DESC
-                    LIMIT 0,?",
-            "host_type": "read_host"
-
-        },
-        "get_all_others_bugs": {
-            "sql": "SELECT id, summary, crash_signature, keywords, os, resolution,
-                    MATCH (`summary`)
-                        AGAINST (? IN BOOLEAN MODE) AS relevance
-                    FROM bugscache
-                    WHERE 1
-                        AND `summary` LIKE CONCAT ('%%', ?, '%%') ESCAPE '='
-                        AND (modified < ? OR resolution <> '')
-                    ORDER BY relevance DESC
-                    LIMIT 0,?",
-            "host_type": "read_host"
-
-        },
-        "get_all_bug_numbers": {
-            "sql": "SELECT id from bugscache",
-            "host_type": "read_host"
-        }
-    },
-    "updates":{
-        "update_bugscache":{
-            "sql": "UPDATE `bugscache`
-                    SET `id` = ?,
-                        `status` = ?,
-                        `resolution` = ?,
-                        `summary` = ?,
-                        `crash_signature` = ?,
-                        `keywords` = ?,
-                        `os` = ?,
-                        `modified` = ?
-                    WHERE `id` = ?",
-            "host_type":"master_host"
-        }
-    },
-    "deletes": {
-        "delete_bugs": {
-            "sql": "DELETE FROM bugscache WHERE id in (REP0)",
-            "host_type": "master_host"
         }
     }
 }

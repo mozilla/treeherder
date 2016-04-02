@@ -4,25 +4,9 @@ from datetime import (datetime,
                       timedelta)
 
 import pytest
+from django.core.urlresolvers import reverse
 
-from treeherder.model.models import (Repository,
-                                     RepositoryGroup)
-
-
-@pytest.fixture
-def repository_id(transactional_db):
-    repo_group = RepositoryGroup.objects.create(name='mygroup')
-    repo_args = {
-        "dvcs_type": "hg",
-        "name": "mozilla-central",
-        "url": "https://hg.mozilla.org/mozilla-central",
-        "active_status": "active",
-        "codebase": "gecko",
-        "repository_group": repo_group,
-        "description": ""
-    }
-    repo = Repository.objects.create(**repo_args)
-    return repo.id
+from treeherder.model.models import Bugscache
 
 
 @pytest.fixture
@@ -36,31 +20,17 @@ def sample_bugs(test_base_dir):
         return json.loads(f.read())
 
 
-def test_update_bugscache(refdata, sample_bugs):
-    """Test running update_bugscache twice inserts the rows just once."""
-
-    bug_list = sample_bugs['bugs']
-
-    # first iteration, inserts
-    refdata.update_bugscache(bug_list)
-    row_data = refdata.dhub.execute(
-        proc='refdata_test.selects.test_bugscache',
-        return_type='tuple'
-    )
-
-    assert len(bug_list) == len(row_data)
-
-    # second iteration, updates
-    refdata.update_bugscache(bug_list)
-
-    row_data = refdata.dhub.execute(
-        proc='refdata_test.selects.test_bugscache',
-        return_type='tuple'
-    )
-
-    refdata.disconnect()
-
-    assert len(bug_list) == len(row_data)
+def _update_bugscache(bug_list):
+    for bug in bug_list:
+        Bugscache.objects.create(
+            id=bug['id'],
+            status=bug['status'],
+            resolution=bug['resolution'],
+            summary=bug['summary'],
+            crash_signature=bug['cf_crash_signature'],
+            keywords=",".join(bug['keywords']),
+            os=bug['op_sys'],
+            modified=bug['last_change_time'])
 
 
 BUG_SEARCHES = (
@@ -96,7 +66,7 @@ BUG_SEARCHES = (
 
 
 @pytest.mark.parametrize(("search_term", "exp_bugs"), BUG_SEARCHES)
-def test_get_open_recent_bugs(refdata, sample_bugs, search_term, exp_bugs):
+def test_get_open_recent_bugs(webapp, transactional_db, sample_bugs, search_term, exp_bugs):
     """Test that we retrieve the expected open recent bugs for a search term."""
     bug_list = sample_bugs['bugs']
     fifty_days_ago = datetime.now() - timedelta(days=50)
@@ -104,16 +74,18 @@ def test_get_open_recent_bugs(refdata, sample_bugs, search_term, exp_bugs):
     # the open_recent bucket, and none in all_others.
     for bug in bug_list:
         bug['last_change_time'] = fifty_days_ago
-    refdata.update_bugscache(bug_list)
+    _update_bugscache(bug_list)
 
-    suggestions = refdata.get_bug_suggestions(search_term)
+    resp = webapp.get(reverse('bugscache-list'), {"search": search_term})
+    assert resp.status_int == 200
+    suggestions = resp.json
     open_recent_bugs = [b['id'] for b in suggestions['open_recent']]
     assert open_recent_bugs == exp_bugs
     assert len(suggestions['all_others']) == 0
 
 
 @pytest.mark.parametrize(("search_term", "exp_bugs"), BUG_SEARCHES)
-def test_get_all_other_bugs(refdata, sample_bugs, search_term, exp_bugs):
+def test_get_all_other_bugs(webapp, transactional_db, sample_bugs, search_term, exp_bugs):
     """Test that we retrieve the expected old bugs for a search term."""
     bug_list = sample_bugs['bugs']
     ninetyfive_days_ago = datetime.now() - timedelta(days=95)
@@ -121,15 +93,17 @@ def test_get_all_other_bugs(refdata, sample_bugs, search_term, exp_bugs):
     # the all_others bucket, and none in open_recent.
     for bug in bug_list:
         bug['last_change_time'] = ninetyfive_days_ago
-    refdata.update_bugscache(bug_list)
+    _update_bugscache(bug_list)
 
-    suggestions = refdata.get_bug_suggestions(search_term)
+    resp = webapp.get(reverse('bugscache-list'), {"search": search_term})
+    assert resp.status_int == 200
+    suggestions = resp.json
     assert len(suggestions['open_recent']) == 0
     all_others_bugs = [b['id'] for b in suggestions['all_others']]
     assert all_others_bugs == exp_bugs
 
 
-def test_get_recent_resolved_bugs(refdata, sample_bugs):
+def test_get_recent_resolved_bugs(webapp, transactional_db, sample_bugs):
     """Test that we retrieve recent, but fixed bugs for a search term."""
     search_term = "Recently modified resolved bugs should be returned in all_others"
     exp_bugs = [100001]
@@ -140,21 +114,12 @@ def test_get_recent_resolved_bugs(refdata, sample_bugs):
     # the open_recent bucket, and none in all_others.
     for bug in bug_list:
         bug['last_change_time'] = fifty_days_ago
-    refdata.update_bugscache(bug_list)
+    _update_bugscache(bug_list)
 
-    suggestions = refdata.get_bug_suggestions(search_term)
+    resp = webapp.get(reverse('bugscache-list'), {"search": search_term})
+    assert resp.status_int == 200
+    suggestions = resp.json
+    print suggestions
     assert len(suggestions['open_recent']) == 0
     all_others_bugs = [b['id'] for b in suggestions['all_others']]
     assert all_others_bugs == exp_bugs
-
-
-def test_delete_bugscache(refdata, sample_bugs):
-    bug_list = sample_bugs['bugs']
-    refdata.update_bugscache(bug_list)
-
-    refdata.delete_bugs([bug["id"] for bug in bug_list])
-    row_data = refdata.dhub.execute(
-        proc='refdata_test.selects.test_bugscache',
-        return_type='tuple'
-    )
-    assert len(row_data) == 0
