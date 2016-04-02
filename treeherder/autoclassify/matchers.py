@@ -51,7 +51,7 @@ class PreciseTestMatcher(Matcher):
                     failure_line__expected=failure_line.expected,
                     failure_line__message=failure_line.message).exclude(
                         ignored_line | Q(failure_line__job_guid=failure_line.job_guid)
-                    ).order_by("-score", "-classified_failure__modified")
+                    ).order_by("-score", "-classified_failure__id")
 
                 best_match = matching_failures.first()
                 if best_match:
