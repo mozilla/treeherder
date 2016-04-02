@@ -13,7 +13,7 @@ $THELP_TEXT = 'Type \\"thelp\\" to see a list of Treeherder-specific helper alia
 # so it's not required.
 $DB_USER = "treeherder_user"
 $DB_PASS = "treeherder_pass"
-$DJANGO_SECRET_KEY = "secretkey-1234"
+$DJANGO_SECRET_KEY = "secret-key-of-at-least-50-characters-to-pass-check-deploy"
 $RABBITMQ_USER = 'guest'
 $RABBITMQ_PASSWORD = 'guest'
 $RABBITMQ_VHOST = '/'
