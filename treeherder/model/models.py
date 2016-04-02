@@ -606,7 +606,7 @@ class FailureLine(models.Model):
             failure_line_id=self.id,
             score__gt=min_score).order_by(
             "-score",
-            "-classified_failure__modified").select_related(
+            "-classified_failure__id").select_related(
                 'classified_failure').first()
 
     def set_classification(self, matcher, bug_number=None):
