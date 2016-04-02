@@ -364,6 +364,9 @@ if SITE_URL.startswith('https://'):
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_SECONDS = int(timedelta(days=365).total_seconds())
 
+# Set the `X-Content-Type-Options` header to `nosniff`.
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
 # Enable integration between autoclassifier and jobs
 AUTOCLASSIFY_JOBS = env.bool("AUTOCLASSIFY_JOBS", default=False)
 
