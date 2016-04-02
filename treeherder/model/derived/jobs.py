@@ -170,14 +170,6 @@ class JobsModel(TreeherderModelBase):
         )
         return data
 
-    def get_job_reference_data(self, signature):
-        # Retrieve associated data in reference_data_signatures
-        result = self.refdata_model.get_reference_data([signature])
-        if result and signature in result:
-            return result[signature]
-
-        return None
-
     def get_job_list(self, offset, limit,
                      conditions=None, exclusion_profile=None,
                      visibility="included"):

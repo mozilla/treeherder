@@ -6,7 +6,8 @@ from django.core.management import call_command
 
 from treeherder.model.error_summary import load_error_summary
 from treeherder.model.exchanges import TreeherderPublisher
-from treeherder.model.models import Repository
+from treeherder.model.models import (ReferenceDataSignatures,
+                                     Repository)
 from treeherder.model.pulse_publisher import load_schemas
 
 # Load schemas for validation of messages published on pulse
@@ -77,11 +78,12 @@ def publish_job_action(project, action, job_id, requester):
 
     with JobsModel(project) as jm:
         job = jm.get_job(job_id)[0]
-        refdata = jm.get_job_reference_data(job['signature'])
 
         publisher.job_action(
             version=1,
-            build_system_type=refdata['build_system_type'],
+            build_system_type=ReferenceDataSignatures.objects.values_list(
+                'build_system_type', flat=True).get(
+                    signature=job['signature']),
             project=project,
             action=action,
             job_guid=job['job_guid'],

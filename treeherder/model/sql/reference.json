@@ -1,29 +1,5 @@
 {
     "selects":{
-        "get_reference_data_signature_names":{
-            "sql":"SELECT `name`, `signature` FROM `reference_data_signatures` WHERE `signature` IN (REP0)",
-
-            "host_type":"read_host"
-        },
-        "get_reference_data":{
-            "sql":"SELECT `signature`,
-                          `build_os_name`,
-                          `build_platform`,
-                          `build_architecture`,
-                          `machine_os_name`,
-                          `machine_platform`,
-                          `machine_architecture`,
-                          `job_group_name`,
-                          `job_group_symbol`,
-                          `job_type_name`,
-                          `job_type_symbol`,
-                          `option_collection_hash`,
-                          `build_system_type`,
-                          `repository`
-                    FROM reference_data_signatures WHERE signature IN (REP0)",
-
-            "host_type": "read_host"
-        },
         "get_build_platforms":{
             "sql": "SELECT `id`, `os_name`, `platform`, `architecture`
                     FROM `build_platform`
