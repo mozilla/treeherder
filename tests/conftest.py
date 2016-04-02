@@ -179,29 +179,6 @@ def mock_get_resultset(monkeypatch, result_set_stored):
     monkeypatch.setattr(common, 'lookup_revisions', _get_resultset)
 
 
-@pytest.fixture(scope='function')
-def refdata(request):
-    """returns a patched RefDataManager for testing purpose"""
-    from treeherder.model.derived import RefDataManager
-    from tests.conftest import add_test_procs_file
-
-    refdata = RefDataManager()
-
-    proc_path = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)),
-        'refdata_test.json'
-    )
-
-    add_test_procs_file(refdata.dhub, 'reference', proc_path)
-
-    def fin():
-        refdata.disconnect()
-
-    request.addfinalizer(fin)
-
-    return refdata
-
-
 @pytest.fixture
 def mock_message_broker(monkeypatch):
     from django.conf import settings

@@ -2,6 +2,7 @@ import json
 
 from tests.sampledata import SampleData
 from treeherder.client import TreeherderClient
+from treeherder.model import models
 
 
 def post_collection(project, th_collection):
@@ -10,7 +11,7 @@ def post_collection(project, th_collection):
     return client.post_collection(project, th_collection)
 
 
-def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
+def do_job_ingestion(jm, job_data, sample_resultset, verify_data=True):
     """
     Ingest ``job_data`` which will be JSON job blobs.
 
@@ -100,92 +101,68 @@ def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
 
     if verify_data:
         # Confirms stored data matches whats in the reference data structs
-        verify_build_platforms(refdata, build_platforms_ref)
-        verify_machine_platforms(refdata, machine_platforms_ref)
-        verify_machines(refdata, machines_ref)
-        verify_options(refdata, options_ref)
-        verify_job_types(refdata, job_types_ref)
-        verify_products(refdata, products_ref)
+        verify_build_platforms(build_platforms_ref)
+        verify_machine_platforms(machine_platforms_ref)
+        verify_machines(machines_ref)
+        verify_options(options_ref)
+        verify_job_types(job_types_ref)
+        verify_products(products_ref)
         verify_result_sets(jm, result_sets_ref)
         verify_log_urls(jm, log_urls_ref)
         verify_artifacts(jm, artifacts_ref)
         verify_coalesced(jm, coalesced_job_guids, coalesced_replacements)
 
 
-def verify_build_platforms(refdata, build_platforms_ref):
+def verify_build_platforms(build_platforms_ref):
 
-    build_platforms = refdata.dhub.execute(
-        proc='refdata_test.selects.test_all_build_platforms',
-    )
     build_platforms_set = set()
-    for build_platform in build_platforms:
+    for build_platform in models.BuildPlatform.objects.all():
         build_platforms_set.add(
             "-".join([
-                build_platform.get('os_name'),
-                build_platform.get('platform'),
-                build_platform.get('architecture')
+                build_platform.os_name,
+                build_platform.platform,
+                build_platform.architecture
             ]))
 
     assert build_platforms_ref.issubset(build_platforms_set)
 
 
-def verify_machine_platforms(refdata, machine_platforms_ref):
+def verify_machine_platforms(machine_platforms_ref):
 
-    machine_platforms = refdata.dhub.execute(
-        proc='refdata_test.selects.test_all_machine_platforms',
-    )
     machine_platforms_set = set()
-    for machine_platform in machine_platforms:
+    for machine_platform in models.MachinePlatform.objects.all():
         machine_platforms_set.add(
             "-".join([
-                machine_platform.get('os_name'),
-                machine_platform.get('platform'),
-                machine_platform.get('architecture')
+                machine_platform.os_name,
+                machine_platform.platform,
+                machine_platform.architecture
             ]))
 
     assert machine_platforms_ref.issubset(machine_platforms_set)
 
 
-def verify_machines(refdata, machines_ref):
+def verify_machines(machines_ref):
 
-    machines = refdata.dhub.execute(
-        proc='refdata_test.selects.test_all_machines',
-        key_column='name',
-        return_type='set'
-    )
-
+    machines = models.Machine.objects.all().values_list('name', flat=True)
     assert machines_ref.issubset(machines)
 
 
-def verify_options(refdata, options_ref):
+def verify_options(options_ref):
 
-    options = refdata.dhub.execute(
-        proc='refdata_test.selects.test_all_options',
-        key_column='name',
-        return_type='set'
-    )
+    options = models.Option.objects.all().values_list('name', flat=True)
 
     assert options_ref.issubset(options)
 
 
-def verify_job_types(refdata, job_types_ref):
+def verify_job_types(job_types_ref):
 
-    job_types = refdata.dhub.execute(
-        proc='refdata_test.selects.test_all_job_types',
-        key_column='name',
-        return_type='set'
-    )
-
+    job_types = models.JobType.objects.all().values_list('name', flat=True)
     assert job_types_ref.issubset(job_types)
 
 
-def verify_products(refdata, products_ref):
+def verify_products(products_ref):
 
-    products = refdata.dhub.execute(
-        proc='refdata_test.selects.test_all_products',
-        key_column='name',
-        return_type='set'
-    )
+    products = models.Product.objects.all().values_list('name', flat=True)
 
     assert products_ref.issubset(products)
 

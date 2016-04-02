@@ -35,26 +35,24 @@ def test_disconnect(jm):
     assert not jm.get_dhub().connection["master_host"]["con_obj"].open
 
 
-def test_ingest_single_sample_job(jm, refdata, sample_data,
+def test_ingest_single_sample_job(jm, sample_data,
                                   sample_resultset, test_repository, mock_log_parser):
     """Process a single job structure in the job_data.txt file"""
     job_data = sample_data.job_data[:1]
-    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
+    test_utils.do_job_ingestion(jm, job_data, sample_resultset)
 
     jm.disconnect()
-    refdata.disconnect()
 
 
-def test_ingest_all_sample_jobs(jm, refdata, sample_data,
+def test_ingest_all_sample_jobs(jm, sample_data,
                                 sample_resultset, test_repository, mock_log_parser):
     """
     Process each job structure in the job_data.txt file and verify.
     """
     job_data = sample_data.job_data
-    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
+    test_utils.do_job_ingestion(jm, job_data, sample_resultset)
 
     jm.disconnect()
-    refdata.disconnect()
 
 
 @pytest.mark.parametrize("total_resultset_count", [3, 10])
@@ -178,7 +176,7 @@ def test_get_inserted_row_ids(jm, sample_resultset, test_repository):
         len(sample_resultset) - slice_limit
 
 
-def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data,
+def test_ingest_running_to_retry_sample_job(jm, sample_data,
                                             sample_resultset, test_repository, mock_log_parser):
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
@@ -207,14 +205,13 @@ def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data,
     jl = jm.get_job_list(0, 10)
 
     jm.disconnect()
-    refdata.disconnect()
 
     assert len(jl) == 1
     assert jl[0]['result'] == 'retry'
     assert jl[0]['id'] == initial_job_id
 
 
-def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data,
+def test_ingest_running_to_retry_to_success_sample_job(jm, sample_data,
                                                        sample_resultset, test_repository, mock_log_parser):
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
@@ -250,7 +247,6 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data,
     jl = jm.get_job_list(0, 10)
 
     jm.disconnect()
-    refdata.disconnect()
 
     assert len(jl) == 2
     assert jl[0]['result'] == 'retry'
@@ -258,7 +254,7 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data,
     assert jl[1]['result'] == 'success'
 
 
-def test_ingest_retry_sample_job_no_running(jm, refdata, sample_data,
+def test_ingest_retry_sample_job_no_running(jm, sample_data,
                                             sample_resultset, test_repository, mock_log_parser):
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
@@ -278,7 +274,6 @@ def test_ingest_retry_sample_job_no_running(jm, refdata, sample_data,
     jl = jm.get_job_list(0, 10)
 
     jm.disconnect()
-    refdata.disconnect()
 
     assert len(jl) == 1
     assert jl[0]['result'] == 'retry'
@@ -321,14 +316,14 @@ def test_calculate_durations(jm, test_repository, mock_log_parser):
     assert durations[0].average_duration == expected_duration
 
 
-def test_cycle_all_data(jm, refdata, sample_data,
+def test_cycle_all_data(jm, sample_data,
                         sample_resultset, test_repository, mock_log_parser,
                         failure_lines):
     """
     Test cycling the sample data
     """
     job_data = sample_data.job_data[:20]
-    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset, False)
+    test_utils.do_job_ingestion(jm, job_data, sample_resultset, False)
 
     time_now = time.time()
     cycle_date_ts = time_now - 7 * 24 * 3600
@@ -356,7 +351,7 @@ def test_cycle_all_data(jm, refdata, sample_data,
     assert FailureLine.objects.count() == 0
 
 
-def test_cycle_one_job(jm, refdata, sample_data,
+def test_cycle_one_job(jm, sample_data,
                        sample_resultset, test_repository, mock_log_parser,
                        failure_lines):
     """
@@ -365,7 +360,7 @@ def test_cycle_one_job(jm, refdata, sample_data,
     """
 
     job_data = sample_data.job_data[:20]
-    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset, False)
+    test_utils.do_job_ingestion(jm, job_data, sample_resultset, False)
 
     job_not_deleted = jm.get_job(2)[0]
 
@@ -413,13 +408,13 @@ def test_cycle_one_job(jm, refdata, sample_data,
             set(item.id for item in failure_lines_remaining))
 
 
-def test_cycle_all_data_in_chunks(jm, refdata, sample_data,
+def test_cycle_all_data_in_chunks(jm, sample_data,
                                   sample_resultset, test_repository, mock_log_parser):
     """
     Test cycling the sample data in chunks.
     """
     job_data = sample_data.job_data[:20]
-    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset, False)
+    test_utils.do_job_ingestion(jm, job_data, sample_resultset, False)
 
     # build a date that will cause the data to be cycled
     time_now = time.time()
@@ -514,12 +509,12 @@ def test_store_result_set_revisions(jm, sample_resultset):
     assert stored["short_revision"] == "997b28cb8737"
 
 
-def test_get_job_data(jm, test_project, refdata, sample_data,
+def test_get_job_data(jm, test_project, sample_data,
                       sample_resultset, test_repository, mock_log_parser):
 
     target_len = 10
     job_data = sample_data.job_data[:target_len]
-    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
+    test_utils.do_job_ingestion(jm, job_data, sample_resultset)
 
     with ArtifactsModel(test_project) as artifacts_model:
         job_data = artifacts_model.get_job_signatures_from_ids(range(1, 11))
@@ -527,12 +522,12 @@ def test_get_job_data(jm, test_project, refdata, sample_data,
     assert len(job_data) is target_len
 
 
-def test_remove_existing_jobs_single_existing(jm, sample_data, refdata,
+def test_remove_existing_jobs_single_existing(jm, sample_data,
                                               sample_resultset, mock_log_parser):
     """Remove single existing job prior to loading"""
 
     job_data = sample_data.job_data[:1]
-    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
+    test_utils.do_job_ingestion(jm, job_data, sample_resultset)
 
     jl = jm.get_job_list(0, 10)
 
@@ -542,24 +537,24 @@ def test_remove_existing_jobs_single_existing(jm, sample_data, refdata,
     assert len(jl) == 1
 
 
-def test_remove_existing_jobs_one_existing_one_new(jm, sample_data, refdata,
+def test_remove_existing_jobs_one_existing_one_new(jm, sample_data,
                                                    sample_resultset, mock_log_parser):
     """Remove single existing job prior to loading"""
 
     job_data = sample_data.job_data[:1]
-    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
+    test_utils.do_job_ingestion(jm, job_data, sample_resultset)
 
     data = jm._remove_existing_jobs(sample_data.job_data[:2])
 
     assert len(data) == 1
 
 
-def test_ingesting_skip_existing(jm, sample_data, refdata,
+def test_ingesting_skip_existing(jm, sample_data,
                                  sample_resultset, mock_log_parser):
     """Remove single existing job prior to loading"""
 
     job_data = sample_data.job_data[:1]
-    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
+    test_utils.do_job_ingestion(jm, job_data, sample_resultset)
 
     jm.store_job_data(sample_data.job_data[:2])
 
@@ -604,7 +599,7 @@ def test_ingest_job_with_updated_job_group(jm, sample_data, mock_log_parser,
         JobGroup.objects.get(name="second group name")
 
 
-def test_ingest_job_with_revision_hash(jm, test_repository, refdata, sample_data,
+def test_ingest_job_with_revision_hash(jm, test_repository, sample_data,
                                        mock_log_parser, sample_resultset):
     """
     Test ingesting a job with only a revision hash, no revision.  And the
@@ -630,7 +625,7 @@ def test_ingest_job_with_revision_hash(jm, test_repository, refdata, sample_data
     assert len(jl) == 1
 
 
-def test_ingest_job_revision_and_revision_hash(jm, test_repository, refdata,
+def test_ingest_job_revision_and_revision_hash(jm, test_repository,
                                                sample_data, mock_log_parser,
                                                sample_resultset):
 
@@ -653,7 +648,7 @@ def test_ingest_job_revision_and_revision_hash(jm, test_repository, refdata,
     assert jl[0]["result_set_id"] == stored_resultsets["inserted_result_set_ids"][0]
 
 
-def test_ingest_job_revision_hash_blank_revision(jm, test_repository, refdata,
+def test_ingest_job_revision_hash_blank_revision(jm, test_repository,
                                                  sample_data, mock_log_parser,
                                                  sample_resultset):
 
