@@ -14,7 +14,8 @@ def fetch_missing_push_logs(missing_pushlogs):
     """
     Run several fetch_hg_push_log subtasks, one per repository
     """
-    for repo in Repository.objects.filter(dvcs_type='hg'):
+    for repo in Repository.objects.filter(dvcs_type='hg',
+                                          active_status='active'):
         if repo.name in missing_pushlogs:
             # we must get them one at a time, because if ANY are missing
             # from json-pushes, it'll return a 404 for the group.

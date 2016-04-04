@@ -48,7 +48,8 @@ def fetch_push_logs():
     """
     Run several fetch_hg_push_log subtasks, one per repository
     """
-    for repo in Repository.objects.all(dvcs_type='hg'):
+    for repo in Repository.objects.filter(dvcs_type='hg',
+                                          active_status="active"):
         fetch_hg_push_log.apply_async(
             args=(repo.name, repo.url),
             routing_key='pushlog'

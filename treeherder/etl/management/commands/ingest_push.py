@@ -41,7 +41,7 @@ class Command(BaseCommand):
         (project, changeset) = args
 
         # get reference to repo
-        repo = Repository.objects.get(name=project)
+        repo = Repository.objects.get(name=project, active_status='active')
 
         # make sure all tasks are run synchronously / immediately
         settings.CELERY_ALWAYS_EAGER = True
