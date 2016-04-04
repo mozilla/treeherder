@@ -8,7 +8,6 @@ import logging
 from django.conf import settings
 from django.utils.encoding import python_2_unicode_compatible
 
-from treeherder.model.derived.refdata import RefDataManager
 from treeherder.model.models import Datasource
 
 
@@ -28,7 +27,6 @@ class TreeherderModelBase(object):
         self.source = None
         self.dhub = None
         self.DEBUG = settings.DEBUG
-        self.refdata_model = RefDataManager()
 
     def __enter__(self):
         return self
@@ -94,7 +92,6 @@ class TreeherderModelBase(object):
 
     def disconnect(self):
         """Iterate over and disconnect all data sources."""
-        self.refdata_model.disconnect()
         if self.dhub:
             self.dhub.disconnect()
 
