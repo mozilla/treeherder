@@ -699,6 +699,7 @@
                         ON fc.id = job.failure_classification_id
                    WHERE result_set_id = ? and (
                     fc.name = 'not classified' or fc.id IS NULL)
+                    and job.tier <> 3
                    REP1
                    group by state, result
                    ",
