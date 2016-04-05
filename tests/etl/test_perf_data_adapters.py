@@ -116,26 +116,32 @@ def _generate_perf_data_range(test_project, test_repository,
                             perf_job_data, submit_datum)
 
 
-def _verify_signature_datum(repo_name, framework_name, suitename,
-                            testname, option_collection_hash, platform,
-                            lower_is_better, value, push_timestamp,
-                            alert_threshold=None, min_back_window=None,
-                            max_back_window=None, fore_window=None):
+def _verify_signature(repo_name, framework_name, suitename,
+                      testname, option_collection_hash, platform,
+                      lower_is_better, last_updated=None,
+                      alert_threshold=None, min_back_window=None,
+                      max_back_window=None, fore_window=None):
     repository = Repository.objects.get(name=repo_name)
     signature = PerformanceSignature.objects.get(suite=suitename,
                                                  test=testname)
     assert str(signature.framework) == framework_name
     assert signature.option_collection.option_collection_hash == option_collection_hash
     assert signature.platform.platform == platform
-    assert signature.last_updated == push_timestamp
     assert signature.repository == repository
     assert signature.lower_is_better == lower_is_better
     assert signature.alert_threshold == alert_threshold
     assert signature.min_back_window == min_back_window
     assert signature.max_back_window == max_back_window
     assert signature.fore_window == fore_window
+    # only verify last updated if explicitly specified
+    if last_updated:
+        assert signature.last_updated == last_updated
 
-    datum = PerformanceDatum.objects.get(signature=signature)
+
+def _verify_datum(suitename, testname, value, push_timestamp):
+    datum = PerformanceDatum.objects.get(
+        signature=PerformanceSignature.objects.get(suite=suitename,
+                                                   test=testname))
     assert datum.value == value
     assert datum.push_timestamp == push_timestamp
 
@@ -218,25 +224,26 @@ def test_load_generic_data(test_project, test_repository,
     pushtime = datetime.datetime.fromtimestamp(push_timestamp)
     for suite in perf_datum['suites']:
         # verify summary, then subtests
-        _verify_signature_datum(test_repository.name,
-                                perf_datum['framework']['name'],
-                                suite['name'],
-                                '',
-                                'my_option_hash',
-                                'my_platform',
-                                suite.get('lowerIsBetter', True),
-                                suite['value'],
-                                pushtime)
+        _verify_signature(test_repository.name,
+                          perf_datum['framework']['name'],
+                          suite['name'],
+                          '',
+                          'my_option_hash',
+                          'my_platform',
+                          suite.get('lowerIsBetter', True),
+                          pushtime)
+        _verify_datum(suite['name'], '', suite['value'], pushtime)
         for subtest in suite['subtests']:
-            _verify_signature_datum(test_repository.name,
-                                    perf_datum['framework']['name'],
-                                    suite['name'],
-                                    subtest['name'],
-                                    'my_option_hash',
-                                    'my_platform',
-                                    subtest.get('lowerIsBetter', True),
-                                    subtest['value'],
-                                    pushtime)
+            _verify_signature(test_repository.name,
+                              perf_datum['framework']['name'],
+                              suite['name'],
+                              subtest['name'],
+                              'my_option_hash',
+                              'my_platform',
+                              subtest.get('lowerIsBetter', True),
+                              pushtime)
+            _verify_datum(suite['name'], subtest['name'], subtest['value'],
+                          pushtime)
 
     summary_signature = PerformanceSignature.objects.get(
         suite=perf_datum['suites'][0]['name'], test='')
@@ -398,13 +405,39 @@ def test_same_signature_multiple_performance_frameworks(test_project,
                           'extra_subtest_metadata',
                           'expected_subtest_alert',
                           'expected_suite_alert'), [
-                              (False, None, None, True, False),
-                              (True, None, None, False, True),
-                              (True, {'shouldAlert': False}, None, False,
+                              # just subtest, no metadata, default settings
+                              (False, None, {}, True, False),
+                              # just subtest, high alert threshold (so no alert)
+                              (False, None, {'alertThreshold': 500.0}, False,
+                                False),
+                              # just subtest, but larger min window size
+                              # (so no alerting)
+                              (False, {}, {'minBackWindow': 100,
+                                           'maxBackWindow': 100}, False,
                                False),
+                              # should still alert even if we optionally
+                              # use a large maximum back window
+                              (False, None, {'minBackWindow': 12,
+                                             'maxBackWindow': 100}, True,
+                               False),
+                              # summary+subtest, no metadata, default settings
+                              (True, {}, {}, False, True),
+                              # summary+subtest, high alert threshold
+                              # (so no alert)
+                              (True, {'alertThreshold': 500.0}, {}, False,
+                               False),
+                              # summary+subtest, no metadata, no alerting on summary
+                              (True, {'shouldAlert': False}, {}, False,
+                               False),
+                              # summary+subtest, no metadata, no alerting on
+                              # summary, alerting on subtest
                               (True, {'shouldAlert': False},
                                {'shouldAlert': True}, True, False),
-                              (True, None, {'shouldAlert': True}, True, True),
+                              # summary+subtest, no metadata on summary, alerting
+                              # override on subtest
+                              (True, {}, {'shouldAlert': True}, True, True),
+                              # summary+subtest, alerting override on subtest +
+                              # summary
                               (True, {'shouldAlert': True},
                                {'shouldAlert': True}, True, True),
                         ])
@@ -419,6 +452,31 @@ def test_alert_generation(test_project, test_repository,
                               add_suite_value=add_suite_value,
                               extra_suite_metadata=extra_suite_metadata,
                               extra_subtest_metadata=extra_subtest_metadata)
+
+    # validate that the signatures have the expected properties
+    _verify_signature(test_repository.name,
+                      'cheezburger',
+                      'cheezburger metrics',
+                      'test1',
+                      'my_option_hash',
+                      'my_platform',
+                      True,
+                      alert_threshold=extra_subtest_metadata.get('alertThreshold'),
+                      min_back_window=extra_subtest_metadata.get('minBackWindow'),
+                      max_back_window=extra_subtest_metadata.get('maxBackWindow'),
+                      fore_window=extra_subtest_metadata.get('foreWindow'))
+    if add_suite_value:
+        _verify_signature(test_repository.name,
+                          'cheezburger',
+                          'cheezburger metrics',
+                          '',
+                          'my_option_hash',
+                          'my_platform',
+                          True,
+                          alert_threshold=extra_suite_metadata.get('alertThreshold'),
+                          min_back_window=extra_suite_metadata.get('minBackWindow'),
+                          max_back_window=extra_suite_metadata.get('maxBackWindow'),
+                          fore_window=extra_suite_metadata.get('foreWindow'))
 
     expected_num_alerts = len(filter(lambda x: x is True, [expected_suite_alert,
                                                            expected_subtest_alert]))
@@ -452,85 +510,6 @@ def test_alert_generation(test_project, test_repository,
         assert alert.is_regression
         assert alert.amount_abs == 1
         assert alert.amount_pct == 100
-
-
-def test_alert_generation_parameters(test_project, test_repository,
-                                     perf_option_collection, perf_platform,
-                                     perf_job_data, perf_reference_data):
-    # this test is mainly focused around making sure that we correctly
-    # update the series signature with the correct alert generation
-    # parameters: testing the alert generation itself happens in
-    # tests/perfalert
-    PerformanceFramework.objects.create(name="cheezburger")
-    datum = {
-        'job_guid': 'fake_job_guid',
-        'name': 'test',
-        'type': 'test',
-        'blob': {
-            'framework': {'name': "cheezburger"},
-            'suites': [
-                {
-                    'name': 'cheezburger metrics',
-                    'minBackWindow': 1,
-                    'maxBackWindow': 1,
-                    'foreWindow': 1,
-                    'alertThreshold': 1,
-                    'value': 10.0,
-                    'subtests': [
-                        {
-                            'name': 'test1',
-                            'minBackWindow': 1,
-                            'maxBackWindow': 1,
-                            'foreWindow': 1,
-                            'alertThreshold': 1,
-                            'value': 10.0,
-                        }
-                    ]
-                }
-            ]
-        }
-    }
-
-    # the perf data adapter expects unserialized performance data
-    submit_datum = copy.copy(datum)
-    submit_datum['blob'] = json.dumps({
-        'performance_data': submit_datum['blob']
-    })
-
-    load_perf_artifacts(test_repository.name, perf_reference_data,
-                        perf_job_data, submit_datum)
-
-    push_timestamp = perf_job_data['fake_job_guid']['push_timestamp']
-    pushtime = datetime.datetime.fromtimestamp(push_timestamp)
-    perf_datum = datum['blob']
-    suite = perf_datum['suites'][0]
-
-    _verify_signature_datum(test_repository.name,
-                            perf_datum['framework']['name'],
-                            suite['name'],
-                            '',
-                            'my_option_hash',
-                            'my_platform',
-                            True,
-                            suite['value'],
-                            pushtime,
-                            alert_threshold=1,
-                            min_back_window=1,
-                            max_back_window=1,
-                            fore_window=1)
-    _verify_signature_datum(test_repository.name,
-                            perf_datum['framework']['name'],
-                            suite['name'],
-                            suite['subtests'][0]['name'],
-                            'my_option_hash',
-                            'my_platform',
-                            True,
-                            suite['value'],
-                            pushtime,
-                            alert_threshold=1,
-                            min_back_window=1,
-                            max_back_window=1,
-                            fore_window=1)
 
 
 def test_alert_generation_try(test_project, test_repository,
