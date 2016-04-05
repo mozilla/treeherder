@@ -107,10 +107,10 @@ job_filter_values = [
  (u'option_collection_hash', u'32faaecac742100f7753f0c1d0aa0add01b4046b'),
  (u'platform', u'osx-10-7'),
  (u'reason', u'scheduler'),
- (u'ref_data_name', u'1f2ea1934af0731400c4a5ab831e0c5ec287f0ad'),
+ (u'ref_data_name', u'58cab069cf08211159774de948094dd963fb9d44'),
  (u'result', u'success'),
  (u'result_set_id', 4),
- (u'signature', u'1f2ea1934af0731400c4a5ab831e0c5ec287f0ad'),
+ (u'signature', u'58cab069cf08211159774de948094dd963fb9d44'),
  (u'start_timestamp', 1384356880),
  (u'state', u'completed'),
  (u'submit_timestamp', 1384356854),
@@ -133,7 +133,7 @@ def test_job_list_filter_fields(webapp, eleven_jobs_stored, jm, fieldname, expec
     url = reverse("jobs-list",
                   kwargs={"project": jm.project})
     final_url = url + "?{}={}".format(fieldname, expected)
-    print final_url
+    print(final_url)
     resp = webapp.get(final_url).json
     first = resp['results'][0]
 
