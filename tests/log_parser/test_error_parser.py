@@ -18,7 +18,8 @@ ERROR_TEST_CASES = (
     "foo.js: line 123, col 321, Error - ESLint bar",
     "2014-04-04 06:37:57 ERROR 403: Forbidden.",
     "[taskcluster:error] Could not upload artifact",
-    "[taskcluster-vcs:error] Could not extract archive"
+    "[taskcluster-vcs:error] Could not extract archive",
+    "[test_linux.sh:error] could not download zip file"
 )
 
 NON_ERROR_TEST_CASES = (
