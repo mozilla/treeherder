@@ -8,6 +8,7 @@ from requests_hawk import HawkAuth
 from treeherder.etl.common import make_request
 from treeherder.model.derived import (ArtifactsModel,
                                       JobsModel)
+from treeherder.model.models import OptionCollection
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +29,9 @@ class ElasticsearchDocRequest(object):
         """
         with JobsModel(self.project) as jobs_model, ArtifactsModel(self.project) as artifacts_model:
             job_data = jobs_model.get_job(self.job_id)[0]
-            option_collection = jobs_model.refdata_model.get_all_option_collections()
+            buildtype = " ".join(sorted(OptionCollection.objects.values_list(
+                'option__name', flat=True).filter(
+                    option_collection_hash=job_data["option_collection_hash"])))
             revision_list = jobs_model.get_resultset_revisions_list(job_data["result_set_id"])
             buildapi_artifact = artifacts_model.get_job_artifact_list(0, 1, {
                 'job_id': set([("=", self.job_id)]),
@@ -49,9 +52,7 @@ class ElasticsearchDocRequest(object):
             # available for pending jobs
             "date": datetime.utcfromtimestamp(job_data["submit_timestamp"]).strftime("%Y-%m-%d"),
             "type": job_data["job_type_name"],
-            "buildtype": option_collection[
-                job_data["option_collection_hash"]
-            ]["opt"],
+            "buildtype": buildtype,
             # Intentionally using strings for starttime, bug, timestamp for compatibility
             # with TBPL's legacy output format.
             "starttime": str(job_data["start_timestamp"]),

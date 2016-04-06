@@ -6,12 +6,12 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from treeherder.model.derived import ArtifactsModel
-from treeherder.model.models import FailureLine
+from treeherder.model.models import (FailureLine,
+                                     OptionCollection)
 from treeherder.webapp.api import (permissions,
                                    serializers)
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 from treeherder.webapp.api.utils import (UrlQueryFilter,
-                                         get_option,
                                          with_jobs)
 
 
@@ -23,6 +23,18 @@ class JobsViewSet(viewsets.ViewSet):
     """
     throttle_scope = 'jobs'
     permission_classes = (permissions.HasHawkPermissionsOrReadOnly,)
+
+    @staticmethod
+    def _get_option_collection_map():
+        option_collection_map = {}
+        for (hash, option_name) in OptionCollection.objects.values_list(
+                'option_collection_hash', 'option__name'):
+            if not option_collection_map.get(hash):
+                option_collection_map[hash] = option_name
+            else:
+                option_collection_map[hash] += (' ' + option_name)
+
+        return option_collection_map
 
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
@@ -50,8 +62,10 @@ class JobsViewSet(viewsets.ViewSet):
                 art["resource_uri"] = ref
                 job["artifacts"].append(art)
 
-            option_collections = jm.refdata_model.get_all_option_collections()
-            job["platform_option"] = get_option(job, option_collections)
+            option_hash = job['option_collection_hash']
+            if option_hash:
+                option_collection_map = self._get_option_collection_map()
+                job["platform_option"] = option_collection_map[option_hash]
 
             return Response(job)
         else:
@@ -80,9 +94,11 @@ class JobsViewSet(viewsets.ViewSet):
                                   visibility=visibility)
 
         if results:
-            option_collections = jm.refdata_model.get_all_option_collections()
+            option_collection_map = self._get_option_collection_map()
             for job in results:
-                job["platform_option"] = get_option(job, option_collections)
+                option_hash = job['option_collection_hash']
+                if option_hash:
+                    job["platform_option"] = option_collection_map[option_hash]
 
         response_body = dict(meta={"repository": project}, results=[])
 

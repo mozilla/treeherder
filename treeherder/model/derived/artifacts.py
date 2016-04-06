@@ -2,11 +2,13 @@ import logging
 import zlib
 
 import simplejson as json
+from django.forms import model_to_dict
 
 from treeherder.etl.perf import (PERFORMANCE_ARTIFACT_TYPES,
                                  load_perf_artifacts,
                                  load_talos_artifacts)
 from treeherder.model import utils
+from treeherder.model.models import ReferenceDataSignatures
 
 from .base import TreeherderModelBase
 
@@ -106,17 +108,11 @@ class ArtifactsModel(TreeherderModelBase):
             job_data.keys()
         )
 
-        # Retrieve associated data in reference_data_signatures
-        reference_data = self.refdata_model.get_reference_data(
-            list(job_ref_data_signatures))
-
         for perf_data in performance_artifact_placeholders:
             job_guid = perf_data["job_guid"]
             ref_data_signature = job_data[job_guid]['signature']
-            ref_data = reference_data[ref_data_signature]
-
-            if 'signature' in ref_data:
-                del ref_data['signature']
+            ref_data = model_to_dict(ReferenceDataSignatures.objects.get(
+                signature=ref_data_signature))
 
             # adapt and load data into placeholder structures
             if perf_data['name'] == 'talos_data':

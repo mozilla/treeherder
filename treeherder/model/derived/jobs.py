@@ -161,7 +161,7 @@ class JobsModel(TreeherderModelBase):
 
     def get_job(self, id):
         """Return the job row for this ``job_id``"""
-        repl = [self.refdata_model.get_db_name()]
+        repl = [settings.DATABASES['default']['NAME']]
         data = self.execute(
             proc="jobs.selects.get_job",
             placeholders=[id],
@@ -169,14 +169,6 @@ class JobsModel(TreeherderModelBase):
             replace=repl,
         )
         return data
-
-    def get_job_reference_data(self, signature):
-        # Retrieve associated data in reference_data_signatures
-        result = self.refdata_model.get_reference_data([signature])
-        if result and signature in result:
-            return result[signature]
-
-        return None
 
     def get_job_list(self, offset, limit,
                      conditions=None, exclusion_profile=None,
@@ -222,7 +214,7 @@ class JobsModel(TreeherderModelBase):
                 # specified is not availble
                 pass
 
-        repl = [self.refdata_model.get_db_name(), replace_str]
+        repl = [settings.DATABASES['default']['NAME'], replace_str]
         data = self.execute(
             proc="jobs.selects.get_job_list",
             replace=repl,
@@ -237,7 +229,7 @@ class JobsModel(TreeherderModelBase):
         replace_str, placeholders = self._process_conditions(
             conditions, self.INDEXED_COLUMNS['job']
         )
-        repl = [self.refdata_model.get_db_name(), replace_str]
+        repl = [settings.DATABASES['default']['NAME'], replace_str]
         data = self.execute(
             proc="jobs.selects.get_job_list_sorted",
             replace=repl,
@@ -2039,7 +2031,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
     def get_resultset_status(self, resultset_id, exclusion_profile="default"):
         """Retrieve an aggregated job count for the given resultset.
         If an exclusion profile is provided, the job counted will be filtered accordingly"""
-        replace = [self.refdata_model.get_db_name()]
+        replace = [settings.DATABASES['default']['NAME']]
         placeholders = [resultset_id]
         if exclusion_profile:
             signature_list = self.get_exclusion_profile_signatures(exclusion_profile)
