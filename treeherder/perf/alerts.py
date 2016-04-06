@@ -33,7 +33,23 @@ def generate_new_alerts_in_series(signature):
         a.add_data(timestamp, datum.value,
                    testrun_id=datum.result_set_id)
     prev = None
-    analyzed_series = a.analyze_t()
+
+    min_back_window = signature.min_back_window
+    if min_back_window is None:
+        min_back_window = settings.PERFHERDER_ALERTS_MIN_BACK_WINDOW
+    max_back_window = signature.max_back_window
+    if max_back_window is None:
+        max_back_window = settings.PERFHERDER_ALERTS_MAX_BACK_WINDOW
+    fore_window = signature.fore_window
+    if fore_window is None:
+        fore_window = settings.PERFHERDER_ALERTS_FORE_WINDOW
+    alert_threshold = signature.alert_threshold
+    if alert_threshold is None:
+        alert_threshold = settings.PERFHERDER_REGRESSION_THRESHOLD
+
+    analyzed_series = a.analyze_t(min_back_window=min_back_window,
+                                  max_back_window=max_back_window,
+                                  fore_window=fore_window)
     prev_testrun_id = None
     with transaction.atomic():
         for (prev, cur) in zip(analyzed_series, analyzed_series[1:]):
@@ -57,7 +73,7 @@ def generate_new_alerts_in_series(signature):
                 is_regression = ((delta > 0 and signature.lower_is_better) or
                                  (delta < 0 and not signature.lower_is_better))
 
-                if pct_change < settings.PERFHERDER_REGRESSION_THRESHOLD:
+                if pct_change < alert_threshold:
                     # ignore regressions below the configured regression
                     # threshold
                     continue

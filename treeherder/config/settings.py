@@ -40,9 +40,14 @@ STATIC_URL = "/static/"
 MEDIA_ROOT = path("media")
 MEDIA_URL = "/media/"
 
-# Default minimum regression threshold for perfherder is 1% (otherwise
+# Default minimum regression threshold for perfherder is 2% (otherwise
 # e.g. the build size tests will alert on every commit)
 PERFHERDER_REGRESSION_THRESHOLD = 2
+
+# Various settings for treeherder's t-test "sliding window" alert algorithm
+PERFHERDER_ALERTS_MIN_BACK_WINDOW = 12
+PERFHERDER_ALERTS_MAX_BACK_WINDOW = 24
+PERFHERDER_ALERTS_FORE_WINDOW = 12
 
 # Only generate alerts for data newer than this time in seconds in perfherder
 PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)
