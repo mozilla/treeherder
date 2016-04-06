@@ -1,10 +1,10 @@
 <ul class="list-inline push-information">
   <li>
-    <strong>Base</strong> - <a href="{{originalRevision | getRevisionUrl:originalProject.name}}">{{originalRevision}}</a> ({{originalProject.name}}) - {{originalResultSet.author}} -
+    <strong>Base</strong> - <a href="{{originalRevision | getRevisionUrl:originalProject.name}}">{{originalRevision | limitTo: 12}}</a> ({{originalProject.name}}) - {{originalResultSet.author}} -
     <span>{{originalResultSet.comments}}</span>
   </li>
   <li>
-    <strong>New</strong> - <a href="{{newRevision | getRevisionUrl:newProject.name}}">{{newRevision}}</a> ({{newProject.name}}) - {{newResultSet.author}} -
+    <strong>New</strong> - <a href="{{newRevision | getRevisionUrl:newProject.name}}">{{newRevision | limitTo: 12}}</a> ({{newProject.name}}) - {{newResultSet.author}} -
     <span>{{newResultSet.comments}}</span>
   </li>
 </ul>

@@ -389,7 +389,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                         }
                                         _.forEach([baseResultSet.revision, newResultSet.revision],
                                                   function(revision) {
-                                                      graphsLink += '&highlightedRevisions=' + revision;
+                                                      graphsLink += '&highlightedRevisions=' + revision.slice(0, 12);
                                                   });
 
                                         graphsLink += '&timerange=' + _.max(
