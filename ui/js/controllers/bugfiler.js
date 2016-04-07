@@ -106,44 +106,37 @@ treeherder.controller('BugFilerCtrl', [
          *  Attempt to find a good product/component for this failure
          */
         $scope.findProduct = function() {
-
-            var suggestedProducts = [];
+            $scope.suggestedProducts = [];
             var failurePath = $uibModalInstance.parsedSummary[0][0];
             var failurePathRoot = failurePath.split("/")[0];
 
             // Look up the product via the root of the failure's file path
             if(thBugzillaProductObject[failurePathRoot]) {
-                suggestedProducts.push(thBugzillaProductObject[failurePathRoot][0]);
+                $scope.suggestedProducts.push(thBugzillaProductObject[failurePathRoot][0]);
             }
-
-            createProductElements();
 
             // Look up product suggestions via Bugzilla's api
             var productSearch = $scope.productSearch;
 
             if(productSearch) {
-                $.get("https://bugzilla.mozilla.org/rest/prod_comp_search/" + productSearch + "?limit=5", function(data) {
+                $http.get("https://bugzilla.mozilla.org/rest/prod_comp_search/" + productSearch + "?limit=5").then(function(request) {
+                    var data = request.data;
+                    $scope.suggestedProducts = [];
                     for(var i = 0; i < data.products.length;i++) {
                         if(data.products[i].product && data.products[i].component) {
-                            suggestedProducts.push(data.products[i].product + " :: " + data.products[i].component);
+                            $scope.suggestedProducts.push(data.products[i].product + " :: " + data.products[i].component);
                         }
                     }
-                    createProductElements();
                 });
             }
-
-            function createProductElements() {
-                $("#suggestedProducts").empty();
-                for(var i = 0; i < suggestedProducts.length; i++) {
-                    $("<input type='radio' name='productGroup'>")
-                        .prop("value", suggestedProducts[i]).prop("id", "modalProductSuggestion" + i).appendTo("#suggestedProducts");
-                    $("<label></label>").prop("for", "modalProductSuggestion" + i).text(suggestedProducts[i]).appendTo("#suggestedProducts");
-                    $("<br/>").appendTo("#suggestedProducts");
-                }
-                // Make sure we always have a selected product
-                $("#suggestedProducts").children(":first").prop("checked", true);
-            }
         };
+
+        /*
+         *  This is called once intermittent.html's ng-repeat is finished to select the first product listed
+         */
+        $scope.focusProduct = function() {
+          $("#suggestedProducts").children(":first").children(":first").prop("checked", true);
+        }
 
         /*
          *  Same as clicking outside of the modal, but with a nice button-clicking feel...
