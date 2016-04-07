@@ -598,7 +598,8 @@ class FailureLine(models.Model):
             ('job_guid', 'line')
         )
         index_together = (
-            ('job_guid', 'repository')
+            ('job_guid', 'repository'),
+            ('test', 'subtest', 'status', 'expected')
         )
 
     def best_automatic_match(self, min_score=0):
