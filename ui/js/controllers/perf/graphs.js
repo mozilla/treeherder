@@ -664,6 +664,11 @@ perf.controller('GraphsCtrl', [
             plotGraph();
         };
 
+        $scope.updateHighlightedRevisions = function() {
+            updateDocument();
+            plotGraph();
+        };
+
         ThRepositoryModel.load().then(function() {
             if ($stateParams.timerange) {
                 var timeRange = _.find(phTimeRanges,
