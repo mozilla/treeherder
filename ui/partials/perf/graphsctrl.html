@@ -31,12 +31,16 @@
       <div id="overview-plot"></div>
       <div id="graph"></div>
       <div id="graph-bottom" ng-show="seriesList.length > 0">
-        Highlight revisions: 
-        <input type="text" maxlength="12" ng-change="updateHighlightedRevisions()" placeholder="12 character hg revision" ng-model="highlightedRevisions[0]"></input>
-        <span class="reset-highlight-button" ng-show="highlightedRevisions[0].length > 0" ng-click="resetHighlight(0)">&#10006;</span>
-        &nbsp;&nbsp;
-        <input type="text" maxlength="12" ng-change="updateHighlightedRevisions()" placeholder="12 character hg revision" ng-model="highlightedRevisions[1]"></input>
-        <span class="reset-highlight-button" ng-show="highlightedRevisions[1].length > 0" ng-click="resetHighlight(1)">&#10006;</span>
+        Highlight revisions:
+        <span ng-repeat="highlightedRevision in highlightedRevisions track by $index">
+          <input type="text"
+                 maxlength="40"
+                 ng-change="updateHighlightedRevisions()"
+                 placeholder="hg revision"
+                 ng-model="highlightedRevisions[$index]">
+            <span class="reset-highlight-button" ng-show="highlightedRevisions[$index].length > 0" ng-click="resetHighlight($index)">&#10006;</span>
+          </input>
+        </span>
         <div class="checkbox">
           <label>
             <input type="checkbox" ng-change="updateHighlightedRevisions()" ng-model="highlightAlerts">Highlight alerts</input>

@@ -514,7 +514,7 @@ perf.controller('GraphsCtrl', [
                 highlightedRevisions: _.filter($scope.highlightedRevisions,
                                                function(highlight) {
                                                    return (highlight &&
-                                                           highlight.length === 12);
+                                                           highlight.length >= 12);
                                                }),
                 highlightAlerts: !$scope.highlightAlerts ? 0 : undefined,
                 zoom: (function() {
