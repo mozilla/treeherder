@@ -63,7 +63,9 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity, pa
         # the parent PerformanceSignature object should have already been created
         try:
             defaults['parent_signature'] = PerformanceSignature.objects.get(
-                signature_hash=parent_hash)
+                signature_hash=parent_hash,
+                repository=repository,
+                framework=framework)
         except PerformanceSignature.DoesNotExist:
             print("Cannot find parent signature with hash {} for signature {} ({})".format(
                 parent_hash, signature_hash, signature_props))
