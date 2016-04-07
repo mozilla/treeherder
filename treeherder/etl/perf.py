@@ -165,13 +165,14 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
         for (subtest, subtest_metadata) in zip(sorted(
                 suite['subtests'], key=lambda s: s['name']),
                                                subtest_properties):
-            # we calculate the subtest signature incorporate
+            # we calculate the subtest signature incorporating
             # the hash of the parent.
             summary_signature = None
             if summary_signature_hash is not None:
                 subtest_metadata.update({'parent_signature': summary_signature_hash})
                 summary_signature = PerformanceSignature.objects.get(
                     repository=repository,
+                    framework=framework,
                     signature_hash=summary_signature_hash)
             subtest_signature_hash = _get_signature_hash(subtest_metadata)
             value = list(subtest['value'] for subtest in suite['subtests'] if
