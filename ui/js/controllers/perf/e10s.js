@@ -67,13 +67,11 @@ perf.controller('e10sCtrl', [
                     $scope.testList = _.uniq(_.map(seriesToMeasure, 'testName'));
 
                     $q.all(_.chunk(seriesToMeasure, 20).map(function(seriesChunk) {
-                        var url = thServiceDomain + '/api/project/' + $scope.selectedRepo.name +
-                            '/performance/data/?interval=' + $scope.selectedTimeRange.value +
-                            _.map(seriesChunk, function(series) {
-                                return "&signatures=" + series.signature;
-                            }).join("");
-                        return $http.get(url).then(function(response) {
-                            _.forIn(response.data, function(data, signature) {
+                        return PhSeries.getSeriesData($scope.selectedRepo.name, {
+                            interval: $scope.selectedTimeRange.value,
+                            signatures: _.map(seriesChunk, 'signature')
+                        }).then(function(seriesData) {
+                            _.forIn(seriesData, function(data, signature) {
                                 var series = _.find(seriesChunk, { signature: signature });
                                 var type = (series.options.indexOf('e10s') >= 0) ? 'e10s' : 'base';
                                 resultsMap[type][signature] = {
@@ -227,13 +225,11 @@ perf.controller('e10sSubtestCtrl', [
                     parent_signature: [ baseSignature, e10sSignature ]
                 }).then(function(seriesList) {
                     return $q.all(_.chunk(seriesList, 20).map(function(seriesChunk) {
-                        var url = thServiceDomain + '/api/project/' + $scope.selectedRepo.name +
-                            '/performance/data/?interval=' + $scope.selectedTimeRange.value +
-                            _.map(seriesChunk, function(series) {
-                                return "&signatures=" + series.signature;
-                            }).join("");
-                        return $http.get(url).then(function(response) {
-                            _.forIn(response.data, function(data, signature) {
+                        return PhSeries.getSeriesData($scope.selectedRepo.name, {
+                            interval: $scope.selectedTimeRange.value,
+                            signatures: _.map(seriesChunk, 'signature')
+                        }).then(function(seriesData) {
+                            _.forIn(seriesData, function(data, signature) {
                                 var series = _.find(seriesList, { signature: signature });
                                 var type = (series.options.indexOf('e10s') >= 0) ? 'e10s' : 'base';
                                 resultsMap[type][signature] = {
