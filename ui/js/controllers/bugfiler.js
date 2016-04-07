@@ -1,11 +1,11 @@
 "use strict";
 
 treeherder.controller('BugFilerCtrl', [
-    '$scope', '$rootScope', '$modalInstance', '$http', 'summary', 'thBugzillaProductObject',
+    '$scope', '$rootScope', '$uibModalInstance', '$http', 'summary', 'thBugzillaProductObject',
     'thPinboard', 'thEvents', 'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures',
     'thNotify', 'ThLog',
     function BugFilerCtrl(
-        $scope, $rootScope, $modalInstance, $http, summary, thBugzillaProductObject,
+        $scope, $rootScope, $uibModalInstance, $http, summary, thBugzillaProductObject,
         thPinboard, thEvents, fullLog, parsedLog, reftest, selectedJob, allFailures,
         thNotify, ThLog) {
 
@@ -14,7 +14,7 @@ treeherder.controller('BugFilerCtrl', [
         /**
          *  'enter' from the product search input should initiate the search
          */
-        $scope.productSearch = function(ev) {
+        $scope.productSearchEnter = function(ev) {
             if (ev.keyCode === 13) {
                 $scope.findProduct();
             }
@@ -31,9 +31,9 @@ treeherder.controller('BugFilerCtrl', [
          *  Pre-fill the form with information/metadata from the failure
          */
         $scope.initiate = function() {
-            $modalInstance.parsedSummary = $modalInstance.parseSummary(summary);
+            $uibModalInstance.parsedSummary = $uibModalInstance.parseSummary(summary);
 
-            $scope.modalSummary = "Intermittent " + $modalInstance.parsedSummary[0].join(" | ");
+            $scope.modalSummary = "Intermittent " + $uibModalInstance.parsedSummary[0].join(" | ");
 
             $("#modalParsedLog").next().attr("href", parsedLog);
             $("#modalFullLog").next().attr("href", fullLog);
@@ -60,15 +60,15 @@ treeherder.controller('BugFilerCtrl', [
             $scope.findProduct();
         };
 
-        $modalInstance.parsedSummary = "";
-        $modalInstance.initiate = $scope.initiate;
-        $modalInstance.possibleFilename = "";
+        $uibModalInstance.parsedSummary = "";
+        $uibModalInstance.initiate = $scope.initiate;
+        $uibModalInstance.possibleFilename = "";
 
         /*
          *  Remove extraneous junk from the start of the summary line
          *  and try to find the failing test name from what's left
          */
-        $modalInstance.parseSummary = function(summary) {
+        $uibModalInstance.parseSummary = function(summary) {
             var omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR", "TEST-UNEXPECTED-TIMEOUT"];
             summary = summary.split(" | ");
 
@@ -78,9 +78,9 @@ treeherder.controller('BugFilerCtrl', [
                 }
             }
 
-            $modalInstance.possibleFilename = summary[0].split("/").pop();
+            $uibModalInstance.possibleFilename = summary[0].split("/").pop();
 
-            return [summary, $modalInstance.possibleFilename];
+            return [summary, $uibModalInstance.possibleFilename];
         };
 
         /*
@@ -108,7 +108,7 @@ treeherder.controller('BugFilerCtrl', [
         $scope.findProduct = function() {
 
             var suggestedProducts = [];
-            var failurePath = $modalInstance.parsedSummary[0][0];
+            var failurePath = $uibModalInstance.parsedSummary[0][0];
             var failurePathRoot = failurePath.split("/")[0];
 
             // Look up the product via the root of the failure's file path
@@ -119,7 +119,7 @@ treeherder.controller('BugFilerCtrl', [
             createProductElements();
 
             // Look up product suggestions via Bugzilla's api
-            var productSearch = $("#modalProductFinderSearch").val();
+            var productSearch = $scope.productSearch;
 
             if(productSearch) {
                 $.get("https://bugzilla.mozilla.org/rest/prod_comp_search/" + productSearch + "?limit=5", function(data) {
@@ -149,7 +149,7 @@ treeherder.controller('BugFilerCtrl', [
          *  Same as clicking outside of the modal, but with a nice button-clicking feel...
          */
         $scope.cancelFiler = function() {
-            $modalInstance.dismiss('cancel');
+            $uibModalInstance.dismiss('cancel');
         };
 
         /*

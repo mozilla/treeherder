@@ -1,8 +1,8 @@
 <form id="modalForm">
   <h2> Intermittent Bug Filer </h2>
 
-  <input name="modalProductFinderSearch" id="modalProductFinderSearch" ng-keydown="productSearch($event)"
-         type="text" placeholder="Firefox" tooltip="Manually search for a product" />
+  <input name="modalProductFinderSearch" id="modalProductFinderSearch" ng-keydown="productSearchEnter($event)"
+         ng-model="productSearch" type="text" placeholder="Firefox" uib-tooltip="Manually search for a product" />
   <button name="modalProductFinderButton" id="modalProductFinderButton"
           type="button" ng-click="findProduct()" prevent-default-on-left-click>Find Product</button>
   <div>
@@ -14,7 +14,7 @@
   <div id="failureSummaryGroup" class="collapsed">
     <label id="modalSummarylabel" for="modalSummary">Summary:</label>
     <input id="modalSummary" type="text" placeholder="Intermittent..." maxlength="255" ng-model="modalSummary" />
-    <a class="btn btn-xs failure-expando-closed" tooltip="Show all failure lines for this job"
+    <a class="btn btn-xs failure-expando-closed" uib-tooltip="Show all failure lines for this job"
        ng-click="toggleFailures($event)">
       <i class="fa fa-chevron-right"></i>
     </a>
