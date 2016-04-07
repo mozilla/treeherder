@@ -216,7 +216,7 @@ perf.controller('e10sSubtestCtrl', [
 
             // get base data
             PhSeries.getSeriesList($scope.selectedRepo.name, { signature: baseSignature }).then(function(seriesList) {
-                var summaryTestName = seriesList[0].platform + ": " + seriesList[0].test;
+                var summaryTestName = seriesList[0].platform + ": " + seriesList[0].suite;
                 $scope.testList = [summaryTestName];
                 $scope.titles[summaryTestName] = summaryTestName;
 
