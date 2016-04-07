@@ -49,7 +49,7 @@ treeherder.controller('BugFilerCtrl', [
                         allFailures[i].shift();
                     }
                 }
-                if(i != 0) {
+                if(i !== 0) {
                     thisFailure += "\n";
                 }
                 thisFailure += allFailures[i].join(" | ");
@@ -88,10 +88,10 @@ treeherder.controller('BugFilerCtrl', [
          */
         $scope.toggleFailures = function(evt) {
             var target = evt.target;
-            if(target.tagName.toUpperCase() == "I") {
+            if(target.tagName.toUpperCase() === "I") {
                 target = target.parentNode;
             }
-            if(target.className == "btn btn-xs failure-expando-closed") {
+            if(target.className === "btn btn-xs failure-expando-closed") {
                 target.className = "btn btn-xs failure-expando-open";
                 target.firstElementChild.className = "fa fa-chevron-down";
                 $("#failureSummaryGroup")[0].className = "expanded";

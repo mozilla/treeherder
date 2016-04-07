@@ -94,7 +94,7 @@ treeherder.controller('BugsPluginCtrl', [
         $scope.fileBug = function(event) {
             var target = event.target;
             // Click target is sometimes the icon in the button, not the button
-            if(target.tagName.toLowerCase() == "i" && target.className.search("fa-bug") >= 0) {
+            if(target.tagName.toLowerCase() === "i" && target.className.search("fa-bug") >= 0) {
                 target = target.parentNode;
             }
             var summary = target.nextElementSibling.textContent;
