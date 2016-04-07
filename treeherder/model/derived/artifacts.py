@@ -111,12 +111,13 @@ class ArtifactsModel(TreeherderModelBase):
         for perf_data in performance_artifact_placeholders:
             job_guid = perf_data["job_guid"]
             ref_data_signature = job_data[job_guid]['signature']
-            # FIXME: I think this could theoretically fail, as we
-            # allow signature and repository to be the same as long
-            # as we have different build system type and/or name
-            ref_data = model_to_dict(ReferenceDataSignatures.objects.get(
+            # At the moment there could be multiple signatures returned
+            # by this, but let's just ignore that and take the first
+            # if there are multiple (since the properties we care about should
+            # be the same)
+            ref_data = model_to_dict(ReferenceDataSignatures.objects.filter(
                 signature=ref_data_signature,
-                repository=self.project))
+                repository=self.project)[0])
 
             # adapt and load data into placeholder structures
             if perf_data['name'] == 'talos_data':
