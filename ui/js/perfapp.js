@@ -35,11 +35,11 @@ perf.config(function($compileProvider, $httpProvider, $stateProvider, $urlRouter
     }).state('e10s', {
         title: 'e10s talos dashboard',
         templateUrl: 'partials/perf/e10s.html',
-        url: '/e10s?filter&showOnlyImportant&showOnlyConfident&showOnlyBlockers&repo&timerange',
+        url: '/e10s?filter&showOnlyImportant&showOnlyConfident&showOnlyBlockers&repo&timerange&revision',
         controller: 'e10sCtrl'
     }).state('e10s_comparesubtest', {
         templateUrl: 'partials/perf/e10s-subtest.html',
-        url: '/e10s_comparesubtest?filter&showOnlyImportant&showOnlyConfident&baseSignature&e10sSignature&repo&timerange',
+        url: '/e10s_comparesubtest?filter&showOnlyImportant&showOnlyConfident&baseSignature&e10sSignature&repo&timerange&revision',
         controller: 'e10sSubtestCtrl'
     });
 

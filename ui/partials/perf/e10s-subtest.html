@@ -1,23 +1,25 @@
 <div class="container-fluid">
-  <h1>Perfherder e10s subtest comparison</h1>
-  <p><a href="perf.html#/e10s?repo={{selectedRepo.name}}&timerange={{selectedTimeRange.value}}">Show all tests and platforms</a></p>
-  <p>Comparing results of Talos subtests over the last two days
-    on mozilla-inbound (using pgo configuration on all platforms that support it).
-    Because we're taking a sample over a period of time, improvements or regressions
-    will take a while to be reflected in results. When in doubt, check the graphs
-    by hovering over each line.
-  </p>
-  <div class="form-group">
-    Branch to compare:
-    <select ng-change="globalOptionsChanged(selectedRepo, selectedTimeRange)"
-            ng-model="selectedRepo"
-            ng-options="repo.name for repo in projects">
-    </select>
-    Time range to sample:
-    <select ng-model="selectedTimeRange"
-            ng-options="timeRange.text for timeRange in timeRanges track by timeRange.value"
-            ng-change="globalOptionsChanged(selectedRepo, selectedTimeRange)">
-    </select>
+  <div ng-if="!revision">
+    <h1>Perfherder e10s subtest comparison</h1>
+    <p><a href="perf.html#/e10s?repo={{selectedRepo.name}}&timerange={{selectedTimeRange.value}}">Show all tests and platforms</a></p>
+    <p>Comparing results of Talos subtests over the last two days
+      (using pgo configuration on all platforms that support it).
+      Because we're taking a sample over a period of time, improvements or regressions
+      will take a while to be reflected in results. When in doubt, check the graphs
+      by hovering over each line.
+    </p>
+    <div class="form-group">
+      Branch to compare:
+      <select ng-change="globalOptionsChanged(selectedRepo, selectedTimeRange)"
+              ng-model="selectedRepo"
+              ng-options="repo.name for repo in projects">
+      </select>
+      Time range to sample:
+      <select ng-model="selectedTimeRange"
+              ng-options="timeRange.text for timeRange in timeRanges track by timeRange.value"
+              ng-change="globalOptionsChanged(selectedRepo, selectedTimeRange)">
+      </select>
+    </div>
   </div>
   <div ng-if="dataLoading">
     Loading all results, please wait a minute...
