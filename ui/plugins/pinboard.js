@@ -104,6 +104,16 @@ treeherder.controller('PinboardCtrl', [
             $scope.retriggerJob(_.values($scope.pinnedJobs));
         };
 
+        $scope.canSaveClassifications = function() {
+            var thisClass = $scope.classification;
+            var canSave = $scope.hasPinnedJobs() && (thPinboard.hasRelatedBugs() ||
+                          thisClass.failure_classification_id !== 4 ||
+                          $rootScope.currentRepo.repository_group.name === "try" ||
+                          $rootScope.currentRepo.repository_group.name === "project repositories" ||
+                          (thisClass.failure_classification_id === 4 && thisClass.note.length > 0));
+            return canSave;
+        };
+
         $scope.hasPinnedJobs = function() {
             return thPinboard.hasPinnedJobs();
         };
