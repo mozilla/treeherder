@@ -526,7 +526,7 @@
         "dvcs_type": "git",
         "name": "gaia",
         "url": "https://github.com/mozilla-b2g/gaia",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gaia",
         "repository_group": 4,
         "description": ""
@@ -565,7 +565,7 @@
         "dvcs_type": "git",
         "name": "gaia-master",
         "url": "https://github.com/mozilla-b2g/gaia",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gaia",
         "repository_group": 4,
         "description": "Gaia master branch"
@@ -747,7 +747,7 @@
         "dvcs_type": "git",
         "name": "bugzilla-master",
         "url": "https://github.com/bugzilla/bugzilla",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "bugzilla",
         "repository_group": 4,
         "description": "A suite of tests to check the quality of the Bugzilla codebase."
@@ -760,7 +760,7 @@
         "dvcs_type": "git",
         "name": "bmo-master",
         "url": "https://github.com/mozilla/webtools-bmo-bugzilla",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "bugzilla",
         "repository_group": 4,
         "description": "A suite of tests to check the quality of the BMO codebase."
@@ -799,7 +799,7 @@
         "dvcs_type": "git",
         "name": "bugzilla-5_0",
         "url": "https://github.com/bugzilla/bugzilla",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "bugzilla",
         "repository_group": 4,
         "description": "A suite of tests to check the quality of the Bugzilla 5.0 codebase."
@@ -812,7 +812,7 @@
         "dvcs_type": "git",
         "name": "bugzilla-4_4",
         "url": "https://github.com/bugzilla/bugzilla",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "bugzilla",
         "repository_group": 4,
         "description": "A suite of tests to check the quality of the Bugzilla 4.4 codebase."
@@ -838,7 +838,7 @@
         "dvcs_type": "git",
         "name": "bmo-development",
         "url": "https://github.com/mozilla/webtools-bmo-bugzilla",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "bugzilla",
         "repository_group": 4,
         "description": "A suite of tests to check the quality of the BMO codebase."
@@ -877,7 +877,7 @@
         "dvcs_type": "git",
         "name": "bmo-upstream-merge",
         "url": "https://github.com/mozilla/webtools-bmo-bugzilla",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "bugzilla",
         "repository_group": 4,
         "description": "A suite of tests to check the quality of the BMO codebase."
