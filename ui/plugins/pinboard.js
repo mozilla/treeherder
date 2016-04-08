@@ -107,7 +107,7 @@ treeherder.controller('PinboardCtrl', [
         $scope.canSaveClassifications = function() {
             var thisClass = $scope.classification;
             var canSave = $scope.hasPinnedJobs() && (thPinboard.hasRelatedBugs() || thisClass.failure_classification_id != 4 || 
-                          (thisClass.failure_classification_id === 4 && thisClass.note.length > 0))
+                          $scope.repoName === "try" || (thisClass.failure_classification_id === 4 && thisClass.note.length > 0))
             return canSave;
         };
 
