@@ -5,6 +5,7 @@
             <div class="job-tabs-content">
                 <a class="btn btn-xs btn-default"
                    prevent-default-on-left-click
+                   ng-show="user.loggedin"
                    ng-click="fileBug($event)"
                    title="file a bug for this failure">
                   <i class="fa fa-bug"></i>
