@@ -85,7 +85,7 @@ treeherder.controller('BugFilerCtrl', [
 
         $scope.toggleFilerSummaryVisibility = function() {
             $scope.isFilerSummaryVisible = !$scope.isFilerSummaryVisible;
-        }
+        };
 
         $scope.isFilerSummaryVisible = false;
 
@@ -122,8 +122,8 @@ treeherder.controller('BugFilerCtrl', [
          *  This is called once intermittent.html's ng-repeat is finished to select the first product listed
          */
         $scope.focusProduct = function() {
-          $("#suggestedProducts").children(":first").children(":first").prop("checked", true);
-        }
+            $("#suggestedProducts").children(":first").children(":first").prop("checked", true);
+        };
 
         /*
          *  Same as clicking outside of the modal, but with a nice button-clicking feel...
