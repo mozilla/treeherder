@@ -20,11 +20,13 @@
   <div id="failureSummaryGroup" class="collapsed">
     <label id="modalSummarylabel" for="modalSummary">Summary:</label>
     <input id="modalSummary" type="text" placeholder="Intermittent..." maxlength="255" ng-model="modalSummary" />
-    <a class="btn btn-xs failure-expando-closed" uib-tooltip="Show all failure lines for this job"
-       ng-click="toggleFailures($event)">
-      <i class="fa fa-chevron-right"></i>
+    <a ng-class="{'filersummary-open-btn': isFilerSummaryVisible}" prevent-default-on-left-click>
+      <i ng-click="toggleFilerSummaryVisibility()" ng-hide="isFilerSummaryVisible" class="fa fa-chevron-right" uib-tooltip="Show all failure lines for this job"></i>
+      <span ng-show="isFilerSummaryVisible">
+        <i ng-click="toggleFilerSummaryVisibility()" class="fa fa-chevron-down" uib-tooltip="Hide all failure lines for this job"></i>
+        <textarea id="modalFailureList"></textarea>
+      </span>
     </a>
-    <textarea id="modalFailureList"></textarea>
   </div>
 
   <div id="modalLogLinkCheckboxes">

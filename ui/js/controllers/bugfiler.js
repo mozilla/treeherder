@@ -83,24 +83,11 @@ treeherder.controller('BugFilerCtrl', [
             return [summary, $uibModalInstance.possibleFilename];
         };
 
-        /*
-         *  Toggle the visibility of the rest of the lines from the failure summary
-         */
-        $scope.toggleFailures = function(evt) {
-            var target = evt.target;
-            if(target.tagName.toUpperCase() === "I") {
-                target = target.parentNode;
-            }
-            if(target.className === "btn btn-xs failure-expando-closed") {
-                target.className = "btn btn-xs failure-expando-open";
-                target.firstElementChild.className = "fa fa-chevron-down";
-                $("#failureSummaryGroup")[0].className = "expanded";
-            } else {
-                target.className = "btn btn-xs failure-expando-closed";
-                target.firstElementChild.className = "fa fa-chevron-right";
-                $("#failureSummaryGroup")[0].className = "collapsed";
-            }
-        };
+        $scope.toggleFilerSummaryVisibility = function() {
+            $scope.isFilerSummaryVisible = !$scope.isFilerSummaryVisible;
+        }
+
+        $scope.isFilerSummaryVisible = false;
 
         /*
          *  Attempt to find a good product/component for this failure
