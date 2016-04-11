@@ -272,12 +272,12 @@ perf.controller('CompareResultsCtrl', [
                                 function(newSeriesList) {
                                     $scope.platformList = _.union(
                                         $scope.platformList,
-                                        _.uniq(newSeriesList, 'platform'));
+                                        _.uniq(_.map(newSeriesList, 'platform')));
                                     $scope.testList = _.union(
                                         $scope.testList,
-                                        _.uniq(newSeriesList, 'name'));
+                                        _.uniq(_.map(newSeriesList, 'name')));
                                     return PhCompare.getResultsMap($scope.newProject.name,
-                                                                   newSeriesData.seriesList,
+                                                                   newSeriesList,
                                                                    [$scope.newResultSet.id]);
                                 }).then(function(resultMaps) {
                                     var newResultsMap = resultMaps[$scope.newResultSet.id];
