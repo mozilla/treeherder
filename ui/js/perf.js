@@ -78,9 +78,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
             return $http.get(thServiceDomain + '/api/project/' + projectName +
                              '/performance/platforms/', { params: { interval: interval } }).then(
                                  function(response) {
-                                     return {
-                                         platformList: response.data
-                                     };
+                                     return response.data;
                                  });
         },
         getSeriesData: function(projectName, params) {
