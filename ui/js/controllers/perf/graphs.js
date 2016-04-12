@@ -967,8 +967,9 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
             $scope.loadingTestData = true;
             $scope.loadingPlatformList = true;
             $scope.platformList = [];
-            PhSeries.getPlatformList($scope.selectedProject.name, $scope.timeRange).then(
-                function(platformList) {
+            PhSeries.getPlatformList($scope.selectedProject.name, {
+                interval: $scope.timeRange,
+                framework: $scope.selectedFramework.id }).then(function(platformList) {
                     $scope.platformList = platformList;
                     $scope.platformList.sort();
                     if (_.contains($scope.platformList, defaultPlatform)) {
