@@ -108,10 +108,21 @@ class PerformancePlatformViewSet(viewsets.ViewSet):
     All platforms for a particular branch that have performance data
     """
     def list(self, request, project):
-        repository = models.Repository.objects.get(name=project)
-        return Response(PerformanceSignature.objects.filter(
-            repository=repository).values_list(
-                'platform__platform', flat=True).distinct())
+        signature_data = PerformanceSignature.objects.filter(
+            repository__name=project)
+        interval = request.query_params.get('interval')
+        if interval:
+            signature_data = signature_data.filter(
+                last_updated__gte=datetime.datetime.fromtimestamp(
+                    int(time.time() - int(interval))))
+
+        frameworks = request.query_params.getlist('framework')
+        if frameworks:
+            signature_data = signature_data.filter(
+                framework__in=frameworks)
+
+        return Response(signature_data.values_list(
+            'platform__platform', flat=True).distinct())
 
 
 class PerformanceFrameworkViewSet(viewsets.ReadOnlyModelViewSet):

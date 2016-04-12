@@ -44,6 +44,27 @@ def test_no_summary_performance_data(webapp, test_perf_signature,
                                                                     'machine_platform']
 
 
+def test_performance_platforms(webapp, test_perf_signature):
+    resp = webapp.get(reverse('performance-signatures-platforms-list',
+                              kwargs={
+                                  "project": test_perf_signature.repository.name
+                              }))
+    assert resp.status_int == 200
+    assert resp.json == ['win7']
+
+
+def test_performance_platforms_expired_test(webapp, test_perf_signature):
+    # check that we have no performance platform if the signatures are too old
+    test_perf_signature.last_updated = datetime.datetime.fromtimestamp(0)
+    test_perf_signature.save()
+    resp = webapp.get(reverse('performance-signatures-platforms-list',
+                              kwargs={
+                                  "project": test_perf_signature.repository.name
+                              }) + '?interval={}'.format(86400))
+    assert resp.status_int == 200
+    assert resp.json == []
+
+
 def test_summary_performance_data(webapp, test_repository,
                                   summary_perf_signature,
                                   test_perf_signature, jm):
