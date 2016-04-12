@@ -179,7 +179,7 @@ to { opacity: 0; }
 .btn-group-vertical {
   flex: none;
   position: relative;
-  top: 245px;
+  top: 310px;
   padding: 3px;
 }
 
@@ -194,8 +194,13 @@ to { opacity: 0; }
 
 .test-list-container .form-control {
   flex: none;
-  height: 273px;
+  height: 345px;
   width: 480px;
+}
+
+.choose-test-list {
+  margin-top: 8px;
+  height: 200px;
 }
 
 /* Compare interface stuff */
