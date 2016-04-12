@@ -22,7 +22,8 @@
         "active_status": "active",
         "codebase": "gecko",
         "repository_group": 1,
-        "description": ""
+        "description": "",
+        "performance_alerts_enabled": true
     }
 },
 {
@@ -61,7 +62,8 @@
         "active_status": "active",
         "codebase": "gecko",
         "repository_group": 2,
-        "description": ""
+        "description": "",
+        "performance_alerts_enabled": true
     }
 },
 {
@@ -74,7 +76,8 @@
         "active_status": "active",
         "codebase": "gecko",
         "repository_group": 2,
-        "description": ""
+        "description": "",
+        "performance_alerts_enabled": true
     }
 },
 {
@@ -87,7 +90,8 @@
         "active_status": "active",
         "codebase": "gecko",
         "repository_group": 2,
-        "description": ""
+        "description": "",
+        "performance_alerts_enabled": true
     }
 },
 {
@@ -178,7 +182,8 @@
         "active_status": "active",
         "codebase": "gecko",
         "repository_group": 1,
-        "description": ""
+        "description": "",
+        "performance_alerts_enabled": true
     }
 },
 {

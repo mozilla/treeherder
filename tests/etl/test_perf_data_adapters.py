@@ -512,12 +512,12 @@ def test_alert_generation(test_project, test_repository,
         assert alert.amount_pct == 100
 
 
-def test_alert_generation_try(test_project, test_repository,
-                              perf_option_collection, perf_platform,
-                              perf_reference_data):
+def test_alert_generation_repo_no_alerts(test_project, test_repository,
+                                         perf_option_collection, perf_platform,
+                                         perf_reference_data):
     # validates that no alerts generated on "try" repos
-    test_repository.repository_group.name = "try"
-    test_repository.repository_group.save()
+    test_repository.performance_alerts_enabled = False
+    test_repository.save()
 
     _generate_perf_data_range(test_project, test_repository,
                               perf_option_collection, perf_platform,
