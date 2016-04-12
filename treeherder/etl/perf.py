@@ -88,7 +88,6 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
         platform=reference_data['machine_platform'])[0]
     repository = Repository.objects.get(
         name=project_name)
-    is_try_repository = repository.repository_group.name == 'try'
 
     # data for performance series
     job_id = job_data[job_guid]['id']
@@ -158,7 +157,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                 push_timestamp=push_timestamp,
                 defaults={'value': suite['value']})
             if (signature.should_alert is not False and datum_created and
-                (not is_try_repository)):
+                (repository.performance_alerts_enabled)):
                 generate_alerts.apply_async(args=[signature.id],
                                             routing_key='generate_perf_alerts')
 
@@ -214,7 +213,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
             # property)
             if signature.should_alert or (signature.should_alert is None and
                                           (datum_created and
-                                           (not is_try_repository) and
+                                           repository.performance_alerts_enabled and
                                            suite.get('value') is None)):
                 generate_alerts.apply_async(args=[signature.id],
                                             routing_key='generate_perf_alerts')

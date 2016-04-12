@@ -90,6 +90,7 @@ class Repository(models.Model):
     codebase = models.CharField(max_length=50, blank=True, db_index=True)
     description = models.TextField(blank=True)
     active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
+    performance_alerts_enabled = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'repository'
