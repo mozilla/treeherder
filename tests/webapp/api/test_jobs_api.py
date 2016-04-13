@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
+from treeherder.model.models import (ExclusionProfile,
+                                     JobExclusion)
+
 
 def test_job_list(webapp, eleven_jobs_stored, jm):
     """
@@ -152,6 +155,45 @@ def test_job_list_in_filter(webapp, eleven_jobs_stored, jm):
 
     resp = webapp.get(final_url).json
     assert len(resp['results']) == 2
+
+
+def test_job_list_excluded(webapp, eleven_jobs_stored, sample_data, test_project):
+    """
+    retrieve a job list of only jobs excluded by specified profile
+    """
+    job = sample_data.job_data[1]
+    platform = job["job"]["machine_platform"]["platform"]
+    arch = job["job"]["machine_platform"]["architecture"]
+
+    user = User.objects.create(username="testuser2",
+                               email='foo2@bar.com',
+                               is_staff=True)
+
+    job_exclusion = JobExclusion.objects.create(
+        name="jobex",
+        info={
+            "platforms": ["{} ({})".format(platform, arch)],
+            "repos": [test_project],
+            "option_collections": ["opt"],
+            "option_collection_hashes": ["102210fe594ee9b33d82058545b1ed14f4c8206e"],
+            "job_types": ["B2G Emulator Image Build (B)"]},
+        author=user,
+    )
+    exclusion_profile = ExclusionProfile.objects.create(
+        name="exprof",
+        is_default=False,
+        author=user,
+    )
+    exclusion_profile.exclusions.add(job_exclusion)
+
+    # save populates the flat exclusions
+    exclusion_profile.save()
+
+    resp = webapp.get(reverse(
+        "jobs-list", kwargs={"project": test_project}) +
+        "?exclusion_profile=exprof&visibility=excluded").json
+    assert len(resp['results']) == 1
+    assert resp['results'][0]['job_guid'] == '9abb6f7d54a49d763c584926377f09835c5e1a32'
 
 
 def test_job_detail(webapp, eleven_jobs_stored, sample_artifacts, jm):

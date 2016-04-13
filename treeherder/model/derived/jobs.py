@@ -215,7 +215,16 @@ class JobsModel(TreeherderModelBase):
                 placeholders += signatures
             except KeyError:
                 # this repo/project has no hidden signatures
-                pass
+                # if ``visibility`` is set to ``included`` then it's
+                # meaningless to add any of these limiting params to the query,
+                # just run it and give the user everything for the project.
+                #
+                # If ``visibility`` is ``excluded`` then we only want to
+                # include jobs that were excluded by this profile.  Since no
+                # jobs are excluded for this project, we should return an
+                # empty array and skip the query altogether.
+                if visibility == "excluded":
+                    return []
             except ExclusionProfile.DoesNotExist:
                 # Either there's no default profile setup or the profile
                 # specified is not availble
