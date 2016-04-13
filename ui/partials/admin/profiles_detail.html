@@ -1,0 +1,34 @@
+  <div class="panel panel-default th-inline-option-group add-new-exclusion"
+       ng-init="init()">
+    <div class="panel-heading th-option-heading">
+      Add/Update exclusion profile
+    </div>
+    <div class="panel-body">
+      <div class="form-group">
+        <label>Name</label>
+        <input class="form-control input-sm" type="text"
+               ng-model="form_profile.name" placeholder="Enter a name"/>
+      </div>
+      <form class="form">
+        <label>Select one or more exclusions to enable in your new profile</label>
+        <div ng-repeat="exclusion in exclusions" class="form-group">
+          <input type="checkbox" ng-model="form_profile_choices[exclusion.id]" />
+          <span title="{{::exclusion.description}}">{{::exclusion.name}}</span>
+        </div>
+      </form>
+      <div class="form-group-inline">
+        <div class="form-group">
+          <a ui-sref="profiles"
+             class="btn btn-sm btn-default pull right">Cancel</a>
+        </div>
+        <div class="form-group">
+          <button ng-click="resetProfile()" type="submit"
+                  class="btn btn-sm btn-danger pull right">Clear</button>
+        </div>
+        <div class="form-group">
+          <button ng-click="saveProfile(form_profile)" type="submit"
+                  class="btn btn-sm btn-success pull right">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>

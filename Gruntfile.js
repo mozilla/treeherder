@@ -65,10 +65,17 @@ module.exports = function(grunt) {
                     dest:'dist'
                 }
             },
+            admin: {
+                src:'ui/admin.html',
+                nonull: true,
+                options:{
+                    dest:'dist'
+                }
+            },
         },
 
         usemin:{ html:['dist/index.html', 'dist/userguide.html', 'dist/logviewer.html',
-                       'dist/perf.html', 'dist/failureviewer.html'] },
+                       'dist/perf.html', 'dist/failureviewer.html', 'dist/admin.html'] },
 
         'cache-busting': {
             indexjs: {
@@ -95,6 +102,12 @@ module.exports = function(grunt) {
                 file: 'dist/js/perf.min.js',
                 cleanup: true
             },
+            adminjs: {
+                replace: ['dist/**/*.html'],
+                replacement: 'admin.min.js',
+                file: 'dist/js/admin.min.js',
+                cleanup: true
+            },
             userguidejs: {
                 replace: ['dist/**/*.html'],
                 replacement: 'userguide.min.js',
@@ -117,6 +130,12 @@ module.exports = function(grunt) {
                 replace: ['dist/**/*.html'],
                 replacement: 'perf.min.css',
                 file: 'dist/css/perf.min.css',
+                cleanup: true
+            },
+            admincss: {
+                replace: ['dist/**/*.html'],
+                replacement: 'admin.min.css',
+                file: 'dist/css/admin.min.css',
                 cleanup: true
             },
             userguidecss: {
@@ -159,6 +178,14 @@ module.exports = function(grunt) {
                 nonull: true,
                 flatten: true
                 },
+            // Copy vendor files that don't work with grouped minification
+            vendor:{
+                files: [
+                    { src: 'ui/vendor/ngReact/ngReact.min.js', dest: 'dist/vendor/ngReact/ngReact.min.js', nonull: true },
+                    { src: 'ui/vendor/react/react.min.js', dest: 'dist/vendor/react/react.min.js', nonull: true },
+                    { src: 'ui/vendor/react/react-dom.min.js', dest: 'dist/vendor/react/react-dom.min.js', nonull: true },
+                ]
+            },
             // Copy html in plugins, make sure not to flatten
             // to retain the directory structure for the html
             // and make paths relative with cwd definition.
@@ -181,7 +208,8 @@ module.exports = function(grunt) {
                 files: {
                     '.tmp/concat/js/index.min.js': '.tmp/concat/js/index.min.js',
                     '.tmp/concat/js/logviewer.min.js': '.tmp/concat/js/logviewer.min.js',
-                    '.tmp/concat/js/perf.min.js': '.tmp/concat/js/perf.min.js'
+                    '.tmp/concat/js/perf.min.js': '.tmp/concat/js/perf.min.js',
+                    '.tmp/concat/js/admin.min.js': '.tmp/concat/js/admin.min.js',
                 }
             }
         },
@@ -281,6 +309,32 @@ module.exports = function(grunt) {
                     }
                 }
             },
+            admin: {
+                cwd: 'ui',
+                src: ['partials/main/persona_buttons.html',
+                      'partials/main/thLogoutMenu.html',
+                      'partials/main/thHelpMenu.html',
+                      'partials/main/thNotificationsBox.html',
+                      'partials/main/thMultiSelect.html',
+                      'partials/admin/*.html'],
+                dest: 'dist/js/admin.min.js',
+                options: {
+                    usemin: 'dist/js/admin.min.js',
+                    append: true,
+                    htmlmin: {
+                        collapseBooleanAttributes:      true,
+                        // collapseWhitespace:             true,
+                        // conservativeCollapse:           true,
+                        removeAttributeQuotes:          true,
+                        removeComments:                 true,
+                        removeEmptyAttributes:          true,
+                        removeRedundantAttributes:      true,
+                        removeScriptTypeAttributes:     true,
+                        removeStyleLinkTypeAttributes:  true,
+                        keepClosingSlash:               true
+                    }
+                }
+            },
             userguide: {
                 cwd: 'ui',
                 src: 'partials/main/thShortcutTable.html',
@@ -317,6 +371,7 @@ module.exports = function(grunt) {
         'copy:main',
         'copy:img',
         'copy:fonts',
+        'copy:vendor',
         'useminPrepare',
         'concat',
         'cssmin',

@@ -1,0 +1,69 @@
+  <div class="th-inline-option-group exclusion-container"
+       ng-controller="ProfilesListCtrl"
+       ng-init="init()">
+    <button ng-click="go('profiles_detail', {id: 'new'})"
+            ng-disabled="!user.is_staff"
+            ng-attr-title="{{!user.is_staff ? 'Sheriff permissions required' : ''}}"
+            class="btn btn-sm btn-primary action-buttons">Add profile</button>
+    <p ng-if="profiles.length == 0">No profile available</p>
+    <table ng-if="profiles.length > 0" class="table table-condensed">
+      <tr>
+        <th>Profile</th><th></th><th></th><th>Excluded</th><th></th>
+      </tr>
+      <tr ng-repeat="profile in profiles | orderBy: 'name'"
+          class="exclusion-profiles-row">
+        <td>
+          <!-- Profile name -->
+          <a ui-sref="profiles_detail({id: profile.id})"
+             ng-disabled="!user.is_staff"
+             class="admin-btn pointable"
+             ng-class="!user.is_staff ? 'text-btn-disabled' : 'text-btn'"
+             ng-attr-title="{{!user.is_staff ? '' : 'Change the members in this profile'}}">
+            {{::profile.name}}
+          </a>
+        </td>
+        <td class="text-center">
+          <!-- Default profile button -->
+          <button ng-click="setDefaultProfile(profile)"
+                  ng-disabled="!user.is_staff"
+                  ng-hide="!profile.is_default && !user.is_staff"
+                  ng-class="profile.is_default ? 'fa-check-circle text-success' :
+                           'fa-circle-o xlightgray'"
+                  class="fa admin-btn pointable"
+                  ng-attr-title="{{profile.is_default ? 'Default profile' :
+                                 'Set this as the default profile'}}">
+          </button>
+        </td>
+        <td class="text-center">
+          <!-- Show excluded link -->
+          <a href="{{ profile.showExcludedUrl }}" target="_blank"
+             class="fa text-primary admin-btn pointable fa-square"
+             title="See the jobs this profile affects">
+          </a>
+        </td>
+        <td>
+          <!-- Exclusion names -->
+          <a ng-repeat="exclusion in profile.exclusions"
+             ui-sref="exclusions_detail({id: exclusion})"
+             ng-disabled="!user.is_staff"
+             class="th-inline-option-group admin-btn excluded-job pointable"
+             ng-class="!user.is_staff ? 'text-btn-disabled' :
+                      'text-btn'"
+             ng-attr-title="{{!user.is_staff ? '' : 'Modify this exclusion'}}">
+            &#8226; {{::exclusionsMap[exclusion].name}}
+            <span class="fa fa-pencil profile-edit-button"
+                  ng-if="user.is_staff"></span>
+          </a>
+        </td>
+        <td>
+          <!-- Delete profile button -->
+          <button ng-click="deleteProfile(profile)"
+                  ng-if="user.is_staff"
+                  class="admin-btn delete-icon hover-warning pointable"
+                  title="Delete this profile">
+            <i class="fa fa-times-circle"></i>
+          </button>
+        </td>
+      </tr>
+    </table>
+  </div>
