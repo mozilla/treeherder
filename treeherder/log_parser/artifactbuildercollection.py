@@ -9,6 +9,9 @@ from .artifactbuilders import (BuildbotJobArtifactBuilder,
                                BuildbotLogViewArtifactBuilder,
                                BuildbotPerformanceDataArtifactBuilder)
 
+DEFAULT_BUILDERS = [BuildbotLogViewArtifactBuilder,
+                    BuildbotJobArtifactBuilder,
+                    BuildbotPerformanceDataArtifactBuilder]
 
 class ArtifactBuilderCollection(object):
     """
@@ -67,19 +70,18 @@ BuildbotPerformanceDataArtifactBuilder
         self.url = url
         self.artifacts = {}
 
+        self.builders = []
         if builders:
             # ensure that self.builders is a list, even if a single parser was
             # passed in
             if not isinstance(builders, list):
                 builders = [builders]
-            self.builders = builders
         else:
-            # use the defaults
-            self.builders = [
-                BuildbotLogViewArtifactBuilder(url=self.url),
-                BuildbotJobArtifactBuilder(url=self.url),
-                BuildbotPerformanceDataArtifactBuilder(url=self.url)
-            ]
+            builders = DEFAULT_BUILDERS
+
+        for builder_cls in builders:
+            builder = builder_cls(self.url)
+            self.builders.append(builder)
 
     def get_log_handle(self, url):
         """Hook to get a handle to the log with this url"""
@@ -142,3 +144,4 @@ BuildbotPerformanceDataArtifactBuilder
             if name == 'performance_data' and not artifact[name]:
                 continue
             self.artifacts[name] = artifact
+

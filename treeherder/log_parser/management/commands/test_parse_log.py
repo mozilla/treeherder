@@ -5,8 +5,8 @@ import simplejson as json
 from django.core.management.base import (BaseCommand,
                                          CommandError)
 
-from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
-
+from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection as PythonArtifactBuilderCollection
+from treeherder.log_parser.rustlogparser import ArtifactBuilderCollection as RustArtifactBuilderCollection
 
 class Command(BaseCommand):
     """Management command to test log parsing"""
@@ -23,7 +23,11 @@ class Command(BaseCommand):
                     dest='profile',
                     type=int,
                     default=None,
-                    help='Profile running command a number of times'),)
+                    help='Profile running command a number of times'),
+        make_option('--rust',
+                    action='store_true',
+                    default=False,
+                    help='Use rust parsers where available'),)
 
     def handle(self, *args, **options):
         if len(args) != 1:
@@ -35,6 +39,10 @@ class Command(BaseCommand):
             num_runs = 1
 
         times = []
+        if options["rust"]:
+            ArtifactBuilderCollection = RustArtifactBuilderCollection
+        else:
+            ArtifactBuilderCollection = PythonArtifactBuilderCollection
         for i in range(num_runs):
             start = time.time()
             artifact_bc = ArtifactBuilderCollection(args[0])

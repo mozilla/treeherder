@@ -79,15 +79,19 @@ class StepParser(ParserBase):
 
     def __init__(self):
         """Setup the artifact to hold the header lines."""
+        self.sub_parser = ErrorParser()
         super(StepParser, self).__init__("step_data")
+
+    def clear(self):
+        self.complete = False
         self.stepnum = -1
         self.artifact = {
             "steps": [],
             "all_errors": [],
             "errors_truncated": False
         }
-        self.sub_parser = ErrorParser()
         self.state = self.STATES['awaiting_first_step']
+        self.sub_parser.clear()
 
     def parse_line(self, line, lineno):
         """Parse a single line of the log.
