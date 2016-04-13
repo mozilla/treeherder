@@ -48,10 +48,9 @@ following data structure:
                     'revision': 'cdfe03e77e66',
                     'repository': 'test_treeherder',
                     'author': 'Some Person <sperson@someplace.com>'
-                    },
-                    ...
-                ]
-            }
+                },
+                ...
+            ]
         }
     ]
 
@@ -209,7 +208,7 @@ data structures to send, do something like this.
     #
     # data structure validation is automatically performed here, if validation
     # fails a TreeherderClientError is raised
-    client.post_collection('mozilla-central', trc)
+    client.post_collection('mozilla-central', trsc)
 
 At any time in building a data structure, you can examine what has been
 created by looking at the `data` property.  You can also call the `validate`
