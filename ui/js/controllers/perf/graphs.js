@@ -750,13 +750,13 @@ perf.controller('GraphsCtrl', [
             }
 
             $scope.addTestData = function(option, seriesSignature) {
-                var defaultProjectName, defaultPlatform, defaultFramework;
+                var defaultProjectName, defaultPlatform, defaultFrameworkId;
                 var options = {};
                 if ($scope.seriesList.length > 0) {
                     var lastSeries = $scope.seriesList.slice(-1)[0];
                     defaultProjectName = lastSeries.projectName;
                     defaultPlatform = lastSeries.platform;
-                    defaultFramework = lastSeries.framework;
+                    defaultFrameworkId = lastSeries.frameworkId;
                 }
 
                 if (option !== undefined) {
@@ -778,7 +778,7 @@ perf.controller('GraphsCtrl', [
                         testsDisplayed: function() {
                             return $scope.seriesList;
                         },
-                        defaultFramework: function() { return defaultFramework; },
+                        defaultFrameworkId: function() { return defaultFrameworkId; },
                         defaultProjectName: function() { return defaultProjectName; },
                         defaultPlatform: function() { return defaultPlatform; },
                         options: function() { return options; }
@@ -829,7 +829,7 @@ perf.filter('testNameContainsWords', function() {
 perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
                                             projects, timeRange, thServiceDomain,
                                             thDefaultRepo, PhSeries, PhFramework,
-                                            defaultFramework, defaultProjectName,
+                                            defaultFrameworkId, defaultProjectName,
                                             defaultPlatform, $q, testsDisplayed,
                                             options, thPerformanceBranches,
                                             phDefaultFramework) {
@@ -958,10 +958,15 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
 
     PhFramework.getFrameworkList().then(function(frameworkList) {
         $scope.frameworkList = frameworkList;
-        $scope.selectedFramework = _.findWhere($scope.frameworkList, {
-            name: defaultFramework ? defaultFramework : phDefaultFramework
-        });
-
+        if (defaultFrameworkId) {
+            $scope.selectedFramework = _.findWhere($scope.frameworkList, {
+                id: defaultFrameworkId
+            });
+        } else {
+            $scope.selectedFramework = _.findWhere($scope.frameworkList, {
+                name: phDefaultFramework
+            });
+        }
         $scope.updateTestInput = function() {
             $scope.addTestDataDisabled = true;
             $scope.loadingTestData = true;
