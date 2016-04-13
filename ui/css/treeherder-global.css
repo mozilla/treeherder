@@ -312,60 +312,6 @@ input:focus::-moz-placeholder {
   border-bottom: 1px dotted lightgrey;
 }
 
-.th-multi-select input[type=text] {
-  width: 534px;
-}
-
-.th-multi-select select {
-  width: 250px;
-  font-size: 12px;
-}
-
-.th-multi-select button {
-  width: 30px;
-}
-
-.form-group {
-  margin-bottom: 5px;
-}
-
-.form-group-inline > .form-group {
-  display: inline-block;
-  vertical-align: top;
-}
-
-/*
- * Notifications
- *
- * Used both by Treeherder and Logviewer
- * at present, so receive global status.
- */
-
-#notification-box {
-  position: fixed;
-  top: 105px;
-  left: 10px;
-  z-index: 1100;
-}
-
-#notification-box div.alert {
-  padding: 10px 16px 10px 10px;
-  margin-bottom: 5px;
-}
-
-#notification-box button.close {
-  position: relative;
-  top: -4px;
-  right: -8px;
-  color: inherit;
-}
-
-/* Notification icon */
-#notification-box div span:first-child {
-  display: inline-block;
-  width: 22px;
-}
-
 /*
  * Onscreen help
  */
