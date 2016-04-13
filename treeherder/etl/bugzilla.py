@@ -55,6 +55,9 @@ class BzApiBugProcess(JsonExtractorMixin):
             Bugscache.objects.filter(id__in=old_bugs).delete()
 
             for bug in bug_list:
+                # we currently don't support timezones in treeherder, so
+                # just ignore it when importing/updating the bug to avoid
+                # a ValueError
                 Bugscache.objects.update_or_create(
                     id=bug['id'],
                     defaults={
@@ -65,5 +68,5 @@ class BzApiBugProcess(JsonExtractorMixin):
                         'keywords': ",".join(bug['keywords']),
                         'os': bug.get('op_sys', ''),
                         'modified': dateutil.parser.parse(
-                            bug['last_change_time'])
+                            bug['last_change_time'], ignoretz=True)
                     })
