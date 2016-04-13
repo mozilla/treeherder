@@ -178,6 +178,8 @@ treeherder.value("phTimeRanges", [
 
 treeherder.value("phDefaultTimeRangeValue", 1209600);
 
+treeherder.value("phDefaultFramework", "talos");
+
 treeherder.value("phAlertSummaryStatusMap", {
     UNTRIAGED: { id: 0, text: "untriaged" },
     DOWNSTREAM: { id: 1, text: "downstream" },

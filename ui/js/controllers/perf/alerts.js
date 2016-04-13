@@ -539,7 +539,7 @@ perf.controller('AlertsCtrl', [
         ThRepositoryModel.load().then(function(response) {
             $q.all([PhFramework.getFrameworkList().then(
                 function(frameworks) {
-                    $scope.frameworks = frameworks.data;
+                    $scope.frameworks = frameworks;
                 }),
                     ThOptionCollectionModel.getMap().then(
                         function(optionCollectionMap) {

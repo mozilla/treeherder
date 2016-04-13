@@ -1,33 +1,40 @@
 <div class="modal-header">
   <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-  <h3 class="modal-title">Add test data</h3>
+  <h4 class="modal-title">Add test data</h4>
 </div>
 <div class="modal-body" ng-show="!loadingRelatedSignatures">
     <p class="blink" >Getting related test information ...</p>
 </div>
 <div class="modal-body" ng-show="loadingRelatedSignatures">
   <div class="test-chooser">
-    <h4>Project</h4>
-    <select class="form-control" ng-change="updateTestInput()" ng-model="selectedProject" ng-options="project.name for project in projects">
-    </select>
-    <h4>Platform</h4>
-    <p class="blink" ng-show="loadingPlatformList">Loading platform list...</p>
-    <select ng-hide="loadingPlatformList" ng-change="updateTestSelector()" ng-model="selectedPlatform" ng-options="platform for platform in platformList">
-    </select>
-    <h4>Tests</h4>
     <div class="form-group">
-      <input class="form-control input-sm" type="text" ng-model="testFilter" placeholder="Filter tests" ng-model-options="{debounce: 250}"/>
+      <label>Framework</label>
+      <select class="form-control" ng-change="updateTestInput()" ng-model="selectedFramework" ng-options="framework.name for framework in frameworkList">
+      </select>
     </div>
-    <div id="choose-test-list" class="form-group">
+    <div class="form-group">
+      <label>Project</label>
+      <select class="form-control" ng-change="updateTestInput()" ng-model="selectedProject" ng-options="project.name for project in projects">
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Platform</label>
+      <p class="blink" ng-show="loadingPlatformList">Loading platform list...</p>
+      <select class="form-control" ng-hide="loadingPlatformList" ng-change="updateTestSelector()" ng-model="selectedPlatform" ng-options="platform for platform in platformList">
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Tests</label>
+      <input class="form-control input-sm" type="text" ng-model="testFilter" placeholder="Filter tests" ng-model-options="{debounce: 250}" ng-hide="loadingTestData"/>
       <p class="blink" ng-show="loadingTestData">Loading series data...</p>
-      <select ng-hide="loadingPlatformList || loadingTestData" multiple class="form-control" ng-model="selectedTestSignatures" ng-hide="loadingTestData">
+      <select ng-hide="loadingPlatformList || loadingTestData" multiple class="form-control choose-test-list" ng-model="selectedTestSignatures" ng-hide="loadingTestData">
         <option value="{{::testElem.signature}}" ng-repeat="testElem in unselectedTestList| testNameContainsWords: testFilter track by testElem.signature">
-            {{::testElem.name}}
+          {{::testElem.name}}
         </option>
       </select>
     </div>
   </div>
-  <div class="btn-group-vertical ">
+  <div class="btn-group-vertical">
     <button id="unselect-test" ng-click="unselectTest()" type="button" class="btn btn-xs btn-default" ng-disabled="!testsToAdd.length">
       <span class="glyphicon glyphicon-chevron-left"></span>
     </button>
@@ -36,8 +43,8 @@
     </button>
   </div>
   <div class="test-list-container">
-    <h4>Tests to add</h4>
     <div id="added-test-list" class="form-group">
+      <label>Tests to add</label>
       <select multiple class="form-control" ng-model="selectedTestsToAdd">
         <option value="{{testToAdd}}" ng-repeat="testToAdd in testsToAdd">
            {{testToAdd.projectName}} {{testToAdd.platform}}

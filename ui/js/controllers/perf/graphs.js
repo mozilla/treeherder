@@ -750,12 +750,13 @@ perf.controller('GraphsCtrl', [
             }
 
             $scope.addTestData = function(option, seriesSignature) {
-                var defaultProjectName, defaultPlatform;
+                var defaultProjectName, defaultPlatform, defaultFramework;
                 var options = {};
                 if ($scope.seriesList.length > 0) {
                     var lastSeries = $scope.seriesList.slice(-1)[0];
                     defaultProjectName = lastSeries.projectName;
                     defaultPlatform = lastSeries.platform;
+                    defaultFramework = lastSeries.framework;
                 }
 
                 if (option !== undefined) {
@@ -777,14 +778,11 @@ perf.controller('GraphsCtrl', [
                         testsDisplayed: function() {
                             return $scope.seriesList;
                         },
+                        defaultFramework: function() { return defaultFramework; },
                         defaultProjectName: function() { return defaultProjectName; },
                         defaultPlatform: function() { return defaultPlatform; },
                         options: function() { return options; }
                     }
-                });
-
-                modalInstance.opened.then(function () {
-                    window.setTimeout(function () { modalInstance.updateTestInput(); }, 0);
                 });
 
                 modalInstance.result.then(function(seriesList) {
@@ -830,14 +828,17 @@ perf.filter('testNameContainsWords', function() {
 
 perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
                                             projects, timeRange, thServiceDomain,
-                                            thDefaultRepo, PhSeries,
-                                            defaultProjectName, defaultPlatform, $q,
-                                            testsDisplayed, options, thPerformanceBranches) {
+                                            thDefaultRepo, PhSeries, PhFramework,
+                                            defaultFramework, defaultProjectName,
+                                            defaultPlatform, $q, testsDisplayed,
+                                            options, thPerformanceBranches,
+                                            phDefaultFramework) {
     $scope.timeRange = timeRange;
     $scope.projects = projects;
     $scope.selectedProject = _.findWhere(projects, {
         name: defaultProjectName ? defaultProjectName : thDefaultRepo
     });
+
     $scope.loadingTestData = false;
     $scope.loadingRelatedSignatures = true;
     var series = [];
@@ -955,50 +956,57 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
         });
     }
 
-    $scope.updateTestInput = function() {
-        $scope.addTestDataDisabled = true;
-        $scope.loadingTestData = true;
-        $scope.loadingPlatformList = true;
-        $scope.platformList = [];
+    PhFramework.getFrameworkList().then(function(frameworkList) {
+        $scope.frameworkList = frameworkList;
+        $scope.selectedFramework = _.findWhere($scope.frameworkList, {
+            name: defaultFramework ? defaultFramework : phDefaultFramework
+        });
 
-        PhSeries.getPlatformList($scope.selectedProject.name,
-            $scope.timeRange).then(function(platformList) {
-                $scope.platformList = platformList.platformList;
-                $scope.platformList.sort();
-                if (_.contains($scope.platformList, defaultPlatform)) {
-                    $scope.selectedPlatform = defaultPlatform;
-                } else {
-                    $scope.selectedPlatform = $scope.platformList[0];
-                }
-                $scope.loadingPlatformList = false;
-                $scope.updateTestSelector();
-            });
-
-        $scope.updateTestSelector = function() {
+        $scope.updateTestInput = function() {
+            $scope.addTestDataDisabled = true;
             $scope.loadingTestData = true;
-            if ($scope.selectedPlatform) {
-                defaultPlatform = $scope.selectedPlatform;
-            }
-            PhSeries.getSeriesList(
-                $scope.selectedProject.name,
-                { interval: $scope.timeRange, platform: $scope.selectedPlatform }).then(function(seriesList) {
-                    $scope.unselectedTestList = _.sortBy(
-                        _.filter(seriesList,
-                                 { platform: $scope.selectedPlatform }), 'name');
-                    // filter out tests which are already displayed or are
-                    // already selected
-                    _.forEach(_.union(testsDisplayed, $scope.testsToAdd),
-                              function(test) {
-                                  _.remove($scope.unselectedTestList, {
-                                      projectName: test.projectName,
-                                      signature: test.signature });
-                              });
-                    $scope.loadingTestData = false;
+            $scope.loadingPlatformList = true;
+            $scope.platformList = [];
+            PhSeries.getPlatformList($scope.selectedProject.name, {
+                interval: $scope.timeRange,
+                framework: $scope.selectedFramework.id }).then(function(platformList) {
+                    $scope.platformList = platformList;
+                    $scope.platformList.sort();
+                    if (_.contains($scope.platformList, defaultPlatform)) {
+                        $scope.selectedPlatform = defaultPlatform;
+                    } else {
+                        $scope.selectedPlatform = $scope.platformList[0];
+                    }
+                    $scope.loadingPlatformList = false;
+                    $scope.updateTestSelector();
+                });
+
+            $scope.updateTestSelector = function() {
+                $scope.loadingTestData = true;
+                if ($scope.selectedPlatform) {
+                    defaultPlatform = $scope.selectedPlatform;
                 }
-            );
+                PhSeries.getSeriesList(
+                    $scope.selectedProject.name,
+                    { interval: $scope.timeRange, platform: $scope.selectedPlatform,
+                      framework: $scope.selectedFramework.id }).then(function(seriesList) {
+                          $scope.unselectedTestList = _.sortBy(
+                              _.filter(seriesList,
+                                       { platform: $scope.selectedPlatform }), 'name');
+                          // filter out tests which are already displayed or are
+                          // already selected
+                          _.forEach(_.union(testsDisplayed, $scope.testsToAdd),
+                                    function(test) {
+                                        _.remove($scope.unselectedTestList, {
+                                            projectName: test.projectName,
+                                            signature: test.signature });
+                                    });
+                          $scope.loadingTestData = false;
+                      });
+            };
+
         };
-
-    };
-
-    $uibModalInstance.updateTestInput = $scope.updateTestInput;
+        $uibModalInstance.updateTestInput = $scope.updateTestInput;
+        $scope.updateTestInput();
+    });
 });

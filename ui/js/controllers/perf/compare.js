@@ -310,7 +310,7 @@ perf.controller('CompareResultsCtrl', [
         var loadRepositories = ThRepositoryModel.load();
         var loadFrameworks = PhFramework.getFrameworkList().then(
             function(frameworks) {
-                $scope.frameworks = frameworks.data;
+                $scope.frameworks = frameworks;
             });
         $q.all([loadRepositories, loadFrameworks]).then(function() {
             $scope.errors = PhCompare.validateInput($stateParams.originalProject,

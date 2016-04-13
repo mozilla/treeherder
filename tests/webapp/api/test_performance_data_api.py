@@ -4,6 +4,7 @@ import pytest
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
+from treeherder.model.models import MachinePlatform
 from treeherder.perf.models import (PerformanceFramework,
                                     PerformanceSignature)
 
@@ -42,6 +43,63 @@ def test_no_summary_performance_data(webapp, test_perf_signature,
                                                                     'option_collection_hash',
                                                                     'framework_id',
                                                                     'machine_platform']
+
+
+def test_performance_platforms(webapp, test_perf_signature):
+    resp = webapp.get(reverse('performance-signatures-platforms-list',
+                              kwargs={
+                                  "project": test_perf_signature.repository.name
+                              }))
+    assert resp.status_int == 200
+    assert resp.json == ['win7']
+
+
+def test_performance_platforms_expired_test(webapp, test_perf_signature):
+    # check that we have no performance platform if the signatures are too old
+    test_perf_signature.last_updated = datetime.datetime.fromtimestamp(0)
+    test_perf_signature.save()
+    resp = webapp.get(reverse('performance-signatures-platforms-list',
+                              kwargs={
+                                  "project": test_perf_signature.repository.name
+                              }) + '?interval={}'.format(86400))
+    assert resp.status_int == 200
+    assert resp.json == []
+
+
+def test_performance_platforms_framework_filtering(webapp, test_perf_signature):
+    # check framework filtering
+    framework2 = PerformanceFramework.objects.create(name='test_talos2')
+    platform2 = MachinePlatform.objects.create(
+        os_name='win',
+        platform='win7-a',
+        architecture='x86',
+        active_status='active')
+    PerformanceSignature.objects.create(
+        repository=test_perf_signature.repository,
+        signature_hash=test_perf_signature.signature_hash,
+        framework=framework2,
+        platform=platform2,
+        option_collection=test_perf_signature.option_collection,
+        suite=test_perf_signature.suite,
+        test=test_perf_signature.test,
+        has_subtests=test_perf_signature.has_subtests,
+        last_updated=test_perf_signature.last_updated)
+
+    # by default should return both
+    resp = webapp.get(reverse('performance-signatures-platforms-list',
+                              kwargs={
+                                  "project": test_perf_signature.repository.name
+                              }))
+    assert resp.status_int == 200
+    assert sorted(resp.json) == ['win7', 'win7-a']
+
+    # if we specify just one framework, should only return one
+    resp = webapp.get(reverse('performance-signatures-platforms-list',
+                              kwargs={
+                                  "project": test_perf_signature.repository.name
+                              }) + '?framework={}'.format(framework2.id))
+    assert resp.status_int == 200
+    assert resp.json == ['win7-a']
 
 
 def test_summary_performance_data(webapp, test_repository,
