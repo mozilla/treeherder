@@ -325,16 +325,6 @@ class TinderboxPrintParser(ParserBase):
         if match:
             line = match.group('line')
 
-            if line.startswith("TalosResult: "):
-                title, json_value = line.split(": ", 1)
-
-                self.artifact.append({
-                    "title": title,
-                    "content_type": "TalosResult",
-                    "value": json.loads(json_value)
-                })
-                return
-
             for regexp_item in self.TINDERBOX_REGEXP_TUPLE:
                 match = regexp_item['re'].match(line)
                 if match:
@@ -446,30 +436,6 @@ class ErrorParser(ParserBase):
 
         return bool(any(term for term in self.IN_SEARCH_TERMS if term in trimline) or
                     self.RE_ERR_MATCH.match(trimline) or self.RE_ERR_SEARCH.search(trimline))
-
-
-class TalosParser(ParserBase):
-    """a sub-parser to find TALOSDATA"""
-
-    # Using $ in the regex as an end of line bounds causes the
-    # regex to fail on windows logs. This is likely due to the
-    # ^M character representation of the windows end of line.
-    RE_TALOSDATA = re.compile(r'.*?TALOSDATA:\s+(\[.*\])')
-
-    def __init__(self):
-        super(TalosParser, self).__init__("talos_data")
-
-    def parse_line(self, line, lineno):
-        """check each line for TALOSDATA"""
-
-        match = self.RE_TALOSDATA.match(line)
-        if match:
-            # this will throw an exception if the json parsing breaks, but
-            # that's the behaviour we want
-            self.artifact = json.loads(match.group(1))
-            # Mark this parser as complete, so we don't continue to run
-            # it against every remaining line in the log.
-            self.complete = True
 
 
 class PerformanceParser(ParserBase):

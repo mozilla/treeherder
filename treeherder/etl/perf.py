@@ -1,6 +1,5 @@
 import datetime
 import logging
-import math
 import os
 from hashlib import sha1
 
@@ -18,12 +17,6 @@ from treeherder.perf.tasks import generate_alerts
 logger = logging.getLogger(__name__)
 
 
-PERFORMANCE_ARTIFACT_TYPES = set([
-    'performance_data',
-    'talos_data'
-])
-
-
 # keys useful for creating a non-redundant performance signature
 SIGNIFICANT_REFERENCE_DATA_KEYS = ['option_collection_hash',
                                    'machine_platform']
@@ -31,8 +24,6 @@ SIGNIFICANT_REFERENCE_DATA_KEYS = ['option_collection_hash',
 
 PERFHERDER_SCHEMA = json.load(open(os.path.join('schemas',
                                                 'performance-artifact.json')))
-TALOS_SCHEMA = json.load(open(os.path.join('schemas',
-                                           'talos-artifact.json')))
 
 
 def _transform_signature_properties(properties, significant_keys=None):
@@ -231,118 +222,3 @@ def load_perf_artifacts(project_name, reference_data, job_data, datum):
     else:
         _load_perf_artifact(project_name, reference_data, job_data,
                             job_guid, performance_data)
-
-
-def _calculate_summary_value(results):
-    # needed only for legacy talos blobs which don't provide a suite
-    # summary value
-    values = []
-    for test in results:
-        values += results[test]
-
-    if values:
-        return math.exp(sum(map(lambda v: math.log(v+1),
-                                values))/len(values))-1
-
-    return 0.0
-
-
-def _calculate_test_value(replicates):
-    # needed only for legacy talos blobs which don't provide a test
-    # summary value
-    replicates.sort()
-    r = replicates
-    r_len = len(replicates)
-
-    value = 0.0
-
-    if r_len > 0:
-        def avg(s):
-            return float(sum(s)) / len(s)
-
-        value = avg(r)
-
-        if r_len > 1:
-            if len(r) % 2 == 1:
-                value = r[int(math.floor(len(r)/2))]
-            else:
-                value = avg([r[(len(r)/2) - 1], r[len(r)/2]])
-
-    return value
-
-
-def load_talos_artifacts(project_name, reference_data, job_data, datum):
-    # translate into PERFHERDER_DATA
-    perfherder_data = {
-        'framework': {'name': 'talos'},
-        'suites': []
-    }
-    target_datum = json.loads(datum['blob'])
-    for talos_datum in target_datum['talos_data']:
-        validate(talos_datum, TALOS_SCHEMA)
-        _suite = talos_datum["testrun"]["suite"]
-        # counters will not be part of the summary series
-        # counters have a json obj {'stat': val} instead of [val1, val2, ...]
-        if 'talos_counters' in talos_datum:
-            counter_tests = []
-            for _test in talos_datum["talos_counters"].keys():
-                counter_tests.append({
-                    'name': _test,
-                    'value': float(
-                        talos_datum["talos_counters"][_test]["mean"]),
-                    'lowerIsBetter': True
-                })
-            perfherder_data['suites'].append({
-                'name': _suite,
-                'subtests': counter_tests
-            })
-
-        # series for all the subtests
-        subtests = []
-        for _test in talos_datum["results"].keys():
-            if "summary" in talos_datum:
-                # most talos results should provide a summary of their
-                # subtest results based on an internal calculation of
-                # the replicates, use that if available
-                testdict = talos_datum["summary"]["subtests"][_test]
-                subtests.append({
-                    'name': _test,
-                    'value': testdict["filtered"],
-                    'lowerIsBetter': testdict.get('lowerIsBetter', True)
-                })
-            else:
-                # backwards compatibility for older versions of talos
-                # and android talos which don't provide this summary
-                subtests.append({
-                    'name': _test,
-                    'value': _calculate_test_value(
-                        talos_datum["results"][_test]),
-                    'lowerIsBetter': True
-                })
-
-        suite = {
-            'name': _suite,
-            'subtests': subtests
-        }
-
-        # add a summary value for suite if appropriate (more than one
-        # signature)
-        if len(talos_datum["results"].keys()) > 1:
-            if "summary" in talos_datum and "suite" in talos_datum["summary"]:
-                suite['value'] = talos_datum["summary"]["suite"]
-                suite['lowerIsBetter'] = talos_datum["summary"].get(
-                    "lowerIsBetter", True)
-            else:
-                suite['value'] = _calculate_summary_value(
-                    talos_datum["results"])
-                suite['lowerIsBetter'] = True
-
-        # add the suite to the list
-        perfherder_data['suites'].append(suite)
-
-    load_perf_artifacts(project_name, reference_data, job_data, {
-        'job_guid': datum['job_guid'],
-        'blob': json.dumps({
-            'performance_data': perfherder_data
-        })
-    })

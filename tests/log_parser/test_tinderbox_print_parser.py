@@ -110,61 +110,6 @@ TINDERBOX_TEST_CASES = (
 
     (
         (
-            'TinderboxPrint: TalosResult: '
-            '{"datazilla": {"tcanvasmark": {"url": '
-            '"https://datazilla.mozilla.org?product=Firefox&x86=false'
-            '&repository=Try-Non-PGO&os_version=Ubuntu%2012.04'
-            '&stop=1406552902&project=talos&start=1405948102'
-            '&graph_search=5f51189c6ef8&os=linux&test=tcanvasmark"}, '
-            '"tresize": {"url": "https://datazilla.mozilla.org?product'
-            '=Firefox&x86=false&repository=Try-Non-PGO&os_version='
-            'Ubuntu%2012.04&stop=1406552902&project=talos&start='
-            '1405948102&graph_search=5f51189c6ef8&os=linux&test='
-            'tcanvasmark&test=tresize"}}, '
-            '"graphserver": {"tresize": {"url": '
-            '"http://graphs.mozilla.org/graph.html#tests=[[254,113,35]]", '
-            '"result": "16.34"}, "tcanvasmark_paint": '
-            '{"url": "http://graphs.mozilla.org/graph.html#tests=[[297,113,35]]'
-            '", "result": "6807.00"}}}'
-        ),
-        [{
-            'content_type': 'TalosResult',
-            'title': 'TalosResult',
-            'value': {
-                'datazilla': {
-                    'tcanvasmark': {
-                        'url': ('https://datazilla.mozilla.org?'
-                                'product=Firefox&x86=false&repository=Try-Non-PGO'
-                                '&os_version=Ubuntu%2012.04&stop=1406552902&'
-                                'project=talos&start=1405948102&graph_search='
-                                '5f51189c6ef8&os=linux&test=tcanvasmark')
-                    },
-                    'tresize': {
-                        'url': ('https://datazilla.mozilla.org?product=Firefox'
-                                '&x86=false&repository=Try-Non-PGO&os_version='
-                                'Ubuntu%2012.04&stop=1406552902&project=talos'
-                                '&start=1405948102&graph_search=5f51189c6ef8&'
-                                'os=linux&test=tcanvasmark&test=tresize')
-                    }
-                },
-                'graphserver': {
-                    'tcanvasmark_paint': {
-                        'result': '6807.00',
-                        'url': ('http://graphs.mozilla.org/graph.html#'
-                                'tests=[[297,113,35]]')
-                    },
-                    'tresize': {
-                        'result': '16.34',
-                        'url': ('http://graphs.mozilla.org/graph.html#'
-                                'tests=[[254,113,35]]')
-                    }
-                }
-            }
-        }]
-    ),
-
-    (
-        (
             'TinderboxPrint: hazard results: '
             'https://ftp-ssl.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/'
             'mozilla-central-linux64-br-haz/20150226025813'
@@ -187,10 +132,3 @@ def test_tinderbox_parser_output(line, artifact):
     parser.parse_line(line, 1)
 
     assert artifact == parser.get_artifact()
-
-
-def test_invalid_talosresult():
-    invalid_line = 'TinderboxPrint: TalosResult: foo{bar}'
-    parser = TinderboxPrintParser()
-    with pytest.raises(ValueError):
-        parser.parse_line(invalid_line, 1)
