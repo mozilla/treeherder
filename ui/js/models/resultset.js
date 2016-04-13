@@ -124,7 +124,7 @@ treeherder.factory(
              get: function(uri) {
                  return $http.get(thServiceDomain + uri);
              },
-             getResultSetJobsUpdates: function(resultSetIdList, repoName, exclusionProfile, lastModified){
+             getResultSetJobsUpdates: function(resultSetIdList, repoName, exclusionProfile, visibility, lastModified){
                  if(angular.isDate(lastModified)){
                      lastModified = lastModified.toISOString().replace("Z","");
                  }
@@ -134,13 +134,16 @@ treeherder.factory(
                      last_modified__gt: lastModified,
                      return_type: "list"
                  };
-                 if(exclusionProfile){
+                 if (exclusionProfile) {
                      params.exclusion_profile = exclusionProfile;
+                 }
+                 if (visibility) {
+                     params.visibility = visibility;
                  }
                  return ThJobModel.get_list(repoName, params, {fetch_all: true});
              },
 
-             getResultSetJobs: function(resultSets, repoName, exclusionProfile){
+             getResultSetJobs: function(resultSets, repoName, exclusionProfile, visibility){
                  var jobsPromiseList = [];
                  _.each(
                      resultSets.results,
@@ -150,8 +153,11 @@ treeherder.factory(
                              result_set_id:rs.id,
                              count: 2000
                          };
-                         if(exclusionProfile){
+                         if (exclusionProfile) {
                              params.exclusion_profile = exclusionProfile;
+                         }
+                         if (visibility) {
+                             params.visibility = visibility;
                          }
                          jobsPromiseList.push(ThJobModel.get_list(repoName, params, {fetch_all: true}));
                      }
