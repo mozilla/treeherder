@@ -117,6 +117,11 @@
   background: #fff;
 }
 
+a.sheriff-panel-btn {
+    color: #9c986a;
+    cursor: pointer;
+}
+
 .sheriff-panel-text-btn {
   color: #337ab7;
 }

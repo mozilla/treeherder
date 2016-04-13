@@ -122,12 +122,11 @@ treeherder.factory('ThResultSetStore', [
                 repositories[$rootScope.repoName].resultSets,
                 'id'
             );
-            var exclusionProfile = $location.search().exclusion_profile;
             ThResultSetModel.getResultSetJobsUpdates(
                 resultSetIdList,
                 $rootScope.repoName,
-                exclusionProfile,
-                lastJobUpdate
+                lastJobUpdate,
+                _.pick($location.search(), ["exclusion_profile", "visibility"])
             ).then(function(jobList){
                 if(jobList.length > 0){
                     var lastModifiedJob = getLastModifiedJob(jobList);
@@ -888,7 +887,6 @@ treeherder.factory('ThResultSetStore', [
             repositories[repoName].loadingStatus.appending = true;
             var isAppend = (repositories[repoName].resultSets.length > 0);
             var resultsets;
-            var exclusionProfile = $location.search().exclusion_profile;
             var loadRepositories = ThRepositoryModel.load({name: repoName,
                                                            watchRepos: true});
             var loadResultsets = ThResultSetModel.getResultSets(repoName,
@@ -921,7 +919,7 @@ treeherder.factory('ThResultSetStore', [
                     var jobsPromiseList = ThResultSetModel.getResultSetJobs(
                         resultsets,
                         repoName,
-                        exclusionProfile
+                        _.pick($location.search(), ["exclusion_profile", "visibility"])
                     );
                     $q.all(jobsPromiseList).then(function(resultSetJobList){
                         // get the last modified of each resultset

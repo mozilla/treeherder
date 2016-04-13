@@ -23,7 +23,13 @@ treeherderApp.controller('SheriffCtrl', [
                     $scope.exclusions_map = _.indexBy($scope.exclusions, 'id');
                 });
                 ThExclusionProfileModel.get_list({}, false).then(function (data) {
-                    $scope.profiles = data;
+                    $scope.profiles = _.map(data, function(profile) {
+                        profile.showExcludedUrl = $scope.urlBasePath +
+                                                  "?repo=" + $scope.repoName +
+                                                  "&exclusion_profile=" + profile.name +
+                                                  "&visibility=excluded";
+                        return profile;
+                    });
                 });
                 $scope.initComplete = true;
             }

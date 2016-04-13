@@ -16,7 +16,7 @@
     <p ng-if="profiles.length == 0">No profile available</p>
     <table ng-if="profiles.length > 0" class="table table-condensed">
       <tr>
-        <th>Profile</th><th></th><th>Excluded</th><th></th>
+        <th>Profile</th><th></th><th></th><th>Excluded</th><th></th>
       </tr>
       <tr ng-repeat="profile in profiles"
           class="sheriff-panel-exclusion-profiles-row">
@@ -42,6 +42,14 @@
                   ng-attr-title="{{profile.is_default ? 'Default profile' :
                                  'Set this as the default profile'}}">
           </button>
+        </td>
+        <td class="text-center">
+          <!-- Show excluded link -->
+          <a href="{{ profile.showExcludedUrl }}" target="_blank"
+             ng-click="set_default_profile(profile)"
+             class="fa text-primary sheriff-panel-btn pointable fa-square"
+             title="See the jobs this profile affects for {{ repoName }}">
+          </a>
         </td>
         <td>
           <!-- Exclusion names buttons -->
