@@ -1,44 +1,10 @@
 import copy
 
-from tests.sampledata import SampleData
 from tests.test_utils import post_collection
 from treeherder.client.thclient import client
 from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceFramework,
                                     PerformanceSignature)
-
-
-def test_post_talos_artifact(jobs_ds, test_repository, result_set_stored,
-                             mock_post_json):
-    PerformanceFramework.objects.get_or_create(name='talos')
-
-    tjc = client.TreeherderJobCollection()
-    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
-    tj = client.TreeherderJob({
-        'project': test_repository.name,
-        'revision': result_set_stored[0]['revision'],
-        'job': {
-            'job_guid': job_guid,
-            'state': 'completed',
-            'project': test_repository.name,
-            'option_collection': {'opt': True},
-            'artifacts': [{
-                'blob': {'talos_data': SampleData.get_minimal_talos_perf_data()},
-                'type': 'json',
-                'name': 'talos_data',
-                'job_guid': job_guid
-            }]
-        }
-    })
-
-    tjc.add(tj)
-
-    post_collection(test_repository.name, tjc)
-
-    # we'll just validate that we got the expected number of results for
-    # talos (we have validation elsewhere for the actual data adapters)
-    assert PerformanceSignature.objects.count() == 1
-    assert PerformanceDatum.objects.count() == 1
 
 
 def test_post_perf_artifact(jobs_ds, test_repository, result_set_stored,
@@ -80,8 +46,8 @@ def test_post_perf_artifact(jobs_ds, test_repository, result_set_stored,
 
     post_collection(test_repository.name, tjc)
 
-    # we'll just validate that we got the expected number of results for
-    # talos (we have validation elsewhere for the actual data adapters)
+    # we'll just validate that we got the expected number of results
+    # (we have validation elsewhere for the actual data adapters)
     assert PerformanceSignature.objects.all().count() == 3
     assert PerformanceDatum.objects.all().count() == 3
 
@@ -127,8 +93,8 @@ def test_post_perf_artifact_revision_hash(test_repository,
 
     post_collection(test_repository.name, tjc)
 
-    # we'll just validate that we got the expected number of results for
-    # talos (we have validation elsewhere for the actual data adapters)
+    # we'll just validate that we got the expected number of results
+    # (we have validation elsewhere for the actual data adapters)
     assert PerformanceSignature.objects.all().count() == 3
     assert PerformanceDatum.objects.all().count() == 3
 
@@ -174,7 +140,7 @@ def test_post_perf_artifact_multiple(jobs_ds, test_repository,
 
     post_collection(test_repository.name, tjc)
 
-    # we'll just validate that we got the expected number of results for
-    # talos (we have validation elsewhere for the actual data adapters)
+    # we'll just validate that we got the expected number of results
+    # (we have validation elsewhere for the actual data adapters)
     assert PerformanceSignature.objects.all().count() == 6
     assert PerformanceDatum.objects.all().count() == 6

@@ -12,14 +12,6 @@ class SampleData(object):
                 os.path.dirname(__file__), filename)) as f:
             return json.loads(f.read())
 
-    @classmethod
-    def get_talos_perf_data(cls):
-        return cls.get_perf_data('talos_perf.json')
-
-    @classmethod
-    def get_minimal_talos_perf_data(cls):
-        return cls.get_perf_data('talos_perf_minimal.json')
-
     def __init__(self):
         self.job_data_file = "{0}/sample_data/job_data.txt".format(
             os.path.dirname(__file__)
@@ -30,10 +22,6 @@ class SampleData(object):
         )
 
         self.logs_dir = "{0}/sample_data/logs".format(
-            os.path.dirname(__file__)
-        )
-
-        self.talos_logs_dir = "{0}/sample_data/artifacts/performance/talos_logs".format(
             os.path.dirname(__file__)
         )
 
@@ -80,10 +68,3 @@ class SampleData(object):
     def get_log_path(self, name):
         """Returns the full path to a log file"""
         return "{0}/{1}".format(self.logs_dir, name)
-
-    def get_talos_logs(self):
-        """Returns a list of full paths to talos log files"""
-        files = os.listdir(self.talos_logs_dir)
-        for i, f in enumerate(files):
-            files[i] = 'file://{0}/{1}'.format(self.talos_logs_dir, f)
-        return files

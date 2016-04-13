@@ -5,9 +5,7 @@ import time
 
 import pytest
 
-from tests.sampledata import SampleData
-from treeherder.etl.perf import (load_perf_artifacts,
-                                 load_talos_artifacts)
+from treeherder.etl.perf import load_perf_artifacts
 from treeherder.model.models import (MachinePlatform,
                                      Option,
                                      OptionCollection,
@@ -259,85 +257,6 @@ def test_load_generic_data(test_project, test_repository,
         suite=perf_datum['suites'][0]['name'],
         test=perf_datum['suites'][0]['subtests'][0]['name'])
     signature.last_updated == datetime.datetime.fromtimestamp(push_timestamp + 1)
-
-
-def test_load_talos_data(test_project, test_repository,
-                         perf_option_collection, perf_platform,
-                         perf_job_data, perf_reference_data):
-
-    PerformanceFramework.objects.create(name='talos')
-
-    talos_perf_data = SampleData.get_talos_perf_data()
-    for talos_datum in talos_perf_data:
-        datum = {
-            "job_guid": "fake_job_guid",
-            "name": "test",
-            "type": "test",
-            "blob": talos_datum
-        }
-
-        # Mimic production environment, the blobs are serialized
-        # when the web service receives them
-        datum['blob'] = json.dumps({'talos_data': [datum['blob']]})
-        load_talos_artifacts(test_repository.name, perf_reference_data,
-                             perf_job_data, datum)
-
-        # base: subtests + one extra result for the summary series
-        expected_result_count = len(talos_datum["results"]) + 1
-
-        # we create one performance series per counter
-        if 'talos_counters' in talos_datum:
-            expected_result_count += len(talos_datum["talos_counters"])
-
-        # result count == number of signatures
-        assert expected_result_count == PerformanceSignature.objects.all().count()
-
-        expected_push_timestamp = datetime.datetime.fromtimestamp(
-            perf_job_data['fake_job_guid']['push_timestamp'])
-
-        # verify that we have signatures for the subtests
-        for (testname, results) in talos_datum["results"].iteritems():
-            signature = PerformanceSignature.objects.get(test=testname)
-
-            datum = PerformanceDatum.objects.get(signature=signature)
-            if talos_datum.get('summary'):
-                # if we have a summary, ensure the subtest summary values made
-                # it in and that we ingested lowerIsBetter ok (if it was there)
-                subtest = talos_datum['summary']['subtests'][testname]
-                assert round(subtest['filtered'], 2) == datum.value
-                assert signature.lower_is_better == subtest.get('lowerIsBetter', True)
-            else:
-                # this is an old style talos blob without a summary. these are
-                # going away, so I'm not going to bother testing the
-                # correctness. however let's at least verify that some values
-                # are being generated here
-                assert datum.value
-            assert datum.push_timestamp == expected_push_timestamp
-        # if we have counters, verify that the series for them is as expected
-        for (counter, results) in talos_datum.get('talos_counters',
-                                                  {}).iteritems():
-            signature = PerformanceSignature.objects.get(test=counter)
-            datum = PerformanceDatum.objects.get(signature=signature)
-            assert round(float(results['mean']), 2) == datum.value
-            assert datum.push_timestamp == expected_push_timestamp
-
-        # we should be left with just the summary series
-        signature = PerformanceSignature.objects.get(
-            test='',
-            suite=talos_datum['testrun']['suite'])
-        datum = PerformanceDatum.objects.get(signature=signature)
-        if talos_datum.get('summary'):
-            assert round(talos_datum['summary']['suite'], 2) == datum.value
-        else:
-            # old style talos blob without summary. again, going away,
-            # but let's at least test that we have the value
-            assert datum.value
-
-        assert datum.push_timestamp == expected_push_timestamp
-
-        # delete perf objects for next iteration
-        PerformanceSignature.objects.all().delete()
-        PerformanceDatum.objects.all().delete()
 
 
 def test_no_performance_framework(test_project, test_repository,

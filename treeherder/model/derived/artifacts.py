@@ -4,9 +4,7 @@ import zlib
 import simplejson as json
 from django.forms import model_to_dict
 
-from treeherder.etl.perf import (PERFORMANCE_ARTIFACT_TYPES,
-                                 load_perf_artifacts,
-                                 load_talos_artifacts)
+from treeherder.etl.perf import load_perf_artifacts
 from treeherder.model import utils
 from treeherder.model.models import ReferenceDataSignatures
 
@@ -120,10 +118,7 @@ class ArtifactsModel(TreeherderModelBase):
                 repository=self.project)[0])
 
             # adapt and load data into placeholder structures
-            if perf_data['name'] == 'talos_data':
-                load_talos_artifacts(self.project, ref_data, job_data, perf_data)
-            else:
-                load_perf_artifacts(self.project, ref_data, job_data, perf_data)
+            load_perf_artifacts(self.project, ref_data, job_data, perf_data)
 
     def load_job_artifacts(self, artifact_data, job_id_lookup):
         """
@@ -157,7 +152,7 @@ class ArtifactsModel(TreeherderModelBase):
                     artifact['job_guid'], {}
                 ).get('id', None)
 
-                if artifact_name in PERFORMANCE_ARTIFACT_TYPES:
+                if artifact_name == 'performance_data':
                     self._adapt_performance_artifact_collection(
                         artifact, performance_artifact_list,
                         performance_artifact_job_id_list, job_id)

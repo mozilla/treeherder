@@ -9,7 +9,6 @@ from treeherder.etl.common import make_request
 
 from .parsers import (PerformanceParser,
                       StepParser,
-                      TalosParser,
                       TinderboxPrintParser)
 
 logger = logging.getLogger(__name__)
@@ -53,9 +52,7 @@ class ArtifactBuilderBase(object):
         # Perf data is stored in a json structure contained in a single line,
         # if the MAX_LINE_LENGTH is applied the data structure could be
         # truncated, preventing it from being ingested.
-        if not any(perf_str in line for perf_str in ['TALOSDATA',
-                                                     'TalosResult',
-                                                     'PERFHERDER_DATA']):
+        if 'PERFHERDER_DATA' not in line:
             line = line[:self.MAX_LINE_LENGTH]
 
         self.parser.parse_line(line, self.lineno)
@@ -96,16 +93,6 @@ class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
         super(BuildbotLogViewArtifactBuilder, self).__init__(url)
         self.parser = StepParser()
         self.name = "text_log_summary"
-
-
-class BuildbotTalosDataArtifactBuilder(ArtifactBuilderBase):
-    """Makes the artifact for performance data."""
-
-    def __init__(self, url=None):
-        """Construct artifact builder for talos data"""
-        super(BuildbotTalosDataArtifactBuilder, self).__init__(url)
-        self.parser = TalosParser()
-        self.name = "talos_data"
 
 
 class BuildbotPerformanceDataArtifactBuilder(ArtifactBuilderBase):
