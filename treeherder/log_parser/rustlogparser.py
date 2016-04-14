@@ -21,21 +21,22 @@ class ArtifactBuilderCollection(object):
         self.key_map = {
             "job_details": ("Job Info", True),
             "step_data": ("text_log_summary", True),
-            "talos_data": ("talos_data", False),
-            "performance_data": ("performance_data", False),
+            "performance_data": ("performance_data", False)
         }
 
     def parse(self):
         data = lib.parse_artifacts(self.url, self.user_agent)
+
+        if not data:
+            return
+
         for artifact_str in data.split("\x17"):
-            try:
-                artifact = json.loads(artifact_str)
-            except Exception as e:
-                print artifact_str
-                raise
+            artifact = json.loads(artifact_str)
             for key in artifact.keys():
                 if key in self.key_map:
                     name, required = self.key_map[key]
                     if not artifact and not required:
                         continue
+                    if key == "performance_data":
+                        artifact[key] = [json.loads(item) for item in artifact[key]]
                     self.artifacts[name] = artifact
