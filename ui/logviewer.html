@@ -97,12 +97,11 @@
             </tr>
             <tr ng-repeat="line in job_details | orderBy:'title'">
                 <th ng-cloak>{{line.title}}:</th>
-                <td ng-switch on="line.content_type">
-                  <a ng-cloak ng-switch-when="link" title="{{line.value}}"
+                <td ng-cloak>
+                  <a ng-if="line.url" title="{{line.value}}"
                      href="{{line.url}}" target="_blank">{{line.value}}</a>
-                    <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
-                    <span ng-switch-default>{{line.value}}</span>
-                <td/>
+                  <span ng-if="!line.url" ng-bind-html="line.value"></span>
+                </td>
             </tr>
           </table>
         </div>
@@ -147,6 +146,7 @@
 
     <!-- Model services -->
     <script src="js/models/job_artifact.js"></script>
+    <script src="js/models/job_detail.js"></script>
     <script src="js/models/job.js"></script>
     <script src="js/models/runnable_job.js"></script>
     <script src="js/models/resultset.js"></script>

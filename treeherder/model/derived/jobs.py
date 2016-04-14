@@ -1077,7 +1077,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         push_timestamps = {}
 
         for index, job in enumerate(job_placeholders):
-
             # Replace reference data with their associated ids
             self._set_data_ids(
                 index,

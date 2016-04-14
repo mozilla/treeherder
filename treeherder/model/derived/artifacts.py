@@ -4,6 +4,7 @@ import zlib
 import simplejson as json
 from django.forms import model_to_dict
 
+from treeherder.etl.jobdetail import load_job_details
 from treeherder.etl.perf import load_perf_artifacts
 from treeherder.model import utils
 from treeherder.model.models import ReferenceDataSignatures
@@ -156,6 +157,10 @@ class ArtifactsModel(TreeherderModelBase):
                     self._adapt_performance_artifact_collection(
                         artifact, performance_artifact_list,
                         performance_artifact_job_id_list, job_id)
+                elif artifact_name == 'Job Info':
+                    # if a job info artifact, just load contents directly into
+                    # job detail artifacts
+                    load_job_details(job_guid, artifact)
                 else:
                     self._adapt_job_artifact_collection(
                         artifact, job_artifact_list, job_id)

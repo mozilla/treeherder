@@ -7,6 +7,8 @@ import simplejson as json
 from django.conf import settings
 from django.utils.six import BytesIO
 
+from treeherder.jobs.models import JobDetail
+
 from ..sampledata import SampleData
 
 
@@ -60,8 +62,8 @@ def mock_mozlog_get_log_handler(monkeypatch):
 def test_parse_log(jm, jobs_with_local_log, sample_resultset,
                    mock_post_json, mock_fetch_json):
     """
-    check that at least 3 job_artifacts get inserted when running
-    a parse_log task for a successful job
+    check that 2 job_artifacts get inserted when running a parse_log task for
+    a successful job and that JobDetail objects get created
     """
 
     jm.store_result_set_data(sample_resultset)
@@ -86,11 +88,12 @@ def test_parse_log(jm, jobs_with_local_log, sample_resultset,
 
     jm.disconnect()
 
-    # we must have at least 3 artifacts:
+    # we should have 2 artifacts:
     # 1 for the log viewer
-    # 1 for the job artifact panel
     # 1 for the bug suggestions
-    assert len(job_artifacts) >= 3
+    assert len(job_artifacts) == 2
+    # this log generates 4 job detail objects at present
+    print JobDetail.objects.count() == 4
 
 
 # json-log parsing is disabled due to bug 1152681.
@@ -168,11 +171,10 @@ def test_bug_suggestions_artifact(jm, jobs_with_local_log,
 
     jm.disconnect()
 
-    # we must have at least 3 artifacts:
+    # we must have 2 artifacts:
     # 1 for the log viewer
-    # 1 for the job artifact panel
     # 1 for the bug suggestions
-    assert len(job_artifacts) >= 3
+    assert len(job_artifacts) == 2
 
     structured_log_artifact = [artifact for artifact in job_artifacts
                                if artifact["name"] == "text_log_summary"][0]
