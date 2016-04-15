@@ -531,6 +531,24 @@ class JobDuration(models.Model):
         unique_together = ('signature', 'repository')
 
 
+class Job(models.Model):
+    """
+    Representation of a treeherder job
+
+    This is currently a transitional representation intended to assist in
+    cross referencing data between the per-project databases and those
+    objects in the Django ORM
+    """
+    id = BigAutoField(primary_key=True)
+    repository = models.ForeignKey(Repository)
+    guid = models.CharField(max_length=50, unique=True, db_index=True)
+    project_specific_id = models.PositiveIntegerField(db_index=True)
+
+    class Meta:
+        db_table = 'jobs'
+        unique_together = ('repository', 'project_specific_id')
+
+
 class FailureLineManager(models.Manager):
     def unmatched_for_job(self, repository, job_guid):
         return FailureLine.objects.filter(

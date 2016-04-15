@@ -16,6 +16,7 @@ from treeherder.model.models import (BuildPlatform,
                                      Datasource,
                                      ExclusionProfile,
                                      FailureLine,
+                                     Job,
                                      JobDuration,
                                      JobGroup,
                                      JobType,
@@ -584,14 +585,17 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
     def _execute_orm_deletes(self, job_guids, chunk_size, sleep_time):
         failure_line_ids = [item['id'] for item in
                             FailureLine.objects.filter(job_guid__in=job_guids).values('id')]
+        job_ids = Job.objects.filter(guid__in=job_guids).values_list('id', flat=True)
 
-        for lower_bound in xrange(0, len(failure_line_ids), chunk_size):
-            FailureLine.objects.filter(
-                id__in=failure_line_ids[lower_bound:lower_bound+chunk_size]).delete()
+        for (objtype, ids) in [(FailureLine, failure_line_ids),
+                               (Job, job_ids)]:
+            for lower_bound in xrange(0, len(ids), chunk_size):
+                objtype.objects.filter(
+                    id__in=ids[lower_bound:lower_bound+chunk_size]).delete()
 
-            if sleep_time:
-                # Allow some time for other queries to get through
-                time.sleep(sleep_time)
+                if sleep_time:
+                    # Allow some time for other queries to get through
+                    time.sleep(sleep_time)
 
     def get_bug_job_map_list(self, offset, limit, conditions=None):
         """
@@ -1577,7 +1581,21 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             placeholders=job_placeholders,
             executemany=True)
 
-        return self.get_job_ids_by_guid(job_guid_list)
+        job_id_lookup = self.get_job_ids_by_guid(job_guid_list)
+
+        # create an intermediate representation of the job useful for doing
+        # lookups
+        repository = Repository.objects.get(name=self.project)
+        for job_guid in job_id_lookup.keys():
+            # in the case of retries, we might have a new id with
+            # an old guid
+            Job.objects.update_or_create(
+                repository=repository, guid=job_guid,
+                defaults={
+                    'project_specific_id': job_id_lookup[job_guid]['id']
+                })
+
+        return job_id_lookup
 
     def get_average_job_durations(self, reference_data_signatures):
         if not reference_data_signatures:

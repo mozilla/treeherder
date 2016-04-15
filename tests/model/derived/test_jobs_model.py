@@ -11,6 +11,7 @@ from tests.sample_data_generator import (job_data,
                                          result_set)
 from treeherder.model.derived import ArtifactsModel
 from treeherder.model.models import (FailureLine,
+                                     Job,
                                      JobDuration,
                                      JobGroup)
 
@@ -249,6 +250,7 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, sample_data,
     jm.disconnect()
 
     assert len(jl) == 2
+    assert Job.objects.count() == 2
     assert jl[0]['result'] == 'retry'
     assert jl[0]['id'] == initial_job_id
     assert jl[1]['result'] == 'success'
@@ -276,6 +278,7 @@ def test_ingest_retry_sample_job_no_running(jm, sample_data,
     jm.disconnect()
 
     assert len(jl) == 1
+    assert Job.objects.count() == 1
     assert jl[0]['result'] == 'retry'
 
 
@@ -349,6 +352,7 @@ def test_cycle_all_data(jm, sample_data,
     # There should be no jobs or failure lines after cycling
     assert len(jobs_after) == 0
     assert FailureLine.objects.count() == 0
+    assert Job.objects.count() == 0
 
 
 def test_cycle_one_job(jm, sample_data,
@@ -403,6 +407,7 @@ def test_cycle_one_job(jm, sample_data,
     assert len(jobs_to_be_deleted_after) == 0
 
     assert len(jobs_after) == len(jobs_before) - len(jobs_to_be_deleted)
+    assert len(jobs_after) == Job.objects.count()
 
     assert (set(item.id for item in FailureLine.objects.all()) ==
             set(item.id for item in failure_lines_remaining))
@@ -445,7 +450,8 @@ def test_cycle_all_data_in_chunks(jm, sample_data,
 
     # There should be no jobs after cycling
     assert len(jobs_after) == 0
-    assert len(FailureLine.objects.all()) == 0
+    assert Job.objects.count() == 0
+    assert FailureLine.objects.count() == 0
 
 
 def test_bad_date_value_ingestion(jm, test_repository, mock_log_parser):
