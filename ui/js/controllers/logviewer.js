@@ -84,6 +84,11 @@ logViewerApp.controller('LogviewerCtrl', [
             $scope.selectedBegin = 'undefined';
         };
 
+        $scope.setLineNumber = function(number) {
+            $scope.selectedBegin = number;
+            $scope.selectedEnd = number;
+        };
+
         $scope.hasFailedSteps = function () {
             var steps = $scope.artifact.step_data.steps;
             for (var i = 0; i < steps.length; i++) {
