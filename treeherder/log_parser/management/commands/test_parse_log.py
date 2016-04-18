@@ -8,6 +8,7 @@ from django.core.management.base import (BaseCommand,
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection as PythonArtifactBuilderCollection
 from treeherder.log_parser.rustlogparser import ArtifactBuilderCollection as RustArtifactBuilderCollection
 
+
 class Command(BaseCommand):
     """Management command to test log parsing"""
 

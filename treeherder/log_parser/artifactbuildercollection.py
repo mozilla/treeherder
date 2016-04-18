@@ -13,6 +13,7 @@ DEFAULT_BUILDERS = [BuildbotLogViewArtifactBuilder,
                     BuildbotJobArtifactBuilder,
                     BuildbotPerformanceDataArtifactBuilder]
 
+
 class ArtifactBuilderCollection(object):
     """
 Run a log through a collection of Artifact Builders to generate artifacts.
@@ -144,4 +145,3 @@ BuildbotPerformanceDataArtifactBuilder
             if name == 'performance_data' and not artifact[name]:
                 continue
             self.artifacts[name] = artifact
-

@@ -1,8 +1,9 @@
 import ctypes
-import sys
+import httplib
 import json
 import os
-from ctypes import c_char_p, Structure, POINTER, c_uint32
+import sys
+from ctypes import c_char_p
 
 path = os.path.split(__file__)[0]
 prefix = {'win32': ''}.get(sys.platform, 'lib')
@@ -12,6 +13,7 @@ lib = ctypes.cdll.LoadLibrary(os.path.join(path, prefix + "logparser" + extensio
 
 lib.parse_artifacts.argtypes = (c_char_p, c_char_p)
 lib.parse_artifacts.restype = c_char_p
+
 
 class ArtifactBuilderCollection(object):
     def __init__(self, url, user_agent="Log Parser"):
@@ -30,7 +32,21 @@ class ArtifactBuilderCollection(object):
         if not data:
             return
 
-        for artifact_str in data.split("\x17"):
+        if data[0] != "0":
+            ret_code, data = data.split("\x17", 1)
+            if ret_code == 1:
+                # Parsing failed, raise an exception
+                error_cls = {
+                    "NetworkError": httplib.HTTPException,
+                    "HttpError": httplib.HTTPException,
+                    "JsonError": ValueError,
+                    "IoError": IOError,
+                    "OtherError": ValueError,
+                }
+                error_name, description = data.split("\x17", 1)
+                raise error_cls.get(error_name, Exception)(description)
+
+        for artifact_str in data.split("\x17")[1:]:
             artifact = json.loads(artifact_str)
             for key in artifact.keys():
                 if key in self.key_map:
