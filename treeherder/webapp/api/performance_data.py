@@ -162,6 +162,11 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
         if job_ids:
             datums = datums.filter(job_id__in=job_ids)
 
+        frameworks = request.query_params.getlist('framework')
+        if frameworks:
+            datums = datums.filter(
+                signature__framework__in=frameworks)
+
         interval = request.query_params.get('interval')
         if interval:
             datums = datums.filter(

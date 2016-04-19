@@ -68,7 +68,8 @@ perf.controller('e10sCtrl', [
             } else {
                 getSeriesList = PhSeries.getSeriesList($scope.selectedRepo.name, {
                     interval: $scope.selectedTimeRange.value,
-                    subtests: 0 }).then(function(seriesList) {
+                    subtests: 0,
+                    framework: 1}).then(function(seriesList) {
                         return _.filter(seriesList, function(series) {
                             return series.options.indexOf('pgo') >= 0 ||
                                 (series.platform === 'osx-10-10' &&
@@ -84,7 +85,8 @@ perf.controller('e10sCtrl', [
                 $scope.testList = _.uniq(_.map(seriesToMeasure, 'testName'));
 
                 $q.all(_.chunk(seriesToMeasure, 20).map(function(seriesChunk) {
-                    var params = { signatures: _.map(seriesChunk, 'signature') };
+                    var params = { signatures: _.map(seriesChunk, 'signature'),
+                                   framework: 1 };
                     if ($scope.revision) {
                         params.result_set_id = resultSetId;
                     } else {
@@ -127,8 +129,8 @@ perf.controller('e10sCtrl', [
                                     title: 'graph',
                                     href: 'perf.html#/graphs?' + _.map([baseSig, e10sSig],
                                                                        function(sig) {
-                                                                           return 'series=[' + [ $scope.selectedRepo.name, sig, 1 ];
-                                                                       }).join('&') + ']'
+                                                                           return 'series=[' + [ $scope.selectedRepo.name, sig, 1 ] + ']';
+                                                                       }).join('&')
                                 }];
                                 if (resultsMap['base'][baseSig].hasSubTests) {
                                     var params = [
@@ -249,12 +251,14 @@ perf.controller('e10sSubtestCtrl', [
                     $scope.selectedRepo.name, $scope.revision).then(function(resultSets) {
                         resultSetId = resultSets[0].id;
                         return PhSeries.getSeriesList($scope.selectedRepo.name, {
-                            parent_signature: [ baseSignature, e10sSignature ]
+                            parent_signature: [ baseSignature, e10sSignature ],
+                            framework: 1
                         });
                     });
             } else {
                 getSeriesList = PhSeries.getSeriesList($scope.selectedRepo.name, {
-                    parent_signature: [ baseSignature, e10sSignature ]
+                    parent_signature: [ baseSignature, e10sSignature ],
+                    framework: 1
                 });
             }
 
@@ -265,7 +269,8 @@ perf.controller('e10sSubtestCtrl', [
                 $scope.titles[summaryTestName] = summaryTestName;
 
                 return $q.all(_.chunk(seriesList, 20).map(function(seriesChunk) {
-                    var params = { signatures: _.map(seriesChunk, 'signature') };
+                    var params = { signatures: _.map(seriesChunk, 'signature'),
+                                   framework: 1 };
                     if ($scope.revision) {
                         params.result_set_id = resultSetId;
                     } else {
