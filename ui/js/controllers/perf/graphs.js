@@ -549,7 +549,10 @@ perf.controller('GraphsCtrl', [
         }
 
         function getSeriesData(series) {
-            return PhSeries.getSeriesData(series.projectName, { interval: $scope.myTimerange.value, signatures: series.signature }).then(
+            return PhSeries.getSeriesData(series.projectName, { interval: $scope.myTimerange.value,
+                                                                signatures: series.signature,
+                                                                framework: series.frameworkId,
+}).then(
                 function(seriesData) {
                     series.flotSeries = {
                         lines: { show: false },

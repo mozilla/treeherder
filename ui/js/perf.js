@@ -331,7 +331,12 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                     getResultsMap: function(projectName, seriesList, resultSetIds) {
                                         var resultsMap = {};
                                         return $q.all(_.chunk(seriesList, 20).map(function(seriesChunk) {
-                                            return PhSeries.getSeriesData(projectName, { signatures: _.pluck(seriesChunk, 'signature'), result_set_id: resultSetIds }).then(function(seriesData) {
+                                            return PhSeries.getSeriesData(
+                                                projectName, {
+                                                    signatures: _.pluck(seriesChunk, 'signature'),
+                                                    framework: _.uniq(_.pluck(seriesChunk, 'frameworkId')),
+                                                    result_set_id: resultSetIds }
+                                            ).then(function(seriesData) {
                                                 resultSetIds.forEach(function(resultSetId) {
                                                     if (resultsMap[resultSetId] === undefined) {
                                                         resultsMap[resultSetId] = {};

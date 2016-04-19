@@ -5,7 +5,8 @@ from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
 from treeherder.model.models import MachinePlatform
-from treeherder.perf.models import (PerformanceFramework,
+from treeherder.perf.models import (PerformanceDatum,
+                                    PerformanceFramework,
                                     PerformanceSignature)
 
 
@@ -26,6 +27,26 @@ def summary_perf_signature(test_perf_signature):
     test_perf_signature.parent_signature = signature
     test_perf_signature.save()
     return test_perf_signature
+
+
+@pytest.fixture
+def test_perf_signature_same_hash_different_framework(test_perf_signature):
+    # a new signature, same as the test_perf_signature in every
+    # way, except it belongs to a different "framework"
+    new_framework = PerformanceFramework.objects.create(
+        name='test_talos_2')
+    new_signature = PerformanceSignature.objects.create(
+        repository=test_perf_signature.repository,
+        signature_hash=test_perf_signature.signature_hash,
+        framework=new_framework,
+        platform=test_perf_signature.platform,
+        option_collection=test_perf_signature.option_collection,
+        suite=test_perf_signature.suite,
+        test=test_perf_signature.test,
+        has_subtests=test_perf_signature.has_subtests,
+        last_updated=test_perf_signature.last_updated
+    )
+    return new_signature
 
 
 def test_no_summary_performance_data(webapp, test_perf_signature,
@@ -138,22 +159,9 @@ def test_summary_performance_data(webapp, test_repository,
     }
 
 
-def test_filter_by_framework(webapp, test_repository, test_perf_signature):
-    # add a a new signature, the same as the test_perf_signature in every
-    # way, except it belongs to a different "framework"
-    new_framework = PerformanceFramework.objects.create(
-        name='test_talos_2')
-    signature2 = PerformanceSignature.objects.create(
-        repository=test_perf_signature.repository,
-        signature_hash=test_perf_signature.signature_hash,
-        framework=new_framework,
-        platform=test_perf_signature.platform,
-        option_collection=test_perf_signature.option_collection,
-        suite=test_perf_signature.suite,
-        test=test_perf_signature.test,
-        has_subtests=test_perf_signature.has_subtests,
-        last_updated=test_perf_signature.last_updated
-    )
+def test_filter_signatures_by_framework(webapp, test_repository, test_perf_signature,
+                                        test_perf_signature_same_hash_different_framework):
+    signature2 = test_perf_signature_same_hash_different_framework
 
     client = APIClient()
 
@@ -169,8 +177,56 @@ def test_filter_by_framework(webapp, test_repository, test_perf_signature):
     # Filter by new framework
     resp = client.get(reverse('performance-signatures-list',
                               kwargs={"project": test_repository.name}) +
-                      '?framework=%s' % new_framework.id,
+                      '?framework=%s' % signature2.framework.id,
                       format='json')
     assert resp.status_code == 200
     assert len(resp.data.keys()) == 1
-    assert resp.data[signature2.signature_hash]['framework_id'] == new_framework.id
+    assert resp.data[signature2.signature_hash]['framework_id'] == signature2.framework.id
+
+
+def test_filter_data_by_framework(webapp, test_repository, test_perf_signature,
+                                  test_perf_signature_same_hash_different_framework):
+    signature2 = test_perf_signature_same_hash_different_framework
+
+    for (i, signature) in enumerate([test_perf_signature, signature2]):
+        PerformanceDatum.objects.create(
+            repository=signature.repository,
+            job_id=i,
+            result_set_id=i,
+            signature=signature,
+            value=0.0,
+            push_timestamp=datetime.datetime.now())
+
+    client = APIClient()
+
+    # No filtering, return two datapoints (this behaviour actually sucks,
+    # but it's "by design" for now, see bug 1265709)
+    resp = client.get(reverse('performance-data-list',
+                              kwargs={"project": test_repository.name}) +
+                      '?signatures=' + test_perf_signature.signature_hash)
+    assert resp.status_code == 200
+    datums = resp.data[test_perf_signature.signature_hash]
+    assert len(datums) == 2
+    assert set([datum['job_id'] for datum in datums]) == set([0, 1])
+
+    # Filtering by first framework
+    resp = client.get(reverse('performance-data-list',
+                              kwargs={"project": test_repository.name}) +
+                      '?signatures={}&framework={}'.format(
+                          test_perf_signature.signature_hash,
+                          test_perf_signature.framework.id))
+    assert resp.status_code == 200
+    datums = resp.data[test_perf_signature.signature_hash]
+    assert len(datums) == 1
+    assert datums[0]['job_id'] == 0
+
+    # Filtering by second framework
+    resp = client.get(reverse('performance-data-list',
+                              kwargs={"project": test_repository.name}) +
+                      '?signatures={}&framework={}'.format(
+                          test_perf_signature.signature_hash,
+                          signature2.framework.id))
+    assert resp.status_code == 200
+    datums = resp.data[test_perf_signature.signature_hash]
+    assert len(datums) == 1
+    assert datums[0]['job_id'] == 1
