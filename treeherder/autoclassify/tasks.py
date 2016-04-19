@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 def autoclassify(project, job_guid):
     try:
         logger.info('Running autoclassify')
-        call_command('autoclassify', job_guid, project)
+        call_command('autoclassify', project, job_guid)
         celery_app.send_task('detect-intermittents',
                              [project, job_guid],
                              routing_key='detect_intermittents')
@@ -26,6 +26,6 @@ def detect_intermittents(project, job_guid):
         logger.info('Running detect intermittents')
         # TODO: Make this list configurable
         if project == "mozilla-inbound":
-            call_command('detect_intermittents', job_guid, project)
+            call_command('detect_intermittents', project, job_guid)
     except Exception as e:
         detect_intermittents.retry(exc=e, countdown=(1 + detect_intermittents.request.retries) * 60)

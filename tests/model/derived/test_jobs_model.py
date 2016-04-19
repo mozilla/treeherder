@@ -10,9 +10,11 @@ from tests.autoclassify.utils import (create_failure_lines,
 from tests.sample_data_generator import (job_data,
                                          result_set)
 from treeherder.model.derived import ArtifactsModel
-from treeherder.model.models import (FailureLine,
+from treeherder.model.models import (FailureClassification,
+                                     FailureLine,
                                      JobDuration,
-                                     JobGroup)
+                                     JobGroup,
+                                     TaskSetMeta)
 
 slow = pytest.mark.slow
 xfail = pytest.mark.xfail
@@ -448,6 +450,19 @@ def test_cycle_all_data_in_chunks(jm, sample_data,
     assert len(FailureLine.objects.all()) == 0
 
 
+def test_cycle_task_set_meta(jm):
+    to_delete = TaskSetMeta(count=0)
+    to_delete.save()
+    to_keep = TaskSetMeta(count=1)
+    to_keep.save()
+
+    assert [item.id for item in TaskSetMeta.objects.all()] == [to_delete.id, to_keep.id]
+
+    call_command('cycle_data', sleep_time=0, days=1, chunk_size=3)
+
+    assert [item.id for item in TaskSetMeta.objects.all()] == [to_keep.id]
+
+
 def test_bad_date_value_ingestion(jm, test_repository, mock_log_parser):
     """
     Test ingesting an blob with bad date value
@@ -699,3 +714,27 @@ def test_retry_on_operational_failure(jm, monkeypatch):
         assert True
 
     assert retry_count['num'] == 20
+
+
+def test_delete_note(jm, eleven_jobs_stored):
+    """
+    test inserting and deleting a note
+    """
+    # create a failure classification corresponding to "not successful"
+    FailureClassification.objects.create(id=2, name="fixed by commit")
+
+    job = jm.get_job(1)[0]
+    assert job["failure_classification_id"] == 1
+
+    jm.insert_job_note(job["id"], 2, 'John Doe', 'A random note')
+
+    job = jm.get_job(1)[0]
+    assert job["failure_classification_id"] == 2
+    notes = jm.get_job_note_list(job["id"])
+    assert len(notes) == 1
+    note = notes[0]
+
+    jm.delete_job_note(job["id"], note["id"])
+    job = jm.get_job(1)[0]
+    assert job["failure_classification_id"] == 1
+    assert len(jm.get_job_note_list(job["id"])) == 0

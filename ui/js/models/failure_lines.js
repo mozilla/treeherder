@@ -1,8 +1,8 @@
 'use strict';
 
 treeherder.factory('ThFailureLinesModel', [
-    '$http', 'ThLog', 'thUrl',
-    function($http, ThLog, thUrl) {
+    '$http', '$q', 'ThLog', 'thUrl', 'thNotify',
+    function($http, $q, ThLog, thUrl, thNotify) {
 
         var ThFailureLinesModel = function(data) {
             angular.extend(this, data);
@@ -19,7 +19,8 @@ treeherder.factory('ThFailureLinesModel', [
             config = config || {};
             var timeout = config.timeout || null;
             return $http.get(ThFailureLinesModel.get_url(job_id), {
-                timeout: timeout
+                timeout: timeout,
+                cache: false
             })
             .then(function(response) {
                 var item_list = [];
@@ -28,6 +29,20 @@ treeherder.factory('ThFailureLinesModel', [
                 });
                 return item_list;
             });
+        };
+
+        ThFailureLinesModel.verify = function(line_id, best_classification) {
+            return $http.put(thUrl.getRootUrl("/failure-line/" + line_id + "/"),
+                             {best_classification: best_classification});
+        };
+
+        ThFailureLinesModel.verifyMany = function(data) {
+            if (!data.length) {
+                var p = $q.defer();
+                p.resolve();
+                return p.promise;
+            }
+            return $http.put(thUrl.getRootUrl("/failure-line/"), data);
         };
 
         return ThFailureLinesModel;

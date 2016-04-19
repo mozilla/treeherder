@@ -1,46 +1,173 @@
 <div ng-controller="ClassificationPluginCtrl"
      class="error-classification-content">
-  <ul class="list-unstyled">
-
+  <ul class="list-unstyled failure-line-list" ng-if="status() === 'pending' || status() === 'verified'">
     <li ng-repeat="line in failureLines"
-        class="failure-line"
-        ng-class="{'classified-line': line.matches.length }">
-      <span><strong>{{line.matches | classified}}</strong></span>
-      <span ng-if="line.matches.length">
-          <span ng-repeat="match in line.matches">
-              <a href="{{:: getBugUrl(match.classified_failure.bug_number) }}"
-                 target="_blank">{{::match.classified_failure.bug_number}}</a>
-          </span>
-      </span>
-      <span ng-if="line.action === 'test_result'">
-        <span>{{line.test}} {{line.subtest}}
-          Expected: {{line.expected}}, got: <span class="label label-default">{{line.status}}</span>
-        </span>
-        <div ng-if="line.message"
-             ng-init="messageExpanded=false"
-             class="failure-line-message">
-             <span class="failure-line-message-toggle fa fa-fw fa-lg"
-                     ng-class="{'fa-caret-down': messageExpanded, 'fa-caret-right': !messageExpanded}"
-                     ng-click="messageExpanded = !messageExpanded"></span>
-             <span ng-if="!messageExpanded"
-                   class="failure-line-message-collapsed">{{ line.message }}</span>
-             <span ng-if="messageExpanded"
-                   class="failure-line-message-expanded">{{ line.message }}</span>
-        </div>
-      </span>
-      <span ng-if="line.action === 'log'">
-        LOG {{line.level}} | {{line.message}}
-      </span>
-      <span ng-if="line.action === 'crash'">
-        CRASH | {{line.signature}}
-      </span>
-      <span ng-if="line.action === ''">
-        CRASH | {{line.signature}}
-      </span>
-    </li>
+        class="classification-line"
+        ng-class="line.type">
+      <div class="classification-line-actions">
+        <span ng-if="line.status !== 'pending'">
+          <a ng-if="line.status == 'verified' && line.classifiedFailureId"
+             class="label label-xs label-primary"
+             title="This line is verified"
+             ng-href="/failureviewer.html#/?classified_failure_id={{line.classifiedFailureId}}">Verified</a>
 
-    <li ng-if="!tabs.autoClassification.is_loading &&  !failureLines.length">
-      <span>No classifiable errors for this job.</span>
+          <span ng-if="line.status == 'verified' && line.type === 'unstructured'"
+             class="label label-xs label-primary"
+             title="This line is verified">Verified</span>
+
+          <span ng-if="line.status == 'ignored'"
+                class="label label-xs label-ignored"
+                title="This line is ignored">Ignored</span>
+        </span>
+        <span ng-if="line.status === 'pending'">
+          <span ng-if="line.type === 'structured' && line.updateText.length==1">{{line.updateText[0]}}</span>
+          <select
+             ng-if="line.type === 'structured' && line.updateText.length > 1"
+             ng-model="line.updateSelectOption"
+             ng-options="value for (key, value) in line.updateText"
+             ></select><br>
+          <button class="btn btn-xs btn-default"
+                  title="Select best match and click here"
+                  ng-disabled="!line.canSave"
+                  ng-click="line.save()">Save</button>
+        </span>
+      </div>
+      <div class="classification-line-detail">
+        <div ng-if="line.type == 'structured'">
+          <span ng-if="line.data.action === 'test_result'">
+            <span ng-class="{'ignored-line': line.status === 'ignored'}">
+              <strong class="failure-line-status">{{ ::line.data.status }}</strong>
+              <span ng-if="line.data.expected != 'PASS' && line.data.expected != 'OK'">
+                (expected <strong>{{ ::line.data.expected }}</strong>)
+              </span>
+              | <strong>{{ ::line.data.test }}</strong>
+              <span ng-if="line.data.subtest">| {{ ::line.data.subtest }}</span>
+            </span>
+            <div ng-if="line.data.message && line.status !== 'ignored'"
+                 ng-init="messageExpanded=false"
+                 class="failure-line-message">
+              <span class="failure-line-message-toggle fa fa-fw fa-lg"
+                    ng-class="{'fa-caret-down': messageExpanded, 'fa-caret-right': !messageExpanded}"
+                    ng-click="messageExpanded = !messageExpanded"></span>
+              <span ng-if="!messageExpanded"
+                    class="failure-line-message-collapsed">{{ ::line.data.message }}</span>
+              <span ng-if="messageExpanded"
+                    class="failure-line-message-expanded">{{ ::line.data.message }}</span>
+            </div>
+          </span>
+          <span ng-if="::line.data.action === 'log'">
+            LOG {{ ::line.data.level }} | {{ ::line.data.message }}
+          </span>
+          <span ng-if="::line.data.action === 'crash'">
+            CRASH |
+            <span ng-if="::line.data.test">
+              <strong>{{ ::line.data.test }}</strong> |
+            </span>
+            application crashed [{{ ::line.data.signature }}]
+          </span>
+        </div>
+        <div ng-if="line.type == 'unstructured'">
+          {{ ::line.data.search }}
+        </div>
+        <div ng-if="line.status === 'verified'">
+          <span class="glyphicon glyphicon-star best-classification-star"></span>
+          <span class="line-option-text" ng-if="line.verifiedBugNumber">
+            <a href="{{::getBugUrl(line.verifiedBugNumber) }}"
+               target="_blank">Bug {{ ::line.verifiedBugNumber }} -
+              <span ng-if="line.verifiedBugSummary"
+                    ng-bind-html="line.verifiedBugSummary | escapeHTML | highlightCommonTerms:line.test:line.data.subtest:line.data.status:line.status.expected"></span>
+            </a>
+          </span>
+        </div>
+
+        <ul class="list-unstyled"
+            ng-if="line.status === 'pending'">
+          <!--classification options for line-->
+          <li ng-repeat="option in line.options" >
+            <div class="classification-options">
+              <div class="classification-icon">
+                <span ng-if="::line.best === option"
+                      class="glyphicon glyphicon-star-empty"
+                      title="This is the option Treeherder chose as the best"></span>
+                <span ng-if="::line.best !== option"
+                      class="classification-no-icon">&nbsp;</span>
+              </div>
+              <input type="radio"
+                     value="{{$index}}"
+                     name="{{::line.id}}"
+                     ng-model="line.selectedOptionIndex"
+                     ng-change="line.dirty=true"
+                     ng-if="!(option.type == 'classified_failure' && !option.hasBug)"/>
+              <span class="line-option-text" ng-if="option.hasBug">
+                <a href="{{::getBugUrl(option.bugNumber) }}"
+                   target="_blank">Bug {{::option.bugNumber}} -
+                  <span ng-if="line.type === 'structured'"
+                        ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:line.data.test:line.data.subtest:line.data.status:line.data.expected"></span>
+                  <span ng-if="line.type === 'unstructured'"
+                        ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:line.data.search_terms">
+                  </span>
+                </a>
+              </span>
+              <span ng-if="option.type == 'classified_failure' && !option.hasBug">
+                Autoclassified failure with no associated bug number
+              </span>
+              <span ng-if="option.type == 'manual'">
+                Other bug <input class="manual-bug-input"
+                                 type="text"
+                                 placeholder="Bug Number"
+                                 ng-model="option.bugNumber"
+                                 ng-change="line.dirty=true"/>
+                <a ng-if="option.bugNumber"
+                   href="{{ ::getBugUrl(option.bugNumber) }}"
+                   target="_blank">
+                  [view]</a>
+              </span>
+              <span ng-if="option.type==='ignore'"
+                    class="line-option-text"
+                    title="Ignore this line with regard to job classification"> Ignore line
+                <select ng-if="line.type == 'structured'"
+                        ng-model="option.always"
+                        ng-options="key for (key,value) in {'here only': false, 'for future matches': true}">
+                </select>
+              </span>
+            </div>
+            <div class="classification-matchers" ng-if="option.type == 'classified_failure'">
+              Matched by:
+              <span ng-repeat='match in option.matches'>
+                {{match.matcher.name}} ({{match.score}})
+              </span>
+              <a target="th_similar" ng-href="/failureviewer.html#/?classified_failure_id={{option.id}}">Other matching failures...</a>
+            </div>
+          </li>
+        </ul>
     </li>
   </ul>
+
+  <div class="failure-lines-actions" ng-if="status() === 'pending'">
+    <button ng-if="failureLines"
+            class="btn btn-primary btn-sm"
+            title="Ignore items with no autoclassification and nothing explicitly selected"
+            ng-disabled="!canIgnore()"
+            ng-click="ignoreClean()">Ignore Others</button><br>
+    <button ng-if="failureLines"
+            class="btn btn-primary btn-sm"
+            title="Save All"
+            ng-disabled="!canSaveAll()"
+            ng-click="saveAll()">Save All</button>
+  </div>
+
+  <div ng-if="status() === 'waiting'">
+    <span>Logs not fully parsed, please wait</span>
+  </div>
+
+  <div ng-if="status() === 'empty'">
+    <span>No lines to classify</span>
+  </div>
+
+  <div ng-if="status() === 'loading'" class="overlay">
+    <div>
+      <span class="fa fa-spinner fa-pulse th-spinner-lg"></span>
+    </div>
+  </div>
+
 </div>

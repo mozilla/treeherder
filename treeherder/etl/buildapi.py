@@ -172,10 +172,10 @@ class Builds4hTransformerMixin(object):
                 try:
                     blobber_files = json.loads(prop['blobber_files'])
                     for bf, url in blobber_files.items():
-                        if bf and url and bf.endswith('_raw.log'):
+                        if bf and url and bf.endswith('_errorsummary.log'):
                             log_reference.append({
                                 'url': url,
-                                'name': 'mozlog_json'
+                                'name': 'errorsummary_json'
                             })
                 except Exception as e:
                     logger.warning("invalid blobber_files json for build id %s (%s): %s",

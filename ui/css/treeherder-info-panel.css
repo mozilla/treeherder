@@ -196,7 +196,8 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
   margin: 2px 0px;
 }
 
-#job-details-panel .star {
+#job-details-panel .star,
+#job-details-panel .star-o {
   color: #f0ad4e;
 }
 
@@ -462,16 +463,32 @@ div.performance-panel {
  * Error Classification
  */
 
-.failure-line {
-  padding: 2px 4px 0;
+.error-classification-content {
+ font-size:11px;
+ display:flex;
 }
 
-.classified-line {
-  background: #ccfaff;
+ul.failure-line-list {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.failure-line {
+  padding: 2px 4px 0;
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.failure-line-detail {
+  padding-left: 6px;
 }
 
 .failure-line-message {
   display: flex;
+}
+
+.failure-line-status {
+  color: #c45a02;
 }
 
 .failure-line-message-toggle {
@@ -486,14 +503,90 @@ div.performance-panel {
   height: 14px;
   overflow: hidden;
   padding-left: 5px;
-  color: darkgray;
+  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
 }
 
 .failure-line-message-expanded {
   margin-left: 5px;
   margin-bottom: 10px;
-  color: #747474;
   overflow-x: auto;
   white-space: pre-wrap;
   font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+}
+
+.classification-line {
+  display: flex;
+  margin-bottom: 6px;
+}
+
+.classification-line-actions {
+  width: 70px;
+  text-align: center;
+}
+
+.classification-line-actions > span > select {
+  width: 60px;
+  margin-bottom: 6px;
+}
+
+.classification-line-detail {
+  width: 100%;
+  padding-top: 3px;
+  padding-bottom:3px;
+  border-bottom: thin solid #eee;
+}
+
+.classification-set-bug {
+  cursor: pointer;
+  font-size: 8px;
+}
+
+.classification-icon {
+  width: 24px;
+  margin-top: auto;
+  margin-bottom: auto;
+  text-align: center;
+  display: inline-block;
+}
+
+.classification-icon > * {
+ margin-left: auto;
+ margin-right: auto;
+}
+
+/* TODO: Make this better */
+.classification-matchers {
+  color: darkgrey;
+  padding-left: 43px;
+}
+
+.manual-bug-input {
+  line-height: 8px;
+  margin: 2px 0 0 4px;
+}
+.manual-bug-label {
+  line-height: 15pt;
+}
+
+.line-option-text {
+  padding: 4px 0 0 4px;
+  position: relative;
+  top: 0;
+}
+
+.failure-lines-actions {
+  padding: 4px 4px 4px 4px;
+  text-align: center;
+}
+
+.failure-lines-actions > button {
+  margin-bottom: 4px;
+}
+
+.ignored-line {
+  text-decoration: line-through;
+}
+
+.label-ignored {
+  background-color: lightgrey;
 }

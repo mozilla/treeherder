@@ -598,7 +598,8 @@ class FailureLine(models.Model):
             ('job_guid', 'line')
         )
         index_together = (
-            ('job_guid', 'repository')
+            ('job_guid', 'repository'),
+            ('test', 'subtest', 'status', 'expected')
         )
 
     def best_automatic_match(self, min_score=0):
@@ -606,7 +607,7 @@ class FailureLine(models.Model):
             failure_line_id=self.id,
             score__gt=min_score).order_by(
             "-score",
-            "-classified_failure__modified").select_related(
+            "-classified_failure__id").select_related(
                 'classified_failure').first()
 
     def set_classification(self, matcher, bug_number=None):
@@ -624,9 +625,9 @@ class FailureLine(models.Model):
                 score=1)
             new_link.save()
 
-        return classification
+        return classification, new_link
 
-    def verify_best_classification(self, classification):
+    def mark_best_classification_verified(self, classification):
         self.best_classification = classification
         self.best_is_verified = True
         self.save()
@@ -640,15 +641,19 @@ class FailureLine(models.Model):
                     self.message.split("\n")[0]]
 
     def unstructured_bugs(self):
+        """
+        Get bugs that match this line in the Bug Suggestions artifact for this job.
+        """
         components = self._serialized_components()
         if not components:
             return []
 
         # Importing this at the top level causes circular import misery
-        from treeherder.model.derived import JobsModel
-        with JobsModel(self.repository.name) as jm:
+        from treeherder.model.derived import JobsModel, ArtifactsModel
+        with JobsModel(self.repository.name) as jm, \
+                ArtifactsModel(self.repository.name) as am:
             job_id = jm.get_job_ids_by_guid([self.job_guid])[self.job_guid]["id"]
-            bug_suggestions = jm.filter_bug_suggestions(jm.bug_suggestions(job_id))
+            bug_suggestions = am.filter_bug_suggestions(am.bug_suggestions(job_id))
 
         rv = []
         ids_seen = set()
@@ -660,6 +665,18 @@ class FailureLine(models.Model):
                         rv.append(suggestion)
 
         return rv
+
+    def update_autoclassification(self):
+        """
+        If a job is manually classified and has a single line in the logs matching a single
+        FailureLine, but the FailureLine has not matched any ClassifiedFailure, add a
+        new match due to the manual classification.
+        """
+
+        manual_detector = Matcher.objects.get(name="ManualDetector")
+
+        classification, _ = self.set_classification(manual_detector)
+        self.mark_best_classification_verified(classification)
 
 
 class ClassifiedFailure(models.Model):
@@ -675,10 +692,7 @@ class ClassifiedFailure(models.Model):
     def bug(self):
         # Putting this here forces one query per object; there should be a way
         # to make things more efficient
-        try:
-            return Bugscache.objects.get(id=self.bug_number)
-        except Bugscache.DoesNotExist:
-            return None
+        return Bugscache.objects.filter(id=self.bug_number).first()
 
     # TODO: add indexes once we know which queries will be typically executed
 
@@ -737,15 +751,17 @@ class MatcherManager(models.Manager):
         assert cls._detector_funcs is not None
         return cls._register(detector_cls, cls._detector_funcs)
 
-    @classmethod
-    def _register(cls, matcher_cls, dest):
-        if matcher_cls.__name__ in dest:
-            return dest[matcher_cls.__name__]
+    @staticmethod
+    def _register(cls_to_register, dest):
+        # if this has already been registered, then just return the previously
+        # created instance.
+        if cls_to_register.__name__ in dest:
+            return dest[cls_to_register.__name__]
 
-        obj, _ = Matcher.objects.get_or_create(name=matcher_cls.__name__)
+        obj, _ = Matcher.objects.get_or_create(name=cls_to_register.__name__)
 
-        instance = matcher_cls(obj)
-        dest[matcher_cls.__name__] = instance
+        instance = cls_to_register(obj)
+        dest[cls_to_register.__name__] = instance
 
         return instance
 
@@ -816,3 +832,41 @@ class RunnableJob(models.Model):
         return "{0} {1} {2}".format(self.id,
                                     self.ref_data_name,
                                     self.build_system_type)
+
+
+class TextLogSummary(models.Model):
+    id = BigAutoField(primary_key=True)
+    job_guid = models.CharField(max_length=50)
+    repository = models.ForeignKey(Repository)
+    text_log_summary_artifact_id = models.PositiveIntegerField(blank=True, null=True)
+    bug_suggestions_artifact_id = models.PositiveIntegerField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'text_log_summary'
+        unique_together = (('job_guid', 'repository'))
+
+
+class TextLogSummaryLine(models.Model):
+    id = BigAutoField(primary_key=True)
+    summary = FlexibleForeignKey(TextLogSummary, related_name="lines")
+    line_number = models.PositiveIntegerField(blank=True, null=True)
+    failure_line = FlexibleForeignKey(FailureLine, related_name="text_log_line", null=True)
+    bug_number = models.PositiveIntegerField(blank=True, null=True)
+    verified = models.BooleanField(default=False)
+
+    def bug(self):
+        # Putting this here forces one query per object; there should be a way
+        # to make things more efficient
+        return Bugscache.objects.filter(id=self.bug_number).first()
+
+    class Meta:
+        db_table = 'text_log_summary_line'
+
+
+class TaskSetMeta(models.Model):
+    id = BigAutoField(primary_key=True)
+    count = models.IntegerField()
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'task_set_meta'

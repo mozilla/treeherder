@@ -280,25 +280,53 @@ def test_job_error_lines(webapp, eleven_jobs_stored, jm, failure_lines, classifi
 
     exp_failure_keys = ["id", "job_guid", "repository", "action", "line",
                         "test", "subtest", "status", "expected", "message",
-                        "signature", "level", "created", "modified", "matches"]
+                        "signature", "level", "created", "modified", "matches",
+                        "best_classification", "best_is_verified", "classified_failures",
+                        "unstructured_bugs"]
 
     assert set(failures[0].keys()) == set(exp_failure_keys)
 
     matches = failures[0]["matches"]
     assert isinstance(matches, list)
 
-    exp_matches_keys = ["id", "matcher", "score", "is_best", "classified_failure"]
+    exp_matches_keys = ["id", "matcher", "score", "classified_failure"]
 
     assert set(matches[0].keys()) == set(exp_matches_keys)
 
-    classified = matches[0]["classified_failure"]
+    classified = failures[0]["classified_failures"][0]
     assert isinstance(classified, dict)
 
-    exp_classified_keys = ["id", "bug_number"]
+    exp_classified_keys = ["id", "bug_number", "bug"]
 
     assert set(classified.keys()) == set(exp_classified_keys)
 
     jm.disconnect()
+
+
+def test_job_text_log_summary(webapp, eleven_jobs_stored, jm, failure_lines,
+                              artifacts, text_summary_lines):
+    job = jm.get_job(1)[0]
+
+    resp = webapp.get(
+        reverse("jobs-text-log-summary",
+                kwargs={"project": jm.project, "pk": job["id"]})
+    )
+
+    assert resp.status_int == 200
+
+    text_log_summary = resp.json
+    assert isinstance(text_log_summary, object)
+
+    exp_keys = ["id", "job_guid", "repository", "text_log_summary_artifact_id",
+                "bug_suggestions_artifact_id", "bug_suggestions", "lines"]
+    assert set(text_log_summary.keys()) == set(exp_keys)
+
+    assert text_log_summary["bug_suggestions"] == artifacts[1]["blob"]
+
+    line_exp_keys = set(["id", "line_number", "bug_number", "verified", "summary",
+                         "failure_line", "line", "bug"])
+    for line in text_log_summary["lines"]:
+        assert line_exp_keys == set(line.keys())
 
 
 def test_list_similar_jobs(webapp, eleven_jobs_stored, jm):

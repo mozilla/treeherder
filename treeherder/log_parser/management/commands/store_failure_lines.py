@@ -1,3 +1,5 @@
+import json
+import logging
 from cStringIO import StringIO
 from itertools import islice
 
@@ -8,20 +10,38 @@ from django.db import transaction
 from mozlog import reader
 
 from treeherder.etl.common import fetch_text
+from treeherder.log_parser.utils import expand_log_url
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import (FailureLine,
                                      Repository)
 
+logger = logging.getLogger(__name__)
+
 
 class Command(BaseCommand):
-    args = '<log_url>, <job_guid>, <repository>'
+    args = '<repository>, <job_guid>, <log_url>'
     help = 'Download, parse and store the given failure summary log.'
 
     def handle(self, *args, **options):
         try:
-            log_url, job_guid, repository_name = args
+            repository_name, job_guid, log_url_or_obj = args
         except ValueError:
             raise CommandError('3 arguments required, %s given' % len(args))
+
+        try:
+            log_obj = json.loads(log_url_or_obj)
+        except ValueError:
+            try:
+                log_obj = expand_log_url(repository_name, job_guid, log_url_or_obj)
+            except ValueError:
+                # This log_url either isn't in the database, or there are multiple possible
+                # urls in the database, so we will be unable to update the pending state
+                log_obj = None
+
+        if log_obj:
+            log_url = log_obj["url"]
+        else:
+            log_url = log_url_or_obj
 
         log_text = fetch_text(log_url)
 
@@ -44,14 +64,14 @@ class Command(BaseCommand):
             # Alter the N+1th log line to indicate the list was truncated.
             log_iter[-1].update(action='truncated')
 
-        with JobsModel(repository_name) as jobs_model:
-            job_id = jobs_model.get_job_ids_by_guid([job_guid])
-
-            if not job_id:
-                raise CommandError('No job found with guid %s in the %s repository' % (job_guid, repository_name))
-
         with transaction.atomic():
             FailureLine.objects.bulk_create(
                 [FailureLine(repository=repository, job_guid=job_guid, **failure_line)
                  for failure_line in log_iter]
             )
+
+        if log_obj is not None:
+            with JobsModel(repository_name) as jm:
+                jm.update_job_log_url_status(log_obj["id"], "parsed")
+        else:
+            logger.warning("Unable to set parsed state of job log")

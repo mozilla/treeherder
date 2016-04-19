@@ -86,19 +86,22 @@ function inTag(str, index, start, end) {
     return prePart.split(start).length > prePart.split(end).length;
 }
 
-treeherder.filter('highlightCommonTerms', function(){
-    return function(input, compareStr){
+treeherder.filter('highlightCommonTerms', function() {
+    return function(input) {
+        var compareStr = Array.prototype.slice.call(arguments, 1).filter(
+            function(x) {return x;}).join(" ");
         var tokens = compareStr.split(/[^a-zA-Z0-9_-]+/);
         tokens.sort(function(a, b){
             return b.length - a.length;
         });
-        angular.forEach(tokens, function(elem){
-            if (elem.length > 0){
-                input = input.replace(new RegExp(elem, "gi"), function(token, index, str){
+
+        angular.forEach(tokens, function(elem) {
+            if (elem.length > 0) {
+                input = input.replace(new RegExp("(^|\\W)(" + elem + ")($|\\W)", "gi"), function(match, prefix, token, suffix, index, str) {
                     if (inTag(str, index, "<", ">") || inTag(str, index, "&", ";")){
-                        return token;
-                    }else{
-                        return "<strong>"+token+"</strong>";
+                        return match;
+                    } else {
+                        return prefix + "<strong>" + token + "</strong>" + suffix;
                     }
                 });
             }
@@ -129,12 +132,6 @@ treeherder.filter('getRevisionUrl', ['thServiceDomain', function(thServiceDomain
         return '';
     };
 }]);
-
-treeherder.filter('classified', function() {
-    return function(matches){
-        return matches.some(function(x) {return x.is_best;}) ? "CLASSIFIED" : "UNCLASSIFIED";
-    };
-});
 
 treeherder.filter('alertStatus', [
     'phAlertSummaryResolutionMap', function(phAlertSummaryResolutionMap) {

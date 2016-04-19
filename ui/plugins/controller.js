@@ -46,7 +46,8 @@ treeherder.controller('PluginCtrl', [
         // NOTE: This is a temporary param used during the evaluation/experimentation
         // phase of this feature.
         var showAutoClassifyTab = function() {
-            thTabs.tabs.autoClassification.enabled = ($location.search().autoclassify === true);
+            thTabs.tabs.autoClassification.enabled = ($location.search().autoclassify === true ||
+                                                      $location.host().indexOf('herokuapp.com') !== -1);
         };
         showAutoClassifyTab();
         $rootScope.$on('$locationChangeSuccess', function() {
@@ -188,7 +189,11 @@ treeherder.controller('PluginCtrl', [
 
                     // the fourth result comes from the jobLogUrl artifact
                     // exclude the json log URLs
-                    $scope.job_log_urls = _.reject(results[3], {name: 'mozlog_json'});
+                    $scope.job_log_urls = _.reject(
+                        results[3],
+                        function(log) {
+                            return log.name.endsWith("_json");
+                        });
 
                     // Provide a parse status as a scope variable for logviewer shortcut
                     if (!$scope.job_log_urls.length) {

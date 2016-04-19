@@ -51,6 +51,13 @@ module.exports = function(grunt) {
                     dest:'dist'
                 }
             },
+            failureviewer: {
+                src:'ui/failureviewer.html',
+                nonull: true,
+                options:{
+                    dest:'dist'
+                }
+            },
             perf: {
                 src:'ui/perf.html',
                 nonull: true,
@@ -61,7 +68,7 @@ module.exports = function(grunt) {
         },
 
         usemin:{ html:['dist/index.html', 'dist/userguide.html', 'dist/logviewer.html',
-                       'dist/perf.html'] },
+                       'dist/perf.html', 'dist/failureviewer.html'] },
 
         'cache-busting': {
             indexjs: {
@@ -74,6 +81,12 @@ module.exports = function(grunt) {
                 replace: ['dist/**/*.html'],
                 replacement: 'logviewer.min.js',
                 file: 'dist/js/logviewer.min.js',
+                cleanup: true
+            },
+            failureviewerjs: {
+                replace: ['dist/**/*.html'],
+                replacement: 'failureviewer.min.js',
+                file: 'dist/js/failureviewer.min.js',
                 cleanup: true
             },
             perfjs: {
@@ -122,6 +135,7 @@ module.exports = function(grunt) {
                     { src:'ui/index.html', dest:'dist/index.html', nonull: true },
                     { src:'ui/userguide.html', dest:'dist/userguide.html', nonull: true },
                     { src:'ui/logviewer.html', dest:'dist/logviewer.html', nonull: true },
+                    { src:'ui/failureviewer.html', dest:'dist/failureviewer.html', nonull: true },
                     { src:'ui/perf.html', dest:'dist/perf.html', nonull: true }
                 ]
             },
@@ -197,6 +211,27 @@ module.exports = function(grunt) {
                 dest: 'dist/js/logviewer.min.js',
                 options: {
                     usemin: 'dist/js/logviewer.min.js',
+                    append: true,
+                    htmlmin: {
+                        collapseBooleanAttributes:      true,
+                        collapseWhitespace:             true,
+                        conservativeCollapse:           true,
+                        removeAttributeQuotes:          true,
+                        removeComments:                 true,
+                        removeEmptyAttributes:          true,
+                        removeRedundantAttributes:      true,
+                        removeScriptTypeAttributes:     true,
+                        removeStyleLinkTypeAttributes:  true,
+                        keepClosingSlash: true
+                    }
+                }
+            },
+            failureviewer: {
+                cwd: 'ui',
+                src: ['partials/main/thNotificationsBox.html'],
+                dest: 'dist/js/failureviewer.min.js',
+                options: {
+                    usemin: 'dist/js/failureviewer.min.js',
                     append: true,
                     htmlmin: {
                         collapseBooleanAttributes:      true,

@@ -3,8 +3,10 @@ from abc import (ABCMeta,
                  abstractmethod)
 from collections import namedtuple
 
-from treeherder.model import models
-from treeherder.model.models import FailureMatch
+from django.db.models import Q
+
+from treeherder.model.models import (FailureMatch,
+                                     MatcherManager)
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +37,8 @@ class PreciseTestMatcher(Matcher):
 
     def __call__(self, failure_lines):
         rv = []
+        ignored_line = (Q(failure_line__best_classification=None) &
+                        Q(failure_line__best_is_verified=True))
         for failure_line in failure_lines:
             logger.debug("Looking for test match in failure %d" % failure_line.id)
 
@@ -46,8 +50,8 @@ class PreciseTestMatcher(Matcher):
                     failure_line__status=failure_line.status,
                     failure_line__expected=failure_line.expected,
                     failure_line__message=failure_line.message).exclude(
-                        failure_line__job_guid=failure_line.job_guid).order_by(
-                            "-score", "-classified_failure__modified")
+                        ignored_line | Q(failure_line__job_guid=failure_line.job_guid)
+                    ).order_by("-score", "-classified_failure__id")
 
                 best_match = matching_failures.first()
                 if best_match:
@@ -59,4 +63,4 @@ class PreciseTestMatcher(Matcher):
 
 def register():
     for obj in [PreciseTestMatcher]:
-        models.Matcher.objects.register_matcher(obj)
+        MatcherManager.register_matcher(obj)

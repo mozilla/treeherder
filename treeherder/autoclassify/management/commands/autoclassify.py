@@ -4,7 +4,7 @@ from collections import defaultdict
 from django.core.management.base import (BaseCommand,
                                          CommandError)
 
-from treeherder.autoclassify import matchers
+from treeherder.model.derived import JobsModel
 from treeherder.model.models import (FailureLine,
                                      FailureMatch,
                                      Matcher)
@@ -14,9 +14,6 @@ logger = logging.getLogger(__name__)
 # The minimum goodness of match we need to mark a particular match as the best match
 AUTOCLASSIFY_CUTOFF_RATIO = 0.8
 
-# Initialisation needed to associate matcher functions with the matcher objects
-matchers.register()
-
 
 class Command(BaseCommand):
     args = '<job_guid>, <repository>'
@@ -25,13 +22,28 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         if not len(args) == 2:
-            raise CommandError('3 arguments required, %s given' % len(args))
-        job_id, repository = args
+            raise CommandError('2 arguments required, %s given' % len(args))
+        repository, job_guid = args
 
-        match_errors(repository, job_id)
+        with JobsModel(repository) as jm:
+            match_errors(repository, jm, job_guid)
 
 
-def match_errors(repository, job_guid):
+def match_errors(repository, jm, job_guid):
+    job = jm.get_job_ids_by_guid([job_guid]).get(job_guid)
+
+    if not job:
+        logger.error('autoclassify: No job for '
+                     '{0} job_guid {1}'.format(repository, job_guid))
+        return
+
+    job_id = job.get("id")
+
+    # Only try to autoclassify where we have a failure status; sometimes there can be
+    # error lines even in jobs marked as passing.
+    if job["result"] not in ["testfailed", "busted", "exception"]:
+        return
+
     unmatched_failures = FailureLine.objects.unmatched_for_job(repository, job_guid)
 
     if not unmatched_failures:
@@ -56,10 +68,13 @@ def match_errors(repository, job_guid):
 
     for failure_line in all_matched:
         # TODO: store all matches
-        best_match = failure_line.best_match(AUTOCLASSIFY_CUTOFF_RATIO)
+        best_match = failure_line.best_automatic_match(AUTOCLASSIFY_CUTOFF_RATIO)
         if best_match:
-            best_match.is_best = True
-            best_match.save()
+            failure_line.best_classification = best_match.classified_failure
+            failure_line.save()
+
+    if all_matched:
+        jm.update_after_autoclassification(job_id)
 
 
 def all_lines_matched(failure_lines):
