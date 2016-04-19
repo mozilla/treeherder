@@ -414,53 +414,52 @@ perf.controller('CompareSubtestResultsCtrl', [
                                    $scope.testList[0].split(' ')[0]);
             window.document.title = $scope.subtestTitle + " subtest comparison";
 
-            $scope.testList.forEach(function(testName) {
-                $scope.titles[testName] = $scope.platformList[0] + ': ' +
-                    testName.replace('summary ', '');
-                $scope.compareResults[testName] = [];
+            var testName = $scope.testList[0].replace('summary ', '');
 
-                $scope.pageList.sort();
-                $scope.pageList.forEach(function(page) {
-                    var mapsigs = [];
-                    [rawResultsMap, newRawResultsMap].forEach(function(resultsMap) {
-                        // If no data for a given platform, or test, display N/A in table
-                        if (resultsMap) {
-                            var tempsig = _.find(Object.keys(resultsMap), function (sig) {
-                                return resultsMap[sig].name === page;
-                            });
-                        } else {
-                            var tempsig = 'undefined';
-                            resultsMap = {};
-                            resultsMap[tempsig] = {};
-                        }
-                        mapsigs.push(tempsig);
-                    });
-                    var oldSig = mapsigs[0];
-                    var newSig = mapsigs[1];
+            $scope.titles[testName] = $scope.platformList[0] + ': ' + testName;
+            $scope.compareResults[testName] = [];
 
-                    var cmap = PhCompare.getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
-                    if (oldSig === $scope.originalSignature ||
-                        oldSig === $scope.newSignature ||
-                        newSig === $scope.originalSignature ||
-                        newSig === $scope.newSignature) {
-                        cmap.highlightedTest = true;
+            $scope.pageList.sort();
+            $scope.pageList.forEach(function(page) {
+                var mapsigs = [];
+                [rawResultsMap, newRawResultsMap].forEach(function(resultsMap) {
+                    // If no data for a given platform, or test, display N/A in table
+                    if (resultsMap) {
+                        var tempsig = _.find(Object.keys(resultsMap), function (sig) {
+                            return resultsMap[sig].name === page;
+                        });
+                    } else {
+                        var tempsig = 'undefined';
+                        resultsMap = {};
+                        resultsMap[tempsig] = {};
                     }
-
-                    cmap.name = page;
-
-                    var graphsLink = PhCompare.getGraphsLink(
-                        $scope.originalProject, $scope.newProject, oldSig,
-                        $scope.originalResultSet, $scope.newResultSet);
-                    if (graphsLink) {
-                        cmap.links = [{
-                            title: 'graph',
-                            href: graphsLink
-                        }];
-                    }
-
-
-                    $scope.compareResults[testName].push(cmap);
+                    mapsigs.push(tempsig);
                 });
+                var oldSig = mapsigs[0];
+                var newSig = mapsigs[1];
+
+                var cmap = PhCompare.getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
+                if (oldSig === $scope.originalSignature ||
+                    oldSig === $scope.newSignature ||
+                    newSig === $scope.originalSignature ||
+                    newSig === $scope.newSignature) {
+                    cmap.highlightedTest = true;
+                }
+
+                cmap.name = page;
+
+                var graphsLink = PhCompare.getGraphsLink(
+                    $scope.originalProject, $scope.newProject, oldSig,
+                    $scope.originalResultSet, $scope.newResultSet);
+                if (graphsLink) {
+                    cmap.links = [{
+                        title: 'graph',
+                        href: graphsLink
+                    }];
+                }
+
+
+                $scope.compareResults[testName].push(cmap);
             });
         }
 
