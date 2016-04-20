@@ -1,14 +1,18 @@
-from rest_framework import viewsets
+from rest_framework import (filters,
+                            pagination,
+                            viewsets)
 from rest_framework.decorators import (detail_route,
                                        list_route)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
+from treeherder.jobs.models import JobDetail
 from treeherder.model.derived import ArtifactsModel
 from treeherder.model.models import (FailureLine,
                                      OptionCollection)
-from treeherder.webapp.api import (permissions,
+from treeherder.webapp.api import (job_serializers,
+                                   permissions,
                                    serializers)
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 from treeherder.webapp.api.utils import (UrlQueryFilter,
@@ -246,3 +250,21 @@ class JobsViewSet(viewsets.ViewSet):
         jm.store_job_data(request.data)
 
         return Response({'message': 'Job successfully updated'})
+
+
+class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
+    '''
+    Endpoint for retrieving metadata (e.g. links to artifacts, file sizes)
+    associated with a particular job
+    '''
+    queryset = JobDetail.objects.all()
+    serializer_class = job_serializers.JobDetailSerializer
+
+    filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
+    filter_fields = ['job_guid']
+
+    class JobDetailPagination(pagination.LimitOffsetPagination):
+        default_limit = 100
+        max_limit = 100
+
+    pagination_class = JobDetailPagination

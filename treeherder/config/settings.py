@@ -127,6 +127,7 @@ INSTALLED_APPS = [
     'django_browserid',
     # treeherder apps
     'treeherder.model',
+    'treeherder.jobs',
     'treeherder.webapp',
     'treeherder.log_parser',
     'treeherder.etl',
