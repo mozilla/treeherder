@@ -27,20 +27,16 @@ treeherder.controller('BugFilerCtrl', [
             return reftest !== "";
         };
 
+        $scope.parsedLog = parsedLog;
+        $scope.fullLog = fullLog;
+        if ($scope.isReftest()) {
+            $scope.reftest = reftest;
+        }
+
         /**
          *  Pre-fill the form with information/metadata from the failure
          */
         $scope.initiate = function() {
-            $uibModalInstance.parsedSummary = $uibModalInstance.parseSummary(summary);
-
-            $scope.modalSummary = "Intermittent " + $uibModalInstance.parsedSummary[0].join(" | ");
-
-            $("#modalParsedLog").next().attr("href", parsedLog);
-            $("#modalFullLog").next().attr("href", fullLog);
-            if ($scope.isReftest()) {
-                $("#modalReftestLog").next().attr("href", reftest);
-            }
-
             var thisFailure = "";
             for(var i = 0; i < allFailures.length; i++) {
                 var omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR", "TEST-UNEXPECTED-TIMEOUT"];
@@ -53,9 +49,8 @@ treeherder.controller('BugFilerCtrl', [
                     thisFailure += "\n";
                 }
                 thisFailure += allFailures[i].join(" | ");
-                $("#modalFailureList");
             }
-            $("#modalFailureList").val(thisFailure);
+            $scope.thisFailure = thisFailure;
 
             $scope.findProduct();
         };
@@ -82,6 +77,9 @@ treeherder.controller('BugFilerCtrl', [
 
             return [summary, $uibModalInstance.possibleFilename];
         };
+
+        $uibModalInstance.parsedSummary = $uibModalInstance.parseSummary(summary);
+        $scope.modalSummary = "Intermittent " + $uibModalInstance.parsedSummary[0].join(" | ");
 
         $scope.toggleFilerSummaryVisibility = function() {
             $scope.isFilerSummaryVisible = !$scope.isFilerSummaryVisible;
@@ -114,6 +112,7 @@ treeherder.controller('BugFilerCtrl', [
                             $scope.suggestedProducts.push(data.products[i].product + " :: " + data.products[i].component);
                         }
                     }
+                    $scope.selectedProduct = $scope.suggestedProducts[0];
                 });
             }
         };
@@ -132,11 +131,17 @@ treeherder.controller('BugFilerCtrl', [
             $uibModalInstance.dismiss('cancel');
         };
 
+        $scope.checkedLogLinks = {
+            parsedLog: $scope.parsedLog,
+            fullLog: $scope.fullLog,
+            reftest: $scope.reftest
+        };
+
         /*
          *  Actually send the gathered information to bugzilla.
          */
         $scope.submitFiler = function() {
-            var bugzillaRoot = "https://bugzilla-dev.allizom.org/"; // (prod is "https://bugzilla.mozilla.org/");
+            var bugzillaRoot = "https://bugzilla.mozilla.org/"; // (dev is "https://bugzilla-dev.allizom.org/");
             var summarystring = $scope.modalSummary;
             var productString = "";
             var componentString = "";
@@ -166,21 +171,19 @@ treeherder.controller('BugFilerCtrl', [
                 alert("Please select (or search and select) a product/component pair to continue");
                 return;
             }
-            var logstrings = "";
-            var logcheckboxes = document.getElementById("modalLogLinkCheckboxes").getElementsByTagName("input");
 
-            for(var i=0;i<logcheckboxes.length;i++) {
-                if(logcheckboxes[i].checked) {
-                    logstrings += logcheckboxes[i].nextElementSibling.href + "\n\n";
+            var logstrings = _.reduce($scope.checkedLogLinks, function(result, link) {
+                if(link) {
+                    result = result + link + "\n\n";
                 }
-            }
+                return result;
+            }, "");
 
             // Fetch product information from bugzilla to get version numbers, then submit the new bug
             // Only request the versions because some products take quite a long time to fetch the full object
             $.ajax(bugzillaRoot + "rest/product/" + productString + "?include_fields=versions").done(function(productJSON) {
                 var productObject = productJSON.products[0];
                 $http({
-                    //url: bugzillaRoot + "rest/bug?api_key=qF8lX6AyGjcZcmSV4tZTmy2F2PbBycQdB9lsp8cB",
                     url: "api/bugzilla/create_bug/",
                     method: "POST",
                     data: {
@@ -192,7 +195,6 @@ treeherder.controller('BugFilerCtrl', [
                         "version": productObject.versions[productObject.versions.length-1].name,
                         "description": logstrings + document.getElementById("modalComment").value,
                         "comment_tags": "treeherder",
-                        // XXX Still should implement ccstring, dependson, blocks, and needinfo fields
                     }
                 }).then(function successCallback(json) {
                     if(json.data.failure) {
@@ -207,7 +209,6 @@ treeherder.controller('BugFilerCtrl', [
                         // Auto-classify this failure now that the bug has been filed and we have a bug number
                         thPinboard.pinJob($rootScope.selectedJob);
                         thPinboard.addBug({id:json.data.success});
-                        // This isn't working; user has to still click the 'save' button...
                         $rootScope.$evalAsync($rootScope.$emit(thEvents.saveClassification));
 
                         // Open the newly filed bug in a new tab or window for further editing

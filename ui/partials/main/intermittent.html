@@ -7,8 +7,9 @@
           type="button" ng-click="findProduct()" prevent-default-on-left-click>Find Product</button>
   <div>
     <fieldset id="suggestedProducts">
-      <div ng-repeat="product in suggestedProducts" ng-init="$last && focusProduct()">
+      <div ng-repeat="product in suggestedProducts">
         <input type="radio" value="{{product}}"
+               ng-model="selectedProduct"
                name="productGroup" id="modalProductSuggestion{{$id}}"/>
         <label for="modalProductSuggestion{{$id}}">{{product}}</label>
       </div>
@@ -24,23 +25,29 @@
       <i ng-click="toggleFilerSummaryVisibility()" ng-hide="isFilerSummaryVisible" class="fa fa-chevron-right" uib-tooltip="Show all failure lines for this job"></i>
       <span ng-show="isFilerSummaryVisible">
         <i ng-click="toggleFilerSummaryVisibility()" class="fa fa-chevron-down" uib-tooltip="Hide all failure lines for this job"></i>
-        <textarea id="modalFailureList"></textarea>
+        <textarea id="modalFailureList">{{thisFailure}}</textarea>
       </span>
     </a>
   </div>
 
   <div id="modalLogLinkCheckboxes">
     <label>
-      <input id="modalParsedLog" type="checkbox" checked="true" />
-      <a target="_blank">Include Parsed Log Link</a>
+      <input id="modalParsedLog" type="checkbox"
+             ng-model="checkedLogLinks.parsedLog"
+             ng-true-value="'{{parsedLog}}'"/>
+      <a target="_blank" href="{{ parsedLog }}">Include Parsed Log Link</a>
     </label><br/>
     <label>
-      <input id="modalFullLog" type="checkbox" checked="true" />
-      <a target="_blank">Include Full Log Link</a>
+      <input id="modalFullLog" type="checkbox"
+             ng-model="checkedLogLinks.fullLog"
+             ng-true-value="'{{fullLog}}'"/>
+      <a target="_blank"  href="{{ fullLog }}">Include Full Log Link</a>
     </label><br/>
     <label id="modalReftestLogLabel" ng-if="isReftest()">
-      <input id="modalReftestLog" type="checkbox" />
-      <a target="_blank">Include Reftest Viewer Link</a>
+      <input id="modalReftestLog" type="checkbox"
+             ng-model="checkedLogLinks.reftest"
+             ng-true-value="'{{reftest}}'"/>
+      <a target="_blank" href="{{ reftest }}">Include Reftest Viewer Link</a>
     </label>
   </div>
 
