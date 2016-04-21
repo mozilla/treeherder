@@ -18,7 +18,8 @@ from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceSignature)
 
 
-def _add_series(pc, project_name, signature_hash, signature_props, verbosity, parent_hash=None):
+def _add_series(pc, project_name, signature_hash, signature_props, verbosity,
+                time_interval, parent_hash=None):
     if verbosity == 3:
         print(signature_hash)
 
@@ -79,7 +80,7 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity, pa
     try:
         series = pc.get_performance_data(
             project_name, signatures=signature_hash,
-            time_interval=PerformanceTimeInterval.ONE_YEAR)[signature_hash]
+            interval=time_interval)[signature_hash]
     except KeyError:
         print("WARNING: No performance data for signature {}".format(signature_hash))
         return
@@ -153,11 +154,13 @@ class Command(BaseCommand):
 
         server_params = urlparse(options['server'])
 
+        time_interval = options['time_interval']
+
         pc = PerfherderClient(protocol=server_params.scheme,
                               host=server_params.netloc)
         signatures = pc.get_performance_signatures(
             project,
-            time_interval=options['time_interval'])
+            interval=time_interval)
 
         if options['filter_props']:
             for kv in options['filter_props']:
@@ -180,7 +183,8 @@ class Command(BaseCommand):
                                                    project,
                                                    signature_hash,
                                                    signatures[signature_hash],
-                                                   options['verbosity']))
+                                                   options['verbosity'],
+                                                   time_interval=time_interval))
             for signature_hash in with_parents:
                 parent_hash = signatures[signature_hash]['parent_signature']
                 futures.append(executor.submit(_add_series, pc,
@@ -188,6 +192,7 @@ class Command(BaseCommand):
                                                signature_hash,
                                                signatures[signature_hash],
                                                options['verbosity'],
+                                               time_interval=time_interval,
                                                parent_hash=parent_hash))
 
             for future in futures:
