@@ -207,6 +207,7 @@ CELERY_QUEUES = [
     Queue('calculate_durations', Exchange('default'), routing_key='calculate_durations'),
     Queue('fetch_bugs', Exchange('default'), routing_key='fetch_bugs'),
     Queue('generate_perf_alerts', Exchange('default'), routing_key='generate_perf_alerts'),
+    Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs'),
 ]
 
 CELERY_ACCEPT_CONTENT = ['json']
@@ -380,8 +381,8 @@ PULSE_EXCHANGE_NAMESPACE = env("PULSE_EXCHANGE_NAMESPACE", default=None)
 # ``project`` and ``destination`` in the form of:
 #     <project>.<destination>
 # Wildcards such as ``#`` and ``*`` are supported for either field.
-PULSE_DATA_INGESTION_EXCHANGES = env.json(
-    "PULSE_DATA_INGESTION_EXCHANGES",
+PULSE_DATA_INGESTION_SOURCES = env.json(
+    "PULSE_DATA_INGESTION_SOURCES",
     default=[
         # {
         #     "name": "exchange/taskcluster-treeherder/jobs",
