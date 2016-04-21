@@ -37,8 +37,6 @@ def test_artifact_detail(webapp, test_project, eleven_jobs_stored, sample_artifa
         "name"
     ])
 
-    jm.disconnect()
-
 
 def test_artifact_detail_not_found(webapp, jm):
     """
@@ -51,8 +49,6 @@ def test_artifact_detail_not_found(webapp, jm):
         expect_errors=True
     )
     assert resp.status_int == 404
-
-    jm.disconnect()
 
 
 def test_artifact_detail_bad_project(webapp, jm):
@@ -67,8 +63,6 @@ def test_artifact_detail_bad_project(webapp, jm):
     )
     assert resp.status_int == 404
     assert resp.json == {"detail": "No project with name foo"}
-
-    jm.disconnect()
 
 
 def test_artifact_create_text_log_summary(webapp, test_project, eleven_jobs_stored,

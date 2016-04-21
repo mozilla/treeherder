@@ -33,8 +33,6 @@ def test_get_failure_line(webapp, eleven_jobs_stored, jm, failure_lines):
 
     assert set(failure_line.keys()) == set(exp_failure_keys)
 
-    jm.disconnect()
-
 
 def test_update_failure_line_verify(eleven_jobs_stored, jm, failure_lines,
                                     classified_failures, api_user):

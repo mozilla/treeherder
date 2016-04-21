@@ -27,8 +27,6 @@ def test_create_bug_job_map_no_auth(eleven_jobs_stored, jm):
 
     assert resp.status_code == 403
 
-    jm.disconnect()
-
 
 def test_create_bug_job_map(eleven_jobs_stored, mock_message_broker, jm):
     """
@@ -60,8 +58,6 @@ def test_create_bug_job_map(eleven_jobs_stored, mock_message_broker, jm):
     del actual_obj["submit_timestamp"]
 
     assert bug_job_map_obj == actual_obj
-
-    jm.disconnect()
 
 
 def test_create_bug_job_map_dupe(eleven_jobs_stored, mock_message_broker, jm):
@@ -100,8 +96,6 @@ def test_create_bug_job_map_dupe(eleven_jobs_stored, mock_message_broker, jm):
 
     assert bug_job_map_obj == actual_obj
 
-    jm.disconnect()
-
 
 def test_bug_job_map_list(webapp, jm, eleven_jobs_stored):
     """
@@ -132,8 +126,6 @@ def test_bug_job_map_list(webapp, jm, eleven_jobs_stored):
 
     # The order of the bug-job-map list is not guaranteed.
     assert sorted(resp.json) == sorted(expected)
-
-    jm.disconnect()
 
 
 def test_bug_job_map_detail(webapp, jm, eleven_jobs_stored):
@@ -166,8 +158,6 @@ def test_bug_job_map_detail(webapp, jm, eleven_jobs_stored):
         "who": who}
 
     assert resp.json == expected
-
-    jm.disconnect()
 
 
 def test_bug_job_map_delete(webapp, eleven_jobs_stored,
@@ -202,8 +192,6 @@ def test_bug_job_map_delete(webapp, eleven_jobs_stored,
     content = json.loads(resp.content)
     assert content == {"message": "Bug job map deleted"}
 
-    jm.disconnect()
-
 
 def test_bug_job_map_delete_no_auth(jm, eleven_jobs_stored):
     """
@@ -230,5 +218,3 @@ def test_bug_job_map_delete_no_auth(jm, eleven_jobs_stored):
     )
 
     assert resp.status_code == 403
-
-    jm.disconnect()

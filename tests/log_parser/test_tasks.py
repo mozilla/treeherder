@@ -84,8 +84,6 @@ def test_parse_log(jm, jobs_with_local_log, sample_resultset,
         placeholders=[job_id]
     )
 
-    jm.disconnect()
-
     # we must have at least 3 artifacts:
     # 1 for the log viewer
     # 1 for the job artifact panel
@@ -119,8 +117,6 @@ def test_bug_suggestions_artifact(jm, jobs_with_local_log,
         proc="jobs_test.selects.job_artifact",
         placeholders=[job_id]
     )
-
-    jm.disconnect()
 
     # we must have at least 3 artifacts:
     # 1 for the log viewer

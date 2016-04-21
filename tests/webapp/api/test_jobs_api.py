@@ -169,8 +169,6 @@ def test_job_detail(webapp, eleven_jobs_stored, sample_artifacts, jm):
     assert isinstance(resp.json, dict)
     assert resp.json["id"] == job["id"]
 
-    jm.disconnect()
-
 
 def test_job_retrigger_unauthorized(webapp, eleven_jobs_stored, jm):
     """
@@ -246,8 +244,6 @@ def test_job_detail_bad_project(webapp, eleven_jobs_stored, jm):
 
     webapp.get(badurl, status=404)
 
-    jm.disconnect()
-
 
 def test_job_detail_not_found(webapp, jm):
     """
@@ -299,8 +295,6 @@ def test_job_error_lines(webapp, eleven_jobs_stored, jm, failure_lines, classifi
     exp_classified_keys = ["id", "bug_number", "bug"]
 
     assert set(classified.keys()) == set(exp_classified_keys)
-
-    jm.disconnect()
 
 
 def test_job_text_log_summary(webapp, eleven_jobs_stored, jm, failure_lines,
