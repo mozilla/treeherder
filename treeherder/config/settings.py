@@ -210,6 +210,7 @@ CELERY_QUEUES = [
     Queue('calculate_durations', Exchange('default'), routing_key='calculate_durations'),
     Queue('fetch_bugs', Exchange('default'), routing_key='fetch_bugs'),
     Queue('generate_perf_alerts', Exchange('default'), routing_key='generate_perf_alerts'),
+    Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs'),
 ]
 
 CELERY_ACCEPT_CONTENT = ['json']
@@ -438,7 +439,7 @@ PULSE_DATA_INGESTION_SOURCES = env.json(
 PULSE_API_URL = "https://pulse.mozilla.org/"
 
 # Used to specify the PulseGuardian account that will be used to create
-# ingestion queues for the exchanges specified in ``PULSE_DATA_INGESTION_EXCHANGES``.
+# ingestion queues for the exchanges specified in ``PULSE_DATA_INGESTION_SOURCES``.
 # See https://pulse.mozilla.org/whats_pulse for more info.
 # Example: "amqp://myuserid:mypassword@pulse.mozilla.org:5672/?ssl=1"
 PULSE_DATA_INGESTION_CONFIG = env.url("PULSE_DATA_INGESTION_CONFIG", default="")

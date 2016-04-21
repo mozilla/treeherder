@@ -14,7 +14,7 @@ if [ ! -f $LOGFILE ]; then
     touch $LOGFILE
 fi
 
-exec newrelic-admin run-program celery -A treeherder worker -Q buildapi_pending,buildapi_running,buildapi_4hr \
+exec newrelic-admin run-program celery -A treeherder worker -Q buildapi_pending,buildapi_running,buildapi_4hr,store_pulse_jobs \
     --concurrency=5 --logfile=$LOGFILE -l INFO \
     --maxtasksperchild=20 -n buildapi.%h
 

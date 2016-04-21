@@ -13,29 +13,18 @@ Configuration
 To specify the exchanges to read from, you can set environment variables in
 Vagrant, or in your ``config/settings_local.py`` file.  For example::
 
-    PULSE_DATA_INGESTION_EXCHANGES = [
+    PULSE_DATA_INGESTION_SOURCES = [
         {
-            "name": "exchange/treeherder-test/jobs",
+            "exchange": "exchange/treeherder-test/jobs",
+            "destinations": [
+                'treeherder-prod',
+                'treeherder-stage'
+            ],
             "projects": [
                 'mozilla-inbound'
-            ],
-            "destinations": [
-                'production',
-                'staging'
             ]
         }
     ]
-
-You also need to create the celery ``Queue`` for running pulse-related
-tasks. This can also be defined in the ``config/settings_local.py``
-file, but as it modifies an existing environment variable, it must be
-defined in an ``update(settings)`` function::
-
-    def update(settings):
-        from kombu import Exchange, Queue
-        settings['CELERY_QUEUES'].append(
-            Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs'))
-
 
 To be able to ingest from exchanges, you need to create a Pulse user with
 `Pulse Guardian`_, so
@@ -43,7 +32,7 @@ Treeherder can create your Queues for listening to the Pulse exchanges.  For
 this, you must specify the connection URL in your environment variables or
 ``settings_local.py``.  For example::
 
-    PULSE_DATA_INGESTION_CONFIG = "amqp://mypulseuserid:mypassword@pulse.mozilla.org:5672/"
+    PULSE_DATA_INGESTION_CONFIG = "amqp://mypulseuserid:mypassword@pulse.mozilla.org:5671/?ssl=1"
 
 Ingesting Data
 --------------
@@ -65,7 +54,7 @@ all::
 To begin listening to the Pulse exchanges specified above, run this management
 command::
 
-    ./manage.py ingest_from_pulse
+    ./manage.py read_pulse_jobs
 
 Once that is running, you will see jobs start to appear from the Pulse
 exchanges.

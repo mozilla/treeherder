@@ -8,10 +8,4 @@ PATH=$PROJECT_ROOT/venv/bin:$PATH
 
 source /etc/profile.d/treeherder.sh
 
-LOGFILE=/var/log/treeherder_ingest_from_pulse.log
-
-if [ ! -f $LOGFILE ]; then
-    touch $LOGFILE
-fi
-
-exec newrelic-admin run-program ./manage.py ingest_from_pulse
+exec newrelic-admin run-program ./manage.py read_pulse_jobs
