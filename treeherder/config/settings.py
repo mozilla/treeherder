@@ -361,6 +361,8 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 if SITE_URL.startswith('https://'):
     SECURE_SSL_REDIRECT = True
+    # TODO: Uncomment once the Vagrant/Travis SITE_URLs aren't fake subdomains of stage/prod.
+    # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_SECONDS = int(timedelta(days=365).total_seconds())
     # Mark session and CSRF cookies as being HTTPS-only.
     CSRF_COOKIE_SECURE = True
@@ -372,6 +374,12 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 # Set the `X-Frame-Options` header, which forbids embedding of site pages in frames.
 X_FRAME_OPTIONS = 'DENY'
+
+SILENCED_SYSTEM_CHECKS = [
+    # We can't set SECURE_HSTS_INCLUDE_SUBDOMAINS since the development
+    # environment has a SITE_URL of http://local.treeherder.mozilla.org.
+    'security.W005',
+]
 
 # Enable integration between autoclassifier and jobs
 AUTOCLASSIFY_JOBS = env.bool("AUTOCLASSIFY_JOBS", default=False)
