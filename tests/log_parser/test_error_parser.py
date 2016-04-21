@@ -1,6 +1,6 @@
 import pytest
 
-from treeherder.log_parser.parsers import ErrorParser
+from treeherder.log_parser.parsers import StepParser
 
 ERROR_TEST_CASES = (
     "23:52:39 INFO - 346 INFO TEST-UNEXPECTED-FAIL | dom/base/test/test_XHRDocURI.html | foo",
@@ -35,13 +35,19 @@ NON_ERROR_TEST_CASES = (
 
 @pytest.mark.parametrize("line", ERROR_TEST_CASES)
 def test_error_lines_matched(line):
-    parser = ErrorParser()
-    is_error_line = parser.is_error_line(line)
-    assert is_error_line
+    parser = StepParser()
+    parser.parse_line(line, 0)
+    parser.finish_parse(0)
+    artifact = parser.get_artifact()
+    print artifact
+    assert artifact["all_errors"] == [{"line": line, "linenumber": 0}]
 
 
 @pytest.mark.parametrize("line", NON_ERROR_TEST_CASES)
 def test_successful_lines_not_matched(line):
-    parser = ErrorParser()
-    is_error_line = parser.is_error_line(line)
-    assert not is_error_line
+    parser = StepParser()
+    parser.parse_line(line, 0)
+    parser.finish_parse(0)
+    artifact = parser.get_artifact()
+    print artifact
+    assert artifact["all_errors"] == []
