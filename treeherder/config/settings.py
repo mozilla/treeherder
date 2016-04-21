@@ -175,6 +175,10 @@ LOGGING = {
         'treeherder': {
             'handlers': ['console'],
             'level': 'ERROR',
+        },
+        'kombu': {
+            'handlers': ['console'],
+            'level': 'WARNING',
         }
     }
 }
@@ -404,13 +408,13 @@ PULSE_EXCHANGE_NAMESPACE = env("PULSE_EXCHANGE_NAMESPACE", default=None)
 # exchanges for testing purposes on local machines.
 # Treeherder will subscribe with routing keys that are all combinations of
 # ``project`` and ``destination`` in the form of:
-#     <project>.<destination>
+#     <destination>.<project>
 # Wildcards such as ``#`` and ``*`` are supported for either field.
-PULSE_DATA_INGESTION_EXCHANGES = env.json(
-    "PULSE_DATA_INGESTION_EXCHANGES",
+PULSE_DATA_INGESTION_SOURCES = env.json(
+    "PULSE_DATA_INGESTION_SOURCES",
     default=[
         # {
-        #     "name": "exchange/taskcluster-treeherder/jobs",
+        #     "name": "exchange/taskcluster-treeherder/v1/jobs",
         #     "projects": [
         #         'mozilla-central',
         #         'mozilla-inbound'
@@ -435,11 +439,19 @@ PULSE_DATA_INGESTION_EXCHANGES = env.json(
         # ... other CI systems
     ])
 
+# Used for making API calls to pulse, such as detecting bindings on the current
+# ingestion queue.
+PULSE_API_URL = env.url("PULSE_API_URL", default="https://pulse.mozilla.org/")
+
 # Used to specify the PulseGuardian account that will be used to create
 # ingestion queues for the exchanges specified in ``PULSE_DATA_INGESTION_EXCHANGES``.
 # See https://pulse.mozilla.org/whats_pulse for more info.
 # Example: "amqp://myuserid:mypassword@pulse.mozilla.org:5672/"
 PULSE_DATA_INGESTION_CONFIG = env.url("PULSE_DATA_INGESTION_CONFIG", default="")
+
+# Whether to use SSL for the connection for pulse ingestion
+PULSE_DATA_INGESTION_QUEUES_SSL = env.bool("PULSE_DATA_INGESTION_QUEUES_SSL",
+                                           default=False)
 
 # Whether the Queues created for pulse ingestion are durable or not.
 # For local data ingestion, you probably should set this to False
