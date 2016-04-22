@@ -84,7 +84,7 @@ class RepositoryGroup(NamedModel):
 class Repository(models.Model):
     id = models.AutoField(primary_key=True)
     repository_group = models.ForeignKey('RepositoryGroup')
-    name = models.CharField(max_length=50, db_index=True)
+    name = models.CharField(max_length=50, unique=True, db_index=True)
     dvcs_type = models.CharField(max_length=25, db_index=True)
     url = models.CharField(max_length=255)
     codebase = models.CharField(max_length=50, blank=True, db_index=True)
