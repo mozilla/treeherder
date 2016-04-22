@@ -76,8 +76,6 @@ def test_resultset_list_empty_rs_still_show(webapp, test_repository,
     assert resp.status_int == 200
     assert len(resp.json['results']) == 10
 
-    jm.disconnect()
-
 
 def test_resultset_list_single_short_revision(webapp, eleven_jobs_stored, jm, test_project):
     """
@@ -227,8 +225,6 @@ def test_resultset_list_filter_by_date(webapp, test_repository,
         u'startdate': u'2013-08-10'}
     )
 
-    jm.disconnect()
-
 
 def test_resultset_list_without_jobs(webapp, test_repository,
                                      sample_resultset, jm, test_project):
@@ -253,8 +249,6 @@ def test_resultset_list_without_jobs(webapp, test_repository,
         u'filter_params': {},
         u'repository': test_project
     }
-
-    jm.disconnect()
 
 
 def test_resultset_detail(webapp, eleven_jobs_stored, jm):
@@ -337,8 +331,6 @@ def test_resultset_create(jm, test_repository, sample_resultset,
 
     assert len(stored_objs) == 1
     assert stored_objs[0]['long_revision'] == sample_resultset[0]['revision']
-
-    jm.disconnect()
 
 
 def test_resultset_cancel_all(jm, resultset_with_three_jobs, pulse_action_consumer):

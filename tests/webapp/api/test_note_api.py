@@ -58,8 +58,6 @@ def test_note_list(webapp, sample_notes, jm):
         "act": note_list
     })
 
-    jm.disconnect()
-
 
 def test_note_detail(webapp, sample_notes, jm):
     """
@@ -87,8 +85,6 @@ def test_note_detail(webapp, sample_notes, jm):
         'id'
     ])
 
-    jm.disconnect()
-
 
 def test_note_detail_not_found(webapp, jm):
     """
@@ -101,8 +97,6 @@ def test_note_detail_not_found(webapp, jm):
         expect_errors=True
     )
     assert resp.status_int == 404
-
-    jm.disconnect()
 
 
 def test_note_detail_bad_project(webapp, jm):
@@ -117,8 +111,6 @@ def test_note_detail_bad_project(webapp, jm):
     )
     assert resp.status_int == 404
     assert resp.json == {"detail": "No project with name foo"}
-
-    jm.disconnect()
 
 
 def test_create_note(webapp, eleven_jobs_stored, mock_message_broker, jm):
@@ -158,8 +150,6 @@ def test_create_note(webapp, eleven_jobs_stored, mock_message_broker, jm):
         u'active_status': u'active',
         u'id': 1L
     }
-
-    jm.disconnect()
 
 
 def test_create_note_no_auth(eleven_jobs_stored, jm):
@@ -206,5 +196,3 @@ def test_delete_note(webapp, sample_notes, mock_message_broker, jm):
     assert resp.status_code == 200, resp
 
     assert len(new_notes) == len(notes) - 1
-
-    jm.disconnect()

@@ -122,7 +122,6 @@ def test_ingest_pending_jobs(jm,
     assert new_jobs_were_added is False
 
     stored_obj = jm.get_dhub().execute(proc="jobs_test.selects.jobs")
-    jm.disconnect()
     assert len(stored_obj) == 1
 
 
@@ -145,7 +144,6 @@ def test_ingest_running_jobs(jm,
     assert new_jobs_were_added is False
 
     stored_obj = jm.get_dhub().execute(proc="jobs_test.selects.jobs")
-    jm.disconnect()
     assert len(stored_obj) == 1
 
 
@@ -168,7 +166,6 @@ def test_ingest_builds4h_jobs(jm,
     assert new_jobs_were_added is False
 
     stored_obj = jm.get_dhub().execute(proc="jobs_test.selects.jobs")
-    jm.disconnect()
     assert len(stored_obj) == 32
 
 
@@ -196,7 +193,6 @@ def test_ingest_running_to_complete_job(jm,
     etl_process.run()
 
     stored_obj = jm.get_dhub().execute(proc="jobs_test.selects.jobs")
-    jm.disconnect()
 
     assert len(stored_obj) == 32
 
@@ -219,7 +215,6 @@ def test_ingest_running_job_fields(jm,
     etl_process.run()
 
     stored_obj = jm.get_dhub().execute(proc="jobs_test.selects.jobs")
-    jm.disconnect()
 
     assert len(stored_obj) == 1
     assert stored_obj[0]["start_timestamp"] is not 0

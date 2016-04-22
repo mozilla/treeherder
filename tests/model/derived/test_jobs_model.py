@@ -24,8 +24,6 @@ def test_unicode(jm):
     """Unicode representation of a ``JobModel`` is the project name."""
     assert unicode(jm) == unicode(jm.project)
 
-    jm.disconnect()
-
 
 def test_disconnect(jm):
     """test that your model disconnects"""
@@ -43,8 +41,6 @@ def test_ingest_single_sample_job(jm, sample_data,
     job_data = sample_data.job_data[:1]
     test_utils.do_job_ingestion(jm, job_data, sample_resultset)
 
-    jm.disconnect()
-
 
 def test_ingest_all_sample_jobs(jm, sample_data,
                                 sample_resultset, test_repository, mock_log_parser):
@@ -53,8 +49,6 @@ def test_ingest_all_sample_jobs(jm, sample_data,
     """
     job_data = sample_data.job_data
     test_utils.do_job_ingestion(jm, job_data, sample_resultset)
-
-    jm.disconnect()
 
 
 @pytest.mark.parametrize("total_resultset_count", [3, 10])
@@ -206,8 +200,6 @@ def test_ingest_running_to_retry_sample_job(jm, sample_data,
     jm.store_job_data(job_data)
     jl = jm.get_job_list(0, 10)
 
-    jm.disconnect()
-
     assert len(jl) == 1
     assert jl[0]['result'] == 'retry'
     assert jl[0]['id'] == initial_job_id
@@ -248,8 +240,6 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, sample_data,
 
     jl = jm.get_job_list(0, 10)
 
-    jm.disconnect()
-
     assert len(jl) == 2
     assert jl[0]['result'] == 'retry'
     assert jl[0]['id'] == initial_job_id
@@ -274,8 +264,6 @@ def test_ingest_retry_sample_job_no_running(jm, sample_data,
     jm.store_job_data(job_data)
 
     jl = jm.get_job_list(0, 10)
-
-    jm.disconnect()
 
     assert len(jl) == 1
     assert jl[0]['result'] == 'retry'
@@ -499,8 +487,6 @@ def test_store_result_set_data(jm, sample_resultset):
         rs_revisions.add(datum['revision'])
         for revision in datum['revisions']:
             revisions.add(revision['revision'])
-
-    jm.disconnect()
 
     # Confirm all of the pushes and revisions in the
     # sample_resultset have been stored
