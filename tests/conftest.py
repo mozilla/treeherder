@@ -579,3 +579,27 @@ def text_summary_lines(jm, failure_lines, test_repository, artifacts):
         summary_lines.append(summary_line)
 
     return summary_lines
+
+
+@pytest.fixture
+def test_perf_alert_summary(test_repository, test_perf_signature):
+    from treeherder.perf.models import PerformanceAlertSummary
+    return PerformanceAlertSummary.objects.create(
+        repository=test_repository,
+        prev_result_set_id=0,
+        result_set_id=1,
+        last_updated=datetime.datetime.now())
+
+
+@pytest.fixture
+def test_perf_alert(test_perf_signature, test_perf_alert_summary):
+    from treeherder.perf.models import PerformanceAlert
+    return PerformanceAlert.objects.create(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        is_regression=True,
+        amount_pct=0.5,
+        amount_abs=50.0,
+        prev_value=100.0,
+        new_value=150.0,
+        t_value=20.0)

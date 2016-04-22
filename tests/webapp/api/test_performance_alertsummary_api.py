@@ -1,35 +1,51 @@
-import datetime
-
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
-from treeherder.perf.models import (PerformanceAlert,
-                                    PerformanceAlertSummary)
+from treeherder.perf.models import PerformanceAlertSummary
 
 
-def test_alert_summaries(webapp, test_repository, test_perf_signature,
-                         test_user, test_sheriff):
-    s = PerformanceAlertSummary.objects.create(
-        id=1,
-        repository=test_repository,
-        prev_result_set_id=0,
-        result_set_id=1,
-        last_updated=datetime.datetime.now())
-    PerformanceAlert.objects.create(
-        id=1,
-        summary=s,
-        series_signature=test_perf_signature,
-        is_regression=True,
-        amount_pct=0.5,
-        amount_abs=50.0,
-        prev_value=100.0,
-        new_value=150.0,
-        t_value=20.0)
-
+def test_alert_summaries_get(webapp, test_perf_alert_summary,
+                             test_perf_alert):
     # verify that we get the performance summary + alert on GET
     resp = webapp.get(reverse('performance-alert-summaries-list'))
     assert resp.status_int == 200
 
+    # should just have the one alert summary (with one alert)
+    assert resp.json['next'] is None
+    assert resp.json['previous'] is None
+    assert len(resp.json['results']) == 1
+    assert set(resp.json['results'][0].keys()) == set([
+        'alerts',
+        'bug_number',
+        'framework',
+        'id',
+        'last_updated',
+        'prev_result_set_id',
+        'related_alerts',
+        'repository',
+        'result_set_id',
+        'status',
+    ])
+    assert len(resp.json['results'][0]['alerts']) == 1
+    assert set(resp.json['results'][0]['alerts'][0].keys()) == set([
+        'id',
+        'status',
+        'series_signature',
+        'is_regression',
+        'prev_value',
+        'new_value',
+        't_value',
+        'amount_abs',
+        'amount_pct',
+        'summary_id',
+        'related_summary_id'
+    ])
+    assert len(resp.json['results'][0]['related_alerts']) == 0
+
+
+def test_alert_summaries_put(webapp, test_repository, test_perf_signature,
+                             test_perf_alert_summary, test_user, test_sheriff):
     # verify that we fail if not authenticated
     webapp.put_json(reverse('performance-alert-summaries-list') + '1/', {
         'status': 1

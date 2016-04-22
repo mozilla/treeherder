@@ -7,25 +7,7 @@ from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary)
 
 
-def test_alerts(webapp, test_repository, test_perf_signature, test_user,
-                test_sheriff):
-    s = PerformanceAlertSummary.objects.create(
-        id=1,
-        repository=test_repository,
-        prev_result_set_id=0,
-        result_set_id=1,
-        last_updated=datetime.datetime.now())
-    PerformanceAlert.objects.create(
-        id=1,
-        summary=s,
-        series_signature=test_perf_signature,
-        is_regression=True,
-        amount_pct=0.5,
-        amount_abs=50.0,
-        prev_value=100.0,
-        new_value=150.0,
-        t_value=20.0)
-
+def test_alerts_get(webapp, test_repository, test_perf_alert):
     resp = webapp.get(reverse('performance-alerts-list'))
     assert resp.status_int == 200
 
@@ -48,13 +30,21 @@ def test_alerts(webapp, test_repository, test_perf_signature, test_user,
     ])
     assert resp.json['results'][0]['related_summary_id'] is None
 
-    # create a new summary and reassign the alert to it
+
+def test_alerts_put(webapp, test_repository, test_perf_alert, test_user,
+                    test_sheriff):
+    # create a new summary and try to reassign the alert to it with varying
+    # levels of permission, then verify the return value changes accordingly
     PerformanceAlertSummary.objects.create(
         id=2,
         repository=test_repository,
         prev_result_set_id=1,
         result_set_id=2,
         last_updated=datetime.datetime.now())
+
+    resp = webapp.get(reverse('performance-alerts-list'))
+    assert resp.status_int == 200
+    assert resp.json['results'][0]['related_summary_id'] is None
 
     # verify that we fail if not authenticated
     webapp.put_json(reverse('performance-alerts-list') + '1/', {
