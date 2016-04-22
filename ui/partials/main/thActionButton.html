@@ -4,8 +4,9 @@
           type="button"
           title="Action menu"
           data-hover="dropdown"
-          data-delay="1000">
-    <span class="caret"></span>
+          data-delay="1000"
+          ignore-job-clear-on-click>
+    <span class="caret" ignore-job-clear-on-click></span>
   </button>
   <!-- Menu contents -->
   <ul class="dropdown-menu pull-right">
@@ -32,10 +33,10 @@
            href="" prevent-default-on-left-click
            ng-show="user.is_staff"
            ng-click="triggerAllTalosJobs(resultset.revision)">Trigger All Talos jobs</a></li>
-    <li><a target="_blank" ignore-job-clear-on-click
+    <li><a target="_blank"
            href="" prevent-default-on-left-click
            ng-click="setLocationSearchParam('tochange', resultset.revision)">Set as top of range</a></li>
-    <li><a target="_blank" ignore-job-clear-on-click
+    <li><a target="_blank"
            href="" prevent-default-on-left-click
            ng-click="setLocationSearchParam('fromchange', resultset.revision)">Set as bottom of range</a></li>
   </ul>
