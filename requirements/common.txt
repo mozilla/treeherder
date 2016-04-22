@@ -56,7 +56,10 @@ https://github.com/jeads/datasource/archive/v0.10.0.tar.gz#egg=datasource==0.10.
     --hash=sha256:7b62a9517c25750d03809076053758d5740de45a8c6c6d9194c2c0885b4a3ea2
 
 # Required by jsonschema
-functools32==3.2.3-2 --hash=sha256:f6253dfbe0538ad2e387bd8fdfd9293c925d63553f5813c4e587745416501e6d
+# Similar to PyYAML below, the hash for the .zip has also been listed due to:
+# https://bitbucket.org/pypa/pypi/issues/436/peep-hash-failures-due-to-being-served-zip
+functools32==3.2.3-2 --hash=sha256:f6253dfbe0538ad2e387bd8fdfd9293c925d63553f5813c4e587745416501e6d \
+    --hash=sha256:89d824aa6c358c421a234d7f9ee0bd75933a67c29588ce50aaa3acdf4d403fa0
 
 # Required by django-rest-swagger
 Unipath==1.1 --hash=sha256:e6257e508d8abbfb6ddd8ec357e33589f1f48b1599127f23b017124d90b0fff7
