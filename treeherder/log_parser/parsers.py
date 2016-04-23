@@ -392,6 +392,7 @@ class ErrorParser(ParserBase):
         r"| error R?C\d*:"
         r"|ERROR [45]\d\d:"
         r"|mozmake\.exe(?:\[\d+\])?: \*\*\*"
+        r"|mozmake\.EXE(?:\[\d+\])?: \*\*\*"
     ))
 
     RE_EXCLUDE_1_SEARCH = re.compile(r"TEST-(?:INFO|PASS) ")
