@@ -24,7 +24,8 @@ class BugzillaViewSet(viewsets.ViewSet):
             params = request.data
             url = settings.BZ_API_URL + "/rest/bug"
             headers = {
-                'x-bugzilla-api-key': settings.BZ_API_KEY
+                'x-bugzilla-api-key': settings.BZ_API_KEY,
+                'Accept': 'application/json'
             }
             data = {
                 'product': params["product"],
