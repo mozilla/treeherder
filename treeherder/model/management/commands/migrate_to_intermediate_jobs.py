@@ -2,8 +2,7 @@ import time
 from optparse import make_option
 
 from django.core.management.base import BaseCommand
-from django.db import (IntegrityError,
-                       transaction)
+from django.db import transaction
 
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import (Datasource,
@@ -39,22 +38,17 @@ class Command(BaseCommand):
                 continue
             with JobsModel(project) as jm:
                 offset = 0
-                limit = 10000
+                limit = 500
 
                 while True:
                     datasource_jobs = jm.get_job_list(offset, limit)
                     if not datasource_jobs:
                         break
-
-                    try:
-                        jobs_to_import = []
-                        for datasource_job in datasource_jobs:
-                            jobs_to_import.append(
-                                Job(repository=repository,
-                                    guid=datasource_job['job_guid'],
-                                    project_specific_id=datasource_job['id']))
-                        Job.objects.bulk_create(jobs_to_import)
-                    except IntegrityError:
+                    if len(Job.objects.filter(
+                            project_specific_id__in=[datasource_job['id'] for
+                                                     datasource_job in datasource_jobs])) < len(datasource_jobs):
+                        # only even bother trying to create new jobs if they
+                        # haven't been created already
                         with transaction.atomic():
                             for datasource_job in datasource_jobs:
                                 Job.objects.get_or_create(
