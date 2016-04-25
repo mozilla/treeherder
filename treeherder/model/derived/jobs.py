@@ -1784,18 +1784,17 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # create an intermediate representation of the job useful for doing
         # lookups (this will eventually become the main/only/primary jobs table
         # when we finish migrating away from Datasource, see bug 1178641
-        # (currently disabled while we do a migration, see bug 1265037)
-        # repository = Repository.objects.get(name=self.project)
-        # for job_guid in jobs_to_update.keys():
-        #    # in the case of retries, we *update* the old job with a new guid,
-        #    # then create a new job with an old guid when the retry actually
-        #    # starts/completes
-        #    Job.objects.update_or_create(
-        #        repository=repository,
-        #        project_specific_id=job_id_lookup[job_guid]['id'],
-        #        defaults={
-        #            'guid': job_guid
-        #        })
+        repository = Repository.objects.get(name=self.project)
+        for job_guid in jobs_to_update.keys():
+            # in the case of retries, we *update* the old job with a new guid,
+            # then create a new job with an old guid when the retry actually
+            # starts/completes
+            Job.objects.update_or_create(
+                repository=repository,
+                project_specific_id=job_id_lookup[job_guid]['id'],
+                defaults={
+                    'guid': job_guid
+                })
         return job_id_lookup
 
     def get_average_job_durations(self, reference_data_signatures):
