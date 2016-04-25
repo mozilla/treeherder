@@ -469,11 +469,14 @@ treeherder.factory('thJobFilters', [
          * object.
          */
         var _getJobFieldValue = function(job, field) {
-            var result = job[field];
             if (field === 'platform') {
-                result = thPlatformName(result) + " " + job.platform_option;
+                return thPlatformName(result) + " " + job.platform_option;
+            } else if (field === 'searchStr') {
+                // lazily get this to avoid storing redundant information
+                return job.get_search_str();
             }
-            return result;
+
+            return job[field];
         };
 
         /**

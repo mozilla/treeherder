@@ -3,11 +3,11 @@
 logViewerApp.controller('LogviewerCtrl', [
     '$anchorScroll', '$http', '$location', '$q', '$rootScope', '$scope',
     '$timeout', 'ThJobArtifactModel', 'ThLog', 'ThLogSliceModel', 'ThJobModel', 'thNotify',
-    'dateFilter', 'thJobSearchStr', 'ThResultSetModel', 'thDateFormat', 'thReftestStatus',
+    'dateFilter', 'ThResultSetModel', 'thDateFormat', 'thReftestStatus',
     function Logviewer(
         $anchorScroll, $http, $location, $q, $rootScope, $scope,
         $timeout, ThJobArtifactModel, ThLog, ThLogSliceModel, ThJobModel, thNotify,
-        dateFilter, thJobSearchStr, ThResultSetModel, thDateFormat, thReftestStatus) {
+        dateFilter, ThResultSetModel, thDateFormat, thReftestStatus) {
 
         var $log = new ThLog('LogviewerCtrl');
 
@@ -217,10 +217,8 @@ logViewerApp.controller('LogviewerCtrl', [
 
             $scope.logProperties = [];
             ThJobModel.get($scope.repoName, $scope.job_id).then(function(job) {
-                var jobStr = thJobSearchStr(job);
-
                 // set the title of the browser window/tab
-                $scope.logViewerTitle = "Log for " + jobStr;
+                $scope.logViewerTitle = job.get_title();
 
                 // set the result value and shading color class
                 $scope.result = {label: "Result", value: job.result};

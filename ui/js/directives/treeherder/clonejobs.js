@@ -6,13 +6,13 @@ treeherder.directive('thCloneJobs', [
     'thServiceDomain', 'thResultStatusInfo', 'thEvents', 'thAggregateIds',
     'thJobFilters', 'thResultStatusObject', 'ThResultSetStore',
     'ThJobModel', 'linkifyBugsFilter', 'thResultStatus', 'thPlatformName',
-    'thJobSearchStr', 'thNotify', '$timeout',
+    'thNotify', '$timeout',
     function(
         $rootScope, $http, ThLog, thUrl, thCloneHtml,
         thServiceDomain, thResultStatusInfo, thEvents, thAggregateIds,
         thJobFilters, thResultStatusObject, ThResultSetStore,
         ThJobModel, linkifyBugsFilter, thResultStatus, thPlatformName,
-        thJobSearchStr, thNotify, $timeout){
+        thNotify, $timeout){
 
         var $log = new ThLog("thCloneJobs");
 
@@ -192,7 +192,6 @@ treeherder.directive('thCloneJobs', [
                         // Keep track of visibility with this property. This
                         // way down stream job consumers don't need to repeatedly
                         // call showJob
-                        job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' + job.signature;
                         job.visible = filterWithRunnable(job);
                     });
                     gi.grpCountList.hide();
@@ -642,7 +641,6 @@ treeherder.directive('thCloneJobs', [
                     // Keep track of visibility with this property. This
                     // way down stream job consumers don't need to repeatedly
                     // call showJob
-                    job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' + job.signature;
                     job.visible = filterWithRunnable(job);
                 });
                 if (isGroupExpanded(gi.jgObj)) {
@@ -912,7 +910,6 @@ treeherder.directive('thCloneJobs', [
                     // Keep track of visibility with this property. This
                     // way down stream job consumers don't need to repeatedly
                     // call showJob
-                    job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' + job.signature;
                     job.visible = filterWithRunnable(job);
                 });
             });
