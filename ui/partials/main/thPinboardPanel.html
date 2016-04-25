@@ -70,7 +70,7 @@
     <button class="btn btn-default btn-xs save-btn"
           title="{{ !hasPinnedJobs() ? 'No job selected' : 'Save all classification data' }}"
           ng-click="save()"
-          ng-disabled="!hasPinnedJobs()">save
+          ng-disabled="!canSaveClassifications()">save
     </button>
     <button class="btn btn-default btn-xs dropdown-toggle save-btn-dropdown"
           title="{{ !hasPinnedJobs() ? 'No pinned jobs' : 'Additional pinboard functions' }}"
