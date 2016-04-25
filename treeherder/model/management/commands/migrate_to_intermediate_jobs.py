@@ -32,6 +32,7 @@ class Command(BaseCommand):
             projects = Datasource.objects.values_list('project', flat=True)
 
         for project in projects:
+            print project
             try:
                 repository = Repository.objects.get(name=project)
             except:
@@ -44,9 +45,11 @@ class Command(BaseCommand):
                     datasource_jobs = jm.get_job_list(offset, limit)
                     if not datasource_jobs:
                         break
-                    if len(Job.objects.filter(
-                            project_specific_id__in=[datasource_job['id'] for
-                                                     datasource_job in datasource_jobs])) < len(datasource_jobs):
+                    existing_jobs = Job.objects.filter(
+                        repository=repository,
+                        project_specific_id__in=[datasource_job['id'] for
+                                                 datasource_job in datasource_jobs])
+                    if len(existing_jobs) < len(datasource_jobs):
                         # only even bother trying to create new jobs if they
                         # haven't been created already
                         with transaction.atomic():
