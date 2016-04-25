@@ -1,3 +1,4 @@
+import copy
 import logging
 import time
 from collections import defaultdict
@@ -20,6 +21,7 @@ from treeherder.model.models import (BuildPlatform,
                                      ExclusionProfile,
                                      FailureClassification,
                                      FailureLine,
+                                     Job,
                                      JobDuration,
                                      JobGroup,
                                      JobType,
@@ -750,8 +752,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             # remove data from specified jobs tables that is older than max_timestamp
             self._execute_table_deletes(jobs_targets, 'jobs', sleep_time)
 
-            # Remove FailueLine entries for these jobs
+            # Remove FailueLine + intermediate job entries for these jobs
             orm_delete(FailureLine, FailureLine.objects.filter(job_guid__in=job_guid_list),
+                       chunk_size, sleep_time)
+            orm_delete(Job, Job.objects.filter(guid__in=job_guid_list),
                        chunk_size, sleep_time)
 
         return len(jobs_to_cycle)
@@ -1281,30 +1285,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 push_timestamps
             )
 
-        job_id_lookup = self._load_jobs(job_placeholders, job_guid_list)
-
-        # For each of these ``retry_job_guids`` the job_id_lookup will
-        # either contain the retry guid, or the root guid (based on whether we
-        # inserted, or skipped insertion to do an update).  So add in
-        # whichever is missing.
-        for retry_guid in retry_job_guids:
-            retry_guid_root = get_guid_root(retry_guid)
-            lookup_keys = job_id_lookup.keys()
-
-            if retry_guid in lookup_keys:
-                # this retry was inserted in the db at some point
-                if retry_guid_root not in lookup_keys:
-                    # the root isn't there because there was, for some reason,
-                    # never a pending/running version of this job
-                    retry_job = job_id_lookup[retry_guid]
-                    job_id_lookup[retry_guid_root] = retry_job
-
-            elif retry_guid_root in lookup_keys:
-                # if job_id_lookup contains the root, then the insert
-                # will have skipped, so we want to find that job
-                # when looking for the retry_guid for update later.
-                retry_job = job_id_lookup[retry_guid_root]
-                job_id_lookup[retry_guid] = retry_job
+        job_id_lookup = self._load_jobs(job_placeholders, job_guid_list,
+                                        retry_job_guids)
 
         # Need to iterate over log references separately since they could
         # be a different length. Replace job_guid with id in log url
@@ -1758,7 +1740,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 get_guid_root(job_guid)
             ])
 
-    def _load_jobs(self, job_placeholders, job_guid_list):
+    def _load_jobs(self, job_placeholders, job_guid_list, retry_job_guids):
 
         if not job_placeholders:
             return {}
@@ -1770,7 +1752,51 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             placeholders=job_placeholders,
             executemany=True)
 
-        return self.get_job_ids_by_guid(job_guid_list)
+        job_id_lookup = self.get_job_ids_by_guid(job_guid_list)
+        jobs_to_update = copy.copy(job_id_lookup)
+
+        # For each of these ``retry_job_guids`` the job_id_lookup will
+        # either contain the retry guid, or the root guid (based on whether we
+        # inserted, or skipped insertion to do an update).  So add in
+        # whichever is missing.
+        for retry_guid in retry_job_guids:
+            retry_guid_root = get_guid_root(retry_guid)
+            lookup_keys = job_id_lookup.keys()
+
+            if retry_guid in lookup_keys:
+                # this retry was inserted in the db at some point
+                if retry_guid_root not in lookup_keys:
+                    # the root isn't there because there was, for some reason,
+                    # never a pending/running version of this job
+                    retry_job = job_id_lookup[retry_guid]
+                    job_id_lookup[retry_guid_root] = retry_job
+            elif retry_guid_root in lookup_keys:
+                # if job_id_lookup contains the root, then the insert
+                # will have skipped, so we want to find that job
+                # when looking for the retry_guid for update later.
+                retry_job = job_id_lookup[retry_guid_root]
+                job_id_lookup[retry_guid] = retry_job
+                # for the intermediate representation (see below), we only
+                # want to modify the job who was retriggered
+                del jobs_to_update[retry_guid_root]
+                jobs_to_update[retry_guid] = retry_job
+
+        # create an intermediate representation of the job useful for doing
+        # lookups (this will eventually become the main/only/primary jobs table
+        # when we finish migrating away from Datasource, see bug 1178641
+        # (currently disabled while we do a migration, see bug 1265037)
+        # repository = Repository.objects.get(name=self.project)
+        # for job_guid in jobs_to_update.keys():
+        #    # in the case of retries, we *update* the old job with a new guid,
+        #    # then create a new job with an old guid when the retry actually
+        #    # starts/completes
+        #    Job.objects.update_or_create(
+        #        repository=repository,
+        #        project_specific_id=job_id_lookup[job_guid]['id'],
+        #        defaults={
+        #            'guid': job_guid
+        #        })
+        return job_id_lookup
 
     def get_average_job_durations(self, reference_data_signatures):
         if not reference_data_signatures:
