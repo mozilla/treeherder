@@ -189,14 +189,19 @@ treeherder.factory('thJobFilters', [
          * @param job - the job we are checking against the filters
          */
         var showJob = function(job) {
-
-            // test against resultStatus, classifiedState and field filters
-            if (!_.contains(cachedResultStatusFilters, thResultStatus(job))) {
-                return false;
+            // when runnable jobs have been added to a resultset, they should be
+            // shown regardless of settings for classified or result state
+            if (job.result !== "runnable") {
+                // test against resultStatus and classifiedState
+                if (!_.contains(cachedResultStatusFilters, thResultStatus(job))) {
+                    return false;
+                }
+                if (!_checkClassifiedStateFilters(job)) {
+                    return false;
+                }
             }
-            if (!_checkClassifiedStateFilters(job)) {
-                return false;
-            }
+            // runnable or not, we still want to apply the field filters like
+            // for symbol, platform, search str, etc...
             return _checkFieldFilters(job);
         };
 
