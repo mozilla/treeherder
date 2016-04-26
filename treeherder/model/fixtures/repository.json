@@ -939,4 +939,17 @@
         "repository_group": 7,
         "description": "The Servo Parallel Browser Engine."
     }
+},
+{
+    "pk": 76,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "version-control-tools",
+        "url": "https://hg.mozilla.org/hgcustom/version-control-tools",
+        "active_status": "active",
+        "codebase": "version-control-tools",
+        "repository_group": 7,
+        "description": "Version control infrastructure and tooling."
+    }
 }]
