@@ -475,7 +475,7 @@ treeherder.factory('thJobFilters', [
          */
         var _getJobFieldValue = function(job, field) {
             if (field === 'platform') {
-                return thPlatformName(result) + " " + job.platform_option;
+                return thPlatformName(job[field]) + " " + job.platform_option;
             } else if (field === 'searchStr') {
                 // lazily get this to avoid storing redundant information
                 return job.get_search_str();
