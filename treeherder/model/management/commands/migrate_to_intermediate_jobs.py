@@ -52,11 +52,10 @@ class Command(BaseCommand):
                     if len(existing_jobs) < len(datasource_jobs):
                         # only even bother trying to create new jobs if they
                         # haven't been created already
-                        with transaction.atomic():
-                            for datasource_job in datasource_jobs:
-                                Job.objects.get_or_create(
-                                    repository=repository,
-                                    guid=datasource_job['job_guid'],
-                                    project_specific_id=datasource_job['id'])
+                        for datasource_job in datasource_jobs:
+                            Job.objects.get_or_create(
+                                repository=repository,
+                                guid=datasource_job['job_guid'],
+                                project_specific_id=datasource_job['id'])
                     offset += limit
                     time.sleep(options['interval'])
