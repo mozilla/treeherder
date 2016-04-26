@@ -6,7 +6,7 @@ treeherder.controller('PluginCtrl', [
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'thTabs',
-    '$timeout', 'thJobSearchStr', 'thReftestStatus', 'ThResultSetStore',
+    '$timeout', 'thReftestStatus', 'ThResultSetStore',
     'PhSeries', 'thServiceDomain', 'ThFailureLinesModel',
     function PluginCtrl(
         $scope, $rootScope, $location, $http, thUrl, ThJobClassificationModel,
@@ -14,7 +14,7 @@ treeherder.controller('PluginCtrl', [
         numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
         thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs,
-        $timeout, thJobSearchStr, thReftestStatus, ThResultSetStore, PhSeries,
+        $timeout, thReftestStatus, ThResultSetStore, PhSeries,
         thServiceDomain, ThFailureLinesModel) {
 
         var $log = new ThLog("PluginCtrl");
@@ -163,7 +163,7 @@ treeherder.controller('PluginCtrl', [
                     }
 
                     // filtering values for data fields and signature
-                    $scope.jobSearchStr = thJobSearchStr($scope.job);
+                    $scope.jobSearchStr = $scope.job.get_title();
                     $scope.jobSearchSignature = $scope.job.signature;
                     $scope.jobSearchStrHref = getJobSearchStrHref($scope.jobSearchStr);
                     $scope.jobSearchSignatureHref = getJobSearchStrHref($scope.job.signature);

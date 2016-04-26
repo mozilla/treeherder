@@ -1,8 +1,8 @@
 'use strict';
 
 treeherder.factory('ThJobModel', [
-    '$http', 'ThLog', 'thUrl', '$q',
-    function($http, ThLog, thUrl, $q) {
+    '$http', 'ThLog', 'thUrl', 'thPlatformName', '$q',
+    function($http, ThLog, thUrl, thPlatformName, $q) {
         // ThJobModel is the js counterpart of job
 
         var ThJobModel = function(data) {
@@ -21,6 +21,25 @@ treeherder.factory('ThJobModel', [
             return Math.round(
                 parseInt(this.running_eta) /60
             );
+        };
+
+        ThJobModel.prototype.get_title = function() {
+            return _.filter([
+                thPlatformName(this.platform),
+                this.platform_option,
+                (this.job_group_name === 'unknown') ? undefined : this.job_group_name,
+                this.job_type_name,
+                this.job_group_symbol === '?' ? undefined : this.job_group_symbol,
+                "(" + this.job_type_symbol + ")"
+            ]).join(' ');
+        };
+
+        ThJobModel.prototype.get_search_str = function() {
+            return _.filter([
+                this.get_title(),
+                this.ref_data_name,
+                (this.signature !== this.ref_data_name) ? this.signature : undefined
+            ]).join(' ');
         };
 
         ThJobModel.get_uri = function(repoName){return thUrl.getProjectUrl("/jobs/", repoName);};

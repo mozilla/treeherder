@@ -243,20 +243,6 @@ treeherder.factory('thPlatformName', [
         };
     }]);
 
-treeherder.factory('thJobSearchStr', [
-    'thPlatformName',
-    function(thPlatformName) {
-
-        return function(job) {
-            return thPlatformName(job.platform) + ' ' +
-                job.platform_option + ' ' +
-                (job.job_group_name === 'unknown' ? '' : job.job_group_name + ' ') +
-                job.job_type_name + ' ' +
-                (job.job_group_symbol === '?' ? '' : job.job_group_symbol) +
-                "(" + job.job_type_symbol + ")";
-        };
-    }]);
-
 treeherder.factory('thExtendProperties', [
     /* Version of _.extend that works with property descriptors */
     function() {
