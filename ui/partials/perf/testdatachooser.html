@@ -25,13 +25,20 @@
     </div>
     <div class="form-group">
       <label>Tests</label>
+      <div class="test-loading-placeholder" ng-show="loadingTestData">
+        <p class="blink">Loading series data...</p>
+      </div>
       <input class="form-control input-sm" type="text" ng-model="testFilter" placeholder="Filter tests" ng-model-options="{debounce: 250}" ng-hide="loadingTestData"/>
-      <p class="blink" ng-show="loadingTestData">Loading series data...</p>
       <select ng-hide="loadingPlatformList || loadingTestData" multiple class="form-control choose-test-list" ng-model="selectedTestSignatures" ng-hide="loadingTestData">
         <option value="{{::testElem.signature}}" ng-repeat="testElem in unselectedTestList| testNameContainsWords: testFilter track by testElem.signature">
           {{::testElem.name}}
         </option>
       </select>
+    </div>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="includeSubtests" ng-change="updateTestSelector()">Include subtests</input>
+      </label>
     </div>
   </div>
   <div class="btn-group-vertical">
