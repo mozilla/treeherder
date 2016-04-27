@@ -841,7 +841,7 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
     $scope.selectedProject = _.findWhere(projects, {
         name: defaultProjectName ? defaultProjectName : thDefaultRepo
     });
-
+    $scope.includeSubtests = false;
     $scope.loadingTestData = false;
     $scope.loadingRelatedSignatures = true;
     var series = [];
@@ -997,7 +997,8 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
                 PhSeries.getSeriesList(
                     $scope.selectedProject.name,
                     { interval: $scope.timeRange, platform: $scope.selectedPlatform,
-                      framework: $scope.selectedFramework.id }).then(function(seriesList) {
+                      framework: $scope.selectedFramework.id,
+                      subtests: $scope.includeSubtests ? 1 : 0 }).then(function(seriesList) {
                           $scope.unselectedTestList = _.sortBy(
                               _.filter(seriesList,
                                        { platform: $scope.selectedPlatform }), 'name');
