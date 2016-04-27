@@ -23,18 +23,26 @@ treeherder.controller('PluginCtrl', [
         $scope.artifacts = {};
 
         var getJobSearchStrHref = function(jobSearchStr){
-
             var absUrl = $location.absUrl();
-            var delimiter = '?';
 
-            // If there are parameters the parameter delimiter &
-            // should be used
-            if(absUrl.indexOf('?') !== -1){
-                delimiter = '&';
+            // Don't double up the searchStr param
+            if(absUrl.indexOf('filter-searchStr=') !== -1){
+                var replaceString = 'filter-searchStr=' +
+                                    absUrl.split('filter-searchStr=')[1].split('&')[0];
+                absUrl = absUrl.replace(replaceString, 'filter-searchStr=' +
+                         encodeURIComponent(jobSearchStr));
+            } else {
+                // If there are parameters, the parameter delimiter '&'
+                // should be used
+                var delimiter = '?';
+                if(absUrl.indexOf('?') !== -1){
+                    delimiter = '&';
+                }
+
+                absUrl = absUrl + delimiter + 'filter-searchStr=' +
+                         encodeURIComponent(jobSearchStr);
             }
-
-            return absUrl + delimiter + 'filter-searchStr=' +
-                   encodeURIComponent(jobSearchStr);
+            return absUrl;
         };
 
         $scope.filterByJobSearchStr = function(jobSearchStr) {
