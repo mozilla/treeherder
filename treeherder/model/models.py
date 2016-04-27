@@ -710,7 +710,7 @@ class ClassifiedFailure(models.Model):
                                            related_name='classified_failures')
     # Note that we use a bug number of 0 as a sentinal value to indicate lines that
     # are not actually symptomatic of a real bug, but are still possible to autoclassify
-    bug_number = models.PositiveIntegerField(blank=True, null=True)
+    bug_number = models.PositiveIntegerField(blank=True, null=True, unique=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 

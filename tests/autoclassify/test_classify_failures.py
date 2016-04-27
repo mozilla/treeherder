@@ -81,8 +81,8 @@ def test_autoclassify_update_job_classification(activate_responses, jm, test_rep
                                                 mock_autoclassify_jobs_true):
     job = jm.get_job(2)[0]
 
-    for item in classified_failures:
-        item.bug_number = "1234"
+    for i, item in enumerate(classified_failures):
+        item.bug_number = "1234%i" % i
         item.save()
 
     create_bug_suggestions(job, test_project, {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
