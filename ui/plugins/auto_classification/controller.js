@@ -21,7 +21,9 @@ var isHelpfulLine = function(lineData) {
         'libSystem.B.dylib + 0xd7a': true,
         'linux-gate.so + 0x424': true,
         'TypeError: content is null': true,
-        'leakcheck': true
+        'leakcheck': true,
+        'ImportError: No module named pygtk': true,
+        '# TBPL FAILURE #': true
     };
 
     return lineData.length > 4 && !blacklist.hasOwnProperty(lineData);

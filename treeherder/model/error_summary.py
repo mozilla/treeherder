@@ -168,7 +168,10 @@ def is_helpful_search_term(search_term):
         'libSystem.B.dylib + 0xd7a',
         'linux-gate.so + 0x424',
         'TypeError: content is null',
-        'leakcheck'
+        'leakcheck',
+        'ImportError: No module named pygtk',
+        '# TBPL FAILURE #'
+
     ]
 
     return len(search_term) > 4 and not (search_term in blacklist)
