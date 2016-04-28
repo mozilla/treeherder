@@ -1,3 +1,4 @@
+import copy
 import datetime
 import logging
 import os
@@ -95,6 +96,11 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                            perf_datum['framework']['name']))
         return
     for suite in perf_datum['suites']:
+        suite_extra_properties = copy.copy(extra_properties)
+        if suite.get('extraOptions'):
+            suite_extra_properties = {
+                'test_options': sorted(suite['extraOptions'])
+            }
         subtest_properties = []
         summary_signature_hash = None
         for subtest in suite['subtests']:
@@ -116,7 +122,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                 'subtest_properties': subtest_properties
             }
             summary_properties.update(reference_data)
-            summary_properties.update(extra_properties)
+            summary_properties.update(suite_extra_properties)
             summary_signature_hash = _get_signature_hash(
                 summary_properties)
 
@@ -128,7 +134,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                     'suite': suite['name'],
                     'option_collection': option_collection,
                     'platform': platform,
-                    'extra_properties': extra_properties,
+                    'extra_properties': suite_extra_properties,
                     'lower_is_better': suite.get('lowerIsBetter', True),
                     'has_subtests': True,
                     # these properties below can be either True, False, or null
@@ -176,7 +182,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                     'suite': suite['name'],
                     'option_collection': option_collection,
                     'platform': platform,
-                    'extra_properties': extra_properties,
+                    'extra_properties': suite_extra_properties,
                     'lower_is_better': subtest_metadata['lowerIsBetter'],
                     'has_subtests': False,
                     # these properties below can be either True, False, or
