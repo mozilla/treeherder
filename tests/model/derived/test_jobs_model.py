@@ -586,6 +586,25 @@ def test_store_result_set_revisions(jm, sample_resultset):
     assert stored["short_revision"] == "997b28cb8737"
 
 
+def test_store_result_set_12_then_40(jm, sample_resultset):
+    """Test that you can update a 12 char resultset to 40 and revisions"""
+    long_resultset = sample_resultset[8]
+    short_resultset = copy.deepcopy(long_resultset)
+    short_resultset["revisions"] = []
+    short_resultset["revision"] = short_resultset["revision"][:12]
+
+    jm.store_result_set_data([short_resultset])
+    # now update that short revision to a long revision
+    jm.store_result_set_data([long_resultset])
+
+    stored = jm.get_dhub().execute(proc="jobs_test.selects.result_sets")[0]
+    revisions = jm.get_resultset_revisions_list(stored["id"])
+
+    assert stored["long_revision"] == "997b28cb87373456789012345678901234567890"
+    assert stored["short_revision"] == "997b28cb8737"
+    assert len(revisions) > 0
+
+
 def test_get_job_data(jm, test_project, sample_data,
                       sample_resultset, test_repository, mock_log_parser):
 

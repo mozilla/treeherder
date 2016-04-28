@@ -2084,8 +2084,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # find the existing resultsets that meet the requirements of needing
         # to be updated.
         rs_need_update = set()
-        for rev, resultset in resultsets_before.iteritems():
-            if resultset["push_timestamp"] == 0:
+        for rev, resultset in resultsets_before.items():
+            if resultset["push_timestamp"] == 0 or \
+               len(resultset["long_revision"]) < 40:
                 rs_need_update.add(rev)
 
         # collect the new values for the resultsets that needed updating
