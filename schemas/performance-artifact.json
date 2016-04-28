@@ -63,6 +63,14 @@
                     "title": "Suite name",
                     "type": "string"
                 },
+                "extraOptions": {
+                    "type": "array",
+                    "title": "Extra options used in running suite",
+                    "items": {
+                        "type": "string"
+                    },
+                    "uniqueItems": true
+                },
                 "subtests": {
                     "items": {
                         "$ref": "#/definitions/subtest_schema"
