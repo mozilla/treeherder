@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import itertools
 import os
 from collections import (OrderedDict,
                          defaultdict)
@@ -684,7 +685,8 @@ class FailureLine(models.Model):
         ids_seen = set()
         for item in bug_suggestions:
             if all(component in item["search"] for component in components):
-                for suggestion in item["bugs"]["open_recent"]:
+                for suggestion in itertools.chain(item["bugs"]["open_recent"],
+                                                  item["bugs"]["all_others"]):
                     if suggestion["id"] not in ids_seen:
                         ids_seen.add(suggestion["id"])
                         rv.append(suggestion)

@@ -29,12 +29,13 @@ var isHelpfulLine = function(lineData) {
 
 treeherder.factory('ThClassificationOption', ['thExtendProperties',
     function(thExtendProperties) {
-        var ThClassificationOption = function(type, id, bugNumber, bugSummary, matches) {
+        var ThClassificationOption = function(type, id, bugNumber, bugSummary, bugResolution, matches) {
             thExtendProperties(this, {
                 type: type,
                 id: id,
                 bugNumber: bugNumber || null,
                 bugSummary: bugSummary || null,
+                bugResolution: bugResolution || null,
                 hasBug: bugNumber ? true : false, // Did the option have a bug when first created
                 matches: matches || null,
                 always: false, // For type = 'ignore' ignore just for this job or
@@ -327,10 +328,12 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
             _.forEach(classifiedFailures, function(cf) {
                 if (cf.bug_number !== null && cf.bug_number !== 0) {
                     var bug_summary = cf.bug ? cf.bug.summary : "";
+                    var bug_resolution = cf.bug ? cf.bug.resolution : "";
                     var option = new ThClassificationOption("classified_failure",
                                                             cf.id,
                                                             cf.bug_number,
                                                             bug_summary,
+                                                            bug_resolution,
                                                             getClassificationMatches(cf.id));
                     options.push(option);
                 }
@@ -362,7 +365,8 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
                 options.push(new ThClassificationOption("unstructured_bug",
                                                         ubid,
                                                         bug.id,
-                                                        bug.summary));
+                                                        bug.summary,
+                                                        bug.resolution));
             });
 
             return options;
@@ -391,6 +395,7 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
                     best = new ThClassificationOption("classified_failure",
                                                       bestClassification,
                                                       null,
+                                                      "",
                                                       "",
                                                       getClassificationMatches(bestClassification));
                 }
@@ -573,7 +578,8 @@ treeherder.factory('ThUnstructuredLine', ['thExtendProperties',
                 options.push(new ThClassificationOption("unstructured_bug",
                                                         ubid,
                                                         bug.id,
-                                                        bug.summary));
+                                                        bug.summary,
+                                                        bug.resolution));
             });
 
             return options;
@@ -590,6 +596,7 @@ treeherder.factory('ThUnstructuredLine', ['thExtendProperties',
             }
 
             ui.options = bugSuggestionOptions(data.bugs.open_recent);
+            ui.options = ui.options.concat(bugSuggestionOptions(data.bugs.all_others));
             ui.options.push(new ThClassificationOption("manual", "manual"));
             ui.options.push(new ThClassificationOption("ignore", "ignore", 0));
             if (!isHelpfulLine(data.search)) {
