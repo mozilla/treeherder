@@ -926,5 +926,17 @@
         "repository_group": 2,
         "description": ""
     }
-}
-]
+},
+{
+    "pk": 75,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "servo",
+        "url": "https://www.github.com/servo/servo",
+        "active_status": "active",
+        "codebase": "servo",
+        "repository_group": 7,
+        "description": "The Servo Parallel Browser Engine."
+    }
+}]
