@@ -55,7 +55,8 @@ file {"${PROJ_DIR}/treeherder/config/settings_local.py":
 class vagrant {
     class {
         init: before => Class["mysql"];
-        mysql: before  => Class["python"];
+        mysql: before  => Class["elasticsearch"];
+        elasticsearch: before  => Class["python"];
         python: before => Class["varnish"];
         varnish: before => Class["treeherder"];
         treeherder: before => Class["rabbitmq"];
