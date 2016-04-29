@@ -719,6 +719,39 @@ class ClassifiedFailure(models.Model):
         # to make things more efficient
         return Bugscache.objects.filter(id=self.bug_number).first()
 
+    def set_bug(self, bug_number):
+        try:
+            existing = ClassifiedFailure.objects.get(bug_number=bug_number)
+            self.replace_with(existing)
+            return existing
+        except ClassifiedFailure.DoesNotExist:
+            self.bug_number = bug_number
+            self.save()
+            return self
+
+    @transaction.atomic
+    def replace_with(self, other):
+        # SELECT failure_match.* FROM failure_match JOIN
+        # (SELECT * FROM failure_match
+        #  WHERE classified_failure_id = <self.id>) AS matches
+        # ON matches.classified_failure_id = <other.id> AND
+        #    matches.failure_line_id = failure_match.failue_line_id
+        delete_ids = []
+        for match in self.matches.all():
+            try:
+                existing = FailureMatch.objects.get(classified_failure=other,
+                                                    failure_line=match.failure_line)
+                if match.score > existing.score:
+                    existing.score = match.score
+                    existing.save()
+                delete_ids.append(match.id)
+            except FailureMatch.DoesNotExist:
+                match.classified_failure = other
+                match.save()
+        FailureMatch.objects.filter(id__in=delete_ids).delete()
+        FailureLine.objects.filter(best_classification=self).update(best_classification=other)
+        self.delete()
+
     # TODO: add indexes once we know which queries will be typically executed
 
     class Meta:
