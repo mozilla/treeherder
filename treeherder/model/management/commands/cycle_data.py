@@ -1,11 +1,15 @@
 import datetime
 from optparse import make_option
 
+import MySQLdb
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import (Datasource,
+                                     JobGroup,
+                                     JobType,
+                                     RunnableJob,
                                      TaskSetMeta)
 from treeherder.model.utils import orm_delete
 
@@ -69,6 +73,27 @@ class Command(BaseCommand):
     def cycle_non_job_data(self, chunk_size, sleep_time):
         orm_delete(TaskSetMeta, TaskSetMeta.objects.filter(count=0),
                    chunk_size, sleep_time)
+
+        used_job_type_ids = set()
+        for d in Datasource.objects.all():
+            db_options = settings.DATABASES['default'].get('OPTIONS', {})
+            db = MySQLdb.connect(
+                host=settings.DATABASES['default']['HOST'],
+                db=d.name,
+                user=settings.DATABASES['default']['USER'],
+                passwd=settings.DATABASES['default'].get('PASSWORD') or '',
+                **db_options
+            )
+            c = db.cursor()
+            c.execute("""select distinct job_type_id from job""")
+            for job_type_id in c.fetchall():
+                used_job_type_ids.add(job_type_id[0])
+
+        JobType.objects.exclude(id__in=used_job_type_ids).delete()
+        RunnableJob.objects.exclude(job_type__id__in=used_job_type_ids).delete()
+
+        used_job_group_ids = set(JobType.objects.values_list('job_group', flat=True))
+        JobGroup.objects.exclude(id__in=used_job_group_ids).delete()
 
     def debug(self, msg):
         if self.is_debug:

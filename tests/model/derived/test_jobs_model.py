@@ -10,11 +10,15 @@ from tests.autoclassify.utils import (create_failure_lines,
 from tests.sample_data_generator import (job_data,
                                          result_set)
 from treeherder.model.derived import ArtifactsModel
-from treeherder.model.models import (FailureClassification,
+from treeherder.model.models import (BuildPlatform,
+                                     FailureClassification,
                                      FailureLine,
                                      Job,
                                      JobDuration,
                                      JobGroup,
+                                     JobType,
+                                     MachinePlatform,
+                                     RunnableJob,
                                      TaskSetMeta)
 
 slow = pytest.mark.slow
@@ -476,6 +480,51 @@ def test_cycle_task_set_meta(jm):
     call_command('cycle_data', sleep_time=0, days=1, chunk_size=3)
 
     assert [item.id for item in TaskSetMeta.objects.all()] == [to_keep.id]
+
+
+def test_cycle_job_model_reference_data(jm, sample_data, sample_resultset,
+                                        test_repository, mock_log_parser):
+    job_data = sample_data.job_data[:20]
+    test_utils.do_job_ingestion(jm, job_data, sample_resultset, False)
+
+    # create a fake original runnable job, since we don't fetch those via
+    # job ingestion
+    RunnableJob.objects.create(build_platform=BuildPlatform.objects.all()[0],
+                               machine_platform=MachinePlatform.objects.all()[0],
+                               job_type=JobType.objects.all()[0],
+                               option_collection_hash='test1',
+                               ref_data_name='test1',
+                               build_system_type='test1',
+                               repository=test_repository)
+
+    # get a list of ids of original reference data
+    original_job_type_ids = JobType.objects.values_list('id', flat=True)
+    original_job_group_ids = JobGroup.objects.values_list('id', flat=True)
+    original_runnable_job_ids = RunnableJob.objects.values_list('id', flat=True)
+
+    # create a bunch of job model data that should be cycled, since they don't
+    # reference any current jobs
+    jg = JobGroup.objects.create(symbol='moo', name='moo')
+    jt = JobType.objects.create(job_group=jg, symbol='mu', name='mu')
+    rj = RunnableJob.objects.create(build_platform=BuildPlatform.objects.all()[0],
+                                    machine_platform=MachinePlatform.objects.all()[0],
+                                    job_type=jt,
+                                    option_collection_hash='test2',
+                                    ref_data_name='test2',
+                                    build_system_type='test2',
+                                    repository=test_repository)
+    (jg_id, jt_id, rj_id) = (jg.id, jt.id, rj.id)
+    call_command('cycle_data', sleep_time=0, days=1, chunk_size=3)
+
+    # assert that those jobs that should be cycled, are cycled
+    assert JobGroup.objects.filter(id=jg_id).count() == 0
+    assert JobType.objects.filter(id=jt_id).count() == 0
+    assert RunnableJob.objects.filter(id=rj_id).count() == 0
+
+    # assert that we still have everything that shouldn't have been cycled
+    assert JobType.objects.filter(id__in=original_job_type_ids).count() == len(original_job_type_ids)
+    assert JobGroup.objects.filter(id__in=original_job_group_ids).count() == len(original_job_group_ids)
+    assert RunnableJob.objects.filter(id__in=original_runnable_job_ids).count() == len(original_runnable_job_ids)
 
 
 def test_bad_date_value_ingestion(jm, test_repository, mock_log_parser):
