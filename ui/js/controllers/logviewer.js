@@ -226,7 +226,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
                 // other properties, in order of appearance
                 $scope.logProperties = [
-                    {label: "Job", value: jobStr},
+                    {label: "Job", value: $scope.logViewerTitle},
                     {label: "Machine", value: job.machine_name},
                     {label: "Start", value: dateFilter(job.start_timestamp*1000, thDateFormat)},
                     {label: "End", value: dateFilter(job.end_timestamp*1000, thDateFormat)}
