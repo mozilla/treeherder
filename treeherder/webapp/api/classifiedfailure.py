@@ -7,8 +7,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
 from treeherder.model.models import (ClassifiedFailure,
-                                     FailureLine,
-                                     FailureMatch)
+                                     FailureLine)
 from treeherder.webapp.api import (pagination,
                                    serializers)
 from treeherder.webapp.api.utils import as_dict
@@ -84,20 +83,16 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
 
             classified_failures.update(as_dict(existing, "id"))
 
-            bug_to_id = defaultdict(list)
+            bug_to_classified_failure = defaultdict(list)
             for id, bug in bug_numbers.iteritems():
-                bug_to_id[bug].append(id)
+                bug_to_classified_failure[bug].append(classified_failures[id])
             # Merge the ClassifiedFailure being updated into the existing ClassifiedFailure
             # with the same bug number
-            for item in existing:
-                new_id = item.id
-                for old_id in bug_to_id[item.bug_number]:
-                    FailureLine.objects.filter(best_classification__id=old_id).update(
-                        best_classification=new_id)
-                    FailureMatch.objects.filter(classified_failure__id=old_id).update(
-                        classified_failure=new_id)
-                    ClassifiedFailure.objects.filter(id=old_id).delete()
-                    merges[old_id] = new_id
+            for retain in existing:
+                for remove in bug_to_classified_failure[retain.bug_number]:
+                    removed_id = remove.id
+                    remove.replace_with(retain)
+                    merges[removed_id] = retain
 
         # Ensure that the return value is ordered in the same way as the request
         rv = []
@@ -105,12 +100,12 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
             classification_id = int(item.get("id"))
             bug_number = bug_numbers[classification_id]
             if classification_id in merges:
-                obj = classified_failures[merges[classification_id]]
+                classification = merges[classification_id]
             else:
-                obj = classified_failures[classification_id]
-                obj.bug_number = bug_number
-                obj.save()
-            rv.append(obj)
+                classification = classified_failures[int(item.get("id"))]
+                classification.bug_number = bug_number
+                classification.save()
+            rv.append(classification)
 
         if not many:
             rv = rv[0]
