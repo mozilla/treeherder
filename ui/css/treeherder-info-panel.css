@@ -554,6 +554,11 @@ ul.failure-line-list {
  margin-right: auto;
 }
 
+.classification-bug-resolution {
+  color: darkgrey;
+  font-size: 0.9em;
+}
+
 /* TODO: Make this better */
 .classification-matchers {
   color: darkgrey;

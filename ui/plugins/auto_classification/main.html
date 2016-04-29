@@ -99,13 +99,13 @@
                      ng-change="line.dirty=true"
                      ng-if="!(option.type == 'classified_failure' && !option.hasBug)"/>
               <span class="line-option-text" ng-if="option.hasBug">
+                <span ng-if="option.bugResolution" class="classification-bug-resolution">[{{ option.bugResolution }}]</span>
                 <a href="{{::getBugUrl(option.bugNumber) }}"
                    target="_blank">Bug {{::option.bugNumber}} -
                   <span ng-if="line.type === 'structured'"
                         ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:line.data.test:line.data.subtest:line.data.status:line.data.expected"></span>
                   <span ng-if="line.type === 'unstructured'"
-                        ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:line.data.search_terms">
-                  </span>
+                        ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:line.data.search_terms"></span>
                 </a>
               </span>
               <span ng-if="option.type == 'classified_failure' && !option.hasBug">
