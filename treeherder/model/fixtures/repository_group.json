@@ -52,5 +52,14 @@
         "active_status": "active",
         "description": "Collection of repositories for project branches"
     }
+},
+{
+    "pk": 7,
+    "model": "model.repositorygroup",
+    "fields": {
+        "name": "other",
+        "active_status": "active",
+        "description": "Other repositories not falling under the above categories"
+    }
 }
 ]
