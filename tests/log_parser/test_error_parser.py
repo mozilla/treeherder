@@ -12,6 +12,7 @@ ERROR_TEST_CASES = (
     "remoteFailed: [Failure instance: Traceback (failure with no frames): Foo.",
     "08:13:37 INFO - make: *** [test-integration-test] Error 1",
     "pymake\..\..\mozmake.exe: *** [buildsymbols] Error 11",
+    "pymake\..\..\mozmake.EXE: *** [buildsymbols] Error 11",
     "00:55:13 INFO - SUMMARY: AddressSanitizer: 64 byte(s) leaked in 1 allocation(s).",
     "Automation Error: Foo bar",
     "[taskcluster] Error: Task run time exceeded 7200 seconds.",
