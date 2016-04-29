@@ -679,16 +679,15 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
-    def update_autoclassification_bug(self, job_id, bug_id):
+    def update_autoclassification_bug(self, job_id, bug_number):
         failure_line = self.get_manual_classification_line(job_id)
 
         if failure_line is None:
             return
 
-        classification = failure_line.best_classification
-        if classification and classification.bug_number is None:
-            classification.bug_number = bug_id
-            classification.save()
+            classification = failure_line.best_classification
+            if classification and classification.bug_number is None:
+                classification.set_bug(bug_number)
 
     def calculate_durations(self, sample_window_seconds, debug):
         # Get the most recent timestamp from jobs
