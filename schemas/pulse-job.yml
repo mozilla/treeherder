@@ -8,11 +8,11 @@ type: "object"
 properties:
   taskId:
     title: "taskId"
-    descriptio: |
+    description: |
       This could just be what was formerly submitted as a job_guid in the
       REST API.
     type: "string"
-    pattern: "^[A-Za-z0-9_/+-]+$"
+    pattern: "^[A-Za-z0-9/+-]+$"
     minLength: 1
     maxLength: 50
   retryId:
@@ -61,12 +61,12 @@ properties:
               This could be the organization or the individual git username
               depending on who owns the repo.
             type: "string"
-            pattern: "^[0-9a-f]+$"
+            pattern: "^[A-Za-z0-9_-]+$"
             minLength: 1
             maxLength: 50
-          projectName:
+          project:
             type: "string"
-            pattern: "^[0-9a-f]+$"
+            pattern: "^[A-Za-z0-9_-]+$"
             minLength: 1
             maxLength: 50
           revision:
@@ -106,15 +106,18 @@ properties:
       jobName:
         title: "job name"
         type: "string"
+        pattern: "^[A-Za-z0-9\\s_-]+$"
         minLength: 1
         maxLength: 100
       groupName:
         title: "group name"
         type: "string"
-        pattern: "^[A-Za-z0-9_-]+$"
+        pattern: "^[A-Za-z0-9\\s_-]+$"
         minLength: 1
         maxLength: 100
     required:
+      - jobName
+      - jobSymbol
       - groupSymbol
 
 
@@ -359,6 +362,9 @@ properties:
   extra:
     type: "object"
     description: Extra information that Treeherder reads on a best-effort basis
+  version:
+    type: "integer"
+
 
 additionalProperties: false
 required:
@@ -367,6 +373,7 @@ required:
   - display
   - state
   - jobKind
+  - version
 
 definitions:
   machine:
@@ -381,7 +388,7 @@ definitions:
         type: "string"
         pattern: "^[A-Za-z0-9_-]+$"
         minLength: 1
-        maxLength: 25
+        maxLength: 100
       os:
         type: "string"
         pattern: "^[A-Za-z0-9_-]+$"
@@ -393,7 +400,6 @@ definitions:
         minLength: 1
         maxLength: 25
     required:
-      - name
       - platform
       - os
       - architecture
