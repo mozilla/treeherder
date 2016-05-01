@@ -952,4 +952,17 @@
         "repository_group": 7,
         "description": "Version control infrastructure and tooling."
     }
+},
+{
+    "pk": 77,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "autoland",
+        "url": "https://hg.mozilla.org/integration/autoland",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 1,
+        "description": "The destination for automatically landed Firefox commits."
+    }
 }]
