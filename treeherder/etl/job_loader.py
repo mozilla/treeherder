@@ -28,6 +28,15 @@ class JobLoader:
         "canceled": "usercancel",
         "unknown": "unknown"
     }
+    TIME_FIELD_MAP = {
+        "submit_timestamp": "timeScheduled",
+        "start_timestamp": "timeStarted",
+        "end_timestamp": "timeCompleted"
+    }
+    PLATFORM_FIELD_MAP = {
+        "build_platform": "buildMachine",
+        "machine_platform": "runMachine"
+    }
 
     def process_job_list(self, all_jobs_list):
         if not isinstance(all_jobs_list, list):
@@ -74,18 +83,28 @@ class JobLoader:
                 "reason": pulse_job.get("reason", "unknown"),
                 "who": pulse_job.get("owner", "unknown"),
                 "tier": pulse_job.get("tier", 1),
-                "submit_timestamp": self._to_timestamp(pulse_job["timeScheduled"]),
-                "start_timestamp": self._to_timestamp(pulse_job["timeStarted"]),
-                "end_timestamp": self._to_timestamp(pulse_job["timeCompleted"]),
                 "machine": self._get_machine(pulse_job),
-                "build_platform": self._get_platform(pulse_job.get("buildMachine", None)),
-                "machine_platform": self._get_platform(pulse_job.get("runMachine", None)),
                 "option_collection": self._get_option_collection(pulse_job),
                 "log_references": self._get_log_references(pulse_job),
                 "artifacts": self._get_artifacts(pulse_job, job_guid),
             },
             "coalesced": pulse_job.get("coalesced", [])
         }
+
+        # some or all the time fields may not be present in some cases
+        for k, v in self.TIME_FIELD_MAP.items():
+            if v in pulse_job:
+                x["job"][k] = self._to_timestamp(pulse_job[v])
+
+        # if only one platform is given, use it.
+        default_platform = pulse_job.get(
+            "buildMachine",
+            pulse_job.get("runMachine", {}))
+
+        for k, v in self.PLATFORM_FIELD_MAP.items():
+            platform_src = pulse_job[v] if v in pulse_job else default_platform
+            x["job"][k] = self._get_platform(platform_src)
+
         return x
 
     def _get_job_guid(self, job):
@@ -116,14 +135,13 @@ class JobLoader:
 
     def _get_job_info_artifact(self, job, job_guid):
         if "jobInfo" in job:
-
             ji = job["jobInfo"]
             job_details = []
             if "summary" in ji:
                 job_details.append({
                     "content_type": "raw_html",
-                    "value": ji["summary"]["text"],
-                    "title": ji["summary"]["label"]
+                    "value": ji["summary"],
+                    "title": "Summary"
                 })
             if "links" in ji:
                 for link in ji["links"]:
@@ -219,7 +237,7 @@ class JobLoader:
         return option_collection
 
     def _get_platform(self, platform_src):
-        platform = None
+        platform = {}
         if platform_src:
             platform = {
                 "platform": platform_src["platform"],
@@ -231,9 +249,9 @@ class JobLoader:
     def _get_machine(self, job):
         machine = "unknown"
         if "buildMachine" in job:
-            machine = job["buildMachine"]["name"]
-        if "runMachine" in job:
-            machine = job["runMachine"]["name"]
+            machine = job["buildMachine"].get("name", machine)
+        elif "runMachine" in job:
+            machine = job["runMachine"].get("name", machine)
         return machine
 
     def _get_result(self, job):
