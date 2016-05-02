@@ -1,5 +1,4 @@
 import pytest
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
@@ -157,17 +156,14 @@ def test_job_list_in_filter(webapp, eleven_jobs_stored, jm):
     assert len(resp['results']) == 2
 
 
-def test_job_list_excluded(webapp, eleven_jobs_stored, sample_data, test_project):
+def test_job_list_excluded(webapp, eleven_jobs_stored, sample_data,
+                           test_project, test_sheriff):
     """
     retrieve a job list of only jobs excluded by specified profile
     """
     job = sample_data.job_data[1]
     platform = job["job"]["machine_platform"]["platform"]
     arch = job["job"]["machine_platform"]["architecture"]
-
-    user = User.objects.create(username="testuser2",
-                               email='foo2@bar.com',
-                               is_staff=True)
 
     job_exclusion = JobExclusion.objects.create(
         name="jobex",
@@ -177,12 +173,12 @@ def test_job_list_excluded(webapp, eleven_jobs_stored, sample_data, test_project
             "option_collections": ["opt"],
             "option_collection_hashes": ["102210fe594ee9b33d82058545b1ed14f4c8206e"],
             "job_types": ["B2G Emulator Image Build (B)"]},
-        author=user,
+        author=test_sheriff,
     )
     exclusion_profile = ExclusionProfile.objects.create(
         name="exprof",
         is_default=False,
-        author=user,
+        author=test_sheriff,
     )
     exclusion_profile.exclusions.add(job_exclusion)
 
@@ -224,14 +220,12 @@ def test_job_retrigger_unauthorized(webapp, eleven_jobs_stored, jm):
 
 
 def test_job_retrigger_authorized(webapp, eleven_jobs_stored, jm,
-                                  pulse_action_consumer):
+                                  pulse_action_consumer, test_user):
     """
     Validate that only authenticated users can hit this endpoint.
     """
     client = APIClient()
-    email = "foo-retrigger@example.com"
-    user = User.objects.create(username="retrigger-fail", email=email)
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     job = jm.get_job_list(0, 1)[0]
     job_id_list = [job["id"]]
@@ -245,19 +239,16 @@ def test_job_retrigger_authorized(webapp, eleven_jobs_stored, jm,
     assert content['project'] == jm.project
     assert content['action'] == 'retrigger'
     assert content['job_guid'] == job['job_guid']
-    assert content['requester'] == email
-    user.delete()
+    assert content['requester'] == test_user.email
 
 
 def test_job_cancel_authorized(webapp, eleven_jobs_stored, jm,
-                               pulse_action_consumer):
+                               pulse_action_consumer, test_user):
     """
     Validate that only authenticated users can hit this endpoint.
     """
     client = APIClient()
-    email = "cancel@example.com"
-    user = User.objects.create(username="retrigger", email=email)
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     job = jm.get_job_list(0, 1)[0]
     url = reverse("jobs-cancel",
@@ -270,8 +261,7 @@ def test_job_cancel_authorized(webapp, eleven_jobs_stored, jm,
     assert content['project'] == jm.project
     assert content['action'] == 'cancel'
     assert content['job_guid'] == job['job_guid']
-    assert content['requester'] == email
-    user.delete()
+    assert content['requester'] == test_user.email
 
 
 def test_job_detail_bad_project(webapp, eleven_jobs_stored, jm):

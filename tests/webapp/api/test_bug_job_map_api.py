@@ -2,7 +2,6 @@ import json
 import random
 from time import time
 
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
@@ -28,14 +27,14 @@ def test_create_bug_job_map_no_auth(eleven_jobs_stored, jm):
     assert resp.status_code == 403
 
 
-def test_create_bug_job_map(eleven_jobs_stored, mock_message_broker, jm):
+def test_create_bug_job_map(eleven_jobs_stored, mock_message_broker, jm,
+                            test_user):
     """
     test creating a single note via endpoint
     """
 
     client = APIClient()
-    user = User.objects.create(username="MyName", email="foo@bar.com")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     job = jm.get_job_list(0, 1)[0]
 
@@ -50,9 +49,7 @@ def test_create_bug_job_map(eleven_jobs_stored, mock_message_broker, jm):
         bug_job_map_obj
     )
 
-    bug_job_map_obj["who"] = user.email
-
-    user.delete()
+    bug_job_map_obj["who"] = test_user.email
 
     actual_obj = jm.get_bug_job_map_list(0, 1)[0]
     del actual_obj["submit_timestamp"]
@@ -60,14 +57,14 @@ def test_create_bug_job_map(eleven_jobs_stored, mock_message_broker, jm):
     assert bug_job_map_obj == actual_obj
 
 
-def test_create_bug_job_map_dupe(eleven_jobs_stored, mock_message_broker, jm):
+def test_create_bug_job_map_dupe(eleven_jobs_stored, mock_message_broker, jm,
+                                 test_user):
     """
     test creating the same bug map skips it
     """
 
     client = APIClient()
-    user = User.objects.create(username="MyName", email="foo@bar.com")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     job = jm.get_job_list(0, 1)[0]
 
@@ -87,9 +84,7 @@ def test_create_bug_job_map_dupe(eleven_jobs_stored, mock_message_broker, jm):
         bug_job_map_obj
     )
 
-    bug_job_map_obj["who"] = user.email
-
-    user.delete()
+    bug_job_map_obj["who"] = test_user.email
 
     actual_obj = jm.get_bug_job_map_list(0, 1)[0]
     del actual_obj["submit_timestamp"]
@@ -161,13 +156,12 @@ def test_bug_job_map_detail(webapp, jm, eleven_jobs_stored):
 
 
 def test_bug_job_map_delete(webapp, eleven_jobs_stored,
-                            jm, mock_message_broker):
+                            jm, mock_message_broker, test_user):
     """
     test retrieving a list of bug_job_map
     """
     client = APIClient()
-    user = User.objects.create(username="MyName", is_staff=True)
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     job_id = jm.get_job_list(0, 1)[0]["id"]
     bug_id = random.randint(0, 100)
@@ -186,8 +180,6 @@ def test_bug_job_map_delete(webapp, eleven_jobs_stored,
             "pk": pk
         })
     )
-
-    user.delete()
 
     content = json.loads(resp.content)
     assert content == {"message": "Bug job map deleted"}

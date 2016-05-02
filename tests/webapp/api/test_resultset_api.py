@@ -1,6 +1,5 @@
 import copy
 
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
@@ -333,13 +332,13 @@ def test_resultset_create(jm, test_repository, sample_resultset,
     assert stored_objs[0]['long_revision'] == sample_resultset[0]['revision']
 
 
-def test_resultset_cancel_all(jm, resultset_with_three_jobs, pulse_action_consumer):
+def test_resultset_cancel_all(jm, resultset_with_three_jobs,
+                              pulse_action_consumer, test_user):
     """
     Issue cancellation of a resultset with three unfinished jobs.
     """
     client = APIClient()
-    user = User.objects.create(username="user", email="foo-cancel@example.com")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     # Ensure all jobs are pending..
     jobs = jm.get_job_list(0, 3)
@@ -362,8 +361,6 @@ def test_resultset_cancel_all(jm, resultset_with_three_jobs, pulse_action_consum
 
         assert content['action'] == 'cancel'
         assert content['project'] == jm.project
-
-    user.delete()
 
 
 def test_resultset_status(jm, webapp, eleven_jobs_stored):

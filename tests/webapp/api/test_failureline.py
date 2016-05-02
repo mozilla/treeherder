@@ -1,6 +1,5 @@
 import json
 
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
@@ -35,11 +34,10 @@ def test_get_failure_line(webapp, eleven_jobs_stored, jm, failure_lines):
 
 
 def test_update_failure_line_verify(eleven_jobs_stored, jm, failure_lines,
-                                    classified_failures, api_user):
+                                    classified_failures, test_user):
 
     client = APIClient()
-    user = User.objects.create(username="MyName")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     failure_line = failure_lines[0]
     assert failure_line.best_classification == classified_failures[0]
@@ -61,13 +59,12 @@ def test_update_failure_line_verify(eleven_jobs_stored, jm, failure_lines,
 
 
 def test_update_failure_line_replace(eleven_jobs_stored, jm, failure_lines,
-                                     classified_failures, api_user):
+                                     classified_failures, test_user):
 
     MatcherManager.register_detector(ManualDetector)
 
     client = APIClient()
-    user = User.objects.create(username="MyName")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     failure_line = failure_lines[0]
     assert failure_line.best_classification == classified_failures[0]
@@ -95,14 +92,12 @@ def test_update_failure_line_replace(eleven_jobs_stored, jm, failure_lines,
 def test_update_failure_line_mark_job(eleven_jobs_stored,
                                       mock_autoclassify_jobs_true, jm,
                                       failure_lines,
-                                      classified_failures, api_user):
+                                      classified_failures, test_user):
 
     MatcherManager.register_detector(ManualDetector)
 
     client = APIClient()
-    user = User.objects.create(username="MyName",
-                               email="test@example.org")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     job = jm.get_job(1)[0]
 
@@ -143,20 +138,18 @@ def test_update_failure_line_mark_job(eleven_jobs_stored,
     assert len(notes) == 1
 
     assert notes[0]["failure_classification_id"] == 4
-    assert notes[0]["who"] == "test@example.org"
+    assert notes[0]["who"] == test_user.email
 
 
 def test_update_failure_line_mark_job_with_human_note(eleven_jobs_stored,
                                                       mock_autoclassify_jobs_true, jm,
                                                       failure_lines,
-                                                      classified_failures, api_user):
+                                                      classified_failures, test_user):
 
     MatcherManager.register_detector(ManualDetector)
 
     client = APIClient()
-    user = User.objects.create(username="MyName",
-                               email="test@example.org")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     job = jm.get_job(1)[0]
 
@@ -174,7 +167,7 @@ def test_update_failure_line_mark_job_with_human_note(eleven_jobs_stored,
         artifacts_model.load_job_artifacts([bs_artifact],
                                            {bs_artifact['job_guid']: job})
 
-    jm.insert_job_note(job["id"], 4, "first@example.org", "note")
+    jm.insert_job_note(job["id"], 4, test_user.email, "note")
 
     for failure_line in job_failure_lines:
 
@@ -192,20 +185,18 @@ def test_update_failure_line_mark_job_with_human_note(eleven_jobs_stored,
     assert len(notes) == 1
 
     assert notes[0]["failure_classification_id"] == 4
-    assert notes[0]["who"] == "first@example.org"
+    assert notes[0]["who"] == test_user.email
 
 
 def test_update_failure_line_mark_job_with_auto_note(eleven_jobs_stored,
                                                      mock_autoclassify_jobs_true, jm,
                                                      failure_lines,
-                                                     classified_failures, api_user):
+                                                     classified_failures, test_user):
 
     MatcherManager.register_detector(ManualDetector)
 
     client = APIClient()
-    user = User.objects.create(username="MyName",
-                               email="test@example.org")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     job = jm.get_job(1)[0]
 
@@ -241,21 +232,19 @@ def test_update_failure_line_mark_job_with_auto_note(eleven_jobs_stored,
     assert len(notes) == 2
 
     assert notes[0]["failure_classification_id"] == 4
-    assert notes[0]["who"] == "test@example.org"
+    assert notes[0]["who"] == test_user.email
 
 
 def test_update_failure_lines(eleven_jobs_stored,
                               mock_autoclassify_jobs_true, jm,
                               test_repository, failure_lines,
-                              classified_failures, api_user):
+                              classified_failures, test_user):
 
     jobs = (jm.get_job(1)[0], jm.get_job(2)[0])
     MatcherManager.register_detector(ManualDetector)
 
     client = APIClient()
-    user = User.objects.create(username="MyName",
-                               email="test@example.org")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     create_failure_lines(test_repository,
                          jobs[1]["job_guid"],
@@ -302,15 +291,14 @@ def test_update_failure_lines(eleven_jobs_stored,
         assert len(notes) == 1
 
         assert notes[0]["failure_classification_id"] == 4
-        assert notes[0]["who"] == "test@example.org"
+        assert notes[0]["who"] == test_user.email
 
 
 def test_update_failure_line_ignore(eleven_jobs_stored, jm, failure_lines,
-                                    classified_failures, api_user):
+                                    classified_failures, test_user):
 
     client = APIClient()
-    user = User.objects.create(username="MyName")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     failure_line = failure_lines[0]
     assert failure_line.best_classification == classified_failures[0]
@@ -334,14 +322,13 @@ def test_update_failure_line_ignore(eleven_jobs_stored, jm, failure_lines,
 def test_update_failure_line_all_ignore_mark_job(eleven_jobs_stored,
                                                  mock_autoclassify_jobs_true, jm,
                                                  failure_lines,
-                                                 classified_failures, api_user):
+                                                 classified_failures,
+                                                 test_user):
 
     MatcherManager.register_detector(ManualDetector)
 
     client = APIClient()
-    user = User.objects.create(username="MyName",
-                               email="test@example.org")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     job = jm.get_job(1)[0]
 
@@ -391,14 +378,13 @@ def test_update_failure_line_all_ignore_mark_job(eleven_jobs_stored,
 def test_update_failure_line_partial_ignore_mark_job(eleven_jobs_stored,
                                                      mock_autoclassify_jobs_true, jm,
                                                      failure_lines,
-                                                     classified_failures, api_user):
+                                                     classified_failures,
+                                                     test_user):
 
     MatcherManager.register_detector(ManualDetector)
 
     client = APIClient()
-    user = User.objects.create(username="MyName",
-                               email="test@example.org")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     job = jm.get_job(1)[0]
 
@@ -441,4 +427,4 @@ def test_update_failure_line_partial_ignore_mark_job(eleven_jobs_stored,
 
     assert len(notes) == 1
     assert notes[0]["failure_classification_id"] == 4
-    assert notes[0]["who"] == "test@example.org"
+    assert notes[0]["who"] == test_user.email

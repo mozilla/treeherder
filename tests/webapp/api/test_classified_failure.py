@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
@@ -58,10 +57,9 @@ def test_get_classified_failures_bug(webapp, classified_failures):
     assert actual == expected
 
 
-def test_post_new_classified_failure(webapp, classified_failures):
+def test_post_new_classified_failure(webapp, classified_failures, test_user):
     client = APIClient()
-    user = User.objects.create(username="MyName")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
     classified_failures[0].save()
@@ -81,10 +79,9 @@ def test_post_new_classified_failure(webapp, classified_failures):
     assert obj.bug_number == 5678
 
 
-def test_post_multiple(webapp, classified_failures):
+def test_post_multiple(webapp, classified_failures, test_user):
     client = APIClient()
-    user = User.objects.create(username="MyName")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
     classified_failures[0].save()
@@ -108,10 +105,9 @@ def test_post_multiple(webapp, classified_failures):
         assert obj.bug_number == [5678, 9012][idx]
 
 
-def test_post_repeated_classified_failure(webapp, classified_failures):
+def test_post_repeated_classified_failure(webapp, classified_failures, test_user):
     client = APIClient()
-    user = User.objects.create(username="MyName")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
     classified_failures[0].save()
@@ -128,10 +124,9 @@ def test_post_repeated_classified_failure(webapp, classified_failures):
     assert actual == expected
 
 
-def test_put_new_bug_number(webapp, classified_failures):
+def test_put_new_bug_number(webapp, classified_failures, test_user):
     client = APIClient()
-    user = User.objects.create(username="MyName")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
     classified_failures[0].save()
@@ -152,10 +147,9 @@ def test_put_new_bug_number(webapp, classified_failures):
     assert classified_failures[0].bug_number == 5678
 
 
-def test_put_existing_bug_number(webapp, classified_failures):
+def test_put_existing_bug_number(webapp, classified_failures, test_user):
     client = APIClient()
-    user = User.objects.create(username="MyName")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
     classified_failures[0].save()
@@ -176,10 +170,10 @@ def test_put_existing_bug_number(webapp, classified_failures):
     assert classified_failures[0].bug_number == 1234
 
 
-def test_put_duplicate_bug_number(webapp, classified_failures, failure_lines):
+def test_put_duplicate_bug_number(webapp, classified_failures, failure_lines,
+                                  test_user):
     client = APIClient()
-    user = User.objects.create(username="MyName")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
     classified_failures[0].save()
@@ -229,10 +223,9 @@ def test_get_with_bug(webapp, classified_failures, bugs):
     assert actual == expected
 
 
-def test_put_multiple(webapp, classified_failures):
+def test_put_multiple(webapp, classified_failures, test_user):
     client = APIClient()
-    user = User.objects.create(username="MyName")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
     classified_failures[0].save()
@@ -259,10 +252,9 @@ def test_put_multiple(webapp, classified_failures):
     assert classified_failures[1].bug_number == 9012
 
 
-def test_put_multiple_repeat(webapp, classified_failures):
+def test_put_multiple_repeat(webapp, classified_failures, test_user):
     client = APIClient()
-    user = User.objects.create(username="MyName")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
     classified_failures[0].save()
@@ -290,10 +282,9 @@ def test_put_multiple_repeat(webapp, classified_failures):
     assert classified_failures[1].bug_number == 5678
 
 
-def test_put_multiple_duplicate(webapp, classified_failures):
+def test_put_multiple_duplicate(webapp, classified_failures, test_user):
     client = APIClient()
-    user = User.objects.create(username="MyName")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     new = ClassifiedFailure(bug_number=1234)
     new.save()
@@ -318,10 +309,9 @@ def test_put_multiple_duplicate(webapp, classified_failures):
     assert len(new_classified_failures) == len(classified_failures) - 1
 
 
-def test_put_multiple_duplicate_1(webapp, classified_failures):
+def test_put_multiple_duplicate_1(webapp, classified_failures, test_user):
     client = APIClient()
-    user = User.objects.create(username="MyName")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     new = ClassifiedFailure(bug_number=1234)
     new.save()
@@ -346,10 +336,9 @@ def test_put_multiple_duplicate_1(webapp, classified_failures):
     assert len(new_classified_failures) == len(classified_failures) - 2
 
 
-def test_put_multiple_duplicate_2(webapp, classified_failures):
+def test_put_multiple_duplicate_2(webapp, classified_failures, test_user):
     client = APIClient()
-    user = User.objects.create(username="MyName")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
     classified_failures[1].bug_number = 5678

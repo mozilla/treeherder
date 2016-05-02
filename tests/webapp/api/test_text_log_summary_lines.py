@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
@@ -47,10 +46,9 @@ def test_get_text_summary_lines(webapp, text_summary_lines):
     assert actual == expected
 
 
-def test_put_bug_number(webapp, text_summary_lines):
+def test_put_bug_number(webapp, text_summary_lines, test_user):
     client = APIClient()
-    user = User.objects.create(username="MyName")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     text_summary_lines[0].bug_number = 1234
     text_summary_lines[0].save()
@@ -76,10 +74,9 @@ def test_put_bug_number(webapp, text_summary_lines):
     assert text_summary_lines[0].bug_number == 5678
 
 
-def test_put_multiple(webapp, text_summary_lines):
+def test_put_multiple(webapp, text_summary_lines, test_user):
     client = APIClient()
-    user = User.objects.create(username="MyName")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     text_summary_lines[0].bug_number = 1234
     text_summary_lines[0].save()
@@ -114,10 +111,9 @@ def test_put_multiple(webapp, text_summary_lines):
     assert text_summary_lines[1].bug_number == 9012
 
 
-def test_put_multiple_duplicate(webapp, text_summary_lines):
+def test_put_multiple_duplicate(webapp, text_summary_lines, test_user):
     client = APIClient()
-    user = User.objects.create(username="MyName")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     text_summary_lines[0].bug_number = 1234
     text_summary_lines[0].save()

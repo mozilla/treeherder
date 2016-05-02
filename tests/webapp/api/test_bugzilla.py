@@ -1,12 +1,11 @@
 import json
 
 import responses
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
 
-def test_create_bug(webapp, eleven_jobs_stored, activate_responses):
+def test_create_bug(webapp, eleven_jobs_stored, activate_responses, test_user):
     """
     test successfully creating a bug in bugzilla
     """
@@ -19,7 +18,7 @@ def test_create_bug(webapp, eleven_jobs_stored, activate_responses):
         print requestheaders
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
         assert requestdata['product'] == "Bugzilla"
-        assert requestdata['description'] == "Filed by: MyName\n\nIntermittent Description"
+        assert requestdata['description'] == "Filed by: {}\n\nIntermittent Description".format(test_user.username)
         assert requestdata['component'] == "Administration"
         assert requestdata['summary'] == "Intermittent summary"
         assert requestdata['comment_tags'] == "treeherder"
@@ -35,8 +34,7 @@ def test_create_bug(webapp, eleven_jobs_stored, activate_responses):
     )
 
     client = APIClient()
-    user = User.objects.create(username="MyName", email="foo@bar.com")
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
 
     resp = client.post(
         reverse("bugzilla-create-bug"),
@@ -50,8 +48,6 @@ def test_create_bug(webapp, eleven_jobs_stored, activate_responses):
             "keywords": "intermittent-failure",
         }
     )
-
-    user.delete()
 
     content = json.loads(resp.content)
 
