@@ -426,9 +426,12 @@ def retriggers(jm, eleven_jobs_stored):
 
 
 @pytest.fixture
-def api_user(request, transactional_db):
+def test_user(request, transactional_db):
+    # a user *without* sheriff/staff permissions
     from django.contrib.auth.models import User
-    user = User.objects.create_user('MyUser')
+    user = User.objects.create(username="testuser1",
+                               email='user@foo.com',
+                               is_staff=False)
 
     def fin():
         user.delete()
@@ -438,7 +441,23 @@ def api_user(request, transactional_db):
 
 
 @pytest.fixture
-def client_credentials(request, api_user):
+def test_sheriff(request, transactional_db):
+    # a user *with* sheriff/staff permissions
+    from django.contrib.auth.models import User
+
+    user = User.objects.create(username="testsheriff1",
+                               email='sheriff@foo.com',
+                               is_staff=True)
+
+    def fin():
+        user.delete()
+    request.addfinalizer(fin)
+
+    return user
+
+
+@pytest.fixture
+def client_credentials(request, test_user):
     from django.conf import settings
     from treeherder.credentials.models import Credentials
 
@@ -446,7 +465,7 @@ def client_credentials(request, api_user):
     # It can be a straight create once that bug is solved.
     client_credentials, _ = Credentials.objects.get_or_create(
         client_id=settings.ETL_CLIENT_ID,
-        defaults={'owner': api_user, 'authorized': True}
+        defaults={'owner': test_user, 'authorized': True}
     )
 
     def fin():

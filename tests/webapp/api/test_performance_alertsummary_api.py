@@ -1,6 +1,5 @@
 import datetime
 
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
@@ -8,7 +7,8 @@ from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary)
 
 
-def test_alert_summaries(webapp, test_repository, test_perf_signature):
+def test_alert_summaries(webapp, test_repository, test_perf_signature,
+                         test_user, test_sheriff):
     s = PerformanceAlertSummary.objects.create(
         id=1,
         repository=test_repository,
@@ -38,10 +38,7 @@ def test_alert_summaries(webapp, test_repository, test_perf_signature):
 
     # verify that we fail if authenticated, but not staff
     client = APIClient()
-    user = User.objects.create(username="testuser1",
-                               email='foo1@bar.com',
-                               is_staff=False)
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
     resp = client.put(reverse('performance-alert-summaries-list') + '1/', {
         'status': 1
     }, format='json')
@@ -50,10 +47,7 @@ def test_alert_summaries(webapp, test_repository, test_perf_signature):
 
     # verify that we succeed if authenticated + staff
     client = APIClient()
-    user = User.objects.create(username="testuser2",
-                               email='foo2@bar.com',
-                               is_staff=True)
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_sheriff)
     resp = client.put(reverse('performance-alert-summaries-list') + '1/', {
         'status': 1
     }, format='json')
