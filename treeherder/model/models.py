@@ -309,7 +309,7 @@ class Datasource(models.Model):
 class JobGroup(models.Model):
     id = models.AutoField(primary_key=True)
     symbol = models.CharField(max_length=10, default='?', db_index=True)
-    name = models.CharField(max_length=50, db_index=True)
+    name = models.CharField(max_length=100, db_index=True)
     description = models.TextField(blank=True)
     active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
@@ -350,7 +350,7 @@ class JobType(models.Model):
     id = models.AutoField(primary_key=True)
     job_group = models.ForeignKey(JobGroup, null=True, blank=True)
     symbol = models.CharField(max_length=10, default='?', db_index=True)
-    name = models.CharField(max_length=50, db_index=True)
+    name = models.CharField(max_length=100, db_index=True)
     description = models.TextField(blank=True)
     active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
