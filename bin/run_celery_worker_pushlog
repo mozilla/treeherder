@@ -8,17 +8,13 @@ PATH=$PROJECT_ROOT/venv/bin:$PATH
 
 source /etc/profile.d/treeherder.sh
 
-if [[ ${NEW_RELIC_LICENSE_KEY+isset} = isset ]]; then
-    NEWRELIC_ADMIN="newrelic-admin run-program"
-fi
-
 LOGFILE=/var/log/celery/celery_worker_pushlog.log
 
 if [ ! -f $LOGFILE ]; then
     touch $LOGFILE
 fi
 
-exec $NEWRELIC_ADMIN celery -A treeherder worker \
+exec newrelic-admin run-program celery -A treeherder worker \
     -Q pushlog,fetch_missing_push_logs \
     --concurrency=5 --logfile=$LOGFILE -l INFO \
     --maxtasksperchild=500 -n pushlog.%h

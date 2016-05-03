@@ -8,17 +8,13 @@ PATH=$PROJECT_ROOT/venv/bin:$PATH
 
 source /etc/profile.d/treeherder.sh
 
-if [[ ${NEW_RELIC_LICENSE_KEY+isset} = isset ]]; then
-    NEWRELIC_ADMIN="newrelic-admin run-program"
-fi
-
 LOGFILE=/var/log/celery/celery_worker.log
 
 if [ ! -f $LOGFILE ]; then
     touch $LOGFILE
 fi
 
-exec $NEWRELIC_ADMIN celery -A treeherder worker -c 3 \
+exec newrelic-admin run-program celery -A treeherder worker -c 3 \
      -Q default,cycle_data,calculate_durations,fetch_bugs,fetch_allthethings,generate_perf_alerts,detect_intermittents \
      -E --maxtasksperchild=500 \
      --logfile=$LOGFILE -l INFO -n default.%h
