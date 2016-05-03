@@ -1,5 +1,4 @@
 import logging
-from collections import defaultdict
 
 from django.core.management.base import (BaseCommand,
                                          CommandError)
@@ -12,7 +11,9 @@ from treeherder.model.models import (FailureLine,
 logger = logging.getLogger(__name__)
 
 # The minimum goodness of match we need to mark a particular match as the best match
-AUTOCLASSIFY_CUTOFF_RATIO = 0.8
+AUTOCLASSIFY_CUTOFF_RATIO = 0.7
+# A goodness of match after which we will not run further detectors
+AUTOCLASSIFY_GOOD_ENOUGH_RATIO = 0.9
 
 
 class Command(BaseCommand):
@@ -44,7 +45,7 @@ def match_errors(repository, jm, job_guid):
     if job["result"] not in ["testfailed", "busted", "exception"]:
         return
 
-    unmatched_failures = FailureLine.objects.unmatched_for_job(repository, job_guid)
+    unmatched_failures = set(FailureLine.objects.unmatched_for_job(repository, job_guid))
 
     if not unmatched_failures:
         return
@@ -62,8 +63,10 @@ def match_errors(repository, jm, job_guid):
             logger.info("Matched failure %i with intermittent %i" %
                         (match.failure_line.id, match.classified_failure.id))
             all_matched.add(match.failure_line)
+            if match.score >= AUTOCLASSIFY_GOOD_ENOUGH_RATIO:
+                unmatched_failures.remove(match.failure_line)
 
-        if all_lines_matched(unmatched_failures):
+        if not unmatched_failures:
             break
 
     for failure_line in all_matched:
@@ -75,19 +78,3 @@ def match_errors(repository, jm, job_guid):
 
     if all_matched:
         jm.update_after_autoclassification(job_id)
-
-
-def all_lines_matched(failure_lines):
-    failure_score_dict = defaultdict(list)
-
-    query = FailureMatch.objects.filter(
-        failure_line__in=failure_lines).only('failure_line_id', 'score')
-
-    for failure_match in query:
-        failure_score_dict[failure_match.failure_line_id].append(failure_match.score)
-
-    for failure_line in failure_lines:
-        scores = failure_score_dict[failure_line.id]
-        if not scores or not all(score >= 1 for score in scores):
-            return False
-    return True

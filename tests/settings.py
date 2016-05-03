@@ -14,3 +14,9 @@ PULSE_EXCHANGE_NAMESPACE = 'test'
 # Set a fake api key for testing bug filing
 BZ_API_KEY = "12345helloworld"
 BZ_API_URL = "https://thisisnotbugzilla.org"
+
+# ELASTIC SEARCH
+# Configuration for elasticsearch backend
+ELASTIC_SEARCH.update({
+    "index_prefix": "test",
+})
