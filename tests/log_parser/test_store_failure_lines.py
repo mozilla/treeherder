@@ -3,6 +3,7 @@ from django.conf import settings
 from django.core.management import call_command
 
 from treeherder.model.models import FailureLine
+from treeherder.model.search import TestFailureLine
 
 from ..sampledata import SampleData
 
@@ -54,3 +55,29 @@ def test_store_error_summary_truncated(activate_responses, test_repository, jm,
     assert failure.job_guid == job['job_guid']
 
     assert failure.repository == test_repository
+
+
+def test_store_error_summary_elastic_search(activate_responses, test_repository,
+                                            jm, eleven_jobs_stored, elasticsearch):
+    log_path = SampleData().get_log_path("plain-chunked_errorsummary.log")
+    log_url = 'http://my-log.mozilla.org'
+
+    with open(log_path) as log_handler:
+        responses.add(responses.GET, log_url,
+                      body=log_handler.read(), status=200)
+
+    job = jm.get_job(1)[0]
+
+    jm._insert_log_urls([[job["id"], "errorsummary_json", log_url, "pending"]])
+
+    call_command('store_failure_lines', jm.project, job['job_guid'], log_url)
+
+    assert FailureLine.objects.count() == 1
+
+    failure = FailureLine.objects.get(pk=1)
+
+    es_line = TestFailureLine.get(1)
+    for prop in ["test", "subtest", "status", "expected"]:
+        assert getattr(es_line, prop) == getattr(failure, prop)
+    assert es_line.best_classification is None
+    assert es_line.best_is_verified is False
