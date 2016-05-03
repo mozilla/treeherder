@@ -1,8 +1,9 @@
 env:
   global:
+    - BROKER_URL='amqp://guest:guest@localhost:5672//'
     - DATABASE_URL='mysql://root@localhost/test_treeherder'
     - DATABASE_URL_RO='mysql://root@localhost/test_treeherder'
-    - BROKER_URL='amqp://guest:guest@localhost:5672//'
+    - ELASTICSEARCH_URL='http://127.0.0.1:9200'
     - TREEHERDER_DJANGO_SECRET_KEY='secretkey-of-at-50-characters-to-pass-check-deploy'
 matrix:
   include:
@@ -77,6 +78,7 @@ matrix:
         - rabbitmq
         - memcached
       before_install:
+        - curl -O https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.2/elasticsearch-2.3.2.deb && sudo dpkg -i --force-confnew elasticsearch-2.3.2.deb && sudo service elasticsearch restart
         # Manually install mysql 5.6 since the default is v5.5.
         - sudo apt-get -qq update
         - sudo apt-get -qq install mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
@@ -105,6 +107,7 @@ matrix:
         - rabbitmq
         - memcached
       before_install:
+        - curl -O https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.2/elasticsearch-2.3.2.deb && sudo dpkg -i --force-confnew elasticsearch-2.3.2.deb && sudo service elasticsearch restart
         # Manually install mysql 5.6 since the default is v5.5.
         - sudo apt-get -qq update
         - sudo apt-get -qq install mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6

@@ -21,6 +21,8 @@ from treeherder.model.models import (BuildPlatform,
                                      MachinePlatform,
                                      RunnableJob,
                                      TaskSetMeta)
+from treeherder.model.search import (TestFailureLine,
+                                     refresh_all)
 
 slow = pytest.mark.slow
 xfail = pytest.mark.xfail
@@ -337,7 +339,7 @@ def test_calculate_durations(jm, test_repository, mock_log_parser):
 
 def test_cycle_all_data(jm, sample_data,
                         sample_resultset, test_repository, mock_log_parser,
-                        failure_lines):
+                        elasticsearch, failure_lines):
     """
     Test cycling the sample data
     """
@@ -359,7 +361,10 @@ def test_cycle_all_data(jm, sample_data,
 
     jobs_before = jm.execute(proc="jobs_test.selects.jobs")
 
+    refresh_all()
+    assert TestFailureLine.search().params(search_type="count").execute().hits.total > 0
     call_command('cycle_data', sleep_time=0, days=1)
+    refresh_all()
 
     jobs_after = jm.execute(proc="jobs_test.selects.jobs")
 
@@ -371,10 +376,13 @@ def test_cycle_all_data(jm, sample_data,
     assert Job.objects.count() == 0
     assert JobDetail.objects.count() == 0
 
+    # There should be nothing in elastic search after cycling
+    assert TestFailureLine.search().params(search_type="count").execute().hits.total == 0
+
 
 def test_cycle_one_job(jm, sample_data,
                        sample_resultset, test_repository, mock_log_parser,
-                       failure_lines):
+                       elasticsearch, failure_lines):
     """
     Test cycling one job in a group of jobs to confirm there are no
     unexpected deletions
@@ -418,6 +426,7 @@ def test_cycle_one_job(jm, sample_data,
     jobs_before = jm.execute(proc="jobs_test.selects.jobs")
 
     call_command('cycle_data', sleep_time=0, days=1, debug=True)
+    refresh_all()
 
     jobs_after = jm.execute(proc="jobs_test.selects.jobs")
 
@@ -436,6 +445,8 @@ def test_cycle_one_job(jm, sample_data,
     for (object_type, objects) in extra_objects.values():
         assert (set(item.id for item in object_type.objects.all()) ==
                 set(item.id for item in objects))
+
+    assert set(int(item.meta.id) for item in TestFailureLine.search().execute()) == set(item.id for item in extra_objects["failure_lines"][1])
 
 
 def test_cycle_all_data_in_chunks(jm, sample_data,
@@ -467,7 +478,10 @@ def test_cycle_all_data_in_chunks(jm, sample_data,
 
     jobs_before = jm.execute(proc="jobs_test.selects.jobs")
 
+    assert TestFailureLine.search().params(search_type="count").execute().hits.total > 0
+
     call_command('cycle_data', sleep_time=0, days=1, chunk_size=3)
+    refresh_all()
 
     jobs_after = jm.execute(proc="jobs_test.selects.jobs")
 
@@ -478,6 +492,7 @@ def test_cycle_all_data_in_chunks(jm, sample_data,
     assert Job.objects.count() == 0
     assert FailureLine.objects.count() == 0
     assert JobDetail.objects.count() == 0
+    assert TestFailureLine.search().params(search_type="count").execute().hits.total == 0
 
 
 def test_cycle_task_set_meta(jm):

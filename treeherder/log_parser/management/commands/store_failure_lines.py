@@ -14,6 +14,8 @@ from treeherder.log_parser.utils import expand_log_url
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import (FailureLine,
                                      Repository)
+from treeherder.model.search import (TestFailureLine,
+                                     bulk_insert)
 
 logger = logging.getLogger(__name__)
 
@@ -65,13 +67,22 @@ class Command(BaseCommand):
             log_iter[-1].update(action='truncated')
 
         with transaction.atomic():
-            FailureLine.objects.bulk_create(
-                [FailureLine(repository=repository, job_guid=job_guid, **failure_line)
-                 for failure_line in log_iter]
-            )
+            failure_lines = [
+                FailureLine(repository=repository, job_guid=job_guid, **failure_line)
+                for failure_line in log_iter]
+            for failure_line in failure_lines:
+                failure_line.save()
 
         if log_obj is not None:
             with JobsModel(repository_name) as jm:
                 jm.update_job_log_url_status(log_obj["id"], "parsed")
         else:
             logger.warning("Unable to set parsed state of job log")
+
+        # Store the failure lines in elastic_search
+        es_lines = []
+        for failure_line in failure_lines:
+            es_line = TestFailureLine.from_model(failure_line)
+            if es_line:
+                es_lines.append(es_line)
+        bulk_insert(es_lines)

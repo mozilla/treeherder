@@ -2,13 +2,19 @@ import logging
 from abc import (ABCMeta,
                  abstractmethod)
 from collections import namedtuple
+from difflib import SequenceMatcher
 
 from django.db.models import (Q,
                               Func,
                               Value)
+from elasticsearch_dsl import Search
+from elasticsearch_dsl.query import Match as ESMatch
 
-from treeherder.model.models import (FailureMatch,
+from treeherder.model.models import (ClassifiedFailure,
+                                     FailureMatch,
                                      MatcherManager)
+from treeherder.model.search import (TestFailureLine,
+                                     es_connected)
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +78,45 @@ class PreciseTestMatcher(Matcher):
         return rv
 
 
+class ElasticSearchTestMatcher(Matcher):
+    """Matcher that looks for existing failures with identical tests, and error
+    message that is a good match when non-alphabetic tokens have been removed."""
+
+    @es_connected(default=[])
+    def __call__(self, failure_lines):
+        rv = []
+        for failure_line in failure_lines:
+            if failure_line.action != "test_result" or not failure_line.message:
+                continue
+            match = ESMatch(message={"query": failure_line.message,
+                                     "type": "phrase"})
+            search = (Search(doc_type=TestFailureLine)
+                      .filter("term", test=failure_line.test)
+                      .filter("term", status=failure_line.status)
+                      .filter("term", expected=failure_line.expected)
+                      .filter("exists", field="best_classification")
+                      .query(match))
+            if failure_line.subtest:
+                search = search.filter("term", subtest=failure_line.subtest)
+            try:
+                resp = search.execute()
+            except:
+                logger.error("Elastic search lookup failed: %s %s %s %s %s" % (
+                    failure_line.test, failure_line.subtest, failure_line.status,
+                    failure_line.expected, failure_line.message))
+                raise
+            scorer = MatchScorer(failure_line.message)
+            matches = [(item, item.message) for item in resp]
+            best_match = scorer.best_match(matches)
+            if best_match:
+                logger.debug("Matched using elastic search test matcher")
+                rv.append(Match(failure_line,
+                                ClassifiedFailure.objects.get(
+                                    id=best_match[1].best_classification),
+                                best_match[0]))
+        return rv
+
+
 class CrashSignatureMatcher(Matcher):
     """Matcher that looks for crashes with identical signature"""
 
@@ -101,6 +146,34 @@ class CrashSignatureMatcher(Matcher):
         return rv
 
 
+class MatchScorer(object):
+    """Simple scorer for similarity of strings based on python's difflib
+    SequenceMatcher"""
+
+    def __init__(self, target):
+        """:param target: The string to which candidate strings will be
+        compared"""
+        self.matcher = SequenceMatcher(lambda x: x == " ")
+        self.matcher.set_seq2(target)
+
+    def best_match(self, matches):
+        """Return the most similar string to the target string from a list
+        of candidates, along with a score indicating the goodness of the match.
+
+        :param matches: A list of candidate matches
+        :returns: A tuple of (score, best_match)"""
+        best_match = None
+        for match, message in matches:
+            self.matcher.set_seq1(message)
+            ratio = self.matcher.quick_ratio()
+            if best_match is None or ratio >= best_match[0]:
+                new_ratio = self.matcher.ratio()
+                if best_match is None or new_ratio > best_match[0]:
+                    best_match = (new_ratio, match)
+        return best_match
+
+
 def register():
-    for obj in [PreciseTestMatcher, CrashSignatureMatcher]:
+    for obj in [PreciseTestMatcher, CrashSignatureMatcher,
+                ElasticSearchTestMatcher]:
         MatcherManager.register_matcher(obj)
