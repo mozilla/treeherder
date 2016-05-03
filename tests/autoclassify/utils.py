@@ -23,6 +23,7 @@ def create_failure_lines(repository, job_guid, failure_line_list):
         data.update(updates)
         failure_line = FailureLine(**data)
         failure_line.save()
+        failure_line.elastic_search_insert()
         failure_lines.append(failure_line)
 
     return failure_lines

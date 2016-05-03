@@ -80,6 +80,7 @@ matrix:
         # Manually install mysql 5.6 since the default is v5.5.
         - sudo apt-get -qq update
         - sudo apt-get -qq install mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
+        - curl -O https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.2/elasticsearch-2.3.2.deb && sudo dpkg -i --force-confnew elasticsearch-2.3.2.deb && sudo service elasticsearch restart
         # Create a clean virtualenv rather than using the one given to us,
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
         - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv ~/venv; fi
@@ -87,6 +88,9 @@ matrix:
         - pip install --disable-pip-version-check --upgrade pip==8.1.1
       install:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
+      before_script:
+        # Recommended to give elasticsearch time to start
+        - sleep 10
       script:
         - py.test tests/ --runslow --ignore=tests/e2e/ --ignore=tests/etl/ --ignore=tests/log_parser/
 
@@ -108,13 +112,21 @@ matrix:
         # Manually install mysql 5.6 since the default is v5.5.
         - sudo apt-get -qq update
         - sudo apt-get -qq install mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
+<<<<<<< HEAD
         # Create a clean virtualenv rather than using the one given to us,
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
         - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv ~/venv; fi
         - source ~/venv/bin/activate
         - pip install --disable-pip-version-check --upgrade pip==8.1.1
+=======
+        - curl -O https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.2/elasticsearch-2.3.2.deb && sudo dpkg -i --force-confnew elasticsearch-2.3.2.deb && sudo service elasticsearch restart
+        - pip install -U pip==8.1.1
+>>>>>>> a248a32... Add elastic-search based matcher for test failure lines
       install:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
+      before_script:
+        # Recommended to give elasticsearch time to start
+        - sleep 10
       script:
         - py.test tests/e2e/ tests/etl/ tests/log_parser/ --runslow
 

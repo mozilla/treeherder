@@ -3,6 +3,7 @@ from django.core.management import call_command
 from treeherder.autoclassify.detectors import (ManualDetector,
                                                TestFailureDetector)
 from treeherder.autoclassify.matchers import (CrashSignatureMatcher,
+                                              ElasticSearchTestMatcher,
                                               PreciseTestMatcher)
 from treeherder.model.models import (ClassifiedFailure,
                                      FailureMatch)
@@ -216,6 +217,56 @@ def test_classify_skip_ignore(activate_responses, jm, test_project, test_reposit
 
     for item in expected_unclassified:
         assert item.classified_failures.count() == 0
+
+
+def test_classify_es(elasticsearch, activate_responses, jm, test_project, test_repository,
+                     eleven_jobs_stored, failure_lines, classified_failures):
+    job = jm.get_job(2)[0]
+
+    test_failure_lines = create_failure_lines(test_repository,
+                                              job["job_guid"],
+                                              [(test_line, {}),
+                                               (test_line, {"message": "message2"}),
+                                               (test_line, {"message": "message 1.2"}),
+                                               (test_line, {"message": "message 0x1F"}),
+                                               (test_line, {"subtest": "subtest3"}),
+                                               (test_line, {"status": "TIMEOUT"}),
+                                               (test_line, {"expected": "ERROR"})])
+    from treeherder.model.search import refresh_all
+    refresh_all()
+    autoclassify(jm, job, test_failure_lines, [ElasticSearchTestMatcher])
+
+    expected_classified = test_failure_lines[:4]
+    expected_unclassified = test_failure_lines[4:]
+
+    for actual in expected_classified:
+        assert [item.id for item in actual.classified_failures.all()] == [classified_failures[0].id]
+
+    for item in expected_unclassified:
+        assert item.classified_failures.count() == 0
+
+
+def test_classify_multiple(elasticsearch, activate_responses, jm, test_project, test_repository,
+                           eleven_jobs_stored, failure_lines, classified_failures):
+    job = jm.get_job(2)[0]
+
+    test_failure_lines = create_failure_lines(test_repository,
+                                              job["job_guid"],
+                                              [(test_line, {}),
+                                               (test_line, {"message": "message 1.2"})])
+
+    expected_classified_precise = [test_failure_lines[0]]
+    expected_classified_fuzzy = [test_failure_lines[1]]
+
+    autoclassify(jm, job, test_failure_lines, [PreciseTestMatcher, ElasticSearchTestMatcher])
+
+    for actual, expected in zip(expected_classified_precise, classified_failures):
+        assert [item.id for item in actual.classified_failures.all()] == [expected.id]
+        assert [item.matcher.id == 1 for item in item.matches.all()]
+
+    for actual, expected in zip(expected_classified_fuzzy, classified_failures):
+        assert [item.id for item in actual.classified_failures.all()] == [expected.id]
+        assert [item.matcher.id == 2 for item in item.matches.all()]
 
 
 def test_classify_crash(activate_responses, jm, test_project, test_repository,

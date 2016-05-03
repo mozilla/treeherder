@@ -52,6 +52,30 @@ def increment_cache_key_prefix():
 
 
 @pytest.fixture
+def elasticsearch(request):
+    from django.conf import settings
+    from treeherder.model.search import connection, doctypes
+
+    indices = set()
+    prefix = "%s-" % settings.ELASTIC_SEARCH["index_prefix"]
+    for item in doctypes():
+        if not item._doc_type.index.startswith(prefix):
+            item._doc_type.index = prefix + item._doc_type.index
+            try:
+                item.init()
+            except:
+                pass
+        indices.add(item._doc_type.index)
+
+    def fin():
+        for index in indices:
+            connection.indices.delete(index)
+    request.addfinalizer(fin)
+
+    return connection
+
+
+@pytest.fixture
 def jobs_ds(request, transactional_db):
     from treeherder.model.models import Datasource
     ds = Datasource.objects.create(project=settings.TREEHERDER_TEST_PROJECT)
@@ -393,6 +417,7 @@ def test_matcher(request):
 def classified_failures(request, jm, eleven_jobs_stored, failure_lines,
                         test_matcher, failure_classifications):
     from treeherder.model.models import ClassifiedFailure
+    from treeherder.model.search import refresh_all
 
     job_1 = jm.get_job(1)[0]
 
@@ -406,6 +431,7 @@ def classified_failures(request, jm, eleven_jobs_stored, failure_lines,
                                             mark_best=True)
             classified_failures.append(classified_failure)
 
+    refresh_all()
     return classified_failures
 
 
