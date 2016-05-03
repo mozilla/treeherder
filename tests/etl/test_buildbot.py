@@ -1586,6 +1586,16 @@ buildernames = [
       'platform': {'arch': 'x86_64',
                    'os': 'mac',
                    'os_platform': 'osx-10-10'}}),
+    ('release-mozilla-beta-firefox-linux64_partner_repacks',
+     {'build_type': 'opt',
+      'job_type': 'repack',
+      'name': {'group_name': 'unknown',
+               'group_symbol': '?',
+               'name': 'Partner Repack',
+               'job_symbol': 'Pr'},
+      'platform': {'arch': 'x86_64',
+                   'os': 'linux',
+                   'os_platform': 'linux64'}}),
 ]
 
 
