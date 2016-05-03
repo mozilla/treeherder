@@ -393,6 +393,7 @@ def test_matcher(request):
 def classified_failures(request, jm, eleven_jobs_stored, failure_lines,
                         failure_classifications, test_matcher):
     from treeherder.model.models import ClassifiedFailure, FailureMatch
+
     job_1 = jm.get_job(1)[0]
 
     classified_failures = []

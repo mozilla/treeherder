@@ -1,4 +1,3 @@
-import pytest
 from django.core.management import call_command
 
 from treeherder.autoclassify.detectors import (ManualDetector,
@@ -26,7 +25,6 @@ def autoclassify(jm, job, test_failure_lines, status="testfailed"):
         item.refresh_from_db()
 
 
-@pytest.mark.skipif(True, reason="Awaiting landing of Bug 1177519")
 def test_classify_test_failure(activate_responses, jm, test_project, test_repository,
                                eleven_jobs_stored, failure_lines, classified_failures):
     job = jm.get_job(2)[0]
