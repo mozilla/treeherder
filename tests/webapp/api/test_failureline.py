@@ -296,6 +296,8 @@ def test_update_failure_line_ignore(eleven_jobs_stored, jm, failure_lines,
     client = APIClient()
     client.force_authenticate(user=test_user)
 
+    MatcherManager.register_detector(ManualDetector)
+
     failure_line = failure_lines[0]
     assert failure_line.best_classification == classified_failures[0]
     assert failure_line.best_is_verified is False

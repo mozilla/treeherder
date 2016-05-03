@@ -10,6 +10,7 @@ from treeherder.model.models import (FailureLine,
 test_line = {"action": "test_result", "test": "test1", "subtest": "subtest1",
              "status": "FAIL", "expected": "PASS", "message": "message1"}
 log_line = {"action": "log", "level": "ERROR", "message": "message1"}
+crash_line = {"action": "crash", "signature": "signature"}
 
 
 def create_failure_lines(repository, job_guid, failure_line_list):

@@ -636,13 +636,15 @@ class FailureLine(models.Model):
             "-classified_failure__id").select_related(
                 'classified_failure').first()
 
-    def set_classification(self, matcher, bug_number=None):
+    def set_classification(self, matcher, classification=None, bug_number=None,
+                           mark_best=False):
         with transaction.atomic():
-            if bug_number:
-                classification, _ = ClassifiedFailure.objects.get_or_create(
-                    bug_number=bug_number)
-            else:
-                classification = ClassifiedFailure.objects.create()
+            if classification is None:
+                if bug_number:
+                    classification, _ = ClassifiedFailure.objects.get_or_create(
+                        bug_number=bug_number)
+                else:
+                    classification = ClassifiedFailure.objects.create()
 
             new_link = FailureMatch(
                 failure_line=self,
@@ -651,9 +653,16 @@ class FailureLine(models.Model):
                 score=1)
             new_link.save()
 
+            if mark_best:
+                self.best_classification = classification
+                self.save()
         return classification, new_link
 
     def mark_best_classification_verified(self, classification):
+        if classification not in self.classified_failures.all():
+            manual_detector = Matcher.objects.get(name="ManualDetector")
+            self.set_classification(manual_detector, classification=classification)
+
         self.best_classification = classification
         self.best_is_verified = True
         self.save()
@@ -832,6 +841,14 @@ class MatcherManager(models.Manager):
     def registered_detectors(self):
         for matcher in self._detector_funcs.values():
             yield matcher
+
+    def get(self, name):
+        try:
+            return models.Manager.get(self, name=name)
+        except Matcher.DoesNotExist:
+            self._matcher_funcs
+            self._detector_funcs
+            return models.Manager.get(self, name=name)
 
 
 class Matcher(models.Model):
