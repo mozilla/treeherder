@@ -379,6 +379,9 @@ SILENCED_SYSTEM_CHECKS = [
     # We can't set SECURE_HSTS_INCLUDE_SUBDOMAINS since the development
     # environment has a SITE_URL of http://local.treeherder.mozilla.org.
     'security.W005',
+    # We can't set CSRF_COOKIE_HTTPONLY to True since the requests to the API
+    # made using Angular's `httpProvider` require access to the cookie.
+    'security.W017',
 ]
 
 # Enable integration between autoclassifier and jobs
