@@ -24,13 +24,19 @@ treeherder.factory('ThJobModel', [
         };
 
         ThJobModel.prototype.get_title = function() {
+            // we want to join the group and type information together
+            // so we can search for it as one token (useful when
+            // we want to do a search on something like `fxup-esr(`)
+            var symbolInfo = (this.job_group_symbol === '?') ? '' :
+                this.job_group_symbol;
+            symbolInfo += "(" + this.job_type_symbol + ")";
+
             return _.filter([
                 thPlatformName(this.platform),
                 this.platform_option,
                 (this.job_group_name === 'unknown') ? undefined : this.job_group_name,
                 this.job_type_name,
-                this.job_group_symbol === '?' ? undefined : this.job_group_symbol,
-                "(" + this.job_type_symbol + ")"
+                symbolInfo
             ]).join(' ');
         };
 
