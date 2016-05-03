@@ -46,3 +46,4 @@ def orm_delete(model, queryset, chunk_size, sleep_time):
         if sleep_time:
             # Allow some time for other queries to get through
             time.sleep(sleep_time)
+    return delete_ids
