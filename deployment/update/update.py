@@ -70,6 +70,11 @@ def update(ctx):
         # since WhiteNoise's Django storage backend only gzips assets handled by
         # collectstatic, and so does not affect files in the `dist/` directory.
         ctx.local("python2.7 -m whitenoise.compress dist")
+        # Run Django system checks.
+        # Replace awk with `--fail-level WARNING` once we're using Django 1.10, since in
+        # previous versions an exit code of 1 is hard-coded to only ERROR and above:
+        # https://github.com/django/django/commit/287532588941d2941e19c4cd069bcbd8af889203
+        run_local_with_env(ctx, 'python2.7 manage.py check --deploy 2>&1 | awk "/^WARNINGS/{err=1} {print} END{exit err}"')
         # Collect the static files (eg for the Persona or Django admin UI)
         run_local_with_env(ctx, "python2.7 manage.py collectstatic --noinput")
         # Update the database schema, if necessary.

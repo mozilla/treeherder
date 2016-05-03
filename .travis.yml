@@ -23,6 +23,9 @@ matrix:
         - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv ~/venv; fi
         - source ~/venv/bin/activate
         - pip install --disable-pip-version-check --upgrade pip==8.1.1
+        # Manually create the test database (required by the Django system checks), since
+        # this job doesn't run pytest which would normally have created it for us.
+        - mysql -u root -e 'create database test_treeherder;'
       install:
         - npm install
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
@@ -31,6 +34,13 @@ matrix:
         - python lints/queuelint.py
         - flake8 --show-source
         - isort --check-only --diff --quiet
+        # Several security features in settings.py (eg setting HSTS headers) are conditional on
+        # 'https://' being in the site URL. In addition, we override the test environment's debug
+        # value so the tests pass. The real environment variable will be checked during deployment.
+        # Replace grep with `--fail-level WARNING` once we're using Django 1.10, since in
+        # previous versions an exit code of 1 is hard-coded to only ERROR and above:
+        # https://github.com/django/django/commit/287532588941d2941e19c4cd069bcbd8af889203
+        - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' ./manage.py check --deploy  2>&1 | awk '/^WARNINGS/{err=1} {print} END{exit err}'
 
     # Job 2: Nodejs UI tests
     - env: ui-tests
