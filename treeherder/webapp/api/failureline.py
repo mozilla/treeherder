@@ -8,9 +8,7 @@ from rest_framework.response import Response
 
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import (ClassifiedFailure,
-                                     FailureLine,
-                                     FailureMatch,
-                                     Matcher)
+                                     FailureLine)
 from treeherder.webapp.api import serializers
 from treeherder.webapp.api.utils import as_dict
 
@@ -69,18 +67,7 @@ class FailureLineViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
             by_project[failure_line.repository.name].append(failure_line.job_guid)
 
-            failure_line.best_classification = classification
-            failure_line.best_is_verified = True
-            failure_line.save()
-
-            if (classification is not None and
-                classification not in failure_line.classified_failures.all()):
-                manual_detector = Matcher.objects.get(name="ManualDetector")
-                match = FailureMatch(failure_line=failure_line,
-                                     classified_failure=classification,
-                                     matcher=manual_detector,
-                                     score=1.0)
-                match.save()
+            failure_line.mark_best_classification_verified(classification)
 
         for project, job_guids in by_project.iteritems():
             with JobsModel(project) as jm:

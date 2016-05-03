@@ -10,6 +10,7 @@ from treeherder.model.derived import ArtifactsModel
 from treeherder.model.models import (FailureLine,
                                      Matcher,
                                      MatcherManager)
+from treeherder.model.search import TestFailureLine
 
 
 def test_get_failure_line(webapp, eleven_jobs_stored, jm, failure_lines):
@@ -56,6 +57,10 @@ def test_update_failure_line_verify(eleven_jobs_stored, jm, failure_lines,
 
     assert failure_line.best_classification == classified_failures[0]
     assert failure_line.best_is_verified
+
+    es_line = TestFailureLine.get(failure_line.id)
+    assert es_line.best_classification == classified_failures[0].id
+    assert es_line.best_is_verified
 
 
 def test_update_failure_line_replace(eleven_jobs_stored, jm, failure_lines,

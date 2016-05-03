@@ -24,6 +24,7 @@ from treeherder import path
 
 from .fields import (BigAutoField,
                      FlexibleForeignKey)
+from .search import TestFailureLine
 
 # the cache key is specific to the database name we're pulling the data from
 SOURCES_CACHE_KEY = "treeherder-datasources"
@@ -718,6 +719,7 @@ class FailureLine(models.Model):
             if mark_best:
                 self.best_classification = classification
                 self.save(update_fields=['best_classification'])
+            self.elastic_search_insert()
         return classification, new_link
 
     def mark_best_classification_verified(self, classification):
@@ -728,6 +730,7 @@ class FailureLine(models.Model):
         self.best_classification = classification
         self.best_is_verified = True
         self.save()
+        self.elastic_search_insert()
 
     def _serialized_components(self):
         if self.action == "test_result":
@@ -775,6 +778,12 @@ class FailureLine(models.Model):
 
         classification, _ = self.set_classification(manual_detector)
         self.mark_best_classification_verified(classification)
+
+    def elastic_search_insert(self):
+        es_line = TestFailureLine.from_model(self)
+        if es_line:
+            es_line.save()
+            return es_line
 
 
 class ClassifiedFailure(models.Model):

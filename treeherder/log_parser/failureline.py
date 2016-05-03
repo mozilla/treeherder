@@ -12,6 +12,8 @@ from treeherder.etl.common import fetch_text
 from treeherder.model.models import (FailureLine,
                                      JobLog,
                                      Repository)
+from treeherder.model.search import (TestFailureLine,
+                                     bulk_insert)
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +51,7 @@ def store_failure_lines(repository_name, job_guid, job_log):
     retry = False
     with transaction.atomic():
         try:
-            create(repository, job_guid, job_log, log_iter)
+            failure_lines = create(repository, job_guid, job_log, log_iter)
         except OperationalError as e:
             logger.warning("Got OperationalError inserting failure_line")
             # Retry iff this error is the "incorrect String Value" error
@@ -61,17 +63,30 @@ def store_failure_lines(repository_name, job_guid, job_log):
             logger.info("Retrying insert with astral character replacement")
             # Sometimes get an error if we can't save a string as MySQL pseudo-UTF8
             log_iter = list(replace_astral(log_iter))
-            create(repository, job_guid, job_log, log_iter)
+            failure_lines = create(repository, job_guid, job_log, log_iter)
+
+    create_es(failure_lines)
 
 
 def create(repository, job_guid, job_log, log_iter):
-    FailureLine.objects.bulk_create(
-        [FailureLine(repository=repository, job_guid=job_guid, job_log=job_log,
-                     **failure_line)
-         for failure_line in log_iter]
-    )
+    failure_lines = [
+        FailureLine.objects.create(repository=repository, job_guid=job_guid, job_log=job_log,
+                                   **failure_line)
+        for failure_line in log_iter]
+
     job_log.status == JobLog.PARSED
     job_log.save()
+    return failure_lines
+
+
+def create_es(failure_lines):
+    # Store the failure lines in elastic_search
+    es_lines = []
+    for failure_line in failure_lines:
+        es_line = TestFailureLine.from_model(failure_line)
+        if es_line:
+            es_lines.append(es_line)
+    bulk_insert(es_lines)
 
 
 def replace_astral(log_iter):

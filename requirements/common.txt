@@ -89,3 +89,12 @@ djangorestframework-filters==0.8.0 --hash=sha256:c4d77bc01af20cc7551f704f35db5aa
 pylibmc==1.5.1 --hash=sha256:ecba261859c3e1ba3365389cb4f4dfffb7e02120a9f57a288cacf2f42c45cdd6
 
 django-pylibmc==0.6.1 --hash=sha256:9cffdee703aaf9ebc029d9dbdee8abdd0723564b95e4b2ac59e4a668b8e58f93
+
+elasticsearch==2.3.0 --hash=sha256:6f184507c151bf8b093b86c0b7cd576a1d730acee03e8213cae367f196ad4c5c
+
+elasticsearch-dsl==2.0.0 --hash=sha256:d19a055b2c4f5b537dc4e3d8f3d7d8392d9c090f8790d71697e587550e9f812a
+
+# required by elasticsearch
+urllib3==1.15.1 --hash=sha256:105b33577a379c1c881821d43b97d1a870f37a8f4904151f56ddeb95b38830ca
+
+certifi==2016.2.28 --hash=sha256:75c33d546e0a732a4606749cbadcd81929f30d8b814061ca93cde49933dbb860

@@ -35,6 +35,8 @@ from treeherder.model.models import (BuildPlatform,
                                      ReferenceDataSignatures,
                                      Repository,
                                      TextLogSummaryLine)
+from treeherder.model.search import bulk_delete as es_delete
+from treeherder.model.search import TestFailureLine
 from treeherder.model.tasks import (populate_error_summary,
                                     publish_job_action,
                                     publish_resultset_action)
@@ -748,8 +750,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             # Remove ORM entries for these jobs (objects referring to Job, like
             # JobDetail and JobLog, are cycled automatically via ON DELETE
             # CASCADE)
-            orm_delete(FailureLine, FailureLine.objects.filter(job_guid__in=job_guid_list),
-                       chunk_size, sleep_time)
+            failure_line_ids = orm_delete(
+                FailureLine, FailureLine.objects.filter(job_guid__in=job_guid_list),
+                chunk_size, sleep_time)
+            es_delete(TestFailureLine, failure_line_ids)
             orm_delete(Job, Job.objects.filter(guid__in=job_guid_list),
                        chunk_size, sleep_time)
 

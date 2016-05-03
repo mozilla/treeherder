@@ -98,19 +98,3 @@ def update_db(jm, job_id, matches, all_matched):
 
     if all_matched:
         jm.update_after_autoclassification(job_id)
-
-
-def all_lines_matched(failure_lines):
-    failure_score_dict = defaultdict(list)
-
-    query = FailureMatch.objects.filter(
-        failure_line__in=failure_lines).only('failure_line_id', 'score')
-
-    for failure_match in query:
-        failure_score_dict[failure_match.failure_line_id].append(failure_match.score)
-
-    for failure_line in failure_lines:
-        scores = failure_score_dict[failure_line.id]
-        if not scores or not all(score >= 1 for score in scores):
-            return False
-    return True
