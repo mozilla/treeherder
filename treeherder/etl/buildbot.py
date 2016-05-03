@@ -231,7 +231,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile(r'WINNT 6\.1|win7|Windows 7 32-bit', re.IGNORECASE),
+        'regex': re.compile(r'WINNT 6\.1|win7|Windows 7 .*32-bit', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'windows7-32',
