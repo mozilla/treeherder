@@ -1,8 +1,9 @@
 env:
   global:
+    - BROKER_URL='amqp://guest:guest@localhost:5672//'
     - DATABASE_URL='mysql://root@localhost/test_treeherder'
     - DATABASE_URL_RO='mysql://root@localhost/test_treeherder'
-    - BROKER_URL='amqp://guest:guest@localhost:5672//'
+    - ELASTICSEARCH_URL='http://127.0.0.1:9200'
     - TREEHERDER_DJANGO_SECRET_KEY='secretkey-of-at-50-characters-to-pass-check-deploy'
 matrix:
   include:
@@ -84,6 +85,9 @@ matrix:
         - rabbitmq
         - memcached
       before_install:
+        - curl -o ~/elasticsearch-2.3.3.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.3/elasticsearch-2.3.3.deb && sudo dpkg -i --force-confnew ~/elasticsearch-2.3.3.deb
+        - sudo service elasticsearch restart
+        - while ! curl localhost:9200 &>/dev/null; do sleep 1; done
         - echo -e '\n[mysqld]\nsql_mode="STRICT_ALL_TABLES"\n' | sudo tee -a /etc/mysql/my.cnf
         - sudo service mysql restart
         # Create a clean virtualenv rather than using the one given to us,
@@ -118,6 +122,9 @@ matrix:
         - rabbitmq
         - memcached
       before_install:
+        - curl -o ~/elasticsearch-2.3.3.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.3/elasticsearch-2.3.3.deb && sudo dpkg -i --force-confnew ~/elasticsearch-2.3.3.deb
+        - sudo service elasticsearch restart
+        - while ! curl localhost:9200 &>/dev/null; do sleep 1; done
         - echo -e '\n[mysqld]\nsql_mode="STRICT_ALL_TABLES"\n' | sudo tee -a /etc/mysql/my.cnf
         - sudo service mysql restart
         # Create a clean virtualenv rather than using the one given to us,
@@ -152,6 +159,9 @@ matrix:
         - rabbitmq
         - memcached
       before_install:
+        - curl -o ~/elasticsearch-2.3.3.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.3/elasticsearch-2.3.3.deb && sudo dpkg -i --force-confnew ~/elasticsearch-2.3.3.deb
+        - sudo service elasticsearch restart
+        - while ! curl localhost:9200 &>/dev/null; do sleep 1; done
         - echo -e '\n[mysqld]\nsql_mode="STRICT_ALL_TABLES"\n' | sudo tee -a /etc/mysql/my.cnf
         - sudo service mysql restart
         # Create a clean virtualenv rather than using the one given to us,

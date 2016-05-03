@@ -384,6 +384,9 @@ SILENCED_SYSTEM_CHECKS = [
 
 # Enable integration between autoclassifier and jobs
 AUTOCLASSIFY_JOBS = env.bool("AUTOCLASSIFY_JOBS", default=False)
+# Ordered list of matcher classes to use during autoclassification
+AUTOCLASSIFY_MATCHERS = ["PreciseTestMatcher", "CrashSignatureMatcher",
+                         "ElasticSearchTestMatcher"]
 
 # timeout for requests to external sources
 # like ftp.mozilla.org or hg.mozilla.org
@@ -536,3 +539,9 @@ HAWK_CREDENTIALS_LOOKUP = 'treeherder.webapp.api.auth.hawk_lookup'
 
 # This is the client ID used by the internal data ingestion service.
 ETL_CLIENT_ID = 'treeherder-etl'
+
+# Configuration for elasticsearch backend
+ELASTIC_SEARCH = {
+    "url": env.str('ELASTICSEARCH_URL', default=""),
+    "index_prefix": ""
+}
