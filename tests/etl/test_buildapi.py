@@ -224,28 +224,6 @@ def test_ingest_running_job_fields(jm,
 #####################
 
 
-def test_ingest_pending_jobs_1_missing_resultset(jm,
-                                                 sample_resultset, mock_buildapi_pending_missing1_url,
-                                                 mock_post_json, mock_get_resultset,
-                                                 activate_responses):
-    """
-    Ensure the pending job with the missing resultset is queued for refetching
-    """
-    etl_process = PendingJobsProcess()
-    _do_missing_resultset_test(jm, etl_process)
-
-
-def test_ingest_running_jobs_1_missing_resultset(jm,
-                                                 sample_resultset, mock_buildapi_running_missing1_url,
-                                                 mock_post_json, mock_get_resultset,
-                                                 activate_responses):
-    """
-    Ensure the running job with the missing resultset is queued for refetching
-    """
-    etl_process = RunningJobsProcess()
-    _do_missing_resultset_test(jm, etl_process)
-
-
 def test_ingest_builds4h_jobs_1_missing_resultset(jm,
                                                   sample_resultset, mock_buildapi_builds4h_missing1_url,
                                                   mock_post_json, mock_log_parser, mock_get_resultset,

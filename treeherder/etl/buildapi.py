@@ -416,9 +416,6 @@ class PendingRunningTransformerMixin(object):
                     th_job = th_collections[project].get_job(treeherder_data)
                     th_collections[project].add(th_job)
 
-        if missing_resultsets and not revision_filter:
-            common.fetch_missing_resultsets(source, missing_resultsets, logger)
-
         num_new_jobs = len(job_ids_seen_now.difference(job_ids_seen_last_time))
         logger.info("Imported %d %s jobs, skipped %d previously seen",
                     num_new_jobs, source, len(job_ids_seen_now) - num_new_jobs)
