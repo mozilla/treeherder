@@ -601,6 +601,8 @@ class FailureLineManager(models.Manager):
 
 
 class FailureLine(models.Model):
+    # We make use of prefix indicies for several columns in this table which
+    # can't be expressed in django syntax so are created with raw sql in migrations.
     STATUS_LIST = ('PASS', 'FAIL', 'OK', 'ERROR', 'TIMEOUT', 'CRASH', 'ASSERT', 'SKIP', 'NOTRUN')
     # Truncated is a special action that we use to indicate that the list of failure lines
     # was truncated according to settings.FAILURE_LINES_CUTOFF.
@@ -621,7 +623,7 @@ class FailureLine(models.Model):
     status = models.CharField(max_length=7, choices=STATUS_CHOICES)
     expected = models.CharField(max_length=7, choices=STATUS_CHOICES, blank=True, null=True)
     message = models.TextField(blank=True, null=True)
-    signature = models.TextField(blank=True, null=True)
+    signature = models.TextField(blank=True, null=True)  # Prefix index length 50
     level = models.CharField(max_length=8, choices=STATUS_CHOICES, blank=True, null=True)
     stack = models.TextField(blank=True, null=True)
     stackwalk_stdout = models.TextField(blank=True, null=True)
@@ -651,6 +653,7 @@ class FailureLine(models.Model):
         )
         index_together = (
             ('job_guid', 'repository'),
+            # The test and subtest indicies are length 50 and 25, respectively
             ('test', 'subtest', 'status', 'expected')
         )
 
@@ -662,13 +665,15 @@ class FailureLine(models.Model):
             "-classified_failure__id").select_related(
                 'classified_failure').first()
 
-    def set_classification(self, matcher, bug_number=None):
+    def set_classification(self, matcher, classification=None, bug_number=None,
+                           mark_best=False):
         with transaction.atomic():
-            if bug_number:
-                classification, _ = ClassifiedFailure.objects.get_or_create(
-                    bug_number=bug_number)
-            else:
-                classification = ClassifiedFailure.objects.create()
+            if classification is None:
+                if bug_number:
+                    classification, _ = ClassifiedFailure.objects.get_or_create(
+                        bug_number=bug_number)
+                else:
+                    classification = ClassifiedFailure.objects.create()
 
             new_link = FailureMatch(
                 failure_line=self,
@@ -677,9 +682,16 @@ class FailureLine(models.Model):
                 score=1)
             new_link.save()
 
+            if mark_best:
+                self.best_classification = classification
+                self.save(update_fields=['best_classification'])
         return classification, new_link
 
     def mark_best_classification_verified(self, classification):
+        if classification not in self.classified_failures.all():
+            manual_detector = Matcher.objects.get(name="ManualDetector")
+            self.set_classification(manual_detector, classification=classification)
+
         self.best_classification = classification
         self.best_is_verified = True
         self.save()
@@ -858,6 +870,14 @@ class MatcherManager(models.Manager):
     def registered_detectors(self):
         for matcher in self._detector_funcs.values():
             yield matcher
+
+    def get(self, name):
+        try:
+            return models.Manager.get(self, name=name)
+        except Matcher.DoesNotExist:
+            self._matcher_funcs
+            self._detector_funcs
+            return models.Manager.get(self, name=name)
 
 
 class Matcher(models.Model):
