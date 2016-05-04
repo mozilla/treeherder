@@ -66,7 +66,7 @@ class HgPushlogTransformerMixin(object):
 class HgPushlogProcess(HgPushlogTransformerMixin,
                        ClientLoaderMixin):
     # For more info on Mercurial Pushes, see:
-    #   https://mozilla-version-control-tools.readthedocs.org/en/latest/hgmo/pushlog.html
+    #   https://mozilla-version-control-tools.readthedocs.io/en/latest/hgmo/pushlog.html
 
     def extract(self, url):
         try:

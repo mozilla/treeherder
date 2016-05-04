@@ -117,7 +117,7 @@ omit the `-B`:
      (venv)vagrant@local:~/treeherder$ celery -A treeherder worker
 
 
-.. _A-Team Bootcamp: https://ateam-bootcamp.readthedocs.org
+.. _A-Team Bootcamp: https://ateam-bootcamp.readthedocs.io
 .. _Git: https://git-scm.com
 .. _Vagrant: https://www.vagrantup.com
 .. _Virtualbox: https://www.virtualbox.org

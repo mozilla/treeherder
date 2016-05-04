@@ -4,7 +4,7 @@ treeherder
 [![Python Requirements Status](https://requires.io/github/mozilla/treeherder/requirements.svg?branch=master)](https://requires.io/github/mozilla/treeherder/requirements/?branch=master)
 [![Node Dependency Status](https://david-dm.org/mozilla/treeherder.svg)](https://david-dm.org/mozilla/treeherder)
 [![Node devDependency Status](https://david-dm.org/mozilla/treeherder/dev-status.svg)](https://david-dm.org/mozilla/treeherder#info=devDependencies)
-[![Documentation Status](https://readthedocs.org/projects/treeherder/badge/?version=latest)](https://readthedocs.org/projects/treeherder/?badge=latest)
+[![Documentation Status](http://readthedocs.org/projects/treeherder/badge/?version=latest)](https://treeherder.readthedocs.io/?badge=latest)
 
 
 #### Description
@@ -16,9 +16,9 @@ Treeherder exists on two instances, [stage](https://treeherder.allizom.org) for 
 
 
 #### Installation
-The steps to run Treeherder are provided [here](https://treeherder.readthedocs.org/installation.html).
+The steps to run Treeherder are provided [here](https://treeherder.readthedocs.io/installation.html).
 
-The steps to run only the UI are provided [here](https://treeherder.readthedocs.org/ui/installation.html).
+The steps to run only the UI are provided [here](https://treeherder.readthedocs.io/ui/installation.html).
 
 
 #### Links
@@ -27,6 +27,6 @@ Visit our project tracking Wiki at:
 https://wiki.mozilla.org/EngineeringProductivity/Projects/Treeherder
 
 Visit our **readthedocs** page for other setup and configuration at:
-https://treeherder.readthedocs.org/
+https://treeherder.readthedocs.io/
 
 File any bugs you may encounter [here](https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&component=Treeherder).

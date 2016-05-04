@@ -41,7 +41,7 @@ Or for more control, run each tool individually:
 
   For more options, see ``py.test --help`` or http://pytest.org/latest/usage.html
 
-* `flake8 <https://flake8.readthedocs.org/>`_:
+* `flake8 <https://flake8.readthedocs.io/>`_:
 
   .. code-block:: bash
 
