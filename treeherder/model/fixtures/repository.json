@@ -965,4 +965,17 @@
         "repository_group": 1,
         "description": "The destination for automatically landed Firefox commits."
     }
+},
+{
+    "pk": 78,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "autopush",
+        "url": "https://github.com/mozilla-services/autopush",
+        "active_status": "active",
+        "codebase": "autopush",
+        "repository_group": 7,
+        "description": "Mozilla Push server and Push Endpoint."
+    }
 }]
