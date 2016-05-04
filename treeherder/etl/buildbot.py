@@ -455,6 +455,7 @@ JOB_TYPE_BUILDERNAME = {
     'unittest': [
         re.compile(r'jetpack.*(opt|debug)$'),
         re.compile(r'.+(?<!leak) test .+'),
+        re.compile(r'.+_update_verify'),
     ],
     'talos': [re.compile(r'.+ talos .+')],
     'repack': [
@@ -643,6 +644,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'(build|dep|periodic)$'), "name": "Build"},
     {"regex": re.compile(r'[ _]l10n'), "name": "L10n Repack"},
     {"regex": re.compile(r'_partner_repacks'), "name": "Partner Repack"},
+    {"regex": re.compile(r'_update_verify'), "name": "Update Verify"},
 ]
 
 # map test names to group names as "<testname>": "<groupname>"
@@ -799,6 +801,7 @@ GROUP_NAMES = {
     "Talos svg e10s": "Talos Performance e10s",
     "Talos tp e10s": "Talos Performance e10s",
     "Talos xperf e10s": "Talos Performance e10s",
+    "Update Verify": "Updates",
 }
 
 # symbols displayed in the UI for all jobs and job groups
@@ -989,6 +992,8 @@ SYMBOLS = {
     "VideoPuppeteer": "VP",
     "Media Tests MSE Video Playback": "b-m",
     "Media Tests MSE YouTube Playback": "b-y",
+    "Updates": "Up",
+    "Update Verify": "Uv",
     "XPCShell": "X",
     "Mozmill": "Z",
 

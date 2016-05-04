@@ -1596,6 +1596,16 @@ buildernames = [
       'platform': {'arch': 'x86_64',
                    'os': 'linux',
                    'os_platform': 'linux64'}}),
+    ('release-mozilla-beta_firefox_win64_update_verify',
+     {'build_type': 'opt',
+      'job_type': 'unittest',
+      'name': {'group_name': 'Updates',
+               'group_symbol': 'Up',
+               'name': 'Update Verify',
+               'job_symbol': 'Uv'},
+      'platform': {'arch': 'x86_64',
+                   'os': 'win',
+                   'os_platform': 'windows8-64'}}),
 ]
 
 
