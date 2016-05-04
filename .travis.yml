@@ -8,6 +8,7 @@ matrix:
   include:
     # Each entry here creates another sub-job.
 
+    # Job 1: Linters
     - env: linters
       sudo: false
       language: python
@@ -31,6 +32,7 @@ matrix:
         - flake8 --show-source
         - isort --check-only --diff --quiet
 
+    # Job 2: Nodejs UI tests
     - env: ui-tests
       sudo: false
       language: node_js
@@ -50,6 +52,7 @@ matrix:
         - npm test
         - ./node_modules/.bin/grunt build --production
 
+    # Job 3: Python Tests Chunk A
     - env: python-tests-main
       # Once mysql 5.6 is available on the container infra, we should switch back
       # to it, by setting `sudo: false`, so we can use caching for this job.
@@ -70,6 +73,7 @@ matrix:
       script:
         - py.test tests/ --runslow --ignore=tests/e2e/ --ignore=tests/etl/ --ignore=tests/log_parser/
 
+    # Job 4: Python Tests Chunk B
     - env: python-tests-e2e-etl-and-logparser
       # Once mysql 5.6 is available on the container infra, we should switch back
       # to it, by setting `sudo: false`, so we can use caching for this job.
