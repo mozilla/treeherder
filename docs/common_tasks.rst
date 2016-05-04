@@ -67,6 +67,16 @@ Or for more control, run each tool individually:
 
 .. _managing-api-credentials:
 
+Profiling API endpoint performance
+----------------------------------
+
+On our development (vagrant) instance we have `django-debug-toolbar
+<http://django-debug-toolbar.readthedocs.io/>`_ installed, which can give
+information on exactly what SQL is run to generate individual API
+endpoints. Just navigate to an endpoint
+(example: http://local.treeherder.mozilla.org/api/repository/) and
+you should see the toolbar to your right.
+
 Managing API credentials
 ------------------------
 

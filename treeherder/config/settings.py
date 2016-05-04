@@ -76,7 +76,6 @@ MIDDLEWARE_CLASSES = [
     # Allows both Django static files and those specified via `WHITENOISE_ROOT`
     # to be served by WhiteNoise, avoiding the need for Apache/nginx on Heroku.
     'treeherder.config.whitenoise_custom.CustomWhiteNoise',
-    'django.middleware.gzip.GZipMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -87,6 +86,11 @@ MIDDLEWARE_CLASSES = [
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if not DEBUG:
+    # the gzip middleware interferes with the django toolbar,
+    # so only enable it in non-debugging (i.e. production) mode
+    MIDDLEWARE_CLASSES += ['django.middleware.gzip.GZipMiddleware']
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
