@@ -238,11 +238,11 @@ def get_all_errors(artifact):
         return artifact_blob.get('step_data', {}).get('all_errors', [])
 
 
-def load_error_summary(project, artifacts, job_id_lookup):
+def load_error_summary(project, artifacts):
     """Load new bug suggestions artifacts if we generate them."""
     from treeherder.model.derived import ArtifactsModel
 
     bsa = get_error_summary_artifacts(artifacts)
     if bsa:
         with ArtifactsModel(project) as artifacts_model:
-            artifacts_model.load_job_artifacts(bsa, job_id_lookup)
+            artifacts_model.load_job_artifacts(bsa)

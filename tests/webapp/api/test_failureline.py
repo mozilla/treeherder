@@ -112,8 +112,7 @@ def test_update_failure_line_mark_job(eleven_jobs_stored,
                    'job_guid': job['job_guid']}
 
     with ArtifactsModel(jm.project) as artifacts_model:
-        artifacts_model.load_job_artifacts([bs_artifact],
-                                           {bs_artifact['job_guid']: job})
+        artifacts_model.load_job_artifacts([bs_artifact])
 
     for failure_line in job_failure_lines:
 
@@ -164,8 +163,7 @@ def test_update_failure_line_mark_job_with_human_note(eleven_jobs_stored,
                    'job_guid': job['job_guid']}
 
     with ArtifactsModel(jm.project) as artifacts_model:
-        artifacts_model.load_job_artifacts([bs_artifact],
-                                           {bs_artifact['job_guid']: job})
+        artifacts_model.load_job_artifacts([bs_artifact])
 
     jm.insert_job_note(job["id"], 4, test_user.email, "note")
 
@@ -211,8 +209,7 @@ def test_update_failure_line_mark_job_with_auto_note(eleven_jobs_stored,
                    'job_guid': job['job_guid']}
 
     with ArtifactsModel(jm.project) as artifacts_model:
-        artifacts_model.load_job_artifacts([bs_artifact],
-                                           {bs_artifact['job_guid']: job})
+        artifacts_model.load_job_artifacts([bs_artifact])
 
     jm.insert_job_note(job["id"], 7, "autoclassifier", "note", autoclassify=True)
 
@@ -264,8 +261,7 @@ def test_update_failure_lines(eleven_jobs_stored,
                        'job_guid': job['job_guid']}
 
         with ArtifactsModel(jm.project) as artifacts_model:
-            artifacts_model.load_job_artifacts([bs_artifact],
-                                               {bs_artifact['job_guid']: job})
+            artifacts_model.load_job_artifacts([bs_artifact])
 
     body = [{"id": failure_line.id,
              "best_classification": classified_failures[1].id}
@@ -347,8 +343,7 @@ def test_update_failure_line_all_ignore_mark_job(eleven_jobs_stored,
                    'job_guid': job['job_guid']}
 
     with ArtifactsModel(jm.project) as artifacts_model:
-        artifacts_model.load_job_artifacts([bs_artifact],
-                                           {bs_artifact['job_guid']: job})
+        artifacts_model.load_job_artifacts([bs_artifact])
 
     assert len(jm.get_job_note_list(job['id'])) == 0
 
@@ -399,8 +394,7 @@ def test_update_failure_line_partial_ignore_mark_job(eleven_jobs_stored,
                    'job_guid': job['job_guid']}
 
     with ArtifactsModel(jm.project) as artifacts_model:
-        artifacts_model.load_job_artifacts([bs_artifact],
-                                           {bs_artifact['job_guid']: job})
+        artifacts_model.load_job_artifacts([bs_artifact])
 
     for i, failure_line in enumerate(job_failure_lines):
 

@@ -29,10 +29,7 @@ def test_load_single_artifact(
     }
 
     with ArtifactsModel(test_project) as artifacts_model:
-        artifacts_model.load_job_artifacts(
-            [bs_artifact],
-            {bs_artifact['job_guid']: job}
-        )
+        artifacts_model.load_job_artifacts([bs_artifact])
 
         artifacts = artifacts_model.get_job_artifact_list(0, 10, conditions={
             'job_id': {('=', job["id"])}
@@ -73,15 +70,8 @@ def test_load_artifact_second_time_fails(
     }
 
     with ArtifactsModel(test_project) as artifacts_model:
-        artifacts_model.load_job_artifacts(
-            [bs_artifact1],
-            {bs_artifact1['job_guid']: job}
-        )
-
-        artifacts_model.load_job_artifacts(
-            [bs_artifact2],
-            {bs_artifact2['job_guid']: job}
-        )
+        artifacts_model.load_job_artifacts([bs_artifact1])
+        artifacts_model.load_job_artifacts([bs_artifact2])
 
         artifacts = artifacts_model.get_job_artifact_list(0, 10, conditions={
             'job_id': {('=', job["id"])}
