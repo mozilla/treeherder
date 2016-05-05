@@ -8,6 +8,7 @@ from django.forms import model_to_dict
 from treeherder.etl.perf import load_perf_artifacts
 from treeherder.model import utils
 from treeherder.model.models import (Job,
+                                     JobDetail,
                                      ReferenceDataSignatures)
 
 from .base import TreeherderModelBase
@@ -91,6 +92,19 @@ class ArtifactsModel(TreeherderModelBase):
             placeholders=artifact_placeholders,
             executemany=True)
 
+    def store_job_details(self, job, job_info_artifact):
+        """
+        Store the contents of the job info artifact
+        in job details
+        """
+        job_details = json.loads(job_info_artifact['blob'])['job_details']
+        for job_detail in job_details:
+            JobDetail.objects.get_or_create(
+                job=job,
+                title=job_detail.get('title'),
+                value=job_detail['value'],
+                url=job_detail.get('url'))
+
     def store_performance_artifact(
             self, job_ids, performance_artifact_placeholders):
         """
@@ -169,6 +183,8 @@ class ArtifactsModel(TreeherderModelBase):
                         artifact, performance_artifact_list,
                         performance_artifact_job_id_list,
                         job.project_specific_id)
+                elif artifact_name == 'Job Info':
+                    self.store_job_details(job, artifact)
                 else:
                     self._adapt_job_artifact_collection(
                         artifact, job_artifact_list,

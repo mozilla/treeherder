@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from django.forms import model_to_dict
 from mock import MagicMock
 
 from tests.test_utils import post_collection
@@ -9,6 +10,7 @@ from treeherder.log_parser.parsers import StepParser
 from treeherder.model import error_summary
 from treeherder.model.derived import (ArtifactsModel,
                                       JobsModel)
+from treeherder.model.models import JobDetail
 
 
 @pytest.fixture
@@ -361,7 +363,8 @@ def test_post_job_artifacts_by_add_artifact(
         }
     })
 
-    ji_blob = json.dumps({"job_details": [{"foo": "fah"}]})
+    ji_blob = json.dumps({"job_details": [{"title": "mytitle",
+                                           "value": "myvalue"}]})
     bapi_blob = json.dumps({"buildername": "merd"})
     pb_blob = json.dumps({"build_url": "feh", "chunk": 1, "config_file": "mah"})
 
@@ -374,8 +377,17 @@ def test_post_job_artifacts_by_add_artifact(
 
     post_collection(test_project, tjc)
 
-    check_artifacts(test_project, job_guid, 'parsed', 5,
-                    {'Bug suggestions', 'text_log_summary', 'Job Info',
+    assert JobDetail.objects.count() == 1
+    assert model_to_dict(JobDetail.objects.get(job__guid=job_guid)) == {
+        'id': 1,
+        'job': 1,
+        'title': 'mytitle',
+        'value': 'myvalue',
+        'url': None
+    }
+
+    check_artifacts(test_project, job_guid, 'parsed', 4,
+                    {'Bug suggestions', 'text_log_summary',
                      'privatebuild', 'buildapi'}, mock_error_summary)
 
     # ensure the parsing didn't happen

@@ -1,17 +1,14 @@
 <div class="job-tabs-content">
   <ul class="list-unstyled">
     <li ng-repeat="line in job_details | orderBy:'title'" class="small">
-      <label ng-if="line.content_type != 'TalosResult'">{{line.title}}:</label>
-      <span ng-if="line.content_type != 'TalosResult'" ng-switch on="line.content_type">
-        <a ng-switch-when="link" title="{{line.value}}"
-           href="{{line.url}}" target="_blank">{{line.value}}</a>
-        <span ng-if="line.value.endsWith('raw.log')">
-          - <a title="{{line.value}}" href="http://mozilla.github.io/wptview/#/?urls={{line.url | encodeURIComponent}},{{job_details[buildernameIndex].value | encodeURIComponent}}">open in test results viewer</a>
-        </span>
-        <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
-        <span title="{{line.value}}" ng-switch-when="object">{{line.value}}</span>
-        <span title="{{line.value}}" ng-switch-default>{{line.value}}</span>
+      <label>{{line.title ? line.title : 'Untitled data'}}:</label>
+      <!-- URL provided -->
+      <a ng-if="line.url" title="{{line.value}}" href="{{line.url}}" target="_blank">{{line.value}}</a>
+      <span ng-if="line.url && line.value.endsWith('raw.log')">
+        - <a title="{{line.value}}" href="http://mozilla.github.io/wptview/#/?urls={{line.url | encodeURIComponent}},{{job_details[buildernameIndex].value | encodeURIComponent}}">open in test results viewer</a>
       </span>
+      <!-- no URL (just informational) -->
+      <span ng-if="!line.url" ng-bind-html="line.value"></span>
     </li>
   </ul>
 </div>
