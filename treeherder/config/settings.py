@@ -170,6 +170,10 @@ LOGGING = {
         'treeherder': {
             'handlers': ['console'],
             'level': 'ERROR',
+        },
+        'kombu': {
+            'handlers': ['console'],
+            'level': 'WARNING',
         }
     }
 }

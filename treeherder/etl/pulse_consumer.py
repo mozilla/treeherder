@@ -7,6 +7,7 @@ from kombu import Queue
 from kombu.mixins import ConsumerMixin
 
 from treeherder.etl.tasks.pulse_tasks import store_pulse_jobs
+from treeherder.etl.mixins import JsonExtractorMixin
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,7 @@ class JobConsumer(ConsumerMixin):
             Consumer(**c) for c in self.consumers
         ]
 
-    def listen_to(self, exchange, routing_key):
+    def bind_to(self, exchange, routing_key):
         if not self.queue:
             self.queue = Queue(
                 name=self.queue_name,
@@ -43,6 +44,9 @@ class JobConsumer(ConsumerMixin):
             self.queue.declare()
         else:
             self.queue.bind_to(exchange=exchange, routing_key=routing_key)
+
+    def unbind_from(self, exchange, routing_key):
+        self.queue.unbind_from(exchange, routing_key)
 
     def on_message(self, body, message):
         logger.info("Message: {} - {}".format(
@@ -66,3 +70,15 @@ class JobConsumer(ConsumerMixin):
 
     def close(self):
         self.connection.release()
+
+
+class PulseApi(JsonExtractorMixin):
+    """
+    Get information from the pulse API
+    """
+
+    def get_bindings(self, queue_name):
+        url = "{}queue/{}/{}".format(settings.PULSE_API_URL,
+                                     queue_name,
+                                     "bindings")
+        return self.extract(url)
