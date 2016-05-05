@@ -1,11 +1,10 @@
-import copy
-
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from kombu import (Connection,
                    Exchange)
 
-from treeherder.etl.pulse_consumer import JobConsumer, PulseApi
+from treeherder.etl.pulse_consumer import (JobConsumer,
+                                           PulseApi)
 
 
 class Command(BaseCommand):

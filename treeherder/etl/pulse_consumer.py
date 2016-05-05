@@ -6,8 +6,8 @@ from django.conf import settings
 from kombu import Queue
 from kombu.mixins import ConsumerMixin
 
-from treeherder.etl.tasks.pulse_tasks import store_pulse_jobs
 from treeherder.etl.mixins import JsonExtractorMixin
+from treeherder.etl.tasks.pulse_tasks import store_pulse_jobs
 
 logger = logging.getLogger(__name__)
 
