@@ -1,8 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from treeherder.model.derived import (ArtifactsModel,
-                                      JobsModel)
+from treeherder.model.derived import ArtifactsModel
 from treeherder.model.error_summary import get_artifacts_that_need_bug_suggestions
 from treeherder.model.tasks import populate_error_summary
 from treeherder.webapp.api import permissions
@@ -57,12 +56,9 @@ class ArtifactViewSet(viewsets.ViewSet):
     def create(self, request, project):
         artifacts = ArtifactsModel.serialize_artifact_json_blobs(request.data)
 
-        job_guids = [x['job_guid'] for x in artifacts]
-        with JobsModel(project) as jobs_model, ArtifactsModel(project) as artifacts_model:
+        with ArtifactsModel(project) as artifacts_model:
 
-            job_id_lookup = jobs_model.get_job_ids_by_guid(job_guids)
-
-            artifacts_model.load_job_artifacts(artifacts, job_id_lookup)
+            artifacts_model.load_job_artifacts(artifacts)
 
             # If a ``text_log_summary`` and ``Bug suggestions`` artifact are
             # posted here together, for the same ``job_guid``, then just load
@@ -82,7 +78,7 @@ class ArtifactViewSet(viewsets.ViewSet):
             # to schedule anything.
             if tls_list:
                 populate_error_summary.apply_async(
-                    args=[project, tls_list, job_id_lookup],
+                    args=[project, tls_list],
                     routing_key='error_summary'
                 )
 

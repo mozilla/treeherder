@@ -1298,14 +1298,14 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                             job_results)
 
         with ArtifactsModel(self.project) as artifacts_model:
-            artifacts_model.load_job_artifacts(artifact_placeholders, job_id_lookup)
+            artifacts_model.load_job_artifacts(artifact_placeholders)
 
         # schedule the generation of ``Bug suggestions`` artifacts
         # asynchronously now that the jobs have been created
         # TODO: handle error line cross-referencing for this case
         if async_error_summary_list:
             populate_error_summary.apply_async(
-                args=[self.project, async_error_summary_list, job_id_lookup],
+                args=[self.project, async_error_summary_list],
                 routing_key='error_summary'
             )
 

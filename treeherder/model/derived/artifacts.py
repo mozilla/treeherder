@@ -7,7 +7,8 @@ from django.forms import model_to_dict
 
 from treeherder.etl.perf import load_perf_artifacts
 from treeherder.model import utils
-from treeherder.model.models import ReferenceDataSignatures
+from treeherder.model.models import (Job,
+                                     ReferenceDataSignatures)
 
 from .base import TreeherderModelBase
 
@@ -121,10 +122,10 @@ class ArtifactsModel(TreeherderModelBase):
             # adapt and load data into placeholder structures
             load_perf_artifacts(self.project, ref_data, job_data, perf_data)
 
-    def load_job_artifacts(self, artifact_data, job_id_lookup):
+    def load_job_artifacts(self, artifact_data):
         """
-        Store a list of job artifacts substituting job_guid with job_id. All
-        of the datums in artifact_data need to be in the following format:
+        Store a list of job artifacts. All of the datums in artifact_data need
+        to be in the following format:
 
             {
                 'type': 'json',
@@ -143,30 +144,35 @@ class ArtifactsModel(TreeherderModelBase):
         for index, artifact in enumerate(artifact_data):
             # Determine what type of artifact we have received
             if artifact:
+                artifact_name = artifact.get('name')
+                if not artifact_name:
+                    logger.error("load_job_artifacts: Unnamed job artifact, "
+                                 "skipping")
+                    continue
+                job_guid = artifact.get('job_guid')
+                if not job_guid:
+                    logger.error("load_job_artifacts: Artifact '{}' with no "
+                                 "job guid set, skipping".format(
+                                     artifact_name))
+                    continue
 
-                job_id = None
-                job_guid = None
-
-                artifact_name = artifact['name']
-                job_guid = artifact.get('job_guid', None)
-                job_id = job_id_lookup.get(
-                    artifact['job_guid'], {}
-                ).get('id', None)
+                try:
+                    job = Job.objects.get(guid=artifact['job_guid'])
+                except Job.DoesNotExist:
+                    logger.error(
+                        ('load_job_artifacts: No job_id for '
+                         '{0} job_guid {1}'.format(self.project, job_guid)))
+                    continue
 
                 if artifact_name == 'performance_data':
                     self._adapt_performance_artifact_collection(
                         artifact, performance_artifact_list,
-                        performance_artifact_job_id_list, job_id)
+                        performance_artifact_job_id_list,
+                        job.project_specific_id)
                 else:
                     self._adapt_job_artifact_collection(
-                        artifact, job_artifact_list, job_id)
-
-                if not job_id:
-                    logger.error(
-                        ('load_job_artifacts: No job_id for '
-                         '{0} job_guid {1} {2}'.format(self.project, job_guid,
-                                                       repr(job_id_lookup))))
-
+                        artifact, job_artifact_list,
+                        job.project_specific_id)
             else:
                 logger.error(
                     ('load_job_artifacts: artifact not '
