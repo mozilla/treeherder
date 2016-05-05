@@ -35,6 +35,7 @@ export DATABASE_URL='mysql://${DB_USER}:${DB_PASS}@localhost/treeherder'
 export DATABASE_URL_RO='mysql://${DB_USER}:${DB_PASS}@localhost/treeherder'
 export BROKER_URL='amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@localhost:5672/${RABBITMQ_VHOST}'
 export TREEHERDER_DEBUG='True'
+export ENABLE_DEBUG_TOOLBAR='True'
 export TREEHERDER_DJANGO_SECRET_KEY='${DJANGO_SECRET_KEY}'
 export NEW_RELIC_DEVELOPER_MODE='True'
 "
