@@ -133,6 +133,8 @@ default_router.register(r'performance/framework',
                         base_name='performance-frameworks')
 default_router.register(r'bugzilla', bugzilla.BugzillaViewSet,
                         base_name='bugzilla')
+default_router.register(r'jobdetail', jobs.JobDetailViewSet,
+                        base_name='jobdetail')
 
 urlpatterns = [
     url(r'^project/(?P<project>[\w-]{0,50})/',
