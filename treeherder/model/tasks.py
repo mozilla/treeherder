@@ -127,7 +127,7 @@ def publish_resultset_runnable_job_action(project, resultset_id, requester,
 
 
 @task(name='populate-error-summary')
-def populate_error_summary(project, artifacts, job_id_lookup):
+def populate_error_summary(project, artifacts):
     """
     Create bug suggestions artifact(s) for any text_log_summary artifacts.
 
@@ -136,4 +136,4 @@ def populate_error_summary(project, artifacts, job_id_lookup):
     ``bug suggestions`` artifact from them.
     """
 
-    load_error_summary(project, artifacts, job_id_lookup)
+    load_error_summary(project, artifacts)
