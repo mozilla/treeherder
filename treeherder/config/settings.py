@@ -12,6 +12,8 @@ TREEHERDER_MEMCACHED = env("TREEHERDER_MEMCACHED", default="127.0.0.1:11211")
 TREEHERDER_MEMCACHED_KEY_PREFIX = env("TREEHERDER_MEMCACHED_KEY_PREFIX", default="treeherder")
 
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
+ENABLE_DEBUG_TOOLBAR = env.bool("ENABLE_DEBUG_TOOLBAR", False)
+DEBUG_TOOLBAR_PATCH_SETTINGS = False  # disable django debug toolbar automatic configuration
 
 TREEHERDER_REQUEST_PROTOCOL = env("TREEHERDER_REQUEST_PROTOCOL", default="http")
 TREEHERDER_REQUEST_HOST = env("TREEHERDER_REQUEST_HOST", default="local.treeherder.mozilla.org")
@@ -70,13 +72,14 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages'
 )
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE_CLASSES = [middleware for middleware in [
     # Redirect to HTTPS/set HSTS and other security headers.
     'django.middleware.security.SecurityMiddleware',
     # Allows both Django static files and those specified via `WHITENOISE_ROOT`
     # to be served by WhiteNoise, avoiding the need for Apache/nginx on Heroku.
     'treeherder.config.whitenoise_custom.CustomWhiteNoise',
     'django.middleware.gzip.GZipMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware' if ENABLE_DEBUG_TOOLBAR else False,
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -86,7 +89,11 @@ MIDDLEWARE_CLASSES = [
     'hawkrest.middleware.HawkResponseMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
+] if middleware]
+
+if ENABLE_DEBUG_TOOLBAR:
+    # set INTERNAL_IPS if debug enabled, so the toolbar works
+    INTERNAL_IPS = ['127.0.0.1']
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
