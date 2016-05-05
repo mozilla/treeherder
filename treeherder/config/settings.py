@@ -88,6 +88,15 @@ MIDDLEWARE_CLASSES = [
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+if DEBUG:
+    # insert debug toolbar middleware just after the gzip
+    # middleware
+    gzip_index = MIDDLEWARE_CLASSES.index(
+        'django.middleware.gzip.GZipMiddleware')
+    MIDDLEWARE_CLASSES.insert(
+        gzip_index + 1,
+        'debug_toolbar.middleware.DebugToolbarMiddleware')
+
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'django_browserid.auth.BrowserIDBackend',
