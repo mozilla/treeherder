@@ -32,15 +32,11 @@ class Command(BaseCommand):
             new_bindings = []
 
             for source in sources:
-                # When creating this exchange object, it is critical that it
-                # be set to ``passive=True``.  This allows it to connect to an
-                # exchange not owned by this userid by making it read-only.
-                # If passive is not set to True, you may get a 403 Forbidden
-                # when trying to connect to the exchange.
-                exchange = Exchange(source["exchange"],
-                                    type="topic",
-                                    passive=True
-                                    )
+                # When creating this exchange object, it is important that it
+                # be set to ``passive=True``.  This will prevent any attempt by
+                # Kombu to actually create the exchange.
+                exchange = Exchange(source["exchange"], type="topic",
+                                    passive=True)
                 # ensure the exchange exists.  Throw an error if it doesn't
                 exchange(connection).declare()
 
@@ -70,7 +66,7 @@ class Command(BaseCommand):
                     if binding_str not in new_bindings:
                         consumer.unbind_from(Exchange(binding["source"]),
                                              binding["routing_key"])
-                        self.stdout.write("unbinding from: {}".format(binding_str))
+                        self.stdout.write("Unbound from: {}".format(binding_str))
 
             try:
                 consumer.run()
