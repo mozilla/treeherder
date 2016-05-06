@@ -34,10 +34,10 @@
            ng-show="user.is_staff"
            ng-click="triggerAllTalosJobs(resultset.revision)">Trigger All Talos jobs</a></li>
     <li><a target="_blank"
-           href="" prevent-default-on-left-click
+           href="{{toChangeValue()}}&tochange={{resultset.revision}}" prevent-default-on-left-click
            ng-click="setLocationSearchParam('tochange', resultset.revision)">Set as top of range</a></li>
     <li><a target="_blank"
-           href="" prevent-default-on-left-click
+           href="{{fromChangeValue()}}&fromchange={{resultset.revision}}" prevent-default-on-left-click
            ng-click="setLocationSearchParam('fromchange', resultset.revision)">Set as bottom of range</a></li>
   </ul>
 </span>
