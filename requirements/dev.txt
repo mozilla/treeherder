@@ -33,7 +33,7 @@ waitress==0.9.0 --hash=sha256:57192b7b9f26eae770f5bbf5a3cfeb781011305b1b6ca79a59
 WebOb==1.6.0 --hash=sha256:69356a75980172f3e76717f6899b6c75d95ccdc7a2cb6a3b8bd6a7de3fc72401
 
 # Required by mock
-funcsigs==0.4 --hash=sha256:ff5ad9e2f8d9e5d1e8bbfbcf47722ab527cf0d51caeeed9da6d0f40799383fde
+funcsigs==1.0.2 --hash=sha256:330cc27ccbf7f1e992e69fef78261dc7c6569012cf397db8d3de0234e6c937ca
 pbr==1.9.1 --hash=sha256:fdfda7175428e7527635dfef42d0eda5b609b2d5b1ac707045dbaed7a7307c7f
 
 # Required by responses
