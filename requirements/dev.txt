@@ -29,7 +29,7 @@ py==1.4.31 --hash=sha256:4a3e4f3000c123835ac39cab5ccc510642153bc47bc1f13e2bbb530
 
 # Required by WebTest
 beautifulsoup4==4.4.1 --hash=sha256:82a253245aed9875f141dd98a7462572bca93d064cf3117bd33de4b61ee18e68
-waitress==0.8.10 --hash=sha256:e33f7830a29d5ac76f5ac9ac3e51824012608bbd62e3bac62bfd9668ceff7a2a
+waitress==0.9.0 --hash=sha256:57192b7b9f26eae770f5bbf5a3cfeb781011305b1b6ca79a59d769dc267989a2
 WebOb==1.5.1 --hash=sha256:9e6cd1c40c9dddb966c299096bd376b551f9ac93a99ebdd51b4777b4da2c7a0f
 
 # Required by mock
