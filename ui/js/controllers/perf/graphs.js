@@ -924,7 +924,7 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
     var addRelatedBranches = function(originalSeries) {
         var branchList = [];
         thPerformanceBranches.forEach(function (branch) {
-            if (branch !== relatedSeries.projectName) {
+            if (branch !== originalSeries.projectName) {
                 branchList.push(_.findWhere($scope.projects, {name: branch}));
             }
         });
@@ -935,10 +935,18 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
                 interval: $scope.timeRange,
                 signature: originalSeries.signature
             });
-        })).then(function(series) {
-            if (series.length > 0) {
-                $scope.testToAdd.push(_.clone(series[0]));
-            }
+        })).then(function(seriesList) {
+            // we get a list of lists because we are getting the results
+            // of multiple promises, filter that down to one flat list
+            seriesList = _.flatten(seriesList);
+
+            // filter out tests which are already displayed
+            $scope.testsToAdd = _.filter(seriesList, function(series) {
+                return !_.any(testsDisplayed, {
+                    projectName: series.projectName,
+                    signature: series.signature
+                });
+            });
         }).then(function () {
             loadingExtraDataPromise.resolve($scope.testsToAdd.length);
         });
