@@ -15,7 +15,7 @@ responses==0.5.1 --hash=sha256:3a907f7aae2fd2286d06cfdf238957786c38bbcadc451adce
 django-extensions==1.6.6 --hash=sha256:21d648e8cd1e49b57ad8fa7406def2f826af2bd315da40b4ccec6ef0e95edcd3
 
 # Required by django-extension's runserver_plus command.
-Werkzeug==0.11.4 --hash=sha256:7db3cb2d4725be0680abf64a45b18229186f03ad8b9989abbe053f9357b17b37
+Werkzeug==0.11.9 --hash=sha256:cc4b84a685bfa01163a0bb30738d0dfcffa6af411dd489aed90f37a61bc4af26
 
 #for celery auto-reloading
 pyinotify==0.9.6 --hash=sha256:9c998a5d7606ca835065cdabc013ae6c66eb9ea76a00a1e3bc6e0cfe2b4f71f4
