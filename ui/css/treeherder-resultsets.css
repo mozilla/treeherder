@@ -129,6 +129,7 @@ fieldset[disabled] .btn-resultset:hover {
 .revision-holder {
   padding-left: 20px;
   padding-right: 11px;
+  display: inline-block;
 }
 
 .revision-comment {
