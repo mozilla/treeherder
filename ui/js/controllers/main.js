@@ -406,6 +406,18 @@ treeherderApp.controller('MainCtrl', [
             );
         };
 
+        $scope.fromChangeValue = function() {
+            var url = window.location.href;
+            url = url.replace("&fromchange=" + $location.search()["fromchange"], "")
+            return url;
+        };
+
+        $scope.toChangeValue = function() {
+            var url = window.location.href;
+            url = url.replace("&tochange=" + $location.search()["tochange"], "")
+            return url;
+        };
+
         $scope.setLocationSearchParam = function(param, value) {
             $location.search(param, value);
         };
