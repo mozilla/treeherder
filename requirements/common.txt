@@ -10,7 +10,7 @@ whitenoise==3.0 --hash=sha256:2537cf2b0c12e1c8beaa23605076344a89d08b686592abffdd
 https://github.com/google/brotli/archive/v0.3.0.zip#egg=Brotli==0.3.0 \
     --hash=sha256:0e1e88c74b5a4c9c39123fe8adfdce6262c80524398367420475716389d70791
 
-Django==1.8.10 --hash=sha256:471b41cb53d675138475b488c429424ed143e57ad755a2c8ab1206ac30490284
+Django==1.8.13 --hash=sha256:dad5da0cd7f3cca7da3ac42a19abba30f5cc10fae4976e474051e7085b4e95d1
 
 celery==3.1.23 --hash=sha256:eaf5dee3becbc35c7754a2d4482d53bdf72ea3f85dd258525259983262081474
 
