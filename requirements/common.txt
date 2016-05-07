@@ -18,7 +18,7 @@ kombu==3.0.33 --hash=sha256:6741a5d7e8b8f53151aabd47fd3df1195aed540b169b2d7684b9
 
 simplejson==3.8.2 --hash=sha256:d58439c548433adcda98e695be53e526ba940a4b9c44fb9a05d92cd495cdd47f
 
-newrelic==2.60.0.46 --hash=sha256:17d598fccca0845c0337e5276d40d65f951afea6adf9bd9172cff3a87f2ef294
+newrelic==2.64.0.48 --hash=sha256:9ea89da0a16032074dcdc5c39b0b74a821c3c935f5b93781723e7b5dd38e3406
 
 # Required by datasource
 MySQL-python==1.2.5 --hash=sha256:811040b647e5d5686f84db415efd697e6250008b112b6909ba77ac059e140c74
