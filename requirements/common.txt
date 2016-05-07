@@ -84,7 +84,7 @@ python-dateutil==2.5.3 --hash=sha256:598499a75be2e5e18a66f12c00dd47a069de24794ef
 
 requests-hawk==1.0.0 --hash=sha256:c2626ab31ebef0c81b97781c44c2275bfcc6d8e8520fc4ced495f0f386f8fe26
 
-django-filter==0.12.0 --hash=sha256:8b6459e58dbf6f67384707be6724a0a88db6709764bc2eb9de265a52dc441ccb
+django-filter==0.13.0 --hash=sha256:f5e10bea3b30e43a9b0b7efdca8e91cb0c1d5bf4d316e8fb6c0c22300d30c7dd
 
 djangorestframework-filters==0.8.0 --hash=sha256:c4d77bc01af20cc7551f704f35db5aa872f6ba717e43ddd21a1de5f448838244
 
