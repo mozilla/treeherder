@@ -38,7 +38,7 @@ jsonschema==2.5.1 --hash=sha256:71e7b3bcf9fca408bcb65bb60892f375d3abdd2e4f296eee
 
 djangorestframework==3.3.2 --hash=sha256:5634b1ff56581bf0fe4075e86227fc9693c1ca031c7213c9ae942c445c24817b
 
-django-rest-swagger==0.3.5 --hash=sha256:4b22d1c3c9e470fda09f989303a79a47bcef9a7c3da201e2ff15430e829c39b4
+django-rest-swagger==0.3.6 --hash=sha256:3221a674416c6016d77b187a28515cd5eadff89b9dfa16af50dc650853714efc
 
 drf-extensions==0.2.8 --hash=sha256:9aafa131f66afbe316e0e5f5b0a23699411f5be25aa74188d1e0773179cd341b
 
