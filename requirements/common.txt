@@ -12,7 +12,7 @@ https://github.com/google/brotli/archive/v0.3.0.zip#egg=Brotli==0.3.0 \
 
 Django==1.8.10 --hash=sha256:471b41cb53d675138475b488c429424ed143e57ad755a2c8ab1206ac30490284
 
-celery==3.1.20 --hash=sha256:3071b71ef8c43178ace8435002b11f2ff06db7690f07d960540eab7f4183ddf7
+celery==3.1.23 --hash=sha256:eaf5dee3becbc35c7754a2d4482d53bdf72ea3f85dd258525259983262081474
 
 kombu==3.0.35 --hash=sha256:2c59a5e087d5895675cdb4d6a38a0aa147f0411366e68330a76e480ba3b25727
 
