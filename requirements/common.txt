@@ -88,6 +88,6 @@ django-filter==0.12.0 --hash=sha256:8b6459e58dbf6f67384707be6724a0a88db6709764bc
 
 djangorestframework-filters==0.6.0 --hash=sha256:09190e9b45f56324a365a7fa8a002672cda1d5c73a0e0d89d6c953fb99d49966
 
-pylibmc==1.5.0 --hash=sha256:16255595616a6d78cd786a55cc6431da5b7accf46512df854712a0cdbb3acfaa
+pylibmc==1.5.1 --hash=sha256:ecba261859c3e1ba3365389cb4f4dfffb7e02120a9f57a288cacf2f42c45cdd6
 
 django-pylibmc==0.6.1 --hash=sha256:9cffdee703aaf9ebc029d9dbdee8abdd0723564b95e4b2ac59e4a668b8e58f93
