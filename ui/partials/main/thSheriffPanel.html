@@ -60,7 +60,9 @@
                   ng-class="!user.is_staff ? 'sheriff-panel-text-btn-disabled' :
                            'sheriff-panel-text-btn'"
                   ng-attr-title="{{!user.is_staff ? '' : 'Modify this exclusion'}}">
-            &#8226; {{::exclusions_map[exclusion].name}}</button>
+            &#8226; {{::exclusions_map[exclusion].name}}
+            <span class="fa fa-pencil sheriff-panel-profile-edit-button"></span>
+          </button>
         </td>
         <td>
           <!-- Delete profile button -->
