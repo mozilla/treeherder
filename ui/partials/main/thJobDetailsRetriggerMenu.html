@@ -1,6 +1,6 @@
 <li>
-  <a ng-click="retriggerJob([selectedJob])">Retrigger job</a>
+  <a ng-click="retriggerJob([selectedJob])" title="Re-run this job on this push">Retrigger job</a>
 </li>
 <li>
-  <a ng-click="backfillJob()">Backfill job</a>
+  <a ng-click="backfillJob()" title="Trigger this job on prior pushes to fill in the gap where jobs were coalesced.">Backfill job</a>
 </li>
