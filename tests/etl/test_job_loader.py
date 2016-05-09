@@ -56,7 +56,7 @@ def test_ingest_pulse_jobs(pulse_jobs, test_project, jm, result_set_stored,
     assert len(logs) == 1
     with ArtifactsModel(test_project) as am:
         artifacts = am.get_job_artifact_list(0, 10)
-        assert len(artifacts) == 4
+        assert len(artifacts) == 3
 
     assert JobDetail.objects.count() == 2
 
