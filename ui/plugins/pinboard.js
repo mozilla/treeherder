@@ -1,9 +1,11 @@
 "use strict";
 
 treeherder.controller('PinboardCtrl', [
-    '$scope', '$rootScope', '$document', '$timeout','thEvents', 'thPinboard', 'thNotify', 'ThLog',
+    '$scope', '$rootScope', '$document', '$timeout','thEvents', 'thPinboard', 'thNotify',
+    'thResultStatus', 'thResultStatusInfo', 'ThLog',
     function PinboardCtrl(
-        $scope, $rootScope, $document, $timeout, thEvents, thPinboard, thNotify, ThLog) {
+        $scope, $rootScope, $document, $timeout, thEvents, thPinboard, thNotify,
+        thResultStatus, thResultStatusInfo, ThLog) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -33,6 +35,8 @@ treeherder.controller('PinboardCtrl', [
 
         $scope.pinJob = function(job) {
             thPinboard.pinJob(job);
+            $scope.jobDisplay = thResultStatusInfo(thResultStatus(job),
+                                                   job.failure_classification_id);
             if (!$scope.selectedJob) {
                 $scope.viewJob(job);
             }
