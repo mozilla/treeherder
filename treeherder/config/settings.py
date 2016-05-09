@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 
 import environ
@@ -319,6 +320,13 @@ REST_FRAMEWORK = {
     ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }
+
+# User agents which will be blocked from making requests to the site.
+DISALLOWED_USER_AGENTS = (
+    re.compile(r'^libcurl/'),
+    re.compile(r'^Python-urllib/'),
+    re.compile(r'^python-requests/'),
+)
 
 SITE_URL = env("SITE_URL", default="http://local.treeherder.mozilla.org")
 APPEND_SLASH = False
