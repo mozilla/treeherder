@@ -22,7 +22,6 @@ from treeherder.model.models import (BuildPlatform,
                                      FailureClassification,
                                      FailureLine,
                                      Job,
-                                     JobDetail,
                                      JobDuration,
                                      JobGroup,
                                      JobType,
@@ -752,10 +751,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             # remove data from specified jobs tables that is older than max_timestamp
             self._execute_table_deletes(jobs_targets, 'jobs', sleep_time)
 
-            # Remove ORM entries for these jobs
+            # Remove FailueLine + intermediate job entries for these jobs
             orm_delete(FailureLine, FailureLine.objects.filter(job_guid__in=job_guid_list),
-                       chunk_size, sleep_time)
-            orm_delete(JobDetail, JobDetail.objects.filter(job__guid__in=job_guid_list),
                        chunk_size, sleep_time)
             orm_delete(Job, Job.objects.filter(guid__in=job_guid_list),
                        chunk_size, sleep_time)
@@ -1275,6 +1272,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         push_timestamps = {}
 
         for index, job in enumerate(job_placeholders):
+
             # Replace reference data with their associated ids
             self._set_data_ids(
                 index,

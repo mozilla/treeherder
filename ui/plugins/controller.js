@@ -5,15 +5,15 @@ treeherder.controller('PluginCtrl', [
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter', 'thDateFormat',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
-    'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors',
-    'thTabs', '$timeout', 'thReftestStatus', 'ThResultSetStore',
+    'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'thTabs',
+    '$timeout', 'thReftestStatus', 'ThResultSetStore',
     'PhSeries', 'thServiceDomain', 'ThFailureLinesModel',
     function PluginCtrl(
         $scope, $rootScope, $location, $http, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
         numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
-        ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs,
+        thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs,
         $timeout, thReftestStatus, ThResultSetStore, PhSeries,
         thServiceDomain, ThFailureLinesModel) {
 
@@ -105,9 +105,9 @@ treeherder.controller('PluginCtrl', [
         var selectJobPromise = null;
         var selectJobRetryPromise = null;
 
-        var selectJob = function(job) {
+        var selectJob = function(job_id) {
             // set the scope variables needed for the job detail panel
-            if (job.id) {
+            if (job_id) {
                 $scope.job_detail_loading = true;
                 if(selectJobPromise !== null){
                     $log.debug("timing out previous job request");
@@ -121,33 +121,34 @@ treeherder.controller('PluginCtrl', [
                 $scope.job = {};
                 $scope.artifacts = {};
                 $scope.job_details = [];
-                var jobPromise = ThJobModel.get(
-                    $scope.repoName, job.id,
+                var jobDetailPromise = ThJobModel.get(
+                    $scope.repoName, job_id,
                     {timeout: selectJobPromise});
 
                 var buildapiArtifactPromise = ThJobArtifactModel.get_list(
-                    {name: "buildapi", "type": "json", job_id: job.id},
+                    {name: "buildapi", "type": "json", job_id: job_id},
                     {timeout: selectJobPromise});
 
-                var jobDetailPromise = ThJobDetailModel.getJobDetails(
-                    job.job_guid, {timeout: selectJobPromise});
+                var jobInfoArtifactPromise = ThJobArtifactModel.get_list({
+                    name: "Job Info", "type": "json", job_id: job_id},
+                    {timeout: selectJobPromise});
 
                 var jobLogUrlPromise = ThJobLogUrlModel.get_list(
-                    job.id,
+                    job_id,
                     {timeout: selectJobPromise});
 
                 var phSeriesPromise = PhSeries.getSeriesData(
-                    $scope.repoName, { job_id: job.id });
+                    $scope.repoName, { job_id: job_id });
 
                 return $q.all([
-                    jobPromise,
-                    buildapiArtifactPromise,
                     jobDetailPromise,
+                    buildapiArtifactPromise,
+                    jobInfoArtifactPromise,
                     jobLogUrlPromise,
                     phSeriesPromise
                 ]).then(function(results){
 
-                    //the first result comes from the job promise
+                    //the first result comes from the job detail promise
                     $scope.job = results[0];
                     if ($scope.job.state === 'running') {
                         $scope.eta = $scope.job.running_time_remaining();
@@ -161,6 +162,7 @@ treeherder.controller('PluginCtrl', [
 
                     // the second result come from the buildapi artifact promise
                     var buildapi_artifact = results[1];
+
                     // if this is a buildbot job use the buildername for searching
                     if (buildapi_artifact.length > 0 &&
                         _.has(buildapi_artifact[0], 'blob')){
@@ -173,14 +175,23 @@ treeherder.controller('PluginCtrl', [
                     $scope.jobSearchSignature = $scope.job.signature;
                     $scope.jobSearchStrHref = getJobSearchStrHref($scope.jobSearchStr);
                     $scope.jobSearchSignatureHref = getJobSearchStrHref($scope.job.signature);
-
-                    // the third result comes from the job detail promise
-                    $scope.job_details = results[2];
-                    // incorporate the buildername into the job details if it is present
-                    if ($scope.artifacts.buildapi) {
-                        $scope.artifacts.buildapi.blob.title = "Buildername";
-                        $scope.artifacts.buildapi.blob.value = $scope.artifacts.buildapi.blob.buildername;
-                        $scope.job_details = $scope.job_details.concat($scope.artifacts.buildapi.blob);
+                    // the third result comes from the job info artifact promise
+                    var jobInfoArtifact = results[2];
+                    if (jobInfoArtifact.length > 0) {
+                        // The job artifacts may have many "Job Info" blobs so
+                        // we merge them here to make displaying them in the UI
+                        // easier.
+                        $scope.job_details = jobInfoArtifact.reduce(function(result, artifact) {
+                            if (artifact.blob && Array.isArray(artifact.blob.job_details)) {
+                                result = result.concat(artifact.blob.job_details);
+                            }
+                            if ($scope.artifacts.buildapi) {
+                                $scope.artifacts.buildapi.blob.title = "Buildername";
+                                $scope.artifacts.buildapi.blob.value = $scope.artifacts.buildapi.blob.buildername;
+                                result = result.concat($scope.artifacts.buildapi.blob);
+                            }
+                            return result;
+                        }, []);
                         $scope.buildernameIndex = _.findIndex($scope.job_details, {title: "Buildername"});
                     }
 
@@ -223,7 +234,7 @@ treeherder.controller('PluginCtrl', [
                             )){
                                 selectJobRetryPromise = $timeout(function(){
                                     // refetch the job data details
-                                    selectJobAndRender(job);
+                                    selectJobAndRender(job_id);
                                 }, 5000);
                             }
                         });
@@ -436,15 +447,15 @@ treeherder.controller('PluginCtrl', [
             }
         };
 
-        var selectJobAndRender = function(job) {
-            $scope.jobLoadedPromise = selectJob(job);
+        var selectJobAndRender = function(job_id) {
+            $scope.jobLoadedPromise = selectJob(job_id);
             $scope.jobLoadedPromise.then(function(){
-                thTabs.showTab(thTabs.selectedTab, job.id);
+                thTabs.showTab(thTabs.selectedTab, job_id);
             });
         };
 
         $rootScope.$on(thEvents.jobClick, function(event, job) {
-            selectJobAndRender(job);
+            selectJobAndRender(job.id);
             $rootScope.selectedJob = job;
         });
 
