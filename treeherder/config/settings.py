@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 from urlparse import urlparse
 
@@ -316,6 +317,15 @@ REST_FRAMEWORK = {
     ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }
+
+# User agents which will be blocked from making requests to the site.
+DISALLOWED_USER_AGENTS = (
+    # Note: This intentionally does not match the command line curl
+    # tool's default User Agent, only the library used by eg PHP.
+    re.compile(r'^libcurl/'),
+    re.compile(r'^Python-urllib/'),
+    re.compile(r'^python-requests/'),
+)
 
 SITE_URL = env("SITE_URL", default="http://local.treeherder.mozilla.org")
 SITE_HOSTNAME = urlparse(SITE_URL).netloc
