@@ -505,9 +505,10 @@ perf.controller('GraphsCtrl', [
         function updateDocument() {
             $state.transitionTo('graphs', {
                 series: $scope.seriesList.map(function(series) {
-                    return "[" + series.projectName + "," +
-                        series.signature + "," + (series.visible ? 1 : 0) +
-                        "]";
+                    return "[" + [series.projectName,
+                                  series.signature,
+                                  (series.visible ? 1 : 0),
+                                  series.frameworkId] + "]";
                 }),
                 timerange: ($scope.myTimerange.value !== phDefaultTimeRangeValue) ?
                     $scope.myTimerange.value : undefined,
@@ -589,8 +590,10 @@ perf.controller('GraphsCtrl', [
             var propsHash = {};
             return $q.all(partialSeriesList.map(function(partialSeries) {
                 return PhSeries.getSeriesList(
-                    partialSeries.project,
-                    { signature: partialSeries.signature }).then(function(seriesList) {
+                    partialSeries.project, {
+                        signature: partialSeries.signature,
+                        framework: partialSeries.frameworkId
+                    }).then(function(seriesList) {
                         if (!seriesList.length) {
                             return $q.reject("Signature `" + partialSeries.signature +
                                              "` not found for " + partialSeries.project);
@@ -728,9 +731,10 @@ perf.controller('GraphsCtrl', [
                     var partialSeriesString = decodeURIComponent(encodedSeries).replace(/[\[\]"]/g, '');
                     var partialSeriesArray = partialSeriesString.split(",");
                     var partialSeriesObject = {
-                        "project":  partialSeriesArray[0],
-                        "signature":  partialSeriesArray[1],
-                        "visible": (partialSeriesArray[2] === 0) ? false : true
+                        project:  partialSeriesArray[0],
+                        signature:  partialSeriesArray[1],
+                        visible: (partialSeriesArray[2] === 0) ? false : true,
+                        frameworkId: partialSeriesArray[3]
                     };
                     return partialSeriesObject;
                 });
@@ -909,7 +913,10 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
     var loadingExtraDataPromise = $q.defer();
     var addRelatedPlatforms = function(originalSeries) {
         PhSeries.getSeriesList(
-            originalSeries.projectName, { interval: $scope.timeRange }).then(function(seriesList) {
+            originalSeries.projectName, {
+                interval: $scope.timeRange,
+                framework: originalSeries.frameworkId
+            }).then(function(seriesList) {
                 $scope.testsToAdd = _.clone(_.filter(seriesList, function(series) {
                     return series.platform !== originalSeries.platform &&
                         series.name === originalSeries.name;
@@ -933,7 +940,8 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
         $q.all(branchList.map(function(project) {
             return PhSeries.getSeriesList(project.name, {
                 interval: $scope.timeRange,
-                signature: originalSeries.signature
+                signature: originalSeries.signature,
+                framework: originalSeries.frameworkId
             });
         })).then(function(seriesList) {
             // we get a list of lists because we are getting the results

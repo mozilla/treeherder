@@ -205,15 +205,18 @@ perf.controller('CompareResultsCtrl', [
                         });
                     }
 
-                    var graphsLink = PhCompare.getGraphsLink(
-                        $scope.originalProject, $scope.newProject, oldSig,
-                        $scope.originalResultSet, $scope.newResultSet);
-                    if (graphsLink) {
-                        cmap.links.push({
-                            title: 'graph',
-                            href: graphsLink
-                        });
-                    }
+                    cmap.links.push({
+                        title: 'graph',
+                        href: PhCompare.getGraphsLink(_.map(_.uniq(
+                            [$scope.originalProject, $scope.newProject]), function(project) {
+                            return {
+                                projectName: project.name,
+                                signature: oldSig,
+                                frameworkId: $scope.filterOptions.framework.id
+                            };
+                        }), [$scope.originalResultSet,
+                             $scope.newResultSet])
+                    });
 
                     cmap.name = platform;
                     if (Object.keys($scope.compareResults).indexOf(testName) < 0)
@@ -447,17 +450,19 @@ perf.controller('CompareSubtestResultsCtrl', [
                 }
 
                 cmap.name = page;
-
-                var graphsLink = PhCompare.getGraphsLink(
-                    $scope.originalProject, $scope.newProject, oldSig,
-                    $scope.originalResultSet, $scope.newResultSet);
-                if (graphsLink) {
-                    cmap.links = [{
-                        title: 'graph',
-                        href: graphsLink
-                    }];
-                }
-
+                cmap.links = [{
+                    title: 'graph',
+                    href: PhCompare.getGraphsLink(_.map(_.uniq(
+                        [$scope.originalProject,
+                         $scope.newProject]), function(project) {
+                        return {
+                            projectName: project.name,
+                            signature: oldSig,
+                            frameworkId: $scope.filterOptions.framework
+                        };
+                    }), [$scope.originalResultSet,
+                         $scope.newResultSet])
+                }];
 
                 $scope.compareResults[testName].push(cmap);
             });
