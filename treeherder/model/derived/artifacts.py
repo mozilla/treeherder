@@ -183,12 +183,18 @@ class ArtifactsModel(TreeherderModelBase):
                         artifact, performance_artifact_list,
                         performance_artifact_job_id_list,
                         job.project_specific_id)
-                elif artifact_name == 'Job Info':
-                    self.store_job_details(job, artifact)
                 else:
                     self._adapt_job_artifact_collection(
                         artifact, job_artifact_list,
                         job.project_specific_id)
+
+                # store job details in master db (still storing the old
+                # job details artifacts in case we need to revert bug
+                # 1270629 -- change that once we've validated that
+                # we don't need to do that)
+                if artifact_name == 'Job Info':
+                    self.store_job_details(job, artifact)
+
             else:
                 logger.error(
                     ('load_job_artifacts: artifact not '

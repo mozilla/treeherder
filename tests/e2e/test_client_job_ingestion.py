@@ -386,8 +386,8 @@ def test_post_job_artifacts_by_add_artifact(
         'url': None
     }
 
-    check_artifacts(test_project, job_guid, 'parsed', 4,
-                    {'Bug suggestions', 'text_log_summary',
+    check_artifacts(test_project, job_guid, 'parsed', 5,
+                    {'Bug suggestions', 'text_log_summary', 'Job Info',
                      'privatebuild', 'buildapi'}, mock_error_summary)
 
     # ensure the parsing didn't happen
