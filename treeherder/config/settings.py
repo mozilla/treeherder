@@ -126,7 +126,6 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     # 3rd party apps
     'rest_framework',
-    'rest_framework_extensions',
     'rest_framework_swagger',
     'hawkrest',
     'corsheaders',
@@ -530,10 +529,6 @@ API_HOSTNAME = SITE_URL
 BROWSERID_AUDIENCES = [SITE_URL]
 
 SWAGGER_SETTINGS = {"enabled_methods": ['get', ]}
-
-REST_FRAMEWORK_EXTENSIONS = {
-    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15
-}
 
 HAWK_CREDENTIALS_LOOKUP = 'treeherder.webapp.api.auth.hawk_lookup'
 
