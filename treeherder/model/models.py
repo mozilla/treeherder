@@ -557,30 +557,6 @@ class Job(models.Model):
                                         self.project_specific_id)
 
 
-class JobDetail(models.Model):
-    '''
-    Represents metadata associated with a job
-
-    There can be (and usually is) more than one of these associated with
-    each job
-    '''
-    id = BigAutoField(primary_key=True)
-    job = FlexibleForeignKey(Job)
-    title = models.CharField(max_length=200, null=True)
-    value = models.CharField(max_length=200)
-    url = models.URLField(null=True)
-
-    class Meta:
-        db_table = "job_detail"
-
-    def __str__(self):
-        return "{0} {1} {2} {3} {4}".format(self.id,
-                                            self.job.guid,
-                                            self.title,
-                                            self.value,
-                                            self.url)
-
-
 class FailureLineManager(models.Manager):
     def unmatched_for_job(self, repository, job_guid):
         return FailureLine.objects.filter(
