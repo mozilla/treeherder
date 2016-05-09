@@ -27,6 +27,20 @@ using pip:
     pip install treeherder-client
 
 
+User Agents
+-----------
+
+When interacting with Treeherder's API, you must set an appropriate
+``User Agent`` header (rather than relying on the defaults of your
+language/library) so that we can more easily track API feature usage,
+as well as accidental abuse. See `bug 1230222`_ for more details.
+
+If you are using the :ref:`python-client`, an appropriate User Agent
+is set for you.
+
+.. _bug 1230222: https://bugzilla.mozilla.org/show_bug.cgi?id=1230222
+
+
 .. _authentication:
 
 Authentication
