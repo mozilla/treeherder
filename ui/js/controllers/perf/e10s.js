@@ -127,10 +127,14 @@ perf.controller('e10sCtrl', [
                                 cmap.name = platform + ' ' + resultsMap['base'][baseSig].option;
                                 cmap.links = [{
                                     title: 'graph',
-                                    href: 'perf.html#/graphs?' + _.map([baseSig, e10sSig],
-                                                                       function(sig) {
-                                                                           return 'series=[' + [ $scope.selectedRepo.name, sig, 1 ] + ']';
-                                                                       }).join('&')
+                                    href: PhCompare.getGraphsLink(
+                                        _.map([baseSig, e10sSig], function(sig) {
+                                            return {
+                                                projectName: $scope.selectedRepo.name,
+                                                signature: sig,
+                                                frameworkId: 1
+                                            };
+                                        }))
                                 }];
                                 if (resultsMap['base'][baseSig].hasSubTests) {
                                     var params = [
@@ -310,11 +314,16 @@ perf.controller('e10sSubtestCtrl', [
                             cmap.name = subtestName;
                             cmap.links = [{
                                 title: 'graph',
-                                href: 'perf.html#/graphs?' + _.map([baseSig, e10sSig],
-                                                                   function(sig) {
-                                                                       return 'series=[' + [ $scope.selectedRepo.name, sig, 1 ];
-                                                                   }).join('&') + ']'
+                                href: PhCompare.getGraphsLink(
+                                        _.map([baseSig, e10sSig], function(sig) {
+                                            return {
+                                                projectName: $scope.selectedRepo.name,
+                                                signature: sig,
+                                                frameworkId: 1
+                                            };
+                                        }))
                             }];
+
                             if (!$scope.compareResults[summaryTestName]) {
                                 $scope.compareResults[summaryTestName] = [cmap];
                             } else {
