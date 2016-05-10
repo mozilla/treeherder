@@ -2,13 +2,13 @@
 
 logViewerApp.controller('LogviewerCtrl', [
     '$anchorScroll', '$http', '$location', '$q', '$rootScope', '$scope',
-    '$timeout', 'ThJobArtifactModel', 'ThLog', 'ThLogSliceModel', 'ThJobModel', 'thNotify',
-    'dateFilter', 'ThResultSetModel', 'thDateFormat', 'thReftestStatus',
+    '$timeout', 'ThJobArtifactModel', 'ThJobDetailModel', 'ThLog', 'ThLogSliceModel',
+    'ThJobModel', 'thNotify', 'dateFilter', 'ThResultSetModel', 'thDateFormat',
+    'thReftestStatus',
     function Logviewer(
         $anchorScroll, $http, $location, $q, $rootScope, $scope,
         $timeout, ThJobArtifactModel, ThLog, ThLogSliceModel, ThJobModel, thNotify,
         dateFilter, ThResultSetModel, thDateFormat, thReftestStatus) {
-
         var $log = new ThLog('LogviewerCtrl');
 
         // changes the size of chunks pulled from server
@@ -250,6 +250,9 @@ logViewerApp.controller('LogviewerCtrl', [
                     $scope.logProperties.push({label: "Revision", value: revision});
                 });
 
+                ThJobDetailModel.getJobDetails(job.job_guid).then(function(jobDetails) {
+                    $scope.job_details = jobDetails;
+                });
             }, function (error) {
                 $scope.loading = false;
                 $scope.jobExists = false;
@@ -257,42 +260,37 @@ logViewerApp.controller('LogviewerCtrl', [
             });
 
             // Make the log and job artifacts available
-            ThJobArtifactModel.get_list({job_id: $scope.job_id, name__in: 'text_log_summary,Job Info'})
+            ThJobArtifactModel.get_list({job_id: $scope.job_id, name: 'text_log_summary'})
             .then(function(artifactList) {
-                artifactList.forEach(function(artifact, $event) {
-                    if (artifact.name === 'text_log_summary') {
-                        $scope.artifact = artifact.blob;
-                        $scope.step_data = artifact.blob.step_data;
+                if (artifactList.length === 0)
+                    return;
+                $scope.artifact = artifactList[0].blob;
+                $scope.step_data = $scope.artifact.step_data;
 
-                        // If the log contains no errors load the head otherwise
-                        // load the first failure step line in the artifact. We
-                        // also need to test for the 0th element for outlier jobs.
-                        if ($scope.step_data.steps[0]) {
+                // If the log contains no errors load the head otherwise
+                // load the first failure step line in the artifact. We
+                // also need to test for the 0th element for outlier jobs.
+                if ($scope.step_data.steps[0]) {
 
-                            if ($scope.step_data.all_errors.length === 0) {
-                                angular.element(document).ready(function () {
-                                    if (isNaN($scope.selectedBegin)) {
-                                        for (var i = 0; i < $scope.step_data.steps.length; i++) {
-                                            var step = $scope.step_data.steps[i];
-                                            if (step.result !== "success") {
-                                                $scope.selectedBegin = step.started_linenumber;
-                                                $scope.selectedEnd = step.finished_linenumber;
-                                                break;
-                                            }
-                                        }
+                    if ($scope.step_data.all_errors.length === 0) {
+                        angular.element(document).ready(function () {
+                            if (isNaN($scope.selectedBegin)) {
+                                for (var i = 0; i < $scope.step_data.steps.length; i++) {
+                                    var step = $scope.step_data.steps[i];
+                                    if (step.result !== "success") {
+                                        $scope.selectedBegin = step.started_linenumber;
+                                        $scope.selectedEnd = step.finished_linenumber;
+                                        break;
                                     }
-                                    moveScrollToLineNumber($scope.selectedBegin, $event);
-                                });
-                            } else {
-                                $scope.setLineNumber($scope.step_data.all_errors[0].linenumber);
-                                moveScrollToLineNumber($scope.selectedBegin, $event);
+                                }
                             }
-                        }
-
-                    } else if (artifact.name === 'Job Info') {
-                        $scope.job_details = artifact.blob.job_details;
+                            moveScrollToLineNumber($scope.selectedBegin, $event);
+                        });
+                    } else {
+                        $scope.setLineNumber($scope.step_data.all_errors[0].linenumber);
+                        moveScrollToLineNumber($scope.selectedBegin, $event);
                     }
-                });
+                }
             });
         };
 
