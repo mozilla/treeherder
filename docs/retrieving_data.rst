@@ -1,10 +1,7 @@
 Retrieving Data
 ===============
 
-Python Client
--------------
-
-The treeherder-client library described in :doc:`submitting_data`
+The treeherder-client library described in :doc:`api`
 also has some convenience methods to query the Treeherder API. It is
 still in active development, but already has methods for getting
 resultset and job information.

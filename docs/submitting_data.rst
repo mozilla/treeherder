@@ -1,20 +1,11 @@
 Submitting Data
 ===============
 
-Python Client Library
----------------------
+Using the Python Client
+-----------------------
 
-We provide a library, called treeherder-client, to support data
-submission to the treeherder service. It is maintained inside the
-treeherder repository, but you can install your own copy from pypi
-using pip:
-
-.. code-block:: bash
-
-    pip install treeherder-client
-
-There are two types of data structures you can submit with this
-library: job and resultset collections. The library provides methods
+There are two types of data structures you can submit with the :ref:`Python client
+<python-client>`: job and resultset collections. The client provides methods
 for building a data structure that treeherder will accept. Data
 structures can be extended with new properties as needed, there is a
 minimal validation protocol applied that confirms the bare minimum
