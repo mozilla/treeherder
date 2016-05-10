@@ -91,15 +91,11 @@ class Builds4hTransformerMixin(object):
             try:
                 prop = build['properties']
                 project = prop['branch']
-                buildername = prop['buildername']
 
                 if common.should_skip_project(project, valid_projects, project_filter):
                     continue
 
                 if common.should_skip_revision(prop['revision'], revision_filter):
-                    continue
-
-                if common.is_blacklisted_buildername(buildername):
                     continue
 
             except KeyError as e:
@@ -124,8 +120,6 @@ class Builds4hTransformerMixin(object):
                 if common.should_skip_project(project, valid_projects, project_filter):
                     continue
                 if common.should_skip_revision(prop['revision'], revision_filter):
-                    continue
-                if common.is_blacklisted_buildername(buildername):
                     continue
                 resultset = common.get_resultset(project,
                                                  revisions_lookup,
@@ -277,15 +271,10 @@ class PendingRunningTransformerMixin(object):
             if common.should_skip_project(project, valid_projects, project_filter):
                 continue
 
-            for rev, jobs in revisions.items():
+            for rev in revisions.iterkeys():
                 if common.should_skip_revision(rev, revision_filter):
                     continue
-                for job in jobs:
-                    if not common.is_blacklisted_buildername(job['buildername']):
-                        # Add the revision to the list to be fetched so long as we
-                        # find at least one valid job associated with it.
-                        revision_dict[project].append(rev)
-                        break
+                revision_dict[project].append(rev)
 
         # retrieving the revision->resultset lookups
         revisions_lookup = common.lookup_revisions(revision_dict)
@@ -316,10 +305,6 @@ class PendingRunningTransformerMixin(object):
                 # using project and revision form the revision lookups
                 # to filter those jobs with unmatched revision
                 for job in jobs:
-                    buildername = job['buildername']
-                    if common.is_blacklisted_buildername(buildername):
-                        continue
-
                     job_ids_seen_now.add(job['id'])
 
                     # Don't process jobs that were already present in this datasource
@@ -333,6 +318,7 @@ class PendingRunningTransformerMixin(object):
                         'project': project,
                     }
 
+                    buildername = job['buildername']
                     platform_info = buildbot.extract_platform_info(buildername)
                     job_name_info = buildbot.extract_name_info(buildername)
 
