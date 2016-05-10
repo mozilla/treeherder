@@ -25,3 +25,28 @@ using pip:
 .. code-block:: bash
 
     pip install treeherder-client
+
+
+.. _authentication:
+
+Authentication
+--------------
+
+A treeherder client instance should identify itself to the server
+via the `Hawk authentication mechanism`_. To apply for credentials or
+create some for local testing, see :ref:`managing-api-credentials`
+below.
+
+Once your credentials are set up, pass them via the `client_id` and
+`secret` parameters to TreeherderClient's constructor:
+
+.. code-block:: python
+
+    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org', client_id='hawk_id', secret='hawk_secret')
+    client.post_collection('mozilla-central', tac)
+
+Note: The system clock on the machines making requests must be correct
+(or more specifically, within 60 seconds of the Treeherder server time),
+otherwise authentication will fail.
+
+.. _Hawk authentication mechanism: https://github.com/hueniverse/hawk

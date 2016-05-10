@@ -11,6 +11,9 @@ structures can be extended with new properties as needed, there is a
 minimal validation protocol applied that confirms the bare minimum
 parts of the structures are defined.
 
+Authentication is covered :ref:`here <authentication>`.
+
+
 Resultset Collections
 ---------------------
 
@@ -44,6 +47,7 @@ following data structure:
             ]
         }
     ]
+
 
 Job Collections
 ---------------
@@ -545,24 +549,3 @@ log name.  You must specify the name in two places for this to work.
         "name": "text_log_summary",
         "job_id": 1774360
     }
-
-Authentication
---------------
-
-A treeherder client instance should identify itself to the server
-via the `Hawk authentication mechanism`_. To apply for credentials or
-create some for local testing, see :ref:`managing-api-credentials`.
-
-Once your credentials are set up, pass them via the `client_id` and
-`secret` parameters to TreeherderClient's constructor:
-
-.. code-block:: python
-
-    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org', client_id='hawk_id', secret='hawk_secret')
-    client.post_collection('mozilla-central', tac)
-
-Note: The system clock on the machines making submissions must be correct
-(or more specifically, within 60 seconds of the Treeherder server time),
-otherwise authentication will fail.
-
-.. _Hawk authentication mechanism: https://github.com/hueniverse/hawk
