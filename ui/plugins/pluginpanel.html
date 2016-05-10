@@ -51,7 +51,8 @@
           </li>
 
           <li ng-repeat="job_log_url in job_log_urls">
-            <a class="raw-log-icon"
+            <a id="raw-log-btn"
+               class="raw-log-icon"
                title="Open the raw log in a new window"
                target="_blank"
                href="{{::job_log_url.url}}"
@@ -70,7 +71,7 @@
             <!--the first 3 items are in the same box-->
             <ul class="nav navbar-nav">
               <li>
-                <a href="" prevent-default-on-left-click
+                <a id="pin-job-btn" href="" prevent-default-on-left-click
                    title="Add this job to the pinboard"
                    ng-click="pinboard_service.pinJob(selectedJob)">
                   <span class="glyphicon glyphicon-pushpin"
