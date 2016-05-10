@@ -66,6 +66,17 @@ class StepParser(ParserBase):
     RE_STEP_MARKER = re.compile(r'={9} (?P<marker_type>Started|Finished) (?P<name>.*?) '
                                 r'\(results: (?P<result_code>\d+), elapsed: .*?\) '
                                 r'\(at (?P<timestamp>.*?)\)')
+
+    # 13:05:28 INFO - ##### Running clobber step.
+    # 13:07:03 INFO - ##### Finished clobber step (success)
+    RE_MOZHARNESS_STEP_MARKER = re.compile(r'(?P<hour>\d{2}):'
+                                           r'(?P<minute>\d{2}):'
+                                           r'(?P<second>\d{2})'
+                                           r'\s+INFO - ##### '
+                                           r'(?P<marker_type>Running|Finished) '
+                                           r'(?P<name>.*) step'
+                                           r'(?:\.|(?:\((?P<status>success|failure)\)))?')
+
     STATES = {
         # The initial state until we record the first step.
         "awaiting_first_step": 0,
@@ -146,8 +157,9 @@ class StepParser(ParserBase):
             return
 
         step_marker_match = self.RE_STEP_MARKER.match(line)
+        mh_step_marker_match = self.RE_MOZHARNESS_STEP_MARKER.search(line)
 
-        if not step_marker_match:
+        if not step_marker_match and not mh_step_marker_match:
             # This is a normal log line, rather than a step marker. (The common case.)
             if self.state != self.STATES['step_in_progress']:
                 # We don't have an in-progress step, so need to start one, even though this
@@ -162,33 +174,57 @@ class StepParser(ParserBase):
         # This is either a "step started" or "step finished" marker line, eg:
         # ========= Started foo (results: 0, elapsed: 0 secs) (at 2015-08-17 02:33:56.353866) =========
         # ========= Finished foo (results: 0, elapsed: 0 secs) (at 2015-08-17 02:33:56.354301) =========
+        if step_marker_match:
+            if step_marker_match.group('marker_type') == 'Started':
+                if self.state == self.STATES['step_in_progress']:
+                    # We're partway through a step (ie: haven't seen a "step finished" marker line),
+                    # but have now reached the "step started" marker for the next step. Before we
+                    # can start the new step, we have to clean up the previous one - albeit using
+                    # generic step metadata, since there was no "step finished" marker. This occurs
+                    # in Taskcluster's logs when content falls between the step marker lines.
+                    self.end_step(lineno)
+                # Start a new step using the extracted step metadata.
+                dt = self._parse_full_timestamp(step_marker_match.group('timestamp'))
+                self.start_step(lineno,
+                                name=step_marker_match.group('name'),
+                                when=dt)
+                return
 
-        if step_marker_match.group('marker_type') == 'Started':
-            if self.state == self.STATES['step_in_progress']:
-                # We're partway through a step (ie: haven't seen a "step finished" marker line),
-                # but have now reached the "step started" marker for the next step. Before we
-                # can start the new step, we have to clean up the previous one - albeit using
-                # generic step metadata, since there was no "step finished" marker. This occurs
-                # in Taskcluster's logs when content falls between the step marker lines.
-                self.end_step(lineno)
-            # Start a new step using the extracted step metadata.
+            if self.state != self.STATES['step_in_progress']:
+                # We're not in the middle of a step, so can't finish one. Just ignore the marker line.
+                return
+
+            # Close out the current step using the extracted step metadata.
             dt = self._parse_full_timestamp(step_marker_match.group('timestamp'))
-            self.start_step(lineno,
-                            name=step_marker_match.group('name'),
-                            when=dt)
-            return
+            self.end_step(lineno,
+                          when=dt,
+                          result_code=int(step_marker_match.group('result_code')))
 
-        # This is a "step finished" marker line.
+        # Or a Mozharness variation, eg:
+        # 13:05:28 INFO - ##### Running clobber step.
+        # 13:07:03 INFO - ##### Finished clobber step (success)
+        else:
+            # Must be a mozharness step marker.
+            if mh_step_marker_match.group('marker_type') == 'Running':
+                if self.state == self.STATES['step_in_progress']:
+                    self.end_step(lineno)
 
-        if self.state != self.STATES['step_in_progress']:
-            # We're not in the middle of a step, so can't finish one. Just ignore the marker line.
-            return
+                dt = self._mozharness_time_to_datetime(mh_step_marker_match)
+                self.start_step(lineno,
+                                name=mh_step_marker_match.group('name'),
+                                when=dt)
+                return
 
-        # Close out the current step using the extracted step metadata.
-        dt = self._parse_full_timestamp(step_marker_match.group('timestamp'))
-        self.end_step(lineno,
-                      when=dt,
-                      result_code=int(step_marker_match.group('result_code')))
+            if self.state != self.STATES['step_in_progress']:
+                return
+
+            if mh_step_marker_match.group('status') == 'success':
+                result_code = 0
+            else:
+                result_code = 1
+
+            dt = self._mozharness_time_to_datetime(mh_step_marker_match)
+            self.end_step(lineno, result_code=result_code, when=dt)
 
     def start_step(self, lineno, name="Unnamed step", when=None):
         """Create a new step and update the state to reflect we're now in the middle of a step."""
@@ -266,6 +302,38 @@ class StepParser(ParserBase):
             td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6
         ) / 10.0**6
         return int(round(secs))
+
+    def _mozharness_time_to_datetime(self, m):
+        """Take a match from a mozharness step and convert to a datetime."""
+
+        # The time component is in the log. The date component
+        # isn't. Try to grab it from the previous step.
+        try:
+            start, finish = self._step_times[-1]
+        except IndexError:
+            # We don't know what the date is. Abort.
+            return None
+
+        # Use the latest available date.
+        if finish:
+            dt = finish
+        elif start:
+            dt = start
+        else:
+            return None
+
+        try:
+            t = datetime.time(int(m.group('hour')),
+                              int(m.group('minute')),
+                              int(m.group('second')))
+
+            # If we wrapped to the next day, add a day to the date component.
+            if t < dt.time():
+                dt = dt + datetime.timedelta(days=1)
+
+            return datetime.datetime.combine(dt.date(), t)
+        except ValueError:
+            return None
 
     @property
     def steps(self):
