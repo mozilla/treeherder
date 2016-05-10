@@ -47,5 +47,12 @@
         "fields": {
             "name": "talos-aws"
         }
+    },
+    {
+        "pk": 8,
+        "model": "perf.PerformanceFramework",
+        "fields": {
+            "name": "servo-perf"
+        }
     }
 ]
