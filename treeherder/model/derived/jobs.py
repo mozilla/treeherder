@@ -1483,7 +1483,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                       'last_timestamp': machine_timestamp})
         if machine.last_timestamp < machine_timestamp:
             machine.last_timestamp = machine_timestamp
-            machine.save()
+            machine.save(update_fields=['last_timestamp'])
 
         # if a job with this symbol and name exists, always
         # use its default group (even if that group is different
@@ -1498,7 +1498,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 name=job.get('group_name') or 'unknown',
                 symbol=job.get('group_symbol') or 'unknown')
             job_type.job_group = job_group
-            job_type.save()
+            job_type.save(update_fields=['job_group'])
 
         product_name = job.get('product_name', 'unknown')
         if len(product_name.strip()) == 0:
