@@ -14,6 +14,7 @@ from treeherder.model.models import (BuildPlatform,
                                      FailureClassification,
                                      FailureLine,
                                      Job,
+                                     JobDetail,
                                      JobDuration,
                                      JobGroup,
                                      JobType,
@@ -368,6 +369,7 @@ def test_cycle_all_data(jm, sample_data,
     assert len(jobs_after) == 0
     assert FailureLine.objects.count() == 0
     assert Job.objects.count() == 0
+    assert JobDetail.objects.count() == 0
 
 
 def test_cycle_one_job(jm, sample_data,
@@ -383,10 +385,17 @@ def test_cycle_one_job(jm, sample_data,
 
     job_not_deleted = jm.get_job(2)[0]
 
-    failure_lines_remaining = create_failure_lines(test_repository,
-                                                   job_not_deleted["job_guid"],
-                                                   [(test_line, {}),
-                                                    (test_line, {"subtest": "subtest2"})])
+    extra_objects = {
+        'failure_lines': (FailureLine,
+                          create_failure_lines(test_repository,
+                                               job_not_deleted["job_guid"],
+                                               [(test_line, {}),
+                                                (test_line, {"subtest": "subtest2"})])),
+        'job_details': (JobDetail, [JobDetail.objects.create(
+            job=Job.objects.get(guid=job_not_deleted["job_guid"]),
+            title='test',
+            value='testvalue')])
+    }
 
     time_now = time.time()
     cycle_date_ts = int(time_now - 7 * 24 * 3600)
@@ -424,8 +433,9 @@ def test_cycle_one_job(jm, sample_data,
     assert len(jobs_after) == len(jobs_before) - len(jobs_to_be_deleted)
     assert len(jobs_after) == Job.objects.count()
 
-    assert (set(item.id for item in FailureLine.objects.all()) ==
-            set(item.id for item in failure_lines_remaining))
+    for (object_type, objects) in extra_objects.values():
+        assert (set(item.id for item in object_type.objects.all()) ==
+                set(item.id for item in objects))
 
 
 def test_cycle_all_data_in_chunks(jm, sample_data,
@@ -467,6 +477,7 @@ def test_cycle_all_data_in_chunks(jm, sample_data,
     assert len(jobs_after) == 0
     assert Job.objects.count() == 0
     assert FailureLine.objects.count() == 0
+    assert JobDetail.objects.count() == 0
 
 
 def test_cycle_task_set_meta(jm):

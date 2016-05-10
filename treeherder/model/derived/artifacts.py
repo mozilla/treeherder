@@ -8,6 +8,7 @@ from django.forms import model_to_dict
 from treeherder.etl.perf import load_perf_artifacts
 from treeherder.model import utils
 from treeherder.model.models import (Job,
+                                     JobDetail,
                                      ReferenceDataSignatures)
 
 from .base import TreeherderModelBase
@@ -91,6 +92,31 @@ class ArtifactsModel(TreeherderModelBase):
             placeholders=artifact_placeholders,
             executemany=True)
 
+    def store_job_details(self, job, job_info_artifact):
+        """
+        Store the contents of the job info artifact
+        in job details
+        """
+        job_details = json.loads(job_info_artifact['blob'])['job_details']
+        for job_detail in job_details:
+            job_detail_dict = {
+                'title': job_detail.get('title'),
+                'value': job_detail['value'],
+                'url': job_detail.get('url')
+            }
+            max_field_length = JobDetail.MAX_FIELD_LENGTH
+            for (k, v) in job_detail_dict.iteritems():
+                if v is not None and len(v) > max_field_length:
+                    logger.warning("Job detail '{}' for job_guid {} too long, "
+                                   "truncating".format(
+                                       v[:max_field_length],
+                                       job.guid))
+                    job_detail_dict[k] = v[:max_field_length]
+
+            JobDetail.objects.get_or_create(
+                job=job,
+                **job_detail_dict)
+
     def store_performance_artifact(
             self, job_ids, performance_artifact_placeholders):
         """
@@ -173,6 +199,14 @@ class ArtifactsModel(TreeherderModelBase):
                     self._adapt_job_artifact_collection(
                         artifact, job_artifact_list,
                         job.project_specific_id)
+
+                # store job details in master db (still storing the old
+                # job details artifacts in case we need to revert bug
+                # 1270629 -- change that once we've validated that
+                # we don't need to do that)
+                if artifact_name == 'Job Info':
+                    self.store_job_details(job, artifact)
+
             else:
                 logger.error(
                     ('load_job_artifacts: artifact not '

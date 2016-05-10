@@ -167,3 +167,14 @@ class TextLogSummarySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.TextLogSummary
+
+
+class JobDetailSerializer(serializers.ModelSerializer):
+
+    job_guid = serializers.SlugRelatedField(
+        slug_field="guid", source="job",
+        queryset=models.Job.objects.all())
+
+    class Meta:
+        model = models.JobDetail
+        fields = ['job_guid', 'title', 'value', 'url']
