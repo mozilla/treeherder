@@ -17,6 +17,7 @@ Contents:
    deployment
    list_of_services
    common_tasks
+   rest_api
    submitting_data
    retrieving_data
    data_validation
