@@ -17,9 +17,6 @@ django-extensions==1.6.6 --hash=sha256:21d648e8cd1e49b57ad8fa7406def2f826af2bd31
 # Required by django-extension's runserver_plus command.
 Werkzeug==0.11.9 --hash=sha256:cc4b84a685bfa01163a0bb30738d0dfcffa6af411dd489aed90f37a61bc4af26
 
-#for celery auto-reloading
-pyinotify==0.9.6 --hash=sha256:9c998a5d7606ca835065cdabc013ae6c66eb9ea76a00a1e3bc6e0cfe2b4f71f4
-
 flake8==2.5.4 --hash=sha256:fb5a67af4024622287a76abf6b7fe4fb3cfacf765a790976ce64f52c44c88e4a
 
 isort==4.2.2 --hash=sha256:3ad243ad738b2f9a58005ac44b13a3c297b0201327edaec32c245b5bc66d27ee
