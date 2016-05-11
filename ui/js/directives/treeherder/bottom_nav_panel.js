@@ -16,7 +16,7 @@ treeherder.directive('thPinnedJob', [
             link: function(scope, element, attrs) {
                 var unbindWatcher = scope.$watch("job", function(newValue) {
                     var resultState = thResultStatus(scope.job);
-                    scope.job.display = thResultStatusInfo(resultState);
+                    scope.job.display = thResultStatusInfo(resultState, scope.job.failure_classification_id);
                     scope.hoverText = getHoverText(scope.job);
 
                     if (scope.job.state === "completed") {
