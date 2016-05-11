@@ -391,8 +391,8 @@ def test_matcher(request):
 
 @pytest.fixture
 def classified_failures(request, jm, eleven_jobs_stored, failure_lines,
-                        failure_classifications, test_matcher):
-    from treeherder.model.models import ClassifiedFailure, FailureMatch
+                        test_matcher, failure_classifications):
+    from treeherder.model.models import ClassifiedFailure
 
     job_1 = jm.get_job(1)[0]
 
@@ -402,14 +402,9 @@ def classified_failures(request, jm, eleven_jobs_stored, failure_lines,
         if failure_line.job_guid == job_1["job_guid"]:
             classified_failure = ClassifiedFailure()
             classified_failure.save()
-            match = FailureMatch(failure_line=failure_line,
-                                 classified_failure=classified_failure,
-                                 matcher=test_matcher.db_object,
-                                 score=1.0)
-            match.save()
+            failure_line.set_classification(test_matcher.db_object, classified_failure,
+                                            mark_best=True)
             classified_failures.append(classified_failure)
-            failure_line.best_classification = classified_failure
-            failure_line.save()
 
     return classified_failures
 
