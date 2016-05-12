@@ -390,24 +390,35 @@ treeherder.controller('PluginCtrl', [
         };
 
         $scope.backfillJob = function() {
-            if ($scope.user.loggedin) {
-                // Only backfill if we have a valid loaded job, if the user
-                // tries to backfill eg. via shortcut before the load we warn them
-                if ($scope.job.id) {
-                    ThJobModel.backfill($scope.repoName, $scope.job.id).then(function() {
-                        thNotify.send("Request sent to backfill jobs", 'success');
-                    }, function(e) {
-                        // Generic error eg. the user doesn't have LDAP access
-                        thNotify.send(
-                            ThModelErrors.format(e, "Unable to send backfill"), 'danger');
-                    });
+            if ($scope.canBackfill()) {
+                if ($scope.user.loggedin) {
+                    // Only backfill if we have a valid loaded job, if the user
+                    // tries to backfill eg. via shortcut before the load we warn them
+                    if ($scope.job.id) {
+                        ThJobModel.backfill($scope.repoName, $scope.job.id).then(function() {
+                            thNotify.send("Request sent to backfill jobs", 'success');
+                        }, function(e) {
+                            // Generic error eg. the user doesn't have LDAP access
+                            thNotify.send(
+                                ThModelErrors.format(e, "Unable to send backfill"), 'danger');
+                        });
+                    } else {
+                        thNotify.send("Job not yet loaded for backfill", 'warning');
+                    }
                 } else {
-                    thNotify.send("Job not yet loaded for backfill", 'warning');
+                    thNotify.send("Must be logged in to backfill a job", 'danger');
                 }
-            } else {
-                thNotify.send("Must be logged in to backfill a job", 'danger');
             }
         };
+
+        // Can we backfill? At the moment, this only ensures we're not in a 'try' repo.
+        $scope.canBackfill = function() {
+            return $scope.currentRepo && $scope.currentRepo.repository_group.name !== 'try';
+        };
+
+        $scope.backfillEnabledString = "Trigger jobs of this type on prior pushes, " +
+                                       "to fill in gaps where the job was not run";
+        $scope.backfillDisabledString = "Backfilling not available in this repository";
 
         $scope.cancelJob = function() {
             if ($scope.user.loggedin) {
