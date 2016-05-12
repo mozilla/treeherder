@@ -1,5 +1,9 @@
 import datetime
+import json
 
+import requests
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -16,6 +20,21 @@ class RunnableJobsViewSet(viewsets.ViewSet):
         """
         GET method implementation for list of all runnable buildbot jobs
         """
+        tc_jobs_url = request.query_params['tcURL']
+        tc_graph = None
+        validate = URLValidator()
+        try:
+            validate(tc_jobs_url)
+            resp = requests.get(url=tc_jobs_url)
+            tc_graph = json.loads(resp.text)
+        except ValidationError:
+            pass
+        except Exception as ex:
+            return Response("Exception: {0}".format(ex), 500)
+
+        # so I got the graph in tc_graph successfully. How do I parse it in
+        # the given format?
+
         repository = models.Repository.objects.get(name=project)
 
         options_by_hash = models.OptionCollection.objects.all().select_related(
@@ -28,6 +47,8 @@ class RunnableJobsViewSet(viewsets.ViewSet):
                          'job_type', 'job_type__job_group')
 
         ret = []
+
+        # Adding buildbot jobs
         for datum in runnable_jobs:
             options = ' '.join(option_name for (option_name, col_hash) in options_by_hash
                                if col_hash == datum.option_collection_hash)
@@ -57,6 +78,70 @@ class RunnableJobsViewSet(viewsets.ViewSet):
                 'state': 'runnable',
                 'result': 'runnable'})
 
+        for node in tc_graph['tasks']:
+            build_platform = node['task']['extra']['treeherder']['build']['platform']
+            try:
+                build_platform_data = models.BuildPlatform.objects.get(platform=build_platform)
+                build_platform_id = build_platform_data.id
+                build_os = build_platform_data.os_name
+                build_architecture = build_platform_data.architecture
+            except models.BuildPlatform.DoesNotExist:
+                build_platform_id = ""
+                build_os = ""
+                build_architecture = ""
+
+            machine_platform = node['task']['extra']['treeherder']['machine']['platform']
+            try:
+                machine_platform_data = models.MachinePlatform.objects.get(platform=machine_platform)
+                machine_platform_id = machine_platform_data.id
+                machine_platform_os = machine_platform_data.os_name
+                machine_platform_architecture = machine_platform_data.architecture
+            except models.MachinePlatform.DoesNotExist:
+                machine_platform_id = ""
+                machine_platform_os = ""
+                machine_platform_architecture = ""
+
+            job_type_name = node['task']['metadata']['name']
+            try:
+                job_type_data = models.JobType.objects.get(name=job_type_name)
+                job_type_id = job_type_data.id
+            except models.JobType.DoesNotExist:
+                job_type_id = ""
+
+            if 'groupName' in node['task']['extra']['treeherder']:
+                job_group_name = node['task']['extra']['treeherder']['groupName']
+            else:
+                job_group_name = ""
+            try:
+                job_group_data = models.JobGroup.objects.get(name=job_group_name)
+                job_group_id = job_group_data.id
+            except models.JobGroup.DoesNotExist:
+                job_group_id = None
+
+            ret.append({
+                'build_platform_id': build_platform_id,
+                'build_platform': build_platform,
+                'build_os': build_os,
+                'build_architecture': build_architecture,
+                'machine_platform_id': machine_platform_id,
+                'platform': build_platform,
+                'machine_platform_os': machine_platform_os,
+                'machine_platform_architecture': machine_platform_architecture,
+                'job_group_id': job_group_id,
+                'job_group_name': job_group_name,
+                'job_group_symbol': node['task']['extra']['treeherder']['groupSymbol'],
+                'job_group_description': "",
+                'job_type_id': job_type_id,
+                'job_type_name': job_type_name,
+                'job_type_symbol': node['task']['extra']['treeherder']['symbol'],
+                'job_type_description': node['task']['metadata']['description'],
+                'option_collection_hash': node['task']['extra']['treeherder']['revision_hash'],
+                'ref_data_name': node['task']['extra']['treeherder']['revision'],
+                'build_system_type': 'taskcluster',
+                'platform_option': node['task']['extra']['treeherder']['collection'].keys()[0],
+                'job_coalesced_to_guid': None,
+                'state': 'runnable',
+                'result': 'runnable'})
         response_body = dict(meta={"repository": project,
                                    "offset": 0,
                                    "count": len(ret)},
