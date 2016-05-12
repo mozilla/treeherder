@@ -887,7 +887,6 @@ treeherder.directive('thCloneJobs', [
                         $rootScope.repoName, scope.resultset.id, scope.resultset.revision
                     );
                     rs.isRunnableVisible = true;
-
                     ThResultSetStore.addRunnableJobs($rootScope.repoName, rs);
                 }
             });
