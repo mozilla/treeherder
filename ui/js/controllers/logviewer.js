@@ -7,8 +7,9 @@ logViewerApp.controller('LogviewerCtrl', [
     'thReftestStatus',
     function Logviewer(
         $anchorScroll, $http, $location, $q, $rootScope, $scope,
-        $timeout, ThJobArtifactModel, ThLog, ThLogSliceModel, ThJobModel, thNotify,
-        dateFilter, ThResultSetModel, thDateFormat, thReftestStatus) {
+        $timeout, ThJobArtifactModel, ThJobDetailModel, ThLog, ThLogSliceModel,
+        ThJobModel, thNotify, dateFilter, ThResultSetModel, thDateFormat,
+        thReftestStatus) {
         var $log = new ThLog('LogviewerCtrl');
 
         // changes the size of chunks pulled from server
