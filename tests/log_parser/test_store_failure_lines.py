@@ -1,7 +1,7 @@
 import responses
 from django.conf import settings
-from django.core.management import call_command
 
+from treeherder.log_parser.failureline import store_failure_lines
 from treeherder.model.models import FailureLine
 
 from ..sampledata import SampleData
@@ -19,7 +19,8 @@ def test_store_error_summary(activate_responses, test_repository, jm, eleven_job
 
     jm._insert_log_urls([[job["id"], "errorsummary_json", log_url, "pending"]])
 
-    call_command('store_failure_lines', jm.project, job['job_guid'], log_url)
+    log_obj = jm.get_job_log_url_list([1])[-1]
+    store_failure_lines(jm.project, job['job_guid'], log_obj)
 
     assert FailureLine.objects.count() == 1
 
@@ -45,7 +46,8 @@ def test_store_error_summary_truncated(activate_responses, test_repository, jm,
 
     jm._insert_log_urls([[job["id"], "errorsummary_json", log_url, "pending"]])
 
-    call_command('store_failure_lines', jm.project, job['job_guid'], log_url)
+    log_obj = jm.get_job_log_url_list([1])[-1]
+    store_failure_lines(jm.project, job['job_guid'], log_obj)
 
     assert FailureLine.objects.count() == 5 + 1
 

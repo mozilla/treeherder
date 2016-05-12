@@ -1,4 +1,3 @@
-import json
 import logging
 
 from celery import task
@@ -12,6 +11,8 @@ from treeherder.log_parser.utils import (expand_log_url,
                                          post_log_artifacts)
 from treeherder.workers.taskset import (create_taskset,
                                         taskset)
+
+from . import failureline
 
 logger = logging.getLogger(__name__)
 
@@ -108,7 +109,7 @@ def store_failure_lines(project, job_guid, job_log_url, priority):
     """This task is a wrapper for the store_failure_lines command."""
     try:
         logger.debug('Running store_failure_lines for job %s' % job_guid)
-        call_command('store_failure_lines', project, job_guid, json.dumps(job_log_url))
+        failureline.store_failure_lines(project, job_guid, job_log_url)
         if settings.AUTOCLASSIFY_JOBS:
             autoclassify.apply_async(args=[project, job_guid],
                                      routing_key="autoclassify.%s" % priority)
