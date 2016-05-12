@@ -2,6 +2,6 @@
   <a ng-click="retriggerJob([selectedJob])" title="Repeat the selected job">Retrigger job</a>
 </li>
 <li ng-class="canBackfill() ? '' : 'disabled'"
-    ng-attr-title="{{canBackfill() ? 'Trigger jobs of this type on prior pushes, to fill in gaps where the job was not run' : 'Backfilling not available in this repository'}}">
+    ng-attr-title="{{canBackfill() ? backfillEnabledString : backfillDisabledString}}">
   <a ng-disabled="!canBackfill()" ng-click="backfillJob()">Backfill job</a>
 </li>

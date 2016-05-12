@@ -416,6 +416,10 @@ treeherder.controller('PluginCtrl', [
             return $scope.currentRepo && $scope.currentRepo.repository_group.name !== 'try';
         };
 
+        $scope.backfillEnabledString = "Trigger jobs of this type on prior pushes, " +
+                                       "to fill in gaps where the job was not run";
+        $scope.backfillDisabledString = "Backfilling not available in this repository";
+
         $scope.cancelJob = function() {
             if ($scope.user.loggedin) {
                 // See note in retrigger logic.
