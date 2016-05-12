@@ -1,5 +1,9 @@
 import datetime
+import json
 
+import requests
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -16,6 +20,21 @@ class RunnableJobsViewSet(viewsets.ViewSet):
         """
         GET method implementation for list of all runnable buildbot jobs
         """
+        tc_jobs_url = request.query_params['tcURL']
+        tc_graph = None
+        validate = URLValidator()
+        try:
+            validate(tc_jobs_url)
+            resp = requests.get(url=tc_jobs_url)
+            tc_graph = json.loads(resp.text)
+        except ValidationError:
+            pass
+        except Exception as ex:
+            return Response("Exception: {0}".format(ex), 500)
+
+        # so I got the graph in tc_graph successfully. How do I parse it in
+        # the given format?
+
         repository = models.Repository.objects.get(name=project)
 
         options_by_hash = models.OptionCollection.objects.all().select_related(
@@ -28,6 +47,8 @@ class RunnableJobsViewSet(viewsets.ViewSet):
                          'job_type', 'job_type__job_group')
 
         ret = []
+
+        # Adding buildbot jobs
         for datum in runnable_jobs:
             options = ' '.join(option_name for (option_name, col_hash) in options_by_hash
                                if col_hash == datum.option_collection_hash)
@@ -57,6 +78,31 @@ class RunnableJobsViewSet(viewsets.ViewSet):
                 'state': 'runnable',
                 'result': 'runnable'})
 
+        for node in tc_graph['tasks']:
+            ret.append({
+                'build_platform_id': datum.build_platform.id,
+                'build_platform': datum.build_platform.platform,
+                'build_os': datum.build_platform.os_name,
+                'build_architecture': datum.build_platform.architecture,
+                'machine_platform_id': datum.machine_platform.id,
+                'platform': node['task']['treeherder']['build']['platform'],
+                'machine_platform_os': datum.machine_platform.os_name,
+                'machine_platform_architecture': datum.machine_platform.architecture,
+                'job_group_id': datum.job_type.job_group.id,
+                'job_group_name': datum.job_type.job_group.name,
+                'job_group_symbol': datum.job_type.job_group.symbol,
+                'job_group_description': datum.job_type.job_group.description,
+                'job_type_id': datum.job_type.id,
+                'job_type_name': datum.job_type.name,
+                'job_type_symbol': datum.job_type.symbol,
+                'job_type_description': datum.job_type.description,
+                'option_collection_hash': datum.option_collection_hash,
+                'ref_data_name': datum.ref_data_name,
+                'build_system_type': 'taskcluster',
+                'platform_option': options,
+                'job_coalesced_to_guid': None,
+                'state': 'runnable',
+                'result': 'runnable'})
         response_body = dict(meta={"repository": project,
                                    "offset": 0,
                                    "count": len(ret)},
