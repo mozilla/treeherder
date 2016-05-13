@@ -79,24 +79,6 @@ perf.factory('PhBugs', [
                                 }
                                 return suiteName + tryTalosModifiers;
                             }));
-                            // they have 3 days from today to respond (if backout day
-                            // would be a Saturday or Sunday, delay until the following
-                            // Monday)
-                            var backoutDate = new Date(Date.now() + 3*86400*1000);
-                            if (backoutDate.getDay() === 6) {
-                                backoutDate.setDate(backoutDate.getDate() + 2);
-                            } else if (backoutDate.getDay() === 0) {
-                                backoutDate.setDate(backoutDate.getDate() + 1);
-                            }
-                            var dayMapping = {
-                                0: 'Sunday', // not used
-                                1: 'Monday',
-                                2: 'Tuesday',
-                                3: 'Wednesday',
-                                4: 'Thursday',
-                                5: 'Friday',
-                                6: 'Saturday' // not used
-                            };
                             var compiled = $interpolate(template)({
                                 revision: alertSummary.resultSetMetadata.revision,
                                 alertHref: window.location.origin + '/perf.html#/alerts?id=' +
@@ -104,8 +86,7 @@ perf.factory('PhBugs', [
                                 testDescriptions: testDescriptions.join('\n'),
                                 tryBuildPlatforms: tryBuildPlatforms.join(','),
                                 trySuites: trySuites.join(','),
-                                talosTestListSyntax: talosSuites.join(":"),
-                                backoutDay: dayMapping[backoutDate.getDay()]
+                                talosTestListSyntax: talosSuites.join(":")
                             });
                             var pushDate = dateFilter(
                                 alertSummary.resultSetMetadata.push_timestamp*1000,
