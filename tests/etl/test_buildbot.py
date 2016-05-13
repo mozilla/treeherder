@@ -1606,6 +1606,16 @@ buildernames = [
       'platform': {'arch': 'x86_64',
                    'os': 'win',
                    'os_platform': 'windows8-64'}}),
+    ('Rev7 MacOSX Yosemite 10.10.5 try debug test mochitest-gpu-e10s',
+     {'build_type': 'debug',
+      'job_type': 'unittest',
+      'name': {'group_name': 'Mochitest e10s',
+               'group_symbol': 'M-e10s',
+               'name': 'Mochitest e10s GPU',
+               'job_symbol': 'gpu'},
+      'platform': {'arch': 'x86_64',
+                   'os': 'mac',
+                   'os_platform': 'osx-10-10'}}),
 ]
 
 
