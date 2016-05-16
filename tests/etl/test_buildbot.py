@@ -1616,6 +1616,16 @@ buildernames = [
       'platform': {'arch': 'x86_64',
                    'os': 'mac',
                    'os_platform': 'osx-10-10'}}),
+    ('Rev7 MacOSX Yosemite 10.10.5 try debug test mochitest-clipboard',
+     {'build_type': 'debug',
+      'job_type': 'unittest',
+      'name': {'group_name': 'Mochitest',
+               'group_symbol': 'M',
+               'name': 'Mochitest Clipboard',
+               'job_symbol': 'cl'},
+      'platform': {'arch': 'x86_64',
+                   'os': 'mac',
+                   'os_platform': 'osx-10-10'}}),
 ]
 
 
