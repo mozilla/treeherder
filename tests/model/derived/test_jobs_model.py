@@ -381,7 +381,7 @@ def test_cycle_all_data(jm, sample_data,
 
     # There should be nothing in elastic search after cycling
     for item in TestFailureLine.search().execute():
-        print item.id
+        print item.meta.id
     assert TestFailureLine.search().params(search_type="count").execute().hits.total == 0
 
 
