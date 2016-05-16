@@ -13,11 +13,6 @@
             "sql":"DELETE FROM job_artifact WHERE job_id IN (REP0)",
             "host_type": "master_host"
         },
-        "cycle_job_log_url":{
-
-            "sql":"DELETE FROM job_log_url WHERE job_id IN (REP0)",
-            "host_type": "master_host"
-        },
         "cycle_job_note":{
 
             "sql":"DELETE FROM job_note WHERE job_id IN (REP0)",
@@ -113,18 +108,6 @@
                     FROM `revision_map`
                     WHERE `revision_id` = ? AND `result_set_id` = ?
                 )",
-
-            "host_type":"master_host"
-        },
-        "set_job_log_url":{
-
-            "sql":"INSERT INTO `job_log_url` (
-                `job_id`,
-                `name`,
-                `url`,
-                `parse_status`
-                )
-            VALUES (?,?,?,?)",
 
             "host_type":"master_host"
         },
@@ -250,14 +233,6 @@
                         )
                     WHERE j.id = ?",
 
-            "host_type":"master_host"
-        },
-        "update_job_log_url":{
-
-            "sql":"UPDATE `job_log_url`
-                SET    `parse_status` = ?
-                WHERE  `id` = ?
-                AND `active_status` = 'active'",
             "host_type":"master_host"
         },
         "update_result_set":{
@@ -500,31 +475,6 @@
 
             "host_type":"read_host"
         },
-        "get_log_references":{
-            "sql":"SELECT `name`, `url`
-                   FROM `job_log_url`
-                   WHERE job_id = ?",
-
-            "host_type":"read_host"
-        },
-        "get_job_log_url_detail":{
-            "sql": "SELECT `id`, `job_id`, `name`, `url`, `parse_status`
-                    FROM job_log_url
-                    WHERE id = ? and active_status = 'active'",
-            "host_type":"read_host"
-        },
-        "get_job_log_url_list":{
-            "sql": "SELECT `id`, `job_id`, `name`, `url`, `parse_status`
-                    FROM job_log_url
-                    WHERE job_id in (REP0) and active_status='active'",
-            "host_type": "master_host"
-        },
-        "get_job_log_url_by_url":{
-            "sql": "SELECT `id`, `job_id`, `name`, `url`, `parse_status`
-                    FROM job_log_url
-                    WHERE job_id = ? AND url = ? AND active_status = 'active'",
-            "host_type":"read_host"
-        },
         "get_job_artifact":{
             "sql":"SELECT
                       id,
@@ -672,12 +622,6 @@
                    ORDER BY r.id DESC",
 
             "host_type": "read_host"
-        },
-        "get_all_log_urls":{
-
-            "sql":"SELECT `url` FROM `job_log_url`",
-
-            "host_type":"read_host"
         },
         "get_all_artifacts":{
 
