@@ -364,6 +364,9 @@ def test_cycle_all_data(jm, sample_data,
     refresh_all()
     assert TestFailureLine.search().params(search_type="count").execute().hits.total > 0
     call_command('cycle_data', sleep_time=0, days=1)
+
+    time.sleep(1)
+
     refresh_all()
 
     jobs_after = jm.execute(proc="jobs_test.selects.jobs")
