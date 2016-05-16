@@ -485,8 +485,18 @@ perf.controller('GraphsCtrl', [
                     zoomGraph();
                 });
 
-                //Closes popup on-click of "X"
-                $('#close-popup').bind("click", plotUnselected);
+                // Close popup onclick of corner close button
+                $('#close-popup').bind("click", hideTooltip);
+
+                // Close pop up when user clicks outside of the graph area
+                $('html').click(function() {
+                    hideTooltip();
+                });
+
+                // Stop propagation when user clicks inside the graph area
+                $('#data-display').click(function(event){
+                    event.stopPropagation();
+                });
             });
         }
 
