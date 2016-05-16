@@ -97,6 +97,7 @@ def bulk_delete(cls, ids):
             '_index': cls._doc_type.index,
             '_type': cls._doc_type.name,
             '_id': id})
+    print "bulk_delete", ids
     bulk(connection, actions)
 
 
@@ -105,6 +106,7 @@ def refresh_all():
     """Refresh all elasticsearch indicies. This is only intended for
     test use, so that inserted documents are updated immediately and
     tests are not random"""
+    print "refresh_all"
     return connection.indices.refresh()
 
 
