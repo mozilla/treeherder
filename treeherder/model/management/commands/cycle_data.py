@@ -9,6 +9,7 @@ from treeherder.model.derived import JobsModel
 from treeherder.model.models import (Datasource,
                                      JobGroup,
                                      JobType,
+                                     Machine,
                                      RunnableJob,
                                      TaskSetMeta)
 from treeherder.model.utils import orm_delete
@@ -74,7 +75,7 @@ class Command(BaseCommand):
         orm_delete(TaskSetMeta, TaskSetMeta.objects.filter(count=0),
                    chunk_size, sleep_time)
 
-        used_job_type_ids = set()
+        (used_job_type_ids, used_machine_ids) = (set(), set())
         for d in Datasource.objects.all():
             db_options = settings.DATABASES['default'].get('OPTIONS', {})
             db = MySQLdb.connect(
@@ -86,14 +87,17 @@ class Command(BaseCommand):
             )
             c = db.cursor()
             c.execute("""select distinct job_type_id from job""")
-            for job_type_id in c.fetchall():
-                used_job_type_ids.add(job_type_id[0])
+            used_job_type_ids.update(set([job_id[0] for job_id in c.fetchall()]))
+            c.execute("""select distinct machine_id from job""")
+            used_machine_ids.update(set([machine_id[0] for machine_id in c.fetchall()]))
 
         JobType.objects.exclude(id__in=used_job_type_ids).delete()
         RunnableJob.objects.exclude(job_type__id__in=used_job_type_ids).delete()
 
         used_job_group_ids = set(JobType.objects.values_list('job_group', flat=True))
         JobGroup.objects.exclude(id__in=used_job_group_ids).delete()
+
+        Machine.objects.exclude(id__in=used_machine_ids).delete()
 
     def debug(self, msg):
         if self.is_debug:

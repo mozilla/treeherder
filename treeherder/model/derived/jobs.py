@@ -1478,14 +1478,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     option_collection_hash=option_collection_hash,
                     option=option)
 
-        machine_timestamp = job.get("end_timestamp", time.time())
         machine, _ = Machine.objects.get_or_create(
-            name=job.get('machine', 'unknown'),
-            defaults={'first_timestamp': machine_timestamp,
-                      'last_timestamp': machine_timestamp})
-        if machine.last_timestamp < machine_timestamp:
-            machine.last_timestamp = machine_timestamp
-            machine.save(update_fields=['last_timestamp'])
+            name=job.get('machine', 'unknown'))
 
         # if a job with this symbol and name exists, always
         # use its default group (even if that group is different

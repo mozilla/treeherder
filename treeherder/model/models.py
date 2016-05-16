@@ -141,9 +141,6 @@ class Bugscache(models.Model):
 class Machine(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50, unique=True, db_index=True)
-    first_timestamp = models.IntegerField(db_index=True)
-    last_timestamp = models.IntegerField(db_index=True)
-    active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'machine'

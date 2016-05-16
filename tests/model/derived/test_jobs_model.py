@@ -18,6 +18,7 @@ from treeherder.model.models import (BuildPlatform,
                                      JobDuration,
                                      JobGroup,
                                      JobType,
+                                     Machine,
                                      MachinePlatform,
                                      RunnableJob,
                                      TaskSetMeta)
@@ -512,6 +513,7 @@ def test_cycle_job_model_reference_data(jm, sample_data, sample_resultset,
     original_job_type_ids = JobType.objects.values_list('id', flat=True)
     original_job_group_ids = JobGroup.objects.values_list('id', flat=True)
     original_runnable_job_ids = RunnableJob.objects.values_list('id', flat=True)
+    original_machine_ids = Machine.objects.values_list('id', flat=True)
 
     # create a bunch of job model data that should be cycled, since they don't
     # reference any current jobs
@@ -524,18 +526,21 @@ def test_cycle_job_model_reference_data(jm, sample_data, sample_resultset,
                                     ref_data_name='test2',
                                     build_system_type='test2',
                                     repository=test_repository)
-    (jg_id, jt_id, rj_id) = (jg.id, jt.id, rj.id)
+    m = Machine.objects.create(name='machine_with_no_job')
+    (jg_id, jt_id, rj_id, m_id) = (jg.id, jt.id, rj.id, m.id)
     call_command('cycle_data', sleep_time=0, days=1, chunk_size=3)
 
-    # assert that those jobs that should be cycled, are cycled
+    # assert that reference data that should have been cycled, was cycled
     assert JobGroup.objects.filter(id=jg_id).count() == 0
     assert JobType.objects.filter(id=jt_id).count() == 0
     assert RunnableJob.objects.filter(id=rj_id).count() == 0
+    assert Machine.objects.filter(id=m_id).count() == 0
 
     # assert that we still have everything that shouldn't have been cycled
     assert JobType.objects.filter(id__in=original_job_type_ids).count() == len(original_job_type_ids)
     assert JobGroup.objects.filter(id__in=original_job_group_ids).count() == len(original_job_group_ids)
     assert RunnableJob.objects.filter(id__in=original_runnable_job_ids).count() == len(original_runnable_job_ids)
+    assert Machine.objects.filter(id__in=original_machine_ids).count() == len(original_machine_ids)
 
 
 def test_bad_date_value_ingestion(jm, test_repository, mock_log_parser):
