@@ -362,12 +362,10 @@ def test_cycle_all_data(jm, sample_data,
     jobs_before = jm.execute(proc="jobs_test.selects.jobs")
 
     refresh_all()
-    assert TestFailureLine.search().params(search_type="count").execute().hits.total > 0
+    assert TestFailureLine.search().params(search_type="count").execute().hits.total == 2
     call_command('cycle_data', sleep_time=0, days=1)
 
     refresh_all()
-
-    time.sleep(1)
 
     jobs_after = jm.execute(proc="jobs_test.selects.jobs")
 

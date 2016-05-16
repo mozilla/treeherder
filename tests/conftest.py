@@ -62,9 +62,13 @@ def elasticsearch(request):
         if not item._doc_type.index.startswith(prefix):
             item._doc_type.index = prefix + item._doc_type.index
             try:
-                item.init()
+                connection.indices.delete(item._doc_type.index)
             except:
                 pass
+            try:
+                item.init()
+            except:
+                item._doc_type.index
         indices.add(item._doc_type.index)
 
     def fin():
