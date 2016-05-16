@@ -106,6 +106,12 @@ to { opacity: 0; }
     background-image: url("../img/tip-locked.png");
 }
 
+#close-popup {
+  float:right;
+  display:inline-block;
+  cursor:pointer;
+}
+
 .reset-highlight-button {
   display: inline-block;
   margin-left: -20px;

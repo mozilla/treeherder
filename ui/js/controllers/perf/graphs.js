@@ -484,6 +484,9 @@ perf.controller('GraphsCtrl', [
                     plotSelected(event, ranges);
                     zoomGraph();
                 });
+
+                //Closes popup on-click of "X"
+                $('#close-popup').bind("click", plotUnselected);
             });
         }
 
