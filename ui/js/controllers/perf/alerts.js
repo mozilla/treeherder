@@ -234,6 +234,7 @@ perf.controller('AlertsCtrl', [
         // can filter by alert statuses or just show everything
         $scope.statuses = _.map(phAlertSummaryStatusMap);
         $scope.statuses = $scope.statuses.concat({id: -1, text: "all"});
+        $scope.downstreamAlerts = [];
 
         $scope.changeAlertSummaryStatus = function(alertSummary, open) {
             PhAlerts.changeAlertSummaryStatus(
@@ -261,6 +262,12 @@ perf.controller('AlertsCtrl', [
                                     alert.title.toLowerCase().indexOf(
                                         matchText.toLowerCase()) > (-1);
                             });
+                    // filter for showing downstream alerts
+                    if (alert.status === phAlertStatusMap.DOWNSTREAM.id &&
+                        alert.summary_id !== alertSummary.id &&
+                        $scope.downstreamAlerts.indexOf(alert.summary_id) === (-1)) {
+                        $scope.downstreamAlerts.push(alert.summary_id);
+                    }
                 });
                 alertSummary.anyVisible = _.any(alertSummary.alerts,
                                                 'visible');

@@ -197,6 +197,10 @@
       </span>
     </div>
   </div>
+  <p class="text-muted" ng-show="downstreamAlerts.length">
+    Downstream alert summaries:
+    <span ng-repeat="alert in downstreamAlerts"><a href="perf.html#/alerts?id={{alert}}">#{{alert}}</a>
+  </p>
   <p class="text-muted" ng-if="numFilteredAlertSummaries > 0">
     {{numFilteredAlertSummaries}} alerts not displayed because they had no changes matching filter criteria
   </p>
