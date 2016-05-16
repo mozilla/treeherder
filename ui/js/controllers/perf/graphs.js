@@ -486,7 +486,17 @@ perf.controller('GraphsCtrl', [
                 });
 
                 //Closes popup on-click of "X"
-                $('#close-popup').bind("click", plotUnselected);
+                $('#close-popup').bind("click", hideTooltip);
+
+                //Checks for clicks outside element data-display and closes popup
+                $('html').click(function() {
+                    hideTooltip();
+                });
+
+                //Clicks inside data-display are not propagated outside and popup remains open
+                $('#data-display').click(function(event){
+                    event.stopPropagation();
+                });
             });
         }
 
