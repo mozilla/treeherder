@@ -106,10 +106,13 @@ to { opacity: 0; }
     background-image: url("../img/tip-locked.png");
 }
 
-#close-popup {
-  float:right;
-  display:inline-block;
-  cursor:pointer;
+.graphchooser-close {
+  color: #fff;
+  outline: none;
+}
+
+.graphchooser-close:hover {
+    color: #fff;
 }
 
 .reset-highlight-button {
