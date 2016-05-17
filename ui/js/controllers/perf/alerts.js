@@ -234,7 +234,6 @@ perf.controller('AlertsCtrl', [
         // can filter by alert statuses or just show everything
         $scope.statuses = _.map(phAlertSummaryStatusMap);
         $scope.statuses = $scope.statuses.concat({id: -1, text: "all"});
-        $scope.downstreamAlertSummaries = [];
 
         $scope.changeAlertSummaryStatus = function(alertSummary, open) {
             PhAlerts.changeAlertSummaryStatus(
@@ -262,23 +261,6 @@ perf.controller('AlertsCtrl', [
                                     alert.title.toLowerCase().indexOf(
                                         matchText.toLowerCase()) > (-1);
                             });
-                    // filter for showing downstream alerts
-                    if (alert.status === phAlertStatusMap.DOWNSTREAM.id &&
-                        alert.summary_id !== alertSummary.id ) {
-                        PhAlerts.getAlertSummary(alert.summary_id).then(
-                            function(data) {
-                                if ($scope.downstreamAlertSummaries.indexOf(data) === (-1)) {
-                                    $scope.downstreamAlertSummaries.push(data);
-                                    $scope.downstreamAlertSummaries = _.uniq(
-                                        $scope.downstreamAlertSummaries, function(item, key, id) {
-                                            return item.id;
-                                        });
-                                    $scope.downstreamAlertSummaries.sort(function(a, b) {
-                                        return parseInt(a.id) - parseInt(b.id);
-                                    });
-                                }
-                            });
-                    }
                 });
                 alertSummary.anyVisible = _.any(alertSummary.alerts,
                                                 'visible');
@@ -499,7 +481,8 @@ perf.controller('AlertsCtrl', [
 
                         });
             })).then(function() {
-                // for all complete summaries, fill in job and pushlog links
+                // for all complete summaries
+                // fill in job and pushlog links and downstream summaries
                 _.forEach(alertSummaries, function(summary) {
                     var repo =  _.findWhere($rootScope.repos,
                                             { name: summary.repository });
@@ -524,6 +507,31 @@ perf.controller('AlertsCtrl', [
                     $scope.alertSummaries = _.union($scope.alertSummaries,
                                                     alertSummaries);
                 }
+
+                // Filling in downstream alertSummaries
+                _.forEach($scope.alertSummaries, function(alertSummary) {
+                    alertSummary.downstreamAlertSummaries = [];
+                    _.forEach(alertSummary.alerts, function(alert) {
+                        // filter for showing downstream alertSummaries
+                        if (alert.status === phAlertStatusMap.DOWNSTREAM.id &&
+                            alert.summary_id !== alertSummary.id ) {
+                            PhAlerts.getAlertSummary(alert.summary_id).then(
+                                function(data) {
+                                    if (alertSummary.downstreamAlertSummaries.indexOf(data) === (-1)) {
+                                        alertSummary.downstreamAlertSummaries.push(data);
+                                        alertSummary.downstreamAlertSummaries = _.uniq(
+                                            alertSummary.downstreamAlertSummaries, function(item, key, id) {
+                                                return item.id;
+                                            });
+                                        alertSummary.downstreamAlertSummaries.sort(function(a, b) {
+                                            return parseInt(a.id) - parseInt(b.id);
+                                        });
+                                    }
+                                });
+                        }
+                    });
+                });
+
                 updateAlertVisibility();
             });
         }
