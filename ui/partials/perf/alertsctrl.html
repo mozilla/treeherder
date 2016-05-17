@@ -170,11 +170,11 @@
         </td>
       </tr>
     </table>
-    <div class="panel-body" ng-show="alertSummary.downstreamAlertSummaries.length">
+    <div class="panel-body" ng-show="alertSummary.downstreamSummaryIds.length">
       <p class="text-muted">
         Downstream alert summaries:
-        <span class="text-muted" ng-repeat="summary in alertSummary.downstreamAlertSummaries">
-          <a href="perf.html#/alerts?id={{summary.id}}">#{{summary.id}}</a>
+        <span class="text-muted" ng-repeat="summaryId in alertSummary.downstreamSummaryIds">
+          <a href="perf.html#/alerts?id={{summaryId}}">#{{summaryId}}</a>
         </span>
       </p>
     </div>
