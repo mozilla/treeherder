@@ -978,4 +978,17 @@
         "repository_group": 7,
         "description": "Mozilla Push server and Push Endpoint."
     }
+},
+{
+    "pk": 79,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "nss",
+        "url": "https://github.com/mozilla/nss-ttaubert-test",
+        "active_status": "active",
+        "codebase": "nss",
+        "repository_group": 1,
+        "description": "Network Security Services."
+    }
 }]
