@@ -498,6 +498,17 @@ perf.controller('AlertsCtrl', [
                             to: summary.resultSetMetadata.revision
                         });
                     }
+
+                    summary.downstreamSummaryIds = _.uniq(_.flatten(_.map(
+                        summary.alerts, function(alert) {
+                            if (alert.status === phAlertStatusMap.DOWNSTREAM.id &&
+                                alert.summary_id !== summary.id) {
+                                return alert.summary_id;
+                            } else {
+                                return [];
+                            }
+                    })))
+
                 });
 
                 // update master list + visibility
@@ -507,31 +518,6 @@ perf.controller('AlertsCtrl', [
                     $scope.alertSummaries = _.union($scope.alertSummaries,
                                                     alertSummaries);
                 }
-
-                // Filling in downstream alertSummaries
-                _.forEach($scope.alertSummaries, function(alertSummary) {
-                    alertSummary.downstreamAlertSummaries = [];
-                    _.forEach(alertSummary.alerts, function(alert) {
-                        // filter for showing downstream alertSummaries
-                        if (alert.status === phAlertStatusMap.DOWNSTREAM.id &&
-                            alert.summary_id !== alertSummary.id ) {
-                            PhAlerts.getAlertSummary(alert.summary_id).then(
-                                function(data) {
-                                    if (alertSummary.downstreamAlertSummaries.indexOf(data) === (-1)) {
-                                        alertSummary.downstreamAlertSummaries.push(data);
-                                        alertSummary.downstreamAlertSummaries = _.uniq(
-                                            alertSummary.downstreamAlertSummaries, function(item, key, id) {
-                                                return item.id;
-                                            });
-                                        alertSummary.downstreamAlertSummaries.sort(function(a, b) {
-                                            return parseInt(a.id) - parseInt(b.id);
-                                        });
-                                    }
-                                });
-                        }
-                    });
-                });
-
                 updateAlertVisibility();
             });
         }
