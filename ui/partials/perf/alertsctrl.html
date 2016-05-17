@@ -170,11 +170,11 @@
         </td>
       </tr>
     </table>
-    <div class="panel-body" ng-show="downstreamAlerts.length">
+    <div class="panel-body" ng-show="downstreamAlertSummaries.length">
       <p class="text-muted">
         Downstream alert summaries:
-        <span class="text-muted" ng-repeat="alert in downstreamAlerts">
-          <a uib-tooltip="{{alert.title}}" href="perf.html#/alerts?id={{alert.summary_id}}">#{{alert.summary_id}}</a>
+        <span class="text-muted" ng-repeat="alertSummary in downstreamAlertSummaries">
+          <a href="perf.html#/alerts?id={{alertSummary.id}}">#{{alertSummary.id}}</a>
         </span>
       </p>
     </div>
