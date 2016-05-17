@@ -144,6 +144,7 @@ CREATE TABLE `job` (
   KEY `idx_running` (`running_eta`),
   KEY `idx_tier` (`tier`),
   KEY `idx_active_status` (`active_status`),
+  KEY `idx_similar_jobs_query` (`result_set_id`, `option_collection_hash`, `build_platform_id`, `job_type_id`),
   CONSTRAINT `fk_result_set` FOREIGN KEY (`result_set_id`) REFERENCES `result_set` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;

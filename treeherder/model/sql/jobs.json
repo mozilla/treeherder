@@ -493,9 +493,7 @@
                     ON rs.id = j.result_set_id
                   WHERE 1
                   REP1
-                  GROUP BY j.id
-                  ORDER BY
-                    rs.push_timestamp DESC
+                  ORDER BY j.result_set_id DESC
                   ",
 
             "host_type":"read_host"
