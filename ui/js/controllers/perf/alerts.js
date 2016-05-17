@@ -265,8 +265,8 @@ perf.controller('AlertsCtrl', [
                     // filter for showing downstream alerts
                     if (alert.status === phAlertStatusMap.DOWNSTREAM.id &&
                         alert.summary_id !== alertSummary.id &&
-                        $scope.downstreamAlerts.indexOf(alert.summary_id) === (-1)) {
-                        $scope.downstreamAlerts.push(alert.summary_id);
+                        $scope.downstreamAlerts.indexOf(alert) === (-1)) {
+                        $scope.downstreamAlerts.push(alert);
                     }
                 });
                 alertSummary.anyVisible = _.any(alertSummary.alerts,

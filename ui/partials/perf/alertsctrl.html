@@ -170,6 +170,14 @@
         </td>
       </tr>
     </table>
+    <div class="panel-body" ng-show="downstreamAlerts.length">
+      <p class="text-muted">
+        Downstream alert summaries:
+        <span class="text-muted" ng-repeat="alert in downstreamAlerts">
+          <a uib-tooltip="{{alert.title}}" href="perf.html#/alerts?id={{alert.summary_id}}">#{{alert.summary_id}}</a>
+        </span>
+      </p>
+    </div>
     <div class="panel-body" uib-collapse="!anySelected(alertSummary.alerts)">
       <button ng-if="anySelectedAndTriaged(alertSummary.alerts)" class="btn btn-warning" role="button"
               ng-click="resetAlerts(alertSummary)" title="Reset selected alerts to untriaged">
@@ -197,10 +205,6 @@
       </span>
     </div>
   </div>
-  <p class="text-muted" ng-show="downstreamAlerts.length">
-    Downstream alert summaries:
-    <span ng-repeat="alert in downstreamAlerts"><a href="perf.html#/alerts?id={{alert}}">#{{alert}}</a>
-  </p>
   <p class="text-muted" ng-if="numFilteredAlertSummaries > 0">
     {{numFilteredAlertSummaries}} alerts not displayed because they had no changes matching filter criteria
   </p>
