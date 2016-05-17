@@ -343,9 +343,13 @@ def test_cycle_all_data(jm, sample_data,
     """
     Test cycling the sample data
     """
+    refresh_all()
+    assert TestFailureLine.search().params(search_type="count").execute().hits.total == 2
     job_data = sample_data.job_data[:20]
     test_utils.do_job_ingestion(jm, job_data, sample_resultset, False)
 
+    refresh_all()
+    assert TestFailureLine.search().params(search_type="count").execute().hits.total == 2
     time_now = time.time()
     cycle_date_ts = time_now - 7 * 24 * 3600
 
