@@ -343,7 +343,7 @@ def test_cycle_all_data(jm, sample_data,
     """
     Test cycling the sample data
     """
-    from treeherder.models.search import connection
+    from treeherder.model.search import connection
     connection.indices.delete(TestFailureLine._doc_type.index)
     refresh_all()
     assert TestFailureLine.search().params(search_type="count").execute().hits.total == 2
