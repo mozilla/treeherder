@@ -1,3 +1,4 @@
+import logging
 from functools import wraps
 
 import certifi
@@ -10,6 +11,8 @@ from elasticsearch_dsl import (Boolean,
                                analyzer,
                                tokenizer)
 from elasticsearch_dsl.connections import connections
+
+logger = logging.getLogger(__name__)
 
 connection = None
 
@@ -65,6 +68,7 @@ def es_connected(default=None):
         @wraps(func)
         def inner(*args, **kwargs):
             if connection is None:
+                logger.warning("Tried to use elasticsearch, but no connection found.")
                 return default
             return func(*args, **kwargs)
         return inner
@@ -101,12 +105,12 @@ def bulk_delete(cls, ids):
     bulk(connection, actions)
 
 
-@es_connected()
 def refresh_all():
     """Refresh all elasticsearch indicies. This is only intended for
     test use, so that inserted documents are updated immediately and
     tests are not random"""
-    print "refresh_all"
+    if connection is None:
+        logger.error("Must have an elastic search connection")
     return connection.indices.refresh()
 
 

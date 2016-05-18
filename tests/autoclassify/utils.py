@@ -6,6 +6,7 @@ from mozlog.formatters.tbplformatter import TbplFormatter
 from treeherder.model.derived.artifacts import ArtifactsModel
 from treeherder.model.models import (FailureLine,
                                      MatcherManager)
+from treeherder.model.search import refresh_all
 
 test_line = {"action": "test_result", "test": "test1", "subtest": "subtest1",
              "status": "FAIL", "expected": "PASS", "message": "message1"}
@@ -25,6 +26,8 @@ def create_failure_lines(repository, job_guid, failure_line_list):
         failure_line.save()
         failure_line.elastic_search_insert()
         failure_lines.append(failure_line)
+
+    refresh_all()
 
     return failure_lines
 

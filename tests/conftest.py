@@ -371,7 +371,7 @@ def mock_error_summary(monkeypatch):
 
 
 @pytest.fixture
-def failure_lines(jm, test_repository, eleven_jobs_stored):
+def failure_lines(jm, test_repository, eleven_jobs_stored, elasticsearch):
     from tests.autoclassify.utils import test_line, create_failure_lines
 
     test_repository.save()
