@@ -36,8 +36,9 @@ treeherder.filter('stripHtml', function() {
     };
 });
 
-treeherder.filter('linkifyBugs', function() {
+treeherder.filter('linkifyBugs', ['bugzilla', function(bugzilla) {
     return function(input) {
+
         var str = input || '';
         var clear_attr = 'ignore-job-clear-on-click';
 
@@ -67,7 +68,7 @@ treeherder.filter('linkifyBugs', function() {
 
         return str;
     };
-});
+}]);
 
 treeherder.filter('initials', function() {
     return function(input) {
