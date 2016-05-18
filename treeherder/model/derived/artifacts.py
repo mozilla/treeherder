@@ -1,5 +1,4 @@
 import logging
-import re
 import zlib
 
 import simplejson as json
@@ -11,6 +10,7 @@ from treeherder.model.models import (Job,
                                      JobDetail,
                                      ReferenceDataSignatures)
 
+from ..error_summary import is_helpful_search_term
 from .base import TreeherderModelBase
 
 logger = logging.getLogger(__name__)
@@ -286,12 +286,4 @@ class ArtifactsModel(TreeherderModelBase):
         return lines
 
     def filter_bug_suggestions(self, suggestion_lines):
-        remove = [re.compile("Return code: \d+")]
-
-        rv = []
-
-        for item in suggestion_lines:
-            if not any(regexp.match(item["search"]) for regexp in remove):
-                rv.append(item)
-
-        return rv
+        return [item for item in suggestion_lines if is_helpful_search_term(item["search"])]
