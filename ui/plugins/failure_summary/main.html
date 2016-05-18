@@ -9,12 +9,11 @@
             <ul ng-if="suggestion.valid_open_recent"
                 class="list-unstyled failure-summary-bugs">
                 <li ng-repeat="bug in suggestion.bugs.open_recent">
-                    <a class="btn btn-xs btn-default"
-                       prevent-default-on-left-click
-                       ng-click="pinboard_service.addBug(bug, selectedJob)"
-                       title="add to list of bugs to associate with all pinned jobs">
+                    <button class="btn btn-xs btn-default"
+                            ng-click="pinboard_service.addBug(bug, selectedJob)"
+                            title="add to list of bugs to associate with all pinned jobs">
                       <i class="glyphicon glyphicon-pushpin"></i>
-                    </a>
+                    </button>
                     <a href="{{:: getBugUrl(bug.id) }}"
                        target="_blank">{{::bug.id}}
                         <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:suggestion.search">
@@ -26,19 +25,18 @@
 
             <!--All other bugs-->
             <a ng-if="suggestion.valid_all_others && suggestion.valid_open_recent"
-               href="" prevent-default-on-left-click
+               href=""
                ng-click="suggestion.clicked_show_more = (suggestion.clicked_show_more === true ? false : true)"
                class="show-hide-more">Show / Hide more</a>
 
             <ul ng-if="suggestion.valid_all_others && (suggestion.clicked_show_more || !suggestion.valid_open_recent)"
                 class="list-unstyled failure-summary-bugs">
                 <li ng-repeat="bug in suggestion.bugs.all_others">
-                    <a class="btn btn-xs btn-default"
-                       prevent-default-on-left-click
-                       ng-click="pinboard_service.addBug(bug, selectedJob)"
-                       title="add to list of bugs to associate with all pinned jobs">
+                    <button class="btn btn-xs btn-default"
+                            ng-click="pinboard_service.addBug(bug, selectedJob)"
+                            title="add to list of bugs to associate with all pinned jobs">
                       <i class="glyphicon glyphicon-pushpin"></i>
-                    </a>
+                    </button>
                     <a ng-if="bug.resolution === ''"
                        href="{{:: getBugUrl(bug.id) }}"
                        target="_blank">{{::bug.id}}
