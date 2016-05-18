@@ -174,7 +174,7 @@
       <p class="text-muted">
         Downstream alert summaries:
         <span class="text-muted" ng-repeat="summaryId in alertSummary.downstreamSummaryIds">
-          <a href="perf.html#/alerts?id={{summaryId}}">#{{summaryId}}</a>
+          <a href="perf.html#/alerts?id={{summaryId}}">#{{summaryId}}</a>{{$last ? '' : ', '}}
         </span>
       </p>
     </div>
