@@ -482,6 +482,7 @@ perf.controller('AlertsCtrl', [
                         });
             })).then(function() {
                 // for all complete summaries, fill in job and pushlog links
+                // and downstream summaries
                 _.forEach(alertSummaries, function(summary) {
                     var repo =  _.findWhere($rootScope.repos,
                                             { name: summary.repository });
@@ -497,6 +498,17 @@ perf.controller('AlertsCtrl', [
                             to: summary.resultSetMetadata.revision
                         });
                     }
+
+                    summary.downstreamSummaryIds = _.uniq(_.flatten(_.map(
+                        summary.alerts, function(alert) {
+                            if (alert.status === phAlertStatusMap.DOWNSTREAM.id &&
+                                alert.summary_id !== summary.id) {
+                                return alert.summary_id;
+                            } else {
+                                return [];
+                            }
+                        })));
+
                 });
 
                 // update master list + visibility

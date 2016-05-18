@@ -170,6 +170,14 @@
         </td>
       </tr>
     </table>
+    <div class="panel-body" ng-show="alertSummary.downstreamSummaryIds.length">
+      <p class="text-muted">
+        Downstream alert summaries:
+        <span class="text-muted" ng-repeat="summaryId in alertSummary.downstreamSummaryIds">
+          <a href="perf.html#/alerts?id={{summaryId}}">#{{summaryId}}</a>{{$last ? '' : ', '}}
+        </span>
+      </p>
+    </div>
     <div class="panel-body" uib-collapse="!anySelected(alertSummary.alerts)">
       <button ng-if="anySelectedAndTriaged(alertSummary.alerts)" class="btn btn-warning" role="button"
               ng-click="resetAlerts(alertSummary)" title="Reset selected alerts to untriaged">
