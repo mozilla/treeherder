@@ -15,6 +15,9 @@ Prerequisites
 * Install Git_, Virtualbox_ and Vagrant_ (latest versions recommended).
 * Clone the `treeherder repo`_ from Github.
 * Windows only: Ensure MSYS ssh (ships with Git for Windows) is on the PATH, so Vagrant can find it (using PuTTY is more hassle).
+* NFSD
+
+  * Ubuntu: `apt-get install nfs-common nfs-kernel-server`
 
 Setting up Vagrant
 ------------------
@@ -26,17 +29,6 @@ Setting up Vagrant
      > vagrant up
 
   It will typically take 5 to 30 minutes for the vagrant up to complete, depending on your network performance. If you experience any errors, see the :ref:`troubleshooting page <troubleshooting-vagrant>`.
-
-.. note:: You can get this error on Ubuntu and you can run `apt-get install nfs-common nfs-kernel-server` to fix it.
-
-
-.. code-block:: bash
-
-     It appears your machine doesn't support NFS, or there is not an
-     adapter to enable NFS on this machine for Vagrant. Please verify
-     that `nfsd` is installed on your machine, and try again. If you're
-     on Windows, NFS isn't supported. If the problem persists, please
-     contact Vagrant support.
 
 
 * While the previous command is running, use the time to add this line to your **host** machine's /etc/hosts:
