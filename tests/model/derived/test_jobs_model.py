@@ -339,19 +339,13 @@ def test_calculate_durations(jm, test_repository, mock_log_parser):
 
 def test_cycle_all_data(jm, sample_data,
                         sample_resultset, test_repository, mock_log_parser,
-                        elasticsearch, failure_lines):
+                        failure_lines):
     """
     Test cycling the sample data
     """
-    from treeherder.model.search import connection
-    connection.indices.delete(TestFailureLine._doc_type.index)
-    refresh_all()
-    assert TestFailureLine.search().params(search_type="count").execute().hits.total == 2
     job_data = sample_data.job_data[:20]
     test_utils.do_job_ingestion(jm, job_data, sample_resultset, False)
 
-    refresh_all()
-    assert TestFailureLine.search().params(search_type="count").execute().hits.total == 2
     time_now = time.time()
     cycle_date_ts = time_now - 7 * 24 * 3600
 
@@ -367,8 +361,6 @@ def test_cycle_all_data(jm, sample_data,
 
     jobs_before = jm.execute(proc="jobs_test.selects.jobs")
 
-    refresh_all()
-    assert TestFailureLine.search().params(search_type="count").execute().hits.total == 2
     call_command('cycle_data', sleep_time=0, days=1)
 
     refresh_all()
@@ -384,8 +376,6 @@ def test_cycle_all_data(jm, sample_data,
     assert JobDetail.objects.count() == 0
 
     # There should be nothing in elastic search after cycling
-    for item in TestFailureLine.search().execute():
-        print item.meta.id
     assert TestFailureLine.search().params(search_type="count").execute().hits.total == 0
 
 
