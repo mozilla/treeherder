@@ -42,6 +42,7 @@ treeherder.directive('thWatchedRepo', [
             },
             "not retrieved yet": {
                 icon: "fa-spinner",
+                iconClass: "fa-pulse",
                 color: "tree-unavailable",
                 btnClass: "btn-view-nav"
             },
@@ -77,6 +78,7 @@ treeherder.directive('thWatchedRepo', [
                         $log.debug("updated treeStatus", newVal);
                         var si = statusInfo[newVal];
                         scope.statusIcon = si.icon;
+                        scope.statusIconClass = si.iconClass || "";
                         scope.statusColor = si.color;
                         scope.btnClass = si.btnClass;
                         scope.updateTitleText();

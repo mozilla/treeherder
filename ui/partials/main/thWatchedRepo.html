@@ -4,7 +4,7 @@
           ng-click="changeRepo(name)"
           type="button"
           title="{{titleText|stripHtml}}">
-    <i class="fa {{statusIcon}} {{statusColor}}"></i> {{::name}}
+    <i class="fa {{statusIcon}} {{statusIconClass}} {{statusColor}}"></i> {{::name}}
   </button>
   <button class="watched-repo-info-btn btn btn-sm {{btnClass}} dropdown-toggle"
           ng-class="{'active': name===repoName}"
