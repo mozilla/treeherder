@@ -167,7 +167,7 @@ function cancelMouseOver() {
 
 function getBugInfo(bugLink) {
     var bugID = bugLink.getAttribute("data-bugid");
-    var bugURL = 'https://bugzilla.mozilla.org/rest/bug/' + bugID + '?include_fields=status,summary';
+    var bugURL = '/api/bugzilla/' + bugID + '/get_bug/?include_fields=status,summary';
 
     if(bugID) {
         // Fetch the bug information from bugzilla and store it locally

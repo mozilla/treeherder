@@ -2,7 +2,7 @@ import requests
 from django.conf import settings
 from rest_framework import (status,
                             viewsets)
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, detail_route
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
@@ -48,3 +48,25 @@ class BugzillaViewSet(viewsets.ViewSet):
                 return Response({"failure": rsperror}, status=status.HTTP_400_BAD_REQUEST)
 
             return Response({"success": response.json()["id"]})
+
+    @detail_route(methods=['get'])
+    def get_bug(self, request, pk=None):
+        """
+        Get a bug from bugzilla with the passed params
+        """
+
+        params = request.query_params
+
+        include_fields = params.get('include_fields')
+        if include_fields is not None:
+            include_fields = "?include_fields=" + include_fields
+        else:
+            include_fields = ""
+        url = settings.BZ_API_URL + "/rest/bug/" + pk + include_fields
+        headers = {
+            'Accept': 'application/json'
+        }
+
+        response = make_request(url, method='GET', headers=headers)
+        # Needs error handling, but I don't care right now
+        return Response(response.json())
