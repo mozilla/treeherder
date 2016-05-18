@@ -30,7 +30,6 @@ Setting up Vagrant
 
   It will typically take 5 to 30 minutes for the vagrant up to complete, depending on your network performance. If you experience any errors, see the :ref:`troubleshooting page <troubleshooting-vagrant>`.
 
-
 * While the previous command is running, use the time to add this line to your **host** machine's /etc/hosts:
 
   .. code-block:: bash
