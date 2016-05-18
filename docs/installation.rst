@@ -14,10 +14,8 @@ Prerequisites
 * If you are new to Mozilla or the A-Team, read the `A-Team Bootcamp`_.
 * Install Git_, Virtualbox_ and Vagrant_ (latest versions recommended).
 * Clone the `treeherder repo`_ from Github.
+* Linux only: An nfsd server is required. You can install this on Ubuntu by running `apt-get install nfs-common nfs-kernel-server`
 * Windows only: Ensure MSYS ssh (ships with Git for Windows) is on the PATH, so Vagrant can find it (using PuTTY is more hassle).
-* NFSD
-
-  * Ubuntu: `apt-get install nfs-common nfs-kernel-server`
 
 Setting up Vagrant
 ------------------
