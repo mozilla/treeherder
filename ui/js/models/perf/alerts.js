@@ -208,7 +208,21 @@ treeherder.factory('PhAlerts', [
                         });
                     });
             },
-            changeAlertSummaryStatus: function(alertSummaryId, open) {
+            createAlert: function(data) {
+                return $http.post(thServiceDomain + '/api/performance/alertsummary/', {
+                    repository_id: data.project.id,
+                    framework_id: data.series.frameworkId,
+                    result_set_id: data.resultSetId,
+                    prev_result_set_id: data.prevResultSetId
+                }).then(function(response) {
+                    var newAlertSummaryId = response.data.alert_summary_id;
+                    return $http.post(thServiceDomain + '/api/performance/alert/', {
+                        summary_id: newAlertSummaryId,
+                        signature_id: data.series.id
+                    }).then(function() {
+                        return newAlertSummaryId;
+                    });
+                });
             }
         };
     }]);

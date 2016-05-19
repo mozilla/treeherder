@@ -43,6 +43,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
         var options = _getSeriesOptions(signatureProps, optionCollectionMap);
 
         return {
+            id: signatureProps['id'],
             name: _getSeriesName(signatureProps, optionCollectionMap),
             testName: _getTestName(signatureProps), // unadorned with platform/option info
             suite: signatureProps['suite'],
