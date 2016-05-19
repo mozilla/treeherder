@@ -248,7 +248,7 @@ treeherderApp.controller('SheriffCtrl', [
         };
 
         $scope.delete_profile = function(profile) {
-            if (!window.confirm('This will delete the exclusion. Are you sure?')) {
+            if (!window.confirm('This will delete the exclusion. Click "OK" if you\'re sure.')) {
                 return;
             }
             profile.delete().then(function() {
