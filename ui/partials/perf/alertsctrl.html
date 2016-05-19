@@ -162,10 +162,16 @@
           </div>
         </td>
         <td class="alert-confidence">
-          <span class="detail-hint"
+          <span ng-if="!alert.manually_created"
+                class="detail-hint"
                 uib-tooltip="Confidence value as calculated by Perfherder alerts. Note that this is NOT the same as the calculation used in the compare view"
                 tooltip-placement="left">
-            {{alert.t_value}}
+            <span>
+              {{alert.t_value}}
+            </span>
+          </span>
+          <span ng-if="alert.manually_created" uib-tooltip="Sheriff-created alert">
+            <span class="fa fa-user"/>
           </span>
         </td>
       </tr>
