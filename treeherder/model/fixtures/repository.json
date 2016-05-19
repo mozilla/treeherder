@@ -983,9 +983,9 @@
     "pk": 79,
     "model": "model.repository",
     "fields": {
-        "dvcs_type": "git",
+        "dvcs_type": "hg",
         "name": "nss",
-        "url": "https://github.com/mozilla/nss-ttaubert-test",
+        "url": "https://hg.mozilla.org/projects/nss",
         "active_status": "active",
         "codebase": "nss",
         "repository_group": 7,
