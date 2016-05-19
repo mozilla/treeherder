@@ -19,7 +19,6 @@ Running the web-server
 
   .. code-block:: bash
 
-     cp ui/js/config/sample.local.conf.js ui/js/config/local.conf.js
      ./web-server.js
 
 Viewing the UI
@@ -31,8 +30,20 @@ Once the server is running, you can navigate to:
 Configuration
 =============
 
-The sample configuration makes the UI load job/push data from the production service API. If you wish to test the UI against stage/dev's service instead, adjust ``thServiceDomain`` in the config file created as part of installation:
-``ui/js/config/local.conf.js``
+By default, the web server will serve data from treeherder production. If you wish to test the UI against treeherder stage instead, type:
+
+  .. code-block:: bash
+
+     ./web-server.js --stage
+
+If you wish to test the UI against a custom service, type:
+
+  .. code-block:: bash
+
+     ./web-server.js --server <url>
+
+
+Please note that if ``ui/js/config/local.conf.js`` exists, the above configuration will be overwritten by ``thServiceDomain`` in the config file.
 
 If you wish to run the full treeherder Vagrant project (service + UI), remember to remove local.conf.js or else change ``thServiceDomain`` within it to refer to ``vagrant``, so the UI will use the local Vagrant service API.
 
