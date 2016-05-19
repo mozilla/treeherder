@@ -5,17 +5,30 @@ var util = require('util'),
     fs = require('fs'),
     path = require('path'),
     url = require('url'),
-    events = require('events');
+    events = require('events'),
+    minimist = require('minimist');
 
 var DEFAULT_PORT = 8000;
 var APP_ROOT = path.join(__dirname, "ui");
 var INDEX_FILE = 'index.html';
+var DEFAULT_SERVICE_DOMAIN;
 
 function main(argv) {
+  setServiceDomain(argv)
   new HttpServer({
     'GET': createServlet(StaticServlet),
     'HEAD': createServlet(StaticServlet)
   }).start(Number(argv[2]) || DEFAULT_PORT);
+}
+
+function setServiceDomain(argv) {
+  var options = minimist(argv.slice(2));
+  if ("stage" in options)
+    DEFAULT_SERVICE_DOMAIN = 'https://treeherder.allizom.org'
+  else if ("custom-server" in options)
+    DEFAULT_SERVICE_DOMAIN = options['custom-server']
+  else
+    DEFAULT_SERVICE_DOMAIN = 'https://treeherder.mozilla.org';
 }
 
 function escapeHtml(value) {
@@ -101,6 +114,11 @@ StaticServlet.prototype.handleRequest = function(req, res) {
   if (parts[parts.length-1].charAt(0) === '.')
     return self.sendForbidden_(req, res, path);
   fs.stat(path, function(err, stat) {
+    if (req.url.pathname == '/js/config/local.conf.js' && err) {
+      res.write("window.thServiceDomain = '" + DEFAULT_SERVICE_DOMAIN + "'");;
+      res.end()
+      return;
+    }
     if (err)
       return self.sendMissing_(req, res, path);
     if (stat.isDirectory())
@@ -267,15 +285,6 @@ function isFile(filename) {
     return false;
   }
   return true;
-}
-
-
-// All the HTML files include the config file directly but none of them warns
-// if it doesn't exist, so when starting the server is a good time to warn.
-var confFile = path.join(APP_ROOT, "js", "config", "local.conf.js");
-if (!isFile(confFile)) {
-  console.log("Missing config file '" + confFile + "'.\n" +
-              "Consider copying it from 'sample.local.conf.js' at the same directory.");
 }
 
 // Must be last,
