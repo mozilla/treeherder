@@ -178,7 +178,7 @@ treeherderApp.controller('ResultSetCtrl', [
         };
 
         $scope.cancelAllJobs = function(revision) {
-            if (!window.confirm('This will cancel all pending and running jobs for revision ' + revision + '!\n\nAre you sure?')) {
+            if (!window.confirm('This will cancel all pending and running jobs for revision ' + revision + '!\n\nClick "OK" if you\'re sure.')) {
                 return;
             }
 
@@ -193,7 +193,7 @@ treeherderApp.controller('ResultSetCtrl', [
         };
 
         $scope.triggerMissingJobs = function(revision) {
-            if (!window.confirm('This will trigger all missing jobs for revision ' + revision + '!\n\nDo you want to proceed?')) {
+            if (!window.confirm('This will trigger all missing jobs for revision ' + revision + '!\n\nClick "OK" if you want to proceed.')) {
                 return;
             }
 
@@ -208,7 +208,7 @@ treeherderApp.controller('ResultSetCtrl', [
         };
 
         $scope.triggerAllTalosJobs = function(revision) {
-            if (!window.confirm('This will trigger all talos jobs for revision ' + revision + '!\n\nDo you want to proceed?')) {
+            if (!window.confirm('This will trigger all talos jobs for revision ' + revision + '!\n\nClick "OK" if you want to proceed.')) {
                 return;
             }
 
@@ -234,7 +234,7 @@ treeherderApp.controller('ResultSetCtrl', [
 
         $scope.triggerNewJobs = function() {
             if (!window.confirm(
-                'This will trigger all selected jobs. Do you want to proceed?')) {
+                'This will trigger all selected jobs. Click "OK" if you want to proceed.')) {
                 return;
             }
             if ($scope.user.loggedin) {
