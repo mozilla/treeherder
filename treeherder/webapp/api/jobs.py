@@ -14,7 +14,6 @@ from treeherder.model.models import (FailureLine,
                                      TextLogSummary)
 from treeherder.webapp.api import (permissions,
                                    serializers)
-from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 from treeherder.webapp.api.utils import (UrlQueryFilter,
                                          with_jobs)
 
@@ -177,7 +176,7 @@ class JobsViewSet(viewsets.ViewSet):
         else:
             return Response({"message": "All jobs successfully retriggered."})
 
-    @detail_route(methods=['post'], permission_classes=[IsStaffOrReadOnly])
+    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
     def backfill(self, request, project, jm, pk=None):
         """

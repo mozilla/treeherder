@@ -148,7 +148,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         except Exception as ex:
             return Response("Exception: {0}".format(ex), 404)
 
-    @detail_route(methods=['post'], permission_classes=[permissions.IsStaffOrReadOnly])
+    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
     def trigger_missing_jobs(self, request, project, jm, pk=None):
         """
@@ -164,7 +164,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         except Exception as ex:
             return Response("Exception: {0}".format(ex), 404)
 
-    @detail_route(methods=['post'], permission_classes=[permissions.IsStaffOrReadOnly])
+    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
     def trigger_all_talos_jobs(self, request, project, jm, pk=None):
         """
