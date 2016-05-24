@@ -645,9 +645,6 @@ class FailureLine(models.Model):
 
     class Meta:
         db_table = 'failure_line'
-        unique_together = (
-            ('job_guid', 'line')
-        )
         index_together = (
             ('job_guid', 'repository'),
             # The test and subtest indicies are length 50 and 25, respectively
