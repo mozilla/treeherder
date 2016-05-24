@@ -74,7 +74,9 @@ def post_log_artifacts(project,
         artifact_list = extract_artifacts_cb(project, log_obj['url'],
                                              job_guid)
     except Exception as e:
-        client.update_parse_status(project, log_obj['id'], 'failed')
+        with JobsModel(project) as jm:
+            jm.update_job_log_url_status(log_obj["id"], "failed")
+
         # unrecoverable http error (doesn't exist or permission denied)
         # (apparently this can happen somewhat often with taskcluster if
         # the job fails, so just warn about it -- see

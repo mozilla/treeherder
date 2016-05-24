@@ -48,20 +48,6 @@ class JobLogUrlViewSet(viewsets.ViewSet):
 
     @detail_route(methods=['post'])
     @with_jobs
-    def update_parse_status(self, request, project, jm, pk=None):
-        """
-        Change the log parsing status for a log reference (eg from 'pending' to 'parsed').
-        """
-        try:
-            parse_status = request.data["parse_status"]
-        except KeyError:
-            raise ParseError(detail=("The parse_status parameter is mandatory for this endpoint"))
-        jm.update_job_log_url_status(pk, parse_status)
-        obj = jm.get_job_log_url_detail(pk)
-        return Response(obj)
-
-    @detail_route(methods=['post'])
-    @with_jobs
     def parse(self, request, project, jm, pk=None):
         """Trigger an async task to parse this log."""
 
