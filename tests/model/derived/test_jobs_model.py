@@ -179,32 +179,47 @@ def test_get_inserted_row_ids(jm, sample_resultset, test_repository):
         len(sample_resultset) - slice_limit
 
 
+@pytest.mark.parametrize("same_ingestion_cycle", [False, True])
 def test_ingest_running_to_retry_sample_job(jm, sample_data,
-                                            sample_resultset, test_repository, mock_log_parser):
+                                            sample_resultset, test_repository,
+                                            mock_log_parser,
+                                            same_ingestion_cycle):
     """Process a single job structure in the job_data.txt file"""
+    jm.store_result_set_data(sample_resultset)
+
     job_data = copy.deepcopy(sample_data.job_data[:1])
     job = job_data[0]['job']
     job_data[0]['revision'] = sample_resultset[0]['revision']
-
-    jm.store_result_set_data(sample_resultset)
-
     job['state'] = 'running'
     job['result'] = 'unknown'
 
-    # for pending and running jobs, we call this directly, just like
-    # the web api does.
-    jm.store_job_data(job_data)
+    def _simulate_retry_job(job):
+        job['state'] = 'completed'
+        job['result'] = 'retry'
+        # convert the job_guid to what it would be on a retry
+        job['job_guid'] = job['job_guid'] + "_" + str(job['end_timestamp'])[-5:]
+        return job
 
-    jl = jm.get_job_list(0, 1)
-    initial_job_id = jl[0]["id"]
+    if same_ingestion_cycle:
+        # now we simulate the complete version of the job coming in (on the
+        # same push)
+        new_job_datum = copy.deepcopy(job_data[0])
+        new_job_datum['job'] = _simulate_retry_job(new_job_datum['job'])
+        job_data.append(new_job_datum)
+        jm.store_job_data(job_data)
 
-    # now we simulate the complete version of the job coming in
-    job['state'] = 'completed'
-    job['result'] = 'retry'
-    # convert the job_guid to what it would be on a retry
-    job['job_guid'] = job['job_guid'] + "_" + str(job['end_timestamp'])[-5:]
+        initial_job_id = jm.get_job_list(0, 1)[0]["id"]
+    else:
+        # store the job in the initial state
+        jm.store_job_data(job_data)
 
-    jm.store_job_data(job_data)
+        initial_job_id = jm.get_job_list(0, 1)[0]["id"]
+
+        # now we simulate the complete version of the job coming in and
+        # ingest a second time
+        job = _simulate_retry_job(job)
+        jm.store_job_data(job_data)
+
     jl = jm.get_job_list(0, 10)
 
     assert len(jl) == 1
@@ -214,57 +229,91 @@ def test_ingest_running_to_retry_sample_job(jm, sample_data,
     assert Job.objects.count() == 1
     intermediary_job = Job.objects.all()[0]
     assert intermediary_job.project_specific_id == initial_job_id
-    assert intermediary_job.guid == job['job_guid']
+    # intermediary guid should be the retry one
+    assert intermediary_job.guid == job_data[-1]['job']['job_guid']
 
 
+@pytest.mark.parametrize("ingestion_cycles", [[(0, 1), (1, 2), (2, 3)],
+                                              [(0, 2), (2, 3)]])
 def test_ingest_running_to_retry_to_success_sample_job(jm, sample_data,
-                                                       sample_resultset, test_repository, mock_log_parser):
-    """Process a single job structure in the job_data.txt file"""
-    job_data = copy.deepcopy(sample_data.job_data[:1])
-    job = job_data[0]['job']
-    job_data[0]['revision'] = sample_resultset[0]['revision']
+                                                       sample_resultset,
+                                                       test_repository,
+                                                       mock_log_parser,
+                                                       ingestion_cycles):
+    # verifies that retries to success work, no matter how jobs are batched
+    # should work but doesn't (retries not generated): [(0, 3)], [(0, 1), (1, 3)],
+    jm.store_result_set_data(sample_resultset)
+
+    job_datum = copy.deepcopy(sample_data.job_data[0])
+    job_datum['revision'] = sample_resultset[0]['revision']
+
+    job = job_datum['job']
     job_guid_root = job['job_guid']
+
+    job_data = []
+    for (state, result, job_guid) in [
+            ('running', 'unknown', job_guid_root),
+            ('completed', 'retry',
+             job_guid_root + "_" + str(job['end_timestamp'])[-5:]),
+            ('completed', 'success', job_guid_root)]:
+        new_job_datum = copy.deepcopy(job_datum)
+        new_job_datum['job']['state'] = state
+        new_job_datum['job']['result'] = result
+        new_job_datum['job']['job_guid'] = job_guid
+        job_data.append(new_job_datum)
+
+    for (i, j) in ingestion_cycles:
+        jm.store_job_data(job_data[i:j])
+
+    jl = jm.get_job_list(0, 10)
+    assert len(jl) == 2
+    assert jl[0]['result'] == 'retry'
+    assert jl[1]['result'] == 'success'
+
+    assert Job.objects.count() == 2
+    assert set(Job.objects.values_list('id', flat=True)) == set([j['id'] for j in jl])
+
+
+@pytest.mark.parametrize("ingestion_cycles", [[(0, 1), (1, 3), (3, 4)],
+                                              [(0, 3), (3, 4)]])
+def test_ingest_running_to_retry_to_success_sample_job_multiple_retries(
+        jm, sample_data, sample_resultset, test_repository,
+        mock_log_parser, ingestion_cycles):
+    # this verifies that if we try to ingest multiple retries:
+    # (1) nothing errors out
+    # (2) we only end up with two jobs (the original + a retry job)
+    # should work but doesn't (generates 3 jobs): [(0, 2), (2, 4)],
 
     jm.store_result_set_data(sample_resultset)
 
-    job['state'] = 'running'
-    job['result'] = 'unknown'
-    jm.store_job_data(job_data)
+    job_datum = copy.deepcopy(sample_data.job_data[0])
+    job_datum['revision'] = sample_resultset[0]['revision']
 
-    jl = jm.get_job_list(0, 1)
-    initial_job_id = jl[0]["id"]
+    job = job_datum['job']
+    job_guid_root = job['job_guid']
 
-    # now we simulate the complete RETRY version of the job coming in
-    job['state'] = 'completed'
-    job['result'] = 'retry'
-    # convert the job_guid to what it would be on a retry
-    job['job_guid'] = job_guid_root + "_" + str(job['end_timestamp'])[-5:]
+    job_data = []
+    for (state, result, job_guid) in [
+            ('running', 'unknown', job_guid_root),
+            ('completed', 'retry',
+             job_guid_root + "_" + str(job['end_timestamp'])[-5:]),
+            ('completed', 'retry',
+             job_guid_root + "_12345"),
+            ('completed', 'success', job_guid_root)]:
+        new_job_datum = copy.deepcopy(job_datum)
+        new_job_datum['job']['state'] = state
+        new_job_datum['job']['result'] = result
+        new_job_datum['job']['job_guid'] = job_guid
+        job_data.append(new_job_datum)
 
-    jm.store_job_data(job_data)
-
+    for (i, j) in ingestion_cycles:
+        ins = job_data[i:j]
+        jm.store_job_data(ins)
+        print Job.objects.all()
+    print Job.objects.all()
     jl = jm.get_job_list(0, 10)
-    assert len(jl) == 1
-    assert jl[0]['result'] == 'retry'
-    assert jl[0]['id'] == initial_job_id
-
-    assert Job.objects.count() == 1
-    intermediary_job = Job.objects.all()[0]
-    assert intermediary_job.project_specific_id == jl[0]['id']
-    assert intermediary_job.guid == job['job_guid']
-
-    # now we simulate the complete SUCCESS version of the job coming in
-    job['state'] = 'completed'
-    job['result'] = 'success'
-    # convert the job_guid to the normal root style
-    job['job_guid'] = job_guid_root
-
-    jm.store_job_data(job_data)
-
-    jl = jm.get_job_list(0, 10)
-
     assert len(jl) == 2
     assert jl[0]['result'] == 'retry'
-    assert jl[0]['id'] == initial_job_id
     assert jl[1]['result'] == 'success'
 
     assert Job.objects.count() == 2

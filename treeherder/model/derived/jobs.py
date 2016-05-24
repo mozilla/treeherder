@@ -1773,7 +1773,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 job_id_lookup[retry_guid] = retry_job
                 # for the intermediate representation (see below), we only
                 # want to modify the job who was retriggered
-                del jobs_to_update[retry_guid_root]
+                if retry_guid_root in jobs_to_update:
+                    del jobs_to_update[retry_guid_root]
                 jobs_to_update[retry_guid] = retry_job
 
         # create an intermediate representation of the job useful for doing
