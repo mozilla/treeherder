@@ -10,7 +10,7 @@ from requests_hawk import HawkAuth
 # When releasing a new version to PyPI please also file a bug to request
 # that it is uploaded to http://pypi.pub.build.mozilla.org/pub/ too.
 # See bug 1191498 for an example of this.
-__version__ = '2.1.0'
+__version__ = '3.0.0'
 
 logger = logging.getLogger(__name__)
 
