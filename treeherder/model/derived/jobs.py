@@ -1901,7 +1901,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             tasks[log_obj["job_guid"]].append({
                 "func_name": func_name,
                 "routing_key": routing_key,
-                "job_log_url": log_obj
+                "job_log_url": log_obj["url"]
             })
 
         parse_job_logs(self.project, tasks)
