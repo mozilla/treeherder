@@ -580,6 +580,40 @@ class JobDetail(models.Model):
                                             self.url)
 
 
+class JobLog(models.Model):
+    '''
+    Represents a log associated with a job
+
+    There can be more than one of these associated with each job
+    '''
+    PENDING = 0
+    PARSED = 1
+    FAILED = 2
+
+    STATUSES = ((PENDING, 'pending'),
+                (PARSED, 'parsed'),
+                (FAILED, 'failed'))
+
+    job = FlexibleForeignKey(Job)
+    name = models.CharField(max_length=50)
+    url = models.URLField(max_length=255)
+    status = models.IntegerField(choices=STATUSES, default=PENDING)
+
+    class Meta:
+        db_table = "job_log"
+        unique_together = ('job', 'name', 'url')
+
+    def __str__(self):
+        return "{0} {1} {2} {3}".format(self.id,
+                                        self.job.guid,
+                                        self.name,
+                                        self.status)
+
+    def update_status(self, status):
+        self.status = status
+        self.save(update_fields=['status'])
+
+
 class FailureLineManager(models.Manager):
     def unmatched_for_job(self, repository, job_guid):
         return FailureLine.objects.filter(
