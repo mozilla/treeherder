@@ -1,5 +1,4 @@
 import logging
-import types
 import urllib2
 
 import simplejson as json
@@ -16,20 +15,12 @@ logger = logging.getLogger(__name__)
 
 
 def expand_log_url(project, job_guid, job_log_url):
-    """If passed string assumed to be a url to a log, convert it to the
-    full job_log_url dict corresponding to that log url, otherwise
-    return the input job_log_url argument.
     """
-    if isinstance(job_log_url, types.StringTypes):
-        with JobsModel(project) as jm:
-            job_id = jm.get_job_ids_by_guid([job_guid])[job_guid]['id']
-            return jm.get_job_log_url_by_url(job_id, job_log_url)
-
-    return job_log_url
-
-
-def is_parsed(job_log_url):
-    return job_log_url.get("parse_status") == "parsed"
+    Get the job log object associated with a particular job log url
+    """
+    with JobsModel(project) as jm:
+        job_id = jm.get_job_ids_by_guid([job_guid])[job_guid]['id']
+        return jm.get_job_log_url_by_url(job_id, job_log_url)
 
 
 def extract_text_log_artifacts(project, log_url, job_guid):
@@ -66,7 +57,9 @@ def post_log_artifacts(project,
         # .retry() raises a RetryTaskError exception,
         # so nothing after this function will be executed
 
-    log_description = "%s %s (%s)" % (project, job_guid, job_log_url['url'])
+    log_obj = expand_log_url(project, job_guid, job_log_url)
+    log_description = "%s %s (%s)" % (project, job_guid, job_log_url)
+
     logger.debug("Downloading/parsing log for %s", log_description)
 
     credentials = Credentials.objects.get(client_id=settings.ETL_CLIENT_ID)
@@ -78,10 +71,10 @@ def post_log_artifacts(project,
     )
 
     try:
-        artifact_list = extract_artifacts_cb(project, job_log_url['url'],
+        artifact_list = extract_artifacts_cb(project, log_obj['url'],
                                              job_guid)
     except Exception as e:
-        client.update_parse_status(project, job_log_url['id'], 'failed')
+        client.update_parse_status(project, log_obj['id'], 'failed')
         # unrecoverable http error (doesn't exist or permission denied)
         # (apparently this can happen somewhat often with taskcluster if
         # the job fails, so just warn about it -- see
@@ -112,7 +105,7 @@ def post_log_artifacts(project,
     try:
         client.post_collection(project, tac)
         with JobsModel(project) as jm:
-            jm.update_job_log_url_status(job_log_url["id"], "parsed")
+            jm.update_job_log_url_status(log_obj["id"], "parsed")
         logger.debug("Finished posting artifact for %s %s", project, job_guid)
     except Exception as e:
         logger.error("Failed to upload parsed artifact for %s: %s", log_description, e)
