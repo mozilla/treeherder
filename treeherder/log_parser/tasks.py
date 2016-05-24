@@ -1,4 +1,3 @@
-import json
 import logging
 
 from celery import task
@@ -8,7 +7,6 @@ from django.core.management import call_command
 from treeherder.autoclassify.tasks import autoclassify
 from treeherder.log_parser.utils import (expand_log_url,
                                          extract_text_log_artifacts,
-                                         is_parsed,
                                          post_log_artifacts)
 from treeherder.workers.taskset import (create_taskset,
                                         taskset)
@@ -17,13 +15,12 @@ logger = logging.getLogger(__name__)
 
 
 def parser_task(f):
-    """Decorator that ensures the job_log_url is an object
-    rather than just a plain url, and checks if the task
-    has already run"""
+    """Decorator that ensures that log parsing task
+    has not already run"""
     def inner(project, job_guid, job_log_url, priority):
-        job_log_url = expand_log_url(project, job_guid, job_log_url)
+        log_obj = expand_log_url(project, job_guid, job_log_url)
 
-        if is_parsed(job_log_url):
+        if log_obj.get("parse_status") == "parsed":
             return True
 
         return f(project, job_guid, job_log_url, priority)
@@ -108,7 +105,7 @@ def store_failure_lines(project, job_guid, job_log_url, priority):
     """This task is a wrapper for the store_failure_lines command."""
     try:
         logger.debug('Running store_failure_lines for job %s' % job_guid)
-        call_command('store_failure_lines', project, job_guid, json.dumps(job_log_url))
+        call_command('store_failure_lines', project, job_guid, job_log_url)
         if settings.AUTOCLASSIFY_JOBS:
             autoclassify.apply_async(args=[project, job_guid],
                                      routing_key="autoclassify.%s" % priority)
