@@ -103,7 +103,6 @@ treeherder.controller('PluginCtrl', [
         // this promise will void all the ajax requests
         // triggered by selectJob once resolved
         var selectJobPromise = null;
-        var selectJobRetryPromise = null;
 
         var selectJob = function(job) {
             // set the scope variables needed for the job detail panel
@@ -115,9 +114,6 @@ treeherder.controller('PluginCtrl', [
                 }
                 selectJobPromise = $q.defer();
 
-                if( selectJobRetryPromise !== null){
-                    $timeout.cancel(selectJobRetryPromise);
-                }
                 $scope.job = {};
                 $scope.artifacts = {};
                 $scope.job_details = [];
@@ -200,34 +196,14 @@ treeherder.controller('PluginCtrl', [
                     }
 
                     // Provide a parse status for the model
-                    var logsNotParsed = [];
                     $scope.jobLogsAllParsed = _.every($scope.job_log_urls, function(jlu) {
                         if(jlu.parse_status === 'pending'){
-                            logsNotParsed.push(jlu);
                             return false;
                         }else{
                             return true;
                         }
                     });
 
-                    // retry to fetch the job info if a log hasn't been parsed yet
-                    if(logsNotParsed.length > 0){
-                        // first parse all the unparsed logs
-                        $q.all(_.map(logsNotParsed, function(log){return log.parse();}))
-                        .then(function(parseLogResponses){
-                            // then retry to fetch the job info if the parse requests
-                            // were successful
-                            if(_.every(
-                                parseLogResponses,
-                                function(parseLogResponse){return parseLogResponse.status === 200;}
-                            )){
-                                selectJobRetryPromise = $timeout(function(){
-                                    // refetch the job data details
-                                    selectJobAndRender(job);
-                                }, 5000);
-                            }
-                        });
-                    }
                     $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
                     $scope.lvFullUrl = location.origin + "/" + $scope.lvUrl;
                     $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
@@ -462,9 +438,6 @@ treeherder.controller('PluginCtrl', [
         $rootScope.$on(thEvents.clearSelectedJob, function(event, job) {
             if(selectJobPromise !== null){
                 $timeout.cancel(selectJobPromise);
-            }
-            if( selectJobRetryPromise !== null){
-                $timeout.cancel(selectJobRetryPromise);
             }
         });
 

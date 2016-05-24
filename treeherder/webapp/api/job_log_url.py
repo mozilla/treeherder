@@ -1,22 +1,15 @@
-import logging
-
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 
-from treeherder.webapp.api import permissions
 from treeherder.webapp.api.utils import with_jobs
 
-logger = logging.getLogger(__name__)
 
-
-class JobLogUrlViewSet(viewsets.ViewSet):
-    permission_classes = (permissions.HasHawkPermissionsOrReadOnly,)
-
+class JobLogUrlViewSet(viewsets.ReadOnlyModelViewSet):
     """
     A job_log_url object holds a reference to a job log.
     """
+
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
         """
@@ -45,23 +38,3 @@ class JobLogUrlViewSet(viewsets.ViewSet):
         job_log_url_list = jm.get_job_log_url_list([job_id])
 
         return Response(job_log_url_list)
-
-    @detail_route(methods=['post'])
-    @with_jobs
-    def parse(self, request, project, jm, pk=None):
-        """Trigger an async task to parse this log."""
-
-        log_obj = jm.get_job_log_url_detail(pk)
-        job = jm.get_job(log_obj["job_id"])[0]
-
-        log_obj["job_guid"] = job["job_guid"]
-        # We can fake the result because there is only one queue for high priority
-        # jobs and it doesn't depend on the result
-        log_obj["result"] = None
-
-        logger.info("{0} has requested to parse log {1}".format(
-                    request.user.username, log_obj))
-
-        jm.schedule_log_parsing([log_obj], priority="high")
-
-        return Response({"message": "Log parsing triggered successfully"})
