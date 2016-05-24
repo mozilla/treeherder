@@ -11,7 +11,7 @@ from treeherder.webapp.api.utils import with_jobs
 logger = logging.getLogger(__name__)
 
 
-class JobLogUrlViewSet(viewsets.ViewSet):
+class JobLogUrlViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.HasHawkPermissionsOrReadOnly,)
 
     """
@@ -45,37 +45,3 @@ class JobLogUrlViewSet(viewsets.ViewSet):
         job_log_url_list = jm.get_job_log_url_list([job_id])
 
         return Response(job_log_url_list)
-
-    @detail_route(methods=['post'])
-    @with_jobs
-    def update_parse_status(self, request, project, jm, pk=None):
-        """
-        Change the log parsing status for a log reference (eg from 'pending' to 'parsed').
-        """
-        try:
-            parse_status = request.data["parse_status"]
-        except KeyError:
-            raise ParseError(detail=("The parse_status parameter is mandatory for this endpoint"))
-        jm.update_job_log_url_status(pk, parse_status)
-        obj = jm.get_job_log_url_detail(pk)
-        return Response(obj)
-
-    @detail_route(methods=['post'])
-    @with_jobs
-    def parse(self, request, project, jm, pk=None):
-        """Trigger an async task to parse this log."""
-
-        log_obj = jm.get_job_log_url_detail(pk)
-        job = jm.get_job(log_obj["job_id"])[0]
-
-        log_obj["job_guid"] = job["job_guid"]
-        # We can fake the result because there is only one queue for high priority
-        # jobs and it doesn't depend on the result
-        log_obj["result"] = None
-
-        logger.info("{0} has requested to parse log {1}".format(
-                    request.user.username, log_obj))
-
-        jm.schedule_log_parsing([log_obj], priority="high")
-
-        return Response({"message": "Log parsing triggered successfully"})

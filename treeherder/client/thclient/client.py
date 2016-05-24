@@ -605,7 +605,6 @@ class TreeherderClient(object):
         'User-Agent': 'treeherder-pyclient/{}'.format(__version__),
     }
 
-    UPDATE_ENDPOINT = 'job-log-url/{}/update_parse_status'
     RESULTSET_ENDPOINT = 'resultset'
     JOBS_ENDPOINT = 'jobs'
     JOB_LOG_URL_ENDPOINT = 'job-log-url'
@@ -927,18 +926,6 @@ class TreeherderClient(object):
 
         return self._post_json(project, collection_inst.endpoint_base,
                                collection_inst.get_collection_data(), timeout)
-
-    def update_parse_status(self, project, job_log_url_id, parse_status, timeout=None):
-        """
-        Updates the parsing status of a treeherder job
-
-        :param project: project to submit data for
-        :param parse_status: string representing parse status of a treeherder
-                             job
-        :param timeout: custom timeout in seconds (defaults to class timeout)
-        """
-        self._post_json(project, self.UPDATE_ENDPOINT.format(job_log_url_id),
-                        {'parse_status': parse_status}, timeout)
 
 
 class TreeherderClientError(Exception):
