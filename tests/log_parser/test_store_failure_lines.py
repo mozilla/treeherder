@@ -2,7 +2,9 @@ import responses
 from django.conf import settings
 from django.core.management import call_command
 
-from treeherder.model.models import FailureLine
+from treeherder.model.models import (FailureLine,
+                                     Job,
+                                     JobLog)
 
 from ..sampledata import SampleData
 
@@ -15,17 +17,17 @@ def test_store_error_summary(activate_responses, test_repository, jm, eleven_job
         responses.add(responses.GET, log_url,
                       body=log_handler.read(), status=200)
 
-    job = jm.get_job(1)[0]
+    job = Job.objects.get(guid=jm.get_job(1)[0]['job_guid'])
 
-    jm._insert_log_urls([[job["id"], "errorsummary_json", log_url, "pending"]])
+    JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
 
-    call_command('store_failure_lines', jm.project, job['job_guid'], log_url)
+    call_command('store_failure_lines', jm.project, job.guid, log_url)
 
     assert FailureLine.objects.count() == 1
 
     failure = FailureLine.objects.get(pk=1)
 
-    assert failure.job_guid == job['job_guid']
+    assert failure.job_guid == job.guid
 
     assert failure.repository == test_repository
 
@@ -41,16 +43,16 @@ def test_store_error_summary_truncated(activate_responses, test_repository, jm,
         responses.add(responses.GET, log_url,
                       body=log_handler.read(), status=200)
 
-    job = jm.get_job(1)[0]
+    job = Job.objects.get(guid=jm.get_job(1)[0]['job_guid'])
 
-    jm._insert_log_urls([[job["id"], "errorsummary_json", log_url, "pending"]])
+    JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
 
-    call_command('store_failure_lines', jm.project, job['job_guid'], log_url)
+    call_command('store_failure_lines', jm.project, job.guid, log_url)
 
     assert FailureLine.objects.count() == 5 + 1
 
     failure = FailureLine.objects.get(action='truncated')
 
-    assert failure.job_guid == job['job_guid']
+    assert failure.job_guid == job.guid
 
     assert failure.repository == test_repository

@@ -22,9 +22,9 @@ from treeherder.model.models import (BuildPlatform,
                                      FailureClassification,
                                      FailureLine,
                                      Job,
-                                     JobDetail,
                                      JobDuration,
                                      JobGroup,
+                                     JobLog,
                                      JobType,
                                      Machine,
                                      MachinePlatform,
@@ -140,7 +140,6 @@ class JobsModel(TreeherderModelBase):
     # to their ids.
     JOBS_CYCLE_TARGETS = [
         "jobs.deletes.cycle_job_artifact",
-        "jobs.deletes.cycle_job_log_url",
         "jobs.deletes.cycle_job_note",
         "jobs.deletes.cycle_bug_job_map",
         "jobs.deletes.cycle_job",
@@ -376,15 +375,6 @@ class JobsModel(TreeherderModelBase):
             status_publisher.publish([job['job_guid']], self.project, 'processed')
         finally:
             status_publisher.disconnect()
-
-    def get_log_references(self, job_id):
-        """Return the log references for the given ``job_id``."""
-        data = self.execute(
-            proc="jobs.selects.get_log_references",
-            placeholders=[job_id],
-            debug_show=self.DEBUG,
-        )
-        return data
 
     def get_max_job_id(self):
         """Get the maximum job id."""
@@ -752,10 +742,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             # remove data from specified jobs tables that is older than max_timestamp
             self._execute_table_deletes(jobs_targets, 'jobs', sleep_time)
 
-            # Remove ORM entries for these jobs
+            # Remove ORM entries for these jobs (objects referring to Job, like
+            # JobDetail and JobLog, are cycled automatically via ON DELETE
+            # CASCADE)
             orm_delete(FailureLine, FailureLine.objects.filter(job_guid__in=job_guid_list),
-                       chunk_size, sleep_time)
-            orm_delete(JobDetail, JobDetail.objects.filter(job__guid__in=job_guid_list),
                        chunk_size, sleep_time)
             orm_delete(Job, Job.objects.filter(guid__in=job_guid_list),
                        chunk_size, sleep_time)
@@ -1296,8 +1286,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # failed and successful jobs
         job_results = dict((el[0], el[9]) for el in job_update_placeholders)
 
-        self._load_log_urls(log_placeholders, job_id_lookup,
-                            job_results)
+        self._load_log_urls(log_placeholders, job_results)
 
         with ArtifactsModel(self.project) as artifacts_model:
             artifacts_model.load_job_artifacts(artifact_placeholders)
@@ -1639,10 +1628,16 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 # Therefore, the log does not need parsing.  So we should
                 # ensure that it's marked as already parsed.
                 if has_text_log_summary and name == 'buildbot_text':
-                    parse_status = 'parsed'
+                    parse_status = JobLog.PARSED
                 else:
-                    # the parsing status of this log.  'pending' or 'parsed'
-                    parse_status = log.get('parse_status', 'pending')
+                    parse_status_map = dict([(k, v) for (v, k) in
+                                             JobLog.STATUSES])
+                    mapped_status = parse_status_map.get(
+                        log.get('parse_status'))
+                    if mapped_status:
+                        parse_status = mapped_status
+                    else:
+                        parse_status = JobLog.PENDING
 
                 log_placeholders.append([job_guid, name, url, parse_status])
 
@@ -1816,53 +1811,21 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return job_id_lookup
 
-    def _insert_log_urls(self, log_placeholders):
-        # Store the log references
-        return self.execute(
-            proc='jobs.inserts.set_job_log_url',
-            debug_show=self.DEBUG,
-            placeholders=log_placeholders,
-            executemany=True)
-
-    def _load_log_urls(self, log_placeholders, job_id_lookup,
-                       job_results):
-
-        job_id_guid = {}
-
+    def _load_log_urls(self, log_placeholders, job_results):
         if log_placeholders:
-            for log_ref in log_placeholders:
-                job_guid = log_ref[0]
-                job_id = job_id_lookup[job_guid]['id']
+            job_log_list = []
+            for (job_guid, name, url, status) in log_placeholders:
+                job = Job.objects.get(guid=job_guid)
+                jl, _ = JobLog.objects.get_or_create(
+                    job=job, name=name, url=url, status=status)
+                job_log_list.append((jl, job_results[job_guid]))
 
-                # Replace job_guid with id
-                log_ref[0] = job_id
-                job_id_guid[job_id] = job_guid
-
-            self._insert_log_urls(log_placeholders)
-
-            # Get the inserted rows, including their id
-            job_log_url_list = self.get_job_log_url_list(job_id_guid.keys())
-
-            for item in job_log_url_list:
-                # For jobs which have retried we need to swap back to the root job guid
-                # here
-                job_guid = job_id_guid[item["job_id"]]
-                item["job_guid"] = job_id_lookup[job_guid]["job_guid"]
-                item["result"] = job_results[job_guid]
-
-            self.schedule_log_parsing(job_log_url_list)
+            self.schedule_log_parsing(job_log_list)
 
     def schedule_log_parsing(self, log_data, priority="normal"):
         """Kick off the initial task that parses the log data.
 
-        log_data is a list of dictionaries of the form
-        {"id": job_log_url id,
-         "job_id": job id
-         "name": log type,
-         "url": log url,
-         "parse_status": log_parse_status,
-         "job_guid": job guid,
-         "result": job result}
+        log_data is a list of job log objects and the result for that job
 
         priority is either "normal" or "high"
         """
@@ -1881,39 +1844,30 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         tasks = defaultdict(list)
 
-        for log_obj in log_data:
+        for (job_log, job_result) in log_data:
             # a log can be submitted already parsed.  So only schedule
             # a parsing task if it's ``pending``
             # the submitter is then responsible for submitting the
             # text_log_summary artifact
-            if log_obj["parse_status"] != 'pending':
+            if job_log.status != JobLog.PENDING:
                 continue
 
-            func_name, routing_key = task_types.get(log_obj["name"], (None, None))
+            func_name, routing_key = task_types.get(job_log.name, (None, None))
             if routing_key is None:
                 continue
 
-            if priority == "normal" and log_obj["result"] != 'success':
+            if priority == "normal" and job_result != 'success':
                 routing_key += '.failures'
             else:
                 routing_key += ".%s" % priority
 
-            tasks[log_obj["job_guid"]].append({
+            tasks[job_log.job.guid].append({
                 "func_name": func_name,
                 "routing_key": routing_key,
-                "job_log_url": log_obj["url"]
+                "job_log_url": job_log.url
             })
 
         parse_job_logs(self.project, tasks)
-
-    def get_job_log_url_detail(self, job_log_url_id):
-        obj = self.execute(
-            proc='jobs.selects.get_job_log_url_detail',
-            debug_show=self.DEBUG,
-            placeholders=[job_log_url_id])
-        if len(obj) == 0:
-            raise ObjectNotFoundException("job_log_url", id=job_log_url_id)
-        return obj[0]
 
     def get_job_log_url_list(self, job_ids):
         """
@@ -1944,13 +1898,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         if len(obj) > 1:
             raise ValueError("Multiple logs for the same job with the same url")
         return obj[0]
-
-    def update_job_log_url_status(self, job_log_url_id, parse_status):
-
-        self.execute(
-            proc='jobs.updates.update_job_log_url',
-            debug_show=self.DEBUG,
-            placeholders=[parse_status, job_log_url_id])
 
     def _get_last_insert_id(self):
         """Return last-inserted ID."""

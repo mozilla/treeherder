@@ -4,7 +4,8 @@ import pytest
 
 from treeherder.etl.job_loader import JobLoader
 from treeherder.model.derived.artifacts import ArtifactsModel
-from treeherder.model.models import JobDetail
+from treeherder.model.models import (JobDetail,
+                                     JobLog)
 
 
 @pytest.fixture
@@ -52,8 +53,7 @@ def test_ingest_pulse_jobs(pulse_jobs, test_project, jm, result_set_stored,
     jobs = jm.get_job_list(0, 10)
     assert len(jobs) == 4
 
-    logs = jm.get_job_log_url_list([jobs[0]["id"]])
-    assert len(logs) == 1
+    assert JobLog.objects.filter(job__project_specific_id=jobs[0]["id"]).count() == 1
     with ArtifactsModel(test_project) as am:
         artifacts = am.get_job_artifact_list(0, 10)
         assert len(artifacts) == 4

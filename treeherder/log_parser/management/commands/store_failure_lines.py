@@ -9,9 +9,8 @@ from django.db import transaction
 from mozlog import reader
 
 from treeherder.etl.common import fetch_text
-from treeherder.log_parser.utils import expand_log_url
-from treeherder.model.derived import JobsModel
 from treeherder.model.models import (FailureLine,
+                                     JobLog,
                                      Repository)
 
 logger = logging.getLogger(__name__)
@@ -23,18 +22,18 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            repository_name, job_guid, log_url = args
+            repository_name, job_guid, job_log_url = args
         except ValueError:
             raise CommandError('3 arguments required, %s given' % len(args))
 
         try:
-            log_obj = expand_log_url(repository_name, job_guid, log_url)
-        except ValueError:
-            # This log_url either isn't in the database, or there are multiple possible
-            # urls in the database, so we will be unable to update the pending state
-            log_obj = None
+            log_obj = JobLog.objects.get(job__guid=job_guid,
+                                         url=job_log_url)
+        except JobLog.DoesNotExist:
+            raise CommandError("Job log object with URL '%s' and guid '%s' "
+                               "does not exist", job_log_url, job_guid)
 
-        log_text = fetch_text(log_url)
+        log_text = fetch_text(job_log_url)
 
         if not log_text:
             return
@@ -61,9 +60,5 @@ class Command(BaseCommand):
                  for failure_line in log_iter]
             )
 
-        if log_obj is not None:
-            with JobsModel(repository_name) as jm:
-                log_obj = expand_log_url(repository_name, job_guid, log_url)
-                jm.update_job_log_url_status(log_obj["id"], "parsed")
-        else:
-            logger.warning("Unable to set parsed state of job log")
+        log_obj.status == JobLog.PARSED
+        log_obj.save()

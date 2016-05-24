@@ -180,11 +180,7 @@ def verify_result_sets(jm, result_sets_ref):
 
 def verify_log_urls(jm, log_urls_ref):
 
-    log_urls = jm.get_dhub().execute(
-        proc='jobs.selects.get_all_log_urls',
-        key_column='url',
-        return_type='set'
-    )
+    log_urls = set(models.JobLog.objects.values_list('url', flat=True))
 
     assert log_urls_ref.issubset(log_urls)
 

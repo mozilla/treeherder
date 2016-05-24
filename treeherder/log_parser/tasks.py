@@ -5,9 +5,9 @@ from django.conf import settings
 from django.core.management import call_command
 
 from treeherder.autoclassify.tasks import autoclassify
-from treeherder.log_parser.utils import (expand_log_url,
-                                         extract_text_log_artifacts,
+from treeherder.log_parser.utils import (extract_text_log_artifacts,
                                          post_log_artifacts)
+from treeherder.model.models import JobLog
 from treeherder.workers.taskset import (create_taskset,
                                         taskset)
 
@@ -18,9 +18,9 @@ def parser_task(f):
     """Decorator that ensures that log parsing task
     has not already run"""
     def inner(project, job_guid, job_log_url, priority):
-        log_obj = expand_log_url(project, job_guid, job_log_url)
-
-        if log_obj.get("parse_status") == "parsed":
+        job_log = JobLog.objects.get(job__guid=job_guid,
+                                     url=job_log_url)
+        if job_log.status == JobLog.PARSED:
             return True
 
         return f(project, job_guid, job_log_url, priority)
@@ -90,7 +90,6 @@ def parse_log(project, job_guid, job_log_url, _priority):
     """
     Call ArtifactBuilderCollection on the given job.
     """
-    logger.debug("Running parse_log for job %s" % job_guid)
     post_log_artifacts(project,
                        job_guid,
                        job_log_url,
