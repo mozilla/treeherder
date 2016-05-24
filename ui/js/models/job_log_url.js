@@ -11,13 +11,6 @@ treeherder.factory('ThJobLogUrlModel', [
             // using the provided properties
             angular.extend(this, data);
         };
-        ThJobLogUrlModel.prototype.parse = function(){
-            if(!this.hasOwnProperty("id")){
-                throw "The id property is required in order to parse a log";
-            }
-            var uri = ThJobLogUrlModel.get_uri()+this.id+"/parse/";
-            return $http.post(uri);
-        };
 
         ThJobLogUrlModel.get_uri = function(){
             var url = thUrl.getProjectUrl("/job-log-url/");
