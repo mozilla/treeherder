@@ -1,0 +1,17 @@
+#!/bin/bash
+
+SRC_DIR=$(dirname "$(dirname "${BASH_SOURCE[0]}")")
+cd $SRC_DIR
+
+PROJECT_ROOT=$(readlink -f ../)
+PATH=$PROJECT_ROOT/venv/bin:$PATH
+
+source /etc/profile.d/treeherder.sh
+
+LOGFILE=/var/log/manage/ingest_from_pulse.log
+
+if [ ! -f $LOGFILE ]; then
+    touch $LOGFILE
+fi
+
+exec newrelic-admin run-program ./manage.py ingest_from_pulse
