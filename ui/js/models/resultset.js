@@ -201,9 +201,12 @@ treeherder.factory(
                  return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri);
              },
 
-             triggerNewJobs: function(repoName, resultset_id, buildernames) {
+             triggerNewJobs: function(repoName, resultset_id, buildernames, taskID) {
                  var uri = resultset_id + '/trigger_runnable_jobs/';
-                 var data = {buildernames: buildernames};
+                 var data = {
+                     "buildernames": buildernames,
+                     "taskID": taskID
+                 };
                  return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri, data);
              }
          };

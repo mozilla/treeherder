@@ -112,7 +112,7 @@ def publish_resultset_action(project, action, resultset_id, requester, times=1):
 
 @task(name='publish-resultset-runnable-job-action')
 def publish_resultset_runnable_job_action(project, resultset_id, requester,
-                                          buildernames):
+                                          buildernames, taskID):
     publisher = pulse_connection.get_publisher()
     if not publisher:
         return
@@ -122,7 +122,8 @@ def publish_resultset_runnable_job_action(project, resultset_id, requester,
         project=project,
         requester=requester,
         resultset_id=resultset_id,
-        buildernames=buildernames
+        buildernames=buildernames,
+        taskID=taskID
     )
 
 
