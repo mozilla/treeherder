@@ -54,3 +54,34 @@ def test_store_error_summary_truncated(activate_responses, test_repository, jm,
     assert failure.job_guid == job['job_guid']
 
     assert failure.repository == test_repository
+
+
+def test_store_error_summary_astral(activate_responses, test_repository, jm,
+                                    eleven_jobs_stored):
+    log_path = SampleData().get_log_path("plain-chunked_errorsummary_astral.log")
+    log_url = 'http://my-log.mozilla.org'
+
+    with open(log_path) as log_handler:
+        responses.add(responses.GET, log_url, content_type="text/plain;charset=utf-8",
+                      body=log_handler.read(), status=200)
+
+    job = jm.get_job(1)[0]
+
+    jm._insert_log_urls([[job["id"], "errorsummary_json", log_url, "pending"]])
+
+    call_command('store_failure_lines', jm.project, job['job_guid'], log_url)
+
+    assert FailureLine.objects.count() == 1
+
+    failure = FailureLine.objects.get(pk=1)
+
+    assert failure.job_guid == job['job_guid']
+
+    assert failure.repository == test_repository
+
+    assert failure.test == u"toolkit/content/tests/widgets/test_videocontrols_video_direction.html <U+01F346>"
+    assert failure.subtest == u"Test timed out. <U+010081>"
+    assert failure.message == u"<U+0F0151>"
+    assert failure.stack.endswith("<U+0F0151>")
+    assert failure.stackwalk_stdout is None
+    assert failure.stackwalk_stderr is None
