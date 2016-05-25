@@ -20,7 +20,8 @@ class RunnableJobsViewSet(viewsets.ViewSet):
         """
         GET method implementation for list of all runnable buildbot jobs
         """
-        tc_jobs_url = request.query_params['tcURL']
+        taskID = request.query_params['taskID']
+        tc_jobs_url = "https://public-artifacts.taskcluster.net/" + taskID + "/public/full-task-graph.json"
         tc_graph = None
         validate = URLValidator()
         try:
@@ -31,9 +32,6 @@ class RunnableJobsViewSet(viewsets.ViewSet):
             pass
         except Exception as ex:
             return Response("Exception: {0}".format(ex), 500)
-
-        # so I got the graph in tc_graph successfully. How do I parse it in
-        # the given format?
 
         repository = models.Repository.objects.get(name=project)
 
@@ -82,6 +80,7 @@ class RunnableJobsViewSet(viewsets.ViewSet):
             build_platform = node['task']['extra']['treeherder']['build']['platform']
             job_type_name = node['task']['metadata']['name']
 
+            # Not all tasks have a group name
             if 'groupName' in node['task']['extra']['treeherder']:
                 job_group_name = node['task']['extra']['treeherder']['groupName']
             else:
