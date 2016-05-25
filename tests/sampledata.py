@@ -25,14 +25,6 @@ class SampleData(object):
             os.path.dirname(__file__)
         )
 
-        with open("{0}/sample_data/artifacts/structured_log_artifact.json".format(
-                  os.path.dirname(__file__))) as f:
-            self.structured_log_artifact = f.readlines()
-
-        with open("{0}/sample_data/artifacts/job_artifact.json".format(
-                  os.path.dirname(__file__))) as f:
-            self.job_artifact = f.readlines()
-
         with open("{0}/sample_data/artifacts/text_log_summary.json".format(
                   os.path.dirname(__file__))) as f:
             self.text_log_summary = json.load(f)
