@@ -10,7 +10,9 @@ from treeherder.log_parser.parsers import StepParser
 from treeherder.model import error_summary
 from treeherder.model.derived import (ArtifactsModel,
                                       JobsModel)
-from treeherder.model.models import JobDetail
+from treeherder.model.models import (Job,
+                                     JobDetail,
+                                     JobLog)
 
 
 @pytest.fixture
@@ -39,15 +41,14 @@ def check_artifacts(test_project,
                     exp_artifact_names=None,
                     exp_error_summary=None):
 
-    with JobsModel(test_project) as jobs_model:
-        job_id = [x['id'] for x in jobs_model.get_job_list(0, 20)
-                  if x['job_guid'] == job_guid][0]
-        job_log_list = jobs_model.get_job_log_url_list([job_id])
-
-        assert len(job_log_list) == 1
-        assert job_log_list[0]['parse_status'] == parse_status
+    job_logs = JobLog.objects.filter(job__guid=job_guid)
+    assert len(job_logs) == 1
+    assert job_logs[0].status == parse_status
 
     with ArtifactsModel(test_project) as artifacts_model:
+        job_id = Job.objects.values_list('project_specific_id').get(
+            guid=job_guid)
+
         artifacts = artifacts_model.get_job_artifact_list(0, 10, conditions={
             'job_id': {('=', job_id)}
         })
@@ -97,7 +98,7 @@ def test_post_job_with_parsed_log(test_project, result_set_stored,
 
     post_collection(test_project, tjc)
 
-    check_artifacts(test_project, job_guid, 'parsed', 0)
+    check_artifacts(test_project, job_guid, JobLog.PARSED, 0)
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False
@@ -145,7 +146,7 @@ def test_post_job_with_text_log_summary_artifact_parsed(
 
     post_collection(test_project, tjc)
 
-    check_artifacts(test_project, job_guid, 'parsed', 2,
+    check_artifacts(test_project, job_guid, JobLog.PARSED, 2,
                     {'Bug suggestions', 'text_log_summary'}, mock_error_summary)
 
     # ensure the parsing didn't happen
@@ -194,7 +195,7 @@ def test_post_job_with_text_log_summary_artifact_parsed_dict_blob(
 
     post_collection(test_project, tjc)
 
-    check_artifacts(test_project, job_guid, 'parsed', 2,
+    check_artifacts(test_project, job_guid, JobLog.PARSED, 2,
                     {'Bug suggestions', 'text_log_summary'}, mock_error_summary)
 
     # ensure the parsing didn't happen
@@ -245,7 +246,7 @@ def test_post_job_with_text_log_summary_artifact_pending(
 
     post_collection(test_project, tjc)
 
-    check_artifacts(test_project, job_guid, 'parsed', 2,
+    check_artifacts(test_project, job_guid, JobLog.PARSED, 2,
                     {'Bug suggestions', 'text_log_summary'}, mock_error_summary)
 
     # ensure the parsing didn't happen
@@ -307,7 +308,7 @@ def test_post_job_with_text_log_summary_and_bug_suggestions_artifact(
 
     post_collection(test_project, tjc)
 
-    check_artifacts(test_project, job_guid, 'parsed', 2,
+    check_artifacts(test_project, job_guid, JobLog.PARSED, 2,
                     {'Bug suggestions', 'text_log_summary'}, error_summary_blob)
 
     assert mock_parse.called is False
@@ -386,7 +387,7 @@ def test_post_job_artifacts_by_add_artifact(
         'url': None
     }
 
-    check_artifacts(test_project, job_guid, 'parsed', 5,
+    check_artifacts(test_project, job_guid, JobLog.PARSED, 5,
                     {'Bug suggestions', 'text_log_summary', 'Job Info',
                      'privatebuild', 'buildapi'}, mock_error_summary)
 

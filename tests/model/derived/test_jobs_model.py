@@ -17,6 +17,7 @@ from treeherder.model.models import (BuildPlatform,
                                      JobDetail,
                                      JobDuration,
                                      JobGroup,
+                                     JobLog,
                                      JobType,
                                      Machine,
                                      MachinePlatform,
@@ -227,6 +228,7 @@ def test_ingest_running_to_retry_sample_job(jm, sample_data,
     assert jl[0]['id'] == initial_job_id
 
     assert Job.objects.count() == 1
+    assert JobLog.objects.count() == 1
     intermediary_job = Job.objects.all()[0]
     assert intermediary_job.project_specific_id == initial_job_id
     # intermediary guid should be the retry one
@@ -271,6 +273,7 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, sample_data,
     assert jl[1]['result'] == 'success'
 
     assert Job.objects.count() == 2
+    assert JobLog.objects.count() == 2
     assert set(Job.objects.values_list('id', flat=True)) == set([j['id'] for j in jl])
 
 
@@ -317,6 +320,7 @@ def test_ingest_running_to_retry_to_success_sample_job_multiple_retries(
     assert jl[1]['result'] == 'success'
 
     assert Job.objects.count() == 2
+    assert JobLog.objects.count() == 2
     assert set(Job.objects.values_list('id', flat=True)) == set([j['id'] for j in jl])
 
 
@@ -420,6 +424,7 @@ def test_cycle_all_data(jm, sample_data,
     assert FailureLine.objects.count() == 0
     assert Job.objects.count() == 0
     assert JobDetail.objects.count() == 0
+    assert JobLog.objects.count() == 0
 
 
 def test_cycle_one_job(jm, sample_data,
@@ -464,8 +469,12 @@ def test_cycle_one_job(jm, sample_data,
         proc="jobs_test.selects.get_one_job_for_cycling",
         placeholders=[1]
     )
+    num_job_logs_to_be_deleted = JobLog.objects.filter(
+        job__project_specific_id__in=[job['id'] for job in
+                                      jobs_to_be_deleted]).count()
 
     jobs_before = jm.execute(proc="jobs_test.selects.jobs")
+    job_logs_before = JobLog.objects.count()
 
     call_command('cycle_data', sleep_time=0, days=1, debug=True)
 
@@ -482,6 +491,9 @@ def test_cycle_one_job(jm, sample_data,
 
     assert len(jobs_after) == len(jobs_before) - len(jobs_to_be_deleted)
     assert len(jobs_after) == Job.objects.count()
+
+    assert JobLog.objects.count() == (job_logs_before -
+                                      num_job_logs_to_be_deleted)
 
     for (object_type, objects) in extra_objects.values():
         assert (set(item.id for item in object_type.objects.all()) ==
