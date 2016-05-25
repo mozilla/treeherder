@@ -22,11 +22,12 @@ treeherder.factory('ThJobArtifactModel', [
             var timeout = config.timeout || null;
 
             // Bail without fetching the log if there's no log to fetch
-            if(state == "pending" || state == "running") {
+            if(state === "pending" || state === "running") {
                 return $q(function(resolve, reject) {
                     resolve([]);
                 });
             }
+
             return $http.get(ThJobArtifactModel.get_uri(),{
                 params: options,
                 timeout: timeout
