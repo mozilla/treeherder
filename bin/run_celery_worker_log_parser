@@ -18,19 +18,14 @@ exec newrelic-admin run-program celery -A treeherder worker \
     -Q \
 parse_job_logs,\
 parse_job_logs_fail,\
-parse_job_logs_hp,\
 log_parser,\
 log_parser_fail,\
-log_parser_hp,\
 log_store_failure_lines,\
 log_store_failure_lines_fail,\
-log_store_failure_lines_hp,\
 log_crossreference_error_lines,\
 log_crossreference_error_lines_fail,\
-log_crossreference_error_lines_hp,\
 log_autoclassify,\
 log_autoclassify_fail,\
-log_autoclassify_hp,\
 error_summary\
     --concurrency=5 --logfile=$LOGFILE -l INFO \
     --maxtasksperchild=500 -n log_parser.%h
