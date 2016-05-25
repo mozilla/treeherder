@@ -934,31 +934,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             new_lookup = self.get_resultset_top_revision_lookup(missing_revisions)
             resultset_lookup.update(new_lookup)
 
-    def get_result_set_list_by_ids(self, result_set_ids):
-        """Given a list of result_set_ids, fetch the matching resultsets."""
-
-        conditions = {'id': {('IN', tuple(result_set_ids))}}
-
-        replace_str, placeholders = self._process_conditions(
-            conditions, self.INDEXED_COLUMNS['result_set']
-        )
-
-        proc = "jobs.selects.get_result_set_list_by_ids"
-
-        result_set_ids = self.execute(
-            proc=proc,
-            replace=[replace_str],
-            placeholders=placeholders,
-            debug_show=self.DEBUG,
-        )
-
-        aggregate_details = self.get_result_set_details(result_set_ids)
-
-        return_list = self._merge_result_set_details(
-            result_set_ids, aggregate_details, True)
-
-        return return_list
-
     def get_result_set_list(
             self, offset_id, limit, full=True, conditions=None):
         """

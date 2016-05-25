@@ -552,18 +552,6 @@
 
             "host_type": "master_host"
         },
-        "get_result_set_list_by_ids":{
-            "sql":"SELECT rs.id,
-                          rs.author,
-                          rs.long_revision,
-                          rs.revision_hash,
-                          rs.push_timestamp
-                   FROM result_set AS rs
-                   WHERE rs.active_status = 'active' REP0
-                   ORDER BY rs.push_timestamp DESC
-                   ",
-            "host_type": "read_host"
-        },
         "get_result_set_list":{
             "sql":"SELECT DISTINCT
                       rs.id,

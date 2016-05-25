@@ -4,7 +4,6 @@ import zlib
 import pytest
 from webtest.app import TestApp
 
-from tests.sample_data_generator import job_data
 from treeherder.config import wsgi
 from treeherder.model.derived import ArtifactsModel
 
@@ -15,11 +14,6 @@ def webapp():
     we can use this object to test calls to a wsgi application
     """
     return TestApp(wsgi.application)
-
-
-@pytest.fixture
-def job_sample():
-    return job_data()
 
 
 @pytest.fixture
