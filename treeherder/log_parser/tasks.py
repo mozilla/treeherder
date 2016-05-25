@@ -44,12 +44,15 @@ def parse_job_logs(project, tasks):
     :param tasks: Dict of {job_guid: [task_dict]} where task_dict contains
                   detail of the tasks to schedule.
     """
-    task_funcs = {"store_failure_lines": store_failure_lines,
-                  "parse_log": parse_log}
+    task_funcs = {
+        "store_failure_lines": store_failure_lines,
+        "parse_log": parse_log,
+    }
 
-    task_priorities = {"normal": 0,
-                       "failures": 1,
-                       "high": 2}
+    task_priorities = {
+        "normal": 0,
+        "failures": 1,
+    }
 
     callback_priority = "normal"
 

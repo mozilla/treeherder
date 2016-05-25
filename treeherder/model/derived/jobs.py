@@ -1828,19 +1828,14 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
             self.schedule_log_parsing(job_log_list)
 
-    def schedule_log_parsing(self, log_data, priority="normal"):
+    def schedule_log_parsing(self, log_data):
         """Kick off the initial task that parses the log data.
 
         log_data is a list of job log objects and the result for that job
-
-        priority is either "normal" or "high"
         """
 
         # importing here to avoid an import loop
         from treeherder.log_parser.tasks import parse_job_logs
-
-        if priority not in ("normal", "high"):
-            raise ValueError("Invalid log parsing priority '%s'" % priority)
 
         task_types = {
             "errorsummary_json": ("store_failure_lines", "store_failure_lines"),
@@ -1862,10 +1857,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             if routing_key is None:
                 continue
 
-            if priority == "normal" and job_result != 'success':
+            if job_result != 'success':
                 routing_key += '.failures'
             else:
-                routing_key += ".%s" % priority
+                routing_key += ".normal"
 
             tasks[job_log.job.guid].append({
                 "func_name": func_name,
