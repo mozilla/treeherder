@@ -2,7 +2,9 @@ from rest_framework import viewsets
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 
-from treeherder.webapp.api.utils import with_jobs
+from treeherder.model.models import (Job,
+                                     JobLog,
+                                     Repository)
 
 
 class JobLogUrlViewSet(viewsets.ReadOnlyModelViewSet):
@@ -10,20 +12,28 @@ class JobLogUrlViewSet(viewsets.ReadOnlyModelViewSet):
     A job_log_url object holds a reference to a job log.
     """
 
-    @with_jobs
-    def retrieve(self, request, project, jm, pk=None):
+    @staticmethod
+    def _log_as_dict(log):
+        return {
+            'id': log.id,
+            'name': log.name,
+            'url': log.url,
+            'parse_status': log.STATUSES[log.status][1]
+        }
+
+    def retrieve(self, request, project, pk=None):
         """
         Returns a job_log_url object given its ID
         """
-        obj = jm.get_job_log_url_detail(pk)
-        return Response(obj)
+        log = JobLog.objects.get(id=pk)
+        return Response(self._log_as_dict(log))
 
-    @with_jobs
-    def list(self, request, project, jm):
+    def list(self, request, project):
         """
         GET method implementation for list view
         job_id -- Mandatory filter indicating which job these log belongs to.
         """
+        repository = Repository.objects.get(name=project)
 
         job_id = request.query_params.get('job_id')
         if not job_id:
@@ -34,7 +44,7 @@ class JobLogUrlViewSet(viewsets.ReadOnlyModelViewSet):
         except ValueError:
             raise ParseError(detail="The job_id parameter must be an integer")
 
-        # get_job_log_url_list takes a list of job ids
-        job_log_url_list = jm.get_job_log_url_list([job_id])
-
-        return Response(job_log_url_list)
+        jobs = Job.objects.filter(repository=repository,
+                                  project_specific_id=job_id)
+        return Response([self._log_as_dict(log) for log in
+                         JobLog.objects.filter(job__in=jobs)])

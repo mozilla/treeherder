@@ -23,10 +23,6 @@
             "sql": "SELECT * FROM `job_artifact` WHERE job_id = ?",
             "host_type": "master_host"
         },
-        "job_log_urls": {
-            "sql": "SELECT * FROM `job_log_url` WHERE job_id = ?",
-            "host_type": "master_host"
-        },
         "job_source": {
             "sql": "SELECT res.push_timestamp,
                            rev.comments,

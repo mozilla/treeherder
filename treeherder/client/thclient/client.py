@@ -331,7 +331,7 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
                 # Ex: 'debug | pgo | asan | opt': True
                 'option_collection': {},
 
-                # Stored in project_jobs_1.job_log_url
+                # Stored in treeherder_reference_1.job_log_url
                 # Example:
                 # log_references: [
                 #    { url: 'http://ftp.mozilla.org/mozilla.org/firefox.gz',

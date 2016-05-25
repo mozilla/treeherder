@@ -10,6 +10,7 @@ from rest_framework.reverse import reverse
 from treeherder.model.derived import ArtifactsModel
 from treeherder.model.models import (FailureLine,
                                      JobDetail,
+                                     JobLog,
                                      OptionCollection,
                                      TextLogSummary)
 from treeherder.webapp.api import (permissions,
@@ -52,7 +53,10 @@ class JobsViewSet(viewsets.ViewSet):
             job = obj[0]
             job["resource_uri"] = reverse("jobs-detail",
                                           kwargs={"project": jm.project, "pk": job["id"]})
-            job["logs"] = jm.get_log_references(pk)
+            job["logs"] = []
+            for (name, url) in JobLog.objects.filter(
+                    job__project_specific_id=job['id']).values_list('name', 'url'):
+                job["logs"].append({'name': name, 'url': url})
 
             # make artifact ids into uris
 
