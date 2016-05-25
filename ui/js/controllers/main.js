@@ -47,7 +47,7 @@ treeherderApp.controller('MainCtrl', [
 
             // Revisions (and comments) might not be loaded the first few times this function is called
             if (revisions.length === 0 || !revisions[0].escaped_comment) {
-                return false;
+                return [false, false];
             }
 
             //Job counts are calculated at a later point in the page load, so this is undefined for a while
@@ -563,3 +563,4 @@ treeherderApp.controller('MainCtrl', [
         $scope.jobFilters = thJobFilters;
     }
 ]);
+
