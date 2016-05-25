@@ -121,7 +121,7 @@ def publish_resultset_action(project, action, resultset_id, requester, times=1):
 
 @task(name='publish-resultset-runnable-job-action')
 def publish_resultset_runnable_job_action(project, resultset_id, requester,
-                                          buildernames):
+                                          buildernames, taskID):
     newrelic.agent.add_custom_parameter("project", project)
     newrelic.agent.add_custom_parameter("resultset_id", resultset_id)
     newrelic.agent.add_custom_parameter("requester", requester)
@@ -134,7 +134,8 @@ def publish_resultset_runnable_job_action(project, resultset_id, requester,
         project=project,
         requester=requester,
         resultset_id=resultset_id,
-        buildernames=buildernames
+        buildernames=buildernames,
+        taskID=taskID
     )
 
 

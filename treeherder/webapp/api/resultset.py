@@ -210,12 +210,13 @@ class ResultSetViewSet(viewsets.ViewSet):
                             status=HTTP_404_NOT_FOUND)
 
         buildernames = request.data.get('buildernames', [])
+        taskID = request.data.get('taskID', [])
         if len(buildernames) == 0:
             Response({"message": "The list of buildernames cannot be empty"},
                      status=HTTP_400_BAD_REQUEST)
 
         publish_resultset_runnable_job_action.apply_async(
-            args=[project, pk, request.user.email, buildernames],
+            args=[project, pk, request.user.email, buildernames, taskID],
             routing_key='publish_to_pulse'
         )
 
