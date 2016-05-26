@@ -1,6 +1,6 @@
 import gzip
 import json
-import urllib2
+import requests
 
 from django.conf import settings
 from django.core.cache import caches
@@ -21,15 +21,6 @@ class LogSliceView(viewsets.ViewSet):
     This view serves slices of the log
     """
 
-    def get_log_handle(self, url):
-        """Hook to get a handle to the log with this url"""
-        req = urllib2.Request(url)
-        req.add_header('User-Agent', settings.TREEHERDER_USER_AGENT)
-        return urllib2.urlopen(
-            req,
-            timeout=settings.REQUESTS_TIMEOUT
-        )
-
     @with_jobs
     def list(self, request, project, jm):
         """
@@ -45,7 +36,6 @@ class LogSliceView(viewsets.ViewSet):
             log_names = ["buildbot_text", "builds-4h"]
         format = 'json' if log_name == 'mozlog_json' else 'text'
 
-        handle = None
         gz_file = None
 
         start_line = request.query_params.get("start_line")
@@ -77,16 +67,16 @@ class LogSliceView(viewsets.ViewSet):
 
         try:
             gz_file = filesystem.get(url)
-
             if not gz_file:
-                handle = self.get_log_handle(url)
-                gz_file = gzip.GzipFile(fileobj=BytesIO(handle.read()))
+                r = requests.get(url,
+                                 headers={'User-Agent':
+                                          settings.TREEHERDER_USER_AGENT})
+                gz_file = gzip.GzipFile(fileobj=BytesIO(r.content))
                 filesystem.set(url, gz_file.fileobj)
             else:
                 gz_file = gzip.GzipFile(fileobj=gz_file)
 
             lines = []
-
             for i, line in enumerate(gz_file):
                 if i < start_line:
                     continue
@@ -101,7 +91,5 @@ class LogSliceView(viewsets.ViewSet):
             return Response(lines)
 
         finally:
-            if handle:
-                handle.close()
             if gz_file:
                 gz_file.close()
