@@ -1060,12 +1060,12 @@ treeherder.factory('ThResultSetStore', [
                 // search for the right platform
                 var job = jobList[i];
                 var platform = _.find(groupedJobs.platforms, function(platform){
-                    return job.build_platform === platform.name &&
+                    return job.platform === platform.name &&
                         job.platform_option === platform.option;
                 });
                 if(_.isUndefined(platform)){
                     platform = {
-                        name: job.build_platform,
+                        name: job.platform,
                         option: job.platform_option,
                         groups: []
                     };
