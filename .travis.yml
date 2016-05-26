@@ -80,8 +80,7 @@ matrix:
         # Manually install mysql 5.6 since the default is v5.5.
         - sudo apt-get -qq update
         - sudo apt-get -y install mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
-        - echo -e '[mysqld]\nsql_mode="STRICT_ALL_TABLES"\n' > $HOME/.my.cnf
-        - chmod a-w $HOME/.my.cnf
+        - echo -e '\n[mysqld]\nsql_mode="STRICT_ALL_TABLES"\n' | sudo tee -a /etc/mysql/my.cnf
         - sudo service mysql restart
         - mysql -e 'SHOW VARIABLES' -uroot
         # Create a clean virtualenv rather than using the one given to us,
@@ -112,8 +111,7 @@ matrix:
         # Manually install mysql 5.6 since the default is v5.5.
         - sudo apt-get -qq update
         - sudo apt-get -y install mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
-        - echo -e '[mysqld]\nsql_mode="STRICT_ALL_TABLES"\n' > $HOME/.my.cnf
-        - chmod a-w $HOME/.my.cnf
+        - echo -e '\n[mysqld]\nsql_mode="STRICT_ALL_TABLES"\n' | sudo tee -a /etc/mysql/my.cnf
         - sudo service mysql restart
         - mysql -e 'SHOW VARIABLES' -uroot
         # Create a clean virtualenv rather than using the one given to us,
