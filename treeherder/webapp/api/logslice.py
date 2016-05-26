@@ -38,7 +38,11 @@ class LogSliceView(viewsets.ViewSet):
         Receives a line range and job_id and returns those lines
         """
         job_id = request.query_params.get("job_id")
-        log_name = request.query_params.get("name", "buildbot_text")
+        log_name = request.query_params.get("name")
+        if log_name:
+            log_names = [log_name]
+        else:
+            log_names = ["buildbot_text", "builds-4h"]
         format = 'json' if log_name == 'mozlog_json' else 'text'
 
         handle = None
@@ -66,8 +70,8 @@ class LogSliceView(viewsets.ViewSet):
 
         try:
             url = JobLog.objects.filter(
-                job=job, name=log_name)[0:1].values_list('url',
-                                                         flat=True)[0]
+                job=job, name__in=log_names)[0:1].values_list('url',
+                                                              flat=True)[0]
         except JobLog.DoesNotExist:
             return Response("Job log does not exist", 404)
 
