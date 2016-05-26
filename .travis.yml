@@ -20,7 +20,7 @@ matrix:
       before_install:
         # Create a clean virtualenv rather than using the one given to us,
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
-        - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv ~/venv; fi
+        - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
         - source ~/venv/bin/activate
         - pip install --disable-pip-version-check --upgrade pip==8.1.1
         # Manually create the test database (required by the Django system checks), since
@@ -84,7 +84,7 @@ matrix:
         - sudo service mysql restart
         # Create a clean virtualenv rather than using the one given to us,
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
-        - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv ~/venv; fi
+        - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
         - source ~/venv/bin/activate
         - pip install --disable-pip-version-check --upgrade pip==8.1.1
       install:
@@ -114,7 +114,7 @@ matrix:
         - sudo service mysql restart
         # Create a clean virtualenv rather than using the one given to us,
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
-        - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv ~/venv; fi
+        - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
         - source ~/venv/bin/activate
         - pip install --disable-pip-version-check --upgrade pip==8.1.1
       install:
