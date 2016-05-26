@@ -8,7 +8,8 @@ from django.utils.six import BytesIO
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from treeherder.webapp.api.exceptions import ResourceNotFoundException
+from treeherder.model.models import (Job,
+                                     JobLog)
 from treeherder.webapp.api.utils import with_jobs
 
 filesystem = caches['filesystem']
@@ -57,25 +58,20 @@ class LogSliceView(viewsets.ViewSet):
         if start_line >= end_line:
             return Response("``end_line`` must be larger than ``start_line``", 400)
 
-        # get only the log that matches the ``log_name``
-        logs = jm.get_log_references(job_id)
-
-        # @todo: remove after no more logs named 'builds-4h' exist in the db.  Should be after Aug 30, 2015.
-        exp_log_names = [log_name, 'builds-4h']
+        try:
+            job = Job.objects.get(repository__name=project,
+                                  project_specific_id=job_id)
+        except Job.DoesNotExist:
+            return Response("Job does not exist", 404)
 
         try:
-            log = next(log for log in logs if log["name"] in exp_log_names)
-        except StopIteration:
-            act_log_names = [x["name"] for x in logs]
-            raise ResourceNotFoundException(
-                "Expected log names of {} not found in {} for job_id {}".format(
-                    exp_log_names,
-                    act_log_names,
-                    job_id,
-                    ))
+            url = JobLog.objects.filter(
+                job=job, name=log_name)[0:1].values_list('url',
+                                                         flat=True)[0]
+        except JobLog.DoesNotExist:
+            return Response("Job log does not exist", 404)
 
         try:
-            url = log.get("url")
             gz_file = filesystem.get(url)
 
             if not gz_file:
