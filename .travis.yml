@@ -94,10 +94,10 @@ matrix:
       install:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
       script:
-        - py.test tests/ --runslow --ignore=tests/e2e/ --ignore=tests/etl/ --ignore=tests/log_parser/
+        - py.test tests/ --runslow --ignore=tests/e2e/ --ignore=tests/etl/ --ignore=tests/log_parser/ --ignore=tests/webapp/
 
     # Job 4: Python Tests Chunk B
-    - env: python-tests-e2e-etl-and-logparser
+    - env: python-tests-e2e-etl-logparser
       # Once mysql 5.6 is available on the container infra, we should switch back
       # to it for its faster boot time, by setting `sudo: false`.
       sudo: required
@@ -129,6 +129,40 @@ matrix:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
       script:
         - py.test tests/e2e/ tests/etl/ tests/log_parser/ --runslow
+
+    # Job 5: Python Tests Chunk C
+    - env: python-tests-webapp
+      # Once mysql 5.6 is available on the container infra, we should switch back
+      # to it for its faster boot time, by setting `sudo: false`.
+      sudo: required
+      dist: trusty
+      language: python
+      python: "2.7.11"
+      cache:
+        directories:
+          - ~/venv
+      addons:
+        apt:
+          packages:
+            # Install mysql 5.6 since the default is v5.5.
+            - mysql-server-5.6
+            - mysql-client-core-5.6
+            - mysql-client-5.6
+      services:
+        - rabbitmq
+        - memcached
+      before_install:
+        - echo -e '\n[mysqld]\nsql_mode="STRICT_ALL_TABLES"\n' | sudo tee -a /etc/mysql/my.cnf
+        - sudo service mysql restart
+        # Create a clean virtualenv rather than using the one given to us,
+        # to work around: https://github.com/travis-ci/travis-ci/issues/4873
+        - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
+        - source ~/venv/bin/activate
+        - pip install --disable-pip-version-check --upgrade pip==8.1.1
+      install:
+        - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
+      script:
+        - py.test tests/webapp/ --runslow
 
 notifications:
   email:
