@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from treeherder.etl.common import make_request
 from treeherder.model.models import (Job,
                                      JobLog)
-from treeherder.webapp.api.utils import with_jobs
 
 filesystem = caches['filesystem']
 
@@ -20,8 +19,7 @@ class LogSliceView(viewsets.ViewSet):
     This view serves slices of the log
     """
 
-    @with_jobs
-    def list(self, request, project, jm):
+    def list(self, request, project):
         """
         GET method implementation for log slicer
 
