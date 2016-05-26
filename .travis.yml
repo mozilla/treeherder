@@ -79,7 +79,7 @@ matrix:
       before_install:
         # Manually install mysql 5.6 since the default is v5.5.
         - sudo apt-get -qq update
-        - sudo apt-get -qq install mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
+        - sudo apt-get -y install mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
         - echo -e 'sql_mode="STRICT_ALL_TABLES"\n' > $HOME/.my.cnf
         - chmod a-w $HOME/.my.cnf
         - sudo service mysql restart
@@ -110,7 +110,7 @@ matrix:
       before_install:
         # Manually install mysql 5.6 since the default is v5.5.
         - sudo apt-get -qq update
-        - sudo apt-get -qq install mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
+        - sudo apt-get -y install mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
         - echo -e 'sql_mode="STRICT_ALL_TABLES"\n' > $HOME/.my.cnf
         - chmod a-w $HOME/.my.cnf
         - sudo service mysql restart
