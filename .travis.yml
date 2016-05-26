@@ -46,7 +46,7 @@ matrix:
     - env: ui-tests
       sudo: false
       language: node_js
-      node_js: "5.3.0"
+      node_js: "6.2.0"
       cache:
         # Note: This won't re-use the same cache as the linters job,
         # since caches are tied to the language/version combination.
