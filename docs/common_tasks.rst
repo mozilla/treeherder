@@ -217,7 +217,7 @@ If the package is required in production/during deployment (ie: will be listed u
 `dependencies` rather than `devDependencies`), the following update process must be
 followed:
 
-* Follow the instructions for installing `nodejs` and `build-essential` `here <https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions>`_.
+* Follow the instructions for installing ``nodejs`` and ``build-essential`` `here <https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions>`_, making sure to match the nodejs version specified in ``.travis.yml`` and ``package.json``.
 
 * Update the package list in ``package.json``, making sure to specify an exact version, and not tilde or caret range notation.
 
@@ -225,10 +225,11 @@ followed:
 
   .. code-block:: bash
 
+     > rm -rf node_modules npm-shrinkwrap.json
      > npm install
-     # npm-shrinkwrap fixes some of the deficiencies of the in-built shrinkwrap
-     > sudo npm install -g npm-shrinkwrap
-     # Adds the packages listed under `dependencies` to npm-shrinkwrap.json
-     > npm-shrinkwrap
+     # Adds the packages listed under ``dependencies`` to npm-shrinkwrap.json
+     > npm shrinkwrap
 
 * Now commit the changes to both ``package.json`` and ``npm-shrinkwrap.json``.
+
+Note: If the Vagrant host is Windows, the ``npm install`` will fail due to lack of symlink support on the host. You will need to temporarily move ``package.json`` outside of the shared folder and copy it and the resultant ``npm-shrinkwrap.json`` back when done.
