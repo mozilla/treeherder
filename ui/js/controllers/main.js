@@ -365,6 +365,12 @@ treeherderApp.controller('MainCtrl', [
             }
         };
 
+        $scope.getExcludedState = function() {
+            return $location.search().exclusion_profile === 'false';
+        };
+
+        $scope.excludedState = $scope.getExcludedState();
+
         $scope.toggleUnclassifiedFailures = thJobFilters.toggleUnclassifiedFailures;
 
         $scope.toggleInProgress = function() {
@@ -387,7 +393,6 @@ treeherderApp.controller('MainCtrl', [
             $rootScope.$emit(
                 thEvents.toggleAllRevisions, collapse
             );
-
         };
 
         $scope.getGroupState = function() {
