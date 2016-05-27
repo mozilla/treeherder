@@ -256,7 +256,7 @@ CELERYBEAT_SCHEDULE = {
     },
     'fetch-allthethings-every-day': {
         'task': 'fetch-allthethings',
-        'schedule': timedelta(days=1),
+        'schedule': timedelta(hours=4),
         'relative': True,
         'options': {
             'queue': "fetch_allthethings"
