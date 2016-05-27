@@ -152,7 +152,7 @@ def result_set(**kwargs):
     )
 
     with open(source_file) as f:
-        defaults = json.loads(f.read())[0]
+        defaults = json.load(f)[0]
     defaults.update(kwargs)
 
     # ensure that the repository values for all the revisions have the

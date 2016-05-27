@@ -10,7 +10,7 @@ class SampleData(object):
     def get_perf_data(cls, filename):
         with open("{0}/sample_data/artifacts/performance/{1}".format(
                 os.path.dirname(__file__), filename)) as f:
-            return json.loads(f.read())
+            return json.load(f)
 
     def __init__(self):
         self.job_data_file = "{0}/sample_data/job_data.txt".format(
@@ -48,7 +48,7 @@ class SampleData(object):
                 self.job_data.append(json.loads(line.strip()))
 
         with open(self.resultset_data_file) as f:
-            self.resultset_data = json.loads(f.read())
+            self.resultset_data = json.load(f)
 
             # ensure that the repository values for all the revisions have the
             # same name as the db test name in settings.  If this is not

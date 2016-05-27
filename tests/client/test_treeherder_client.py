@@ -34,8 +34,7 @@ class DataSetup(unittest.TestCase):
             )
 
         with open(self.job_data_file_path) as f:
-            data = f.read()
-            self.job_data = json.loads(data)
+            self.job_data = json.load(f)
 
         # Load sample resultsets
         self.resultset_data = []
@@ -49,8 +48,7 @@ class DataSetup(unittest.TestCase):
             )
 
         with open(self.resultset_data_file_path) as f:
-            data = f.read()
-            self.resultset_data = json.loads(data)
+            self.resultset_data = json.load(f)
             for resultset in self.resultset_data:
                 for index, revision in enumerate(resultset['revisions']):
                     del revision['branch']
@@ -71,8 +69,7 @@ class DataSetup(unittest.TestCase):
             )
 
         with open(self.artifact_data_file_path) as f:
-            data = f.read()
-            self.artifact_data = json.loads(data)
+            self.artifact_data = json.load(f)
 
     def compare_structs(self, struct1, struct2):
         """Compare two dictionary structures"""

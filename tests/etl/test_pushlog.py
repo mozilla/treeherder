@@ -49,8 +49,8 @@ def test_ingest_hg_pushlog_already_stored(jm, test_base_dir,
 
     pushlog_path = os.path.join(test_base_dir, 'sample_data', 'hg_pushlog.json')
     with open(pushlog_path) as f:
-        pushlog_content = f.read()
-    pushes = json.loads(pushlog_content)['pushes'].values()
+        pushlog_json = json.load(f)
+    pushes = pushlog_json['pushes'].values()
     first_push, second_push = pushes[0:2]
 
     pushlog_fake_url = "http://www.thisismypushlog.com/?full=1&version=2"

@@ -524,7 +524,7 @@ def mock_bugzilla_api_request(monkeypatch):
             "bug_list.json"
         )
         with open(bug_list_path) as f:
-            return json.loads(f.read())
+            return json.load(f)
 
     monkeypatch.setattr(treeherder.etl.bugzilla,
                         'fetch_json',

@@ -234,7 +234,7 @@ def load_exp(filename):
     path = SampleData().get_log_path(filename)
     with open(path, "a+") as f:
         try:
-            return json.loads(f.read())
+            return json.load(f)
         except ValueError:
             # if it's not parse-able, return an empty dict
             return {}

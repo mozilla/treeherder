@@ -15,14 +15,14 @@ base_dir = os.path.dirname(__file__)
 def pending_jobs():
     """returns a list of buildapi pending jobs"""
     with open(os.path.join(base_dir, "pending.json")) as f:
-        return json.loads(f.read())
+        return json.load(f)
 
 
 @pytest.fixture
 def running_jobs():
     """returns a list of buildapi running jobs"""
     with open(os.path.join(base_dir, "running.json")) as f:
-        return json.loads(f.read())
+        return json.load(f)
 
 
 @pytest.fixture
