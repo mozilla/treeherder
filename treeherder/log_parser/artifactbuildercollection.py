@@ -1,8 +1,8 @@
 import io
-import urllib2
 import zlib
 from contextlib import closing
 
+import requests
 from django.conf import settings
 
 from .artifactbuilders import (BuildbotJobArtifactBuilder,
@@ -83,12 +83,8 @@ BuildbotPerformanceDataArtifactBuilder
 
     def get_log_handle(self, url):
         """Hook to get a handle to the log with this url"""
-        req = urllib2.Request(url)
-        req.add_header('User-Agent', settings.TREEHERDER_USER_AGENT)
-        return urllib2.urlopen(
-           req,
-           timeout=settings.REQUESTS_TIMEOUT
-        )
+        headers = {'User-Agent': settings.TREEHERDER_USER_AGENT}
+        return requests.get(url, headers=headers, timeout=settings.REQUESTS_TIMEOUT)
 
     def parse(self):
         """

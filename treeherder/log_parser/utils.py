@@ -1,6 +1,6 @@
 import logging
-import urllib2
 
+import requests
 import simplejson as json
 from django.conf import settings
 
@@ -71,12 +71,12 @@ def post_log_artifacts(project,
         # (apparently this can happen somewhat often with taskcluster if
         # the job fails, so just warn about it -- see
         # https://bugzilla.mozilla.org/show_bug.cgi?id=1154248)
-        if isinstance(e, urllib2.HTTPError) and e.code in (403, 404):
+        if isinstance(e, requests.exceptions.HTTPError) and e.code in (403, 404):
             logger.warning("Unable to retrieve log for %s: %s",
                            log_description, e)
             return
         # possibly recoverable http error (e.g. problems on our end)
-        elif isinstance(e, urllib2.URLError):
+        elif isinstance(e, requests.exceptions.URLError):
             logger.error("Failed to download log for %s: %s",
                          log_description, e)
             _retry(e)
