@@ -89,8 +89,7 @@ def test_parse_log(jm, jobs_with_local_log, sample_resultset,
     # we should have 3 artifacts:
     # 1 for the log viewer
     # 1 for the bug suggestions
-    # 1 for the job info artifact (not used; soon to be removed)
-    assert len(job_artifacts) == 3
+    assert len(job_artifacts) == 2
     # this log generates 4 job detail objects at present
     print JobDetail.objects.count() == 4
 
@@ -125,8 +124,7 @@ def test_bug_suggestions_artifact(jm, jobs_with_local_log,
     # we must have 3 artifacts:
     # 1 for the log viewer
     # 1 for the bug suggestions
-    # 1 for the job info artifact (not used; soon to be removed)
-    assert len(job_artifacts) == 3
+    assert len(job_artifacts) == 2
 
     structured_log_artifact = [artifact for artifact in job_artifacts
                                if artifact["name"] == "text_log_summary"][0]
