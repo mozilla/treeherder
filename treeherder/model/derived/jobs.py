@@ -2048,7 +2048,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     result['push_timestamp'],
                     result.get('active_status', 'active'),
                     top_revision,
-                    short_top_revision
+                    short_top_revision,
+                    revision_hash
                 ]
             )
             where_in_list.append('%s')

@@ -71,6 +71,7 @@
                     FROM `result_set`
                     WHERE `long_revision` = ?
                     OR `short_revision` = ?
+                    OR revision_hash = ?
                 )",
 
             "host_type":"master_host"
@@ -246,7 +247,9 @@
                    `push_timestamp` = ?,
                    `active_status` = ?
                 WHERE long_revision = ?
-                  OR short_revision = ?",
+                  OR short_revision = ?
+                  OR revision_hash = ?
+                  ",
 
             "host_type":"master_host"
         }
