@@ -24,8 +24,8 @@ def test_get_failure_line(webapp, eleven_jobs_stored, jm, failure_lines):
     failure_line = resp.json
 
     assert isinstance(failure_line, object)
-    exp_failure_keys = ["id", "job_guid", "repository", "action", "line",
-                        "test", "subtest", "status", "expected", "message",
+    exp_failure_keys = ["id", "job_guid", "repository", "job_log",
+                        "action", "line", "test", "subtest", "status", "expected", "message",
                         "signature", "level", "created", "modified", "matches",
                         "best_classification", "best_is_verified", "classified_failures",
                         "unstructured_bugs"]

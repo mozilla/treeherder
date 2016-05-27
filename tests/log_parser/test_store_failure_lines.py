@@ -1,7 +1,7 @@
 import responses
 from django.conf import settings
-from django.core.management import call_command
 
+from treeherder.log_parser.failureline import store_failure_lines
 from treeherder.model.models import (FailureLine,
                                      Job,
                                      JobLog)
@@ -19,9 +19,9 @@ def test_store_error_summary(activate_responses, test_repository, jm, eleven_job
 
     job = Job.objects.get(guid=jm.get_job(1)[0]['job_guid'])
 
-    JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
+    log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
 
-    call_command('store_failure_lines', jm.project, job.guid, log_url)
+    store_failure_lines(jm.project, job.guid, log_obj)
 
     assert FailureLine.objects.count() == 1
 
@@ -45,9 +45,9 @@ def test_store_error_summary_truncated(activate_responses, test_repository, jm,
 
     job = Job.objects.get(guid=jm.get_job(1)[0]['job_guid'])
 
-    JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
+    log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
 
-    call_command('store_failure_lines', jm.project, job.guid, log_url)
+    store_failure_lines(jm.project, job.guid, log_obj)
 
     assert FailureLine.objects.count() == 5 + 1
 
@@ -69,9 +69,9 @@ def test_store_error_summary_astral(activate_responses, test_repository, jm,
 
     job = Job.objects.get(guid=jm.get_job(1)[0]['job_guid'])
 
-    JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
+    log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
 
-    call_command('store_failure_lines', jm.project, job.guid, log_url)
+    store_failure_lines(jm.project, job.guid, log_obj)
 
     assert FailureLine.objects.count() == 1
 

@@ -11,19 +11,21 @@ from treeherder.model.models import JobLog
 from treeherder.workers.taskset import (create_taskset,
                                         taskset)
 
+from . import failureline
+
 logger = logging.getLogger(__name__)
 
 
 def parser_task(f):
     """Decorator that ensures that log parsing task
     has not already run"""
-    def inner(project, job_guid, job_log_url, priority):
-        job_log = JobLog.objects.get(job__guid=job_guid,
-                                     url=job_log_url)
+    def inner(project, job_guid, job_log_id, priority):
+        job_log = JobLog.objects.get(id=job_log_id)
         if job_log.status == JobLog.PARSED:
+            logger.info("log already parsed")
             return True
 
-        return f(project, job_guid, job_log_url, priority)
+        return f(project, job_guid, job_log, priority)
 
     inner.__name__ = f.__name__
     inner.__doc__ = f.__doc__
@@ -68,7 +70,7 @@ def parse_job_logs(project, tasks):
 
             signature = task_funcs[t["func_name"]].si(project,
                                                       job_guid,
-                                                      t['job_log_url'],
+                                                      t['job_log_id'],
                                                       priority)
             if "routing_key" in t:
                 signature.set(routing_key=t["routing_key"])
@@ -89,13 +91,13 @@ def parse_job_logs(project, tasks):
 @task(name='log-parser', max_retries=10)
 @taskset
 @parser_task
-def parse_log(project, job_guid, job_log_url, _priority):
+def parse_log(project, job_guid, job_log, _priority):
     """
     Call ArtifactBuilderCollection on the given job.
     """
     post_log_artifacts(project,
                        job_guid,
-                       job_log_url,
+                       job_log.url,
                        parse_log,
                        extract_text_log_artifacts)
 
@@ -103,11 +105,11 @@ def parse_log(project, job_guid, job_log_url, _priority):
 @task(name='store-failure-lines', max_retries=10)
 @taskset
 @parser_task
-def store_failure_lines(project, job_guid, job_log_url, priority):
+def store_failure_lines(project, job_guid, job_log, priority):
     """This task is a wrapper for the store_failure_lines command."""
     try:
         logger.debug('Running store_failure_lines for job %s' % job_guid)
-        call_command('store_failure_lines', project, job_guid, job_log_url)
+        failureline.store_failure_lines(project, job_guid, job_log)
         if settings.AUTOCLASSIFY_JOBS:
             autoclassify.apply_async(args=[project, job_guid],
                                      routing_key="autoclassify.%s" % priority)
