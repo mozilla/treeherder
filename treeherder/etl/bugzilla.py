@@ -1,5 +1,3 @@
-from urllib import urlencode
-
 import dateutil.parser
 from django.conf import settings
 
@@ -7,21 +5,18 @@ from treeherder.etl.common import fetch_json
 from treeherder.model.models import Bugscache
 
 
-def get_bz_source_url():
-    hostname = settings.BZ_API_URL
+def fetch_intermittent_bugs(offset, limit):
+    url = settings.BZ_API_URL + '/rest/bug'
     params = {
         'keywords': 'intermittent-failure',
         'chfieldfrom': '-1y',
-        'include_fields': ('id,summary,status,resolution,'
-                           'op_sys,cf_crash_signature, '
-                           'keywords, last_change_time')
+        'include_fields': ('id,summary,status,resolution,op_sys,cf_crash_signature,'
+                           'keywords,last_change_time'),
+        'offset': offset,
+        'limit': limit,
     }
-    endpoint = 'rest/bug'
-
-    source_url = '{0}/{1}?{2}'.format(
-        hostname, endpoint, urlencode(params)
-    )
-    return source_url
+    response = fetch_json(url, params=params)
+    return response.get('bugs', [])
 
 
 class BzApiBugProcess():
@@ -32,15 +27,9 @@ class BzApiBugProcess():
         offset = 0
         limit = 500
 
+        # Keep querying Bugzilla until there are no more results.
         while True:
-            # fetch the bugzilla service until we have an empty result
-            paginated_url = "{0}&offset={1}&limit={2}".format(
-                get_bz_source_url(),
-                offset,
-                limit
-            )
-            response = fetch_json(paginated_url)
-            bug_results_chunk = response.get('bugs', [])
+            bug_results_chunk = fetch_intermittent_bugs(offset, limit)
             bug_list += bug_results_chunk
             if len(bug_results_chunk) < limit:
                 break
