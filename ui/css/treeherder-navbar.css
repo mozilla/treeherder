@@ -153,6 +153,10 @@ th-watched-repo {
  * Right hand lower navbar
  */
 
+.revision-collapsed {
+    color: grey;
+}
+
 .group-state-nav-icon {
     width: 7px;
     display: inline-block;
