@@ -21,13 +21,13 @@ echo "-----> PRE-DEPLOY: Running Django system checks..."
 ./manage.py check --deploy 2>&1 | awk '/^WARNINGS/{err=1} {print} END{exit err}'
 
 echo "-----> PRE-DEPLOY: Running Django migration..."
-./manage.py migrate --noinput
+newrelic-admin run-program ./manage.py migrate --noinput
 
 echo "-----> PRE-DEPLOY: Loading initial data..."
-./manage.py load_initial_data
+newrelic-admin run-program ./manage.py load_initial_data
 
 echo "-----> PRE-DEPLOY: Initialising datasources..."
-./manage.py init_datasources
+newrelic-admin run-program ./manage.py init_datasources
 
 echo "-----> PRE-DEPLOY: Reporting deployment to New Relic..."
 # eg: "v750: Deploy 5d6b1f0"
