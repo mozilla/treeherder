@@ -4,11 +4,10 @@ import requests
 from django.core.cache import cache
 
 from treeherder.client import TreeherderResultSetCollection
+from treeherder.etl import th_publisher
 from treeherder.etl.common import (fetch_json,
                                    generate_revision_hash,
                                    get_not_found_onhold_push)
-
-from .mixins import ClientLoaderMixin
 
 logger = logging.getLogger(__name__)
 
@@ -63,8 +62,7 @@ class HgPushlogTransformerMixin(object):
         return th_collections
 
 
-class HgPushlogProcess(HgPushlogTransformerMixin,
-                       ClientLoaderMixin):
+class HgPushlogProcess(HgPushlogTransformerMixin):
     # For more info on Mercurial Pushes, see:
     #   https://mozilla-version-control-tools.readthedocs.io/en/latest/hgmo/pushlog.html
 
@@ -129,7 +127,7 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
         last_push = pushes[str(last_push_id)]
         top_revision = last_push["changesets"][-1]["node"]
         transformed = self.transform(pushes, repository)
-        self.load(transformed)
+        th_publisher.post_treeherder_collections(transformed)
 
         if not changeset:
             # only cache the last push if we're not fetching a specific
@@ -139,8 +137,7 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
         return top_revision
 
 
-class MissingHgPushlogProcess(HgPushlogTransformerMixin,
-                              ClientLoaderMixin):
+class MissingHgPushlogProcess(HgPushlogTransformerMixin):
 
     def extract(self, url, revision):
         logger.info("extracting missing resultsets: {0}".format(url))
@@ -189,7 +186,7 @@ class MissingHgPushlogProcess(HgPushlogTransformerMixin,
                         project,
                         coll.to_json()))
 
-                self.load(transformed)
+                th_publisher.post_treeherder_collections(transformed)
                 logger.info("done loading missing resultsets for {0}".format(repository))
             else:
                 assert extracted_content, (

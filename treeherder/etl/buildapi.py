@@ -7,8 +7,8 @@ from django.core.cache import cache
 
 from treeherder.client import TreeherderJobCollection
 from treeherder.etl import (buildbot,
-                            common)
-from treeherder.etl.mixins import ClientLoaderMixin
+                            common,
+                            th_publisher)
 from treeherder.model.models import Datasource
 
 logger = logging.getLogger(__name__)
@@ -408,8 +408,7 @@ class PendingRunningTransformerMixin(object):
         return th_collections, job_ids_seen_now
 
 
-class Builds4hJobsProcess(Builds4hTransformerMixin,
-                          ClientLoaderMixin):
+class Builds4hJobsProcess(Builds4hTransformerMixin):
 
     def run(self, revision_filter=None, project_filter=None, job_group_filter=None):
         """ Returns True if new completed jobs were loaded, False otherwise. """
@@ -419,13 +418,13 @@ class Builds4hJobsProcess(Builds4hTransformerMixin,
                                                        project_filter=project_filter,
                                                        job_group_filter=job_group_filter)
         if job_collections:
-            self.load(job_collections, chunk_size=settings.BUILDAPI_BUILDS4H_CHUNK_SIZE)
+            th_publisher.post_treeherder_collections(job_collections,
+                                                     chunk_size=settings.BUILDAPI_BUILDS4H_CHUNK_SIZE)
         cache.set(CACHE_KEYS['complete'], job_ids_seen)
         return bool(job_collections)
 
 
-class PendingJobsProcess(PendingRunningTransformerMixin,
-                         ClientLoaderMixin):
+class PendingJobsProcess(PendingRunningTransformerMixin):
 
     def run(self, revision_filter=None, project_filter=None, job_group_filter=None):
         """ Returns True if new pending jobs were loaded, False otherwise. """
@@ -436,13 +435,13 @@ class PendingJobsProcess(PendingRunningTransformerMixin,
                                                        project_filter=project_filter,
                                                        job_group_filter=job_group_filter)
         if job_collections:
-            self.load(job_collections, chunk_size=settings.BUILDAPI_PENDING_CHUNK_SIZE)
+            th_publisher.post_treeherder_collections(job_collections,
+                                                     chunk_size=settings.BUILDAPI_PENDING_CHUNK_SIZE)
         cache.set(CACHE_KEYS['pending'], job_ids_seen)
         return bool(job_collections)
 
 
-class RunningJobsProcess(PendingRunningTransformerMixin,
-                         ClientLoaderMixin):
+class RunningJobsProcess(PendingRunningTransformerMixin):
 
     def run(self, revision_filter=None, project_filter=None, job_group_filter=None):
         """ Returns True if new running jobs were loaded, False otherwise. """
@@ -453,6 +452,7 @@ class RunningJobsProcess(PendingRunningTransformerMixin,
                                                        project_filter=project_filter,
                                                        job_group_filter=job_group_filter)
         if job_collections:
-            self.load(job_collections, chunk_size=settings.BUILDAPI_RUNNING_CHUNK_SIZE)
+            th_publisher.post_treeherder_collections(job_collections,
+                                                     chunk_size=settings.BUILDAPI_RUNNING_CHUNK_SIZE)
         cache.set(CACHE_KEYS['running'], job_ids_seen)
         return bool(job_collections)
