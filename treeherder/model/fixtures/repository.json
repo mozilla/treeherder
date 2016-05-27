@@ -33,7 +33,7 @@
         "dvcs_type": "hg",
         "name": "b2g-inbound",
         "url": "https://hg.mozilla.org/integration/b2g-inbound",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 1,
         "description": ""
@@ -739,7 +739,7 @@
         "dvcs_type": "hg",
         "name": "mozilla-b2g37_v2_2",
         "url": "https://hg.mozilla.org/releases/mozilla-b2g37_v2_2",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 2,
         "description": ""
@@ -856,7 +856,7 @@
         "dvcs_type": "hg",
         "name": "mozilla-b2g37_v2_2r",
         "url": "https://hg.mozilla.org/releases/mozilla-b2g37_v2_2r",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 2,
         "description": ""
@@ -869,7 +869,7 @@
         "dvcs_type": "hg",
         "name": "mozilla-b2g44_v2_5",
         "url": "https://hg.mozilla.org/releases/mozilla-b2g44_v2_5",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 2,
         "description": ""
@@ -895,7 +895,7 @@
         "dvcs_type": "hg",
         "name": "b2g-ota",
         "url": "https://hg.mozilla.org/releases/b2g-ota",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 2,
         "description": ""
