@@ -42,7 +42,7 @@
 
         <!--Hidden Jobs Button-->
         <span class="btn btn-view-nav btn-sm btn-right-navbar"
-              title="Show/hide excluded jobs"
+              title="{{ isSkippingExclusionProfiles ? 'Show excluded jobs' : 'Hide excluded jobs'}}"
               tabindex="0" role="button"
               ng-click="toggleExcludedJobs()">
           <i class="fa"
@@ -53,9 +53,11 @@
         <!--Toggle Revisions Button-->
         <span class="btn-group">
           <span class="btn btn-view-nav btn-sm btn-collapse-resultsets"
-                title="Show/hide revision list"
+                title="{{ allCollapsed('revision-list') ? 'Show revision list': 'Hide revision list'}}"
                 tabindex="0" role="button"
-                ng-click="toggleAllRevisions()"><i class="fa fa-code-fork"></i>
+                ng-click="toggleAllRevisions()">
+                <i class="fa fa-code-fork"
+                    ng-class="{'revision-collapsed': allCollapsed('revision-list')}"></i>
           </span>
         </span>
 
