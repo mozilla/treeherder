@@ -1,8 +1,8 @@
 import gzip
 import logging
-import urllib2
 from StringIO import StringIO
 
+import requests
 import simplejson as json
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -18,13 +18,14 @@ class JsonExtractorMixin(object):
         """
         Deserializes a json string contained a given file, uncompressing it if needed
         """
-        req = urllib2.Request(url)
-        req.add_header('Accept', 'application/json')
-        req.add_header('Content-Type', 'application/json')
-        req.add_header('User-Agent', settings.TREEHERDER_USER_AGENT)
+        headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'User-Agent': settings.TREEHERDER_USER_AGENT
+        }
         try:
-            handler = urllib2.urlopen(req, timeout=settings.REQUESTS_TIMEOUT)
-            encoding = handler.info().get('Content-Encoding')
+            handler = requests.get(url, headers=headers, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
+            encoding = handler.headers['Content-Encoding']
             if encoding and 'gzip' in encoding:
                 buf = StringIO(handler.read())
                 handler = gzip.GzipFile(fileobj=buf)
@@ -40,12 +41,14 @@ class JsonLoaderMixin(object):
     """This mixin posts a json serializable object to the given url"""
 
     def load(self, url, data):
-        req = urllib2.Request(url)
-        req.add_header('Content-Type', 'application/json')
-        req.add_header('User-Agent', settings.TREEHERDER_USER_AGENT)
+        headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'User-Agent': settings.TREEHERDER_USER_AGENT
+        }
         if not data:
             data = None
-        return urllib2.urlopen(req, json.dumps(data),  timeout=settings.REQUESTS_TIMEOUT)
+        return requests.post(url, headers=headers, data=json.dumps(data), timeout=settings.REQUESTS_TIMEOUT)
 
 
 class ResultSetsLoaderMixin(JsonLoaderMixin):

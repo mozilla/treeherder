@@ -1,5 +1,3 @@
-from urllib import urlencode
-
 import dateutil.parser
 from django.conf import settings
 
@@ -12,14 +10,14 @@ def get_bz_source_url():
     params = {
         'keywords': 'intermittent-failure',
         'chfieldfrom': '-1y',
-        'include_fields': ('id,summary,status,resolution,'
-                           'op_sys,cf_crash_signature, '
-                           'keywords, last_change_time')
+        'include_fields[]': ['id,summary,status,resolution,'
+                             'op_sys,cf_crash_signature, '
+                             'keywords, last_change_time']
     }
     endpoint = 'rest/bug'
 
     source_url = '{0}/{1}?{2}'.format(
-        hostname, endpoint, urlencode(params)
+        hostname, endpoint, params
     )
     return source_url
 

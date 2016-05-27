@@ -1,8 +1,8 @@
 import gzip
-import urllib2
 import zlib
 
 import pytest
+import requests
 import simplejson as json
 from django.conf import settings
 from django.utils.six import BytesIO
@@ -48,7 +48,7 @@ def jobs_with_local_mozlog_log():
 def mock_mozlog_get_log_handler(monkeypatch):
 
     def _get_log_handle(mockself, url):
-        response = urllib2.urlopen(
+        response = requests.get(
                url,
                timeout=settings.REQUESTS_TIMEOUT
         )

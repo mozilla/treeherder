@@ -1,5 +1,4 @@
 import logging
-import urllib
 
 from celery import task
 
@@ -34,7 +33,7 @@ def fetch_missing_hg_push_logs(repo_name, repo_url, resultset):
     """
     process = MissingHgPushlogProcess()
 
-    changesetParam = urllib.urlencode({"changeset": resultset}, True)
+    changesetParam = {"changeset": resultset}
     url_str = repo_url + '/json-pushes/?full=1&version=2&' + changesetParam
 
     logger.info("fetching missing resultsets: {0}".format(url_str))
