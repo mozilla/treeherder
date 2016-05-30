@@ -10,6 +10,7 @@ from rest_framework import (exceptions,
 from rest_framework.response import Response
 
 from treeherder.model import models
+from treeherder.perf.alerts import get_alert_properties
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceDatum,
@@ -212,6 +213,20 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     ordering = ('-last_updated', '-id')
     pagination_class = AlertSummaryPagination
 
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        alert_summary, _ = PerformanceAlertSummary.objects.get_or_create(
+            repository_id=data['repository_id'],
+            framework=PerformanceFramework.objects.get(id=data['framework_id']),
+            result_set_id=data['result_set_id'],
+            prev_result_set_id=data['prev_result_set_id'],
+            defaults={
+                'manually_created': True,
+                'last_updated': datetime.datetime.now()
+            })
+
+        return Response({"alert_summary_id": alert_summary.id})
+
 
 class PerformanceAlertViewSet(viewsets.ModelViewSet):
     queryset = PerformanceAlert.objects.all()
@@ -227,3 +242,45 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
         page_size = 10
 
     pagination_class = AlertPagination
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        if 'summary_id' not in data or 'signature_id' not in data:
+            return Response({"message": "Summary and signature ids necessary "
+                             "to create alert"}, status=400)
+
+        summary = PerformanceAlertSummary.objects.get(
+            id=data['summary_id'])
+        signature = PerformanceSignature.objects.get(
+            id=data['signature_id'])
+        prev_data = PerformanceDatum.objects.filter(
+            signature=signature,
+            result_set_id__lte=summary.prev_result_set_id).order_by(
+                'push_timestamp').values_list('value', flat=True)[:10]
+        new_data = PerformanceDatum.objects.filter(
+            signature=signature,
+            result_set_id__gt=summary.prev_result_set_id).order_by(
+                '-push_timestamp').values_list('value', flat=True)[:10]
+        if not prev_data or not new_data:
+            return Response({"message": "Insufficient data to create an "
+                             "alert"}, status=400)
+
+        prev_value = sum(prev_data)/len(prev_data)
+        new_value = sum(new_data)/len(new_data)
+
+        alert_properties = get_alert_properties(prev_value, new_value,
+                                                signature.lower_is_better)
+
+        alert, _ = PerformanceAlert.objects.get_or_create(
+            summary=summary,
+            series_signature=signature,
+            defaults={
+                'is_regression': alert_properties.is_regression,
+                'manually_created': True,
+                'amount_pct': alert_properties.pct_change,
+                'amount_abs': alert_properties.delta,
+                'prev_value': prev_value,
+                'new_value': new_value,
+                't_value': 1000
+            })
+        return Response({"alert_id": alert.id})

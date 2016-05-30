@@ -36,7 +36,8 @@ def test_alert_modification(test_repository, test_perf_signature,
         repository=test_repository,
         prev_result_set_id=1,
         result_set_id=2,
-        last_updated=datetime.datetime.now())
+        last_updated=datetime.datetime.now(),
+        manually_created=False)
 
     assert p.related_summary is None
     assert p.status == PerformanceAlert.UNTRIAGED

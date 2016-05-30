@@ -94,6 +94,8 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
                                              slug_field='id')
 
     # marking these fields as readonly, the user should not be modifying them
+    # (after the item is first created, where we don't use this serializer
+    # class)
     prev_result_set_id = serializers.ReadOnlyField()
     result_set_id = serializers.ReadOnlyField()
     last_updated = serializers.ReadOnlyField()
