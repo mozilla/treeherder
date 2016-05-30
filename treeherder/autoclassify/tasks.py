@@ -1,5 +1,6 @@
 import logging
 
+import newrelic.agent
 from celery import task
 from django.core.management import call_command
 
@@ -10,6 +11,8 @@ logger = logging.getLogger(__name__)
 
 @task(name='autoclassify', max_retries=10)
 def autoclassify(project, job_guid):
+    newrelic.agent.add_custom_parameter("project", project)
+    newrelic.agent.add_custom_parameter("job_guid", job_guid)
     try:
         logger.info('Running autoclassify')
         call_command('autoclassify', project, job_guid)
@@ -22,6 +25,8 @@ def autoclassify(project, job_guid):
 
 @task(name='detect-intermittents', max_retries=10)
 def detect_intermittents(project, job_guid):
+    newrelic.agent.add_custom_parameter("project", project)
+    newrelic.agent.add_custom_parameter("job_guid", job_guid)
     try:
         logger.info('Running detect intermittents')
         # TODO: Make this list configurable

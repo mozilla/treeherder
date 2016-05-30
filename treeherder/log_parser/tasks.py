@@ -1,5 +1,6 @@
 import logging
 
+import newrelic.agent
 from celery import task
 from django.conf import settings
 from django.core.management import call_command
@@ -17,10 +18,15 @@ logger = logging.getLogger(__name__)
 
 
 def parser_task(f):
-    """Decorator that ensures that log parsing task
-    has not already run"""
+    """Decorator that ensures that log parsing task has not already run,
+    and also adds New Relic annotations.
+    """
     def inner(project, job_guid, job_log_id, priority):
+        newrelic.agent.add_custom_parameter("project", project)
+        newrelic.agent.add_custom_parameter("job_guid", job_guid)
+        newrelic.agent.add_custom_parameter("job_log_id", job_log_id)
         job_log = JobLog.objects.get(id=job_log_id)
+        newrelic.agent.add_custom_parameter("job_log_status", job_log.status)
         if job_log.status == JobLog.PARSED:
             logger.info("log already parsed")
             return True
@@ -121,6 +127,8 @@ def store_failure_lines(project, job_guid, job_log, priority):
 @task(name='crossreference-error-lines', max_retries=10)
 def crossreference_error_lines(project, job_guid):
     """This task is a wrapper for the crossreference error lines command."""
+    newrelic.agent.add_custom_parameter("project", project)
+    newrelic.agent.add_custom_parameter("job_guid", job_guid)
     logger.debug("Running crossreference-error-lines for %s" % job_guid)
     try:
         call_command('crossreference_error_lines', project, job_guid)

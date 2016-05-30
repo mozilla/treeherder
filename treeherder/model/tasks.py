@@ -1,5 +1,6 @@
 import os
 
+import newrelic.agent
 from celery import task
 from django.conf import settings
 from django.core.management import call_command
@@ -70,6 +71,10 @@ def publish_job_action(project, action, job_id, requester):
     :param job_id str: The job id the action was requested for.
     :param requester str: The email address associated with the request.
     """
+    newrelic.agent.add_custom_parameter("project", project)
+    newrelic.agent.add_custom_parameter("action", action)
+    newrelic.agent.add_custom_parameter("job_id", job_id)
+    newrelic.agent.add_custom_parameter("requester", requester)
     publisher = pulse_connection.get_publisher()
     if not publisher:
         return
@@ -96,6 +101,10 @@ def publish_job_action(project, action, job_id, requester):
 
 @task(name='publish-resultset-action')
 def publish_resultset_action(project, action, resultset_id, requester, times=1):
+    newrelic.agent.add_custom_parameter("project", project)
+    newrelic.agent.add_custom_parameter("action", action)
+    newrelic.agent.add_custom_parameter("resultset_id", resultset_id)
+    newrelic.agent.add_custom_parameter("requester", requester)
     publisher = pulse_connection.get_publisher()
     if not publisher:
         return
@@ -113,6 +122,9 @@ def publish_resultset_action(project, action, resultset_id, requester, times=1):
 @task(name='publish-resultset-runnable-job-action')
 def publish_resultset_runnable_job_action(project, resultset_id, requester,
                                           buildernames):
+    newrelic.agent.add_custom_parameter("project", project)
+    newrelic.agent.add_custom_parameter("resultset_id", resultset_id)
+    newrelic.agent.add_custom_parameter("requester", requester)
     publisher = pulse_connection.get_publisher()
     if not publisher:
         return
@@ -135,5 +147,5 @@ def populate_error_summary(project, artifacts):
     If any of them have ``error_lines``, then we generate the
     ``bug suggestions`` artifact from them.
     """
-
+    newrelic.agent.add_custom_parameter("project", project)
     load_error_summary(project, artifacts)

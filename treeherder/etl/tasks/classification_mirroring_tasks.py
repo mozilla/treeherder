@@ -1,3 +1,4 @@
+import newrelic.agent
 from celery import task
 
 from treeherder.etl.classification_mirroring import ElasticsearchDocRequest
@@ -9,6 +10,9 @@ def submit_elasticsearch_doc(project, job_id, bug_id, classification_timestamp, 
     Mirror the classification to Elasticsearch using a post request, until
     OrangeFactor is rewritten to use Treeherder's API directly.
     """
+    newrelic.agent.add_custom_parameter("project", project)
+    newrelic.agent.add_custom_parameter("job_id", job_id)
+    newrelic.agent.add_custom_parameter("bug_id", bug_id)
     try:
         req = ElasticsearchDocRequest(project, job_id, bug_id, classification_timestamp, who)
         req.generate_request_body()

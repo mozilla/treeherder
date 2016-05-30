@@ -6,8 +6,7 @@ from treeherder.credentials.models import Credentials
 
 def hawk_lookup(id):
     try:
-        newrelic.agent.add_custom_parameter("hawk_user", id)
-        # add the hawk id to the params of every call by default
+        newrelic.agent.add_custom_parameter("hawk_client_id", id)
         credentials = Credentials.objects.get(client_id=id, authorized=True)
     except Credentials.DoesNotExist:
         raise exceptions.AuthenticationFailed(

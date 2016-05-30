@@ -1,6 +1,7 @@
 """
 This module contains
 """
+import newrelic.agent
 from celery import task
 
 from treeherder.etl.allthethings import RunnableJobsProcess
@@ -61,5 +62,6 @@ def fetch_hg_push_log(repo_name, repo_url):
     """
     Run a HgPushlog etl process
     """
+    newrelic.agent.add_custom_parameter("repo_name", repo_name)
     process = HgPushlogProcess()
     process.run(repo_url + '/json-pushes/?full=1&version=2', repo_name)
