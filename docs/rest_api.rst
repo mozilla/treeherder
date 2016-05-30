@@ -5,7 +5,7 @@ Treeherder provides a REST API which can be used to query for all the
 resultset, job, and performance data it stores internally. To allow
 inspection of this API, we use Swagger_, which provides a friendly
 browsable interface to Treeherder's API endpoints. After setting up a
-local instance of treeherder, you can access Swagger at
+local instance of Treeherder, you can access Swagger at
 http://local.treeherder.mozilla.org/docs/. You can also view it on
 our production instance at https://treeherder.mozilla.org/docs/.
 
@@ -19,7 +19,7 @@ Python Client
 
 We provide a library, called treeherder-client, to simplify
 interacting with the REST API. It is maintained inside the
-Treeherder repository, but you can install your own copy from pypi
+Treeherder repository, but you can install your own copy from PyPI
 using pip:
 
 .. code-block:: bash
@@ -52,7 +52,7 @@ can be set like so:
 Authentication
 --------------
 
-A treeherder client instance should identify itself to the server
+A Treeherder client instance should identify itself to the server
 via the `Hawk authentication mechanism`_. To apply for credentials or
 create some for local testing, see :ref:`managing-api-credentials`
 below.
