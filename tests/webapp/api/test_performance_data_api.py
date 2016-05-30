@@ -26,7 +26,7 @@ def summary_perf_signature(test_perf_signature):
     )
     test_perf_signature.parent_signature = signature
     test_perf_signature.save()
-    return test_perf_signature
+    return signature
 
 
 @pytest.fixture
@@ -59,11 +59,16 @@ def test_no_summary_performance_data(webapp, test_perf_signature,
     assert resp.json.get('subtests', None) is None
     assert len(resp.json.keys()) == 1
     assert resp.json.keys()[0] == test_perf_signature.signature_hash
-    assert resp.json[test_perf_signature.signature_hash].keys() == ['test',
-                                                                    'suite',
-                                                                    'option_collection_hash',
-                                                                    'framework_id',
-                                                                    'machine_platform']
+    assert resp.json == {
+        test_perf_signature.signature_hash: {
+            'id': test_perf_signature.id,
+            'test': test_perf_signature.test,
+            'suite': test_perf_signature.suite,
+            'option_collection_hash': test_perf_signature.option_collection.option_collection_hash,
+            'framework_id': test_perf_signature.framework.id,
+            'machine_platform': test_perf_signature.platform.platform
+        }
+    }
 
 
 def test_performance_platforms(webapp, test_perf_signature):
@@ -126,7 +131,7 @@ def test_performance_platforms_framework_filtering(webapp, test_perf_signature):
 def test_summary_performance_data(webapp, test_repository,
                                   summary_perf_signature,
                                   test_perf_signature, jm):
-    summary_signature_hash = summary_perf_signature.parent_signature.signature_hash
+    summary_signature_hash = summary_perf_signature.signature_hash
     resp = webapp.get(reverse('performance-signatures-list',
                               kwargs={"project": jm.project}))
     assert resp.status_int == 200
@@ -142,6 +147,7 @@ def test_summary_performance_data(webapp, test_repository,
 
     summary_properties = resp.data[summary_signature_hash]
     assert summary_properties == {
+        'id': summary_perf_signature.id,
         'suite': 'mysuite',
         'option_collection_hash': summary_perf_signature.option_collection.option_collection_hash,
         'framework_id': summary_perf_signature.framework_id,
@@ -150,6 +156,7 @@ def test_summary_performance_data(webapp, test_repository,
     }
     subtest_properties = resp.data[test_perf_signature.signature_hash]
     assert subtest_properties == {
+        'id': test_perf_signature.id,
         'suite': 'mysuite',
         'test': 'mytest',
         'option_collection_hash': summary_perf_signature.option_collection.option_collection_hash,

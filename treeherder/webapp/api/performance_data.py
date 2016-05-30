@@ -67,10 +67,10 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
                 platform__in=platforms)
 
         ret = {}
-        for (signature_hash, option_collection_hash, platform, framework,
-             suite, test, lower_is_better,
-             extra_properties, has_subtests,
+        for (id, signature_hash, option_collection_hash, platform, framework,
+             suite, test, lower_is_better, extra_properties, has_subtests,
              parent_signature_hash) in signature_data.values_list(
+                 'id',
                  'signature_hash',
                  'option_collection__option_collection_hash',
                  'platform__platform', 'framework', 'suite',
@@ -78,6 +78,7 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
                  'has_subtests',
                  'parent_signature__signature_hash').distinct():
             ret[signature_hash] = {
+                'id': id,
                 'framework_id': framework,
                 'option_collection_hash': option_collection_hash,
                 'machine_platform': platform,
