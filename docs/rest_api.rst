@@ -26,6 +26,17 @@ using pip:
 
     pip install treeherder-client
 
+When using the Python client, don't forget to set up logging in the
+caller so that any API error messages are output, like so:
+
+.. code-block:: python
+
+    import logging
+
+    logging.basicConfig()
+
+For verbose output, pass ``level=logging.DEBUG`` to ``basicConfig()``.
+
 
 User Agents
 -----------
@@ -57,13 +68,17 @@ via the `Hawk authentication mechanism`_. To apply for credentials or
 create some for local testing, see :ref:`managing-api-credentials`
 below.
 
-Once your credentials are set up, pass them via the `client_id` and
-`secret` parameters to TreeherderClient's constructor:
+Once your credentials are set up, if you are using the Python client
+pass them via the `client_id` and `secret` parameters to
+TreeherderClient's constructor:
 
 .. code-block:: python
 
     client = TreeherderClient(protocol='https', host='treeherder.mozilla.org', client_id='hawk_id', secret='hawk_secret')
     client.post_collection('mozilla-central', tac)
+
+To diagnose problems when authenticating, ensure Python logging has been
+set up (see :ref:`python-client`).
 
 Note: The system clock on the machines making requests must be correct
 (or more specifically, within 60 seconds of the Treeherder server time),
