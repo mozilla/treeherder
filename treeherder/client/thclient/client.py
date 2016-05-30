@@ -7,9 +7,8 @@ import requests
 from requests.exceptions import HTTPError
 from requests_hawk import HawkAuth
 
-# When releasing a new version to PyPI please also file a bug to request
-# that it is uploaded to http://pypi.pub.build.mozilla.org/pub/ too.
-# See bug 1191498 for an example of this.
+# The Python client release process is documented here:
+# https://treeherder.readthedocs.io/common_tasks.html#releasing-a-new-version-of-the-python-client
 __version__ = '3.0.0'
 
 logger = logging.getLogger(__name__)

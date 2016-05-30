@@ -1,7 +1,6 @@
 Common tasks
 ============
 
-This is a list of maintenance tasks you may have to execute on a treeherder deployment
 
 Apply a change in the code
 --------------------------
@@ -11,6 +10,7 @@ In order to make the various services aware of a change in the code you need to 
 .. code-block:: bash
 
    > sudo /etc/init.d/supervisord restart
+
 
 .. _running-tests:
 
@@ -163,6 +163,7 @@ To do this:
 
 There is no need to perform a ``grunt build`` prior. After switching away from the local gh-pages branch, you will need to recreate ``ui/js/config/local.conf.js`` if desired, due to the ``git add -f``.
 
+
 Updating packages in package.json
 ---------------------------------
 
@@ -186,3 +187,30 @@ followed:
 * Now commit the changes to both ``package.json`` and ``npm-shrinkwrap.json``.
 
 Note: If the Vagrant host is Windows, the ``npm install`` will fail due to lack of symlink support on the host. You will need to temporarily move ``package.json`` outside of the shared folder and copy it and the resultant ``npm-shrinkwrap.json`` back when done.
+
+
+Releasing a new version of the Python client
+--------------------------------------------
+
+* Determine whether the patch, minor or major version should be bumped, by
+  inspecting the `client Git log`_.
+* File a separate bug for the version bump.
+* Open a PR to update the version listed in `client.py`_.
+* Use Twine to publish **both** the sdist and the wheel to PyPI, by running
+  the following from the root of the Treeherder repository:
+
+  .. code-block:: bash
+
+      > pip install -U twine
+      > cd treeherder/client/
+      > rm -rf dist/*
+      > python setup.py sdist bdist_wheel
+      > twine upload dist/*
+
+* File a ``Release Engineering::Buildduty`` bug requesting that the sdist
+  and wheel releases (plus any new dependant packages) be added to the
+  internal PyPI mirror. For an example, see `bug 1236965`_.
+
+.. _client Git log: https://github.com/mozilla/treeherder/commits/master/treeherder/client
+.. _client.py: https://github.com/mozilla/treeherder/blob/master/treeherder/client/thclient/client.py
+.. _bug 1236965: https://bugzilla.mozilla.org/show_bug.cgi?id=1236965
