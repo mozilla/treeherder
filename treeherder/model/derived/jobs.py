@@ -280,7 +280,9 @@ class JobsModel(TreeherderModelBase):
         job_guids = list(self.get_incomplete_job_guids(resultset_id))
         jobs = self.get_job_ids_by_guid(job_guids).values()
 
-        # Cancel all the jobs in the database...
+        # Mark pending jobs as cancelled to work around buildbot not including
+        # cancelled jobs in builds-4hr if they never started running.
+        # TODO: Remove when we stop using buildbot.
         self.execute(
             proc='jobs.updates.cancel_all',
             placeholders=[resultset_id],
@@ -364,6 +366,9 @@ class JobsModel(TreeherderModelBase):
 
         self._job_action_event(job, 'cancel', requester)
 
+        # Mark pending jobs as cancelled to work around buildbot not including
+        # cancelled jobs in builds-4hr if they never started running.
+        # TODO: Remove when we stop using buildbot.
         self.execute(
             proc='jobs.updates.cancel_job',
             placeholders=[job['job_guid']],

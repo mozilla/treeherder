@@ -171,7 +171,7 @@
             "sql":"UPDATE `job`
                    SET    `state` = 'completed', `result` = 'usercancel'
                    WHERE  `result_set_id` = ?
-                   AND `state` <> 'completed'",
+                   AND `state` = 'pending'",
 
                 "host_type":"master_host"
         },
@@ -180,7 +180,7 @@
             "sql":"UPDATE `job`
                    SET    `state` = 'completed', `result` = 'usercancel'
                    WHERE  `job_guid` = ?
-                   AND `state` <> 'completed'",
+                   AND `state` = 'pending'",
 
                 "host_type":"master_host"
         },
