@@ -54,7 +54,8 @@
   <div id="graph-tooltip" ng-class="{locked: selectedDataPoint}">
     <div class="body">
       <div>
-        <button id="close-popup" type="button" class="close graphchooser-close"><span aria-hidden="true">&times;</span></button>
+        <button id="close-popup" type="button" class="close graphchooser-close"
+                ng-click="closePopup()"><span aria-hidden="true">&times;</span></button>
         <p id="tt-series"><span ng-bind="tooltipContent.test"/>
           (<span ng-bind="tooltipContent.project.name"/>)</p>
         <p id="tt-series2" class="small"><span ng-bind="tooltipContent.platform"/></p>

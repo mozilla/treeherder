@@ -231,12 +231,6 @@ perf.controller('GraphsCtrl', [
             }
         }
 
-        function closePopup() {
-            $scope.selectedDataPoint = null;
-            hideTooltip();
-            highlightDataPoints();
-        }
-
         function plotUnselected() {
             $scope.zoom = {};
             $scope.selectedDataPoint = null;
@@ -491,14 +485,13 @@ perf.controller('GraphsCtrl', [
                     zoomGraph();
                 });
 
-                // Close popup onclick of corner close button
-                $('#close-popup').bind("click", closePopup);
-
                 // Close pop up when user clicks outside of the graph area
-                $('html').click(closePopup);
+                $('html').click(function() {
+                    $scope.closePopup();
+                });
 
                 // Stop propagation when user clicks inside the graph area
-                $('#graph').click(function(event) {
+                $('#graph, #graph-tooltip').click(function(event) {
                     event.stopPropagation();
                 });
             });
@@ -690,6 +683,12 @@ perf.controller('GraphsCtrl', [
         $scope.updateHighlightedRevisions = function() {
             updateDocument();
             plotGraph();
+        };
+
+        $scope.closePopup = function() {
+            $scope.selectedDataPoint = null;
+            hideTooltip();
+            highlightDataPoints();
         };
 
         ThRepositoryModel.load().then(function() {
