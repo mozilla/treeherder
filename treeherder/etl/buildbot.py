@@ -819,11 +819,11 @@ GROUP_NAMES = {
     "Talos xperf e10s": "Talos Performance e10s",
     "Update Verify": "Updates",
     "Uptake Monitoring": "Release Promotion",
-    "Checksums Builder" : "Release Promotion",
-    "Bouncer Submission" : "Release Promotion",
-    "Release Promotion Updates" : "Release Promotion",
-    "Version Bump" : "Release Promotion",
-    "Bouncer Aliases" : "Release Promotion",
+    "Checksums Builder": "Release Promotion",
+    "Bouncer Submission": "Release Promotion",
+    "Release Promotion Updates": "Release Promotion",
+    "Version Bump": "Release Promotion",
+    "Bouncer Aliases": "Release Promotion",
 }
 
 # symbols displayed in the UI for all jobs and job groups
@@ -1059,11 +1059,11 @@ SYMBOLS = {
     # Release Promotion Related Jobs
     "Release Promotion": "RP",
     "Uptake Monitoring": "up-m",
-    "Checksums" : "CS",
-    "Bouncer Submission" : "BSub",
-    "Bouncer Aliases" : "BA",
-    "Version Bump" : "VB",
-    "Release Promotion Updates" : "Upd",
+    "Checksums": "CS",
+    "Bouncer Submission": "BSub",
+    "Bouncer Aliases": "BA",
+    "Version Bump": "VB",
+    "Release Promotion Updates": "Upd",
 
     # Sort unknown jobs after all others.
     "Unknown Unit Test": "U",
