@@ -1,10 +1,9 @@
 Retrieving Data
 ===============
 
-The treeherder-client library described in :doc:`api`
-also has some convenience methods to query the Treeherder API. It is
-still in active development, but already has methods for getting
-resultset and job information.
+The :ref:`Python client <python-client>` also has some convenience
+methods to query the Treeherder API. It is still in active development,
+but already has methods for getting resultset and job information.
 
 Here's a simple example which prints the start timestamp of all the
 jobs associated with the last 10 result sets on mozilla-central:
