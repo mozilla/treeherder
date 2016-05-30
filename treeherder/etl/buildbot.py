@@ -649,6 +649,14 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'[ _]l10n'), "name": "L10n Repack"},
     {"regex": re.compile(r'_partner_repacks'), "name": "Partner Repack"},
     {"regex": re.compile(r'_update_verify'), "name": "Update Verify"},
+    # Release Promotion Related Jobs
+    {"regex": re.compile(r'_uptake_monitoring'), "name": "Uptake Monitoring"},
+    {"regex": re.compile(r'_chcksms'), "name": "Checksums Builder"},
+    {"regex": re.compile(r'_bncr_sub'), "name": "Bouncer Submission"},
+    {"regex": re.compile(r'_updates'), "name": "Release Promotion Updates"},
+    {"regex": re.compile(r'_version_bump'), "name": "Version Bump"},
+    {"regex": re.compile(r'_bouncer_aliases'), "name": "Bouncer Aliases"},
+
 ]
 
 # map test names to group names as "<testname>": "<groupname>"
@@ -810,6 +818,12 @@ GROUP_NAMES = {
     "Talos tp e10s": "Talos Performance e10s",
     "Talos xperf e10s": "Talos Performance e10s",
     "Update Verify": "Updates",
+    "Uptake Monitoring": "Release Promotion",
+    "Checksums Builder" : "Release Promotion",
+    "Bouncer Submission" : "Release Promotion",
+    "Release Promotion Updates" : "Release Promotion",
+    "Version Bump" : "Release Promotion",
+    "Bouncer Aliases" : "Release Promotion",
 }
 
 # symbols displayed in the UI for all jobs and job groups
@@ -1042,6 +1056,15 @@ SYMBOLS = {
     "Talos tspaint": "tsp",
     "Talos xperf": "x",
     "Talos xperf e10s": "x",
+    # Release Promotion Related Jobs
+    "Release Promotion": "RP",
+    "Uptake Monitoring": "up-m",
+    "Checksums" : "CS",
+    "Bouncer Submission" : "BSub",
+    "Bouncer Aliases" : "BA",
+    "Version Bump" : "VB",
+    "Release Promotion Updates" : "Upd",
+
     # Sort unknown jobs after all others.
     "Unknown Unit Test": "U",
     "Unknown": "?",
