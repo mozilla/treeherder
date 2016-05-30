@@ -411,6 +411,16 @@ PLATFORMS_BUILDERNAME = [
             'os_platform': 'b2g-device-image',
             'arch': 'armv7',
         }
+    },
+    # Release Promotion Jobs
+    # These aren't associated with a particular platform, nor is platform information included in their buildername
+    {
+        'regex': re.compile(r'.*_(?:bncr_sub|bouncer_aliases|uptake_monitoring|chcksms|updates|version_bump)$', re.IGNORECASE),
+        'attributes': {
+            'os': '-',
+            'os_platform': 'other',
+            'arch': '-',
+        }
     }
 ]
 
@@ -451,6 +461,9 @@ JOB_TYPE_BUILDERNAME = {
         re.compile(r'.+ code coverage$'),
         re.compile(r'.*valgrind$'),
         re.compile(r'.*non-unified'),
+        # Release promotion jobs have the following suffixes
+        re.compile(r'.*_(?:bncr_sub|bouncer_aliases|uptake_monitoring|chcksms|updates|version_bump)$'),
+
     ],
     'unittest': [
         re.compile(r'jetpack.*(opt|debug)$'),
@@ -649,6 +662,14 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'[ _]l10n'), "name": "L10n Repack"},
     {"regex": re.compile(r'_partner_repacks'), "name": "Partner Repack"},
     {"regex": re.compile(r'_update_verify'), "name": "Update Verify"},
+    # Release Promotion Related Jobs
+    {"regex": re.compile(r'_uptake_monitoring'), "name": "Uptake Monitoring"},
+    {"regex": re.compile(r'_chcksms'), "name": "Checksums Builder"},
+    {"regex": re.compile(r'_bncr_sub'), "name": "Bouncer Submission"},
+    {"regex": re.compile(r'_updates'), "name": "Release Promotion Updates"},
+    {"regex": re.compile(r'_version_bump'), "name": "Version Bump"},
+    {"regex": re.compile(r'_bouncer_aliases'), "name": "Bouncer Aliases"},
+
 ]
 
 # map test names to group names as "<testname>": "<groupname>"
@@ -809,7 +830,13 @@ GROUP_NAMES = {
     "Talos svg e10s": "Talos Performance e10s",
     "Talos tp e10s": "Talos Performance e10s",
     "Talos xperf e10s": "Talos Performance e10s",
-    "Update Verify": "Updates",
+    "Update Verify": "Release Promotion",
+    "Uptake Monitoring": "Release Promotion",
+    "Checksums Builder": "Release Promotion",
+    "Bouncer Submission": "Release Promotion",
+    "Release Promotion Updates": "Release Promotion",
+    "Version Bump": "Release Promotion",
+    "Bouncer Aliases": "Release Promotion",
 }
 
 # symbols displayed in the UI for all jobs and job groups
@@ -1042,6 +1069,16 @@ SYMBOLS = {
     "Talos tspaint": "tsp",
     "Talos xperf": "x",
     "Talos xperf e10s": "x",
+    # Release Promotion Related Jobs
+    "Release Promotion": "Release",
+    "Uptake Monitoring": "up-m",
+    "Checksums Builder": "CS",
+    "Bouncer Submission": "BSub",
+    "Bouncer Aliases": "Ba",
+    "Version Bump": "Vb",
+    "Release Promotion Updates": "Up",
+
+
     # Sort unknown jobs after all others.
     "Unknown Unit Test": "U",
     "Unknown": "?",
