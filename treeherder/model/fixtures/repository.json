@@ -778,7 +778,7 @@
         "dvcs_type": "hg",
         "name": "mozilla-esr38",
         "url": "https://hg.mozilla.org/releases/mozilla-esr38",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 2,
         "description": ""
@@ -791,7 +791,7 @@
         "dvcs_type": "hg",
         "name": "comm-esr38",
         "url": "https://hg.mozilla.org/releases/comm-esr38",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "comm",
         "repository_group": 2,
         "description": ""
