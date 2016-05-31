@@ -1,3 +1,4 @@
+import logging
 import time
 from optparse import make_option
 
@@ -6,13 +7,19 @@ from elasticsearch_dsl import Search
 
 from treeherder.model.models import FailureLine
 from treeherder.model.search import (TestFailureLine,
-                                     bulk_insert)
+                                     bulk_insert,
+                                     connection)
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
 
     help = "Pre-populate reference data from an external source (INCOMPLETE)"
     option_list = BaseCommand.option_list + (
+        make_option('--recreate',
+                    action='store_true',
+                    help="Delete and recreate index"),
         make_option('--chunk-size',
                     action='store',
                     type='int',
@@ -29,6 +36,14 @@ class Command(BaseCommand):
         min_id = FailureLine.objects.order_by('id').values_list("id", flat=True)[0] - 1
         chunk_size = options['chunk_size']
 
+        if options["recreate"]:
+            connection.indices.delete(TestFailureLine._doc_type.index, ignore=404)
+            TestFailureLine.init()
+        else:
+            if connection.indices.exists(TestFailureLine._doc_type.index):
+                logger.error("Index already exists; can't perform import")
+                return
+
         while True:
             rows = (FailureLine.objects
                     .filter(id__gt=min_id)
@@ -43,12 +58,12 @@ class Command(BaseCommand):
                 es_line = failure_line_from_value(item)
                 if es_line:
                     es_lines.append(es_line)
-            self.stdout.write("Inserting %i rows" % len(es_lines))
+            logger.info("Inserting %i rows" % len(es_lines))
             bulk_insert(es_lines)
             min_id = rows[len(rows) - 1]["id"]
             time.sleep(options['sleep'])
         s = Search(doc_type=TestFailureLine).params(search_type="count")
-        self.stdout.write("Index contains %i documents" % s.execute().hits.total)
+        logger.info("Index contains %i documents" % s.execute().hits.total)
 
 
 def failure_line_from_value(line):
