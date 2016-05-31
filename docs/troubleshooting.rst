@@ -14,12 +14,6 @@ Errors during Vagrant setup
 
   If that is still unsuccessful, you should attempt a ``vagrant destroy`` followed by another ``vagrant up``.
 
-* If you encounter an error saying *"It appears your machine doesn't support NFS, or there is not an adapter to enable NFS on this machine for Vagrant."*, then you need to install ``nfs-kernel-server`` using the command:
-
-  .. code-block:: bash
-
-    apt-get install nfs-kernel-server
-
 * If you encounter an error saying *"mount.nfs: requested NFS version or transport protocol is not supported"*, you should restart the kernel server service using this sequence of commands:
 
   .. code-block:: bash

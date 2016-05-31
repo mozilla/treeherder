@@ -7,5 +7,6 @@
 # would not help those who wish to build the docs locally.
 
 Sphinx
+sphinx-autobuild
 sphinx-rtd-theme
 sphinxcontrib-httpdomain
