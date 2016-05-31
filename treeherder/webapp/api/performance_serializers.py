@@ -82,7 +82,8 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         model = PerformanceAlert
         fields = ['id', 'status', 'series_signature', 'is_regression',
                   'prev_value', 'new_value', 't_value', 'amount_abs',
-                  'amount_pct', 'summary_id', 'related_summary_id']
+                  'amount_pct', 'summary_id', 'related_summary_id',
+                  'manually_created']
 
 
 class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
@@ -94,6 +95,8 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
                                              slug_field='id')
 
     # marking these fields as readonly, the user should not be modifying them
+    # (after the item is first created, where we don't use this serializer
+    # class)
     prev_result_set_id = serializers.ReadOnlyField()
     result_set_id = serializers.ReadOnlyField()
     last_updated = serializers.ReadOnlyField()

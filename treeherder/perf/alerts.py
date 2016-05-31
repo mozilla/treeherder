@@ -1,5 +1,6 @@
 import datetime
 import time
+from collections import namedtuple
 
 from django.conf import settings
 from django.db import transaction
@@ -8,6 +9,24 @@ from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceDatum)
 from treeherder.perfalert import Analyzer
+
+
+def get_alert_properties(prev_value, new_value, lower_is_better):
+    AlertProperties = namedtuple('AlertProperties',
+                                 'pct_change delta is_regression')
+    if prev_value != 0:
+        pct_change = (100.0 * abs(new_value -
+                                  prev_value) /
+                      float(prev_value))
+    else:
+        pct_change = 0.0
+
+    delta = (new_value - prev_value)
+
+    is_regression = ((delta > 0 and lower_is_better) or
+                     (delta < 0 and not lower_is_better))
+
+    return AlertProperties(pct_change, delta, is_regression)
 
 
 def generate_new_alerts_in_series(signature):
@@ -62,18 +81,10 @@ def generate_new_alerts_in_series(signature):
             if cur.state == 'regression':
                 prev_value = cur.historical_stats['avg']
                 new_value = cur.forward_stats['avg']
-                if prev_value != 0:
-                    pct_change = (100.0 * abs(new_value -
-                                              prev_value) /
-                                  float(prev_value))
-                else:
-                    pct_change = 0.0
-                delta = (new_value - prev_value)
+                alert_properties = get_alert_properties(
+                    prev_value, new_value, signature.lower_is_better)
 
-                is_regression = ((delta > 0 and signature.lower_is_better) or
-                                 (delta < 0 and not signature.lower_is_better))
-
-                if pct_change < alert_threshold:
+                if alert_properties.pct_change < alert_threshold:
                     # ignore regressions below the configured regression
                     # threshold
                     continue
@@ -84,6 +95,7 @@ def generate_new_alerts_in_series(signature):
                     result_set_id=cur.testrun_id,
                     prev_result_set_id=prev_testrun_id,
                     defaults={
+                        'manually_created': False,
                         'last_updated': datetime.datetime.fromtimestamp(
                             cur.push_timestamp)
                     })
@@ -97,9 +109,9 @@ def generate_new_alerts_in_series(signature):
                 a = PerformanceAlert.objects.create(
                     summary=summary,
                     series_signature=signature,
-                    is_regression=is_regression,
-                    amount_pct=pct_change,
-                    amount_abs=delta,
+                    is_regression=alert_properties.is_regression,
+                    amount_pct=alert_properties.pct_change,
+                    amount_abs=alert_properties.delta,
                     prev_value=prev_value,
                     new_value=new_value,
                     t_value=t_value)
