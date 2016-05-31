@@ -26,7 +26,15 @@ Setting up Vagrant
 
      > vagrant up
 
-  It will typically take 5 to 30 minutes for the vagrant up to complete, depending on your network performance. If you experience any errors, see the :ref:`troubleshooting page <troubleshooting-vagrant>`.
+  It will typically take 5 to 30 minutes for the vagrant up to
+  complete, depending on your network performance. If you experience
+  any errors, see the :ref:`troubleshooting page
+  <troubleshooting-vagrant>`. It is *very important* that the
+  provisioning process complete sucessfully before trying to interact
+  with your test instance of treeherder: some things might
+  superficially seem to work a partially configured machine, but
+  it is almost guranteed that some things *will break* in
+  hard-to-diagnose ways if vagrant provision is not run to completion.
 
 * While the previous command is running, use the time to add this line to your **host** machine's /etc/hosts:
 
