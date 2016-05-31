@@ -15,12 +15,15 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         config = settings.PULSE_DATA_INGESTION_CONFIG
+        assert config, "PULSE_DATA_INGESTION_CONFIG must be set"
         sources = settings.PULSE_DATA_INGESTION_SOURCES
+        assert sources, "PULSE_DATA_INGESTION_SOURCES must be set"
+
         # get the existing bindings for the queue
         bindings = []
         new_bindings = []
 
-        with Connection(config) as connection:
+        with Connection(config.geturl()) as connection:
             consumer = JobConsumer(connection)
             try:
                 bindings = self.get_bindings(consumer.queue_name)["bindings"]
@@ -28,7 +31,8 @@ class Command(BaseCommand):
                 self.stderr.write(
                     "ERROR: Unable to fetch existing bindings for {}".format(
                         consumer.queue_name))
-                self.stderr.write("ERROR: Data ingestion may proceed, but no bindings will be pruned")
+                self.stderr.write("ERROR: Data ingestion may proceed, "
+                                  "but no bindings will be pruned")
 
             for source in sources:
                 # When creating this exchange object, it is important that it

@@ -1,5 +1,4 @@
 import logging
-from urlparse import urlparse
 
 from django.conf import settings
 from kombu import Queue
@@ -22,7 +21,7 @@ class JobConsumer(ConsumerMixin):
         if not config:
             raise ValueError("PULSE_DATA_INGESTION_CONFIG is required for the "
                              "JobConsumer class.")
-        self.queue_name = "queue/{}/jobs".format(urlparse(config).username)
+        self.queue_name = "queue/{}/jobs".format(config.username)
 
     def get_consumers(self, Consumer, channel):
         return [
