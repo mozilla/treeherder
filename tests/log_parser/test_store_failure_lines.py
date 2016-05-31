@@ -1,7 +1,8 @@
 import responses
 from django.conf import settings
 
-from treeherder.log_parser.failureline import store_failure_lines
+from treeherder.log_parser.failureline import (char_to_codepoint_ucs2,
+                                               store_failure_lines)
 from treeherder.model.models import (FailureLine,
                                      Job,
                                      JobLog)
@@ -87,3 +88,17 @@ def test_store_error_summary_astral(activate_responses, test_repository, jm,
     assert failure.stack.endswith("<U+0F0151>")
     assert failure.stackwalk_stdout is None
     assert failure.stackwalk_stderr is None
+
+
+def test_char_data_to_codepoint_ucs2():
+    # Unbelivably, putting the two codepoints in a string seems to cause them to be
+    # interpreted as a single character, but only in unit tests, and only sometimes.
+    # Since we only use indexing operations, putting the codepoints in a tuple is
+    # equivalent to a lenth 2 string.
+    data = [
+        ((u"\ud800", u"\udc00"), 0x010000),
+        ((u"\udbff", u"\udfff"), 0x10FFFF),
+        ((u"\uda00", u"\uddff"), 0x0901ff),
+    ]
+    for value, expected in data:
+        assert char_to_codepoint_ucs2(value) == expected
