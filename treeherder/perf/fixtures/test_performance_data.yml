@@ -1,0 +1,31 @@
+- model: model.Option
+  pk: 1
+  fields:
+    name: myoption
+
+- model: model.OptionCollection
+  pk: 1
+  fields:
+    option_collection_hash: myrandomoptionhash
+    option: 1
+
+- model: model.MachinePlatform
+  pk: 1
+  fields:
+    os_name: myosname
+    platform: myplatformname
+    architecture: myarch
+
+- model: perf.PerformanceSignature
+  pk: 2
+  fields:
+    signature_hash: myrandomsignaturehash
+    repository: 1
+    framework: 1
+    platform: 1
+    option_collection: 1
+    suite: mysuite
+    test: mytest
+    last_updated: 2015-08-01 12:00:00.000000+00:00
+    has_subtests: false
+    extra_properties: {}
