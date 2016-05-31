@@ -232,7 +232,7 @@
         "dvcs_type": "hg",
         "name": "alder",
         "url": "https://hg.mozilla.org/projects/alder",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 6,
         "description": ""
