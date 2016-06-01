@@ -151,19 +151,34 @@ treeherder.factory('PhAlerts', [
             return _.find(phAlertSummaryStatusMap, { id: this.status }).text;
         };
 
+        function _getAlertSummary(id) {
+            // get a specific alert summary
+            var httpTimeout = $q.defer();
+            var request = ThOptionCollectionModel.getMap();
+            var promise = request.then(
+                function(optionCollectionMap) {
+                    return $http.get(thServiceDomain + '/api/performance/alertsummary/' + id + '/',
+                                    {timeout : httpTimeout.promise}).then(
+                                        function(response) {
+                                            return new AlertSummary(response.data,
+                                                                    optionCollectionMap);
+                                        }
+                    );
+                }
+            );
+            promise._httpTimeout = httpTimeout;
+            return promise;
+        }
+
         return {
-            getAlertSummary: function(id) {
-                // get a specific alert summary
-                return ThOptionCollectionModel.getMap().then(
-                    function(optionCollectionMap) {
-                        return $http.get(
-                            thServiceDomain +
-                                '/api/performance/alertsummary/' + id + '/').then(
-                                    function(response) {
-                                        return new AlertSummary(response.data,
-                                                                optionCollectionMap);
-                                    });
-                    });
+            getAlertSummary: _getAlertSummary,
+            getAlertTitle: function(id) {
+                var request = _getAlertSummary(id);
+                var promise = request.then(function(alertSummary) {
+                    return alertSummary.getTitle();
+                });
+                promise._httpTimeout = request._httpTimeout;
+                return promise;
             },
             getAlertSummaries: function(options) {
                 var href;

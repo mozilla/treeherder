@@ -173,8 +173,13 @@
     <div class="panel-body" ng-show="alertSummary.downstreamSummaryIds.length">
       <p class="text-muted">
         Downstream alert summaries:
-        <span class="text-muted" ng-repeat="summaryId in alertSummary.downstreamSummaryIds">
-          <a href="perf.html#/alerts?id={{summaryId}}">#{{summaryId}}</a>{{$last ? '' : ', '}}
+        <span class="text-muted" ng-repeat="summaryId in alertSummary.downstreamSummaryIds" >
+            <a href="perf.html#/alerts?id={{summaryId}}"
+                ng-mouseenter="getTitle(summaryId)"
+                ng-mouseleave="resetTitle()"
+                uib-tooltip-html="summaryTitle.text" >
+               #{{summaryId}}
+            </a>{{$last ? '' : ', '}}
         </span>
       </p>
     </div>
