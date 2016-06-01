@@ -151,19 +151,37 @@ treeherder.factory('PhAlerts', [
             return _.find(phAlertSummaryStatusMap, { id: this.status }).text;
         };
 
+        function _getAlertSummary(id) {
+            // get a specific alert summary
+            // in order to cancel the http request, a canceller must be used
+            // http://odetocode.com/blogs/scott/archive/2014/04/24/canceling-http-requests-in-angularjs.aspx
+            var canceller = $q.defer();
+            var promise = ThOptionCollectionModel.getMap().then(
+                function(optionCollectionMap) {
+                    return $http.get(thServiceDomain + '/api/performance/alertsummary/' + id + '/',
+                                    {timeout : canceller.promise}).then(
+                                        function(response) {
+                                            return new AlertSummary(response.data,
+                                                                    optionCollectionMap);
+                                        }
+                    );
+                }
+            );
+            promise.cancel = function() {
+                canceller.resolve();
+            };
+            return promise;
+        }
+
         return {
-            getAlertSummary: function(id) {
-                // get a specific alert summary
-                return ThOptionCollectionModel.getMap().then(
-                    function(optionCollectionMap) {
-                        return $http.get(
-                            thServiceDomain +
-                                '/api/performance/alertsummary/' + id + '/').then(
-                                    function(response) {
-                                        return new AlertSummary(response.data,
-                                                                optionCollectionMap);
-                                    });
-                    });
+            getAlertSummary: _getAlertSummary,
+            getAlertTitle: function(id) {
+                var request = _getAlertSummary(id);
+                var promise = request.then(function(alertSummary) {
+                    return alertSummary.getTitle();
+                });
+                promise.cancel = request.cancel;
+                return promise;
             },
             getAlertSummaries: function(options) {
                 var href;
