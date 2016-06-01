@@ -750,10 +750,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             # Remove ORM entries for these jobs (objects referring to Job, like
             # JobDetail and JobLog, are cycled automatically via ON DELETE
             # CASCADE)
-            failure_line_ids = orm_delete(
-                FailureLine, FailureLine.objects.filter(job_guid__in=job_guid_list),
-                chunk_size, sleep_time)
-            es_delete(TestFailureLine, failure_line_ids)
+            failure_line_query = FailureLine.objects.filter(job_guid__in=job_guid_list)
+            es_delete_data = failure_line_query.values_list("id", "test")
+            es_delete(TestFailureLine, es_delete_data)
+            orm_delete(FailureLine, failure_line_query,
+                       chunk_size, sleep_time)
             orm_delete(Job, Job.objects.filter(guid__in=job_guid_list),
                        chunk_size, sleep_time)
 

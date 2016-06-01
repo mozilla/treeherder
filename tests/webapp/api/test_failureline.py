@@ -58,7 +58,7 @@ def test_update_failure_line_verify(eleven_jobs_stored, jm, failure_lines,
     assert failure_line.best_classification == classified_failures[0]
     assert failure_line.best_is_verified
 
-    es_line = TestFailureLine.get(failure_line.id)
+    es_line = TestFailureLine.get(failure_line.id, routing=failure_line.test)
     assert es_line.best_classification == classified_failures[0].id
     assert es_line.best_is_verified
 

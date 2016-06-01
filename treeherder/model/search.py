@@ -27,6 +27,25 @@ message_analyzer = analyzer('message_analyzer',
                             filters=[])
 
 
+class RoutedDocType(DocType):
+    _routing_key = None
+
+    @property
+    def routing(self):
+        return getattr(self, self._routing_key)
+
+    @classmethod
+    def get(cls, id, **kwargs):
+        if "routing" not in kwargs:
+            raise TypeError("Must supply 'routing' parameter to get")
+        return super(RoutedDocType, cls).get(id, **kwargs)
+
+    def save(self, **kwargs):
+        if "routing" not in kwargs:
+            kwargs["routing"] = self.routing
+        return super(RoutedDocType, self).save(**kwargs)
+
+
 def index(name):
     if settings.ELASTIC_SEARCH["index_prefix"]:
         name = "%s-%s" % (settings.ELASTIC_SEARCH["index_prefix"], name)
@@ -34,11 +53,15 @@ def index(name):
 
 test_failure_line = index("test-failure-line")
 
+test_failure_line.settings(number_of_shards=10)
+
 
 @test_failure_line.doc_type
-class TestFailureLine(DocType):
+class TestFailureLine(RoutedDocType):
     """DocType representing a test with an unexpected result
     and an error message"""
+    _routing_key = "test"
+
     job_guid = String(required=True, index='not_analyzed')
     test = String(required=True, index='not_analyzed')
     subtest = String(required=True, index='not_analyzed')
@@ -96,24 +119,28 @@ def bulk_insert(items):
     instances of subclasses of elasticsearch_dsl.DocType"""
     bulk_data = []
     for item in items:
-        bulk_data.append(item.to_dict(include_meta=True))
+        data = item.to_dict(include_meta=True)
+        data["_routing"] = item.routing
+        bulk_data.append(data)
 
     return bulk(connection, bulk_data)
 
 
 @es_connected()
-def bulk_delete(cls, ids):
-    """Insert multiple items from elasticsearch by document id
+def bulk_delete(cls, ids_routing):
+    """Delete multiple items from elasticsearch by document id
 
     :param cls: The DocType subclass of the items being deleted.
-    :param ids: Iterable of document ids to delete."""
+    :param ids_routing: Iterable of (document ids, routing key) to delete."""
     actions = []
-    for id in ids:
+    print ids_routing
+    for (id, routing) in ids_routing:
         actions.append({
             '_op_type': 'delete',
             '_index': cls._doc_type.index,
             '_type': cls._doc_type.name,
-            '_id': id})
+            '_id': id,
+            '_routing': routing})
     bulk(connection, actions)
 
 
@@ -131,7 +158,8 @@ def doctypes():
     """List of all DocType subclasses"""
     return [item for item in globals().values()
             if type(item) == type(DocType) and
-            issubclass(item, DocType) and item != DocType]
+            issubclass(item, DocType) and
+            item._doc_type.index]
 
 
 def _init():
@@ -149,7 +177,9 @@ def _init():
     for item in doctypes():
         if item._doc_type.index not in indices:
             item.init()
-
+        connection.indices.put_mapping(doc_type=item._doc_type.name,
+                                       index=item._doc_type.index,
+                                       body={"_routing": {"required": True}})
     return connection
 
 
