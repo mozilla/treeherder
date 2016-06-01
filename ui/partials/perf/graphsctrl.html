@@ -54,10 +54,11 @@
   <div id="graph-tooltip" ng-class="{locked: selectedDataPoint}">
     <div class="body">
       <div>
-        <button id="close-popup" type="button" class="close graphchooser-close"><span aria-hidden="true">&times;</span></button>
-        <p id="tt-series"><span ng-bind="tooltipContent.test"/>
+        <button id="close-popup" type="button" class="close graphchooser-close"
+                ng-click="closePopup()"><span aria-hidden="true">&times;</span></button>
+        <p id="tt-series"><span ng-bind="tooltipContent.series.test"/>
           (<span ng-bind="tooltipContent.project.name"/>)</p>
-        <p id="tt-series2" class="small"><span ng-bind="tooltipContent.platform"/></p>
+        <p id="tt-series2" class="small"><span ng-bind="tooltipContent.series.platform"/></p>
       </div>
       <div>
         <p id="tt-v" ng-bind="tooltipContent.value"></p>
@@ -74,11 +75,20 @@
             <a ng-href="#/comparesubtest?originalProject={{tooltipContent.project.name}}&newProject={{tooltipContent.project.name}}&originalRevision={{tooltipContent.prevRevision}}&newRevision={{tooltipContent.revision}}&originalSignature={{selectedDataPoint.signature}}&newSignature={{selectedDataPoint.signature}}&framework={{selectedDataPoint.frameworkId}}" target="_blank">compare</a>)
           </span>
         </p>
-        <p ng-show="tooltipContent.alertSummary">
+        <p ng-if="tooltipContent.alertSummary">
           <i class="text-warning fa fa-exclamation-circle"></i>
           <a href="perf.html#/alerts?id={{tooltipContent.alertSummary.id}}">
             Alert #{{tooltipContent.alertSummary.id}}</a>
           <span class="text-muted">({{tooltipContent.alertSummary.getStatusText()}})</span>
+        </p>
+        <p class="text-muted" ng-if="!tooltipContent.alertSummary">
+          <span ng-if="!creatingAlert">
+            No alert (<a href="" ng-click="createAlert(tooltipContent)">create</a>)
+          </span>
+          <span ng-if="creatingAlert">
+            Creating alert... <i class="fa fa-spinner fa-pulse"></i>
+          </span>
+        </p>
         <p ng-hide="tooltipContent.revision">
           <span ng-hide="tooltipContent.revisionInfoAvailable">Revision info unavailable</span>
           <span ng-show="tooltipContent.revisionInfoAvailable">Loading revision...</span>

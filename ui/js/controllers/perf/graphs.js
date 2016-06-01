@@ -21,6 +21,25 @@ perf.controller('GraphsCtrl', [
         $scope.showToolTipTimeout = null;
         $scope.seriesList = [];
 
+        $scope.createAlert = function(dataPoint) {
+            $scope.creatingAlert = true;
+            PhAlerts.createAlert(dataPoint).then(function(alertSummaryId) {
+                PhAlerts.getAlertSummaries({
+                    seriesSignature: dataPoint.series.seriesSignature,
+                    repository: dataPoint.project.id
+                }).then(function(alertSummaryData) {
+                    $scope.creatingAlert = false;
+
+                    var alertSummary = _.find(alertSummaryData.results,
+                                              { id: alertSummaryId });
+                    $scope.tooltipContent.alertSummary = alertSummary;
+
+                    dataPoint.series.relatedAlertSummaries = alertSummaryData.results;
+                    plotGraph();
+                });
+            });
+        };
+
         function getSeriesDataPoint(flotItem) {
             // gets universal elements of a series given a flot item
 
@@ -107,9 +126,10 @@ perf.controller('GraphsCtrl', [
                     project: _.findWhere($rootScope.repos,
                                          { name: phSeries.projectName }),
                     revisionUrl: thServiceDomain + '#/jobs?repo=' + phSeries.projectName,
+                    prevResultSetId: prevResultSetId,
+                    resultSetId: dataPoint.resultSetId,
                     jobId: phSeries.flotSeries.jobIdData[index],
-                    test: phSeries.name,
-                    platform: phSeries.platform,
+                    series: phSeries,
                     value: Math.round(v*1000)/1000,
                     deltaValue: dv.toFixed(1),
                     deltaPercentValue: (100 * dvp).toFixed(1),
@@ -207,7 +227,8 @@ perf.controller('GraphsCtrl', [
             // if we have a highlighted revision(s), highlight all points that
             // correspond to that
             $scope.seriesList.forEach(function(series, i) {
-                if (series.visible && series.highlightedPoints.length) {
+                if (series.visible && series.highlightedPoints &&
+                    series.highlightedPoints.length) {
                     _.forEach(series.highlightedPoints, function(highlightedPoint) {
                         $scope.plot.highlight(i, highlightedPoint);
                     });
@@ -229,12 +250,6 @@ perf.controller('GraphsCtrl', [
                     $scope.selectedDataPoint.resultSetId);
                 $scope.plot.highlight(selectedSeriesIndex, flotDataPoint);
             }
-        }
-
-        function closePopup() {
-            $scope.selectedDataPoint = null;
-            hideTooltip();
-            highlightDataPoints();
         }
 
         function plotUnselected() {
@@ -491,14 +506,13 @@ perf.controller('GraphsCtrl', [
                     zoomGraph();
                 });
 
-                // Close popup onclick of corner close button
-                $('#close-popup').bind("click", closePopup);
-
                 // Close pop up when user clicks outside of the graph area
-                $('html').click(closePopup);
+                $('html').click(function() {
+                    $scope.closePopup();
+                });
 
                 // Stop propagation when user clicks inside the graph area
-                $('#graph').click(function(event) {
+                $('#graph, #graph-tooltip').click(function(event) {
                     event.stopPropagation();
                 });
             });
@@ -690,6 +704,12 @@ perf.controller('GraphsCtrl', [
         $scope.updateHighlightedRevisions = function() {
             updateDocument();
             plotGraph();
+        };
+
+        $scope.closePopup = function() {
+            $scope.selectedDataPoint = null;
+            hideTooltip();
+            highlightDataPoints();
         };
 
         ThRepositoryModel.load().then(function() {

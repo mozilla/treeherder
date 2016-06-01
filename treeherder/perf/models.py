@@ -122,6 +122,8 @@ class PerformanceAlertSummary(models.Model):
     prev_result_set_id = models.PositiveIntegerField(null=True)
     result_set_id = models.PositiveIntegerField()
 
+    manually_created = models.BooleanField(default=False)
+
     last_updated = models.DateTimeField(db_index=True)
 
     UNTRIAGED = 0
@@ -259,7 +261,9 @@ class PerformanceAlert(models.Model):
         help_text="New value of series after change")
     t_value = models.FloatField(
         help_text="t value out of analysis indicating confidence "
-        "that change is 'real'")
+        "that change is 'real'", null=True)
+
+    manually_created = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         # validate that we set a status that makes sense for presence

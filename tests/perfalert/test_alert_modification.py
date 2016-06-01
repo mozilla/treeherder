@@ -7,64 +7,37 @@ from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary)
 
 
-def test_summary_modification(test_repository, test_perf_signature):
-    s = PerformanceAlertSummary.objects.create(
-        id=1,
-        repository=test_repository,
-        prev_result_set_id=0,
-        result_set_id=1,
-        last_updated=datetime.datetime.now())
-    p = PerformanceAlert.objects.create(
-        id=1,
-        summary=s,
-        series_signature=test_perf_signature,
-        is_regression=True,
-        amount_pct=0.5,
-        amount_abs=50.0,
-        prev_value=100.0,
-        new_value=150.0,
-        t_value=20.0)
+def test_summary_modification(test_repository, test_perf_signature,
+                              test_perf_alert_summary, test_perf_alert):
+    (s, a) = (test_perf_alert_summary, test_perf_alert)
 
     assert s.bug_number is None
     assert s.status == PerformanceAlertSummary.UNTRIAGED
 
     # acknowledge alert, make sure summary status is updated
-    p.status = PerformanceAlert.ACKNOWLEDGED
-    p.save()
+    a.status = PerformanceAlert.ACKNOWLEDGED
+    a.save()
     s = PerformanceAlertSummary.objects.get(id=1)
     assert s.status == PerformanceAlertSummary.INVESTIGATING
 
     # reset alert to untriaged, likewise make sure summary status
     # gets updated
-    p.status = PerformanceAlert.UNTRIAGED
-    p.save()
+    a.status = PerformanceAlert.UNTRIAGED
+    a.save()
     s = PerformanceAlertSummary.objects.get(id=1)
     assert s.status == PerformanceAlertSummary.UNTRIAGED
 
 
-def test_alert_modification(test_repository, test_perf_signature):
-    s = PerformanceAlertSummary.objects.create(
-        id=1,
-        repository=test_repository,
-        prev_result_set_id=0,
-        result_set_id=1,
-        last_updated=datetime.datetime.now())
+def test_alert_modification(test_repository, test_perf_signature,
+                            test_perf_alert_summary, test_perf_alert):
+    p = test_perf_alert
     s2 = PerformanceAlertSummary.objects.create(
         id=2,
         repository=test_repository,
         prev_result_set_id=1,
         result_set_id=2,
-        last_updated=datetime.datetime.now())
-    p = PerformanceAlert.objects.create(
-        id=1,
-        summary=s,
-        series_signature=test_perf_signature,
-        is_regression=True,
-        amount_pct=0.5,
-        amount_abs=50.0,
-        prev_value=100.0,
-        new_value=150.0,
-        t_value=20.0)
+        last_updated=datetime.datetime.now(),
+        manually_created=False)
 
     assert p.related_summary is None
     assert p.status == PerformanceAlert.UNTRIAGED
