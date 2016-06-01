@@ -81,20 +81,19 @@ treeherder.controller('PluginCtrl', [
             }
 
             $scope.tabService.tabs.perfDetails.enabled = false;
+            // Load performance data regardless of status, but only switch to
+            // it if job was successful.
+            $http.get(thServiceDomain + '/api/project/' + $scope.repoName +
+                      '/performance/data/?job_id=' + job.id).then(function(response) {
+                          if (!_.isEmpty(response.data) && job.job_type_name !== "Build") {
+                              $scope.tabService.tabs.perfDetails.enabled = true;
+                          }
+                          if (thResultStatus(job) === 'success') {
+                              $scope.tabService.selectedTab = 'perfDetails';
+                          }
+                      });
             if (thResultStatus(job) === 'success') {
                 $scope.tabService.selectedTab = successTab;
-
-                // If successful, check if performance data exists, if so,
-                // load and switch to it
-                $http.get(thServiceDomain + '/api/project/' + $scope.repoName +
-                          '/performance/data/?job_id=' + job.id).then(function(response) {
-                              // show/hide Performance panel and default to
-                              // it if such data exists and job is not build
-                              if (!_.isEmpty(response.data) && job.job_type_name !== "Build") {
-                                  $scope.tabService.tabs.perfDetails.enabled = true;
-                                  $scope.tabService.selectedTab = "perfDetails";
-                              }
-                          });
             } else {
                 $scope.tabService.selectedTab = failTab;
             }
