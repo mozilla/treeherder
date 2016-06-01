@@ -1,9 +1,11 @@
+import django
 from django.db import models
 
 
 # Django doesn't support big auto fields out of the box, see
 # https://code.djangoproject.com/ticket/14286.
 # This is a stripped down version of the BoundedBigAutoField from Sentry.
+# TODO: Remove once using Django 1.10, since it has native support.
 class BigAutoField(models.AutoField):
     description = "Big Integer"
 
@@ -23,10 +25,13 @@ class BigAutoField(models.AutoField):
         return "BigIntegerField"
 
 
+# This is required to support BigAutoField
 class FlexibleForeignKey(models.ForeignKey):
     def db_type(self, connection):
-        # This is required to support BigAutoField
-        rel_field = self.related_field
+        if django.VERSION >= (1, 9):
+            rel_field = self.target_field
+        else:
+            rel_field = self.related_field
         if hasattr(rel_field, 'get_related_db_type'):
             return rel_field.get_related_db_type(connection)
         return super(FlexibleForeignKey, self).db_type(connection)
