@@ -13,7 +13,7 @@ RESULT_DICT = {
 ####
 #   The following variables were taken from util.py
 #
-#   PLATFORMS_BUILDERNAME, BUILD_TYPE_BUILDERNAME, JOB_TYPE_BUILDERNAME
+#   PLATFORMS_BUILDERNAME, BUILD_TYPE_BUILDERNAME
 #
 #   http://mxr.mozilla.org/build/source/buildapi/buildapi/model/util.py
 #
@@ -451,31 +451,6 @@ BUILD_TYPE_BUILDERNAME = [
     }
     # defaults to "opt" if not found
 ]
-
-JOB_TYPE_BUILDERNAME = {
-    'build': [
-        re.compile(r'.+build'),
-        re.compile(r'.+_dep'),
-        re.compile(r'.+(?<!l10n)[ _]nightly$'),
-        re.compile(r'.+ xulrunner$'),
-        re.compile(r'.+ code coverage$'),
-        re.compile(r'.*valgrind$'),
-        re.compile(r'.*non-unified'),
-        # Release promotion jobs have the following suffixes
-        re.compile(r'.*_(?:bncr_sub|bouncer_aliases|uptake_monitoring|chcksms|updates|version_bump)$'),
-
-    ],
-    'unittest': [
-        re.compile(r'jetpack.*(opt|debug)$'),
-        re.compile(r'.+(?<!leak) test .+'),
-        re.compile(r'.+_update_verify'),
-    ],
-    'talos': [re.compile(r'.+ talos .+')],
-    'repack': [
-        re.compile(r'.+[ _]l10n'),
-        re.compile(r'.+_partner_repacks'),
-    ],
-}
 
 # from Data.js ``type`` Config.testNames and Config.buildNames
 JOB_NAME_BUILDERNAME = [
@@ -1108,14 +1083,6 @@ def extract_build_type(source_string):
             output = build_type["type"]
             return output
     return output
-
-
-def extract_job_type(source_string, default="build"):
-    for job_type in JOB_TYPE_BUILDERNAME:
-        for regex in JOB_TYPE_BUILDERNAME[job_type]:
-            if regex.search(source_string):
-                return job_type
-    return default
 
 
 def extract_name_info(source_string):
