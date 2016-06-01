@@ -1803,7 +1803,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     # (we'll pick them up later)
                     continue
                 jl, _ = JobLog.objects.get_or_create(
-                    job=job, name=name, url=url, status=status)
+                    job=job, name=name, url=url, defaults={
+                        'status': status
+                    })
                 job_log_list.append((jl, job_results[job_guid]))
 
             self.schedule_log_parsing(job_log_list)
