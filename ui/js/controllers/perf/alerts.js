@@ -529,6 +529,24 @@ perf.controller('AlertsCtrl', [
                 });
         };
 
+        $scope.summaryTitle = {
+            html: '<i class="fa fa-spin fa-spinner" aria-hidden="true"></i>',
+            promise: null
+        };
+
+        $scope.getSummaryTitle = function(id) {
+            $scope.summaryTitle.promise = PhAlerts.getAlertSummaryTitle(id);
+            $scope.summaryTitle.promise.then(
+                function(summaryTitle) {
+                    $scope.summaryTitle.html = '<p>' + summaryTitle + '</p>';
+                });
+        };
+
+        $scope.resetSummaryTitle = function() {
+            $scope.summaryTitle.promise.cancel();
+            $scope.summaryTitle.html = '<i class="fa fa-spinner" aria-hidden="true"></i>';
+        };
+
         ThRepositoryModel.load().then(function(response) {
             $q.all([PhFramework.getFrameworkList().then(
                 function(frameworks) {
