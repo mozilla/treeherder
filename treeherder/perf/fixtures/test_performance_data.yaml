@@ -17,7 +17,7 @@
     architecture: myarch
 
 - model: perf.PerformanceSignature
-  pk: 2
+  pk: 1
   fields:
     signature_hash: myrandomsignaturehash
     repository: 1
