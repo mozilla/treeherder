@@ -59,6 +59,27 @@ def test_ingest_all_sample_jobs(jm, sample_data,
     test_utils.do_job_ingestion(jm, job_data, sample_resultset)
 
 
+def test_ingest_twice_log_parsing_status_changed(jm, sample_data,
+                                                 sample_resultset,
+                                                 test_repository,
+                                                 mock_log_parser):
+    """Process a single job twice, but change the log parsing status between,
+    verify that nothing changes"""
+    job_data = sample_data.job_data[:1]
+
+    job_data[0]['job']['state'] = 'running'
+    test_utils.do_job_ingestion(jm, job_data, sample_resultset)
+    assert JobLog.objects.count() == 1
+    for job_log in JobLog.objects.all():
+        job_log.update_status(JobLog.FAILED)
+
+    job_data[0]['job']['state'] = 'completed'
+    test_utils.do_job_ingestion(jm, job_data, sample_resultset)
+    assert JobLog.objects.count() == 1
+    for job_log in JobLog.objects.all():
+        job_log.status == JobLog.FAILED
+
+
 @pytest.mark.parametrize("total_resultset_count", [3, 10])
 def test_missing_resultsets(jm, sample_data, sample_resultset, test_repository,
                             mock_log_parser, total_resultset_count):
