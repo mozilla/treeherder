@@ -33,6 +33,8 @@ treeherder.factory('ThResultSetStore', [
 
         var resultSetPollInterval = 60000;
         var jobPollInterval = 60000;
+        var maxPollInterval = 60000 * 15;
+        var lastPolltime;
         var lastJobUpdate;
 
         // Keys that, if present on the url, must be passed into the resultset
@@ -122,12 +124,27 @@ treeherder.factory('ThResultSetStore', [
                 repositories[$rootScope.repoName].resultSets,
                 'id'
             );
-            ThResultSetModel.getResultSetJobsUpdates(
-                resultSetIdList,
-                $rootScope.repoName,
-                lastJobUpdate,
-                _.pick($location.search(), ["exclusion_profile", "visibility"])
-            ).then(function(jobList) {
+
+            var jobUpdatesPromise;
+            if ((Date.now() - lastPolltime) > maxPollInterval) {
+                // if it's been too long, just refetch everything since
+                // getting updates can be extremely slow (and taxing on the
+                // server) if there are a lot of them
+                jobUpdatesPromise = $q.all(ThResultSetModel.getResultSetJobs(
+                    resultSetIdList,
+                    $rootScope.repoName,
+                    _.pick($location.search(), ["exclusion_profile", "visibility"])
+                ));
+            } else {
+                jobUpdatesPromise = ThResultSetModel.getResultSetJobsUpdates(
+                    resultSetIdList,
+                    $rootScope.repoName,
+                    lastJobUpdate,
+                    _.pick($location.search(), ["exclusion_profile", "visibility"]));
+            }
+            lastPolltime = Date.now();
+
+            jobUpdatesPromise.then(function(jobList) {
                 if (jobList.length > 0) {
                     lastJobUpdate = getLastModifiedJobTime(jobList);
 
@@ -145,6 +162,9 @@ treeherder.factory('ThResultSetStore', [
         };
         var registerJobsPoller = function() {
             $interval(pollJobs, jobPollInterval);
+            if (!lastPolltime) {
+                lastPolltime = Date.now();
+            }
         };
 
         var mapResultSetJobs = function(repoName, jobList) {
@@ -913,9 +933,8 @@ treeherder.factory('ThResultSetStore', [
                     if ($location.search().nojobs) {
                         return;
                     }
-
                     var jobsPromiseList = ThResultSetModel.getResultSetJobs(
-                        resultsets,
+                        _.map(resultsets.results, 'id'),
                         repoName,
                         _.pick($location.search(), ["exclusion_profile", "visibility"])
                     );
