@@ -76,7 +76,7 @@ six==1.10.0 --hash=sha256:0ff78c403d9bccf5a425a6d31a12aa6b47f1c21ca4dc2573a7e2f3
 # Required by hawkrest and requests-hawk
 mohawk==0.3.2.1 --hash=sha256:46e98d8349f927b40227f1a9f0021509fedcf0398e1feb22dac954010f625f1d
 
-hawkrest==0.0.9 --hash=sha256:3b7f7c464a9d36c3d23873b8572d97a407960265635ab74880e14069eecb7f11
+hawkrest==0.0.10 --hash=sha256:5d3e31dc57ffa1d1366feb8b1ba442ef4bd74bd2d1e9c2e9624c0dcfa7aa4ea0
 
 python-dateutil==2.5.3 --hash=sha256:598499a75be2e5e18a66f12c00dd47a069de24794effeda4228bfc760f44f527
 
