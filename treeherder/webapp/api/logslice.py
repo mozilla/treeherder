@@ -33,7 +33,7 @@ class LogSliceView(viewsets.ViewSet):
             log_names = ["buildbot_text", "builds-4h"]
         format = 'json' if log_name == 'mozlog_json' else 'text'
 
-        gz_file = None
+        file = None
 
         start_line = request.query_params.get("start_line")
         end_line = request.query_params.get("end_line")
@@ -63,16 +63,29 @@ class LogSliceView(viewsets.ViewSet):
             return Response("Job log does not exist", 404)
 
         try:
-            gz_file = filesystem.get(url)
-            if not gz_file:
+            file = filesystem.get(url)
+            if not file:
                 r = make_request(url)
-                gz_file = gzip.GzipFile(fileobj=BytesIO(r.content))
-                filesystem.set(url, gz_file.fileobj)
+                try:
+                    file = gzip.GzipFile(fileobj=BytesIO(r.content))
+                    # read 16 bytes, just to make sure the file is gzipped
+                    file.read(16)
+                    file.seek(0)
+                    filesystem.set(url, file.fileobj)
+                except IOError:
+                    # file is not gzipped, but we should still store / read
+                    # it as such, to save space
+                    file = BytesIO(r.content)
+                    gz_file_content = BytesIO()
+                    with gzip.GzipFile('none', 'w', fileobj=gz_file_content) as gz:
+                        gz.write(r.content)
+                    gz_file_content.seek(0)
+                    filesystem.set(url, gz_file_content)
             else:
-                gz_file = gzip.GzipFile(fileobj=gz_file)
+                file = gzip.GzipFile(fileobj=file)
 
             lines = []
-            for i, line in enumerate(gz_file):
+            for i, line in enumerate(file):
                 if i < start_line:
                     continue
                 elif i >= end_line:
@@ -86,5 +99,5 @@ class LogSliceView(viewsets.ViewSet):
             return Response(lines)
 
         finally:
-            if gz_file:
-                gz_file.close()
+            if file:
+                file.close()
