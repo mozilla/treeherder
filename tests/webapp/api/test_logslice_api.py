@@ -9,8 +9,10 @@ from treeherder.model.models import (Job,
                                      JobLog)
 
 
-@pytest.mark.parametrize('logname', ['buildbot_text', 'builds-4h'])
-@pytest.mark.parametrize('line_range', [(0, 10), (5, 8), (1, 11)])
+@pytest.mark.parametrize('logname, line_range', [('buildbot_text', (0, 10)),
+                                                 ('builds-4h', (0, 10)),
+                                                 ('builds-4h', (5, 8)),
+                                                 ('builds-4h', (1, 11))])
 def test_logslice_api(test_repository, webapp, activate_responses, logname,
                       line_range):
     job = Job.objects.create(repository=test_repository,
