@@ -6,6 +6,7 @@ from itertools import islice
 from django.conf import settings
 from django.db import transaction
 from django.db.utils import OperationalError
+from requests.exceptions import HTTPError
 
 from treeherder.etl.common import fetch_text
 from treeherder.model.models import (FailureLine,
@@ -16,7 +17,16 @@ logger = logging.getLogger(__name__)
 
 
 def store_failure_lines(repository_name, job_guid, job_log):
-    log_text = fetch_text(job_log.url)
+    try:
+        log_text = fetch_text(job_log.url)
+    except HTTPError as e:
+        job_log.status = JobLog.FAILED
+        job_log.save()
+        if e.response is not None and e.response.status_code in (403, 404):
+            logger.warning("Unable to retrieve log for %s: %s",
+                           job_log.url, e)
+            return
+        raise
 
     if not log_text:
         return
