@@ -83,7 +83,13 @@
         </p>
         <p class="text-muted" ng-if="!tooltipContent.alertSummary">
           <span ng-if="!creatingAlert">
-            No alert (<a href="" ng-click="createAlert(tooltipContent)">create</a>)
+            No alert
+            <span ng-if="user.is_staff">
+              (<a href="" ng-click="createAlert(tooltipContent)" ng-disabled="user.is_staff">create</a>)
+            </span>
+            <span ng-if="!user.is_staff">
+              (log in as a a sheriff to create)
+            </span>
           </span>
           <span ng-if="creatingAlert">
             Creating alert... <i class="fa fa-spinner fa-pulse"></i>
