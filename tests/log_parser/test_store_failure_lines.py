@@ -1,5 +1,7 @@
+import pytest
 import responses
 from django.conf import settings
+from requests.exceptions import HTTPError
 
 from treeherder.log_parser.failureline import (char_to_codepoint_ucs2,
                                                store_failure_lines)
@@ -88,6 +90,43 @@ def test_store_error_summary_astral(activate_responses, test_repository, jm,
     assert failure.stack.endswith("<U+0F0151>")
     assert failure.stackwalk_stdout is None
     assert failure.stackwalk_stderr is None
+
+
+def test_store_error_summary_404(activate_responses, test_repository, jm, eleven_jobs_stored):
+    log_path = SampleData().get_log_path("plain-chunked_errorsummary.log")
+    log_url = 'http://my-log.mozilla.org'
+
+    with open(log_path) as log_handler:
+        responses.add(responses.GET, log_url,
+                      body=log_handler.read(), status=404)
+
+    job = Job.objects.get(guid=jm.get_job(1)[0]['job_guid'])
+
+    log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
+
+    store_failure_lines(jm.project, job.guid, log_obj)
+
+    log_obj.refresh_from_db()
+    assert log_obj.status == JobLog.FAILED
+
+
+def test_store_error_summary_500(activate_responses, test_repository, jm, eleven_jobs_stored):
+    log_path = SampleData().get_log_path("plain-chunked_errorsummary.log")
+    log_url = 'http://my-log.mozilla.org'
+
+    with open(log_path) as log_handler:
+        responses.add(responses.GET, log_url,
+                      body=log_handler.read(), status=500)
+
+    job = Job.objects.get(guid=jm.get_job(1)[0]['job_guid'])
+
+    log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
+
+    with pytest.raises(HTTPError):
+        store_failure_lines(jm.project, job.guid, log_obj)
+
+    log_obj.refresh_from_db()
+    assert log_obj.status == JobLog.FAILED
 
 
 def test_char_data_to_codepoint_ucs2():
