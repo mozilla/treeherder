@@ -37,7 +37,7 @@ class PerformanceSignatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = PerformanceSignature
         fields = ['framework_id', 'signature_hash', 'machine_platform',
-                  'suite', 'test', 'lower_is_better',
+                  'suite', 'test', 'lower_is_better', 'has_subtests',
                   'option_collection_hash', 'test_options']
 
 
