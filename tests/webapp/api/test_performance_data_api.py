@@ -145,25 +145,21 @@ def test_summary_performance_data(webapp, test_repository,
     assert resp.data.keys() == [test_perf_signature.signature_hash,
                                 summary_signature_hash]
 
-    summary_properties = resp.data[summary_signature_hash]
-    assert summary_properties == {
-        'id': summary_perf_signature.id,
-        'suite': 'mysuite',
-        'option_collection_hash': summary_perf_signature.option_collection.option_collection_hash,
-        'framework_id': summary_perf_signature.framework_id,
-        'machine_platform': summary_perf_signature.platform.platform,
-        'has_subtests': True
-    }
-    subtest_properties = resp.data[test_perf_signature.signature_hash]
-    assert subtest_properties == {
-        'id': test_perf_signature.id,
-        'suite': 'mysuite',
-        'test': 'mytest',
-        'option_collection_hash': summary_perf_signature.option_collection.option_collection_hash,
-        'framework_id': summary_perf_signature.framework_id,
-        'machine_platform': summary_perf_signature.platform.platform,
-        'parent_signature': summary_signature_hash
-    }
+    for signature in [summary_perf_signature, test_perf_signature]:
+        expected = {
+            'id': signature.id,
+            'suite': signature.suite,
+            'option_collection_hash': signature.option_collection.option_collection_hash,
+            'framework_id': signature.framework_id,
+            'machine_platform': signature.platform.platform
+        }
+        if signature.test:
+            expected['test'] = signature.test
+        if signature.has_subtests:
+            expected['has_subtests'] = True
+        if signature.parent_signature:
+            expected['parent_signature'] = signature.parent_signature.signature_hash
+        assert resp.data[signature.signature_hash] == expected
 
 
 def test_filter_signatures_by_framework(webapp, test_repository, test_perf_signature,
@@ -214,6 +210,7 @@ def test_filter_data_by_framework(webapp, test_repository, test_perf_signature,
     assert resp.status_code == 200
     datums = resp.data[test_perf_signature.signature_hash]
     assert len(datums) == 2
+    assert set([datum['signature_id'] for datum in datums]) == set([1, 2])
     assert set([datum['job_id'] for datum in datums]) == set([0, 1])
 
     # Filtering by first framework
@@ -226,6 +223,7 @@ def test_filter_data_by_framework(webapp, test_repository, test_perf_signature,
     datums = resp.data[test_perf_signature.signature_hash]
     assert len(datums) == 1
     assert datums[0]['job_id'] == 0
+    assert datums[0]['signature_id'] == 1
 
     # Filtering by second framework
     resp = client.get(reverse('performance-data-list',
@@ -237,3 +235,4 @@ def test_filter_data_by_framework(webapp, test_repository, test_perf_signature,
     datums = resp.data[test_perf_signature.signature_hash]
     assert len(datums) == 1
     assert datums[0]['job_id'] == 1
+    assert datums[0]['signature_id'] == 2

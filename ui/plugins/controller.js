@@ -207,39 +207,33 @@ treeherder.controller('PluginCtrl', [
                     $scope.lvFullUrl = location.origin + "/" + $scope.lvUrl;
                     $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
 
-                    var performanceSignaturesForJob = results[4];
-                    if (performanceSignaturesForJob) {
+                    var performanceData = results[4];
+                    if (performanceData) {
                         var seriesList = [];
                         $scope.perfJobDetail = [];
-                        $q.all(_.chunk(_.keys(performanceSignaturesForJob), 20).map(function(signatureChunk) {
-                            var url = '/performance/signatures/?signature=' + signatureChunk.pop();
-                            signatureChunk.forEach(function(signature) {
-                                url = url + '&signature=' + signature;
+                        $q.all(_.chunk(_.keys(performanceData), 20).map(function(signatureHashes) {
+                            var signatureIds = _.map(signatureHashes, function(signatureHash) {
+                                return performanceData[signatureHash][0].signature_id;
                             });
-                            return $http.get(thUrl.getProjectUrl(url, $scope.repoName)).then(
-                                function(response) {
-                                    _.forEach(response.data, function(series, key) {
-                                        series['signature'] = key;
-                                        seriesList.push(series);
-                                    });
-                                });
-                        })).then(function(){
-                            var allSubtestSignatures = _.flatten(_.map(seriesList, function(series) {
-                                return series.subtest_signatures ? series.subtest_signatures : [];
-                            }));
+                            return PhSeries.getSeriesList($scope.repoName, { id: signatureIds }).then(function(newSeriesList) {
+                                seriesList = seriesList.concat(newSeriesList);
+                            });
+                        })).then(function() {
                             _.forEach(seriesList, function(series) {
                                 // skip series which are subtests of another series
-                                if (series.parent_signature)
+                                if (series.parentSignature)
                                     return;
                                 var detail = {
                                     url: thServiceDomain + '/perf.html#/graphs?series=[' +
-                                        $scope.repoName+ ',' + series.signature + ',1]&selected=[' +
-                                        $scope.repoName + ',' +  series.signature + ',' +
-                                        $scope.job['result_set_id'] + ',' + $scope.job['id'] + ']',
-                                    value: performanceSignaturesForJob[series.signature][0].value,
+                                        [ $scope.repoName, series.signature, 1,
+                                          series.frameworkId ] + ']&selected=[' +
+                                        [ $scope.repoName, series.signature,
+                                          $scope.job['result_set_id'], $scope.job['id'] ] +
+                                        ']',
+                                    value: performanceData[series.signature][0].value,
                                     title: series.suite
                                 };
-                                if (series.hasOwnProperty('test') && series.test.toLowerCase() !== series.suite) {
+                                if (series.test && series.test.toLowerCase() !== series.suite) {
                                     detail['title'] += '_' + series.test.toLowerCase();
                                 }
 

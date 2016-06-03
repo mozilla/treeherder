@@ -45,6 +45,11 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
         if not int(request.query_params.get('subtests', True)):
             signature_data = signature_data.filter(parent_signature__isnull=True)
 
+        signature_ids = request.query_params.getlist('id')
+        if signature_ids:
+            signature_data = signature_data.filter(id__in=map(int,
+                                                              signature_ids))
+
         signature_hashes = request.query_params.getlist('signature')
         if signature_hashes:
             signature_data = signature_data.filter(
@@ -178,11 +183,12 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
 
         ret = defaultdict(list)
         values_list = datums.values_list(
-            'signature__signature_hash', 'job_id', 'result_set_id',
+            'signature_id', 'signature__signature_hash', 'job_id', 'result_set_id',
             'push_timestamp', 'value')
-        for (signature_hash, job_id, result_set_id, push_timestamp,
-             value) in values_list:
+        for (signature_id, signature_hash, job_id, result_set_id,
+             push_timestamp, value) in values_list:
             ret[signature_hash].append({
+                'signature_id': signature_id,
                 'job_id': job_id,
                 'result_set_id': result_set_id,
                 'push_timestamp': int(time.mktime(push_timestamp.timetuple())),
