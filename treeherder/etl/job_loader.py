@@ -3,6 +3,7 @@ import time
 from collections import defaultdict
 
 import jsonschema
+import newrelic.agent
 from dateutil import parser
 
 from treeherder.etl.schema import job_json_schema
@@ -70,7 +71,6 @@ class JobLoader:
         """
         job_guid = self._get_job_guid(pulse_job)
         x = {
-            "revision": pulse_job["origin"]["revision"],
             "job": {
                 "job_guid": job_guid,
                 "name": pulse_job["display"].get("jobName", "unknown"),
@@ -90,6 +90,25 @@ class JobLoader:
             },
             "coalesced": pulse_job.get("coalesced", [])
         }
+
+        # It is possible there will be either a revision or a revision_hash
+        # At some point we will ONLY get revisions and no longer receive
+        # revision_hashes and then this check can be removed.
+        revision = pulse_job["origin"].get("revision", None)
+        if revision:
+            x["revision"] = revision
+        else:
+            x["revision_hash"] = pulse_job["origin"]["revision_hash"]
+            logger.warning(
+                "Pulse job had revision_hash instead of revision: {}:{}".format(
+                    pulse_job["origin"]["project"],
+                    x["revision_hash"]
+                ))
+            params = {
+                "project": pulse_job["origin"]["project"],
+                "revision_hash": x["revision_hash"]
+            }
+            newrelic.agent.record_custom_event("revision_hash_usage", params=params)
 
         # some or all the time fields may not be present in some cases
         for k, v in self.TIME_FIELD_MAP.items():
