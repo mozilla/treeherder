@@ -1054,7 +1054,8 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
                       subtests: $scope.includeSubtests ? 1 : 0 }).then(function(seriesList) {
                           $scope.unselectedTestList = _.sortBy(
                               _.filter(seriesList,
-                                       { platform: $scope.selectedPlatform }), 'name');
+                                       { platform: $scope.selectedPlatform,
+                                         hasSubtests: true }), 'name');
                           // filter out tests which are already displayed or are
                           // already selected
                           _.forEach(_.union(testsDisplayed, $scope.testsToAdd),

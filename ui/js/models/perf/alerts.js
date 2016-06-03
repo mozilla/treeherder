@@ -34,6 +34,33 @@ treeherder.factory('PhAlerts', [
 
             return url;
         };
+        Alert.prototype.getSubtestsURL = function(alertSummary) {
+            function formURLParameters(associativeArray) {
+                var parameters = [];
+                for (var key in associativeArray) {
+                    if (associativeArray.hasOwnProperty(key)) {
+                        parameters.push(key + '=' + encodeURIComponent(associativeArray[key]));
+                    }
+                }
+                return parameters.join('&');
+            }
+
+            var endpoint = '#/comparesubtest';
+            var urlParameters = {};
+            urlParameters['framework'] = alertSummary.framework;
+            urlParameters['originalProject'] = alertSummary.repository;
+            if (alertSummary.prevResultSetMetadata) {
+                urlParameters['originalRevision'] = alertSummary.prevResultSetMetadata.revision;
+            }
+            urlParameters['originalSignature']=this.series_signature.signature_hash;
+            urlParameters['newProject'] = alertSummary.repository;
+            if (alertSummary.prevResultSetMetadata) {
+                urlParameters['newRevision'] = alertSummary.resultSetMetadata.revision;
+            }
+            urlParameters['newSignature'] = this.series_signature.signature_hash;
+
+            return endpoint + '?' + formURLParameters(urlParameters);
+        };
         Alert.prototype.modify = function(modification) {
             return $http.put(thServiceDomain +
                              '/api/performance/alert/' + this.id + '/',
