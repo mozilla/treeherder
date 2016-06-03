@@ -61,6 +61,27 @@ def test_ingest_pulse_jobs(pulse_jobs, test_project, jm, result_set_stored,
     assert JobDetail.objects.count() == 2
 
 
+def test_ingest_pulse_jobs_with_revision_hash(pulse_jobs, test_project, jm,
+                                              result_set_stored,
+                                              mock_log_parser):
+    """
+    Ingest a revision_hash job with the JobLoader used by Pulse
+    """
+
+    jl = JobLoader()
+    rs = jm.get_result_set_list(0, 10)[0]
+    revision_hash = rs["revision_hash"]
+    for job in pulse_jobs:
+        origin = job["origin"]
+        del(origin["revision"])
+        origin["revision_hash"] = revision_hash
+
+    jl.process_job_list(pulse_jobs)
+
+    jobs = jm.get_job_list(0, 10)
+    assert len(jobs) == 4
+
+
 def test_transition_pending_running_complete(first_job, jm, mock_log_parser):
     jl = JobLoader()
 
