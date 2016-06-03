@@ -488,6 +488,13 @@ if env.bool('IS_HEROKU', default=False):
                 'ca': '/app/deployment/aws/combined-ca-bundle.pem'
             }
         }
+elif env.str("DB_CERT_PATH", None):
+    for db_name in DATABASES:
+        DATABASES[db_name]['OPTIONS'] = {
+            'ssl': {
+                'ca': env.str("DB_CERT_PATH")
+            }
+        }
 
 # TREEHERDER_MEMCACHED is a string of comma-separated address:port pairs
 MEMCACHED_LOCATION = TREEHERDER_MEMCACHED.strip(',').split(',')

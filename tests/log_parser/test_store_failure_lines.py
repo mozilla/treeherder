@@ -168,4 +168,3 @@ def test_store_error_summary_elastic_search(activate_responses, test_repository,
         assert getattr(es_line, prop) == getattr(failure, prop)
     assert es_line.best_classification is None
     assert es_line.best_is_verified is False
-

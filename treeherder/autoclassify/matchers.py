@@ -120,13 +120,20 @@ class ElasticSearchTestMatcher(Matcher):
     """Matcher that looks for existing failures with identical tests, and error
     message that is a good match when non-alphabetic tokens have been removed."""
 
+    def __init__(self, *args, **kwargs):
+        Matcher.__init__(self, *args, **kwargs)
+        self.lines = 0
+        self.calls = 0
+
     @es_connected(default=[])
     def __call__(self, failure_lines):
         rv = []
+        self.lines += len(failure_lines)
         for failure_line in failure_lines:
             if failure_line.action != "test_result" or not failure_line.message:
+                logger.debug("Skipped elasticsearch matching")
                 continue
-            match = ESMatch(message={"query": failure_line.message,
+            match = ESMatch(message={"query": failure_line.message[:1024],
                                      "type": "phrase"})
             search = (TestFailureLine.search()
                       .filter("term", test=failure_line.test)
@@ -137,6 +144,7 @@ class ElasticSearchTestMatcher(Matcher):
             if failure_line.subtest:
                 search = search.filter("term", subtest=failure_line.subtest)
             try:
+                self.calls += 1
                 resp = search.execute()
             except:
                 logger.error("Elastic search lookup failed: %s %s %s %s %s" % (
