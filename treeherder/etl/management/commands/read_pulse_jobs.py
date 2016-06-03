@@ -87,6 +87,5 @@ class Command(BaseCommand):
 
     def get_bindings(self, queue_name):
         """Get list of bindings from the pulse API"""
-        return fetch_json("{}queue/{}/{}".format(settings.PULSE_API_URL,
-                                                 queue_name,
-                                                 "bindings"))
+        return fetch_json("{}queue/{}/bindings".format(
+            settings.PULSE_GUARDIAN_URL, queue_name))
