@@ -11,6 +11,8 @@ treeherder.controller('BugFilerCtrl', [
 
         var $log = new ThLog("BugFilerCtrl");
 
+        $scope.omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR", "TEST-UNEXPECTED-TIMEOUT"];
+
         /**
          *  'enter' from the product search input should initiate the search
          */
@@ -39,9 +41,8 @@ treeherder.controller('BugFilerCtrl', [
         $scope.initiate = function() {
             var thisFailure = "";
             for(var i = 0; i < allFailures.length; i++) {
-                var omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR", "TEST-UNEXPECTED-TIMEOUT"];
-                for(var j=0; j < omittedLeads.length; j++) {
-                    if(allFailures[i][0].search(omittedLeads[j]) >= 0) {
+                for(var j=0; j < $scope.omittedLeads.length; j++) {
+                    if(allFailures[i][0].search($scope.omittedLeads[j]) >= 0) {
                         allFailures[i].shift();
                     }
                 }
@@ -64,11 +65,10 @@ treeherder.controller('BugFilerCtrl', [
          *  and try to find the failing test name from what's left
          */
         $uibModalInstance.parseSummary = function(summary) {
-            var omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR", "TEST-UNEXPECTED-TIMEOUT"];
             summary = summary.split(" | ");
 
-            for(var i=0; i < omittedLeads.length; i++) {
-                if(summary[0].search(omittedLeads[i]) >= 0) {
+            for(var i=0; i < $scope.omittedLeads.length; i++) {
+                if(summary[0].search($scope.omittedLeads[i]) >= 0) {
                     summary.shift();
                 }
             }
@@ -98,6 +98,7 @@ treeherder.controller('BugFilerCtrl', [
             // Look up the product via the root of the failure's file path
             if(thBugzillaProductObject[failurePathRoot]) {
                 $scope.suggestedProducts.push(thBugzillaProductObject[failurePathRoot][0]);
+                $scope.selectedProduct = $scope.suggestedProducts[0];
             }
 
             // Look up product suggestions via Bugzilla's api
@@ -106,22 +107,23 @@ treeherder.controller('BugFilerCtrl', [
             if(productSearch) {
                 $http.get("https://bugzilla.mozilla.org/rest/prod_comp_search/" + productSearch + "?limit=5").then(function(request) {
                     var data = request.data;
-                    $scope.suggestedProducts = [];
-                    for(var i = 0; i < data.products.length;i++) {
-                        if(data.products[i].product && data.products[i].component) {
-                            $scope.suggestedProducts.push(data.products[i].product + " :: " + data.products[i].component);
+                    // We can't file unless product and component are provided, this api can return just product. Cut those out.
+                    for(var i = data.products.length - 1; i >= 0; i--) {
+                        if(!data.products[i].component) {
+                            data.products.splice(i, 1);
                         }
                     }
+                    $scope.suggestedProducts = [];
+                    $scope.suggestedProducts = _.map(data.products, function(prod) {
+                        if(prod.product && prod.component) {
+                            return prod.product + " :: " + prod.component;
+                        } else {
+                            return prod.product;
+                        }
+                    });
                     $scope.selectedProduct = $scope.suggestedProducts[0];
                 });
             }
-        };
-
-        /*
-         *  This is called once intermittent.html's ng-repeat is finished to select the first product listed
-         */
-        $scope.focusProduct = function() {
-            $("#suggestedProducts").children(":first").children(":first").prop("checked", true);
         };
 
         /*
@@ -148,27 +150,15 @@ treeherder.controller('BugFilerCtrl', [
             var isProductSelected = false;
 
             $(':input','#modalForm').attr("disabled",true);
-
-            var productRadios = $("#modalForm input[name='productGroup'");
-            if(productRadios && productRadios.length) {
-                for(var i=0, len=productRadios.length; i<len; i++) {
-                    if(productRadios[i].checked) {
-                        productString += productRadios[i].value.split(" :: ")[0];
-                        componentString += productRadios[i].value.split(" :: ")[1];
-                        isProductSelected = true;
-                        break;
-                    }
-                }
-            } else {
-                if(productRadios && productRadios.checked) {
-                    productString += productRadios.value.split(" :: ")[0];
-                    componentString += productRadios.value.split(" :: ")[1];
-                    isProductSelected = true;
-                }
+            if($scope.selectedProduct) {
+                productString += $scope.selectedProduct.split(" :: ")[0];
+                componentString += $scope.selectedProduct.split(" :: ")[1];
+                isProductSelected = true;
             }
 
             if(!isProductSelected) {
-                alert("Please select (or search and select) a product/component pair to continue");
+                thNotify.send("Please select (or search and select) a product/component pair to continue", "danger");
+                $(':input','#modalForm').attr("disabled",false);
                 return;
             }
 
@@ -193,7 +183,7 @@ treeherder.controller('BugFilerCtrl', [
                         "keywords": "intermittent-failure",
                         // XXX This takes the last version returned from the product query, probably should be smarter about this in the future...
                         "version": productObject.versions[productObject.versions.length-1].name,
-                        "description": logstrings + document.getElementById("modalComment").value,
+                        "description": logstrings + $scope.modalComment,
                         "comment_tags": "treeherder",
                     }
                 }).then(function successCallback(json) {
@@ -216,7 +206,8 @@ treeherder.controller('BugFilerCtrl', [
                         $scope.cancelFiler();
                     }
                 }, function errorCallback(response) {
-                    $log.debug(response);
+                    thNotify.send("Bug Filer API returned status " + response.status + " (" + response.statusText + ")", "danger");
+                    $(':input','#modalForm').attr("disabled",false);
                 });
             });
         };
