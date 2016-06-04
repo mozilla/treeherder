@@ -782,7 +782,13 @@ treeherder.directive('thCloneJobs', [
                 duration = 50;
             }
             if (el.position() !== undefined) {
-                $('.th-global-content').scrollTo(el, duration, {offset: -40});
+                var scrollOffset = -50;
+                if (window.innerHeight >= 500 && window.innerHeight < 1000) {
+                    scrollOffset = -100;
+                } else if (window.innerHeight >= 1000) {
+                    scrollOffset = -200;
+                }
+                $('.th-global-content').scrollTo(el, duration, {offset: scrollOffset});
             }
 
         };
