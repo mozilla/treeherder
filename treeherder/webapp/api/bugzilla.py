@@ -48,3 +48,15 @@ class BugzillaViewSet(viewsets.ViewSet):
                 return Response({"failure": rsperror}, status=status.HTTP_400_BAD_REQUEST)
 
             return Response({"success": response.json()["id"]})
+
+    @list_route(methods=['get'])
+    def get_api_root(self, request):
+        """
+        Return the server's API root so the UI can use it
+        """
+
+        print "HELLO"
+        if settings.BZ_API_URL is None:
+            return Response({"failure": "Bugzilla API URL not defined. This shouldn't happen."}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"api_root": settings.BZ_API_URL})
