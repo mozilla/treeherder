@@ -163,7 +163,7 @@ treeherder.controller('BugFilerCtrl', [
             var componentString = "";
             var isProductSelected = false;
 
-            $(':input','#modalForm').attr("disabled",true);
+            $scope.toggleForm(true);
             if($scope.selectedProduct) {
                 productString += $scope.selectedProduct.split(" :: ")[0];
                 componentString += $scope.selectedProduct.split(" :: ")[1];
@@ -172,7 +172,7 @@ treeherder.controller('BugFilerCtrl', [
 
             if(!isProductSelected) {
                 thNotify.send("Please select (or search and select) a product/component pair to continue", "danger");
-                $(':input','#modalForm').attr("disabled",false);
+                $scope.toggleForm(false);
                 return;
             }
 
@@ -211,7 +211,7 @@ treeherder.controller('BugFilerCtrl', [
                         }
                         errorString = JSON.parse(errorString);
                         thNotify.send("Bugzilla error: " + errorString.message, "danger", true);
-                        $(':input','#modalForm').attr("disabled",false);
+                        $scope.toggleForm(false);
                     } else {
                         // Auto-classify this failure now that the bug has been filed and we have a bug number
                         thPinboard.pinJob($rootScope.selectedJob);
@@ -228,9 +228,16 @@ treeherder.controller('BugFilerCtrl', [
                         failureString += "\n\n" + response.data.failure;
                     }
                     thNotify.send(failureString, "danger");
-                    $(':input','#modalForm').attr("disabled",false);
+                    $scope.toggleForm(false);
                 });
             });
+        };
+
+        /*
+         *  Disable or enable form elements as needed at various points in the submission process
+         */
+        $scope.toggleForm = function(disabled) {
+            $(':input','#modalForm').attr("disabled", disabled);
         };
     }
 ]);
