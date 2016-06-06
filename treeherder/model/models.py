@@ -614,6 +614,68 @@ class JobLog(models.Model):
         self.save(update_fields=['status'])
 
 
+class BugJobMap(models.Model):
+    '''
+    Maps job_ids to related bug_ids
+
+    Mappings can be made manually through a UI or from doing lookups in the
+    BugsCache
+    '''
+    id = BigAutoField(primary_key=True)
+
+    job = FlexibleForeignKey(Job)
+    bug_id = models.PositiveIntegerField(db_index=True)
+    submit_timestamp = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, null=True)  # null if autoclassified
+
+    class Meta:
+        db_table = "bug_job_map"
+        unique_together = ('job', 'bug_id')
+
+    @property
+    def who(self):
+        if self.user:
+            return self.user.email
+        else:
+            return "autoclassifier"
+
+    def save(self, *args, **kwargs):
+        super(BugJobMap, self).save(*args, **kwargs)
+
+        # FIXME: using the JobsModel here is pretty horrible -- remove
+        # when we move jobs table to central db
+        from treeherder.model.derived.jobs import JobsModel
+        from treeherder.etl.tasks import submit_elasticsearch_doc
+
+        with JobsModel(self.job.repository.name) as jm:
+            if settings.ORANGEFACTOR_HAWK_KEY:
+                ds_job = jm.get_job(self.job.project_specific_id)[0]
+                if ds_job["state"] == "completed":
+                    # Submit bug associations to Elasticsearch using an async
+                    # task.
+                    submit_elasticsearch_doc.apply_async(
+                        args=[
+                            self.job.repository.name,
+                            self.job.project_specific_id,
+                            self.bug_id,
+                            self.submit_timestamp,
+                            self.who
+                        ],
+                        routing_key='classification_mirroring'
+                    )
+
+            # if we have a user, then update the autoclassification relations
+            if self.user:
+                jm.update_autoclassification_bug(self.job.project_specific_id,
+                                                 self.bug_id)
+
+    def __str__(self):
+        return "{0} {1} {2} {3}".format(self.id,
+                                        self.job.guid,
+                                        self.bug_id,
+                                        self.who)
+
+
 class FailureLineManager(models.Manager):
     def unmatched_for_job(self, repository, job_guid):
         return FailureLine.objects.filter(

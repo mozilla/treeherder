@@ -363,7 +363,7 @@ def test_resultset_cancel_all(jm, resultset_with_three_jobs,
         assert content['project'] == jm.project
 
 
-def test_resultset_status(jm, webapp, eleven_jobs_stored):
+def test_resultset_status(jm, webapp, eleven_jobs_stored, test_user):
     """
     test retrieving the status of a resultset
     """
@@ -382,7 +382,7 @@ def test_resultset_status(jm, webapp, eleven_jobs_stored):
     assert resp.json == {'success': 1}
 
     # the first ten resultsets have one job each, so resultset.id == job.id
-    jm.insert_job_note(rs["id"], 2, 'John Doe', 'A random note')
+    jm.insert_job_note(rs["id"], 2, test_user, 'A random note')
 
     resp = webapp.get(
         reverse("resultset-status",
