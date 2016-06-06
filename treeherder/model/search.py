@@ -123,7 +123,12 @@ def bulk_insert(items):
         data["_routing"] = item.routing
         bulk_data.append(data)
 
-    return bulk(connection, bulk_data)
+    try:
+        return bulk(connection, bulk_data)
+    except Exception as e:
+        logger.error(e)
+        logger.error("Bulk insert %r" % bulk_data)
+        raise
 
 
 @es_connected()
@@ -133,7 +138,6 @@ def bulk_delete(cls, ids_routing):
     :param cls: The DocType subclass of the items being deleted.
     :param ids_routing: Iterable of (document ids, routing key) to delete."""
     actions = []
-    print ids_routing
     for (id, routing) in ids_routing:
         actions.append({
             '_op_type': 'delete',
