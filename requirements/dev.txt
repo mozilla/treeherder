@@ -31,7 +31,7 @@ WebOb==1.6.1 --hash=sha256:509ce06406bd9c63fc6fba4ea5e96d17f6080f126d6303d6ab583
 
 # Required by mock
 funcsigs==1.0.2 --hash=sha256:330cc27ccbf7f1e992e69fef78261dc7c6569012cf397db8d3de0234e6c937ca
-pbr==1.9.1 --hash=sha256:fdfda7175428e7527635dfef42d0eda5b609b2d5b1ac707045dbaed7a7307c7f
+pbr==1.10.0 --hash=sha256:f5cf7265a80636ecff66806d13494cbf9d77a3758a65fd8b4d4d4bee81b0c375
 
 # Required by responses
 cookies==2.2.1 --hash=sha256:15bee753002dff684987b8df8c235288eb8d45f8191ae056254812dfd42c81d3
