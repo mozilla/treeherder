@@ -375,7 +375,7 @@ def test_matcher(request):
 
     class TreeherderUnitTestDetector(detectors.Detector):
         def __call__(self, failure_lines):
-            pass
+            return True
 
     MatcherManager._detector_funcs = {}
     MatcherManager._matcher_funcs = {}

@@ -5,7 +5,9 @@ import pytest
 from django.core.management import call_command
 
 from tests import test_utils
-from tests.autoclassify.utils import (create_failure_lines,
+from tests.autoclassify.utils import (create_bug_suggestions_failures,
+                                      create_failure_lines,
+                                      create_summary_lines_failures,
                                       test_line)
 from tests.sample_data_generator import (job_data,
                                          result_set)
@@ -923,3 +925,22 @@ def test_delete_note(jm, eleven_jobs_stored):
     job = jm.get_job(1)[0]
     assert job["failure_classification_id"] == 1
     assert len(jm.get_job_note_list(job["id"])) == 0
+
+
+def test_update_autoclassification_bug(jm, test_repository, classified_failures):
+    # Job 1 has two failue lines so nothing should be updated
+    assert jm.update_autoclassification_bug(1, 1234) is None
+
+    job = jm.get_job(2)[0]
+    failure_lines = create_failure_lines(test_repository,
+                                         job["job_guid"],
+                                         [(test_line, {})])
+    failure_lines[0].best_classification = classified_failures[0]
+    failure_lines[0].save()
+    classified_failures[0].bug_number = None
+    lines = [(item, {}) for item in FailureLine.objects.filter(job_guid=job["job_guid"]).values()]
+    create_summary_lines_failures(test_repository.name, job, lines)
+    create_bug_suggestions_failures(test_repository.name, job, lines)
+    assert jm.update_autoclassification_bug(2, 1234) == classified_failures[0]
+    classified_failures[0].refresh_from_db()
+    assert classified_failures[0].bug_number == 1234
