@@ -2,7 +2,7 @@
 
 gunicorn==19.6.0 --hash=sha256:723234ea1fa8dff370ab69830ba8bc37469a7cba13fd66055faeef24085e6530
 
-whitenoise==3.0 --hash=sha256:2537cf2b0c12e1c8beaa23605076344a89d08b686592abffddb6ba13b284a8c6
+whitenoise==3.2 --hash=sha256:13e5d6673c7c0805c73037b7745e027141a8e39c5b6ba669b631c8fb3d05b06e
 
 # Used by the Whitenoise CLI tool to provide Brotli-compressed versions of static files.
 # There is not yet an official package on PyPI:
