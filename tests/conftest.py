@@ -14,6 +14,7 @@ from webtest.app import TestApp
 from treeherder.client import TreeherderClient
 from treeherder.config.wsgi import application
 from treeherder.model.derived.jobs import JobsModel
+from treeherder.model.models import Job
 
 
 def pytest_addoption(parser):

@@ -676,6 +676,59 @@ class BugJobMap(models.Model):
                                         self.who)
 
 
+class JobNote(models.Model):
+    '''
+    Note associated with a job.
+
+    Generally these are generated manually in the UI.
+    '''
+    id = BigAutoField(primary_key=True)
+
+    job = FlexibleForeignKey(Job)
+    failure_classification = models.ForeignKey(FailureClassification)
+    user = models.ForeignKey(User, null=True)  # null if autoclassified
+    text = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "job_note"
+
+    @property
+    def who(self):
+        if self.user:
+            return self.user.email
+        return "autoclassifier"
+
+    def _update_failure_classification(self):
+        # update the job classification
+        from treeherder.model.derived.jobs import JobsModel
+        with JobsModel(self.job.repository.name) as jm:
+            jm.update_last_job_classification(self.job.project_specific_id)
+
+        # if a manually filed job, update the autoclassification information
+        if self.user:
+            if self.failure_classification.name in [
+                    "intermittent", "intermittent needs filing"]:
+                failure_line = jm.get_manual_classification_line(
+                    self.job.project_specific_id)
+                if failure_line:
+                    failure_line.update_autoclassification()
+
+    def save(self, *args, **kwargs):
+        super(JobNote, self).save(*args, **kwargs)
+        self._update_failure_classification()
+
+    def delete(self, *args, **kwargs):
+        super(JobNote, self).delete(*args, **kwargs)
+        self._update_failure_classification()
+
+    def __str__(self):
+        return "{0} {1} {2} {3}".format(self.id,
+                                        self.job.guid,
+                                        self.failure_classification,
+                                        self.who)
+
+
 class FailureLineManager(models.Manager):
     def unmatched_for_job(self, repository, job_guid):
         return FailureLine.objects.filter(
