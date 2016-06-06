@@ -1,9 +1,9 @@
 "use strict";
 
 treeherder.controller('BugsPluginCtrl', [
-    '$scope', 'ThLog', 'ThJobArtifactModel','$q', 'thTabs', '$timeout', 'thUrl', '$uibModal',
+    '$scope', '$rootScope', 'ThLog', 'ThJobArtifactModel','$q', 'thTabs', '$timeout', 'thUrl', '$uibModal', '$location',
     function BugsPluginCtrl(
-        $scope, ThLog, ThJobArtifactModel, $q, thTabs, $timeout, thUrl, $uibModal) {
+        $scope, $rootScope, ThLog, ThJobArtifactModel, $q, thTabs, $timeout, thUrl, $uibModal, $location) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -14,6 +14,8 @@ treeherder.controller('BugsPluginCtrl', [
 
         var bug_limit = 20;
         $scope.tabs = thTabs.tabs;
+
+        $scope.filerInAddress = false;
 
         // update function triggered by the plugins controller
         thTabs.tabs.failureSummary.update = function() {
@@ -90,6 +92,14 @@ treeherder.controller('BugsPluginCtrl', [
                 });
             }
         };
+
+        var showBugFilerButton = function() {
+            $scope.filerInAddress = $location.search().bugfiler === true;
+        };
+        showBugFilerButton();
+        $rootScope.$on('$locationChangeSuccess', function() {
+            showBugFilerButton();
+        });
 
         $scope.fileBug = function(event) {
             var target = event.target;
