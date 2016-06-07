@@ -1,9 +1,13 @@
+from datetime import (datetime,
+                      timedelta)
+
 from django.core.management import call_command
 
 from treeherder.autoclassify.detectors import (ManualDetector,
                                                TestFailureDetector)
 from treeherder.autoclassify.matchers import (CrashSignatureMatcher,
-                                              PreciseTestMatcher)
+                                              PreciseTestMatcher,
+                                              time_window)
 from treeherder.model.models import (ClassifiedFailure,
                                      FailureMatch)
 
@@ -249,3 +253,22 @@ def test_classify_crash(activate_responses, jm, test_project, test_repository,
 
     for item in expected_unclassified:
         assert item.classified_failures.count() == 0
+
+
+def test_classify_test_failure_window(failure_lines, classified_failures):
+    failure_lines[0].created = datetime.now() - timedelta(days=2)
+    failure_lines[0].save()
+
+    failure_matches = FailureMatch.objects.all()
+    failure_matches[1].score = 0.5
+    failure_matches[1].save()
+
+    best_match = time_window(FailureMatch.objects.all(), timedelta(days=1), 0,
+                             lambda x: x.score)
+
+    assert best_match == failure_matches[1]
+
+    best_match = time_window(FailureMatch.objects.all(), timedelta(days=1), None,
+                             lambda x: x.score)
+
+    assert best_match == failure_matches[1]
