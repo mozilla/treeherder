@@ -138,21 +138,16 @@ treeherder.factory(
                  return ThJobModel.get_list(repoName, params, {fetch_all: true});
              },
 
-             getResultSetJobs: function(resultSets, repoName, locationParams){
-                 var jobsPromiseList = [];
-                 _.each(
-                     resultSets.results,
-                     function(rs, index){
-                         var params = {
-                             return_type: "list",
-                             result_set_id:rs.id,
-                             count: 2000
-                         };
-                         _.extend(params, locationParams);
-                         jobsPromiseList.push(ThJobModel.get_list(repoName, params, {fetch_all: true}));
-                     }
-                 );
-                 return jobsPromiseList;
+             getResultSetJobs: function(resultSetIdList, repoName, locationParams) {
+                 return _.map(resultSetIdList, function(resultSetId) {
+                     var params = {
+                         return_type: "list",
+                         result_set_id: resultSetId,
+                         count: 2000
+                     };
+                     _.extend(params, locationParams);
+                     return ThJobModel.get_list(repoName, params, {fetch_all: true});
+                 });
              },
 
 
