@@ -3,9 +3,7 @@ from abc import (ABCMeta,
                  abstractmethod)
 from collections import namedtuple
 
-from django.db.models import (Q,
-                              Func,
-                              Value)
+from django.db.models import Q
 
 from treeherder.model.models import (FailureMatch,
                                      MatcherManager)
@@ -13,12 +11,6 @@ from treeherder.model.models import (FailureMatch,
 logger = logging.getLogger(__name__)
 
 Match = namedtuple('Match', ['failure_line', 'classified_failure', 'score'])
-
-
-class Eq(Func):
-    template = "%(expressions)s"
-    # NULL-safe Equal. MySQL specific variant of IS NOT DISTINCT FROM
-    arg_joiner = "<=>"
 
 
 class Matcher(object):
@@ -61,7 +53,7 @@ class PreciseTestMatcher(Matcher):
                     failure_line__expected=failure_line.expected,
                     failure_line__message=failure_line.message).exclude(
                         ignored_line | Q(failure_line__job_guid=failure_line.job_guid)
-                    ).order_by("-score", "-classified_failure__id")
+                    ).order_by("-score", "-classified_failure")
 
                 best_match = matching_failures.first()
                 if best_match:
@@ -85,10 +77,13 @@ class CrashSignatureMatcher(Matcher):
                 failure_line__signature=failure_line.signature).exclude(
                     ignored_line | Q(failure_line__job_guid=failure_line.job_guid)
                 ).select_related('failure_line').order_by(
-                    Eq('failure_line__test', Value(failure_line.test)).desc(),
                     "-score",
-                    "-classified_failure__id")
-            best_match = matching_failures.first()
+                    "-classified_failure")
+            matching_failures_same_test = matching_failures.filter(
+                failure_line__test=failure_line.test)
+            best_match = matching_failures_same_test.first()
+            if not best_match:
+                best_match = matching_failures.first()
             if best_match:
                 logger.debug("Matched using crash signature matcher")
                 score = best_match.score
