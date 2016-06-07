@@ -332,7 +332,7 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
     filter_class = JobDetailFilter
 
     class JobDetailPagination(pagination.LimitOffsetPagination):
-        default_limit = 100
-        max_limit = 100
+        default_limit = 2000
+        max_limit = 2000
 
     pagination_class = JobDetailPagination
