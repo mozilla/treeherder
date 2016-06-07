@@ -1,3 +1,4 @@
+import django_filters
 from rest_framework import (filters,
                             pagination,
                             viewsets)
@@ -307,11 +308,28 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
     Endpoint for retrieving metadata (e.g. links to artifacts, file sizes)
     associated with a particular job
     '''
-    queryset = JobDetail.objects.all().select_related('job__guid')
+    queryset = JobDetail.objects.all().select_related('job__guid',
+                                                      'job__project_specific_id',
+                                                      'job__repository__name')
     serializer_class = serializers.JobDetailSerializer
 
+    class JobDetailFilter(filters.FilterSet):
+
+        class NumberInFilter(django_filters.filters.BaseInFilter,
+                             django_filters.NumberFilter):
+            pass
+
+        job_id__in = NumberInFilter(name='job__project_specific_id',
+                                    lookup_expr='in')
+        job_guid = django_filters.CharFilter(name='job__guid')
+        job__guid = django_filters.CharFilter(name='job__guid')  # for backwards compat
+        repository = django_filters.CharFilter(name='job__repository__name')
+
+        class Meta:
+            model = JobDetail
+
     filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
-    filter_fields = ['job__guid']
+    filter_class = JobDetailFilter
 
     class JobDetailPagination(pagination.LimitOffsetPagination):
         default_limit = 100
