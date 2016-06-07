@@ -70,7 +70,8 @@ class CrashSignatureMatcher(Matcher):
     def __call__(self, failure_lines):
         rv = []
         for failure_line in failure_lines:
-            if failure_line.action != "crash" or failure_line.signature is None:
+            if (failure_line.action != "crash" or failure_line.signature is None
+                or failure_line.signature == "None"):
                 continue
             matching_failures = FailureMatch.objects.filter(
                 failure_line__action="crash",
