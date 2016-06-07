@@ -99,7 +99,7 @@
           <li ng-if="isReftest()" ng-repeat="job_log_url in job_log_urls">
             <a title="Launch the Reftest Analyser in a new window"
                target="_blank"
-               href="http://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl={{::job_log_url.url}}&only_show_unexpected=1">
+               href="reftest-analyzer.xhtml#logurl={{::job_log_url.url}}&only_show_unexpected=1">
               <span class="fa fa-bar-chart-o"></span>
             </a>
           </li>
