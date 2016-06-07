@@ -12,20 +12,6 @@ treeherder.controller('BugFilerCtrl', [
         var $log = new ThLog("BugFilerCtrl");
 
         $scope.omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR", "TEST-UNEXPECTED-TIMEOUT"];
-        $scope.bugzillaRoot = "";
-
-        /**
-         *  Find what bugzilla instance TH's server is set to use, so we can match it.
-         *  This will prevent us from accidentally fetching mismatched product
-         *  versions from bz dev and prod instances.
-         */
-        $scope.getBugzillaRoot = function() {
-            $http.get("api/bugzilla/get_api_root/").then(function(request) {
-                if(request.data.api_root) {
-                    $scope.bugzillaRoot = request.data.api_root;
-                }
-            });
-        };
 
         /**
          *  'enter' from the product search input should initiate the search
@@ -53,7 +39,6 @@ treeherder.controller('BugFilerCtrl', [
          *  Pre-fill the form with information/metadata from the failure
          */
         $scope.initiate = function() {
-            $scope.getBugzillaRoot();
             var thisFailure = "";
             for(var i = 0; i < allFailures.length; i++) {
                 for(var j=0; j < $scope.omittedLeads.length; j++) {
@@ -120,7 +105,7 @@ treeherder.controller('BugFilerCtrl', [
             var productSearch = $scope.productSearch;
 
             if(productSearch) {
-                $http.get($scope.bugzillaRoot + "/rest/prod_comp_search/" + productSearch + "?limit=5").then(function(request) {
+                $http.get("https://bugzilla.mozilla.org/rest/prod_comp_search/" + productSearch + "?limit=5").then(function(request) {
                     var data = request.data;
                     // We can't file unless product and component are provided, this api can return just product. Cut those out.
                     for(var i = data.products.length - 1; i >= 0; i--) {
@@ -188,7 +173,7 @@ treeherder.controller('BugFilerCtrl', [
 
             // Fetch product information from bugzilla to get version numbers, then submit the new bug
             // Only request the versions because some products take quite a long time to fetch the full object
-            $.ajax($scope.bugzillaRoot + "/rest/product/" + productString + "?include_fields=versions").done(function(productJSON) {
+            $.ajax("https://bugzilla.mozilla.org/rest/product/" + productString + "?include_fields=versions").done(function(productJSON) {
                 var productObject = productJSON.products[0];
                 $http({
                     url: "api/bugzilla/create_bug/",
@@ -219,7 +204,7 @@ treeherder.controller('BugFilerCtrl', [
                         $rootScope.$evalAsync($rootScope.$emit(thEvents.saveClassification));
 
                         // Open the newly filed bug in a new tab or window for further editing
-                        window.open($scope.bugzillaRoot + "/show_bug.cgi?id=" + json.data.success);
+                        window.open("https://bugzilla.mozilla.org/show_bug.cgi?id=" + json.data.success);
                         $scope.cancelFiler();
                     }
                 }, function errorCallback(response) {

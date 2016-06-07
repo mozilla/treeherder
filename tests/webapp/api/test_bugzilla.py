@@ -102,18 +102,3 @@ def test_create_unauthenticated_bug(webapp, eleven_jobs_stored, activate_respons
 
     print content
     assert content['detail'] == "Authentication credentials were not provided."
-
-
-def test_get_api_root(webapp, eleven_jobs_stored, activate_responses, test_user):
-    """
-    test returning the bugzilla api root
-    """
-
-    client = APIClient()
-
-    resp = client.get(
-        reverse("bugzilla-get-api-root")
-    )
-
-    content = json.loads(resp.content)
-    assert content['api_root'] == "https://thisisnotbugzilla.org"
