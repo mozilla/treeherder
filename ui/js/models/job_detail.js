@@ -8,7 +8,7 @@ treeherder.factory('ThJobDetailModel', [
                 var timeout = config.timeout || null;
 
                 return $http.get(thUrl.getRootUrl("/jobdetail/"), {
-                    params: { job__guid: jobGuid },
+                    params: { job_guid: jobGuid },
                     timeout: timeout
                 }).then(function(response) {
                     return response.data.results;
