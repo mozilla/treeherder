@@ -146,16 +146,13 @@ treeherder.controller('BugFilerCtrl', [
             var summarystring = $scope.modalSummary;
             var productString = "";
             var componentString = "";
-            var isProductSelected = false;
 
             $scope.toggleForm(true);
             if($scope.selectedProduct) {
-                productString += $scope.selectedProduct.split(" :: ")[0];
-                componentString += $scope.selectedProduct.split(" :: ")[1];
-                isProductSelected = true;
-            }
-
-            if(!isProductSelected) {
+                var prodParts = $scope.selectedProduct.split(" :: ");
+                productString += prodParts[0];
+                componentString += prodParts[1];
+            } else {
                 thNotify.send("Please select (or search and select) a product/component pair to continue", "danger");
                 $scope.toggleForm(false);
                 return;
@@ -186,7 +183,7 @@ treeherder.controller('BugFilerCtrl', [
                         // XXX This takes the last version returned from the product query, probably should be smarter about this in the future...
                         "version": productObject.versions[productObject.versions.length-1].name,
                         "description": descriptionStrings,
-                        "comment_tags": "treeherder",
+                        "comment_tags": "treeherder"
                     }
                 }).then(function successCallback(json) {
                     if(json.data.failure) {

@@ -22,6 +22,8 @@ treeherder.controller('PluginCtrl', [
         $scope.job = {};
         $scope.artifacts = {};
 
+        var reftestUrlRoot = "http://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=";
+
         var getJobSearchStrHref = function(jobSearchStr){
             var absUrl = $location.absUrl();
 
@@ -205,6 +207,7 @@ treeherder.controller('PluginCtrl', [
 
                     $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
                     $scope.lvFullUrl = location.origin + "/" + $scope.lvUrl;
+                    $scope.reftestUrl = reftestUrlRoot + $scope.job_log_urls[0].url + "&only_show_unexpected=1";
                     $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
 
                     var performanceData = results[4];

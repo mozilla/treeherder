@@ -101,18 +101,12 @@ treeherder.controller('BugsPluginCtrl', [
             showBugFilerButton();
         });
 
-        $scope.fileBug = function(event) {
-            var target = event.target;
-            // Click target is sometimes the icon in the button, not the button
-            if(target.tagName.toLowerCase() === "i" && target.className.search("fa-bug") >= 0) {
-                target = target.parentNode;
-            }
-            var summary = target.nextElementSibling.textContent;
+        $scope.fileBug = function(index) {
+            var summary = $scope.suggestions[index].search;
             var allFailures = [];
-            var allFailuresFinder = $(".failure-summary-list .job-tabs-content");
 
-            for( var i=0; i<allFailuresFinder.length; i++) {
-                allFailures.push(allFailuresFinder[i].textContent.trim().split(" | "));
+            for( var i=0; i<$scope.suggestions.length; i++) {
+                allFailures.push($scope.suggestions[i].search.split(" | "));
             }
 
             var modalInstance = $uibModal.open({
@@ -124,14 +118,13 @@ treeherder.controller('BugsPluginCtrl', [
                         return summary;
                     },
                     fullLog: function() {
-                        return $('.raw-log-icon')[0].href;
+                        return $scope.job_log_urls[0].url;
                     },
                     parsedLog: function() {
-                        return $('#logviewer-btn')[0].href;
+                        return $scope.lvFullUrl;
                     },
                     reftest: function() {
-                        return $scope.selectedJob.job_group_name.search("Reftest") >= 0 ?
-                            $('#reftestviewer-btn')[0].href : "";
+                        return $scope.isReftest() ? $scope.reftestUrl : "";
                     },
                     selectedJob: function() {
                         return $scope.selectedJob;
