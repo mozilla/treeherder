@@ -32,61 +32,10 @@ perf.factory('PhBugs', [
                             var validAlerts = _.filter(alertSummary.alerts, function(alert) {
                                 return alert.status !== phAlertStatusMap.INVALID;
                             });
-                            var testDescriptions = _.uniq(_.map(validAlerts, function(alert) {
-                                var suitekey = alert.series_signature.suite;
-                                var testkey = alert.series_signature.suite + '_' +
-                                    alert.series_signature.test;
-                                var prefix = 'https://wiki.mozilla.org/Buildbot/Talos/Tests#';
-                                if (phTalosDocumentationMap[suitekey]) {
-                                    return prefix + phTalosDocumentationMap[suitekey];
-                                } else if (phTalosDocumentationMap[testkey]) {
-                                    return prefix + phTalosDocumentationMap[testkey];
-                                } else {
-                                    // assume suitekey or testkey will work otherwise
-                                    if (alert.series_signature.test) {
-                                        return prefix + alert.series_signature.test;
-                                    }
-                                    return prefix + suitekey;
-                                }
-                            }));
-                            var talosSuites = _.uniq(_.map(validAlerts, function(alert) {
-                                return alert.series_signature.suite;
-                            }));
-                            var tryBuildPlatforms = _.uniq(_.map(validAlerts, function(alert) {
-                                var platform =  alert.series_signature.machine_platform;
-                                var mappedPlatform = phTrySyntaxBuildPlatformMap[platform];
-                                if (mappedPlatform)
-                                    return mappedPlatform;
-                                return platform;
-                            }));
-                            var tryTalosModifiers = _.uniq(_.filter(_.map(
-                                validAlerts, function(alert) {
-                                    var platform =  alert.series_signature.machine_platform;
-                                    var mappedPlatform = phTrySyntaxTalosModifierMap[platform];
-                                    if (mappedPlatform)
-                                        return mappedPlatform;
-                                    return undefined;
-                                })));
-                            if (tryTalosModifiers.length) {
-                                tryTalosModifiers = '[' + tryTalosModifiers.join(',') + ']';
-                            } else {
-                                tryTalosModifiers = "";
-                            }
-                            var trySuites = _.uniq(_.map(validAlerts, function(alert) {
-                                var suiteName = trySuiteMapping[alert.series_signature.suite];
-                                if (_.contains(alert.series_signature.test_options, 'e10s')) {
-                                    suiteName += '-e10s';
-                                }
-                                return suiteName + tryTalosModifiers;
-                            }));
                             var compiled = $interpolate(template)({
                                 revision: alertSummary.resultSetMetadata.revision,
                                 alertHref: window.location.origin + '/perf.html#/alerts?id=' +
-                                    alertSummary.id,
-                                testDescriptions: testDescriptions.join('\n'),
-                                tryBuildPlatforms: tryBuildPlatforms.join(','),
-                                trySuites: trySuites.join(','),
-                                talosTestListSyntax: talosSuites.join(":")
+                                    alertSummary.id
                             });
                             var pushDate = dateFilter(
                                 alertSummary.resultSetMetadata.push_timestamp*1000,

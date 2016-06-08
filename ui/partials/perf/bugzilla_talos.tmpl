@@ -6,27 +6,9 @@ This is a list of all known regressions and improvements related to the push:
 
 On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the Talos jobs in a pushlog format.
 
-To learn more about the regressing test(s), please see:
+To learn more about the regressing test(s), please see: https://wiki.mozilla.org/Buildbot/Talos/Tests
 
-{{ testDescriptions }}
-
-Reproducing and debugging the regression:
-
-If you would like to re-run this Talos test on a potential fix, use try with the following syntax:
-
-try: -b o -p {{ tryBuildPlatforms }} -u none -t {{ trySuites }} --rebuild 5  # add "mozharness: --spsProfile" to generate profile data
-
-(we suggest --rebuild 5 to be more confident in the results)
-
-To run the test locally and do a more in-depth investigation, first set up a local Talos environment:
-
-https://wiki.mozilla.lorg/Buildbot/Talos/Running#Running_locally_-_Source_Code
-
-Then run the following command from the directory where you set up Talos:
-
-talos --develop -e [path]/firefox -a {{ talosTestListSyntax }}
-
-(add --e10s to run tests in e10s mode)
+For information on reproducing and debugging the regression, either on try or locally, see: https://wiki.mozilla.org/Buildbot/Talos/Running
 
 Making a decision:
 
