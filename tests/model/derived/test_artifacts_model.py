@@ -87,6 +87,38 @@ def test_load_artifact_second_time_fails(
     assert bs_blob == act_bs_obj
 
 
+def test_load_duplicate_job_details_fails(
+        test_project, eleven_jobs_stored,
+        mock_post_json, mock_error_summary,
+        sample_data):
+    """
+    test loading two of the same named artifact only gets the first one
+
+    """
+
+    with JobsModel(test_project) as jobs_model:
+        job = jobs_model.get_job_list(0, 1)[0]
+
+    ji_artifact = {
+        'type': 'json',
+        'name': 'Job Info',
+        'blob': json.dumps({
+            'job_details': [{
+                'title': 'da title',
+                'value': 'da value',
+                'url': 'http://example.com'
+            }]
+        }),
+        'job_guid': job['job_guid']
+    }
+
+    with ArtifactsModel(test_project) as artifacts_model:
+        artifacts_model.load_job_artifacts([ji_artifact])
+        artifacts_model.load_job_artifacts([ji_artifact])
+
+        assert JobDetail.objects.count() == 1
+
+
 def test_load_long_job_details(test_project, eleven_jobs_stored):
     # job details should still load even if excessively long,
     # they'll just be truncated
@@ -116,6 +148,6 @@ def test_load_long_job_details(test_project, eleven_jobs_stored):
     assert JobDetail.objects.count() == 1
 
     jd = JobDetail.objects.all()[0]
-    assert jd.title == long_title[:max_field_length]
+    assert jd.title == long_title[:JobDetail.MAX_TITLE_LENGTH]
     assert jd.value == long_value[:max_field_length]
     assert jd.url == long_url[:max_field_length]
