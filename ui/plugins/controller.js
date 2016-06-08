@@ -207,7 +207,9 @@ treeherder.controller('PluginCtrl', [
 
                     $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
                     $scope.lvFullUrl = location.origin + "/" + $scope.lvUrl;
-                    $scope.reftestUrl = reftestUrlRoot + $scope.job_log_urls[0].url + "&only_show_unexpected=1";
+                    if ($scope.job_log_urls.length) {
+                        $scope.reftestUrl = reftestUrlRoot + $scope.job_log_urls[0].url + "&only_show_unexpected=1";
+                    }
                     $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
 
                     var performanceData = results[4];
