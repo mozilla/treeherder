@@ -565,12 +565,20 @@ class JobDetail(models.Model):
 
     id = BigAutoField(primary_key=True)
     job = FlexibleForeignKey(Job)
-    title = models.CharField(max_length=MAX_FIELD_LENGTH, null=True)
+    title = models.CharField(max_length=100, null=True)
     value = models.CharField(max_length=MAX_FIELD_LENGTH)
     url = models.URLField(null=True, max_length=MAX_FIELD_LENGTH)
 
     class Meta:
         db_table = "job_detail"
+        # max index size is 767 for innoDB.  So we can't include
+        # url AND value in the same index.  Many records have BOTH those
+        # fields filled, so we need that uniqueness.  Therefore, we
+        # have to use two indexes.
+        unique_together = (
+            ("job", "title", "value"),
+            ("job", "title", "url"),
+        )
 
     def __str__(self):
         return "{0} {1} {2} {3} {4}".format(self.id,
