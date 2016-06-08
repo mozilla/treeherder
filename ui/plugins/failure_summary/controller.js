@@ -1,9 +1,9 @@
 "use strict";
 
 treeherder.controller('BugsPluginCtrl', [
-    '$scope', 'ThLog', 'ThJobArtifactModel','$q', 'thTabs', '$timeout', 'thUrl',
+    '$scope', '$rootScope', 'ThLog', 'ThJobArtifactModel','$q', 'thTabs', '$timeout', 'thUrl', '$uibModal', '$location',
     function BugsPluginCtrl(
-        $scope, ThLog, ThJobArtifactModel, $q, thTabs, $timeout, thUrl) {
+        $scope, $rootScope, ThLog, ThJobArtifactModel, $q, thTabs, $timeout, thUrl, $uibModal, $location) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -14,6 +14,8 @@ treeherder.controller('BugsPluginCtrl', [
 
         var bug_limit = 20;
         $scope.tabs = thTabs.tabs;
+
+        $scope.filerInAddress = false;
 
         // update function triggered by the plugins controller
         thTabs.tabs.failureSummary.update = function() {
@@ -89,6 +91,53 @@ treeherder.controller('BugsPluginCtrl', [
                     thTabs.tabs.failureSummary.is_loading = false;
                 });
             }
+        };
+
+        var showBugFilerButton = function() {
+            $scope.filerInAddress = $location.search().bugfiler === true;
+        };
+        showBugFilerButton();
+        $rootScope.$on('$locationChangeSuccess', function() {
+            showBugFilerButton();
+        });
+
+        $scope.fileBug = function(index) {
+            var summary = $scope.suggestions[index].search;
+            var allFailures = [];
+
+            for( var i=0; i<$scope.suggestions.length; i++) {
+                allFailures.push($scope.suggestions[i].search.split(" | "));
+            }
+
+            var modalInstance = $uibModal.open({
+                templateUrl: 'partials/main/intermittent.html',
+                controller: 'BugFilerCtrl',
+                size: 'lg',
+                resolve: {
+                    summary: function() {
+                        return summary;
+                    },
+                    fullLog: function() {
+                        return $scope.job_log_urls[0].url;
+                    },
+                    parsedLog: function() {
+                        return $scope.lvFullUrl;
+                    },
+                    reftest: function() {
+                        return $scope.isReftest() ? $scope.reftestUrl : "";
+                    },
+                    selectedJob: function() {
+                        return $scope.selectedJob;
+                    },
+                    allFailures: function() {
+                        return allFailures;
+                    }
+                }
+            });
+
+            modalInstance.opened.then(function () {
+                window.setTimeout(function () { modalInstance.initiate(); }, 0);
+            });
         };
     }
 ]);
