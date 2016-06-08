@@ -571,6 +571,7 @@ class JobDetail(models.Model):
 
     class Meta:
         db_table = "job_detail"
+        unique_together = ("job", "title", "value", "url")
 
     def __str__(self):
         return "{0} {1} {2} {3} {4}".format(self.id,
