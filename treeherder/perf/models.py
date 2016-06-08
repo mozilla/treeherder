@@ -293,3 +293,24 @@ class PerformanceAlert(models.Model):
     def __str__(self):
         return "{} {} {}%".format(self.summary, self.series_signature,
                                   self.amount_pct)
+
+
+class PerformanceBugTemplate(models.Model):
+    '''
+    Template for filing a bug or issue associated with a performance alert
+    '''
+    framework = models.OneToOneField(PerformanceFramework)
+
+    keywords = models.CharField(max_length=255)
+    status_whiteboard = models.CharField(max_length=255)
+    default_component = models.CharField(max_length=255)
+    default_product = models.CharField(max_length=255)
+    cc_list = models.CharField(max_length=255)
+
+    text = models.TextField(max_length=4096)
+
+    class Meta:
+        db_table = "performance_bug_template"
+
+    def __str__(self):
+        return '{} bug template'.format(self.framework.name)

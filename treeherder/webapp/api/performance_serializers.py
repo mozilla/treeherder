@@ -3,6 +3,7 @@ from rest_framework import (exceptions,
 
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
+                                    PerformanceBugTemplate,
                                     PerformanceFramework,
                                     PerformanceSignature)
 
@@ -106,3 +107,14 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
         fields = ['id', 'result_set_id', 'prev_result_set_id',
                   'last_updated', 'repository', 'framework', 'alerts',
                   'related_alerts', 'status', 'bug_number']
+
+
+class PerformanceBugTemplateSerializer(serializers.ModelSerializer):
+
+    framework = serializers.SlugRelatedField(read_only=True,
+                                             slug_field='id')
+
+    class Meta:
+        model = PerformanceBugTemplate
+        fields = ['framework', 'keywords', 'status_whiteboard',
+                  'default_component', 'default_product', 'cc_list', 'text']
