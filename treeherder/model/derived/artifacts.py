@@ -115,6 +115,7 @@ class ArtifactsModel(TreeherderModelBase):
 
             JobDetail.objects.get_or_create(
                 job=job,
+                defaults=job_detail_dict,
                 **job_detail_dict)
 
     def store_performance_artifact(
