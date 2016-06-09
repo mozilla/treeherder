@@ -116,7 +116,7 @@ def test_load_duplicate_job_details_fails(
         artifacts_model.load_job_artifacts([ji_artifact])
         artifacts_model.load_job_artifacts([ji_artifact])
 
-        assert JobDetail.objects.count() == 1
+    assert JobDetail.objects.count() == 1
 
 
 def test_load_long_job_details(test_project, eleven_jobs_stored):

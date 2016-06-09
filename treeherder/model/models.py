@@ -572,8 +572,10 @@ class JobDetail(models.Model):
 
     class Meta:
         db_table = "job_detail"
-        # max index size is 767 for innoDB.  So we can't include
-        # url AND value in the same index.  Value should be sufficient.
+        # Ensure that we have unique records for ``job``, ``title`` and
+        # ``value``.  We consider duplication in those fields with a different
+        # ``url`` to be unsupported.  Unique ``url``s should also have unique
+        # ``value``s.
         unique_together = ("job", "title", "value")
 
     def __str__(self):
