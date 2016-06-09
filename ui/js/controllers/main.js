@@ -53,6 +53,10 @@ treeherderApp.controller('MainCtrl', [
             //Job counts are calculated at a later point in the page load, so this is undefined for a while
             if(ThResultSetStore.getResultSetsArray($scope.repoName)[0].job_counts) {
                 percentComplete = ThResultSetStore.getResultSetsArray($scope.repoName)[0].job_counts.percentComplete;
+                // DONTBUILD pushes in "Add new jobs" mode report the percentComplete as NaN instead of undefined.
+                if(isNaN(percentComplete)) {
+                    percentComplete = undefined;
+                }
             }
 
             for (var i=0; i<revisions.length; i++) {
