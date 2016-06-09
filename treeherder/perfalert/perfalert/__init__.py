@@ -89,25 +89,17 @@ class Datum(object):
                                                  self.t, self.state)
 
 
-class Analyzer:
-    def __init__(self):
-        self.data = []  # List of PerfDatum instances
-
-    def add_data(self, push_timestamp, value, **kwargs):
-        self.data.append(Datum(push_timestamp, value, **kwargs))
-        self.data.sort()
-
-    def analyze_t(self, min_back_window=12, max_back_window=24,
+def detect_changes(data=[], min_back_window=12, max_back_window=24,
                   fore_window=12, t_threshold=7):
         # Use T-Tests
         # Analyze test data using T-Tests, comparing data[i-j:i] to data[i:i+k]
         (j, k) = (min_back_window, fore_window)
         good_data = []
 
-        num_points = len(self.data) - k + 1
+        num_points = len(data) - k + 1
         last_seen_regression = 0
         for i in range(num_points):
-            di = self.data[i]
+            di = data[i]
             # if we haven't seen something that looks like a change in a
             # while, incorporate some extra historical data into our t-test
             # calculation
@@ -117,7 +109,7 @@ class Analyzer:
             else:
                 additional_back_window = 0
             jw = [d.value for d in good_data[-1 * (j + additional_back_window):]]
-            kw = [d.value for d in self.data[i:i+k]]
+            kw = [d.value for d in data[i:i+k]]
 
             # Reverse the backward data so that the current point is at the
             # start of the window.
@@ -162,4 +154,4 @@ class Analyzer:
         # Return all but the first and last points whose scores we calculated,
         # since we can only produce a final decision for a point whose scores
         # were compared to both of its neighbors.
-        return self.data[1:num_points-1]
+        return data[1:num_points-1]
