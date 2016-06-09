@@ -1,0 +1,23 @@
+- model: perf.PerformanceBugTemplate
+  pk: 1
+  fields:
+    framework: 1
+    keywords: perf, regression
+    status_whiteboard: talos_regression
+    default_component: Untriaged
+    default_product: Firefox
+    cc_list: jmaher@mozilla.com, wlachance@mozilla.com, avihpit@yahoo.com
+    text: |
+      Talos has detected a Firefox performance regression from push {{ revision }}. As author of one of the patches included in that push, we need your help to address this regression.
+
+      This is a list of all known regressions and improvements related to the push: {{ alertHref }}
+
+      On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the Talos jobs in a pushlog format.
+
+      To learn more about the regressing test(s), please see: https://wiki.mozilla.org/Buildbot/Talos/Tests
+
+      For information on reproducing and debugging the regression, either on try or locally, see: https://wiki.mozilla.org/Buildbot/Talos/Running
+
+      *** Please let us know your plans within 3 business days, or the offending patch(es) will be backed out! ***
+
+      Our wiki page outlines the common responses and expectations: https://wiki.mozilla.org/Buildbot/Talos/RegressionBugsHandling

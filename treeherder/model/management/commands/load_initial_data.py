@@ -10,4 +10,5 @@ class Command(BaseCommand):
                      'repository_group',
                      'repository',
                      'failure_classification',
-                     'performance_framework')
+                     'performance_framework',
+                     'performance_bug_templates')
