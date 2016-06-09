@@ -7,47 +7,36 @@ perf.factory('PhBugs', [
              phTalosDocumentationMap, phTrySyntaxBuildPlatformMap, phTrySyntaxTalosModifierMap) {
         return {
             fileTalosBug: function(alertSummary) {
-                $http.get(mcTalosConfigUrl).then(function(response) {
-                    // yes this is ridiculous, but it's (hopefully) less likely
-                    // to break than the alternatives, since it should auto-update
-                    // whenever someone changes the talos configuration in
-                    // mozilla-central
-                    var trySuiteMapping = {};
-                    _.forEach(
-                        _.filter(Object.keys(response.data.suites),
-                                 function(buildbotSuite) {
-                                     // we only want the high level suite names, -
-                                     // and _ denote variants
-                                     return (buildbotSuite.indexOf('-') === -1 &&
-                                             buildbotSuite.indexOf('_') === -1);
-                                 }),
-                        function(buildbotSuite) {
-                            _.forEach(
-                                response.data.suites[buildbotSuite].tests, function(test) {
-                                    trySuiteMapping[test] = buildbotSuite;
-                                });
-                        });
-                    $templateRequest('partials/perf/bugzilla_talos.tmpl').then(
-                        function(template) {
-                            var validAlerts = _.filter(alertSummary.alerts, function(alert) {
-                                return alert.status !== phAlertStatusMap.INVALID;
-                            });
-                            var compiled = $interpolate(template)({
-                                revision: alertSummary.resultSetMetadata.revision,
-                                alertHref: window.location.origin + '/perf.html#/alerts?id=' +
-                                    alertSummary.id
-                            });
-                            var pushDate = dateFilter(
-                                alertSummary.resultSetMetadata.push_timestamp*1000,
-                                "EEE MMM d yyyy");
-                            var bugTitle = alertSummary.getTitle() +
-                                " regression on push " +
-                                alertSummary.resultSetMetadata.revision + " (" +
-                                pushDate + ")";
-                            window.open("https://bugzilla.mozilla.org/enter_bug.cgi?component=Untriaged&product=Firefox&short_desc=" + encodeURIComponent(bugTitle) + "&comment=" + encodeURIComponent(compiled) + '&keywords=perf%2C%20regression%2C%20&status_whiteboard=%5Btalos_regression%5D');
-                        });
+                $http.get(thServiceDomain + '/api/performance/bug-template/?framework=' + alertSummary.framework).then(function(response) {
+                    var validAlerts = _.filter(alertSummary.alerts, function(alert) {
+                        return alert.status !== phAlertStatusMap.INVALID;
+                    });
+                    var template = response.data[0];
+                    var compiledText = $interpolate(template.text)({
+                        revision: alertSummary.resultSetMetadata.revision,
+                        alertHref: window.location.origin + '/perf.html#/alerts?id=' +
+                            alertSummary.id
+                    });
+                    var pushDate = dateFilter(
+                        alertSummary.resultSetMetadata.push_timestamp*1000,
+                        "EEE MMM d yyyy");
+                    var bugTitle = alertSummary.getTitle() +
+                        " regression on push " +
+                        alertSummary.resultSetMetadata.revision + " (" +
+                        pushDate + ")";
+                    window.open(
+                        "https://bugzilla.mozilla.org/enter_bug.cgi?" + _.map({
+                            cc: template.cc_list,
+                            comment: compiledText,
+                            component: template.default_component,
+                            product: template.default_product,
+                            keywords: template.keywords,
+                            short_desc: bugTitle,
+                            status_whiteboard: template.status_whiteboard
+                        }, function(v, k) {
+                            return k + '=' + encodeURIComponent(v);
+                        }).join('&'));
                 });
-
             }
         };
     }]);

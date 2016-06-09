@@ -14,6 +14,7 @@ from treeherder.model import models
 from treeherder.perf.alerts import get_alert_properties
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
+                                    PerformanceBugTemplate,
                                     PerformanceDatum,
                                     PerformanceFramework,
                                     PerformanceSignature)
@@ -21,6 +22,7 @@ from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
 from .performance_serializers import (PerformanceAlertSerializer,
                                       PerformanceAlertSummarySerializer,
+                                      PerformanceBugTemplateSerializer,
                                       PerformanceFrameworkSerializer)
 
 
@@ -299,3 +301,10 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
                 't_value': 1000
             })
         return Response({"alert_id": alert.id})
+
+
+class PerformanceBugTemplateViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = PerformanceBugTemplate.objects.all()
+    serializer_class = PerformanceBugTemplateSerializer
+    filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
+    filter_fields = ['framework']
