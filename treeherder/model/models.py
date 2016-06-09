@@ -683,8 +683,8 @@ class FailureLine(models.Model):
         index_together = (
             ('job_guid', 'repository'),
             # The test and subtest indicies are length 50 and 25, respectively
-            ('test', 'subtest', 'status', 'expected'),
-            ('signature', 'test')
+            ('test', 'subtest', 'status', 'expected', 'created'),
+            ('signature', 'test', 'created')
         )
         unique_together = (
             ('job_log',  'line')
