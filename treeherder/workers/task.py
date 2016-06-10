@@ -2,12 +2,14 @@ import random
 from functools import wraps
 
 from celery import task
-from django.db.utils import IntegrityError
+from django.db.utils import (IntegrityError,
+                             ProgrammingError)
 
 
 class retryable_task(object):
     def __init__(self, *args, **kwargs):
-        self.raise_exceptions = kwargs.pop("raise_exceptions", (TypeError, IntegrityError))
+        self.raise_exceptions = kwargs.pop("raise_exceptions", (TypeError, IntegrityError,
+                                                                ProgrammingError))
         self.task_args = args
         self.task_kwargs = kwargs
 
