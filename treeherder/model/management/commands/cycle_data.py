@@ -10,7 +10,6 @@ from treeherder.model.models import (Datasource,
                                      JobGroup,
                                      JobType,
                                      Machine,
-                                     RunnableJob,
                                      TaskSetMeta)
 from treeherder.model.utils import orm_delete
 
@@ -92,7 +91,6 @@ class Command(BaseCommand):
             used_machine_ids.update(set([machine_id[0] for machine_id in c.fetchall()]))
 
         JobType.objects.exclude(id__in=used_job_type_ids).delete()
-        RunnableJob.objects.exclude(job_type__id__in=used_job_type_ids).delete()
 
         used_job_group_ids = set(JobType.objects.values_list('job_group', flat=True))
         JobGroup.objects.exclude(id__in=used_job_group_ids).delete()
