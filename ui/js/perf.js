@@ -117,6 +117,10 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                     // And if the threshold was 75% then one would matter and the other wouldn't.
                                     // Instead, we treat both cases as 2.0 (general ratio), and both would matter
                                     // if our threshold was 75% (i.e. DIFF_CARE_MIN = 1.75).
+                                    if (!oldVal || !newVal) {
+                                        // handle null case
+                                        return "";
+                                    }
                                     var ratio = newVal / oldVal;
                                     if (ratio < 1) {
                                         ratio = 1 / ratio; // Direction agnostic and always >= 1.
@@ -172,12 +176,6 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                     // - .marginDirection
                                     getCounterMap: function getDisplayLineData(testName, originalData, newData, blockerCriteria) {
 
-                                        function removeZeroes(values) {
-                                            return _.filter(values, function(v){
-                                                return !!v;
-                                            });
-                                        }
-
                                         function numericCompare(a, b) {
                                             return a < b ? -1 : a > b ? 1 : 0;
                                         }
@@ -200,14 +198,6 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
 
                                         // Eventually the result object, after setting properties as required.
                                         var cmap = { isEmpty: true };
-
-                                        // Talos tests may output 0 as an indication of failure. Ignore those results.
-                                        if (originalData) {
-                                            originalData.values = removeZeroes(originalData.values);
-                                        }
-                                        if (newData) {
-                                            newData.values = removeZeroes(newData.values);
-                                        }
 
                                         // It's possible to get an object with empty values, so check for that too.
                                         var hasOrig = originalData && originalData.values.length;
