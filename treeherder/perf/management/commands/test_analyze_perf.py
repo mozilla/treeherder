@@ -7,7 +7,8 @@ from django.core.management.base import (BaseCommand,
 
 from treeherder.client import (PerfherderClient,
                                PerformanceTimeInterval)
-from treeherder.perfalert import Analyzer
+from treeherder.perfalert import (Datum,
+                                  detect_changes)
 
 
 class Command(BaseCommand):
@@ -96,14 +97,14 @@ class Command(BaseCommand):
 
                 series_properties = signature_data.get(signature)
 
-                a = Analyzer()
+                a = []
 
                 for (result_set_id, timestamp, value) in zip(
                         series['result_set_id'], series['push_timestamp'],
                         series['value']):
-                    a.add_data(timestamp, value, testrun_id=result_set_id)
+                    a.append(Datum(timestamp, value, testrun_id=result_set_id))
 
-                for r in a.analyze_t():
+                for r in detect_changes(a):
                     if r.state == 'regression':
                         resultsets = pc.get_resultsets(project,
                                                        id=r.testrun_id)
