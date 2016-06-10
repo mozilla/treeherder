@@ -51,7 +51,7 @@ def generate_new_alerts_in_series(signature):
         timestamp = int(time.mktime(
             datum.push_timestamp.timetuple()))
         a.append(Datum(timestamp, datum.value,
-                   testrun_id=datum.result_set_id))
+                       testrun_id=datum.result_set_id))
     prev = None
 
     min_back_window = signature.min_back_window
@@ -68,8 +68,8 @@ def generate_new_alerts_in_series(signature):
         alert_threshold = settings.PERFHERDER_REGRESSION_THRESHOLD
 
     analyzed_series = detect_changes(a, min_back_window=min_back_window,
-                                  max_back_window=max_back_window,
-                                  fore_window=fore_window)
+                                     max_back_window=max_back_window,
+                                     fore_window=fore_window)
     prev_testrun_id = None
     with transaction.atomic():
         for (prev, cur) in zip(analyzed_series, analyzed_series[1:]):
