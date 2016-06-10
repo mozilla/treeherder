@@ -7,6 +7,7 @@ from datetime import (datetime,
                       timedelta)
 from difflib import SequenceMatcher
 
+from django.conf import settings
 from django.db.models import Q
 from elasticsearch_dsl.query import Match as ESMatch
 
@@ -229,6 +230,6 @@ class MatchScorer(object):
 
 
 def register():
-    for obj in [PreciseTestMatcher, CrashSignatureMatcher,
-                ElasticSearchTestMatcher]:
+    for obj_name in settings.AUTOCLASSIFY_MATCHERS:
+        obj = globals()[obj_name]
         MatcherManager.register_matcher(obj)

@@ -384,6 +384,9 @@ SILENCED_SYSTEM_CHECKS = [
 
 # Enable integration between autoclassifier and jobs
 AUTOCLASSIFY_JOBS = env.bool("AUTOCLASSIFY_JOBS", default=False)
+# Ordered list of matcher classes to use during autoclassification
+AUTOCLASSIFY_MATCHERS = ["PreciseTestMatcher", "CrashSignatureMatcher",
+                         "ElasticSearchTestMatcher"]
 
 # timeout for requests to external sources
 # like ftp.mozilla.org or hg.mozilla.org
