@@ -638,6 +638,10 @@ class TreeherderClient(object):
         self.protocol = protocol
         self.timeout = timeout
 
+        # Using a session gives us automatic keep-alive/connection pooling.
+        self.session = requests.Session()
+        self.session.headers.update(self.REQUEST_HEADERS)
+
         if client_id and secret:
             self.auth = HawkAuth(id=client_id, key=secret)
         else:
@@ -683,8 +687,7 @@ class TreeherderClient(object):
         else:
             uri = self._get_project_uri(project, endpoint)
 
-        resp = requests.get(uri, timeout=timeout, params=params,
-                            headers=self.REQUEST_HEADERS)
+        resp = self.session.get(uri, params=params, timeout=timeout)
         try:
             resp.raise_for_status()
         except HTTPError:
@@ -702,9 +705,7 @@ class TreeherderClient(object):
 
         uri = self._get_project_uri(project, endpoint)
 
-        resp = requests.post(uri, json=data,
-                             headers=self.REQUEST_HEADERS,
-                             timeout=timeout, auth=self.auth)
+        resp = self.session.post(uri, json=data, timeout=timeout, auth=self.auth)
 
         try:
             resp.raise_for_status()
