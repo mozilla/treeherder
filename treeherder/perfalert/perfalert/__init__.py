@@ -89,8 +89,8 @@ class Datum(object):
                                                  self.t, self.state)
 
 
-def detect_changes(data=[], min_back_window=12, max_back_window=24,
-                  fore_window=12, t_threshold=7):
+def detect_changes(data=[], min_back_window=12, max_back_window=24, 
+                   fore_window=12, t_threshold=7):
     # Use T-Tests
     # Analyze test data using T-Tests, comparing data[i-j:i] to data[i:i+k]
     (j, k) = (min_back_window, fore_window)
@@ -105,7 +105,7 @@ def detect_changes(data=[], min_back_window=12, max_back_window=24,
         # calculation
         if last_seen_regression > min_back_window:
             additional_back_window = min(last_seen_regression,
-                                        max_back_window - min_back_window)
+                                         max_back_window - min_back_window)
         else:
             additional_back_window = 0
         jw = [d.value for d in good_data[-1 * (j + additional_back_window):]]
