@@ -8,7 +8,8 @@ from django.db import transaction
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceDatum)
-from treeherder.perfalert import Analyzer
+from treeherder.perfalert import (Datum,
+                                  detect_changes)
 
 
 def get_alert_properties(prev_value, new_value, lower_is_better):
@@ -45,12 +46,12 @@ def generate_new_alerts_in_series(signature):
         series = series.filter(
             result_set_id__gt=existing_alerts[0].summary.result_set_id)
 
-    a = Analyzer()
+    a = []
     for datum in series:
         timestamp = int(time.mktime(
             datum.push_timestamp.timetuple()))
-        a.add_data(timestamp, datum.value,
-                   testrun_id=datum.result_set_id)
+        a.append(Datum(timestamp, datum.value,
+                   testrun_id=datum.result_set_id))
     prev = None
 
     min_back_window = signature.min_back_window
@@ -66,7 +67,7 @@ def generate_new_alerts_in_series(signature):
     if alert_threshold is None:
         alert_threshold = settings.PERFHERDER_REGRESSION_THRESHOLD
 
-    analyzed_series = a.analyze_t(min_back_window=min_back_window,
+    analyzed_series = detect_changes(a, min_back_window=min_back_window,
                                   max_back_window=max_back_window,
                                   fore_window=fore_window)
     prev_testrun_id = None
