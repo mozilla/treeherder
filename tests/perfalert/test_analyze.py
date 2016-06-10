@@ -46,7 +46,7 @@ class TestAnalyzer(unittest.TestCase):
 
         result = [(d.push_timestamp, d.state) for d in
                   detect_changes(a, min_back_window=5, max_back_window=5,
-                              fore_window=5, t_threshold=2)]
+                                 fore_window=5, t_threshold=2)]
         self.assertEqual(result, [
             (1, 'good'),
             (2, 'good'),
@@ -81,12 +81,12 @@ class TestAnalyzer(unittest.TestCase):
         a = []
         for r in runs:
             a.append(Datum(r[2], r[3], testrun_id=r[0],
-                       revision_id=r[1][2]))
+                           revision_id=r[1][2]))
 
         results = detect_changes(a, min_back_window=MIN_BACK_WINDOW,
-                              max_back_window=MAX_BACK_WINDOW,
-                              fore_window=FORE_WINDOW,
-                              t_threshold=THRESHOLD)
+                                 max_back_window=MAX_BACK_WINDOW,
+                                 fore_window=FORE_WINDOW,
+                                 t_threshold=THRESHOLD)
         regression_timestamps = [d.push_timestamp for d in results if
                                  d.state == 'regression']
         self.assertEqual(regression_timestamps, expected_timestamps)
