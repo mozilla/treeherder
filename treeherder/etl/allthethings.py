@@ -105,7 +105,7 @@ class RunnableJobsProcess(AllthethingsTransformerMixin):
                               'repository': repo})
 
         # prune any buildernames that were not just touched/created
-        RunnableJob.objects.delete(last_touched__lte=now)
+        RunnableJob.objects.filter(last_touched__lt=now).delete()
 
     def run(self):
         all_the_things = fetch_json(settings.ALLTHETHINGS_URL)
