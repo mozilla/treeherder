@@ -22,8 +22,7 @@ class RunnableJobsViewSet(viewsets.ViewSet):
             'option').values_list('option__name', 'option_collection_hash')
 
         runnable_jobs = models.RunnableJob.objects.filter(
-            repository=repository,
-            last_touched__gte=datetime.datetime.now() - datetime.timedelta(weeks=1)
+            repository=repository
         ).select_related('build_platform', 'machine_platform',
                          'job_type', 'job_type__job_group')
 

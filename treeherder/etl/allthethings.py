@@ -1,6 +1,7 @@
 import collections
 import logging
 from hashlib import sha1
+import datetime
 
 from django.conf import settings
 
@@ -51,6 +52,7 @@ class RunnableJobsProcess(AllthethingsTransformerMixin):
         active_repositories = Repository.objects.all().filter(
             active_status='active')
 
+        now = datetime.datetime.now()
         for repo in active_repositories:
             # Some active repositories might not have any buildbot
             # builders.
@@ -101,6 +103,9 @@ class RunnableJobsProcess(AllthethingsTransformerMixin):
                               'job_type': job_type,
                               'option_collection_hash': option_collection_hash,
                               'repository': repo})
+
+        # prune any buildernames that were not just touched/created
+        RunnableJob.objects.delete(last_touched__lte=now)
 
     def run(self):
         all_the_things = fetch_json(settings.ALLTHETHINGS_URL)
