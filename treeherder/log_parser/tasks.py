@@ -26,7 +26,9 @@ def parser_task(f):
         newrelic.agent.add_custom_parameter("job_guid", job_guid)
         newrelic.agent.add_custom_parameter("job_log_id", job_log_id)
         job_log = JobLog.objects.get(id=job_log_id)
-        newrelic.agent.add_custom_parameter("job_log_status", job_log.status)
+        newrelic.agent.add_custom_parameter("job_log_name", job_log.name)
+        newrelic.agent.add_custom_parameter("job_log_url", job_log.url)
+        newrelic.agent.add_custom_parameter("job_log_status_prior", job_log.get_status_display())
         if job_log.status == JobLog.PARSED:
             logger.info("log already parsed")
             return True
