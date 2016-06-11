@@ -43,7 +43,6 @@ class TestAnalyzer(unittest.TestCase):
         values = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1,  1,  1,  1,  1,  1,  1]
         for (t, v) in zip(times, values):
             a.append(Datum(t, float(v)))
-        
         a = sorted(a)
 
         result = [(d.push_timestamp, d.state) for d in
@@ -84,7 +83,6 @@ class TestAnalyzer(unittest.TestCase):
         for r in runs:
             a.append(Datum(r[2], r[3], testrun_id=r[0],
                            revision_id=r[1][2]))
-        
         a.sort()
 
         results = detect_changes(a, min_back_window=MIN_BACK_WINDOW,
