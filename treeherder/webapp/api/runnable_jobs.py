@@ -4,6 +4,7 @@ import json
 import requests
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
+from treeherder.etl.common import fetch_json
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -20,14 +21,15 @@ class RunnableJobsViewSet(viewsets.ViewSet):
         """
         GET method implementation for list of all runnable buildbot jobs
         """
-        taskID = request.query_params['taskID']
-        tc_jobs_url = "https://public-artifacts.taskcluster.net/" + taskID + "/public/full-task-graph.json"
+        decisionTaskID = request.query_params['decisionTaskID']
+        tc_jobs_url = "https://public-artifacts.taskcluster.net/" + decisionTaskID + "/0/public/full-task-graph.json"
         tc_graph = None
         validate = URLValidator()
         try:
             validate(tc_jobs_url)
-            resp = requests.get(url=tc_jobs_url)
-            tc_graph = json.loads(resp.text)
+            #resp = requests.get(url=tc_jobs_url)
+            #tc_graph = json.loads(resp.text)
+            tc_graph = fetch_json(tc_jobs_url)
         except ValidationError:
             pass
         except Exception as ex:
@@ -85,28 +87,28 @@ class RunnableJobsViewSet(viewsets.ViewSet):
                 job_group_name = node['task']['extra']['treeherder']['groupName']
             else:
                 job_group_name = ""
-
+            # Not all tasks have a group symbol
+            if 'groupSymbol' in node['task']['extra']['treeherder']:
+                job_group_symbol = node['task']['extra']['treeherder']['groupSymbol']
+            else:
+                job_group_symbol = ""
+            # Not all tasks have a collection
+            if 'collection' in node['task']['extra']['treeherder']:
+                platform_option = node['task']['extra']['treeherder']['collection'].keys()[0]
+            else:
+                platform_option = ""
             ret.append({
-                'build_platform_id': "",
                 'build_platform': build_platform,
-                'build_os': "",
-                'build_architecture': "",
-                'machine_platform_id': "",
                 'platform': build_platform,
-                'machine_platform_os': "",
-                'machine_platform_architecture': "",
-                'job_group_id': None,
                 'job_group_name': job_group_name,
-                'job_group_symbol': node['task']['extra']['treeherder']['groupSymbol'],
-                'job_group_description': "",
-                'job_type_id': "",
+                'job_group_symbol': job_group_symbol,
                 'job_type_name': job_type_name,
                 'job_type_symbol': node['task']['extra']['treeherder']['symbol'],
                 'job_type_description': node['task']['metadata']['description'],
                 'option_collection_hash': node['task']['extra']['treeherder']['revision_hash'],
                 'ref_data_name': label,
                 'build_system_type': 'taskcluster',
-                'platform_option': node['task']['extra']['treeherder']['collection'].keys()[0],
+                'platform_option': platform_option,
                 'job_coalesced_to_guid': None,
                 'state': 'runnable',
                 'result': 'runnable'})

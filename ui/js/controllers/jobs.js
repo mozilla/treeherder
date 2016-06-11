@@ -239,8 +239,8 @@ treeherderApp.controller('ResultSetCtrl', [
             }
             if ($scope.user.loggedin) {
                 var buildernames = ThResultSetStore.getSelectedRunnableJobs($rootScope.repoName, $scope.resultset.id);
-                var taskID = ThResultSetStore.getGeckoDecisionTaskID($rootScope.repoName, $scope.resultset.id);
-                ThResultSetModel.triggerNewJobs($scope.repoName, $scope.resultset.id, buildernames, taskID).then(function() {
+                var decisionTaskID = ThResultSetStore.getGeckoDecisionTaskID($rootScope.repoName, $scope.resultset.id);
+                ThResultSetModel.triggerNewJobs($scope.repoName, $scope.resultset.id, buildernames, decisionTaskID).then(function() {
                     thNotify.send("Trigger request sent", "success");
                     ThResultSetStore.deleteRunnableJobs($scope.repoName, $scope.resultset);
                 }, function(e) {

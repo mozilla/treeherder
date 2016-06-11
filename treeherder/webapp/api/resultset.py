@@ -202,13 +202,13 @@ class ResultSetViewSet(viewsets.ViewSet):
                             status=404)
 
         buildernames = request.data.get('buildernames', [])
-        taskID = request.data.get('taskID', [])
+        decisionTaskID = request.data.get('decisionTaskID', [])
         if len(buildernames) == 0:
             Response({"message": "The list of buildernames cannot be empty"},
                      status=400)
 
         publish_resultset_runnable_job_action.apply_async(
-            args=[project, pk, request.user.email, buildernames, taskID],
+            args=[project, pk, request.user.email, buildernames, decisionTaskID],
             routing_key='publish_to_pulse'
         )
 
