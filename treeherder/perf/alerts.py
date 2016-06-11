@@ -46,12 +46,9 @@ def generate_new_alerts_in_series(signature):
         series = series.filter(
             result_set_id__gt=existing_alerts[0].summary.result_set_id)
 
-    a = []
-    for datum in series:
-        timestamp = int(time.mktime(
-            datum.push_timestamp.timetuple()))
-        a.append(Datum(timestamp, datum.value,
-                       testrun_id=datum.result_set_id))
+    data = []
+    data = [Datum(int(time.mktime(d.push_timestamp.timetuple())), d.value, testrun_id=d.result_set_id) for d in series]
+    data = sorted(data)
     prev = None
 
     min_back_window = signature.min_back_window
@@ -67,7 +64,7 @@ def generate_new_alerts_in_series(signature):
     if alert_threshold is None:
         alert_threshold = settings.PERFHERDER_REGRESSION_THRESHOLD
 
-    analyzed_series = detect_changes(a, min_back_window=min_back_window,
+    analyzed_series = detect_changes(data, min_back_window=min_back_window,
                                      max_back_window=max_back_window,
                                      fore_window=fore_window)
     prev_testrun_id = None
@@ -107,7 +104,7 @@ def generate_new_alerts_in_series(signature):
                 if t_value == float('inf'):
                     t_value = 1000
 
-                a = PerformanceAlert.objects.create(
+                data = PerformanceAlert.objects.create(
                     summary=summary,
                     series_signature=signature,
                     is_regression=alert_properties.is_regression,
@@ -116,4 +113,4 @@ def generate_new_alerts_in_series(signature):
                     prev_value=prev_value,
                     new_value=new_value,
                     t_value=t_value)
-                a.save()
+                data.save()
