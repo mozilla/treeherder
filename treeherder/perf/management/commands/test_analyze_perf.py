@@ -103,6 +103,7 @@ class Command(BaseCommand):
                         series['result_set_id'], series['push_timestamp'],
                         series['value']):
                     a.append(Datum(timestamp, value, testrun_id=result_set_id))
+                    a.sort()
 
                 for r in detect_changes(a):
                     if r.state == 'regression':
