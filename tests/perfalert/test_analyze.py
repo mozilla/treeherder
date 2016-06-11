@@ -81,7 +81,7 @@ class TestAnalyzer(unittest.TestCase):
         data = []
         for r in runs:
             data.append(Datum(r[2], r[3], testrun_id=r[0],
-                           revision_id=r[1][2]))
+                              revision_id=r[1][2]))
 
         results = detect_changes(data, min_back_window=MIN_BACK_WINDOW,
                                  max_back_window=MAX_BACK_WINDOW,
