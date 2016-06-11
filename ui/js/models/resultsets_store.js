@@ -319,13 +319,11 @@ treeherder.factory('ThResultSetStore', [
                 tcURLPromise = ThJobDetailModel.getJobDetails(job_guid, {timeout: null});
             }
             if (!tcURLPromise) {
-                console.log(tcURLPromise);
                 tcURLPromise = $q.when(false);
-                console.log(tcURLPromise);
             }
             return tcURLPromise.then(function(results) {
                 // Since we want to try this only on try first
-                var decisionTaskID = "RktatAzqSua45IFhJruxOQ";
+                var decisionTaskID = "";
                 if (results && repoName === "try") {
                     decisionTaskID = results[0].url.substring(results[0].url.indexOf("#") + 1);
                     // Removing last two characters /0
