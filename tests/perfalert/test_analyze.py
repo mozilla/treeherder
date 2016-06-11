@@ -44,7 +44,7 @@ class TestAnalyzer(unittest.TestCase):
         for (t, v) in zip(times, values):
             a.append(Datum(t, float(v)))
         
-        a.sort()
+        a = sorted(a)
 
         result = [(d.push_timestamp, d.state) for d in
                   detect_changes(a, min_back_window=5, max_back_window=5,
