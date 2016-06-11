@@ -29,8 +29,8 @@
       "description":          "The buildernames that should be added to a job.",
       "type":                 "array"
     },
-    "taskID": {
-      "title":                "TaskID",
+    "decisionTaskID": {
+      "title":                "DecisionTaskID",
       "description":          "The Gecko Decision Task's Task ID for this resultset",
       "type":                 "string"
     }

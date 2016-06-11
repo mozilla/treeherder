@@ -314,20 +314,26 @@ treeherder.factory('ThResultSetStore', [
                 "groups": [{"jobs": [{"state": "completed"}]}]});
             if (platform) {
                 // Gecko Decision Task has been completed.
-                // Let's fetch the URL of all_tasks.json
+                // Let's fetch the URL of full-tasks-graph.json
                 var job_guid = platform.groups[0].jobs[0].job_guid;
                 tcURLPromise = ThJobDetailModel.getJobDetails(job_guid, {timeout: null});
             }
             if (!tcURLPromise) {
-                tcURLPromise = Promise.resolve(false);
+                console.log(tcURLPromise);
+                tcURLPromise = $q.when(false);
+                console.log(tcURLPromise);
             }
             return tcURLPromise.then(function(results) {
-                var taskID = "";
-                if (results) {
-                    var taskID = results[0].url.substring(results[0].url.indexOf("#") + 1);
+                // Since we want to try this only on try first
+                var decisionTaskID = "RktatAzqSua45IFhJruxOQ";
+                if (results && repoName === "try") {
+                    decisionTaskID = results[0].url.substring(results[0].url.indexOf("#") + 1);
+                    // Removing last two characters /0
+                    decisionTaskID = decisionTaskID.substring(0, decisionTaskID.length - 2);
                 }
-                resultSet.geckoDecisionTaskID = taskID;
-                return ThRunnableJobModel.get_list(repoName, {"taskID": taskID}).then(function(jobList) {
+                // Will be used later for the GET request
+                resultSet.geckoDecisionTaskID = decisionTaskID;
+                return ThRunnableJobModel.get_list(repoName, {"decisionTaskID": decisionTaskID}).then(function(jobList) {
                     var id = resultSet.id;
                     _.each(jobList, function(job) {
                         job.result_set_id = id;
