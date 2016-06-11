@@ -33,6 +33,11 @@
       "title":                "DecisionTaskID",
       "description":          "The Gecko Decision Task's Task ID for this resultset",
       "type":                 "string"
+    },
+    "timestamp": {
+      "title":                "timestamp",
+      "description":          "The UTC timestamp",
+      "type":                 "string"
     }
   },
   "additionalProperties":     false,

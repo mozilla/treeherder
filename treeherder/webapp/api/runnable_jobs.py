@@ -1,13 +1,11 @@
 import datetime
-import json
 
-import requests
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
-from treeherder.etl.common import fetch_json
 from rest_framework import viewsets
 from rest_framework.response import Response
 
+from treeherder.etl.common import fetch_json
 from treeherder.model import models
 
 
@@ -27,8 +25,6 @@ class RunnableJobsViewSet(viewsets.ViewSet):
         validate = URLValidator()
         try:
             validate(tc_jobs_url)
-            #resp = requests.get(url=tc_jobs_url)
-            #tc_graph = json.loads(resp.text)
             tc_graph = fetch_json(tc_jobs_url)
         except ValidationError:
             pass
