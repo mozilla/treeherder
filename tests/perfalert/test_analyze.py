@@ -37,16 +37,15 @@ class TestAnalyze(unittest.TestCase):
 class TestAnalyzer(unittest.TestCase):
 
     def test_detect_changes(self):
-        a = []
+        data = []
 
         times = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
         values = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1,  1,  1,  1,  1,  1,  1]
         for (t, v) in zip(times, values):
-            a.append(Datum(t, float(v)))
-        a = sorted(a)
+            data.append(Datum(t, float(v)))
 
         result = [(d.push_timestamp, d.state) for d in
-                  detect_changes(a, min_back_window=5, max_back_window=5,
+                  detect_changes(data, min_back_window=5, max_back_window=5,
                                  fore_window=5, t_threshold=2)]
         self.assertEqual(result, [
             (1, 'good'),
@@ -79,13 +78,12 @@ class TestAnalyzer(unittest.TestCase):
 
         payload = SampleData.get_perf_data(os.path.join('graphs', filename))
         runs = payload['test_runs']
-        a = []
+        data = []
         for r in runs:
-            a.append(Datum(r[2], r[3], testrun_id=r[0],
+            data.append(Datum(r[2], r[3], testrun_id=r[0],
                            revision_id=r[1][2]))
-        a.sort()
 
-        results = detect_changes(a, min_back_window=MIN_BACK_WINDOW,
+        results = detect_changes(data, min_back_window=MIN_BACK_WINDOW,
                                  max_back_window=MAX_BACK_WINDOW,
                                  fore_window=FORE_WINDOW,
                                  t_threshold=THRESHOLD)
