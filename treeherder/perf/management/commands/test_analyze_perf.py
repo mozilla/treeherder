@@ -97,15 +97,14 @@ class Command(BaseCommand):
 
                 series_properties = signature_data.get(signature)
 
-                a = []
+                data = []
 
                 for (result_set_id, timestamp, value) in zip(
                         series['result_set_id'], series['push_timestamp'],
                         series['value']):
-                    a.append(Datum(timestamp, value, testrun_id=result_set_id))
-                    a = sorted(a)
+                    data.append(Datum(timestamp, value, testrun_id=result_set_id))
 
-                for r in detect_changes(a):
+                for r in detect_changes(data):
                     if r.state == 'regression':
                         resultsets = pc.get_resultsets(project,
                                                        id=r.testrun_id)
