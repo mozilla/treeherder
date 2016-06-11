@@ -2,9 +2,9 @@ import os
 import unittest
 
 from tests.sampledata import SampleData
-from treeherder.perfalert import (analyze,
+from treeherder.perfalert import (Datum,
+                                  analyze,
                                   calc_t,
-                                  Datum,
                                   default_weights,
                                   detect_changes,
                                   linear_weights)
