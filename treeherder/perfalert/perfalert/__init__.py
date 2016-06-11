@@ -93,6 +93,7 @@ def detect_changes(data, min_back_window=12, max_back_window=24,
                    fore_window=12, t_threshold=7):
     # Use T-Tests
     # Analyze test data using T-Tests, comparing data[i-j:i] to data[i:i+k]
+    data = sorted(data)
     (j, k) = (min_back_window, fore_window)
     good_data = []
 
