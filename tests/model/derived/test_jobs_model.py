@@ -12,8 +12,7 @@ from tests.autoclassify.utils import (create_bug_suggestions_failures,
 from tests.sample_data_generator import (job_data,
                                          result_set)
 from treeherder.model.derived import ArtifactsModel
-from treeherder.model.models import (BuildPlatform,
-                                     FailureClassification,
+from treeherder.model.models import (FailureClassification,
                                      FailureLine,
                                      Job,
                                      JobDetail,
@@ -22,8 +21,6 @@ from treeherder.model.models import (BuildPlatform,
                                      JobLog,
                                      JobType,
                                      Machine,
-                                     MachinePlatform,
-                                     RunnableJob,
                                      TaskSetMeta)
 
 slow = pytest.mark.slow
