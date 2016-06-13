@@ -128,8 +128,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         result_set_list = jm.get_result_set_list(0, 1, full, filter.conditions)
         if result_set_list:
             return Response(result_set_list[0])
-        else:
-            return Response("No resultset with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+        return Response("No resultset with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
     @detail_route()
     @with_jobs

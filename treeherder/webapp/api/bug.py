@@ -27,8 +27,7 @@ class BugJobMapViewSet(viewsets.ViewSet):
         except JobDataIntegrityError as e:
             if e.message[0] == 1062 or "Duplicate" in e.message[1]:
                 return Response({"message": "Bug job map skipped: {0}".format(e.message)})
-            else:
-                raise e
+            raise e
 
         return Response({"message": "Bug job map saved"})
 
@@ -58,8 +57,7 @@ class BugJobMapViewSet(viewsets.ViewSet):
         obj = jm.get_bug_job_map_list(0, 1, filter.conditions)
         if obj:
             return Response(obj[0])
-        else:
-            return Response("Object not found", status=HTTP_404_NOT_FOUND)
+        return Response("Object not found", status=HTTP_404_NOT_FOUND)
 
     @with_jobs
     def list(self, request, project, jm):

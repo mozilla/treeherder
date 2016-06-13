@@ -87,9 +87,8 @@ class Command(BaseCommand):
         if not updated_signature:
             # not present yet
             return
-        else:
-            assert len(updated_signature) == 1
-            updated_signature = updated_signature[0]
+        assert len(updated_signature) == 1
+        updated_signature = updated_signature[0]
         if updated_signature.signature_hash != old_signature.signature_hash:
             print updated_signature
             for subtest_signature in subtest_signatures:
