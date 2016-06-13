@@ -71,10 +71,9 @@ class UrlQueryFilter(object):
                 if value[0] == "=":
                     value = value[1]
             return value
-        else:
-            if default:
-                return default
-            raise KeyError(key)
+        if default:
+            return default
+        raise KeyError(key)
 
     def delete(self, key):
         del self.conditions[key]

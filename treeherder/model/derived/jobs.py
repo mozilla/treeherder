@@ -1218,11 +1218,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 if settings.DEBUG or hasattr(settings, "TREEHERDER_TEST_PROJECT"):
                     logger.exception(e)
                     raise e
-                else:
-                    # make more fields visible in new relic for the job
-                    # where we encountered the error
-                    datum.update(datum.get("job", {}))
-                    newrelic.agent.record_exception(params=datum)
+
+                # make more fields visible in new relic for the job
+                # where we encountered the error
+                datum.update(datum.get("job", {}))
+                newrelic.agent.record_exception(params=datum)
 
                 # skip any jobs that hit errors in these stages.
                 continue

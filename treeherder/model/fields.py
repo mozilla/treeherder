@@ -15,8 +15,7 @@ class BigAutoField(models.AutoField):
             return "bigint AUTO_INCREMENT"
         elif 'postgres' in engine:
             return "bigserial"
-        else:
-            raise NotImplemented
+        raise NotImplemented
 
     def get_related_db_type(self, connection):
         return models.BigIntegerField().db_type(connection)

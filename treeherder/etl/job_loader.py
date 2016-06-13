@@ -279,8 +279,7 @@ class JobLoader:
             result = job.get("result", "unknown")
             if job.get("isRetried", False):
                 return "retry"
-            else:
-                return resmap[result]
+            return resmap[result]
         return "unknown"
 
     def _get_step_result(self, job, result):

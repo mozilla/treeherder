@@ -25,9 +25,8 @@ class ArtifactViewSet(viewsets.ViewSet):
             objs = artifactModel.get_job_artifact_list(0, 1, filter.conditions)
             if objs:
                 return Response(objs[0])
-            else:
-                return Response("job_artifact {0} not found".format(pk),
-                                status=status.HTTP_404_NOT_FOUND)
+            return Response("job_artifact {0} not found".format(pk),
+                            status=status.HTTP_404_NOT_FOUND)
 
     def list(self, request, project):
         """
