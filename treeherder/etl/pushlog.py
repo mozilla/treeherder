@@ -134,7 +134,7 @@ class HgPushlogProcess(HgPushlogTransformerMixin):
                 try:
                     collection.validate()
                     jm.store_result_set_data(collection.get_collection_data())
-                except:
+                except Exception:
                     errors.append({
                         "project": repository,
                         "collection": "result_set",

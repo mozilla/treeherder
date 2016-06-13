@@ -234,7 +234,7 @@ class ResultSetViewSet(viewsets.ViewSet):
                 try:
                     if len(revision['revision']) < 40:
                         raise ValueError("Revision < 40 characters")
-                except:
+                except ValueError:
                     # The id of the submitter will be automatically included
                     # in the params via the ``hawk_lookup`` call
                     params = {

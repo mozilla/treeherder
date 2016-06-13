@@ -18,7 +18,7 @@ class Command(BaseCommand):
             self.stdout.write('{}\n'.format(ds.project))
             try:
                 repository = Repository.objects.get(name=ds.project)
-            except:
+            except Repository.DoesNotExist:
                 self.stderr.write('No repository for datasource project {}, skipping\n'.format(
                     ds.project))
                 continue

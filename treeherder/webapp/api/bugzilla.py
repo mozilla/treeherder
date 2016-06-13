@@ -43,7 +43,7 @@ class BugzillaViewSet(viewsets.ViewSet):
                 response = e.response
                 try:
                     rsperror = response.json()['message']
-                except:
+                except (ValueError, KeyError):
                     rsperror = response
                 return Response({"failure": rsperror}, status=status.HTTP_400_BAD_REQUEST)
 
