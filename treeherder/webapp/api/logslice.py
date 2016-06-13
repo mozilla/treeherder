@@ -5,6 +5,8 @@ from django.core.cache import caches
 from django.utils.six import BytesIO
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.status import (HTTP_400_BAD_REQUEST,
+                                   HTTP_404_NOT_FOUND)
 
 from treeherder.etl.common import make_request
 from treeherder.model.models import (Job,
@@ -38,29 +40,32 @@ class LogSliceView(viewsets.ViewSet):
         start_line = request.query_params.get("start_line")
         end_line = request.query_params.get("end_line")
         if not start_line or not end_line:
-            return Response("``start_line`` and ``end_line`` parameters are both required", 400)
+            return Response("``start_line`` and ``end_line`` parameters are both required",
+                            status=HTTP_400_BAD_REQUEST)
 
         try:
             start_line = abs(int(start_line))
             end_line = abs(int(end_line))
         except ValueError:
-            return Response("parameters could not be converted to integers", 400)
+            return Response("parameters could not be converted to integers",
+                            status=HTTP_400_BAD_REQUEST)
 
         if start_line >= end_line:
-            return Response("``end_line`` must be larger than ``start_line``", 400)
+            return Response("``end_line`` must be larger than ``start_line``",
+                            status=HTTP_400_BAD_REQUEST)
 
         try:
             job = Job.objects.get(repository__name=project,
                                   project_specific_id=job_id)
         except Job.DoesNotExist:
-            return Response("Job does not exist", 404)
+            return Response("Job does not exist", status=HTTP_404_NOT_FOUND)
 
         try:
             url = JobLog.objects.filter(
                 job=job, name__in=log_names)[0:1].values_list('url',
                                                               flat=True)[0]
         except JobLog.DoesNotExist:
-            return Response("Job log does not exist", 404)
+            return Response("Job log does not exist", status=HTTP_404_NOT_FOUND)
 
         try:
             file = filesystem.get(url)

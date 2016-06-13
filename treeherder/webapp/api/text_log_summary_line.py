@@ -4,6 +4,9 @@ import rest_framework_filters as filters
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
+from rest_framework.status import (HTTP_200_OK,
+                                   HTTP_400_BAD_REQUEST,
+                                   HTTP_404_NOT_FOUND)
 
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import TextLogSummaryLine
@@ -29,23 +32,24 @@ class TextLogSummaryLineViewSet(viewsets.ModelViewSet):
         for item in data:
             line_id = item.get("id")
             if line_id is None:
-                return "No id provided", 400
+                return "No id provided", HTTP_400_BAD_REQUEST
 
             line_ids.append(int(line_id))
 
             if "bug_number" not in item:
-                return "No bug number provided", 400
+                return "No bug number provided", HTTP_400_BAD_REQUEST
 
         rv = []
         objs = TextLogSummaryLine.objects.filter(id__in=line_ids).all()
         lines_by_id = {obj.id: obj for obj in objs}
 
         if len(objs) != len(lines_by_id):
-            return "Line id(s) %s do not exist" % (",".join(item for item in line_ids
-                                                            if item not in lines_by_id)), 400
+            body = "Line id(s) %s do not exist" % (",".join(item for item in line_ids
+                                                            if item not in lines_by_id))
+            return body, HTTP_400_BAD_REQUEST
 
         if len(lines_by_id) != len(line_ids):
-            return "Got duplicate line ids", 400
+            return "Got duplicate line ids", HTTP_400_BAD_REQUEST
 
         by_project = defaultdict(list)
 
@@ -68,7 +72,7 @@ class TextLogSummaryLineViewSet(viewsets.ModelViewSet):
         if not many:
             rv = rv[0]
 
-        return self.serializer_class(rv, many=many).data, 200
+        return self.serializer_class(rv, many=many).data, HTTP_200_OK
 
     def update(self, request, pk=None):
         data = {"id": pk}
@@ -76,12 +80,15 @@ class TextLogSummaryLineViewSet(viewsets.ModelViewSet):
             if k not in data:
                 data[k] = v
 
-        return Response(*self._update([data], request.user.email, many=False))
+        body, status = self._update([data], request.user.email, many=False)
+        return Response(body, status=status)
 
     def update_many(self, request):
         body, status = self._update(request.data, request.user.email, many=True)
 
-        if status == 404:
-            status = 400
+        if status == HTTP_404_NOT_FOUND:
+            # 404 doesn't make sense for updating many since the path is always
+            # valid, so if we get an invalid id instead return 400
+            status = HTTP_400_BAD_REQUEST
 
-        return Response(body, status)
+        return Response(body, status=status)

@@ -3,6 +3,7 @@ import datetime
 from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from treeherder.model import models
 from treeherder.model.derived import JobsModel
@@ -75,7 +76,8 @@ class BugscacheViewSet(viewsets.ReadOnlyModelViewSet):
         """
         search_term = request.query_params.get("search", None)
         if not search_term:
-            return Response({"message": "the 'search' parameter is mandatory"}, status=400)
+            return Response({"message": "the 'search' parameter is mandatory"},
+                            status=HTTP_400_BAD_REQUEST)
 
         max_size = 50
         # 90 days ago

@@ -5,6 +5,9 @@ from rest_framework import (mixins,
                             viewsets)
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
+from rest_framework.status import (HTTP_200_OK,
+                                   HTTP_400_BAD_REQUEST,
+                                   HTTP_404_NOT_FOUND)
 
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import (ClassifiedFailure,
@@ -31,12 +34,12 @@ class FailureLineViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         for item in data:
             line_id = int(item.get("id"))
             if line_id is None:
-                return "No failure line id provided", 400
+                return "No failure line id provided", HTTP_400_BAD_REQUEST
 
             failure_line_ids.add(line_id)
 
             if "best_classification" not in item:
-                return "No classification id provided", 400
+                return "No classification id provided", HTTP_400_BAD_REQUEST
 
             classification_id = item.get("best_classification")
 
@@ -51,14 +54,16 @@ class FailureLineViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
         if len(failure_lines) != len(failure_line_ids):
             missing = failure_line_ids - set(failure_lines.keys())
-            return "No failure line with id: {0}".format(", ".join(missing)), 404
+            return ("No failure line with id: {0}".format(", ".join(missing)),
+                    HTTP_404_NOT_FOUND)
 
         classifications = as_dict(
             ClassifiedFailure.objects.filter(id__in=classification_ids), "id")
 
         if len(classifications) != len(classification_ids):
             missing = classification_ids - set(classifications.keys())
-            return "No classification with id: {0}".format(", ".join(missing)), 404
+            return ("No classification with id: {0}".format(", ".join(missing)),
+                    HTTP_404_NOT_FOUND)
 
         for line_id, classification_id in ids:
             failure_line = failure_lines[line_id]
@@ -95,7 +100,8 @@ class FailureLineViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         if not many:
             rv = rv[0]
 
-        return serializers.FailureLineNoStackSerializer(rv, many=many).data, 200
+        return (serializers.FailureLineNoStackSerializer(rv, many=many).data,
+                HTTP_200_OK)
 
     def update(self, request, pk=None):
         data = {"id": pk}
@@ -103,14 +109,15 @@ class FailureLineViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
             if k not in data:
                 data[k] = v
 
-        return Response(*self._update([data], request.user.email, many=False))
+        body, status = self._update([data], request.user.email, many=False)
+        return Response(body, status=status)
 
     def update_many(self, request):
         body, status = self._update(request.data, request.user.email, many=True)
 
-        if status == 404:
+        if status == HTTP_404_NOT_FOUND:
             # 404 doesn't make sense for updating many since the path is always
             # valid, so if we get an invalid id instead return 400
-            status = 400
+            status = HTTP_400_BAD_REQUEST
 
-        return Response(body, status)
+        return Response(body, status=status)
