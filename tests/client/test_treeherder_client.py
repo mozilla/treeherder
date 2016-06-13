@@ -474,7 +474,7 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
             client_id='client-abc',
             secret='secret123',
             )
-        auth = client.auth
+        auth = client.session.auth
         assert isinstance(auth, HawkAuth)
         expected_credentials = {
             'id': 'client-abc',

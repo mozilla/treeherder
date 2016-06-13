@@ -643,9 +643,7 @@ class TreeherderClient(object):
         self.session.headers.update(self.REQUEST_HEADERS)
 
         if client_id and secret:
-            self.auth = HawkAuth(id=client_id, key=secret)
-        else:
-            self.auth = None
+            self.session.auth = HawkAuth(id=client_id, key=secret)
 
     def _get_project_uri(self, project, endpoint):
 
@@ -705,7 +703,7 @@ class TreeherderClient(object):
 
         uri = self._get_project_uri(project, endpoint)
 
-        resp = self.session.post(uri, json=data, timeout=timeout, auth=self.auth)
+        resp = self.session.post(uri, json=data, timeout=timeout)
 
         try:
             resp.raise_for_status()
