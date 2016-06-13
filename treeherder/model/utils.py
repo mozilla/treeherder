@@ -32,8 +32,7 @@ def retry_execute(dhub, logger, retries=0, **kwargs):
                     ))
             time.sleep(sleep_time)
             return retry_execute(dhub, logger, retries, **kwargs)
-        else:
-            raise
+        raise
 
 
 def orm_delete(model, queryset, chunk_size, sleep_time):

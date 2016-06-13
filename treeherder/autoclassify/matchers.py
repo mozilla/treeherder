@@ -75,8 +75,7 @@ def time_window(queryset, interval, time_budget_ms, match_filter):
     if matches:
         matches.sort(key=match_filter)
         return matches[0]
-    else:
-        return None
+    return None
 
 
 class PreciseTestMatcher(Matcher):
