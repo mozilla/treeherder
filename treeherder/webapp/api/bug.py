@@ -27,7 +27,7 @@ class BugJobMapViewSet(viewsets.ViewSet):
         except JobDataIntegrityError as e:
             if e.message[0] == 1062 or "Duplicate" in e.message[1]:
                 return Response({"message": "Bug job map skipped: {0}".format(e.message)})
-            raise e
+            raise
 
         return Response({"message": "Bug job map saved"})
 

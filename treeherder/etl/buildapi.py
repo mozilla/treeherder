@@ -39,26 +39,26 @@ class Builds4hTransformerMixin(object):
             # By experimentation we've found that the last id in the list
             # corresponds to the request that was used to schedule the job.
             request_id = request_ids[-1]
-        except KeyError as e:
+        except KeyError:
             logger.error("({0})request_id not found in {1}".format(
                 prop["branch"], build))
-            raise e
+            raise
 
         try:
             buildername = prop['buildername']
-        except KeyError as e:
+        except KeyError:
             logger.error("({0})buildername not found in {1}".format(
                 prop["branch"], build))
-            raise e
+            raise
 
         endtime = None
         if buildbot.RESULT_DICT[build['result']] == 'retry':
             try:
                 endtime = build['endtime']
-            except KeyError as e:
+            except KeyError:
                 logger.error("({0})endtime not found in {1}".format(
                     prop["branch"], build))
-                raise e
+                raise
 
         job_guid_data = {'job_guid': '', 'coalesced': []}
 

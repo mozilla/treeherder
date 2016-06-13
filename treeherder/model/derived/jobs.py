@@ -1217,7 +1217,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 # running the unit tests.
                 if settings.DEBUG or hasattr(settings, "TREEHERDER_TEST_PROJECT"):
                     logger.exception(e)
-                    raise e
+                    raise
 
                 # make more fields visible in new relic for the job
                 # where we encountered the error
