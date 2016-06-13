@@ -54,15 +54,11 @@ class RunnableJobsProcess(AllthethingsTransformerMixin):
 
         now = datetime.datetime.now()
         for repo in active_repositories:
-            print("checking repository {}".format(repo))
-            print(jobs_per_branch)
-            print("repo.name: {}".format(repo.name))
             # Some active repositories might not have any buildbot
             # builders.
             if repo.name not in jobs_per_branch:
                 continue
 
-            print("got one")
             for datum in jobs_per_branch[repo.name]:
                 # XXX: refdata.py truncates those fields at 25 characters.
                 # Should we do the same?
