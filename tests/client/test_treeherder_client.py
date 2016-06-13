@@ -4,7 +4,7 @@ import json
 import os
 import unittest
 
-from mock import patch
+import responses
 from requests_hawk import HawkAuth
 
 from treeherder.client import (TreeherderArtifact,
@@ -387,31 +387,9 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
                   {"resultSet3": 3}
                   ]
 
-    @staticmethod
-    def _expected_response_return_object():
-        class Mock(object):
-            pass
-        ret = Mock()
-        setattr(ret, 'raise_for_status', lambda: None)
-        return ret
-
-    @staticmethod
-    def _get_mock_response(response_struct):
-        class MockResponse(object):
-
-            def json(self):
-                return response_struct
-
-            def raise_for_status(self):
-                pass
-
-        return MockResponse()
-
-    @patch("treeherder.client.client.requests.post")
-    def test_post_job_collection(self, mock_post):
+    @responses.activate
+    def test_post_job_collection(self):
         """Can add a treeherder collections to a TreeherderRequest."""
-        mock_post.return_value = self._expected_response_return_object()
-
         tjc = TreeherderJobCollection()
 
         for job in self.job_data:
@@ -424,21 +402,21 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
             secret='secret123',
             )
 
+        def request_callback(request):
+            # Check that the expected content was POSTed.
+            posted_json = json.loads(request.body)
+            self.assertEqual(posted_json, tjc.get_collection_data())
+            return (200, {}, '{"message": "Job successfully updated"}')
+
+        url = client._get_project_uri('project', tjc.endpoint_base)
+        responses.add_callback(responses.POST, url, match_querystring=True,
+                               callback=request_callback, content_type='application/json')
+
         client.post_collection('project', tjc)
 
-        path, resp = mock_post.call_args
-
-        self.assertEqual(mock_post.call_count, 1)
-        self.assertEqual(
-            tjc.get_collection_data(),
-            resp['json']
-            )
-
-    @patch("treeherder.client.client.requests.post")
-    def test_send_result_collection(self, mock_post):
+    @responses.activate
+    def test_send_result_collection(self):
         """Can add a treeherder collections to a TreeherderRequest."""
-        mock_post.return_value = self._expected_response_return_object()
-
         trc = TreeherderResultSetCollection()
 
         for resultset in self.resultset_data:
@@ -451,21 +429,21 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
             secret='secret123',
             )
 
+        def request_callback(request):
+            # Check that the expected content was POSTed.
+            posted_json = json.loads(request.body)
+            self.assertEqual(posted_json, trc.get_collection_data())
+            return (200, {}, '{"message": "well-formed JSON stored", "resultsets": [123, 456]}')
+
+        url = client._get_project_uri('project', trc.endpoint_base)
+        responses.add_callback(responses.POST, url, match_querystring=True,
+                               callback=request_callback, content_type='application/json')
+
         client.post_collection('project', trc)
 
-        path, resp = mock_post.call_args
-
-        self.assertEqual(mock_post.call_count, 1)
-        self.assertEqual(
-            trc.get_collection_data(),
-            resp['json']
-            )
-
-    @patch("treeherder.client.client.requests.post")
-    def test_send_artifact_collection(self, mock_post):
+    @responses.activate
+    def test_send_artifact_collection(self):
         """Can add a artifact collections to a TreeherderRequest."""
-        mock_post.return_value = self._expected_response_return_object()
-
         tac = TreeherderArtifactCollection()
 
         for artifact in self.artifact_data:
@@ -478,15 +456,17 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
             secret='secret123',
             )
 
+        def request_callback(request):
+            # Check that the expected content was POSTed.
+            posted_json = json.loads(request.body)
+            self.assertEqual(posted_json, tac.get_collection_data())
+            return (200, {}, '{"message": "Artifacts stored successfully"}')
+
+        url = client._get_project_uri('project', tac.endpoint_base)
+        responses.add_callback(responses.POST, url, match_querystring=True,
+                               callback=request_callback, content_type='application/json')
+
         client.post_collection('project', tac)
-
-        path, resp = mock_post.call_args
-
-        self.assertEqual(mock_post.call_count, 1)
-        self.assertEqual(
-            tac.get_collection_data(),
-            resp['json']
-            )
 
     def test_hawkauth_setup(self):
         """Test that HawkAuth is correctly set up from the `client_id` and `secret` params."""
@@ -503,28 +483,33 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
         }
         self.assertEqual(auth.credentials, expected_credentials)
 
-    @patch("treeherder.client.client.requests.get")
-    def test_get_job(self, mock_get):
-
-        mock_get.return_value = self._get_mock_response({
+    @responses.activate
+    def test_get_job(self):
+        tdc = TreeherderClient()
+        url = tdc._get_project_uri("mozilla-inbound", tdc.JOBS_ENDPOINT)
+        content = {
             "meta": {"count": 3,
                      "repository": "mozilla-inbound",
                      "offset": 0},
-            "results": self.JOB_RESULTS})
-        tdc = TreeherderClient()
+            "results": self.JOB_RESULTS
+        }
+        responses.add(responses.GET, url, json=content, match_querystring=True, status=200)
+
         jobs = tdc.get_jobs("mozilla-inbound")
         self.assertEqual(len(jobs), 3)
         self.assertEqual(jobs, self.JOB_RESULTS)
 
-    @patch("treeherder.client.client.requests.get")
-    def test_get_results(self, mock_get):
-
-        mock_get.return_value = self._get_mock_response({
+    @responses.activate
+    def test_get_results(self):
+        tdc = TreeherderClient()
+        url = tdc._get_project_uri("mozilla-inbound", tdc.RESULTSET_ENDPOINT)
+        content = {
             "meta": {"count": 3, "repository": "mozilla-inbound",
                      "offset": 0},
-            "results": self.RESULTSETS})
+            "results": self.RESULTSETS
+        }
+        responses.add(responses.GET, url, json=content, match_querystring=True, status=200)
 
-        tdc = TreeherderClient()
         resultsets = tdc.get_resultsets("mozilla-inbound")
         self.assertEqual(len(resultsets), 3)
         self.assertEqual(resultsets, self.RESULTSETS)

@@ -1,31 +1,23 @@
 import unittest
 
-from mock import patch
+import responses
 
 from treeherder.client import PerfherderClient
 
 
 class PerfherderClientTest(unittest.TestCase):
 
-    def _get_mock_response(self, response_struct):
-        class MockResponse(object):
-
-            def json(self):
-                return response_struct
-
-            def raise_for_status(self):
-                pass
-
-        return MockResponse()
-
-    @patch("treeherder.client.client.requests.get")
-    def test_get_performance_signatures(self, mock_get):
-
-        mock_get.return_value = self._get_mock_response(
-            {'signature1': {'cheezburgers': 1},
-             'signature2': {'hamburgers': 2},
-             'signature3': {'cheezburgers': 2}})
+    @responses.activate
+    def test_get_performance_signatures(self):
         pc = PerfherderClient()
+        url = pc._get_project_uri('mozilla-central', pc.PERFORMANCE_SIGNATURES_ENDPOINT)
+        content = {
+            'signature1': {'cheezburgers': 1},
+            'signature2': {'hamburgers': 2},
+            'signature3': {'cheezburgers': 2}
+        }
+        responses.add(responses.GET, url, json=content, match_querystring=True, status=200)
+
         sigs = pc.get_performance_signatures('mozilla-central')
         self.assertEqual(len(sigs), 3)
         self.assertEqual(sigs.get_signature_hashes(), ['signature1',
@@ -35,14 +27,18 @@ class PerfherderClientTest(unittest.TestCase):
                          set(['cheezburgers', 'hamburgers']))
         self.assertEqual(sigs.get_property_values('cheezburgers'), set([1, 2]))
 
-    @patch("treeherder.client.client.requests.get")
-    def test_get_performance_data(self, mock_get):
+    @responses.activate
+    def test_get_performance_data(self):
+        pc = PerfherderClient()
 
-        mock_get.return_value = self._get_mock_response({
+        url = '{}?{}'.format(pc._get_project_uri('mozilla-central', pc.PERFORMANCE_DATA_ENDPOINT),
+                             'signatures=signature1&signatures=signature2')
+        content = {
             'signature1': [{'value': 1}, {'value': 2}],
             'signature2': [{'value': 2}, {'value': 1}]
-        })
-        pc = PerfherderClient()
+        }
+        responses.add(responses.GET, url, json=content, match_querystring=True, status=200)
+
         series_list = pc.get_performance_data('mozilla-central',
                                               signatures=['signature1',
                                                           'signature2'])
