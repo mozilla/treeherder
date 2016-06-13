@@ -1,5 +1,6 @@
 import newrelic.agent
-from rest_framework import viewsets
+from rest_framework import (status,
+                            viewsets)
 from rest_framework.decorators import detail_route
 from rest_framework.exceptions import ParseError
 from rest_framework.permissions import IsAuthenticated
@@ -120,7 +121,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         if result_set_list:
             return Response(result_set_list[0])
         else:
-            return Response("No resultset with id: {0}".format(pk), 404)
+            return Response("No resultset with id: {0}".format(pk), status=status.HTTP_404_NOT_FOUND)
 
     @detail_route()
     @with_jobs
@@ -139,14 +140,14 @@ class ResultSetViewSet(viewsets.ViewSet):
         """
 
         if not pk:  # pragma nocover
-            return Response({"message": "resultset id required"}, status=400)
+            return Response({"message": "resultset id required"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             jm.cancel_all_resultset_jobs(request.user.email, pk)
             return Response({"message": "pending and running jobs canceled for resultset '{0}'".format(pk)})
 
         except Exception as ex:
-            return Response("Exception: {0}".format(ex), 404)
+            return Response("Exception: {0}".format(ex), status=status.HTTP_404_NOT_FOUND)
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
@@ -155,14 +156,14 @@ class ResultSetViewSet(viewsets.ViewSet):
         Trigger jobs that are missing in a resultset.
         """
         if not pk:
-            return Response({"message": "resultset id required"}, status=400)
+            return Response({"message": "resultset id required"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             jm.trigger_missing_resultset_jobs(request.user.email, pk, project)
             return Response({"message": "Missing jobs triggered for push '{0}'".format(pk)})
 
         except Exception as ex:
-            return Response("Exception: {0}".format(ex), 404)
+            return Response("Exception: {0}".format(ex), status=status.HTTP_404_NOT_FOUND)
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
@@ -171,7 +172,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         Trigger all the talos jobs in a resultset.
         """
         if not pk:
-            return Response({"message": "resultset id required"}, status=400)
+            return Response({"message": "resultset id required"}, status=status.HTTP_400_BAD_REQUEST)
 
         times = int(request.query_params.get('times', None))
         if not times:
@@ -182,7 +183,7 @@ class ResultSetViewSet(viewsets.ViewSet):
             return Response({"message": "Talos jobs triggered for push '{0}'".format(pk)})
 
         except Exception as ex:
-            return Response("Exception: {0}".format(ex), 404)
+            return Response("Exception: {0}".format(ex), status=status.HTTP_404_NOT_FOUND)
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
@@ -191,7 +192,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         Add new jobs to a resultset.
         """
         if not pk:
-            return Response({"message": "resultset id required"}, status=400)
+            return Response({"message": "resultset id required"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Making sure a resultset with this id exists
         filter = UrlQueryFilter({"id": pk})
@@ -199,12 +200,12 @@ class ResultSetViewSet(viewsets.ViewSet):
         result_set_list = jm.get_result_set_list(0, 1, full, filter.conditions)
         if not result_set_list:
             return Response({"message": "No resultset with id: {0}".format(pk)},
-                            status=404)
+                            status=status.HTTP_404_NOT_FOUND)
 
         buildernames = request.data.get('buildernames', [])
         if len(buildernames) == 0:
             Response({"message": "The list of buildernames cannot be empty"},
-                     status=400)
+                     status=status.HTTP_400_BAD_REQUEST)
 
         publish_resultset_runnable_job_action.apply_async(
             args=[project, pk, request.user.email, buildernames],

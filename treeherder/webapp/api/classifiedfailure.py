@@ -1,7 +1,8 @@
 from collections import defaultdict
 
 import rest_framework_filters as filters
-from rest_framework import viewsets
+from rest_framework import (status,
+                            viewsets)
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -55,11 +56,11 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
         for item in data:
             classified_failure_id = int(item.get("id"))
             if classified_failure_id is None:
-                return "No id provided", 400
+                return "No id provided", status.HTTP_400_BAD_REQUEST
 
             bug_number = item.get('bug_number')
             if bug_number is None:
-                return "No bug number provided", 400
+                return "No bug number provided", status.HTTP_400_BAD_REQUEST
 
             bug_numbers[classified_failure_id] = int(bug_number)
 
@@ -68,7 +69,8 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
 
         if len(classified_failures) != len(bug_numbers):
             missing = set(bug_numbers.keys()) - set(classified_failures.keys())
-            return "No classified failures with id: {0}".format(", ".join(missing)), 404
+            return ("No classified failures with id: {0}".format(", ".join(missing)),
+                    status.HTTP_404_NOT_FOUND)
 
         merges = {}
         existing = ClassifiedFailure.objects.filter(bug_number__in=bug_numbers.values()).all()
@@ -79,7 +81,8 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
 
         if existing:
             if any(item.id in bug_numbers for item in existing):
-                return "Cannot swap classified failure bug numbers in a single operation", 400
+                return ("Cannot swap classified failure bug numbers in a single operation",
+                        status.HTTP_400_BAD_REQUEST)
 
             classified_failures.update(as_dict(existing, "id"))
 
@@ -110,7 +113,7 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
         if not many:
             rv = rv[0]
 
-        return self.serializer_class(rv, many=many).data, 200
+        return self.serializer_class(rv, many=many).data, status.HTTP_200_OK
 
     def update(self, request, pk=None):
         data = {"id": pk}
@@ -118,15 +121,18 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
             if k not in data:
                 data[k] = v
 
-        return Response(*self._update([data], many=False))
+        body, status = self._update([data], many=False)
+        return Response(body, status=status)
 
     def update_many(self, request):
         body, status = self._update(request.data, many=True)
 
-        if status == 404:
-            status = 400
+        if status == status.HTTP_404_NOT_FOUND:
+            # 404 doesn't make sense for updating many since the path is always
+            # valid, so if we get an invalid id instead return 400
+            status = status.HTTP_400_BAD_REQUEST
 
-        return Response(body, status)
+        return Response(body, status=status)
 
     @detail_route(methods=['get'])
     def matches(self, request, pk=None):

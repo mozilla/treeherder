@@ -1,4 +1,5 @@
-from rest_framework import viewsets
+from rest_framework import (status,
+                            viewsets)
 from rest_framework.response import Response
 
 from treeherder.model.derived import ArtifactsModel
@@ -25,7 +26,8 @@ class ArtifactViewSet(viewsets.ViewSet):
             if objs:
                 return Response(objs[0])
             else:
-                return Response("job_artifact {0} not found".format(pk), 404)
+                return Response("job_artifact {0} not found".format(pk),
+                                status=status.HTTP_404_NOT_FOUND)
 
     def list(self, request, project):
         """

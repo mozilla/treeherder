@@ -1,4 +1,5 @@
-from rest_framework import viewsets
+from rest_framework import (status,
+                            viewsets)
 from rest_framework.exceptions import ParseError
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -22,7 +23,7 @@ class NoteViewSet(viewsets.ViewSet):
         if obj:
             return Response(obj[0])
         else:
-            return Response("No note with id: {0}".format(pk), 404)
+            return Response("No note with id: {0}".format(pk), status=status.HTTP_404_NOT_FOUND)
 
     @with_jobs
     def list(self, request, project, jm):
@@ -70,4 +71,4 @@ class NoteViewSet(viewsets.ViewSet):
             jm.delete_job_note(pk, objs[0]['job_id'])
             return Response({"message": "Note deleted"})
         else:
-            return Response("No note with id: {0}".format(pk), 404)
+            return Response("No note with id: {0}".format(pk), status=status.HTTP_404_NOT_FOUND)

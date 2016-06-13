@@ -7,6 +7,7 @@ from django.conf import settings
 from rest_framework import (exceptions,
                             filters,
                             pagination,
+                            status,
                             viewsets)
 from rest_framework.response import Response
 
@@ -256,7 +257,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
         data = request.data
         if 'summary_id' not in data or 'signature_id' not in data:
             return Response({"message": "Summary and signature ids necessary "
-                             "to create alert"}, status=400)
+                             "to create alert"}, status=status.HTTP_400_BAD_REQUEST)
 
         summary = PerformanceAlertSummary.objects.get(
             id=data['summary_id'])
@@ -280,7 +281,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
                 '-push_timestamp').values_list('value', flat=True)[:new_range]
         if not prev_data or not new_data:
             return Response({"message": "Insufficient data to create an "
-                             "alert"}, status=400)
+                             "alert"}, status=status.HTTP_400_BAD_REQUEST)
 
         prev_value = sum(prev_data)/len(prev_data)
         new_value = sum(new_data)/len(new_data)
