@@ -114,7 +114,7 @@ class Command(BaseCommand):
         for project in projects:
             try:
                 repository = Repository.objects.get(name=project)
-            except:
+            except Repository.DoesNotExist:
                 continue
             signatures = PerformanceSignature.objects.filter(
                     repository=repository

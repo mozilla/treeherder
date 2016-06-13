@@ -34,7 +34,7 @@ class Command(BaseCommand):
             print(project)
             try:
                 repository = Repository.objects.get(name=project)
-            except:
+            except Repository.DoesNotExist:
                 continue
             signatures = PerformanceSignature.objects.filter(
                 repository=repository)

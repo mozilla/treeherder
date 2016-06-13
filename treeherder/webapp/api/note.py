@@ -36,7 +36,7 @@ class NoteViewSet(viewsets.ViewSet):
             raise ParseError(detail="The job_id parameter is mandatory for this endpoint")
         try:
             job_id = int(job_id)
-        except:
+        except ValueError:
             raise ParseError(detail="The job_id parameter must be an integer")
 
         job_note_list = jm.get_job_note_list(job_id=job_id)
