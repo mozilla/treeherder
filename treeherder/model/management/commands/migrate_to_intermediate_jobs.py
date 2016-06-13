@@ -34,7 +34,7 @@ class Command(BaseCommand):
             print project
             try:
                 repository = Repository.objects.get(name=project)
-            except:
+            except Repository.DoesNotExist:
                 continue
             with JobsModel(project) as jm:
                 offset = 0
