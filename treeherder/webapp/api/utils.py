@@ -83,10 +83,10 @@ class UrlQueryFilter(object):
             value = self.get(key)
             self.delete(key)
             return value
-        except KeyError as e:
+        except KeyError:
             if default is not None:
                 return default
-            raise e
+            raise
 
 
 def with_jobs(model_func):
