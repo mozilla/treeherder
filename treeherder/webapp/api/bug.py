@@ -3,6 +3,7 @@ from time import time
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
+from rest_framework.status import HTTP_404_NOT_FOUND
 
 from treeherder.model.derived.jobs import JobDataIntegrityError
 from treeherder.webapp.api.utils import (UrlQueryFilter,
@@ -25,10 +26,7 @@ class BugJobMapViewSet(viewsets.ViewSet):
                                   int(time()), request.user.email)
         except JobDataIntegrityError as e:
             if e.message[0] == 1062 or "Duplicate" in e.message[1]:
-                return Response(
-                    {"message": "Bug job map skipped: {0}".format(e.message)},
-                    200
-                )
+                return Response({"message": "Bug job map skipped: {0}".format(e.message)})
             else:
                 raise e
 
@@ -61,7 +59,7 @@ class BugJobMapViewSet(viewsets.ViewSet):
         if obj:
             return Response(obj[0])
         else:
-            return Response("Object not found", 404)
+            return Response("Object not found", status=HTTP_404_NOT_FOUND)
 
     @with_jobs
     def list(self, request, project, jm):

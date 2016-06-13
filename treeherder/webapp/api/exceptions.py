@@ -1,6 +1,7 @@
 import logging
 
 from rest_framework import exceptions
+from rest_framework.status import HTTP_404_NOT_FOUND
 from rest_framework.views import exception_handler as drf_exc_handler
 
 from treeherder.model.derived import (DatasetNotFoundError,
@@ -10,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class ResourceNotFoundException(exceptions.APIException):
-    status_code = 404
+    status_code = HTTP_404_NOT_FOUND
     default_detail = "Resource not found"
 
 

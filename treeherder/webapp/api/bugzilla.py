@@ -1,10 +1,10 @@
 import requests
 from django.conf import settings
-from rest_framework import (status,
-                            viewsets)
+from rest_framework import viewsets
 from rest_framework.decorators import list_route
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from treeherder.etl.common import make_request
 
@@ -19,7 +19,7 @@ class BugzillaViewSet(viewsets.ViewSet):
         """
 
         if settings.BZ_API_KEY is None:
-            return Response({"failure": "Bugzilla API key not defined. This shouldn't happen."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"failure": "Bugzilla API key not defined. This shouldn't happen."}, status=HTTP_400_BAD_REQUEST)
         else:
             params = request.data
             url = settings.BZ_API_URL + "/rest/bug"
@@ -45,6 +45,6 @@ class BugzillaViewSet(viewsets.ViewSet):
                     rsperror = response.json()['message']
                 except (ValueError, KeyError):
                     rsperror = response
-                return Response({"failure": rsperror}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"failure": rsperror}, status=HTTP_400_BAD_REQUEST)
 
             return Response({"success": response.json()["id"]})
