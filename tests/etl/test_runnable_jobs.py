@@ -1,7 +1,11 @@
 from treeherder.etl.allthethings import RunnableJobsProcess
 from treeherder.etl.buildbot import get_symbols_and_platforms
-from treeherder.model.models import (RunnableJob, BuildPlatform,
-                                     MachinePlatform, JobType, Repository)
+from treeherder.model.models import (BuildPlatform,
+                                     JobType,
+                                     MachinePlatform,
+                                     Repository,
+                                     RunnableJob)
+
 
 def test_prune_old_runnable_job(jm, eleven_jobs_stored):
 
@@ -25,5 +29,3 @@ def test_prune_old_runnable_job(jm, eleven_jobs_stored):
     assert len(rj) == 1
 
     assert rj[0].ref_data_name == buildername
-
-

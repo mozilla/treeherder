@@ -1,7 +1,7 @@
 import collections
+import datetime
 import logging
 from hashlib import sha1
-import datetime
 
 from django.conf import settings
 
