@@ -10,7 +10,7 @@ from treeherder.model.models import (BuildPlatform,
 def test_prune_old_runnable_job(jm, eleven_jobs_stored):
 
     """
-
+    Test that a defunct buildername will be pruned
     """
     etl_process = RunnableJobsProcess()
 
