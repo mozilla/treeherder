@@ -6,8 +6,7 @@ from django.conf import settings
 from django.core.management import call_command
 
 from treeherder.autoclassify.tasks import autoclassify
-from treeherder.log_parser.utils import (extract_text_log_artifacts,
-                                         post_log_artifacts)
+from treeherder.log_parser.utils import post_log_artifacts
 from treeherder.model.models import JobLog
 from treeherder.workers.taskset import (create_taskset,
                                         taskset)
@@ -106,8 +105,7 @@ def parse_log(project, job_guid, job_log, _priority):
     post_log_artifacts(project,
                        job_guid,
                        job_log.url,
-                       parse_log,
-                       extract_text_log_artifacts)
+                       parse_log)
 
 
 @task(name='store-failure-lines', max_retries=10)

@@ -38,8 +38,7 @@ def extract_text_log_artifacts(project, log_url, job_guid):
 def post_log_artifacts(project,
                        job_guid,
                        job_log_url,
-                       retry_task,
-                       extract_artifacts_cb):
+                       retry_task):
     """Post a list of artifacts to a job."""
     def _retry(e):
         # Initially retry after 1 minute, then for each subsequent retry
@@ -63,7 +62,7 @@ def post_log_artifacts(project,
     )
 
     try:
-        artifact_list = extract_artifacts_cb(project, job_log_url, job_guid)
+        artifact_list = extract_text_log_artifacts(project, job_log_url, job_guid)
     except Exception as e:
         job_log.update_status(JobLog.FAILED)
 
