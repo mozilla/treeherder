@@ -51,14 +51,6 @@ def post_log_artifacts(project,
     log_description = "%s %s (%s)" % (project, job_guid, log_url)
     logger.debug("Downloading/parsing log for %s", log_description)
 
-    credentials = Credentials.objects.get(client_id=settings.ETL_CLIENT_ID)
-    client = TreeherderClient(
-        protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
-        host=settings.TREEHERDER_REQUEST_HOST,
-        client_id=credentials.client_id,
-        secret=str(credentials.secret),
-    )
-
     try:
         artifact_list = extract_text_log_artifacts(project, log_url, job_guid)
     except Exception as e:
@@ -90,6 +82,14 @@ def post_log_artifacts(project,
     for artifact in artifact_list:
         ta = tac.get_artifact(artifact)
         tac.add(ta)
+
+    credentials = Credentials.objects.get(client_id=settings.ETL_CLIENT_ID)
+    client = TreeherderClient(
+        protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
+        host=settings.TREEHERDER_REQUEST_HOST,
+        client_id=credentials.client_id,
+        secret=str(credentials.secret),
+    )
 
     try:
         client.post_collection(project, tac)
