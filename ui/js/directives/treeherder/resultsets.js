@@ -15,11 +15,10 @@ treeherder.directive('thResultCounts', [
             link: function(scope, element, attrs) {
                 var setTotalCount = function() {
                     if (scope.resultset.job_counts) {
-
                         scope.inProgress = scope.resultset.job_counts.pending +
                             scope.resultset.job_counts.running;
                         var total = scope.resultset.job_counts.completed + scope.inProgress;
-                        scope.percentComplete = ((scope.resultset.job_counts.completed / total) * 100).toFixed(0);
+                        scope.percentComplete = total > 0 ? ((scope.resultset.job_counts.completed / total) * 100).toFixed(0) : undefined;
                         scope.resultset.job_counts.percentComplete = scope.percentComplete;
                     }
                 };
