@@ -104,7 +104,7 @@ def parse_log(project, job_guid, job_log, _priority):
     """
     post_log_artifacts(project,
                        job_guid,
-                       job_log.url,
+                       job_log,
                        parse_log)
 
 

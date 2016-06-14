@@ -37,7 +37,7 @@ def extract_text_log_artifacts(project, log_url, job_guid):
 
 def post_log_artifacts(project,
                        job_guid,
-                       job_log_url,
+                       job_log,
                        retry_task):
     """Post a list of artifacts to a job."""
     def _retry(e):
@@ -47,11 +47,9 @@ def post_log_artifacts(project,
         # .retry() raises a RetryTaskError exception,
         # so nothing after this function will be executed
 
-    log_description = "%s %s (%s)" % (project, job_guid, job_log_url)
+    log_url = job_log.url
+    log_description = "%s %s (%s)" % (project, job_guid, log_url)
     logger.debug("Downloading/parsing log for %s", log_description)
-
-    job_log = JobLog.objects.get(job__guid=job_guid,
-                                 url=job_log_url)
 
     credentials = Credentials.objects.get(client_id=settings.ETL_CLIENT_ID)
     client = TreeherderClient(
@@ -62,7 +60,7 @@ def post_log_artifacts(project,
     )
 
     try:
-        artifact_list = extract_text_log_artifacts(project, job_log_url, job_guid)
+        artifact_list = extract_text_log_artifacts(project, log_url, job_guid)
     except Exception as e:
         job_log.update_status(JobLog.FAILED)
 
