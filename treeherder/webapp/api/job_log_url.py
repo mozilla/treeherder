@@ -18,7 +18,7 @@ class JobLogUrlViewSet(viewsets.ReadOnlyModelViewSet):
             'id': log.id,
             'name': log.name,
             'url': log.url,
-            'parse_status': log.STATUSES[log.status][1]
+            'parse_status': log.get_status_display(),
         }
 
     def retrieve(self, request, project, pk=None):
