@@ -1,5 +1,6 @@
 import django_filters
-from rest_framework import (filters,
+from rest_framework import (status,
+                            filters,
                             pagination,
                             viewsets)
 from rest_framework.decorators import (detail_route,
@@ -88,10 +89,15 @@ class JobsViewSet(viewsets.ViewSet):
         - count (10)
         - return_type (dict)
         """
+        MAX_JOBS_COUNT = 2000
         filter = UrlQueryFilter(request.query_params)
 
         offset = int(filter.pop("offset", 0))
-        count = min(int(filter.pop("count", 10)), 2000)
+        count = int(filter.pop("count", 10))
+
+        if count > MAX_JOBS_COUNT:
+            return Response({"error": "Specified count exceeds API MAX_JOBS_COUNT value: " + str(MAX_JOBS_COUNT)}, status=status.HTTP_400_BAD_REQUEST)
+
         return_type = filter.pop("return_type", "dict").lower()
         exclusion_profile = filter.pop("exclusion_profile", "default")
         visibility = filter.pop("visibility", "included")
