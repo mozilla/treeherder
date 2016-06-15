@@ -30,6 +30,17 @@ properties:
     description: True indicates this job has been retried.
     type: "boolean"
 
+  buildSystem:
+    description: |
+      The name of the build system that initiated this content.  Some examples
+      are "buildbot" and "taskcluster".  But this could be any name.  This
+      value will be used in the routing key for retriggering jobs in the
+      publish-job-action task.
+    type: "string"
+    pattern: "^[\\w-]+$"
+    minLength: 1
+    maxLength: 25
+
   origin:
     oneOf:
       - type: "object"
@@ -396,6 +407,7 @@ additionalProperties: false
 required:
   - taskId
   - origin
+  - buildSystem
   - display
   - state
   - jobKind
