@@ -407,7 +407,6 @@ additionalProperties: false
 required:
   - taskId
   - origin
-  - buildSystem
   - display
   - state
   - jobKind

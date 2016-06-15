@@ -82,7 +82,7 @@ class JobLoader:
                 "result": self._get_result(pulse_job),
                 "reason": pulse_job.get("reason", "unknown"),
                 "who": pulse_job.get("owner", "unknown"),
-                "build_system_type": pulse_job["buildSystem"],
+                "build_system_type": pulse_job.get("buildSystem", "buildbot"),
                 "tier": pulse_job.get("tier", 1),
                 "machine": self._get_machine(pulse_job),
                 "option_collection": self._get_option_collection(pulse_job),
