@@ -141,7 +141,7 @@
             {{::exclusion.name}}
           </button>
         </td>
-        <td>{{::exclusion.description}}</td>
+        <td ng-bind-html="exclusion.description|linkifyBugs"></td>
         <td><th-truncated-list numvisible="2" elements="exclusion.info.repos" /></td>
         <td><th-truncated-list numvisible="2" elements="exclusion.info.platforms" /></td>
         <td><th-truncated-list numvisible="2" elements="exclusion.info.option_collections" /></td>
