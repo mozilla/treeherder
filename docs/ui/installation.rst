@@ -15,6 +15,7 @@ Running the web-server
 ----------------------
 
 * Install `Node.js`_ if not present.
+* `npm install` to install all dependencies.
 * Open a shell, cd into the root of the repository you just cloned and type:
 
   .. code-block:: bash
