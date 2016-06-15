@@ -33,6 +33,51 @@ treeherder.filter('stripHtml', function() {
     };
 });
 
+treeherder.filter('linkifyURLs', function() {
+    return function(input) {
+        var str = input || '';
+        var urlpattern = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
+        str = str.replace(urlpattern, '<a href="$1" target="_blank">$1</a>');
+        return str;
+    };
+});
+
+treeherder.filter('linkifyClassifications', ['ThRepositoryModel', function(ThRepositoryModel) {
+    return function(input, projectName) {
+        var str = input || '';
+        str = str.trim();
+
+        var repo = ThRepositoryModel.getRepo(projectName);
+
+        if(repo.dvcs_type === "hg" && isSHA(str)) {
+            var hg_url = '<a href="' + repo.url + '/rev/' + str + '">' + str + '</a>';
+            str = hg_url;
+        }
+
+        return str;
+    };
+}]);
+
+function isSHA(str) {
+    var code, i, len;
+
+    // SHAs come in 12 and 40 character varieties
+    if(str.length !== 12 && str.length !== 40) {
+        return false;
+    }
+
+    // SHAs are a-f,0-9
+    for (i = 0, len = str.length; i < len; i++) {
+        code = str.charCodeAt(i);
+        if (!(code > 47 && code < 58) && // numeric (0-9)
+            !(code > 64 && code < 71) && // upper alpha (A-F)
+            !(code > 96 && code < 103)) { // lower alpha (a-f)
+            return false;
+        }
+    }
+    return true;
+}
+
 treeherder.filter('linkifyBugs', function() {
     return function(input) {
         var str = input || '';
