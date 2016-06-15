@@ -7,7 +7,7 @@ treeherder.controller('PluginCtrl', [
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors',
     'thTabs', '$timeout', 'thReftestStatus', 'ThResultSetStore',
-    'PhSeries', 'thServiceDomain', 'ThFailureLinesModel',
+    'PhSeries', 'thServiceDomain', 'ThFailureLinesModel', 'linkifyClassificationsFilter',
     function PluginCtrl(
         $scope, $rootScope, $location, $http, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
@@ -15,7 +15,7 @@ treeherder.controller('PluginCtrl', [
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
         ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs,
         $timeout, thReftestStatus, ThResultSetStore, PhSeries,
-        thServiceDomain, ThFailureLinesModel) {
+        thServiceDomain, ThFailureLinesModel, linkifyClassificationsFilter) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -449,6 +449,7 @@ treeherder.controller('PluginCtrl', [
             ThJobClassificationModel.get_list({job_id: $scope.job.id}).then(function(response) {
                 $scope.classifications = response;
                 $scope.job.note = $scope.classifications[0];
+                $scope.classifications[0].note_linkified = linkifyClassificationsFilter(_.escape($scope.classifications[0].note), $scope.repoName);
             });
         };
 

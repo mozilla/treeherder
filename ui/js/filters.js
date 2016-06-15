@@ -33,6 +33,20 @@ treeherder.filter('stripHtml', function() {
     };
 });
 
+treeherder.filter('linkifyClassifications', ['ThRepositoryModel', function(ThRepositoryModel) {
+    return function(input, projectName) {
+        var str = input || '';
+        str = str.trim();
+
+        if(str.length === 12) {
+            var hg_url = '<a href="' + ThRepositoryModel.getRepo(projectName).url + '/rev/' + str + '">' + str + '</a>';
+            str = hg_url;
+        }
+
+        return str;
+    };
+}]);
+
 treeherder.filter('linkifyBugs', function() {
     return function(input) {
         var str = input || '';
