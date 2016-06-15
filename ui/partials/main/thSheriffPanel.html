@@ -1,4 +1,16 @@
 <div class="th-top-nav-options-panel" id="sheriff_panel" ng-controller="SheriffCtrl">
+  <ul class="nav nav-tabs action-buttons">
+    <button ng-click="init_profile_add()" type="button"
+            ng-disabled="!user.is_staff"
+            ng-show="view == 'exclusion_profile_list'"
+            ng-attr-title="{{!user.is_staff ? 'Sheriff permissions required' : ''}}"
+            class="btn btn-sm btn-primary">Add profile</button>
+    <button ng-click="init_exclusion_add()" type="button"
+            ng-disabled="!user.is_staff"
+            ng-show="view == 'job_exclusion_list'"
+            ng-attr-title="{{!user.is_staff ? 'Sheriff permissions required' : ''}}"
+            class="btn btn-sm btn-primary">Add exclusion</button>
+  </ul>
   <ul class="nav nav-tabs exclusion-tabs">
     <li ng-class="{'active': view == 'exclusion_profile_list'}">
       <a href="" ng-click="switchView('exclusion_profile_list')">Exclusion profiles</a>
@@ -72,10 +84,6 @@
         </td>
       </tr>
     </table>
-    <button ng-click="init_profile_add()" type="button"
-            ng-disabled="!user.is_staff"
-            ng-attr-title="{{!user.is_staff ? 'Sheriff permissions required' : ''}}"
-            class="btn btn-sm btn-primary">Add profile</button>
   </div>
 
   <!-- Add/Update exclusion profile -->
@@ -156,10 +164,6 @@
         </td>
       </tr>
     </table>
-    <button ng-click="init_exclusion_add()" type="button"
-            ng-disabled="!user.is_staff"
-            ng-attr-title="{{!user.is_staff ? 'Sheriff permissions required' : ''}}"
-            class="btn btn-sm btn-primary">Add exclusion</button>
   </div>
 
 

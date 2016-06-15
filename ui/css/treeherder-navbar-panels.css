@@ -82,6 +82,9 @@
 /*
  * Sheriff panel
  */
+.action-buttons {
+    float: right;
+}
 
 .add-new-exclusion input.ng-invalid.ng-dirty {
     border-color: #B94A48;
