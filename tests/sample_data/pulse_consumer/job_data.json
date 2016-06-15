@@ -7,6 +7,8 @@
       "revision": "1234567890123456789012345678901234567890"
     },
 
+    "buildSystem": "taskcluster",
+
     "display": {
       "jobSymbol": "P",
       "jobName": "Pulse Ingestion Test",
@@ -72,6 +74,7 @@
       "project": "set by test",
       "revision": "1234567890123456789012345678901234567890"
     },
+    "buildSystem": "taskcluster",
     "display": {
       "jobSymbol": "P",
       "chunkId": 2,
@@ -115,6 +118,8 @@
       "project": "set by test",
       "revision": "1234567890123456789012345678901234567890"
     },
+
+    "buildSystem": "taskcluster",
 
     "display": {
       "jobSymbol": "",
@@ -208,6 +213,8 @@
       "project": "set by test",
       "revision": "1234567890123456789012345678901234567890"
     },
+
+    "buildSystem": "taskcluster",
 
     "display": {
       "jobSymbol": "",
