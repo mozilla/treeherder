@@ -46,9 +46,7 @@ def generate_new_alerts_in_series(signature):
         series = series.filter(
             result_set_id__gt=existing_alerts[0].summary.result_set_id)
 
-    data = []
     data = [Datum(int(time.mktime(d.push_timestamp.timetuple())), d.value, testrun_id=d.result_set_id) for d in series]
-    data = sorted(data)
     prev = None
 
     min_back_window = signature.min_back_window
@@ -104,7 +102,7 @@ def generate_new_alerts_in_series(signature):
                 if t_value == float('inf'):
                     t_value = 1000
 
-                data = PerformanceAlert.objects.create(
+                a = PerformanceAlert.objects.create(
                     summary=summary,
                     series_signature=signature,
                     is_regression=alert_properties.is_regression,
@@ -113,4 +111,4 @@ def generate_new_alerts_in_series(signature):
                     prev_value=prev_value,
                     new_value=new_value,
                     t_value=t_value)
-                data.save()
+                a.save()
