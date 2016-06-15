@@ -40,6 +40,7 @@
         "os_name": "linux",
         "architecture": "x86_64"
       },
+      "build_system_type": "taskcluster",
       "who": "thedude@lebowski.com",
       "group_symbol": "PI",
       "reason": "scheduler",
@@ -83,6 +84,7 @@
         "os_name": "linux",
         "architecture": "x86_64"
       },
+      "build_system_type": "taskcluster",
       "who": "thedude@lebowski.com",
       "group_symbol": "?",
       "reason": "scheduler",
@@ -190,6 +192,7 @@
         "os_name": "linux",
         "architecture": "x86_64"
       },
+      "build_system_type": "taskcluster",
       "who": "thedude@lebowski.com",
       "group_symbol": "PI",
       "reason": "scheduler",
@@ -239,6 +242,7 @@
         "os_name": "linux",
         "architecture": "x86_64"
       },
+      "build_system_type": "taskcluster",
       "who": "thedude@lebowski.com",
       "group_symbol": "PI",
       "reason": "scheduler",
