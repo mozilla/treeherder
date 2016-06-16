@@ -2,10 +2,11 @@ import os
 import unittest
 
 from tests.sampledata import SampleData
-from treeherder.perfalert import (Analyzer,
+from treeherder.perfalert import (Datum,
                                   analyze,
                                   calc_t,
                                   default_weights,
+                                  detect_changes,
                                   linear_weights)
 
 
@@ -35,17 +36,17 @@ class TestAnalyze(unittest.TestCase):
 
 class TestAnalyzer(unittest.TestCase):
 
-    def test_analyze_t(self):
-        a = Analyzer()
+    def test_detect_changes(self):
+        data = []
 
         times = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
         values = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1,  1,  1,  1,  1,  1,  1]
         for (t, v) in zip(times, values):
-            a.add_data(t, float(v))
+            data.append(Datum(t, float(v)))
 
         result = [(d.push_timestamp, d.state) for d in
-                  a.analyze_t(min_back_window=5, max_back_window=5,
-                              fore_window=5, t_threshold=2)]
+                  detect_changes(data, min_back_window=5, max_back_window=5,
+                                 fore_window=5, t_threshold=2)]
         self.assertEqual(result, [
             (1, 'good'),
             (2, 'good'),
@@ -77,15 +78,15 @@ class TestAnalyzer(unittest.TestCase):
 
         payload = SampleData.get_perf_data(os.path.join('graphs', filename))
         runs = payload['test_runs']
-        a = Analyzer()
+        data = []
         for r in runs:
-            a.add_data(r[2], r[3], testrun_id=r[0],
-                       revision_id=r[1][2])
+            data.append(Datum(r[2], r[3], testrun_id=r[0],
+                              revision_id=r[1][2]))
 
-        results = a.analyze_t(min_back_window=MIN_BACK_WINDOW,
-                              max_back_window=MAX_BACK_WINDOW,
-                              fore_window=FORE_WINDOW,
-                              t_threshold=THRESHOLD)
+        results = detect_changes(data, min_back_window=MIN_BACK_WINDOW,
+                                 max_back_window=MAX_BACK_WINDOW,
+                                 fore_window=FORE_WINDOW,
+                                 t_threshold=THRESHOLD)
         regression_timestamps = [d.push_timestamp for d in results if
                                  d.state == 'regression']
         self.assertEqual(regression_timestamps, expected_timestamps)

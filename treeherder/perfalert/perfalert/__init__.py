@@ -89,77 +89,70 @@ class Datum(object):
                                                  self.t, self.state)
 
 
-class Analyzer:
-    def __init__(self):
-        self.data = []  # List of PerfDatum instances
+def detect_changes(data, min_back_window=12, max_back_window=24,
+                   fore_window=12, t_threshold=7):
+    # Use T-Tests
+    # Analyze test data using T-Tests, comparing data[i-j:i] to data[i:i+k]
+    data = sorted(data)
+    (j, k) = (min_back_window, fore_window)
+    good_data = []
 
-    def add_data(self, push_timestamp, value, **kwargs):
-        self.data.append(Datum(push_timestamp, value, **kwargs))
-        self.data.sort()
+    num_points = len(data) - k + 1
+    last_seen_regression = 0
+    for i in range(num_points):
+        di = data[i]
+        # if we haven't seen something that looks like a change in a
+        # while, incorporate some extra historical data into our t-test
+        # calculation
+        if last_seen_regression > min_back_window:
+            additional_back_window = min(last_seen_regression,
+                                         max_back_window - min_back_window)
+        else:
+            additional_back_window = 0
+        jw = [d.value for d in good_data[-1 * (j + additional_back_window):]]
+        kw = [d.value for d in data[i:i+k]]
 
-    def analyze_t(self, min_back_window=12, max_back_window=24,
-                  fore_window=12, t_threshold=7):
-        # Use T-Tests
-        # Analyze test data using T-Tests, comparing data[i-j:i] to data[i:i+k]
-        (j, k) = (min_back_window, fore_window)
-        good_data = []
+        # Reverse the backward data so that the current point is at the
+        # start of the window.
+        jw.reverse()
 
-        num_points = len(self.data) - k + 1
-        last_seen_regression = 0
-        for i in range(num_points):
-            di = self.data[i]
-            # if we haven't seen something that looks like a change in a
-            # while, incorporate some extra historical data into our t-test
-            # calculation
-            if last_seen_regression > min_back_window:
-                additional_back_window = min(last_seen_regression,
-                                             max_back_window - min_back_window)
+        di.historical_stats = analyze(jw)
+        di.forward_stats = analyze(kw)
+
+        if len(jw) >= min_back_window:
+            di.t = abs(calc_t(jw, kw, linear_weights))
+            # add additional historical data points next time if we
+            # haven't detected a likely regression
+            if di.t > t_threshold:
+                last_seen_regression = 0
             else:
-                additional_back_window = 0
-            jw = [d.value for d in good_data[-1 * (j + additional_back_window):]]
-            kw = [d.value for d in self.data[i:i+k]]
+                last_seen_regression += 1
+        else:
+            # Assume it's ok, we don't have enough data
+            di.t = 0
 
-            # Reverse the backward data so that the current point is at the
-            # start of the window.
-            jw.reverse()
+        good_data.append(di)
 
-            di.historical_stats = analyze(jw)
-            di.forward_stats = analyze(kw)
+    # Now that the t-test scores are calculated, go back through the data to
+    # find where changes most likely happened.
+    for i in range(1, len(good_data) - 1):
+        di = good_data[i]
+        if di.t <= t_threshold:
+            continue
 
-            if len(jw) >= min_back_window:
-                di.t = abs(calc_t(jw, kw, linear_weights))
-                # add additional historical data points next time if we
-                # haven't detected a likely regression
-                if di.t > t_threshold:
-                    last_seen_regression = 0
-                else:
-                    last_seen_regression += 1
-            else:
-                # Assume it's ok, we don't have enough data
-                di.t = 0
+        # Check the adjacent points
+        prev = good_data[i-1]
+        if prev.t > di.t:
+            continue
+        next = good_data[i+1]
+        if next.t > di.t:
+            continue
 
-            good_data.append(di)
+        # This datapoint has a t value higher than the threshold and higher
+        # than either neighbor.  Mark it as the cause of a regression.
+        di.state = 'regression'
 
-        # Now that the t-test scores are calculated, go back through the data to
-        # find where changes most likely happened.
-        for i in range(1, len(good_data) - 1):
-            di = good_data[i]
-            if di.t <= t_threshold:
-                continue
-
-            # Check the adjacent points
-            prev = good_data[i-1]
-            if prev.t > di.t:
-                continue
-            next = good_data[i+1]
-            if next.t > di.t:
-                continue
-
-            # This datapoint has a t value higher than the threshold and higher
-            # than either neighbor.  Mark it as the cause of a regression.
-            di.state = 'regression'
-
-        # Return all but the first and last points whose scores we calculated,
-        # since we can only produce a final decision for a point whose scores
-        # were compared to both of its neighbors.
-        return self.data[1:num_points-1]
+    # Return all but the first and last points whose scores we calculated,
+    # since we can only produce a final decision for a point whose scores
+    # were compared to both of its neighbors.
+    return data[1:num_points-1]
