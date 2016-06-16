@@ -1,7 +1,11 @@
 import json
 
+import pytest
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
+
+from treeherder.model.models import (Job,
+                                     JobNote)
 
 
 def test_note_list(webapp, sample_notes, jm, test_user):
@@ -16,73 +20,45 @@ def test_note_list(webapp, sample_notes, jm, test_user):
 
     assert resp.status_int == 200
     assert isinstance(resp.json, list)
-    note_list = resp.json
-
-    assert set(note_list[0].keys()) == {
-        'note_timestamp',
-        'job_id',
-        'who',
-        'failure_classification_id',
-        'note',
-        'active_status',
-        'id'
-    }
-
-    # remove fields we don't want to compare
-    for note in note_list:
-        del(note["note_timestamp"])
-        del(note["id"])
-
-    assert len(note_list) == 2
-    exp_notes = [
+    assert resp.json == [
         {
+            "id": 1,
             "job_id": job_id,
             "failure_classification_id": 1,
             "who": test_user.email,
-            "note": "you look like a man-o-lantern",
-            "active_status": "active",
+            "note": "you look like a man-o-lantern"
         },
         {
+            "id": 2,
             "job_id": job_id,
-            "failure_classification_id": 0,
+            "failure_classification_id": 2,
             "who": test_user.email,
-            "note": "you look like a man-o-lantern",
-            "active_status": "active",
+            "note": "you look like a man-o-lantern"
         }
     ]
 
-    import pprint
-    assert exp_notes == note_list, pprint.pprint({
-        "exp": exp_notes,
-        "act": note_list
-    })
 
-
-def test_note_detail(webapp, sample_notes, jm):
+def test_note_detail(webapp, sample_notes, test_user, jm):
     """
     test retrieving a single note from the notes-detail
     endpoint.
     """
-    job = jm.get_job_list(0, 1)[0]
-    note = jm.get_job_note_list(job_id=job["id"])[0]
+    note = JobNote.objects.get(id=1)
 
     resp = webapp.get(
         reverse("note-detail",
-                kwargs={"project": jm.project, "pk": int(note["id"])})
+                kwargs={"project": jm.project, "pk": 1})
     )
 
     assert resp.status_int == 200
     assert isinstance(resp.json, dict)
-    assert resp.json["id"] == note["id"]
-    assert set(resp.json.keys()) == set([
-        'note_timestamp',
-        'job_id',
-        'who',
-        'failure_classification_id',
-        'note',
-        'active_status',
-        'id'
-    ])
+    assert resp.json == {
+        "id": 1,
+        "job_id": note.job.project_specific_id,
+        "failure_classification_id": 1,
+        "who": test_user.email,
+        "note": "you look like a man-o-lantern"
+    }
 
 
 def test_note_detail_not_found(webapp, jm):
@@ -109,82 +85,70 @@ def test_note_detail_bad_project(webapp, jm):
         expect_errors=True
     )
     assert resp.status_int == 404
-    assert resp.json == {"detail": "No project with name foo"}
 
 
+@pytest.mark.parametrize('test_no_auth', [True, False])
 def test_create_note(webapp, eleven_jobs_stored, mock_message_broker, jm,
-                     test_user):
+                     test_user, test_repository, failure_classifications,
+                     test_no_auth):
     """
     test creating a single note via endpoint when authenticated
     """
     client = APIClient()
-    client.force_authenticate(user=test_user)
+    if not test_no_auth:
+        client.force_authenticate(user=test_user)
 
-    job = jm.get_job_list(0, 1)[0]
+    ds_job = jm.get_job_list(0, 1)[0]
     resp = client.post(
         reverse("note-list", kwargs={"project": jm.project}),
         {
-            "job_id": job["id"],
+            "job_id": ds_job["id"],
             "failure_classification_id": 2,
             "who": test_user.email,
             "note": "you look like a man-o-lantern"
-        }
-    )
+        },
+        expect_errors=test_no_auth)
 
-    assert resp.status_code == 200
+    if test_no_auth:
+        assert resp.status_code == 403
+        assert JobNote.objects.count() == 0
+    else:
+        assert resp.status_code == 200
 
-    content = json.loads(resp.content)
-    assert content['message'] == 'note stored for job %s' % job["id"]
+        content = json.loads(resp.content)
+        assert content['message'] == 'note stored for job %s' % ds_job["id"]
 
-    note_list = jm.get_job_note_list(job_id=job["id"])
-    del(note_list[0]["note_timestamp"])
+        job = Job.objects.get(repository=test_repository,
+                              project_specific_id=ds_job["id"])
+        note_list = JobNote.objects.filter(job=job)
 
-    assert note_list[0] == {
-        u'job_id': job["id"],
-        u'who': test_user.email,
-        u'failure_classification_id': 2L,
-        u'note': u'you look like a man-o-lantern',
-        u'active_status': u'active',
-        u'id': 1L
-    }
-
-
-def test_create_note_no_auth(eleven_jobs_stored, jm):
-    """
-    test creating a single note via endpoint when not authenticated
-    gets a 403 Forbidden
-    """
-    client = APIClient()
-
-    job = jm.get_job_list(0, 1)[0]
-    resp = client.post(
-        reverse("note-list", kwargs={"project": jm.project}),
-        {
-            "job_id": job["id"],
-            "failure_classification_id": 2,
-            "who": "kelly clarkson",
-            "note": "you look like a man-o-lantern"
-        }
-    )
-
-    assert resp.status_code == 403
+        assert len(note_list) == 1
+        assert note_list[0].user == test_user
+        assert note_list[0].failure_classification.id == 2
+        assert note_list[0].text == 'you look like a man-o-lantern'
 
 
+@pytest.mark.parametrize('test_no_auth', [True, False])
 def test_delete_note(webapp, sample_notes, mock_message_broker, jm,
-                     test_sheriff):
+                     test_sheriff, test_no_auth):
     """
-    test creating a single note via endpoint
+    test deleting a single note via endpoint
     """
     client = APIClient()
-    client.force_authenticate(user=test_sheriff)
+    if not test_no_auth:
+        client.force_authenticate(user=test_sheriff)
 
-    notes = jm.get_job_note_list(job_id=1)
+    notes_count = JobNote.objects.count()
 
     resp = client.delete(
-        reverse("note-detail", kwargs={"project": jm.project, "pk": notes[0]['id']}),
+        reverse("note-detail", kwargs={"project": jm.project, "pk": 1}),
+        expect_errors=test_no_auth
     )
-    new_notes = jm.get_job_note_list(job_id=1)
+    new_notes_count = JobNote.objects.count()
 
-    assert resp.status_code == 200, resp
-
-    assert len(new_notes) == len(notes) - 1
+    if test_no_auth:
+        assert resp.status_code == 403
+        assert new_notes_count == notes_count
+    else:
+        assert resp.status_code == 200, resp
+        assert new_notes_count == notes_count - 1
