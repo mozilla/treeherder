@@ -1,5 +1,8 @@
 'use strict';
 
+var bugsCache = {};
+var hoverTimeout;
+
 /* Filters */
 
 treeherder.filter('showOrHide', function() {
@@ -33,8 +36,9 @@ treeherder.filter('stripHtml', function() {
     };
 });
 
-treeherder.filter('linkifyBugs', function() {
+treeherder.filter('linkifyBugs', ['bugzilla', function(bugzilla) {
     return function(input) {
+
         var str = input || '';
         var clear_attr = 'ignore-job-clear-on-click';
 
@@ -42,9 +46,9 @@ treeherder.filter('linkifyBugs', function() {
         var pr_matches = str.match(/PR#([0-9]+)/ig);
 
         // Settings
-        var bug_title = 'bugzilla.mozilla.org';
+        var bug_title = "Fetching bug details... Move cursor away and back again to show information.";
         var bug_url = '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=$1" ' +
-            'data-bugid=$1 ' + 'title=' + bug_title + '>$1</a>';
+            'data-bugid=$1 title="' + bug_title + '" onmouseover="initMouseOver(this)" onmouseout="cancelMouseOver()">$1</a>';
         var pr_title = 'github.com';
         var pr_url = '<a href="https://github.com/mozilla-b2g/gaia/pull/$1" ' +
             'data-prid=$1 ' + 'title=' + pr_title + '>$1</a>';
@@ -64,7 +68,7 @@ treeherder.filter('linkifyBugs', function() {
 
         return str;
     };
-});
+}]);
 
 treeherder.filter('initials', function() {
     return function(input) {
@@ -144,3 +148,61 @@ treeherder.filter('alertStatus', [
 treeherder.filter('encodeURIComponent', function() {
     return window.encodeURIComponent;
 });
+
+/*
+ * Given a bug id, fetch the status and summary from
+ * bugzilla for use in tooltips on links to that bug.
+ */
+function initMouseOver(bugLink) {
+    var bugsCacheEntry = bugsCache[bugLink.getAttribute("data-bugid")];
+    if(bugsCacheEntry) {
+        setTitleAndClearListeners(bugLink, bugsCacheEntry);
+    } else {
+        hoverTimeout = window.setTimeout(getBugInfo, 1000, bugLink);
+    }
+}
+
+function cancelMouseOver() {
+    window.clearTimeout(hoverTimeout);
+}
+
+function getBugInfo(bugLink) {
+    var bugID = bugLink.getAttribute("data-bugid");
+    var bugURL = 'https://bugzilla.mozilla.org/rest/bug/' + bugID + '?include_fields=status,summary';
+
+    if(bugID) {
+        // Fetch the bug information from bugzilla and store it locally
+        $.getJSON(bugURL)
+            .done(function(json) {
+                var thisBug = json.bugs[0];
+                bugsCache[bugID] = {
+                    'status': thisBug.status,
+                    'summary': thisBug.summary
+                };
+            })
+            .fail(function(err) {
+                if(err.status === 401) {
+                    bugsCache[bugID] = {
+                        'status': 'INACCESSIBLE',
+                        'summary': "This bug failed to load."
+                    };
+                }
+                if(err.status === 404) {
+                    bugsCache[bugID] = {
+                        'status': 'BUG NOT FOUND',
+                        'summary': "This bug does not exist."
+                    };
+                }
+            })
+            .always(function() {
+                setTitleAndClearListeners(bugLink, bugsCache[bugID]);
+            });
+
+    }
+}
+
+function setTitleAndClearListeners(bugLink, bugsCacheEntry) {
+    bugLink.title = bugsCacheEntry.status + " - " + bugsCacheEntry.summary;
+    bugLink.removeAttribute("onmouseover");
+    bugLink.removeAttribute("onmouseout");
+}
