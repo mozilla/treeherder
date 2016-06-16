@@ -17,6 +17,7 @@ from django.db import (connection,
                        models,
                        transaction)
 from django.db.models import Q
+from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
@@ -612,6 +613,55 @@ class JobLog(models.Model):
     def update_status(self, status):
         self.status = status
         self.save(update_fields=['status'])
+
+
+class BugJobMap(models.Model):
+    '''
+    Maps job_ids to related bug_ids
+
+    Mappings can be made manually through a UI or from doing lookups in the
+    BugsCache
+    '''
+    id = BigAutoField(primary_key=True)
+
+    job = FlexibleForeignKey(Job)
+    bug_id = models.PositiveIntegerField(db_index=True)
+    created = models.DateTimeField(default=timezone.now)
+    user = models.ForeignKey(User, null=True)  # null if autoclassified
+
+    class Meta:
+        db_table = "bug_job_map"
+        unique_together = ('job', 'bug_id')
+
+    def __str__(self):
+        return "{0} {1} {2} {3}".format(self.id,
+                                        self.job.guid,
+                                        self.bug_id,
+                                        self.user)
+
+
+class JobNote(models.Model):
+    '''
+    Note associated with a job.
+
+    Generally these are generated manually in the UI.
+    '''
+    id = BigAutoField(primary_key=True)
+
+    job = FlexibleForeignKey(Job)
+    failure_classification = models.ForeignKey(FailureClassification)
+    user = models.ForeignKey(User, null=True)  # null if autoclassified
+    text = models.TextField()
+    created = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = "job_note"
+
+    def __str__(self):
+        return "{0} {1} {2} {3}".format(self.id,
+                                        self.job.guid,
+                                        self.failure_classification,
+                                        self.user)
 
 
 class FailureLineManager(models.Manager):
