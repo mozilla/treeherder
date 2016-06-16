@@ -119,7 +119,8 @@
       <ul ng-if="classifications.length > 0 || bugs.length > 0"
           class="list-unstyled content-spacer">
         <li ng-if="classifications.length > 0">
-          <span th-failure-classification failure-id="classifications[0].failure_classification_id"></span>
+          <span th-failure-classification failure-id="classifications[0].failure_classification_id"
+                job-result="job.result"></span>
           <a target="_blank" ng-repeat="bug in bugs"
              href="{{ getBugUrl(bug.bug_id) }}"
              title="View bug {{bug.bug_id}}"><em> {{bug.bug_id}}</em></a>
