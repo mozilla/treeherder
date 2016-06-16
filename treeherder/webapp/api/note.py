@@ -50,7 +50,7 @@ class NoteViewSet(viewsets.ViewSet):
         jm.insert_job_note(
             int(request.data['job_id']),
             int(request.data['failure_classification_id']),
-            request.user.email,
+            request.user,
             request.data.get('note', '')
         )
 

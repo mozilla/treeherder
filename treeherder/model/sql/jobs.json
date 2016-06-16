@@ -1,9 +1,5 @@
 {
     "deletes":{
-        "delete_bug_job_map":{
-            "sql":"DELETE FROM bug_job_map WHERE job_id = ? and bug_id = ?",
-            "host_type": "master_host"
-        },
         "delete_note":{
             "sql":"DELETE FROM job_note WHERE id = ?",
             "host_type": "master_host"
@@ -16,11 +12,6 @@
         "cycle_job_note":{
 
             "sql":"DELETE FROM job_note WHERE job_id IN (REP0)",
-            "host_type": "master_host"
-        },
-        "cycle_bug_job_map":{
-
-            "sql":"DELETE FROM bug_job_map WHERE job_id IN (REP0)",
             "host_type": "master_host"
         },
         "cycle_job":{
@@ -141,20 +132,7 @@
             VALUES (?,?,?,?,?)",
 
             "host_type":"master_host"
-        },
-        "insert_bug_job_map":{
-            "sql":"INSERT INTO `bug_job_map` (
-                `job_id`,
-                `bug_id`,
-                `type`,
-                `submit_timestamp`,
-                `who`,
-                `active_status`)
-            VALUES (?,?,?,?,?,'active')",
-            "host_type":"master_host"
         }
-
-
     },
 
     "updates": {
@@ -619,13 +597,6 @@
             "sql":"SELECT `name`, `type`, `blob`  FROM `job_artifact`",
 
             "host_type":"read_host"
-        },
-        "get_bug_job_map_list":{
-            "sql":"SELECT `job_id`, `bug_id`, `type`, `submit_timestamp`, `who`
-                   FROM `bug_job_map`
-                   WHERE 1
-                   REP0",
-            "host_type": "read_host"
         },
         "get_resultset_status":{
             "sql":"SELECT

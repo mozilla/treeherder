@@ -1,212 +1,156 @@
 import json
 import random
-from time import time
+import time
 
+import pytest
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
-
-def test_create_bug_job_map_no_auth(eleven_jobs_stored, jm):
-    """
-    test creating a single note via endpoint
-    """
-    client = APIClient()
-
-    job = jm.get_job_list(0, 1)[0]
-
-    bug_job_map_obj = {
-        "job_id": job["id"],
-        "bug_id": 1,
-        "type": "manual"
-    }
-
-    resp = client.post(
-        reverse("bug-job-map-list", kwargs={"project": jm.project}),
-        bug_job_map_obj, expect_errors=True)
-
-    assert resp.status_code == 403
+from treeherder.model.models import (BugJobMap,
+                                     Job)
 
 
+@pytest.mark.parametrize('test_no_auth,test_duplicate_handling', [
+    (True, False),
+    (False, False),
+    (False, True)])
 def test_create_bug_job_map(eleven_jobs_stored, mock_message_broker, jm,
-                            test_user):
+                            test_user, test_no_auth, test_duplicate_handling):
     """
     test creating a single note via endpoint
     """
 
     client = APIClient()
-    client.force_authenticate(user=test_user)
+    if not test_no_auth:
+        client.force_authenticate(user=test_user)
 
     job = jm.get_job_list(0, 1)[0]
 
-    bug_job_map_obj = {
+    submit_obj = {
         u"job_id": job["id"],
         u"bug_id": 1L,
         u"type": u"manual"
     }
 
-    client.post(
-        reverse("bug-job-map-list", kwargs={"project": jm.project}),
-        bug_job_map_obj
-    )
+    # if testing duplicate handling, submit twice
+    if test_duplicate_handling:
+        num_times = 2
+    else:
+        num_times = 1
 
-    bug_job_map_obj["who"] = test_user.email
+    for i in range(num_times):
+        resp = client.post(
+            reverse("bug-job-map-list", kwargs={"project": jm.project}),
+            submit_obj, expect_errors=test_no_auth)
 
-    actual_obj = jm.get_bug_job_map_list(0, 1)[0]
-    del actual_obj["submit_timestamp"]
+    if test_no_auth:
+        assert resp.status_code == 403
+        assert BugJobMap.objects.count() == 0
+    else:
+        assert BugJobMap.objects.count() == 1
+        bug_job_map = BugJobMap.objects.all()[0]
 
-    assert bug_job_map_obj == actual_obj
-
-
-def test_create_bug_job_map_dupe(eleven_jobs_stored, mock_message_broker, jm,
-                                 test_user):
-    """
-    test creating the same bug map skips it
-    """
-
-    client = APIClient()
-    client.force_authenticate(user=test_user)
-
-    job = jm.get_job_list(0, 1)[0]
-
-    bug_job_map_obj = {
-        u"job_id": job["id"],
-        u"bug_id": 1L,
-        u"type": u"manual",
-    }
-
-    client.post(
-        reverse("bug-job-map-list", kwargs={"project": jm.project}),
-        bug_job_map_obj
-    )
-
-    client.post(
-        reverse("bug-job-map-list", kwargs={"project": jm.project}),
-        bug_job_map_obj
-    )
-
-    bug_job_map_obj["who"] = test_user.email
-
-    actual_obj = jm.get_bug_job_map_list(0, 1)[0]
-    del actual_obj["submit_timestamp"]
-
-    assert bug_job_map_obj == actual_obj
+        assert bug_job_map.job.project_specific_id == submit_obj['job_id']
+        assert bug_job_map.bug_id == 1L
+        assert bug_job_map.user == test_user
 
 
-def test_bug_job_map_list(webapp, jm, eleven_jobs_stored):
+def test_bug_job_map_list(webapp, jm, eleven_jobs_stored, test_user):
     """
     test retrieving a list of bug_job_map
     """
-    jobs = jm.get_job_list(0, 10)
+    jobs = Job.objects.all()[:10]
     bugs = [random.randint(0, 100) for i in range(0, len(jobs))]
-    submit_timestamp = int(time())
-    who = "user@mozilla.com"
 
     expected = list()
 
-    for i, v in enumerate(jobs):
-
-        jm.insert_bug_job_map(v["id"], bugs[i],
-                              "manual", submit_timestamp, who)
+    for (i, job) in enumerate(jobs):
+        bjm = BugJobMap.objects.create(job=job, bug_id=bugs[i],
+                                       user=test_user)
         expected.append({
-            "job_id": v["id"],
+            "job_id": job.project_specific_id,
             "bug_id": bugs[i],
             "type": "manual",
-            "submit_timestamp": submit_timestamp,
-            "who": who
+            "submit_timestamp": int(time.mktime(bjm.created.timetuple())),
+            "who": test_user.email
         })
-        submit_timestamp += 1
 
-    resp = webapp.get(
-        reverse("bug-job-map-list", kwargs={"project": jm.project}))
+    # verify that API works with different combinations of job_id= parameters
+    for job_range in [(0, 1), (0, 2), (0, 9)]:
+        param = "?" + "&".join(["job_id={}".format(job.project_specific_id)
+                                for job in jobs[job_range[0]:job_range[1]]])
+        resp = webapp.get(
+            reverse("bug-job-map-list", kwargs={"project": jm.project}) +
+            param)
 
-    # The order of the bug-job-map list is not guaranteed.
-    assert sorted(resp.json) == sorted(expected)
+        # The order of the bug-job-map list is not guaranteed.
+        assert sorted(resp.json) == sorted(expected[job_range[0]:job_range[1]])
 
 
-def test_bug_job_map_detail(webapp, jm, eleven_jobs_stored):
+def test_bug_job_map_detail(webapp, eleven_jobs_stored, test_repository,
+                            test_user):
     """
     test retrieving a list of bug_job_map
     """
-    job_id = jm.get_job_list(0, 1)[0]["id"]
+    job = Job.objects.all()[0]
     bug_id = random.randint(0, 100)
 
     expected = list()
 
-    submit_timestamp = int(time())
-    who = "user@mozilla.com"
-    jm.insert_bug_job_map(job_id, bug_id, "manual", submit_timestamp, who)
+    bjm = BugJobMap.objects.create(job=job,
+                                   bug_id=bug_id,
+                                   user=test_user)
 
-    pk = "{0}-{1}".format(job_id, bug_id)
+    pk = "{0}-{1}".format(job.project_specific_id, bug_id)
 
     resp = webapp.get(
         reverse("bug-job-map-detail", kwargs={
-            "project": jm.project,
+            "project": test_repository.name,
             "pk": pk
         })
     )
 
     expected = {
-        "job_id": job_id,
+        "job_id": job.project_specific_id,
         "bug_id": bug_id,
         "type": "manual",
-        "submit_timestamp": submit_timestamp,
-        "who": who}
+        "submit_timestamp": int(time.mktime(bjm.created.timetuple())),
+        "who": test_user.email
+    }
 
     assert resp.json == expected
 
 
-def test_bug_job_map_delete(webapp, eleven_jobs_stored,
-                            jm, mock_message_broker, test_user):
+@pytest.mark.parametrize('test_no_auth', [True, False])
+def test_bug_job_map_delete(webapp, eleven_jobs_stored, test_repository,
+                            test_user, test_no_auth):
     """
-    test retrieving a list of bug_job_map
+    test deleting a bug_job_map object
     """
-    client = APIClient()
-    client.force_authenticate(user=test_user)
-
-    job_id = jm.get_job_list(0, 1)[0]["id"]
+    job = Job.objects.all()[0]
     bug_id = random.randint(0, 100)
 
-    submit_timestamp = int(time())
-    who = "user@mozilla.com"
+    BugJobMap.objects.create(job=job,
+                             bug_id=bug_id,
+                             user=test_user)
 
-    jm.insert_bug_job_map(job_id, bug_id,
-                          "manual", submit_timestamp, who)
+    client = APIClient()
+    if not test_no_auth:
+        client.force_authenticate(user=test_user)
 
-    pk = "{0}-{1}".format(job_id, bug_id)
+    pk = "{0}-{1}".format(job.project_specific_id, bug_id)
 
     resp = client.delete(
         reverse("bug-job-map-detail", kwargs={
-            "project": jm.project,
+            "project": test_repository.name,
             "pk": pk
         })
     )
 
-    content = json.loads(resp.content)
-    assert content == {"message": "Bug job map deleted"}
-
-
-def test_bug_job_map_delete_no_auth(jm, eleven_jobs_stored):
-    """
-    test retrieving a list of bug_job_map
-    """
-    client = APIClient()
-
-    job_id = jm.get_job_list(0, 1)[0]["id"]
-    bug_id = random.randint(0, 100)
-
-    submit_timestamp = int(time())
-    who = "user@mozilla.com"
-
-    jm.insert_bug_job_map(job_id, bug_id, "manual",
-                          submit_timestamp, who)
-
-    pk = "{0}-{1}".format(job_id, bug_id)
-
-    resp = client.delete(
-        reverse("bug-job-map-detail", kwargs={
-            "project": jm.project,
-            "pk": pk
-        })
-    )
-
-    assert resp.status_code == 403
+    if test_no_auth:
+        assert resp.status_code == 403
+        assert BugJobMap.objects.count() == 1
+    else:
+        content = json.loads(resp.content)
+        assert content == {"message": "Bug job map deleted"}
+        assert BugJobMap.objects.count() == 0
