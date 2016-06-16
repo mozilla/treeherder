@@ -33,19 +33,44 @@ treeherder.filter('stripHtml', function() {
     };
 });
 
+treeherder.filter('linkifyURLs', function() {
+    return function(input) {
+        var str = input || '';
+        var urlpattern = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
+        str = str.replace(urlpattern, '<a href="$1" target="_blank">$1</a>');
+        return str;
+    };
+});
+
 treeherder.filter('linkifyClassifications', ['ThRepositoryModel', function(ThRepositoryModel) {
     return function(input, projectName) {
         var str = input || '';
         str = str.trim();
 
-        if(str.length === 12) {
-            var hg_url = '<a href="' + ThRepositoryModel.getRepo(projectName).url + '/rev/' + str + '">' + str + '</a>';
+        var repo = ThRepositoryModel.getRepo(projectName);
+
+        if(repo.dvcs_type === "hg" && isAlphaNumeric(str) && (str.length === 12 || str.length === 40)) {
+            var hg_url = '<a href="' + repo.url + '/rev/' + str + '">' + str + '</a>';
             str = hg_url;
         }
 
         return str;
     };
 }]);
+
+function isAlphaNumeric(str) {
+    var code, i, len;
+
+    for (i = 0, len = str.length; i < len; i++) {
+        code = str.charCodeAt(i);
+        if (!(code > 47 && code < 58) && // numeric (0-9)
+            !(code > 64 && code < 91) && // upper alpha (A-Z)
+            !(code > 96 && code < 123)) { // lower alpha (a-z)
+          return false;
+        }
+    }
+    return true;
+}
 
 treeherder.filter('linkifyBugs', function() {
     return function(input) {
