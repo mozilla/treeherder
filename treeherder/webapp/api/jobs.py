@@ -1,7 +1,7 @@
 import django_filters
-from rest_framework import (status,
-                            filters,
+from rest_framework import (filters,
                             pagination,
+                            status,
                             viewsets)
 from rest_framework.decorators import (detail_route,
                                        list_route)
