@@ -5,7 +5,7 @@ import os
 import sys
 from ctypes import c_char_p
 
-path = os.path.split(__file__)[0]
+path = os.path.abspath(os.path.join(os.path.split(__file__)[0], "..", "..", "target", "release"))
 prefix = {'win32': ''}.get(sys.platform, 'lib')
 extension = {'darwin': '.dylib', 'win32': '.dll'}.get(sys.platform, '.so')
 lib = ctypes.cdll.LoadLibrary(os.path.join(path, prefix + "logparser" + extension))

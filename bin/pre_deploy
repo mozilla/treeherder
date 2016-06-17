@@ -14,9 +14,6 @@ else
     set -euo pipefail
 fi
 
-echo "-----> PRE-DEPLOY: Grabbing log parser binary..."
-curl https://github.com/jgraham/th-logparser-rust/releases/download/untagged-c8f4c13139dc318c190c/liblogparser.so -o treeherder/log_parser/liblogparser.so
-
 echo "-----> PRE-DEPLOY: Running Django system checks..."
 # Replace awk with `--fail-level WARNING` once we're using Django 1.10, since in
 # previous versions an exit code of 1 is hard-coded to only ERROR and above:
