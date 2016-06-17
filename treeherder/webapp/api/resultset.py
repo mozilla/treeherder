@@ -1,5 +1,6 @@
 import newrelic.agent
-from rest_framework import viewsets
+from rest_framework import (status,
+                            viewsets)
 from rest_framework.decorators import detail_route
 from rest_framework.exceptions import ParseError
 from rest_framework.permissions import IsAuthenticated
@@ -29,6 +30,9 @@ class ResultSetViewSet(viewsets.ViewSet):
         GET method for list of ``resultset`` records with revisions
 
         """
+        # What is the upper limit on the number of resultsets returned by the api
+        MAX_RESULTS_COUNT = 1000
+
         # make a mutable copy of these params
         filter_params = request.query_params.copy()
 
@@ -82,7 +86,11 @@ class ResultSetViewSet(viewsets.ViewSet):
         filter = UrlQueryFilter(filter_params)
 
         offset_id = int(filter.pop("id__lt", 0))
-        count = min(int(filter.pop("count", 10)), 1000)
+        count = int(filter.pop("count", 10))
+
+        if count > MAX_RESULTS_COUNT:
+            msg = "Specified count exceeds api limit: {}".format(MAX_RESULTS_COUNT)
+            return Response({"error": msg}, status=status.HTTP_400_BAD_REQUEST)
 
         full = filter.pop('full', 'true').lower() == 'true'
 
