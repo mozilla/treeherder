@@ -47,6 +47,8 @@ class ArtifactBuilderCollection(object):
                 raise error_cls.get(error_name, Exception)(description)
 
         for artifact_str in data.split("\x17")[1:]:
+            if not artifact_str:
+                continue
             artifact = json.loads(artifact_str)
             for key in artifact.keys():
                 if key in self.key_map:
