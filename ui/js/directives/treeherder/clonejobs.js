@@ -217,7 +217,7 @@ treeherder.directive('thCloneJobs', [
         };
 
         var togglePinJobCb = function(ev, el, job){
-            $rootScope.$emit(thEvents.jobPin, job);
+            $rootScope.$emit(thEvents.toggleJobPin, job);
         };
 
         var filterWithRunnable = function(job) {

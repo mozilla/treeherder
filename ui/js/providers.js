@@ -165,8 +165,11 @@ treeherder.provider('thEvents', function() {
             // fired when the job details are loaded
             jobDetailLoaded: "job-detail-loaded-EVT",
 
-            // fired with a selected job on ctrl/cmd-click or spacebar
+            // fired with a selected job on spacebar
             jobPin: "job-pin-EVT",
+
+            // fired with a selected job on ctrl/cmd-click
+            toggleJobPin: "job-togglepin-EVT",
 
             // fired with a selected job on 'r'
             jobRetrigger: "job-retrigger-EVT",

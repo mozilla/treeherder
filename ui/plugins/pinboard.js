@@ -7,6 +7,13 @@ treeherder.controller('PinboardCtrl', [
 
         var $log = new ThLog(this.constructor.name);
 
+        $rootScope.$on(thEvents.toggleJobPin, function(event, job) {
+            $scope.toggleJobPin(job);
+            if(!$scope.$$phase){
+                $scope.$digest();
+            }
+        });
+
         $rootScope.$on(thEvents.jobPin, function(event, job) {
             $scope.pinJob(job);
             if(!$scope.$$phase){
@@ -30,6 +37,13 @@ treeherder.controller('PinboardCtrl', [
                 $scope.unPinAll();
             }
         });
+
+        $scope.toggleJobPin = function(job) {
+            thPinboard.toggleJobPin(job);
+            if (!$scope.selectedJob) {
+                $scope.viewJob(job);
+            }
+        };
 
         $scope.pinJob = function(job) {
             thPinboard.pinJob(job);
