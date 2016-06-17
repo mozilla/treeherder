@@ -10,6 +10,8 @@ import newrelic.agent
 from _mysql_exceptions import IntegrityError
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from memoize import (delete_memoized,
+                     memoize)
 
 from treeherder.etl.common import get_guid_root
 from treeherder.events.publisher import JobStatusPublisher
@@ -1397,6 +1399,32 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 revision_hash))
         return rh[0]["long_revision"]
 
+    @staticmethod
+    @memoize(timeout=settings.REFDATA_CACHE_TIMEOUT)
+    def _get_refdata_object(model_class, **kwargs):
+        instance, _ = model_class.objects.get_or_create(**kwargs)
+        return instance
+
+    @staticmethod
+    @memoize(timeout=settings.REFDATA_CACHE_TIMEOUT)
+    def _get_option_collection_hash(option_names):
+        option_collection_hash = OptionCollection.calculate_hash(
+            option_names)
+        # ensure that option collection hash exists
+        if not OptionCollection.objects.filter(
+                option_collection_hash=option_collection_hash).exists():
+            # in the unlikely event that we haven't seen this set of options
+            # before, add the appropriate database rows
+            options = []
+            for option_name in option_names:
+                option, _ = Option.objects.get_or_create(name=option_name)
+                options.append(option)
+            for option in options:
+                OptionCollection.objects.create(
+                    option_collection_hash=option_collection_hash,
+                    option=option)
+        return option_collection_hash
+
     def _load_ref_and_job_data_structs(
         self, job, revision, unique_revisions, job_placeholders,
         log_placeholders, artifact_placeholders, retry_job_guids,
@@ -1417,56 +1445,53 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # for result_set entry
         unique_revisions.add(revision)
 
-        build_platform, _ = BuildPlatform.objects.get_or_create(
+        build_platform = self._get_refdata_object(
+            BuildPlatform,
             os_name=job.get('build_platform', {}).get('os_name', 'unknown'),
             platform=job.get('build_platform', {}).get('platform', 'unknown'),
             architecture=job.get('build_platform', {}).get('architecture',
                                                            'unknown'))
 
-        machine_platform, _ = MachinePlatform.objects.get_or_create(
+        machine_platform = self._get_refdata_object(
+            MachinePlatform,
             os_name=job.get('machine_platform', {}).get('os_name', 'unknown'),
             platform=job.get('machine_platform', {}).get('platform', 'unknown'),
             architecture=job.get('machine_platform', {}).get('architecture',
                                                              'unknown'))
 
         option_names = job.get('option_collection', [])
-        option_collection_hash = OptionCollection.calculate_hash(
-            option_names)
-        if not OptionCollection.objects.filter(
-                option_collection_hash=option_collection_hash).exists():
-            # in the unlikely event that we haven't seen this set of options
-            # before, add the appropriate database rows
-            options = []
-            for option_name in option_names:
-                option, _ = Option.objects.get_or_create(name=option_name)
-                options.append(option)
-            for option in options:
-                OptionCollection.objects.create(
-                    option_collection_hash=option_collection_hash,
-                    option=option)
 
-        machine, _ = Machine.objects.get_or_create(
-            name=job.get('machine', 'unknown'))
+        option_collection_hash = self._get_option_collection_hash(option_names)
+
+        machine = self._get_refdata_object(
+            Machine, name=job.get('machine', 'unknown'))
 
         # if a job with this symbol and name exists, always
         # use its default group (even if that group is different
         # from that specified)
-        job_type, _ = JobType.objects.get_or_create(
+        job_type = self._get_refdata_object(
+            JobType,
             symbol=job.get('job_symbol') or 'unknown',
             name=job.get('name') or 'unknown')
         if job_type.job_group:
             job_group = job_type.job_group
         else:
-            job_group, _ = JobGroup.objects.get_or_create(
+            job_group = self._get_refdata_object(
+                JobGroup,
                 name=job.get('group_name') or 'unknown',
                 symbol=job.get('group_symbol') or 'unknown')
             job_type.job_group = job_group
             job_type.save(update_fields=['job_group'])
+            # need to invalidate cache for JobType, since it just
+            # changed
+            delete_memoized(self._get_refdata_object, JobType,
+                            symbol=job.get('job_symbol') or 'unknown',
+                            name=job.get('name') or 'unknown')
 
         product_name = job.get('product_name', 'unknown')
         if len(product_name.strip()) == 0:
             product_name = 'unknown'
-        product, _ = Product.objects.get_or_create(name=product_name)
+        product = self._get_refdata_object(Product, name=product_name)
 
         job_guid = job['job_guid']
         job_guid = job_guid[0:50]
@@ -1504,7 +1529,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         if not reference_data_name:
             reference_data_name = signature_hash
 
-        signature, _ = ReferenceDataSignatures.objects.get_or_create(
+        signature = self._get_refdata_object(
+            ReferenceDataSignatures,
             name=reference_data_name,
             signature=signature_hash,
             build_system_type=build_system_type,
