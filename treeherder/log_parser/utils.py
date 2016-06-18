@@ -2,14 +2,13 @@ import logging
 import urllib2
 
 import simplejson as json
-from django.conf import settings
 
-from treeherder.client import (TreeherderArtifactCollection,
-                               TreeherderClient)
-from treeherder.credentials.models import Credentials
 from treeherder.log_parser.rustlogparser import ArtifactBuilderCollection
-from treeherder.model.error_summary import get_error_summary_artifacts
+from treeherder.model.derived import ArtifactsModel
+from treeherder.model.error_summary import (get_artifacts_that_need_bug_suggestions,
+                                            get_error_summary_artifacts)
 from treeherder.model.models import JobLog
+from treeherder.model.tasks import populate_error_summary
 
 logger = logging.getLogger(__name__)
 
@@ -54,14 +53,6 @@ def post_log_artifacts(project,
     job_log = JobLog.objects.get(job__guid=job_guid,
                                  url=job_log_url)
 
-    credentials = Credentials.objects.get(client_id=settings.ETL_CLIENT_ID)
-    client = TreeherderClient(
-        protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
-        host=settings.TREEHERDER_REQUEST_HOST,
-        client_id=credentials.client_id,
-        secret=str(credentials.secret),
-    )
-
     try:
         artifact_list = extract_artifacts_cb(project, job_log_url, job_guid)
     except Exception as e:
@@ -88,16 +79,40 @@ def post_log_artifacts(project,
         # error
         raise
 
-    # store the artifacts generated
-    tac = TreeherderArtifactCollection()
-    for artifact in artifact_list:
-        ta = tac.get_artifact(artifact)
-        tac.add(ta)
-
     try:
-        client.post_collection(project, tac)
+        create_artifacts(project, artifact_list)
         job_log.update_status(JobLog.PARSED)
         logger.debug("Finished posting artifact for %s %s", project, job_guid)
     except Exception as e:
         logger.error("Failed to upload parsed artifact for %s: %s", log_description, e)
         _retry(e)
+
+
+def create_artifacts(project, data):
+    artifacts = ArtifactsModel.serialize_artifact_json_blobs(data)
+
+    with ArtifactsModel(project) as artifacts_model:
+
+        artifacts_model.load_job_artifacts(artifacts)
+
+        # If a ``text_log_summary`` and ``Bug suggestions`` artifact are
+        # posted here together, for the same ``job_guid``, then just load
+        # them.  This is how it is done internally in our log parser
+        # so there is no delay in creation and the bug suggestions show
+        # as soon as the log is parsed.
+        #
+        # If a ``text_log_summary`` is posted WITHOUT an accompanying
+        # ``Bug suggestions`` artifact, then schedule to create it
+        # asynchronously so that this api does not take too long.
+
+        tls_list = get_artifacts_that_need_bug_suggestions(artifacts)
+
+        # tls_list will contain all ``text_log_summary`` artifacts that
+        # do NOT have an accompanying ``Bug suggestions`` artifact in this
+        # current list of artifacts.  If it's empty, then we don't need
+        # to schedule anything.
+        if tls_list:
+            populate_error_summary.apply_async(
+                args=[project, tls_list],
+                routing_key='error_summary'
+            )
