@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import datetime
 import itertools
 import os
 from collections import (OrderedDict,
@@ -135,6 +136,55 @@ class Bugscache(models.Model):
 
     def __str__(self):
         return "{0}".format(self.id)
+
+    @classmethod
+    def search(cls, search_term):
+        max_size = 50
+        # 90 days ago
+        time_limit = datetime.datetime.now() - datetime.timedelta(days=90)
+        # Wrap search term so it is used as a phrase in the full-text search.
+        search_term_fulltext = search_term.join('""')
+        # Substitute escape and wildcard characters, so the search term is used
+        # literally in the LIKE statement.
+        search_term_like = search_term.replace('=', '==').replace(
+            '%', '=%').replace('_', '=_')
+        recent = cls.objects.raw(
+            '''
+            SELECT id, summary, crash_signature, keywords, os, resolution,
+            MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
+            FROM bugscache
+            WHERE 1
+              AND resolution = ''
+              AND `summary` LIKE CONCAT ('%%%%', %s, '%%%%') ESCAPE '='
+              AND modified >= %s
+            ORDER BY relevance DESC
+            LIMIT 0,%s
+            ''', [search_term_fulltext, search_term_like, time_limit,
+                  max_size])
+
+        all_others = cls.objects.raw(
+            '''
+            SELECT id, summary, crash_signature, keywords, os, resolution,
+            MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
+            FROM bugscache
+            WHERE 1
+            AND `summary` LIKE CONCAT ('%%%%', %s, '%%%%') ESCAPE '='
+            AND (modified < %s OR resolution <> '')
+            ORDER BY relevance DESC
+            LIMIT 0,%s''', [search_term_fulltext, search_term_like, time_limit,
+                            max_size])
+
+        def _bug_dict(bug):
+            return {
+                'crash_signature': b.crash_signature,
+                'resolution': b.resolution,
+                'summary': b.summary,
+                'keywords': b.keywords,
+                'os': b.os,
+                'id': b.id
+            }
+        return dict(open_recent=[_bug_dict(b) for b in recent],
+                    all_others=[_bug_dict(b) for b in all_others])
 
 
 @python_2_unicode_compatible

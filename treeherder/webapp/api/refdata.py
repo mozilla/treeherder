@@ -1,5 +1,3 @@
-import datetime
-
 from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -77,52 +75,7 @@ class BugscacheViewSet(viewsets.ReadOnlyModelViewSet):
         if not search_term:
             return Response({"message": "the 'search' parameter is mandatory"}, status=400)
 
-        max_size = 50
-        # 90 days ago
-        time_limit = datetime.datetime.now() - datetime.timedelta(days=90)
-        # Wrap search term so it is used as a phrase in the full-text search.
-        search_term_fulltext = search_term.join('""')
-        # Substitute escape and wildcard characters, so the search term is used
-        # literally in the LIKE statement.
-        search_term_like = search_term.replace('=', '==').replace(
-            '%', '=%').replace('_', '=_')
-        recent = models.Bugscache.objects.raw(
-            '''
-            SELECT id, summary, crash_signature, keywords, os, resolution,
-            MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
-            FROM bugscache
-            WHERE 1
-              AND resolution = ''
-              AND `summary` LIKE CONCAT ('%%%%', %s, '%%%%') ESCAPE '='
-              AND modified >= %s
-            ORDER BY relevance DESC
-            LIMIT 0,%s
-            ''', [search_term_fulltext, search_term_like, time_limit,
-                  max_size])
-
-        all_others = models.Bugscache.objects.raw(
-            '''
-            SELECT id, summary, crash_signature, keywords, os, resolution,
-            MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
-            FROM bugscache
-            WHERE 1
-            AND `summary` LIKE CONCAT ('%%%%', %s, '%%%%') ESCAPE '='
-            AND (modified < %s OR resolution <> '')
-            ORDER BY relevance DESC
-            LIMIT 0,%s''', [search_term_fulltext, search_term_like, time_limit,
-                            max_size])
-
-        def _bug_dict(bug):
-            return {
-                'crash_signature': b.crash_signature,
-                'resolution': b.resolution,
-                'summary': b.summary,
-                'keywords': b.keywords,
-                'os': b.os,
-                'id': b.id
-            }
-        return Response(dict(open_recent=[_bug_dict(b) for b in recent],
-                             all_others=[_bug_dict(b) for b in all_others]))
+        return Response(models.Bugscache.search(search_term))
 
 
 class MachineViewSet(viewsets.ReadOnlyModelViewSet):
