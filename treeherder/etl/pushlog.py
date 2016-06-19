@@ -1,12 +1,13 @@
 import logging
+import traceback
 
 import requests
 from django.core.cache import cache
 
 from treeherder.client import TreeherderResultSetCollection
-from treeherder.etl import th_publisher
 from treeherder.etl.common import (fetch_json,
                                    generate_revision_hash)
+from treeherder.model.derived.jobs import JobsModel
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +18,9 @@ class HgPushlogTransformerMixin(object):
 
         # this contain the whole list of transformed pushes
 
-        th_collections = {}
+        th_collections = {
+            repository: TreeherderResultSetCollection()
+        }
 
         # iterate over the pushes
         for push in pushlog.values():
@@ -37,12 +40,12 @@ class HgPushlogTransformerMixin(object):
             # iterate over the revisions
             # we only want to ingest the last 200 revisions.
             for change in push['changesets'][-200:]:
-                revision = dict()
-                revision['revision'] = change['node']
-                revision['author'] = change['author']
-                revision['branch'] = change['branch']
-                revision['comment'] = change['desc']
-                revision['repository'] = repository
+                revision = {
+                    'revision': change['node'],
+                    'author': change['author'],
+                    'branch': change['branch'],
+                    'comment': change['desc'],
+                    'repository': repository}
                 rev_hash_components.append(change['node'])
                 rev_hash_components.append(change['branch'])
 
@@ -51,9 +54,6 @@ class HgPushlogTransformerMixin(object):
 
             result_set['revision_hash'] = generate_revision_hash(rev_hash_components)
             result_set['revision'] = result_set["revisions"][-1]["revision"]
-
-            if repository not in th_collections:
-                th_collections[repository] = TreeherderResultSetCollection()
 
             th_resultset = th_collections[repository].get_resultset(result_set)
             th_collections[repository].add(th_resultset)
@@ -125,8 +125,24 @@ class HgPushlogProcess(HgPushlogTransformerMixin):
         last_push_id = max(map(lambda x: int(x), pushes.keys()))
         last_push = pushes[str(last_push_id)]
         top_revision = last_push["changesets"][-1]["node"]
+        # TODO: further remove the use of client types here
         transformed = self.transform(pushes, repository)
-        th_publisher.post_treeherder_collections(transformed)
+
+        errors = []
+        with JobsModel(repository) as jm:
+            for collection in transformed[repository].get_chunks(chunk_size=1):
+                try:
+                    collection.validate()
+                    jm.store_result_set_data(collection.get_collection_data())
+                except:
+                    errors.append({
+                        "project": repository,
+                        "collection": "result_set",
+                        "message": traceback.format_exc()
+                    })
+
+        if errors:
+            raise CollectionNotStoredException(errors)
 
         if not changeset:
             # only cache the last push if we're not fetching a specific
@@ -134,3 +150,20 @@ class HgPushlogProcess(HgPushlogTransformerMixin):
             cache.set("{0}:last_push_id".format(repository), last_push_id)
 
         return top_revision
+
+
+class CollectionNotStoredException(Exception):
+
+    def __init__(self, error_list, *args, **kwargs):
+        """
+        error_list contains dictionaries, each containing
+        project, url and message
+        """
+        super(CollectionNotStoredException, self).__init__(args, kwargs)
+        self.error_list = error_list
+
+    def __str__(self):
+        return "\n".join(
+            ["[{project}] Error storing {collection} data: {message}".format(
+                **error) for error in self.error_list]
+        )
