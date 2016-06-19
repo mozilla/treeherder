@@ -526,8 +526,6 @@ if env.bool('IS_HEROKU', default=False):
 
 CELERY_IGNORE_RESULT = True
 
-API_HOSTNAME = SITE_URL
-
 BROWSERID_AUDIENCES = [SITE_URL]
 
 SWAGGER_SETTINGS = {"enabled_methods": ['get', ]}
