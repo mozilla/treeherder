@@ -11,6 +11,9 @@ structures can be extended with new properties as needed, there is a
 minimal validation protocol applied that confirms the bare minimum
 parts of the structures are defined.
 
+See the :ref:`Python client <python-client>` section for how to control
+which Treeherder instance will be accessed by the client.
+
 Authentication is covered :ref:`here <authentication>`.
 
 
@@ -196,8 +199,7 @@ data structures to send, do something like this.
 
     # See the authentication section below for details on how to get a
     # hawk id and secret
-    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org',
-                              client_id='hawk_id', secret='hawk_secret')
+    client = TreeherderClient(client_id='hawk_id', secret='hawk_secret')
 
     # Post the result collection to a project
     #
@@ -265,8 +267,7 @@ structures to send, do something like this:
                 )
         tjc.add(tj)
 
-    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org',
-                              client_id='hawk_id', secret='hawk_secret')
+    client = TreeherderClient(client_id='hawk_id', secret='hawk_secret')
     client.post_collection('mozilla-central', tjc)
 
 If you want to use `TreeherderArtifactCollection` to build up the job
@@ -291,8 +292,7 @@ artifacts data structures to send, do something like this:
         tac.add(ta)
 
     # Send the collection to treeherder
-    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org',
-                              client_id='hawk_id', secret='hawk_secret')
+    client = TreeherderClient(client_id='hawk_id', secret='hawk_secret')
     client.post_collection('mozilla-central', tac)
 
 If you don't want to use `TreeherderResultCollection` or
@@ -313,8 +313,7 @@ data structures directly and add them to the collection.
         # add resultset to collection
         trc.add(trs)
 
-    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org',
-                              client_id='hawk_id', secret='hawk_secret')
+    client = TreeherderClient(client_id='hawk_id', secret='hawk_secret')
     client.post_collection('mozilla-central', trc)
 
 .. code-block:: python
@@ -331,8 +330,7 @@ data structures directly and add them to the collection.
         # add job to collection
         tjc.add(tj)
 
-    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org',
-                              client_id='hawk_id', secret='hawk_secret')
+    client = TreeherderClient(client_id='hawk_id', secret='hawk_secret')
     client.post_collection('mozilla-central', tjc)
 
 In the same way, if you don't want to use `TreeherderArtifactCollection` to
@@ -353,8 +351,7 @@ add them to the collection.
         # add artifact to collection
         tac.add(ta)
 
-    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org',
-                              client_id='hawk_id', secret='hawk_secret')
+    client = TreeherderClient(client_id='hawk_id', secret='hawk_secret')
     client.post_collection('mozilla-central', tac)
 
 Job artifacts format

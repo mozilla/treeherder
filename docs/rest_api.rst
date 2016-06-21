@@ -26,6 +26,21 @@ using pip:
 
     pip install treeherder-client
 
+By default the production Treeherder API will be used, however this can be
+overridden by passing a `server_url` argument to the `TreeherderClient`
+constructor, like so:
+
+.. code-block:: python
+
+    # Treeherder production
+    client = TreeherderClient()
+
+    # Treeherder stage
+    client = TreeherderClient(server_url='https://treeherder.allizom.org')
+
+    # Local vagrant instance
+    client = TreeherderClient(server_url='http://local.treeherder.mozilla.org')
+
 When using the Python client, don't forget to set up logging in the
 caller so that any API error messages are output, like so:
 
@@ -74,8 +89,11 @@ TreeherderClient's constructor:
 
 .. code-block:: python
 
-    client = TreeherderClient(protocol='https', host='treeherder.mozilla.org', client_id='hawk_id', secret='hawk_secret')
+    client = TreeherderClient(client_id='hawk_id', secret='hawk_secret')
     client.post_collection('mozilla-central', tac)
+
+Remember to point the Python client at the Treeherder instance to which
+the credentials belong - see :ref:`here <python-client>` for more details.
 
 To diagnose problems when authenticating, ensure Python logging has been
 set up (see :ref:`python-client`).
@@ -108,7 +126,8 @@ To generate credentials in the Vagrant instance run the following:
       (venv)vagrant@local:~/treeherder$ ./manage.py create_credentials my-client-id treeherder@mozilla.com "Description"
 
 The generated Hawk ``secret`` will be output to the console, which should then
-be passed along with the chosen ``client_id`` to the TreeherderClient constructor.
+be passed along with the chosen ``client_id``, and Vagrant instance ``server_url``
+to the TreeherderClient constructor.
 For more details see the :doc:`submitting_data` section.
 
 Generating and using credentials on treeherder stage or production
