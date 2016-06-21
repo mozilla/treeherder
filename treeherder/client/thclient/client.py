@@ -597,7 +597,6 @@ class TreeherderClient(object):
     Treeherder client class
     """
 
-    PROTOCOLS = {'http', 'https'}  # supported protocols
     API_VERSION = '1.0'
     REQUEST_HEADERS = {
         'Accept': 'application/json; version={}'.format(API_VERSION),
@@ -619,23 +618,24 @@ class TreeherderClient(object):
     BUILD_PLATFORM_ENDPOINT = 'buildplatform'
     MAX_COUNT = 2000
 
-    def __init__(
-            self, protocol='https', host='treeherder.mozilla.org',
-            timeout=30, client_id=None, secret=None):
+    def __init__(self, server_url='https://treeherder.mozilla.org', protocol=None, host=None,
+                 timeout=30, client_id=None, secret=None):
         """
-        :param protocol: protocol to use (http or https)
-        :param host: treeherder host to post to
+        :param server_url: The site URL of the Treeherder instance (defaults to production)
+        :param protocol: *DEPRECATED* protocol to use (http or https)
+        :param host: *DEPRECATED* treeherder host to post to
         :param timeout: maximum time it can take for a request to complete
         :param client_id: the Treeherder API credentials client ID
         :param secret: the Treeherder API credentials secret
         """
-        self.host = host
+        if host:
+            logger.warning("The `TreeherderClient()` parameters `host` and `protocol` are "
+                           "deprecated. Use `server_url` instead, or omit entirely to use "
+                           "the default of production Treeherder.")
+            self.server_url = '{}://{}'.format(protocol or 'https', host)
+        else:
+            self.server_url = server_url
 
-        if protocol not in self.PROTOCOLS:
-            raise AssertionError('Protocol "%s" not supported; please use one '
-                                 'of %s' % (protocol,
-                                            ', '.join(self.PROTOCOLS)))
-        self.protocol = protocol
         self.timeout = timeout
 
         # Using a session gives us automatic keep-alive/connection pooling.
@@ -646,14 +646,10 @@ class TreeherderClient(object):
             self.session.auth = HawkAuth(id=client_id, key=secret)
 
     def _get_endpoint_url(self, endpoint, project=None):
-
         if project:
-            return '{0}://{1}/api/project/{2}/{3}/'.format(
-                self.protocol, self.host, project, endpoint
-            )
+            return '{}/api/project/{}/{}/'.format(self.server_url, project, endpoint)
 
-        return '{0}://{1}/api/{2}/'.format(
-            self.protocol, self.host, endpoint)
+        return '{}/api/{}/'.format(self.server_url, endpoint)
 
     def _get_json_list(self, endpoint, project=None, **params):
         if "count" in params and (params["count"] is None or params["count"] > self.MAX_COUNT):
