@@ -112,8 +112,8 @@ class PerfherderClient(TreeherderClient):
         '''
         Gets a set of performance signatures associated with a project and time range
         '''
-        return PerformanceSignatureCollection(self._get_json(
-            self.PERFORMANCE_SIGNATURES_ENDPOINT, None, project, **params))
+        results = self._get_json(self.PERFORMANCE_SIGNATURES_ENDPOINT, project, **params)
+        return PerformanceSignatureCollection(results)
 
     def get_performance_data(self, project, **params):
         '''
@@ -121,7 +121,6 @@ class PerfherderClient(TreeherderClient):
 
         You can specify which signatures to get by passing signature to this function
         '''
-        results = self._get_json(self.PERFORMANCE_DATA_ENDPOINT, None, project,
-                                 **params)
+        results = self._get_json(self.PERFORMANCE_DATA_ENDPOINT, project, **params)
 
         return {k: PerformanceSeries(v) for k, v in results.items()}

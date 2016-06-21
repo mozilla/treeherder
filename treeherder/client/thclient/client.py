@@ -657,7 +657,7 @@ class TreeherderClient(object):
 
         return uri
 
-    def _get_json_list(self, endpoint, timeout,  project=None, **params):
+    def _get_json_list(self, endpoint, project=None, **params):
         if "count" in params and (params["count"] is None or params["count"] > self.MAX_COUNT):
             total = None if params["count"] is None else params["count"]
             count = self.MAX_COUNT
@@ -666,7 +666,7 @@ class TreeherderClient(object):
             while True:
                 params["count"] = count
                 params["offset"] = offset
-                new_data = self._get_json(endpoint, timeout, project=project, **params)["results"]
+                new_data = self._get_json(endpoint, project=project, **params)["results"]
                 data += new_data
                 if len(new_data) < self.MAX_COUNT:
                     return data
@@ -674,18 +674,15 @@ class TreeherderClient(object):
                 if total is not None:
                     count = min(total-offset, self.MAX_COUNT)
         else:
-            return self._get_json(endpoint, timeout, project=project, **params)["results"]
+            return self._get_json(endpoint, project=project, **params)["results"]
 
-    def _get_json(self, endpoint, timeout, project=None, **params):
-        if timeout is None:
-            timeout = self.timeout
-
+    def _get_json(self, endpoint, project=None, **params):
         if project is None:
             uri = self._get_uri(endpoint)
         else:
             uri = self._get_project_uri(project, endpoint)
 
-        resp = self.session.get(uri, params=params, timeout=timeout)
+        resp = self.session.get(uri, params=params, timeout=self.timeout)
         try:
             resp.raise_for_status()
         except HTTPError:
@@ -697,13 +694,10 @@ class TreeherderClient(object):
 
         return resp.json()
 
-    def _post_json(self, project, endpoint, data, timeout):
-        if timeout is None:
-            timeout = self.timeout
-
+    def _post_json(self, project, endpoint, data):
         uri = self._get_project_uri(project, endpoint)
 
-        resp = self.session.post(uri, json=data, timeout=timeout)
+        resp = self.session.post(uri, json=data, timeout=self.timeout)
 
         try:
             resp.raise_for_status()
@@ -728,7 +722,7 @@ class TreeherderClient(object):
                 ...
             }
         """
-        resp = self._get_json(self.OPTION_COLLECTION_HASH_ENDPOINT, None)
+        resp = self._get_json(self.OPTION_COLLECTION_HASH_ENDPOINT)
         ret = {}
         for result in resp:
             ret[result['option_collection_hash']] = result['options']
@@ -746,7 +740,7 @@ class TreeherderClient(object):
                 ...
             ]
         """
-        return self._get_json(self.REPOSITORY_ENDPOINT, None)
+        return self._get_json(self.REPOSITORY_ENDPOINT)
 
     def get_products(self):
         """
@@ -761,7 +755,7 @@ class TreeherderClient(object):
               active_status: <active_status>
             }
         """
-        return self._get_json(self.PRODUCT_ENDPOINT, None)
+        return self._get_json(self.PRODUCT_ENDPOINT)
 
     def get_job_groups(self):
         """
@@ -776,7 +770,7 @@ class TreeherderClient(object):
               ...
             }
         """
-        return self._get_json(self.JOBGROUP_ENDPOINT, None)
+        return self._get_json(self.JOBGROUP_ENDPOINT)
 
     def get_failure_classifications(self):
         """
@@ -791,7 +785,7 @@ class TreeherderClient(object):
               active_status: <active_status>
             }
         """
-        return self._get_json(self.FAILURE_CLASSIFICATION_ENDPOINT, None)
+        return self._get_json(self.FAILURE_CLASSIFICATION_ENDPOINT)
 
     def get_build_platforms(self):
         """
@@ -807,7 +801,7 @@ class TreeherderClient(object):
               active_status: <active_status>
             }
         """
-        return self._get_json(self.BUILD_PLATFORM_ENDPOINT, None)
+        return self._get_json(self.BUILD_PLATFORM_ENDPOINT)
 
     def get_job_types(self):
         """
@@ -823,7 +817,7 @@ class TreeherderClient(object):
               ...
             }
         """
-        return self._get_json(self.JOBTYPE_ENDPOINT, None)
+        return self._get_json(self.JOBTYPE_ENDPOINT)
 
     def get_machines(self):
         """
@@ -839,7 +833,7 @@ class TreeherderClient(object):
               active_status: <active_status>
             }
         """
-        return self._get_json(self.MACHINE_ENDPOINT, None)
+        return self._get_json(self.MACHINE_ENDPOINT)
 
     def get_machine_platforms(self):
         """
@@ -855,7 +849,7 @@ class TreeherderClient(object):
               active_status: <active_status>
             }
         """
-        return self._get_json(self.MACHINE_PLATFORM_ENDPOINT, None)
+        return self._get_json(self.MACHINE_PLATFORM_ENDPOINT)
 
     def get_resultsets(self, project, **params):
         """
@@ -866,7 +860,7 @@ class TreeherderClient(object):
         :param project: project (repository name) to query data for
         :param params: keyword arguments to filter results
         """
-        return self._get_json_list(self.RESULTSET_ENDPOINT, None, project, **params)
+        return self._get_json_list(self.RESULTSET_ENDPOINT, project, **params)
 
     def get_jobs(self, project, **params):
         """
@@ -875,7 +869,7 @@ class TreeherderClient(object):
         :param project: project (repository name) to query data for
         :param params: keyword arguments to filter results
         """
-        return self._get_json_list(self.JOBS_ENDPOINT, None, project, **params)
+        return self._get_json_list(self.JOBS_ENDPOINT, project, **params)
 
     def get_job_log_url(self, project, **params):
         """
@@ -884,7 +878,7 @@ class TreeherderClient(object):
         :param project: project (repository name) to query data for
         :param params: keyword arguments to filter results
         """
-        return self._get_json(self.JOB_LOG_URL_ENDPOINT, None, project,
+        return self._get_json(self.JOB_LOG_URL_ENDPOINT, project,
                               **params)
 
     def get_artifacts(self, project, **params):
@@ -894,16 +888,15 @@ class TreeherderClient(object):
         :param project: project (repository name) to query for
         :param params: keyword arguments to filter results
         """
-        response = self._get_json(self.ARTIFACTS_ENDPOINT, None, project, **params)
+        response = self._get_json(self.ARTIFACTS_ENDPOINT, project, **params)
         return response
 
-    def post_collection(self, project, collection_inst, timeout=None):
+    def post_collection(self, project, collection_inst):
         """
         Sends a treeherder collection to the server
 
         :param project: project to submit data for
         :param collection_inst: a TreeherderCollection instance
-        :param timeout: custom timeout in seconds (defaults to class timeout)
         """
         if not isinstance(collection_inst, TreeherderCollection):
             msg = '{0} should be an instance of TreeherderCollection'.format(
@@ -923,7 +916,7 @@ class TreeherderClient(object):
         collection_inst.validate()
 
         return self._post_json(project, collection_inst.endpoint_base,
-                               collection_inst.get_collection_data(), timeout)
+                               collection_inst.get_collection_data())
 
 
 class TreeherderClientError(Exception):
