@@ -2,8 +2,7 @@ import json
 import logging
 import re
 
-from django.conf import settings
-from django.core.urlresolvers import reverse
+from treeherder.model.models import Bugscache
 
 logger = logging.getLogger(__name__)
 
@@ -22,10 +21,6 @@ def get_error_summary(all_errors):
     Add bug suggestions if they are found.
     """
     error_summary = []
-    bugscache_uri = '{0}{1}'.format(
-        settings.API_HOSTNAME,
-        reverse("bugscache-list")
-    )
     terms_requested = {}
 
     for err in all_errors:
@@ -40,11 +35,7 @@ def get_error_summary(all_errors):
         if search_term:
             search_terms.append(search_term)
             if search_term not in terms_requested:
-                # retrieve the list of suggestions from the api
-                bugs = get_bugs_for_search_term(
-                    search_term,
-                    bugscache_uri
-                )
+                bugs = Bugscache.search(search_term)
                 terms_requested[search_term] = bugs
             else:
                 bugs = terms_requested[search_term]
@@ -57,10 +48,7 @@ def get_error_summary(all_errors):
             if crash_signature:
                 search_terms.append(crash_signature)
                 if crash_signature not in terms_requested:
-                    bugs = get_bugs_for_search_term(
-                        crash_signature,
-                        bugscache_uri
-                    )
+                    bugs = Bugscache.search(crash_signature)
                     terms_requested[crash_signature] = bugs
                 else:
                     bugs = terms_requested[crash_signature]
@@ -175,19 +163,6 @@ def is_helpful_search_term(search_term):
     ]
 
     return len(search_term) > 4 and not (search_term in blacklist)
-
-
-def get_bugs_for_search_term(search, base_uri):
-    """
-    Fetch the base_uri endpoint filtering on search and status.
-    Status must be either 'open' or 'closed'
-    """
-    from treeherder.etl.common import fetch_json
-
-    params = {
-        'search': search
-    }
-    return fetch_json(base_uri, params=params)
 
 
 def get_artifacts_that_need_bug_suggestions(artifact_list):

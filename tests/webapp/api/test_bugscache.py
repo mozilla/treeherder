@@ -123,3 +123,22 @@ def test_get_recent_resolved_bugs(webapp, transactional_db, sample_bugs):
     assert len(suggestions['open_recent']) == 0
     all_others_bugs = [b['id'] for b in suggestions['all_others']]
     assert all_others_bugs == exp_bugs
+
+
+def test_bug_properties(webapp, transactional_db, sample_bugs):
+    """Test that we retrieve recent, but fixed bugs for a search term."""
+    search_term = "test_popup_preventdefault_chrome.xul"
+    bug_list = sample_bugs['bugs']
+    fifty_days_ago = datetime.now() - timedelta(days=50)
+    # Update the last_change date so that all bugs will be placed in
+    # the open_recent bucket, and none in all_others.
+    for bug in bug_list:
+        bug['last_change_time'] = fifty_days_ago
+    _update_bugscache(bug_list)
+
+    expected_keys = set(['crash_signature', 'resolution', 'summary', 'keywords', 'os', 'id',
+                         'status', 'modified'])
+
+    resp = webapp.get(reverse('bugscache-list'), {"search": search_term})
+    suggestions = resp.json
+    assert set(suggestions['open_recent'][0].keys()) == expected_keys
