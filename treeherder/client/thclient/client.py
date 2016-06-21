@@ -621,7 +621,7 @@ class TreeherderClient(object):
 
     def __init__(
             self, protocol='https', host='treeherder.mozilla.org',
-            timeout=120, client_id=None, secret=None):
+            timeout=30, client_id=None, secret=None):
         """
         :param protocol: protocol to use (http or https)
         :param host: treeherder host to post to
