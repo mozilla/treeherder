@@ -10,7 +10,7 @@ class PerfherderClientTest(unittest.TestCase):
     @responses.activate
     def test_get_performance_signatures(self):
         pc = PerfherderClient()
-        url = pc._get_project_uri('mozilla-central', pc.PERFORMANCE_SIGNATURES_ENDPOINT)
+        url = pc._get_endpoint_url(pc.PERFORMANCE_SIGNATURES_ENDPOINT, project='mozilla-central')
         content = {
             'signature1': {'cheezburgers': 1},
             'signature2': {'hamburgers': 2},
@@ -31,7 +31,7 @@ class PerfherderClientTest(unittest.TestCase):
     def test_get_performance_data(self):
         pc = PerfherderClient()
 
-        url = '{}?{}'.format(pc._get_project_uri('mozilla-central', pc.PERFORMANCE_DATA_ENDPOINT),
+        url = '{}?{}'.format(pc._get_endpoint_url(pc.PERFORMANCE_DATA_ENDPOINT, project='mozilla-central'),
                              'signatures=signature1&signatures=signature2')
         content = {
             'signature1': [{'value': 1}, {'value': 2}],

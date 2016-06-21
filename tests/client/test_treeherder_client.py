@@ -408,7 +408,7 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
             self.assertEqual(posted_json, tjc.get_collection_data())
             return (200, {}, '{"message": "Job successfully updated"}')
 
-        url = client._get_project_uri('project', tjc.endpoint_base)
+        url = client._get_endpoint_url(tjc.endpoint_base, project='project')
         responses.add_callback(responses.POST, url, match_querystring=True,
                                callback=request_callback, content_type='application/json')
 
@@ -435,7 +435,7 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
             self.assertEqual(posted_json, trc.get_collection_data())
             return (200, {}, '{"message": "well-formed JSON stored", "resultsets": [123, 456]}')
 
-        url = client._get_project_uri('project', trc.endpoint_base)
+        url = client._get_endpoint_url(trc.endpoint_base, project='project')
         responses.add_callback(responses.POST, url, match_querystring=True,
                                callback=request_callback, content_type='application/json')
 
@@ -462,7 +462,7 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
             self.assertEqual(posted_json, tac.get_collection_data())
             return (200, {}, '{"message": "Artifacts stored successfully"}')
 
-        url = client._get_project_uri('project', tac.endpoint_base)
+        url = client._get_endpoint_url(tac.endpoint_base, project='project')
         responses.add_callback(responses.POST, url, match_querystring=True,
                                callback=request_callback, content_type='application/json')
 
@@ -486,7 +486,7 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
     @responses.activate
     def test_get_job(self):
         tdc = TreeherderClient()
-        url = tdc._get_project_uri("mozilla-inbound", tdc.JOBS_ENDPOINT)
+        url = tdc._get_endpoint_url(tdc.JOBS_ENDPOINT, project='mozilla-inbound')
         content = {
             "meta": {"count": 3,
                      "repository": "mozilla-inbound",
@@ -502,7 +502,7 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
     @responses.activate
     def test_get_results(self):
         tdc = TreeherderClient()
-        url = tdc._get_project_uri("mozilla-inbound", tdc.RESULTSET_ENDPOINT)
+        url = tdc._get_endpoint_url(tdc.RESULTSET_ENDPOINT, project='mozilla-inbound')
         content = {
             "meta": {"count": 3, "repository": "mozilla-inbound",
                      "offset": 0},
