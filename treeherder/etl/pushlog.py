@@ -1,6 +1,7 @@
 import logging
 import traceback
 
+import newrelic.agent
 import requests
 from django.core.cache import cache
 
@@ -135,6 +136,7 @@ class HgPushlogProcess(HgPushlogTransformerMixin):
                     collection.validate()
                     jm.store_result_set_data(collection.get_collection_data())
                 except Exception:
+                    newrelic.agent.record_exception()
                     errors.append({
                         "project": repository,
                         "collection": "result_set",
