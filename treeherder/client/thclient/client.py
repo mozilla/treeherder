@@ -645,17 +645,15 @@ class TreeherderClient(object):
         if client_id and secret:
             self.session.auth = HawkAuth(id=client_id, key=secret)
 
-    def _get_project_uri(self, project, endpoint):
+    def _get_endpoint_url(self, endpoint, project=None):
 
-        return '{0}://{1}/api/project/{2}/{3}/'.format(
-            self.protocol, self.host, project, endpoint
+        if project:
+            return '{0}://{1}/api/project/{2}/{3}/'.format(
+                self.protocol, self.host, project, endpoint
             )
 
-    def _get_uri(self, endpoint):
-        uri = '{0}://{1}/api/{2}/'.format(
+        return '{0}://{1}/api/{2}/'.format(
             self.protocol, self.host, endpoint)
-
-        return uri
 
     def _get_json_list(self, endpoint, project=None, **params):
         if "count" in params and (params["count"] is None or params["count"] > self.MAX_COUNT):
@@ -677,12 +675,9 @@ class TreeherderClient(object):
             return self._get_json(endpoint, project=project, **params)["results"]
 
     def _get_json(self, endpoint, project=None, **params):
-        if project is None:
-            uri = self._get_uri(endpoint)
-        else:
-            uri = self._get_project_uri(project, endpoint)
+        url = self._get_endpoint_url(endpoint, project=project)
 
-        resp = self.session.get(uri, params=params, timeout=self.timeout)
+        resp = self.session.get(url, params=params, timeout=self.timeout)
         try:
             resp.raise_for_status()
         except HTTPError:
@@ -695,9 +690,9 @@ class TreeherderClient(object):
         return resp.json()
 
     def _post_json(self, project, endpoint, data):
-        uri = self._get_project_uri(project, endpoint)
+        url = self._get_endpoint_url(endpoint, project=project)
 
-        resp = self.session.post(uri, json=data, timeout=self.timeout)
+        resp = self.session.post(url, json=data, timeout=self.timeout)
 
         try:
             resp.raise_for_status()

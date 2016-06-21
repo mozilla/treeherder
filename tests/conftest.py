@@ -256,8 +256,8 @@ def mock_post_json(monkeypatch, client_credentials):
             auth = HawkAuth(id=client_credentials.client_id,
                             key=str(client_credentials.secret))
         app = TestApp(application)
-        uri = th_client._get_project_uri(project, endpoint)
-        req = Request('POST', uri, json=data, auth=auth)
+        url = th_client._get_endpoint_url(endpoint, project=project)
+        req = Request('POST', url, json=data, auth=auth)
         prepped_request = req.prepare()
 
         return getattr(app, 'post')(
