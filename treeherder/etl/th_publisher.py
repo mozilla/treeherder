@@ -16,8 +16,7 @@ def post_treeherder_collections(th_collections, chunk_size=1):
     credentials = Credentials.objects.get(client_id=settings.ETL_CLIENT_ID)
 
     cli = TreeherderClient(
-        protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
-        host=settings.TREEHERDER_REQUEST_HOST,
+        server_url=settings.SITE_URL,
         client_id=credentials.client_id,
         secret=str(credentials.secret),
     )

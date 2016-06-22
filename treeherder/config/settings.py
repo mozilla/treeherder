@@ -16,9 +16,6 @@ DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 ENABLE_DEBUG_TOOLBAR = env.bool("ENABLE_DEBUG_TOOLBAR", False)
 DEBUG_TOOLBAR_PATCH_SETTINGS = False  # disable django debug toolbar automatic configuration
 
-TREEHERDER_REQUEST_PROTOCOL = env("TREEHERDER_REQUEST_PROTOCOL", default="http")
-TREEHERDER_REQUEST_HOST = env("TREEHERDER_REQUEST_HOST", default="local.treeherder.mozilla.org")
-
 # Default to retaining data for ~4 months.
 DATA_CYCLE_DAYS = env.int("DATA_CYCLE_DAYS", default=120)
 

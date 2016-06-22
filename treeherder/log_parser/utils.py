@@ -85,8 +85,7 @@ def post_log_artifacts(project,
 
     credentials = Credentials.objects.get(client_id=settings.ETL_CLIENT_ID)
     client = TreeherderClient(
-        protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
-        host=settings.TREEHERDER_REQUEST_HOST,
+        server_url=settings.SITE_URL,
         client_id=credentials.client_id,
         secret=str(credentials.secret),
     )

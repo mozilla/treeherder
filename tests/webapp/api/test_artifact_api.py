@@ -84,7 +84,7 @@ def test_artifact_create_text_log_summary(webapp, test_project, eleven_jobs_stor
     })
     tac.add(ta)
 
-    cli = client.TreeherderClient(protocol='http', host='localhost')
+    cli = client.TreeherderClient(server_url='http://localhost')
     cli.post_collection(test_project,  tac)
 
     with ArtifactsModel(test_project) as artifacts_model:
@@ -129,7 +129,7 @@ def test_artifact_create_text_log_summary_and_bug_suggestions(
         'job_guid': job['job_guid']
     }))
 
-    cli = client.TreeherderClient(protocol='http', host='localhost')
+    cli = client.TreeherderClient(server_url='http://localhost')
     cli.post_collection(test_project, tac)
 
     with ArtifactsModel(test_project) as artifacts_model:

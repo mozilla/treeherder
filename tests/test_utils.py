@@ -7,7 +7,7 @@ from treeherder.model import models
 
 def post_collection(project, th_collection):
 
-    client = TreeherderClient(protocol='http', host='localhost')
+    client = TreeherderClient(server_url='http://localhost')
     return client.post_collection(project, th_collection)
 
 

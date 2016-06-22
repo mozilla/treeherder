@@ -1,5 +1,4 @@
 from optparse import make_option
-from urlparse import urlparse
 
 from django.conf import settings
 from django.core.management.base import (BaseCommand,
@@ -22,7 +21,7 @@ class Command(BaseCommand):
         make_option('--server',
                     action='store',
                     dest='server',
-                    default=None,
+                    default=settings.SITE_URL,
                     help='Server to get data from, default to local instance'),
         make_option('--time-interval',
                     action='store',
@@ -48,20 +47,11 @@ class Command(BaseCommand):
                                           testname] + test_options])
 
     def handle(self, *args, **options):
-        if options['server']:
-            server_params = urlparse(options['server'])
-            server_protocol = server_params.scheme
-            server_host = server_params.netloc
-        else:
-            server_protocol = settings.TREEHERDER_REQUEST_PROTOCOL
-            server_host = settings.TREEHERDER_REQUEST_HOST
-
         if not options['project']:
             raise CommandError("Must specify at least one project with "
                                "--project")
 
-        pc = PerfherderClient(protocol=server_protocol,
-                              host=server_host)
+        pc = PerfherderClient(server_url=options['server'])
 
         option_collection_hash = pc.get_option_collection_hash()
 
