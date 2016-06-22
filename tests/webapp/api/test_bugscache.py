@@ -137,7 +137,7 @@ def test_bug_properties(webapp, transactional_db, sample_bugs):
     _update_bugscache(bug_list)
 
     expected_keys = set(['crash_signature', 'resolution', 'summary', 'keywords', 'os', 'id',
-                         'status', 'modified'])
+                         'status'])
 
     resp = webapp.get(reverse('bugscache-list'), {"search": search_term})
     suggestions = resp.json
