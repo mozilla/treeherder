@@ -15,7 +15,7 @@ RESULT_DICT = {
 #
 #   PLATFORMS_BUILDERNAME, BUILD_TYPE_BUILDERNAME
 #
-#   http://mxr.mozilla.org/build/source/buildapi/buildapi/model/util.py
+#   https://dxr.mozilla.org/build-central/source/buildapi/buildapi/model/util.py
 #
 #   PIPEDREAM: Once these attributes are available as build properties in the
 #         pulse stream these structures can be removed.
