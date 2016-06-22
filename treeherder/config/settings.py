@@ -1,4 +1,5 @@
 from datetime import timedelta
+from urlparse import urlparse
 
 import environ
 from kombu import (Exchange,
@@ -320,6 +321,7 @@ REST_FRAMEWORK = {
 }
 
 SITE_URL = env("SITE_URL", default="http://local.treeherder.mozilla.org")
+SITE_HOSTNAME = urlparse(SITE_URL).netloc
 APPEND_SLASH = False
 
 BUILDAPI_PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-pending.js"
@@ -388,7 +390,7 @@ AUTOCLASSIFY_JOBS = env.bool("AUTOCLASSIFY_JOBS", default=False)
 # timeout for requests to external sources
 # like ftp.mozilla.org or hg.mozilla.org
 REQUESTS_TIMEOUT = 30
-TREEHERDER_USER_AGENT = 'treeherder/{}'.format(TREEHERDER_REQUEST_HOST)
+TREEHERDER_USER_AGENT = 'treeherder/{}'.format(SITE_HOSTNAME)
 
 # The pulse uri that is passed to kombu
 PULSE_URI = env("PULSE_URI", default="amqps://guest:guest@pulse.mozilla.org/")
