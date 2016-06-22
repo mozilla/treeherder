@@ -70,8 +70,8 @@ def do_job_ingestion(jm, job_data, sample_resultset, verify_data=True):
 
             machine_platforms_ref.add(
                 "-".join([
-                    job.get('machine_platform', {}).get('os_name', 'unkown'),
-                    job.get('machine_platform', {}).get('platform', 'unkown'),
+                    job.get('machine_platform', {}).get('os_name', 'unknown'),
+                    job.get('machine_platform', {}).get('platform', 'unknown'),
                     job.get('machine_platform', {}).get('architecture', 'unknown')
                 ]))
 
