@@ -175,8 +175,8 @@ class Bugscache(models.Model):
             LIMIT 0,%s''', [search_term_fulltext, search_term_like, time_limit,
                             max_size])
 
-        return {"open_recent": [model_to_dict(item) for item in recent],
-                "all_others": [model_to_dict(item) for item in all_others]}
+        return {"open_recent": [model_to_dict(item, exclude=["modified"]) for item in recent],
+                "all_others": [model_to_dict(item, exclude=["modified"]) for item in all_others]}
 
 
 @python_2_unicode_compatible
