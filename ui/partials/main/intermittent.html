@@ -6,10 +6,10 @@
   <button name="modalProductFinderButton" id="modalProductFinderButton"
           type="button" ng-click="findProduct()" prevent-default-on-left-click>Find Product</button>
   <div>
-    <fieldset id="suggestedProducts">
+    <fieldset id="suggestedProducts" ng-init="selection={}">
       <div ng-repeat="product in suggestedProducts">
         <input type="radio" value="{{product}}"
-               ng-model="selectedProduct"
+               ng-model="selection.selectedProduct"
                name="productGroup" id="modalProductSuggestion{{$id}}"/>
         <label for="modalProductSuggestion{{$id}}">{{product}}</label>
       </div>

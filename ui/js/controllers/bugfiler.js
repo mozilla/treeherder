@@ -98,7 +98,7 @@ treeherder.controller('BugFilerCtrl', [
             // Look up the product via the root of the failure's file path
             if(thBugzillaProductObject[failurePathRoot]) {
                 $scope.suggestedProducts.push(thBugzillaProductObject[failurePathRoot][0]);
-                $scope.selectedProduct = $scope.suggestedProducts[0];
+                $scope.selection.selectedProduct = $scope.suggestedProducts[0];
             }
 
             // Look up product suggestions via Bugzilla's api
@@ -121,7 +121,7 @@ treeherder.controller('BugFilerCtrl', [
                             return prod.product;
                         }
                     });
-                    $scope.selectedProduct = $scope.suggestedProducts[0];
+                    $scope.selection.selectedProduct = $scope.suggestedProducts[0];
                 });
             }
         };
@@ -148,8 +148,8 @@ treeherder.controller('BugFilerCtrl', [
             var componentString = "";
 
             $scope.toggleForm(true);
-            if($scope.selectedProduct) {
-                var prodParts = $scope.selectedProduct.split(" :: ");
+            if($scope.selection.selectedProduct) {
+                var prodParts = $scope.selection.selectedProduct.split(" :: ");
                 productString += prodParts[0];
                 componentString += prodParts[1];
             } else {
