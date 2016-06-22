@@ -396,8 +396,7 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
             tjc.add(tjc.get_job(job))
 
         client = TreeherderClient(
-            protocol='http',
-            host='host',
+            server_url='http://host',
             client_id='client-abc',
             secret='secret123',
             )
@@ -423,8 +422,7 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
             trc.add(trc.get_resultset(resultset))
 
         client = TreeherderClient(
-            protocol='http',
-            host='host',
+            server_url='http://host',
             client_id='client-abc',
             secret='secret123',
             )
@@ -450,8 +448,7 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
             tac.add(tac.get_artifact(artifact))
 
         client = TreeherderClient(
-            protocol='http',
-            host='host',
+            server_url='http://host',
             client_id='client-abc',
             secret='secret123',
             )

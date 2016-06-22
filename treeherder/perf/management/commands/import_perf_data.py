@@ -1,6 +1,5 @@
 import datetime
 from optparse import make_option
-from urlparse import urlparse
 
 import concurrent.futures
 from django.core.management.base import (BaseCommand,
@@ -152,12 +151,9 @@ class Command(BaseCommand):
             raise CommandError("Need to (only) specify project/branch")
         project = args[0]
 
-        server_params = urlparse(options['server'])
-
         time_interval = options['time_interval']
 
-        pc = PerfherderClient(protocol=server_params.scheme,
-                              host=server_params.netloc)
+        pc = PerfherderClient(server_url=options['server'])
         signatures = pc.get_performance_signatures(
             project,
             interval=time_interval)

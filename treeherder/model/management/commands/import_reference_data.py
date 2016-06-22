@@ -1,5 +1,4 @@
 from optparse import make_option
-from urlparse import urlparse
 
 from django.core.management.base import BaseCommand
 
@@ -29,9 +28,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        server_params = urlparse(options['server'])
-        c = TreeherderClient(protocol=server_params.scheme,
-                             host=server_params.netloc)
+        c = TreeherderClient(server_url=options['server'])
 
         # options / option collection hashes
         for (uuid, props) in c.get_option_collection_hash().iteritems():
