@@ -22,6 +22,23 @@ class BugzillaViewSet(viewsets.ViewSet):
                             status=HTTP_400_BAD_REQUEST)
 
         params = request.data
+
+        if params["summary"] is None:
+            return Response({"failure": "Bug summary is not defined. This shouldn't happen."},
+                            status=HTTP_400_BAD_REQUEST)
+
+        if params["product"] is None:
+            return Response({"failure": "Bug product is not defined. This shouldn't happen."},
+                            status=HTTP_400_BAD_REQUEST)
+
+        if params["component"] is None:
+            return Response({"failure": "Bug component is not defined. This shouldn't happen."},
+                            status=HTTP_400_BAD_REQUEST)
+
+        if params["version"] is None:
+            return Response({"failure": "Bug version is not defined. This shouldn't happen."},
+                            status=HTTP_400_BAD_REQUEST)
+
         url = settings.BZ_API_URL + "/rest/bug"
         headers = {
             'x-bugzilla-api-key': settings.BZ_API_KEY,
