@@ -24,7 +24,7 @@ class FailureLineViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = serializers.FailureLineNoStackSerializer
 
     @transaction.atomic
-    def _update(self, data, email, many=True):
+    def _update(self, data, user, many=True):
         by_project = defaultdict(list)
 
         ids = []
@@ -91,7 +91,7 @@ class FailureLineViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
             with JobsModel(project) as jm:
                 jobs = jm.get_job_ids_by_guid(job_guids)
                 for job in jobs.values():
-                    jm.update_after_verification(job["id"], email)
+                    jm.update_after_verification(job["id"], user)
 
         # Force failure line to be reloaded, including .classified_failures
         rv = FailureLine.objects.prefetch_related('classified_failures').filter(
@@ -109,11 +109,11 @@ class FailureLineViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
             if k not in data:
                 data[k] = v
 
-        body, status = self._update([data], request.user.email, many=False)
+        body, status = self._update([data], request.user, many=False)
         return Response(body, status=status)
 
     def update_many(self, request):
-        body, status = self._update(request.data, request.user.email, many=True)
+        body, status = self._update(request.data, request.user, many=True)
 
         if status == HTTP_404_NOT_FOUND:
             # 404 doesn't make sense for updating many since the path is always
