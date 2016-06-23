@@ -1,13 +1,13 @@
 import logging
 
 import newrelic.agent
-from celery import task
 from django.conf import settings
 from django.core.management import call_command
 
 from treeherder.autoclassify.tasks import autoclassify
 from treeherder.log_parser.utils import post_log_artifacts
 from treeherder.model.models import JobLog
+from treeherder.workers.task import retryable_task
 from treeherder.workers.taskset import (create_taskset,
                                         taskset)
 
@@ -95,7 +95,7 @@ def parse_job_logs(project, tasks):
         create_taskset(callback_group, callback)
 
 
-@task(name='log-parser', max_retries=10)
+@retryable_task(name='log-parser', max_retries=10)
 @taskset
 @parser_task
 def parse_log(project, job_guid, job_log, _priority):
@@ -108,7 +108,7 @@ def parse_log(project, job_guid, job_log, _priority):
                        parse_log)
 
 
-@task(name='store-failure-lines', max_retries=10)
+@retryable_task(name='store-failure-lines', max_retries=10)
 @taskset
 @parser_task
 def store_failure_lines(project, job_guid, job_log, priority):
@@ -124,7 +124,7 @@ def store_failure_lines(project, job_guid, job_log, priority):
         store_failure_lines.retry(exc=e, countdown=(1 + store_failure_lines.request.retries) * 60)
 
 
-@task(name='crossreference-error-lines', max_retries=10)
+@retryable_task(name='crossreference-error-lines', max_retries=10)
 def crossreference_error_lines(project, job_guid):
     """This task is a wrapper for the crossreference error lines command."""
     newrelic.agent.add_custom_parameter("project", project)

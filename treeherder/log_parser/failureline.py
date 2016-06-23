@@ -5,7 +5,8 @@ from itertools import islice
 
 from django.conf import settings
 from django.db import transaction
-from django.db.utils import OperationalError
+from django.db.utils import (IntegrityError,
+                             OperationalError)
 from requests.exceptions import HTTPError
 
 from treeherder.etl.common import fetch_text
@@ -17,6 +18,19 @@ logger = logging.getLogger(__name__)
 
 
 def store_failure_lines(repository_name, job_guid, job_log):
+    try:
+        repository = Repository.objects.get(name=repository_name, active_status='active')
+    except Repository.DoesNotExist:
+        logger.error("Unknown repository %s" % repository_name)
+        raise
+
+    log_iter = fetch_log(job_log)
+    if not log_iter:
+        return
+    write_failure_lines(repository, job_guid, job_log, log_iter)
+
+
+def fetch_log(job_log):
     try:
         log_text = fetch_text(job_log.url)
     except HTTPError as e:
@@ -31,51 +45,59 @@ def store_failure_lines(repository_name, job_guid, job_log):
     if not log_text:
         return
 
-    log_iter = (json.loads(item) for item in log_text.splitlines())
+    return (json.loads(item) for item in log_text.splitlines())
 
-    try:
-        repository = Repository.objects.get(name=repository_name, active_status='active')
-    except Repository.DoesNotExist:
-        logger.error("Unknown repository %s" % repository_name)
-        raise
 
+def write_failure_lines(repository, job_guid, job_log, log_iter):
     failure_lines_cutoff = settings.FAILURE_LINES_CUTOFF
-    log_iter = list(islice(log_iter, failure_lines_cutoff+1))
+    log_list = list(islice(log_iter, failure_lines_cutoff+1))
 
-    if len(log_iter) > failure_lines_cutoff:
+    if len(log_list) > failure_lines_cutoff:
         # Alter the N+1th log line to indicate the list was truncated.
-        log_iter[-1].update(action='truncated')
+        log_list[-1].update(action='truncated')
 
     retry = False
     with transaction.atomic():
         try:
-            create(repository, job_guid, job_log, log_iter)
+            create(repository, job_guid, job_log, log_list)
         except OperationalError as e:
             logger.warning("Got OperationalError inserting failure_line")
             # Retry iff this error is the "incorrect String Value" error
-            retry = e.args[0] == 1366
+            if e.args[0] == 1366:
+                # Sometimes get an error if we can't save a string as MySQL pseudo-UTF8
+                transformer = replace_astral
+                retry = True
+        except IntegrityError:
+            logger.warning("Got IntegrityError inserting failure_line")
 
-    logger.info("store failure lines 3")
+            def exclude_lines(log_list):
+                exclude = set(
+                    FailureLine.objects.filter(job_log=job_log,
+                                               line__in=[item["line"] for item in log_list])
+                    .values_list("line", flat=True))
+                return (item for item in log_list if item["line"] not in exclude)
+            transformer = exclude_lines
+            retry = True
+
     if retry:
         with transaction.atomic():
-            logger.info("Retrying insert with astral character replacement")
-            # Sometimes get an error if we can't save a string as MySQL pseudo-UTF8
-            log_iter = list(replace_astral(log_iter))
-            create(repository, job_guid, job_log, log_iter)
+            log_list = list(transformer(log_list))
+            print log_list
+            create(repository, job_guid, job_log, log_list)
 
 
-def create(repository, job_guid, job_log, log_iter):
+def create(repository, job_guid, job_log, log_list):
     FailureLine.objects.bulk_create(
         [FailureLine(repository=repository, job_guid=job_guid, job_log=job_log,
                      **failure_line)
-         for failure_line in log_iter]
+         for failure_line in log_list]
     )
     job_log.status == JobLog.PARSED
     job_log.save()
 
 
-def replace_astral(log_iter):
-    for item in log_iter:
+def replace_astral(log_list):
+    for item in log_list:
         for key in ["test", "subtest", "message", "stack", "stackwalk_stdout",
                     "stackwalk_stderr"]:
             if key in item:
