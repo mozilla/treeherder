@@ -26,6 +26,7 @@ from treeherder.model.models import (BugJobMap,
                                      JobDuration,
                                      JobGroup,
                                      JobLog,
+                                     JobNote,
                                      JobType,
                                      Machine,
                                      MachinePlatform,
@@ -133,7 +134,6 @@ class JobsModel(TreeherderModelBase):
     # to their ids.
     JOBS_CYCLE_TARGETS = [
         "jobs.deletes.cycle_job_artifact",
-        "jobs.deletes.cycle_job_note",
         "jobs.deletes.cycle_job",
     ]
 
@@ -381,80 +381,28 @@ class JobsModel(TreeherderModelBase):
         )
         return int(data[0]['max_id'] or 0)
 
-    def get_job_note(self, id):
-        """Return the job note by id."""
-        data = self.execute(
-            proc="jobs.selects.get_job_note",
-            placeholders=[id],
-            debug_show=self.DEBUG,
-        )
-        return data
-
-    def get_job_note_list(self, job_id):
-        """Return the job notes by job_id."""
-        data = self.execute(
-            proc="jobs.selects.get_job_note_list",
-            placeholders=[job_id],
-            debug_show=self.DEBUG,
-        )
-        return data
-
     def update_last_job_classification(self, job_id):
         """
         Update failure_classification_id no the job table accordingly to
         the latest annotation. If none is present it gets reverted to the
         default value
         """
+        note = JobNote.objects.filter(
+            job__repository__name=self.project,
+            job__project_specific_id=job_id).order_by('-created').first()
+
+        if note:
+            failure_classification_id = note.failure_classification.id
+        else:
+            failure_classification_id = 0
 
         self.execute(
             proc='jobs.updates.update_last_job_classification',
             placeholders=[
-                job_id,
+                failure_classification_id, job_id
             ],
             debug_show=self.DEBUG
         )
-
-    def insert_job_note(self, job_id, failure_classification_id, user, note, autoclassify=False):
-        """insert a new note for a job and updates its failure classification"""
-        if not user:
-            email = "autoclassifier"
-        else:
-            email = user.email
-
-        self.execute(
-            proc='jobs.inserts.insert_note',
-            placeholders=[
-                job_id,
-                failure_classification_id,
-                email,
-                note,
-                utils.get_now_timestamp(),
-            ],
-            debug_show=self.DEBUG
-        )
-        self.update_last_job_classification(job_id)
-
-        intermittent_ids = FailureClassification.objects.filter(
-            name__in=["intermittent", "intermittent needs filing"]).values_list('id', flat=True)
-
-        if not autoclassify and failure_classification_id in intermittent_ids:
-            failure_line = self.get_manual_classification_line(job_id)
-            if failure_line:
-                failure_line.update_autoclassification()
-
-    def delete_job_note(self, note_id, job_id):
-        """
-        Delete a job note and updates the failure classification for that job
-        """
-
-        self.execute(
-            proc='jobs.deletes.delete_note',
-            placeholders=[
-                note_id,
-            ],
-            debug_show=self.DEBUG
-        )
-        self.update_last_job_classification(job_id)
 
     def get_manual_classification_line(self, job_id):
         """
@@ -491,28 +439,28 @@ class JobsModel(TreeherderModelBase):
             return
 
         if self.is_fully_autoclassified(job_id):
-            existing_notes = self.get_job_note_list(job_id)
             # We don't want to add a job note after an autoclassification if there is already
             # one and after a verification if there is already one not supplied by the
             # autoclassifier
-            if existing_notes:
-                return
-            self.insert_autoclassify_job_note(job_id)
+            if not JobNote.objects.filter(job__repository__name=self.project,
+                                          job__project_specific_id=job_id).exists():
+                self.insert_autoclassify_job_note(job_id)
 
     def update_after_verification(self, job_id, user):
         if not settings.AUTOCLASSIFY_JOBS:
             return
 
         if self.is_fully_verified(job_id):
-            existing_notes = self.get_job_note_list(job_id)
+            existing_notes = JobNote.objects.filter(job__repository__name=self.project,
+                                                    job__project_specific_id=job_id)
             autoclassification = FailureClassification.objects.get(
                 name="autoclassified intermittent")
             # We don't want to add a job note after an autoclassification if there is already
             # one and after a verification if there is already one not supplied by the
             # autoclassifier
-            if (any(item["failure_classification_id"] != autoclassification.id
-                    for item in existing_notes)):
-                return
+            for note in existing_notes:
+                if note.failure_classification != autoclassification:
+                    return
             self.insert_autoclassify_job_note(job_id, user=user)
 
     def is_fully_verified(self, job_id):
@@ -571,11 +519,6 @@ class JobsModel(TreeherderModelBase):
         if not settings.AUTOCLASSIFY_JOBS:
             return
 
-        if user is None:
-            verified = False
-        else:
-            verified = True
-
         job = Job.objects.get(repository__name=self.project,
                               project_specific_id=job_id)
 
@@ -598,14 +541,17 @@ class JobsModel(TreeherderModelBase):
                                      submit_timestamp=datetime.datetime.now(),
                                      user=user)
 
-        if not verified:
+        if not user:
             classification = FailureClassification.objects.get(
                 name="autoclassified intermittent")
             logger.info("Autoclassifier adding job note")
         else:
             classification = FailureClassification.objects.get(name="intermittent")
 
-        self.insert_job_note(job_id, classification.id, user, "", autoclassify=True)
+        JobNote.objects.create(job=job,
+                               failure_classification=classification,
+                               user=user,
+                               text="")
 
     def update_autoclassification_bug(self, job_id, bug_number):
         failure_line = self.get_manual_classification_line(job_id)
@@ -2088,14 +2034,14 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 )
                 placeholders += signature_list
 
-        resulset_status_list = self.execute(
+        resultset_status_list = self.execute(
             proc='jobs.selects.get_resultset_status',
             placeholders=placeholders,
             replace=replace,
             debug_show=self.DEBUG)
         num_coalesced = 0
         resultset_status_dict = {}
-        for rs in resulset_status_list:
+        for rs in resultset_status_list:
             num_coalesced += rs['num_coalesced'] if rs['num_coalesced'] else 0
             if rs['state'] == 'completed':
                 resultset_status_dict[rs['result']] = int(rs['total']) - rs['num_coalesced']

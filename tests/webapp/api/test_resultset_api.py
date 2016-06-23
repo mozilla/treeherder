@@ -5,7 +5,9 @@ from rest_framework.test import APIClient
 
 from tests import test_utils
 from treeherder.client import TreeherderResultSetCollection
-from treeherder.model.models import FailureClassification
+from treeherder.model.models import (FailureClassification,
+                                     Job,
+                                     JobNote)
 from treeherder.webapp.api import utils
 
 
@@ -368,7 +370,8 @@ def test_resultset_status(jm, webapp, eleven_jobs_stored, test_user):
     test retrieving the status of a resultset
     """
     # create a failure classification corresponding to "not successful"
-    FailureClassification.objects.create(id=2, name="fixed by commit")
+    failure_classification = FailureClassification.objects.create(
+        id=2, name="fixed by commit")
 
     rs_list = jm.get_result_set_list(0, 10)
     rs = rs_list[0]
@@ -382,7 +385,10 @@ def test_resultset_status(jm, webapp, eleven_jobs_stored, test_user):
     assert resp.json == {'success': 1}
 
     # the first ten resultsets have one job each, so resultset.id == job.id
-    jm.insert_job_note(rs["id"], 2, test_user, 'A random note')
+    JobNote.objects.create(job=Job.objects.get(project_specific_id=rs["id"]),
+                           failure_classification=failure_classification,
+                           user=test_user,
+                           text='A random note')
 
     resp = webapp.get(
         reverse("resultset-status",
