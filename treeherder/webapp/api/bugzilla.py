@@ -22,18 +22,22 @@ class BugzillaViewSet(viewsets.ViewSet):
                             status=HTTP_400_BAD_REQUEST)
 
         params = request.data
+        description = "Filed by: {}\n\n{}".format(
+            request.user.username,
+            params.get("comment", "")
+        )
         url = settings.BZ_API_URL + "/rest/bug"
         headers = {
             'x-bugzilla-api-key': settings.BZ_API_KEY,
             'Accept': 'application/json'
         }
         data = {
-            'product': params["product"],
-            'component': params["component"],
-            'summary': params["summary"],
-            'keywords': params["keywords"],
-            'version': params["version"],
-            'description': "Filed by: " + request.user.username + "\n\n" + params["description"],
+            'product': params.get("product"),
+            'component': params.get("component"),
+            'summary': params.get("summary"),
+            'keywords': params.get("keywords"),
+            'version': params.get("version"),
+            'description': description,
             'comment_tags': "treeherder",
         }
 
