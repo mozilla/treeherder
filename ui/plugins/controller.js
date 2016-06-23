@@ -89,9 +89,9 @@ treeherder.controller('PluginCtrl', [
                       '/performance/data/?job_id=' + job.id).then(function(response) {
                           if (!_.isEmpty(response.data) && job.job_type_name !== "Build") {
                               $scope.tabService.tabs.perfDetails.enabled = true;
-                          }
-                          if (thResultStatus(job) === 'success') {
-                              $scope.tabService.selectedTab = 'perfDetails';
+                              if (thResultStatus(job) === 'success') {
+                                  $scope.tabService.selectedTab = 'perfDetails';
+                              }
                           }
                       });
             if (thResultStatus(job) === 'success') {
