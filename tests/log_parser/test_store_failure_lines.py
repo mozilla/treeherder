@@ -4,7 +4,8 @@ from django.conf import settings
 from requests.exceptions import HTTPError
 
 from treeherder.log_parser.failureline import (char_to_codepoint_ucs2,
-                                               store_failure_lines)
+                                               store_failure_lines,
+                                               write_failure_lines)
 from treeherder.model.models import (FailureLine,
                                      Job,
                                      JobLog)
@@ -141,3 +142,24 @@ def test_char_data_to_codepoint_ucs2():
     ]
     for value, expected in data:
         assert char_to_codepoint_ucs2(value) == expected
+
+
+def test_store_error_summary_duplicate(activate_responses, test_repository, jm, eleven_jobs_stored):
+    log_url = 'http://my-log.mozilla.org'
+    job = Job.objects.get(guid=jm.get_job(1)[0]['job_guid'])
+    log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
+
+    write_failure_lines(test_repository, job.guid, log_obj, [{"action": "log",
+                                                              "level": "debug",
+                                                              "message": "test",
+                                                              "line": 1}])
+    write_failure_lines(test_repository, job.guid, log_obj, [{"action": "log",
+                                                              "level": "debug",
+                                                              "message": "test",
+                                                              "line": 1},
+                                                             {"action": "log",
+                                                              "level": "debug",
+                                                              "message": "test 1",
+                                                              "line": 2}])
+
+    assert FailureLine.objects.count() == 2
