@@ -880,7 +880,7 @@ def test_retry_on_operational_failure(jm, monkeypatch):
     assert retry_count['num'] == 20
 
 
-def test_delete_note(jm, eleven_jobs_stored):
+def test_delete_note(jm, eleven_jobs_stored, test_user):
     """
     test inserting and deleting a note
     """
@@ -890,7 +890,7 @@ def test_delete_note(jm, eleven_jobs_stored):
     job = jm.get_job(1)[0]
     assert job["failure_classification_id"] == 1
 
-    jm.insert_job_note(job["id"], 2, 'John Doe', 'A random note')
+    jm.insert_job_note(job["id"], 2, test_user, 'A random note')
 
     job = jm.get_job(1)[0]
     assert job["failure_classification_id"] == 2

@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
 
-def test_note_list(webapp, sample_notes, jm):
+def test_note_list(webapp, sample_notes, jm, test_user):
     """
     test retrieving a list of notes from the note-list endpoint
     """
@@ -38,14 +38,14 @@ def test_note_list(webapp, sample_notes, jm):
         {
             "job_id": job_id,
             "failure_classification_id": 1,
-            "who": "kellyclarkson",
+            "who": test_user.email,
             "note": "you look like a man-o-lantern",
             "active_status": "active",
         },
         {
             "job_id": job_id,
             "failure_classification_id": 0,
-            "who": "kellyclarkson",
+            "who": test_user.email,
             "note": "you look like a man-o-lantern",
             "active_status": "active",
         }
@@ -126,7 +126,7 @@ def test_create_note(webapp, eleven_jobs_stored, mock_message_broker, jm,
         {
             "job_id": job["id"],
             "failure_classification_id": 2,
-            "who": "kelly clarkson",
+            "who": test_user.email,
             "note": "you look like a man-o-lantern"
         }
     )

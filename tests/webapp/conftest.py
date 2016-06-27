@@ -42,7 +42,7 @@ def sample_artifacts(jm, sample_data):
 
 
 @pytest.fixture
-def sample_notes(jm, sample_data, eleven_jobs_stored):
+def sample_notes(jm, sample_data, eleven_jobs_stored, test_user):
     """provide 11 jobs with job notes."""
 
     jobs = jm.get_job_list(0, 10)
@@ -52,6 +52,6 @@ def sample_notes(jm, sample_data, eleven_jobs_stored):
             jm.insert_job_note(
                 job["id"],
                 fcid,
-                "kellyclarkson",
+                test_user,
                 "you look like a man-o-lantern"
             )
