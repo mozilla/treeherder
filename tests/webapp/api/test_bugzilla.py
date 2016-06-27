@@ -43,7 +43,7 @@ def test_create_bug(webapp, eleven_jobs_stored, activate_responses, test_user):
             "component": "Administration",
             "summary": "Intermittent summary",
             "version": "4.0.17",
-            "description": "Intermittent Description",
+            "comment": "Intermittent Description",
             "comment_tags": "treeherder",
             "keywords": "intermittent-failure",
         }
@@ -92,7 +92,7 @@ def test_create_unauthenticated_bug(webapp, eleven_jobs_stored, activate_respons
             "component": "Administration",
             "summary": "Intermittent summary",
             "version": "4.0.17",
-            "description": "Intermittent Description",
+            "comment": "Intermittent Description",
             "comment_tags": "treeherder",
             "keywords": "intermittent-failure",
         }

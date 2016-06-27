@@ -182,7 +182,7 @@ treeherder.controller('BugFilerCtrl', [
                         "keywords": "intermittent-failure",
                         // XXX This takes the last version returned from the product query, probably should be smarter about this in the future...
                         "version": productObject.versions[productObject.versions.length-1].name,
-                        "description": descriptionStrings,
+                        "comment": descriptionStrings,
                         "comment_tags": "treeherder"
                     }
                 }).then(function successCallback(json) {
