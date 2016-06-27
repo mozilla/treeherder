@@ -19,17 +19,20 @@ class RunnableJobsViewSet(viewsets.ViewSet):
         """
         GET method implementation for list of all runnable buildbot jobs
         """
-        decisionTaskID = request.query_params['decisionTaskID']
-        tc_jobs_url = "https://public-artifacts.taskcluster.net/" + decisionTaskID + "/0/public/full-task-graph.json"
-        tc_graph = None
-        validate = URLValidator()
-        try:
-            validate(tc_jobs_url)
-            tc_graph = fetch_json(tc_jobs_url)
-        except ValidationError:
-            pass
-        except Exception as ex:
-            return Response("Exception: {0}".format(ex), 500)
+        if 'decisionTaskID' in request.query_params and len(request.query_params['decisionTaskID']):
+            decisionTaskID = request.query_params['decisionTaskID']
+            tc_jobs_url = "https://queue.taskcluster.net/v1/task/" + decisionTaskID + "/runs/0/artifacts/public/full-task-graph.json"
+            tc_graph = None
+            validate = URLValidator()
+            try:
+                validate(tc_jobs_url)
+                tc_graph = fetch_json(tc_jobs_url)
+            except ValidationError:
+                pass
+            except Exception as ex:
+                return Response("Exception: {0}".format(ex), 500)
+        else:
+            tc_graph = {}
 
         repository = models.Repository.objects.get(name=project)
 
@@ -101,7 +104,6 @@ class RunnableJobsViewSet(viewsets.ViewSet):
                 'job_type_name': job_type_name,
                 'job_type_symbol': node['task']['extra']['treeherder']['symbol'],
                 'job_type_description': node['task']['metadata']['description'],
-                'option_collection_hash': node['task']['extra']['treeherder']['revision_hash'],
                 'ref_data_name': label,
                 'build_system_type': 'taskcluster',
                 'platform_option': platform_option,
