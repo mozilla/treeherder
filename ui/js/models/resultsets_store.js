@@ -319,6 +319,7 @@ treeherder.factory('ThResultSetStore', [
                 tcURLPromise = ThJobDetailModel.getJobDetails(job_guid, {timeout: null});
             }
             if (!tcURLPromise) {
+                // Here we are passing false to the results instead of skipping the promise
                 tcURLPromise = $q.when(false);
             }
             return tcURLPromise.then(function(results) {
@@ -327,11 +328,11 @@ treeherder.factory('ThResultSetStore', [
                 if (results && repoName === "try") {
                     decisionTaskID = results[0].url.substring(results[0].url.indexOf("#") + 1);
                     // Removing last two characters /0
-                    decisionTaskID = decisionTaskID.substring(0, decisionTaskID.length - 2);
+                    decisionTaskID = decisionTaskID.substring(0, decisionTaskID.lastIndexOf('/'));
                 }
                 // Will be used later for the GET request
                 resultSet.geckoDecisionTaskID = decisionTaskID;
-                return ThRunnableJobModel.get_list(repoName, {"decisionTaskID": decisionTaskID}).then(function(jobList) {
+                return ThRunnableJobModel.get_list(repoName, {"decisionTaskID": ""}).then(function(jobList) {
                     var id = resultSet.id;
                     _.each(jobList, function(job) {
                         job.result_set_id = id;
