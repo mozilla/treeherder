@@ -170,7 +170,7 @@ def test_update_failure_line_mark_job_with_human_note(eleven_jobs_stored,
     with ArtifactsModel(jm.project) as artifacts_model:
         artifacts_model.load_job_artifacts([bs_artifact])
 
-    jm.insert_job_note(job["id"], 4, test_user.email, "note")
+    jm.insert_job_note(job["id"], 4, test_user, "note")
 
     for failure_line in job_failure_lines:
 
@@ -216,7 +216,7 @@ def test_update_failure_line_mark_job_with_auto_note(eleven_jobs_stored,
     with ArtifactsModel(jm.project) as artifacts_model:
         artifacts_model.load_job_artifacts([bs_artifact])
 
-    jm.insert_job_note(job["id"], 7, "autoclassifier", "note", autoclassify=True)
+    jm.insert_job_note(job["id"], 7, None, "note", autoclassify=True)
 
     for failure_line in job_failure_lines:
 
