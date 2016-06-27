@@ -184,7 +184,7 @@
               }
             ],
             "name": "'/tools/buildbot/bin/python scripts/scripts/talos_script.py ...' failed",
-            "timeStarted": "2016-02-02T14:27:05-07:00",
+            "timeStarted": "2016-02-02T14:27:05-08:00",
             "lineStarted": 234,
             "lineFinished": 3269,
             "timeFinished": "2016-02-02T14:38:09-08:00",

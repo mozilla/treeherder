@@ -1,5 +1,5 @@
+import calendar
 import logging
-import time
 from collections import defaultdict
 
 import jsonschema
@@ -300,4 +300,4 @@ class JobLoader:
         return validated_jobs
 
     def _to_timestamp(self, datestr):
-        return time.mktime(parser.parse(datestr).timetuple())
+        return calendar.timegm(parser.parse(datestr).utctimetuple())
