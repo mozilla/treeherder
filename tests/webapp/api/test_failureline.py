@@ -8,6 +8,8 @@ from tests.autoclassify.utils import (create_failure_lines,
 from treeherder.autoclassify.detectors import ManualDetector
 from treeherder.model.derived import ArtifactsModel
 from treeherder.model.models import (FailureLine,
+                                     Job,
+                                     JobNote,
                                      Matcher,
                                      MatcherManager)
 from treeherder.model.search import TestFailureLine
@@ -104,17 +106,17 @@ def test_update_failure_line_mark_job(eleven_jobs_stored,
     client = APIClient()
     client.force_authenticate(user=test_user)
 
-    job = jm.get_job(1)[0]
+    job = Job.objects.get(project_specific_id=1)
 
     job_failure_lines = [line for line in failure_lines if
-                         line.job_guid == job["job_guid"]]
+                         line.job_guid == job.guid]
 
     bs_artifact = {'type': 'json',
                    'name': 'Bug suggestions',
                    'blob': json.dumps([{"search": "TEST-UNEXPECTED-%s %s" %
                                         (line.status.upper(), line.message)}
                                        for line in job_failure_lines]),
-                   'job_guid': job['job_guid']}
+                   'job_guid': job.guid}
 
     with ArtifactsModel(jm.project) as artifacts_model:
         artifacts_model.load_job_artifacts([bs_artifact])
@@ -135,14 +137,12 @@ def test_update_failure_line_mark_job(eleven_jobs_stored,
         assert failure_line.best_classification == classified_failures[1]
         assert failure_line.best_is_verified
 
-    assert jm.is_fully_verified(job['id'])
+    assert jm.is_fully_verified(job.project_specific_id)
 
-    notes = jm.get_job_note_list(job['id'])
-
-    assert len(notes) == 1
-
-    assert notes[0]["failure_classification_id"] == 4
-    assert notes[0]["who"] == test_user.email
+    # should only be one, will assert if that isn't the case
+    note = JobNote.objects.get(job=job)
+    assert note.failure_classification.id == 4
+    assert note.user == test_user
 
 
 def test_update_failure_line_mark_job_with_human_note(eleven_jobs_stored,
@@ -155,22 +155,25 @@ def test_update_failure_line_mark_job_with_human_note(eleven_jobs_stored,
     client = APIClient()
     client.force_authenticate(user=test_user)
 
-    job = jm.get_job(1)[0]
+    job = Job.objects.get(project_specific_id=1)
 
     job_failure_lines = [line for line in failure_lines if
-                         line.job_guid == job["job_guid"]]
+                         line.job_guid == job.guid]
 
     bs_artifact = {'type': 'json',
                    'name': 'Bug suggestions',
                    'blob': json.dumps([{"search": "TEST-UNEXPECTED-%s %s" %
                                         (line.status.upper(), line.message)}
                                        for line in job_failure_lines]),
-                   'job_guid': job['job_guid']}
+                   'job_guid': job.guid}
 
     with ArtifactsModel(jm.project) as artifacts_model:
         artifacts_model.load_job_artifacts([bs_artifact])
 
-    jm.insert_job_note(job["id"], 4, test_user, "note")
+    JobNote.objects.create(job=job,
+                           failure_classification_id=4,
+                           user=test_user,
+                           text="note")
 
     for failure_line in job_failure_lines:
 
@@ -181,14 +184,12 @@ def test_update_failure_line_mark_job_with_human_note(eleven_jobs_stored,
 
         assert resp.status_code == 200
 
-    assert jm.is_fully_verified(job['id'])
+    assert jm.is_fully_verified(job.project_specific_id)
 
-    notes = jm.get_job_note_list(job['id'])
-
-    assert len(notes) == 1
-
-    assert notes[0]["failure_classification_id"] == 4
-    assert notes[0]["who"] == test_user.email
+    # should only be one, will assert if that isn't the case
+    note = JobNote.objects.get(job=job)
+    assert note.failure_classification.id == 4
+    assert note.user == test_user
 
 
 def test_update_failure_line_mark_job_with_auto_note(eleven_jobs_stored,
@@ -201,22 +202,24 @@ def test_update_failure_line_mark_job_with_auto_note(eleven_jobs_stored,
     client = APIClient()
     client.force_authenticate(user=test_user)
 
-    job = jm.get_job(1)[0]
+    job = Job.objects.get(project_specific_id=1)
 
     job_failure_lines = [line for line in failure_lines if
-                         line.job_guid == job["job_guid"]]
+                         line.job_guid == job.guid]
 
     bs_artifact = {'type': 'json',
                    'name': 'Bug suggestions',
                    'blob': json.dumps([{"search": "TEST-UNEXPECTED-%s %s" %
                                         (line.status.upper(), line.message)}
                                        for line in job_failure_lines]),
-                   'job_guid': job['job_guid']}
+                   'job_guid': job.guid}
 
     with ArtifactsModel(jm.project) as artifacts_model:
         artifacts_model.load_job_artifacts([bs_artifact])
 
-    jm.insert_job_note(job["id"], 7, None, "note", autoclassify=True)
+    JobNote.objects.create(job=job,
+                           failure_classification_id=7,
+                           text="note")
 
     for failure_line in job_failure_lines:
 
@@ -227,14 +230,18 @@ def test_update_failure_line_mark_job_with_auto_note(eleven_jobs_stored,
 
         assert resp.status_code == 200
 
-    assert jm.is_fully_verified(job['id'])
+    assert jm.is_fully_verified(job.project_specific_id)
 
-    notes = jm.get_job_note_list(job['id'])
+    notes = JobNote.objects.filter(job=job).order_by('-created')
+    assert notes.count() == 2
 
-    assert len(notes) == 2
+    assert notes[0].failure_classification.id == 4
+    assert notes[0].user == test_user
+    assert notes[0].text == ''
 
-    assert notes[0]["failure_classification_id"] == 4
-    assert notes[0]["who"] == test_user.email
+    assert notes[1].failure_classification.id == 7
+    assert not notes[1].user
+    assert notes[1].text == "note"
 
 
 def test_update_failure_lines(eleven_jobs_stored,
@@ -242,28 +249,29 @@ def test_update_failure_lines(eleven_jobs_stored,
                               test_repository, failure_lines,
                               classified_failures, test_user):
 
-    jobs = (jm.get_job(1)[0], jm.get_job(2)[0])
+    jobs = (Job.objects.get(project_specific_id=1),
+            Job.objects.get(project_specific_id=2))
     MatcherManager.register_detector(ManualDetector)
 
     client = APIClient()
     client.force_authenticate(user=test_user)
 
     create_failure_lines(test_repository,
-                         jobs[1]["job_guid"],
+                         jobs[1].guid,
                          [(test_line, {}),
                           (test_line, {"subtest": "subtest2"})])
 
     failure_lines = FailureLine.objects.filter(
-        job_guid__in=[job["job_guid"] for job in jobs]).all()
+        job_guid__in=[job.guid for job in jobs]).all()
 
     for job in jobs:
-        job_failure_lines = FailureLine.objects.filter(job_guid=job["job_guid"]).all()
+        job_failure_lines = FailureLine.objects.filter(job_guid=job.guid).all()
         bs_artifact = {'type': 'json',
                        'name': 'Bug suggestions',
                        'blob': json.dumps([{"search": "TEST-UNEXPECTED-%s %s" %
                                             (line.status.upper(), line.message)} for line in
                                            job_failure_lines]),
-                       'job_guid': job['job_guid']}
+                       'job_guid': job.guid}
 
         with ArtifactsModel(jm.project) as artifacts_model:
             artifacts_model.load_job_artifacts([bs_artifact])
@@ -285,14 +293,12 @@ def test_update_failure_lines(eleven_jobs_stored,
         assert failure_line.best_is_verified
 
     for job in jobs:
-        assert jm.is_fully_verified(job['id'])
+        assert jm.is_fully_verified(job.project_specific_id)
 
-        notes = jm.get_job_note_list(job['id'])
-
-        assert len(notes) == 1
-
-        assert notes[0]["failure_classification_id"] == 4
-        assert notes[0]["who"] == test_user.email
+        # will assert if we don't have exactly one job, which is what we want
+        note = JobNote.objects.get(job=job)
+        assert note.failure_classification.id == 4
+        assert note.user == test_user
 
 
 def test_update_failure_line_ignore(eleven_jobs_stored, jm, failure_lines,
@@ -333,10 +339,10 @@ def test_update_failure_line_all_ignore_mark_job(eleven_jobs_stored,
     client = APIClient()
     client.force_authenticate(user=test_user)
 
-    job = jm.get_job(1)[0]
+    job = Job.objects.get(project_specific_id=1)
 
     job_failure_lines = [line for line in failure_lines if
-                         line.job_guid == job["job_guid"]]
+                         line.job_guid == job.guid]
 
     for failure_line in job_failure_lines:
         failure_line.best_is_verified = False
@@ -347,12 +353,12 @@ def test_update_failure_line_all_ignore_mark_job(eleven_jobs_stored,
                    'blob': json.dumps([{"search": "TEST-UNEXPECTED-%s %s" %
                                         (line.status.upper(), line.message)}
                                        for line in job_failure_lines]),
-                   'job_guid': job['job_guid']}
+                   'job_guid': job.guid}
 
     with ArtifactsModel(jm.project) as artifacts_model:
         artifacts_model.load_job_artifacts([bs_artifact])
 
-    assert len(jm.get_job_note_list(job['id'])) == 0
+    assert JobNote.objects.count() == 0
 
     for failure_line in job_failure_lines:
 
@@ -370,11 +376,9 @@ def test_update_failure_line_all_ignore_mark_job(eleven_jobs_stored,
         assert failure_line.best_classification is None
         assert failure_line.best_is_verified
 
-    assert jm.is_fully_verified(job['id'])
+    assert jm.is_fully_verified(job.project_specific_id)
 
-    notes = jm.get_job_note_list(job['id'])
-
-    assert len(notes) == 1
+    assert JobNote.objects.count() == 1
 
 
 def test_update_failure_line_partial_ignore_mark_job(eleven_jobs_stored,
@@ -388,17 +392,15 @@ def test_update_failure_line_partial_ignore_mark_job(eleven_jobs_stored,
     client = APIClient()
     client.force_authenticate(user=test_user)
 
-    job = jm.get_job(1)[0]
-
+    job = Job.objects.get(project_specific_id=1)
     job_failure_lines = [line for line in failure_lines if
-                         line.job_guid == job["job_guid"]]
-
+                         line.job_guid == job.guid]
     bs_artifact = {'type': 'json',
                    'name': 'Bug suggestions',
                    'blob': json.dumps([{"search": "TEST-UNEXPECTED-%s %s" %
                                         (line.status.upper(), line.message)}
                                        for line in job_failure_lines]),
-                   'job_guid': job['job_guid']}
+                   'job_guid': job.guid}
 
     with ArtifactsModel(jm.project) as artifacts_model:
         artifacts_model.load_job_artifacts([bs_artifact])
@@ -422,10 +424,11 @@ def test_update_failure_line_partial_ignore_mark_job(eleven_jobs_stored,
             assert failure_line.best_classification == classified_failures[0]
         assert failure_line.best_is_verified
 
-    assert jm.is_fully_verified(job['id'])
+    assert jm.is_fully_verified(job.project_specific_id)
 
-    notes = jm.get_job_note_list(job['id'])
+    # will assert if we don't have exactly one note for this job, which is
+    # what we want
+    note = JobNote.objects.get(job=job)
 
-    assert len(notes) == 1
-    assert notes[0]["failure_classification_id"] == 4
-    assert notes[0]["who"] == test_user.email
+    assert note.failure_classification.id == 4
+    assert note.user == test_user

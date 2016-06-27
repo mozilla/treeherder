@@ -12,7 +12,8 @@ from treeherder.autoclassify.matchers import (CrashSignatureMatcher,
 from treeherder.model.models import (BugJobMap,
                                      ClassifiedFailure,
                                      FailureMatch,
-                                     Job)
+                                     Job,
+                                     JobNote)
 
 from .utils import (crash_line,
                     create_bug_suggestions,
@@ -90,45 +91,45 @@ def test_autoclassify_update_job_classification(activate_responses, jm, test_rep
                                                 test_project, eleven_jobs_stored,
                                                 failure_lines, classified_failures,
                                                 mock_autoclassify_jobs_true):
-    job = jm.get_job(2)[0]
+    ds_job = jm.get_job(2)[0]
 
     for i, item in enumerate(classified_failures):
         item.bug_number = "1234%i" % i
         item.save()
 
-    create_bug_suggestions(job, test_project, {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
+    create_bug_suggestions(ds_job, test_project, {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
 
     test_failure_lines = create_failure_lines(test_repository,
-                                              job["job_guid"],
+                                              ds_job["job_guid"],
                                               [(test_line, {})])
 
-    autoclassify(jm, job, test_failure_lines, [PreciseTestMatcher])
+    autoclassify(jm, ds_job, test_failure_lines, [PreciseTestMatcher])
 
-    notes = jm.get_job_note_list(job["id"])
-    assert len(notes) == 1
+    job = Job.objects.get(project_specific_id=ds_job["id"])
+
+    assert JobNote.objects.filter(job=job).count() == 1
 
     # Check that a bug isn't added by the autoclassifier
-    assert BugJobMap.objects.filter(
-        job=Job.objects.get(project_specific_id=job["id"])).count() == 0
+    assert BugJobMap.objects.filter(job=job).count() == 0
 
 
 def test_autoclassify_no_update_job_classification(activate_responses, jm, test_repository,
                                                    test_project, eleven_jobs_stored,
                                                    failure_lines, classified_failures):
-    job = jm.get_job(2)[0]
+    ds_job = jm.get_job(2)[0]
 
-    create_bug_suggestions(job, test_project,
+    create_bug_suggestions(ds_job, test_project,
                            {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"},
                            {"search": "Some error that isn't in the structured logs"})
 
     test_failure_lines = create_failure_lines(test_repository,
-                                              job["job_guid"],
+                                              ds_job["job_guid"],
                                               [(test_line, {})])
 
-    autoclassify(jm, job, test_failure_lines, [PreciseTestMatcher])
+    autoclassify(jm, ds_job, test_failure_lines, [PreciseTestMatcher])
 
-    notes = jm.get_job_note_list(job["id"])
-    assert len(notes) == 0
+    job = Job.objects.get(project_specific_id=ds_job["id"])
+    assert JobNote.objects.filter(job=job).count() == 0
 
 
 def test_autoclassified_after_manual_classification(activate_responses, jm, test_repository,
@@ -136,15 +137,19 @@ def test_autoclassified_after_manual_classification(activate_responses, jm, test
                                                     failure_lines, failure_classifications):
     register_detectors(ManualDetector, TestFailureDetector)
 
-    job = jm.get_job(2)[0]
+    ds_job = jm.get_job(2)[0]
 
-    create_bug_suggestions(job, test_project, {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
+    create_bug_suggestions(ds_job, test_project, {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
 
     test_failure_lines = create_failure_lines(test_repository,
-                                              job["job_guid"],
+                                              ds_job["job_guid"],
                                               [(test_line, {})])
 
-    jm.insert_job_note(job["id"], 4, test_user, "")
+    JobNote.objects.create(job=Job.objects.get(repository=test_repository,
+                                               project_specific_id=ds_job["id"]),
+                           failure_classification_id=4,
+                           user=test_user,
+                           text="")
 
     for item in test_failure_lines:
         item.refresh_from_db()
@@ -156,20 +161,25 @@ def test_autoclassified_after_manual_classification(activate_responses, jm, test
 
 def test_autoclassified_no_update_after_manual_classification_1(activate_responses, jm,
                                                                 test_repository, test_project,
-                                                                test_user, eleven_jobs_stored):
+                                                                test_user, eleven_jobs_stored,
+                                                                failure_classifications):
     register_detectors(ManualDetector, TestFailureDetector)
 
-    job = jm.get_job(2)[0]
+    ds_job = jm.get_job(2)[0]
 
-    create_bug_suggestions(job, test_project,
+    create_bug_suggestions(ds_job, test_project,
                            {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
 
     # Line type won't be detected by the detectors we have registered
     test_failure_lines = create_failure_lines(test_repository,
-                                              job["job_guid"],
+                                              ds_job["job_guid"],
                                               [(log_line, {})])
 
-    jm.insert_job_note(job["id"], 4, test_user, "")
+    JobNote.objects.create(job=Job.objects.get(repository=test_repository,
+                                               project_specific_id=ds_job["id"]),
+                           failure_classification_id=4,
+                           user=test_user,
+                           text="")
 
     for item in test_failure_lines:
         item.refresh_from_db()
@@ -179,20 +189,25 @@ def test_autoclassified_no_update_after_manual_classification_1(activate_respons
 
 def test_autoclassified_no_update_after_manual_classification_2(activate_responses, jm,
                                                                 test_repository, test_project,
-                                                                test_user, eleven_jobs_stored):
+                                                                test_user, eleven_jobs_stored,
+                                                                failure_classifications):
     register_detectors(ManualDetector, TestFailureDetector)
 
-    job = jm.get_job(2)[0]
+    ds_job = jm.get_job(2)[0]
 
     # Too many failure lines
     test_failure_lines = create_failure_lines(test_repository,
-                                              job["job_guid"],
+                                              ds_job["job_guid"],
                                               [(log_line, {}),
                                                (test_line, {"subtest": "subtest2"})])
 
-    create_bug_suggestions(job, test_project, {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
+    create_bug_suggestions(ds_job, test_project, {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
 
-    jm.insert_job_note(job["id"], 4, test_user, "")
+    JobNote.objects.create(job=Job.objects.get(repository=test_repository,
+                                               project_specific_id=ds_job["id"]),
+                           failure_classification_id=4,
+                           user=test_user,
+                           text="")
 
     for item in test_failure_lines:
         item.refresh_from_db()

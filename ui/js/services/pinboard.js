@@ -107,7 +107,7 @@ treeherder.factory('thPinboard', [
             // open form to create a new note. default to intermittent
             createNewClassification: function() {
                 return new ThJobClassificationModel({
-                    note: "",
+                    text: "",
                     who: null,
                     failure_classification_id: 4
                 });
