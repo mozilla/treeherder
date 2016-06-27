@@ -1,17 +1,8 @@
 {
     "deletes":{
-        "delete_note":{
-            "sql":"DELETE FROM job_note WHERE id = ?",
-            "host_type": "master_host"
-        },
         "cycle_job_artifact":{
 
             "sql":"DELETE FROM job_artifact WHERE job_id IN (REP0)",
-            "host_type": "master_host"
-        },
-        "cycle_job_note":{
-
-            "sql":"DELETE FROM job_note WHERE job_id IN (REP0)",
             "host_type": "master_host"
         },
         "cycle_job":{
@@ -120,18 +111,6 @@
                 )",
 
             "host_type":"master_host"
-        },
-        "insert_note":{
-
-            "sql":"INSERT INTO `job_note` (
-                `job_id`,
-                `failure_classification_id`,
-                `who`,
-                `note`,
-                `note_timestamp`)
-            VALUES (?,?,?,?,?)",
-
-            "host_type":"master_host"
         }
     },
 
@@ -195,22 +174,9 @@
             "host_type":"master_host"
         },
         "update_last_job_classification":{
-            "sql":"UPDATE job j
-                    SET failure_classification_id = (
-                        SELECT
-                            IFNULL(
-                                ( SELECT
-                                    failure_classification_id
-                                FROM
-                                    job_note jn
-                                WHERE
-                                    jn.job_id = j.id
-                                ORDER BY
-                                    note_timestamp DESC
-                                LIMIT 0,1 ), 1
-                            )
-                        )
-                    WHERE j.id = ?",
+            "sql":"UPDATE `job`
+                   SET `failure_classification_id` = ?
+                   WHERE id = ?",
 
             "host_type":"master_host"
         },
@@ -477,18 +443,6 @@
         },
         "get_max_job_id":{
             "sql":"SELECT max(`id`) as max_id from `job`",
-            "host_type": "read_host"
-        },
-        "get_job_note":{
-            "sql":"SELECT * from `job_note`
-                   WHERE `id` = ?",
-            "host_type": "read_host"
-        },
-        "get_job_note_list":{
-            "sql":"SELECT * from `job_note`
-                   WHERE `job_id` = ?
-                   ORDER BY `note_timestamp` DESC, id DESC
-                   ",
             "host_type": "read_host"
         },
         "get_job_ids_by_guids":{

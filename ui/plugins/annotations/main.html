@@ -7,7 +7,7 @@
             <tbody>
                 <tr ng-repeat="classification in classifications">
                     <td>
-                        {{ ::classification.note_timestamp*1000|date:'EEE MMM d, H:mm:ss' }}
+                        {{ ::classification.created|date:'EEE MMM d, H:mm:ss' }}
                     </td>
                     <td>
                         {{::classification.who}}
@@ -16,7 +16,7 @@
                         <span th-failure-classification failure-id="classification.failure_classification_id"></span>
                     </td>
                     <td>
-                        {{::classification.note}}
+                        {{::classification.text}}
                     </td>
                     <td>
                         <span ng-click="deleteClassification(classification)"
