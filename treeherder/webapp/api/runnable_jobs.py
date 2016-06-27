@@ -19,7 +19,7 @@ class RunnableJobsViewSet(viewsets.ViewSet):
         """
         if 'decisionTaskID' in request.query_params and len(request.query_params['decisionTaskID']):
             decisionTaskID = request.query_params['decisionTaskID']
-            tc_jobs_url = "https://queue.taskcluster.net/v1/task/" + decisionTaskID + "/runs/0/artifacts/public/full-task-graph.json"
+            tc_jobs_url = "https://queue.taskcluster.net/v1/task/" + decisionTaskID + "/artifacts/public/full-task-graph.json"
             tc_graph = None
             validate = URLValidator()
             try:
