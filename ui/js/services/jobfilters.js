@@ -70,6 +70,10 @@ treeherder.factory('thJobFilters', [
                 name: "buildername/jobname",
                 matchType: MATCH_TYPE.substr
             },
+            build_system_type: {
+                name: "build system",
+                matchType: MATCH_TYPE.substr
+            },
             job_type_name: {
                 name: "job name",
                 matchType: MATCH_TYPE.substr
