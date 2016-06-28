@@ -5,7 +5,7 @@ from treeherder.perf.models import (PerformanceBugTemplate,
 
 
 def test_perf_bug_template_api(webapp, test_perf_framework):
-    framework2 = PerformanceFramework.objects.create(name='test_talos2')
+    framework2 = PerformanceFramework.objects.create(name='test_talos2', enabled=True)
 
     template_dicts = []
     for (framework, i) in zip((test_perf_framework, framework2), range(2)):
