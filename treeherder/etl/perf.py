@@ -95,6 +95,10 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                        "load of performance artifacts".format(
                            perf_datum['framework']['name']))
         return
+    if not framework.enabled:
+        logger.info("Performance framework {} is not enabled, skipping"
+                    .format(perf_datum['framework']['name']))
+        return
     for suite in perf_datum['suites']:
         suite_extra_properties = copy.copy(extra_properties)
         if suite.get('extraOptions'):

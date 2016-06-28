@@ -15,6 +15,7 @@ SIGNATURE_HASH_LENGTH = 40
 class PerformanceFramework(models.Model):
 
     name = models.SlugField(max_length=255, unique=True)
+    enabled = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'performance_framework'

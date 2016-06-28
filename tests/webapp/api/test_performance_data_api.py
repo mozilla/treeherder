@@ -34,7 +34,7 @@ def test_perf_signature_same_hash_different_framework(test_perf_signature):
     # a new signature, same as the test_perf_signature in every
     # way, except it belongs to a different "framework"
     new_framework = PerformanceFramework.objects.create(
-        name='test_talos_2')
+        name='test_talos_2', enabled=True)
     new_signature = PerformanceSignature.objects.create(
         repository=test_perf_signature.repository,
         signature_hash=test_perf_signature.signature_hash,
@@ -94,7 +94,7 @@ def test_performance_platforms_expired_test(webapp, test_perf_signature):
 
 def test_performance_platforms_framework_filtering(webapp, test_perf_signature):
     # check framework filtering
-    framework2 = PerformanceFramework.objects.create(name='test_talos2')
+    framework2 = PerformanceFramework.objects.create(name='test_talos2', enabled=True)
     platform2 = MachinePlatform.objects.create(
         os_name='win',
         platform='win7-a',
