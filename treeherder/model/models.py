@@ -39,9 +39,7 @@ ACTIVE_STATUS_CHOICES = zip(ACTIVE_STATUS_LIST, ACTIVE_STATUS_LIST,)
 @python_2_unicode_compatible
 class NamedModel(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50, db_index=True)
-    description = models.TextField(blank=True)
-    active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
+    name = models.CharField(max_length=50, unique=True)
 
     class Meta:
         abstract = True
@@ -78,6 +76,8 @@ class Option(NamedModel):
 
 
 class RepositoryGroup(NamedModel):
+
+    description = models.TextField(blank=True)
 
     class Meta:
         db_table = 'repository_group'
