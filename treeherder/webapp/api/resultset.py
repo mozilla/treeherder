@@ -209,13 +209,14 @@ class ResultSetViewSet(viewsets.ViewSet):
             return Response({"message": "No resultset with id: {0}".format(pk)},
                             status=HTTP_404_NOT_FOUND)
 
-        buildernames = request.data.get('buildernames', [])
-        if len(buildernames) == 0:
-            Response({"message": "The list of buildernames cannot be empty"},
+        requested_jobs = request.data.get('requested_jobs', [])
+        decisionTaskID = request.data.get('decisionTaskID', [])
+        if len(requested_jobs) == 0:
+            Response({"message": "The list of requested_jobs cannot be empty"},
                      status=HTTP_400_BAD_REQUEST)
 
         publish_resultset_runnable_job_action.apply_async(
-            args=[project, pk, request.user.email, buildernames],
+            args=[project, pk, request.user.email, requested_jobs, decisionTaskID],
             routing_key='publish_to_pulse'
         )
 

@@ -24,12 +24,22 @@
       "description":          "The requester of the action (usually an email)",
       "type":                 "string"
     },
-    "buildernames": {
-      "title":                "Buildernames",
-      "description":          "The buildernames that should be added to a job.",
+    "requested_jobs": {
+      "title":                "Requested Jobs",
+      "description":          "The buildernames and TaskLabels that should be added to a push",
       "type":                 "array"
+    },
+    "decisionTaskID": {
+      "title":                "DecisionTaskID",
+      "description":          "The Gecko Decision Task's Task ID for this resultset",
+      "type":                 "string"
+    },
+    "timestamp": {
+      "title":                "timestamp",
+      "description":          "The UTC timestamp",
+      "type":                 "string"
     }
   },
   "additionalProperties":     false,
-  "required": ["version", "resultset_id", "project", "requester", "buildernames"]
+  "required": ["version", "resultset_id", "project", "requester", "requested_jobs", "decisionTaskID"]
 }

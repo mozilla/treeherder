@@ -2,15 +2,15 @@
 
 treeherder.factory('ThResultSetStore', [
     '$rootScope', '$q', '$location', '$interval', 'thPlatformOrder',
-    'ThResultSetModel', 'ThJobModel', 'thEvents', 'thResultStatusObject',
-    'thAggregateIds', 'ThLog', 'thNotify', 'thJobFilters', 'thOptionOrder',
-    'ThRepositoryModel', '$timeout', 'ThJobTypeModel', 'ThJobGroupModel',
-    'ThRunnableJobModel',
+    'ThResultSetModel', 'ThJobModel', 'ThJobDetailModel', 'thEvents',
+    'thResultStatusObject', 'thAggregateIds', 'ThLog', 'thNotify',
+    'thJobFilters', 'thOptionOrder', 'ThRepositoryModel', '$timeout',
+    'ThJobTypeModel', 'ThJobGroupModel', 'ThRunnableJobModel',
     function(
         $rootScope, $q, $location, $interval, thPlatformOrder, ThResultSetModel,
-        ThJobModel, thEvents, thResultStatusObject, thAggregateIds, ThLog, thNotify,
-        thJobFilters, thOptionOrder, ThRepositoryModel, $timeout, ThJobTypeModel,
-        ThJobGroupModel, ThRunnableJobModel) {
+        ThJobModel, ThJobDetailModel, thEvents, thResultStatusObject, thAggregateIds,
+        ThLog, thNotify, thJobFilters, thOptionOrder, ThRepositoryModel,
+        $timeout, ThJobTypeModel, ThJobGroupModel, ThRunnableJobModel) {
 
         var $log = new ThLog("ThResultSetStore");
 
@@ -307,19 +307,45 @@ treeherder.factory('ThResultSetStore', [
         };
 
         var addRunnableJobs = function(repoName, resultSet) {
-            return ThRunnableJobModel.get_list(repoName).then(function(jobList) {
-                var id = resultSet.id;
-                _.each(jobList, function(job) {
-                    job.result_set_id = id;
-                    job.id = thAggregateIds.escape(job.result_set_id + job.ref_data_name);
-                });
-
-                if (jobList.length === 0) {
-                    resultSet.isRunnableVisible = false;
-                    thNotify.send("No new jobs available");
+            // first check whether the Gecko Decision Task has completed
+            var tcURLPromise;
+            var platform = _.find(resultSet.platforms, {
+                "name": "gecko-decision",
+                "groups": [{"jobs": [{"state": "completed"}]}]});
+            if (platform) {
+                // Gecko Decision Task has been completed.
+                // Let's fetch the URL of full-tasks-graph.json
+                var job_guid = platform.groups[0].jobs[0].job_guid;
+                tcURLPromise = ThJobDetailModel.getJobDetails(job_guid, {timeout: null});
+            }
+            if (!tcURLPromise) {
+                // Here we are passing false to the results instead of skipping the promise
+                tcURLPromise = $q.when(false);
+            }
+            return tcURLPromise.then(function(results) {
+                // Since we want to try this only on try first
+                var decisionTaskID = "";
+                if (results && repoName === "try") {
+                    decisionTaskID = results[0].url.substring(results[0].url.indexOf("#") + 1);
+                    // Removing last two characters /0
+                    decisionTaskID = decisionTaskID.substring(0, decisionTaskID.lastIndexOf('/'));
                 }
+                // Will be used later for the GET request
+                resultSet.geckoDecisionTaskID = decisionTaskID;
+                return ThRunnableJobModel.get_list(repoName, {"decisionTaskID": ""}).then(function(jobList) {
+                    var id = resultSet.id;
+                    _.each(jobList, function(job) {
+                        job.result_set_id = id;
+                        job.id = thAggregateIds.escape(job.result_set_id + job.ref_data_name);
+                    });
 
-                mapResultSetJobs(repoName, jobList);
+                    if (jobList.length === 0) {
+                        resultSet.isRunnableVisible = false;
+                        thNotify.send("No new jobs available");
+                    }
+
+                    mapResultSetJobs(repoName, jobList);
+                });
             });
         };
 
@@ -867,6 +893,13 @@ treeherder.factory('ThResultSetStore', [
             return repositories[repoName].rsMap[resultsetId].selected_runnable_jobs;
         };
 
+        var getGeckoDecisionTaskID = function(repoName, resultsetId) {
+            if (!repositories[repoName].rsMap[resultsetId].rs_obj.geckoDecisionTaskID) {
+                repositories[repoName].rsMap[resultsetId].rs_obj.geckoDecisionTaskID = "";
+            }
+            return repositories[repoName].rsMap[resultsetId].rs_obj.geckoDecisionTaskID;
+        };
+
         var toggleSelectedRunnableJob = function(repoName, resultsetId, buildername) {
             var selectedRunnableJobs = getSelectedRunnableJobs(repoName, resultsetId);
             var jobIndex = selectedRunnableJobs.indexOf(buildername);
@@ -1201,6 +1234,7 @@ treeherder.factory('ThResultSetStore', [
             addRunnableJobs: addRunnableJobs,
             isRunnableJobSelected: isRunnableJobSelected,
             getSelectedRunnableJobs: getSelectedRunnableJobs,
+            getGeckoDecisionTaskID: getGeckoDecisionTaskID,
             toggleSelectedRunnableJob: toggleSelectedRunnableJob,
             getResultSet: getResultSet,
             getResultSetsArray: getResultSetsArray,

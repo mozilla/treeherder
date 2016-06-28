@@ -1,4 +1,5 @@
 import os
+import time
 
 import newrelic.agent
 from celery import task
@@ -121,20 +122,22 @@ def publish_resultset_action(project, action, resultset_id, requester, times=1):
 
 @task(name='publish-resultset-runnable-job-action')
 def publish_resultset_runnable_job_action(project, resultset_id, requester,
-                                          buildernames):
+                                          requested_jobs, decisionTaskID):
     newrelic.agent.add_custom_parameter("project", project)
     newrelic.agent.add_custom_parameter("resultset_id", resultset_id)
     newrelic.agent.add_custom_parameter("requester", requester)
     publisher = pulse_connection.get_publisher()
     if not publisher:
         return
-
+    timestamp = str(time.time())
     publisher.resultset_runnable_job_action(
         version=1,
         project=project,
         requester=requester,
         resultset_id=resultset_id,
-        buildernames=buildernames
+        requested_jobs=requested_jobs,
+        decisionTaskID=decisionTaskID,
+        timestamp=timestamp
     )
 
 
