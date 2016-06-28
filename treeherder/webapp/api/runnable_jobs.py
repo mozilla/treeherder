@@ -77,30 +77,29 @@ class RunnableJobsViewSet(viewsets.ViewSet):
         for label, node in tc_graph.iteritems():
             build_platform = node['task']['extra']['treeherder']['build']['platform']
             job_type_name = node['task']['metadata']['name']
+            task_metadata = node['task']['metadata']
+            treeherder_options = node['task']['extra']['treeherder']
 
             # Not all tasks have a group name
-            if 'groupName' in node['task']['extra']['treeherder']:
-                job_group_name = node['task']['extra']['treeherder']['groupName']
-            else:
-                job_group_name = ""
+            job_group_name = treeherder_options.get('groupName', '')
+
             # Not all tasks have a group symbol
-            if 'groupSymbol' in node['task']['extra']['treeherder']:
-                job_group_symbol = node['task']['extra']['treeherder']['groupSymbol']
-            else:
-                job_group_symbol = ""
+            job_group_symbol = treeherder_options.get('groupSymbol', '')
+
             # Not all tasks have a collection
-            if 'collection' in node['task']['extra']['treeherder']:
-                platform_option = node['task']['extra']['treeherder']['collection'].keys()[0]
+            if 'collection' in treeherder_options:
+                platform_option = treeherder_options['collection'].keys()[0]
             else:
                 platform_option = ""
+
             ret.append({
                 'build_platform': build_platform,
                 'platform': build_platform,
                 'job_group_name': job_group_name,
                 'job_group_symbol': job_group_symbol,
                 'job_type_name': job_type_name,
-                'job_type_symbol': node['task']['extra']['treeherder']['symbol'],
-                'job_type_description': node['task']['metadata']['description'],
+                'job_type_symbol': treeherder_options['symbol'],
+                'job_type_description': task_metadata['description'],
                 'ref_data_name': label,
                 'build_system_type': 'taskcluster',
                 'platform_option': platform_option,
