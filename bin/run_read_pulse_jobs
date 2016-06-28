@@ -8,4 +8,12 @@ PATH=$PROJECT_ROOT/venv/bin:$PATH
 
 source /etc/profile.d/treeherder.sh
 
-exec newrelic-admin run-program ./manage.py read_pulse_jobs
+# Pulse ingestion disabled since we want to reduce the queues to zero,
+# ready for the migration. Jobs will just build up in Pulse in the meantime.
+# exec newrelic-admin run-program ./manage.py read_pulse_jobs
+
+# If we just exited the script, supervisor would keep on trying to restart it.
+while true; do
+    echo "$(date) read_pulse_jobs process is disabled for Heroku migration."
+    sleep 30
+done

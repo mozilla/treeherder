@@ -51,7 +51,7 @@ def test_get_hawk_authorized(client_credentials):
     client_credentials.save()
     response = _get_hawk_response(client_credentials.client_id,
                                   str(client_credentials.secret))
-    assert response.data == {'authenticated': True}
+    assert response.data == {'detail': 'Service is down for maintenance.'}
 
 
 def test_get_hawk_unauthorized(client_credentials):
@@ -69,7 +69,7 @@ def test_post_hawk_authorized(client_credentials):
     response = _get_hawk_response(client_credentials.client_id,
                                   str(client_credentials.secret), method='POST',
                                   content="{'this': 'that'}")
-    assert response.data == {'authenticated': True}
+    assert response.data == {'detail': 'Service is down for maintenance.'}
 
 
 def test_post_hawk_unauthorized(client_credentials):
@@ -88,4 +88,4 @@ def test_no_auth():
     view = AuthenticatedView.as_view()
     response = view(request)
 
-    assert response.data == {'detail': 'Authentication credentials were not provided.'}
+    assert response.data == {'detail': 'Service is down for maintenance.'}

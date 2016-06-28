@@ -14,4 +14,12 @@ if [ ! -f $LOGFILE ]; then
     touch $LOGFILE
 fi
 
-exec newrelic-admin run-program celery -A treeherder beat -f $LOGFILE
+# Celery beat disabled so new periodic tasks are not scheduled,
+# since we want to reduce the queues to zero, ready for the migration.
+# exec newrelic-admin run-program celery -A treeherder beat -f $LOGFILE
+
+# If we just exited the script, supervisor would keep on trying to restart it.
+while true; do
+    echo "$(date) Celery beat process is disabled for Heroku migration." >> $LOGFILE
+    sleep 30
+done

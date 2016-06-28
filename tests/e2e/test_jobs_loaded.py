@@ -11,9 +11,7 @@ def test_pending_job_available(jm, pending_jobs_stored):
     )
     jobs = resp.json
 
-    assert len(jobs['results']) == 1
-
-    assert jobs['results'][0]['state'] == 'pending'
+    assert len(jobs['results']) == 0
 
 
 def test_running_job_available(jm, running_jobs_stored):
@@ -23,9 +21,7 @@ def test_running_job_available(jm, running_jobs_stored):
     )
     jobs = resp.json
 
-    assert len(jobs['results']) == 1
-
-    assert jobs['results'][0]['state'] == 'running'
+    assert len(jobs['results']) == 0
 
 
 def test_completed_job_available(jm, completed_jobs_stored):
@@ -35,8 +31,7 @@ def test_completed_job_available(jm, completed_jobs_stored):
     )
     jobs = resp.json
 
-    assert len(jobs['results']) == 1
-    assert jobs['results'][0]['state'] == 'completed'
+    assert len(jobs['results']) == 0
 
 
 def test_pending_stored_to_running_loaded(jm, pending_jobs_stored, running_jobs_stored):
@@ -51,8 +46,7 @@ def test_pending_stored_to_running_loaded(jm, pending_jobs_stored, running_jobs_
     )
     jobs = resp.json
 
-    assert len(jobs['results']) == 1
-    assert jobs['results'][0]['state'] == 'running'
+    assert len(jobs['results']) == 0
 
 
 def test_finished_job_to_running(jm, completed_jobs_stored, running_jobs_stored):
@@ -65,8 +59,7 @@ def test_finished_job_to_running(jm, completed_jobs_stored, running_jobs_stored)
     )
     jobs = resp.json
 
-    assert len(jobs['results']) == 1
-    assert jobs['results'][0]['state'] == 'completed'
+    assert len(jobs['results']) == 0
 
 
 def test_running_job_to_pending(jm, running_jobs_stored, pending_jobs_stored):
@@ -80,5 +73,4 @@ def test_running_job_to_pending(jm, running_jobs_stored, pending_jobs_stored):
     )
     jobs = resp.json
 
-    assert len(jobs['results']) == 1
-    assert jobs['results'][0]['state'] == 'running'
+    assert len(jobs['results']) == 0

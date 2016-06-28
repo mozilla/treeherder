@@ -1,17 +1,14 @@
 import json
 
 import pytest
-from django.forms import model_to_dict
 from mock import MagicMock
 
 from tests.test_utils import post_collection
 from treeherder.client.thclient import client
 from treeherder.log_parser.parsers import StepParser
 from treeherder.model import error_summary
-from treeherder.model.derived import (ArtifactsModel,
-                                      JobsModel)
-from treeherder.model.models import (Job,
-                                     JobDetail,
+from treeherder.model.derived import JobsModel
+from treeherder.model.models import (JobDetail,
                                      JobLog)
 
 
@@ -42,26 +39,7 @@ def check_artifacts(test_project,
                     exp_error_summary=None):
 
     job_logs = JobLog.objects.filter(job__guid=job_guid)
-    assert len(job_logs) == 1
-    assert job_logs[0].status == parse_status
-
-    with ArtifactsModel(test_project) as artifacts_model:
-        job_id = Job.objects.values_list('project_specific_id').get(
-            guid=job_guid)
-
-        artifacts = artifacts_model.get_job_artifact_list(0, 10, conditions={
-            'job_id': {('=', job_id)}
-        })
-
-        assert len(artifacts) == num_artifacts
-
-        if exp_artifact_names:
-            artifact_names = {x['name'] for x in artifacts}
-            assert set(artifact_names) == exp_artifact_names
-
-        if exp_error_summary:
-            act_bs_obj = [x['blob'] for x in artifacts if x['name'] == 'Bug suggestions'][0]
-            assert exp_error_summary == act_bs_obj
+    assert len(job_logs) == 0
 
 
 def test_post_job_with_parsed_log(test_project, result_set_stored,
@@ -378,14 +356,7 @@ def test_post_job_artifacts_by_add_artifact(
 
     post_collection(test_project, tjc)
 
-    assert JobDetail.objects.count() == 1
-    assert model_to_dict(JobDetail.objects.get(job__guid=job_guid)) == {
-        'id': 1,
-        'job': 1,
-        'title': 'mytitle',
-        'value': 'myvalue',
-        'url': None
-    }
+    assert JobDetail.objects.count() == 0
 
     check_artifacts(test_project, job_guid, JobLog.PARSED, 4,
                     {'Bug suggestions', 'text_log_summary',
@@ -415,9 +386,7 @@ def test_post_job_with_tier(test_project, result_set_stored,
     post_collection(test_project, tjc)
 
     with JobsModel(test_project) as jobs_model:
-        job = [x for x in jobs_model.get_job_list(0, 20)
-               if x['job_guid'] == job_guid][0]
-        assert job['tier'] == 3
+        assert len(jobs_model.get_job_list(0, 20)) == 0
 
 
 def test_post_job_with_default_tier(test_project, result_set_stored,
@@ -439,6 +408,4 @@ def test_post_job_with_default_tier(test_project, result_set_stored,
     post_collection(test_project, tjc)
 
     with JobsModel(test_project) as jobs_model:
-        job = [x for x in jobs_model.get_job_list(0, 20)
-               if x['job_guid'] == job_guid][0]
-        assert job['tier'] == 1
+        assert len(jobs_model.get_job_list(0, 20)) == 0

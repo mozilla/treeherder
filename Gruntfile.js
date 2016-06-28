@@ -131,6 +131,7 @@ module.exports = function(grunt) {
 
             main: {
                 files: [
+                    { src:'ui/maintenance.html', dest:'dist/maintenance.html', nonull: true },
                     { src:'ui/robots.txt', dest:'dist/robots.txt', nonull: true },
                     { src:'ui/index.html', dest:'dist/index.html', nonull: true },
                     { src:'ui/userguide.html', dest:'dist/userguide.html', nonull: true },

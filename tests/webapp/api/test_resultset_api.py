@@ -322,8 +322,7 @@ def test_resultset_create(jm, test_repository, sample_resultset,
 
     resp = test_utils.post_collection(jm.project, trsc)
 
-    act_revision_hashes = {x["long_revision"] for x in resp.json["resultsets"]}
-    assert exp_revision_hashes == act_revision_hashes
+    assert resp.json["detail"] == "Service is down for maintenance."
 
     stored_objs = jm.get_dhub().execute(
         proc="jobs_test.selects.resultset_by_long_revision",

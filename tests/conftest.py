@@ -278,7 +278,8 @@ def mock_post_json(monkeypatch, client_credentials):
             content_type='application/json',
             extra_environ={
                 'HTTP_AUTHORIZATION': str(prepped_request.headers['Authorization'])
-            }
+            },
+            status=503
         )
 
     monkeypatch.setattr(TreeherderClient, '_post_json', _post_json)

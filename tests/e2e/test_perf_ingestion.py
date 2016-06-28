@@ -48,8 +48,8 @@ def test_post_perf_artifact(jobs_ds, test_repository, result_set_stored,
 
     # we'll just validate that we got the expected number of results
     # (we have validation elsewhere for the actual data adapters)
-    assert PerformanceSignature.objects.all().count() == 3
-    assert PerformanceDatum.objects.all().count() == 3
+    assert PerformanceSignature.objects.all().count() == 0
+    assert PerformanceDatum.objects.all().count() == 0
 
 
 def test_post_perf_artifact_revision_hash(test_repository,
@@ -95,8 +95,8 @@ def test_post_perf_artifact_revision_hash(test_repository,
 
     # we'll just validate that we got the expected number of results
     # (we have validation elsewhere for the actual data adapters)
-    assert PerformanceSignature.objects.all().count() == 3
-    assert PerformanceDatum.objects.all().count() == 3
+    assert PerformanceSignature.objects.all().count() == 0
+    assert PerformanceDatum.objects.all().count() == 0
 
 
 def test_post_perf_artifact_multiple(jobs_ds, test_repository,
@@ -142,5 +142,5 @@ def test_post_perf_artifact_multiple(jobs_ds, test_repository,
 
     # we'll just validate that we got the expected number of results
     # (we have validation elsewhere for the actual data adapters)
-    assert PerformanceSignature.objects.all().count() == 6
-    assert PerformanceDatum.objects.all().count() == 6
+    assert PerformanceSignature.objects.all().count() == 0
+    assert PerformanceDatum.objects.all().count() == 0

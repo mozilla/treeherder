@@ -1,5 +1,6 @@
-from mohawk import Receiver
 from rest_framework import permissions
+
+from treeherder.webapp.api.exceptions import DownForMaintenance
 
 
 class IsStaffOrReadOnly(permissions.BasePermission):
@@ -9,10 +10,11 @@ class IsStaffOrReadOnly(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        return (request.method in permissions.SAFE_METHODS or
-                request.user and
-                request.user.is_authenticated() and
-                request.user.is_staff)
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        # Prevent any non-read-only Django-auth based requests to the API.
+        raise DownForMaintenance()
 
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
@@ -28,18 +30,16 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        # Instance must have an attribute named `user`.
-        return obj.user == request.user
+        # Prevent any non-read-only Django-auth based requests to the API.
+        raise DownForMaintenance()
 
 
 class HasHawkPermissions(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        hawk_header = 'hawk.receiver'
-
-        if hawk_header in request.META and isinstance(request.META[hawk_header], Receiver):
-            return True
-        return False
+        # Prevent any non-read-only Hawk-auth based requests to the API.
+        # Treeherder's own ETL no longer hits the API, so is unaffected.
+        raise DownForMaintenance()
 
 
 class HasHawkPermissionsOrReadOnly(permissions.BasePermission):

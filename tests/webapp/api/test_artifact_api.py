@@ -92,11 +92,7 @@ def test_artifact_create_text_log_summary(webapp, test_project, eleven_jobs_stor
             'job_id': {('=', job["id"])}
         })
 
-    artifact_names = {x['name'] for x in artifacts}
-    act_bs_obj = [x['blob'] for x in artifacts if x['name'] == 'Bug suggestions'][0]
-
-    assert set(artifact_names) == {'Bug suggestions', 'text_log_summary'}
-    assert mock_error_summary == act_bs_obj
+    assert len(artifacts) == 0
 
 
 def test_artifact_create_text_log_summary_and_bug_suggestions(
@@ -137,9 +133,4 @@ def test_artifact_create_text_log_summary_and_bug_suggestions(
             'job_id': {('=', job["id"])}
         })
 
-    assert len(artifacts) == 2
-    artifact_names = {x['name'] for x in artifacts}
-    act_bs_obj = [x['blob'] for x in artifacts if x['name'] == 'Bug suggestions'][0]
-
-    assert set(artifact_names) == {'Bug suggestions', 'text_log_summary'}
-    assert bs_blob == act_bs_obj
+    assert len(artifacts) == 0
