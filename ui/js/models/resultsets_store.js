@@ -326,7 +326,7 @@ treeherder.factory('ThResultSetStore', [
                 // Since we want to try this only on try first
                 var decisionTaskID = "";
                 if (results && repoName === "try") {
-                    var inspectTask = _.where(results, {"title": "Inspect Task"})[0]
+                    var inspectTask = _.where(results, {"title": "Inspect Task"})[0];
                     decisionTaskID = inspectTask.url.substring(inspectTask.url.indexOf("#") + 1);
                     // Removing last two characters /0
                     decisionTaskID = decisionTaskID.substring(0, decisionTaskID.lastIndexOf('/'));
