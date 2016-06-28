@@ -3,56 +3,64 @@
         "pk": 1,
         "model": "perf.PerformanceFramework",
         "fields": {
-            "name": "talos"
+            "name": "talos",
+            "enabled": true
         }
     },
     {
         "pk": 2,
         "model": "perf.PerformanceFramework",
         "fields": {
-            "name": "build_metrics"
+            "name": "build_metrics",
+            "enabled": true
         }
     },
     {
         "pk": 3,
         "model": "perf.PerformanceFramework",
         "fields": {
-            "name": "autophone"
+            "name": "autophone",
+            "enabled": true
         }
     },
     {
         "pk": 4,
         "model": "perf.PerformanceFramework",
         "fields": {
-            "name": "awsy"
+            "name": "awsy",
+            "enabled": true
         }
     },
     {
         "pk": 5,
         "model": "perf.PerformanceFramework",
         "fields": {
-            "name": "awfy"
+            "name": "awfy",
+            "enabled": true
         }
     },
     {
         "pk": 6,
         "model": "perf.PerformanceFramework",
         "fields": {
-            "name": "platform_microbench"
+            "name": "platform_microbench",
+            "enabled": true
         }
     },
     {
         "pk": 7,
         "model": "perf.PerformanceFramework",
         "fields": {
-            "name": "talos-aws"
+            "name": "talos-aws",
+            "enabled": true
         }
     },
     {
         "pk": 8,
         "model": "perf.PerformanceFramework",
         "fields": {
-            "name": "servo-perf"
+            "name": "servo-perf",
+            "enabled": true
         }
     }
 ]
