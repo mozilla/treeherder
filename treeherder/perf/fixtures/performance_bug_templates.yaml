@@ -10,7 +10,9 @@
     text: |
       Talos has detected a Firefox performance regression from push {{ revision }}. As author of one of the patches included in that push, we need your help to address this regression.
 
-      This is a list of all known regressions and improvements related to the push: {{ alertHref }}
+      {{ alertSummary }}
+
+      You can find links to graphs and comparsion views for each of the above tests at: {{ alertHref }}
 
       On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the Talos jobs in a pushlog format.
 

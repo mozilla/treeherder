@@ -12,10 +12,29 @@ perf.factory('PhBugs', [
                         return alert.status !== phAlertStatusMap.INVALID;
                     });
                     var template = response.data[0];
+                    function getAlertSummary(alertSummary) {
+                        var resultStr = "";
+                        var improved = _.filter(alertSummary.alerts, function(alert) {return !alert.is_regression && alert.visible;});
+                        var regressed = _.filter(alertSummary.alerts, function(alert) {return alert.is_regression && alert.visible;});
+                        if (regressed.length > 0) {
+                            resultStr += "Summary of tests that regressed:\n\n" +
+                                         _.map(regressed, function(alert) {
+                                             return alert.title + " - " + alert.amount_pct + "% worse";
+                                         }).join('\n') + "\n";
+                        }
+                        if (improved.length > 0) {
+                            resultStr += "Summary of tests that improved:\n\n" +
+                                         _.map(improved, function(alert) {
+                                             return alert.title + " - " + alert.amount_pct + "% better";
+                                         }).join('\n') + "\n";
+                        }
+                        return resultStr;
+                    }
                     var compiledText = $interpolate(template.text)({
                         revision: alertSummary.resultSetMetadata.revision,
                         alertHref: window.location.origin + '/perf.html#/alerts?id=' +
-                            alertSummary.id
+                            alertSummary.id,
+                        alertSummary: getAlertSummary(alertSummary)
                     });
                     var pushDate = dateFilter(
                         alertSummary.resultSetMetadata.push_timestamp*1000,
