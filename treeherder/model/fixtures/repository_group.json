@@ -4,7 +4,6 @@
     "model": "model.repositorygroup",
     "fields": {
         "name": "development",
-        "active_status": "active",
         "description": ""
     }
 },
@@ -13,7 +12,6 @@
     "model": "model.repositorygroup",
     "fields": {
         "name": "release-stabilization",
-        "active_status": "active",
         "description": ""
     }
 },
@@ -22,7 +20,6 @@
     "model": "model.repositorygroup",
     "fields": {
         "name": "try",
-        "active_status": "active",
         "description": ""
     }
 },
@@ -31,7 +28,6 @@
     "model": "model.repositorygroup",
     "fields": {
         "name": "taskcluster",
-        "active_status": "active",
         "description": "Collection of test repositories for taskcluster data"
     }
 },
@@ -40,7 +36,6 @@
     "model": "model.repositorygroup",
     "fields": {
         "name": "qa automation tests",
-        "active_status": "active",
         "description": "Collection of test repositories for the qa group"
     }
 },
@@ -49,7 +44,6 @@
     "model": "model.repositorygroup",
     "fields": {
         "name": "project repositories",
-        "active_status": "active",
         "description": "Collection of repositories for project branches"
     }
 },
@@ -58,7 +52,6 @@
     "model": "model.repositorygroup",
     "fields": {
         "name": "other",
-        "active_status": "active",
         "description": "Other repositories not falling under the above categories"
     }
 }

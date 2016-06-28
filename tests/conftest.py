@@ -124,7 +124,6 @@ def test_repository(transactional_db):
 
     RepositoryGroup.objects.create(
         name="development",
-        active_status="active",
         description=""
     )
 
