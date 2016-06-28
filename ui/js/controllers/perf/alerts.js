@@ -12,10 +12,35 @@ perf.factory('PhBugs', [
                         return alert.status !== phAlertStatusMap.INVALID;
                     });
                     var template = response.data[0];
+                    function getAlertSummary(alertSummary) {
+                        var improved = "";
+                        var regressed = "";
+                        for (var i = 0; i < alertSummary.alerts.length; i++) {
+                            if (alertSummary.alerts[i].amount_abs < 0 && alertSummary.alerts[i].visible) {
+                                improved += alertSummary.alerts[i].title + " - " + alertSummary.alerts[i].amount_pct + "% better\n";
+                            } else if (alertSummary.alerts[i].amount_abs > 0 && alertSummary.alerts[i].visible) {
+                                regressed += alertSummary.alerts[i].title + " - " + alertSummary.alerts[i].amount_pct + "% worse\n";
+                            }
+                        }
+                        function getImproved() {
+                            if (improved !== "") {
+                                return "Summary of tests that improved\n" + improved + "\n";
+                            }
+                            return "";
+                        }
+                        function getRegressed() {
+                            if (regressed !== "") {
+                                return "Summary of tests that regressed\n" + regressed + "\n";
+                            }
+                            return "";
+                        }
+                        return getImproved() + getRegressed();
+                    }
                     var compiledText = $interpolate(template.text)({
                         revision: alertSummary.resultSetMetadata.revision,
                         alertHref: window.location.origin + '/perf.html#/alerts?id=' +
-                            alertSummary.id
+                            alertSummary.id,
+                        alertSummary: getAlertSummary(alertSummary)
                     });
                     var pushDate = dateFilter(
                         alertSummary.resultSetMetadata.push_timestamp*1000,
