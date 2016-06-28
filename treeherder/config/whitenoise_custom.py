@@ -21,15 +21,18 @@ class CustomWhiteNoise(WhiteNoiseMiddleware):
         super(CustomWhiteNoise, self).update_files_dictionary(*args)
         index_page_suffix = '/' + self.INDEX_NAME
         index_name_length = len(self.INDEX_NAME)
-        directory_indexes = {}
+        updated_files_dict = {}
+        maintenance_page = self.files.get('/maintenance.html')
         for url, static_file in self.files.items():
+            # Serve the maintenance page instead of any other static file content.
+            updated_files_dict[url] = maintenance_page
             if url.endswith(index_page_suffix):
                 # For each index file found, add a corresponding URL->content mapping
                 # for the file's parent directory, so that the index page is served for
                 # the bare directory URL ending in '/'.
                 parent_directory_url = url[:-index_name_length]
-                directory_indexes[parent_directory_url] = static_file
-        self.files.update(directory_indexes)
+                updated_files_dict[parent_directory_url] = maintenance_page
+        self.files.update(updated_files_dict)
 
     def find_file(self, url):
         """Add support for serving index pages for directory paths when in DEBUG mode."""

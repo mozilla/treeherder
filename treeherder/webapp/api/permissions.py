@@ -1,5 +1,8 @@
+from django.conf import settings
 from mohawk import Receiver
 from rest_framework import permissions
+
+from treeherder.webapp.api.exceptions import DownForMaintenance
 
 
 class IsStaffOrReadOnly(permissions.BasePermission):
@@ -9,10 +12,11 @@ class IsStaffOrReadOnly(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        return (request.method in permissions.SAFE_METHODS or
-                request.user and
-                request.user.is_authenticated() and
-                request.user.is_staff)
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        # Prevent any non-read-only Django-auth based requests to the API.
+        raise DownForMaintenance()
 
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
@@ -28,17 +32,23 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        # Instance must have an attribute named `user`.
-        return obj.user == request.user
+        # Prevent any non-read-only Django-auth based requests to the API.
+        raise DownForMaintenance()
 
 
 class HasHawkPermissions(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        hawk_header = 'hawk.receiver'
+        hawk_header = request.META.get('hawk.receiver')
 
-        if hawk_header in request.META and isinstance(request.META[hawk_header], Receiver):
-            return True
+        if hawk_header and isinstance(hawk_header, Receiver):
+            # Return an HTTP503 for third party submitters to our API, but
+            # allow Treeherder's own ETL processes to submit, so that the
+            # log parser/bug suggestions/... queues can empty out.
+            if hawk_header.parsed_header.get('id') == settings.ETL_CLIENT_ID:
+                return True
+            raise DownForMaintenance()
+
         return False
 
 
