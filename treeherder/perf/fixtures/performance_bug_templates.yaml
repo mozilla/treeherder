@@ -12,6 +12,8 @@
 
       This is a list of all known regressions and improvements related to the push: {{ alertHref }}
 
+      {{ alertSummary }}
+
       On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the Talos jobs in a pushlog format.
 
       To learn more about the regressing test(s), please see: https://wiki.mozilla.org/Buildbot/Talos/Tests
