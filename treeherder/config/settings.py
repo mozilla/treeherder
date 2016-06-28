@@ -552,3 +552,5 @@ ELASTIC_SEARCH = {
     "url": env.str('ELASTICSEARCH_URL', default=""),
     "index_prefix": ""
 }
+
+TASKCLUSTER_FULL_TASK = 'https://queue.taskcluster.net/v1/task/{{decision_task}}/artifacts/public/full-task-graph.json'

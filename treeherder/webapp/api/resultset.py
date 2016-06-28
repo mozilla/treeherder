@@ -211,7 +211,7 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         requested_jobs = request.data.get('requested_jobs', [])
         decisionTaskID = request.data.get('decisionTaskID', [])
-        if len(requested_jobs) == 0:
+        if not requested_jobs:
             Response({"message": "The list of requested_jobs cannot be empty"},
                      status=HTTP_400_BAD_REQUEST)
 
