@@ -24,7 +24,7 @@ class retryable_task(object):
                 # Implement exponential backoff with some randomness to prevent
                 # thundering herd type problems. Constant factor chosen so we get
                 # reasonable pause between the fastest retries.
-                timeout = 10 * int(random.uniform(2, 3) ** task_func.request.retries)
+                timeout = 10 * int(random.uniform(1.9, 2.1) ** task_func.request.retries)
                 task_func.retry(exc=e, countdown=timeout)
 
         task_func = task(*self.task_args, **self.task_kwargs)(inner)
