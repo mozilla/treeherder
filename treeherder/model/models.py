@@ -180,16 +180,10 @@ class Bugscache(models.Model):
                 "all_others": [model_to_dict(item, exclude=["modified"]) for item in all_others]}
 
 
-@python_2_unicode_compatible
-class Machine(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50, unique=True, db_index=True)
+class Machine(NamedModel):
 
     class Meta:
         db_table = 'machine'
-
-    def __str__(self):
-        return self.name
 
 
 class DatasourceManager(models.Manager):
