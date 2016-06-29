@@ -991,4 +991,17 @@
         "repository_group": 7,
         "description": "Network Security Services."
     }
+},
+{
+    "pk": 80,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "nss-try",
+        "url": "https://hg.mozilla.org/projects/nss-try",
+        "active_status": "active",
+        "codebase": "nss",
+        "repository_group": 7,
+        "description": "Network Security Services."
+    }
 }]
