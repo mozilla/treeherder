@@ -223,6 +223,9 @@ treeherder.factory('PhAlerts', [
                         params[params.length] = ("repository=" +
                                                  options.repository);
                     }
+                    if (options && !_.isUndefined(options.page)) {
+                        params[params.length] = ("page=" + options.page);
+                    }
 
                     if (params.length) {
                         href += "?" + params.join("&");
@@ -239,7 +242,8 @@ treeherder.factory('PhAlerts', [
                                 results: _.map(response.data.results, function(alertSummaryData) {
                                     return new AlertSummary(alertSummaryData, optionCollectionMap);
                                 }),
-                                next: response.data.next
+                                next: response.data.next,
+                                count: response.data.count,
                             };
                         });
                     });
