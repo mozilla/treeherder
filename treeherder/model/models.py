@@ -26,7 +26,8 @@ from treeherder import path
 
 from .fields import (BigAutoField,
                      FlexibleForeignKey)
-from .search import TestFailureLine
+from .search import (TestFailureLine,
+                     es_connected)
 
 # the cache key is specific to the database name we're pulling the data from
 SOURCES_CACHE_KEY = "treeherder-datasources"
@@ -815,6 +816,7 @@ class FailureLine(models.Model):
         classification, _ = self.set_classification(manual_detector)
         self.mark_best_classification_verified(classification)
 
+    @es_connected()
     def elastic_search_insert(self):
         es_line = TestFailureLine.from_model(self)
         if es_line:
