@@ -1,6 +1,6 @@
 [
   {
-    "taskId": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33",
+    "taskId": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33/0",
     "origin": {
       "kind": "hg.mozilla.org",
       "project": "set by test",
@@ -67,7 +67,7 @@
   },
 
   {
-    "taskId": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf34",
+    "taskId": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf34/0",
     "retryId": 0,
     "origin": {
       "kind": "hg.mozilla.org",
@@ -110,7 +110,7 @@
   },
 
   {
-    "taskId": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35",
+    "taskId": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35/0",
     "retryId": 0,
     "isRetried": true,
     "origin": {
@@ -206,7 +206,7 @@
 
   },
   {
-    "taskId": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35",
+    "taskId": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35/3",
     "retryId": 3,
     "origin": {
       "kind": "hg.mozilla.org",

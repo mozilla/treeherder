@@ -14,7 +14,7 @@
       },
       "artifacts": [
         {
-          "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33",
+          "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33/0",
           "type": "json",
           "blob": {
             "job_details": [
@@ -57,7 +57,7 @@
       ],
       "tier": 1,
       "job_symbol": "P",
-      "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33",
+      "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33/0",
       "product_name": "Oscillation Overthruster",
       "end_timestamp": 1419043197.0
     },
@@ -95,7 +95,7 @@
       "log_references": [],
       "tier": 1,
       "job_symbol": "P2",
-      "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf34",
+      "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf34/0",
       "product_name": "Oscillation Overthruster",
       "end_timestamp": 1419043197.0
     },
@@ -117,7 +117,7 @@
       },
       "artifacts": [
         {
-          "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35",
+          "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35/0",
           "type": "json",
           "blob": {
             "step_data": {
@@ -183,7 +183,7 @@
         {
           "type": "json",
           "blob": {"fee": "foo"},
-          "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35",
+          "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35/0",
           "name": "Bug suggestions"
         }
       ],
@@ -209,7 +209,7 @@
       ],
       "tier": 1,
       "job_symbol": "3",
-      "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35",
+      "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35/0",
       "product_name": "unknown",
       "end_timestamp": 1419043197.0
     },
