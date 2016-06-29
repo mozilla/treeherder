@@ -218,6 +218,7 @@ perf.controller('AlertsCtrl', [
                 framework: $scope.alertId ? undefined : $scope.filterOptions.framework.id,
                 filter: $scope.filterOptions.filter,
                 hideImprovements: Boolean($scope.filterOptions.hideImprovements) ? 1 : undefined,
+                page: 1
             }, {
                 location: true,
                 inherit: true,
@@ -235,6 +236,8 @@ perf.controller('AlertsCtrl', [
                 }).then(
                     function(data) {
                         addAlertSummaries(data.results, data.next);
+                        $scope.alertSummaryCount = data.count;
+                        $scope.alertSummaryCurrentPage = 1;
                     });
             } else {
                 updateAlertVisibility();
@@ -467,6 +470,21 @@ perf.controller('AlertsCtrl', [
                 });
         };
 
+        $scope.alertSummaryCount = 0;
+        $scope.alertSummaryCurrentPage = 1;
+        $scope.alertSummaryPageSize = 10;
+        $scope.getAlertSummariesPage = function() {
+            PhAlerts.getAlertSummaries({ page: $scope.alertSummaryCurrentPage,
+                                         statusFilter: $scope.filterOptions.status.id,
+                                         frameworkFilter: $scope.filterOptions.framework.id }).then(
+                 function(data) {
+                     $scope.alertSummaries = undefined;
+                     addAlertSummaries(data.results, data.next);
+                     $scope.alertSummaryCount = data.count;
+                     $state.go('.', {page: $scope.alertSummaryCurrentPage}, {notify: false});
+                 });
+        };
+
         $scope.summaryTitle = {
             html: '<i class="fa fa-spinner fa-pulse" aria-hidden="true"/>',
             promise: null
@@ -504,7 +522,8 @@ perf.controller('AlertsCtrl', [
                           }) || $scope.frameworks[0],
                           filter: $stateParams.filter || "",
                           hideImprovements: $stateParams.hideImprovements !== undefined &&
-                              parseInt($stateParams.hideImprovements)
+                              parseInt($stateParams.hideImprovements),
+                          page: $stateParams.page || 1
                       };
                       if ($stateParams.id) {
                           $scope.alertId = $stateParams.id;
@@ -515,10 +534,13 @@ perf.controller('AlertsCtrl', [
                       } else {
                           PhAlerts.getAlertSummaries({
                               statusFilter: $scope.filterOptions.status.id,
-                              frameworkFilter: $scope.filterOptions.framework.id
+                              frameworkFilter: $scope.filterOptions.framework.id,
+                              page: $scope.filterOptions.page
                           }).then(
                               function(data) {
                                   addAlertSummaries(data.results, data.next);
+                                  $scope.alertSummaryCurrentPage = $scope.filterOptions.page;
+                                  $scope.alertSummaryCount = data.count;
                               });
                       }
                   });
