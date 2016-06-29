@@ -69,7 +69,7 @@ class JobLoader:
         We can rely on the structure of ``pulse_job`` because it will
         already have been validated against the JSON Schema at this point.
         """
-        job_guid = self._get_job_guid(pulse_job)
+        job_guid = pulse_job["taskId"]
         x = {
             "job": {
                 "job_guid": job_guid,
@@ -126,13 +126,6 @@ class JobLoader:
             x["job"][k] = self._get_platform(platform_src)
 
         return x
-
-    def _get_job_guid(self, job):
-        guid_parts = [job["taskId"]]
-        retry_id = job.get("retryId", 0)
-        if retry_id > 0:
-            guid_parts.append(str(retry_id))
-        return "/".join(guid_parts)
 
     def _get_job_symbol(self, job):
         return "{}{}".format(
