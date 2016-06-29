@@ -1,6 +1,7 @@
 import random
 from functools import wraps
 
+import newrelic.agent
 from celery import task
 from django.db.utils import (IntegrityError,
                              ProgrammingError)
@@ -24,6 +25,8 @@ class retryable_task(object):
                 # Implement exponential backoff with some randomness to prevent
                 # thundering herd type problems. Constant factor chosen so we get
                 # reasonable pause between the fastest retries.
+                if task_func.request.retries == 0:
+                    newrelic.agent.record_exception()
                 timeout = 10 * int(random.uniform(1.9, 2.1) ** task_func.request.retries)
                 task_func.retry(exc=e, countdown=timeout)
 
