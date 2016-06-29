@@ -1,4 +1,5 @@
 import logging
+import types
 from functools import wraps
 
 import certifi
@@ -75,6 +76,11 @@ class TestFailureLine(RoutedDocType):
     def from_model(cls, line):
         """Create a TestFailureLine object from a FailureLine model instance."""
         if line.action == "test_result":
+            if not type(line.test) in types.StringTypes:
+                # Reftests used to use tuple indicies, which we can't support
+                # this is fixed upstream, but we also need to handle it here to allow
+                # for older branches.
+                return
             rv = cls(job_guid=line.job_guid,
                      test=line.test,
                      subtest=line.subtest,
