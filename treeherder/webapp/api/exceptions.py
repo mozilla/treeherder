@@ -1,7 +1,8 @@
 import logging
 
 from rest_framework import exceptions
-from rest_framework.status import HTTP_404_NOT_FOUND
+from rest_framework.status import (HTTP_404_NOT_FOUND,
+                                   HTTP_503_SERVICE_UNAVAILABLE)
 from rest_framework.views import exception_handler as drf_exc_handler
 
 from treeherder.model.derived import (DatasetNotFoundError,
@@ -13,6 +14,11 @@ logger = logging.getLogger(__name__)
 class ResourceNotFoundException(exceptions.APIException):
     status_code = HTTP_404_NOT_FOUND
     default_detail = "Resource not found"
+
+
+class DownForMaintenance(exceptions.APIException):
+    status_code = HTTP_503_SERVICE_UNAVAILABLE
+    default_detail = 'Service is down for maintenance.'
 
 
 def exception_handler(exc, context):
