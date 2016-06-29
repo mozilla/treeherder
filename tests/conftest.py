@@ -52,6 +52,16 @@ def increment_cache_key_prefix():
 
 
 @pytest.fixture
+def elasticsearch(request):
+    from treeherder.model.search import connection, doctypes, refresh_all
+
+    for item in doctypes():
+        connection.indices.delete(item._doc_type.index, ignore=404)
+        refresh_all()
+        item.init()
+
+
+@pytest.fixture
 def jobs_ds(request, transactional_db):
     from treeherder.model.models import Datasource
     ds = Datasource.objects.create(project=settings.TREEHERDER_TEST_PROJECT)
@@ -346,7 +356,7 @@ def mock_error_summary(monkeypatch):
 
 
 @pytest.fixture
-def failure_lines(jm, test_repository, eleven_jobs_stored):
+def failure_lines(jm, test_repository, eleven_jobs_stored, elasticsearch):
     from tests.autoclassify.utils import test_line, create_failure_lines
 
     test_repository.save()
@@ -392,6 +402,7 @@ def test_matcher(request):
 def classified_failures(request, jm, eleven_jobs_stored, failure_lines,
                         test_matcher, failure_classifications):
     from treeherder.model.models import ClassifiedFailure
+    from treeherder.model.search import refresh_all
 
     job_1 = jm.get_job(1)[0]
 
@@ -405,6 +416,7 @@ def classified_failures(request, jm, eleven_jobs_stored, failure_lines,
                                             mark_best=True)
             classified_failures.append(classified_failure)
 
+    refresh_all()
     return classified_failures
 
 
