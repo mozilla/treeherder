@@ -41,7 +41,7 @@ ACTIVE_STATUS_CHOICES = zip(ACTIVE_STATUS_LIST, ACTIVE_STATUS_LIST,)
 @python_2_unicode_compatible
 class NamedModel(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=100, unique=True)
 
     class Meta:
         abstract = True
