@@ -1,8 +1,8 @@
 'use strict';
 
 treeherder.factory('ThJobArtifactModel', [
-    '$http', 'ThLog', 'thUrl',
-    function($http, ThLog, thUrl) {
+    '$http', 'ThLog', 'thUrl', '$q',
+    function($http, ThLog, thUrl, $q) {
 
         // ThJobArtifactModel is the js counterpart of job_artifact
 
@@ -14,12 +14,19 @@ treeherder.factory('ThJobArtifactModel', [
 
         ThJobArtifactModel.get_uri = function(){return thUrl.getProjectUrl("/artifact/");};
 
-        ThJobArtifactModel.get_list = function(options, config) {
+        ThJobArtifactModel.get_list = function(options, config, state) {
             // a static method to retrieve a list of ThJobArtifactModel
             // the timeout configuration parameter is a promise that can be used to abort
             // the ajax request
             config = config || {};
             var timeout = config.timeout || null;
+
+            // Bail without fetching the log if there's no log to fetch
+            if(state === "pending" || state === "running") {
+                return $q(function(resolve, reject) {
+                    resolve([]);
+                });
+            }
 
             return $http.get(ThJobArtifactModel.get_uri(),{
                 params: options,

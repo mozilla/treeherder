@@ -20,6 +20,8 @@ treeherder.controller('BugsPluginCtrl', [
         // update function triggered by the plugins controller
         thTabs.tabs.failureSummary.update = function() {
             var newValue = thTabs.tabs.failureSummary.contentId;
+            var jobState = $scope.selectedJob.state;
+
             $scope.suggestions = [];
             if(angular.isDefined(newValue)) {
                 thTabs.tabs.failureSummary.is_loading = true;
@@ -38,7 +40,7 @@ treeherder.controller('BugsPluginCtrl', [
                     name__in: "Bug suggestions,text_log_summary",
                     "type": "json",
                     job_id: newValue
-                }, {timeout: requestPromise})
+                }, {timeout: requestPromise}, jobState)
                 .then(function(artifact_list){
                     // using a temporary array here to not trigger a
                     // dirty check for every element pushed
