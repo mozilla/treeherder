@@ -6,7 +6,8 @@ import requests
 from django.core.cache import cache
 
 from treeherder.client import TreeherderResultSetCollection
-from treeherder.etl.common import (fetch_json,
+from treeherder.etl.common import (CollectionNotStoredException,
+                                   fetch_json,
                                    generate_revision_hash)
 from treeherder.model.derived.jobs import JobsModel
 
@@ -152,20 +153,3 @@ class HgPushlogProcess(HgPushlogTransformerMixin):
             cache.set("{0}:last_push_id".format(repository), last_push_id)
 
         return top_revision
-
-
-class CollectionNotStoredException(Exception):
-
-    def __init__(self, error_list, *args, **kwargs):
-        """
-        error_list contains dictionaries, each containing
-        project, url and message
-        """
-        super(CollectionNotStoredException, self).__init__(args, kwargs)
-        self.error_list = error_list
-
-    def __str__(self):
-        return "\n".join(
-            ["[{project}] Error storing {collection} data: {message}".format(
-                **error) for error in self.error_list]
-        )
