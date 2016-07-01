@@ -9,6 +9,7 @@
           <a ng-if="line.status == 'verified' && line.classifiedFailureId"
              class="label label-xs label-primary"
              title="This line is verified"
+             target="_blank"
              ng-href="/failureviewer.html#/?classified_failure_id={{line.classifiedFailureId}}">Verified</a>
 
           <span ng-if="line.status == 'verified' && line.type === 'unstructured'"
@@ -136,7 +137,9 @@
               <span ng-repeat='match in option.matches'>
                 {{match.matcher.name}} ({{match.score}})
               </span>
-              <a target="th_similar" ng-href="/failureviewer.html#/?classified_failure_id={{option.id}}">Other matching failures...</a>
+              <a target="th_similar"
+                 ng-href="/failureviewer.html#/?classified_failure_id={{option.id}}"
+                 target="_blank">Other matching failures...</a>
             </div>
           </li>
         </ul>
