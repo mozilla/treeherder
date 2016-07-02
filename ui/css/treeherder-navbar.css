@@ -365,3 +365,13 @@ fieldset[disabled] .btn-view-nav-closed.active {
   color: #e0e0e0;
   border-color: #e0e0e0;
 }
+
+@media (min-width: 960px) {
+  .btn-toggle-excluded::after {
+    content: " Excluded Jobs";
+  }
+
+  .btn-toggle-excluded.fa-eye-slash::after {
+    text-decoration: line-through;
+  }
+}

@@ -174,9 +174,9 @@ treeherder.directive('thExclusionState', function () {
     return {
         restrict: "A",
         link: function(scope, element, attrs) {
-            scope.exclusionStateClass = 'fa-eye';
+            scope.exclusionStateClass = 'btn-toggle-excluded fa-eye-slash';
             if (scope.isSkippingExclusionProfiles) {
-                scope.exclusionStateClass = 'fa-eye-slash';
+                scope.exclusionStateClass = 'btn-toggle-excluded fa-eye';
             }
         }
     };
