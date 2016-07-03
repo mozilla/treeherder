@@ -186,10 +186,14 @@
                  title="Open build directory in a new tab"
                  href={{job_log_url.buildUrl}} target="_blank">{{value}}</a>
               <span ng-switch-when="Job name"
-                    title="{{job.job_type_description}}">{{value}}</span>
+                    >{{value}}</span>
               <span ng-switch-default>{{value}}</span>
           </span>
         </li>
+        <li class="small" ng-if="job.job_type_description!='fill me'">
+          <label>Job Description:</label><span> {{job.job_type_description}}</span>
+        </li>
+
         <li class="small">
           <label>Requested:</label><span> {{visibleTimeFields.requestTime}}</span>
         </li>
