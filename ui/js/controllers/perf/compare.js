@@ -574,7 +574,10 @@ perf.controller('CompareSubtestResultsCtrl', [
                                }
 
                                PhSeries.getSeriesList(
-                                   $scope.newProject.name, { parent_signature: $scope.newSignature }).then(function(newSeriesList) {
+                                   $scope.newProject.name, {
+                                       parent_signature: $scope.newSignature,
+                                       framework: $scope.filterOptions.framework
+                                   }).then(function(newSeriesList) {
                                        $scope.platformList = _.uniq(_.union(
                                            $scope.platformList,
                                            _.map(newSeriesList, 'platform')));
