@@ -179,14 +179,14 @@ treeherderApp.controller('ResultSetCtrl', [
 
         $scope.cancelJobs = function(revision) {
             var job = ThResultSetStore.getSelectedJob($scope.repoName).job;
-            var single_job = job !== undefined;
-            var message = single_job ?
+            var singleJobSelected = job instanceof ThJobModel;
+            var message = singleJobSelected ?
                           'This will cancel the selected job. !\n\nClick "OK" if you\'re sure.':
                           'This will cancel all pending and running jobs for revision ' + revision + '!\n\nClick "OK" if you\'re sure.';
             if (!window.confirm(message)) {
                 return;
             }
-            if (single_job) {
+            if (singleJobSelected) {
                 ThJobModel.cancel($scope.repoName, job.id).then(function() {
                   // XXX: Remove this after 1134929 is resolved.
                     var requestId = getBuildbotRequestId();
