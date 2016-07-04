@@ -62,12 +62,13 @@ def _generate_perf_data_range(test_project, test_repository,
                               perf_option_collection, perf_platform,
                               perf_reference_data,
                               create_perf_framework=True,
+                              enable_framework=True,
                               add_suite_value=False,
                               extra_suite_metadata=None,
                               extra_subtest_metadata=None):
     framework_name = "cheezburger"
     if create_perf_framework:
-        PerformanceFramework.objects.create(name=framework_name)
+        PerformanceFramework.objects.create(name=framework_name, enabled=enable_framework)
 
     now = int(time.time())
     for (i, value) in zip(range(30), [1]*15 + [2]*15):
@@ -154,7 +155,7 @@ def test_load_generic_data(test_project, test_repository,
                            perf_option_collection, perf_platform,
                            perf_job_data, perf_reference_data):
     framework_name = 'cheezburger'
-    PerformanceFramework.objects.get_or_create(name=framework_name)
+    PerformanceFramework.objects.get_or_create(name=framework_name, enabled=True)
 
     datum = {
         'job_guid': 'fake_job_guid',
@@ -274,7 +275,8 @@ def test_no_performance_framework(test_project, test_repository,
     _generate_perf_data_range(test_project, test_repository,
                               perf_option_collection, perf_platform,
                               perf_reference_data,
-                              create_perf_framework=False)
+                              create_perf_framework=False
+                              )
     # no errors, but no data either
     assert 0 == PerformanceSignature.objects.all().count()
     assert 0 == PerformanceDatum.objects.all().count()
@@ -288,7 +290,7 @@ def test_same_signature_multiple_performance_frameworks(test_project,
                                                         perf_reference_data):
     framework_names = ['cheezburger1', 'cheezburger2']
     for framework_name in framework_names:
-        PerformanceFramework.objects.create(name=framework_name)
+        PerformanceFramework.objects.create(name=framework_name, enabled=True)
         datum = {
             'job_guid': 'fake_job_guid',
             'name': 'test',
@@ -455,3 +457,17 @@ def test_alert_generation_repo_no_alerts(test_project, test_repository,
 
     assert 0 == PerformanceAlert.objects.all().count()
     assert 0 == PerformanceAlertSummary.objects.all().count()
+
+
+def test_framework_not_enabled(test_project, test_repository,
+                               perf_option_collection, perf_platform,
+                               perf_reference_data):
+    # The field enabled has been defaulted to 'False'
+    _generate_perf_data_range(test_project, test_repository,
+                              perf_option_collection, perf_platform,
+                              perf_reference_data,
+                              create_perf_framework=True,
+                              enable_framework=False)
+
+    assert 0 == PerformanceSignature.objects.all().count()
+    assert 0 == PerformanceDatum.objects.all().count()

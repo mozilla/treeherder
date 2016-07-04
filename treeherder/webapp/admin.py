@@ -2,6 +2,7 @@ from django.contrib import admin
 from django_browserid.admin import site as browserid_admin
 
 from treeherder.model.models import *
+from treeherder.perf.models import PerformanceFramework
 
 
 class JobTypeAdmin(admin.ModelAdmin):
@@ -38,3 +39,4 @@ browserid_admin.register(Datasource)
 browserid_admin.register(JobGroup)
 browserid_admin.register(OptionCollection)
 browserid_admin.register(FailureClassification)
+browserid_admin.register(PerformanceFramework)

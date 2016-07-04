@@ -486,7 +486,7 @@ def client_credentials(request, test_user):
 def test_perf_framework(transactional_db):
     from treeherder.perf.models import PerformanceFramework
     return PerformanceFramework.objects.create(
-        name='test_talos')
+        name='test_talos', enabled=True)
 
 
 @pytest.fixture
