@@ -177,6 +177,17 @@ treeherderApp.controller('ResultSetCtrl', [
             $rootScope.$emit(thEvents.deleteRunnableJobs, $scope.resultset);
         };
 
+        $scope.canCancelJobs = function() {
+            var job = ThResultSetStore.getSelectedJob($scope.repoName).job;
+            var singleJobSelected = job instanceof ThJobModel;
+            if (singleJobSelected) {
+                // Check whether the job can be cancelled
+                return job.state === "pending" || job.state === "running";
+            } else {
+                return true;
+            }
+        };
+
         $scope.cancelJobs = function(revision) {
             var job = ThResultSetStore.getSelectedJob($scope.repoName).job;
             var singleJobSelected = job instanceof ThJobModel;
