@@ -47,7 +47,7 @@
           <button id="push-dropdown" class="btn btn-link dropdown" uib-dropdown-toggle>
             {{alertSummary.resultSetMetadata.revision | limitTo: 12}}<span class="caret"></span>
           </button>
-          <ul class="uib-dropdown-menu" aria-labelledby="push-dropdown">
+          <ul class="uib-dropdown-menu" uib-dropdown-menu aria-labelledby="push-dropdown">
             <li role="menuitem"><a href="{{alertSummary.jobsURL}}" target="_blank">Jobs</a></li>
             <li role="menuitem"><a href="{{alertSummary.pushlogURL}}" target="_blank">Pushlog</a></li>
           </ul>
@@ -73,7 +73,7 @@
 {{alertSummary.getStatusText()}}
             <span class="caret"></span>
           </button>
-          <ul class="uib-dropdown-menu" aria-labelledby="status-dropdown">
+          <ul class="uib-dropdown-menu" uib-dropdown-menu aria-labelledby="status-dropdown">
             <li role="menuitem" ng-show="!alertSummary.bug_number">
               <a ng-click="fileBug(alertSummary)">File bug</a>
             </li>

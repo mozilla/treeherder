@@ -167,14 +167,14 @@ perf.controller(
     });
 
 perf.controller('AlertsCtrl', [
-    '$state', '$stateParams', '$scope', '$rootScope', '$http', '$q', '$modal',
+    '$state', '$stateParams', '$scope', '$rootScope', '$http', '$q', '$uibModal',
     'thUrl', 'ThRepositoryModel', 'ThOptionCollectionModel',
     'ThResultSetModel',
     'PhFramework', 'PhSeries', 'PhAlerts', 'PhBugs', 'phTimeRanges',
     'phDefaultTimeRangeValue', 'phAlertSummaryStatusMap', 'phAlertStatusMap',
     'dateFilter', 'thDateFormat',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $http, $q,
-                        $modal,
+                        $uibModal,
                         thUrl, ThRepositoryModel,
                         ThOptionCollectionModel, ThResultSetModel,
                         PhFramework, PhSeries, PhAlerts, PhBugs, phTimeRanges,
@@ -289,7 +289,7 @@ perf.controller('AlertsCtrl', [
             PhBugs.fileTalosBug(alertSummary);
         };
         $scope.linkToBug = function(alertSummary) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'partials/perf/modifyalertsctrl.html',
                 controller: 'ModifyAlertSummaryCtrl',
                 size: 'sm',
@@ -308,7 +308,7 @@ perf.controller('AlertsCtrl', [
             });
         };
         $scope.markAlertsDownstream = function(alertSummary) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'partials/perf/modifyalertsctrl.html',
                 controller: 'MarkDownstreamAlertsCtrl',
                 size: 'sm',
@@ -325,7 +325,7 @@ perf.controller('AlertsCtrl', [
             });
         };
         $scope.reassignAlerts = function(alertSummary) {
-            $modal.open({
+            $uibMmodal.open({
                 templateUrl: 'partials/perf/modifyalertsctrl.html',
                 controller: 'ReassignAlertsCtrl',
                 size: 'sm',
