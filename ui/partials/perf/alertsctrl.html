@@ -68,33 +68,36 @@
         <div ng-show="!user.is_staff" style="padding: 6px;">
           {{alertSummary.getStatusText()}}
         </div>
-        <div ng-show="user.is_staff" class="btn-group" uib-dropdown>
+        <div class="btn-group" uib-dropdown>
           <button id="status-dropdown" class="btn btn-link status-dropdown" uib-dropdown-toggle>
 {{alertSummary.getStatusText()}}
             <span class="caret"></span>
           </button>
           <ul class="uib-dropdown-menu" uib-dropdown-menu aria-labelledby="status-dropdown">
-            <li role="menuitem" ng-show="!alertSummary.bug_number">
+            <li role="menuitem">
+              <a ng-click="copyTextToClipboard(JSON.stringify(alertSummary))">Copy Summary</a>
+            </li>
+            <li role="menuitem" ng-show="!alertSummary.bug_number && user.is_staff">
               <a ng-click="fileBug(alertSummary)">File bug</a>
             </li>
-            <li role="menuitem" ng-show="!alertSummary.bug_number">
+            <li role="menuitem" ng-show="!alertSummary.bug_number && user.is_staff">
               <a ng-click="linkToBug(alertSummary)">Link to bug</a>
             </li>
-            <li role="menuitem" ng-show="alertSummary.bug_number">
+            <li role="menuitem" ng-show="alertSummary.bug_number && user.is_staff">
               <a ng-click="unlinkBug(alertSummary)">Unlink from bug</a>
             </li>
-            <li role="menuitem" ng-if="alertSummary.isResolved()">
+            <li role="menuitem" ng-show="user.is_staff" ng-if="alertSummary.isResolved()">
               <a ng-click="alertSummary.markInvestigating()">Re-open</a>
             </li>
-            <li role="menuitem"
+            <li role="menuitem" ng-show="user.is_staff"
                 ng-if="alertSummary.isInvestigating() || (alertSummary.isResolved() && !alertSummary.isWontfix())">
               <a ng-click="alertSummary.markWontfix()">Mark as "won't fix"</a>
             </li>
-            <li role="menuitem"
+            <li role="menuitem" ng-show="user.is_staff"
                 ng-if="alertSummary.isInvestigating() || (alertSummary.isResolved() && !alertSummary.isBackedout())">
               <a ng-click="alertSummary.markBackedout()">Mark as backed out</a>
             </li>
-            <li role="menuitem"
+            <li role="menuitem" ng-show="user.is_staff"
                 ng-if="alertSummary.isInvestigating() || (alertSummary.isResolved() && !alertSummary.isFixed())">
               <a ng-click="alertSummary.markFixed()">Mark as fixed</a>
             </li>
