@@ -113,15 +113,11 @@ def parse_log(project, job_guid, job_log, _priority):
 @parser_task
 def store_failure_lines(project, job_guid, job_log, priority):
     """This task is a wrapper for the store_failure_lines command."""
-    try:
-        logger.debug('Running store_failure_lines for job %s' % job_guid)
-        failureline.store_failure_lines(project, job_guid, job_log)
-        if settings.AUTOCLASSIFY_JOBS:
-            autoclassify.apply_async(args=[project, job_guid],
-                                     routing_key="autoclassify.%s" % priority)
-
-    except Exception as e:
-        store_failure_lines.retry(exc=e, countdown=(1 + store_failure_lines.request.retries) * 60)
+    logger.debug('Running store_failure_lines for job %s' % job_guid)
+    failureline.store_failure_lines(project, job_guid, job_log)
+    if settings.AUTOCLASSIFY_JOBS:
+        autoclassify.apply_async(args=[project, job_guid],
+                                 routing_key="autoclassify.%s" % priority)
 
 
 @retryable_task(name='crossreference-error-lines', max_retries=10)
