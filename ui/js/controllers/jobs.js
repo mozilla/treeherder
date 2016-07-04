@@ -93,12 +93,12 @@ treeherderApp.controller('ResultSetCtrl', [
     'thUrl', 'thServiceDomain', 'thResultStatusInfo', 'thDateFormat',
     'ThResultSetStore', 'thEvents', 'thJobFilters', 'thNotify',
     'thBuildApi', 'thPinboard', 'ThResultSetModel', 'dateFilter',
-    'ThModelErrors',
+    'ThModelErrors', 'ThJobModel',
     function ResultSetCtrl(
         $scope, $rootScope, $http, ThLog, $location,
         thUrl, thServiceDomain, thResultStatusInfo, thDateFormat,
         ThResultSetStore, thEvents, thJobFilters, thNotify,
-        thBuildApi, thPinboard, ThResultSetModel, dateFilter, ThModelErrors) {
+        thBuildApi, thPinboard, ThResultSetModel, dateFilter, ThModelErrors, ThJobModel) {
 
         var $log = new ThLog(this.constructor.name);
 
