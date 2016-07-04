@@ -177,19 +177,38 @@ treeherderApp.controller('ResultSetCtrl', [
             $rootScope.$emit(thEvents.deleteRunnableJobs, $scope.resultset);
         };
 
-        $scope.cancelAllJobs = function(revision) {
-            if (!window.confirm('This will cancel all pending and running jobs for revision ' + revision + '!\n\nClick "OK" if you\'re sure.')) {
+        $scope.cancelJobs = function(revision) {
+            var job = ThResultSetStore.getSelectedJob($scope.repoName).job;
+            var single_job = job !== undefined;
+            var message = single_job ?
+                          'This will cancel the selected job. !\n\nClick "OK" if you\'re sure.':
+                          'This will cancel all pending and running jobs for revision ' + revision + '!\n\nClick "OK" if you\'re sure.';
+            if (!window.confirm(message)) {
                 return;
             }
-
-            ThResultSetModel.cancelAll($scope.resultset.id, $scope.repoName).then(function() {
-                return thBuildApi.cancelAll($scope.repoName, revision);
-            }).catch(function(e) {
-                thNotify.send(
-                    ThModelErrors.format(e, "Failed to cancel all jobs"),
-                    'danger', true
-                );
-            });
+            if (single_job) {
+                ThJobModel.cancel($scope.repoName, job.id).then(function() {
+                  // XXX: Remove this after 1134929 is resolved.
+                    var requestId = getBuildbotRequestId();
+                    if (requestId) {
+                        return thBuildApi.cancelJob($scope.repoName, requestId);
+                    }
+                }).catch(function(e) {
+                    thNotify.send(
+                        ThModelErrors.format(e, "Unable to cancel job"),
+                        "danger", true
+                    );
+                });
+            } else {
+                ThResultSetModel.cancelAll($scope.resultset.id, $scope.repoName).then(function() {
+                    return thBuildApi.cancelAll($scope.repoName, revision);
+                }).catch(function(e) {
+                    thNotify.send(
+                        ThModelErrors.format(e, "Failed to cancel all jobs"),
+                        'danger', true
+                    );
+                });
+            }
         };
 
         $scope.triggerMissingJobs = function(revision) {
