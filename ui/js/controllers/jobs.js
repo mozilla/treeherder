@@ -182,12 +182,12 @@ treeherderApp.controller('ResultSetCtrl', [
             var singleJobSelected = job instanceof ThJobModel;
             if (singleJobSelected) {
                 if ($scope.canCancelJobs()) {
-                    return "Cancel Selected Job";
+                    return "Cancel selected job";
                 } else {
-                    return "Cannot Cancel Completed Job"
+                    return "Cannot cancel completed job";
                 }
             } else {
-                return "Cancel All Jobs";
+                return "Cancel all jobs";
             }
         };
 
