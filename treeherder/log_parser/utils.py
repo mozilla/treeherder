@@ -34,18 +34,8 @@ def extract_text_log_artifacts(project, log_url, job_guid):
     return artifact_list
 
 
-def post_log_artifacts(project,
-                       job_guid,
-                       job_log,
-                       retry_task):
+def post_log_artifacts(project, job_guid, job_log):
     """Post a list of artifacts to a job."""
-    def _retry(e):
-        # Initially retry after 1 minute, then for each subsequent retry
-        # lengthen the retry time by another minute.
-        retry_task.retry(exc=e, countdown=(1 + retry_task.request.retries) * 60)
-        # .retry() raises a RetryTaskError exception,
-        # so nothing after this function will be executed
-
     log_url = job_log.url
     log_description = "%s %s (%s)" % (project, job_guid, log_url)
     logger.debug("Downloading/parsing log for %s", log_description)
@@ -63,17 +53,15 @@ def post_log_artifacts(project,
             logger.warning("Unable to retrieve log for %s: %s",
                            log_description, e)
             return
+
         # possibly recoverable http error (e.g. problems on our end)
-        elif isinstance(e, urllib2.URLError):
+        if isinstance(e, urllib2.URLError):
             logger.error("Failed to download log for %s: %s",
                          log_description, e)
-            _retry(e)
         # parse error or other unrecoverable error
         else:
             logger.error("Failed to download/parse log for %s: %s",
                          log_description, e)
-        # re-raise exception if we're not retrying, so new relic sees the
-        # error
         raise
 
     try:
@@ -82,7 +70,7 @@ def post_log_artifacts(project,
         logger.debug("Finished posting artifact for %s %s", project, job_guid)
     except Exception as e:
         logger.error("Failed to upload parsed artifact for %s: %s", log_description, e)
-        _retry(e)
+        raise
 
 
 def create_artifacts(project, data):
