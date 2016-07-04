@@ -1,4 +1,5 @@
 import datetime
+import string
 
 import MySQLdb
 from django.conf import settings
@@ -97,6 +98,8 @@ class Command(BaseCommand):
                 if not job_id_mapping.get(ds_job_id):
                     self.stderr.write("WARNING: job id {} not found when migrating job notes, skipping\n".format(ds_job_id))
                     continue
+                ds_note_text = filter(lambda x: x in set(string.printable),
+                                      ds_note_text)
                 migrated_job_notes.append(JobNote(
                     job_id=job_id_mapping[ds_job_id],
                     failure_classification_id=ds_failure_classification_id,
