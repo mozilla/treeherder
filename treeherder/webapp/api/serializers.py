@@ -181,3 +181,33 @@ class JobDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.JobDetail
         fields = ['job_id', 'job_guid', 'title', 'value', 'url']
+
+
+class BugJobMapSerializer(serializers.ModelSerializer):
+
+    job_id = serializers.SlugRelatedField(
+        slug_field="project_specific_id",
+        source="job",
+        read_only=True)
+
+    class Meta:
+        model = models.BugJobMap
+        fields = ['job_id', 'bug_id', 'created', 'who']
+
+
+class JobNoteSerializer(serializers.ModelSerializer):
+
+    # these custom fields are for backwards compatibility
+    job_id = serializers.SlugRelatedField(
+        slug_field="project_specific_id",
+        source="job",
+        read_only=True)
+    failure_classification_id = serializers.SlugRelatedField(
+        slug_field="id",
+        source="failure_classification",
+        read_only=True)
+
+    class Meta:
+        model = models.JobNote
+        fields = ['id', 'job_id', 'failure_classification_id',
+                  'created', 'who', 'text']

@@ -15,7 +15,8 @@ from treeherder.etl.common import get_guid_root
 from treeherder.events.publisher import JobStatusPublisher
 from treeherder.model import (error_summary,
                               utils)
-from treeherder.model.models import (BuildPlatform,
+from treeherder.model.models import (BugJobMap,
+                                     BuildPlatform,
                                      ClassifiedFailure,
                                      Datasource,
                                      ExclusionProfile,
@@ -25,6 +26,7 @@ from treeherder.model.models import (BuildPlatform,
                                      JobDuration,
                                      JobGroup,
                                      JobLog,
+                                     JobNote,
                                      JobType,
                                      Machine,
                                      MachinePlatform,
@@ -125,13 +127,6 @@ class JobsModel(TreeherderModelBase):
             "author": "rs.author",
             "push_timestamp": "rs.push_timestamp",
             "last_modified": "rs.last_modified"
-        },
-        "bug_job_map": {
-            "job_id": "job_id",
-            "bug_id": "bug_id",
-            "type": "type",
-            "who": "who",
-            "submit_timestamp": "submit_timestamp"
         }
     }
 
@@ -141,8 +136,6 @@ class JobsModel(TreeherderModelBase):
     # to their ids.
     JOBS_CYCLE_TARGETS = [
         "jobs.deletes.cycle_job_artifact",
-        "jobs.deletes.cycle_job_note",
-        "jobs.deletes.cycle_bug_job_map",
         "jobs.deletes.cycle_job",
     ]
 
@@ -390,75 +383,28 @@ class JobsModel(TreeherderModelBase):
         )
         return int(data[0]['max_id'] or 0)
 
-    def get_job_note(self, id):
-        """Return the job note by id."""
-        data = self.execute(
-            proc="jobs.selects.get_job_note",
-            placeholders=[id],
-            debug_show=self.DEBUG,
-        )
-        return data
-
-    def get_job_note_list(self, job_id):
-        """Return the job notes by job_id."""
-        data = self.execute(
-            proc="jobs.selects.get_job_note_list",
-            placeholders=[job_id],
-            debug_show=self.DEBUG,
-        )
-        return data
-
     def update_last_job_classification(self, job_id):
         """
         Update failure_classification_id no the job table accordingly to
         the latest annotation. If none is present it gets reverted to the
         default value
         """
+        note = JobNote.objects.filter(
+            job__repository__name=self.project,
+            job__project_specific_id=job_id).order_by('-created').first()
+
+        if note:
+            failure_classification_id = note.failure_classification.id
+        else:
+            failure_classification_id = 0
 
         self.execute(
             proc='jobs.updates.update_last_job_classification',
             placeholders=[
-                job_id,
+                failure_classification_id, job_id
             ],
             debug_show=self.DEBUG
         )
-
-    def insert_job_note(self, job_id, failure_classification_id, who, note, autoclassify=False):
-        """insert a new note for a job and updates its failure classification"""
-        self.execute(
-            proc='jobs.inserts.insert_note',
-            placeholders=[
-                job_id,
-                failure_classification_id,
-                who,
-                note,
-                utils.get_now_timestamp(),
-            ],
-            debug_show=self.DEBUG
-        )
-        self.update_last_job_classification(job_id)
-
-        intermittent_ids = FailureClassification.objects.filter(
-            name__in=["intermittent", "intermittent needs filing"]).values_list('id', flat=True)
-
-        if not autoclassify and failure_classification_id in intermittent_ids:
-            failure_line = self.get_manual_classification_line(job_id)
-            if failure_line:
-                failure_line.update_autoclassification()
-
-    def delete_job_note(self, note_id, job_id):
-        """
-        Delete a job note and updates the failure classification for that job
-        """
-
-        self.execute(
-            proc='jobs.deletes.delete_note',
-            placeholders=[
-                note_id,
-            ],
-            debug_show=self.DEBUG
-        )
-        self.update_last_job_classification(job_id)
 
     def get_manual_classification_line(self, job_id):
         """
@@ -495,28 +441,28 @@ class JobsModel(TreeherderModelBase):
             return
 
         if self.is_fully_autoclassified(job_id):
-            existing_notes = self.get_job_note_list(job_id)
             # We don't want to add a job note after an autoclassification if there is already
             # one and after a verification if there is already one not supplied by the
             # autoclassifier
-            if existing_notes:
-                return
-            self.insert_autoclassify_job_note(job_id)
+            if not JobNote.objects.filter(job__repository__name=self.project,
+                                          job__project_specific_id=job_id).exists():
+                self.insert_autoclassify_job_note(job_id)
 
     def update_after_verification(self, job_id, user):
         if not settings.AUTOCLASSIFY_JOBS:
             return
 
         if self.is_fully_verified(job_id):
-            existing_notes = self.get_job_note_list(job_id)
+            existing_notes = JobNote.objects.filter(job__repository__name=self.project,
+                                                    job__project_specific_id=job_id)
             autoclassification = FailureClassification.objects.get(
                 name="autoclassified intermittent")
             # We don't want to add a job note after an autoclassification if there is already
             # one and after a verification if there is already one not supplied by the
             # autoclassifier
-            if (any(item["failure_classification_id"] != autoclassification.id
-                    for item in existing_notes)):
-                return
+            for note in existing_notes:
+                if note.failure_classification != autoclassification:
+                    return
             self.insert_autoclassify_job_note(job_id, user=user)
 
     def is_fully_verified(self, job_id):
@@ -575,109 +521,45 @@ class JobsModel(TreeherderModelBase):
         if not settings.AUTOCLASSIFY_JOBS:
             return
 
-        if user is None:
-            verified = False
-            user = "autoclassifier"
-        else:
-            verified = True
-
-        job = self.get_job(job_id)[0]
+        job = Job.objects.get(repository__name=self.project,
+                              project_specific_id=job_id)
 
         # Only insert bugs for verified failures since these are automatically
         # mirrored to ES and the mirroring can't be undone
         classified_failures = ClassifiedFailure.objects.filter(
-            best_for_lines__job_guid=job["job_guid"],
+            best_for_lines__job_guid=job.guid,
             best_for_lines__best_is_verified=True)
 
         text_log_summary_lines = TextLogSummaryLine.objects.filter(
-            summary__job_guid=job["job_guid"],
-            verified=True).exclude(bug_number=None)
+            summary__job_guid=job.guid, verified=True).exclude(
+                bug_number=None)
 
         bug_numbers = {item.bug_number
                        for item in chain(classified_failures, text_log_summary_lines)
                        if item.bug_number}
 
         for bug_number in bug_numbers:
-            try:
-                self.insert_bug_job_map(job_id, bug_number, "autoclassification",
-                                        int(time.time()), user, autoclassifer=True)
-            except JobDataIntegrityError:
-                # This can happen if there is a race where multiple users try to
-                # verify the autoclassifications at the "same" time
-                pass
+            BugJobMap.objects.create(job=job, bug_id=bug_number,
+                                     submit_timestamp=datetime.datetime.now(),
+                                     user=user)
 
-        if not verified:
+        # if user is not specified, then this is an autoclassified job note
+        # and we should mark it as such
+        if user is None:
             classification = FailureClassification.objects.get(
                 name="autoclassified intermittent")
             logger.info("Autoclassifier adding job note")
         else:
             classification = FailureClassification.objects.get(name="intermittent")
 
-        self.insert_job_note(job_id, classification.id, user, "", autoclassify=True)
-
-    def insert_bug_job_map(self, job_id, bug_id, assignment_type, submit_timestamp, who,
-                           autoclassifer=False):
-        """
-        Store a new relation between the given job and bug ids.
-
-        :param job_id: id of the job
-        :param job_id: Bugzilla bug number of the related bug
-        :param assignment_type: Type of classification (infra, intermittent, etc.)
-        :param submit_timestamp: Timestamp of relationship creation
-        :param who: Email address of user creating the relation
-        :param autoclassifier: Boolean indicating whether the relation is being
-                               created by the autoclassifier
-        """
-        try:
-            self.execute(
-                proc='jobs.inserts.insert_bug_job_map',
-                placeholders=[
-                    job_id,
-                    bug_id,
-                    assignment_type,
-                    submit_timestamp,
-                    who
-                ],
-                debug_show=self.DEBUG
-            )
-        except IntegrityError as e:
-            raise JobDataIntegrityError(e)
-
-        if settings.ORANGEFACTOR_HAWK_KEY:
-            job = self.get_job(job_id)[0]
-            if job["state"] == "completed":
-                # importing here to avoid an import loop
-                from treeherder.etl.tasks import submit_elasticsearch_doc
-                # Submit bug associations to Elasticsearch using an async task.
-                submit_elasticsearch_doc.apply_async(
-                    args=[
-                        self.project,
-                        job_id,
-                        bug_id,
-                        submit_timestamp,
-                        who
-                    ],
-                    routing_key='classification_mirroring'
-                )
-
-        if not autoclassifer:
-            self.update_autoclassification_bug(job_id, bug_id)
-
-    def delete_bug_job_map(self, job_id, bug_id):
-        """
-        Delete a bug-job entry identified by bug_id and job_id
-        """
-        self.execute(
-            proc='jobs.deletes.delete_bug_job_map',
-            placeholders=[
-                job_id,
-                bug_id
-            ],
-            debug_show=self.DEBUG
-        )
+        JobNote.objects.create(job=job,
+                               failure_classification=classification,
+                               user=user,
+                               text="")
 
     def update_autoclassification_bug(self, job_id, bug_number):
         failure_line = self.get_manual_classification_line(job_id)
+
         if failure_line is None:
             return
 
@@ -788,33 +670,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             if sleep_time:
                 # Allow some time for other queries to get through
                 time.sleep(sleep_time)
-
-    def get_bug_job_map_list(self, offset, limit, conditions=None):
-        """
-        Retrieve a list of bug_job_map entries. The conditions parameter is a
-        dict containing a set of conditions for each key. e.g.:
-        {
-            'job_id': set([('IN', (1, 2))])
-        }
-        """
-
-        replace_str, placeholders = self._process_conditions(
-            conditions, self.INDEXED_COLUMNS['bug_job_map']
-        )
-
-        repl = [replace_str]
-
-        proc = "jobs.selects.get_bug_job_map_list"
-
-        data = self.execute(
-            proc=proc,
-            replace=repl,
-            placeholders=placeholders,
-            limit=limit,
-            offset=offset,
-            debug_show=self.DEBUG,
-        )
-        return data
 
     def _add_short_revision_lookups(self, lookup):
         short_rev_lookup = {}
@@ -2186,14 +2041,14 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 )
                 placeholders += signature_list
 
-        resulset_status_list = self.execute(
+        resultset_status_list = self.execute(
             proc='jobs.selects.get_resultset_status',
             placeholders=placeholders,
             replace=replace,
             debug_show=self.DEBUG)
         num_coalesced = 0
         resultset_status_dict = {}
-        for rs in resulset_status_list:
+        for rs in resultset_status_list:
             num_coalesced += rs['num_coalesced'] if rs['num_coalesced'] else 0
             if rs['state'] == 'completed':
                 resultset_status_dict[rs['result']] = int(rs['total']) - rs['num_coalesced']

@@ -14,48 +14,6 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-
-DROP TABLE IF EXISTS `bug_job_map`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-
-
---
--- Table structure for table `bug_job_map`
---
-
-/**************************
- * Table: bug_job_map
- *
- * Maps job_ids to related bug_ids. Mappings can be made manually through a UI or from
- * doing lookups in the treeherder_reference_1.bugscache
- *
- * Population Method: scheduled job, manual by admin
- *
- * Example Data:
- *
- *  job_id - Referenced job.id
- *  bug_id - References bugzilla bug id
- *  type - parsing-suggestion (automatically generated) | annotation (manual assignment through UI)
- **************************/
-CREATE TABLE `bug_job_map` (
-  `job_id` bigint(20) unsigned NOT NULL,
-  `bug_id` int(10) unsigned NOT NULL,
-  `type` varchar(50) COLLATE utf8_bin NOT NULL,
-  `submit_timestamp` int(10) unsigned NOT NULL,
-  `who` varchar(50) COLLATE utf8_bin NOT NULL,
-  `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
-  UNIQUE KEY `uni_job_id_bug_id` (`job_id`,`bug_id`),
-  KEY `idx_job_id` (`job_id`),
-  KEY `idx_bug_id` (`bug_id`),
-  KEY `idx_type` (`type`),
-  KEY `idx_who` (`who`),
-  KEY `idx_submit_timestamp` (`submit_timestamp`),
-  KEY `idx_active_status` (`active_status`),
-  CONSTRAINT `fk_bug_job` FOREIGN KEY (`job_id`) REFERENCES `job` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
 --
 -- Table structure for table `job`
 --
@@ -184,47 +142,6 @@ CREATE TABLE `job_artifact` (
   KEY `idx_type` (`type`),
   KEY `idx_active_status` (`active_status`),
   CONSTRAINT `fk_job_artifact` FOREIGN KEY (`job_id`) REFERENCES `job` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `job_note`
---
-
-DROP TABLE IF EXISTS `job_note`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-
-/**************************
- * Table: job_note
- *
- *  Notes associated with a job. Generated manually in the UI.
- *
- * Population Method: manual by admin
- *
- * Example Data:
- *
- *  job_id - References job.id
- *  failure_classification_id - References treeherder_reference_1.failure_classification.id
- *  who - Author of the note
- *  note - Notes associated with the job
- *  note_timestamp - Timestamp associated with the note
- **************************/
-CREATE TABLE `job_note` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `job_id` bigint(20) unsigned NOT NULL,
-  `failure_classification_id` int(10) unsigned DEFAULT NULL,
-  `who` varchar(50) COLLATE utf8_bin NOT NULL,
-  `note` mediumtext COLLATE utf8_bin,
-  `note_timestamp` int(10) unsigned NOT NULL,
-  `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
-  PRIMARY KEY (`id`),
-  KEY `idx_job_id` (`job_id`),
-  KEY `idx_failure_classification_id` (`failure_classification_id`),
-  KEY `idx_who` (`who`),
-  KEY `idx_note_timestamp` (`note_timestamp`),
-  KEY `idx_active_status` (`active_status`),
-  CONSTRAINT `fk_job_note` FOREIGN KEY (`job_id`) REFERENCES `job` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

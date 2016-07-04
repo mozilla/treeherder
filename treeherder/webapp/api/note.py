@@ -4,7 +4,10 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND
 
-from treeherder.webapp.api.utils import with_jobs
+from treeherder.model.models import (Job,
+                                     JobNote)
+
+from .serializers import JobNoteSerializer
 
 
 class NoteViewSet(viewsets.ViewSet):
@@ -13,19 +16,18 @@ class NoteViewSet(viewsets.ViewSet):
     """
     This viewset is responsible for the note endpoint.
     """
-    @with_jobs
-    def retrieve(self, request, project, jm, pk=None):
+    def retrieve(self, request, project, pk=None):
         """
         GET method implementation for a note detail
 
         """
-        obj = jm.get_job_note(pk)
-        if obj:
-            return Response(obj[0])
-        return Response("No note with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+        try:
+            serializer = JobNoteSerializer(JobNote.objects.get(id=pk))
+            return Response(serializer.data)
+        except JobNote.DoesNotExist:
+            return Response("No note with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
-    @with_jobs
-    def list(self, request, project, jm):
+    def list(self, request, project):
         """
         GET method implementation for list view
         job_id -- Mandatory filter indicating which job these notes belong to.
@@ -39,20 +41,23 @@ class NoteViewSet(viewsets.ViewSet):
         except ValueError:
             raise ParseError(detail="The job_id parameter must be an integer")
 
-        job_note_list = jm.get_job_note_list(job_id=job_id)
-        return Response(job_note_list)
+        job = Job.objects.get(repository__name=project,
+                              project_specific_id=job_id)
+        serializer = JobNoteSerializer(JobNote.objects.filter(job=job),
+                                       many=True)
+        return Response(serializer.data)
 
-    @with_jobs
-    def create(self, request, project, jm):
+    def create(self, request, project):
         """
         POST method implementation
         """
-        jm.insert_job_note(
-            int(request.data['job_id']),
-            int(request.data['failure_classification_id']),
-            request.user.email,
-            request.data.get('note', '')
-        )
+        JobNote.objects.create(
+            job=Job.objects.get(repository__name=project,
+                                project_specific_id=int(
+                                    request.data['job_id'])),
+            failure_classification_id=int(request.data['failure_classification_id']),
+            user=request.user,
+            text=request.data.get('text', ''))
 
         return Response(
             {'message': 'note stored for job {0}'.format(
@@ -60,13 +65,14 @@ class NoteViewSet(viewsets.ViewSet):
             )}
         )
 
-    @with_jobs
-    def destroy(self, request, project, jm, pk=None):
+    def destroy(self, request, project, pk=None):
         """
         Delete a note entry
         """
-        objs = jm.get_job_note(pk)
-        if objs:
-            jm.delete_job_note(pk, objs[0]['job_id'])
+        try:
+            note = JobNote.objects.get(id=pk)
+            note.delete()
             return Response({"message": "Note deleted"})
-        return Response("No note with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+        except JobNote.DoesNotExist:
+            return Response("No note with id: {0}".format(pk),
+                            status=HTTP_404_NOT_FOUND)

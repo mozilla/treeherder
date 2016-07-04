@@ -12,8 +12,7 @@ from tests.autoclassify.utils import (create_bug_suggestions_failures,
 from tests.sample_data_generator import (job_data,
                                          result_set)
 from treeherder.model.derived import ArtifactsModel
-from treeherder.model.models import (FailureClassification,
-                                     FailureLine,
+from treeherder.model.models import (FailureLine,
                                      Job,
                                      JobDetail,
                                      JobDuration,
@@ -892,30 +891,6 @@ def test_retry_on_operational_failure(jm, monkeypatch):
         assert True
 
     assert retry_count['num'] == 20
-
-
-def test_delete_note(jm, eleven_jobs_stored):
-    """
-    test inserting and deleting a note
-    """
-    # create a failure classification corresponding to "not successful"
-    FailureClassification.objects.create(id=2, name="fixed by commit")
-
-    job = jm.get_job(1)[0]
-    assert job["failure_classification_id"] == 1
-
-    jm.insert_job_note(job["id"], 2, 'John Doe', 'A random note')
-
-    job = jm.get_job(1)[0]
-    assert job["failure_classification_id"] == 2
-    notes = jm.get_job_note_list(job["id"])
-    assert len(notes) == 1
-    note = notes[0]
-
-    jm.delete_job_note(job["id"], note["id"])
-    job = jm.get_job(1)[0]
-    assert job["failure_classification_id"] == 1
-    assert len(jm.get_job_note_list(job["id"])) == 0
 
 
 def test_update_autoclassification_bug(jm, test_repository, classified_failures):

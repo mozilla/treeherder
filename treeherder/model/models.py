@@ -19,6 +19,7 @@ from django.db import (connection,
                        transaction)
 from django.db.models import Q
 from django.forms import model_to_dict
+from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
@@ -650,6 +651,121 @@ class JobLog(models.Model):
     def update_status(self, status):
         self.status = status
         self.save(update_fields=['status'])
+
+
+class BugJobMap(models.Model):
+    '''
+    Maps job_ids to related bug_ids
+
+    Mappings can be made manually through a UI or from doing lookups in the
+    BugsCache
+    '''
+    id = BigAutoField(primary_key=True)
+
+    job = FlexibleForeignKey(Job)
+    bug_id = models.PositiveIntegerField(db_index=True)
+    created = models.DateTimeField(default=timezone.now)
+    user = models.ForeignKey(User, null=True)  # null if autoclassified
+
+    class Meta:
+        db_table = "bug_job_map"
+        unique_together = ('job', 'bug_id')
+
+    @property
+    def who(self):
+        if self.user:
+            return self.user.email
+        else:
+            return "autoclassifier"
+
+    def save(self, *args, **kwargs):
+        super(BugJobMap, self).save(*args, **kwargs)
+
+        # FIXME: using the JobsModel here is pretty horrible -- remove
+        # when we move jobs table to central db
+        from treeherder.model.derived.jobs import JobsModel
+        from treeherder.etl.tasks import submit_elasticsearch_doc
+
+        with JobsModel(self.job.repository.name) as jm:
+            if settings.ORANGEFACTOR_HAWK_KEY:
+                ds_job = jm.get_job(self.job.project_specific_id)[0]
+                if ds_job["state"] == "completed":
+                    # Submit bug associations to Elasticsearch using an async
+                    # task.
+                    submit_elasticsearch_doc.apply_async(
+                        args=[
+                            self.job.repository.name,
+                            self.job.project_specific_id,
+                            self.bug_id,
+                            self.created,
+                            self.who
+                        ],
+                        routing_key='classification_mirroring'
+                    )
+
+            # if we have a user, then update the autoclassification relations
+            if self.user:
+                jm.update_autoclassification_bug(self.job.project_specific_id,
+                                                 self.bug_id)
+
+    def __str__(self):
+        return "{0} {1} {2} {3}".format(self.id,
+                                        self.job.guid,
+                                        self.bug_id,
+                                        self.user)
+
+
+class JobNote(models.Model):
+    '''
+    Note associated with a job.
+
+    Generally these are generated manually in the UI.
+    '''
+    id = BigAutoField(primary_key=True)
+
+    job = FlexibleForeignKey(Job)
+    failure_classification = models.ForeignKey(FailureClassification)
+    user = models.ForeignKey(User, null=True)  # null if autoclassified
+    text = models.TextField()
+    created = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = "job_note"
+
+    @property
+    def who(self):
+        if self.user:
+            return self.user.email
+        return "autoclassifier"
+
+    def _update_failure_classification(self):
+        # update the job classification
+        from treeherder.model.derived.jobs import JobsModel
+        with JobsModel(self.job.repository.name) as jm:
+            jm.update_last_job_classification(self.job.project_specific_id)
+
+        # if a manually filed job, update the autoclassification information
+        if self.user:
+            if self.failure_classification.name in [
+                    "intermittent", "intermittent needs filing"]:
+                failure_line = jm.get_manual_classification_line(
+                    self.job.project_specific_id)
+                if failure_line:
+                    failure_line.update_autoclassification()
+
+    def save(self, *args, **kwargs):
+        super(JobNote, self).save(*args, **kwargs)
+        self._update_failure_classification()
+
+    def delete(self, *args, **kwargs):
+        super(JobNote, self).delete(*args, **kwargs)
+        self._update_failure_classification()
+
+    def __str__(self):
+        return "{0} {1} {2} {3}".format(self.id,
+                                        self.job.guid,
+                                        self.failure_classification,
+                                        self.who)
 
 
 class FailureLineManager(models.Manager):
