@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import datetime
 import itertools
 import os
+import time
 from collections import (OrderedDict,
                          defaultdict)
 from hashlib import sha1
@@ -697,7 +698,7 @@ class BugJobMap(models.Model):
                             self.job.repository.name,
                             self.job.project_specific_id,
                             self.bug_id,
-                            self.created,
+                            int(time.mktime(self.created.timetuple())),
                             self.who
                         ],
                         routing_key='classification_mirroring'
