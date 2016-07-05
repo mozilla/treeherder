@@ -36,8 +36,7 @@ def fetch_log(job_log):
     try:
         log_text = fetch_text(job_log.url)
     except HTTPError as e:
-        job_log.status = JobLog.FAILED
-        job_log.save()
+        job_log.update_status(JobLog.FAILED)
         if e.response is not None and e.response.status_code in (403, 404):
             logger.warning("Unable to retrieve log for %s: %s",
                            job_log.url, e)
@@ -94,8 +93,7 @@ def create(repository, job_guid, job_log, log_list):
         FailureLine.objects.create(repository=repository, job_guid=job_guid, job_log=job_log,
                                    **failure_line)
         for failure_line in log_list]
-    job_log.status == JobLog.PARSED
-    job_log.save()
+    job_log.update_status(JobLog.PARSED)
     return failure_lines
 
 
