@@ -100,7 +100,11 @@ set up (see :ref:`python-client`).
 
 Note: The system clock on the machines making requests must be correct
 (or more specifically, within 60 seconds of the Treeherder server time),
-otherwise authentication will fail.
+otherwise authentication will fail. In this case, the response body will be:
+
+.. code-block:: json
+
+    {"detail":"Hawk authentication failed: The token has expired. Is your system clock correct?"}
 
 .. _Hawk authentication mechanism: https://github.com/hueniverse/hawk
 
