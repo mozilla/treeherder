@@ -154,3 +154,5 @@ the same way as with a local testing instance (see above).
 Treeherder administrators can manage credentials here:
 `stage <https://treeherder.allizom.org/admin/credentials/credentials/>`__ /
 `production <https://treeherder.mozilla.org/admin/credentials/credentials/>`__.
+Note: Bugs must be filed to document all approvals & changes, to ease debugging
+and coordinating with credential owners in case of any later issues.
