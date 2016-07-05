@@ -50,26 +50,23 @@ def post_log_artifacts(project, job_guid, job_log):
         # the job fails, so just warn about it -- see
         # https://bugzilla.mozilla.org/show_bug.cgi?id=1154248)
         if isinstance(e, urllib2.HTTPError) and e.code in (403, 404):
-            logger.warning("Unable to retrieve log for %s: %s",
-                           log_description, e)
+            logger.warning("Unable to retrieve log for %s: %s", log_description, e)
             return
 
-        # possibly recoverable http error (e.g. problems on our end)
         if isinstance(e, urllib2.URLError):
-            logger.error("Failed to download log for %s: %s",
-                         log_description, e)
-        # parse error or other unrecoverable error
+            # possibly recoverable http error (e.g. problems on our end)
+            logger.error("Failed to download log for %s: %s", log_description, e)
         else:
-            logger.error("Failed to download/parse log for %s: %s",
-                         log_description, e)
+            # parse error or other unrecoverable error
+            logger.error("Failed to download/parse log for %s: %s", log_description, e)
         raise
 
     try:
         create_artifacts(project, artifact_list)
         job_log.update_status(JobLog.PARSED)
-        logger.debug("Finished posting artifact for %s %s", project, job_guid)
+        logger.debug("Stored artifact for %s %s", project, job_guid)
     except Exception as e:
-        logger.error("Failed to upload parsed artifact for %s: %s", log_description, e)
+        logger.error("Failed to store parsed artifact for %s: %s", log_description, e)
         raise
 
 
