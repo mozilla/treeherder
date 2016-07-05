@@ -4,16 +4,17 @@ from rest_framework.test import APIClient
 
 from treeherder.model.models import (ExclusionProfile,
                                      JobExclusion)
+from treeherder.webapp.api.jobs import JobsViewSet
 
 
-def test_job_list(webapp, eleven_jobs_stored, jm):
+def test_job_list(webapp, eleven_jobs_stored, test_repository):
     """
     test retrieving a list of ten json blobs from the jobs-list
     endpoint.
     """
     resp = webapp.get(
         reverse("jobs-list",
-                kwargs={"project": jm.project})
+                kwargs={"project": test_repository.name})
     )
     assert resp.status_int == 200
     response_dict = resp.json
@@ -374,3 +375,16 @@ def test_list_similar_jobs(webapp, eleven_jobs_stored, jm):
     assert isinstance(similar_jobs['results'], list)
 
     assert len(similar_jobs['results']) == 3
+
+
+def test_job_create(webapp, test_repository, test_user, eleven_job_blobs, monkeypatch, jm):
+    monkeypatch.setattr(JobsViewSet, 'permission_classes', ())
+
+    url = reverse("jobs-list",
+                  kwargs={"project": jm.project})
+    client = APIClient()
+    resp = client.post(url, data=eleven_job_blobs, format="json")
+
+    assert resp.status_code == 200
+    test_job_list(webapp, None, test_repository)
+    test_job_detail(webapp, None, None, jm)

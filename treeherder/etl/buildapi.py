@@ -1,14 +1,16 @@
 import logging
+import traceback
 from collections import defaultdict
 
+import newrelic.agent
 import simplejson as json
 from django.conf import settings
 from django.core.cache import cache
 
 from treeherder.client import TreeherderJobCollection
 from treeherder.etl import (buildbot,
-                            common,
-                            th_publisher)
+                            common)
+from treeherder.model.derived.jobs import JobsModel
 from treeherder.model.models import Datasource
 
 logger = logging.getLogger(__name__)
@@ -409,8 +411,8 @@ class Builds4hJobsProcess(Builds4hTransformerMixin):
                                                        project_filter=project_filter,
                                                        job_group_filter=job_group_filter)
         if job_collections:
-            th_publisher.post_treeherder_collections(job_collections,
-                                                     chunk_size=settings.BUILDAPI_BUILDS4H_CHUNK_SIZE)
+            store_jobs(job_collections,
+                       chunk_size=settings.BUILDAPI_BUILDS4H_CHUNK_SIZE)
         cache.set(CACHE_KEYS['complete'], job_ids_seen)
         return bool(job_collections)
 
@@ -426,8 +428,8 @@ class PendingJobsProcess(PendingRunningTransformerMixin):
                                                        project_filter=project_filter,
                                                        job_group_filter=job_group_filter)
         if job_collections:
-            th_publisher.post_treeherder_collections(job_collections,
-                                                     chunk_size=settings.BUILDAPI_PENDING_CHUNK_SIZE)
+            store_jobs(job_collections,
+                       chunk_size=settings.BUILDAPI_PENDING_CHUNK_SIZE)
         cache.set(CACHE_KEYS['pending'], job_ids_seen)
         return bool(job_collections)
 
@@ -443,7 +445,27 @@ class RunningJobsProcess(PendingRunningTransformerMixin):
                                                        project_filter=project_filter,
                                                        job_group_filter=job_group_filter)
         if job_collections:
-            th_publisher.post_treeherder_collections(job_collections,
-                                                     chunk_size=settings.BUILDAPI_RUNNING_CHUNK_SIZE)
+            store_jobs(job_collections,
+                       chunk_size=settings.BUILDAPI_RUNNING_CHUNK_SIZE)
         cache.set(CACHE_KEYS['running'], job_ids_seen)
         return bool(job_collections)
+
+
+def store_jobs(job_collections, chunk_size):
+    errors = []
+    for repository, jobs in job_collections.iteritems():
+        with JobsModel(repository) as jm:
+            for collection in jobs.get_chunks(chunk_size=chunk_size):
+                try:
+                    collection.validate()
+                    jm.store_job_data(collection.get_collection_data())
+                except Exception:
+                    newrelic.agent.record_exception()
+                    errors.append({
+                        "project": repository,
+                        "collection": "job",
+                        "message": traceback.format_exc()
+                    })
+
+    if errors:
+        raise common.CollectionNotStoredException(errors)

@@ -227,9 +227,7 @@ def resultset_with_three_jobs(jm, sample_data, sample_resultset, test_repository
 
 
 @pytest.fixture
-def eleven_jobs_stored(jm, sample_data, sample_resultset, test_repository, mock_log_parser):
-    """stores a list of 11 job samples"""
-
+def eleven_job_blobs(jm, sample_data, sample_resultset, test_repository, mock_log_parser):
     jm.store_result_set_data(sample_resultset)
 
     num_jobs = 11
@@ -253,8 +251,13 @@ def eleven_jobs_stored(jm, sample_data, sample_resultset, test_repository, mock_
         blobs.append(blob)
 
         resultset_index += 1
+    return blobs
 
-    jm.store_job_data(blobs)
+
+@pytest.fixture
+def eleven_jobs_stored(jm, eleven_job_blobs):
+    """stores a list of 11 job samples"""
+    jm.store_job_data(eleven_job_blobs)
 
 
 @pytest.fixture
