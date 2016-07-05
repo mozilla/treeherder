@@ -7,9 +7,15 @@ from django.db.utils import (IntegrityError,
 
 
 class retryable_task(object):
+    """Wrapper around a celery task to add conditional task retrying."""
+
+    NON_RETRYABLE_EXCEPTIONS = (
+        TypeError,
+        IntegrityError,
+        ProgrammingError,
+    )
+
     def __init__(self, *args, **kwargs):
-        self.raise_exceptions = kwargs.pop("raise_exceptions", (TypeError, IntegrityError,
-                                                                ProgrammingError))
         self.task_args = args
         self.task_kwargs = kwargs
 
@@ -18,7 +24,7 @@ class retryable_task(object):
         def inner(*args, **kwargs):
             try:
                 return f(*args, **kwargs)
-            except self.raise_exceptions:
+            except self.NON_RETRYABLE_EXCEPTIONS:
                 raise
             except Exception as e:
                 # Implement exponential backoff with some randomness to prevent
