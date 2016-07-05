@@ -218,9 +218,17 @@ perf.controller('AlertsCtrl', [
                                     alert.title.toLowerCase().indexOf(
                                         matchText.toLowerCase()) > (-1);
                             });
+                    // reset alert's selected status if it is no longer visible
+                    alert.selected = alert.selected && alert.visible;
                 });
                 alertSummary.anyVisible = _.any(alertSummary.alerts,
                                                 'visible');
+
+                // if all are selected with this alert summary, update which
+                // ones are selected
+                if (alertSummary.allSelected) {
+                    $scope.selectNoneOrSelectAll(alertSummary);
+                }
             });
             $scope.numFilteredAlertSummaries = _.filter($scope.alertSummaries, { anyVisible: false }).length;
 
@@ -274,11 +282,13 @@ perf.controller('AlertsCtrl', [
             // if some are not selected, then select all if checked
             // otherwise select none
             alertSummary.alerts.forEach(function(alert) {
-                alert.selected = alertSummary.allSelected;
+                alert.selected = alert.visible && alertSummary.allSelected;
             });
         };
         $scope.alertSelected = function(alertSummary) {
-            if (_.all(_.pluck(alertSummary.alerts, 'selected'))) {
+            if (_.all(alertSummary.alerts, function(alert) {
+                return !alert.visible || alert.selected;
+            })) {
                 alertSummary.allSelected = true;
             } else {
                 alertSummary.allSelected = false;
