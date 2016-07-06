@@ -23,7 +23,7 @@ class BugzillaViewSet(viewsets.ViewSet):
 
         params = request.data
         description = "Filed by: {}\n\n{}".format(
-            request.user.username,
+            request.user.email.split("@")[0],
             params.get("comment", "")
         )
         url = settings.BZ_API_URL + "/rest/bug"

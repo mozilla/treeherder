@@ -18,7 +18,7 @@ def test_create_bug(webapp, eleven_jobs_stored, activate_responses, test_user):
         print requestheaders
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
         assert requestdata['product'] == "Bugzilla"
-        assert requestdata['description'] == "Filed by: {}\n\nIntermittent Description".format(test_user.username)
+        assert requestdata['description'] == "Filed by: {}\n\nIntermittent Description".format(test_user.email.split("@")[0])
         assert requestdata['component'] == "Administration"
         assert requestdata['summary'] == "Intermittent summary"
         assert requestdata['comment_tags'] == "treeherder"
