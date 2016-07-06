@@ -15,13 +15,12 @@ Vagrant, or in your ``config/settings_local.py`` file.  For example::
 
     PULSE_DATA_INGESTION_SOURCES = [
         {
-            "exchange": "exchange/treeherder-test/jobs",
+            "exchange": "exchange/taskcluster-treeherder/v1/jobs",
             "destinations": [
-                'treeherder-prod',
-                'treeherder-stage'
+                'tc-treeherder'
             ],
             "projects": [
-                'mozilla-inbound'
+                'mozilla-inbound.#'
             ]
         }
     ]
@@ -77,3 +76,4 @@ test that they are arriving at Pulse the way you expect.
 
 .. _Pulse Guardian: https://pulse.mozilla.org/whats_pulse
 .. _Pulse Inspector: https://tools.taskcluster.net/pulse-inspector/
+.. _YML Schema: https://github.com/mozilla/treeherder/blob/master/schemas/pulse-job.yml
