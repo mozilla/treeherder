@@ -3,7 +3,6 @@
   fields:
     framework: 1
     keywords: perf, regression, talos-regression
-    status_whiteboard:
     default_component: Untriaged
     default_product: Firefox
     cc_list: jmaher@mozilla.com, wlachance@mozilla.com, avihpit@yahoo.com, rwood@mozilla.com, ashiue@mozilla.com
