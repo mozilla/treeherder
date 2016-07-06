@@ -151,7 +151,8 @@ treeherder.controller('PluginCtrl', [
                         $scope.eta_abs = Math.abs($scope.eta);
                     }
                     $scope.average_duration = $scope.job.get_average_duration();
-                    $scope.jobRevision = ThResultSetStore.getSelectedJob($scope.repoName).job.revision;
+                    var resultsetId = ThResultSetStore.getSelectedJob($scope.repoName).job.result_set_id;
+                    $scope.jobRevision = ThResultSetStore.getResultSet($scope.repoName, resultsetId).revision;
 
                     // set the tab options and selections based on the selected job
                     initializeTabs($scope.job);
