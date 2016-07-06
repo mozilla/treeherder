@@ -13,6 +13,9 @@ treeherder.controller('BugsPluginCtrl', [
         var requestPromise = null;
 
         var bug_limit = 20;
+        $scope.bug_limit_title_string = "This search for suggestions has exceeded " +  bug_limit + " results, " +
+                                        "and is likely not a useful search, so suggestions are not being shown.\n" +
+                                        "Filing a new bug with a more specific title would probably help.";
         $scope.tabs = thTabs.tabs;
 
         $scope.filerInAddress = false;

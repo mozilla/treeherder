@@ -64,7 +64,10 @@
             </ul>
 
             <mark ng-if="suggestion.bugs.too_many_open_recent || (suggestion.bugs.too_many_all_others && !suggestion.valid_open_recent)"
-                    >Exceeded max bug suggestions</mark>
+                  ng-attr-title="{{bug_limit_title_string}}">
+                  Exceeded max bug suggestions
+                  <span class="fa fa-info-circle"></span>
+            </mark>
 
         </li>
 
