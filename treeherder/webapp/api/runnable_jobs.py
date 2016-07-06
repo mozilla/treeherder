@@ -20,13 +20,13 @@ class RunnableJobsViewSet(viewsets.ViewSet):
         GET method implementation for list of all runnable buildbot jobs
         """
         if 'decisionTaskID' in request.query_params and len(request.query_params['decisionTaskID']):
-            decisionTaskID = request.query_params['decisionTaskID']
-            tc_jobs_url = settings.TASKCLUSTER_FULL_TASK.replace("{{decision_task}}", decisionTaskID)
+            decision_task_id = request.query_params['decisionTaskID']
+            tc_graph_url = settings.TASKCLUSTER_TASKGRAPH_URL.format(task_id=decision_task_id)
             tc_graph = None
             validate = URLValidator()
             try:
-                validate(tc_jobs_url)
-                tc_graph = fetch_json(tc_jobs_url)
+                validate(tc_graph_url)
+                tc_graph = fetch_json(tc_graph_url)
             except ValidationError:
                 # We pass here as we still want to schedule BuildBot jobs
                 pass

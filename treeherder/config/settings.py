@@ -553,4 +553,4 @@ ELASTIC_SEARCH = {
     "index_prefix": ""
 }
 
-TASKCLUSTER_FULL_TASK = 'https://queue.taskcluster.net/v1/task/{{decision_task}}/artifacts/public/full-task-graph.json'
+TASKCLUSTER_TASKGRAPH_URL = 'https://queue.taskcluster.net/v1/task/{task_id}/artifacts/public/full-task-graph.json'
