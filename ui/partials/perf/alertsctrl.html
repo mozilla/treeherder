@@ -221,9 +221,9 @@
   </p>
 </div>
 
-<div class="well" ng-show="getMoreAlertSummariesHref">
-    <div class="btn btn-default btn-sm"
-         ng-click="getMoreAlertSummaries(count)">
-      Get more...
-  </div>
+<div class="text-center">
+    <uib-pagination ng-model="alertSummaryCurrentPage" ng-change="getAlertSummariesPage()"
+                    ng-show="alertSummaryCount > alertSummaryPageSize" max-size="10"
+                    total-items="alertSummaryCount" items-per-page="alertSummaryPageSize"
+                    rotate="false" boundary-link-numbers="true"></uib-pagination>
 </div>

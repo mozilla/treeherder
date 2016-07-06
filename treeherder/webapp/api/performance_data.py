@@ -201,7 +201,7 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
         return Response(ret)
 
 
-class AlertSummaryPagination(pagination.CursorPagination):
+class AlertSummaryPagination(pagination.PageNumberPagination):
     ordering = ('-last_updated', '-id')
     page_size = 10
 
