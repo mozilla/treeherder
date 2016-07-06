@@ -9,7 +9,7 @@ class Credentials(models.Model):
     client_id = models.SlugField("client ID", max_length=32, unique=True)
     secret = models.UUIDField(default=uuid.uuid4, editable=False)
     description = models.TextField()
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User, null=True)
     authorized = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
