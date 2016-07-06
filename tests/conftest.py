@@ -467,15 +467,12 @@ def test_sheriff(request, transactional_db):
 
 
 @pytest.fixture
-def client_credentials(request, test_user):
-    from django.conf import settings
+def client_credentials(request, transactional_db):
     from treeherder.credentials.models import Credentials
 
-    # We need to get_or_create here because of bug 1133273.
-    # It can be a straight create once that bug is solved.
-    client_credentials, _ = Credentials.objects.get_or_create(
-        client_id=settings.ETL_CLIENT_ID,
-        defaults={'owner': test_user, 'authorized': True}
+    client_credentials = Credentials.objects.create(
+        client_id='test_client',
+        authorized=True
     )
 
     def fin():
