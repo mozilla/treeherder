@@ -2,11 +2,11 @@
   pk: 1
   fields:
     framework: 1
-    keywords: perf, regression
-    status_whiteboard: talos_regression
+    keywords: perf, regression, talos-regression
+    status_whiteboard:
     default_component: Untriaged
     default_product: Firefox
-    cc_list: jmaher@mozilla.com, wlachance@mozilla.com, avihpit@yahoo.com
+    cc_list: jmaher@mozilla.com, wlachance@mozilla.com, avihpit@yahoo.com, rwood@mozilla.com, ashiue@mozilla.com
     text: |
       Talos has detected a Firefox performance regression from push {{ revision }}. As author of one of the patches included in that push, we need your help to address this regression.
 
