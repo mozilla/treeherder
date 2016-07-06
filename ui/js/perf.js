@@ -1,6 +1,6 @@
 "use strict";
 
-var perf = angular.module("perf", ['ui.router', 'ui.bootstrap', 'treeherder']);
+var perf = angular.module("perf", ['ui.router', 'ui.bootstrap', 'treeherder', 'angular-clipboard']);
 
 treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionModel', function($http, thServiceDomain, ThOptionCollectionModel) {
 

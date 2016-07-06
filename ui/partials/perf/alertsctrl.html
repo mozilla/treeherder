@@ -75,9 +75,9 @@
           </button>
           <ul class="uib-dropdown-menu" uib-dropdown-menu aria-labelledby="status-dropdown">
             <li role="menuitem">
-              <a ng-click="copyTextToClipboard(JSON.stringify(alertSummary))">Copy Summary</a>
+              <a ng-click="copyTextToClipboard(alertSummary)">Copy Summary</a>
             </li>
-            <li role="menuitem" ng-show="!alertSummary.bug_number && user.is_staff">
+            <li role="menuitem" ng-show="!alertSummary.bug_number">
               <a ng-click="fileBug(alertSummary)">File bug</a>
             </li>
             <li role="menuitem" ng-show="!alertSummary.bug_number && user.is_staff">
