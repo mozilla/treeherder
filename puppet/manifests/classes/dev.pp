@@ -37,7 +37,7 @@ class dev{
 
   exec{"create_etl_credentials":
     cwd => "${PROJ_DIR}",
-    command => "bash -c 'source /etc/profile.d/treeherder.sh; ${VENV_DIR}/bin/python manage.py create_credentials treeherder-etl treeherder@mozilla.com \"Treeherder etl service credentials\"'",
+    command => "bash -c 'source /etc/profile.d/treeherder.sh; ${VENV_DIR}/bin/python manage.py create_credentials treeherder-etl'",
     require => Exec["create_superuser"],
     user => "${APP_USER}",
     unless => "bash -c 'source /etc/profile.d/treeherder.sh; ${VENV_DIR}/bin/python manage.py dumpdata credentials.Credentials | grep treeherder-etl'",
