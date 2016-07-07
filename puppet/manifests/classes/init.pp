@@ -1,9 +1,5 @@
 # Commands to run before all others in puppet.
 class init {
-    group { "puppet":
-        ensure => "present",
-    }
-
     # Ubuntu 14.04's newest Python is v2.7.6, so we have to use a third party PPA:
     # https://launchpad.net/~fkrull/+archive/ubuntu/deadsnakes-python2.7
     exec { "add_python27_ppa":
