@@ -1386,7 +1386,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         if created is True:
             # A new ReferenceDataSignature has been added
             for item in ExclusionProfile.objects.all():
-                item.update_flat_exclusions()
+                item.save()
 
         tier = job.get('tier') or 1
         # job tier signatures override the setting from the job structure
