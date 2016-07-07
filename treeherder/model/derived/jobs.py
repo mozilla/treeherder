@@ -1364,7 +1364,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         if not reference_data_name:
             reference_data_name = signature_hash
 
-        signature, _ = ReferenceDataSignatures.objects.get_or_create(
+        signature, created = ReferenceDataSignatures.objects.get_or_create(
             name=reference_data_name,
             signature=signature_hash,
             build_system_type=build_system_type,
@@ -1382,6 +1382,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 'job_type_symbol': job_type.symbol,
                 'option_collection_hash': option_collection_hash
             })
+
+        if created is True:
+            # A new ReferenceDataSignature has been added
+            for item in ExclusionProfile.objects.all():
+                item.update_flat_exclusions()
 
         tier = job.get('tier') or 1
         # job tier signatures override the setting from the job structure
