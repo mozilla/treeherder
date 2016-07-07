@@ -75,6 +75,24 @@ treeherder.factory('PhAlerts', [
                 this.updateStatus(status);
             };
         });
+        AlertSummary.prototype.getTextualSummary = function() {
+            var resultStr = "";
+            var improved = _.filter(this.alerts, function(alert) {return !alert.is_regression && alert.visible;});
+            var regressed = _.filter(this.alerts, function(alert) {return alert.is_regression && alert.visible;});
+            if (regressed.length > 0) {
+                resultStr += "Summary of tests that regressed:\n\n" +
+                             _.map(regressed, function(alert) {
+                                 return "  " + alert.title + " - " + alert.amount_pct + "% worse";
+                             }).join('\n') + "\n";
+            }
+            if (improved.length > 0) {
+                resultStr += "Summary of tests that improved:\n\n" +
+                             _.map(improved, function(alert) {
+                                 return "  " + alert.title + " - " + alert.amount_pct + "% better";
+                             }).join('\n') + "\n";
+            }
+            return resultStr;
+        };
         AlertSummary.prototype.isResolved = function() {
             return this.isFixed() || this.isWontfix() || this.isBackedout();
         };
