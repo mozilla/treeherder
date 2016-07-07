@@ -22,8 +22,9 @@ class BugzillaViewSet(viewsets.ViewSet):
                             status=HTTP_400_BAD_REQUEST)
 
         params = request.data
+        
         description = "Filed by: {}\n\n{}".format(
-            request.user.email.split("@")[0],
+            string.replace(request.user.email, '@', " [at] "),
             params.get("comment", "")
         )
         url = settings.BZ_API_URL + "/rest/bug"
