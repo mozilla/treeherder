@@ -9,7 +9,9 @@ class mysql {
     require => Package['mysql-server-5.6'],
   }
 
-  file{"/etc/mysql/my.cnf":
+  # We cannot symlink since shared folders are world-writeable on
+  # Windows hosts, so MySQL server would reject the config file.
+  file{"/etc/mysql/conf.d/treeherder.cnf":
     source => "${PROJ_DIR}/puppet/files/mysql/my.cnf",
     owner => "root", group => "root", mode => 0644,
     notify => Service['mysql'],
