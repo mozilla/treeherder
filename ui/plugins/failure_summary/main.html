@@ -64,7 +64,7 @@
             </ul>
 
             <mark ng-if="suggestion.bugs.too_many_open_recent || (suggestion.bugs.too_many_all_others && !suggestion.valid_open_recent)"
-                    >Exceeded max bug suggestions</mark>
+                    >Exceeded max ({{bug_limit}}) bug suggestions, most of which are likely false positives.</mark>
 
         </li>
 

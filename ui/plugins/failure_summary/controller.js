@@ -12,7 +12,7 @@ treeherder.controller('BugsPluginCtrl', [
         var timeoutPromise = null;
         var requestPromise = null;
 
-        var bug_limit = 20;
+        $scope.bug_limit = 20;
         $scope.tabs = thTabs.tabs;
 
         $scope.filerInAddress = false;
@@ -47,10 +47,10 @@ treeherder.controller('BugsPluginCtrl', [
                         var artifact = _.find(artifact_list, {"name": "Bug suggestions"});
                         angular.forEach(artifact.blob, function (suggestion) {
                             suggestion.bugs.too_many_open_recent = (
-                                suggestion.bugs.open_recent.length > bug_limit
+                                suggestion.bugs.open_recent.length > $scope.bug_limit
                             );
                             suggestion.bugs.too_many_all_others = (
-                                suggestion.bugs.all_others.length > bug_limit
+                                suggestion.bugs.all_others.length > $scope.bug_limit
                             );
                             suggestion.valid_open_recent = (
                                 suggestion.bugs.open_recent.length > 0 &&
