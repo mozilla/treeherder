@@ -86,6 +86,10 @@ treeherder.factory('PhAlerts', [
                              }).join('\n') + "\n";
             }
             if (improved.length > 0) {
+                // Add a newline if we displayed some regressions
+                if (resultStr.length > 0) {
+                    resultStr += "\n";
+                }
                 resultStr += "Summary of tests that improved:\n\n" +
                              _.map(improved, function(alert) {
                                  return "  " + alert.title + " - " + alert.amount_pct + "% better";
