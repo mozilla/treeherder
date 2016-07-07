@@ -14,9 +14,6 @@ $THELP_TEXT = 'Type \\"thelp\\" to see a list of Treeherder-specific helper alia
 $DB_USER = "treeherder_user"
 $DB_PASS = "treeherder_pass"
 $DJANGO_SECRET_KEY = "secret-key-of-at-least-50-characters-to-pass-check-deploy"
-$RABBITMQ_USER = 'guest'
-$RABBITMQ_PASSWORD = 'guest'
-$RABBITMQ_VHOST = '/'
 
 Exec {
     path => "${VENV_DIR}/bin:/usr/local/bin:/usr/bin:/usr/sbin:/sbin:/bin",
@@ -34,7 +31,7 @@ file {"/etc/profile.d/treeherder.sh":
 export LD_LIBRARY_PATH='${VENV_DIR}/lib/x86_64-linux-gnu'
 
 export ENABLE_LOCAL_SETTINGS_FILE='True'
-export BROKER_URL='amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@localhost:5672/${RABBITMQ_VHOST}'
+export BROKER_URL='amqp://guest:guest@localhost//'
 export DATABASE_URL='mysql://${DB_USER}:${DB_PASS}@localhost/treeherder'
 export DATABASE_URL_RO='mysql://${DB_USER}:${DB_PASS}@localhost/treeherder'
 export ELASTICSEARCH_URL='http://localhost:9200'
