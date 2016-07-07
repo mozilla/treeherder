@@ -1,7 +1,9 @@
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 from treeherder.etl.common import fetch_json
 from treeherder.model import models
@@ -17,18 +19,19 @@ class RunnableJobsViewSet(viewsets.ViewSet):
         """
         GET method implementation for list of all runnable buildbot jobs
         """
-        if 'decisionTaskID' in request.query_params and len(request.query_params['decisionTaskID']):
-            decisionTaskID = request.query_params['decisionTaskID']
-            tc_jobs_url = "https://queue.taskcluster.net/v1/task/" + decisionTaskID + "/artifacts/public/full-task-graph.json"
+        decision_task_id = request.query_params.get('decisionTaskID')
+        if decision_task_id:
+            tc_graph_url = settings.TASKCLUSTER_TASKGRAPH_URL.format(task_id=decision_task_id)
             tc_graph = None
             validate = URLValidator()
             try:
-                validate(tc_jobs_url)
-                tc_graph = fetch_json(tc_jobs_url)
+                validate(tc_graph_url)
+                tc_graph = fetch_json(tc_graph_url)
             except ValidationError:
+                # We pass here as we still want to schedule BuildBot jobs
                 pass
             except Exception as ex:
-                return Response("Exception: {0}".format(ex), 500)
+                return Response("Exception: {0}".format(ex), status=HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             tc_graph = {}
 
@@ -75,32 +78,30 @@ class RunnableJobsViewSet(viewsets.ViewSet):
                 'result': 'runnable'})
 
         for label, node in tc_graph.iteritems():
-            build_platform = node['task']['extra']['treeherder']['build']['platform']
-            job_type_name = node['task']['metadata']['name']
+            task_metadata = node['task']['metadata']
+            treeherder_options = node['task']['extra']['treeherder']
+            build_platform = treeherder_options['build']['platform']
 
             # Not all tasks have a group name
-            if 'groupName' in node['task']['extra']['treeherder']:
-                job_group_name = node['task']['extra']['treeherder']['groupName']
-            else:
-                job_group_name = ""
+            job_group_name = treeherder_options.get('groupName', '')
+
             # Not all tasks have a group symbol
-            if 'groupSymbol' in node['task']['extra']['treeherder']:
-                job_group_symbol = node['task']['extra']['treeherder']['groupSymbol']
-            else:
-                job_group_symbol = ""
+            job_group_symbol = treeherder_options.get('groupSymbol', '')
+
             # Not all tasks have a collection
-            if 'collection' in node['task']['extra']['treeherder']:
-                platform_option = node['task']['extra']['treeherder']['collection'].keys()[0]
+            if 'collection' in treeherder_options:
+                platform_option = ' '.join(treeherder_options['collection'].keys())
             else:
                 platform_option = ""
+
             ret.append({
                 'build_platform': build_platform,
                 'platform': build_platform,
                 'job_group_name': job_group_name,
                 'job_group_symbol': job_group_symbol,
-                'job_type_name': job_type_name,
-                'job_type_symbol': node['task']['extra']['treeherder']['symbol'],
-                'job_type_description': node['task']['metadata']['description'],
+                'job_type_name': task_metadata['name'],
+                'job_type_symbol': treeherder_options['symbol'],
+                'job_type_description': task_metadata['description'],
                 'ref_data_name': label,
                 'build_system_type': 'taskcluster',
                 'platform_option': platform_option,

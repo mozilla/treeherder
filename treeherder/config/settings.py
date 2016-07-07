@@ -335,6 +335,8 @@ BUILDAPI_PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson
 BUILDAPI_RUNNING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-running.js"
 BUILDAPI_BUILDS4H_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-4hr.js.gz"
 ALLTHETHINGS_URL = "https://secure.pub.build.mozilla.org/builddata/reports/allthethings.json"
+TASKCLUSTER_TASKGRAPH_URL = 'https://queue.taskcluster.net/v1/task/{task_id}/artifacts/public/full-task-graph.json'
+
 
 # the max size of a posted request to treeherder client during Buildbot
 # data job ingestion.
