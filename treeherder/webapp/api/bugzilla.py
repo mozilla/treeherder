@@ -22,7 +22,6 @@ class BugzillaViewSet(viewsets.ViewSet):
                             status=HTTP_400_BAD_REQUEST)
 
         params = request.data
-        
         description = "Filed by: {}\n\n{}".format(
             request.user.email.replace('@', " [at] "),
             params.get("comment", "")
