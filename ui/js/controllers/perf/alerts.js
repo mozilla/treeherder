@@ -1,9 +1,9 @@
 "use strict";
 
 perf.factory('PhBugs', [
-    '$http', '$templateRequest', '$interpolate', 'dateFilter', 'thServiceDomain', 'phAlertStatusMap', 'mcTalosConfigUrl',
+    '$http', '$httpParamSerializer', '$templateRequest', '$interpolate', 'dateFilter', 'thServiceDomain', 'phAlertStatusMap', 'mcTalosConfigUrl',
     'phTalosDocumentationMap', 'phTrySyntaxBuildPlatformMap', 'phTrySyntaxTalosModifierMap',
-    function($http, $templateRequest, $interpolate, dateFilter, thServiceDomain, phAlertStatusMap, mcTalosConfigUrl,
+    function($http, $httpParamSerializer, $templateRequest, $interpolate, dateFilter, thServiceDomain, phAlertStatusMap, mcTalosConfigUrl,
              phTalosDocumentationMap, phTrySyntaxBuildPlatformMap, phTrySyntaxTalosModifierMap) {
         return {
             fileTalosBug: function(alertSummary) {
@@ -44,7 +44,7 @@ perf.factory('PhBugs', [
                         alertSummary.resultSetMetadata.revision + " (" +
                         pushDate + ")";
                     window.open(
-                        "https://bugzilla.mozilla.org/enter_bug.cgi?" + _.map({
+                        "https://bugzilla.mozilla.org/enter_bug.cgi?" + $httpParamSerializer({
                             cc: template.cc_list,
                             comment: compiledText,
                             component: template.default_component,
@@ -52,9 +52,7 @@ perf.factory('PhBugs', [
                             keywords: template.keywords,
                             short_desc: bugTitle,
                             status_whiteboard: template.status_whiteboard
-                        }, function(v, k) {
-                            return k + '=' + encodeURIComponent(v);
-                        }).join('&'));
+                        }));
                 });
             }
         };

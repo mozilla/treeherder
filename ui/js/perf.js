@@ -359,17 +359,20 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                         });
                                     },
                                     getGraphsLink: function(seriesList, resultSets) {
-                                        var graphsLink = 'perf.html#/graphs?' +
-                                            _.union(
-                                                _.map(seriesList, function(series) {
-                                                    return 'series=[' + [
-                                                        series.projectName,
-                                                        series.signature, 1,
-                                                        series.frameworkId ] + ']';
-                                                }), _.map(resultSets, function(resultSet) {
-                                                    return 'highlightedRevisions=' +
-                                                        resultSet.revision.slice(0, 12);
-                                                })).join('&');
+                                        var series = _.map(seriesList, function(series) {
+                                            return 'series=[' + [
+                                                series.projectName,
+                                                series.signature, 1,
+                                                series.frameworkId ] + ']';
+                                        });
+                                        var highlightedRevisions = _.map(resultSets, function(resultSet) {
+                                            return 'highlightedRevisions=' +
+                                                                       resultSet.revision.slice(0, 12);
+                                        });
+                                        var graphsLink = 'perf.html#/graphs?' + $httpParamSerializer({
+                                            series : series,
+                                            highlightedRevisions : highlightedRevisions
+                                        });
 
                                         if (resultSets) {
                                             graphsLink += '&timerange=' + _.max(
