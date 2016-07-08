@@ -13,6 +13,18 @@
     width:80%;
 }
 
+#modalSummaryLength {
+    float:right;
+    margin-right:25px;
+    font-size: large;
+    font-weight: bold;
+    color: green;
+}
+
+#modalSummary:invalid + span {
+    color: red;
+}
+
 #modalComment {
     width:80%;
     height:150px;
