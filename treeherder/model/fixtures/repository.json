@@ -963,7 +963,8 @@
         "active_status": "active",
         "codebase": "gecko",
         "repository_group": 1,
-        "description": "The destination for automatically landed Firefox commits."
+        "description": "The destination for automatically landed Firefox commits.",
+        "performance_alerts_enabled": true
     }
 },
 {
