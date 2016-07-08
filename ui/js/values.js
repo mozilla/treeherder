@@ -357,3 +357,10 @@ treeherder.value("thBugzillaProductObject", {
     "xulrunner":
         ["Toolkit :: XULRunner"]
 });
+
+// Groups of repositories used in the bug filer tool for generating links to DXR
+// The order of releaseRepos is important, needs to be newest to oldest.
+treeherder.value("thRepoGroupings", {
+    "integrationRepos": ["mozilla-inbound", "fx-team", "autoland"],
+    "releaseRepos": ["mozilla-aurora", "mozilla-beta", "mozilla-release"]
+});

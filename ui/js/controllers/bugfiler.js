@@ -3,11 +3,11 @@
 treeherder.controller('BugFilerCtrl', [
     '$scope', '$rootScope', '$uibModalInstance', '$http', 'summary', 'thBugzillaProductObject',
     'thPinboard', 'thEvents', 'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures',
-    'thNotify', 'ThLog', 'thisTree',
+    'thNotify', 'ThLog', 'thRepoGroupings',
     function BugFilerCtrl(
         $scope, $rootScope, $uibModalInstance, $http, summary, thBugzillaProductObject,
         thPinboard, thEvents, fullLog, parsedLog, reftest, selectedJob, allFailures,
-        thNotify, ThLog, thisTree) {
+        thNotify, ThLog, thRepoGroupings) {
 
         var $log = new ThLog("BugFilerCtrl");
 
@@ -35,23 +35,20 @@ treeherder.controller('BugFilerCtrl', [
             $scope.reftest = reftest;
         }
 
-        $scope.thisTree = thisTree;
-        var integrationRepos = ['mozilla-inbound', 'fx-team', 'autoland'];
-        var releaseRepos = ['mozilla-aurora', 'mozilla-beta', 'mozilla-release'];
         $scope.hasPossibleFileName = function() {
             return $scope.possibleFilename.length > 0;
         };
         $scope.isAuroraOrOlder = function() {
-            return releaseRepos.indexOf(thisTree) >= 0;
+            return thRepoGroupings.releaseRepos.indexOf($scope.repoName) >= 0;
         };
         $scope.isBetaOrOlder = function() {
-            return releaseRepos.indexOf(thisTree, 1) >= 0;
+            return thRepoGroupings.releaseRepos.indexOf($scope.repoName, 1) >= 0;
         };
         $scope.isReleaseOrOlder = function() {
-            return releaseRepos.indexOf(thisTree, 2) >= 0;
+            return thRepoGroupings.releaseRepos.indexOf($scope.repoName, 2) >= 0;
         };
 
-        $scope.dxrTree = integrationRepos.indexOf(thisTree) >= 0 ? "mozilla-central" : thisTree;
+        $scope.dxrTree = thRepoGroupings.integrationRepos.indexOf($scope.repoName) >= 0 ? "mozilla-central" : $scope.repoName;
 
         /**
          *  Pre-fill the form with information/metadata from the failure
@@ -79,6 +76,22 @@ treeherder.controller('BugFilerCtrl', [
         $uibModalInstance.possibleFilename = "";
 
         /*
+         *  Given what we hope is the file path, attempt to find the file name
+         */
+        function findFileName(path) {
+            // Try unix paths first, then Windows, then bail
+            var splitFilePath;
+            if(path.split("/").length > 1) {
+                splitFilePath = path.split("/");
+            } else {
+                if(summary[0].split("\\").length > 1) {
+                    splitFilePath = path.split("\\");
+                }
+            }
+            return splitFilePath ? splitFilePath.pop() : "";
+        }
+
+        /*
          *  Remove extraneous junk from the start of the summary line
          *  and try to find the failing test name from what's left
          */
@@ -91,16 +104,7 @@ treeherder.controller('BugFilerCtrl', [
                 }
             }
 
-            // Try unix paths first, then Windows, then bail
-            var splitFilePath;
-            if(summary[0].split("/").length > 1) {
-                splitFilePath = summary[0].split("/");
-            } else {
-                if(summary[0].split("\\").length > 1) {
-                    splitFilePath = summary[0].split("\\");
-                }
-            }
-            $uibModalInstance.possibleFilename = splitFilePath ? splitFilePath.pop() : "";
+            $uibModalInstance.possibleFilename = findFileName(summary[0]);
             return [summary, $uibModalInstance.possibleFilename];
         };
 
