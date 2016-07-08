@@ -53,3 +53,10 @@ def test_celery_setup():
 
     result = add.delay(7, 3)
     assert result.wait() == 10
+
+
+@pytest.mark.django_db(transaction=True)
+def test_load_initial_data():
+    "Test load_initial_data executes properly"
+
+    call_command('load_initial_data')
