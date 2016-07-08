@@ -34,6 +34,13 @@
     </a>
   </div>
 
+  <div id="dxrbuttons" ng-show="hasPossibleFileName()">
+    <span>Search for this file on DXR</span>
+    <span ng-repeat="tree in dxrtrees()">
+       | <a ng-href="{{thDXRUrl}}{{tree}}/search?q=file%3A{{possibleFilename}}&redirect=true" target="_blank"">{{tree}}</a>
+    </span>
+  </div>
+
   <div id="modalLogLinkCheckboxes">
     <label>
       <input id="modalParsedLog" type="checkbox"
