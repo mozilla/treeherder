@@ -122,7 +122,6 @@ class ArtifactsModel(TreeherderModelBase):
                 job=job,
                 **job_detail_dict)
 
-
     def store_performance_artifact(
             self, job_ids, performance_artifact_placeholders):
         """
