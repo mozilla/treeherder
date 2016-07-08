@@ -96,9 +96,9 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
     };
 }]);
 
-perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
+perf.factory('PhCompare', [ '$q', '$http', '$httpParamSerializer', 'thServiceDomain', 'PhSeries',
                             'math', 'phTimeRanges',
-                            function($q, $http, thServiceDomain, PhSeries, math, phTimeRanges) {
+                            function($q, $http, $httpParamSerializer, thServiceDomain, PhSeries, math, phTimeRanges) {
 
                                 // Used for t_test: default stddev if both sets have only a single value - 15%.
                                 // Should be rare case and it's unreliable, but at least have something.
@@ -359,17 +359,17 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                                         });
                                     },
                                     getGraphsLink: function(seriesList, resultSets) {
-                                        var graphsLink = 'perf.html#/graphs?' +
-                                            _.union(
-                                                _.map(seriesList, function(series) {
-                                                    return 'series=[' + [
-                                                        series.projectName,
-                                                        series.signature, 1,
-                                                        series.frameworkId ] + ']';
-                                                }), _.map(resultSets, function(resultSet) {
-                                                    return 'highlightedRevisions=' +
-                                                        resultSet.revision.slice(0, 12);
-                                                })).join('&');
+                                        var graphsLink = 'perf.html#/graphs?' + $httpParamSerializer({
+                                            series: _.map(seriesList, function(series) {
+                                                return [
+                                                    series.projectName,
+                                                    series.signature, 1,
+                                                    series.frameworkId ];
+                                            }),
+                                            highlightedRevisions: _.map(resultSets, function(resultSet) {
+                                                return resultSet.revision.slice(0, 12);
+                                            })
+                                        });
 
                                         if (resultSets) {
                                             graphsLink += '&timerange=' + _.max(

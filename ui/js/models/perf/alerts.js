@@ -1,9 +1,9 @@
 "use strict";
 
 treeherder.factory('PhAlerts', [
-    '$http', '$q', 'thServiceDomain', 'ThOptionCollectionModel', 'PhSeries',
+    '$http', '$httpParamSerializer', '$q', 'thServiceDomain', 'ThOptionCollectionModel', 'PhSeries',
     'phAlertSummaryStatusMap', 'phAlertStatusMap', 'thPerformanceBranches',
-    function($http, $q, thServiceDomain, ThOptionCollectionModel, PhSeries,
+    function($http, $httpParamSerializer, $q, thServiceDomain, ThOptionCollectionModel, PhSeries,
              phAlertSummaryStatusMap, phAlertStatusMap, thPerformanceBranches) {
 
         var Alert = function(alertData, optionCollectionMap) {
@@ -50,7 +50,7 @@ treeherder.factory('PhAlerts', [
                 urlParameters.newRevision = alertSummary.resultSetMetadata.revision;
             }
 
-            return endpoint + '?' + _.map(urlParameters, function(v, k) {return k + '=' + v;}).join('&');
+            return endpoint + '?' + $httpParamSerializer(urlParameters);
         };
         Alert.prototype.modify = function(modification) {
             return $http.put(thServiceDomain +

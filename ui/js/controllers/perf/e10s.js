@@ -3,10 +3,10 @@
 perf.value('e10sDefaultTimeRange', 86400 * 2);
 
 perf.controller('e10sCtrl', [
-    '$state', '$stateParams', '$scope', '$rootScope', '$q', '$http',
+    '$state', '$stateParams', '$scope', '$rootScope', '$q', '$http', '$httpParamSerializer',
     'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
     'thServiceDomain', 'thDefaultRepo', 'phTimeRanges', 'e10sDefaultTimeRange',
-    function e10sCtrl($state, $stateParams, $scope, $rootScope, $q, $http,
+    function e10sCtrl($state, $stateParams, $scope, $rootScope, $q, $http, $httpParamSerializer,
                       ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
                       thServiceDomain, thDefaultRepo, phTimeRanges,
                       e10sDefaultTimeRange) {
@@ -137,30 +137,27 @@ perf.controller('e10sCtrl', [
                                         }))
                                 }];
                                 if (resultsMap['base'][baseSig].hasSubTests) {
-                                    var params = [
-                                        ['baseSignature', baseSig],
-                                        ['e10sSignature', e10sSig],
-                                        ['repo', $scope.selectedRepo.name]
-                                    ];
+                                    var params = {
+                                        baseSignature: baseSig,
+                                        e10sSignature: e10sSig,
+                                        repo: $scope.selectedRepo.name
+                                    };
                                     if ($scope.revision) {
-                                        params.push(['revision', $scope.revision]);
+                                        params.revision = $scope.revision;
                                     } else {
-                                        params.push(['timerange',
-                                                     $scope.selectedTimeRange.value]);
+                                        params.timerange = $scope.selectedTimeRange.value;
                                     }
                                     cmap.links.push({
                                         title: 'subtests',
-                                        href: 'perf.html#/e10s_comparesubtest?' + _.map(
-                                            params, function(kv) { return kv[0] + '=' + kv[1]; }).join('&')
+                                        href: 'perf.html#/e10s_comparesubtest?' + $httpParamSerializer(params)
                                     });
+                                    if (!$scope.compareResults[testName]) {
+                                        $scope.compareResults[testName] = [cmap];
+                                    } else {
+                                        $scope.compareResults[testName].push(cmap);
+                                    }
                                 }
-                                if (!$scope.compareResults[testName]) {
-                                    $scope.compareResults[testName] = [cmap];
-                                } else {
-                                    $scope.compareResults[testName].push(cmap);
-                                }
-                            }
-                        });
+                            }});
                     });
                 });
             });
