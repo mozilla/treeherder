@@ -274,11 +274,11 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
         prev_data = PerformanceDatum.objects.filter(
             signature=signature,
             result_set_id__lte=summary.prev_result_set_id).order_by(
-                'push_timestamp').values_list('value', flat=True)[:prev_range]
+                '-push_timestamp').values_list('value', flat=True)[:prev_range]
         new_data = PerformanceDatum.objects.filter(
             signature=signature,
             result_set_id__gt=summary.prev_result_set_id).order_by(
-                '-push_timestamp').values_list('value', flat=True)[:new_range]
+                'push_timestamp').values_list('value', flat=True)[:new_range]
         if not prev_data or not new_data:
             return Response({"message": "Insufficient data to create an "
                              "alert"}, status=HTTP_400_BAD_REQUEST)

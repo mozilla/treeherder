@@ -101,14 +101,18 @@ def test_alerts_post(webapp, test_repository, test_perf_signature,
                      test_perf_alert_summary, alert_create_post_blob,
                      test_user, test_sheriff):
 
-    # generate enough data for a proper alert to be generated
-    for (result_set_id, value) in zip([0]*15 + [1]*15, [1]*15 + [2]*15):
-        PerformanceDatum.objects.create(repository=test_repository,
-                                        job_id=0,
-                                        result_set_id=result_set_id,
-                                        signature=test_perf_signature,
-                                        value=value,
-                                        push_timestamp=datetime.datetime.now())
+    # generate enough data for a proper alert to be generated (with enough
+    # extra data on both sides to make sure we're using the proper values
+    # to generate the actual alert)
+    for i in range(0, 5, 2):
+        for (result_set_id, value) in zip([i]*30 + [i+1]*30,
+                                          [i]*30 + [i+1]*30):
+            PerformanceDatum.objects.create(repository=test_repository,
+                                            job_id=0,
+                                            result_set_id=result_set_id,
+                                            signature=test_perf_signature,
+                                            value=value,
+                                            push_timestamp=datetime.datetime.now())
 
     # verify that we fail if not authenticated
     webapp.post_json(reverse('performance-alerts-list'),
