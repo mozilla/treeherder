@@ -784,12 +784,12 @@ treeherder.controller('ClassificationPluginCtrl', [
     '$q', '$scope', '$rootScope', 'ThLog', 'thEvents', 'thTabs',
     '$timeout', 'thNotify', 'ThFailureLinesModel', 'ThClassifiedFailuresModel',
     'ThMatcherModel', 'ThJobArtifactModel', 'ThTextLogSummaryModel', 'ThStructuredLine',
-    'ThUnstructuredLine',
+    'ThUnstructuredLine', '$location', '$uibModal',
     function ClassificationPluginCtrl(
         $q, $scope, $rootScope, ThLog, thEvents, thTabs,
         $timeout, thNotify, ThFailureLinesModel, ThClassifiedFailuresModel,
         ThMatcherModel, ThJobArtifactModel, ThTextLogSummaryModel, ThStructuredLine,
-        ThUnstructuredLine) {
+        ThUnstructuredLine, $location, $uibModal) {
         var $log = new ThLog(this.constructor.name);
 
         $log.debug("error classification plugin initialized");
@@ -797,6 +797,15 @@ treeherder.controller('ClassificationPluginCtrl', [
         var reloadPromise = null;
         var requestPromise = null;
         var matchers = null;
+
+        $scope.filerInAddress = false;
+        var showBugFilerButton = function() {
+            $scope.filerInAddress = $location.search().bugfiler === true;
+        };
+        showBugFilerButton();
+        $rootScope.$on('$locationChangeSuccess', function() {
+            showBugFilerButton();
+        });
 
         var getMatchers = function() {
             var p;
@@ -1022,5 +1031,64 @@ treeherder.controller('ClassificationPluginCtrl', [
         $rootScope.$on(thEvents.ignoreOthersAutoclassifications, function() {
             $scope.ignoreClean();
         });
+
+        var extractLine = function(line) {
+            var extractedline;
+            if(line.type === "unstructured") {
+                extractedline = line.data.search;
+            } else if(line.type === "structured") {
+                if(line.data.action === "log") {
+                    extractedline = line.data.message;
+                } else if(line.data.action === "crash") {
+                    extractedline = line.data.test + " | application crashed[" + line.data.signature + "]";
+                }
+            }
+            return extractedline;
+        };
+
+        $scope.fileBug = function(index) {
+            var line = $scope.failureLines[index];
+            var summary = extractLine(line);
+
+            var allFailures = [];
+
+            for( var i=0; i<$scope.failureLines.length; i++) {
+                allFailures.push(extractLine($scope.failureLines[i]).split(" | "));
+            }
+
+            var modalInstance = $uibModal.open({
+                templateUrl: 'partials/main/intermittent.html',
+                controller: 'BugFilerCtrl',
+                size: 'lg',
+                openedClass: "filer-open",
+                resolve: {
+                    summary: function() {
+                        return summary;
+                    },
+                    fullLog: function() {
+                        return $scope.job_log_urls[0].url;
+                    },
+                    parsedLog: function() {
+                        return $scope.lvFullUrl;
+                    },
+                    reftest: function() {
+                        return $scope.isReftest() ? $scope.reftestUrl : "";
+                    },
+                    selectedJob: function() {
+                        return $scope.selectedJob;
+                    },
+                    allFailures: function() {
+                        return allFailures;
+                    },
+                    fromAutoclassify: function() {
+                        return true;
+                    }
+                }
+            });
+
+            modalInstance.opened.then(function () {
+                window.setTimeout(function () { modalInstance.initiate(); }, 0);
+            });
+        };
     }
 ]);

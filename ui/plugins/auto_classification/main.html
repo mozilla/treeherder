@@ -49,6 +49,13 @@
       </div>
       <div class="classification-line-detail">
         <div ng-if="line.type == 'structured'">
+          <a class="btn btn-xs btn-default"
+                     prevent-default-on-left-click
+                     ng-show="user.loggedin && filerInAddress"
+                     ng-click="fileBug($index)"
+                     title="file a bug for this failure">
+                    <i class="fa fa-bug"></i>
+          </a>
           <span ng-if="line.data.action === 'test_result'">
             <span ng-class="{'ignored-line': line.status === 'ignored'}">
               <strong class="failure-line-status">{{ ::line.data.status }}</strong>
@@ -82,6 +89,13 @@
           </span>
         </div>
         <div ng-if="line.type == 'unstructured'">
+          <a class="btn btn-xs btn-default"
+                     prevent-default-on-left-click
+                     ng-show="user.loggedin && filerInAddress"
+                     ng-click="fileBug($index)"
+                     title="file a bug for this failure">
+                    <i class="fa fa-bug"></i>
+          </a>
           {{ ::line.data.search }}
         </div>
         <div ng-if="line.status === 'verified'">
