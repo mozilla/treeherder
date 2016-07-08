@@ -601,13 +601,17 @@ class JobDetail(models.Model):
     There can be (and usually is) more than one of these associated with
     each job
     '''
-    MAX_FIELD_LENGTH = 512
+    MAX_FIELD_LENGTHS = {
+        "title": 70,
+        "value": 125,
+        "url": 512
+    }
 
     id = BigAutoField(primary_key=True)
     job = FlexibleForeignKey(Job)
-    title = models.CharField(max_length=MAX_FIELD_LENGTH, null=True)
-    value = models.CharField(max_length=MAX_FIELD_LENGTH)
-    url = models.URLField(null=True, max_length=MAX_FIELD_LENGTH)
+    title = models.CharField(max_length=MAX_FIELD_LENGTHS["title"], null=True)
+    value = models.CharField(max_length=MAX_FIELD_LENGTHS["value"])
+    url = models.URLField(null=True, max_length=MAX_FIELD_LENGTHS["url"])
 
     class Meta:
         db_table = "job_detail"

@@ -104,18 +104,24 @@ class ArtifactsModel(TreeherderModelBase):
                 'value': job_detail['value'],
                 'url': job_detail.get('url')
             }
-            max_field_length = JobDetail.MAX_FIELD_LENGTH
-            for (k, v) in job_detail_dict.iteritems():
-                if v is not None and len(v) > max_field_length:
+            max_field_lengths = JobDetail.MAX_FIELD_LENGTHS
+            for (k, v) in job_detail_dict.items():
+                if v is not None and len(v) > max_field_lengths[k]:
                     logger.warning("Job detail '{}' for job_guid {} too long, "
                                    "truncating".format(
-                                       v[:max_field_length],
+                                       v[:max_field_lengths[k]],
                                        job.guid))
-                    job_detail_dict[k] = v[:max_field_length]
+                    job_detail_dict[k] = v[:max_field_lengths[k]]
 
-            JobDetail.objects.get_or_create(
+            # move the url field to be updated in defaults now that it's
+            # had its size trimmed, if necessary
+            job_detail_dict['defaults'] = {'url': job_detail_dict['url']}
+            del job_detail_dict['url']
+
+            JobDetail.objects.update_or_create(
                 job=job,
                 **job_detail_dict)
+
 
     def store_performance_artifact(
             self, job_ids, performance_artifact_placeholders):
