@@ -175,6 +175,13 @@ treeherder.controller('BugFilerCtrl', [
             var componentString = "";
 
             $scope.toggleForm(true);
+
+            if($scope.modalSummary.length > 255) {
+                thNotify.send("Please ensure the summary is no more than 255 characters", "danger");
+                $scope.toggleForm(false);
+                return;
+            }
+
             if($scope.selection.selectedProduct) {
                 var prodParts = $scope.selection.selectedProduct.split(" :: ");
                 productString += prodParts[0];
