@@ -131,6 +131,9 @@ treeherder.controller('BugsPluginCtrl', [
                     },
                     allFailures: function() {
                         return allFailures;
+                    },
+                    thisTree: function() {
+                        return $location.search().repo;
                     }
                 }
             });

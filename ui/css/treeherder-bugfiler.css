@@ -57,3 +57,11 @@
   overflow: auto;
   clear:both;
 }
+
+#dxrbuttons {
+  padding-bottom: 5px;
+}
+
+#dxrbuttons > a {
+  padding-right: 5px;
+}

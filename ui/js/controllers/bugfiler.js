@@ -3,11 +3,11 @@
 treeherder.controller('BugFilerCtrl', [
     '$scope', '$rootScope', '$uibModalInstance', '$http', 'summary', 'thBugzillaProductObject',
     'thPinboard', 'thEvents', 'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures',
-    'thNotify', 'ThLog',
+    'thNotify', 'ThLog', 'thisTree',
     function BugFilerCtrl(
         $scope, $rootScope, $uibModalInstance, $http, summary, thBugzillaProductObject,
         thPinboard, thEvents, fullLog, parsedLog, reftest, selectedJob, allFailures,
-        thNotify, ThLog) {
+        thNotify, ThLog, thisTree) {
 
         var $log = new ThLog("BugFilerCtrl");
 
@@ -34,6 +34,24 @@ treeherder.controller('BugFilerCtrl', [
         if ($scope.isReftest()) {
             $scope.reftest = reftest;
         }
+
+        $scope.thisTree = thisTree;
+        var integrationRepos = ['mozilla-inbound', 'fx-team', 'autoland'];
+        var releaseRepos = ['mozilla-aurora', 'mozilla-beta', 'mozilla-release'];
+        $scope.hasPossibleFileName = function() {
+            return $scope.possibleFilename.length > 0;
+        };
+        $scope.isAuroraOrOlder = function() {
+            return releaseRepos.indexOf(thisTree) >= 0;
+        };
+        $scope.isBetaOrOlder = function() {
+            return releaseRepos.indexOf(thisTree, 1) >= 0;
+        };
+        $scope.isReleaseOrOlder = function() {
+            return releaseRepos.indexOf(thisTree, 2) >= 0;
+        };
+
+        $scope.dxrTree = integrationRepos.indexOf(thisTree) >= 0 ? "mozilla-central" : thisTree;
 
         /**
          *  Pre-fill the form with information/metadata from the failure
@@ -73,13 +91,22 @@ treeherder.controller('BugFilerCtrl', [
                 }
             }
 
-            $uibModalInstance.possibleFilename = summary[0].split("/").pop();
-
+            // Try unix paths first, then Windows, then bail
+            var splitFilePath;
+            if(summary[0].split("/").length > 1) {
+                splitFilePath = summary[0].split("/");
+            } else {
+                if(summary[0].split("\\").length > 1) {
+                    splitFilePath = summary[0].split("\\");
+                }
+            }
+            $uibModalInstance.possibleFilename = splitFilePath ? splitFilePath.pop() : "";
             return [summary, $uibModalInstance.possibleFilename];
         };
 
         $uibModalInstance.parsedSummary = $uibModalInstance.parseSummary(summary);
         $scope.modalSummary = "Intermittent " + $uibModalInstance.parsedSummary[0].join(" | ");
+        $scope.possibleFilename = $uibModalInstance.parsedSummary[1];
 
         $scope.toggleFilerSummaryVisibility = function() {
             $scope.isFilerSummaryVisible = !$scope.isFilerSummaryVisible;

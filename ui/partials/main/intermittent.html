@@ -30,6 +30,17 @@
     </a>
   </div>
 
+  <div id="dxrbuttons">
+    <a ng-show="hasPossibleFileName()" 
+       ng-href="https://dxr.mozilla.org/{{dxrTree}}/search?q=file%3A{{possibleFilename}}&redirect=true">DXR</a>
+    <a ng-show="isReleaseOrOlder()" 
+       ng-href="https://dxr.mozilla.org/mozilla-beta/search?q=file%3A{{possibleFilename}}&redirect=true">DXR (m-b)</a>
+    <a ng-show="isBetaOrOlder()" 
+       ng-href="https://dxr.mozilla.org/mozilla-aurora/search?q=file%3A{{possibleFilename}}&redirect=true">DXR (m-a)</a>
+    <a ng-show="isAuroraOrOlder()" 
+       ng-href="https://dxr.mozilla.org/mozilla-central/search?q=file%3A{{possibleFilename}}&redirect=true">DXR (m-c)</a>
+  </div>
+
   <div id="modalLogLinkCheckboxes">
     <label>
       <input id="modalParsedLog" type="checkbox"
