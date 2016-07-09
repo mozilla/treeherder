@@ -56,6 +56,15 @@
     <textarea ng-model="modalComment" id="modalComment" type="textarea" placeholder=""></textarea>
   </div>
 
+  <div id="modalExtras">
+    <label>
+      <input id="modalIsIntermittent"
+             ng-model="isIntermittent" type="checkbox"
+             ng-checked="true" />
+      This is an intermittent failure
+    </label>
+  </div>
+
   <div id="modalBottomDiv">
     <button name="modalCancelButton" id="modalCancelButton" type="button" ng-click="cancelFiler()"> Cancel </button>
     <button name="modalSubmitButton" id="modalSubmitButton" type="button" ng-click="submitFiler()"> Submit Bug </button>
