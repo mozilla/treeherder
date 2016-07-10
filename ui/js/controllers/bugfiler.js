@@ -217,6 +217,14 @@ treeherder.controller('BugFilerCtrl', [
             // Only request the versions because some products take quite a long time to fetch the full object
             $.ajax("https://bugzilla.mozilla.org/rest/product/" + productString + "?include_fields=versions").done(function(productJSON) {
                 var productObject = productJSON.products[0];
+
+                // Versions where is_active is false can't be used
+                var i = 1;
+                while(productObject.versions[productObject.versions.length - i].is_active === false) {
+                    i = i + 1;
+                }
+                var version = productObject.versions[productObject.versions.length-i];
+
                 $http({
                     url: "api/bugzilla/create_bug/",
                     method: "POST",
@@ -226,7 +234,7 @@ treeherder.controller('BugFilerCtrl', [
                         "summary": summarystring,
                         "keywords": keywords,
                         // XXX This takes the last version returned from the product query, probably should be smarter about this in the future...
-                        "version": productObject.versions[productObject.versions.length-1].name,
+                        "version": version.name,
                         "comment": descriptionStrings,
                         "comment_tags": "treeherder"
                     }
