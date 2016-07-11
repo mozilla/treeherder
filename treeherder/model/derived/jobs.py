@@ -12,7 +12,6 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 from treeherder.etl.common import get_guid_root
-from treeherder.events.publisher import JobStatusPublisher
 from treeherder.model import (error_summary,
                               utils)
 from treeherder.model.models import (BugJobMap,
@@ -295,13 +294,6 @@ class JobsModel(TreeherderModelBase):
         for job in jobs:
             self._job_action_event(job, 'cancel', requester)
 
-        # Notify the UI.
-        status_publisher = JobStatusPublisher(settings.BROKER_URL)
-        try:
-            status_publisher.publish(job_guids, self.project, 'processed')
-        finally:
-            status_publisher.disconnect()
-
     def trigger_missing_resultset_jobs(self, requester, resultset_id, project):
         publish_resultset_action.apply_async(
             args=[self.project, "trigger_missing_jobs", resultset_id, requester],
@@ -369,11 +361,6 @@ class JobsModel(TreeherderModelBase):
             placeholders=[job['job_guid']],
             debug_show=self.DEBUG
         )
-        status_publisher = JobStatusPublisher(settings.BROKER_URL)
-        try:
-            status_publisher.publish([job['job_guid']], self.project, 'processed')
-        finally:
-            status_publisher.disconnect()
 
     def get_max_job_id(self):
         """Get the maximum job id."""
