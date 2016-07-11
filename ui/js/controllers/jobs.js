@@ -178,7 +178,7 @@ treeherderApp.controller('ResultSetCtrl', [
         };
 
         $scope.getCancelJobsTitle = function() {
-            if (!$scope.user.loggedin) {
+            if (!scope.user || !$scope.user.loggedin) {
                 return "Must be logged in to cancel jobs";
             }
             var job = ThResultSetStore.getSelectedJob($scope.repoName).job;
@@ -195,7 +195,7 @@ treeherderApp.controller('ResultSetCtrl', [
         };
 
         $scope.canCancelJobs = function() {
-            if (!$scope.user.loggedin) {
+            if (!$scope.user || !$scope.user.loggedin) {
                 return false;
             }
             var job = ThResultSetStore.getSelectedJob($scope.repoName).job;
