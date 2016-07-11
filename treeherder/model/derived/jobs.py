@@ -259,20 +259,18 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
-    def get_incomplete_job_guids(self, resultset_id):
+    def get_incomplete_job_ids(self, resultset_id):
         """Get list of ids for jobs of resultset that are not in complete state."""
         return self.execute(
-            proc='jobs.selects.get_incomplete_job_guids',
+            proc='jobs.selects.get_incomplete_job_ids',
             placeholders=[resultset_id],
             debug_show=self.DEBUG,
-            return_type='dict',
-            key_column='job_guid'
+            return_type='tuple'
         )
 
     def cancel_all_resultset_jobs(self, requester, resultset_id):
         """Set all pending/running jobs in resultset to usercancel."""
-        job_guids = list(self.get_incomplete_job_guids(resultset_id))
-        jobs = self.get_job_ids_by_guid(job_guids).values()
+        jobs = self.get_incomplete_job_ids(resultset_id)
 
         # Mark pending jobs as cancelled to work around buildbot not including
         # cancelled jobs in builds-4hr if they never started running.

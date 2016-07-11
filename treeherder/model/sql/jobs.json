@@ -239,8 +239,8 @@
             "host_type":"master_host"
         },
 
-        "get_incomplete_job_guids": {
-            "sql": "SELECT j.job_guid, j.result_set_id, rs.push_timestamp as result_set_push_timestamp
+        "get_incomplete_job_ids": {
+            "sql": "SELECT j.id
                     FROM job as j
                     LEFT JOIN result_set as rs
                       ON j.result_set_id = rs.id
