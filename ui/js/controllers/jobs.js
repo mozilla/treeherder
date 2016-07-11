@@ -195,7 +195,7 @@ treeherderApp.controller('ResultSetCtrl', [
         };
 
         $scope.canCancelJobs = function() {
-            if (!$scope.user.loggedin) {
+            if (!$scope.user || !$scope.user.loggedin) {
                 return false;
             }
             var job = ThResultSetStore.getSelectedJob($scope.repoName).job;
