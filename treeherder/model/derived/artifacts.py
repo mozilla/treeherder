@@ -105,13 +105,13 @@ class ArtifactsModel(TreeherderModelBase):
                 'url': job_detail.get('url')
             }
             for (k, v) in job_detail_dict.items():
-                max_length = JobDetail._meta.get_field(k).max_length
-                if v is not None and len(v) > max_length:
+                max_field_length = JobDetail._meta.get_field(k).max_length
+                if v is not None and len(v) > max_field_length:
                     logger.warning("Job detail '{}' for job_guid {} too long, "
                                    "truncating".format(
-                                       v[:max_length],
+                                       v[:max_field_length],
                                        job.guid))
-                    job_detail_dict[k] = v[:max_length]
+                    job_detail_dict[k] = v[:max_field_length]
 
             # move the url field to be updated in defaults now that it's
             # had its size trimmed, if necessary
