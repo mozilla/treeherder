@@ -94,6 +94,7 @@ def test_load_long_job_details(test_project, eleven_jobs_stored):
         job = jobs_model.get_job_list(0, 1)[0]
 
     def get_max(field):
+        """Get the field's max_length for the JobDetail model"""
         return JobDetail._meta.get_field(field).max_length
 
     (long_title, long_value, long_url) = ('t' * (2 * get_max("title")),
