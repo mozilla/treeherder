@@ -9,7 +9,7 @@ from treeherder.etl.pushlog import HgPushlogProcess
 
 
 def test_ingest_hg_pushlog(jm, test_base_dir,
-                           test_repository, mock_post_json,
+                           test_repository,
                            activate_responses):
     """ingesting a number of pushes should populate result set and revisions"""
 
@@ -42,7 +42,7 @@ def test_ingest_hg_pushlog(jm, test_base_dir,
 
 
 def test_ingest_hg_pushlog_already_stored(jm, test_base_dir,
-                                          test_repository, mock_post_json, activate_responses):
+                                          test_repository, activate_responses):
     """test that trying to ingest a push already stored doesn't doesn't affect
     all the pushes in the request,
     e.g. trying to store [A,B] with A already stored, B will be stored"""
@@ -98,7 +98,7 @@ def test_ingest_hg_pushlog_already_stored(jm, test_base_dir,
 
 
 def test_ingest_hg_pushlog_cache_last_push(jm, test_repository,
-                                           test_base_dir, mock_post_json,
+                                           test_base_dir,
                                            activate_responses):
     """
     ingesting a number of pushes should cache the top revision of the last push
@@ -124,7 +124,7 @@ def test_ingest_hg_pushlog_cache_last_push(jm, test_repository,
 
 
 def test_empty_json_pushes(jm, test_base_dir,
-                           test_repository, mock_post_json,
+                           test_repository,
                            activate_responses):
     """
     Gracefully handle getting an empty list of pushes from json-pushes

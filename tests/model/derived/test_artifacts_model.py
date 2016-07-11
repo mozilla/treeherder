@@ -11,7 +11,7 @@ xfail = pytest.mark.xfail
 
 def test_load_single_artifact(
         test_project, eleven_jobs_stored,
-        mock_post_json, mock_error_summary,
+        mock_error_summary,
         sample_data):
     """
     test loading a single artifact
@@ -46,7 +46,7 @@ def test_load_single_artifact(
 
 def test_load_artifact_second_time_fails(
         test_project, eleven_jobs_stored,
-        mock_post_json, mock_error_summary,
+        mock_error_summary,
         sample_data):
     """
     test loading two of the same named artifact only gets the first one
