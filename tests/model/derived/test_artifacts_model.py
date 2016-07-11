@@ -93,11 +93,12 @@ def test_load_long_job_details(test_project, eleven_jobs_stored):
     with JobsModel(test_project) as jobs_model:
         job = jobs_model.get_job_list(0, 1)[0]
 
-    max_field_lengths = JobDetail.MAX_FIELD_LENGTHS
+    def get_max(field):
+        return JobDetail._meta.get_field(field).max_length
 
-    (long_title, long_value, long_url) = ('t' * (2 * max_field_lengths["title"]),
-                                          'v' * (2 * max_field_lengths["value"]),
-                                          'https://' + ('u' * (2 * max_field_lengths["url"])))
+    (long_title, long_value, long_url) = ('t' * (2 * get_max("title")),
+                                          'v' * (2 * get_max("value")),
+                                          'https://' + ('u' * (2 * get_max("url"))))
     ji_artifact = {
         'type': 'json',
         'name': 'Job Info',
@@ -116,6 +117,6 @@ def test_load_long_job_details(test_project, eleven_jobs_stored):
     assert JobDetail.objects.count() == 1
 
     jd = JobDetail.objects.all()[0]
-    assert jd.title == long_title[:max_field_lengths["title"]]
-    assert jd.value == long_value[:max_field_lengths["value"]]
-    assert jd.url == long_url[:max_field_lengths["url"]]
+    assert jd.title == long_title[:get_max("title")]
+    assert jd.value == long_value[:get_max("value")]
+    assert jd.url == long_url[:get_max("url")]
