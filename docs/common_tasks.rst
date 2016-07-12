@@ -201,7 +201,7 @@ Releasing a new version of the Python client
 
   .. code-block:: bash
 
-      > pip install -U twine
+      > pip install -U twine wheel
       > cd treeherder/client/
       > rm -rf dist/*
       > python setup.py sdist bdist_wheel
