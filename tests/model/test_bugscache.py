@@ -4,7 +4,6 @@ from datetime import (datetime,
                       timedelta)
 
 import pytest
-from django.core.urlresolvers import reverse
 
 from treeherder.model.models import Bugscache
 
@@ -66,7 +65,7 @@ BUG_SEARCHES = (
 
 
 @pytest.mark.parametrize(("search_term", "exp_bugs"), BUG_SEARCHES)
-def test_get_open_recent_bugs(webapp, transactional_db, sample_bugs, search_term, exp_bugs):
+def test_get_open_recent_bugs(transactional_db, sample_bugs, search_term, exp_bugs):
     """Test that we retrieve the expected open recent bugs for a search term."""
     bug_list = sample_bugs['bugs']
     fifty_days_ago = datetime.now() - timedelta(days=50)
@@ -75,17 +74,15 @@ def test_get_open_recent_bugs(webapp, transactional_db, sample_bugs, search_term
     for bug in bug_list:
         bug['last_change_time'] = fifty_days_ago
     _update_bugscache(bug_list)
-
-    resp = webapp.get(reverse('bugscache-list'), {"search": search_term})
-    assert resp.status_int == 200
-    suggestions = resp.json
+    resp = Bugscache.search(search_term)
+    suggestions = json.loads(json.dumps(resp))
     open_recent_bugs = [b['id'] for b in suggestions['open_recent']]
     assert open_recent_bugs == exp_bugs
     assert len(suggestions['all_others']) == 0
 
 
 @pytest.mark.parametrize(("search_term", "exp_bugs"), BUG_SEARCHES)
-def test_get_all_other_bugs(webapp, transactional_db, sample_bugs, search_term, exp_bugs):
+def test_get_all_other_bugs(transactional_db, sample_bugs, search_term, exp_bugs):
     """Test that we retrieve the expected old bugs for a search term."""
     bug_list = sample_bugs['bugs']
     ninetyfive_days_ago = datetime.now() - timedelta(days=95)
@@ -95,15 +92,14 @@ def test_get_all_other_bugs(webapp, transactional_db, sample_bugs, search_term, 
         bug['last_change_time'] = ninetyfive_days_ago
     _update_bugscache(bug_list)
 
-    resp = webapp.get(reverse('bugscache-list'), {"search": search_term})
-    assert resp.status_int == 200
-    suggestions = resp.json
+    resp = Bugscache.search(search_term)
+    suggestions = json.loads(json.dumps(resp))
     assert len(suggestions['open_recent']) == 0
     all_others_bugs = [b['id'] for b in suggestions['all_others']]
     assert all_others_bugs == exp_bugs
 
 
-def test_get_recent_resolved_bugs(webapp, transactional_db, sample_bugs):
+def test_get_recent_resolved_bugs(transactional_db, sample_bugs):
     """Test that we retrieve recent, but fixed bugs for a search term."""
     search_term = "Recently modified resolved bugs should be returned in all_others"
     exp_bugs = [100001]
@@ -116,16 +112,15 @@ def test_get_recent_resolved_bugs(webapp, transactional_db, sample_bugs):
         bug['last_change_time'] = fifty_days_ago
     _update_bugscache(bug_list)
 
-    resp = webapp.get(reverse('bugscache-list'), {"search": search_term})
-    assert resp.status_int == 200
-    suggestions = resp.json
+    resp = Bugscache.search(search_term)
+    suggestions = json.loads(json.dumps(resp))
     print suggestions
     assert len(suggestions['open_recent']) == 0
     all_others_bugs = [b['id'] for b in suggestions['all_others']]
     assert all_others_bugs == exp_bugs
 
 
-def test_bug_properties(webapp, transactional_db, sample_bugs):
+def test_bug_properties(transactional_db, sample_bugs):
     """Test that we retrieve recent, but fixed bugs for a search term."""
     search_term = "test_popup_preventdefault_chrome.xul"
     bug_list = sample_bugs['bugs']
@@ -139,6 +134,6 @@ def test_bug_properties(webapp, transactional_db, sample_bugs):
     expected_keys = set(['crash_signature', 'resolution', 'summary', 'keywords', 'os', 'id',
                          'status'])
 
-    resp = webapp.get(reverse('bugscache-list'), {"search": search_term})
-    suggestions = resp.json
+    resp = Bugscache.search(search_term)
+    suggestions = json.loads(json.dumps(resp))
     assert set(suggestions['open_recent'][0].keys()) == expected_keys
