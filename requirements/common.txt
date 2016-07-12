@@ -51,7 +51,7 @@ mozlog==3.2 --hash=sha256:9ecfb21801a5d9fdef28cb88abc096bb1a9551e86989ab68f113f0
 futures==3.0.5 --hash=sha256:f7f16b6bf9653a918a03f1f2c2d62aac0cd64b1bc088e93ea279517f6b61120b
 
 https://github.com/jeads/datasource/archive/v0.11.0.tar.gz#egg=datasource==0.11.0 \
-    --hash=sha256:c488520a23bf0ef9cfa5b7f794f30647bbda2e370d11d4fc7e928948e7829289
+    --hash=sha256:5eec16d31124fecdb3590ac7326e7af28aac26de467c17fb6f6a806d950e392f
 
 # Required by jsonschema
 functools32==3.2.3-2 --hash=sha256:89d824aa6c358c421a234d7f9ee0bd75933a67c29588ce50aaa3acdf4d403fa0
