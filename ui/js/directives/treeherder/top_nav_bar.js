@@ -168,20 +168,6 @@ treeherder.directive('thRepoMenuItem', [
         };
     }]);
 
-// which class to show for the show/hide excluded jobs button.
-// this allows us to do one-time binding in the html.
-treeherder.directive('thExclusionState', function () {
-    return {
-        restrict: "A",
-        link: function(scope, element, attrs) {
-            scope.exclusionStateClass = 'btn-toggle-excluded fa-eye-slash';
-            if (scope.isSkippingExclusionProfiles) {
-                scope.exclusionStateClass = 'btn-toggle-excluded fa-eye';
-            }
-        }
-    };
-});
-
 treeherder.directive('thResultStatusChicklet', [
     'thResultStatusInfo', function (thResultStatusInfo) {
         return {

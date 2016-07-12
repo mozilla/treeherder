@@ -370,8 +370,7 @@ fieldset[disabled] .btn-view-nav-closed.active {
   .btn-toggle-excluded::after {
     content: " Excluded Jobs";
   }
-
-  .btn-toggle-excluded.fa-eye-slash::after {
+  .btn-excluded::after {
     text-decoration: line-through;
   }
 }

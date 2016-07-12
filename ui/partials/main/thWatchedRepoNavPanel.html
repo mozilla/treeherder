@@ -41,13 +41,16 @@
         </span>
 
         <!--Hidden Jobs Button-->
-        <span class="btn btn-view-nav btn-sm btn-right-navbar"
+        <span class="btn btn-view-nav btn-sm"
               title="{{ !isSkippingExclusionProfiles ? 'Click to show excluded jobs' : 'Click to hide excluded jobs'}}"
               tabindex="0" role="button"
               ng-click="toggleExcludedJobs()">
-          <i class="fa"
-             th-exclusion-state
-             ng-class="::exclusionStateClass"></i>
+          <span class="btn-toggle-excluded"
+             ng-class="{ 'btn-excluded': !isSkippingExclusionProfiles }">
+            <i class="fa"
+               ng-class="{ 'fa-eye-slash': !isSkippingExclusionProfiles,
+                           'fa-eye': isSkippingExclusionProfiles }"></i>
+          </span>
         </span>
 
         <!--Toggle Revisions Button-->
