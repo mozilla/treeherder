@@ -105,7 +105,6 @@ default_router.register(r'jobtype', refdata.JobTypeViewSet)
 default_router.register(r'repository', refdata.RepositoryViewSet)
 default_router.register(r'optioncollectionhash', refdata.OptionCollectionHashViewSet,
                         base_name='optioncollectionhash')
-default_router.register(r'bugscache', refdata.BugscacheViewSet)
 default_router.register(r'failureclassification', refdata.FailureClassificationViewSet)
 default_router.register(r'user', refdata.UserViewSet, base_name='user')
 default_router.register(r'exclusion-profile', refdata.ExclusionProfileViewSet)

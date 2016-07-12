@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from treeherder.model import models
 from treeherder.model.derived import JobsModel
@@ -59,25 +58,6 @@ class MachinePlatformViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata MachinePlatform model"""
     queryset = models.MachinePlatform.objects.all()
     serializer_class = th_serializers.MachinePlatformSerializer
-
-
-class BugscacheViewSet(viewsets.ReadOnlyModelViewSet):
-
-    """ViewSet for the refdata Bugscache model"""
-    queryset = models.Bugscache.objects.all()
-    serializer_class = th_serializers.BugscacheSerializer
-
-    def list(self, request):
-        """
-        Retrieves a list of bugs from the bugs cache
-        search -- Mandatory term of search
-        """
-        search_term = request.query_params.get("search", None)
-        if not search_term:
-            return Response({"message": "the 'search' parameter is mandatory"},
-                            status=HTTP_400_BAD_REQUEST)
-
-        return Response(models.Bugscache.search(search_term))
 
 
 class MachineViewSet(viewsets.ReadOnlyModelViewSet):
