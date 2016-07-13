@@ -1,5 +1,5 @@
 <div class="container-fluid">
-  <div id="datapoint-detail" ng-show="originalRevision && newRevision">
+  <div id="datapoint-detail" ng-show="newRevision">
     <div ng-if="dataLoading">
       Loading all results, please wait a minute...
       <img src="img/dancing_cat.gif" />
@@ -13,6 +13,13 @@
       <div class="alert alert-warning" role="alert" ng-if="testNoResults">
         <strong>tests with no results:</strong>
         {{testNoResults}}
+      </div>
+      <div ng-if="!originalRevision">
+        Time range to sample:
+        <select ng-model="selectedTimeRange"
+                ng-options="timeRange.text for timeRange in timeRanges track by timeRange.value"
+                ng-change="timeRangeChanged(selectedTimeRange)">
+        </select>
       </div>
       <ph-compare-table
          titles="titles"
