@@ -9,17 +9,23 @@
         <div class="panel-body">
           <label for="original-project-selector">Project</label>
           <select id="original-project-selector" class="form-control" ng-model="originalProject" ng-options="project.name for project in projects"  ng-change="updateOriginalRevisionTips()"/>
-          <label for="original-revision-input">Revision</label>
-          <div class="form-group" ng-class="{'has-error': originalRevisionError}">
-            <input id="original-revision-input" maxlength="40" class="form-control" type="text" ng-model="originalRevision" placeholder="Select or enter a revision"/>
-            <div class="input-group-btn">
-              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Recent <span class="caret"></span></button>
-              <ul class="dropdown-menu dropdown-menu-right" ng-model="tipRevision">
-                <li ng-repeat="tip in originalTipList"><a ng-click="getOriginalTipRevision(tip.revision)">{{tip.revision | limitTo: 12}} {{tip.author}}</a></li>
+          <div class="checkbox">
+            <label><input type="checkbox" ng-model="revisionComparison">Compare with a specific revision</label>
+          </div>
+          <div ng-show="revisionComparison">
+            <label for="original-revision-input">Revision</label>
+              <div class="form-group" ng-class="{'has-error': originalRevisionError}">
+                <input id="original-revision-input" maxlength="40" class="form-control" type="text" ng-model="originalRevision" placeholder="Select or enter a revision"/>
+                <div class="input-group-btn">
+                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Recent <span class="caret"></span></button>
+                  <ul class="dropdown-menu dropdown-menu-right" ng-model="tipRevision">
+                  <li ng-repeat="tip in originalTipList"><a ng-click="getOriginalTipRevision(tip.revision)">{{tip.revision | limitTo: 12}} {{tip.author}}</a></li>
               </ul>
             </div>
+          </div>  
           </div>
+          
            <label class="control-label" style="color:#A94442" ng-show="originalRevisionError">{{originalRevisionError}}"</label>
         </div>
       </div>
@@ -27,7 +33,8 @@
         <div class="panel-heading">New</div>
         <div class="panel-body">
           <label for="new-project-selector">Project</label>
-          <select id="new-project-selector" class="form-control" ng-model="newProject" ng-options="project.name for project in projects" ng-change="updateNewRevisionTips();getPreviousRevision()"/>
+          <select id="new-project-selector" class="form-control" ng-model="newProject" ng-options="project.name for project in projects" ng-change=" 
+          updateNewRevisionTips();getPreviousRevision()"/>
           <label for="new-revision-input">Revision</label>
             <div class="form-group" ng-class="{'has-error': newRevisionError}">
             <input id="new-revision-input" maxlength="40" class="form-control" type="text" ng-model="newRevision" placeholder="Select or enter a revision" ng-change="getPreviousRevision()"/>
@@ -42,8 +49,8 @@
             </div>
             </div>
             <label class="control-label" style="color:#A94442" ng-show="newRevisionError">{{newRevisionError}}</label>
-            <a href="" ng-show="proposedRevision" ng-click="setProposedRevision()">Set the base revision to be the previous of this one.</a>
-            <p class="help-block" ng-show="proposedRevisionLoading"><i class="fa fa-spinner fa-pulse"></i> Attempting to automatically find base revision...</p>
+            <a href="" ng-show="proposedRevision && revisionComparison" ng-click="setProposedRevision()">Set the base revision to be the previous of this one.</a>
+            <p class="help-block" ng-show="proposedRevisionLoading && revisionComparison"><i class="fa fa-spinner fa-pulse"></i> Attempting to automatically find base revision...</p>
         </div>
       </div>
       <div class="spacer"></div>
@@ -53,7 +60,7 @@
       <div class="form-group button-container">
       <button type="submit" class="btn btn-primary btn-lg btn-block"
               ng-click="runCompare()"
-              ng-disabled="originalRevision.length < 12 || newRevision.length < 12">
+              ng-disabled="(originalRevision.length > 0 && originalRevision.length < 12) || newRevision.length < 12">
         Compare revisions
       </button>
       </div>

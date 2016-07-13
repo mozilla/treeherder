@@ -213,41 +213,60 @@ treeherder.factory('PhCompare', [
                 return errors;
             },
 
-            getResultsMap: function(projectName, seriesList, resultSetIds) {
+            getResultsMap: function(projectName, seriesList, resultSetIds_time) {
                 var resultsMap = {};
                 return $q.all(_.chunk(seriesList, 20).map(function(seriesChunk) {
-                    return PhSeries.getSeriesData(
-                        projectName, {
-                            signatures: _.pluck(seriesChunk, 'signature'),
-                            framework: _.uniq(_.pluck(seriesChunk, 'frameworkId')),
-                            push_id: resultSetIds }
-                    ).then(function(seriesData) {
-                        resultSetIds.forEach(function(resultSetId) {
-                            if (resultsMap[resultSetId] === undefined) {
-                                resultsMap[resultSetId] = {};
-                            }
-                            _.forIn(seriesData, function(data, signature) {
-                                // Aggregates data from the server on a single group of values which
-                                // will be compared later to another group. Ends up with an object
-                                // with description (name/platform) and values.
-                                // The values are later processed at getCounterMap as the data arguments.
-                                var values = [];
-                                _.where(data, { push_id: resultSetId }).forEach(function(pdata) {
-                                    values.push(pdata.value);
-                                });
-                                var seriesData = _.find(seriesList, {'signature': signature});
-                                if (seriesData) {
-                                    resultsMap[resultSetId][signature] = {
-                                        platform: seriesData.platform,
-                                        name: seriesData.name,
-                                        lowerIsBetter: seriesData.lowerIsBetter,
-                                        frameworkId: seriesData.frameworkId,
-                                        values: values
-                                    };
+                    if (resultSetIds_time.value === undefined) {
+                        return PhSeries.getSeriesData(
+                            projectName, {
+                                signatures: _.pluck(seriesChunk, 'signature'),
+                                framework: _.uniq(_.pluck(seriesChunk, 'frameworkId')),
+                                push_id: resultSetIds_time }
+                        ).then(function(seriesData) {
+                            resultSetIds_time.forEach(function(resultSetId) {
+                                if (resultsMap[resultSetId] === undefined) {
+                                    resultsMap[resultSetId] = {};
                                 }
+                                _.forIn(seriesData, function(data, signature) {
+                                    // Aggregates data from the server on a single group of values which
+                                    // will be compared later to another group. Ends up with an object
+                                    // with description (name/platform) and values.
+                                    // The values are later processed at getCounterMap as the data arguments.
+                                    var values = [];
+                                    _.where(data, { push_id: resultSetId }).forEach(function(pdata) {
+                                        values.push(pdata.value);
+                                    });
+                                    var seriesData = _.find(seriesList, {'signature': signature});
+                                    if (seriesData) {
+                                        resultsMap[resultSetId][signature] = {
+                                            platform: seriesData.platform,
+                                            name: seriesData.name,
+                                            lowerIsBetter: seriesData.lowerIsBetter,
+                                            frameworkId: seriesData.frameworkId,
+                                            values: values
+                                        };
+                                    }
+                                });
                             });
                         });
-                    });
+                    }
+                    var params = { signatures: _.map(seriesChunk, 'signature'),
+                                    framework: _.uniq(_.pluck(seriesChunk, 'frameworkId')),
+                                    interval: resultSetIds_time.value
+                                };
+                    return PhSeries.getSeriesData(projectName, params
+                        ).then(function(seriesData){
+                            _.forIn(seriesData, function(data, signature) {
+                                var series = _.find(seriesChunk, { signature: signature });
+                                resultsMap[signature] = {
+                                    platform: series.platform,
+                                    name: series.name,
+                                    lowerIsBetter: series.lowerIsBetter,
+                                    frameworkId: series.frameworkId,
+                                    values: _.map(data, 'value')
+                                };
+                            });
+                        });
                 })).then(function() {
                     return resultsMap;
                 });
