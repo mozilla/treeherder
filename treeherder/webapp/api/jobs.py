@@ -85,7 +85,7 @@ class JobsViewSet(viewsets.ViewSet):
     def list(self, request, project, jm):
         """
         GET method implementation for list view
-        Optional paramters (default):
+        Optional parameters (default):
         - offset (0)
         - count (10)
         - return_type (dict)

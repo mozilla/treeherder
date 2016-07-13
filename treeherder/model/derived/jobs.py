@@ -222,7 +222,7 @@ class JobsModel(TreeherderModelBase):
                     return []
             except ExclusionProfile.DoesNotExist:
                 # Either there's no default profile setup or the profile
-                # specified is not availble
+                # specified is not available
                 pass
 
         repl = [settings.DATABASES['default']['NAME'], replace_str]
@@ -404,7 +404,7 @@ class JobsModel(TreeherderModelBase):
         except (FailureLine.DoesNotExist, FailureLine.MultipleObjectsReturned):
             return None
 
-        # Only propogate the classification if there is exactly one unstructured failure
+        # Only propagate the classification if there is exactly one unstructured failure
         # line for the job
         with ArtifactsModel(self.project) as am:
             bug_suggestion_lines = am.filter_bug_suggestions(
@@ -2008,7 +2008,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             pass
         except ExclusionProfile.DoesNotExist:
             # Either there's no default profile setup or the profile
-            # specified is not availble
+            # specified is not available
             pass
         return signatures
 

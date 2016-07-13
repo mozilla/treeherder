@@ -28,5 +28,5 @@ A scheduler process in charge of running periodic tasks.
 Celerymon task monitor
 ----------------------
 
-This process provides an interface to the status of the worker and the running tasks. It can be used to provide such informations
+This process provides an interface to the status of the worker and the running tasks. It can be used to provide such information
 to monitoring tools like munin.

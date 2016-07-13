@@ -894,7 +894,7 @@ def test_retry_on_operational_failure(jm, monkeypatch):
 
 
 def test_update_autoclassification_bug(jm, test_repository, classified_failures):
-    # Job 1 has two failue lines so nothing should be updated
+    # Job 1 has two failure lines so nothing should be updated
     assert jm.update_autoclassification_bug(1, 1234) is None
 
     job = jm.get_job(2)[0]

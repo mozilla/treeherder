@@ -253,12 +253,12 @@ treeherder.provider('thAggregateIds', function() {
     };
 
     var getGroupMapKey = function(result_set_id, grSymbol, grTier, plName, plOpt) {
-        //Build string key for groupMap entires
+        //Build string key for groupMap entries
         return escape(result_set_id + grSymbol + grTier + plName + plOpt);
     };
 
     var getJobMapKey = function(job) {
-        //Build string key for jobMap entires
+        //Build string key for jobMap entries
         return 'key' + job.id;
     };
 
