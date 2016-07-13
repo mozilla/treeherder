@@ -9,17 +9,21 @@
         <div class="panel-body">
           <label for="original-project-selector">Project</label>
           <select id="original-project-selector" class="form-control" ng-model="originalProject" ng-options="project.name for project in projects"  ng-change="updateOriginalRevisionTips()"/>
-          <label for="original-revision-input">Revision</label>
-          <div class="form-group" ng-class="{'has-error': originalRevisionError}">
-            <input id="original-revision-input" maxlength="40" class="form-control" type="text" ng-model="originalRevision" placeholder="Select or enter a revision"/>
-            <div class="input-group-btn">
-              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Recent <span class="caret"></span></button>
-              <ul class="dropdown-menu dropdown-menu-right" ng-model="tipRevision">
-                <li ng-repeat="tip in originalTipList"><a ng-click="getOriginalTipRevision(tip.revision)">{{tip.revision | limitTo: 12}} {{tip.author}}</a></li>
+          <label><input type="checkbox" ng-model="baseLineComparison"> Base Line Comparison</label><br>
+          <div ng-show="!baseLineComparison">
+            <label for="original-revision-input">Revision</label>
+              <div class="form-group" ng-class="{'has-error': originalRevisionError}">
+                <input id="original-revision-input" maxlength="40" class="form-control" type="text" ng-model="originalRevision" placeholder="Select or enter a revision"/>
+                <div class="input-group-btn">
+                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Recent <span class="caret"></span></button>
+                  <ul class="dropdown-menu dropdown-menu-right" ng-model="tipRevision">
+                  <li ng-repeat="tip in originalTipList"><a ng-click="getOriginalTipRevision(tip.revision)">{{tip.revision | limitTo: 12}} {{tip.author}}</a></li>
               </ul>
             </div>
+          </div>  
           </div>
+          
            <label class="control-label" style="color:#A94442" ng-show="originalRevisionError">{{originalRevisionError}}"</label>
         </div>
       </div>
@@ -53,7 +57,7 @@
       <div class="form-group button-container">
       <button type="submit" class="btn btn-primary btn-lg btn-block"
               ng-click="runCompare()"
-              ng-disabled="originalRevision.length < 12 || newRevision.length < 12">
+              ng-disabled="(originalRevision.length > 0 && originalRevision.length < 12) || newRevision.length < 12">
         Compare revisions
       </button>
       </div>

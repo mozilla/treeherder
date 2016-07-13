@@ -379,3 +379,5 @@ treeherder.value("phDashboardValues",
         }
     }
 );
+
+treeherder.value('compareBaseLineDefaultTimeRange', 86400 * 2);
