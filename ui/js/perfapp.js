@@ -23,12 +23,12 @@ perf.config(['$compileProvider', '$httpProvider', '$stateProvider', '$urlRouterP
         }).state('compare', {
             title: 'Compare',
             templateUrl: 'partials/perf/comparectrl.html',
-            url: '/compare?originalProject&originalRevision&newProject&newRevision&hideMinorChanges&framework&filter&showOnlyImportant&showOnlyConfident',
+            url: '/compare?originalProject&originalRevision?&newProject&newRevision&hideMinorChanges&framework&filter&showOnlyImportant&showOnlyConfident&selectedTimeRange?',
             controller: 'CompareResultsCtrl'
         }).state('comparesubtest', {
             title: 'Compare - Subtests',
             templateUrl: 'partials/perf/comparesubtestctrl.html',
-            url: '/comparesubtest?originalProject&originalRevision&newProject&newRevision&originalSignature&newSignature&filter&showOnlyImportant&showOnlyConfident&framework',
+            url: '/comparesubtest?originalProject&originalRevision?&newProject&newRevision&originalSignature&newSignature&filter&showOnlyImportant&showOnlyConfident&framework&selectedTimeRange?',
             controller: 'CompareSubtestResultsCtrl'
         }).state('comparechooser', {
             title: 'Compare Chooser',
@@ -56,7 +56,6 @@ perf.config(['$compileProvider', '$httpProvider', '$stateProvider', '$urlRouterP
             url: '/dashboardsubtest?topic&filter&showOnlyImportant&showOnlyConfident&baseSignature&variantSignature&repo&timerange&revision',
             controller: 'dashSubtestCtrl'
         });
-
         $urlRouterProvider.otherwise('/graphs');
     }]).run(['$rootScope', '$state', '$stateParams', function ($rootScope, $state, $stateParams) {
         $rootScope.$state = $state;

@@ -93,7 +93,8 @@ treeherder.component('revisionInformation', {
         newProject: '<',
         newRevision: '<',
         originalResultSet: '<',
-        newResultSet: '<'
+        newResultSet: '<',
+        selectedTimeRange: '<'
     }
 });
 

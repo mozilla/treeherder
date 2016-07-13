@@ -137,7 +137,7 @@ treeherder.value("thDefaultRepo", "mozilla-inbound");
 
 treeherder.value("thDateFormat", "EEE MMM d, H:mm:ss");
 
-treeherder.value("phCompareDefaultOriginalRepo", "mozilla-inbound");
+treeherder.value("phCompareDefaultOriginalRepo", "mozilla-central");
 
 treeherder.value("phCompareDefaultNewRepo", "try");
 
@@ -320,3 +320,5 @@ treeherder.value("phDashboardValues",
         }
     }
 );
+
+treeherder.value('compareBaseLineDefaultTimeRange', 86400 * 2);
