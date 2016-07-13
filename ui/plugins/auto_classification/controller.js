@@ -389,7 +389,7 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
                                               return item.id !== best.id;
                                           });
                 } else if (best && best.bugNumber === 0) {
-                    return "ignore"; // This is a sentinal value we use when constructing the
+                    return "ignore"; // This is a sentinel value we use when constructing the
                                      // ignore options later so that we can replace the best
                 } else {
                     // The best classification didn't have a bug number so it needs a

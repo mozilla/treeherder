@@ -945,7 +945,7 @@ class ClassifiedFailure(models.Model):
     id = BigAutoField(primary_key=True)
     failure_lines = models.ManyToManyField(FailureLine, through='FailureMatch',
                                            related_name='classified_failures')
-    # Note that we use a bug number of 0 as a sentinal value to indicate lines that
+    # Note that we use a bug number of 0 as a sentinel value to indicate lines that
     # are not actually symptomatic of a real bug, but are still possible to autoclassify
     bug_number = models.PositiveIntegerField(blank=True, null=True, unique=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -1001,7 +1001,7 @@ class LazyClassData(object):
         See https://docs.python.org/2/howto/descriptor.html for details of the descriptor
         protocol.
 
-        :param type_func: Callable of zero arguments used to initalize the data storage on
+        :param type_func: Callable of zero arguments used to initialize the data storage on
                           first access.
         :param setter: Callable of zero arguments used to populate the data storage
                        after it has been initialized. Unlike type_func this can safely

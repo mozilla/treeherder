@@ -208,7 +208,7 @@ Releasing a new version of the Python client
       > twine upload dist/*
 
 * File a ``Release Engineering::Buildduty`` bug requesting that the sdist
-  and wheel releases (plus any new dependant packages) be added to the
+  and wheel releases (plus any new dependent packages) be added to the
   internal PyPI mirror. For an example, see `bug 1236965`_.
 
 .. _client Git log: https://github.com/mozilla/treeherder/commits/master/treeherder/client
