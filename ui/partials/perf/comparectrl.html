@@ -1,10 +1,10 @@
 <div class="container-fluid">
-  <div id="datapoint-detail" ng-show="originalRevision && newRevision">
+  <div id="datapoint-detail" ng-show="newRevision">
     <div ng-if="dataLoading">
       Loading all results, please wait a minute...
       <img src="img/dancing_cat.gif" />
     </div>
-    <div id="error" ng-if="!dataLoading && errors.length">
+    <div id="error" ng-if="!dataLoading"> <!-- && errors.length-->
       <compare-error errors="errors" original-revision="originalRevision" original-project="originalProject" new-revision="newRevision" new-project="newProject"></compare-error>
     </div>
     <div id="subtest-summary" ng-if="!dataLoading && !errors.length">
