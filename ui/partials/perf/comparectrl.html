@@ -1,5 +1,5 @@
 <div class="container-fluid">
-  <div id="datapoint-detail" ng-show="originalRevision && newRevision">
+  <div id="datapoint-detail" ng-show="newRevision">
     <div ng-if="dataLoading">
       Loading all results, please wait a minute...
       <img src="img/dancing_cat.gif" />
@@ -9,10 +9,17 @@
     </div>
     <div id="subtest-summary" ng-if="!dataLoading && !errors.length">
       <h1>Perfherder Compare Revisions</h1>
-      <revision-information original-project="originalProject" original-revision="originalRevision" original-result-set="originalResultSet" new-project="newProject" new-revision="newRevision" new-result-set="newResultSet"></revision-information>
+      <revision-information original-project="originalProject" original-revision="originalRevision" original-result-set="originalResultSet" new-project="newProject" new-revision="newRevision" new-result-set="newResultSet" selected-time-range="selectedTimeRange"></revision-information>
       <div class="alert alert-warning" role="alert" ng-if="testNoResults">
         <strong>tests with no results:</strong>
         {{testNoResults}}
+      </div>
+      <div class="form-group" ng-if="!originalRevision">
+        Time range to sample:
+        <select ng-model="selectedTimeRange"
+                ng-options="timeRange.text for timeRange in timeRanges track by timeRange.value"
+                ng-change="timeRangeChanged(selectedTimeRange)">
+        </select>
       </div>
       <ph-compare-table
          titles="titles"
