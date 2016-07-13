@@ -42,7 +42,7 @@ perf.factory('PhBugs', [
 
 perf.controller(
     'ModifyAlertSummaryCtrl',
-    function($scope, $modalInstance, alertSummary) {
+    function($scope, $uibModalInstance, alertSummary) {
         $scope.title = "Link to bug";
         $scope.placeholder = "Bug #";
 
@@ -53,12 +53,12 @@ perf.controller(
             $scope.modifying = true;
             alertSummary.assignBug(newId).then(function() {
                 $scope.modifying = false;
-                $modalInstance.close('assigned');
+                $uibModalInstance.close('assigned');
             });
         };
 
         $scope.cancel = function () {
-            $modalInstance.dismiss('cancel');
+            $uibModalInstance.dismiss('cancel');
         };
         $scope.$on('modal.closing', function(event, reason, closed) {
             if ($scope.modifying) {
@@ -69,7 +69,7 @@ perf.controller(
 
 perf.controller(
     'MarkDownstreamAlertsCtrl',
-    function($scope, $modalInstance, $http, $q, alertSummary, allAlertSummaries,
+    function($scope, $uibModalInstance, $http, $q, alertSummary, allAlertSummaries,
              PhAlerts, phAlertStatusMap) {
         $scope.title = "Mark alerts downstream";
         $scope.placeholder = "Alert #";
@@ -91,12 +91,12 @@ perf.controller(
                     $q.all(_.map(summariesToUpdate, function(alertSummary) {
                         return alertSummary.update();
                     })).then(function() {
-                        $modalInstance.close('downstreamed');
+                        $uibModalInstance.close('downstreamed');
                     });
                 });
         };
         $scope.cancel = function () {
-            $modalInstance.dismiss('cancel');
+            $uibModalInstance.dismiss('cancel');
         };
         $scope.$on('modal.closing', function(event, reason, closed) {
             if ($scope.modifying) {
@@ -107,7 +107,7 @@ perf.controller(
 
 perf.controller(
     'ReassignAlertsCtrl',
-    function($scope, $modalInstance, $http, $q, alertSummary,
+    function($scope, $uibModalInstance, $http, $q, alertSummary,
              allAlertSummaries, PhAlerts, phAlertStatusMap) {
 
         $scope.title = "Reassign alerts";
@@ -132,12 +132,12 @@ perf.controller(
                 $q.all(_.map(summariesToUpdate, function(alertSummary) {
                     return alertSummary.update();
                 })).then(function() {
-                    $modalInstance.close('downstreamed');
+                    $uibModalInstance.close('downstreamed');
                 });
             });
         };
         $scope.cancel = function () {
-            $modalInstance.dismiss('cancel');
+            $uibModalInstance.dismiss('cancel');
         };
         $scope.$on('modal.closing', function(event, reason, closed) {
             if ($scope.modifying) {
