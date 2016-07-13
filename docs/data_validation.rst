@@ -15,7 +15,7 @@ following example code:
 .. code-block:: python
 
     import yaml
-    import json_schema
+    import jsonschema
 
     schema = yaml.load("schemas/text-log-summary-artifact.yml")
     jsonschema.validate(data, schema)
