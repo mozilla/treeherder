@@ -116,24 +116,36 @@ perf.controller('CompareChooserCtrl', [
             };
 
             $scope.runCompare = function() {
-                ThResultSetModel.getResultSetsFromRevision($scope.originalProject.name, $scope.originalRevision).then(
+                if($scope.originalRevision.length){
+                    ThResultSetModel.getResultSetsFromRevision($scope.originalProject.name, $scope.originalRevision).then(
                     function(resultSets) {
                         $scope.originalRevisionError = undefined;
                     },
                     function(error) {
                         $scope.originalRevisionError = error;
                     }
-                );
+                );}
 
+                else{
+                    console.log("Orignal Revision has not been given");
+                }
                 ThResultSetModel.getResultSetsFromRevision($scope.newProject.name, $scope.newRevision).then(
                     function (resultSets) {
                         $scope.newRevisionError = undefined;
-                        if ($scope.originalRevisionError === undefined && $scope.newRevisionError === undefined) {
+                        if ($scope.originalRevisionError === undefined && $scope.newRevisionError === undefined && $scope.originalRevision.length) {
                             $state.go('compare', {
                                 originalProject: $scope.originalProject.name,
                                 originalRevision: $scope.originalRevision,
                                 newProject: $scope.newProject.name,
                                 newRevision: $scope.newRevision
+                            });
+                        }
+                        else{
+                            $state.go('compare', {
+                                originalProject: $scope.originalProject.name,
+                                newProject: $scope.newProject.name,
+                                newRevision: $scope.newRevision
+
                             });
                         }
                     },
@@ -152,12 +164,13 @@ perf.controller('CompareChooserCtrl', [
     }]);
 
 perf.controller('CompareResultsCtrl', [
-    '$state', '$stateParams', '$scope', '$rootScope', '$location',
+    '$state', '$stateParams', '$scope', '$rootScope', '$location','$httpParamSerializer',
     'thServiceDomain', 'ThRepositoryModel',
     'ThResultSetModel', '$http', '$q', '$timeout', 'PhFramework', 'PhSeries',
     'math', 'phTimeRanges', 'PhCompare',
     function CompareResultsCtrl($state, $stateParams, $scope,
                                 $rootScope, $location,
+                                $httpParamSerializer,
                                 thServiceDomain,
                                 ThRepositoryModel, ThResultSetModel, $http,
                                 $q, $timeout, PhFramework, PhSeries, math,
@@ -190,7 +203,7 @@ perf.controller('CompareResultsCtrl', [
 
                     if (testName.indexOf("summary") > 0) {
                         var detailsLink = 'perf.html#/comparesubtest?';
-                        detailsLink += _.map(_.pairs({
+                        detailsLink += $httpParamSerializer({
                             originalProject: $scope.originalProject.name,
                             originalRevision: $scope.originalRevision,
                             newProject: $scope.newProject.name,
@@ -198,7 +211,7 @@ perf.controller('CompareResultsCtrl', [
                             originalSignature: oldSig,
                             newSignature: newSig,
                             framework: $scope.filterOptions.framework.id
-                        }), function(kv) { return kv[0]+"="+kv[1]; }).join("&");
+                        });
                         cmap.links.push({
                             title: 'subtests',
                             href: detailsLink

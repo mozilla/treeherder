@@ -53,7 +53,8 @@
       <div class="form-group button-container">
       <button type="submit" class="btn btn-primary btn-lg btn-block"
               ng-click="runCompare()"
-              ng-disabled="originalRevision.length < 12 || newRevision.length < 12">
+              ng-disabled="newRevision.length < 12">
+              <!-- Removed the condition temporarily--> 
         Compare revisions
       </button>
       </div>
