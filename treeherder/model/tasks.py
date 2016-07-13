@@ -142,7 +142,7 @@ def publish_resultset_runnable_job_action(project, resultset_id, requester,
 
 
 @task(name='populate-error-summary')
-def populate_error_summary(project, artifacts):
+def populate_error_summary(project, job_id):
     """
     Create bug suggestions artifact(s) for any text_log_summary artifacts.
 
@@ -151,4 +151,4 @@ def populate_error_summary(project, artifacts):
     ``bug suggestions`` artifact from them.
     """
     newrelic.agent.add_custom_parameter("project", project)
-    load_error_summary(project, artifacts)
+    load_error_summary(project, job_id)

@@ -19,9 +19,9 @@ treeherder.controller('BugsPluginCtrl', [
 
         // update function triggered by the plugins controller
         thTabs.tabs.failureSummary.update = function() {
-            var newValue = thTabs.tabs.failureSummary.contentId;
+            var newJob = thTabs.tabs.failureSummary.job;
             $scope.suggestions = [];
-            if(angular.isDefined(newValue)) {
+            if (angular.isDefined(newJob)) {
                 thTabs.tabs.failureSummary.is_loading = true;
                 // if there's an ongoing timeout, cancel it
                 if (timeoutPromise !== null) {
@@ -37,7 +37,7 @@ treeherder.controller('BugsPluginCtrl', [
                 ThJobArtifactModel.get_list({
                     name__in: "Bug suggestions,text_log_summary",
                     "type": "json",
-                    job_id: newValue
+                    job_id: newJob.id
                 }, {timeout: requestPromise})
                 .then(function(artifact_list){
                     // using a temporary array here to not trigger a

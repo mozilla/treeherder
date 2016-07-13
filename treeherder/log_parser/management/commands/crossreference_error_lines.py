@@ -5,113 +5,56 @@ from django.core.management.base import (BaseCommand,
                                          CommandError)
 from mozlog.formatters.tbplformatter import TbplFormatter
 
-from treeherder.model.derived import (ArtifactsModel,
-                                      JobsModel)
 from treeherder.model.models import (FailureLine,
-                                     Repository,
-                                     TextLogSummary,
-                                     TextLogSummaryLine)
+                                     Job,
+                                     TextLogError)
 
 logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    args = '<repository>, <job_guid>'
-    help = 'Download, parse and store the given failure summary log.'
+    args = '<job_guid>'
+    help = 'Crossreference structured failure lines with unstructured errors for job'
 
     def handle(self, *args, **options):
         logger.debug("crossreference_error_lines command")
-        if not len(args) == 2:
-            raise CommandError('2 arguments required, %s given' % len(args))
+        if not len(args) == 1:
+            raise CommandError('1 arguments required, %s given' % len(args))
 
-        repository_name, job_guid = args
+        job_guid = args[0]
 
-        try:
-            repository = Repository.objects.get(name=repository_name, active_status='active')
-        except Repository.DoesNotExist:
-            raise CommandError('Unknown repository %s' % repository_name)
+        self.crossreference_error_lines(job_guid)
 
-        failure_lines = FailureLine.objects.filter(repository=repository,
-                                                   job_guid=job_guid)
+    def crossreference_error_lines(self, job_guid):
+        """
+        Match TextLogError objects with FailureLine objects for a job.
 
-        with JobsModel(repository_name) as jm:
-            job = jm.get_job_ids_by_guid([job_guid]).get(job_guid)
-            if job is None:
-                logger.error('crossreference_error_lines: No job for '
-                             '{0} job_guid {1}'.format(repository, job_guid))
-                return
-
-        with ArtifactsModel(repository_name) as am:
-            conditions = {
-                'job_id': set([('=', job['id'])])
-            }
-
-            # Load the text log artifacts for this job
-            text_log_summary_conditions = conditions.copy()
-            text_log_summary_conditions["name"] = set([("=", "text_log_summary")])
-            text_log_summary = am.get_job_artifact_list(0, 1, text_log_summary_conditions)
-            if not text_log_summary:
-                logger.error("No text log summary generated for job")
-                return
-            text_log_summary = text_log_summary[0]
-
-            # Load the bug suggestions for this job
-            bug_suggestions_conditions = conditions.copy()
-            bug_suggestions_conditions["name"] = set([("=", "Bug suggestions")])
-            bug_suggestions = am.get_job_artifact_list(0, 1, bug_suggestions_conditions)
-            if not bug_suggestions:
-                logger.error("No bug_suggestions generated for job")
-                return
-            bug_suggestions = bug_suggestions[0]
-
-            self.crossreference_error_lines(repository, job_guid, failure_lines,
-                                            text_log_summary, bug_suggestions)
-
-    def crossreference_error_lines(self, repository, job_guid, failure_lines, text_log_summary,
-                                   bug_suggestions):
-        """Populate the TextLogSummary and TextLogSummaryLine tables for a
-        job. Specifically this function tries to match the
-        unstructured error lines with the corresponding structured error lines, relying on
-        the fact that serialization of mozlog (and hence errorsummary files) is determinisic
-        so we can reserialize each structured error line and perform an in-order textual
-        match.
+        Specifically this function tries to match the unstructured error lines
+        with the corresponding structured error lines, relying on the fact that
+        serialization of mozlog (and hence errorsummary files) is determinisic
+        so we can reserialize each structured error line and perform an
+        in-order textual match.
 
         :param repository: Repository containing the job
         :param job_guid: guid for the job being crossreferenced
         :param failure_lines: List of FailureLine objects for this job
-        :param text_log_summary: text_log_summary artifact for this job
-        :param bug_suggestions: Bug suggestions artifact for this job"""
-
-        summary, _ = TextLogSummary.objects.get_or_create(job_guid=job_guid,
-                                                          repository=repository)
-        summary.text_log_summary_artifact_id = text_log_summary["id"]
-        summary.bug_suggestions_artifact_id = bug_suggestions["id"]
-
-        summary.save()
+        """
+        job = Job.objects.get(guid=job_guid)
+        failure_lines = FailureLine.objects.filter(job_guid=job_guid)
 
         match_iter = structured_iterator(failure_lines)
         failure_line, regexp = match_iter.next()
 
-        summary_lines = []
-
-        # For each error in the text log summary artifact, try to match the next
-        # unmatched structured log line
-        for error in text_log_summary["blob"]["step_data"]["all_errors"]:
-            log_line = error["line"].strip()
-            line_number = error["linenumber"]
-            if regexp and regexp.match(log_line):
-                logger.debug("Matched '%s'" % (log_line,))
-                summary_lines.append(TextLogSummaryLine(summary=summary,
-                                                        line_number=line_number,
-                                                        failure_line=failure_line))
+        # For each structured failure line, try to match it with an error
+        # from the text log
+        for error in TextLogError.objects.filter(
+                job=job).order_by('line_number'):
+            if regexp and regexp.match(error.line):
+                logger.debug("Matched '%s'" % (error.line,))
+                error.failure_line = failure_line
+                error.save()
                 failure_line, regexp = match_iter.next()
-            else:
-                logger.debug("Failed to match '%s'" % (log_line,))
-                summary_lines.append(TextLogSummaryLine(summary=summary,
-                                                        line_number=line_number,
-                                                        failure_line=None))
 
-        TextLogSummaryLine.objects.bulk_create(summary_lines)
         # We should have exhausted all structured lines
         for leftover in match_iter:
             # We can have a line without a pattern at the end if the log is truncated

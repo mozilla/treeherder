@@ -748,7 +748,7 @@ treeherder.controller('ClassificationPluginCtrl', [
             if (reloadPromise !== null) {
                 reloadPromise.cancel();
             }
-            $scope.jobId = thTabs.tabs.autoClassification.contentId;
+            $scope.jobId = thTabs.tabs.autoClassification.job.id;
 
             // if there's a ongoing request, abort it
             if (requestPromise !== null) {

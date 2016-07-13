@@ -1,6 +1,7 @@
 import logging
 import zlib
 
+import dateutil.parser
 import simplejson as json
 from django.forms import model_to_dict
 
@@ -8,7 +9,10 @@ from treeherder.etl.perf import load_perf_artifacts
 from treeherder.model import utils
 from treeherder.model.models import (Job,
                                      JobDetail,
+                                     TextLogError,
+                                     TextLogStep,
                                      ReferenceDataSignatures)
+from treeherder.model.tasks import populate_error_summary
 
 from ..error_summary import is_helpful_search_term
 from .base import TreeherderModelBase
@@ -117,6 +121,49 @@ class ArtifactsModel(TreeherderModelBase):
                 job=job,
                 **job_detail_dict)
 
+    def store_text_log_summary(self, job, text_log_summary_artifact):
+        """
+        Store the contents of the text log summary artifact
+        """
+        step_data = json.loads(
+            text_log_summary_artifact['blob'])['step_data']
+        result_map = dict((v, k) for (k, v) in TextLogStep.RESULTS)
+        errors_created = False
+        for step in step_data['steps']:
+            name = step['name'][:TextLogStep._meta.get_field('name').max_length]
+            defaults = {
+                'name': name,
+                'result': result_map[step['result']]
+            }
+            # process start/end times if we have them
+            for tkey in ('started', 'finished'):
+                if step.get(tkey):
+                    defaults[tkey] = dateutil.parser.parse(
+                        step[tkey], ignoretz=True)
+
+            log_step, _ = TextLogStep.objects.get_or_create(
+                job=job,
+                started_line_number=step['started_linenumber'],
+                finished_line_number=step['finished_linenumber'],
+                defaults=defaults)
+
+            if step.get('errors'):
+                for error in step['errors']:
+                    _, error_created = TextLogError.objects.get_or_create(
+                        job=job, line_number=error['linenumber'],
+                        defaults={
+                            'step': log_step,
+                            'line': error['line']
+                        })
+                    errors_created = errors_created or error_created
+        if errors_created:
+            # if we created at least one text log error, then schedule
+            # the creation of a "bug suggestions" artifact
+            populate_error_summary.apply_async(
+                args=[job.repository.name, job.id],
+                routing_key='error_summary'
+            )
+
     def store_performance_artifact(
             self, job_ids, performance_artifact_placeholders):
         """
@@ -197,6 +244,9 @@ class ArtifactsModel(TreeherderModelBase):
                         job.project_specific_id)
                 elif artifact_name == 'Job Info':
                     self.store_job_details(job, artifact)
+                elif artifact_name == 'text_log_summary':
+                    print artifact
+                    self.store_text_log_summary(job, artifact)
                 else:
                     self._adapt_job_artifact_collection(
                         artifact, job_artifact_list,

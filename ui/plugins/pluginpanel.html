@@ -236,7 +236,7 @@
               ng-class="{'active': tabService.selectedTab == tabName}">
             <a title="Show {{ tabService.tabs[tabName].description }}"
                href=""
-               ng-click="tabService.showTab(tabName, job.id)">
+               ng-click="tabService.showTab(tabName, job)">
               {{ tabService.tabs[tabName].title }}
             </a>
           </li>

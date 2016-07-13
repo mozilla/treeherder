@@ -2,7 +2,9 @@ import json
 import logging
 import re
 
-from treeherder.model.models import Bugscache
+from treeherder.model.models import (Bugscache,
+                                     Job,
+                                     TextLogError)
 
 logger = logging.getLogger(__name__)
 
@@ -14,18 +16,16 @@ MOZHARNESS_RE = re.compile(
 )
 
 
-def get_error_summary(all_errors):
+def get_error_summary(job):
     """
-    Transform the error lines into the artifact format.
-
-    Add bug suggestions if they are found.
+    Create a list of bug suggestions for a job
     """
     error_summary = []
     terms_requested = {}
 
-    for err in all_errors:
+    for err in TextLogError.objects.filter(job=job):
         # remove the mozharness prefix
-        clean_line = get_mozharness_substring(err['line'])
+        clean_line = get_mozharness_substring(err.line)
         search_terms = []
         # get a meaningful search term out of the error line
         search_term = get_error_search_term(clean_line)
@@ -179,48 +179,16 @@ def get_artifacts_that_need_bug_suggestions(artifact_list):
     return tls_list
 
 
-def get_error_summary_artifacts(artifact_list):
-    """
-    Create bug suggestions artifact(s) for any text_log_summary artifacts.
-
-    ``artifact_list`` here is a list of artifacts that may contain one or more
-        ``text_log_artifact`` objects.  If it does, we extract the error lines
-        from it.  If there ARE error lines, then we generate the
-        ``bug suggestions`` artifacts and return them.
-    """
-
-    bug_suggestion_artifacts = []
-
-    for artifact in artifact_list:
-        # this is the only artifact name eligible to trigger generation of bug
-        # suggestions.
-        if artifact['name'] != 'text_log_summary':
-            continue
-
-        all_errors = get_all_errors(artifact)
-        bug_suggestion_artifacts.append({
-            "job_guid": artifact['job_guid'],
-            "name": 'Bug suggestions',
-            "type": 'json',
-            "blob": json.dumps(get_error_summary(all_errors))
-        })
-
-    return bug_suggestion_artifacts
-
-
-def get_all_errors(artifact):
-    """Extract the error lines from an artifact's blob field"""
-
-    artifact_blob = json.loads(artifact['blob'])
-    if isinstance(artifact_blob, dict):
-        return artifact_blob.get('step_data', {}).get('all_errors', [])
-
-
-def load_error_summary(project, artifacts):
+def load_error_summary(project, job_id):
     """Load new bug suggestions artifacts if we generate them."""
-    from treeherder.model.derived import ArtifactsModel
 
-    bsa = get_error_summary_artifacts(artifacts)
-    if bsa:
-        with ArtifactsModel(project) as artifacts_model:
-            artifacts_model.load_job_artifacts(bsa)
+    job = Job.objects.get(id=job_id)
+    bug_suggestion_artifact = {
+        "job_guid": job.guid,
+        "name": 'Bug suggestions',
+        "type": 'json',
+        "blob": json.dumps(get_error_summary(job))
+    }
+    from treeherder.model.derived import ArtifactsModel
+    with ArtifactsModel(project) as artifacts_model:
+        artifacts_model.load_job_artifacts([bug_suggestion_artifact])

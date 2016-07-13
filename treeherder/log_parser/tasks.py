@@ -123,4 +123,4 @@ def crossreference_error_lines(project, job_guid):
     newrelic.agent.add_custom_parameter("project", project)
     newrelic.agent.add_custom_parameter("job_guid", job_guid)
     logger.debug("Running crossreference-error-lines for %s" % job_guid)
-    call_command('crossreference_error_lines', project, job_guid)
+    call_command('crossreference_error_lines', job_guid)

@@ -192,18 +192,15 @@ class JobLoader:
                         if error_count:
                             all_errors.extend(errors)
 
-                        started = self._to_timestamp(step["timeStarted"])
-                        finished = self._to_timestamp(step["timeFinished"])
                         new_steps.append({
                             "name": step["name"],
                             "result": self._get_step_result(job, step["result"]),
-                            "started": started,
-                            "finished": finished,
+                            "started": step["timeStarted"],
+                            "finished": step["timeFinished"],
                             "started_linenumber": step["lineStarted"],
                             "finished_linenumber": step["lineFinished"],
                             "errors": errors,
                             "error_count": error_count,
-                            "duration": finished - started,
                             "order": idx
                         })
 

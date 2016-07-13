@@ -334,32 +334,6 @@ def test_job_error_lines(webapp, eleven_jobs_stored, jm, failure_lines, classifi
     assert set(classified.keys()) == set(exp_classified_keys)
 
 
-def test_job_text_log_summary(webapp, eleven_jobs_stored, jm, failure_lines,
-                              artifacts, text_summary_lines):
-    job = jm.get_job(1)[0]
-
-    resp = webapp.get(
-        reverse("jobs-text-log-summary",
-                kwargs={"project": jm.project, "pk": job["id"]})
-    )
-
-    assert resp.status_int == 200
-
-    text_log_summary = resp.json
-    assert isinstance(text_log_summary, object)
-
-    exp_keys = ["id", "job_guid", "repository", "text_log_summary_artifact_id",
-                "bug_suggestions_artifact_id", "bug_suggestions", "lines"]
-    assert set(text_log_summary.keys()) == set(exp_keys)
-
-    assert text_log_summary["bug_suggestions"] == artifacts[1]["blob"]
-
-    line_exp_keys = set(["id", "line_number", "bug_number", "verified", "summary",
-                         "failure_line", "line", "bug"])
-    for line in text_log_summary["lines"]:
-        assert line_exp_keys == set(line.keys())
-
-
 def test_list_similar_jobs(webapp, eleven_jobs_stored, jm):
     """
     test retrieving similar jobs

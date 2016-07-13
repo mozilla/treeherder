@@ -155,6 +155,20 @@ class FailureLineNoStackSerializer(serializers.ModelSerializer):
                    'stackwalk_stderr']
 
 
+class TextLogErrorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.TextLogError
+
+
+class TextLogStepSerializer(serializers.ModelSerializer):
+
+    errors = TextLogErrorSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = models.TextLogStep
+
+
 class TextLogSummaryLineSerializer(serializers.ModelSerializer):
     bug = BugscacheSerializer(read_only=True)
 
@@ -211,3 +225,11 @@ class JobNoteSerializer(serializers.ModelSerializer):
         model = models.JobNote
         fields = ['id', 'job_id', 'failure_classification_id',
                   'created', 'who', 'text']
+
+
+class TextLogErrorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.TextLogError
+        fields = ['id', 'line', 'line_number', 'failure_line',
+                  'bug_number', 'verified']

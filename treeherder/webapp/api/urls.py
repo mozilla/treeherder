@@ -17,6 +17,7 @@ from treeherder.webapp.api import (artifact,
                                    refdata,
                                    resultset,
                                    runnable_jobs,
+                                   textlog,
                                    text_log_summary,
                                    text_log_summary_line)
 
@@ -121,6 +122,12 @@ default_router.register(r'text-log-summary',
 default_router.register(r'text-log-summary-line',
                         text_log_summary_line.TextLogSummaryLineViewSet,
                         base_name='text-log-summary-line')
+default_router.register(r'text-log-step',
+                        textlog.TextLogStepViewSet,
+                        base_name='text-log-step')
+default_router.register(r'text-log-error',
+                        textlog.TextLogErrorViewSet,
+                        base_name='text-log-error')
 default_router.register(r'performance/alertsummary',
                         performance_data.PerformanceAlertSummaryViewSet,
                         base_name='performance-alert-summaries')
