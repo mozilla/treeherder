@@ -333,7 +333,7 @@ treeherder.factory('ThResultSetStore', [
                 }
                 // Will be used later for the GET request
                 resultSet.geckoDecisionTaskID = decisionTaskID;
-                return ThRunnableJobModel.get_list(repoName, {"decisionTaskID": ""}).then(function(jobList) {
+                return ThRunnableJobModel.get_list(repoName, {"decisionTaskID": decisionTaskID}).then(function(jobList) {
                     var id = resultSet.id;
                     _.each(jobList, function(job) {
                         job.result_set_id = id;
