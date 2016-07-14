@@ -15,6 +15,8 @@ treeherder.controller('BugsPluginCtrl', [
         $scope.bug_limit = 20;
         $scope.tabs = thTabs.tabs;
 
+        $scope.bugSearchRoot = "https://bugzilla.mozilla.org/buglist.cgi?quicksearch=";
+
         $scope.filerInAddress = false;
 
         // update function triggered by the plugins controller
@@ -46,6 +48,16 @@ treeherder.controller('BugsPluginCtrl', [
                     if(artifact_list.length > 0){
                         var artifact = _.find(artifact_list, {"name": "Bug suggestions"});
                         angular.forEach(artifact.blob, function (suggestion) {
+                            // Build up lists of bug ids for use when we're over bug_limit
+                            suggestion.bugs.list_recent = "";
+                            suggestion.bugs.list_others = "";
+                            angular.forEach(suggestion.bugs.open_recent, function(bug) {
+                                suggestion.bugs.list_recent += bug.id + ",";
+                            });
+                            angular.forEach(suggestion.bugs.all_others, function(bug) {
+                                suggestion.bugs.list_others += bug.id + ",";
+                            });
+
                             suggestion.bugs.too_many_open_recent = (
                                 suggestion.bugs.open_recent.length > $scope.bug_limit
                             );

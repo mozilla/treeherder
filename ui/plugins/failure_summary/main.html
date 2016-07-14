@@ -63,8 +63,11 @@
                 </li>
             </ul>
 
-            <mark ng-if="suggestion.bugs.too_many_open_recent || (suggestion.bugs.too_many_all_others && !suggestion.valid_open_recent)"
-                    >Exceeded max ({{bug_limit}}) bug suggestions, most of which are likely false positives.</mark>
+            <mark ng-if="suggestion.bugs.too_many_open_recent || (suggestion.bugs.too_many_all_others && !suggestion.valid_open_recent)">
+                Exceeded max ({{bug_limit}}) bug suggestions, most of which are likely false positives. 
+                ( <a href="{{bugSearchRoot}}{{suggestion.bugs.list_recent}}">Recent [{{suggestion.bugs.open_recent.length}}]</a> | 
+                <a href="{{bugSearchRoot}}{{suggestion.bugs.list_others}}">Others [{{suggestion.bugs.all_others.length}}]</a> )
+            </mark>
 
         </li>
 
