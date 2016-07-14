@@ -18,6 +18,7 @@ Contents:
    list_of_services
    common_tasks
    rest_api
+   submitting_pulse_data
    submitting_data
    retrieving_data
    data_validation

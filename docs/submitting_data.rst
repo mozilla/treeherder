@@ -1,6 +1,8 @@
 Submitting Data
 ===============
 
+To submit via a Pulse exchange, see: :ref:`Submitting to Pulse <submitting_to_pulse>`
+
 Using the Python Client
 -----------------------
 
