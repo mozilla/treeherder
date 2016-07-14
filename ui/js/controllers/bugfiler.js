@@ -11,7 +11,7 @@ treeherder.controller('BugFilerCtrl', [
 
         var $log = new ThLog("BugFilerCtrl");
 
-        $scope.omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR", "TEST-UNEXPECTED-TIMEOUT"];
+        $scope.omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR"];
 
         /**
          *  'enter' from the product search input should initiate the search
