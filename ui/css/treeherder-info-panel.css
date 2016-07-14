@@ -197,9 +197,49 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
   margin: 2px 0px;
 }
 
-#job-details-panel .star,
-#job-details-panel .star-o {
-  color: #f0ad4e;
+/*
+ * Classification stars
+ * These generally match the job button colors
+ */
+
+.star-success {
+  color: rgba(2, 130, 51, 0.75);
+}
+
+.star-testfailed {
+  color: #dd6602;
+}
+
+.star-busted {
+  color: #90010a;
+}
+
+.star-skipped {
+  color: rgb(101, 191, 221);
+}
+
+.star-exception {
+  color: #6f0296;
+}
+
+.star-retry {
+  color: #283aa2;
+}
+
+.star-unknown {
+  color: #fbd890;
+}
+
+.star-usercancel {
+  color: #ff40d9;
+}
+.star-coalesced {
+  color: #488ae9;
+}
+
+.star-pending,
+.star-running {
+  color: grey;
 }
 
 #job-details-panel em.testfail {

@@ -51,15 +51,16 @@ treeherder.directive('thFailureClassification', [
     function ($parse, thClassificationTypes) {
         return {
             scope: {
-                failureId: "="
+                failureId: "=",
+                jobResult: "="
             },
             link: function(scope, element, attrs) {
-                scope.$watch('failureId', function(newVal) {
-                    if (newVal) {
-                        scope.classification = thClassificationTypes.classifications[newVal];
-                        scope.badgeColorClass=scope.classification.star;
+                scope.$watch('[failureId, jobResult]', function() {
+                    if (scope.failureId) {
+                        scope.classification = thClassificationTypes.classifications[scope.failureId];
                         scope.hoverText=scope.classification.name;
-                        scope.iconCls = (newVal === 7 ? "glyphicon-star-empty" : "glyphicon glyphicon-star") + " star";
+                        scope.iconCls = (scope.failureId === 7 ? "glyphicon-star-empty" : "glyphicon glyphicon-star") +
+                                         " star-" + scope.jobResult;
                     }
                 });
             },
