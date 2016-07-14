@@ -618,8 +618,22 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             # JobDetail and JobLog, are cycled automatically via ON DELETE
             # CASCADE)
             failure_line_query = FailureLine.objects.filter(job_guid__in=job_guid_list)
-            es_delete_data = failure_line_query.values_list("id", "test")
-            es_delete(TestFailureLine, es_delete_data)
+
+            # To delete the data from elasticsearch we need both the document id and the
+            # test, since this is used to determine the shard on which the document is indexed.
+            # However selecting all this data can be rather slow, so split the job into multiple
+            # smaller chunks.
+            failure_line_max_id = failure_line_query.order_by("-id").values_list("id", flat=True).first()
+            while failure_line_max_id:
+                es_delete_data = (failure_line_query
+                                  .order_by("-id")
+                                  .filter(id__lte=failure_line_max_id)
+                                  .values_list("id", "test"))[:chunk_size]
+                if es_delete_data:
+                    es_delete(TestFailureLine, es_delete_data)
+                    failure_line_max_id = es_delete_data[len(es_delete_data) - 1][0] - 1
+                else:
+                    failure_line_max_id = None
             orm_delete(FailureLine, failure_line_query,
                        chunk_size, sleep_time)
             orm_delete(Job, Job.objects.filter(guid__in=job_guid_list),
