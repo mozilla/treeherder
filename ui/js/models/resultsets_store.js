@@ -311,11 +311,13 @@ treeherder.factory('ThResultSetStore', [
             var tcURLPromise;
             var platform = _.find(resultSet.platforms, {
                 "name": "gecko-decision",
-                "groups": [{"jobs": [{"state": "completed"}]}]});
+                "groups": [{"jobs": [{"state": "completed", "job_type_symbol": "D"}]}]});
             if (platform) {
                 // Gecko Decision Task has been completed.
                 // Let's fetch the URL of full-tasks-graph.json
-                var job_guid = platform.groups[0].jobs[0].job_guid;
+                // This extra search is important to avoid confusion with Action Tasks
+                var decision_task = _.find(platform.groups[0].jobs, {"job_type_symbol": "D"});
+                var job_guid = decision_task.job_guid;
                 tcURLPromise = ThJobDetailModel.getJobDetails(job_guid, {timeout: null});
             }
             if (!tcURLPromise) {
