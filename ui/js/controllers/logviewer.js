@@ -59,7 +59,7 @@ logViewerApp.controller('LogviewerCtrl', [
             var range = LINE_BUFFER_SIZE / 2;
             if ((newLine <= (oldLine - range) || newLine >= oldLine + range) && !$scope.willScroll) {
                 if ($scope.artifact) {
-                    moveScrollToLineNumber(newLine, $event);
+                    moveScrollToLineNumber(newLine);
                 }
             }
             $scope.willScroll = false;
@@ -285,11 +285,11 @@ logViewerApp.controller('LogviewerCtrl', [
                                     }
                                 }
                             }
-                            moveScrollToLineNumber($scope.selectedBegin, $event);
+                            moveScrollToLineNumber($scope.selectedBegin);
                         });
                     } else {
                         $scope.setLineNumber($scope.step_data.all_errors[0].linenumber);
-                        moveScrollToLineNumber($scope.selectedBegin, $event);
+                        moveScrollToLineNumber($scope.selectedBegin);
                     }
                 }
             });
@@ -297,7 +297,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
         /** utility functions **/
 
-        function moveScrollToLineNumber(linenumber, $event) {
+        function moveScrollToLineNumber(linenumber) {
             $scope.currentLineNumber = linenumber;
             $scope.displayedStep = getStepFromLine(linenumber);
             $scope.loadMore({}).then(function () {
