@@ -155,6 +155,16 @@ treeherder.filter('highlightCommonTerms', function() {
     };
 });
 
+treeherder.filter('getBugIds', function() {
+    return function(bugObj) {
+        var bugList = "";
+        angular.forEach(bugObj, function(bug) {
+            bugList += bug.id + ",";
+        });
+        return bugList;
+    };
+});
+
 treeherder.filter('escapeHTML', function() {
     return function(text){
         if (text) {

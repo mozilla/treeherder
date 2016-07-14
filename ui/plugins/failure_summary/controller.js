@@ -15,6 +15,8 @@ treeherder.controller('BugsPluginCtrl', [
         $scope.bug_limit = 20;
         $scope.tabs = thTabs.tabs;
 
+        $scope.bugSearchRoot = "https://bugzilla.mozilla.org/buglist.cgi?quicksearch=";
+
         $scope.filerInAddress = false;
 
         // update function triggered by the plugins controller
