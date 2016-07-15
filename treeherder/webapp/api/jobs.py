@@ -334,11 +334,11 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
             model = JobDetail
             fields = ['job_guid', 'job__guid', 'job_id__in', 'repository']
 
-    filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
+    filter_backends = [filters.DjangoFilterBackend]
     filter_class = JobDetailFilter
 
-    class JobDetailPagination(pagination.LimitOffsetPagination):
-        default_limit = 2000
-        max_limit = 2000
+    class JobDetailPagination(pagination.CursorPagination):
+        page_size = 2000
+        ordering = 'id'
 
     pagination_class = JobDetailPagination
