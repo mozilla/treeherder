@@ -332,6 +332,7 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
 
         class Meta:
             model = JobDetail
+            fields = ['job_guid', 'job__guid', 'job_id__in', 'repository']
 
     filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
     filter_class = JobDetailFilter
