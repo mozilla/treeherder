@@ -322,7 +322,7 @@ perf.controller('AlertsCtrl', [
             });
         };
         $scope.reassignAlerts = function(alertSummary) {
-            $uibMmodal.open({
+            $uibModal.open({
                 templateUrl: 'partials/perf/modifyalertsctrl.html',
                 controller: 'ReassignAlertsCtrl',
                 size: 'sm',
