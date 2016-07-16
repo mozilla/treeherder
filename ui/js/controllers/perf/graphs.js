@@ -122,6 +122,10 @@ perf.controller('GraphsCtrl', [
                 var alertSummary = _.find(phSeries.relatedAlertSummaries, function(alertSummary) {
                     return alertSummary.result_set_id === dataPoint.resultSetId;
                 });
+                var alert = _.find(alertSummary.alerts,
+                                   function(alert) {
+                                       return alert.series_signature.signature_hash === phSeries.signature;
+                                   });
                 $scope.tooltipContent = {
                     project: _.findWhere($rootScope.repos,
                                          { name: phSeries.projectName }),
@@ -136,7 +140,8 @@ perf.controller('GraphsCtrl', [
                     date: $.plot.formatDate(new Date(t), '%a %b %d, %H:%M:%S'),
                     retriggers: (retriggerNum['retrigger'] - 1),
                     alertSummary: alertSummary,
-                    revisionInfoAvailable: true
+                    revisionInfoAvailable: true,
+                    alert: alert
                 };
 
                 // Get revision information for both this datapoint and the previous
