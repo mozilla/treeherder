@@ -105,6 +105,10 @@ treeherderApp.controller('ResultSetCtrl', [
         // These have to be $rootScope because $scope is per-push, which makes this useless
         $rootScope.watchedResultsets = [];
         $rootScope.watchedResultsetsInterval;
+        $rootScope.removeFromWatchedResultsets = function(rs) {
+            var i = $rootScope.watchedResultsets.indexOf(rs);
+            $rootScope.watchedResultsets.splice(i,1);
+        };
 
         $scope.getCountClass = function(resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -139,25 +143,24 @@ treeherderApp.controller('ResultSetCtrl', [
             Notification.requestPermission().then(function(result) {
                 if(result === "granted") {
                     if($rootScope.watchedResultsets.length == 0) {
-                        if(angular.isDefined($rootScope.watchedResultsetsInterval)) return;
-
-                        $rootScope.watchedResultsetsInterval = $interval(function() {
-                            $rootScope.watchedResultsets.forEach(function(revision) {
-                                var resultsets = ThResultSetStore.getResultSetsArray($scope.repoName);
-                                resultsets.forEach(function(rs) {
-                                    if(rs.revision == revision) {
-                                        var percent = rs.job_counts.percentComplete;
-                                        if(percent == 100) {
-                                            spawnNotification("Push completed", revision, revision);
-                                            var i = $rootScope.watchedResultsets.indexOf(revision);
-                                            $rootScope.watchedResultsets.splice(i,1);
-                                        } else {
-                                            console.log(percent);
+                        if(!angular.isDefined($rootScope.watchedResultsetsInterval)) {
+                            $rootScope.watchedResultsetsInterval = $interval(function() {
+                                $rootScope.watchedResultsets.forEach(function(revision) {
+                                    var resultsets = ThResultSetStore.getResultSetsArray($scope.repoName);
+                                    resultsets.forEach(function(rs) {
+                                        if(rs.revision == revision) {
+                                            var percent = rs.job_counts.percentComplete;
+                                            if(percent == 100) {
+                                                spawnNotification("Push completed", revision, revision);
+                                                $rootScope.removeFromWatchedResultsets(revision);
+                                            } else {
+                                                console.log(percent);
+                                            }
                                         }
-                                    }
+                                    });
                                 });
-                            });
-                        }, 10000);
+                            }, 10000);
+                        }
 
                     }
                     if($rootScope.watchedResultsets.indexOf(revision) >= 0) {
