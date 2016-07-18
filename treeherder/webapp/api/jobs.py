@@ -110,11 +110,11 @@ class JobsViewSet(viewsets.ViewSet):
                         "`last_modified` of {} is not within last {} minutes".format(
                             datestr,
                             LAST_MODIFIED_WINDOW),
-                        status=400)
+                        status=HTTP_400_BAD_REQUEST)
             except ValueError:
                 return Response(
                     "Invalid value for `last_modified`: ".format(datestr),
-                    status=400)
+                    status=HTTP_400_BAD_REQUEST)
 
         if count > MAX_JOBS_COUNT:
             msg = "Specified count exceeds API MAX_JOBS_COUNT value: {}".format(MAX_JOBS_COUNT)
