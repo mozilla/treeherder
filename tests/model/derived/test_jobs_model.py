@@ -757,17 +757,18 @@ def test_new_job_in_exclusion_profile(jm, sample_data, sample_resultset,
         author=test_sheriff,
     )
     exclusion_profile = ExclusionProfile.objects.create(
-        name="exprof",
+        name="Tier-2",
         is_default=False,
         author=test_sheriff,
     )
     exclusion_profile.exclusions.add(job_exclusion)
     jm.store_job_data(sample_data.job_data[:2])
-    obtained = jm.get_job_list(offset=0, limit=100, exclusion_profile="exprof")
+    obtained = jm.get_job_list(offset=0, limit=100, exclusion_profile="Tier-2")
     # We check all the jobs applying the exclusion profile
     # If we find the excluded job, there is a problem
-    for ob in obtained:
-        assert ob['job_guid'] != job['job']['job_guid']
+    assert job['job']['job_guid'] not in [ob['job_guid'] for ob in obtained]
+    assert len(jm.lower_tier_signatures) == 1
+    assert jm.lower_tier_signatures[0]['tier'] == 2
 
 
 def test_ingesting_skip_existing(jm, sample_data,
