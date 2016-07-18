@@ -67,7 +67,7 @@ class UrlQueryFilter(object):
         if key in self.conditions:
             value = self.conditions[key]
             if len(value) == 1:
-                value = value.pop()
+                value = next(iter(value))
                 if value[0] == "=":
                     value = value[1]
             return value

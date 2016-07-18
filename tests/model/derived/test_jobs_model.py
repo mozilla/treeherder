@@ -423,7 +423,7 @@ def test_cycle_all_data(jm, sample_data,
     cycle_date_ts = time_now - 7 * 24 * 3600
 
     jm.execute(
-        proc="jobs_test.updates.set_jobs_last_modified",
+        proc="jobs_test.updates.set_jobs_submit_timestamp",
         placeholders=[cycle_date_ts]
     )
 
@@ -482,12 +482,12 @@ def test_cycle_one_job(jm, sample_data,
     cycle_date_ts = int(time_now - 7 * 24 * 3600)
 
     jm.execute(
-        proc="jobs_test.updates.set_jobs_last_modified",
+        proc="jobs_test.updates.set_jobs_submit_timestamp",
         placeholders=[time_now]
     )
 
     jm.execute(
-        proc="jobs_test.updates.set_one_job_last_modified_timestamp",
+        proc="jobs_test.updates.set_one_job_submit_timestamp",
         placeholders=[cycle_date_ts]
     )
 
@@ -542,7 +542,7 @@ def test_cycle_all_data_in_chunks(jm, sample_data,
     cycle_date_ts = int(time_now - 7 * 24 * 3600)
 
     jm.execute(
-        proc="jobs_test.updates.set_jobs_last_modified",
+        proc="jobs_test.updates.set_jobs_submit_timestamp",
         placeholders=[cycle_date_ts]
     )
 
