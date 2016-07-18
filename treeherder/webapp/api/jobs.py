@@ -1,3 +1,7 @@
+import datetime
+
+from dateutil import parser
+
 import django_filters
 from rest_framework import (filters,
                             pagination,
@@ -91,10 +95,20 @@ class JobsViewSet(viewsets.ViewSet):
         - return_type (dict)
         """
         MAX_JOBS_COUNT = 2000
+        EARLIEST_LAST_MODIFIED = datetime.datetime.utcnow() - \
+                                 datetime.timedelta(minutes=30)
+
         filter = UrlQueryFilter(request.query_params)
 
         offset = int(filter.pop("offset", 0))
         count = int(filter.pop("count", 10))
+        if "last_modified" in filter.conditions:
+            datestr = filter.get("last_modified")[1]
+            last_modified = parser.parse(datestr)
+            if last_modified < EARLIEST_LAST_MODIFIED:
+                return Response(
+                    "last_modified of {} is not within last 30 minutes".format(datestr),
+                    status=400)
 
         if count > MAX_JOBS_COUNT:
             msg = "Specified count exceeds API MAX_JOBS_COUNT value: {}".format(MAX_JOBS_COUNT)
