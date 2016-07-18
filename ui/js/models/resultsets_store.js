@@ -157,6 +157,13 @@ treeherder.factory('ThResultSetStore', [
                             mapResultSetJobs($rootScope.repoName, singleResultSetJobList);
                         }
                     );
+                } else {
+                    // try to update the last poll interval to something recent
+                    // (depends on the client having a reasonably accurate internal
+                    // clock)
+                    lastJobUpdate = _.max([new Date(Date.now() -
+                                                    (5 * resultSetPollInterval)),
+                                           lastJobUpdate]);
                 }
             });
         };
