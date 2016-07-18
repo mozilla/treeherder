@@ -94,7 +94,7 @@ class JobsViewSet(viewsets.ViewSet):
         - return_type (dict)
         """
         MAX_JOBS_COUNT = 2000
-        LAST_MODIFIED_WINDOW = 30 # minutes
+        LAST_MODIFIED_WINDOW = 30  # minutes
 
         filter = UrlQueryFilter(request.query_params)
 
@@ -105,7 +105,7 @@ class JobsViewSet(viewsets.ViewSet):
             try:
                 last_modified = parser.parse(datestr)
                 if last_modified < datetime.datetime.utcnow() - \
-                                   datetime.timedelta(minutes=LAST_MODIFIED_WINDOW):
+                   datetime.timedelta(minutes=LAST_MODIFIED_WINDOW):
                     return Response(
                         "`last_modified` of {} is not within last {} minutes".format(
                             datestr,
