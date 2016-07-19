@@ -122,10 +122,13 @@ perf.controller('GraphsCtrl', [
                 var alertSummary = _.find(phSeries.relatedAlertSummaries, function(alertSummary) {
                     return alertSummary.result_set_id === dataPoint.resultSetId;
                 });
-                var alert = _.find(alertSummary.alerts,
+                var alert;
+                if (alertSummary) {
+                    alert = _.find(alertSummary.alerts,
                                    function(alert) {
                                        return alert.series_signature.signature_hash === phSeries.signature;
                                    });
+                }
                 $scope.tooltipContent = {
                     project: _.findWhere($rootScope.repos,
                                          { name: phSeries.projectName }),
