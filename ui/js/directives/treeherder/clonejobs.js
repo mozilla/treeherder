@@ -460,6 +460,15 @@ treeherder.directive('thCloneJobs', [
                     // Only use the first line of the full commit message.
                     revision.escaped_comment = _.escape(revision.comments.split('\n')[0]);
                     revision.escaped_comment_linkified = linkifyBugsFilter(revision.escaped_comment);
+
+                    // Parse the comment so we can tag things like backouts
+                    var tags = "";
+                    if(revision.escaped_comment.search("Backed out") >= 0 ||
+                       revision.escaped_comment.search("Back out") >= 0) {
+                        tags += "backout ";
+                    }
+                    revision.comment_tags = tags.trim();
+
                     revisionHtml = revisionInterpolator(revision);
                     ulEl.append(revisionHtml);
                 }
