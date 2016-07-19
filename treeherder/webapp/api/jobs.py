@@ -1,5 +1,3 @@
-import datetime
-
 import django_filters
 from dateutil import parser
 from rest_framework import (filters,
@@ -94,28 +92,22 @@ class JobsViewSet(viewsets.ViewSet):
         - return_type (dict)
         """
         MAX_JOBS_COUNT = 2000
-        LAST_MODIFIED_WINDOW = 30  # minutes
 
         filter = UrlQueryFilter(request.query_params)
 
         offset = int(filter.pop("offset", 0))
         count = int(filter.pop("count", 10))
+
         if "last_modified" in filter.conditions:
             # could be more than one, this is a set
             for lm in filter.conditions["last_modified"]:
                 datestr = lm[1]
                 try:
-                    last_modified = parser.parse(datestr)
-                    if last_modified < datetime.datetime.utcnow() - \
-                       datetime.timedelta(minutes=LAST_MODIFIED_WINDOW):
-                        return Response(
-                            "`last_modified` of {} is not within last {} minutes".format(
-                                datestr,
-                                LAST_MODIFIED_WINDOW),
-                            status=HTTP_400_BAD_REQUEST)
+                    # ensure last_modified is a date
+                    parser.parse(datestr)
                 except ValueError:
                     return Response(
-                        "Invalid value for `last_modified`: ".format(datestr),
+                        "Invalid date value for `last_modified`: ".format(datestr),
                         status=HTTP_400_BAD_REQUEST)
 
         if count > MAX_JOBS_COUNT:

@@ -1,5 +1,6 @@
 import pytest
 from django.core.urlresolvers import reverse
+from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.test import APIClient
 
 from treeherder.model.models import (ExclusionProfile,
@@ -388,3 +389,16 @@ def test_job_create(webapp, test_repository, test_user, eleven_job_blobs, monkey
     assert resp.status_code == 200
     test_job_list(webapp, None, test_repository)
     test_job_detail(webapp, None, None, jm)
+
+
+@pytest.mark.parametrize('lm_value,expected', [
+    ("2016-07-18T22:16:58.000", 200),
+    ("-Infinity", HTTP_400_BAD_REQUEST),
+    ("whatever", HTTP_400_BAD_REQUEST),
+    ])
+def test_last_modified(webapp, test_project, lm_value, expected):
+    url = reverse("jobs-list", kwargs={"project": test_project})
+    final_url = url + ("?last_modified__gt={}&count=5".format(lm_value))
+
+    resp = webapp.get(final_url, expect_errors=(expected != 200))
+    assert resp.status_int == expected
