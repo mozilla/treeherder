@@ -907,7 +907,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return aggregate_details
 
-
     def set_lower_tier_signatures(self):
         # get the lower tier data signatures for this project.
         # if there are none, then just return an empty list
@@ -931,7 +930,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 # if this profile doesn't exist, then no jobs of this tier
                 # and that's ok.
                 pass
-
 
     def store_job_data(self, data):
         """
