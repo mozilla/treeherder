@@ -1,10 +1,13 @@
 import datetime
 import json
+import logging
 import re
 
 from django.conf import settings
 
 from treeherder.etl.buildbot import RESULT_DICT
+
+logger = logging.getLogger(__name__)
 
 
 class ParserBase(object):
@@ -452,9 +455,12 @@ class PerformanceParser(ParserBase):
     def parse_line(self, line, lineno):
         match = self.RE_PERFORMANCE.match(line)
         if match:
-            # this will throw an exception if the json parsing breaks, but
-            # that's the behaviour we want
-            self.artifact.append(json.loads(match.group(1)))
+            try:
+                dict = json.loads(match.group(1))
+                self.artifact.append(dict)
+            except ValueError:
+                logger.warning("Unable to parse Perfherder data from line: %s",
+                               line)
             # don't mark as complete, in case there are multiple performance
             # artifacts
             # self.complete = True
