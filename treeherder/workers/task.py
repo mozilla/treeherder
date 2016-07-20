@@ -1,4 +1,5 @@
 import random
+import zlib
 from functools import wraps
 
 from celery import task
@@ -13,6 +14,8 @@ class retryable_task(object):
         TypeError,
         IntegrityError,
         ProgrammingError,
+        # eg during log decompression
+        zlib.error,
     )
 
     def __init__(self, *args, **kwargs):
