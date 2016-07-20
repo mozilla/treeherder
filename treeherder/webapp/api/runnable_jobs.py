@@ -80,7 +80,7 @@ class RunnableJobsViewSet(viewsets.ViewSet):
         for label, node in tc_graph.iteritems():
             task_metadata = node['task']['metadata']
             treeherder_options = node['task']['extra']['treeherder']
-            build_platform = treeherder_options['build']['platform']
+            build_platform = treeherder_options.get('machine', {}).get('platform', '')
 
             # Not all tasks have a group name
             job_group_name = treeherder_options.get('groupName', '')
