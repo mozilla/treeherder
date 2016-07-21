@@ -158,11 +158,15 @@ treeherder.factory('ThResultSetStore', [
                         }
                     );
                 } else {
-                    // try to update the last poll interval to something recent
-                    // (depends on the client having a reasonably accurate internal
-                    // clock)
+                    // try to update the last poll interval to the greater of the
+                    // last job update or the current time minus a small multiple of the
+                    // job poll interval
+                    // (this depends on the client having a reasonably accurate internal
+                    // clock, but it should hopefully prevent us from getting too
+                    // far behind in cases where we've stopped receiving job updates
+                    // due e.g. to looking at a completed push)
                     lastJobUpdate = _.max([new Date(Date.now() -
-                                                    (5 * resultSetPollInterval)),
+                                                    (5 * jobPollInterval)),
                                            lastJobUpdate]);
                 }
             });
