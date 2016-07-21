@@ -6,7 +6,7 @@ To submit your test data to Treeherder, you have two options:
 1. :ref:`submitting-using-pulse`
 
     This is the new process Task Cluster is using to submit data to Treeherder.
-    There is a `YML Schema`_ to validate your payload against to ensure it will
+    There is a `Pulse Job Schema`_ to validate your payload against to ensure it will
     be accepted.  In this case, you create your own `Pulse`_ exchange and publish
     to it.  To get Treeherder to receive your data, you would create a bug to
     have your Exchange added to Treeherder's config.  All Treeherder instances
@@ -36,10 +36,11 @@ To submit via a Pulse exchange, these are the steps you will need to follow:
 1. Format your data
 -------------------
 
-The new job format in `YML Schema`_ is significantly different from the one
-used in our API job submission.  It has virtually the same data, just in
-(what we hope) is a better form.  You are responsible for validating your data
-prior to publishing it onto your Exchange, or Treeherder may reject it.
+You should format your job data according to the `Pulse Job Schema`_,
+which describes the various properties of a job: whether it passed or failed,
+job group/type symbol, description, log information, etc.
+You are responsible for validating your data prior to publishing it onto your
+exchange, or Treeherder may reject it.
 
 
 2. Create your Exchange
@@ -663,7 +664,7 @@ log name.  You must specify the name in two places for this to work.
 .. _Pulse Guardian: https://pulse.mozilla.org/whats_pulse
 .. _Pulse: https://wiki.mozilla.org/Auto-tools/Projects/Pulse
 .. _Pulse Inspector: https://tools.taskcluster.net/pulse-inspector/
-.. _YML Schema: https://github.com/mozilla/treeherder/blob/master/schemas/pulse-job.yml
+.. _Pulse Job Schema: https://github.com/mozilla/treeherder/blob/master/schemas/pulse-job.yml
 .. _Treeherder bug: https://bugzilla.mozilla.org/enter_bug.cgi?component=Treeherder:%20Data%20Ingestion&form_name=enter_bug&op_sys=All&product=Tree%20Management&rep_platform=All
 .. _MozillaPulse: https://pypi.python.org/pypi/MozillaPulse
 .. _Kombu: https://pypi.python.org/pypi/kombu
