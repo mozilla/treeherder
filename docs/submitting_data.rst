@@ -1,8 +1,121 @@
 Submitting Data
 ===============
 
-Using the Python Client
+To submit your test data to Treeherder, you have two options:
+
+1. :ref:`submitting-using-pulse`
+
+    This is the new process Task Cluster is using to submit data to Treeherder.
+    There is a `YML Schema`_ to validate your payload against to ensure it will
+    be accepted.  In this case, you create your own `Pulse`_ exchange and publish
+    to it.  To get Treeherder to receive your data, you would create a bug to
+    have your Exchange added to Treeherder's config.  All Treeherder instances
+    can subscribe to get your data, as can local dev instances for testing.
+
+    While it is beyond the scope of this document to explain how `Pulse`_ and
+    RabbitMQ work, we encourage you to read more about this technology on
+    its Wiki page.
+
+2. :ref:`submitting-using-python-client`
+
+    This is historically how projects and users have submitted data to Treeherder.
+    This requires getting Hawk credentials approved by a Treeherder Admin.
+    There is a client library to help make this easier.  However, there is no
+    schema to validate the payload against.  But using the client to build your
+    payload will help you get it in the accepted form.  Your data only goes to
+    the host you send it to.  Dev instances can not subscribe to this data.
+
+
+.. _submitting-using-pulse:
+
+Submitting using Pulse
+======================
+
+To submit via a Pulse exchange, these are the steps you will need to follow:
+
+1. Format your data
+-------------------
+
+The new job format in `YML Schema`_ is significantly different from the one
+used in our API job submission.  It has virtually the same data, just in
+(what we hope) is a better form.  You are responsible for validating your data
+prior to publishing it onto your Exchange, or Treeherder may reject it.
+
+
+2. Create your Exchange
 -----------------------
+
+With `Pulse Guardian`_, you need to create your Pulse User in order to
+create your own Queues and Exchanges.  There is no mechanism to create an
+Exchange in the Pulse Guardian UI itself, however.  You will need to create
+your exchange in your submitting code.  There are a few options available
+for that:
+
+    1. `MozillaPulse`_
+    2. `Kombu`_
+    3. Or any RabbitMQ package of your choice
+
+To test publishing your data to your Exchange, you can use the Treeherder
+management command `publish_to_pulse`_.  This is also a very simple example
+of a Pulse publisher using Kombu that you can use to learn to write your own
+publisher.
+
+
+3. Register with Treeherder
+---------------------------
+
+Once you have successfully tested a round-trip through your Pulse exchange to
+your development instance, you are ready to have Treeherder receive your data.
+
+Treeherder has to know about your exchange and which routing keys to use in
+order to load your jobs.
+
+Submit a `Treeherder bug`_ with the following information::
+
+    {
+        "exchange": "exchange/my-pulse-user/v1/jobs",
+        "destinations": [
+            'treeherder'
+        ],
+        "projects": [
+            'mozilla-inbound._'
+        ],
+    },
+
+Treeherder will bind to the exchange looking for all combinations of routing
+keys from ``destinations`` and ``projects`` listed above.  For example with
+the above config, we will only load jobs with routing keys of
+``treeherder.mozilla-inbound._``
+
+If you want all jobs from your exchange to be loaded, you could simplify the
+config by having values::
+
+        "destinations": [
+            '#'
+        ],
+        "projects": [
+            '#'
+        ],
+
+If you want one config to go to Treeherder Staging and a different one to go
+to Production, please specify that in the bug.  You could use the same exchange
+with different routing key settings, or two separate exchanges.  The choice is
+yours.
+
+4. Publish jobs to your Exchange
+--------------------------------
+
+Once the above config is set on Treeherder, you can begin publishing jobs
+to your Exchange and they will start showing in Treeherder.
+
+You will no longer need any special credentials.  You publish messages to the
+Exchange YOU own.  Treeherder is now just listening to it.
+
+
+.. _submitting-using-python-client:
+
+Submitting using the Python Client
+==================================
 
 There are two types of data structures you can submit with the :ref:`Python client
 <python-client>`: job and resultset collections. The client provides methods
@@ -546,3 +659,13 @@ log name.  You must specify the name in two places for this to work.
         "name": "text_log_summary",
         "job_id": 1774360
     }
+
+.. _Pulse Guardian: https://pulse.mozilla.org/whats_pulse
+.. _Pulse: https://wiki.mozilla.org/Auto-tools/Projects/Pulse
+.. _Pulse Inspector: https://tools.taskcluster.net/pulse-inspector/
+.. _YML Schema: https://github.com/mozilla/treeherder/blob/master/schemas/pulse-job.yml
+.. _Treeherder bug: https://bugzilla.mozilla.org/enter_bug.cgi?component=Treeherder:%20Data%20Ingestion&form_name=enter_bug&op_sys=All&product=Tree%20Management&rep_platform=All
+.. _MozillaPulse: https://pypi.python.org/pypi/MozillaPulse
+.. _Kombu: https://pypi.python.org/pypi/kombu
+.. _publish_to_pulse: https://github.com/mozilla/treeherder/blob/master/treeherder/etl/management/commands/publish_to_pulse.py#L12-L12
+
