@@ -1,7 +1,6 @@
 import django_filters
 from dateutil import parser
 from rest_framework import (filters,
-                            pagination,
                             viewsets)
 from rest_framework.decorators import (detail_route,
                                        list_route)
@@ -17,7 +16,8 @@ from treeherder.model.models import (FailureLine,
                                      JobLog,
                                      OptionCollection,
                                      TextLogSummary)
-from treeherder.webapp.api import (permissions,
+from treeherder.webapp.api import (pagination,
+                                   permissions,
                                    serializers)
 from treeherder.webapp.api.utils import (UrlQueryFilter,
                                          with_jobs)
@@ -348,11 +348,13 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
             model = JobDetail
             fields = ['job_guid', 'job__guid', 'job_id__in', 'repository']
 
-    filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
+    filter_backends = [filters.DjangoFilterBackend]
     filter_class = JobDetailFilter
 
-    class JobDetailPagination(pagination.LimitOffsetPagination):
-        default_limit = 2000
-        max_limit = 2000
+    # using a custom pagination size of 2000 to avoid breaking mozscreenshots
+    # which doesn't paginate through results yet
+    # https://github.com/mnoorenberghe/mozscreenshots/issues/28
+    class JobDetailPagination(pagination.IdPagination):
+        page_size = 2000
 
     pagination_class = JobDetailPagination
