@@ -124,14 +124,19 @@ treeherder.factory(
              get: function(uri) {
                  return $http.get(thServiceDomain + uri);
              },
-             getResultSetJobsUpdates: function(resultSetIdList, repoName, lastModified, locationParams){
-                 if(angular.isDate(lastModified)){
-                     lastModified = lastModified.toISOString().replace("Z","");
+             getResultSetJobsUpdates: function(resultSetIdList, repoName, lastModified,
+                                               locationParams) {
+                 // XXX: should never happen, but maybe sometimes does? see bug 1287501
+                 if (!angular.isDate(lastModified)) {
+                     alert("Invalid parameter passed to get job updates: " +
+                           "please reload treeherder");
+                     return;
                  }
+
                  var params = {
                      result_set_id__in: resultSetIdList.join(","),
                      count: 2000,
-                     last_modified__gt: lastModified,
+                     last_modified__gt: lastModified.toISOString().replace("Z",""),
                      return_type: "list"
                  };
                  _.extend(params, locationParams);
