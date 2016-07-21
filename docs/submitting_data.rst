@@ -38,9 +38,9 @@ Exchange in the Pulse Guardian UI itself, however.  You will need to create
 your exchange in your submitting code.  There are a few options available
 for that:
 
-1. `MozillaPulse`_
-2. `Kombu`_
-4. Or any RabbitMQ package of your choice
+    1. `MozillaPulse`_
+    2. `Kombu`_
+    3. Or any RabbitMQ package of your choice
 
 2. Format your data
 -------------------
