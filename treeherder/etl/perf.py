@@ -10,7 +10,6 @@ from treeherder.model.models import OptionCollection
 from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceFramework,
                                     PerformanceSignature)
-from treeherder.perf.tasks import generate_alerts
 
 logger = logging.getLogger(__name__)
 
