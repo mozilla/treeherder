@@ -1,5 +1,9 @@
+import datetime
+
 import pytest
+from dateutil import parser
 from django.core.urlresolvers import reverse
+from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.test import APIClient
 
 from treeherder.model.models import (ExclusionProfile,
@@ -388,3 +392,36 @@ def test_job_create(webapp, test_repository, test_user, eleven_job_blobs, monkey
     assert resp.status_code == 200
     test_job_list(webapp, None, test_repository)
     test_job_detail(webapp, None, None, jm)
+
+
+@pytest.mark.parametrize('lm_key,lm_value,exp_status, exp_job_count', [
+    ("last_modified__gt",  "2016-07-18T22:16:58.000", 200, 8),
+    ("last_modified__lt",  "2016-07-18T22:16:58.000", 200, 3),
+    ("last_modified__gt",  "-Infinity", HTTP_400_BAD_REQUEST, 0),
+    ("last_modified__gt",  "whatever", HTTP_400_BAD_REQUEST, 0),
+    ])
+def test_last_modified(webapp, jm, eleven_jobs_stored, test_project,
+                       lm_key, lm_value, exp_status, exp_job_count):
+    try:
+        param_date = parser.parse(lm_value)
+        newer_date = param_date - datetime.timedelta(minutes=10)
+
+        jobs = jm.get_job_list(0, 11)
+        gt_ids = [str(x["id"]) for x in jobs[:3]]
+        # modify job last_modified
+        jm.execute(
+            proc="jobs_test.updates.set_jobs_last_modified",
+            placeholders=[str(newer_date)],
+            replace=[",".join(gt_ids)]
+        )
+    except ValueError:
+        # no problem.  these params are the wrong
+        pass
+
+    url = reverse("jobs-list", kwargs={"project": test_project})
+    final_url = url + ("?{}={}".format(lm_key, lm_value))
+
+    resp = webapp.get(final_url, expect_errors=(exp_status != 200))
+    assert resp.status_int == exp_status
+    if exp_status == 200:
+        assert len(resp.json["results"]) == exp_job_count

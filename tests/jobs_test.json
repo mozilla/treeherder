@@ -73,13 +73,24 @@
 
                 "host_type":"master_host"
         },
-        "set_jobs_last_modified":{
+        "set_jobs_submit_timestamp": {
             "sql":"UPDATE `job` SET `submit_timestamp` = ?",
 
             "host_type":"master_host"
         },
-        "set_one_job_last_modified_timestamp":{
+        "set_one_job_submit_timestamp": {
             "sql":"UPDATE `job` SET `submit_timestamp` = ? WHERE id = 1",
+
+            "host_type":"master_host"
+        },
+        "set_jobs_last_modified": {
+            "sql":"UPDATE `job` SET `last_modified` = ?
+                   WHERE id in (REP0)",
+
+            "host_type":"master_host"
+        },
+        "set_one_job_last_modified": {
+            "sql":"UPDATE `job` SET `last_modified` = ? WHERE id = ?",
 
             "host_type":"master_host"
         },
