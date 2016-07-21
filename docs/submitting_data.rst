@@ -3,7 +3,7 @@ Submitting Data
 
 To submit your test data to Treeherder, you have two options:
 
-1. :ref:`Submitting using Pulse <submitting-using-pulse>`
+1. :ref:`submitting-using-pulse`
 
     This is the new process Task Cluster is using to submit data to Treeherder.
     There is a JSON Schema to validate your payload against to ensure it will
@@ -12,7 +12,7 @@ To submit your test data to Treeherder, you have two options:
     exchange added to Treeherder's Pulse config.  All Treeherder instances can
     subscribe to get your data, as can local dev instances for testing.
 
-2. :ref:`Submitting using the Python client <submitting-using-python-client>`
+2. :ref:`submitting-using-python-client`
 
     This is historically how projects and users have submitted data to Treeherder.
     This requires getting Hawk credentials approved by a Treeherder Admin.
