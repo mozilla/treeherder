@@ -12,10 +12,12 @@ from tests.autoclassify.utils import (create_bug_suggestions_failures,
 from tests.sample_data_generator import (job_data,
                                          result_set)
 from treeherder.model.derived import ArtifactsModel
-from treeherder.model.models import (FailureLine,
+from treeherder.model.models import (ExclusionProfile,
+                                     FailureLine,
                                      Job,
                                      JobDetail,
                                      JobDuration,
+                                     JobExclusion,
                                      JobGroup,
                                      JobLog,
                                      JobType,
@@ -738,10 +740,40 @@ def test_remove_existing_jobs_one_existing_one_new(jm, sample_data,
     assert Job.objects.count() == 1
 
 
+def test_new_job_in_exclusion_profile(jm, sample_data, sample_resultset,
+                                      test_sheriff, test_project):
+    job = sample_data.job_data[1]
+    platform = job["job"]["machine_platform"]["platform"]
+    arch = job["job"]["machine_platform"]["architecture"]
+
+    job_exclusion = JobExclusion.objects.create(
+        name="jobex",
+        info={
+            "platforms": ["{} ({})".format(platform, arch)],
+            "repos": [test_project],
+            "option_collections": ["opt"],
+            "option_collection_hashes": ["102210fe594ee9b33d82058545b1ed14f4c8206e"],
+            "job_types": ["B2G Emulator Image Build (B)"]},
+        author=test_sheriff,
+    )
+    exclusion_profile = ExclusionProfile.objects.create(
+        name="Tier-2",
+        is_default=False,
+        author=test_sheriff,
+    )
+    exclusion_profile.exclusions.add(job_exclusion)
+    jm.store_job_data(sample_data.job_data[:2])
+    obtained = jm.get_job_list(offset=0, limit=100, exclusion_profile="Tier-2")
+    # We check all the jobs applying the exclusion profile
+    # If we find the excluded job, there is a problem
+    assert job['job']['job_guid'] not in [ob['job_guid'] for ob in obtained]
+    assert len(jm.lower_tier_signatures) == 1
+    assert jm.lower_tier_signatures[0]['tier'] == 2
+
+
 def test_ingesting_skip_existing(jm, sample_data,
                                  sample_resultset, mock_log_parser):
     """Remove single existing job prior to loading"""
-
     job_data = sample_data.job_data[:1]
     test_utils.do_job_ingestion(jm, job_data, sample_resultset)
 

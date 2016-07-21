@@ -139,6 +139,7 @@ class JobsModel(TreeherderModelBase):
     ]
 
     LOWER_TIERS = [2, 3]
+    lower_tier_signatures = []
 
     @classmethod
     def create(cls, project):
@@ -920,6 +921,30 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return aggregate_details
 
+    def set_lower_tier_signatures(self):
+        # get the lower tier data signatures for this project.
+        # if there are none, then just return an empty list
+        # this keeps track of them order (2, then 3) so that the latest
+        # will have precedence.  If a job signature is in both Tier-2 and
+        # Tier-3, then it will end up in Tier-3.
+        self.lower_tier_signatures = []
+        for tier_num in self.LOWER_TIERS:
+            tier_info = {"tier": tier_num}
+            try:
+                lower_tier = ExclusionProfile.objects.get(
+                    name="Tier-{}".format(tier_num))
+                signatures = set(lower_tier.flat_exclusion[self.project])
+                tier_info["signatures"] = signatures
+                self.lower_tier_signatures.append(tier_info)
+            except KeyError:
+                # may be no jobs of this tier for the current project
+                # and that's ok.
+                pass
+            except ObjectDoesNotExist:
+                # if this profile doesn't exist, then no jobs of this tier
+                # and that's ok.
+                pass
+
     def store_job_data(self, data):
         """
         Store JobData instances into jobs db
@@ -999,28 +1024,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         async_error_summary_list = []
 
-        # get the lower tier data signatures for this project.
-        # if there are none, then just return an empty list
-        # this keeps track of them order (2, then 3) so that the latest
-        # will have precedence.  If a job signature is in both Tier-2 and
-        # Tier-3, then it will end up in Tier-3.
-        lower_tier_signatures = []
-        for tier_num in self.LOWER_TIERS:
-            tier_info = {"tier": tier_num}
-            try:
-                lower_tier = ExclusionProfile.objects.get(
-                    name="Tier-{}".format(tier_num))
-                signatures = set(lower_tier.flat_exclusion[self.project])
-                tier_info["signatures"] = signatures
-                lower_tier_signatures.append(tier_info)
-            except KeyError:
-                # may be no jobs of this tier for the current project
-                # and that's ok.
-                pass
-            except ObjectDoesNotExist:
-                # if this profile doesn't exist, then no jobs of this tier
-                # and that's ok.
-                pass
+        self.set_lower_tier_signatures()
 
         reference_data_signatures = set()
         for datum in data:
@@ -1062,7 +1066,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     log_placeholders,
                     artifact_placeholders,
                     retry_job_guids,
-                    lower_tier_signatures,
                     async_error_summary_list
                 )
                 reference_data_signatures.add(reference_data_signature)
@@ -1259,7 +1262,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
     def _load_ref_and_job_data_structs(
         self, job, revision, unique_revisions, job_placeholders,
         log_placeholders, artifact_placeholders, retry_job_guids,
-        lower_tier_signatures, async_artifact_list
+        async_artifact_list
     ):
         """
         Take the raw job object after etl and convert it to job_placeholders.
@@ -1363,7 +1366,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         if not reference_data_name:
             reference_data_name = signature_hash
 
-        signature, _ = ReferenceDataSignatures.objects.get_or_create(
+        signature, created = ReferenceDataSignatures.objects.get_or_create(
             name=reference_data_name,
             signature=signature_hash,
             build_system_type=build_system_type,
@@ -1382,6 +1385,12 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 'option_collection_hash': option_collection_hash
             })
 
+        if created:
+            # A new ReferenceDataSignature has been added
+            for item in ExclusionProfile.objects.all():
+                item.save()
+            self.set_lower_tier_signatures()
+
         tier = job.get('tier') or 1
         # job tier signatures override the setting from the job structure
         # Check the signatures list for any supported LOWER_TIERS that have
@@ -1390,7 +1399,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # As stated elsewhere, a job will end up in the lowest tier where its
         # signature belongs.  So if a signature is in Tier-2 and Tier-3, it
         # will end up in 3.
-        for tier_info in lower_tier_signatures:
+        for tier_info in self.lower_tier_signatures:
             if signature_hash in tier_info["signatures"]:
                 tier = tier_info["tier"]
 
