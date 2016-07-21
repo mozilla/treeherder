@@ -66,7 +66,7 @@ class TestFailureLine(RoutedDocType):
 
     job_guid = String(required=True, index='not_analyzed')
     test = String(required=True, index='not_analyzed')
-    subtest = String(required=True, index='not_analyzed')
+    subtest = String(index='not_analyzed')
     status = String(required=True, index='not_analyzed')
     expected = String(required=True, index='not_analyzed')
     best_classification = Integer(index='not_analyzed')
