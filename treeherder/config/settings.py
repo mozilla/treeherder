@@ -528,6 +528,8 @@ CACHES = {
 
 KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX
 
+REFDATA_CACHE_TIMEOUT = 86400  # refdata should not be cached forever
+
 # Celery broker setup
 BROKER_URL = env('BROKER_URL')
 
