@@ -26,39 +26,42 @@ class HgPushlogTransformerMixin(object):
 
         # iterate over the pushes
         for push in pushlog.values():
-            result_set = dict()
-            result_set['push_timestamp'] = push['date']
+            # if changesets is empty, we will not be able to get a revision,
+            # so we will need to just skip the push.
+            if push['changesets']:
+                result_set = dict()
+                result_set['push_timestamp'] = push['date']
 
-            result_set['revisions'] = []
+                result_set['revisions'] = []
 
-            # Author of the push/resultset
-            result_set['author'] = push['user']
+                # Author of the push/resultset
+                result_set['author'] = push['user']
 
-            result_set['active_status'] = push.get('active_status', 'active')
+                result_set['active_status'] = push.get('active_status', 'active')
 
-            # TODO: Remove this with Bug 1257602 is addressed
-            rev_hash_components = []
+                # TODO: Remove this with Bug 1257602 is addressed
+                rev_hash_components = []
 
-            # iterate over the revisions
-            # we only want to ingest the last 200 revisions.
-            for change in push['changesets'][-200:]:
-                revision = {
-                    'revision': change['node'],
-                    'author': change['author'],
-                    'branch': change['branch'],
-                    'comment': change['desc'],
-                    'repository': repository}
-                rev_hash_components.append(change['node'])
-                rev_hash_components.append(change['branch'])
+                # iterate over the revisions
+                # we only want to ingest the last 200 revisions.
+                for change in push['changesets'][-200:]:
+                    revision = {
+                        'revision': change['node'],
+                        'author': change['author'],
+                        'branch': change['branch'],
+                        'comment': change['desc'],
+                        'repository': repository}
+                    rev_hash_components.append(change['node'])
+                    rev_hash_components.append(change['branch'])
 
-                # append the revision to the push
-                result_set['revisions'].append(revision)
+                    # append the revision to the push
+                    result_set['revisions'].append(revision)
 
-            result_set['revision_hash'] = generate_revision_hash(rev_hash_components)
-            result_set['revision'] = result_set["revisions"][-1]["revision"]
+                result_set['revision_hash'] = generate_revision_hash(rev_hash_components)
+                result_set['revision'] = result_set["revisions"][-1]["revision"]
 
-            th_resultset = th_collections[repository].get_resultset(result_set)
-            th_collections[repository].add(th_resultset)
+                th_resultset = th_collections[repository].get_resultset(result_set)
+                th_collections[repository].add(th_resultset)
 
         return th_collections
 
