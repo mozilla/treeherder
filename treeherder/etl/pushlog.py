@@ -26,6 +26,15 @@ class HgPushlogTransformerMixin(object):
 
         # iterate over the pushes
         for push in pushlog.values():
+            if not push['changesets']:
+                # If a pushlog contains hidden changesets (changesets that are
+                # obsolete) then the call to json-pushes will return a push
+                # with no changesets.  This was changed in bug 1286426.
+                # For us, if `changesets` is empty, we will not be able to get
+                # a revision, which is required for a resultset.  So we
+                # need to just skip the push.
+                continue
+
             result_set = dict()
             result_set['push_timestamp'] = push['date']
 
