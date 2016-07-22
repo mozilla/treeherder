@@ -30,7 +30,8 @@ def test_alerts_get(webapp, test_repository, test_perf_alert):
         'series_signature',
         'summary_id',
         'status',
-        't_value'
+        't_value',
+        'classifier'
     ])
     assert resp.json['results'][0]['related_summary_id'] is None
 
@@ -77,6 +78,7 @@ def test_alerts_put(webapp, test_repository, test_perf_alert, test_user,
     }, format='json')
     assert resp.status_code == 200
     assert PerformanceAlert.objects.get(id=1).related_summary_id == 2
+    assert PerformanceAlert.objects.get(id=1).classifier == test_sheriff
 
     # verify that we can unset it too
     resp = client.put(reverse('performance-alerts-list') + '1/', {

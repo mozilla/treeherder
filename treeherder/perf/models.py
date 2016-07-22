@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
@@ -231,6 +232,7 @@ class PerformanceAlert(models.Model):
                                         null=True)
     series_signature = models.ForeignKey(PerformanceSignature)
     is_regression = models.BooleanField()
+    classifier = models.ForeignKey(User, null=True)  # null if autoclassified
 
     UNTRIAGED = 0
     DOWNSTREAM = 1

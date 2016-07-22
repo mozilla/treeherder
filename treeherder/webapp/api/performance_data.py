@@ -253,6 +253,11 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
 
     pagination_class = AlertPagination
 
+    def update(self, request, *args, **kwargs):
+        if 'related_summary_id' in request.data:
+            request.data['classifier'] = request.user.email
+        return super(PerformanceAlertViewSet, self).update(request, *args, **kwargs)
+
     def create(self, request, *args, **kwargs):
         data = request.data
         if 'summary_id' not in data or 'signature_id' not in data:
