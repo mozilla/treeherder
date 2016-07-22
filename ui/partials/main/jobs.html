@@ -1,5 +1,6 @@
 <!-- Load progress bar -->
-<div class="progress progress-striped active"
+<div class="progress progress-striped active" id="load-resultsets-progress-bar"
+     ng-class="{'page-loaded': !isLoadingRsBatch.prepending && result_sets.length !=0 && !isLoadingJobs}"
      ng-show="isLoadingRsBatch.prepending && result_sets.length === 0">
   <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
 </div>
@@ -106,9 +107,11 @@
 <!-- End resultset clone target -->
 
 <!-- New resultsets progress bar -->
-<div class="progress progress-striped active"
+<div class="progress progress-striped active" id="new-resultsets-progress-bar"
      ng-show="isLoadingRsBatch.appending">
-  <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
+  <div class="progress-bar"
+       ng-class="{'page-loaded': result_sets.length != 0 && !isLoadingRsBatch.appending && !isLoadingJobs}"
+       role="progressbar" style="width: 100%"></div>
 </div>
 
 <!-- Get next resultsets footer -->
