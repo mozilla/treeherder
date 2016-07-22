@@ -11,13 +11,15 @@ def _verify_alert(alertid, expected_result_set_id,
                   expected_prev_result_set_id,
                   expected_signature, expected_prev_value,
                   expected_new_value, expected_is_regression,
-                  expected_status, expected_summary_status):
+                  expected_status, expected_summary_status,
+                  expected_classifier):
     alert = PerformanceAlert.objects.get(id=alertid)
     assert alert.prev_value == expected_prev_value
     assert alert.new_value == expected_new_value
     assert alert.series_signature == expected_signature
     assert alert.is_regression == expected_is_regression
     assert alert.status == expected_status
+    assert alert.classifier == expected_classifier
 
     summary = PerformanceAlertSummary.objects.get(id=alertid)
     assert summary.result_set_id == expected_result_set_id
@@ -47,7 +49,7 @@ def test_detect_alerts_in_series(test_project, test_repository,
     assert PerformanceAlertSummary.objects.count() == 1
     _verify_alert(1, (INTERVAL/2), (INTERVAL/2)-1, test_perf_signature, 0.5,
                   1.0, True, PerformanceAlert.UNTRIAGED,
-                  PerformanceAlertSummary.UNTRIAGED)
+                  PerformanceAlertSummary.UNTRIAGED, None)
 
     # verify that no new alerts generated if we rerun
     generate_new_alerts_in_series(test_perf_signature)
@@ -55,7 +57,7 @@ def test_detect_alerts_in_series(test_project, test_repository,
     assert PerformanceAlertSummary.objects.count() == 1
     _verify_alert(1, (INTERVAL/2), (INTERVAL/2)-1, test_perf_signature, 0.5,
                   1.0, True, PerformanceAlert.UNTRIAGED,
-                  PerformanceAlertSummary.UNTRIAGED)
+                  PerformanceAlertSummary.UNTRIAGED, None)
 
     # add data to generate a new alert
     for (t, v) in zip([i for i in range(INTERVAL, INTERVAL*2)],
@@ -74,7 +76,7 @@ def test_detect_alerts_in_series(test_project, test_repository,
     assert PerformanceAlertSummary.objects.count() == 2
     _verify_alert(2, INTERVAL, INTERVAL-1, test_perf_signature, 1.0, 2.0,
                   True, PerformanceAlert.UNTRIAGED,
-                  PerformanceAlertSummary.UNTRIAGED)
+                  PerformanceAlertSummary.UNTRIAGED, None)
 
 
 def test_detect_alerts_in_series_with_retriggers(
@@ -103,7 +105,7 @@ def test_detect_alerts_in_series_with_retriggers(
     generate_new_alerts_in_series(test_perf_signature)
     _verify_alert(1, 2, 1, test_perf_signature, 0.5, 1.0, True,
                   PerformanceAlert.UNTRIAGED,
-                  PerformanceAlertSummary.UNTRIAGED)
+                  PerformanceAlertSummary.UNTRIAGED, None)
 
 
 def test_no_alerts_with_old_data(

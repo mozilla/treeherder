@@ -50,6 +50,17 @@ class PerformanceDecimalField(serializers.DecimalField):
         super(PerformanceDecimalField, self).__init__(*args, **kwargs)
 
 
+class ClassifierField(serializers.Field):
+    """Custom field for representing PerformanceAlert classifier"""
+    def to_representation(self, obj):
+        if obj is not None:
+            return obj.email
+        return obj
+
+    def to_internal_value(self, data):
+        return data
+
+
 class PerformanceAlertSerializer(serializers.ModelSerializer):
     series_signature = PerformanceSignatureSerializer(read_only=True)
     summary_id = serializers.SlugRelatedField(
@@ -66,6 +77,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
     t_value = PerformanceDecimalField(read_only=True)
     prev_value = PerformanceDecimalField(read_only=True)
     new_value = PerformanceDecimalField(read_only=True)
+    classifier = ClassifierField()
 
     def update(self, instance, validated_data):
         if instance.summary.repository != validated_data['summary'].repository:
@@ -84,7 +96,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         fields = ['id', 'status', 'series_signature', 'is_regression',
                   'prev_value', 'new_value', 't_value', 'amount_abs',
                   'amount_pct', 'summary_id', 'related_summary_id',
-                  'manually_created']
+                  'manually_created', 'classifier']
 
 
 class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
