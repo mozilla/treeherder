@@ -30,7 +30,8 @@ def test_alerts_get(webapp, test_repository, test_perf_alert):
         'series_signature',
         'summary_id',
         'status',
-        't_value'
+        't_value',
+        'classifier'
     ])
     assert resp.json['results'][0]['related_summary_id'] is None
 
