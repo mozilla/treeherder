@@ -620,21 +620,25 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             # CASCADE)
             failure_line_query = FailureLine.objects.filter(job_guid__in=job_guid_list)
 
-            # To delete the data from elasticsearch we need both the document id and the
-            # test, since this is used to determine the shard on which the document is indexed.
-            # However selecting all this data can be rather slow, so split the job into multiple
-            # smaller chunks.
-            failure_line_max_id = failure_line_query.order_by("-id").values_list("id", flat=True).first()
-            while failure_line_max_id:
-                es_delete_data = (failure_line_query
-                                  .order_by("-id")
-                                  .filter(id__lte=failure_line_max_id)
-                                  .values_list("id", "test"))[:chunk_size]
-                if es_delete_data:
-                    es_delete(TestFailureLine, es_delete_data)
-                    failure_line_max_id = es_delete_data[len(es_delete_data) - 1][0] - 1
-                else:
-                    failure_line_max_id = None
+            if settings.ELASTIC_SEARCH["url"]:
+                # To delete the data from elasticsearch we need both the document id and the
+                # test, since this is used to determine the shard on which the document is indexed.
+                # However selecting all this data can be rather slow, so split the job into multiple
+                # smaller chunks.
+                failure_line_max_id = failure_line_query.order_by("-id").values_list("id", flat=True).first()
+                while failure_line_max_id:
+                    es_delete_data = list(failure_line_query
+                                          .order_by("-id")
+                                          .filter(id__lte=failure_line_max_id)
+                                          .values_list("id", "test")[:chunk_size])
+                    if es_delete_data:
+                        es_delete(TestFailureLine, es_delete_data)
+                        # Compute the first possible id of a failure line not selected in the
+                        # previous query
+                        min_id_in_chunk, _ = es_delete_data[-1]
+                        failure_line_max_id = min_id_in_chunk - 1
+                    else:
+                        failure_line_max_id = None
             orm_delete(FailureLine, failure_line_query,
                        chunk_size, sleep_time)
             orm_delete(Job, Job.objects.filter(guid__in=job_guid_list),
