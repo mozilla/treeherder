@@ -154,12 +154,12 @@ perf.controller('CompareChooserCtrl', [
 perf.controller('CompareResultsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$location',
     'thServiceDomain', 'ThRepositoryModel',
-    'ThResultSetModel', '$http', '$q', '$timeout', 'PhFramework', 'PhSeries',
+    'ThResultSetModel', '$http', '$httpParamSerializer','$q', '$timeout', 'PhFramework', 'PhSeries',
     'math', 'phTimeRanges', 'PhCompare',
     function CompareResultsCtrl($state, $stateParams, $scope,
                                 $rootScope, $location,
                                 thServiceDomain,
-                                ThRepositoryModel, ThResultSetModel, $http,
+                                ThRepositoryModel, ThResultSetModel, $http, $httpParamSerializer,
                                 $q, $timeout, PhFramework, PhSeries, math,
                                 phTimeRanges,
                                 PhCompare) {
@@ -190,7 +190,7 @@ perf.controller('CompareResultsCtrl', [
 
                     if (testName.indexOf("summary") > 0) {
                         var detailsLink = 'perf.html#/comparesubtest?';
-                        detailsLink += _.map(_.pairs({
+                        detailsLink += $httpParamSerializer({
                             originalProject: $scope.originalProject.name,
                             originalRevision: $scope.originalRevision,
                             newProject: $scope.newProject.name,
@@ -198,7 +198,7 @@ perf.controller('CompareResultsCtrl', [
                             originalSignature: oldSig,
                             newSignature: newSig,
                             framework: $scope.filterOptions.framework.id
-                        }), function(kv) { return kv[0]+"="+kv[1]; }).join("&");
+                        });
                         cmap.links.push({
                             title: 'subtests',
                             href: detailsLink
