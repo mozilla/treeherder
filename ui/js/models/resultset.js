@@ -52,7 +52,7 @@ treeherder.factory(
              },
 
              getResultSets: function(repoName, rsOffsetTimestamp, count, full, keep_filters) {
-                 rsOffsetTimestamp = typeof rsOffsetTimestamp === 'undefined'?  0: rsOffsetTimestamp;
+                 rsOffsetTimestamp = typeof rsOffsetTimestamp === 'undefined'? 0: rsOffsetTimestamp;
                  full = _.isUndefined(full) ? true: full;
                  keep_filters = _.isUndefined(keep_filters) ? true : keep_filters;
 

@@ -388,11 +388,13 @@ perf.controller('GraphsCtrl', [
                     });
                 }
                 // highlight the datapoints too
-                series.highlightedPoints = _.union(series.highlightedPoints,  _.compact(_.map(
-                    series.flotSeries.resultSetData,
-                    function(seriesResultSetId, index) {
-                        return resultSetId === seriesResultSetId ? index : null;
-                    })));
+                series.highlightedPoints = _.union(
+                    series.highlightedPoints,
+                    _.compact(_.map(
+                        series.flotSeries.resultSetData,
+                        function(seriesResultSetId, index) {
+                            return resultSetId === seriesResultSetId ? index : null;
+                        })));
             }
 
             if ($scope.highlightAlerts) {
@@ -838,7 +840,7 @@ perf.controller('GraphsCtrl', [
                 });
 
                 modalInstance.result.then(function(seriesList) {
-                    seriesList.forEach(function(series)  {
+                    seriesList.forEach(function(series) {
                         series.hightlightedPoints = [];
                         series.visible = true;
                         series.color = availableColors.pop();

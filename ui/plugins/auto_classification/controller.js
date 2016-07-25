@@ -151,7 +151,7 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
                     thNotify.send("Invalid bug number: " + line.bugNumber, "danger", true);
                     return;
                 }
-                var f =  updateFunc(line);
+                var f = updateFunc(line);
                 f(line);
             },
 
@@ -801,7 +801,7 @@ treeherder.controller('ClassificationPluginCtrl', [
             var lines = _.map(textLogSummary.lines, function(line, i) {
                 if (line.failure_line) {
                     lastStructuredIndex = i;
-                    structuredSeen[line.failure_line]  = true;
+                    structuredSeen[line.failure_line] = true;
                     var failureLine = structured[line.failure_line];
                     return new ThStructuredLine(failureLine, matchers);
                 } else {

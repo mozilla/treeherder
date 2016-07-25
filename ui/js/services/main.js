@@ -5,7 +5,7 @@ treeherder.factory('thUrl', [
     '$rootScope', 'thServiceDomain', 'ThLog',
     function($rootScope, thServiceDomain, ThLog) {
 
-        var thUrl =  {
+        var thUrl = {
             getRootUrl: function(uri) {
                 return thServiceDomain + "/api" + uri;
             },
@@ -105,8 +105,8 @@ treeherder.factory('ThPaginator', function(){
 });
 
 treeherder.factory('BrowserId', [
-    '$http', '$q', 'ThLog',  'thServiceDomain',
-    function($http, $q, ThLog,  thServiceDomain){
+    '$http', '$q', 'ThLog', 'thServiceDomain',
+    function($http, $q, ThLog, thServiceDomain){
 
         /*
          * BrowserId is a wrapper for the persona authentication service
@@ -180,7 +180,7 @@ treeherder.factory('thNotify', [
 
         var $log = new ThLog("thNotify");
 
-        var thNotify =  {
+        var thNotify = {
             // message queue
             notifications: [],
 

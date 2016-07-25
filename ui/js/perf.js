@@ -201,7 +201,7 @@ perf.factory('PhCompare', [ '$q', '$http', '$httpParamSerializer', 'thServiceDom
 
                                         // It's possible to get an object with empty values, so check for that too.
                                         var hasOrig = originalData && originalData.values.length;
-                                        var hasNew  = newData && newData.values.length;
+                                        var hasNew = newData && newData.values.length;
 
                                         if (!hasOrig && !hasNew)
                                             return cmap; // No data for either side

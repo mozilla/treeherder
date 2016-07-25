@@ -438,8 +438,8 @@ perf.controller('AlertsCtrl', [
                 // for all complete summaries, fill in job and pushlog links
                 // and downstream summaries
                 _.forEach(alertSummaries, function(summary) {
-                    var repo =  _.findWhere($rootScope.repos,
-                                            { name: summary.repository });
+                    var repo = _.findWhere($rootScope.repos,
+                                           { name: summary.repository });
 
                     if (summary.prevResultSetMetadata &&
                         summary.resultSetMetadata) {
