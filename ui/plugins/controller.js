@@ -264,7 +264,7 @@ treeherder.controller('PluginCtrl', [
             // fields that will show in the job detail panel
             $scope.visibleFields = {
                 "Build": $scope.job.build_architecture + " " +
-                         $scope.job.build_platform  + " " +
+                         $scope.job.build_platform + " " +
                          $scope.job.build_os || undef,
                 "Job name": $scope.job.job_type_name || undef
             };

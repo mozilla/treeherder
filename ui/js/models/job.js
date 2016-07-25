@@ -91,7 +91,7 @@ treeherder.factory('ThJobModel', [
                     // next_pages_jobs is wrapped in a $q.when call because it could be
                     // either a promise or a value
                     return $q.when(next_pages_jobs).then(function(maybe_job_list){
-                        return  item_list.concat(maybe_job_list);
+                        return item_list.concat(maybe_job_list);
                     });
                 });
         };

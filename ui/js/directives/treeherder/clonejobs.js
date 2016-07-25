@@ -185,7 +185,7 @@ treeherder.directive('thCloneJobs', [
         var clickGroupCb = function(el) {
             var clickedEl = $(el);
             if (clickedEl.hasClass('group-symbol') || clickedEl.hasClass('job-group-count')) {
-                var groupMap =  ThResultSetStore.getGroupMap($rootScope.repoName);
+                var groupMap = ThResultSetStore.getGroupMap($rootScope.repoName);
                 var gi = getGroupInfo(el, groupMap);
                 if (gi) {
                     gi.jgObj.jobs.forEach(function(job) {
@@ -624,7 +624,7 @@ treeherder.directive('thCloneJobs', [
          *                        or collapsed states.
          */
         var renderGroups = function(element, resetGroupState) {
-            var groupMap =  ThResultSetStore.getGroupMap($rootScope.repoName);
+            var groupMap = ThResultSetStore.getGroupMap($rootScope.repoName);
             // with items in the group, it's not as simple as just hiding or
             // showing a job or count.  Since there can be lots of criteria for whether to show
             // or hide a job, and any job hidden or shown will change the counts,
