@@ -10,15 +10,22 @@
     "home": "https://wiki.mozilla.org/EngineeringProductivity/Projects/Treeherder",
     "docs": "https://treeherder.readthedocs.io/",
     "irc": "irc://irc.mozilla.org/#treeherder",
-    "mailing-list": "https://groups.google.com/forum/#!forum/mozilla.tools.treeherder",
+    "mailing-list": "https://groups.google.com/forum/#!forum/mozilla.tools.treeherder"
   },
   "bugs": {
-    "list": "http://mzl.la/1sXfyqI",
+    "list": "https://bugzilla.mozilla.org/buglist.cgi?quicksearch=%3Atreeherder",
     "report": "https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree%20Management&component=Treeherder"
   },
   "urls": {
     "prod": "https://treeherder.mozilla.org/",
     "stage": "https://treeherder.allizom.org/"
   },
-  "keywords": ["css", "django", "jquery", "angular", "js", "python"]
+  "keywords": [
+    "css",
+    "django",
+    "jquery",
+    "angular",
+    "js",
+    "python"
+  ]
 }
