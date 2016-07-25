@@ -22,3 +22,21 @@
       *** Please let us know your plans within 3 business days, or the offending patch(es) will be backed out! ***
 
       Our wiki page outlines the common responses and expectations: https://wiki.mozilla.org/Buildbot/Talos/RegressionBugsHandling
+- model: perf.PerformanceBugTemplate
+  pk: 2
+  fields:
+    framework: 2
+    keywords: regression
+    default_component: Untriaged
+    default_product: Firefox
+    cc_list: jmaher@mozilla.com, wlachance@mozilla.com
+    text: |
+      We have detected a build metrics regression from push {{ revision }}. As author of one of the patches included in that push, we need your help to address this regression.
+
+      {{ alertSummary }}
+
+      You can find links to graphs and comparsion views for each of the above tests at: {{ alertHref }}
+
+      On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the jobs in a pushlog format.
+
+      To learn more about the regressing test(s), please see: https://developer.mozilla.org/en-US/docs/Mozilla/Performance/Automated_Performance_Testing_and_Sheriffing/Build_Metrics
