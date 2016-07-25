@@ -32,7 +32,15 @@ class TreeherderModelBase(object):
         return self
 
     def __exit__(self, type, value, traceback):
-        self.disconnect()
+        try:
+            self.disconnect()
+        except Exception as e:
+            if traceback:
+                # If there is an earlier exception swallow this one, since it is probably
+                # a result of the existing bad state
+                pass
+            else:
+                raise e
 
     def __str__(self):
         """String representation is project name."""
