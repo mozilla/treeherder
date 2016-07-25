@@ -90,6 +90,7 @@ def create_text_log_errors(project, job_id, failure_line_list):
             continue
         error = TextLogError.objects.create(job=job, step=step,
                                             line=formatter(data).split("\n")[0],
+                                            failure_line=FailureLine.objects.get(id=data['id']),
                                             line_number=i)
         errors.append(error)
 

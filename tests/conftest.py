@@ -561,6 +561,19 @@ def artifacts(jm, failure_lines, test_repository):
 
 
 @pytest.fixture
+def textlog_errors(jm, failure_lines, test_repository):
+    from treeherder.model.models import FailureLine
+    from autoclassify.utils import create_text_log_errors
+
+    job = jm.get_job(1)[0]
+    lines = [(item, {}) for item in FailureLine.objects.filter(
+        job_guid=job["job_guid"]).values()]
+    errors = create_text_log_errors(test_repository.name, job['id'], lines)
+
+    return errors
+
+
+@pytest.fixture
 def test_perf_alert_summary(test_repository, test_perf_framework):
     from treeherder.perf.models import PerformanceAlertSummary
     return PerformanceAlertSummary.objects.create(

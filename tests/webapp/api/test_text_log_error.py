@@ -2,33 +2,31 @@ from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
 
-def test_get_summary_line(webapp, text_summary_lines):
+def test_get_textlog_error(webapp, textlog_errors):
     """
-    test getting a single failure line
+    test getting a single textlog error
     """
-    summary_lines = text_summary_lines
-    summary_lines[0].bug_number = 1234
-    summary_lines[0].save()
+    textlog_errors[0].bug_number = 1234
+    textlog_errors[0].save()
 
     resp = webapp.get(
-        reverse("text-log-summary-line-detail", kwargs={"pk": summary_lines[0].id}))
+        reverse("text-log-error-detail", kwargs={"pk": textlog_errors[0].id}))
 
     assert resp.status_int == 200
     actual = resp.json
-    expected = {"id": summary_lines[0].id,
-                "summary": summary_lines[0].summary.id,
-                "line_number": summary_lines[0].line_number,
-                "failure_line": summary_lines[0].failure_line.id,
+    expected = {"id": textlog_errors[0].id,
+                "line": textlog_errors[0].line,
+                "line_number": textlog_errors[0].line_number,
+                "failure_line": textlog_errors[0].failure_line.id,
                 "bug_number": 1234,
-                "verified": False,
-                "bug": None}
+                "verified": False}
 
     assert actual == expected
 
 
-def test_get_text_summary_lines(webapp, text_summary_lines):
-    text_summary_lines[0].bug_number = 1234
-    text_summary_lines[0].save()
+def test_get_textlog_errors(webapp, textlog_errors):
+    textlog_errors[0].bug_number = 1234
+    textlog_errors[0].save()
 
     resp = webapp.get(reverse("text-log-summary-line-list"))
     assert resp.status_int == 200
@@ -36,17 +34,17 @@ def test_get_text_summary_lines(webapp, text_summary_lines):
     actual = resp.json
     expected = {"next": None,
                 "previous": None,
-                "results": [{"id": line.id,
-                             "summary": line.summary.id,
-                             "line_number": line.line_number,
-                             "failure_line": line.failure_line.id,
-                             "bug_number": line.bug_number,
+                "results": [{"id": error.id,
+                             "line": error.summary.id,
+                             "line_number": error.line_number,
+                             "failure_line": error.failure_line.id,
+                             "bug_number": error.bug_number,
                              "verified": False,
-                             "bug": None} for line in reversed(text_summary_lines)]}
+                             "bug": None} for error in reversed(textlog_errors)]}
     assert actual == expected
 
 
-def test_put_bug_number(webapp, text_summary_lines, test_user):
+def test_put_bug_number(webapp, textlog_errors, test_user):
     client = APIClient()
     client.force_authenticate(user=test_user)
 
@@ -74,7 +72,7 @@ def test_put_bug_number(webapp, text_summary_lines, test_user):
     assert text_summary_lines[0].bug_number == 5678
 
 
-def test_put_multiple(webapp, text_summary_lines, test_user):
+def test_put_multiple(webapp, textlog_errors, test_user):
     client = APIClient()
     client.force_authenticate(user=test_user)
 
@@ -111,7 +109,7 @@ def test_put_multiple(webapp, text_summary_lines, test_user):
     assert text_summary_lines[1].bug_number == 9012
 
 
-def test_put_multiple_duplicate(webapp, text_summary_lines, test_user):
+def test_put_multiple_duplicate(webapp, textlog_errors, test_user):
     client = APIClient()
     client.force_authenticate(user=test_user)
 
