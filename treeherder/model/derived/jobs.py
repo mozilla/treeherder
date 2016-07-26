@@ -1766,6 +1766,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         """
 
         if not result_sets:
+            logger.info("No new resultsets to store")
             return {}
 
         # revision data structures
@@ -1791,6 +1792,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         #
         resultset_updates = self._get_resultset_updates(
             result_sets, resultsets_before)
+        logger.info("Resultsets to update: {}".format(len(resultset_updates)))
         self._modify_resultsets(resultset_updates,
                                 "jobs.updates.update_result_set",
                                 revision_placeholders,
@@ -1802,6 +1804,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         resultset_inserts = self._get_resultset_inserts(
             result_sets, resultset_revisions_before, unique_rs_revisions)
 
+        logger.info("Resultsets to insert: {}".format(len(resultset_inserts)))
         self._modify_resultsets(resultset_inserts,
                                 "jobs.inserts.set_result_set",
                                 revision_placeholders,
@@ -1912,6 +1915,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         for result in result_sets:
             top_revision = result["revision"]
+            logger.info("Resultset {} with procedure: {}".format(
+                top_revision,
+                procedure))
             revision_hash = result.get("revision_hash", top_revision)
             short_top_revision = top_revision[:12]
             result_set_placeholders.append(

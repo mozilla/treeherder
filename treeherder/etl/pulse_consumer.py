@@ -5,8 +5,9 @@ from kombu import (Exchange,
                    Queue)
 from kombu.mixins import ConsumerMixin
 
-from treeherder.etl.tasks.pulse_tasks import store_pulse_jobs
 from treeherder.etl.common import fetch_json
+from treeherder.etl.tasks.pulse_tasks import (store_pulse_jobs,
+                                              store_pulse_resultsets)
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +65,7 @@ class PulseConsumer(ConsumerMixin):
             logger.error("Data ingestion may proceed, "
                          "but no bindings will be pruned")
 
-        # Now prune any bindings from the our queue that were not
+        # Now prune any bindings from the queue that were not
         # established above.
         # This indicates that they are no longer in the config, and should
         # therefore be removed from the durable queue bindings list.
@@ -99,3 +100,14 @@ class JobConsumer(PulseConsumer):
         )
         message.ack()
 
+
+class ResultsetConsumer(PulseConsumer):
+
+    def on_message(self, body, message):
+        store_pulse_resultsets.apply_async(
+            args=[body,
+                  message.delivery_info["exchange"],
+                  message.delivery_info["routing_key"]],
+            routing_key='store_pulse_resultsets'
+        )
+        message.ack()
