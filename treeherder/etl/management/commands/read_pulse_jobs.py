@@ -3,7 +3,6 @@ from django.core.management.base import BaseCommand
 from kombu import (Connection,
                    Exchange)
 
-from treeherder.etl.common import fetch_json
 from treeherder.etl.pulse_consumer import JobConsumer
 
 
@@ -24,20 +23,10 @@ class Command(BaseCommand):
         sources = settings.PULSE_DATA_INGESTION_SOURCES
         assert sources, "PULSE_DATA_INGESTION_SOURCES must be set"
 
-        # get the existing bindings for the queue
-        bindings = []
         new_bindings = []
 
         with Connection(config.geturl()) as connection:
-            consumer = JobConsumer(connection)
-            try:
-                bindings = self.get_bindings(consumer.queue_name)["bindings"]
-            except Exception:
-                self.stderr.write(
-                    "ERROR: Unable to fetch existing bindings for {}".format(
-                        consumer.queue_name))
-                self.stderr.write("ERROR: Data ingestion may proceed, "
-                                  "but no bindings will be pruned")
+            consumer = JobConsumer(connection, "jobs")
 
             for source in sources:
                 # When creating this exchange object, it is important that it
@@ -52,8 +41,9 @@ class Command(BaseCommand):
                     for destination in source['destinations']:
                         routing_key = "{}.{}".format(destination, project)
                         consumer.bind_to(exchange, routing_key)
-                        new_binding_str = self.get_binding_str(exchange.name,
-                                                               routing_key)
+                        new_binding_str = consumer.get_binding_str(
+                            exchange.name,
+                            routing_key)
                         new_bindings.append(new_binding_str)
 
                         self.stdout.write(
@@ -62,30 +52,9 @@ class Command(BaseCommand):
                                 new_binding_str
                             ))
 
-            # Now prune any bindings from the our queue that were not
-            # established above.
-            # This indicates that they are no longer in the config, and should
-            # therefore be removed from the durable queue bindings list.
-            for binding in bindings:
-                if binding["source"]:
-                    binding_str = self.get_binding_str(binding["source"],
-                                                       binding["routing_key"])
-
-                    if binding_str not in new_bindings:
-                        consumer.unbind_from(Exchange(binding["source"]),
-                                             binding["routing_key"])
-                        self.stdout.write("Unbound from: {}".format(binding_str))
+            consumer.prune_bindings(new_bindings)
 
             try:
                 consumer.run()
             except KeyboardInterrupt:
-                self.stdout.write("Pulse listening stopped...")
-
-    def get_binding_str(self, exchange, routing_key):
-        """Use consistent string format for binding comparisons"""
-        return "{} {}".format(exchange, routing_key)
-
-    def get_bindings(self, queue_name):
-        """Get list of bindings from the pulse API"""
-        return fetch_json("{}queue/{}/bindings".format(
-            settings.PULSE_GUARDIAN_URL, queue_name))
+                self.stdout.write("Pulse Job listening stopped...")
