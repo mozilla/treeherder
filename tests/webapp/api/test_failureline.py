@@ -7,7 +7,8 @@ from tests.autoclassify.utils import (create_failure_lines,
                                       test_line)
 from treeherder.autoclassify.detectors import ManualDetector
 from treeherder.model.derived import ArtifactsModel
-from treeherder.model.models import (FailureLine,
+from treeherder.model.models import (BugJobMap,
+                                     FailureLine,
                                      Job,
                                      JobNote,
                                      Matcher,
@@ -111,6 +112,9 @@ def test_update_failure_line_mark_job(eleven_jobs_stored,
     job_failure_lines = [line for line in failure_lines if
                          line.job_guid == job.guid]
 
+    classified_failures[1].bug_number = 1234
+    classified_failures[1].save()
+
     bs_artifact = {'type': 'json',
                    'name': 'Bug suggestions',
                    'blob': json.dumps([{"search": "TEST-UNEXPECTED-%s %s" %
@@ -143,6 +147,9 @@ def test_update_failure_line_mark_job(eleven_jobs_stored,
     note = JobNote.objects.get(job=job)
     assert note.failure_classification.id == 4
     assert note.user == test_user
+    job_bugs = BugJobMap.objects.filter(job=job)
+    assert job_bugs.count() == 1
+    assert job_bugs[0].bug_id == 1234
 
 
 def test_update_failure_line_mark_job_with_human_note(eleven_jobs_stored,
