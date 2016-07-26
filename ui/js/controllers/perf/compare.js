@@ -88,7 +88,7 @@ perf.controller('CompareChooserCtrl', [
                     ).then(function (revision) {
                         return {
                             revision:revision,
-                            project: $scope.newProject,
+                            project: $scope.newProject
                         };
                     });
                 }

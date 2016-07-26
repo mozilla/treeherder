@@ -427,7 +427,7 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
         function buildUIData(data, matchers) {
             var ui = {
                 options: [],
-                best: null,
+                best: null
             };
 
             var getClassificationMatches = getClassifiedFailureMatcher(matchers,
