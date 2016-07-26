@@ -79,7 +79,7 @@
           <i class="text-warning fa fa-exclamation-circle"></i>
           <a href="perf.html#/alerts?id={{tooltipContent.alertSummary.id}}">
             Alert #{{tooltipContent.alertSummary.id}}</a>
-          <span class="text-muted">- {{tooltipContent.alert.getStatusText()}}
+        <span class="text-muted">- {{tooltipContent.alert.isAcknowledged() ? tooltipContent.alertSummary.getStatusText() : tooltipContent.alert.getStatusText()}}
             <span ng-show="tooltipContent.alert.related_summary_id">
               <span ng-if="tooltipContent.alert.related_summary_id !== tooltipContent.alertSummary.id">
               to <a href="#/alerts?id={{tooltipContent.alert.related_summary_id}}" target="_blank">alert #{{tooltipContent.alert.related_summary_id}}</a>
