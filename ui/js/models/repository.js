@@ -9,7 +9,6 @@ treeherder.factory('ThRepositoryModel', [
 
         var $log = new ThLog("ThRepositoryModel");
 
-        var new_failures = {};
         var repos = {};
         var watchedRepos = {};
         var orderedRepoGroups = {};
@@ -160,7 +159,7 @@ treeherder.factory('ThRepositoryModel', [
                 if (options.name) {
                     setCurrent(options.name);
                 }
-                return $q(function(resolve, reject) {
+                return $q(function(resolve) {
                     resolve('Already loaded');
                 });
             }

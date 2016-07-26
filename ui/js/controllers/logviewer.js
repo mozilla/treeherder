@@ -10,7 +10,6 @@ logViewerApp.controller('LogviewerCtrl', [
         $timeout, ThJobArtifactModel, ThJobDetailModel, ThLog, ThLogSliceModel,
         ThJobModel, thNotify, dateFilter, ThResultSetModel, thDateFormat,
         thReftestStatus) {
-        var $log = new ThLog('LogviewerCtrl');
 
         // changes the size of chunks pulled from server
         var LINE_BUFFER_SIZE = 100;
@@ -42,7 +41,7 @@ logViewerApp.controller('LogviewerCtrl', [
             $scope.showSuccessful = !$scope.hasFailedSteps();
         });
 
-        $scope.$watch('[selectedBegin, selectedEnd]', function(newVal, oldVal) {
+        $scope.$watch('[selectedBegin, selectedEnd]', function(newVal) {
             var newHash = (newVal[0] === newVal[1]) ? newVal[0] : newVal[0] + "-L" + newVal[1];
             if (!isNaN(newVal[0])) {
                 $location.hash("L" + newHash);
@@ -51,7 +50,7 @@ logViewerApp.controller('LogviewerCtrl', [
             }
         });
 
-        $scope.$on("$locationChangeSuccess", function($event, $artifact) {
+        $scope.$on("$locationChangeSuccess", function($event) {
             var oldLine = parseInt($scope.currentLineNumber);
             getSelectedLines();
 
@@ -112,7 +111,7 @@ logViewerApp.controller('LogviewerCtrl', [
         };
 
         $scope.loadMore = function(bounds, element) {
-            var deferred = $q.defer(), range, req, above, below;
+            var deferred = $q.defer(), range, above, below;
 
             if (!$scope.loading) {
                 // move the line number either up or down depending which boundary was hit
@@ -189,7 +188,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
                     $scope.loading = false;
                     deferred.resolve();
-                }, function (error) {
+                }, function () {
                     $scope.loading = false;
                     $scope.logError = true;
                     thNotify.send("The log no longer exists or has expired", 'warning', true);
@@ -254,7 +253,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 ThJobDetailModel.getJobDetails(job.job_guid).then(function(jobDetails) {
                     $scope.job_details = jobDetails;
                 });
-            }, function (error) {
+            }, function () {
                 $scope.loading = false;
                 $scope.jobExists = false;
                 thNotify.send("The job does not exist or has expired", 'danger', true);
@@ -297,7 +296,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
         /** utility functions **/
 
-        function moveScrollToLineNumber(linenumber, $event) {
+        function moveScrollToLineNumber(linenumber) {
             $scope.currentLineNumber = linenumber;
             $scope.displayedStep = getStepFromLine(linenumber);
             $scope.loadMore({}).then(function () {
@@ -415,11 +414,11 @@ logViewerApp.controller('LogviewerCtrl', [
             }
         }
 
-        function removeChunkAbove (request) {
+        function removeChunkAbove () {
             $scope.displayedLogLines = $scope.displayedLogLines.slice(LINE_BUFFER_SIZE);
         }
 
-        function removeChunkBelow (request) {
+        function removeChunkBelow () {
             var endSlice = $scope.displayedLogLines.length - LINE_BUFFER_SIZE;
             $scope.displayedLogLines = $scope.displayedLogLines.slice(0, endSlice);
         }

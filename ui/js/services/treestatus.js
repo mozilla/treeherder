@@ -1,8 +1,8 @@
 'use strict';
 
 treeherder.factory('treeStatus', [
-    '$http', '$q',
-    function($http, $q) {
+    '$http',
+    function($http) {
         var urlBase = "https://api.pub.build.mozilla.org/treestatus/trees/";
 
         var getTreeStatusName = function(name) {

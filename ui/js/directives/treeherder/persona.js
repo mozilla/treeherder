@@ -9,7 +9,7 @@ treeherder.directive('personaButtons', [
 
         return {
             restrict: "E",
-            link: function(scope, element, attrs) {
+            link: function(scope) {
                 scope.initialized = $q.all([
                     ThUserModel.get().then(function(user){
                         $rootScope.user = {};
@@ -78,7 +78,7 @@ treeherder.directive('personaButtons', [
                 };
                 scope.logout = function(){
                     scope.initialized.then(function(){
-                        BrowserId.logout().then(function(response){
+                        BrowserId.logout().then(function(){
                             $rootScope.user = {loggedin: false, email:null};
                         });
                     });

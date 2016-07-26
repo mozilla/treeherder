@@ -13,7 +13,7 @@ treeherder.filter('showOrHide', function() {
     };
 });
 
-treeherder.filter('platformName', ['thPlatformNameMap', function(thPlatformNameMap) {
+treeherder.filter('platformName', function() {
     // fix the platform name from the raw name in the db, with the more
     // "human read-able" one
     return function(input, name) {
@@ -24,7 +24,7 @@ treeherder.filter('platformName', ['thPlatformNameMap', function(thPlatformNameM
         // if it's not found, then return it unchanged.
         return name;
     };
-}]);
+});
 
 treeherder.filter('stripHtml', function() {
     return function(input) {
@@ -81,7 +81,6 @@ function isSHA(str) {
 treeherder.filter('linkifyBugs', function() {
     return function(input) {
         var str = input || '';
-        var clear_attr = 'ignore-job-clear-on-click';
 
         var bug_matches = str.match(/-- ([0-9]+)|bug.([0-9]+)/ig);
         var pr_matches = str.match(/PR#([0-9]+)/ig);

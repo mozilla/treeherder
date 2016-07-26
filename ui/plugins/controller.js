@@ -15,7 +15,7 @@ treeherder.controller('PluginCtrl', [
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
         ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs,
         $timeout, thReftestStatus, ThResultSetStore, PhSeries,
-        thServiceDomain, ThFailureLinesModel) {
+        thServiceDomain) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -434,7 +434,7 @@ treeherder.controller('PluginCtrl', [
             $rootScope.selectedJob = job;
         });
 
-        $rootScope.$on(thEvents.clearSelectedJob, function(event, job) {
+        $rootScope.$on(thEvents.clearSelectedJob, function() {
             if(selectJobPromise !== null){
                 $timeout.cancel(selectJobPromise);
             }
@@ -481,14 +481,14 @@ treeherder.controller('PluginCtrl', [
             $scope.retriggerJob([job]);
         });
 
-        $rootScope.$on(thEvents.jobsClassified, function(event, job) {
+        $rootScope.$on(thEvents.jobsClassified, function() {
             // use $timeout here so that all the other $digest operations related to
             // the event of ``jobsClassified`` will be done.  This will then
             // be a new $digest cycle.
             $timeout($scope.updateClassifications);
         });
 
-        $rootScope.$on(thEvents.bugsAssociated, function(event, job) {
+        $rootScope.$on(thEvents.bugsAssociated, function() {
             $scope.updateBugs();
         });
 

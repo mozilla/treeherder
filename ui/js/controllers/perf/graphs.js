@@ -157,7 +157,7 @@ perf.controller('GraphsCtrl', [
                                                to: $scope.tooltipContent.revision
                                            });
                                        }
-                                   }, function(error) {
+                                   }, function() {
                                        $scope.tooltipContent.revisionInfoAvailable = false;
                                    });
                        });
@@ -407,7 +407,7 @@ perf.controller('GraphsCtrl', [
                                     series.projectName, rev).then(
                                         function(resultSets) {
                                             addHighlightedDatapoint(series, resultSets[0].id);
-                                        }, function(reason) {
+                                        }, function() {
                                             /* ignore cases where no result set exists
                                                for revision */
                                         });
@@ -449,10 +449,6 @@ perf.controller('GraphsCtrl', [
 
                 if ($scope.selectedDataPoint) {
                     showTooltip($scope.selectedDataPoint);
-                }
-                function getDateStr(timestamp) {
-                    var date = new Date(parseInt(timestamp));
-                    return date.toUTCString();
                 }
 
                 function updateSelectedItem() {
@@ -617,7 +613,6 @@ perf.controller('GraphsCtrl', [
         }
 
         function addSeriesList(partialSeriesList) {
-            var propsHash = {};
             return $q.all(partialSeriesList.map(function(partialSeries) {
                 return PhSeries.getSeriesList(
                     partialSeries.project, {
@@ -687,7 +682,7 @@ perf.controller('GraphsCtrl', [
             }
         };
 
-        $scope.showHideSeries = function(signature) {
+        $scope.showHideSeries = function() {
             updateDocument();
             plotGraph();
         };

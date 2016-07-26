@@ -6,7 +6,7 @@ treeherder.directive('thFilterCheckbox', [
 
         return {
             restrict: "E",
-            link: function(scope, element, attrs) {
+            link: function(scope) {
                 scope.checkClass = thResultStatusInfo(scope.filterName).btnClass + "-count-classified";
             },
             templateUrl: 'partials/main/thFilterCheckbox.html'
@@ -55,7 +55,7 @@ treeherder.directive('thWatchedRepo', [
 
         return {
             restrict: "E",
-            link: function(scope, element, attrs) {
+            link: function(scope) {
 
                 scope.updateTitleText = function() {
                     if (scope.repoData.treeStatus) {
@@ -114,14 +114,14 @@ treeherder.directive('thWatchedRepoInfoDropDown', [
 
 
 treeherder.directive('thCheckboxDropdownContainer', [
-    'ThLog', '$rootScope', 'thEvents',
-    function (ThLog, $rootScope, thEvents) {
+    'ThLog','thEvents',
+    function (ThLog) {
 
         var $log = new ThLog("thCheckboxDropdownContainer");
 
         return {
             restrict: "A",
-            link: function(scope, element, attrs) {
+            link: function(scope, element) {
 
                 scope.closeable = true;
                 $(element).on({
@@ -147,16 +147,12 @@ treeherder.directive('thCheckboxDropdownContainer', [
         };
     }]);
 
-treeherder.directive('thRepoMenuItem', [
-    'ThLog',
-    function (ThLog) {
-
-        var $log = new ThLog("thRepoMenuItem");
-
+treeherder.directive('thRepoMenuItem',
+    function () {
         return {
             restrict: "E",
             replace: true,
-            link: function(scope, element, attrs) {
+            link: function(scope, element) {
                 var elem = $(element);
                 elem.find('.dropdown-link').prop('href', scope.urlBasePath + "?repo=" + scope.repo.name);
                 if (scope.repo.name === scope.repoName) {
@@ -166,14 +162,14 @@ treeherder.directive('thRepoMenuItem', [
             },
             templateUrl: 'partials/main/thRepoMenuItem.html'
         };
-    }]);
+    });
 
 // which class to show for the show/hide excluded jobs button.
 // this allows us to do one-time binding in the html.
 treeherder.directive('thExclusionState', function () {
     return {
         restrict: "A",
-        link: function(scope, element, attrs) {
+        link: function(scope) {
             scope.exclusionStateClass = 'btn-toggle-excluded fa-eye-slash';
             if (scope.isSkippingExclusionProfiles) {
                 scope.exclusionStateClass = 'btn-toggle-excluded fa-eye';
@@ -186,7 +182,7 @@ treeherder.directive('thResultStatusChicklet', [
     'thResultStatusInfo', function (thResultStatusInfo) {
         return {
             restrict: "E",
-            link: function(scope, element, attrs) {
+            link: function(scope) {
                 scope.chickletClass = thResultStatusInfo(scope.filterName).btnClass +
                     "-filter-chicklet";
             },

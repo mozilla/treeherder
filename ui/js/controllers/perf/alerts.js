@@ -1,16 +1,11 @@
 "use strict";
 
 perf.factory('PhBugs', [
-    '$http', '$httpParamSerializer', '$templateRequest', '$interpolate', 'dateFilter', 'thServiceDomain', 'phAlertStatusMap', 'mcTalosConfigUrl',
-    'phTalosDocumentationMap', 'phTrySyntaxBuildPlatformMap', 'phTrySyntaxTalosModifierMap',
-    function($http, $httpParamSerializer, $templateRequest, $interpolate, dateFilter, thServiceDomain, phAlertStatusMap, mcTalosConfigUrl,
-             phTalosDocumentationMap, phTrySyntaxBuildPlatformMap, phTrySyntaxTalosModifierMap) {
+    '$http', '$httpParamSerializer', '$templateRequest', '$interpolate', 'dateFilter', 'thServiceDomain',
+    function($http, $httpParamSerializer, $templateRequest, $interpolate, dateFilter, thServiceDomain) {
         return {
             fileTalosBug: function(alertSummary) {
                 $http.get(thServiceDomain + '/api/performance/bug-template/?framework=' + alertSummary.framework).then(function(response) {
-                    var validAlerts = _.filter(alertSummary.alerts, function(alert) {
-                        return alert.status !== phAlertStatusMap.INVALID;
-                    });
                     var template = response.data[0];
                     var compiledText = $interpolate(template.text)({
                         revision: alertSummary.resultSetMetadata.revision,
@@ -60,7 +55,7 @@ perf.controller(
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
-        $scope.$on('modal.closing', function(event, reason, closed) {
+        $scope.$on('modal.closing', function(event) {
             if ($scope.modifying) {
                 event.preventDefault();
             }
@@ -74,7 +69,6 @@ perf.controller(
         $scope.title = "Mark alerts downstream";
         $scope.placeholder = "Alert #";
 
-        var alerts = _.where(alertSummary.alerts, {'selected': true});
         $scope.update = function() {
             var newId = parseInt(
                 $scope.modifyAlert.newId.$modelValue);
@@ -98,7 +92,7 @@ perf.controller(
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
-        $scope.$on('modal.closing', function(event, reason, closed) {
+        $scope.$on('modal.closing', function(event) {
             if ($scope.modifying) {
                 event.preventDefault();
             }
@@ -113,7 +107,6 @@ perf.controller(
         $scope.title = "Reassign alerts";
         $scope.placeholder = "Alert #";
 
-        var alerts = _.where(alertSummary.alerts, {'selected': true});
         $scope.update = function() {
 
             var newId = parseInt(
@@ -139,7 +132,7 @@ perf.controller(
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
-        $scope.$on('modal.closing', function(event, reason, closed) {
+        $scope.$on('modal.closing', function(event) {
             if ($scope.modifying) {
                 event.preventDefault();
             }
@@ -476,7 +469,7 @@ perf.controller('AlertsCtrl', [
             });
         }
 
-        $scope.getMoreAlertSummaries = function(count) {
+        $scope.getMoreAlertSummaries = function() {
             PhAlerts.getAlertSummaries({ href: $scope.getMoreAlertSummariesHref }).then(
                 function(data) {
                     addAlertSummaries(data.results, data.next);
@@ -516,7 +509,7 @@ perf.controller('AlertsCtrl', [
             $scope.summaryTitle.html = '<i class="fa fa-spinner fa-pulse" aria-hidden="true"/>';
         };
 
-        ThRepositoryModel.load().then(function(response) {
+        ThRepositoryModel.load().then(function() {
             $q.all([PhFramework.getFrameworkList().then(
                 function(frameworks) {
                     $scope.frameworks = frameworks;

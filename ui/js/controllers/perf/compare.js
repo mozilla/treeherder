@@ -117,7 +117,7 @@ perf.controller('CompareChooserCtrl', [
 
             $scope.runCompare = function() {
                 ThResultSetModel.getResultSetsFromRevision($scope.originalProject.name, $scope.originalRevision).then(
-                    function(resultSets) {
+                    function() {
                         $scope.originalRevisionError = undefined;
                     },
                     function(error) {
@@ -126,7 +126,7 @@ perf.controller('CompareChooserCtrl', [
                 );
 
                 ThResultSetModel.getResultSetsFromRevision($scope.newProject.name, $scope.newRevision).then(
-                    function (resultSets) {
+                    function () {
                         $scope.newRevisionError = undefined;
                         if ($scope.originalRevisionError === undefined && $scope.newRevisionError === undefined) {
                             $state.go('compare', {
@@ -503,7 +503,6 @@ perf.controller('CompareSubtestResultsCtrl', [
                         return;
                     }
 
-                    var timeRange = PhCompare.getInterval($scope.originalResultSet.push_timestamp, $scope.newResultSet.push_timestamp);
                     var resultSetIds = [$scope.originalResultSet.id];
 
                     $scope.filterOptions = {

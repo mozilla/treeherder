@@ -3,13 +3,11 @@
 treeherder.controller('BugFilerCtrl', [
     '$scope', '$rootScope', '$uibModalInstance', '$http', 'summary', 'thBugzillaProductObject',
     'thPinboard', 'thEvents', 'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures',
-    'thNotify', 'ThLog',
+    'thNotify',
     function BugFilerCtrl(
         $scope, $rootScope, $uibModalInstance, $http, summary, thBugzillaProductObject,
         thPinboard, thEvents, fullLog, parsedLog, reftest, selectedJob, allFailures,
-        thNotify, ThLog) {
-
-        var $log = new ThLog("BugFilerCtrl");
+        thNotify) {
 
         $scope.omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR", "TEST-UNEXPECTED-TIMEOUT"];
 
