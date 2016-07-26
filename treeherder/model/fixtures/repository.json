@@ -1016,4 +1016,18 @@
         "repository_group": 7,
         "description": "Network Security Services."
     }
-}]
+},
+{
+    "pk": 81,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "camdtest",
+        "url": "https://github.com/mozilla/camdtest",
+        "active_status": "active",
+        "codebase": "camd",
+        "repository_group": 1,
+        "description": ""
+    }
+}
+]
