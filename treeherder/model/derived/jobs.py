@@ -525,8 +525,9 @@ class JobsModel(TreeherderModelBase):
                        if item.bug_number}
 
         for bug_number in bug_numbers:
-            BugJobMap.objects.create(job=job, bug_id=bug_number,
-                                     submit_timestamp=datetime.datetime.now(),
+            BugJobMap.objects.create(job=job,
+                                     bug_id=bug_number,
+                                     created=datetime.now(),
                                      user=user)
 
         # if user is not specified, then this is an autoclassified job note
