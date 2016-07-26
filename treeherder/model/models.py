@@ -604,7 +604,8 @@ class JobDetail(models.Model):
     MAX_FIELD_LENGTH = 512
 
     id = BigAutoField(primary_key=True)
-    job = FlexibleForeignKey(Job)
+    job = FlexibleForeignKey(Job,
+                             on_delete=models.DO_NOTHING)
     title = models.CharField(max_length=MAX_FIELD_LENGTH, null=True)
     value = models.CharField(max_length=MAX_FIELD_LENGTH)
     url = models.URLField(null=True, max_length=MAX_FIELD_LENGTH)
@@ -634,7 +635,8 @@ class JobLog(models.Model):
                 (PARSED, 'parsed'),
                 (FAILED, 'failed'))
 
-    job = FlexibleForeignKey(Job)
+    job = FlexibleForeignKey(Job,
+                             on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=50)
     url = models.URLField(max_length=255)
     status = models.IntegerField(choices=STATUSES, default=PENDING)
@@ -663,7 +665,8 @@ class BugJobMap(models.Model):
     '''
     id = BigAutoField(primary_key=True)
 
-    job = FlexibleForeignKey(Job)
+    job = FlexibleForeignKey(Job,
+                             on_delete=models.DO_NOTHING)
     bug_id = models.PositiveIntegerField(db_index=True)
     created = models.DateTimeField(default=timezone.now)
     user = models.ForeignKey(User, null=True)  # null if autoclassified
@@ -724,7 +727,8 @@ class JobNote(models.Model):
     '''
     id = BigAutoField(primary_key=True)
 
-    job = FlexibleForeignKey(Job)
+    job = FlexibleForeignKey(Job,
+                             on_delete=models.DO_NOTHING)
     failure_classification = models.ForeignKey(FailureClassification)
     user = models.ForeignKey(User, null=True)  # null if autoclassified
     text = models.TextField()
