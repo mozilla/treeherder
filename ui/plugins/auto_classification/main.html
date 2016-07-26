@@ -1,112 +1,112 @@
 <div ng-controller="ClassificationPluginCtrl"
      class="error-classification-content">
   <ul class="list-unstyled failure-line-list" ng-if="status() === 'pending' || status() === 'verified'">
-    <li ng-repeat="line in failureLines"
+    <li ng-repeat="errorLine in errorLines"
         class="classification-line"
-        ng-class="line.type">
+        ng-class="errorLine.type">
       <div class="classification-line-actions">
         <span ng-if="line.status !== 'pending'">
-          <a ng-if="line.status == 'verified' && line.classifiedFailureId"
+          <a ng-if="errorLine.status == 'verified' && errorLine.classifiedFailureId"
              class="label label-xs label-primary"
              title="This line is verified"
              target="_blank"
-             ng-href="/failureviewer.html#/?classified_failure_id={{line.classifiedFailureId}}">Verified</a>
+             ng-href="/failureviewer.html#/?classified_failure_id={{errorLine.classifiedFailureId}}">Verified</a>
 
-          <span ng-if="line.status == 'verified' && line.type === 'unstructured'"
+          <span ng-if="errorLine.status == 'verified' && errorLine.type === 'unstructured'"
              class="label label-xs label-primary"
              title="This line is verified">Verified</span>
 
-          <span ng-if="line.status == 'ignored'"
+          <span ng-if="errorLine.status == 'ignored'"
                 class="label label-xs label-ignored"
                 title="This line is ignored">Ignored</span>
         </span>
-        <span ng-if="line.status === 'pending'">
-          <span ng-if="line.type === 'structured' && line.updateText.length==1">{{line.updateText[0]}}</span>
+        <span ng-if="errorLine.status === 'pending'">
+          <span ng-if="errorLine.type === 'structured' && errorLine.updateText.length==1">{{errorLine.updateText[0]}}</span>
           <select
-             ng-if="line.type === 'structured' && line.updateText.length > 1"
-             ng-model="line.updateSelectOption"
-             ng-options="value for (key, value) in line.updateText"
+             ng-if="errorLine.type === 'structured' && errorLine.updateText.length > 1"
+             ng-model="errorLine.updateSelectOption"
+             ng-options="value for (key, value) in errorLine.updateText"
              ></select><br>
           <button class="btn btn-xs btn-default"
                   title="Select best match and click here"
-                  ng-disabled="!line.canSave"
-                  ng-click="line.save()">Save</button>
+                  ng-disabled="!errorLine.canSave"
+                  ng-click="errorLine.save()">Save</button>
         </span>
       </div>
       <div class="classification-line-detail">
-        <div ng-if="line.type == 'structured'">
-          <span ng-if="line.data.action === 'test_result'">
+        <div ng-if="errorLine.type == 'structured'">
+          <span ng-if="errorLine.failure_line.action === 'test_result'">
             <span ng-class="{'ignored-line': line.status === 'ignored'}">
-              <strong class="failure-line-status">{{ ::line.data.status }}</strong>
-              <span ng-if="line.data.expected != 'PASS' && line.data.expected != 'OK'">
-                (expected <strong>{{ ::line.data.expected }}</strong>)
+              <strong class="failure-line-status">{{ ::errorLine.failure_line.status }}</strong>
+              <span ng-if="errorLine.failure_line.expected != 'PASS' && errorLine.failure_line.expected != 'OK'">
+                (expected <strong>{{ ::errorLine.failure_line.expected }}</strong>)
               </span>
-              | <strong>{{ ::line.data.test }}</strong>
-              <span ng-if="line.data.subtest">| {{ ::line.data.subtest }}</span>
+              | <strong>{{ ::errorLine.failure_line.test }}</strong>
+              <span ng-if="errorLine.failure_line.subtest">| {{ ::errorLine.failure_line.subtest }}</span>
             </span>
-            <div ng-if="line.data.message && line.status !== 'ignored'"
+            <div ng-if="errorLine.failure_line.message && line.status !== 'ignored'"
                  ng-init="messageExpanded=false"
                  class="failure-line-message">
               <span class="failure-line-message-toggle fa fa-fw fa-lg"
                     ng-class="{'fa-caret-down': messageExpanded, 'fa-caret-right': !messageExpanded}"
                     ng-click="messageExpanded = !messageExpanded"></span>
               <span ng-if="!messageExpanded"
-                    class="failure-line-message-collapsed">{{ ::line.data.message }}</span>
+                    class="failure-line-message-collapsed">{{ ::errorLine.failure_line.message }}</span>
               <span ng-if="messageExpanded"
-                    class="failure-line-message-expanded">{{ ::line.data.message }}</span>
+                    class="failure-line-message-expanded">{{ ::errorLine.failure_line.message }}</span>
             </div>
           </span>
-          <span ng-if="::line.data.action === 'log'">
-            LOG {{ ::line.data.level }} | {{ ::line.data.message }}
+          <span ng-if="::errorLine.failure_line.action === 'log'">
+            LOG {{ ::errorLine.failure_line.level }} | {{ ::errorLine.failure_line.message }}
           </span>
-          <span ng-if="::line.data.action === 'crash'">
+          <span ng-if="::errorLine.failure_line.action === 'crash'">
             CRASH |
-            <span ng-if="::line.data.test">
-              <strong>{{ ::line.data.test }}</strong> |
+            <span ng-if="::errorLine.failure_line.test">
+              <strong>{{ ::errorLine.failure_line.test }}</strong> |
             </span>
-            application crashed [{{ ::line.data.signature }}]
+            application crashed [{{ ::errorLine.failure_line.signature }}]
           </span>
         </div>
-        <div ng-if="line.type == 'unstructured'">
-          {{ ::line.data.search }}
+        <div ng-if="errorLine.type == 'unstructured'">
+          {{ ::errorLine.line }}
         </div>
-        <div ng-if="line.status === 'verified'">
+        <div ng-if="errorLine.status === 'verified'">
           <span class="glyphicon glyphicon-star best-classification-star"></span>
           <span class="line-option-text" ng-if="line.verifiedBugNumber">
             <a href="{{::getBugUrl(line.verifiedBugNumber) }}"
                target="_blank">Bug {{ ::line.verifiedBugNumber }} -
               <span ng-if="line.verifiedBugSummary"
-                    ng-bind-html="line.verifiedBugSummary | escapeHTML | highlightCommonTerms:line.test:line.data.subtest:line.data.status:line.status.expected"></span>
+                    ng-bind-html="line.verifiedBugSummary | escapeHTML | highlightCommonTerms:line.test:errorLine.failure_line.subtest:errorLine.failure_line.status:line.status.expected"></span>
             </a>
           </span>
         </div>
 
         <ul class="list-unstyled"
-            ng-if="line.status === 'pending'">
+            ng-if="errorLine.status === 'pending'">
           <!--classification options for line-->
-          <li ng-repeat="option in line.options" >
+          <li ng-repeat="option in errorLine.options" >
             <div class="classification-options">
               <div class="classification-icon">
-                <span ng-if="::line.best === option"
+                <span ng-if="::errorLine.best === option"
                       class="glyphicon glyphicon-star-empty"
                       title="This is the option Treeherder chose as the best"></span>
-                <span ng-if="::line.best !== option"
+                <span ng-if="::errorLine.best !== option"
                       class="classification-no-icon">&nbsp;</span>
               </div>
               <input type="radio"
                      value="{{$index}}"
-                     name="{{::line.id}}"
-                     ng-model="line.selectedOptionIndex"
-                     ng-change="line.dirty=true"
+                     name="{{::errorLine.id}}"
+                     ng-model="errorLine.selectedOptionIndex"
+                     ng-change="errorLine.dirty=true"
                      ng-if="!(option.type == 'classified_failure' && !option.hasBug)"/>
               <span class="line-option-text" ng-if="option.hasBug">
                 <span ng-if="option.bugResolution" class="classification-bug-resolution">[{{ option.bugResolution }}]</span>
                 <a href="{{::getBugUrl(option.bugNumber) }}"
                    target="_blank">Bug {{::option.bugNumber}} -
-                  <span ng-if="line.type === 'structured'"
-                        ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:line.data.test:line.data.subtest:line.data.status:line.data.expected"></span>
-                  <span ng-if="line.type === 'unstructured'"
-                        ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:line.data.search_terms"></span>
+                  <span ng-if="errorLine.type === 'structured'"
+                        ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:errorLine.failure_line.test:errorLine.failure_line.subtest:errorLine.failure_line.status:errorLine.failure_line.expected"></span>
+                  <span ng-if="errorLine.type === 'unstructured'"
+                        ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:errorLine.failure_line.search_terms"></span>
                 </a>
               </span>
               <span ng-if="option.type == 'classified_failure' && !option.hasBug">
@@ -117,7 +117,7 @@
                                  type="text"
                                  placeholder="Bug Number"
                                  ng-model="option.bugNumber"
-                                 ng-change="line.dirty=true"/>
+                                 ng-change="errorLine.dirty=true"/>
                 <a ng-if="option.bugNumber"
                    href="{{ ::getBugUrl(option.bugNumber) }}"
                    target="_blank">
@@ -126,7 +126,7 @@
               <span ng-if="option.type==='ignore'"
                     class="line-option-text"
                     title="Ignore this line with regard to job classification"> Ignore line
-                <select ng-if="line.type == 'structured'"
+                <select ng-if="errorLine.type == 'structured'"
                         ng-model="option.always"
                         ng-options="key for (key,value) in {'here only': false, 'for future matches': true}">
                 </select>

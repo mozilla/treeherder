@@ -18,12 +18,13 @@ log_line = {"action": "log", "level": "ERROR", "message": "message1"}
 crash_line = {"action": "crash", "signature": "signature"}
 
 
-def create_failure_lines(repository, job_guid, failure_line_list):
+def create_failure_lines(repository, job_guid, failure_line_list,
+                         start_line=0):
     failure_lines = []
-    for i, (base_data, updates) in enumerate(failure_line_list):
+    for i, (base_data, updates) in enumerate(failure_line_list[start_line:]):
         data = {"job_guid": job_guid,
                 "repository": repository,
-                "line": i}
+                "line": i + start_line}
         data.update(base_data)
         data.update(updates)
         failure_line = FailureLine(**data)
@@ -90,11 +91,12 @@ def create_text_log_errors(project, job_id, failure_line_list):
             continue
         error = TextLogError.objects.create(job=job, step=step,
                                             line=formatter(data).split("\n")[0],
-                                            failure_line=FailureLine.objects.get(id=data['id']),
+                                            failure_line=None,
                                             line_number=i)
         errors.append(error)
 
     return errors
+
 
 def create_bug_suggestions_failures(project, job, failure_line_list):
     formatter = TbplFormatter()

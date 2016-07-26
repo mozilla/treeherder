@@ -1,7 +1,9 @@
 from collections import defaultdict
 
+import django_filters
 from django.db import transaction
-from rest_framework import (mixins,
+from rest_framework import (filters,
+                            mixins,
                             viewsets)
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -12,7 +14,8 @@ from rest_framework.status import (HTTP_200_OK,
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import (ClassifiedFailure,
                                      FailureLine)
-from treeherder.webapp.api import serializers
+from treeherder.webapp.api import (pagination,
+                                   serializers)
 from treeherder.webapp.api.utils import as_dict
 
 
@@ -20,6 +23,18 @@ class FailureLineViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = FailureLine.objects.prefetch_related("matches", "matches__matcher").all()
     serializer_class = serializers.FailureLineNoStackSerializer
+
+    pagination_class = pagination.IdPagination
+
+    class FailureLineFilter(filters.FilterSet):
+        job_guid = django_filters.CharFilter(name='job__guid')
+
+        class Meta:
+            model = FailureLine
+            fields = ['job_guid']
+
+    filter_backends = [filters.DjangoFilterBackend]
+    filter_class = FailureLineFilter
 
     @transaction.atomic
     def _update(self, data, user, many=True):

@@ -457,22 +457,6 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
                     return this.data.id;
                 },
 
-                get status() {
-                    var rv;
-                    if (data.best_is_verified) {
-                        if (data.best_classification === null ||
-                            data.best_classification.bug_number === 0) {
-                            rv = 'ignored';
-                        } else {
-                            rv = 'verified';
-                        }
-                    }
-                    else {
-                        rv = 'pending';
-                    }
-                    return rv;
-                },
-
                 get canSave() {
                     return (this.selectedOption.type === "ignore" ||
                             thValidBugNumber(this.selectedOption.bugNumber));
@@ -696,12 +680,12 @@ treeherder.factory('ThUnstructuredLine', ['thExtendProperties',
 
 
 treeherder.controller('ClassificationPluginCtrl', [
-    '$q', '$scope', '$rootScope', 'ThLog', 'thEvents', 'thTabs',
+    '$q', '$resource', '$scope', '$rootScope', 'ThLog', 'thExtendProperties', 'thEvents', 'thTabs',
     '$timeout', 'thNotify', 'ThFailureLinesModel', 'ThClassifiedFailuresModel',
     'ThMatcherModel', 'ThJobArtifactModel', 'ThTextLogSummaryModel', 'ThStructuredLine',
     'ThUnstructuredLine',
     function ClassificationPluginCtrl(
-        $q, $scope, $rootScope, ThLog, thEvents, thTabs,
+        $q, $resource, $scope, $rootScope, ThLog, thExtendProperties, thEvents, thTabs,
         $timeout, thNotify, ThFailureLinesModel, ThClassifiedFailuresModel,
         ThMatcherModel, ThJobArtifactModel, ThTextLogSummaryModel, ThStructuredLine,
         ThUnstructuredLine) {
@@ -762,43 +746,78 @@ treeherder.controller('ClassificationPluginCtrl', [
                 $scope.triedLoad = false;
             }
 
-            // If we have a TextLogSummaryModel then we should have enough data to
-            // load this panel
-            var checkLoaded = ThTextLogSummaryModel.get($scope.jobId,
-                                                        {timeout: requestPromise,
-                                                         cache: true});
-            checkLoaded
-                .then(function(loaded) {
-                    if (!loaded) {
-                        reloadPromise = $timeout(thTabs.tabs.autoClassification.update, 5000);
-                    } else {
-                        var resources = {
-                            "matchers": getMatchers(requestPromise),
-                            "failure_lines": getFailureLines(requestPromise),
-                            "text_log_summary": getSummaryLines(requestPromise)
-                        };
-                        $q.all(resources)
-                            .then(function(data) {
-                                $scope.failureLines = buildFailureLineOptions(data);
-                            })
-                            .finally(function() {
-                                thTabs.tabs.autoClassification.is_loading = false;
-                                $scope.triedLoad = true;
-                            });
-                    }
-                });
-        };
+            var Matcher = $resource('/api/matcher/');
+            var TextLogError = $resource('/api/text-log-error/', {}, {
+                query: { method: 'GET',
+                         isArray: true,
+                         transformResponse: function (data, headers) {
+                             var ErrorLine = function(errorData) {
+                                 var errorInterface = {
+                                     options: null,
+                                     get type() {
+                                         return (this.failure_line) ?
+                                             'structured' : 'unstructured';
+                                     },
+                                     get selectedOption() {
+                                         return null;
+                                         //return this.options[this.selectedOptionIndex];
+                                     },
+                                     get status() {
+                                         if (this.verified) {
+                                             if (errorData.failure_line.best_classification === null ||
+                                                 errorData.failure_line.best_classification.bug_number === 0) {
+                                                 return 'ignored';
+                                             } else {
+                                                 return 'verified';
+                                             }
+                                         }
+                                         return 'pending';
+                                     },
+                                     get canSave() {
+                                         return true;
+                                         //return (this.selectedOption.type === "ignore" ||
+                                         //        thValidBugNumber(this.selectedOption.bugNumber));
+                                     },
+                                     get bugNumber() {
+                                         return null;
+                                         //if (this.selectedOption.type === "ignore") {
+                                         //    return null;
+                                         //}
+                                         //return this.selectedOption.bugNumber;
+                                     },
 
-        var mergeLines = function(matchers, failureLines, textLogSummary) {
-            var structured = {};
-            var structuredSeen = {};
+                                     
+                                 };
+                                 _.assign(this, errorData);
+                                 thExtendProperties(this, errorInterface);
 
-            _.forEach(failureLines, function(line) {
-                structured[line.id] = line;
+                                 return this;
+                             };
+
+                             return _.map(JSON.parse(data).results, function(errorDatum) {
+                                 return new ErrorLine(errorDatum);
+                             });
+                         }
+                       }
             });
 
-            var lastStructuredIndex = 0;
-            var lines = _.map(textLogSummary.lines, function(line, i) {
+            $scope.matchers = Matcher.query();
+            $scope.errorLines = TextLogError.query({
+                job_guid: thTabs.tabs.autoClassification.job.job_guid
+            });
+            $q.all([$scope.matchers.$promise, $scope.errorLines.$promise]).then(function() {
+                console.log($scope.matchers);
+                console.log($scope.errorLines);
+/*
+                var structured = {};
+                var structuredSeen = {};
+
+                _.forEach(errors, function(error) {
+                    structured[error.id] = error;
+                });
+
+                var lastStructuredIndex = 0;
+                var lines = _.map(textLogSummary.lines, function(line, i) {
                 if (line.failure_line) {
                     lastStructuredIndex = i;
                     structuredSeen[line.failure_line]  = true;
@@ -824,10 +843,14 @@ treeherder.controller('ClassificationPluginCtrl', [
             });
 
             return lines;
+
+*/
+                //$scope.failureLines = buildFailureLineOptions(data);
+                thTabs.tabs.autoClassification.is_loading = false;
+            });
         };
 
-        var buildFailureLineOptions = function(data) {
-            return mergeLines(data.matchers, data.failure_lines, data.text_log_summary);
+        var mergeLines = function(matchers, failureLines, textLogSummary) {
         };
 
         function partitionByType(failureLines) {
@@ -852,7 +875,7 @@ treeherder.controller('ClassificationPluginCtrl', [
         }
 
         $scope.pendingLines = function() {
-            return _.filter($scope.failureLines,
+            return _.filter($scope.errorLines,
                             function(line) {
                                 return line.status === 'pending';
                             });
@@ -863,7 +886,7 @@ treeherder.controller('ClassificationPluginCtrl', [
                 return false;
             }
             return (
-                _.all($scope.pendingLines(),
+                _.all($scope.pXendingLines(),
                       function(line) {
                           return line.canSave;
                       }));
@@ -889,13 +912,13 @@ treeherder.controller('ClassificationPluginCtrl', [
 
         $scope.status = function() {
             if (thTabs.tabs.autoClassification.is_loading ||
-                !$scope.hasOwnProperty('failureLines')) {
+                !$scope.hasOwnProperty('errorLines')) {
                 if (!$scope.triedLoad) {
                     return 'waiting';
                 } else {
                     return 'loading';
                 }
-            } else if ($scope.failureLines.length === 0) {
+            } else if ($scope.errorLines.length === 0) {
                 return 'empty';
             } else if ($scope.pendingLines().length === 0) {
                 return 'verified';

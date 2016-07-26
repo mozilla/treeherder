@@ -229,6 +229,8 @@ class JobNoteSerializer(serializers.ModelSerializer):
 
 class TextLogErrorSerializer(serializers.ModelSerializer):
 
+    failure_line = FailureLineNoStackSerializer(read_only=True)
+
     class Meta:
         model = models.TextLogError
         fields = ['id', 'line', 'line_number', 'failure_line',

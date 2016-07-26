@@ -20,7 +20,6 @@ def test_crossreference_error_lines(test_repository, activate_responses, jm,
              (test_line, {"message": "message2"})]
 
     create_failure_lines(test_repository, job["job_guid"], lines)
-
     create_text_log_errors(test_repository.name, job["id"], lines)
     create_bug_suggestions_failures(test_repository.name, job, lines)
 
@@ -50,9 +49,9 @@ def test_crossreference_error_lines_truncated(test_repository, activate_response
              (test_line, {"message": "message2"}),
              ]
 
-    create_failure_lines(test_repository, job["job_guid"],
-                         lines[:-1] + [({"action": "truncated"}, {})])
-
+    create_failure_lines(
+        test_repository, job["job_guid"],
+        lines[:-1] + [({"action": "truncated"}, {})])
     create_text_log_errors(test_repository.name, job["id"], lines)
     create_bug_suggestions_failures(test_repository.name, job, lines)
 
@@ -75,7 +74,6 @@ def test_crossreference_error_lines_missing(test_repository, activate_responses,
              ]
 
     create_failure_lines(test_repository, job["job_guid"], lines[1:])
-
     create_text_log_errors(test_repository.name, job["id"], lines)
     create_bug_suggestions_failures(test_repository.name, job, lines)
 
