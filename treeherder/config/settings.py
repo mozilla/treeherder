@@ -220,6 +220,7 @@ CELERY_QUEUES = [
     Queue('fetch_bugs', Exchange('default'), routing_key='fetch_bugs'),
     Queue('generate_perf_alerts', Exchange('default'), routing_key='generate_perf_alerts'),
     Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs'),
+    Queue('store_pulse_resultsets', Exchange('default'), routing_key='store_pulse_resultsets'),
 ]
 
 CELERY_ACCEPT_CONTENT = ['json']
@@ -461,6 +462,24 @@ PULSE_DATA_INGESTION_SOURCES = env.json(
         # ... other CI systems
     ])
 
+PULSE_RESULTSET_SOURCES = env.json(
+    "PULSE_RESULTSET_SOURCES",
+    default=[
+        # {
+        #     "exchange": "exchange/taskcluster-github/v1/push",
+        #     "routing_keys": [
+        #         '#'
+        #     ],
+        # },
+        # {
+        #     "exchange": "exchange/taskcluster-github/v1/pull-request",
+        #     "routing_keys": [
+        #         '#'
+        #     ],
+        # },
+        # ... other CI systems
+    ])
+
 # Used for making API calls to Pulse Guardian, such as detecting bindings on
 # the current ingestion queue.
 PULSE_GUARDIAN_URL = "https://pulseguardian.mozilla.org/"
@@ -471,7 +490,6 @@ PULSE_GUARDIAN_URL = "https://pulseguardian.mozilla.org/"
 # Example: "amqp://myuserid:mypassword@pulse.mozilla.org:5672/?ssl=1"
 PULSE_DATA_INGESTION_CONFIG = env.url("PULSE_DATA_INGESTION_CONFIG", default="")
 
-
 # Whether the Queues created for pulse ingestion are durable or not.
 # For local data ingestion, you probably should set this to False
 PULSE_DATA_INGESTION_QUEUES_DURABLE = True
@@ -480,6 +498,9 @@ PULSE_DATA_INGESTION_QUEUES_DURABLE = True
 # are closed.
 # For local data ingestion, you probably should set this to True
 PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE = False
+
+GITHUB_CLIENT_ID = env("GITHUB_CLIENT_ID", default=None)
+GITHUB_CLIENT_SECRET = env("GITHUB_CLIENT_SECRET", default=None)
 
 # The git-ignored settings_local.py file should only be used for local development.
 if env.bool("ENABLE_LOCAL_SETTINGS_FILE", default=False):
