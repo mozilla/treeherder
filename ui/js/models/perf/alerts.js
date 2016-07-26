@@ -21,7 +21,7 @@ treeherder.factory('PhAlerts', [
             var signature = this.series_signature.signature_hash;
             var url = "#/graphs?timerange=" + timeRange +
                 "&series=[" + [alertRepository, signature, 1] + "]" +
-                "&selected=[" + [alertRepository, signature,] + "]";
+                "&selected=[" + [alertRepository, signature] + "]";
 
             // for talos only, automatically add related branches
             if (performanceFrameworkId === 1) {
@@ -41,7 +41,7 @@ treeherder.factory('PhAlerts', [
                 originalProject: alertSummary.repository,
                 originalSignature: this.series_signature.signature_hash,
                 newProject: alertSummary.repository,
-                newSignature: this.series_signature.signature_hash,
+                newSignature: this.series_signature.signature_hash
             };
             if (alertSummary.prevResultSetMetadata) {
                 urlParameters.originalRevision = alertSummary.prevResultSetMetadata.revision;
@@ -265,7 +265,7 @@ treeherder.factory('PhAlerts', [
                                     return new AlertSummary(alertSummaryData, optionCollectionMap);
                                 }),
                                 next: response.data.next,
-                                count: response.data.count,
+                                count: response.data.count
                             };
                         });
                     });

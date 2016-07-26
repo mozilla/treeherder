@@ -7,7 +7,7 @@
     "rules": {
         // Default rules we've disabled until the failures are fixed.
         // Remove a line to enable the rule.
-        "comma-dangle": 0,
+        "comma-dangle": 2,
         "no-console": 0,
         "no-redeclare": 0,
         "no-undef": 0,
