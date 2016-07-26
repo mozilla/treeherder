@@ -126,8 +126,9 @@ treeherder.factory('ThResultSetStore', [
             );
 
             var jobUpdatesPromise;
-            if ((Date.now() - lastPolltime) > maxPollInterval) {
-                // if it's been too long, just refetch everything since
+            if (!lastJobUpdate || (Date.now() - lastPolltime) > maxPollInterval) {
+                // it is possible that some pushes might not have any jobs initially
+                // also, if it's been too long, just refetch everything since
                 // getting updates can be extremely slow (and taxing on the
                 // server) if there are a lot of them
                 jobUpdatesPromise = $q.all(ThResultSetModel.getResultSetJobs(
@@ -143,11 +144,10 @@ treeherder.factory('ThResultSetStore', [
                     _.pick($location.search(), ["exclusion_profile", "visibility"]));
             }
             lastPolltime = Date.now();
-
             jobUpdatesPromise.then(function(jobList) {
+                jobList = _.flatten(jobList);
                 if (jobList.length > 0) {
                     lastJobUpdate = getLastModifiedJobTime(jobList);
-
                     var jobListByResultSet = _.values(
                         _.groupBy(jobList, 'result_set_id')
                     );
@@ -157,7 +157,7 @@ treeherder.factory('ThResultSetStore', [
                             mapResultSetJobs($rootScope.repoName, singleResultSetJobList);
                         }
                     );
-                } else {
+                } else if (lastJobUpdate) {
                     // try to update the last poll interval to the greater of the
                     // last job update or the current time minus a small multiple of the
                     // job poll interval
