@@ -185,7 +185,7 @@ perf.controller('GraphsCtrl', [
                     tip.css({ left: tipPosition.left, top: tipPosition.top });
 
                     // get new tip position after transform
-                    var tipPosition = getTipPosition(tip, x, y, 10);
+                    tipPosition = getTipPosition(tip, x, y, 10);
                     if (tip.css('visibility') === 'hidden') {
                         tip.css({ opacity: 0, visibility: 'visible', left: tipPosition.left,
                                   top: tipPosition.top + 10 });

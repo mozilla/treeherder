@@ -290,7 +290,7 @@ perf.factory('PhCompare', [ '$q', '$http', '$httpParamSerializer', 'thServiceDom
                                         timeRange = Math.round(now - timeRange);
 
                                         //now figure out which predefined set of data we can query from
-                                        var timeRange = _.find(phTimeRanges, function(i) { return timeRange <= i.value; });
+                                        timeRange = _.find(phTimeRanges, function(i) { return timeRange <= i.value; });
                                         return timeRange.value;
                                     },
 

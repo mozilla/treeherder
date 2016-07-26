@@ -30,7 +30,7 @@ treeherder.directive('lvLogLines', ['$timeout', '$parse', function ($timeout) {
                         $scope.displayedStep = steps[j];
 
                         // scroll to the step
-                        var scrollTop = getOffsetOfStep(steps[j].order);
+                        scrollTop = getOffsetOfStep(steps[j].order);
                         $('.steps-data').scrollTop(scrollTop);
 
                         if (!$scope.$$phase) {
