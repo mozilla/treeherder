@@ -17,7 +17,7 @@ treeherder.filter('platformName', function() {
     // fix the platform name from the raw name in the db, with the more
     // "human read-able" one
     return function(input, name) {
-        var newName = platformNameMap[name];
+        var newName = platformNameMap[name]; //ShrutiJ: platformNameMap is throwing no-undef
         if (newName) {
             return newName;
         }

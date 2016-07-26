@@ -2,7 +2,7 @@
 
 var perf = angular.module("perf", ['ui.router', 'ui.bootstrap', 'treeherder', 'angular-clipboard']);
 
-treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionModel', function($http, thServiceDomain, ThOptionCollectionModel) {
+treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionModel', '$q', function($http, thServiceDomain, ThOptionCollectionModel, $q) {
 
     var _getTestName = function(signatureProps, displayOptions) {
         var suiteName = signatureProps.suite;
@@ -88,7 +88,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
                                      return response.data;
                                  } else {
                                      return $q.reject("No data been found for job id " +
-                                                      jobId + " in project " + projectName);
+                                                      jobId + " in project " + projectName); //ShrutiJ: jobId throws no-undef
                                  }
                              });
         }

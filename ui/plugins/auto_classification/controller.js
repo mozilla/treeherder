@@ -280,7 +280,9 @@ treeherder.factory('ThUnstructuredLinePersist', [
             }
         };
 
-        thExtendProperties(ThUnstructuredLinePersist, persistInterface);
+        var ThUnstructuredLinePersist = function() {
+            thExtendProperties(ThUnstructuredLinePersist, persistInterface);
+        };
 
         return ThUnstructuredLinePersist;
     }

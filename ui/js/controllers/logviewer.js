@@ -284,11 +284,11 @@ logViewerApp.controller('LogviewerCtrl', [
                                     }
                                 }
                             }
-                            moveScrollToLineNumber($scope.selectedBegin, $event);
+                            moveScrollToLineNumber($scope.selectedBegin);
                         });
                     } else {
                         $scope.setLineNumber($scope.step_data.all_errors[0].linenumber);
-                        moveScrollToLineNumber($scope.selectedBegin, $event);
+                        moveScrollToLineNumber($scope.selectedBegin);
                     }
                 }
             });
