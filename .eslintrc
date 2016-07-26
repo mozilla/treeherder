@@ -8,7 +8,7 @@
         // Default rules we've disabled until the failures are fixed.
         // Remove a line to enable the rule.
         "comma-dangle": 2,
-        "no-console": 0,
+        "no-console": 2,
         "no-redeclare": 0,
         "no-undef": 0,
         "no-unused-vars": 0,
