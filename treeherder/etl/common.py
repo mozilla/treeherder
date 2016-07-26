@@ -1,8 +1,10 @@
+import calendar
 import hashlib
 import logging
 import re
 
 import requests
+from dateutil import parser
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
@@ -162,3 +164,8 @@ def get_guid_root(guid):
     if "_" in str(guid):
         return str(guid).split("_", 1)[0]
     return guid
+
+
+def to_timestamp(datestr):
+    """Converts a date string to a UTC timestamp"""
+    return calendar.timegm(parser.parse(datestr).utctimetuple())
