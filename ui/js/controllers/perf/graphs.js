@@ -569,7 +569,7 @@ perf.controller('GraphsCtrl', [
                                                                $scope.selectedDataPoint.jobId,
                                                                $scope.selectedDataPoint.frameworkId]
                         + "]" : undefined;
-                })(),
+                })()
             }, {
                 location: true,
                 inherit: true,
@@ -583,7 +583,7 @@ perf.controller('GraphsCtrl', [
         function getSeriesData(series) {
             return PhSeries.getSeriesData(series.projectName, { interval: $scope.myTimerange.value,
                                                                 signatures: series.signature,
-                                                                framework: series.frameworkId,
+                                                                framework: series.frameworkId
 }).then(
                 function(seriesData) {
                     series.flotSeries = {
