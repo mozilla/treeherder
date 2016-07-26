@@ -30,6 +30,9 @@ treeherder.factory('PhAlerts', [
                         url += "&series=[" + [performanceBranch, signature, 0] + "]";
                     }
                 });
+                if (alertRepository === "mozilla-beta"){
+                    url += "&series=[" + ["mozilla-aurora", signature, 0] + "]";
+                }
             }
 
             return url;
