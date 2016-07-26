@@ -424,13 +424,14 @@ perf.controller('CompareSubtestResultsCtrl', [
             $scope.pageList.forEach(function(page) {
                 var mapsigs = [];
                 [rawResultsMap, newRawResultsMap].forEach(function(resultsMap) {
+                    var tempsig;
                     // If no data for a given platform, or test, display N/A in table
                     if (resultsMap) {
-                        var tempsig = _.find(Object.keys(resultsMap), function (sig) {
+                        tempsig = _.find(Object.keys(resultsMap), function (sig) {
                             return resultsMap[sig].name === page;
                         });
                     } else {
-                        var tempsig = 'undefined';
+                        tempsig = 'undefined';
                         resultsMap = {};
                         resultsMap[tempsig] = {};
                     }
