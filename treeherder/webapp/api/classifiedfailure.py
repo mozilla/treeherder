@@ -71,7 +71,8 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
 
         if len(classified_failures) != len(bug_numbers):
             missing = set(bug_numbers.keys()) - set(classified_failures.keys())
-            return ("No classified failures with id: {0}".format(", ".join(missing)),
+            return ("No classified failures with id: {0}"
+                    .format(", ".join(str(item) for item in missing)),
                     HTTP_404_NOT_FOUND)
 
         merges = {}
