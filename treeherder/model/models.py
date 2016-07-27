@@ -959,6 +959,8 @@ class ClassifiedFailure(models.Model):
     def set_bug(self, bug_number):
         try:
             existing = ClassifiedFailure.objects.get(bug_number=bug_number)
+            if existing == self:
+                return self
             self.replace_with(existing)
             return existing
         except ClassifiedFailure.DoesNotExist:

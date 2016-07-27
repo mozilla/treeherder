@@ -74,11 +74,14 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
                     HTTP_404_NOT_FOUND)
 
         merges = {}
-        existing = ClassifiedFailure.objects.filter(bug_number__in=bug_numbers.values()).all()
+        existing = (ClassifiedFailure.objects
+                    .filter(bug_number__in=bug_numbers.values())
+                    .all())
         # Look for other classified failures with the same bug as one being updated, since
         # we don't want duplicate bugs
         existing = [item for item in existing
-                    if item.id not in bug_numbers or item.bug_number != bug_numbers[item.id]]
+                    if item.id not in bug_numbers or
+                    item.bug_number != bug_numbers[item.id]]
 
         if existing:
             if any(item.id in bug_numbers for item in existing):
@@ -88,8 +91,8 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
             classified_failures.update(as_dict(existing, "id"))
 
             bug_to_classified_failure = defaultdict(list)
-            for id, bug in bug_numbers.iteritems():
-                bug_to_classified_failure[bug].append(classified_failures[id])
+            for id, bug_number in bug_numbers.iteritems():
+                bug_to_classified_failure[bug_number].append(classified_failures[id])
             # Merge the ClassifiedFailure being updated into the existing ClassifiedFailure
             # with the same bug number
             for retain in existing:
@@ -106,9 +109,7 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
             if classification_id in merges:
                 classification = merges[classification_id]
             else:
-                classification = classified_failures[int(item.get("id"))]
-                classification.bug_number = bug_number
-                classification.save()
+                classification = classified_failures[int(item.get("id"))].set_bug(bug_number)
             rv.append(classification)
 
         if not many:
