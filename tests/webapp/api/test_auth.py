@@ -57,7 +57,7 @@ def test_get_hawk_unauthorized(client_credentials):
     response = _get_hawk_response(client_credentials.client_id,
                                   str(client_credentials.secret))
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.data == {'detail': ('No authentication credentials '
+    assert response.data == {'detail': ('No authorised credentials '
                                         'found with id %s') % client_credentials.client_id}
 
 
@@ -84,7 +84,7 @@ def test_post_hawk_unauthorized(client_credentials):
                                   str(client_credentials.secret), method='POST',
                                   content="{'this': 'that'}")
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.data == {'detail': ('No authentication credentials '
+    assert response.data == {'detail': ('No authorised credentials '
                                         'found with id %s') % client_credentials.client_id}
 
 
