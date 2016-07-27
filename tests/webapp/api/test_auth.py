@@ -16,6 +16,7 @@ class AuthenticatedView(APIView):
         return Response({'authenticated': True})
 
 factory = APIRequestFactory()
+url = 'http://testserver/'
 
 
 def _get_hawk_response(client_id, secret, method='GET',
@@ -25,24 +26,20 @@ def _get_hawk_response(client_id, secret, method='GET',
         'key': secret,
         'algorithm': 'sha256'
     }
-    url = 'http://testserver/'
-
     sender = Sender(auth, url, method,
                     content=content,
-                    content_type='application/json')
+                    content_type=content_type)
 
     do_request = getattr(factory, method.lower())
-
     request = do_request(url,
                          data=content,
-                         content_type='application/json',
-                         # factory.get doesn't set the CONTENT_TYPE header
-                         # I'm setting it manually here for simplicity
-                         CONTENT_TYPE='application/json',
+                         content_type=content_type,
+                         # factory.get doesn't set the CONTENT_TYPE header from
+                         # `content_type` so the header has to be set manually.
+                         CONTENT_TYPE=content_type,
                          HTTP_AUTHORIZATION=sender.request_header)
 
     view = AuthenticatedView.as_view()
-
     return view(request)
 
 
@@ -79,7 +76,6 @@ def test_post_hawk_unauthorized(client_credentials):
 
 
 def test_no_auth():
-    url = u'http://testserver/'
     request = factory.get(url)
     view = AuthenticatedView.as_view()
     response = view(request)
