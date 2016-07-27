@@ -47,8 +47,6 @@ def _get_hawk_response(client_id, secret, method='GET',
 
 
 def test_get_hawk_authorized(client_credentials):
-    client_credentials.authorized = True
-    client_credentials.save()
     response = _get_hawk_response(client_credentials.client_id,
                                   str(client_credentials.secret))
     assert response.data == {'authenticated': True}
@@ -64,8 +62,6 @@ def test_get_hawk_unauthorized(client_credentials):
 
 
 def test_post_hawk_authorized(client_credentials):
-    client_credentials.authorized = True
-    client_credentials.save()
     response = _get_hawk_response(client_credentials.client_id,
                                   str(client_credentials.secret), method='POST',
                                   content="{'this': 'that'}")
