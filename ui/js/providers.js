@@ -228,7 +228,11 @@ treeherder.provider('thEvents', function() {
 
             initSheriffPanel: "init-sheriff-panel-EVT",
 
-            openLogviewer: "open-logviewer-EVT"
+            openLogviewer: "open-logviewer-EVT",
+
+            classificationVerified: "classification-verified-EVT",
+
+            saveAllAutoclassifications: "save-all-autoclassifications-EVT"
         };
     };
 });

@@ -495,6 +495,19 @@ treeherder.controller('PluginCtrl', [
             $scope.updateBugs();
         });
 
+        $rootScope.$on(thEvents.classificationVerified, function() {
+            // These operations are unneeded unless we verified the full job,
+            // But getting that information to here seems to be non-trivial
+            $scope.updateBugs();
+            $timeout($scope.updateClassifications);
+            ThResultSetStore.fetchJobs($scope.repoName, [$scope.job.id]);
+            // Emit an event indicating that a jo has been classified, although
+            // it might in fact not have been
+            var jobs = {};
+            jobs[$scope.job.id] = $scope.job;
+            $rootScope.$emit(thEvents.jobsClassified, {jobs: jobs});
+        });
+
         $scope.pinboard_service = thPinboard;
 
         // expose the tab service properties on the scope
