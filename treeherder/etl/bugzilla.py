@@ -1,8 +1,12 @@
+import logging
+
 import dateutil.parser
 from django.conf import settings
 
 from treeherder.etl.common import fetch_json
 from treeherder.model.models import Bugscache
+
+logger = logging.getLogger(__name__)
 
 
 def fetch_intermittent_bugs(offset, limit):
@@ -45,15 +49,18 @@ class BzApiBugProcess():
                 # we currently don't support timezones in treeherder, so
                 # just ignore it when importing/updating the bug to avoid
                 # a ValueError
-                Bugscache.objects.update_or_create(
-                    id=bug['id'],
-                    defaults={
-                        'status': bug.get('status', ''),
-                        'resolution': bug.get('resolution', ''),
-                        'summary': bug.get('summary', ''),
-                        'crash_signature': bug.get('cf_crash_signature', ''),
-                        'keywords': ",".join(bug['keywords']),
-                        'os': bug.get('op_sys', ''),
-                        'modified': dateutil.parser.parse(
-                            bug['last_change_time'], ignoretz=True)
-                    })
+                try:
+                    Bugscache.objects.update_or_create(
+                        id=bug['id'],
+                        defaults={
+                            'status': bug.get('status', ''),
+                            'resolution': bug.get('resolution', ''),
+                            'summary': bug.get('summary', ''),
+                            'crash_signature': bug.get('cf_crash_signature', ''),
+                            'keywords': ",".join(bug['keywords']),
+                            'os': bug.get('op_sys', ''),
+                            'modified': dateutil.parser.parse(
+                                bug['last_change_time'], ignoretz=True)
+                        })
+                except Exception as e:
+                    logger.error("error inserting bug '%s' into db: %s", bug, e)
