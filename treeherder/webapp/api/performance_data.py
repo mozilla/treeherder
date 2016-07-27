@@ -254,8 +254,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
     pagination_class = AlertPagination
 
     def update(self, request, *args, **kwargs):
-        if 'related_summary_id' in request.data:
-            request.data['classifier'] = request.user.email
+        request.data['classifier'] = request.user.email
         return super(PerformanceAlertViewSet, self).update(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
