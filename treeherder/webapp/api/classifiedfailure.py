@@ -67,36 +67,52 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
         classified_failures = as_dict(
             ClassifiedFailure.objects.filter(id__in=bug_numbers.keys()), "id")
 
-        if len(classified_failures) != len(bug_numbers):
-            missing = set(bug_numbers.keys()) - set(classified_failures.keys())
-            return ("No classified failures with id: {0}"
-                    .format(", ".join(str(item) for item in missing)),
-                    HTTP_404_NOT_FOUND)
-
-        merges = {}
         existing = (ClassifiedFailure.objects
                     .filter(bug_number__in=bug_numbers.values())
                     .all())
         # Look for other classified failures with the same bug as one being updated, since
         # we don't want duplicate bugs
-        existing = [item for item in existing
-                    if item.id not in bug_numbers or
-                    item.bug_number != bug_numbers[item.id]]
+        existing = as_dict((item for item in existing
+                            if item.id not in bug_numbers or
+                            item.bug_number != bug_numbers[item.id]), "bug_number")
 
+        # We don't count classified failures as missing if there is an existing failure
+        # with the same bug number, even if it has a different id. This is because classification
+        # of other jobs may have caused the classified failure to have been deleted and replaced
+        # by another, without updating all the ids in the client
+        missing = set(bug_numbers.keys()) - set(classified_failures.keys())
+        replacements = {}
+        for missing_id in missing:
+            if bug_numbers[missing_id] in existing:
+                existing_cf = existing[bug_numbers[missing_id]]
+                replacements[missing_id] = existing_cf
+
+        missing -= set(replacements.keys())
+
+        if missing:
+            return ("No classified failures with id: {0}"
+                    .format(", ".join(str(item) for item in missing)),
+                    HTTP_404_NOT_FOUND)
+
+        if any(item.id in bug_numbers for item in existing.values()):
+            return ("Cannot swap classified failure bug numbers in a single operation",
+                    HTTP_400_BAD_REQUEST)
+
+        classified_failures.update(as_dict(existing.values(), "id"))
+
+        for old_id, replacement in replacements.iteritems():
+            bug_numbers[replacement.id] = replacement
+            del bug_numbers[old_id]
+
+        merges = {}
         if existing:
-            if any(item.id in bug_numbers for item in existing):
-                return ("Cannot swap classified failure bug numbers in a single operation",
-                        HTTP_400_BAD_REQUEST)
-
-            classified_failures.update(as_dict(existing, "id"))
-
             bug_to_classified_failure = defaultdict(list)
             for id, bug_number in bug_numbers.iteritems():
                 bug_to_classified_failure[bug_number].append(classified_failures[id])
             # Merge the ClassifiedFailure being updated into the existing ClassifiedFailure
             # with the same bug number
-            for retain in existing:
-                for remove in bug_to_classified_failure[retain.bug_number]:
+            for bug_number, retain in existing.iteritems():
+                for remove in bug_to_classified_failure[bug_number]:
                     removed_id = remove.id
                     remove.replace_with(retain)
                     merges[removed_id] = retain
@@ -105,11 +121,14 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
         rv = []
         for item in data:
             classification_id = int(item.get("id"))
-            bug_number = bug_numbers[classification_id]
+
             if classification_id in merges:
                 classification = merges[classification_id]
+            elif classification_id in replacements:
+                classification = replacements[classification_id]
             else:
-                classification = classified_failures[int(item.get("id"))].set_bug(bug_number)
+                bug_number = bug_numbers[classification_id]
+                classification = classified_failures[classification_id].set_bug(bug_number)
             rv.append(classification)
 
         if not many:

@@ -378,3 +378,62 @@ def test_get_matching_lines(webapp, test_repository, failure_lines, classified_f
     actual = resp.json["results"]
 
     assert [item["id"] for item in actual] == [item.id for item in reversed(failure_lines)]
+
+
+def test_put_duplicate_repeated(webapp, classified_failures, test_user):
+    client = APIClient()
+    client.force_authenticate(user=test_user)
+
+    new = ClassifiedFailure(bug_number=1234)
+    new.save()
+    classified_failures.append(new)
+
+    client.put(reverse("classified-failure-list"),
+               [{"id": classified_failures[0].id, "bug_number": 1234}],
+               format="json")
+    new_classified_failures = ClassifiedFailure.objects.all()
+    assert [item.id for item in new_classified_failures] == [2, 3]
+    assert [item.bug_number for item in new_classified_failures] == [None, 1234]
+    resp = client.put(reverse("classified-failure-list"),
+                      [{"id": classified_failures[0].id, "bug_number": 1234}],
+                      format="json")
+
+    actual = resp.data
+    assert len(actual) == 1
+    expected = [{"id": new.id,
+                 "bug_number": 1234,
+                 "bug": None}]
+    assert actual == expected
+
+    new_classified_failures = ClassifiedFailure.objects.all()
+    assert len(new_classified_failures) == len(classified_failures) - 1
+
+
+def test_put_duplicate_multiple_repeated(webapp, classified_failures, test_user):
+    client = APIClient()
+    client.force_authenticate(user=test_user)
+
+    new = ClassifiedFailure(bug_number=1234)
+    new.save()
+    classified_failures.append(new)
+
+    client.put(reverse("classified-failure-list"),
+               [{"id": classified_failures[0].id, "bug_number": 1234}],
+               format="json")
+    new_classified_failures = ClassifiedFailure.objects.all()
+    assert [item.id for item in new_classified_failures] == [2, 3]
+    assert [item.bug_number for item in new_classified_failures] == [None, 1234]
+    resp = client.put(reverse("classified-failure-list"),
+                      [{"id": classified_failures[0].id, "bug_number": 1234},
+                       {"id": classified_failures[1].id, "bug_number": 1234}],
+                      format="json")
+
+    actual = resp.data
+    assert len(actual) == 2
+    expected = [{"id": new.id,
+                 "bug_number": 1234,
+                 "bug": None},
+                {"id": new.id,
+                 "bug_number": 1234,
+                 "bug": None}]
+    assert actual == expected
