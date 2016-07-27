@@ -109,21 +109,18 @@
           <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alert.selected" ng-change="alertSelected(alertSummary)"/>
         </td>
         <td class="alert-title">
-          <span ng-class="{'alert-strike': alert.isInvalid() || (alert.related_summary_id && alert.related_summary_id !== alertSummary.id)}">
+          <span ng-class="{'alert-strike': alert.isInvalid() || (alert.related_summary_id && alert.related_summary_id !== alertSummary.id)}"
+                uib-tooltip="{{ !alert.isUntriaged() ? (alert.classifier ?  'Classified by ' + alert.classifier : 'Classified automatically') : ''}}">
             {{alert.title}}
           </span>
           &nbsp;(<span ng-class="{'alert-invalid': alert.isInvalid(), 'alert-untriaged': alert.isUntriaged()}">{{alert.getStatusText()}}</span><span ng-show="alert.related_summary_id">
             <!-- Reassigned or downstream *to* another alert -->
             <span ng-if="alert.related_summary_id !== alertSummary.id">
-              to <a href="#/alerts?id={{alert.related_summary_id}}" target="_blank"
-                    uib-tooltip="{{alert.classifier ? 'Classified by ' + alert.classifier : 'Classified automatically'}}"
-                  >alert #{{alert.related_summary_id}}</a>
+              to <a href="#/alerts?id={{alert.related_summary_id}}" target="_blank">alert #{{alert.related_summary_id}}</a>
             </span>
             <!-- Reassigned or downstream *from* the another alert -->
             <span ng-if="alert.related_summary_id === alertSummary.id">
-              from <a href="#/alerts?id={{alert.summary_id}}" target="_blank"
-                    uib-tooltip="{{alert.classifier ? 'Classified by ' + alert.classifier : 'Classified automatically'}}"
-                  >alert #{{alert.summary_id}}</a>
+              from <a href="#/alerts?id={{alert.summary_id}}" target="_blank" >alert #{{alert.summary_id}}</a>
             </span>
           </span>)&nbsp;&nbsp;
           <span class="result-links">
