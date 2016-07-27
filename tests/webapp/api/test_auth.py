@@ -61,6 +61,14 @@ def test_get_hawk_unauthorized(client_credentials):
                                         'found with id %s') % client_credentials.client_id}
 
 
+def test_get_no_auth():
+    request = factory.get(url)
+    view = AuthenticatedView.as_view()
+    response = view(request)
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.data == {'detail': 'Authentication credentials were not provided.'}
+
+
 def test_post_hawk_authorized(client_credentials):
     response = _get_hawk_response(client_credentials.client_id,
                                   str(client_credentials.secret), method='POST',
@@ -80,8 +88,8 @@ def test_post_hawk_unauthorized(client_credentials):
                                         'found with id %s') % client_credentials.client_id}
 
 
-def test_no_auth():
-    request = factory.get(url)
+def test_post_no_auth():
+    request = factory.post(url)
     view = AuthenticatedView.as_view()
     response = view(request)
     assert response.status_code == status.HTTP_403_FORBIDDEN
