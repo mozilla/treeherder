@@ -40,7 +40,8 @@ def test_alert_summaries_get(webapp, test_perf_alert_summary,
         'amount_abs',
         'amount_pct',
         'summary_id',
-        'related_summary_id'
+        'related_summary_id',
+        'classifier'
     ])
     assert len(resp.json['results'][0]['related_alerts']) == 0
 
