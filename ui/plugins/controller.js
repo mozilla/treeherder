@@ -64,6 +64,9 @@ treeherder.controller('PluginCtrl', [
         $rootScope.$on('$locationChangeSuccess', function() {
             showAutoClassifyTab();
         });
+        $rootScope.$on('userChange', function() {
+            showAutoClassifyTab();
+        });
 
         /**
          * Set the tab options and selections based on the selected job.

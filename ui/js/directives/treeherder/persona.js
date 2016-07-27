@@ -66,6 +66,7 @@ treeherder.directive('personaButtons', [
                                 // retrieve the current user's info from the api
                                 ThUserModel.get().then(function(user){
                                     angular.extend($rootScope.user, user);
+                                    $rootScope.$broadcast('userChange');
                                 }, null);
                             },function(response){
                                 var message = "Login failed: " + response.status + " " + response.statusText;
@@ -80,6 +81,7 @@ treeherder.directive('personaButtons', [
                     scope.initialized.then(function(){
                         BrowserId.logout().then(function(response){
                             $rootScope.user = {loggedin: false, email:null};
+                            $rootScope.$broadcast('userChange');
                         });
                     });
                 };
