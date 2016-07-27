@@ -32,21 +32,11 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         return obj.user == request.user
 
 
-class HasHawkPermissions(permissions.BasePermission):
-
-    def has_permission(self, request, view):
-        hawk_header = 'hawk.receiver'
-
-        if hawk_header in request.META and isinstance(request.META[hawk_header], Receiver):
-            return True
-        return False
-
-
 class HasHawkPermissionsOrReadOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
-
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return HasHawkPermissions().has_permission(request, view)
+        hawk_header = request.META.get('hawk.receiver')
+        return hawk_header and isinstance(hawk_header, Receiver)
