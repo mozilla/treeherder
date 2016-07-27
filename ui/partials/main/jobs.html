@@ -13,7 +13,6 @@
   <div class="result-set-bar">
     <span class="result-set-left">
       <span class="result-set-title-left">
-        <span class="btn btn-default btn-sm glyphicon glyphicon-download" ng-show="isLoadingJobs"></span>
         <span>
           <a href="{{::revisionResultsetFilterUrl}}"
              title="View only this resultset"
@@ -50,7 +49,7 @@
             ng-click="triggerNewJobs()">
            Trigger New Jobs
       </span>
-      <th-action-button ng-hide="isLoadingJobs"></th-action-button>
+      <th-action-button></th-action-button>
     </span>
   </div>
 
@@ -61,7 +60,7 @@
 
 <!-- Resultset load errors -->
 <div ng-show="result_sets.length == 0 && !isLoadingRsBatch.appending &&
-              !isLoadingJobs && locationHasSearchParam('revision') && currentRepo.url"
+              locationHasSearchParam('revision') && currentRepo.url"
               class="result-set-body unknown-message-body">
   <span ng-init="revision=getSearchParamValue('revision')">
     <span ng-if="revision !== 'undefined'">
@@ -81,7 +80,7 @@
 </div>
 
 <div ng-show="result_sets.length == 0 && !isLoadingRsBatch.appending &&
-              !isLoadingJobs && !locationHasSearchParam('revision') &&
+              !locationHasSearchParam('revision') &&
               !locationHasSearchParam('repo') && currentRepo.url"
               class="result-set-body unknown-message-body">
   <span>
@@ -92,7 +91,7 @@
 </div>
 
 <div ng-show="result_sets.length == 0 && !isLoadingRsBatch.appending &&
-              !isLoadingJobs && locationHasSearchParam('repo') && !currentRepo.url"
+              locationHasSearchParam('repo') && !currentRepo.url"
               class="result-set-body unknown-message-body">
   <span>
     <div><b>Unknown repository.</b></div>
