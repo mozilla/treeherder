@@ -26,6 +26,12 @@ using pip:
 
     pip install treeherder-client
 
+It will install a module called `thclient` that you can access, for example:
+
+.. code-block:: python
+
+    from thclient import TreeherderClient
+
 By default the production Treeherder API will be used, however this can be
 overridden by passing a `server_url` argument to the `TreeherderClient`
 constructor:
