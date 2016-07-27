@@ -75,25 +75,56 @@ treeherder.factory('PhAlerts', [
                 this.updateStatus(status);
             };
         });
-        AlertSummary.prototype.getTextualSummary = function() {
+        AlertSummary.prototype.getTextualSummary = function(copySummary = false) {
             var resultStr = "";
             var improved = _.filter(this.alerts, function(alert) {return !alert.is_regression && alert.visible;});
             var regressed = _.filter(this.alerts, function(alert) {return alert.is_regression && alert.visible;});
+            // add summary header if getting text for clipboard only
+            if (copySummary) {
+                var lastUpdated = new Date(this.last_updated)
+                resultStr += "== Change summary for alert #" + this.id +
+                             " (as of " + lastUpdated.toLocaleFormat("%B %d %Y %H:%M UTC") + ") ==\n"
+            }
             if (regressed.length > 0) {
-                resultStr += "Summary of tests that regressed:\n\n" +
-                             _.map(regressed, function(alert) {
-                                 return "  " + alert.title + " - " + alert.amount_pct + "% worse";
-                             }).join('\n') + "\n";
+                // more details when getting text for the clipboard
+                if (copySummary) {
+                    resultStr += "\n";
+                    resultStr += "Summary of tests that regressed:\n\n" +
+                                 _.map(regressed, function(alert) {
+                                     return "  " + alert.title + ": " + alert.prev_value + " --> " +
+                                     alert.new_value + " (" + alert.amount_pct + "% worse)";
+                                 }).join('\n') + "\n";
+                } else {
+                    resultStr += "Summary of tests that regressed:\n\n" +
+                                 _.map(regressed, function(alert) {
+                                     return "  " + alert.title + " - " + alert.amount_pct + "% worse";
+                                 }).join('\n') + "\n";
+                }
             }
             if (improved.length > 0) {
                 // Add a newline if we displayed some regressions
                 if (resultStr.length > 0) {
                     resultStr += "\n";
                 }
-                resultStr += "Summary of tests that improved:\n\n" +
-                             _.map(improved, function(alert) {
-                                 return "  " + alert.title + " - " + alert.amount_pct + "% better";
-                             }).join('\n') + "\n";
+                // more details when getting text for the clipboard
+                if (copySummary) {
+                    resultStr += "Summary of tests that improved:\n\n" +
+                                 _.map(improved, function(alert) {
+                                     console.log(alert)
+                                     return "  " + alert.title + ": " + alert.prev_value + " --> " +
+                                     alert.new_value + " (" + alert.amount_pct + "% better)";
+                                 }).join('\n') + "\n";
+                } else {
+                    resultStr += "Summary of tests that improved:\n\n" +
+                                 _.map(improved, function(alert) {
+                                     return "  " + alert.title + " - " + alert.amount_pct + "% better";
+                                 }).join('\n') + "\n";
+                }
+            }
+            // include link to alert if getting text for clipboard only
+            if (copySummary) {
+                var alertLink = window.location.origin + '/perf.html#/alerts?id=' + this.id
+                resultStr += "\nFor up to date results, see: " + alertLink
             }
             return resultStr;
         };
