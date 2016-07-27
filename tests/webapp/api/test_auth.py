@@ -8,13 +8,13 @@ from treeherder.webapp.api import permissions
 
 
 class AuthenticatedView(APIView):
-    permission_classes = (permissions.HasHawkPermissions,)
+    permission_classes = (permissions.HasHawkPermissionsOrReadOnly,)
 
     def get(self, request, *args, **kwargs):
-        return Response({'authenticated': True})
+        return Response({'foo': 'bar'})
 
     def post(self, request, *args, **kwargs):
-        return Response({'authenticated': True})
+        return Response({'foo': 'bar'})
 
 factory = APIRequestFactory()
 url = 'http://testserver/'
@@ -48,7 +48,7 @@ def test_get_hawk_authorized(client_credentials):
     response = _get_hawk_response(client_credentials.client_id,
                                   str(client_credentials.secret))
     assert response.status_code == status.HTTP_200_OK
-    assert response.data == {'authenticated': True}
+    assert response.data == {'foo': 'bar'}
 
 
 def test_get_hawk_unauthorized(client_credentials):
@@ -65,8 +65,8 @@ def test_get_no_auth():
     request = factory.get(url)
     view = AuthenticatedView.as_view()
     response = view(request)
-    assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.data == {'detail': 'Authentication credentials were not provided.'}
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data == {'foo': 'bar'}
 
 
 def test_post_hawk_authorized(client_credentials):
@@ -74,7 +74,7 @@ def test_post_hawk_authorized(client_credentials):
                                   str(client_credentials.secret), method='POST',
                                   content="{'this': 'that'}")
     assert response.status_code == status.HTTP_200_OK
-    assert response.data == {'authenticated': True}
+    assert response.data == {'foo': 'bar'}
 
 
 def test_post_hawk_unauthorized(client_credentials):
