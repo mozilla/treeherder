@@ -3,7 +3,6 @@ from collections import defaultdict
 import rest_framework_filters as filters
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_200_OK,
                                    HTTP_400_BAD_REQUEST,
@@ -23,7 +22,6 @@ class ClassifiedFailureFilter(filters.FilterSet):
 
 
 class ClassifiedFailureViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = serializers.ClassifiedFailureSerializer
     queryset = ClassifiedFailure.objects.all()
     filter_class = ClassifiedFailureFilter

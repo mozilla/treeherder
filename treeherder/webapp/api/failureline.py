@@ -3,7 +3,6 @@ from collections import defaultdict
 from django.db import transaction
 from rest_framework import (mixins,
                             viewsets)
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_200_OK,
                                    HTTP_400_BAD_REQUEST,
@@ -17,7 +16,6 @@ from treeherder.webapp.api.utils import as_dict
 
 
 class FailureLineViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = FailureLine.objects.prefetch_related("matches", "matches__matcher").all()
     serializer_class = serializers.FailureLineNoStackSerializer
 

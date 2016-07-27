@@ -1,5 +1,4 @@
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND
 
@@ -10,7 +9,6 @@ from .serializers import BugJobMapSerializer
 
 
 class BugJobMapViewSet(viewsets.ViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def create(self, request, project):
         """

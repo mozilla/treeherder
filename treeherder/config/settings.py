@@ -315,6 +315,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'hawkrest.HawkAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }
 

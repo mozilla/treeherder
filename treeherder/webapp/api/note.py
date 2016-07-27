@@ -1,6 +1,5 @@
 from rest_framework import viewsets
 from rest_framework.exceptions import ParseError
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND
 
@@ -11,11 +10,10 @@ from .serializers import JobNoteSerializer
 
 
 class NoteViewSet(viewsets.ViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-
     """
     This viewset is responsible for the note endpoint.
     """
+
     def retrieve(self, request, project, pk=None):
         """
         GET method implementation for a note detail

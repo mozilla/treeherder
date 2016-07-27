@@ -1,6 +1,5 @@
 import rest_framework_filters as filters
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from treeherder.model.models import TextLogSummary
 from treeherder.webapp.api import (pagination,
@@ -14,7 +13,6 @@ class TextLogSummaryFilter(filters.FilterSet):
 
 
 class TextLogSummaryViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = serializers.TextLogSummarySerializer
     queryset = TextLogSummary.objects.all()
     filter_class = TextLogSummaryFilter

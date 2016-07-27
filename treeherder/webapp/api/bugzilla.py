@@ -2,7 +2,6 @@ import requests
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
@@ -10,7 +9,6 @@ from treeherder.etl.common import make_request
 
 
 class BugzillaViewSet(viewsets.ViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     @list_route(methods=['post'])
     def create_bug(self, request):
