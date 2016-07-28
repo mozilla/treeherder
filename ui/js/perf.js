@@ -2,7 +2,7 @@
 
 var perf = angular.module("perf", ['ui.router', 'ui.bootstrap', 'treeherder', 'angular-clipboard']);
 
-treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionModel', function($http, thServiceDomain, ThOptionCollectionModel) {
+treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionModel', '$q', function($http, thServiceDomain, ThOptionCollectionModel, $q) {
 
     var _getTestName = function(signatureProps, displayOptions) {
         var suiteName = signatureProps.suite;
@@ -87,8 +87,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
                                  if(response.data) {
                                      return response.data;
                                  } else {
-                                     return $q.reject("No data been found for job id " +
-                                                      jobId + " in project " + projectName);
+                                     return $q.reject("No series data found");
                                  }
                              });
         }
@@ -289,7 +288,7 @@ perf.factory('PhCompare', [ '$q', '$http', '$httpParamSerializer', 'thServiceDom
                                         timeRange = Math.round(now - timeRange);
 
                                         //now figure out which predefined set of data we can query from
-                                        phTimeRange = _.find(phTimeRanges, function(i) { return timeRange <= i.value; });
+                                        var phTimeRange = _.find(phTimeRanges, function(i) { return timeRange <= i.value; });
                                         return phTimeRange.value;
                                     },
 
