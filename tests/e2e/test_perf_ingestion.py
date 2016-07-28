@@ -1,10 +1,14 @@
 import copy
 
+import pytest
+
 from tests.test_utils import post_collection
 from treeherder.client.thclient import client
 from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceFramework,
                                     PerformanceSignature)
+
+pytestmark = pytest.mark.skip(reason='Maintenance mode')
 
 
 def test_post_perf_artifact(jobs_ds, test_repository, result_set_stored,

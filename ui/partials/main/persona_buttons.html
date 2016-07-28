@@ -1,19 +1,4 @@
-<span class="dropdown"
-      ng-if="user.loggedin">
-  <button id="logoutLabel" title="Logged in as: {{user.email}}" role="button"
-          data-toggle="dropdown" data-target="#"
-          class="btn btn-view-nav btn-right-navbar nav-persona-btn">
-    <div class="nav-user-icon">
-      <span class="fa fa-user pull-left"></span>
-    </div>
-    <span class="fa fa-angle-down lightgray"></span>
-  </button>
-  <ul class="dropdown-menu" role="menu" aria-labelledby="logoutLabel"
-      ng-include="'partials/main/thLogoutMenu.html'">
-  </ul>
-</span>
-
 <a class="btn btn-view-nav btn-right-navbar nav-login-btn"
-   title="Log in for additional functionality"
-   ng-if="!user.loggedin" ng-click="login()">
-   <span>Login / Register</span></a>
+   title="Login disabled"
+   ng-click="setMaintenanceInfoShowing(true)">
+   <span>Login disabled</span></a>

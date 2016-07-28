@@ -9,6 +9,8 @@ from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceDatum)
 
+pytestmark = pytest.mark.skip(reason='Maintenance mode')
+
 
 def test_alerts_get(webapp, test_repository, test_perf_alert):
     resp = webapp.get(reverse('performance-alerts-list'))

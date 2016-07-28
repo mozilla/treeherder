@@ -1,9 +1,12 @@
+import pytest
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
 from tests.autoclassify.utils import (create_failure_lines,
                                       test_line)
 from treeherder.model.models import ClassifiedFailure
+
+pytestmark = pytest.mark.skip(reason='Maintenance mode')
 
 
 def test_get_classified_failure(webapp, classified_failures):

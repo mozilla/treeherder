@@ -1,8 +1,11 @@
+import pytest
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
 from treeherder.perf.models import PerformanceAlertSummary
+
+pytestmark = pytest.mark.skip(reason='Maintenance mode')
 
 
 def test_alert_summaries_get(webapp, test_perf_alert_summary,

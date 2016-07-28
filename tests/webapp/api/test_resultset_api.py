@@ -1,5 +1,6 @@
 import copy
 
+import pytest
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
@@ -9,6 +10,8 @@ from treeherder.model.models import (FailureClassification,
                                      Job,
                                      JobNote)
 from treeherder.webapp.api import utils
+
+pytestmark = pytest.mark.skip(reason='Maintenance mode')
 
 
 def test_resultset_list(webapp, eleven_jobs_stored, jm, test_project):

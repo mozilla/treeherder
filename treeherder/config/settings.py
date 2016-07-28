@@ -87,6 +87,7 @@ MIDDLEWARE_CLASSES = [middleware for middleware in [
     # Allows both Django static files and those specified via `WHITENOISE_ROOT`
     # to be served by WhiteNoise, avoiding the need for Apache/nginx on Heroku.
     'treeherder.config.whitenoise_custom.CustomWhiteNoise',
+    'treeherder.config.middleware.ReadOnlyMaintenanceMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware' if ENABLE_DEBUG_TOOLBAR else False,
     'django.contrib.sessions.middleware.SessionMiddleware',

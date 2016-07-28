@@ -393,6 +393,7 @@ treeherderApp.controller('MainCtrl', [
                 $scope.$evalAsync($scope.setSettingsPanelShowing(false));
                 $scope.$evalAsync($scope.closeJob());
                 $scope.$evalAsync($scope.setOnscreenShortcutsShowing(false));
+                $scope.$evalAsync($scope.setMaintenanceInfoShowing(false));
             }],
 
             // Shortcut: clear the pinboard
@@ -549,6 +550,14 @@ treeherderApp.controller('MainCtrl', [
             $scope.onscreenShortcutsShowing = tf;
             $scope.onscreenOverlayShowing = tf;
         };
+
+        $scope.maintenanceInfoShowing = false;
+        $scope.setMaintenanceInfoShowing = function(tf) {
+            $scope.maintenanceInfoShowing = tf;
+            $scope.onscreenOverlayShowing = tf;
+        };
+
+        $scope.$evalAsync($scope.setMaintenanceInfoShowing(true));
 
         $scope.isFilterPanelShowing = false;
         $scope.setFilterPanelShowing = function(tf) {
