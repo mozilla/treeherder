@@ -2,11 +2,11 @@
 treeherderApp.controller('SheriffCtrl', [
     '$scope', '$rootScope', 'ThBuildPlatformModel', 'ThJobTypeModel',
     'thEvents', 'ThRepositoryModel', 'ThOptionCollectionModel',
-    'ThJobExclusionModel', 'ThExclusionProfileModel', 'thNotify', '$q',
+    'ThJobExclusionModel', 'ThExclusionProfileModel', 'thNotify',
     function SheriffController(
         $scope, $rootScope, ThBuildPlatformModel, ThJobTypeModel, thEvents,
         ThRepositoryModel, ThOptionCollectionModel,
-        ThJobExclusionModel, ThExclusionProfileModel, thNotify, $q) {
+        ThJobExclusionModel, ThExclusionProfileModel, thNotify) {
         // fetch the reference data
         $scope.exclusions = [];
         $scope.exclusions_map = {};

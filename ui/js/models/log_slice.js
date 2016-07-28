@@ -82,7 +82,7 @@ treeherder.factory('ThLogSliceModel', [
                 self.insert_into_buffer(options, res.data);
 
                 return res.data;
-            }, function (res) {
+            }, function () {
                 return $q.reject("Log not found");
             });
 

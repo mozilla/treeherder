@@ -4,7 +4,6 @@ treeherder.factory('thBuildApi', [
     '$http', '$location', 'thUrl', 'thServiceDomain', 'ThLog', 'thNotify',
     function($http, $location, thUrl, thServiceDomain, ThLog, thNotify) {
 
-        var $log = new ThLog("thBuildApi");
         var selfServeUrl = "https://secure.pub.build.mozilla.org/buildapi/self-serve/";
 
         var notify = function(status, action) {

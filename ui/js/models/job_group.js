@@ -20,7 +20,6 @@ treeherder.factory('ThJobGroupModel', [
         ThJobGroupModel.get_list = function(options) {
             // a static method to retrieve a list of ThJobGroupModel
             options = options || {};
-            var query_string = $.param(options);
             return $http.get(ThJobGroupModel.get_uri(), {
                 cache: true,
                 params: options

@@ -234,9 +234,9 @@ treeherderApp.controller('FilterPanelCtrl', [
 ]);
 
 treeherderApp.controller('SearchCtrl', [
-    '$scope', '$rootScope', 'thEvents', 'thJobFilters', '$location',
+    '$scope', '$rootScope', 'thEvents', 'thJobFilters',
     function SearchCtrl(
-        $scope, $rootScope, thEvents, thJobFilters, $location){
+        $scope, $rootScope, thEvents, thJobFilters){
 
         var getSearchStr = function() {
             var ss = thJobFilters.getFieldFiltersObj().searchStr;

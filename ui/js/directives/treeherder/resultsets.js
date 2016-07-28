@@ -12,7 +12,7 @@ treeherder.directive('thResultCounts', [
 
         return {
             restrict: "E",
-            link: function(scope, element, attrs) {
+            link: function(scope) {
                 var setTotalCount = function() {
                     if (scope.resultset.job_counts) {
                         scope.inProgress = scope.resultset.job_counts.pending +

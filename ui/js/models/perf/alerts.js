@@ -152,7 +152,7 @@ treeherder.factory('PhAlerts', [
                                          });
                                  });
         };
-        AlertSummary.prototype.getTitle = function(options) {
+        AlertSummary.prototype.getTitle = function() {
             var title;
 
             // we should never include downstream alerts in the description

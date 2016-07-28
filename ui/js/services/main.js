@@ -2,8 +2,8 @@
 
 /* Services */
 treeherder.factory('thUrl', [
-    '$rootScope', 'thServiceDomain', 'ThLog',
-    function($rootScope, thServiceDomain, ThLog) {
+    '$rootScope', 'thServiceDomain',
+    function($rootScope, thServiceDomain) {
 
         var thUrl = {
             getRootUrl: function(uri) {

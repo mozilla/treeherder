@@ -4,9 +4,8 @@ treeherder.factory(
     'ThResultSetModel',
     ['$rootScope', '$http', '$location', '$q', 'thUrl', 'thResultStatusObject',
      'thEvents', 'thServiceDomain', 'ThLog', 'thNotify','ThJobModel',
-     'thPlatformOrder', 'thOptionOrder',
      function($rootScope, $http, $location, $q, thUrl, thResultStatusObject, thEvents, thServiceDomain,
-              ThLog, thNotify, ThJobModel, thPlatformOrder, thOptionOrder) {
+              ThLog, thNotify, ThJobModel) {
 
          var $log = new ThLog("ThResultSetModel");
 

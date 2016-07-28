@@ -26,13 +26,13 @@ treeherder.controller('PinboardCtrl', [
             $scope.toggleEnterBugNumber(true);
         });
 
-        $rootScope.$on(thEvents.saveClassification, function(event) {
+        $rootScope.$on(thEvents.saveClassification, function() {
             if ($scope.isPinboardVisible) {
                 $scope.save();
             }
         });
 
-        $rootScope.$on(thEvents.clearPinboard, function(event) {
+        $rootScope.$on(thEvents.clearPinboard, function() {
             if ($scope.isPinboardVisible) {
                 $scope.unPinAll();
             }

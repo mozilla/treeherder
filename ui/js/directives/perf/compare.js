@@ -16,7 +16,7 @@ treeherder.directive(
                 filterByFramework: '@',
                 releaseBlockerCriteria: '@'
             },
-            link: function(scope, element, attrs) {
+            link: function(scope) {
                 if (!scope.baseTitle) {
                     scope.baseTitle = "Base";
                 }

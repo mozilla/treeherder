@@ -694,8 +694,6 @@ treeherder.factory('ThResultSetStore', [
 
             var platformData = {};
 
-            var jobUpdated, i;
-
             for (i = 0; i < jobList.length; i++) {
                 aggregateJobPlatform(repoName, jobList[i], platformData);
             }

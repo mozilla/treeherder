@@ -13,8 +13,8 @@ treeherder.directive('thPinnedJob', [
 
         return {
             restrict: "E",
-            link: function(scope, element, attrs) {
-                var unbindWatcher = scope.$watch("job", function(newValue) {
+            link: function(scope) {
+                var unbindWatcher = scope.$watch("job", function() {
                     var resultState = thResultStatus(scope.job);
                     scope.job.display = thResultStatusInfo(resultState, scope.job.failure_classification_id);
                     scope.hoverText = getHoverText(scope.job);
@@ -54,7 +54,7 @@ treeherder.directive('thFailureClassification', [
                 failureId: "=",
                 jobResult: "="
             },
-            link: function(scope, element, attrs) {
+            link: function(scope) {
                 scope.$watch('[failureId, jobResult]', function() {
                     if (scope.failureId) {
                         scope.classification = thClassificationTypes.classifications[scope.failureId];
@@ -72,12 +72,12 @@ treeherder.directive('thFailureClassification', [
 
 treeherder.directive('thSimilarJobs', [
     'ThJobModel', 'ThLog',
-    function(ThJobModel, ThLog){
+    function(ThJobModel){
         return {
             restrict: "E",
             templateUrl: "partials/main/similar_jobs.html",
-            link: function(scope, element, attr) {
-                scope.$watch('job', function(newVal, oldVal){
+            link: function(scope) {
+                scope.$watch('job', function(newVal){
                     if(newVal){
                         scope.update_similar_jobs(newVal);
                     }

@@ -93,7 +93,7 @@ treeherder.directive('preventDefaultOnLeftClick', [
     function() {
         return {
             restrict: 'A',
-            link: function(scope, element, attrs){
+            link: function(scope, element){
                 element.on('click', function(event) {
                     if (event.which === 1) {
                         event.preventDefault();
@@ -125,7 +125,7 @@ treeherder.directive('thNotificationBox', [
         return {
             restrict: "E",
             templateUrl: "partials/main/thNotificationsBox.html",
-            link: function(scope, element, attr) {
+            link: function(scope) {
                 scope.notifier = thNotify;
                 scope.alert_class_prefix = "alert-";
             }
@@ -137,7 +137,7 @@ treeherder.directive('thFaviconLink', [
     function(ThRepositoryModel, thFavicons){
         return {
             restrict: "E",
-            link: function(scope, element, attr) {
+            link: function(scope) {
                 scope.currentTreeStatus = ThRepositoryModel.getCurrentTreeStatus;
                 scope.$watch('currentTreeStatus()', function(newVal) {
                     if (newVal) {
@@ -152,7 +152,7 @@ treeherder.directive('thFaviconLink', [
 treeherder.directive('bugInput', function() {
     return {
         restrict: 'A',
-        link: function(scope, elem, attrs, ctrl) {
+        link: function(scope, elem) {
             elem.on('invalid', function(event) {
                 event.target.setCustomValidity('Please enter a bug number');
             });
@@ -189,7 +189,7 @@ treeherder.directive('numbersOnly', function(){
 
 treeherder.directive("thMultiSelect", [
     '$log',
-    function($log){
+    function(){
         return {
             restrict: "E",
             templateUrl: "partials/main/thMultiSelect.html",
@@ -197,7 +197,7 @@ treeherder.directive("thMultiSelect", [
                 leftList: "=",
                 rightList: "="
             },
-            link: function(scope, element, attrs){
+            link: function(scope){
 
                 scope.leftSelected = [];
                 scope.rightSelected = [];
@@ -223,7 +223,7 @@ treeherder.directive("thMultiSelect", [
 
 treeherder.directive("thTruncatedList", [
     '$log',
-    function($log){
+    function(){
         // transforms a list of elements in a shortened list
         // with a "more" link
         return {
@@ -233,7 +233,7 @@ treeherder.directive("thTruncatedList", [
                 numvisible: "@",
                 elem_list: "=elements"
             },
-            link: function(scope, element, attrs){
+            link: function(scope, element){
                 scope.visible = parseInt(scope.numvisible);
 
                 if(typeof scope.visible !== 'number'
@@ -242,7 +242,7 @@ treeherder.directive("thTruncatedList", [
                     throw new TypeError("The visible parameter must be a positive number");
                 }
                 // cloning the original list to avoid
-                scope.$watch("elem_list", function(newValue, oldValue){
+                scope.$watch("elem_list", function(newValue){
                     if(newValue){
                         var elem_list_clone = angular.copy(newValue);
                         scope.visible = Math.min(scope.visible, elem_list_clone.length);
