@@ -1,5 +1,8 @@
+import pytest
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
+
+pytestmark = pytest.mark.skip(reason='Maintenance mode')
 
 
 def test_get_summary_line(webapp, text_summary_lines):

@@ -1,7 +1,10 @@
+import pytest
 from django.core.urlresolvers import reverse
 from webtest import TestApp
 
 from treeherder.config.wsgi import application
+
+pytestmark = pytest.mark.skip(reason='Maintenance mode')
 
 
 def test_pending_job_available(jm, pending_jobs_stored):

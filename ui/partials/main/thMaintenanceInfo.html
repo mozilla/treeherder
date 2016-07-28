@@ -1,0 +1,27 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3><span class="fa fa-wrench fa-lg fa-flip-horizontal"></span>
+      Scheduled maintenance in progress
+      <a ng-show="maintenanceInfoShowing"
+         ng-click="setMaintenanceInfoShowing(false)"
+         class="pull-right" href="" title="Close">
+        <span class="fa fa-times lightgray"></span>
+      </a>
+    </h3>
+  </div>
+  <div class="panel-body panel-spacing">
+    <p>Treeherder is in read-only mode for the next 30 minutes, whilst the
+       <a href="TODO-newsgroup-post-link">SCL3 to Heroku datacenter migration</a>
+       takes place.</p>
+    <p>During this time:</p>
+    <ul>
+      <li>Users will be logged out and unable to make changes (eg classifying failures).</li>
+      <li>Existing pushes/results can be viewed, however new data will not
+          appear until after the migration is complete.</li>
+    </ul>
+    <p>Follow along in <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1277304">bug 1277304</a>
+       or <a href="irc://irc.mozilla.org/treeherder">#treeherder</a>.</p>
+    <p>Best wishes,</p>
+    <p>&mdash; The Treeherder team</p>
+  </div>
+</div>

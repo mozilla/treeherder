@@ -8,6 +8,8 @@ from rest_framework.test import APIClient
 from treeherder.model.models import (BugJobMap,
                                      Job)
 
+pytestmark = pytest.mark.skip(reason='Maintenance mode')
+
 
 @pytest.mark.parametrize('test_no_auth,test_duplicate_handling', [
     (True, False),

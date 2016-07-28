@@ -33,6 +33,12 @@
                     <ng-include src="'partials/main/thShortcutTable.html'"></ng-include>
                  </div>
                </div>
+               <div id="onscreen-shortcuts" ng-if="maintenanceInfoShowing"
+                    stop-propagation-on-left-click>
+                 <div class="col-xs-8">
+                    <ng-include src="'partials/main/thMaintenanceInfo.html'"></ng-include>
+                 </div>
+               </div>
             </div>
             <div id="global-navbar-container">
                 <ng-include id="th-global-top-nav-panel"

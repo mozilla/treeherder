@@ -10,6 +10,8 @@ from treeherder.model.models import (ExclusionProfile,
                                      JobExclusion)
 from treeherder.webapp.api.jobs import JobsViewSet
 
+pytestmark = pytest.mark.skip(reason='Maintenance mode')
+
 
 def test_job_list(webapp, eleven_jobs_stored, test_repository):
     """
