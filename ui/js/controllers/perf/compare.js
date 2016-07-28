@@ -413,14 +413,13 @@ perf.controller('CompareSubtestResultsCtrl', [
             $scope.compareResults = {};
             $scope.titles = {};
 
-            $scope.subtestTitle = ($scope.platformList[0].split(' ')[0] + " " +
-                                   $scope.testList[0].split(' ')[0]);
-            window.document.title = $scope.subtestTitle + " subtest comparison";
-
             var testName = $scope.testList[0].replace('summary ', '');
 
             $scope.titles[testName] = $scope.platformList[0] + ': ' + testName;
             $scope.compareResults[testName] = [];
+
+            window.document.title = $scope.titles[testName];
+            $scope.subtestTitle = $scope.titles[testName];
 
             $scope.pageList.sort();
             $scope.pageList.forEach(function(page) {
