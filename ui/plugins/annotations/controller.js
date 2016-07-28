@@ -11,11 +11,11 @@ treeherder.controller('AnnotationsPluginCtrl', [
 
         $log.debug("annotations plugin initialized");
 
-        $scope.$watch('classifications', function(newValue, oldValue) {
+        $scope.$watch('classifications', function(newValue) {
             thTabs.tabs.annotations.num_items = newValue ? $scope.classifications.length : 0;
         }, true);
 
-        $rootScope.$on(thEvents.deleteClassification, function(event) {
+        $rootScope.$on(thEvents.deleteClassification, function() {
             if ($scope.classifications[0]) {
                 $scope.deleteClassification($scope.classifications[0]);
 

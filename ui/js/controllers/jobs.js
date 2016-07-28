@@ -10,8 +10,6 @@ treeherderApp.controller('JobsCtrl', [
         thUrl, ThRepositoryModel, thDefaultRepo,
         ThResultSetStore, thResultStatusList, $location, thEvents, ThJobModel, thNotify) {
 
-        var $log = new ThLog(this.constructor.name);
-
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
         $scope.getNextResultSets = function(count, keepFilters) {
@@ -317,7 +315,7 @@ treeherderApp.controller('ResultSetCtrl', [
             $scope.repoName + "&author=" +
             encodeURIComponent($scope.resultset.author);
 
-        $rootScope.$on(thEvents.jobContextMenu, function(event, job){
+        $rootScope.$on(thEvents.jobContextMenu, function(){
             $log.debug("caught", thEvents.jobContextMenu);
             //$scope.viewLog(job.resource_uri);
         });

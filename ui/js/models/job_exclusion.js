@@ -52,7 +52,7 @@ treeherder.factory('ThJobExclusionModel', [
                     },
                     function(reason){
                         if(reason.status === 400){
-                            angular.forEach(reason.data, function(error_list, field){
+                            angular.forEach(reason.data, function(error_list){
                                 angular.forEach(error_list, function(error){
                                     thNotify.send(error, "danger");
                                 });
@@ -100,7 +100,7 @@ treeherder.factory('ThJobExclusionModel', [
             var pk = this.id;
             return $http.delete(ThJobExclusionModel.get_uri()+pk+"/")
                 .then(
-                    function(response){
+                    function(){
                         thNotify.send("Job filter successfully deleted", "success");
                     },
                     function(reason){

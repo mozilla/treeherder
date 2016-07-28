@@ -1,7 +1,7 @@
 'use strict';
 
-treeherder.directive('lvInfiniteScroll', ['$timeout', '$parse', function ($timeout, $parse) {
-    return function (scope, element, attr) {
+treeherder.directive('lvInfiniteScroll', ['$timeout', function ($timeout) {
+    return function (scope, element) {
         element.bind('scroll', function () {
             var raw = element[0];
             var sh = raw.scrollHeight;

@@ -11,7 +11,7 @@
         "no-console": 2,
         "no-redeclare": 2,
         "no-undef": 0,
-        "no-unused-vars": 0,
+        "no-unused-vars": 2,
 
         // Non-default rules we've chosen to enable.
         "accessor-pairs": 2,

@@ -94,9 +94,9 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
 
         var verifyLine = function(line, cf) {
             return ThFailureLinesModel.verify(line.id, cf ? cf.id : null)
-                .then(function (response) {
+                .then(function () {
                     thNotify.send("Classification saved", "success");
-                }, function (errorResp) {
+                }, function () {
                     thNotify.send("Error saving classification", "danger", true);
                 })
                 .finally(function () {
@@ -137,7 +137,6 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
 
 
         var updateFunc = function(line) {
-            var selected = line.selectedOption;
             var options = {"Update": updateClassifiedFailure,
                            "Ignore": ignoreFailureTemporary,
                            "Create": createClassifiedFailure,
@@ -264,7 +263,7 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
 treeherder.factory('ThUnstructuredLinePersist', [
     'thExtendProperties', 'thNotify', 'ThTextLogSummaryLineModel',
     function(thExtendProperties, thNotify, ThTextLogSummaryLineModel) {
-        var ThUnstructuredLinePersist = function(thNotify, ThTextLogSummaryLineModel) {};
+        var ThUnstructuredLinePersist = function() {};
 
         var persistInterface = {
             save: function(line) {
@@ -922,7 +921,7 @@ treeherder.controller('ClassificationPluginCtrl', [
                       });
         };
 
-        $rootScope.$on(thEvents.saveAllAutoclassifications, function(event) {
+        $rootScope.$on(thEvents.saveAllAutoclassifications, function() {
             if ($scope.canSaveAll()) {
                 $scope.saveAll();
             }

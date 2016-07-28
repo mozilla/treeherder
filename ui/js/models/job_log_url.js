@@ -30,7 +30,6 @@ treeherder.factory('ThJobLogUrlModel', [
                 .then(function(response) {
                     var item_list = [];
                     angular.forEach(response.data, function(elem){
-                        var buildData = elem.url.split("/");
                         var buildUrl = elem.url.slice(0, elem.url.lastIndexOf("/")) + "/";
                         elem.buildUrl = buildUrl;
                         item_list.push(new ThJobLogUrlModel(elem));

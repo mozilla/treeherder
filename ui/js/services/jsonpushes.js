@@ -41,7 +41,7 @@ treeherder.service('JsonPushes', ['$http', '$q', function($http, $q) {
         }).then(function(parentChset) {
             // now check in projects if we can find the parent changeset
             var promises = _.map(projects, function (proj) {
-                return $q(function(resolve, reject) {
+                return $q(function(resolve) {
                     $http.get(
                         proj.url + "/json-pushes?changeset=" + parentChset
                     ).then(function(response) {
@@ -59,7 +59,7 @@ treeherder.service('JsonPushes', ['$http', '$q', function($http, $q) {
                                 revision: data.revision,
                                 date: data.date
                             });
-                        }, function(_) {
+                        }, function() {
                             // swallow all errors so $q.all will succeed
                             resolve(null);
                         }

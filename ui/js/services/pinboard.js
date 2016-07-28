@@ -24,7 +24,7 @@ treeherder.factory('thPinboard', [
 
                 classification.job_id = job.id;
                 classification.create().
-                    success(function(data) {
+                    success(function() {
                         thNotify.send("Classification saved for " + job.platform + ": " + job.job_type_name, "success");
                     }).error(function(data) {
                         thNotify.send("Error saving classification for " + job.platform + ": " + job.job_type_name, "danger");
@@ -41,9 +41,9 @@ treeherder.factory('thPinboard', [
                     type: 'annotation'
                 });
                 bjm.create().
-                    success(function(data) {
+                    success(function() {
                         thNotify.send("Bug association saved for " + job.platform + ": " + job.job_type_name, "success");
-                    }).error(function(data) {
+                    }).error(function() {
                         thNotify.send("Error saving bug association for " + job.platform + ": " + job.job_type_name, "danger");
                     });
             });

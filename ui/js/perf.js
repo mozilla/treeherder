@@ -39,7 +39,6 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
     var _getSeriesSummary = function(projectName, signature, signatureProps,
                                      optionCollectionMap) {
         var platform = signatureProps.machine_platform;
-        var testName = signatureProps.test;
         var options = _getSeriesOptions(signatureProps, optionCollectionMap);
 
         return {
