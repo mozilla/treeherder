@@ -72,7 +72,7 @@ Starting a local Treeherder instance
 
      (venv)vagrant@local:~/treeherder$ ./manage.py runserver
 
-  this is more convenient because it automatically refreshes every time there's a change in the code. However it can consume too much memory when under load (eg due to data ingestion), causing the OS to kill it.
+  this is more convenient because it automatically refreshes every time there's a change in the code.
 
 * Visit http://local.treeherder.mozilla.org in your browser. Note: There will be no data to display until the ingestion tasks are run.
 
@@ -81,9 +81,7 @@ Running the ingestion tasks
 
 Ingestion tasks populate the database with version control push logs, queued/running/completed buildbot jobs & output from log parsing, as well as maintain a list of job etas and cache of intermittent failure bugs. To run these:
 
-* Ensure the django runserver or gunicorn instance is running first (see "Starting a local Treeherder instance" above).
-
-* In another Vagrant SSH session, start up a celery worker to process async tasks:
+* Start up a celery worker to process async tasks:
 
   .. code-block:: bash
 
@@ -115,15 +113,6 @@ talos jobs for a particular push, try:
   .. code-block:: bash
 
      (venv)vagrant@local:~/treeherder$ ./manage.py ingest_push --filter-job-group T mozilla-inbound 63f8a47cfdf
-
-Note that some types of data (e.g. performance, log error summaries) are not processed
-immediately, and you will thus need to start a celery worker *before* running `ingest_push`
-to handle them. You don't need to enable the beat service for this though, so you can
-omit the `-B`:
-
-  .. code-block:: bash
-
-     (venv)vagrant@local:~/treeherder$ celery -A treeherder worker
 
 
 .. _A-Team Bootcamp: https://ateam-bootcamp.readthedocs.io
