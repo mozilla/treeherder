@@ -797,9 +797,21 @@ treeherder.directive('thCloneJobs', [
                 } else if (window.innerHeight >= 1000) {
                     scrollOffset = -200;
                 }
-                $('.th-global-content').scrollTo(el, duration, {offset: scrollOffset});
+                if(!isOnScreen(el)) {
+                    $('.th-global-content').scrollTo(el, duration, {offset: scrollOffset});
+                }
             }
 
+        };
+
+        var isOnScreen = function(el){
+            var viewport = {};
+            viewport.top = $(window).scrollTop();
+            viewport.bottom = viewport.top + $(window).height() - $("#info-panel").height();
+            var bounds = {};
+            bounds.top = el.offset().top;
+            bounds.bottom = bounds.top + el.outerHeight();
+            return ((bounds.top <= viewport.bottom) && (bounds.bottom >= viewport.top));
         };
 
         var registerCustomEventCallbacks = function(scope, element, attrs){
