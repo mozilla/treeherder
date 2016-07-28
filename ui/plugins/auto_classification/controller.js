@@ -295,148 +295,102 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
     function (thExtendProperties, thValidBugNumber, ThClassificationOption,
               ThStructuredLinePersist) {
 
-        function getClassifiedFailureMatcher(matchers, matches) {
-            var matchesByClassifiedFailure = {};
-
-            _.forEach(matches,
-                      function(match) {
-                          if (!matchesByClassifiedFailure[match.classified_failure]) {
-                              matchesByClassifiedFailure[match.classified_failure] = [];
-                          }
-                          matchesByClassifiedFailure[match.classified_failure].push(match);
-                      });
-
-            return function(cf_id) {
-                return _.map(matchesByClassifiedFailure[cf_id],
-                             function(match) {
-                                 return {
-                                     matcher: matchers[match.matcher],
-                                     score: match.score
-                                 };
-                             });
+        function buildUIData(data, matchers) {
+            var ui = {};
+            // this builds a set of metadata for each structured line with
+            // failure matches, describing what was matched
+            var getClassificationMatches = function(cf_id, matchers, matches) {
+                return _.map(_.filter(matches, function(match) {
+                    return match.classified_failure === cf_id;
+                }), function(match) {
+                    return {
+                        matcher: matchers[match.matcher],
+                        score: match.score
+                    };
+                });
             };
-        }
 
-        function autoclassifierOptions(classifiedFailures, getClassificationMatches) {
-            var options = [];
-
-            // collect all the classified_failures.  But skip
-            // ones with a null bug.  classified_failures with
+            // collect all the classified failure options.  But skip
+            // ones with a null bug (classified_failures with
             // null bugs have no distinguishing features to make
-            // them relevant.
+            // them relevant)
             // If the "best" one has a null bug we will add
             // that in later.
-
-            _.forEach(classifiedFailures, function(cf) {
-                if (cf.bug_number !== null && cf.bug_number !== 0) {
-                    var bug_summary = cf.bug ? cf.bug.summary : "";
-                    var bug_resolution = cf.bug ? cf.bug.resolution : "";
-                    var option = new ThClassificationOption("classified_failure",
-                                                            cf.id,
-                                                            cf.bug_number,
-                                                            bug_summary,
-                                                            bug_resolution,
-                                                            getClassificationMatches(cf.id));
-                    options.push(option);
-                }
+            var autoOptions = _.map(_.filter(data.classified_failures, function(cf) {
+                return cf.bug_number !== null && cf.bug_number !== 0;
+            }), function(cf) {
+                return new ThClassificationOption("classified_failure",
+                                                  cf.id,
+                                                  cf.bug_number,
+                                                  cf.bug ? cf.bug.summary : "",
+                                                  cf.bug ? cf.bug.resolution : "",
+                                                  getClassificationMatches(cf.id,
+                                                                           matchers,
+                                                                           data.matches));
             });
 
-            return options;
-        }
-
-        function filterUnstructuredBugs(unstructuredBugs, autoOptions) {
-            var classifiedBugs = {};
-            autoOptions.forEach(function(x) {
-                classifiedBugs[x.bugNumber] = true;
-            });
-            return _.filter(unstructuredBugs,
-                            function(bug) {
-                                return !classifiedBugs.hasOwnProperty(bug.id);
-                            });
-        }
-
-        function bugSuggestionOptions(bugSuggestions) {
-            // add in unstructured_bugs as options as well
-            var options = [];
-
-            _.forEach(bugSuggestions, function(bug) {
+            // collect the unclassified suggestions (filtering out those that
+            // would overlap with classified suggestions with the same bug number)
+            var classifiedBugs = new Set(_.filter(_.map(data.classified_failures,
+                                                        'bug_number')));
+            var bugOptions = _.map(_.filter(data.unstructured_bugs, function(bug) {
+                return !classifiedBugs.has(bug.id);
+            }), function(bug) {
                 // adding a prefix to the bug id because,
                 // theoretically, however unlikely, it could
                 // conflict with a classified_failure id.
-                var ubid = "ub-" + bug.id;
-                options.push(new ThClassificationOption("unstructured_bug",
-                                                        ubid,
-                                                        bug.id,
-                                                        bug.summary,
-                                                        bug.resolution));
+                return new ThClassificationOption("unstructured_bug",
+                                                  "ub-" + bug.id,
+                                                  bug.id,
+                                                  bug.summary,
+                                                  bug.resolution);
             });
 
-            return options;
-        }
+            ui.options = autoOptions.concat(bugOptions);
 
-        function bestAutoclassifiedOption(bestClassification, ui, getClassificationMatches) {
-            var best = null;
-
-            if (bestClassification) {
-                best = _.find(ui.options,
-                              {id: bestClassification});
-
-                if (best && best.bug_number !== 0) {
-                    // Remove the best match so we can add it at the start of the
-                    // list later
-                    ui.options = _.filter(ui.options,
-                                          function(item) {
-                                              return item.id !== best.id;
-                                          });
-                } else if (best && best.bugNumber === 0) {
-                    return "ignore"; // This is a sentinel value we use when constructing the
-                                     // ignore options later so that we can replace the best
-                } else {
-                    // The best classification didn't have a bug number so it needs a
-                    // new entry
-                    best = new ThClassificationOption("classified_failure",
-                                                      bestClassification,
-                                                      null,
-                                                      "",
-                                                      "",
-                                                      getClassificationMatches(bestClassification));
-                }
-                ui.options = [best].concat(ui.options);
-            }
-            return best;
-        }
-
-        function buildUIData(data, matchers) {
-            var ui = {
-                options: [],
-                best: null,
-            };
-
-            var getClassificationMatches = getClassifiedFailureMatcher(matchers,
-                                                                       data.matches);
-
-            var autoOptions = autoclassifierOptions(data.classified_failures,
-                                                    getClassificationMatches);
-
-            var bugSuggestions = filterUnstructuredBugs(data.unstructured_bugs, autoOptions);
-            ui.options = ui.options.concat(autoOptions,
-                                           bugSuggestionOptions(bugSuggestions));
-            ui.best = bestAutoclassifiedOption(data.best_classification, ui,
-                                               getClassificationMatches);
-
+            // add a manual option (for manually inputting a bug associated
+            // with the failure line)
             ui.options.push(new ThClassificationOption("manual", "manual"));
 
+            // add an ignore option (for automatically ignoring the failure
+            // line in the future)
             var ignoreOption = new ThClassificationOption("ignore", "ignore", 0);
             ui.options.push(ignoreOption);
-            if (ui.best === "ignore") {
-                ui.best = ignoreOption;
-                ignoreOption.always = true;
-            } else if(ui.best && !ui.best.hasBug) {
-                // If we have a best option with no bug, the UI won't display a
-                // radio option for that case, set the default to the following option
-                ui.selectedOptionIndex = 1;
-            }
-            if (ui.best) {
+
+            // if we have a "best" classification for this line, then provide
+            // sufficient metadata so it's selected by default
+            if (data.best_classification) {
+                var best = _.find(ui.options, {id: data.best_classification});
+                if (best && best.bug_number !== 0) {
+                    // we have a "best" classification and it already has a
+                    // bug number -- reorder the options with the best first
+                    ui.options = [best].concat(_.remove(ui.options, function(item) {
+                        return item.id === best.id;
+                    }));
+                    ui.best = best;
+                } else if (best && best.bugNumber === 0) {
+                    ui.best = ignoreOption;
+                    ignoreOption.always = true;
+                } else {
+                    // The best classification didn't have a bug number so it needs a
+                    // new entry (which we'll put at the front)
+                    var newBestClassification = new ThClassificationOption(
+                        "classified_failure",
+                        data.best_classification,
+                        null,
+                        "",
+                        "",
+                        getClassificationMatches(data.best_classification,
+                                                 matchers, data.matches));
+
+                    ui.options = [newBestClassification].concat(ui.options);
+                    ui.best = newBestClassification;
+
+                    // If we have a best option with no bug, the UI won't display a
+                    // radio option for that case, set the default to the following option
+                    ui.selectedOptionIndex = 1;
+                }
+
                 ui.best.isBest = true;
             }
 
