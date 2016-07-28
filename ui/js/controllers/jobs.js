@@ -221,7 +221,7 @@ treeherderApp.controller('ResultSetCtrl', [
             if (singleJobSelected) {
                 ThJobModel.cancel($scope.repoName, job.id).then(function() {
                   // XXX: Remove this after 1134929 is resolved.
-                    var requestId = getBuildbotRequestId();
+                    var requestId = getBuildbotRequestId(); //ShrutiJ: getBuildbotRequestId throws no-undef
                     if (requestId) {
                         return thBuildApi.cancelJob($scope.repoName, requestId);
                     }
