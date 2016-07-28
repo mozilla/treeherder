@@ -147,7 +147,7 @@
         <script type="'text/ng-template'" id="revisionsClone.html">
             <div class="clearfix"></div>
             <li>
-                <span class="revision">
+                <span class="revision" data-tags="{{comment_tags}}">
                     <span class="revision-holder">
                         <a href="{{currentRepo.getRevisionHref(revision)}}"
                            title="Open revision {{revision}} on {{currentRepo.url}}"

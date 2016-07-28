@@ -121,6 +121,10 @@ fieldset[disabled] .btn-resultset:hover {
   overflow: auto;
 }
 
+.revision[data-tags~="backout"] .revision-comment{
+  color: red;
+}
+
 .revision-holder > a {
   padding-top: 2px;
   font: 11px "Lucida Console",Monaco,monospace;
