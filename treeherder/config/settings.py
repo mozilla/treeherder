@@ -10,6 +10,16 @@ from treeherder import path
 
 env = environ.Env()
 
+
+def server_supports_tls(url):
+    hostname = urlparse(url).netloc
+    # Services such as RabbitMQ/Elasticsearch running on Travis/Vagrant
+    # or in SCl3 do not support TLS. We could try adding locally using
+    # self-signed certs, but until Travis has support it's not overly useful.
+    if hostname == 'localhost' or hostname.endswith('.scl3.mozilla.com'):
+        return False
+    return True
+
 TREEHERDER_MEMCACHED = env("TREEHERDER_MEMCACHED", default="127.0.0.1:11211")
 TREEHERDER_MEMCACHED_KEY_PREFIX = env("TREEHERDER_MEMCACHED_KEY_PREFIX", default="treeherder")
 
@@ -533,6 +543,12 @@ KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX
 
 # Celery broker setup
 BROKER_URL = env('BROKER_URL')
+
+# Force Celery to use TLS when appropriate (ie if not localhost or SCL3),
+# rather than relying on `BROKER_URL` having `amqps://` or `?ssl=` set.
+# This is required since CloudAMQP's automatically defined URL uses neither.
+if server_supports_tls(BROKER_URL):
+    BROKER_USE_SSL = True
 
 # This code handles the memcachier service on heroku.
 if env.bool('IS_HEROKU', default=False):
