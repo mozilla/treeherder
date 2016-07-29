@@ -279,7 +279,7 @@ perf.controller('AlertsCtrl', [
         };
 
         $scope.copyTextToClipboard = function(alertSummary) {
-            clipboard.copyText(alertSummary.getTextualSummary());
+            clipboard.copyText(alertSummary.getTextualSummary(true));
         };
 
         $scope.fileBug = function(alertSummary) {
