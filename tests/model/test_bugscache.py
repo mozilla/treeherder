@@ -4,6 +4,7 @@ from datetime import (datetime,
                       timedelta)
 
 import pytest
+from django.utils.encoding import smart_text
 
 from treeherder.model.models import Bugscache
 
@@ -20,12 +21,13 @@ def sample_bugs(test_base_dir):
 
 
 def _update_bugscache(bug_list):
+    max_summary_length = Bugscache._meta.get_field('summary').max_length
     for bug in bug_list:
         Bugscache.objects.create(
             id=bug['id'],
             status=bug['status'],
             resolution=bug['resolution'],
-            summary=bug['summary'],
+            summary=smart_text(bug['summary'])[:max_summary_length],
             crash_signature=bug['cf_crash_signature'],
             keywords=",".join(bug['keywords']),
             os=bug['op_sys'],

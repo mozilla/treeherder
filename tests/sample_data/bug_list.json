@@ -182,6 +182,18 @@
             "resolution": "",
             "op_sys": "Windows 7",
             "last_change_time": "2014-10-29T20:57:46"
+        },
+        {
+            "status": "NEW",
+            "id": 1263409,
+            "summary": "Intermittent browser_addonPerformanceAlerts_2.js | 5. jank is at least 200ms (145526\\u00c2\\u00b5s) promiseBurnContentCPU - false == true - JS frame :: chrome://mochitests/content/browser/toolkit/components/perfmonitoring/tests/browser/browser_addonPerformanceAlerts",
+            "cf_crash_signature": "",
+            "keywords": [
+                "intermittent-failure"
+            ],
+            "resolution": "",
+            "op_sys": "Unspecified",
+            "last_change_time": "2016-07-25T01:04:15Z"
         }
     ]
 }
