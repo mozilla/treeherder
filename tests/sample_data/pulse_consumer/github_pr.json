@@ -1,0 +1,21 @@
+{
+    "organization": "mozilla",
+    "action": "synchronize",
+    "details": {
+        "event.type": "pull_request.synchronize",
+        "event.base.repo.branch": "master",
+        "event.pullNumber": "1692",
+        "event.base.user.login": "mozilla",
+        "event.base.repo.url": "https://github.com/mozilla/test_treeherder.git",
+        "event.base.sha": "ff6a66a27c2c234e5820b8ffe48f17d85f1eb2db",
+        "event.base.ref": "master",
+        "event.head.user.login": "mozilla",
+        "event.head.repo.url": "https://github.com/mozilla/test_treeherder.git",
+        "event.head.repo.branch": "test-branch",
+        "event.head.sha": "6fc29703e82473fa185af2b3c307c5c475038173",
+        "event.head.ref": "test-branch",
+        "event.head.user.email": "test_treeherder@noreply.github.com"
+    },
+    "repository": "test_treeherder",
+    "version": 1
+}

@@ -1,0 +1,37 @@
+{
+    "author": "cdawson@mozilla.com",
+    "push_timestamp": 1469570898,
+    "revision": "fd561e92727fadb6bac44121941136a1a25b7c1d",
+    "revisions": [
+        {
+            "author": "Cameron Dawson <cdawson@mozilla.com>",
+            "comment": "Testing commit.  Throw this commit away before merge",
+            "repository": "test_treeherder_jobs",
+            "revision": "fd561e92727fadb6bac44121941136a1a25b7c1d"
+        },
+        {
+            "author": "Cameron Dawson <cdawson@mozilla.com>",
+            "comment": "Bug 1264074 - Old code/comments cleanup",
+            "repository": "test_treeherder_jobs",
+            "revision": "0c390767675ffe66cf134d0f3f10ddc61d1eace1"
+        },
+        {
+            "author": "Cameron Dawson <cdawson@mozilla.com>",
+            "comment": "Bug 1264074 - Add ability to ingest Github Resultsets via Pulse\n\nThis introduces a ResultsetConsumer and a read_pulse_resultsets\nmanagement command to ingest resultsets from the TaskCluster\ngithub exchanges.\n\nWhen a supported Github repo has a Pull Request created or\nupdated, or a push is made to master, then it will kick off a\nPulse message.  We will receive it and then fetch any additional\ninformation we need from github's API and store the Resultset.\n\nThis follows a very similar pattern to the Job Pulse ingestion.",
+            "repository": "test_treeherder_jobs",
+            "revision": "1805bafb3e1998d8d2c592c522e238904304fdc6"
+        },
+        {
+            "author": "Cameron Dawson <cdawson@mozilla.com>",
+            "comment": "Bug 1264074 - Refactor JobConsumer to have a PulseConsumer super class\n\nMuch of what was in the JobConsumer is reusable by the upcoming\nResultsetConsumer.  So refactor those parts out so that each specific\nconsumer can reuse code as much as possible.",
+            "repository": "test_treeherder_jobs",
+            "revision": "bf3f4e8f5602cf290d49d53224edbd865add375b"
+        },
+        {
+            "author": "Cameron Dawson <cdawson@mozilla.com>",
+            "comment": "Bug 1264074 - Move to_timestamp function to a reusable location",
+            "repository": "test_treeherder_jobs",
+            "revision": "6fc29703e82473fa185af2b3c307c5c475038173"
+        }
+    ]
+}

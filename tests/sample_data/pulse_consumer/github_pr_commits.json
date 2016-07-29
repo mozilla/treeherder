@@ -1,0 +1,352 @@
+[
+  {
+    "sha": "6fc29703e82473fa185af2b3c307c5c475038173",
+    "commit": {
+      "author": {
+        "name": "Cameron Dawson",
+        "email": "cdawson@mozilla.com",
+        "date": "2016-07-26T21:46:09Z"
+      },
+      "committer": {
+        "name": "Cameron Dawson",
+        "email": "cdawson@mozilla.com",
+        "date": "2016-07-26T22:44:53Z"
+      },
+      "message": "Bug 1264074 - Move to_timestamp function to a reusable location",
+      "tree": {
+        "sha": "aa2cca7aada8e1d4aac4bc245c57257958ba3591",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/aa2cca7aada8e1d4aac4bc245c57257958ba3591"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/6fc29703e82473fa185af2b3c307c5c475038173",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/6fc29703e82473fa185af2b3c307c5c475038173",
+    "html_url": "https://github.com/mozilla/treeherder/commit/6fc29703e82473fa185af2b3c307c5c475038173",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/6fc29703e82473fa185af2b3c307c5c475038173/comments",
+    "author": {
+      "login": "camd",
+      "id": 419924,
+      "avatar_url": "https://avatars.githubusercontent.com/u/419924?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/camd",
+      "html_url": "https://github.com/camd",
+      "followers_url": "https://api.github.com/users/camd/followers",
+      "following_url": "https://api.github.com/users/camd/following{/other_user}",
+      "gists_url": "https://api.github.com/users/camd/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/camd/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/camd/subscriptions",
+      "organizations_url": "https://api.github.com/users/camd/orgs",
+      "repos_url": "https://api.github.com/users/camd/repos",
+      "events_url": "https://api.github.com/users/camd/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/camd/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "camd",
+      "id": 419924,
+      "avatar_url": "https://avatars.githubusercontent.com/u/419924?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/camd",
+      "html_url": "https://github.com/camd",
+      "followers_url": "https://api.github.com/users/camd/followers",
+      "following_url": "https://api.github.com/users/camd/following{/other_user}",
+      "gists_url": "https://api.github.com/users/camd/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/camd/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/camd/subscriptions",
+      "organizations_url": "https://api.github.com/users/camd/orgs",
+      "repos_url": "https://api.github.com/users/camd/repos",
+      "events_url": "https://api.github.com/users/camd/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/camd/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "801c33b43e010db756f41398b3154f4e546566af",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/801c33b43e010db756f41398b3154f4e546566af",
+        "html_url": "https://github.com/mozilla/treeherder/commit/801c33b43e010db756f41398b3154f4e546566af"
+      }
+    ]
+  },
+  {
+    "sha": "bf3f4e8f5602cf290d49d53224edbd865add375b",
+    "commit": {
+      "author": {
+        "name": "Cameron Dawson",
+        "email": "cdawson@mozilla.com",
+        "date": "2016-07-26T21:53:45Z"
+      },
+      "committer": {
+        "name": "Cameron Dawson",
+        "email": "cdawson@mozilla.com",
+        "date": "2016-07-27T22:36:30Z"
+      },
+      "message": "Bug 1264074 - Refactor JobConsumer to have a PulseConsumer super class\n\nMuch of what was in the JobConsumer is reusable by the upcoming\nResultsetConsumer.  So refactor those parts out so that each specific\nconsumer can reuse code as much as possible.",
+      "tree": {
+        "sha": "798773be063a1023eb1869491383d7580433fdd7",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/798773be063a1023eb1869491383d7580433fdd7"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/bf3f4e8f5602cf290d49d53224edbd865add375b",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/bf3f4e8f5602cf290d49d53224edbd865add375b",
+    "html_url": "https://github.com/mozilla/treeherder/commit/bf3f4e8f5602cf290d49d53224edbd865add375b",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/bf3f4e8f5602cf290d49d53224edbd865add375b/comments",
+    "author": {
+      "login": "camd",
+      "id": 419924,
+      "avatar_url": "https://avatars.githubusercontent.com/u/419924?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/camd",
+      "html_url": "https://github.com/camd",
+      "followers_url": "https://api.github.com/users/camd/followers",
+      "following_url": "https://api.github.com/users/camd/following{/other_user}",
+      "gists_url": "https://api.github.com/users/camd/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/camd/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/camd/subscriptions",
+      "organizations_url": "https://api.github.com/users/camd/orgs",
+      "repos_url": "https://api.github.com/users/camd/repos",
+      "events_url": "https://api.github.com/users/camd/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/camd/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "camd",
+      "id": 419924,
+      "avatar_url": "https://avatars.githubusercontent.com/u/419924?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/camd",
+      "html_url": "https://github.com/camd",
+      "followers_url": "https://api.github.com/users/camd/followers",
+      "following_url": "https://api.github.com/users/camd/following{/other_user}",
+      "gists_url": "https://api.github.com/users/camd/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/camd/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/camd/subscriptions",
+      "organizations_url": "https://api.github.com/users/camd/orgs",
+      "repos_url": "https://api.github.com/users/camd/repos",
+      "events_url": "https://api.github.com/users/camd/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/camd/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "6fc29703e82473fa185af2b3c307c5c475038173",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/6fc29703e82473fa185af2b3c307c5c475038173",
+        "html_url": "https://github.com/mozilla/treeherder/commit/6fc29703e82473fa185af2b3c307c5c475038173"
+      }
+    ]
+  },
+  {
+    "sha": "1805bafb3e1998d8d2c592c522e238904304fdc6",
+    "commit": {
+      "author": {
+        "name": "Cameron Dawson",
+        "email": "cdawson@mozilla.com",
+        "date": "2016-07-26T22:06:46Z"
+      },
+      "committer": {
+        "name": "Cameron Dawson",
+        "email": "cdawson@mozilla.com",
+        "date": "2016-07-27T22:36:30Z"
+      },
+      "message": "Bug 1264074 - Add ability to ingest Github Resultsets via Pulse\n\nThis introduces a ResultsetConsumer and a read_pulse_resultsets\nmanagement command to ingest resultsets from the TaskCluster\ngithub exchanges.\n\nWhen a supported Github repo has a Pull Request created or\nupdated, or a push is made to master, then it will kick off a\nPulse message.  We will receive it and then fetch any additional\ninformation we need from github's API and store the Resultset.\n\nThis follows a very similar pattern to the Job Pulse ingestion.",
+      "tree": {
+        "sha": "113e76ea64049cdfd8d257a9a6f3b26cf316c661",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/113e76ea64049cdfd8d257a9a6f3b26cf316c661"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/1805bafb3e1998d8d2c592c522e238904304fdc6",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/1805bafb3e1998d8d2c592c522e238904304fdc6",
+    "html_url": "https://github.com/mozilla/treeherder/commit/1805bafb3e1998d8d2c592c522e238904304fdc6",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/1805bafb3e1998d8d2c592c522e238904304fdc6/comments",
+    "author": {
+      "login": "camd",
+      "id": 419924,
+      "avatar_url": "https://avatars.githubusercontent.com/u/419924?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/camd",
+      "html_url": "https://github.com/camd",
+      "followers_url": "https://api.github.com/users/camd/followers",
+      "following_url": "https://api.github.com/users/camd/following{/other_user}",
+      "gists_url": "https://api.github.com/users/camd/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/camd/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/camd/subscriptions",
+      "organizations_url": "https://api.github.com/users/camd/orgs",
+      "repos_url": "https://api.github.com/users/camd/repos",
+      "events_url": "https://api.github.com/users/camd/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/camd/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "camd",
+      "id": 419924,
+      "avatar_url": "https://avatars.githubusercontent.com/u/419924?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/camd",
+      "html_url": "https://github.com/camd",
+      "followers_url": "https://api.github.com/users/camd/followers",
+      "following_url": "https://api.github.com/users/camd/following{/other_user}",
+      "gists_url": "https://api.github.com/users/camd/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/camd/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/camd/subscriptions",
+      "organizations_url": "https://api.github.com/users/camd/orgs",
+      "repos_url": "https://api.github.com/users/camd/repos",
+      "events_url": "https://api.github.com/users/camd/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/camd/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "bf3f4e8f5602cf290d49d53224edbd865add375b",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/bf3f4e8f5602cf290d49d53224edbd865add375b",
+        "html_url": "https://github.com/mozilla/treeherder/commit/bf3f4e8f5602cf290d49d53224edbd865add375b"
+      }
+    ]
+  },
+  {
+    "sha": "0c390767675ffe66cf134d0f3f10ddc61d1eace1",
+    "commit": {
+      "author": {
+        "name": "Cameron Dawson",
+        "email": "cdawson@mozilla.com",
+        "date": "2016-07-26T22:07:50Z"
+      },
+      "committer": {
+        "name": "Cameron Dawson",
+        "email": "cdawson@mozilla.com",
+        "date": "2016-07-27T22:36:30Z"
+      },
+      "message": "Bug 1264074 - Old code/comments cleanup",
+      "tree": {
+        "sha": "0d81bc80674363214c05064812884acedf4c5b3b",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/0d81bc80674363214c05064812884acedf4c5b3b"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/0c390767675ffe66cf134d0f3f10ddc61d1eace1",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/0c390767675ffe66cf134d0f3f10ddc61d1eace1",
+    "html_url": "https://github.com/mozilla/treeherder/commit/0c390767675ffe66cf134d0f3f10ddc61d1eace1",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/0c390767675ffe66cf134d0f3f10ddc61d1eace1/comments",
+    "author": {
+      "login": "camd",
+      "id": 419924,
+      "avatar_url": "https://avatars.githubusercontent.com/u/419924?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/camd",
+      "html_url": "https://github.com/camd",
+      "followers_url": "https://api.github.com/users/camd/followers",
+      "following_url": "https://api.github.com/users/camd/following{/other_user}",
+      "gists_url": "https://api.github.com/users/camd/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/camd/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/camd/subscriptions",
+      "organizations_url": "https://api.github.com/users/camd/orgs",
+      "repos_url": "https://api.github.com/users/camd/repos",
+      "events_url": "https://api.github.com/users/camd/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/camd/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "camd",
+      "id": 419924,
+      "avatar_url": "https://avatars.githubusercontent.com/u/419924?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/camd",
+      "html_url": "https://github.com/camd",
+      "followers_url": "https://api.github.com/users/camd/followers",
+      "following_url": "https://api.github.com/users/camd/following{/other_user}",
+      "gists_url": "https://api.github.com/users/camd/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/camd/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/camd/subscriptions",
+      "organizations_url": "https://api.github.com/users/camd/orgs",
+      "repos_url": "https://api.github.com/users/camd/repos",
+      "events_url": "https://api.github.com/users/camd/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/camd/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "1805bafb3e1998d8d2c592c522e238904304fdc6",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/1805bafb3e1998d8d2c592c522e238904304fdc6",
+        "html_url": "https://github.com/mozilla/treeherder/commit/1805bafb3e1998d8d2c592c522e238904304fdc6"
+      }
+    ]
+  },
+  {
+    "sha": "fd561e92727fadb6bac44121941136a1a25b7c1d",
+    "commit": {
+      "author": {
+        "name": "Cameron Dawson",
+        "email": "cdawson@mozilla.com",
+        "date": "2016-07-26T22:08:18Z"
+      },
+      "committer": {
+        "name": "Cameron Dawson",
+        "email": "cdawson@mozilla.com",
+        "date": "2016-07-27T22:36:30Z"
+      },
+      "message": "Testing commit.  Throw this commit away before merge",
+      "tree": {
+        "sha": "f963eb1315783554dd9df36a22211ad3db42c4f4",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/f963eb1315783554dd9df36a22211ad3db42c4f4"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/fd561e92727fadb6bac44121941136a1a25b7c1d",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/fd561e92727fadb6bac44121941136a1a25b7c1d",
+    "html_url": "https://github.com/mozilla/treeherder/commit/fd561e92727fadb6bac44121941136a1a25b7c1d",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/fd561e92727fadb6bac44121941136a1a25b7c1d/comments",
+    "author": {
+      "login": "camd",
+      "id": 419924,
+      "avatar_url": "https://avatars.githubusercontent.com/u/419924?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/camd",
+      "html_url": "https://github.com/camd",
+      "followers_url": "https://api.github.com/users/camd/followers",
+      "following_url": "https://api.github.com/users/camd/following{/other_user}",
+      "gists_url": "https://api.github.com/users/camd/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/camd/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/camd/subscriptions",
+      "organizations_url": "https://api.github.com/users/camd/orgs",
+      "repos_url": "https://api.github.com/users/camd/repos",
+      "events_url": "https://api.github.com/users/camd/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/camd/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "camd",
+      "id": 419924,
+      "avatar_url": "https://avatars.githubusercontent.com/u/419924?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/camd",
+      "html_url": "https://github.com/camd",
+      "followers_url": "https://api.github.com/users/camd/followers",
+      "following_url": "https://api.github.com/users/camd/following{/other_user}",
+      "gists_url": "https://api.github.com/users/camd/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/camd/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/camd/subscriptions",
+      "organizations_url": "https://api.github.com/users/camd/orgs",
+      "repos_url": "https://api.github.com/users/camd/repos",
+      "events_url": "https://api.github.com/users/camd/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/camd/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "0c390767675ffe66cf134d0f3f10ddc61d1eace1",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/0c390767675ffe66cf134d0f3f10ddc61d1eace1",
+        "html_url": "https://github.com/mozilla/treeherder/commit/0c390767675ffe66cf134d0f3f10ddc61d1eace1"
+      }
+    ]
+  }
+]
