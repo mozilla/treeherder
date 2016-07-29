@@ -37,6 +37,22 @@ class SampleData(object):
                   os.path.dirname(__file__))) as f:
             self.transformed_pulse_jobs = json.load(f)
 
+        with open("{0}/sample_data/pulse_consumer/github_push.json".format(
+                  os.path.dirname(__file__))) as f:
+            self.github_push = json.load(f)
+
+        with open("{0}/sample_data/pulse_consumer/transformed_gh_push.json".format(
+                  os.path.dirname(__file__))) as f:
+            self.transformed_github_push = json.load(f)
+
+        with open("{0}/sample_data/pulse_consumer/github_pr.json".format(
+                  os.path.dirname(__file__))) as f:
+            self.github_pr = json.load(f)
+
+        with open("{0}/sample_data/pulse_consumer/transformed_gh_pr.json".format(
+                  os.path.dirname(__file__))) as f:
+            self.transformed_github_pr = json.load(f)
+
         self.job_data = []
         self.resultset_data = []
 

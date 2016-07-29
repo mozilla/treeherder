@@ -1,0 +1,16 @@
+{
+    "organization": "mozilla-services",
+    "details": {
+        "event.type": "push",
+        "event.base.repo.branch": "master",
+        "event.base.sha": "71c02dbb26cb60beee94bac433086bc540c9d6d4",
+        "event.head.repo.branch": "master",
+        "event.head.user.login": "mozilla-test_treeherder",
+        "event.head.repo.url": "https://github.com/mozilla/test_treeherder.git",
+        "event.head.sha": "5219f00e7af7b52e66e362d20bb5d4b0ceb84bfa",
+        "event.head.ref": "refs/heads/master",
+        "event.head.user.email": "mozilla-test_treeherder@noreply.github.com"
+    },
+    "repository": "test_treeherder",
+    "version": 1
+}
