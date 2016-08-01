@@ -12,7 +12,7 @@ env = environ.Env()
 
 
 def server_supports_tls(url):
-    hostname = urlparse(url).netloc
+    hostname = urlparse(url).hostname
     # Services such as RabbitMQ/Elasticsearch running on Travis/Vagrant
     # or in SCl3 do not support TLS. We could try adding locally using
     # self-signed certs, but until Travis has support it's not overly useful.
