@@ -94,6 +94,7 @@ class Repository(models.Model):
     name = models.CharField(max_length=50, unique=True, db_index=True)
     dvcs_type = models.CharField(max_length=25, db_index=True)
     url = models.CharField(max_length=255)
+    branch = models.CharField(max_length=50, default="master")
     codebase = models.CharField(max_length=50, blank=True, db_index=True)
     description = models.TextField(blank=True)
     active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
