@@ -583,6 +583,8 @@ treeherder.factory('ThResultSetStore', [
         /**
          * Fetch the job objects for the ids in ``jobFetchList`` and update them
          * in the data model.
+         * @param {string} repoName - name of the project repository
+         * @param {number[]} jobFetchList - project-specific ids of the jobs to fetch
          */
         var fetchJobs = function(repoName, jobFetchList) {
             $log.debug("fetchJobs", repoName, jobFetchList);
@@ -597,17 +599,16 @@ treeherder.factory('ThResultSetStore', [
             while (jobFetchList.length > 0) {
                 var jobFetchSlice = jobFetchList.splice(0, count);
                 ThJobModel.get_list(repoName, {
-                    job_guid__in: jobFetchSlice.join(),
+                    id__in: jobFetchSlice.join(),
                     count: count
                 })
                     .then(function(jobsFetched){
                         // if there are jobs unfetched, enqueue them for the next run
-                        var guids_fetched = _.pluck(jobsFetched, "job_guid");
-                        var guids_unfetched = _.difference(jobFetchSlice, guids_fetched);
-                        if(guids_unfetched.length > 0){
+                        var ids_unfetched = jobFetchList.splice(count);
+                        if (ids_unfetched.length > 0) {
                             $log.debug("re-adding " +
-                                       guids_unfetched.length + "job to the fetch queue");
-                            unavailableJobs.push.apply(unavailableJobs, guids_unfetched);
+                                       ids_unfetched.length + "job to the fetch queue");
+                            unavailableJobs.push.apply(unavailableJobs, ids_unfetched);
                         }
                         return jobsFetched;
                     },error_callback)
