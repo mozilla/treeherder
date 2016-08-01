@@ -341,7 +341,7 @@ DISALLOWED_USER_AGENTS = (
 )
 
 SITE_URL = env("SITE_URL", default="http://local.treeherder.mozilla.org")
-SITE_HOSTNAME = urlparse(SITE_URL).netloc
+SITE_HOSTNAME = urlparse(SITE_URL).hostname
 APPEND_SLASH = False
 
 BUILDAPI_PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-pending.js"
