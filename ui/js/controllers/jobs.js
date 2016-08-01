@@ -93,12 +93,13 @@ treeherderApp.controller('ResultSetCtrl', [
     'thUrl', 'thServiceDomain', 'thResultStatusInfo', 'thDateFormat',
     'ThResultSetStore', 'thEvents', 'thJobFilters', 'thNotify',
     'thBuildApi', 'thPinboard', 'ThResultSetModel', 'dateFilter',
-    'ThModelErrors', 'ThJobModel',
+    'ThModelErrors', 'ThJobModel', 'ThJobArtifactModel',
     function ResultSetCtrl(
         $scope, $rootScope, $http, ThLog, $location,
         thUrl, thServiceDomain, thResultStatusInfo, thDateFormat,
         ThResultSetStore, thEvents, thJobFilters, thNotify,
-        thBuildApi, thPinboard, ThResultSetModel, dateFilter, ThModelErrors, ThJobModel) {
+        thBuildApi, thPinboard, ThResultSetModel, dateFilter, ThModelErrors, ThJobModel,
+        ThJobArtifactModel) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -220,13 +221,18 @@ treeherderApp.controller('ResultSetCtrl', [
             if (!window.confirm(message)) {
                 return;
             }
+
             if (singleJobSelected) {
                 ThJobModel.cancel($scope.repoName, job.id).then(function() {
-                  // XXX: Remove this after 1134929 is resolved.
-                    var requestId = getBuildbotRequestId();
-                    if (requestId) {
-                        return thBuildApi.cancelJob($scope.repoName, requestId);
-                    }
+                    // XXX: Remove this after 1134929 is resolved.
+                    ThJobArtifactModel.get_list(
+                        {name: "buildapi", "type": "json", job_id: job.id}).then(
+                            function(artifactList) {
+                                if (artifactList.length) {
+                                    var requestId = artifactList[0].blob.request_id;
+                                    return thBuildApi.cancelJob($scope.repoName, requestId);
+                                }
+                            });
                 }).catch(function(e) {
                     thNotify.send(
                         ThModelErrors.format(e, "Unable to cancel job"),
