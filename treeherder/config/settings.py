@@ -1,6 +1,6 @@
 import re
 from datetime import timedelta
-from urlparse import urlparse
+from urlparse import urlparse as parse
 
 import environ
 from kombu import (Exchange,
@@ -12,7 +12,7 @@ env = environ.Env()
 
 
 def server_supports_tls(url):
-    hostname = urlparse(url).hostname
+    hostname = parse(url).hostname
     # Services such as RabbitMQ/Elasticsearch running on Travis/Vagrant
     # or in SCl3 do not support TLS. We could try adding locally using
     # self-signed certs, but until Travis has support it's not overly useful.
@@ -341,7 +341,7 @@ DISALLOWED_USER_AGENTS = (
 )
 
 SITE_URL = env("SITE_URL", default="http://local.treeherder.mozilla.org")
-SITE_HOSTNAME = urlparse(SITE_URL).hostname
+SITE_HOSTNAME = parse(SITE_URL).hostname
 APPEND_SLASH = False
 
 BUILDAPI_PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-pending.js"
