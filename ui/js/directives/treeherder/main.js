@@ -187,8 +187,7 @@ treeherder.directive('numbersOnly', function(){
     };
 });
 
-treeherder.directive("thMultiSelect", [
-    '$log',
+treeherder.directive("thMultiSelect",
     function(){
         return {
             restrict: "E",
@@ -219,10 +218,9 @@ treeherder.directive("thMultiSelect", [
                 };
             }
         };
-    }]);
+    });
 
-treeherder.directive("thTruncatedList", [
-    '$log',
+treeherder.directive("thTruncatedList",
     function(){
         // transforms a list of elements in a shortened list
         // with a "more" link
@@ -261,4 +259,4 @@ treeherder.directive("thTruncatedList", [
                 });
             }
         };
-    }]);
+    });
