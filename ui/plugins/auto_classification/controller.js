@@ -272,15 +272,9 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
 );
 
 treeherder.factory('ThUnstructuredLinePersist', [
-<<<<<<< HEAD
     '$rootScope', 'thExtendProperties', 'thNotify', 'ThTextLogSummaryLineModel', 'thEvents',
     function($rootScope, thExtendProperties, thNotify, ThTextLogSummaryLineModel, thEvents) {
-        var ThUnstructuredLinePersist = function(thNotify, ThTextLogSummaryLineModel) {};
-=======
-    'thExtendProperties', 'thNotify', 'ThTextLogSummaryLineModel',
-    function(thExtendProperties, thNotify, ThTextLogSummaryLineModel) {
         var ThUnstructuredLinePersist = function() {};
->>>>>>> Bug 1289138 - Enable disabled eslint rule |no-unused-vars| and fix corresponding problems
 
         var persistInterface = {
             save: function(line) {
