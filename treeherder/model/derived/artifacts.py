@@ -1,7 +1,9 @@
 import logging
 import zlib
 
+import newrelic.agent
 import simplejson as json
+from django.core.exceptions import MultipleObjectsReturned
 from django.forms import model_to_dict
 
 from treeherder.etl.perf import load_perf_artifacts
@@ -113,9 +115,14 @@ class ArtifactsModel(TreeherderModelBase):
                                        job.guid))
                     job_detail_dict[k] = v[:max_field_length]
 
-            JobDetail.objects.get_or_create(
-                job=job,
-                **job_detail_dict)
+            # workaround for bug 1278711,  When that bug is fixed, then we
+            # can remove this fall-back.
+            try:
+                JobDetail.objects.get_or_create(
+                    job=job,
+                    **job_detail_dict)
+            except MultipleObjectsReturned as ex:
+                newrelic.agent.record_exception(ex)
 
     def store_performance_artifact(
             self, job_ids, performance_artifact_placeholders):
