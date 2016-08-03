@@ -9,7 +9,7 @@ from itertools import chain
 import newrelic.agent
 from _mysql_exceptions import IntegrityError
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 from treeherder.etl.common import get_guid_root
 from treeherder.model import (error_summary,
@@ -1284,17 +1284,44 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # for result_set entry
         unique_revisions.add(revision)
 
-        build_platform, _ = BuildPlatform.objects.get_or_create(
-            os_name=job.get('build_platform', {}).get('os_name', 'unknown'),
-            platform=job.get('build_platform', {}).get('platform', 'unknown'),
-            architecture=job.get('build_platform', {}).get('architecture',
-                                                           'unknown'))
+        bp_name = job.get('build_platform', {}).get('os_name', 'unknown')
+        bp_platform = job.get('build_platform', {}).get('platform', 'unknown')
+        bp_architecture = job.get('build_platform', {}).get('architecture',
+                                                            'unknown')
+        # work-around for bug 1291882.  We already have duplicate records for
+        # some build_platforms and machine_platforms.  This will allow jobs to
+        # still be ingested, even if we encounter that duplication.
+        # Once this is in use, we can remove
+        # the duplicate records and repair the jobs that reference them.  Then
+        # we can remove this fall-back.
+        try:
+            build_platform, _ = BuildPlatform.objects.get_or_create(
+                os_name=bp_name,
+                platform=bp_platform,
+                architecture=bp_architecture)
+        except MultipleObjectsReturned as ex:
+            newrelic.agent.record_exception(ex, params={"bug_number": 1291882})
+            build_platform, _ = BuildPlatform.objects.filter(
+                os_name=bp_name,
+                platform=bp_platform,
+                architecture=bp_architecture).order_by("id").first()
 
-        machine_platform, _ = MachinePlatform.objects.get_or_create(
-            os_name=job.get('machine_platform', {}).get('os_name', 'unknown'),
-            platform=job.get('machine_platform', {}).get('platform', 'unknown'),
-            architecture=job.get('machine_platform', {}).get('architecture',
-                                                             'unknown'))
+        mp_name = job.get('machine_platform', {}).get('os_name', 'unknown')
+        mp_platform = job.get('machine_platform', {}).get('platform', 'unknown')
+        mp_architecture = job.get('machine_platform', {}).get('architecture',
+                                                              'unknown')
+        # bug 1291882 fallback part 2
+        try:
+            machine_platform, _ = MachinePlatform.objects.get_or_create(
+                os_name=mp_name,
+                platform=mp_platform,
+                architecture=mp_architecture)
+        except MultipleObjectsReturned as ex:
+            newrelic.agent.record_exception(ex, params={"bug_number": 1291882})
+            build_platform, _ = MachinePlatform.objects.filter(
+                os_name=mp_name,
+                platform=mp_platform,
+                architecture=mp_architecture).order_by("id").first()
 
         option_names = job.get('option_collection', [])
         option_collection_hash = OptionCollection.calculate_hash(
