@@ -9,7 +9,8 @@ from itertools import chain
 import newrelic.agent
 from _mysql_exceptions import IntegrityError
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import (MultipleObjectsReturned,
+                                    ObjectDoesNotExist)
 
 from treeherder.etl.common import get_guid_root
 from treeherder.model import (error_summary,

@@ -1,7 +1,7 @@
 import logging
 import zlib
-import newrelic.agent
 
+import newrelic.agent
 import simplejson as json
 from django.core.exceptions import MultipleObjectsReturned
 from django.forms import model_to_dict
