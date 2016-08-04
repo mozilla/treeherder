@@ -20,3 +20,5 @@ BZ_API_URL = "https://thisisnotbugzilla.org"
 ELASTIC_SEARCH.update({
     "index_prefix": "test",
 })
+
+AUTOCLASSIFY_JOBS = True
