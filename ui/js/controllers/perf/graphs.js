@@ -165,9 +165,8 @@ perf.controller('GraphsCtrl', [
                                                to: $scope.tooltipContent.revision
                                            });
                                        }
-                                   }, function(error) {
+                                   }, function() {
                                        $scope.tooltipContent.revisionInfoAvailable = false;
-                                       console.log("Failed to get revision: " + error.data);
                                    });
                        });
 
@@ -194,7 +193,7 @@ perf.controller('GraphsCtrl', [
                     tip.css({ left: tipPosition.left, top: tipPosition.top });
 
                     // get new tip position after transform
-                    var tipPosition = getTipPosition(tip, x, y, 10);
+                    tipPosition = getTipPosition(tip, x, y, 10);
                     if (tip.css('visibility') === 'hidden') {
                         tip.css({ opacity: 0, visibility: 'visible', left: tipPosition.left,
                                   top: tipPosition.top + 10 });
@@ -418,7 +417,7 @@ perf.controller('GraphsCtrl', [
                                     series.projectName, rev).then(
                                         function(resultSets) {
                                             addHighlightedDatapoint(series, resultSets[0].id);
-                                        }, function(reason) {
+                                        }, function() {
                                             /* ignore cases where no result set exists
                                                for revision */
                                         });
@@ -460,10 +459,6 @@ perf.controller('GraphsCtrl', [
 
                 if ($scope.selectedDataPoint) {
                     showTooltip($scope.selectedDataPoint);
-                }
-                function getDateStr(timestamp) {
-                    var date = new Date(parseInt(timestamp));
-                    return date.toUTCString();
                 }
 
                 function updateSelectedItem() {
@@ -579,7 +574,7 @@ perf.controller('GraphsCtrl', [
                                                                $scope.selectedDataPoint.jobId,
                                                                $scope.selectedDataPoint.frameworkId]
                         + "]" : undefined;
-                })(),
+                })()
             }, {
                 location: true,
                 inherit: true,
@@ -593,7 +588,7 @@ perf.controller('GraphsCtrl', [
         function getSeriesData(series) {
             return PhSeries.getSeriesData(series.projectName, { interval: $scope.myTimerange.value,
                                                                 signatures: series.signature,
-                                                                framework: series.frameworkId,
+                                                                framework: series.frameworkId
 }).then(
                 function(seriesData) {
                     series.flotSeries = {
@@ -628,7 +623,6 @@ perf.controller('GraphsCtrl', [
         }
 
         function addSeriesList(partialSeriesList) {
-            var propsHash = {};
             return $q.all(partialSeriesList.map(function(partialSeries) {
                 return PhSeries.getSeriesList(
                     partialSeries.project, {
@@ -698,7 +692,7 @@ perf.controller('GraphsCtrl', [
             }
         };
 
-        $scope.showHideSeries = function(signature) {
+        $scope.showHideSeries = function() {
             updateDocument();
             plotGraph();
         };

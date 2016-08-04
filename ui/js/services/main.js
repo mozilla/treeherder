@@ -2,8 +2,8 @@
 
 /* Services */
 treeherder.factory('thUrl', [
-    '$rootScope', 'thServiceDomain', 'ThLog',
-    function($rootScope, thServiceDomain, ThLog) {
+    '$rootScope', 'thServiceDomain',
+    function($rootScope, thServiceDomain) {
 
         var thUrl = {
             getRootUrl: function(uri) {
@@ -93,11 +93,11 @@ treeherder.factory('ThPaginator', function(){
     };
 
     ThPaginator.prototype.get_page = function(n){
-        return this.data.slice(n * limit - limit, n * limit);
+        return this.data.slice(n * this.limit - this.limit, n * this.limit);
     };
 
     ThPaginator.prototype.get_all = function(){
-        return data;
+        return this.data;
     };
 
     return ThPaginator;

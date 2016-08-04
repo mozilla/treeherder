@@ -80,7 +80,7 @@ treeherder.factory('ThExclusionProfileModel', [
                 exclusion_profile
             )
                 .then(
-                    function(response){
+                    function(){
                         thNotify.send("Exclusion profile successfully updated", "success");
                     },
                     function(reason){
@@ -105,7 +105,7 @@ treeherder.factory('ThExclusionProfileModel', [
             var pk = this.id;
             return $http.delete(ThExclusionProfileModel.get_uri()+pk+"/")
                 .then(
-                    function(response){
+                    function(){
                         thNotify.send("Exclusion profile successfully deleted", "success");
                     },
                     function(reason){

@@ -694,13 +694,11 @@ treeherder.factory('ThResultSetStore', [
 
             var platformData = {};
 
-            var jobUpdated, i;
+            _.forEach(jobList, function(job) {
+                aggregateJobPlatform(repoName, job, platformData);
+            });
 
-            for (i = 0; i < jobList.length; i++) {
-                aggregateJobPlatform(repoName, jobList[i], platformData);
-            }
-
-            if(!_.isEmpty(platformData) && repoName === $rootScope.repoName){
+            if(!_.isEmpty(platformData) && repoName === $rootScope.repoName) {
                 $timeout($rootScope.$emit(thEvents.jobsLoaded, platformData));
             }
         };

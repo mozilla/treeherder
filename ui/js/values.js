@@ -128,7 +128,7 @@ treeherder.value("thPlatformOrder", {
     "horizon-linux64": 74,
     "horizon-osx": 75,
     "horizon-win64": 76,
-    "other": 99,
+    "other": 99
 });
 
 treeherder.value("thOptionOrder", {
@@ -138,7 +138,7 @@ treeherder.value("thOptionOrder", {
     "tsan": 3,
     "debug": 4,
     "cc": 5,
-    "addon": 6,
+    "addon": 6
 });
 
 treeherder.value("thFailureResults", ["testfailed", "busted", "exception"]);
@@ -227,7 +227,7 @@ treeherder.value("phTalosDocumentationMap", {
     "tp5o_private bytes": "Private_Bytes",
     "tp5o_xres": "Xres_.28X_Resource_Monitoring.29",
     "tsvgr_opacity": "tsvg-opacity",
-    "v8_7": "V8.2C_version_7",
+    "v8_7": "V8.2C_version_7"
 });
 
 treeherder.value("phTrySyntaxBuildPlatformMap", {

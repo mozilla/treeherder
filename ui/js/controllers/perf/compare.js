@@ -88,7 +88,7 @@ perf.controller('CompareChooserCtrl', [
                     ).then(function (revision) {
                         return {
                             revision:revision,
-                            project: $scope.newProject,
+                            project: $scope.newProject
                         };
                     });
                 }
@@ -117,7 +117,7 @@ perf.controller('CompareChooserCtrl', [
 
             $scope.runCompare = function() {
                 ThResultSetModel.getResultSetsFromRevision($scope.originalProject.name, $scope.originalRevision).then(
-                    function(resultSets) {
+                    function() {
                         $scope.originalRevisionError = undefined;
                     },
                     function(error) {
@@ -126,7 +126,7 @@ perf.controller('CompareChooserCtrl', [
                 );
 
                 ThResultSetModel.getResultSetsFromRevision($scope.newProject.name, $scope.newRevision).then(
-                    function (resultSets) {
+                    function () {
                         $scope.newRevisionError = undefined;
                         if ($scope.originalRevisionError === undefined && $scope.newRevisionError === undefined) {
                             $state.go('compare', {
@@ -424,13 +424,14 @@ perf.controller('CompareSubtestResultsCtrl', [
             $scope.pageList.forEach(function(page) {
                 var mapsigs = [];
                 [rawResultsMap, newRawResultsMap].forEach(function(resultsMap) {
+                    var tempsig;
                     // If no data for a given platform, or test, display N/A in table
                     if (resultsMap) {
-                        var tempsig = _.find(Object.keys(resultsMap), function (sig) {
+                        tempsig = _.find(Object.keys(resultsMap), function (sig) {
                             return resultsMap[sig].name === page;
                         });
                     } else {
-                        var tempsig = 'undefined';
+                        tempsig = 'undefined';
                         resultsMap = {};
                         resultsMap[tempsig] = {};
                     }
@@ -500,7 +501,6 @@ perf.controller('CompareSubtestResultsCtrl', [
                         return;
                     }
 
-                    var timeRange = PhCompare.getInterval($scope.originalResultSet.push_timestamp, $scope.newResultSet.push_timestamp);
                     var resultSetIds = [$scope.originalResultSet.id];
 
                     $scope.filterOptions = {

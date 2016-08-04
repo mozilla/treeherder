@@ -7,11 +7,11 @@
     "rules": {
         // Default rules we've disabled until the failures are fixed.
         // Remove a line to enable the rule.
-        "comma-dangle": 0,
-        "no-console": 0,
-        "no-redeclare": 0,
-        "no-undef": 0,
-        "no-unused-vars": 0,
+        "comma-dangle": 2,
+        "no-console": 2,
+        "no-redeclare": 2,
+        "no-undef": 2,
+        "no-unused-vars": 2,
 
         // Non-default rules we've chosen to enable.
         "accessor-pairs": 2,
@@ -64,5 +64,18 @@
         "space-return-throw-case": 2,
         "strict": [2, "global"],
         "yoda": 2
+    },
+    "globals":{
+        "angular": true,
+        "$": true,
+        "_": true,
+        "treeherder": true,
+        "perf": true,
+        "treeherderApp": true,
+        "failureViewerApp": true,
+        "logViewerApp": true,
+        "userguideApp": true,
+        "Mousetrap": true,
+        "jQuery": true
     }
 }

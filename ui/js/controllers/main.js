@@ -5,13 +5,13 @@ treeherderApp.controller('MainCtrl', [
     'ThRepositoryModel', 'thPinboard', 'thTabs',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
-    'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit', 'ThResultSetModel',
+    'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit',
     function MainController(
         $scope, $rootScope, $routeParams, $location, ThLog,
         ThRepositoryModel, thPinboard, thTabs,
         thClassificationTypes, thEvents, $interval, $window,
         ThExclusionProfileModel, thJobFilters, ThResultSetStore,
-        thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit, ThResultSetModel) {
+        thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit) {
 
         var $log = new ThLog("MainCtrl");
 

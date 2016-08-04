@@ -1,6 +1,6 @@
 'use strict';
 
-treeherder.directive('lvLogLines', ['$timeout', '$parse', function ($timeout) {
+treeherder.directive('lvLogLines', ['$parse', function () {
     function getOffsetOfStep (order) {
         var el = $('.lv-step[order="' + order + '"]');
         var parentOffset = el.parent().offset();
@@ -30,7 +30,7 @@ treeherder.directive('lvLogLines', ['$timeout', '$parse', function ($timeout) {
                         $scope.displayedStep = steps[j];
 
                         // scroll to the step
-                        var scrollTop = getOffsetOfStep(steps[j].order);
+                        scrollTop = getOffsetOfStep(steps[j].order);
                         $('.steps-data').scrollTop(scrollTop);
 
                         if (!$scope.$$phase) {
@@ -49,7 +49,7 @@ treeherder.directive('lvLogLines', ['$timeout', '$parse', function ($timeout) {
     return {
         restrict: 'A',
         templateUrl: 'partials/logviewer/lvLogLines.html',
-        link: function (scope, element, attr) {
+        link: function (scope, element) {
             $(element).scroll(onScroll.bind(this, scope));
         }
     };

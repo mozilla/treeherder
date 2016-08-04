@@ -130,7 +130,6 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
 
 
         var updateFunc = function(line) {
-            var selected = line.selectedOption;
             var options = {"Update": updateClassifiedFailure,
                            "Ignore": ignoreFailureTemporary,
                            "Create": createClassifiedFailure,
@@ -275,7 +274,7 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
 treeherder.factory('ThUnstructuredLinePersist', [
     '$rootScope', 'thExtendProperties', 'thNotify', 'ThTextLogSummaryLineModel', 'thEvents',
     function($rootScope, thExtendProperties, thNotify, ThTextLogSummaryLineModel, thEvents) {
-        var ThUnstructuredLinePersist = function(thNotify, ThTextLogSummaryLineModel) {};
+        var ThUnstructuredLinePersist = function() {};
 
         var persistInterface = {
             save: function(line) {
@@ -427,7 +426,7 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
         function buildUIData(data, matchers) {
             var ui = {
                 options: [],
-                best: null,
+                best: null
             };
 
             var getClassificationMatches = getClassifiedFailureMatcher(matchers,
@@ -940,7 +939,7 @@ treeherder.controller('ClassificationPluginCtrl', [
                       });
         };
 
-        $rootScope.$on(thEvents.saveAllAutoclassifications, function(event) {
+        $rootScope.$on(thEvents.saveAllAutoclassifications, function() {
             if ($scope.canSaveAll()) {
                 $scope.saveAll();
             }
