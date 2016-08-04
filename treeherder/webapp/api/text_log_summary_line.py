@@ -25,7 +25,7 @@ class TextLogSummaryLineViewSet(viewsets.ModelViewSet):
     filter_class = TextLogSummaryLineFilter
     pagination_class = pagination.IdPagination
 
-    def _update(self, data, email, many=False):
+    def _update(self, data, user, many=False):
         line_ids = []
         for item in data:
             line_id = item.get("id")
@@ -65,7 +65,7 @@ class TextLogSummaryLineViewSet(viewsets.ModelViewSet):
             with JobsModel(project) as jm:
                 jobs = jm.get_job_ids_by_guid(job_guids)
                 for job in jobs.values():
-                    jm.update_after_verification(job["id"], email)
+                    jm.update_after_verification(job["id"], user)
 
         if not many:
             rv = rv[0]
@@ -78,11 +78,11 @@ class TextLogSummaryLineViewSet(viewsets.ModelViewSet):
             if k not in data:
                 data[k] = v
 
-        body, status = self._update([data], request.user.email, many=False)
+        body, status = self._update([data], request.user, many=False)
         return Response(body, status=status)
 
     def update_many(self, request):
-        body, status = self._update(request.data, request.user.email, many=True)
+        body, status = self._update(request.data, request.user, many=True)
 
         if status == HTTP_404_NOT_FOUND:
             # 404 doesn't make sense for updating many since the path is always
