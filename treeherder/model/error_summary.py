@@ -12,6 +12,7 @@ CRASH_RE = re.compile(r'.+ application crashed \[@ (.+)\]$')
 MOZHARNESS_RE = re.compile(
     r'^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?'
 )
+REFTEST_RE = re.compile("\s+[=!]=\s+.*")
 
 
 def get_error_summary(all_errors):
@@ -93,6 +94,9 @@ def get_error_search_term(error_line):
         if match:
             search_term = match.group(1)
         else:
+            # For reftests, remove the reference path from the tokens as this is
+            # not very unique
+            test_name_or_path = REFTEST_RE.sub("", test_name_or_path)
             for splitter in ("/", "\\"):
                 # if this is a path, we are interested in the last part
                 test_name_or_path = test_name_or_path.split(splitter)[-1]

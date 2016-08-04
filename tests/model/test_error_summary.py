@@ -36,6 +36,24 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
         ),
         'mainthreadio'
     ),
+    (
+        (
+            "REFTEST PROCESS-CRASH "
+            "| http://10.0.2.2:8854/tests/dom/canvas/test/reftest/webgl-resize-test.html == "
+            "http://10.0.2.2:8854/tests/dom/canvas/test/reftest/wrapper.html?green.png "
+            "| application crashed [@ jemalloc_crash]"
+        ),
+        'webgl-resize-test.html'
+    ),
+    (
+        (
+            "REFTEST PROCESS-CRASH "
+            "| http://10.0.2.2:8854/tests/dom/canvas/test/reftest/webgl-resize-test.html != "
+            "http://10.0.2.2:8854/tests/dom/canvas/test/reftest/wrapper.html?green.png "
+            "| application crashed [@ jemalloc_crash]"
+        ),
+        'webgl-resize-test.html'
+    )
 )
 
 
