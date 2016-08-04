@@ -67,6 +67,7 @@ class BuildPlatform(models.Model):
 
     class Meta:
         db_table = 'build_platform'
+        unique_together = ("os_name", "platform", "architecture")
 
     def __str__(self):
         return "{0} {1} {2}".format(
@@ -119,6 +120,7 @@ class MachinePlatform(models.Model):
 
     class Meta:
         db_table = 'machine_platform'
+        unique_together = ("os_name", "platform", "architecture")
 
     def __str__(self):
         return "{0} {1} {2}".format(
