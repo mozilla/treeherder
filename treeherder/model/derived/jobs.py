@@ -422,7 +422,7 @@ class JobsModel(TreeherderModelBase):
 
         return failure_lines[0]
 
-    def update_after_autoclassification(self, job_id, user=None):
+    def update_after_autoclassification(self, job_id):
         if not settings.AUTOCLASSIFY_JOBS:
             return
 
@@ -525,10 +525,11 @@ class JobsModel(TreeherderModelBase):
                        if item.bug_number}
 
         for bug_number in bug_numbers:
-            BugJobMap.objects.create(job=job,
-                                     bug_id=bug_number,
-                                     created=datetime.now(),
-                                     user=user)
+            BugJobMap.objects.get_or_create(job=job,
+                                            bug_id=bug_number,
+                                            defaults={
+                                                'user': user
+                                            })
 
         # if user is not specified, then this is an autoclassified job note
         # and we should mark it as such
