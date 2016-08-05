@@ -605,15 +605,21 @@ class JobDetail(models.Model):
     each job
     '''
     MAX_FIELD_LENGTH = 512
+    MAX_TITLE_LENGTH = 100
 
     id = BigAutoField(primary_key=True)
     job = FlexibleForeignKey(Job)
-    title = models.CharField(max_length=MAX_FIELD_LENGTH, null=True)
+    title = models.CharField(max_length=MAX_TITLE_LENGTH, null=True)
     value = models.CharField(max_length=MAX_FIELD_LENGTH)
     url = models.URLField(null=True, max_length=MAX_FIELD_LENGTH)
 
     class Meta:
         db_table = "job_detail"
+        # Ensure that we have unique records for ``job``, ``title`` and
+        # ``value``.  We consider duplication in those fields with a different
+        # ``url`` to be unsupported.  Unique ``url``s should also have unique
+        # ``value``s.
+        unique_together = ("job", "title", "value")
 
     def __str__(self):
         return "{0} {1} {2} {3} {4}".format(self.id,
