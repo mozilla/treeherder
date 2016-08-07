@@ -1,5 +1,19 @@
 <div ng-controller="ClassificationPluginCtrl"
      class="error-classification-content">
+
+  <div class="failure-lines-actions" ng-if="status() === 'pending'">
+    <button ng-if="failureLines"
+            class="btn btn-primary btn-sm"
+            title="Ignore items with no autoclassification and nothing explicitly selected"
+            ng-disabled="!canIgnore()"
+            ng-click="ignoreClean()">Ignore Others</button><br>
+    <button ng-if="failureLines"
+            class="btn btn-primary btn-sm"
+            title="Save All"
+            ng-disabled="!canSaveAll()"
+            ng-click="saveAll()">Save All</button>
+  </div>
+
   <ul class="list-unstyled failure-line-list" ng-if="status() === 'pending' || status() === 'verified'">
     <li ng-repeat="line in failureLines"
         class="classification-line"
@@ -145,19 +159,6 @@
         </ul>
     </li>
   </ul>
-
-  <div class="failure-lines-actions" ng-if="status() === 'pending'">
-    <button ng-if="failureLines"
-            class="btn btn-primary btn-sm"
-            title="Ignore items with no autoclassification and nothing explicitly selected"
-            ng-disabled="!canIgnore()"
-            ng-click="ignoreClean()">Ignore Others</button><br>
-    <button ng-if="failureLines"
-            class="btn btn-primary btn-sm"
-            title="Save All"
-            ng-disabled="!canSaveAll()"
-            ng-click="saveAll()">Save All</button>
-  </div>
 
   <div ng-if="status() === 'waiting'">
     <span>Logs not fully parsed, please wait</span>

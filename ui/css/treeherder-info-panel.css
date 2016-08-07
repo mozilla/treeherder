@@ -512,6 +512,7 @@ div.performance-panel {
 ul.failure-line-list {
   width: 100%;
   margin-bottom: 0;
+  overflow-y: scroll;
 }
 
 .failure-line {
