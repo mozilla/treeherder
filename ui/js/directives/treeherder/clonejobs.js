@@ -806,7 +806,7 @@ treeherder.directive('thCloneJobs', [
 
         var isOnScreen = function(el){
             var viewport = {};
-            viewport.top = $(window).scrollTop();
+            viewport.top = $(window).scrollTop() + $("#global-navbar-container").height();
             viewport.bottom = viewport.top + $(window).height() - $("#info-panel").height();
             var bounds = {};
             bounds.top = el.offset().top;
