@@ -19,7 +19,7 @@ $RABBITMQ_PASSWORD = 'guest'
 $RABBITMQ_VHOST = '/'
 
 Exec {
-    path => "/usr/local/bin:/usr/bin:/usr/sbin:/sbin:/bin",
+    path => "${VENV_DIR}/bin:/usr/local/bin:/usr/bin:/usr/sbin:/sbin:/bin",
 }
 
 line {"etc-hosts":
@@ -30,6 +30,9 @@ line {"etc-hosts":
 
 file {"/etc/profile.d/treeherder.sh":
     content => "
+# Ensure the vendored libmysqlclient library can be found at run-time.
+export LD_LIBRARY_PATH='${VENV_DIR}/lib/x86_64-linux-gnu'
+
 export ENABLE_LOCAL_SETTINGS_FILE='True'
 export BROKER_URL='amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@localhost:5672/${RABBITMQ_VHOST}'
 export DATABASE_URL='mysql://${DB_USER}:${DB_PASS}@localhost/treeherder'

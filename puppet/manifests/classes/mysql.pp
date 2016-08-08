@@ -3,10 +3,6 @@ class mysql {
     ensure => installed
   }
 
-  package { 'libmysqld-dev':
-    ensure => installed
-  }
-
   service { 'mysql':
     ensure => running,
     enable => true,

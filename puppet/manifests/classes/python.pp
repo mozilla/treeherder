@@ -3,7 +3,7 @@ class python {
   package{[# Python2.7 is already installed, but we need to update it to the
            # latest version from the third party PPA.
            "python2.7",
-           # Required by MySQLdb.
+           # Required by mysqlclient.
            "python-dev",
            # Required by pylibmc.
            "libmemcached-dev",
@@ -48,8 +48,17 @@ class python {
     user => "${APP_USER}",
   }
 
+  exec {"vendor-libmysqlclient":
+    command => "${PROJ_DIR}/bin/vendor-libmysqlclient.sh ${VENV_DIR}",
+    require => Exec["create-virtualenv"],
+    user => "${APP_USER}",
+  }
+
   exec{"pip-install-common":
-    require => Exec['create-virtualenv'],
+    require => [
+      Exec['create-virtualenv'],
+      Exec['vendor-libmysqlclient'],
+    ],
     user => "${APP_USER}",
     cwd => '/tmp',
     command => "${VENV_DIR}/bin/pip install --disable-pip-version-check --require-hashes -r ${PROJ_DIR}/requirements/common.txt",

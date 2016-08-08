@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Tasks run by the Heroku Python buildpack prior to the compile step.
+
+# Make non-zero exit codes & other errors fatal.
+set -euo pipefail
+
+VENDOR_DIR=".heroku/vendor"
+
+# Hacks to work around pre_compile being run before cache is restored.
+# Remove when this PR is merged:
+# https://github.com/heroku/heroku-buildpack-python/pull/321
+VENDOR_DIR="$CACHE_DIR/$VENDOR_DIR"
+mkdir -p "$VENDOR_DIR"
+export PATH="$VENDOR_DIR/bin:$PATH"
+
+./bin/vendor-libmysqlclient.sh "$VENDOR_DIR"
+
+# The existing value for `LD_LIBRARY_PATH` only includes `$VENDOR_DIR/lib` and not
+# also the `x86_64-linux-gnu` directory that the libmysqlclient package will create
+# inside it. Directories in `LD_LIBRARY_PATH` are not searched recursively and we
+# cannot add additional directories, since `pre_compile` is run in a sub-shell. In
+# addition, `vendor-libmysqlclient.sh` cannot flatten the directory structure,
+# since `mysql_config` uses relative paths that include `x86_64-linux-gnu`.
+# As such, we have to create a symlink to ensure the library is found at runtime.
+ln -rsf "$VENDOR_DIR/lib/x86_64-linux-gnu/libmysqlclient.so.20" "$VENDOR_DIR/lib/libmysqlclient.so.20"
