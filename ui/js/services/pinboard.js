@@ -27,7 +27,11 @@ treeherder.factory('thPinboard', [
                     success(function() {
                         thNotify.send("Classification saved for " + job.platform + ": " + job.job_type_name, "success");
                     }).error(function(data) {
-                        thNotify.send("Error saving classification for " + job.platform + ": " + job.job_type_name, "danger");
+                        var error = "Error saving classification for " + job.platform + ": " + job.job_type_name;
+                        if(data.detail === "Authentication credentials were not provided.") {
+                            error = "Authentication failed, try refreshing page and signing in again?";
+                        }
+                        thNotify.send(error, "danger");
                         $log.debug("classification failed", data);
                     });
             }
@@ -43,8 +47,12 @@ treeherder.factory('thPinboard', [
                 bjm.create().
                     success(function() {
                         thNotify.send("Bug association saved for " + job.platform + ": " + job.job_type_name, "success");
-                    }).error(function() {
-                        thNotify.send("Error saving bug association for " + job.platform + ": " + job.job_type_name, "danger");
+                    }).error(function(data) {
+                        var error = "Error saving bug association for " + job.platform + ": " + job.job_type_name;
+                        if(data.detail === "Authentication credentials were not provided.") {
+                            error = "Authentication failed, try refreshing page and signing in again?";
+                        }
+                        thNotify.send(error, "danger");
                     });
             });
         };
