@@ -315,6 +315,13 @@ treeherderApp.controller('MainCtrl', [
                 }
             });
 
+            // Shortcut: delete classification and related bugs
+            Mousetrap.bind('a', function() {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.ignoreOthersAutoclassifications));
+                }
+            });
+
             // Shortcut: display onscreen keyboard shortcuts
             Mousetrap.bind('?', function() {
                 $scope.$evalAsync($scope.setOnscreenShortcutsShowing(true));
