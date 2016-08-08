@@ -600,6 +600,12 @@ ul.failure-line-list {
   font-size: 0.9em;
 }
 
+.classification-options > label {
+    margin-bottom: 0;
+    font-weight: normal;
+    display: inline;
+}
+
 /* TODO: Make this better */
 .classification-matchers {
   color: darkgrey;

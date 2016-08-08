@@ -93,44 +93,46 @@
                 <span ng-if="::line.best !== option"
                       class="classification-no-icon">&nbsp;</span>
               </div>
-              <input type="radio"
-                     value="{{$index}}"
-                     name="{{::line.id}}"
-                     ng-model="line.selectedOptionIndex"
-                     ng-change="line.dirty=true"
-                     ng-if="!(option.type == 'classified_failure' && !option.hasBug)"/>
-              <span class="line-option-text" ng-if="option.hasBug">
-                <span ng-if="option.bugResolution" class="classification-bug-resolution">[{{ option.bugResolution }}]</span>
-                <a href="{{::getBugUrl(option.bugNumber) }}"
-                   target="_blank">Bug {{::option.bugNumber}} -
-                  <span ng-if="line.type === 'structured'"
-                        ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:line.data.test:line.data.subtest:line.data.status:line.data.expected"></span>
-                  <span ng-if="line.type === 'unstructured'"
-                        ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:line.data.search_terms"></span>
-                </a>
-              </span>
-              <span ng-if="option.type == 'classified_failure' && !option.hasBug">
-                Autoclassified failure with no associated bug number
-              </span>
-              <span ng-if="option.type == 'manual'">
-                Other bug <input class="manual-bug-input"
-                                 type="text"
-                                 placeholder="Bug Number"
-                                 ng-model="option.bugNumber"
-                                 ng-change="line.dirty=true"/>
-                <a ng-if="option.bugNumber"
-                   href="{{ ::getBugUrl(option.bugNumber) }}"
-                   target="_blank">
-                  [view]</a>
-              </span>
-              <span ng-if="option.type==='ignore'"
-                    class="line-option-text"
-                    title="Ignore this line with regard to job classification"> Ignore line
-                <select ng-if="line.type == 'structured'"
-                        ng-model="option.always"
-                        ng-options="key for (key,value) in {'here only': false, 'for future matches': true}">
-                </select>
-              </span>
+              <label>
+                <input type="radio"
+                       value="{{$index}}"
+                       name="{{::line.id}}"
+                       ng-model="line.selectedOptionIndex"
+                       ng-change="line.dirty=true"
+                       ng-if="!(option.type == 'classified_failure' && !option.hasBug)"/>
+                <span class="line-option-text" ng-if="option.hasBug">
+                  <span ng-if="option.bugResolution" class="classification-bug-resolution">[{{ option.bugResolution }}]</span>
+                  <a href="{{::getBugUrl(option.bugNumber) }}"
+                     target="_blank">Bug {{::option.bugNumber}} -
+                    <span ng-if="line.type === 'structured'"
+                          ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:line.data.test:line.data.subtest:line.data.status:line.data.expected"></span>
+                    <span ng-if="line.type === 'unstructured'"
+                          ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:line.data.search_terms"></span>
+                  </a>
+                </span>
+                <span ng-if="option.type == 'classified_failure' && !option.hasBug">
+                  Autoclassified failure with no associated bug number
+                </span>
+                <span ng-if="option.type == 'manual'">
+                  Other bug <input class="manual-bug-input"
+                                   type="text"
+                                   placeholder="Bug Number"
+                                   ng-model="option.bugNumber"
+                                   ng-change="line.dirty=true"/>
+                  <a ng-if="option.bugNumber"
+                     href="{{ ::getBugUrl(option.bugNumber) }}"
+                     target="_blank">
+                    [view]</a>
+                </span>
+                <span ng-if="option.type==='ignore'"
+                      class="line-option-text"
+                      title="Ignore this line with regard to job classification"> Ignore line
+                  <select ng-if="line.type == 'structured'"
+                          ng-model="option.always"
+                          ng-options="key for (key,value) in {'here only': false, 'for future matches': true}">
+                  </select>
+                </span>
+              </label>
             </div>
             <div class="classification-matchers" ng-if="option.type == 'classified_failure'">
               Matched by:
