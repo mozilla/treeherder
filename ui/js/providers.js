@@ -232,7 +232,9 @@ treeherder.provider('thEvents', function() {
 
             classificationVerified: "classification-verified-EVT",
 
-            saveAllAutoclassifications: "save-all-autoclassifications-EVT"
+            saveAllAutoclassifications: "save-all-autoclassifications-EVT",
+
+            ignoreOthersAutoclassifications: "ignore-others-autoclassifications-EVT"
         };
     };
 });

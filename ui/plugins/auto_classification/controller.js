@@ -944,5 +944,8 @@ treeherder.controller('ClassificationPluginCtrl', [
                 $scope.saveAll();
             }
         });
+        $rootScope.$on(thEvents.ignoreOthersAutoclassifications, function() {
+            $scope.ignoreClean();
+        });
     }
 ]);
