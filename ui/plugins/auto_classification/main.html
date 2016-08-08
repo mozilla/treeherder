@@ -9,7 +9,7 @@
             ng-click="ignoreClean()">Ignore Others</button><br>
     <button ng-if="failureLines"
             class="btn btn-primary btn-sm"
-            title="Save All"
+            title="{{loggedIn() ? 'Save All' : 'Must be logged in to save classifications'}}"
             ng-disabled="!canSaveAll()"
             ng-click="saveAll()">Save All</button>
   </div>
