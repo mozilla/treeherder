@@ -29,6 +29,54 @@ var isHelpfulLine = function(lineData) {
     return lineData.length > 4 && !blacklist.hasOwnProperty(lineData);
 };
 
+var overlap = function(str1, str2) {
+    function normalize(str) {
+        // Replace paths like /foo/bar/baz.html with just the filename baz.html
+        return str.replace(/\s[^\s]+\/([^\s]+)\s/,
+                           function(m, p1) {
+                               return " " + p1 + " ";
+                           });
+    }
+
+    function tokenize(str) {
+        return str.split(/[ \/]+/).filter(function(x) {return x !== "";});
+    }
+
+    function countTokens(tokenList) {
+        var rv = {};
+        tokenList.forEach(function(x) {
+            if (!rv.hasOwnProperty(x)) {
+                rv[x] = 0;
+            }
+            rv[x] += 1;
+        });
+        return rv;
+    }
+
+    function sum(arr) {
+        return arr.reduce(function(prev, curr) {
+            return prev + curr;
+        });
+    }
+
+    function score(tokenCount1, tokenCount2) {
+        var overlap = 0;
+        Object.keys(tokenCount1).forEach(function(x) {
+            if (tokenCount2.hasOwnProperty(x)) {
+                overlap += 2 * Math.min(tokenCount1[x], tokenCount2[x]);
+            }
+        });
+        return overlap / (sum(_.values(tokenCount1)) +
+                          sum(_.values(tokenCount2)));
+    }
+
+    var f = function(str) {
+        return countTokens(tokenize(normalize(str)));
+    };
+
+    return score(f(str1), f(str2));
+};
+
 treeherder.factory('ThClassificationOption', ['thExtendProperties',
     function(thExtendProperties) {
         var ThClassificationOption = function(type, id, bugNumber, bugSummary, bugResolution, matches) {
@@ -372,6 +420,17 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
                             });
         }
 
+        function sortUnstructuredBugs(message, unstructuredBugs) {
+            var scores = {};
+            unstructuredBugs.forEach(function(bug) {
+                scores[bug.id] = overlap(bug.summary, message);
+            });
+            unstructuredBugs.sort(function(a,b) {
+                return scores[b.id] - scores[a.id];
+            });
+            return unstructuredBugs;
+        }
+
         function bugSuggestionOptions(bugSuggestions) {
             // add in unstructured_bugs as options as well
             var options = [];
@@ -435,7 +494,13 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
             var autoOptions = autoclassifierOptions(data.classified_failures,
                                                     getClassificationMatches);
 
-            var bugSuggestions = filterUnstructuredBugs(data.unstructured_bugs, autoOptions);
+            var message = [data.test, data.subtest, data.message]
+                    .filter(function(x) {return x !== null;})
+                    .join(" ");
+            var bugSuggestions = sortUnstructuredBugs(
+                message,
+                filterUnstructuredBugs(data.unstructured_bugs, autoOptions));
+
             ui.options = ui.options.concat(autoOptions,
                                            bugSuggestionOptions(bugSuggestions));
             ui.best = bestAutoclassifiedOption(data.best_classification, ui,
@@ -589,6 +654,7 @@ treeherder.factory('ThUnstructuredLine', ['thExtendProperties',
                                           'ThUnstructuredLinePersist',
     function (thExtendProperties, thValidBugNumber, ThClassificationOption,
               ThUnstructuredLinePersist) {
+
         function bugSuggestionOptions(bugSuggestions) {
             var options = [];
 
@@ -604,6 +670,18 @@ treeherder.factory('ThUnstructuredLine', ['thExtendProperties',
             return options;
         }
 
+        function sortBugSuggestions(message, unstructuredBugs) {
+            var scores = {};
+            unstructuredBugs.forEach(function(bug) {
+                scores[bug.id] = overlap(bug.summary ? bug.summary : bug.bugSummary, message);
+            });
+            unstructuredBugs.sort(function(a,b) {
+                return scores[b.id] - scores[a.id];
+            });
+            return unstructuredBugs;
+        }
+
+
         function buildUIData(data) {
             var ui = {
                 options: [],
@@ -614,8 +692,13 @@ treeherder.factory('ThUnstructuredLine', ['thExtendProperties',
                 return ui;
             }
 
-            ui.options = bugSuggestionOptions(data.bugs.open_recent);
-            ui.options = ui.options.concat(bugSuggestionOptions(data.bugs.all_others));
+            ui.options = bugSuggestionOptions(sortBugSuggestions(
+                data.search,
+                data.bugs.open_recent));
+            ui.options = ui.options.concat(sortBugSuggestions(
+                data.search,
+                bugSuggestionOptions(data.bugs.all_others)));
+
             ui.options.push(new ThClassificationOption("manual", "manual"));
             ui.options.push(new ThClassificationOption("ignore", "ignore", 0));
             if (!isHelpfulLine(data.search)) {
