@@ -140,24 +140,12 @@
   width: 177px;
 }
 
-.classification-comment-container {
-  margin-top: 5px;
-  height: 20px;
-}
-
 .add-classification-input {
   width: 177px;
   height: 20px;
   padding: 0 0 0 3px;
   border-radius: 0;
   font-size: 12px;
-}
-
-.classification-comment-preload-txt {
-  position: relative;
-  top: -17px;
-  left: 5px;
-  pointer-events: none;
 }
 
 /*
