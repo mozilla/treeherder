@@ -875,7 +875,14 @@ treeherder.controller('ClassificationPluginCtrl', [
                             });
         };
 
+        $scope.loggedIn = function() {
+            return $rootScope.user && $rootScope.user.loggedin;
+        };
+
         $scope.canSaveAll = function() {
+            if (!$scope.loggedIn()) {
+                return false;
+            }
             if (!$scope.pendingLines().length) {
                 return false;
             }
