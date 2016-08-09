@@ -8,11 +8,12 @@ from django.core.management import call_command
 
 @pytest.fixture
 def db_conn():
-    db_options = settings.DATABASES['default'].get('OPTIONS', {})
+    db_config = settings.DATABASES['default']
+    db_options = db_config.get('OPTIONS', {})
     return MySQLdb.connect(
-        host=settings.DATABASES['default']['HOST'],
-        user=settings.DATABASES['default']['USER'],
-        passwd=settings.DATABASES['default'].get('PASSWORD') or '',
+        host=db_config['HOST'],
+        user=db_config['USER'],
+        passwd=db_config.get('PASSWORD') or '',
         **db_options
     )
 
