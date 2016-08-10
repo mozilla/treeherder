@@ -23,7 +23,7 @@
         <!-- endbuild -->
 
     </head>
-    <body ng-controller="MainCtrl" ng-keydown="processKeyboardInput($event)">
+    <body ng-controller="MainCtrl" th-main-keys>
         <div id="global-container">
             <div id="onscreen-overlay" ng-if="onscreenOverlayShowing"
                  ng-click="setOnscreenShortcutsShowing(false)">
