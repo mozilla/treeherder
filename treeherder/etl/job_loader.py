@@ -239,6 +239,22 @@ class JobLoader:
                 "url": logref["url"],
                 "parse_status": "parsed" if "steps" in logref else "pending"
             })
+        log_references.extend(self._get_errorsummary_log_references(job))
+        return log_references
+
+    def _get_errorsummary_log_references(self, job):
+        log_references = []
+        if "jobInfo" in job:
+            ji = job["jobInfo"]
+            if "links" in ji:
+                links = ji["links"]
+                for link in links:
+                    if ("linkText" in link and
+                        link["linkText"].endswith("_errorsummary.log")
+                        and "url" in link):
+                        log_references.append({"name": "errorsummary_json",
+                                               "url": link["url"],
+                                               "parse_status": "pending"})
         return log_references
 
     def _get_option_collection(self, job):

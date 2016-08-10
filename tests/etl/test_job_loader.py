@@ -54,7 +54,19 @@ def test_ingest_pulse_jobs(pulse_jobs, test_project, jm, result_set_stored,
     jobs = jm.get_job_list(0, 10)
     assert len(jobs) == 4
 
-    assert JobLog.objects.filter(job__project_specific_id=jobs[0]["id"]).count() == 1
+    job_logs = JobLog.objects.filter(job__project_specific_id=jobs[0]["id"])
+    assert job_logs.count() == 2
+    logs_expected = [{"name": "builds-4h",
+                      "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
+                      "parse_status": 0},
+                     {"name": "errorsummary_json",
+                      "url": "http://mozilla-releng-blobs.s3.amazonaws.com/blobs/Mozilla-Inbound-Non-PGO/sha512/05c7f57df6583c6351c6b49e439e2678e0f43c2e5b66695ea7d096a7519e1805f441448b5ffd4cc3b80b8b2c74b244288fda644f55ed0e226ef4e25ba02ca466",
+                      # Note that the test causes store_failure_lines to be
+                      # run, which sets this to parsed.
+                      "parse_status": 1}]
+    assert [{"name": item.name, "url": item.url, "parse_status": item.status}
+            for item in job_logs.all()] == logs_expected
+
     with ArtifactsModel(test_project) as am:
         artifacts = am.get_job_artifact_list(0, 10)
         assert len(artifacts) == 3
@@ -139,6 +151,10 @@ def change_state_result(test_job, job_loader, jm, new_state, new_result, exp_sta
         # pending jobs wouldn't have logs and our store_job_data doesn't
         # support it.
         del job['logs']
+        errorsummary_indices = [i for i, item in enumerate(job["jobInfo"].get("links", []))
+                                if item.get("linkText", "").endswith("_errorsummary.log")]
+        for index in errorsummary_indices:
+            del job["jobInfo"]["links"][index]
 
     job_loader.process_job_list([job])
 
