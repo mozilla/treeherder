@@ -740,7 +740,7 @@ def test_remove_existing_jobs_one_existing_one_new(jm, sample_data,
     assert Job.objects.count() == 1
 
 
-def test_new_job_in_exclusion_profile(jm, sample_data, sample_resultset,
+def test_new_job_in_exclusion_profile(jm, sample_data, sample_resultset, mock_log_parser,
                                       test_sheriff, test_project):
     job = sample_data.job_data[1]
     platform = job["job"]["machine_platform"]["platform"]
