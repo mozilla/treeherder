@@ -11,7 +11,7 @@ VENDOR_DIR=".heroku/vendor"
 # https://github.com/heroku/heroku-buildpack-python/pull/321
 VENDOR_DIR="$CACHE_DIR/$VENDOR_DIR"
 mkdir -p "$VENDOR_DIR"
-export PATH="$VENDOR_DIR/bin:$PATH"
+export PATH="$CACHE_DIR/.heroku/python/bin:$VENDOR_DIR/bin:$PATH"
 
 ./bin/vendor-libmysqlclient.sh "$VENDOR_DIR"
 
