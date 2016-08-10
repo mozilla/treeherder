@@ -22,4 +22,6 @@ export PATH="$CACHE_DIR/.heroku/python/bin:$VENDOR_DIR/bin:$PATH"
 # addition, `vendor-libmysqlclient.sh` cannot flatten the directory structure,
 # since `mysql_config` uses relative paths that include `x86_64-linux-gnu`.
 # As such, we have to create a symlink to ensure the library is found at runtime.
-ln -rsf "$VENDOR_DIR/lib/x86_64-linux-gnu/libmysqlclient.so.20" "$VENDOR_DIR/lib/libmysqlclient.so.20"
+if [[ ! -e "$VENDOR_DIR/lib/libmysqlclient.so" ]]; then
+    ln -srt "$VENDOR_DIR/lib/" "$VENDOR_DIR/lib/x86_64-linux-gnu/libmysqlclient.so"*
+fi

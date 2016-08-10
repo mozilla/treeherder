@@ -409,7 +409,7 @@ SILENCED_SYSTEM_CHECKS = [
 # Disable the libmysqlclient TLS system check on SCl3, since we're moving to
 # Heroku soon, so it's not worth the hassle of trying to get it updated from
 # the ancient 5.1.X, given the DB is behind a VPN and so doesn't use TLS anyway.
-if '.scl3.mozilla.com' in env('HOSTNAME', default=''):
+if '.scl3.mozilla.com' in env('DATABASE_URL'):
     SILENCED_SYSTEM_CHECKS.append('treeherder.E001')
 
 # Enable integration between autoclassifier and jobs
