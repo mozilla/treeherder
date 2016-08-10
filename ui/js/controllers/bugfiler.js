@@ -137,6 +137,8 @@ treeherder.controller('BugFilerCtrl', [
             reftest: $scope.reftest
         };
 
+        $scope.isIntermittent = true;
+
         /*
          *  Actually send the gathered information to bugzilla.
          */
@@ -173,6 +175,8 @@ treeherder.controller('BugFilerCtrl', [
                 descriptionStrings += $scope.modalComment;
             }
 
+            var keywords = $scope.isIntermittent ? "intermittent-failure" : "";
+
             // Fetch product information from bugzilla to get version numbers, then submit the new bug
             // Only request the versions because some products take quite a long time to fetch the full object
             $.ajax("https://bugzilla.mozilla.org/rest/product/" + productString + "?include_fields=versions").done(function(productJSON) {
@@ -184,7 +188,7 @@ treeherder.controller('BugFilerCtrl', [
                         "product": productString,
                         "component": componentString,
                         "summary": summarystring,
-                        "keywords": "intermittent-failure",
+                        "keywords": keywords,
                         // XXX This takes the last version returned from the product query, probably should be smarter about this in the future...
                         "version": productObject.versions[productObject.versions.length-1].name,
                         "comment": descriptionStrings,
