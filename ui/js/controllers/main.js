@@ -107,6 +107,25 @@ treeherderApp.controller('MainCtrl', [
             }
         };
 
+        /* If the user is in an editable element or pressing shift
+         * then disable keyboard events, unless otherwise enabled
+         * in inputs by the 'mousetrap' class in markup */
+        Mousetrap.stopCallback = function(ev, element) {
+            // if the element has the class "mousetrap" then no need to stop
+            if (element.classList.contains('mousetrap')) {
+                return false;
+            }
+            if ((element.tagName === 'INPUT' &&
+                 element.type !== "radio" && element.type !== "checkbox") ||
+                element.tagName === 'SELECT' ||
+                element.tagName === 'TEXTAREA' ||
+                element.isContentEditable || ev.keyCode === 16) {
+                return true;
+            }
+            return false;
+        };
+
+
         // Single key shortcuts to allow in ui events (usually inputs)
         var mousetrapExclusions = [
             'i',     // Toggle display in-progress jobs (pending/running)
@@ -124,6 +143,7 @@ treeherderApp.controller('MainCtrl', [
             'f',     // Enter a quick filter
             'l',     // Open the logviewer for the selected job
             's',     // Save all autoclassifications for the selected job
+            'a',     // Ignore all autoclassifications for the selected job
             '?'      // Display onscreen keyboard shortcuts
         ];
 
@@ -140,19 +160,7 @@ treeherderApp.controller('MainCtrl', [
         };
 
         // Process shortcut events
-        $scope.processKeyboardInput = function(ev) {
-
-            /* If the user is in an editable element or pressing shift
-             * then disable keyboard events, unless otherwise enabled
-             * in inputs by the 'mousetrap' class in markup */
-            var activeElement = document.activeElement;
-            if (activeElement.tagName === 'INPUT' ||
-                activeElement.tagName === 'SELECT' ||
-                activeElement.tagName === 'TEXTAREA' ||
-                activeElement.isContentEditable || ev.keyCode === 16) {
-                return;
-            }
-
+        $scope.processKeyboardInput = function() {
             /* In some cases we need to handle the digest cycle otherwise
              * we will see interaction delays. Where needed we use $scope.$evalAsync
              * for optimization but may use $timeout or $digest if required */
