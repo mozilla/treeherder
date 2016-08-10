@@ -62,7 +62,7 @@ for url in "${PACKAGE_URLS[@]}"; do
       | tar -x --strip-components=2 --exclude="./usr/share" --exclude="*.a" -C "$VENDOR_DIR"
 done
 
-if [[ -n "$(which pip && pip show mysqlclient)" ]]; then
+if (which pip && pip show mysqlclient) > /dev/null; then
     # The mysqlclient Python package won't pick up the new version of libmysqlclient
     # unless it's recompiled against it. However unless we purge the old package, pip
     # won't know to reinstall, since the version of mysqlclient itself hasn't changed.
