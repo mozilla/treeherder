@@ -394,10 +394,10 @@ logViewerApp.controller('LogviewerCtrl', [
 
             if (request.start >= 0) {
                 return true;
-            } else {
-                request.start = 0;
-                return false;
             }
+
+            request.start = 0;
+            return false;
         }
 
         function getChunkBelow (request) {
@@ -408,10 +408,10 @@ logViewerApp.controller('LogviewerCtrl', [
 
             if (request.end <= lastLine) {
                 return true;
-            } else {
-                request.end = lastLine;
-                return false;
             }
+
+            request.end = lastLine;
+            return false;
         }
 
         function removeChunkAbove () {

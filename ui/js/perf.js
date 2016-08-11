@@ -86,9 +86,8 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
                              { params: params }).then(function(response) {
                                  if(response.data) {
                                      return response.data;
-                                 } else {
-                                     return $q.reject("No series data found");
                                  }
+                                 return $q.reject("No series data found");
                              });
         }
     };

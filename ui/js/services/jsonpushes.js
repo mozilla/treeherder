@@ -6,11 +6,10 @@ treeherder.service('JsonPushes', ['$http', '$q', function($http, $q) {
         if (response instanceof Error) {
             return $q.reject("Unable to find a previous revision" +
                              " (" + response + ").");
-        } else {
-            // http error
-            return $q.reject("Error " + response.status +
-                             " (" + response.data + ").");
         }
+        // http error
+        return $q.reject("Error " + response.status +
+                         " (" + response.data + ").");
     };
 
     /* *recursive* attempts to find the nearest branch and revision for a

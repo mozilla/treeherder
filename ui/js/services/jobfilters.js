@@ -506,19 +506,11 @@ treeherder.factory('thJobFilters', [
         };
 
         var _withPrefix = function(field) {
-            if (!_startsWith(field, PREFIX)) {
-                return PREFIX+field;
-            } else {
-                return field;
-            }
+            return (!_startsWith(field, PREFIX)) ? PREFIX+field : field;
         };
 
         var _withoutPrefix = function(field) {
-            if (_startsWith(field, PREFIX)) {
-                return field.replace(PREFIX, '');
-            } else {
-                return field;
-            }
+            return (_startsWith(field, PREFIX)) ? field.replace(PREFIX, '') : field;
         };
 
         /**

@@ -80,9 +80,8 @@ treeherderApp.controller('FilterPanelCtrl', [
                     _.at($scope.resultStatusFilters,
                     $scope.filterGroups[filter].resultStatuses)
                 );
-            } else {
-                return $scope.resultStatusFilters[filter];
             }
+            return $scope.resultStatusFilters[filter];
         };
 
         /**
@@ -242,9 +241,8 @@ treeherderApp.controller('SearchCtrl', [
             var ss = thJobFilters.getFieldFiltersObj().searchStr;
             if (ss) {
                 return ss.join(" ");
-            } else {
-                return "";
             }
+            return "";
         };
 
         $scope.searchQueryStr = getSearchStr();

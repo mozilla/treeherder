@@ -596,9 +596,9 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
                                selected.type === "manual" ||
                                (selected.type === "ignore" && selected.always)) {
                         return "Create";
-                    } else {
-                        return "Select";
                     }
+
+                    return "Select";
                 },
 
                 get classifiedFailureId() {
@@ -709,9 +709,9 @@ treeherder.factory('ThUnstructuredLine', ['thExtendProperties',
                     if (data.verified) {
                         if (data.bug_number === 0 || data.bug_number === null) {
                             return 'ignored';
-                        } else {
-                            return 'verified';
                         }
+
+                        return 'verified';
                     }
                     return 'pending';
                 },
@@ -728,9 +728,8 @@ treeherder.factory('ThUnstructuredLine', ['thExtendProperties',
                     } else if (this.selectedOption.type === "ignore") {
                         if (this.selected.always) {
                             return 0;
-                        } else {
-                            return null;
                         }
+                        return null;
                     }
                     return this.selectedOption.bugNumber;
                 },
@@ -889,14 +888,14 @@ treeherder.controller('ClassificationPluginCtrl', [
                     structuredSeen[line.failure_line] = true;
                     var failureLine = structured[line.failure_line];
                     return new ThStructuredLine(failureLine, matchers);
-                } else {
-                    var unstructuredData = line;
-                    // XXX - this probably doesn't work when the
-                    // line is excluded from the bug suggestions
-                    _.extend(unstructuredData,
-                             textLogSummary.bug_suggestions[i]);
-                    return new ThUnstructuredLine(unstructuredData);
                 }
+
+                var unstructuredData = line;
+                // XXX - this probably doesn't work when the
+                // line is excluded from the bug suggestions
+                _.extend(unstructuredData,
+                         textLogSummary.bug_suggestions[i]);
+                return new ThUnstructuredLine(unstructuredData);
             });
 
             _.forEach(failureLines, function(line) {
@@ -984,9 +983,8 @@ treeherder.controller('ClassificationPluginCtrl', [
                 !$scope.hasOwnProperty('failureLines')) {
                 if (!$scope.triedLoad) {
                     return 'waiting';
-                } else {
-                    return 'loading';
                 }
+                return 'loading';
             } else if ($scope.failureLines.length === 0) {
                 return 'empty';
             } else if ($scope.pendingLines().length === 0) {

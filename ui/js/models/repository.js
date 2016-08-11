@@ -155,14 +155,14 @@ treeherder.factory('ThRepositoryModel', [
                             saveWatchedRepos();
                         }
                     });
-            } else {
-                if (options.name) {
-                    setCurrent(options.name);
-                }
-                return $q(function(resolve) {
-                    resolve('Already loaded');
-                });
             }
+
+            if (options.name) {
+                setCurrent(options.name);
+            }
+            return $q(function(resolve) {
+                resolve('Already loaded');
+            });
         };
 
 
