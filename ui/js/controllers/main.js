@@ -1,18 +1,17 @@
 "use strict";
 
 treeherderApp.controller('MainCtrl', [
-    '$scope', '$rootScope', '$routeParams', '$location', 'ThLog',
-    'ThRepositoryModel', 'thPinboard', 'thTabs',
+    '$scope', '$rootScope', '$routeParams', '$location', '$timeout',
+    'ThLog', 'ThRepositoryModel', 'thPinboard', 'thTabs',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
     'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit',
     function MainController(
-        $scope, $rootScope, $routeParams, $location, ThLog,
-        ThRepositoryModel, thPinboard, thTabs,
+        $scope, $rootScope, $routeParams, $location, $timeout,
+        ThLog, ThRepositoryModel, thPinboard, thTabs,
         thClassificationTypes, thEvents, $interval, $window,
         ThExclusionProfileModel, thJobFilters, ThResultSetStore,
         thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit) {
-
         var $log = new ThLog("MainCtrl");
 
         // Query String param for selected job
@@ -228,15 +227,10 @@ treeherderApp.controller('MainCtrl', [
                     // Prevent shortcut key overflow during focus
                     ev.preventDefault();
 
-                    $scope.$evalAsync(
-                        $rootScope.$broadcast('focus-this', "related-bug-input")
-                    );
-
-                    /* Treat single key shortcuts as regular text during input.
-                     * This prevents invocation of single key hotkeys like 'c'
-                     * during bug number entry, which would cross focus the
-                     * comments field. We validate numbers via the markup. */
-                    $scope.$evalAsync($scope.allowKeys());
+                    $timeout(
+                        function() {
+                            $("#related-bug-input").focus();
+                        }, 0);
                 }
             });
 
@@ -250,12 +244,10 @@ treeherderApp.controller('MainCtrl', [
                     // Prevent shortcut key overflow during focus
                     ev.preventDefault();
 
-                    $scope.$evalAsync(
-                        $rootScope.$broadcast('focus-this', "classification-comment")
-                    );
-
-                    // Treat single key shortcuts as regular text during input
-                    $scope.$evalAsync($scope.allowKeys());
+                    $timeout(
+                        function() {
+                            $("#classification-comment").focus();
+                        }, 0);
                 }
             });
 

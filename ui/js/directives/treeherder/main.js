@@ -14,19 +14,6 @@ treeherder.directive('ngRightClick', [
         };
     }]);
 
-//Directive focusThis which applies focus to a specific element
-treeherder.directive('focusThis', ['$timeout', function($timeout) {
-    return function(scope, elem, attr) {
-        scope.$on('focus-this', function(event, id) {
-            if (attr.id === id) {
-                $timeout(function() {
-                    elem[0].focus();
-                }, 0);
-            }
-        });
-    };
-}]);
-
 //Directive blurThis which removes focus from a specific element
 treeherder.directive('blurThis', ['$timeout', function($timeout) {
     return function(scope, elem, attr) {
