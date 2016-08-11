@@ -27,7 +27,7 @@
           class="add-related-bugs-form">
       <input id="related-bug-input"
              data-bug-input
-             class="add-related-bugs-input mousetrap"
+             class="add-related-bugs-input"
              ng-model="$parent.newEnteredBugNumber"
              placeholder="enter bug number"
              focus-me="focusInput">
@@ -43,7 +43,7 @@
   <div class="pinboard-label">classification</div>
   <div id="pinboard-classification-content" class="content">
     <form ng-submit="completeClassification()" class="form">
-      <select class="mousetrap" ng-click="allowKeysClassificationDropdown()"
+      <select id="pinboard-classification-select"
               ng-model="classification.failure_classification_id"
               ng-options="item.id as item.name for item in classificationTypes.classificationOptions">
       </select>
@@ -51,11 +51,11 @@
       <div class="classification-comment-container">
         <input id="classification-comment"
                type="text"
-               class="form-control add-classification-input mousetrap"
+               class="form-control add-classification-input"
                ng-model="classification.text"
                ng-click="allowKeys()"
                placeholder="click to add comment"
-               focus-this blur-this></input>
+               blur-this></input>
       </div>
     </form>
   </div>
