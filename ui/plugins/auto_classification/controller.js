@@ -353,16 +353,17 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
     function (thExtendProperties, thValidBugNumber, ThClassificationOption,
               ThStructuredLinePersist, thStringOverlap) {
 
+        // this returns a function that builds a set of metadata for each
+        // structured line with failure matches, describing what was matched
         function getClassifiedFailureMatcher(matchers, matches) {
             var matchesByClassifiedFailure = {};
 
-            _.forEach(matches,
-                      function(match) {
-                          if (!matchesByClassifiedFailure[match.classified_failure]) {
-                              matchesByClassifiedFailure[match.classified_failure] = [];
-                          }
-                          matchesByClassifiedFailure[match.classified_failure].push(match);
-                      });
+            _.forEach(matches, function(match) {
+                if (!matchesByClassifiedFailure[match.classified_failure]) {
+                    matchesByClassifiedFailure[match.classified_failure] = [];
+                }
+                matchesByClassifiedFailure[match.classified_failure].push(match);
+            });
 
             return function(cf_id) {
                 return _.map(matchesByClassifiedFailure[cf_id],
@@ -376,30 +377,23 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
         }
 
         function autoclassifierOptions(classifiedFailures, getClassificationMatches) {
-            var options = [];
-
             // collect all the classified_failures.  But skip
-            // ones with a null bug.  classified_failures with
+            // ones with a null bug (classified_failures with
             // null bugs have no distinguishing features to make
-            // them relevant.
+            // them relevant).
             // If the "best" one has a null bug we will add
             // that in later.
 
-            _.forEach(classifiedFailures, function(cf) {
-                if (cf.bug_number !== null && cf.bug_number !== 0) {
-                    var bug_summary = cf.bug ? cf.bug.summary : "";
-                    var bug_resolution = cf.bug ? cf.bug.resolution : "";
-                    var option = new ThClassificationOption("classified_failure",
-                                                            cf.id,
-                                                            cf.bug_number,
-                                                            bug_summary,
-                                                            bug_resolution,
-                                                            getClassificationMatches(cf.id));
-                    options.push(option);
-                }
+            return classifiedFailures.filter(function(cf) {
+                return (cf.bug_number !== null && cf.bug_number !== 0);
+            }).map(function(cf) {
+                return new ThClassificationOption("classified_failure",
+                                                  cf.id,
+                                                  cf.bug_number,
+                                                  cf.bug ? cf.bug.summary : "",
+                                                  cf.bug ? cf.bug.resolution : "",
+                                                  getClassificationMatches(cf.id));
             });
-
-            return options;
         }
 
         function bugSuggestionOptions(data, autoOptions) {
@@ -427,25 +421,20 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
                     return scores;
                 }, new Map());
 
-            bugSuggestions = bugSuggestions.sort(function(a,b) {
-                return scores.get(b.id) - scores.get(a.id);
-            });
-
-            var options = [];
-
-            _.forEach(bugSuggestions, function(bug) {
+            return bugSuggestions
+                .sort(function(a,b) {
+                    return scores.get(b.id) - scores.get(a.id);
+                })
+                .map(function(bugSuggestion) {
                 // adding a prefix to the bug id because,
                 // theoretically, however unlikely, it could
                 // conflict with a classified_failure id.
-                var ubid = "ub-" + bug.id;
-                options.push(new ThClassificationOption("unstructured_bug",
-                                                        ubid,
-                                                        bug.id,
-                                                        bug.summary,
-                                                        bug.resolution));
-            });
-
-            return options;
+                    return new ThClassificationOption("unstructured_bug",
+                                                      "ub-" + bugSuggestion.id,
+                                                      bugSuggestion.id,
+                                                      bugSuggestion.summary,
+                                                      bugSuggestion.resolution);
+                });
         }
 
         function bestAutoclassifiedOption(bestClassification, ui, getClassificationMatches) {
@@ -467,7 +456,7 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
                                      // ignore options later so that we can replace the best
                 } else {
                     // The best classification didn't have a bug number so it needs a
-                    // new entry
+                    // new entry (which we'll put in front)
                     best = new ThClassificationOption("classified_failure",
                                                       bestClassification,
                                                       null,
@@ -497,10 +486,15 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
             ui.best = bestAutoclassifiedOption(data.best_classification, ui,
                                                getClassificationMatches);
 
+            // add a manual option (for manually inputting a bug associated
+            // with the failure line)
             ui.options.push(new ThClassificationOption("manual", "manual"));
 
+            // add an ignore option (for automatically ignoring the failure
+            // line in the future)
             var ignoreOption = new ThClassificationOption("ignore", "ignore", 0);
             ui.options.push(ignoreOption);
+
             if (ui.best === "ignore") {
                 ui.best = ignoreOption;
                 ignoreOption.always = true;
@@ -647,7 +641,9 @@ treeherder.factory('ThUnstructuredLine', ['thExtendProperties',
     function (thExtendProperties, thValidBugNumber, ThClassificationOption,
               ThUnstructuredLinePersist, thStringOverlap) {
 
-        function bugSuggestionOptions(data, bugSuggestions) {
+        function bugSuggestionOptions(data) {
+            var bugSuggestions = data.bugs.open_recent.concat(data.bugs.all_others);
+
             var scores = bugSuggestions
                     .reduce(function(scores, bug) {
                         var score = thStringOverlap(data.search, bug.summary);
@@ -657,22 +653,17 @@ treeherder.factory('ThUnstructuredLine', ['thExtendProperties',
                         return scores;
                     }, new Map());
 
-            bugSuggestions = bugSuggestions.sort(function(a,b) {
-                return scores.get(b.id) - scores.get(a.id);
-            });
-
-            var options = [];
-
-            _.forEach(bugSuggestions, function(bug) {
-                var ubid = "ub-" + bug.id;
-                options.push(new ThClassificationOption("unstructured_bug",
-                                                        ubid,
-                                                        bug.id,
-                                                        bug.summary,
-                                                        bug.resolution));
-            });
-
-            return options;
+            return bugSuggestions
+                .sort(function(a,b) {
+                    return scores.get(b.id) - scores.get(a.id);
+                })
+                .map(function(bugSuggestion) {
+                    return new ThClassificationOption("unstructured_bug",
+                                                      "ub-" + bugSuggestion.id,
+                                                      bugSuggestion.id,
+                                                      bugSuggestion.summary,
+                                                      bugSuggestion.resolution);
+                });
         }
 
         function buildUIData(data) {
@@ -685,11 +676,16 @@ treeherder.factory('ThUnstructuredLine', ['thExtendProperties',
                 return ui;
             }
 
-            var bugs = data.bugs.open_recent.concat(data.bugs.all_others);
-            ui.options = bugSuggestionOptions(data, bugs);
+            ui.options = bugSuggestionOptions(data);
 
+            // add a manual option (for manually inputting a bug associated
+            // with the failure line)
             ui.options.push(new ThClassificationOption("manual", "manual"));
+
+            // add an ignore option (for automatically ignoring the failure
+            // line in the future)
             ui.options.push(new ThClassificationOption("ignore", "ignore", 0));
+
             if (!isHelpfulLine(data.search)) {
                 ui.selectedOptionIndex = ui.options.length - 1;
             }
