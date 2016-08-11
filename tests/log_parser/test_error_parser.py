@@ -29,7 +29,9 @@ NON_ERROR_TEST_CASES = (
     "07:51:08     INFO -  Caught Exception: Remote Device Error: unable to connect to panda-0501 after 5 attempts",
     "06:21:18     INFO -  I/GeckoDump(  730): 110 INFO TEST-UNEXPECTED-FAIL | foo | bar",
     "[taskcluster:info] Starting task",
-    "[taskcluster] Starting task"
+    "[taskcluster] Starting task",
+    "01:22:41     INFO -  ImportError: No module named pygtk",
+    "01:22:41     INFO -  ImportError: No module named pygtk\r\n"
 )
 
 
