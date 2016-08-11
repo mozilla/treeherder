@@ -242,7 +242,8 @@ treeherderApp.controller('MainCtrl', [
                     return override;
                 }
             }
-            if (element.tagName === 'INPUT' ||
+            if ((element.tagName === 'INPUT' &&
+                 element.type !== "radio" && element.type !== "checkbox") ||
                 element.tagName === 'SELECT' ||
                 element.tagName === 'TEXTAREA' ||
                 element.isContentEditable || ev.keyCode === 16) {
