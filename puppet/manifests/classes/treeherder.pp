@@ -10,22 +10,12 @@ class treeherder {
         require => Package['memcached'],
     }
 
-    exec {"treeherder-help-text":
-      unless => "grep 'echo ${THELP_TEXT}' ${HOME_DIR}/.bashrc",
-      command => "echo 'echo ${THELP_TEXT}' >> ${HOME_DIR}/.bashrc",
-      user => "${APP_USER}",
-    }
-
-    exec {"cd-treeherder-on-login":
-      unless => "grep 'cd ${PROJ_DIR}' ${HOME_DIR}/.bashrc",
-      command => "echo 'cd ${PROJ_DIR}' >> ${HOME_DIR}/.bashrc",
-      user => "${APP_USER}",
-    }
-
-    exec {"vagrant-prompt":
-      unless =>  "grep -F 'export PS1=\"${PS1}\"' ${HOME_DIR}/.bashrc",
-      command => "echo 'export PS1=\"${PS1}\"' >> ${HOME_DIR}/.bashrc",
-      user => "${APP_USER}",
+    # Restore the default .bashrc to undo any customisations made before we
+    # moved them to .profile instead. This can be removed in a few weeks.
+    file {"$HOME_DIR/.bashrc":
+      source => "/etc/skel/.bashrc",
+      owner => "${APP_USER}",
+      group  => "${APP_GROUP}",
     }
 
     file {"$HOME_DIR/.profile":

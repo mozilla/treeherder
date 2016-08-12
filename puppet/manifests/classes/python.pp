@@ -42,13 +42,6 @@ class python {
     require => Exec["install-virtualenv"],
   }
 
-  exec {"activate-venv-on-login":
-    unless => "grep 'source ${VENV_DIR}/bin/activate' ${HOME_DIR}/.bashrc",
-    command => "echo 'source ${VENV_DIR}/bin/activate' >> ${HOME_DIR}/.bashrc",
-    require => Exec["create-virtualenv"],
-    user => "${APP_USER}",
-  }
-
   exec {"vendor-libmysqlclient":
     command => "${PROJ_DIR}/bin/vendor-libmysqlclient.sh ${VENV_DIR}",
     require => Exec["create-virtualenv"],

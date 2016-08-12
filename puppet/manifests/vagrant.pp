@@ -6,8 +6,6 @@ $APP_GROUP="vagrant"
 $HOME_DIR = "/home/${APP_USER}"
 $PROJ_DIR = "${HOME_DIR}/treeherder"
 $VENV_DIR = "${HOME_DIR}/venv"
-$PS1 = '\[\e[0;31m\]\u\[\e[m\] \[\e[1;34m\]\w\[\e[m\] \$ '
-$THELP_TEXT = 'Type \\"thelp\\" to see a list of Treeherder-specific helper aliases'
 
 Exec {
     path => "${VENV_DIR}/bin:/usr/local/bin:/usr/bin:/usr/sbin:/sbin:/bin",
