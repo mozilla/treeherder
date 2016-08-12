@@ -7,6 +7,7 @@ class python {
            "python-dev",
            # Required by pylibmc.
            "libmemcached-dev",
+           "zlib1g-dev",
            # Required by Brotli.
            "g++",
            # To improve the UX of the Vagrant environment.
