@@ -4,12 +4,12 @@
   <div class="failure-lines-actions" ng-if="status() === 'pending'">
     <button ng-if="failureLines"
             class="btn btn-primary btn-sm"
-            title="Ignore items with no autoclassification and nothing explicitly selected"
-            ng-disabled="!canIgnore()"
+            title="{{loggedIn() ? 'Ignore items with no autoclassification and nothing explicitly selected': 'Not logged in'}}"
+            ng-disabled="!canIgnore() || !loggedIn()"
             ng-click="ignoreClean()">Ignore Others</button><br>
     <button ng-if="failureLines"
             class="btn btn-primary btn-sm"
-            title="{{loggedIn() ? 'Save All' : 'Must be logged in to save classifications'}}"
+            title="{{loggedIn() ? 'Save All' : 'Not logged in'}}"
             ng-disabled="!canSaveAll()"
             ng-click="saveAll()">Save All</button>
   </div>
@@ -39,11 +39,13 @@
           <select
              ng-if="line.type === 'structured' && line.updateText.length > 1"
              ng-model="line.updateSelectOption"
+             title="{{loggedIn() ? 'Update selected classifications' : 'Not logged in'}}"
+             ng-disabled="!loggedIn()"
              ng-options="value for (key, value) in line.updateText"
              ></select><br>
           <button class="btn btn-xs btn-default"
-                  title="Select best match and click here"
-                  ng-disabled="!line.canSave"
+                  title="{{loggedIn() ? (line.canSave ? 'Select best match' : 'No changes to save') : 'Not logged in'}}"
+                  ng-disabled="!loggedIn() || !line.canSave"
                   ng-click="line.save()">Save</button>
         </span>
       </div>
