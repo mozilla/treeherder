@@ -80,7 +80,7 @@ matrix:
         - curl -sSo ~/elasticsearch.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.5/elasticsearch-2.3.5.deb && sudo dpkg -i ~/elasticsearch.deb
         - sudo service elasticsearch start
         - while ! curl localhost:9200 &>/dev/null; do sleep 1; done
-        - echo -e '\n[mysqld]\nsql_mode="STRICT_ALL_TABLES"\n' | sudo tee -a /etc/mysql/my.cnf
+        - sudo cp puppet/files/mysql/my.cnf /etc/mysql/conf.d/treeherder.cnf
         - sudo service mysql restart
         # Create a clean virtualenv rather than using the one given to us,
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
@@ -128,7 +128,7 @@ matrix:
         - curl -sSo ~/elasticsearch.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.5/elasticsearch-2.3.5.deb && sudo dpkg -i ~/elasticsearch.deb
         - sudo service elasticsearch start
         - while ! curl localhost:9200 &>/dev/null; do sleep 1; done
-        - echo -e '\n[mysqld]\nsql_mode="STRICT_ALL_TABLES"\n' | sudo tee -a /etc/mysql/my.cnf
+        - sudo cp puppet/files/mysql/my.cnf /etc/mysql/conf.d/treeherder.cnf
         - sudo service mysql restart
         # Create a clean virtualenv rather than using the one given to us,
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
@@ -166,7 +166,7 @@ matrix:
         - curl -sSo ~/elasticsearch.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.5/elasticsearch-2.3.5.deb && sudo dpkg -i ~/elasticsearch.deb
         - sudo service elasticsearch start
         - while ! curl localhost:9200 &>/dev/null; do sleep 1; done
-        - echo -e '\n[mysqld]\nsql_mode="STRICT_ALL_TABLES"\n' | sudo tee -a /etc/mysql/my.cnf
+        - sudo cp puppet/files/mysql/my.cnf /etc/mysql/conf.d/treeherder.cnf
         - sudo service mysql restart
         # Create a clean virtualenv rather than using the one given to us,
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
