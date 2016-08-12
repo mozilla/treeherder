@@ -1,6 +1,4 @@
-import io
-import urllib2
-import zlib
+import requests
 from contextlib import closing
 
 from django.conf import settings
@@ -8,7 +6,6 @@ from django.conf import settings
 from .artifactbuilders import (BuildbotJobArtifactBuilder,
                                BuildbotLogViewArtifactBuilder,
                                BuildbotPerformanceDataArtifactBuilder)
-
 
 class ArtifactBuilderCollection(object):
     """
@@ -81,15 +78,6 @@ BuildbotPerformanceDataArtifactBuilder
                 BuildbotPerformanceDataArtifactBuilder(url=self.url)
             ]
 
-    def get_log_handle(self, url):
-        """Hook to get a handle to the log with this url"""
-        req = urllib2.Request(url)
-        req.add_header('User-Agent', settings.TREEHERDER_USER_AGENT)
-        return urllib2.urlopen(
-           req,
-           timeout=settings.REQUESTS_TIMEOUT
-        )
-
     def parse(self):
         """
         Iterate over each line of the log, running each parser against it.
@@ -97,40 +85,26 @@ BuildbotPerformanceDataArtifactBuilder
         Stream lines from the gzip file and run each parser against it,
         building the ``artifact`` as we go.
         """
-        with closing(self.get_log_handle(self.url)) as lh:
+        req = requests.get(
+            self.url,
+            stream=True,
+            headers={'user-agent': settings.TREEHERDER_USER_AGENT},
+            timeout=settings.REQUESTS_TIMEOUT
+        )
+        # size_in_mb = int(req.headers["content-length"]) / 1000000
+        size_in_mb = int(req.headers["content-length"])
+        if size_in_mb > settings.MAX_LOG_SIZE:
+            raise LogTooLargeException(
+                "Log too large to parse: {}MB, Max: {}MB".format(
+                    size_in_mb,
+                    settings.MAX_LOG_SIZE
+            ))
 
-            def _parse_lines(f, readpos, end=False):
-                f.seek(readpos)
-                for line in f:
-                    if '\n' not in line and not end:
-                        return f.tell() - len(line)
-                    # run each parser on each line of the log
-                    for builder in self.builders:
-                        builder.parse_line(line)
-
-                return f.tell()
-
-            # decompress the gzip file and process lines while we're downloading
-            # We can't just use GzipFile, because that wants the
-            # methods seek() and tell(), which don't exist on a normal
-            # fileobj (at least in Python 2.x, apparently it does in Python 3.2).
-            # interesting write-up here:
-            # http://www.enricozini.org/2011/cazzeggio/python-gzip/
-
-            GZIP_WINDOW_SIZE = 16 + zlib.MAX_WBITS  # zlib window size for gzip
-            zipobj = zlib.decompressobj(GZIP_WINDOW_SIZE)
-            with closing(io.BytesIO()) as f:
-                readpos = 0
-                while True:
-                    bytes = lh.read(4096)
-                    if not bytes:
-                        f.write(zipobj.flush())
-                        _parse_lines(f, readpos, end=True)
-                        break
-                    else:
-                        f.write(zipobj.decompress(bytes))
-                        readpos = _parse_lines(f, readpos)
-                        f.seek(0, 2)
+        with closing(req) as lh:
+            for line in lh.iter_lines():
+                # run each parser on each line of the log
+                for builder in self.builders:
+                    builder.parse_line(line)
 
         # gather the artifacts from all builders
         for builder in self.builders:
@@ -142,3 +116,7 @@ BuildbotPerformanceDataArtifactBuilder
             if name == 'performance_data' and not artifact[name]:
                 continue
             self.artifacts[name] = artifact
+
+
+class LogTooLargeException(Exception):
+    pass
