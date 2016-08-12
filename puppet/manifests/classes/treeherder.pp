@@ -28,8 +28,9 @@ class treeherder {
       user => "${APP_USER}",
     }
 
-    file {"${HOME_DIR}/.bash_aliases":
-      source => "${PROJ_DIR}/puppet/files/treeherder/.bash_aliases",
+    file {"$HOME_DIR/.profile":
+      ensure => "link",
+      target => "${PROJ_DIR}/puppet/files/treeherder/.profile",
       owner => "${APP_USER}",
       group  => "${APP_GROUP}",
     }

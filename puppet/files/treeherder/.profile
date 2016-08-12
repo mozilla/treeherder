@@ -1,3 +1,6 @@
+# Source .bashrc, since the default .profile we're replacing did so.
+. "$HOME/.bashrc"
+
 function thelp {
     echo "
     Treeherder-specific helpful aliases:
