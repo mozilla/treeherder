@@ -5,14 +5,6 @@
     },
     "extends": "eslint:recommended",
     "rules": {
-        // Default rules we've disabled until the failures are fixed.
-        // Remove a line to enable the rule.
-        "comma-dangle": 2,
-        "no-console": 2,
-        "no-redeclare": 2,
-        "no-undef": 2,
-        "no-unused-vars": 2,
-
         // Non-default rules we've chosen to enable.
         "accessor-pairs": 2,
         "comma-style": 2,
