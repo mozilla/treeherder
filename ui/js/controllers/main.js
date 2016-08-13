@@ -391,6 +391,9 @@ treeherderApp.controller('MainCtrl', [
             // Shortcut: save pinboard classification and related bugs
             ['ctrl+enter', function() {
                 $scope.$evalAsync($rootScope.$emit(thEvents.saveClassification));
+            }, function() {
+                // Make this work regardless of form controls etc.
+                return false;
             }],
 
             // Shortcut: open the logviewer for the selected job
