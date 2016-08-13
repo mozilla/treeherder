@@ -129,8 +129,10 @@ treeherder.filter('highlightCommonTerms', function() {
         angular.forEach(tokens, function(elem) {
             if (elem.length > 0) {
                 input = input.replace(new RegExp("(^|\\W)(" + elem + ")($|\\W)", "gi"), function(match, prefix, token, suffix, index, str) {
-                    if (inTag(str, index, "<", ">") || inTag(str, index, "&", ";")){
+                    if (inTag(str, index, "<", ">")) {
                         return match;
+                    } else if (inTag(str, index, "&", ";")) {
+                        return prefix + "<strong>" + token + "</strong>" + suffix;
                     } else {
                         return prefix + "<strong>" + token + "</strong>" + suffix;
                     }
