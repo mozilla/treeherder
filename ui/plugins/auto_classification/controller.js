@@ -976,7 +976,7 @@ treeherder.controller('ClassificationPluginCtrl', [
         };
 
         $scope.canIgnore = function() {
-            return $scope.pendingLines().length > 0 && $scope.loggedIn();
+            return $scope.pendingLines().length > 0;
         };
 
         $scope.status = function() {
