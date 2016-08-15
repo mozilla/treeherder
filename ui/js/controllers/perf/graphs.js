@@ -562,10 +562,8 @@ perf.controller('GraphsCtrl', [
                                                    + ',' + $scope.zoom['y'].toString()) + "]").replace(/[\[\{\}\]"]+/g, '');
                         return modifiedZoom;
                     }
-                    else {
-                        $scope.zoom = [];
-                        return $scope.zoom;
-                    }
+                    $scope.zoom = [];
+                    return $scope.zoom;
                 })(),
                 selected: (function() {
                     return ($scope.selectedDataPoint) ? "[" + [$scope.selectedDataPoint.projectName,

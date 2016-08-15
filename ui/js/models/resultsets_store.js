@@ -212,9 +212,8 @@ treeherder.factory('ThResultSetStore', [
                         updateUnclassifiedFailureCountForTiers(repoName);
                         $rootScope.$emit(thEvents.applyNewJobs, resultSetId);
                     });
-            } else {
-                return $q.defer().resolve();
             }
+            return $q.defer().resolve();
         };
 
         $rootScope.$on(thEvents.recalculateUnclassified, function() {

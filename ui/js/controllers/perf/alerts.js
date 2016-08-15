@@ -451,9 +451,9 @@ perf.controller('AlertsCtrl', [
                             if (alert.status === phAlertStatusMap.DOWNSTREAM.id &&
                                 alert.summary_id !== summary.id) {
                                 return alert.summary_id;
-                            } else {
-                                return [];
                             }
+
+                            return [];
                         })));
 
                 });

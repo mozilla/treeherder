@@ -5,11 +5,7 @@
 treeherder.filter('showOrHide', function() {
     // determine whether this is a label for a job group (like mochitest)
     return function(input, isCollapsed) {
-        if (isCollapsed === true) {
-            return "show" + input;
-        } else {
-            return "hide" + input;
-        }
+        return (isCollapsed === true) ? "show" + input : "hide" + input;
     };
 });
 
@@ -131,9 +127,8 @@ treeherder.filter('highlightCommonTerms', function() {
                 input = input.replace(new RegExp("(^|\\W)(" + elem + ")($|\\W)", "gi"), function(match, prefix, token, suffix, index, str) {
                     if (inTag(str, index, "<", ">") || inTag(str, index, "&", ";")){
                         return match;
-                    } else {
-                        return prefix + "<strong>" + token + "</strong>" + suffix;
                     }
+                    return prefix + "<strong>" + token + "</strong>" + suffix;
                 });
             }
         });

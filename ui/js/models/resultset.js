@@ -163,10 +163,9 @@ treeherder.factory(
                                  return _.map(response.data.revisions, function(r) {
                                      return r.revision;
                                  });
-                             } else {
-                                 return $q.reject("No revisions found for result set " +
-                                                  resultSetId + " in project " + projectName);
                              }
+                             return $q.reject("No revisions found for result set " +
+                                              resultSetId + " in project " + projectName);
                          });
              },
 
@@ -177,11 +176,10 @@ treeherder.factory(
                                       function(response) {
                                           if (response.data.results.length > 0) {
                                               return response.data.results;
-                                          } else {
-                                              return $q.reject('No results found for revision ' +
-                                                               revision + " on project " +
-                                                               projectName);
                                           }
+                                          return $q.reject('No results found for revision ' +
+                                                           revision + " on project " +
+                                                           projectName);
                                       });
              },
 

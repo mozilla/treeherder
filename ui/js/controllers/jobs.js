@@ -60,9 +60,8 @@ treeherderApp.controller('JobsCtrl', [
             // parameter and its = sign, which would return true
             if (searchParamValue === true) {
                 return "";
-            } else {
-                return searchParamValue;
             }
+            return searchParamValue;
         };
 
         if ($location.search().revision === 'undefined') {
@@ -185,12 +184,10 @@ treeherderApp.controller('ResultSetCtrl', [
             if (singleJobSelected) {
                 if ($scope.canCancelJobs()) {
                     return "Cancel selected job";
-                } else {
-                    return "Cannot cancel completed job";
                 }
-            } else {
-                return "Cancel all jobs";
+                return "Cannot cancel completed job";
             }
+            return "Cancel all jobs";
         };
 
         $scope.canCancelJobs = function() {
@@ -202,9 +199,9 @@ treeherderApp.controller('ResultSetCtrl', [
             if (singleJobSelected) {
                 // Check whether the job can be cancelled
                 return job.state === "pending" || job.state === "running";
-            } else {
-                return true;
             }
+
+            return true;
         };
 
         $scope.cancelJobs = function(revision) {

@@ -115,9 +115,8 @@ treeherder.controller('BugFilerCtrl', [
                     $scope.suggestedProducts = _.map(data.products, function(prod) {
                         if(prod.product && prod.component) {
                             return prod.product + " :: " + prod.component;
-                        } else {
-                            return prod.product;
                         }
+                        return prod.product;
                     });
                     $scope.selection.selectedProduct = $scope.suggestedProducts[0];
                 });

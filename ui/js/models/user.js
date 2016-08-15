@@ -19,11 +19,7 @@ treeherder.factory('ThUserModel', [
             // the primary key should be an email
             return $http.get(ThUserModel.get_uri()).then(
                 function(response) {
-                    if(response.data.length > 0){
-                        return new ThUserModel(response.data[0]);
-                    }else{
-                        return {};
-                    }
+                    return (response.data.length > 0) ? new ThUserModel(response.data[0]) : {};
                 },
                 function(reason){
                     thNotify.send(reason.data,"danger");
