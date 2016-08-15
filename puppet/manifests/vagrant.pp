@@ -31,7 +31,7 @@ file {"/var/log/treeherder/":
 
 file {"${PROJ_DIR}/treeherder/config/settings_local.py":
      replace => "no",
-     content => template("${PROJ_DIR}/puppet/files/treeherder/local.vagrant.py"),
+     source => "${PROJ_DIR}/treeherder/config/settings_local.example.py",
 }
 
 class vagrant {
