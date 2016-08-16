@@ -4,7 +4,7 @@ from tests import test_utils
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import BuildbotLogViewArtifactBuilder
 
-from ..sampledata import SampleData
+from tests.test_utils import add_log_response
 
 slow = pytest.mark.slow
 
@@ -17,8 +17,7 @@ def do_test(log):
               result file with the same prefix.
     """
 
-    url = "file://{0}".format(
-        SampleData().get_log_path("{0}.txt.gz".format(log)))
+    url = add_log_response("{0}.txt.gz".format(log), 20000)
 
     builder = BuildbotLogViewArtifactBuilder(url)
     lpc = ArtifactBuilderCollection(url, builders=builder)
@@ -48,7 +47,7 @@ def do_test(log):
     # assert act == exp, json.dumps(act, indent=4)
 
 
-def test_crashtest_passing():
+def test_crashtest_passing(activate_responses):
     """Process a job with a single log reference."""
 
     do_test(
@@ -56,7 +55,7 @@ def test_crashtest_passing():
     )
 
 
-def test_mochitest_pass():
+def test_mochitest_pass(activate_responses):
     """Process a job with a single log reference."""
 
     do_test(
@@ -64,14 +63,14 @@ def test_mochitest_pass():
     )
 
 
-def test_duration_gt_1hr():
+def test_duration_gt_1hr(activate_responses):
     do_test(
         "mozilla-central-win32-pgo-bm85-build1-build111"
     )
 
 
 @slow
-def test_mochitest_fail():
+def test_mochitest_fail(activate_responses):
     """Process a job with a single log reference."""
 
     do_test(
@@ -79,7 +78,7 @@ def test_mochitest_fail():
     )
 
 
-def test_mochitest_process_crash():
+def test_mochitest_process_crash(activate_responses):
     """Test a mochitest log that has PROCESS-CRASH """
 
     do_test(
@@ -88,7 +87,7 @@ def test_mochitest_process_crash():
 
 
 @slow
-def test_jetpack_fail():
+def test_jetpack_fail(activate_responses):
     """Process a job with a single log reference."""
 
     do_test(

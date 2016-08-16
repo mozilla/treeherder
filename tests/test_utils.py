@@ -1,4 +1,8 @@
+import gzip
 import json
+import responses
+import zlib
+import tarfile
 
 from tests.sampledata import SampleData
 from treeherder.client import TreeherderClient
@@ -238,3 +242,24 @@ def load_exp(filename):
         except ValueError:
             # if it's not parse-able, return an empty dict
             return {}
+
+
+def add_log_response(filename, content_length=20000):
+    """
+    Add a response for a log and return the new url
+
+    Default content-length to something that falls in our acceptable range.
+    A larger value can be used to introduce failure testing. (I'm looking at
+    you, log_parser tests)
+    """
+    sample_data = SampleData()
+    log_path = sample_data.get_log_path(filename)
+    log_url = "http://my-log.mozilla.org/"
+
+    with open(log_path) as log_handler:
+        responses.add(responses.GET, log_url,
+                      body=gzip.GzipFile(fileobj=log_handler).read(),
+                      # body=tarfile.open(mode="r:gz", fileobj=log_handler).next().read(),
+                      status=200,
+                      adding_headers={"content-length": str(content_length)})
+    return log_url
