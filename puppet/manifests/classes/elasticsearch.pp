@@ -1,5 +1,5 @@
 class elasticsearch {
-  package { 'openjdk-7-jre':
+  package { 'openjdk-7-jre-headless':
     ensure => installed
   }
 
@@ -11,7 +11,7 @@ class elasticsearch {
     ensure => running,
     enable => true,
     require => [
-      Package['openjdk-7-jre'],
+      Package['openjdk-7-jre-headless'],
       Package['elasticsearch'],
     ],
   }
