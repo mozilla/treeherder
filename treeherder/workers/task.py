@@ -2,6 +2,7 @@ import random
 import zlib
 from functools import wraps
 
+import jsonschema
 import newrelic.agent
 from celery import task
 from django.db.utils import (IntegrityError,
@@ -15,6 +16,7 @@ class retryable_task(object):
         TypeError,
         IntegrityError,
         ProgrammingError,
+        jsonschema.ValidationError,
         # eg during log decompression
         zlib.error,
     )
