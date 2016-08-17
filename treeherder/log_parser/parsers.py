@@ -3,6 +3,7 @@ import json
 import logging
 import re
 
+import jsonschema
 from django.conf import settings
 
 from treeherder.etl.buildbot import RESULT_DICT
@@ -447,6 +448,7 @@ class PerformanceParser(ParserBase):
     # regex to fail on windows logs. This is likely due to the
     # ^M character representation of the windows end of line.
     RE_PERFORMANCE = re.compile(r'.*?PERFHERDER_DATA:\s+({.*})')
+    PERF_SCHEMA = json.load(open('schemas/performance-artifact.json'))
 
     def __init__(self):
         super(PerformanceParser, self).__init__("performance_data")
@@ -456,10 +458,14 @@ class PerformanceParser(ParserBase):
         if match:
             try:
                 dict = json.loads(match.group(1))
+                jsonschema.validate(dict, self.PERF_SCHEMA)
                 self.artifact.append(dict)
             except ValueError:
                 logger.warning("Unable to parse Perfherder data from line: %s",
                                line)
+            except jsonschema.ValidationError:
+                logger.warning("Perfherder line '%s' does not comply with "
+                               "json schema: %s", line)
             # don't mark as complete, in case there are multiple performance
             # artifacts
             # self.complete = True
