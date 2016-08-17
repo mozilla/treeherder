@@ -122,8 +122,7 @@ treeherder.factory('ThRepositoryModel', [
                                         return this.url + '/compare/' + arg.from + '...' +
                                             arg.to;
                                     }
-                                } else {
-                                    // otherwise assume mercurial
+                                } else if (this.dvcs_type === 'hg') {
                                     if (typeof(arg) === 'string') {
                                         return this.pushlogURL + '?changeset=' + arg;
                                     } else if (arg && arg.from && arg.to) {
@@ -131,7 +130,8 @@ treeherder.factory('ThRepositoryModel', [
                                             arg.from +'&tochange=' + arg.to;
                                     }
                                 }
-                                // if we get here, undefined
+
+                                // if neither git nor mercurial, undefined
                                 return "";
                             }
                         };

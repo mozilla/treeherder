@@ -328,25 +328,23 @@ treeherder.directive('thCloneJobs', [
                     typeSymbolCounts[job.job_type_symbol] > 1) {
                     // render the job itself, not a count
                     addJobBtnToArray(job, lastJobSelected, jobBtnArray);
-                } else {
-                    if (job.visible) {
-                        _.extend(countInfo, stateCounts[countInfo.btnClass]);
-                        if (!_.isEmpty(lastJobSelected.job) &&
-                            (lastJobSelected.job.id === job.id)) {
-                            // these classes are applied in the interpolator
-                            // to designate this count as having one of its
-                            // jobs selected.
-                            countInfo.selectedClasses = selectedCountCls + " " + largeBtnCls;
-                        }
-
-                        countInfo.count = _.get(
-                            _.get(stateCounts, countInfo.btnClass, countInfo), "count", 0) + 1;
-                        // keep a reference to the job.  If there ends up being
-                        // only one for this status, then just add the job itself
-                        // rather than a count.
-                        countInfo.lastJob = job;
-                        stateCounts[countInfo.btnClass] = countInfo;
+                } else if (job.visible) {
+                    _.extend(countInfo, stateCounts[countInfo.btnClass]);
+                    if (!_.isEmpty(lastJobSelected.job) &&
+                        (lastJobSelected.job.id === job.id)) {
+                        // these classes are applied in the interpolator
+                        // to designate this count as having one of its
+                        // jobs selected.
+                        countInfo.selectedClasses = selectedCountCls + " " + largeBtnCls;
                     }
+
+                    countInfo.count = _.get(
+                        _.get(stateCounts, countInfo.btnClass, countInfo), "count", 0) + 1;
+                    // keep a reference to the job.  If there ends up being
+                    // only one for this status, then just add the job itself
+                    // rather than a count.
+                    countInfo.lastJob = job;
+                    stateCounts[countInfo.btnClass] = countInfo;
                 }
             });
 
