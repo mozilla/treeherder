@@ -1,3 +1,4 @@
+import pytest
 from tests import test_utils
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import BuildbotJobArtifactBuilder
@@ -5,7 +6,20 @@ from treeherder.log_parser.artifactbuilders import BuildbotJobArtifactBuilder
 from tests.test_utils import add_log_response
 
 
-def do_test(log):
+logs = [
+    "mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50",
+    "mozilla-central_mountainlion_test-mochitest-2-bm80-tests1-macosx-build138",
+    "mozilla-central-macosx64-debug-bm65-build1-build15",
+    "mozilla-central_mountainlion-debug_test-mochitest-2-bm80-tests1-macosx-build93",
+    "mozilla-central_mountainlion_test-mochitest-2-bm77-tests1-macosx-build141",
+    "mozilla-esr17_xp_test_pgo-mochitest-browser-chrome-bm74-tests1-windows-build12",
+    "mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122",
+    "ux_ubuntu32_vm_test-jetpack-bm67-tests1-linux-build16"
+    ]
+
+
+@pytest.mark.parametrize(('log'), logs)
+def test_job_artifact_log_parse(log, activate_responses):
     """
     Test a single log with the ``JobArtifactBuilder``.
 
@@ -35,50 +49,3 @@ def do_test(log):
         assert artifact == exp[index]
 
     # assert act == exp#, json.dumps(act, indent=4)
-
-
-def test_crashtest_passing(activate_responses):
-    """Process a job with a single log reference."""
-
-    do_test("mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50")
-
-
-def test_opt_test_failing(activate_responses):
-    """Process log with printlines and errors"""
-    do_test("mozilla-central_mountainlion_test-mochitest-2-bm80-tests1-macosx-build138")
-
-
-def test_build_failing(activate_responses):
-    """Process a job with a single log reference."""
-
-    do_test("mozilla-central-macosx64-debug-bm65-build1-build15")
-
-
-def test_mochitest_debug_passing(activate_responses):
-    """Process a job with a single log reference."""
-
-    do_test("mozilla-central_mountainlion-debug_test-mochitest-2-bm80-tests1-macosx-build93")
-
-
-def test_mochitest_pass(activate_responses):
-    """Process a job with a single log reference."""
-
-    do_test("mozilla-central_mountainlion_test-mochitest-2-bm77-tests1-macosx-build141")
-
-
-def test_mochitest_fail(activate_responses):
-    """Process a job with a single log reference."""
-
-    do_test("mozilla-esr17_xp_test_pgo-mochitest-browser-chrome-bm74-tests1-windows-build12")
-
-
-def test_mochitest_process_crash(activate_responses):
-    """Test a mochitest log that has PROCESS-CRASH """
-
-    do_test("mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122")
-
-
-def test_jetpack_fail(activate_responses):
-    """Process a job with a single log reference."""
-
-    do_test("ux_ubuntu32_vm_test-jetpack-bm67-tests1-linux-build16")

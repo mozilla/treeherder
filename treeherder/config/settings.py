@@ -31,7 +31,7 @@ DEBUG_TOOLBAR_PATCH_SETTINGS = False  # disable django debug toolbar automatic c
 DATA_CYCLE_DAYS = env.int("DATA_CYCLE_DAYS", default=120)
 
 # Default max log size we will parse, in MB
-MAX_LOG_SIZE = env.int("MAX_LOG_SIZE", default=150)
+MAX_LOG_SIZE = env.int("MAX_LOG_SIZE", default=200)
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY")

@@ -7,6 +7,7 @@ from .artifactbuilders import (BuildbotJobArtifactBuilder,
                                BuildbotLogViewArtifactBuilder,
                                BuildbotPerformanceDataArtifactBuilder)
 
+
 class ArtifactBuilderCollection(object):
     """
 Run a log through a collection of Artifact Builders to generate artifacts.
@@ -85,14 +86,13 @@ BuildbotPerformanceDataArtifactBuilder
         Stream lines from the gzip file and run each parser against it,
         building the ``artifact`` as we go.
         """
-        req = requests.get(
+        resp = requests.get(
             self.url,
             stream=True,
-            headers={'user-agent': settings.TREEHERDER_USER_AGENT},
+            headers={'User-Agent': settings.TREEHERDER_USER_AGENT},
             timeout=settings.REQUESTS_TIMEOUT
         )
-        # size_in_mb = int(req.headers["content-length"]) / 1000000
-        size_in_mb = int(req.headers["content-length"])
+        size_in_mb = int(resp.headers["content-length"]) / 1000000
         if size_in_mb > settings.MAX_LOG_SIZE:
             raise LogTooLargeException(
                 "Log too large to parse: {}MB, Max: {}MB".format(
@@ -100,7 +100,7 @@ BuildbotPerformanceDataArtifactBuilder
                     settings.MAX_LOG_SIZE
             ))
 
-        with closing(req) as lh:
+        with closing(resp) as lh:
             for line in lh.iter_lines():
                 # run each parser on each line of the log
                 for builder in self.builders:

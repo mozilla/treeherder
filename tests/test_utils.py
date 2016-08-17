@@ -256,10 +256,9 @@ def add_log_response(filename, content_length=20000):
     log_path = sample_data.get_log_path(filename)
     log_url = "http://my-log.mozilla.org/"
 
-    with open(log_path) as log_handler:
+    with gzip.open(log_path) as log_file:
         responses.add(responses.GET, log_url,
-                      body=gzip.GzipFile(fileobj=log_handler).read(),
-                      # body=tarfile.open(mode="r:gz", fileobj=log_handler).next().read(),
+                      body=log_file.read(),
                       status=200,
                       adding_headers={"content-length": str(content_length)})
     return log_url
