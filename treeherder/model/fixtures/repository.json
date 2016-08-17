@@ -1023,6 +1023,21 @@
     "fields": {
         "dvcs_type": "git",
         "name": "camdtest",
+        "branch": "master",
+        "url": "https://github.com/mozilla/camdtest",
+        "active_status": "active",
+        "codebase": "camd",
+        "repository_group": 1,
+        "description": ""
+    }
+},
+{
+    "pk": 82,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "camdtest-pr",
+        "branch": "pull request",
         "url": "https://github.com/mozilla/camdtest",
         "active_status": "active",
         "codebase": "camd",
