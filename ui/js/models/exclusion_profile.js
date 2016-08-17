@@ -51,21 +51,17 @@ treeherder.factory('ThExclusionProfileModel', [
                         thNotify.send("Exclusion profile successfully created", "success");
                     },
                     function(reason){
-                        if(reason.status === 400){
+                        if (reason.status === 400) {
                             angular.forEach(reason.data, function(error_list, field){
                                 angular.forEach(error_list, function(error){
                                     thNotify.send(field+": "+error, "danger");
                                 });
                             });
-                        }
-                        else{
-                            if(reason.data && reason.data.detail){
-                                thNotify.send(reason.data.detail,"danger");
-                            }
-                            else{
-                                thNotify.send("Error","danger");
-                                $log.error(reason);
-                            }
+                        } else if (reason.data && reason.data.detail) {
+                            thNotify.send(reason.data.detail, "danger");
+                        } else {
+                            thNotify.send("Error","danger");
+                            $log.error(reason);
                         }
                         return $q.reject(reason);
                     }
