@@ -24,7 +24,9 @@ class ResultsetLoader:
             transformed_data = transformer.transform(repo.name)
 
             with JobsModel(repo.name) as jobs_model:
-                logger.info("Storing resultset for {}".format(transformer.repo_url))
+                logger.info("Storing resultset for {} {}".format(
+                    repo.name,
+                    transformer.repo_url))
                 jobs_model.store_result_set_data([transformed_data])
 
         except ObjectDoesNotExist:
@@ -69,7 +71,7 @@ class GithubTransformer:
         logger.info("Fetching resultset details: {}".format(url))
         try:
             commits = self.get_cleaned_commits(fetch_json(url, params))
-            head_commit = commits[0]
+            head_commit = commits[-1]
             resultset = {
                 "revision": head_commit["sha"],
                 "push_timestamp": to_timestamp(
@@ -130,12 +132,13 @@ class GithubPushTransformer(GithubTransformer):
         return self.fetch_resultset(push_url, repository, sha=commit)
 
     def get_cleaned_commits(self, commits):
-        # messages with the value
+        # The list of commits will include ones not in the push.  we
+        # need to trim the list
         base_sha = self.message_body["details"]["event.base.sha"]
         for idx, commit in enumerate(commits):
             if commit["sha"] == base_sha:
-                return commits[:idx]
-        return commits
+                commits = commits[:idx]
+        return list(reversed(commits))
 
 
 class GithubPullRequestTransformer(GithubTransformer):
@@ -177,12 +180,6 @@ class GithubPullRequestTransformer(GithubTransformer):
         )
 
         return self.fetch_resultset(pr_url, repository)
-
-    def get_cleaned_commits(self, commits):
-        """
-        Pull requests need the order of their commits reversed.
-        """
-        return list(reversed(commits))
 
 
 class PulseResultsetError(ValueError):
