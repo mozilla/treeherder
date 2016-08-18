@@ -37,6 +37,7 @@ treeherder.controller('BugFilerCtrl', [
          *  Pre-fill the form with information/metadata from the failure
          */
         $scope.initiate = function() {
+            thPinboard.pinJob($rootScope.selectedJob);
             var thisFailure = "";
             for(var i = 0; i < allFailures.length; i++) {
                 for(var j=0; j < $scope.omittedLeads.length; j++) {
@@ -204,7 +205,6 @@ treeherder.controller('BugFilerCtrl', [
                         $scope.toggleForm(false);
                     } else {
                         // Auto-classify this failure now that the bug has been filed and we have a bug number
-                        thPinboard.pinJob($rootScope.selectedJob);
                         thPinboard.addBug({id:json.data.success});
                         $rootScope.$evalAsync($rootScope.$emit(thEvents.saveClassification));
 
