@@ -22,13 +22,6 @@ file {"/etc/profile.d/treeherder.sh":
     target => "${PROJ_DIR}/puppet/files/treeherder/env.sh",
 }
 
-file {"/var/log/treeherder/":
-    ensure => "directory",
-    owner => "vagrant",
-    group => "adm",
-    mode => 750,
-}
-
 file {"${PROJ_DIR}/treeherder/config/settings_local.py":
      replace => "no",
      source => "${PROJ_DIR}/treeherder/config/settings_local.example.py",
