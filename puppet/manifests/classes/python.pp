@@ -55,7 +55,7 @@ class python {
     ],
     user => "${APP_USER}",
     cwd => "${PROJ_DIR}",
-    command => "${VENV_DIR}/bin/pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt",
+    command => "pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt",
     timeout => 1800,
   }
 
