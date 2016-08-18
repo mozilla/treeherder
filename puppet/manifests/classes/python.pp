@@ -48,14 +48,14 @@ class python {
     user => "${APP_USER}",
   }
 
-  exec{"pip-install-common":
+  exec{"pip-install":
     require => [
       Exec['create-virtualenv'],
       Exec['vendor-libmysqlclient'],
     ],
     user => "${APP_USER}",
-    cwd => '/tmp',
-    command => "${VENV_DIR}/bin/pip install --disable-pip-version-check --require-hashes -r ${PROJ_DIR}/requirements/common.txt",
+    cwd => "${PROJ_DIR}",
+    command => "${VENV_DIR}/bin/pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt",
     timeout => 1800,
   }
 
