@@ -137,16 +137,6 @@ perf.factory('PhCompare', [ '$q', '$http', '$httpParamSerializer', 'thServiceDom
                                 }
 
                                 return {
-                                    getCompareClasses: function(cr, type) {
-                                        if (cr.isEmpty) return 'subtest-empty';
-                                        if (type === 'row' && cr.highlightedTest) return 'active subtest-highlighted';
-                                        if (type === 'row') return '';
-                                        if (type === 'bar' && cr.isRegression) return 'bar-regression';
-                                        if (type === 'bar' && cr.isImprovement) return 'bar-improvement';
-                                        if (type === 'bar') return '';
-                                        return cr.className;
-                                    },
-
                                     // Aggregates two sets of values into a "comparison object" which is later used
                                     // to display a single line of comparison.
                                     // The result object has the following properties:

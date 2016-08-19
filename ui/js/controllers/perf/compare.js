@@ -308,7 +308,6 @@ perf.controller('CompareResultsCtrl', [
         }
 
         $scope.dataLoading = true;
-        $scope.getCompareClasses = PhCompare.getCompareClasses;
 
         var loadRepositories = ThRepositoryModel.load();
         var loadFrameworks = PhFramework.getFrameworkList().then(
@@ -468,7 +467,6 @@ perf.controller('CompareSubtestResultsCtrl', [
         }
 
         $scope.dataLoading = true;
-        $scope.getCompareClasses = PhCompare.getCompareClasses;
 
         ThRepositoryModel.load().then(function() {
             $scope.errors = PhCompare.validateInput($stateParams.originalProject,
