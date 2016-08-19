@@ -88,7 +88,7 @@
             <tr ng-repeat="property in logProperties">
               <th ng-cloak>{{property.label}}</th>
               <td ng-if="property.label == 'Revision'" class="break-word">
-                <a href="{{::property.value | getRevisionUrl:repoName}}"
+                <a href="{{::property.value | getRevisionUrl:repoName}}&selectedJob={{job_id}}"
                    title="Open resultset"
                    ng-cloak>{{property.value}}</a>
               </td>
