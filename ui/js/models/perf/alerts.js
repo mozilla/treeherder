@@ -82,6 +82,8 @@ treeherder.factory('PhAlerts', [
             var resultStr = "";
             var improved = _.filter(this.alerts, function(alert) {return !alert.is_regression && alert.visible;});
             var regressed = _.filter(this.alerts, function(alert) {return alert.is_regression && alert.visible;});
+            improved = _.sortBy(improved, 'amount_pct').reverse();
+            regressed = _.sortBy(regressed, 'amount_pct').reverse();
             // add summary header if getting text for clipboard only
             if (copySummary) {
                 var lastUpdated = new Date(this.last_updated);
@@ -95,8 +97,8 @@ treeherder.factory('PhAlerts', [
                 }
                 resultStr += "Summary of tests that regressed:\n\n" +
                              _.map(regressed, function(alert) {
-                                 return "  " + alert.title + ": " + alert.prev_value + " -> " +
-                                 alert.new_value + " (" + alert.amount_pct + "% worse)";
+                                 return String(" " + alert.amount_pct.toFixed(2) + "%  " ).slice(-8) + alert.title + ": " + alert.prev_value + " -> " +
+                                 alert.new_value ;
                              }).join('\n') + "\n";
             }
             if (improved.length > 0) {
@@ -106,8 +108,8 @@ treeherder.factory('PhAlerts', [
                 }
                 resultStr += "Summary of tests that improved:\n\n" +
                              _.map(improved, function(alert) {
-                                 return "  " + alert.title + ": " + alert.prev_value + " -> " +
-                                 alert.new_value + " (" + alert.amount_pct + "% better)";
+                                 return String(" " + alert.amount_pct.toFixed(2) + "%  " ).slice(-8) + alert.title + ": " + alert.prev_value + " -> " +
+                                 alert.new_value ;
                              }).join('\n') + "\n";
             }
             // include link to alert if getting text for clipboard only
