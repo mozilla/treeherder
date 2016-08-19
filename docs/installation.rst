@@ -64,13 +64,13 @@ Starting a local Treeherder instance
 
   .. code-block:: bash
 
-     (venv)vagrant@local:~/treeherder$ ./bin/run_gunicorn
+     vagrant ~/treeherder$ ./bin/run_gunicorn
 
   Or for development you can use the django runserver instead of gunicorn:
 
   .. code-block:: bash
 
-     (venv)vagrant@local:~/treeherder$ ./manage.py runserver
+     vagrant ~/treeherder$ ./manage.py runserver
 
   this is more convenient because it automatically refreshes every time there's a change in the code.
 
@@ -85,7 +85,7 @@ Ingestion tasks populate the database with version control push logs, queued/run
 
   .. code-block:: bash
 
-     (venv)vagrant@local:~/treeherder$ celery -A treeherder worker -B --concurrency 5
+     vagrant ~/treeherder$ celery -A treeherder worker -B --concurrency 5
 
   The "-B" option tells the celery worker to startup a beat service, so that periodic tasks can be executed.
   You only need one worker with the beat service enabled. Multiple beat services will result in periodic tasks being executed multiple times.
@@ -101,7 +101,7 @@ the jobs associated with any single push generated in the last 4 hours
 
   .. code-block:: bash
 
-     (venv)vagrant@local:~/treeherder$ ./manage.py ingest_push mozilla-inbound 63f8a47cfdf5
+     vagrant ~/treeherder$ ./manage.py ingest_push mozilla-inbound 63f8a47cfdf5
 
 If running this locally, replace `63f8a47cfdf5` with a recent revision (= pushed within 
 the last four hours) on mozilla-inbound.
@@ -112,7 +112,7 @@ talos jobs for a particular push, try:
 
   .. code-block:: bash
 
-     (venv)vagrant@local:~/treeherder$ ./manage.py ingest_push --filter-job-group T mozilla-inbound 63f8a47cfdf
+     vagrant ~/treeherder$ ./manage.py ingest_push --filter-job-group T mozilla-inbound 63f8a47cfdf
 
 
 .. _A-Team Bootcamp: https://ateam-bootcamp.readthedocs.io

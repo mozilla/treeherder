@@ -133,7 +133,7 @@ To generate credentials in the Vagrant instance run the following:
 
   .. code-block:: bash
 
-      (venv)vagrant@local:~/treeherder$ ./manage.py create_credentials my-client-id
+      vagrant ~/treeherder$ ./manage.py create_credentials my-client-id
 
 The generated Hawk ``secret`` will be output to the console, which should then
 be passed along with the chosen ``client_id``, and Vagrant instance ``server_url``

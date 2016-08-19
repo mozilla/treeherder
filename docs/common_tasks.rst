@@ -21,7 +21,7 @@ You can run flake8, isort and the py.test suite inside the Vagrant VM, using:
 
   .. code-block:: bash
 
-     (venv)vagrant@local:~/treeherder$ ./runtests.sh
+     vagrant ~/treeherder$ ./runtests.sh
 
 Or for more control, run each tool individually:
 
@@ -29,15 +29,15 @@ Or for more control, run each tool individually:
 
   .. code-block:: bash
 
-     (venv)vagrant@local:~/treeherder$ py.test tests/
-     (venv)vagrant@local:~/treeherder$ py.test tests/log_parser/test_utils.py
-     (venv)vagrant@local:~/treeherder$ py.test tests/etl/test_buildapi.py -k test_ingest_builds4h_jobs
+     vagrant ~/treeherder$ py.test tests/
+     vagrant ~/treeherder$ py.test tests/log_parser/test_utils.py
+     vagrant ~/treeherder$ py.test tests/etl/test_buildapi.py -k test_ingest_builds4h_jobs
 
   To run all tests, including slow tests that are normally skipped, use:
 
   .. code-block:: bash
 
-     (venv)vagrant@local:~/treeherder$ py.test --runslow tests/
+     vagrant ~/treeherder$ py.test --runslow tests/
 
   For more options, see ``py.test --help`` or http://pytest.org/latest/usage.html
 
@@ -45,7 +45,7 @@ Or for more control, run each tool individually:
 
   .. code-block:: bash
 
-     (venv)vagrant@local:~/treeherder$ flake8
+     vagrant ~/treeherder$ flake8
 
   NB: If running flake8 from outside of the VM, ensure you are using the same version as used on Travis (see ``requirements/dev.txt``).
 
@@ -55,13 +55,13 @@ Or for more control, run each tool individually:
 
   .. code-block:: bash
 
-     (venv)vagrant@local:~/treeherder$ isort
+     vagrant ~/treeherder$ isort
 
   Or to apply all changes without confirmation:
 
   .. code-block:: bash
 
-     (venv)vagrant@local:~/treeherder$ isort --apply
+     vagrant ~/treeherder$ isort --apply
 
   NB: isort must be run from inside the VM, since a populated (and up to date) virtualenv is required so that isort can correctly categorise the imports.
 
