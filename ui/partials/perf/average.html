@@ -1,14 +1,14 @@
 <!-- Show standard deviation if >1 run -->
-<span class="detail-hint" ng-if="replicates.length > 1"
-      uib-tooltip="Runs: &lt; {{replicates.join(' ')}} &gt;
-        ({{stddev|displayPrecision}} = {{stddevpct|displayPrecision}}% standard deviation)">
-  {{value|displayPrecision}} &#177; {{stddevpct|displayPrecision}}%
+<span class="detail-hint" ng-if="$ctrl.replicates.length > 1"
+      uib-tooltip="Runs: &lt; {{$ctrl.replicates.join(' ')}} &gt;
+        ({{$ctrl.stddev|displayPrecision}} = {{$ctrl.stddevpct|displayPrecision}}% standard deviation)">
+  {{$ctrl.value|displayPrecision}} &#177; {{$ctrl.stddevpct|displayPrecision}}%
 </span>
 <!-- View for only 1 run (no stddev) -->
-<span class="detail-hint" ng-if="replicates.length === 1"
+<span class="detail-hint" ng-if="$ctrl.replicates.length === 1"
       uib-tooltip="Only one run (consider more for greater confidence)">
-  {{value|displayPrecision}}
+  {{$ctrl.value|displayPrecision}}
 </span>
-<span class="text-muted" ng-if="!replicates || replicates.length == 0">
+<span class="text-muted" ng-if="!$ctrl.replicates || $ctrl.replicates.length == 0">
   No results
 </span>
