@@ -338,6 +338,8 @@ DISALLOWED_USER_AGENTS = (
     re.compile(r'^libcurl/'),
     re.compile(r'^Python-urllib/'),
     re.compile(r'^python-requests/'),
+    # ActiveData blocked for excessive API requests (bug 1289830)
+    re.compile(r'^ActiveData-ETL'),
 )
 
 SITE_URL = env("SITE_URL", default="http://local.treeherder.mozilla.org")
