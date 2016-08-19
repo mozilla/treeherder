@@ -2,13 +2,13 @@
 
 treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$routeParams', '$location', '$timeout',
-    'ThLog', 'ThRepositoryModel', 'thPinboard', 'thTabs',
+    'ThLog', 'ThRepositoryModel', 'thPinboard', 'thTabs', '$document',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
     'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit',
     function MainController(
         $scope, $rootScope, $routeParams, $location, $timeout,
-        ThLog, ThRepositoryModel, thPinboard, thTabs,
+        ThLog, ThRepositoryModel, thPinboard, thTabs, $document,
         thClassificationTypes, thEvents, $interval, $window,
         ThExclusionProfileModel, thJobFilters, ThResultSetStore,
         thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit) {
@@ -234,6 +234,11 @@ treeherderApp.controller('MainCtrl', [
             // if the element has the class "mousetrap" then no need to stop
             if (element.classList.contains('mousetrap')) {
                 return false;
+            }
+
+            // If the bug filer is opened, don't let these shortcuts work
+            if($document[0].body.classList.contains("filer-open")) {
+                return true;
             }
             var overrideFunc = stopOverrides.get(combo);
             if (overrideFunc) {

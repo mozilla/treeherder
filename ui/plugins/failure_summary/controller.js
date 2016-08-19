@@ -113,6 +113,7 @@ treeherder.controller('BugsPluginCtrl', [
                 templateUrl: 'partials/main/intermittent.html',
                 controller: 'BugFilerCtrl',
                 size: 'lg',
+                openedClass: "filer-open",
                 resolve: {
                     summary: function() {
                         return summary;
