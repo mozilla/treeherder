@@ -1,0 +1,189 @@
+{
+    "step_data": {
+        "all_errors": [], 
+        "steps": [
+            {
+                "errors": [], 
+                "name": "set props: master", 
+                "started": "2016-08-17 19:30:33.868049", 
+                "started_linenumber": 8, 
+                "finished_linenumber": 10, 
+                "finished": "2016-08-17 19:30:33.868494", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 0, 
+                "result": "success"
+            }, 
+            {
+                "errors": [], 
+                "name": "downloading to buildprops.json", 
+                "started": "2016-08-17 19:30:33.868775", 
+                "started_linenumber": 12, 
+                "finished_linenumber": 13, 
+                "finished": "2016-08-17 19:30:34.002328", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 1, 
+                "result": "success"
+            }, 
+            {
+                "errors": [], 
+                "name": "'bash -c ...'", 
+                "started": "2016-08-17 19:30:34.002663", 
+                "started_linenumber": 15, 
+                "finished_linenumber": 112, 
+                "finished": "2016-08-17 19:30:35.558176", 
+                "error_count": 0, 
+                "duration": 2, 
+                "order": 2, 
+                "result": "success"
+            }, 
+            {
+                "errors": [], 
+                "name": "'rm -rf ...'", 
+                "started": "2016-08-17 19:30:35.562391", 
+                "started_linenumber": 114, 
+                "finished_linenumber": 200, 
+                "finished": "2016-08-17 19:30:35.679220", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 3, 
+                "result": "success"
+            }, 
+            {
+                "errors": [], 
+                "name": "'bash -c ...'", 
+                "started": "2016-08-17 19:30:35.683321", 
+                "started_linenumber": 202, 
+                "finished_linenumber": 294, 
+                "finished": "2016-08-17 19:30:36.824076", 
+                "error_count": 0, 
+                "duration": 1, 
+                "order": 4, 
+                "result": "success"
+            }, 
+            {
+                "errors": [], 
+                "name": "set props: script_repo_revision", 
+                "started": "2016-08-17 19:30:36.825045", 
+                "started_linenumber": 296, 
+                "finished_linenumber": 298, 
+                "finished": "2016-08-17 19:30:36.825406", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 5, 
+                "result": "success"
+            }, 
+            {
+                "errors": [], 
+                "name": "downloading to oauth.txt", 
+                "started": "2016-08-17 19:30:36.825701", 
+                "started_linenumber": 300, 
+                "finished_linenumber": 301, 
+                "finished": "2016-08-17 19:30:36.832722", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 6, 
+                "result": "success"
+            }, 
+            {
+                "errors": [], 
+                "name": "remove old nonce", 
+                "started": "2016-08-17 19:30:36.832980", 
+                "started_linenumber": 303, 
+                "finished_linenumber": 389, 
+                "finished": "2016-08-17 19:30:36.945319", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 7, 
+                "result": "success"
+            }, 
+            {
+                "errors": [], 
+                "name": "downloading to token", 
+                "started": "2016-08-17 19:30:36.946264", 
+                "started_linenumber": 391, 
+                "finished_linenumber": 396, 
+                "finished": "2016-08-17 19:30:37.156654", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 8, 
+                "result": "success"
+            }, 
+            {
+                "errors": [], 
+                "name": "set props: toolsdir", 
+                "started": "2016-08-17 19:30:37.157063", 
+                "started_linenumber": 398, 
+                "finished_linenumber": 486, 
+                "finished": "2016-08-17 19:30:37.270283", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 9, 
+                "result": "success"
+            }, 
+            {
+                "errors": [], 
+                "name": "'c:/mozilla-build/python27/python -u ...'", 
+                "started": "2016-08-17 19:30:37.271194", 
+                "started_linenumber": 488, 
+                "finished_linenumber": 44157, 
+                "finished": "2016-08-17 21:54:41.673915", 
+                "error_count": 0, 
+                "duration": 8644, 
+                "order": 10, 
+                "result": "success"
+            }, 
+            {
+                "errors": [], 
+                "name": "set props: symbolsUrl packageUrl appName buildid got_revision appVersion testPackagesUrl packageFilename testsUrl builduid sourcestamp stage_platform jsshellUrl uploadFiles", 
+                "started": "2016-08-17 21:54:41.677950", 
+                "started_linenumber": 44159, 
+                "finished_linenumber": 44273, 
+                "finished": "2016-08-17 21:54:41.952996", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 11, 
+                "result": "success"
+            }, 
+            {
+                "errors": [], 
+                "name": "'rm -f ...'", 
+                "started": "2016-08-17 21:54:41.954062", 
+                "started_linenumber": 44275, 
+                "finished_linenumber": 44361, 
+                "finished": "2016-08-17 21:54:42.066149", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 12, 
+                "result": "success"
+            }, 
+            {
+                "errors": [], 
+                "name": "reboot slave lost", 
+                "started": "2016-08-17 21:54:42.070022", 
+                "started_linenumber": 44363, 
+                "finished_linenumber": 44365, 
+                "finished": "2016-08-17 21:54:42.401904", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 13, 
+                "result": "success"
+            }, 
+            {
+                "errors": [], 
+                "name": "Unnamed step", 
+                "started": null, 
+                "started_linenumber": 44367, 
+                "finished_linenumber": 44368, 
+                "finished": null, 
+                "error_count": 0, 
+                "duration": null, 
+                "order": 14, 
+                "result": "unknown"
+            }
+        ], 
+        "errors_truncated": false
+    }, 
+    "logurl": "http://my-log.mozilla.org/mozilla-central-win32-pgo-bm74-build1-build19.txt.gz"
+}

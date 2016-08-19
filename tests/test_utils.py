@@ -1,8 +1,6 @@
 import gzip
 import json
 import responses
-import zlib
-import tarfile
 
 from tests.sampledata import SampleData
 from treeherder.client import TreeherderClient
@@ -254,11 +252,12 @@ def add_log_response(filename, content_length=20000):
     """
     sample_data = SampleData()
     log_path = sample_data.get_log_path(filename)
-    log_url = "http://my-log.mozilla.org/"
+    log_url = "http://my-log.mozilla.org/{}".format(filename)
 
-    with gzip.open(log_path) as log_file:
+    with open(log_path, 'rb') as log_file:
         responses.add(responses.GET, log_url,
                       body=log_file.read(),
                       status=200,
-                      adding_headers={"content-length": str(content_length)})
+                      adding_headers={"content-length": str(content_length),
+                                      "content-encoding": "gzip"})
     return log_url
