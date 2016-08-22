@@ -453,14 +453,3 @@ perf.factory('math', [ function() {
         t_test: t_test
     }; // 'math'
 }]);
-
-
-perf.filter('displayPrecision', function() {
-    return function(input) {
-        if (isNaN(input)) {
-            return "N/A";
-        }
-
-        return parseFloat(input).toFixed(2);
-    };
-});

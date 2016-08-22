@@ -170,3 +170,13 @@ treeherder.filter('alertStatus', [
 treeherder.filter('encodeURIComponent', function() {
     return window.encodeURIComponent;
 });
+
+treeherder.filter('displayPrecision', function() {
+    return function(input) {
+        if (isNaN(input)) {
+            return "N/A";
+        }
+
+        return parseFloat(input).toFixed(2);
+    };
+});
