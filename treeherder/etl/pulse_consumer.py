@@ -110,6 +110,4 @@ class ResultsetConsumer(PulseConsumer):
                   message.delivery_info["routing_key"]],
             routing_key='store_pulse_resultsets'
         )
-        # todo: remove this
-        logger.info("got a resultset: {}".format(message.delivery_info["exchange"]))
         message.ack()
