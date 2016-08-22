@@ -5,7 +5,7 @@
 </div>
 
 <!-- Main resultset template -->
-<div ng-repeat="resultset in result_sets track by resultset.id | orderBy:'-push_timestamp'"
+<div ng-repeat="resultset in result_sets | orderBy:'-push_timestamp' track by resultset.id"
      ng-controller="ResultSetCtrl"
      class="result-set"
      data-id="{{::resultset.id}}">
