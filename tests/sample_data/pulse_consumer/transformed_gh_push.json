@@ -1,15 +1,18 @@
 {"author": "kwierso@users.noreply.github.com",
  "push_timestamp": 1469726966,
  "revision": "5219f00e7af7b52e66e362d20bb5d4b0ceb84bfa",
- "revisions": [{"author": "KWierso <kwierso@users.noreply.github.com>",
-                "comment": "Bug 1289651 - Only scroll job into view if it's not already visible (#1735) r=camd",
+ "revisions": [
+               {"author": "KWierso <kwierso@users.noreply.github.com>",
+                "comment": "Bug 1287911 - Add the ability to tag revisions with metadata (#1706) r=camd\n\n* Bug 1287911 - Add the ability to tag revisions with metadata\r\n\r\n* Bug 1287911 - Make backout commit text be red in the list of revisions",
                 "repository": "test_treeherder_jobs",
-                "revision": "5219f00e7af7b52e66e362d20bb5d4b0ceb84bfa"},
+                "revision": "09ef55394535acd453eb7728ef8981a96aa0aef6"},
                {"author": "Roy C <crosscent@gmail.com>",
                 "comment": "Bug 1288530 - Update classifier unconditionally, and move classifier tooltip in AlertView (#1742)",
                 "repository": "test_treeherder_jobs",
                 "revision": "ef46fa00eb0919e92f11ffdfe6a6926541ab409c"},
                {"author": "KWierso <kwierso@users.noreply.github.com>",
-                "comment": "Bug 1287911 - Add the ability to tag revisions with metadata (#1706) r=camd\n\n* Bug 1287911 - Add the ability to tag revisions with metadata\r\n\r\n* Bug 1287911 - Make backout commit text be red in the list of revisions",
+                "comment": "Bug 1289651 - Only scroll job into view if it's not already visible (#1735) r=camd",
                 "repository": "test_treeherder_jobs",
-                "revision": "09ef55394535acd453eb7728ef8981a96aa0aef6"}]}
+                "revision": "5219f00e7af7b52e66e362d20bb5d4b0ceb84bfa"}
+                ]
+}
