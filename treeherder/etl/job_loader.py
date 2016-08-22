@@ -1,11 +1,10 @@
-import calendar
 import logging
 from collections import defaultdict
 
 import jsonschema
 import newrelic.agent
-from dateutil import parser
 
+from treeherder.etl.common import to_timestamp
 from treeherder.etl.schema import job_json_schema
 from treeherder.model.derived.jobs import JobsModel
 
@@ -114,7 +113,7 @@ class JobLoader:
         # some or all the time fields may not be present in some cases
         for k, v in self.TIME_FIELD_MAP.items():
             if v in pulse_job:
-                x["job"][k] = self._to_timestamp(pulse_job[v])
+                x["job"][k] = to_timestamp(pulse_job[v])
 
         # if only one platform is given, use it.
         default_platform = pulse_job.get(
@@ -192,8 +191,8 @@ class JobLoader:
                         if error_count:
                             all_errors.extend(errors)
 
-                        started = self._to_timestamp(step["timeStarted"])
-                        finished = self._to_timestamp(step["timeFinished"])
+                        started = to_timestamp(step["timeStarted"])
+                        finished = to_timestamp(step["timeFinished"])
                         new_steps.append({
                             "name": step["name"],
                             "result": self._get_step_result(job, step["result"]),
@@ -306,6 +305,3 @@ class JobLoader:
                     "JSON Schema validation error during job ingestion: {}".format(e))
 
         return validated_jobs
-
-    def _to_timestamp(self, datestr):
-        return calendar.timegm(parser.parse(datestr).utctimetuple())

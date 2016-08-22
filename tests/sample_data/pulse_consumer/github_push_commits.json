@@ -1,0 +1,2102 @@
+[
+  {
+    "sha": "5219f00e7af7b52e66e362d20bb5d4b0ceb84bfa",
+    "commit": {
+      "author": {
+        "name": "KWierso",
+        "email": "kwierso@users.noreply.github.com",
+        "date": "2016-07-28T17:29:26Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2016-07-28T17:29:26Z"
+      },
+      "message": "Bug 1289651 - Only scroll job into view if it's not already visible (#1735) r=camd",
+      "tree": {
+        "sha": "53101534e4e2e9726f1a4c2a36d7eefc7485c4ea",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/53101534e4e2e9726f1a4c2a36d7eefc7485c4ea"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/5219f00e7af7b52e66e362d20bb5d4b0ceb84bfa",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/5219f00e7af7b52e66e362d20bb5d4b0ceb84bfa",
+    "html_url": "https://github.com/mozilla/treeherder/commit/5219f00e7af7b52e66e362d20bb5d4b0ceb84bfa",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/5219f00e7af7b52e66e362d20bb5d4b0ceb84bfa/comments",
+    "author": {
+      "login": "KWierso",
+      "id": 172215,
+      "avatar_url": "https://avatars.githubusercontent.com/u/172215?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/KWierso",
+      "html_url": "https://github.com/KWierso",
+      "followers_url": "https://api.github.com/users/KWierso/followers",
+      "following_url": "https://api.github.com/users/KWierso/following{/other_user}",
+      "gists_url": "https://api.github.com/users/KWierso/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/KWierso/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/KWierso/subscriptions",
+      "organizations_url": "https://api.github.com/users/KWierso/orgs",
+      "repos_url": "https://api.github.com/users/KWierso/repos",
+      "events_url": "https://api.github.com/users/KWierso/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/KWierso/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "ef46fa00eb0919e92f11ffdfe6a6926541ab409c",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/ef46fa00eb0919e92f11ffdfe6a6926541ab409c",
+        "html_url": "https://github.com/mozilla/treeherder/commit/ef46fa00eb0919e92f11ffdfe6a6926541ab409c"
+      }
+    ]
+  },
+  {
+    "sha": "ef46fa00eb0919e92f11ffdfe6a6926541ab409c",
+    "commit": {
+      "author": {
+        "name": "Roy C",
+        "email": "crosscent@gmail.com",
+        "date": "2016-07-28T16:59:27Z"
+      },
+      "committer": {
+        "name": "William Lachance",
+        "email": "wrlach@gmail.com",
+        "date": "2016-07-28T16:59:27Z"
+      },
+      "message": "Bug 1288530 - Update classifier unconditionally, and move classifier tooltip in AlertView (#1742)",
+      "tree": {
+        "sha": "1dd394b90e6e4413996acaac3845144d0220ba65",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/1dd394b90e6e4413996acaac3845144d0220ba65"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/ef46fa00eb0919e92f11ffdfe6a6926541ab409c",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/ef46fa00eb0919e92f11ffdfe6a6926541ab409c",
+    "html_url": "https://github.com/mozilla/treeherder/commit/ef46fa00eb0919e92f11ffdfe6a6926541ab409c",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/ef46fa00eb0919e92f11ffdfe6a6926541ab409c/comments",
+    "author": {
+      "login": "crosscent",
+      "id": 3461710,
+      "avatar_url": "https://avatars.githubusercontent.com/u/3461710?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/crosscent",
+      "html_url": "https://github.com/crosscent",
+      "followers_url": "https://api.github.com/users/crosscent/followers",
+      "following_url": "https://api.github.com/users/crosscent/following{/other_user}",
+      "gists_url": "https://api.github.com/users/crosscent/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/crosscent/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/crosscent/subscriptions",
+      "organizations_url": "https://api.github.com/users/crosscent/orgs",
+      "repos_url": "https://api.github.com/users/crosscent/repos",
+      "events_url": "https://api.github.com/users/crosscent/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/crosscent/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "wlach",
+      "id": 20569,
+      "avatar_url": "https://avatars.githubusercontent.com/u/20569?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/wlach",
+      "html_url": "https://github.com/wlach",
+      "followers_url": "https://api.github.com/users/wlach/followers",
+      "following_url": "https://api.github.com/users/wlach/following{/other_user}",
+      "gists_url": "https://api.github.com/users/wlach/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/wlach/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/wlach/subscriptions",
+      "organizations_url": "https://api.github.com/users/wlach/orgs",
+      "repos_url": "https://api.github.com/users/wlach/repos",
+      "events_url": "https://api.github.com/users/wlach/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/wlach/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "09ef55394535acd453eb7728ef8981a96aa0aef6",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/09ef55394535acd453eb7728ef8981a96aa0aef6",
+        "html_url": "https://github.com/mozilla/treeherder/commit/09ef55394535acd453eb7728ef8981a96aa0aef6"
+      }
+    ]
+  },
+  {
+    "sha": "09ef55394535acd453eb7728ef8981a96aa0aef6",
+    "commit": {
+      "author": {
+        "name": "KWierso",
+        "email": "kwierso@users.noreply.github.com",
+        "date": "2016-07-28T16:55:43Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2016-07-28T16:55:43Z"
+      },
+      "message": "Bug 1287911 - Add the ability to tag revisions with metadata (#1706) r=camd\n\n* Bug 1287911 - Add the ability to tag revisions with metadata\r\n\r\n* Bug 1287911 - Make backout commit text be red in the list of revisions",
+      "tree": {
+        "sha": "9e6c3fbec461ad55df307bbb7598416d2207000d",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/9e6c3fbec461ad55df307bbb7598416d2207000d"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/09ef55394535acd453eb7728ef8981a96aa0aef6",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/09ef55394535acd453eb7728ef8981a96aa0aef6",
+    "html_url": "https://github.com/mozilla/treeherder/commit/09ef55394535acd453eb7728ef8981a96aa0aef6",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/09ef55394535acd453eb7728ef8981a96aa0aef6/comments",
+    "author": {
+      "login": "KWierso",
+      "id": 172215,
+      "avatar_url": "https://avatars.githubusercontent.com/u/172215?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/KWierso",
+      "html_url": "https://github.com/KWierso",
+      "followers_url": "https://api.github.com/users/KWierso/followers",
+      "following_url": "https://api.github.com/users/KWierso/following{/other_user}",
+      "gists_url": "https://api.github.com/users/KWierso/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/KWierso/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/KWierso/subscriptions",
+      "organizations_url": "https://api.github.com/users/KWierso/orgs",
+      "repos_url": "https://api.github.com/users/KWierso/repos",
+      "events_url": "https://api.github.com/users/KWierso/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/KWierso/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "71c02dbb26cb60beee94bac433086bc540c9d6d4",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/71c02dbb26cb60beee94bac433086bc540c9d6d4",
+        "html_url": "https://github.com/mozilla/treeherder/commit/71c02dbb26cb60beee94bac433086bc540c9d6d4"
+      }
+    ]
+  },
+  {
+    "sha": "71c02dbb26cb60beee94bac433086bc540c9d6d4",
+    "commit": {
+      "author": {
+        "name": "Shruti Jasoria",
+        "email": "sjasoria@users.noreply.github.com",
+        "date": "2016-07-28T15:45:24Z"
+      },
+      "committer": {
+        "name": "William Lachance",
+        "email": "wrlach@gmail.com",
+        "date": "2016-07-28T15:45:24Z"
+      },
+      "message": "Bug 1269825 - Auto load mozilla-aurora data for mozilla-beta alerts (#1737)",
+      "tree": {
+        "sha": "15b61e31f3927b35431432338a0b302b11fe7535",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/15b61e31f3927b35431432338a0b302b11fe7535"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/71c02dbb26cb60beee94bac433086bc540c9d6d4",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/71c02dbb26cb60beee94bac433086bc540c9d6d4",
+    "html_url": "https://github.com/mozilla/treeherder/commit/71c02dbb26cb60beee94bac433086bc540c9d6d4",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/71c02dbb26cb60beee94bac433086bc540c9d6d4/comments",
+    "author": {
+      "login": "SJasoria",
+      "id": 11815849,
+      "avatar_url": "https://avatars.githubusercontent.com/u/11815849?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/SJasoria",
+      "html_url": "https://github.com/SJasoria",
+      "followers_url": "https://api.github.com/users/SJasoria/followers",
+      "following_url": "https://api.github.com/users/SJasoria/following{/other_user}",
+      "gists_url": "https://api.github.com/users/SJasoria/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/SJasoria/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/SJasoria/subscriptions",
+      "organizations_url": "https://api.github.com/users/SJasoria/orgs",
+      "repos_url": "https://api.github.com/users/SJasoria/repos",
+      "events_url": "https://api.github.com/users/SJasoria/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/SJasoria/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "wlach",
+      "id": 20569,
+      "avatar_url": "https://avatars.githubusercontent.com/u/20569?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/wlach",
+      "html_url": "https://github.com/wlach",
+      "followers_url": "https://api.github.com/users/wlach/followers",
+      "following_url": "https://api.github.com/users/wlach/following{/other_user}",
+      "gists_url": "https://api.github.com/users/wlach/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/wlach/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/wlach/subscriptions",
+      "organizations_url": "https://api.github.com/users/wlach/orgs",
+      "repos_url": "https://api.github.com/users/wlach/repos",
+      "events_url": "https://api.github.com/users/wlach/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/wlach/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "7f81eb32ce9a0b2de0939311f10e81fc7e23ccf2",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/7f81eb32ce9a0b2de0939311f10e81fc7e23ccf2",
+        "html_url": "https://github.com/mozilla/treeherder/commit/7f81eb32ce9a0b2de0939311f10e81fc7e23ccf2"
+      }
+    ]
+  },
+  {
+    "sha": "7f81eb32ce9a0b2de0939311f10e81fc7e23ccf2",
+    "commit": {
+      "author": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-27T10:25:30Z"
+      },
+      "committer": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-28T08:55:18Z"
+      },
+      "message": "Bug 1275405 - Default to the IsAuthenticatedOrReadOnly permissions class\n\nSince:\n* It avoids unnecessary code duplication.\n* Avoids us accidentally making any new API endpoints writable to\nanonymous users (since if not specified, the default is `AllowAny`).\n* Makes it easier to temporarily block API access in the case of\nmaintenance (eg for bug 1277304), since there are fewer places where\n`permissions_classes` will need updating.",
+      "tree": {
+        "sha": "5fe84932ebe259d25c69dd153dd3340d4bd24e10",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/5fe84932ebe259d25c69dd153dd3340d4bd24e10"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/7f81eb32ce9a0b2de0939311f10e81fc7e23ccf2",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/7f81eb32ce9a0b2de0939311f10e81fc7e23ccf2",
+    "html_url": "https://github.com/mozilla/treeherder/commit/7f81eb32ce9a0b2de0939311f10e81fc7e23ccf2",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/7f81eb32ce9a0b2de0939311f10e81fc7e23ccf2/comments",
+    "author": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "2818afbb2c9c9d1aac2e00bcda213ad42a5d6be6",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/2818afbb2c9c9d1aac2e00bcda213ad42a5d6be6",
+        "html_url": "https://github.com/mozilla/treeherder/commit/2818afbb2c9c9d1aac2e00bcda213ad42a5d6be6"
+      }
+    ]
+  },
+  {
+    "sha": "2818afbb2c9c9d1aac2e00bcda213ad42a5d6be6",
+    "commit": {
+      "author": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-27T11:10:15Z"
+      },
+      "committer": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-28T08:55:18Z"
+      },
+      "message": "Bug 1275405 - Remove unnecessary check for user.is_authenticated\n\nSince:\n* It's always true for all users other than `AnonymousUser`.\n* d-r-f's similar `IsAdminUser` implementation doesn't use it:\nhttps://github.com/tomchristie/django-rest-framework/blob/3.3.3/rest_framework/permissions.py#L49-L55",
+      "tree": {
+        "sha": "3cb9630edb445f43fe4231e4adb7fd868d761be2",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/3cb9630edb445f43fe4231e4adb7fd868d761be2"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/2818afbb2c9c9d1aac2e00bcda213ad42a5d6be6",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/2818afbb2c9c9d1aac2e00bcda213ad42a5d6be6",
+    "html_url": "https://github.com/mozilla/treeherder/commit/2818afbb2c9c9d1aac2e00bcda213ad42a5d6be6",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/2818afbb2c9c9d1aac2e00bcda213ad42a5d6be6/comments",
+    "author": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "70f20eb6ba64fd8ec70006bf3b0df5bc679ae68d",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/70f20eb6ba64fd8ec70006bf3b0df5bc679ae68d",
+        "html_url": "https://github.com/mozilla/treeherder/commit/70f20eb6ba64fd8ec70006bf3b0df5bc679ae68d"
+      }
+    ]
+  },
+  {
+    "sha": "70f20eb6ba64fd8ec70006bf3b0df5bc679ae68d",
+    "commit": {
+      "author": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-27T14:58:30Z"
+      },
+      "committer": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-28T08:55:18Z"
+      },
+      "message": "Bug 1275405 - Merge HasHawkPermissions into HasHawkPermissionsOrReadOnly\n\nSince the former isn't used outside of `HasHawkPermissionsOrReadOnly`.",
+      "tree": {
+        "sha": "b4d66b4ae52a2e23eb722cde848e91c49d1afdc2",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/b4d66b4ae52a2e23eb722cde848e91c49d1afdc2"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/70f20eb6ba64fd8ec70006bf3b0df5bc679ae68d",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/70f20eb6ba64fd8ec70006bf3b0df5bc679ae68d",
+    "html_url": "https://github.com/mozilla/treeherder/commit/70f20eb6ba64fd8ec70006bf3b0df5bc679ae68d",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/70f20eb6ba64fd8ec70006bf3b0df5bc679ae68d/comments",
+    "author": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "9905a16bc609a99d2a488e1d205ca225599abd31",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/9905a16bc609a99d2a488e1d205ca225599abd31",
+        "html_url": "https://github.com/mozilla/treeherder/commit/9905a16bc609a99d2a488e1d205ca225599abd31"
+      }
+    ]
+  },
+  {
+    "sha": "9905a16bc609a99d2a488e1d205ca225599abd31",
+    "commit": {
+      "author": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-27T14:57:47Z"
+      },
+      "committer": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-28T08:55:18Z"
+      },
+      "message": "Bug 1275405 - Clarify error message when Hawk client_id not found\n\nThe previous message implied the client_id wasn't known at all, when in\nreality it could either be unknown or just not authorised. In the future\nwe may allow authenticating even if the credentials are not 'authorised'\n(for example for higher rate limits for GETs, even if the user isn't\npermitted to make POSTs to job endpoints etc), but for now we should try\nand avoid confusion.",
+      "tree": {
+        "sha": "2578ed19b99c4d47b15941c60833afbf58ecf446",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/2578ed19b99c4d47b15941c60833afbf58ecf446"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/9905a16bc609a99d2a488e1d205ca225599abd31",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/9905a16bc609a99d2a488e1d205ca225599abd31",
+    "html_url": "https://github.com/mozilla/treeherder/commit/9905a16bc609a99d2a488e1d205ca225599abd31",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/9905a16bc609a99d2a488e1d205ca225599abd31/comments",
+    "author": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "8e667764368eb6a099362b50f2cb73a1050b8f91",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/8e667764368eb6a099362b50f2cb73a1050b8f91",
+        "html_url": "https://github.com/mozilla/treeherder/commit/8e667764368eb6a099362b50f2cb73a1050b8f91"
+      }
+    ]
+  },
+  {
+    "sha": "8e667764368eb6a099362b50f2cb73a1050b8f91",
+    "commit": {
+      "author": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-27T14:53:27Z"
+      },
+      "committer": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-28T08:55:18Z"
+      },
+      "message": "Bug 1275405 - test_auth.py: Test the `...OrReadOnly` permissions_class\n\nThe tests previously used the `HasHawkPermissions` permissions class,\nwhich is not actually used in Treeherder at all. More useful would be to\ntest `HasHawkPermissionsOrReadOnly`, since that is used. The only\ndifference is that for the latter, read-only requests (such as GETs) are\nallowed to succeed even if no credentials were provided.\n\nNote however, that even if a request is read-only, if incorrect\ncredentials are given (or that user isn't 'authorised'), then the\nrequest won't succeed regardless.\n\nSince anonymous GETs are now allowed to succeed, the expected response\ncontent has been changed to something more generic to avoid confusion.\n\nThis change makes `HasHawkPermissions` unused, and so it will be merged\ninto `HasHawkPermissionsOrReadOnly` later.",
+      "tree": {
+        "sha": "cc713f8c616e40356ac7b38c0ff054ead8d7aa96",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/cc713f8c616e40356ac7b38c0ff054ead8d7aa96"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/8e667764368eb6a099362b50f2cb73a1050b8f91",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/8e667764368eb6a099362b50f2cb73a1050b8f91",
+    "html_url": "https://github.com/mozilla/treeherder/commit/8e667764368eb6a099362b50f2cb73a1050b8f91",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/8e667764368eb6a099362b50f2cb73a1050b8f91/comments",
+    "author": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "fa60e2f96650d4caa4134dd2a1116270c0a86c18",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/fa60e2f96650d4caa4134dd2a1116270c0a86c18",
+        "html_url": "https://github.com/mozilla/treeherder/commit/fa60e2f96650d4caa4134dd2a1116270c0a86c18"
+      }
+    ]
+  },
+  {
+    "sha": "fa60e2f96650d4caa4134dd2a1116270c0a86c18",
+    "commit": {
+      "author": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-27T14:46:21Z"
+      },
+      "committer": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-28T08:55:18Z"
+      },
+      "message": "Bug 1275405 - test_auth.py: Add a test for POSTs with no auth\n\nSince currently only no-auth GETs are tested. In a later commit, the\nGET case will be made to succeed, since the test will instead use the\n`permissions_class` of `HasHawkPermissionsOrReadOnly`, which is actually\nwhat the rest of Treeherder uses.",
+      "tree": {
+        "sha": "c703668c98e9c557fc084aeab0e5783bdb16008f",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/c703668c98e9c557fc084aeab0e5783bdb16008f"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/fa60e2f96650d4caa4134dd2a1116270c0a86c18",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/fa60e2f96650d4caa4134dd2a1116270c0a86c18",
+    "html_url": "https://github.com/mozilla/treeherder/commit/fa60e2f96650d4caa4134dd2a1116270c0a86c18",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/fa60e2f96650d4caa4134dd2a1116270c0a86c18/comments",
+    "author": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "5e106b28b1503b9bbb26fbf0cacd68e62537eeec",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/5e106b28b1503b9bbb26fbf0cacd68e62537eeec",
+        "html_url": "https://github.com/mozilla/treeherder/commit/5e106b28b1503b9bbb26fbf0cacd68e62537eeec"
+      }
+    ]
+  },
+  {
+    "sha": "5e106b28b1503b9bbb26fbf0cacd68e62537eeec",
+    "commit": {
+      "author": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-27T14:41:50Z"
+      },
+      "committer": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-28T08:55:18Z"
+      },
+      "message": "Bug 1275405 - test_auth.py: Check HTTP status code not just content",
+      "tree": {
+        "sha": "ca4b8014d488557ea3ab88b659b7e410e96da9cb",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/ca4b8014d488557ea3ab88b659b7e410e96da9cb"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/5e106b28b1503b9bbb26fbf0cacd68e62537eeec",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/5e106b28b1503b9bbb26fbf0cacd68e62537eeec",
+    "html_url": "https://github.com/mozilla/treeherder/commit/5e106b28b1503b9bbb26fbf0cacd68e62537eeec",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/5e106b28b1503b9bbb26fbf0cacd68e62537eeec/comments",
+    "author": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "f50bb9095c5692dc09b75ebe341325df19545135",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/f50bb9095c5692dc09b75ebe341325df19545135",
+        "html_url": "https://github.com/mozilla/treeherder/commit/f50bb9095c5692dc09b75ebe341325df19545135"
+      }
+    ]
+  },
+  {
+    "sha": "f50bb9095c5692dc09b75ebe341325df19545135",
+    "commit": {
+      "author": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-27T14:37:57Z"
+      },
+      "committer": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-28T08:55:18Z"
+      },
+      "message": "Bug 1275405 - test_auth.py: Factor out `url` and `content_type`",
+      "tree": {
+        "sha": "cb8636624c28308d178d83ed116835c1f35cb980",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/cb8636624c28308d178d83ed116835c1f35cb980"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/f50bb9095c5692dc09b75ebe341325df19545135",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/f50bb9095c5692dc09b75ebe341325df19545135",
+    "html_url": "https://github.com/mozilla/treeherder/commit/f50bb9095c5692dc09b75ebe341325df19545135",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/f50bb9095c5692dc09b75ebe341325df19545135/comments",
+    "author": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "8e8594d73d688beeea8135c539f8570c4c540ec7",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/8e8594d73d688beeea8135c539f8570c4c540ec7",
+        "html_url": "https://github.com/mozilla/treeherder/commit/8e8594d73d688beeea8135c539f8570c4c540ec7"
+      }
+    ]
+  },
+  {
+    "sha": "8e8594d73d688beeea8135c539f8570c4c540ec7",
+    "commit": {
+      "author": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-27T14:27:26Z"
+      },
+      "committer": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-28T08:55:18Z"
+      },
+      "message": "Bug 1275405 - test_auth.py: Skip unnecessary step of authorising creds\n\nSince the `client_credentials` fixture credentials are already\nauthorised:\nhttps://github.com/mozilla/treeherder/blob/de761c84416f22af2b97bac0b369b990824361fa/tests/conftest.py#L459-L465",
+      "tree": {
+        "sha": "bf3ee2ab285674487dfb075cf07e8bffba4ac6c3",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/bf3ee2ab285674487dfb075cf07e8bffba4ac6c3"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/8e8594d73d688beeea8135c539f8570c4c540ec7",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/8e8594d73d688beeea8135c539f8570c4c540ec7",
+    "html_url": "https://github.com/mozilla/treeherder/commit/8e8594d73d688beeea8135c539f8570c4c540ec7",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/8e8594d73d688beeea8135c539f8570c4c540ec7/comments",
+    "author": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "8dbe7518b810c0c9e2a64a3a743e83c71211ab09",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/8dbe7518b810c0c9e2a64a3a743e83c71211ab09",
+        "html_url": "https://github.com/mozilla/treeherder/commit/8dbe7518b810c0c9e2a64a3a743e83c71211ab09"
+      }
+    ]
+  },
+  {
+    "sha": "8dbe7518b810c0c9e2a64a3a743e83c71211ab09",
+    "commit": {
+      "author": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-27T08:38:24Z"
+      },
+      "committer": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-28T08:45:13Z"
+      },
+      "message": "Bug 1289694 - Update mohawk to 0.3.3\n\nThis fixes `MacMismatch` being raised when `MisComputedContentHash`\nshould have been raised instead. In addition, a the hash of the payload\nis no longer generated a second time unnecessarily for all requests.\n\nhttps://mohawk.readthedocs.io/en/latest/#changelog\nhttps://github.com/kumar303/mohawk/compare/0.3.2.1...0.3.3",
+      "tree": {
+        "sha": "013ef80ee423f3b55ff006973c1bf03c78d89af0",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/013ef80ee423f3b55ff006973c1bf03c78d89af0"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/8dbe7518b810c0c9e2a64a3a743e83c71211ab09",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/8dbe7518b810c0c9e2a64a3a743e83c71211ab09",
+    "html_url": "https://github.com/mozilla/treeherder/commit/8dbe7518b810c0c9e2a64a3a743e83c71211ab09",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/8dbe7518b810c0c9e2a64a3a743e83c71211ab09/comments",
+    "author": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "5da09daa72121d031e51ddfa4adca99d838eb4ac",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/5da09daa72121d031e51ddfa4adca99d838eb4ac",
+        "html_url": "https://github.com/mozilla/treeherder/commit/5da09daa72121d031e51ddfa4adca99d838eb4ac"
+      }
+    ]
+  },
+  {
+    "sha": "5da09daa72121d031e51ddfa4adca99d838eb4ac",
+    "commit": {
+      "author": {
+        "name": "Roy C",
+        "email": "crosscent@gmail.com",
+        "date": "2016-07-27T20:36:05Z"
+      },
+      "committer": {
+        "name": "William Lachance",
+        "email": "wrlach@gmail.com",
+        "date": "2016-07-27T20:36:05Z"
+      },
+      "message": "Bug 1288530 - Add a \"classifier\" field to PerformanceAlert, referencing the user model (#1718)",
+      "tree": {
+        "sha": "85e20b03b258fa8586f53060e49c4727c7acea89",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/85e20b03b258fa8586f53060e49c4727c7acea89"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/5da09daa72121d031e51ddfa4adca99d838eb4ac",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/5da09daa72121d031e51ddfa4adca99d838eb4ac",
+    "html_url": "https://github.com/mozilla/treeherder/commit/5da09daa72121d031e51ddfa4adca99d838eb4ac",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/5da09daa72121d031e51ddfa4adca99d838eb4ac/comments",
+    "author": {
+      "login": "crosscent",
+      "id": 3461710,
+      "avatar_url": "https://avatars.githubusercontent.com/u/3461710?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/crosscent",
+      "html_url": "https://github.com/crosscent",
+      "followers_url": "https://api.github.com/users/crosscent/followers",
+      "following_url": "https://api.github.com/users/crosscent/following{/other_user}",
+      "gists_url": "https://api.github.com/users/crosscent/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/crosscent/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/crosscent/subscriptions",
+      "organizations_url": "https://api.github.com/users/crosscent/orgs",
+      "repos_url": "https://api.github.com/users/crosscent/repos",
+      "events_url": "https://api.github.com/users/crosscent/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/crosscent/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "wlach",
+      "id": 20569,
+      "avatar_url": "https://avatars.githubusercontent.com/u/20569?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/wlach",
+      "html_url": "https://github.com/wlach",
+      "followers_url": "https://api.github.com/users/wlach/followers",
+      "following_url": "https://api.github.com/users/wlach/following{/other_user}",
+      "gists_url": "https://api.github.com/users/wlach/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/wlach/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/wlach/subscriptions",
+      "organizations_url": "https://api.github.com/users/wlach/orgs",
+      "repos_url": "https://api.github.com/users/wlach/repos",
+      "events_url": "https://api.github.com/users/wlach/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/wlach/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "c9e458297f9de503a1083f3db47e87d5ce4374a1",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/c9e458297f9de503a1083f3db47e87d5ce4374a1",
+        "html_url": "https://github.com/mozilla/treeherder/commit/c9e458297f9de503a1083f3db47e87d5ce4374a1"
+      }
+    ]
+  },
+  {
+    "sha": "c9e458297f9de503a1083f3db47e87d5ce4374a1",
+    "commit": {
+      "author": {
+        "name": "William Lachance",
+        "email": "wrlach@gmail.com",
+        "date": "2016-07-27T20:17:11Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2016-07-27T20:17:11Z"
+      },
+      "message": "Bug 1280039 - Use cursor pagination with /jobdetail/ endpoint (#1695)\n\nThe count(*) query that limit/offset pagination requires is super slow with\r\nInnoDB. Using a cursor-based approach makes the behaviour more reasonable if\r\nno parameters are specified with this endpoint (arguably we should require\r\na parameter if none specified, but we can leave that for another time)",
+      "tree": {
+        "sha": "9ad8b08aa14485894165a46b970ec7b157a25f8d",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/9ad8b08aa14485894165a46b970ec7b157a25f8d"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/c9e458297f9de503a1083f3db47e87d5ce4374a1",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/c9e458297f9de503a1083f3db47e87d5ce4374a1",
+    "html_url": "https://github.com/mozilla/treeherder/commit/c9e458297f9de503a1083f3db47e87d5ce4374a1",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/c9e458297f9de503a1083f3db47e87d5ce4374a1/comments",
+    "author": {
+      "login": "wlach",
+      "id": 20569,
+      "avatar_url": "https://avatars.githubusercontent.com/u/20569?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/wlach",
+      "html_url": "https://github.com/wlach",
+      "followers_url": "https://api.github.com/users/wlach/followers",
+      "following_url": "https://api.github.com/users/wlach/following{/other_user}",
+      "gists_url": "https://api.github.com/users/wlach/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/wlach/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/wlach/subscriptions",
+      "organizations_url": "https://api.github.com/users/wlach/orgs",
+      "repos_url": "https://api.github.com/users/wlach/repos",
+      "events_url": "https://api.github.com/users/wlach/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/wlach/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "55dff0175cd531e0bbb1707d5a57103f2d5cc98b",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/55dff0175cd531e0bbb1707d5a57103f2d5cc98b",
+        "html_url": "https://github.com/mozilla/treeherder/commit/55dff0175cd531e0bbb1707d5a57103f2d5cc98b"
+      }
+    ]
+  },
+  {
+    "sha": "55dff0175cd531e0bbb1707d5a57103f2d5cc98b",
+    "commit": {
+      "author": {
+        "name": "Andy McKay",
+        "email": "amckay@mozilla.com",
+        "date": "2016-07-27T20:15:31Z"
+      },
+      "committer": {
+        "name": "William Lachance",
+        "email": "wrlach@gmail.com",
+        "date": "2016-07-27T20:15:31Z"
+      },
+      "message": "docs: make client the name of the module (#1720)",
+      "tree": {
+        "sha": "887d27ac510869d9e56bbe52e82032297345453f",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/887d27ac510869d9e56bbe52e82032297345453f"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/55dff0175cd531e0bbb1707d5a57103f2d5cc98b",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/55dff0175cd531e0bbb1707d5a57103f2d5cc98b",
+    "html_url": "https://github.com/mozilla/treeherder/commit/55dff0175cd531e0bbb1707d5a57103f2d5cc98b",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/55dff0175cd531e0bbb1707d5a57103f2d5cc98b/comments",
+    "author": {
+      "login": "andymckay",
+      "id": 74699,
+      "avatar_url": "https://avatars.githubusercontent.com/u/74699?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/andymckay",
+      "html_url": "https://github.com/andymckay",
+      "followers_url": "https://api.github.com/users/andymckay/followers",
+      "following_url": "https://api.github.com/users/andymckay/following{/other_user}",
+      "gists_url": "https://api.github.com/users/andymckay/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/andymckay/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/andymckay/subscriptions",
+      "organizations_url": "https://api.github.com/users/andymckay/orgs",
+      "repos_url": "https://api.github.com/users/andymckay/repos",
+      "events_url": "https://api.github.com/users/andymckay/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/andymckay/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "wlach",
+      "id": 20569,
+      "avatar_url": "https://avatars.githubusercontent.com/u/20569?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/wlach",
+      "html_url": "https://github.com/wlach",
+      "followers_url": "https://api.github.com/users/wlach/followers",
+      "following_url": "https://api.github.com/users/wlach/following{/other_user}",
+      "gists_url": "https://api.github.com/users/wlach/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/wlach/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/wlach/subscriptions",
+      "organizations_url": "https://api.github.com/users/wlach/orgs",
+      "repos_url": "https://api.github.com/users/wlach/repos",
+      "events_url": "https://api.github.com/users/wlach/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/wlach/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "f7e83fabfd1703b05900dd32ffebbab80a4e4e75",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/f7e83fabfd1703b05900dd32ffebbab80a4e4e75",
+        "html_url": "https://github.com/mozilla/treeherder/commit/f7e83fabfd1703b05900dd32ffebbab80a4e4e75"
+      }
+    ]
+  },
+  {
+    "sha": "f7e83fabfd1703b05900dd32ffebbab80a4e4e75",
+    "commit": {
+      "author": {
+        "name": "Roy C",
+        "email": "crosscent@gmail.com",
+        "date": "2016-07-27T19:47:13Z"
+      },
+      "committer": {
+        "name": "William Lachance",
+        "email": "wrlach@gmail.com",
+        "date": "2016-07-27T19:47:13Z"
+      },
+      "message": "Bug 1289329 - Display AlertSummary status if Alert is acknowledged (#1734)",
+      "tree": {
+        "sha": "37a5ae16ccfc8177ebb40140133f4407095aab84",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/37a5ae16ccfc8177ebb40140133f4407095aab84"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/f7e83fabfd1703b05900dd32ffebbab80a4e4e75",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/f7e83fabfd1703b05900dd32ffebbab80a4e4e75",
+    "html_url": "https://github.com/mozilla/treeherder/commit/f7e83fabfd1703b05900dd32ffebbab80a4e4e75",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/f7e83fabfd1703b05900dd32ffebbab80a4e4e75/comments",
+    "author": {
+      "login": "crosscent",
+      "id": 3461710,
+      "avatar_url": "https://avatars.githubusercontent.com/u/3461710?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/crosscent",
+      "html_url": "https://github.com/crosscent",
+      "followers_url": "https://api.github.com/users/crosscent/followers",
+      "following_url": "https://api.github.com/users/crosscent/following{/other_user}",
+      "gists_url": "https://api.github.com/users/crosscent/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/crosscent/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/crosscent/subscriptions",
+      "organizations_url": "https://api.github.com/users/crosscent/orgs",
+      "repos_url": "https://api.github.com/users/crosscent/repos",
+      "events_url": "https://api.github.com/users/crosscent/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/crosscent/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "wlach",
+      "id": 20569,
+      "avatar_url": "https://avatars.githubusercontent.com/u/20569?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/wlach",
+      "html_url": "https://github.com/wlach",
+      "followers_url": "https://api.github.com/users/wlach/followers",
+      "following_url": "https://api.github.com/users/wlach/following{/other_user}",
+      "gists_url": "https://api.github.com/users/wlach/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/wlach/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/wlach/subscriptions",
+      "organizations_url": "https://api.github.com/users/wlach/orgs",
+      "repos_url": "https://api.github.com/users/wlach/repos",
+      "events_url": "https://api.github.com/users/wlach/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/wlach/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "85fc9384cc3f6ae1f05cc65858728e569954e15f",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/85fc9384cc3f6ae1f05cc65858728e569954e15f",
+        "html_url": "https://github.com/mozilla/treeherder/commit/85fc9384cc3f6ae1f05cc65858728e569954e15f"
+      }
+    ]
+  },
+  {
+    "sha": "85fc9384cc3f6ae1f05cc65858728e569954e15f",
+    "commit": {
+      "author": {
+        "name": "Jonathan French",
+        "email": "tojonmz@gmail.com",
+        "date": "2016-07-27T07:39:20Z"
+      },
+      "committer": {
+        "name": "Ed Morley",
+        "email": "edmorley@users.noreply.github.com",
+        "date": "2016-07-27T07:39:20Z"
+      },
+      "message": "Bug 1288928 - Remove obsolete isLoadingJobs from markup (#1726)",
+      "tree": {
+        "sha": "2963c6b4d9876dd0379c826f97a4e1a83d09fefe",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/2963c6b4d9876dd0379c826f97a4e1a83d09fefe"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/85fc9384cc3f6ae1f05cc65858728e569954e15f",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/85fc9384cc3f6ae1f05cc65858728e569954e15f",
+    "html_url": "https://github.com/mozilla/treeherder/commit/85fc9384cc3f6ae1f05cc65858728e569954e15f",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/85fc9384cc3f6ae1f05cc65858728e569954e15f/comments",
+    "author": {
+      "login": "tojon",
+      "id": 3660661,
+      "avatar_url": "https://avatars.githubusercontent.com/u/3660661?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/tojon",
+      "html_url": "https://github.com/tojon",
+      "followers_url": "https://api.github.com/users/tojon/followers",
+      "following_url": "https://api.github.com/users/tojon/following{/other_user}",
+      "gists_url": "https://api.github.com/users/tojon/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/tojon/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/tojon/subscriptions",
+      "organizations_url": "https://api.github.com/users/tojon/orgs",
+      "repos_url": "https://api.github.com/users/tojon/repos",
+      "events_url": "https://api.github.com/users/tojon/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/tojon/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "edbacc1a9c1b0725242bdce948e6c0b3673a507b",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/edbacc1a9c1b0725242bdce948e6c0b3673a507b",
+        "html_url": "https://github.com/mozilla/treeherder/commit/edbacc1a9c1b0725242bdce948e6c0b3673a507b"
+      }
+    ]
+  },
+  {
+    "sha": "edbacc1a9c1b0725242bdce948e6c0b3673a507b",
+    "commit": {
+      "author": {
+        "name": "Ed Morley",
+        "email": "edmorley@users.noreply.github.com",
+        "date": "2016-07-27T07:26:58Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2016-07-27T07:26:58Z"
+      },
+      "message": "Revert \"Bug 1288230 - Show autoclassify panel by default for sheriffs\"",
+      "tree": {
+        "sha": "668fee6f1404d57aaa65e7948b0dc3a48b7e5277",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/668fee6f1404d57aaa65e7948b0dc3a48b7e5277"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/edbacc1a9c1b0725242bdce948e6c0b3673a507b",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/edbacc1a9c1b0725242bdce948e6c0b3673a507b",
+    "html_url": "https://github.com/mozilla/treeherder/commit/edbacc1a9c1b0725242bdce948e6c0b3673a507b",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/edbacc1a9c1b0725242bdce948e6c0b3673a507b/comments",
+    "author": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "e1fb24a0d2c4298968a707cebc5641327b8aab6b",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/e1fb24a0d2c4298968a707cebc5641327b8aab6b",
+        "html_url": "https://github.com/mozilla/treeherder/commit/e1fb24a0d2c4298968a707cebc5641327b8aab6b"
+      }
+    ]
+  },
+  {
+    "sha": "e1fb24a0d2c4298968a707cebc5641327b8aab6b",
+    "commit": {
+      "author": {
+        "name": "jgraham",
+        "email": "james@hoppipolla.co.uk",
+        "date": "2016-07-27T06:18:02Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2016-07-27T06:18:02Z"
+      },
+      "message": "Broadcast an event when the logged in user changes. (#1731)\n\nUse it to display the autoclassify panel if appropriate",
+      "tree": {
+        "sha": "f4dded6159bef8f40246a1ebdb8767d98c6c13d8",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/f4dded6159bef8f40246a1ebdb8767d98c6c13d8"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/e1fb24a0d2c4298968a707cebc5641327b8aab6b",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/e1fb24a0d2c4298968a707cebc5641327b8aab6b",
+    "html_url": "https://github.com/mozilla/treeherder/commit/e1fb24a0d2c4298968a707cebc5641327b8aab6b",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/e1fb24a0d2c4298968a707cebc5641327b8aab6b/comments",
+    "author": {
+      "login": "jgraham",
+      "id": 294864,
+      "avatar_url": "https://avatars.githubusercontent.com/u/294864?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/jgraham",
+      "html_url": "https://github.com/jgraham",
+      "followers_url": "https://api.github.com/users/jgraham/followers",
+      "following_url": "https://api.github.com/users/jgraham/following{/other_user}",
+      "gists_url": "https://api.github.com/users/jgraham/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/jgraham/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/jgraham/subscriptions",
+      "organizations_url": "https://api.github.com/users/jgraham/orgs",
+      "repos_url": "https://api.github.com/users/jgraham/repos",
+      "events_url": "https://api.github.com/users/jgraham/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/jgraham/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "801c33b43e010db756f41398b3154f4e546566af",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/801c33b43e010db756f41398b3154f4e546566af",
+        "html_url": "https://github.com/mozilla/treeherder/commit/801c33b43e010db756f41398b3154f4e546566af"
+      }
+    ]
+  },
+  {
+    "sha": "801c33b43e010db756f41398b3154f4e546566af",
+    "commit": {
+      "author": {
+        "name": "William Lachance",
+        "email": "wrlach@gmail.com",
+        "date": "2016-07-26T22:01:22Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2016-07-26T22:01:22Z"
+      },
+      "message": "Bug 1287501 - More fixes to job polling (#1729)\n\n* Poll for pushes with no jobs associated with them correctly (we should\r\n  just refetch everything in this case instead of looking for updates)\r\n* Handle refetching everything correctly (we were setting the last\r\n  updated time to -Infinity because we were trying to create a data\r\n  off of an undefined property of an array)",
+      "tree": {
+        "sha": "46ff4a1d14d5309d2e53092824a88713fb76cc13",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/46ff4a1d14d5309d2e53092824a88713fb76cc13"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/801c33b43e010db756f41398b3154f4e546566af",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/801c33b43e010db756f41398b3154f4e546566af",
+    "html_url": "https://github.com/mozilla/treeherder/commit/801c33b43e010db756f41398b3154f4e546566af",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/801c33b43e010db756f41398b3154f4e546566af/comments",
+    "author": {
+      "login": "wlach",
+      "id": 20569,
+      "avatar_url": "https://avatars.githubusercontent.com/u/20569?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/wlach",
+      "html_url": "https://github.com/wlach",
+      "followers_url": "https://api.github.com/users/wlach/followers",
+      "following_url": "https://api.github.com/users/wlach/following{/other_user}",
+      "gists_url": "https://api.github.com/users/wlach/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/wlach/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/wlach/subscriptions",
+      "organizations_url": "https://api.github.com/users/wlach/orgs",
+      "repos_url": "https://api.github.com/users/wlach/repos",
+      "events_url": "https://api.github.com/users/wlach/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/wlach/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "0832120dffdf0b6b728cbab9a9b76ebf5a799a2d",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/0832120dffdf0b6b728cbab9a9b76ebf5a799a2d",
+        "html_url": "https://github.com/mozilla/treeherder/commit/0832120dffdf0b6b728cbab9a9b76ebf5a799a2d"
+      }
+    ]
+  },
+  {
+    "sha": "0832120dffdf0b6b728cbab9a9b76ebf5a799a2d",
+    "commit": {
+      "author": {
+        "name": "Rob Wood",
+        "email": "rwood@mozilla.com",
+        "date": "2016-07-26T19:52:09Z"
+      },
+      "committer": {
+        "name": "William Lachance",
+        "email": "wrlach@gmail.com",
+        "date": "2016-07-26T19:52:09Z"
+      },
+      "message": "Bug 1289408 - Fix typo in talos perfherder bug template (#1730)",
+      "tree": {
+        "sha": "be66a52a02b640e448ff10d32938693af1d36249",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/be66a52a02b640e448ff10d32938693af1d36249"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/0832120dffdf0b6b728cbab9a9b76ebf5a799a2d",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/0832120dffdf0b6b728cbab9a9b76ebf5a799a2d",
+    "html_url": "https://github.com/mozilla/treeherder/commit/0832120dffdf0b6b728cbab9a9b76ebf5a799a2d",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/0832120dffdf0b6b728cbab9a9b76ebf5a799a2d/comments",
+    "author": {
+      "login": "rwood-moz",
+      "id": 2198968,
+      "avatar_url": "https://avatars.githubusercontent.com/u/2198968?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/rwood-moz",
+      "html_url": "https://github.com/rwood-moz",
+      "followers_url": "https://api.github.com/users/rwood-moz/followers",
+      "following_url": "https://api.github.com/users/rwood-moz/following{/other_user}",
+      "gists_url": "https://api.github.com/users/rwood-moz/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/rwood-moz/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/rwood-moz/subscriptions",
+      "organizations_url": "https://api.github.com/users/rwood-moz/orgs",
+      "repos_url": "https://api.github.com/users/rwood-moz/repos",
+      "events_url": "https://api.github.com/users/rwood-moz/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/rwood-moz/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "wlach",
+      "id": 20569,
+      "avatar_url": "https://avatars.githubusercontent.com/u/20569?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/wlach",
+      "html_url": "https://github.com/wlach",
+      "followers_url": "https://api.github.com/users/wlach/followers",
+      "following_url": "https://api.github.com/users/wlach/following{/other_user}",
+      "gists_url": "https://api.github.com/users/wlach/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/wlach/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/wlach/subscriptions",
+      "organizations_url": "https://api.github.com/users/wlach/orgs",
+      "repos_url": "https://api.github.com/users/wlach/repos",
+      "events_url": "https://api.github.com/users/wlach/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/wlach/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "f15b1b229a19264bdf54882643d48bc1ad855551",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/f15b1b229a19264bdf54882643d48bc1ad855551",
+        "html_url": "https://github.com/mozilla/treeherder/commit/f15b1b229a19264bdf54882643d48bc1ad855551"
+      }
+    ]
+  },
+  {
+    "sha": "f15b1b229a19264bdf54882643d48bc1ad855551",
+    "commit": {
+      "author": {
+        "name": "jgraham",
+        "email": "james@hoppipolla.co.uk",
+        "date": "2016-07-26T14:19:14Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2016-07-26T14:19:14Z"
+      },
+      "message": "Bug 1289404 - Convert set of integers to strings before trying to construct error message (#1727)",
+      "tree": {
+        "sha": "545e45c0ab0dc9015ca336b0399195a3cd8850de",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/545e45c0ab0dc9015ca336b0399195a3cd8850de"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/f15b1b229a19264bdf54882643d48bc1ad855551",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/f15b1b229a19264bdf54882643d48bc1ad855551",
+    "html_url": "https://github.com/mozilla/treeherder/commit/f15b1b229a19264bdf54882643d48bc1ad855551",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/f15b1b229a19264bdf54882643d48bc1ad855551/comments",
+    "author": {
+      "login": "jgraham",
+      "id": 294864,
+      "avatar_url": "https://avatars.githubusercontent.com/u/294864?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/jgraham",
+      "html_url": "https://github.com/jgraham",
+      "followers_url": "https://api.github.com/users/jgraham/followers",
+      "following_url": "https://api.github.com/users/jgraham/following{/other_user}",
+      "gists_url": "https://api.github.com/users/jgraham/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/jgraham/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/jgraham/subscriptions",
+      "organizations_url": "https://api.github.com/users/jgraham/orgs",
+      "repos_url": "https://api.github.com/users/jgraham/repos",
+      "events_url": "https://api.github.com/users/jgraham/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/jgraham/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "82918ec4235f8e0b55c839f141822a93cb09bda5",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/82918ec4235f8e0b55c839f141822a93cb09bda5",
+        "html_url": "https://github.com/mozilla/treeherder/commit/82918ec4235f8e0b55c839f141822a93cb09bda5"
+      }
+    ]
+  },
+  {
+    "sha": "82918ec4235f8e0b55c839f141822a93cb09bda5",
+    "commit": {
+      "author": {
+        "name": "jgraham",
+        "email": "james@hoppipolla.co.uk",
+        "date": "2016-07-26T14:18:40Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2016-07-26T14:18:40Z"
+      },
+      "message": "Bug 1289354 - Fix regression creating job bug associations after verifying classifications. (#1728)\n\nThis regressed with the move away from datasource.",
+      "tree": {
+        "sha": "23ff5c349a23c9386dcf9b0d5220e21485349bfd",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/23ff5c349a23c9386dcf9b0d5220e21485349bfd"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/82918ec4235f8e0b55c839f141822a93cb09bda5",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/82918ec4235f8e0b55c839f141822a93cb09bda5",
+    "html_url": "https://github.com/mozilla/treeherder/commit/82918ec4235f8e0b55c839f141822a93cb09bda5",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/82918ec4235f8e0b55c839f141822a93cb09bda5/comments",
+    "author": {
+      "login": "jgraham",
+      "id": 294864,
+      "avatar_url": "https://avatars.githubusercontent.com/u/294864?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/jgraham",
+      "html_url": "https://github.com/jgraham",
+      "followers_url": "https://api.github.com/users/jgraham/followers",
+      "following_url": "https://api.github.com/users/jgraham/following{/other_user}",
+      "gists_url": "https://api.github.com/users/jgraham/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/jgraham/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/jgraham/subscriptions",
+      "organizations_url": "https://api.github.com/users/jgraham/orgs",
+      "repos_url": "https://api.github.com/users/jgraham/repos",
+      "events_url": "https://api.github.com/users/jgraham/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/jgraham/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "73f33801df0ad51a765d5e5cba54631fb0c0d516",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/73f33801df0ad51a765d5e5cba54631fb0c0d516",
+        "html_url": "https://github.com/mozilla/treeherder/commit/73f33801df0ad51a765d5e5cba54631fb0c0d516"
+      }
+    ]
+  },
+  {
+    "sha": "73f33801df0ad51a765d5e5cba54631fb0c0d516",
+    "commit": {
+      "author": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-25T16:20:00Z"
+      },
+      "committer": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-25T16:50:21Z"
+      },
+      "message": "Bug 1289159 - Make contribute.json available at site root\n\nSo web based tools can find it when eg automatically reporting bugs.\n\nThis boosts our HTTP Observatory score (with which all Mozilla sites are\nabout to be analysed).",
+      "tree": {
+        "sha": "2e4ebb41be75f05bf2d055c6b3ccf4e6bb9b9740",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/2e4ebb41be75f05bf2d055c6b3ccf4e6bb9b9740"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/73f33801df0ad51a765d5e5cba54631fb0c0d516",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/73f33801df0ad51a765d5e5cba54631fb0c0d516",
+    "html_url": "https://github.com/mozilla/treeherder/commit/73f33801df0ad51a765d5e5cba54631fb0c0d516",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/73f33801df0ad51a765d5e5cba54631fb0c0d516/comments",
+    "author": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "0e5a57f98592faf1b34ff11af481e90b07c787e0",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/0e5a57f98592faf1b34ff11af481e90b07c787e0",
+        "html_url": "https://github.com/mozilla/treeherder/commit/0e5a57f98592faf1b34ff11af481e90b07c787e0"
+      }
+    ]
+  },
+  {
+    "sha": "0e5a57f98592faf1b34ff11af481e90b07c787e0",
+    "commit": {
+      "author": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-25T16:19:56Z"
+      },
+      "committer": {
+        "name": "Ed Morley",
+        "email": "emorley@mozilla.com",
+        "date": "2016-07-25T16:50:21Z"
+      },
+      "message": "Bug 1289159 - Make contribute.json valid json\n\nAnd some other cleanup.",
+      "tree": {
+        "sha": "d81f33ecc1d9f9193cdb1aee20848dcc71f89c15",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/d81f33ecc1d9f9193cdb1aee20848dcc71f89c15"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/0e5a57f98592faf1b34ff11af481e90b07c787e0",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/0e5a57f98592faf1b34ff11af481e90b07c787e0",
+    "html_url": "https://github.com/mozilla/treeherder/commit/0e5a57f98592faf1b34ff11af481e90b07c787e0",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/0e5a57f98592faf1b34ff11af481e90b07c787e0/comments",
+    "author": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "618fd99ee489bf998f309653bff137c12fbd48de",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/618fd99ee489bf998f309653bff137c12fbd48de",
+        "html_url": "https://github.com/mozilla/treeherder/commit/618fd99ee489bf998f309653bff137c12fbd48de"
+      }
+    ]
+  },
+  {
+    "sha": "618fd99ee489bf998f309653bff137c12fbd48de",
+    "commit": {
+      "author": {
+        "name": "Shruti Jasoria",
+        "email": "sjasoria@users.noreply.github.com",
+        "date": "2016-07-25T16:48:16Z"
+      },
+      "committer": {
+        "name": "William Lachance",
+        "email": "wrlach@gmail.com",
+        "date": "2016-07-25T16:48:16Z"
+      },
+      "message": "Bug 1285004 - Use httpParamSerializer in compare perf controller (#1724)",
+      "tree": {
+        "sha": "896407d7851bbc8490750995180c2958b2d68484",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/896407d7851bbc8490750995180c2958b2d68484"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/618fd99ee489bf998f309653bff137c12fbd48de",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/618fd99ee489bf998f309653bff137c12fbd48de",
+    "html_url": "https://github.com/mozilla/treeherder/commit/618fd99ee489bf998f309653bff137c12fbd48de",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/618fd99ee489bf998f309653bff137c12fbd48de/comments",
+    "author": {
+      "login": "SJasoria",
+      "id": 11815849,
+      "avatar_url": "https://avatars.githubusercontent.com/u/11815849?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/SJasoria",
+      "html_url": "https://github.com/SJasoria",
+      "followers_url": "https://api.github.com/users/SJasoria/followers",
+      "following_url": "https://api.github.com/users/SJasoria/following{/other_user}",
+      "gists_url": "https://api.github.com/users/SJasoria/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/SJasoria/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/SJasoria/subscriptions",
+      "organizations_url": "https://api.github.com/users/SJasoria/orgs",
+      "repos_url": "https://api.github.com/users/SJasoria/repos",
+      "events_url": "https://api.github.com/users/SJasoria/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/SJasoria/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "wlach",
+      "id": 20569,
+      "avatar_url": "https://avatars.githubusercontent.com/u/20569?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/wlach",
+      "html_url": "https://github.com/wlach",
+      "followers_url": "https://api.github.com/users/wlach/followers",
+      "following_url": "https://api.github.com/users/wlach/following{/other_user}",
+      "gists_url": "https://api.github.com/users/wlach/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/wlach/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/wlach/subscriptions",
+      "organizations_url": "https://api.github.com/users/wlach/orgs",
+      "repos_url": "https://api.github.com/users/wlach/repos",
+      "events_url": "https://api.github.com/users/wlach/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/wlach/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "50af0d9a0230708037394669e84701d10524509b",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/50af0d9a0230708037394669e84701d10524509b",
+        "html_url": "https://github.com/mozilla/treeherder/commit/50af0d9a0230708037394669e84701d10524509b"
+      }
+    ]
+  },
+  {
+    "sha": "50af0d9a0230708037394669e84701d10524509b",
+    "commit": {
+      "author": {
+        "name": "William Lachance",
+        "email": "wrlach@gmail.com",
+        "date": "2016-07-25T16:30:10Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2016-07-25T16:30:10Z"
+      },
+      "message": "Bug 1231361 - Remove one last piece of the old refdata model (#1723)",
+      "tree": {
+        "sha": "4fbbaafcbe0144a3427b4d071cf6f7abc3096af5",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/4fbbaafcbe0144a3427b4d071cf6f7abc3096af5"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/50af0d9a0230708037394669e84701d10524509b",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/50af0d9a0230708037394669e84701d10524509b",
+    "html_url": "https://github.com/mozilla/treeherder/commit/50af0d9a0230708037394669e84701d10524509b",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/50af0d9a0230708037394669e84701d10524509b/comments",
+    "author": {
+      "login": "wlach",
+      "id": 20569,
+      "avatar_url": "https://avatars.githubusercontent.com/u/20569?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/wlach",
+      "html_url": "https://github.com/wlach",
+      "followers_url": "https://api.github.com/users/wlach/followers",
+      "following_url": "https://api.github.com/users/wlach/following{/other_user}",
+      "gists_url": "https://api.github.com/users/wlach/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/wlach/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/wlach/subscriptions",
+      "organizations_url": "https://api.github.com/users/wlach/orgs",
+      "repos_url": "https://api.github.com/users/wlach/repos",
+      "events_url": "https://api.github.com/users/wlach/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/wlach/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "51969781952ebfe0df6b65502ea197d29aebd561",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/51969781952ebfe0df6b65502ea197d29aebd561",
+        "html_url": "https://github.com/mozilla/treeherder/commit/51969781952ebfe0df6b65502ea197d29aebd561"
+      }
+    ]
+  },
+  {
+    "sha": "51969781952ebfe0df6b65502ea197d29aebd561",
+    "commit": {
+      "author": {
+        "name": "jgraham",
+        "email": "james@hoppipolla.co.uk",
+        "date": "2016-07-25T16:22:41Z"
+      },
+      "committer": {
+        "name": "Ed Morley",
+        "email": "edmorley@users.noreply.github.com",
+        "date": "2016-07-25T16:22:41Z"
+      },
+      "message": "Swallow exceptions raised during datasource disconnect when there is a preexisting exception. (#1722)\n\nThis prevents failures during disconnect masking the underlying problem.",
+      "tree": {
+        "sha": "9faf64f65cd8ff5ebae31543686a8a2f418c4aca",
+        "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/9faf64f65cd8ff5ebae31543686a8a2f418c4aca"
+      },
+      "url": "https://api.github.com/repos/mozilla/treeherder/git/commits/51969781952ebfe0df6b65502ea197d29aebd561",
+      "comment_count": 0
+    },
+    "url": "https://api.github.com/repos/mozilla/treeherder/commits/51969781952ebfe0df6b65502ea197d29aebd561",
+    "html_url": "https://github.com/mozilla/treeherder/commit/51969781952ebfe0df6b65502ea197d29aebd561",
+    "comments_url": "https://api.github.com/repos/mozilla/treeherder/commits/51969781952ebfe0df6b65502ea197d29aebd561/comments",
+    "author": {
+      "login": "jgraham",
+      "id": 294864,
+      "avatar_url": "https://avatars.githubusercontent.com/u/294864?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/jgraham",
+      "html_url": "https://github.com/jgraham",
+      "followers_url": "https://api.github.com/users/jgraham/followers",
+      "following_url": "https://api.github.com/users/jgraham/following{/other_user}",
+      "gists_url": "https://api.github.com/users/jgraham/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/jgraham/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/jgraham/subscriptions",
+      "organizations_url": "https://api.github.com/users/jgraham/orgs",
+      "repos_url": "https://api.github.com/users/jgraham/repos",
+      "events_url": "https://api.github.com/users/jgraham/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/jgraham/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "edmorley",
+      "id": 501702,
+      "avatar_url": "https://avatars.githubusercontent.com/u/501702?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/edmorley",
+      "html_url": "https://github.com/edmorley",
+      "followers_url": "https://api.github.com/users/edmorley/followers",
+      "following_url": "https://api.github.com/users/edmorley/following{/other_user}",
+      "gists_url": "https://api.github.com/users/edmorley/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/edmorley/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/edmorley/subscriptions",
+      "organizations_url": "https://api.github.com/users/edmorley/orgs",
+      "repos_url": "https://api.github.com/users/edmorley/repos",
+      "events_url": "https://api.github.com/users/edmorley/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/edmorley/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "1aeb47055dd175e33faec657173fb7f4d283eb08",
+        "url": "https://api.github.com/repos/mozilla/treeherder/commits/1aeb47055dd175e33faec657173fb7f4d283eb08",
+        "html_url": "https://github.com/mozilla/treeherder/commit/1aeb47055dd175e33faec657173fb7f4d283eb08"
+      }
+    ]
+  }
+]

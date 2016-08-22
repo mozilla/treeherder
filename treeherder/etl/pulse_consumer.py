@@ -1,19 +1,22 @@
 import logging
 
 from django.conf import settings
-from kombu import Queue
+from kombu import (Exchange,
+                   Queue)
 from kombu.mixins import ConsumerMixin
 
-from treeherder.etl.tasks.pulse_tasks import store_pulse_jobs
+from treeherder.etl.common import fetch_json
+from treeherder.etl.tasks.pulse_tasks import (store_pulse_jobs,
+                                              store_pulse_resultsets)
 
 logger = logging.getLogger(__name__)
 
 
-class JobConsumer(ConsumerMixin):
+class PulseConsumer(ConsumerMixin):
     """
     Consume jobs from Pulse exchanges
     """
-    def __init__(self, connection):
+    def __init__(self, connection, queue_suffix):
         self.connection = connection
         self.consumers = []
         self.queue = None
@@ -21,7 +24,7 @@ class JobConsumer(ConsumerMixin):
         if not config:
             raise ValueError("PULSE_DATA_INGESTION_CONFIG is required for the "
                              "JobConsumer class.")
-        self.queue_name = "queue/{}/jobs".format(config.username)
+        self.queue_name = "queue/{}/{}".format(config.username, queue_suffix)
 
     def get_consumers(self, Consumer, channel):
         return [
@@ -48,6 +51,46 @@ class JobConsumer(ConsumerMixin):
     def unbind_from(self, exchange, routing_key):
         self.queue.unbind_from(exchange, routing_key)
 
+    def close(self):
+        self.connection.release()
+
+    def prune_bindings(self, new_bindings):
+        # get the existing bindings for the queue
+        bindings = []
+        try:
+            bindings = self.get_bindings(self.queue_name)["bindings"]
+        except Exception:
+            logger.error("Unable to fetch existing bindings for {}".format(
+                self.queue_name))
+            logger.error("Data ingestion may proceed, "
+                         "but no bindings will be pruned")
+
+        # Now prune any bindings from the queue that were not
+        # established above.
+        # This indicates that they are no longer in the config, and should
+        # therefore be removed from the durable queue bindings list.
+        for binding in bindings:
+            if binding["source"]:
+                binding_str = self.get_binding_str(binding["source"],
+                                                   binding["routing_key"])
+
+                if binding_str not in new_bindings:
+                    self.unbind_from(Exchange(binding["source"]),
+                                     binding["routing_key"])
+                    logger.info("Unbound from: {}".format(binding_str))
+
+    def get_binding_str(self, exchange, routing_key):
+        """Use consistent string format for binding comparisons"""
+        return "{} {}".format(exchange, routing_key)
+
+    def get_bindings(self, queue_name):
+        """Get list of bindings from the pulse API"""
+        return fetch_json("{}queue/{}/bindings".format(
+            settings.PULSE_GUARDIAN_URL, queue_name))
+
+
+class JobConsumer(PulseConsumer):
+
     def on_message(self, body, message):
         store_pulse_jobs.apply_async(
             args=[body,
@@ -57,5 +100,14 @@ class JobConsumer(ConsumerMixin):
         )
         message.ack()
 
-    def close(self):
-        self.connection.release()
+
+class ResultsetConsumer(PulseConsumer):
+
+    def on_message(self, body, message):
+        store_pulse_resultsets.apply_async(
+            args=[body,
+                  message.delivery_info["exchange"],
+                  message.delivery_info["routing_key"]],
+            routing_key='store_pulse_resultsets'
+        )
+        message.ack()
