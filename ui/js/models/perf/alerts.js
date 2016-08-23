@@ -80,8 +80,19 @@ treeherder.factory('PhAlerts', [
         });
         AlertSummary.prototype.getTextualSummary = function(copySummary) {
             var resultStr = "";
-            var improved = _.filter(this.alerts, function(alert) {return !alert.is_regression && alert.visible;});
-            var regressed = _.filter(this.alerts, function(alert) {return alert.is_regression && alert.visible;});
+            var improved = _.sortBy(_.filter(this.alerts, function(alert) {
+                return !alert.is_regression && alert.visible;}),
+            'amount_pct').reverse();
+            var regressed = _.sortBy(_.filter(this.alerts, function(alert) {
+                return alert.is_regression && alert.visible;}),
+            'amount_pct').reverse();
+
+            var formatAlert = function(alert, alertList){
+                return _.padLeft(alert.amount_pct.toFixed(0), 3) + "%  " +
+                _.padRight(alert.title, _.max(alertList, function(alert){ return alert.title.length; }).title.length +5) +
+               alert.prev_value + " -> " + alert.new_value ;
+            };
+
             // add summary header if getting text for clipboard only
             if (copySummary) {
                 var lastUpdated = new Date(this.last_updated);
@@ -93,10 +104,9 @@ treeherder.factory('PhAlerts', [
                 if (copySummary) {
                     resultStr += "\n";
                 }
-                resultStr += "Summary of tests that regressed:\n\n" +
-                             _.map(regressed, function(alert) {
-                                 return "  " + alert.title + ": " + alert.prev_value + " -> " +
-                                 alert.new_value + " (" + alert.amount_pct + "% worse)";
+                resultStr += "Regressions:\n\n" +
+                             _.map(regressed, function(alert){
+                                 return formatAlert(alert, regressed);
                              }).join('\n') + "\n";
             }
             if (improved.length > 0) {
@@ -104,10 +114,9 @@ treeherder.factory('PhAlerts', [
                 if (resultStr.length > 0) {
                     resultStr += "\n";
                 }
-                resultStr += "Summary of tests that improved:\n\n" +
+                resultStr += "Improvements:\n\n" +
                              _.map(improved, function(alert) {
-                                 return "  " + alert.title + ": " + alert.prev_value + " -> " +
-                                 alert.new_value + " (" + alert.amount_pct + "% better)";
+                                 return formatAlert(alert, improved);
                              }).join('\n') + "\n";
             }
             // include link to alert if getting text for clipboard only
