@@ -1,13 +1,13 @@
 'use strict';
 
 treeherder.factory('ThResultSetStore', [
-    '$rootScope', '$q', '$location', '$interval', 'thPlatformOrder',
+    '$rootScope', '$q', '$location', '$interval', 'thPlatformMap',
     'ThResultSetModel', 'ThJobModel', 'ThJobDetailModel', 'thEvents',
     'thResultStatusObject', 'thAggregateIds', 'ThLog', 'thNotify',
     'thJobFilters', 'thOptionOrder', 'ThRepositoryModel', '$timeout',
     'ThJobTypeModel', 'ThJobGroupModel', 'ThRunnableJobModel',
     function(
-        $rootScope, $q, $location, $interval, thPlatformOrder, ThResultSetModel,
+        $rootScope, $q, $location, $interval, thPlatformMap, ThResultSetModel,
         ThJobModel, ThJobDetailModel, thEvents, thResultStatusObject, thAggregateIds,
         ThLog, thNotify, thJobFilters, thOptionOrder, ThRepositoryModel,
         $timeout, ThJobTypeModel, ThJobGroupModel, ThRunnableJobModel) {
@@ -1223,8 +1223,13 @@ treeherder.factory('ThResultSetStore', [
                         });
                     });
                     groupedJobs.platforms = _.sortBy(groupedJobs.platforms, function(platform){
-                        return thPlatformOrder[platform.name]*100 +
-                            thOptionOrder[platform.option];
+                        var priority = thPlatformMap[platform.name];
+                        if(priority) {
+                            priority = priority[1]*100 + thOptionOrder[platform.option];
+                        } else {
+                            priority = NaN;
+                        }
+                        return priority;
                     });
                     return groupedJobs;
                 });
