@@ -2,16 +2,6 @@ Common tasks
 ============
 
 
-Apply a change in the code
---------------------------
-
-In order to make the various services aware of a change in the code you need to restart supervisor:
-
-.. code-block:: bash
-
-   > sudo /etc/init.d/supervisord restart
-
-
 .. _running-tests:
 
 Running the tests
@@ -87,19 +77,15 @@ To add a new repository, the following steps are needed:
 
   .. code-block:: bash
 
-     > python manage.py loaddata repository
+     vagrant ~/treeherder$ ./manage.py loaddata repository
 
 * Create a new datasource for the given repository:
 
   .. code-block:: bash
 
-     > python manage.py init_datasources
+     vagrant ~/treeherder$ ./manage.py init_datasources
 
-* Restart all the services through supervisord:
-
-  .. code-block:: bash
-
-     > sudo /etc/init.d/supervisord restart
+* Restart any running gunicorn/celery processes.
 
 
 Executing arbitrary SQL

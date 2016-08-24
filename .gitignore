@@ -27,10 +27,6 @@ treeherder/static/
 treeherder/webapp/log_cache/
 ui/js/config/local.conf.js
 
-# supervisor
-.nfs*
-*.pid
-
 # Celery
 celerybeat-schedule
 
