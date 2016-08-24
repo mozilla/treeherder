@@ -807,9 +807,7 @@ treeherder.factory('ThResultSetStore', [
             if(data.results.length > 0){
 
                 $log.debug("appendResultSets", data.results);
-                var rsIds = _.map(repositories[repoName].resultSets, function(rs){
-                    return rs.id;
-                });
+                var rsIds = repositories[repoName].resultSets.map((rs) => rs.id);
 
                 // ensure we only append resultsets we don't already have.
                 // There could be overlap with fetching "next 10" because we use
