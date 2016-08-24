@@ -1016,4 +1016,18 @@
         "repository_group": 7,
         "description": "Network Security Services."
     }
+},
+{
+    "pk": 81,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "example-addon",
+        "url": "https://github.com/mozilla/example-addon-repo",
+        "branch": "master",
+        "active_status": "active",
+        "codebase": "example-addon-repo",
+        "repository_group": 7,
+        "description": "Example add-on repository for templates and best practices."
+    }
 }]
