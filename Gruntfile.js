@@ -176,6 +176,20 @@ module.exports = function(grunt) {
                 flatten: false
                 }
         },
+        babel: {
+            options: {
+                compact : true,
+                sourceMap: false,
+                presets: ['babel-preset-es2015']
+            },
+            dist: {
+                files: {
+                    '.tmp/concat/js/index.min.js': '.tmp/concat/js/index.min.js',
+                    '.tmp/concat/js/logviewer.min.js': '.tmp/concat/js/logviewer.min.js',
+                    '.tmp/concat/js/perf.min.js': '.tmp/concat/js/perf.min.js'
+                }
+            }
+        },
         uglify:{
             options:{
                 report: 'min',
@@ -311,12 +325,13 @@ module.exports = function(grunt) {
         'useminPrepare',
         'concat',
         'cssmin',
+        'babel',
         'uglify',
         'usemin',
         'ngtemplates',
         'cache-busting',
         'clean:tmp'
-        ]);
+    ]);
 
     grunt.registerTask('checkjs', [
         'eslint'
