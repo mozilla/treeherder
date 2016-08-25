@@ -1142,7 +1142,71 @@ class RunnableJob(models.Model):
                                     self.build_system_type)
 
 
+class TextLogStep(models.Model):
+    '''
+    An individual step in the textual (unstructured) log
+    '''
+    id = BigAutoField(primary_key=True)
+
+    job = FlexibleForeignKey(Job)
+
+    # these are presently based off of buildbot results
+    # (and duplicated in treeherder/etl/buildbot.py)
+    SUCCESS = 0
+    TEST_FAILED = 1
+    BUSTED = 2
+    SKIPPED = 3
+    EXCEPTION = 4
+    RETRY = 5
+    USERCANCEL = 6
+    UNKNOWN = 7
+
+    RESULTS = ((SUCCESS, 'success'),
+               (TEST_FAILED, 'testfailed'),
+               (BUSTED, 'busted'),
+               (SKIPPED, 'skipped'),
+               (EXCEPTION, 'exception'),
+               (RETRY, 'retry'),
+               (USERCANCEL, 'usercancel'),
+               (UNKNOWN, 'unknown'))
+
+    name = models.CharField(max_length=200)
+    started = models.DateTimeField(null=True)
+    finished = models.DateTimeField(null=True)
+    started_line_number = models.PositiveIntegerField()
+    finished_line_number = models.PositiveIntegerField()
+    result = models.IntegerField(choices=RESULTS)
+
+    class Meta:
+        db_table = "text_log_step"
+        unique_together = ('job', 'started_line_number',
+                           'finished_line_number')
+
+
+class TextLogError(models.Model):
+    '''
+    A detected error line in the textual (unstructured) log
+    '''
+    id = BigAutoField(primary_key=True)
+
+    job = FlexibleForeignKey(Job)
+    step = FlexibleForeignKey(TextLogStep, related_name='errors')
+    line = models.CharField(max_length=1024)
+    line_number = models.PositiveIntegerField()
+
+    class Meta:
+        db_table = "text_log_error"
+        unique_together = ('job', 'line_number')
+
+
 class TextLogSummary(models.Model):
+    '''
+    An intermediate class correlating artifact + text log data with
+    structured failure line data
+
+    This is a legacy model that doesn't serve much useful purpose.
+    Should probably be removed at some point.
+    '''
     id = BigAutoField(primary_key=True)
     job_guid = models.CharField(max_length=50)
     repository = models.ForeignKey(Repository)
@@ -1155,6 +1219,12 @@ class TextLogSummary(models.Model):
 
 
 class TextLogSummaryLine(models.Model):
+    '''
+    An intermediate class correlating failure lines with text log error lines
+
+    This probably should be merged with TextLogError above (but isn't yet for
+    legacy reasons)
+    '''
     id = BigAutoField(primary_key=True)
     summary = FlexibleForeignKey(TextLogSummary, related_name="lines")
     line_number = models.PositiveIntegerField(blank=True, null=True)

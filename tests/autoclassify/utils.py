@@ -1,3 +1,4 @@
+import datetime
 import json
 import zlib
 
@@ -5,7 +6,10 @@ from mozlog.formatters.tbplformatter import TbplFormatter
 
 from treeherder.model.derived.artifacts import ArtifactsModel
 from treeherder.model.models import (FailureLine,
-                                     MatcherManager)
+                                     Job,
+                                     MatcherManager,
+                                     TextLogError,
+                                     TextLogStep)
 from treeherder.model.search import refresh_all
 
 test_line = {"action": "test_result", "test": "test1", "subtest": "subtest1",
@@ -14,12 +18,13 @@ log_line = {"action": "log", "level": "ERROR", "message": "message1"}
 crash_line = {"action": "crash", "signature": "signature"}
 
 
-def create_failure_lines(repository, job_guid, failure_line_list):
+def create_failure_lines(repository, job_guid, failure_line_list,
+                         start_line=0):
     failure_lines = []
-    for i, (base_data, updates) in enumerate(failure_line_list):
+    for i, (base_data, updates) in enumerate(failure_line_list[start_line:]):
         data = {"job_guid": job_guid,
                 "repository": repository,
-                "line": i}
+                "line": i + start_line}
         data.update(base_data)
         data.update(updates)
         failure_line = FailureLine(**data)
@@ -66,35 +71,30 @@ def get_data(base_data, updates):
     return data
 
 
-def create_summary_lines_failures(project, job, failure_line_list):
+def create_text_log_errors(project, job_id, failure_line_list):
+    job = Job.objects.get(repository__name=project,
+                          project_specific_id=job_id)
+    step = TextLogStep.objects.create(
+        job=job,
+        name='everything',
+        started_line_number=1,
+        finished_line_number=10,
+        started=datetime.datetime.now(),
+        finished=datetime.datetime.now(),
+        result=TextLogStep.TEST_FAILED)
+
     formatter = TbplFormatter()
-
-    text_log_summary = {"logurl": "http://example.org/log-test/",
-                        "step_data": {"all_errors": [],
-                                      "steps": [],
-                                      "errors_truncated": False},
-                        }
-
+    errors = []
     for i, (base_data, updates) in enumerate(failure_line_list):
         data = get_data(base_data, updates)
         if not data:
             continue
+        error = TextLogError.objects.create(job=job, step=step,
+                                            line=formatter(data).split("\n")[0],
+                                            line_number=i)
+        errors.append(error)
 
-        text_log_summary["step_data"]["all_errors"].append(
-            {"line": formatter(data).split("\n")[0],
-             "linenumber": i})
-
-    print text_log_summary
-
-    placeholders = [job["id"], 'text_log_summary',
-                    'json', zlib.compress(json.dumps(text_log_summary)),
-                    job["id"], 'text_log_summary']
-
-    with ArtifactsModel(project) as artifacts_model:
-        artifacts_model.store_job_artifact([placeholders])
-        return artifacts_model.get_job_artifact_list(
-            0, 1, {'job_id': set([('=', job['id'])]),
-                   "name": set([("=", "text_log_summary")])})[0]
+    return errors
 
 
 def create_bug_suggestions_failures(project, job, failure_line_list):

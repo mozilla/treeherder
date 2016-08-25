@@ -1,3 +1,4 @@
+import datetime
 import json
 
 import pytest
@@ -7,26 +8,34 @@ from mock import MagicMock
 from tests.test_utils import post_collection
 from treeherder.client.thclient import client
 from treeherder.log_parser.parsers import StepParser
-from treeherder.model import error_summary
 from treeherder.model.derived import (ArtifactsModel,
                                       JobsModel)
 from treeherder.model.models import (Job,
                                      JobDetail,
-                                     JobLog)
+                                     JobLog,
+                                     TextLogError,
+                                     TextLogStep)
 
 
 @pytest.fixture
 def text_log_summary_dict():
     return {
         "step_data": {
-            "all_errors": [
-                {"line": "12:34:13     INFO -  Assertion failure: addr % CellSize == 0, at ../../../js/src/gc/Heap.h:1041", "linenumber": 61918},
-                {"line": "12:34:24  WARNING -  TEST-UNEXPECTED-FAIL | file:///builds/slave/talos-slave/test/build/tests/jsreftest/tests/jsreftest.html?test=ecma_5/JSON/parse-array-gc.js | Exited with code 1 during test run", "linenumber": 61919}, {"line": "12:34:37  WARNING -  PROCESS-CRASH | file:///builds/slave/talos-slave/test/build/tests/jsreftest/tests/jsreftest.html?test=ecma_5/JSON/parse-array-gc.js | application crashed [@ js::gc::Cell::tenuredZone() const]", "linenumber": 61922},
-                {"line": "12:34:38    ERROR - Return code: 256", "linenumber": 64435}
-            ],
             "steps": [
-                {"name": "Clone gecko tc-vcs "},
-                {"name": "Build ./build-b2g-desktop.sh /home/worker/workspace"}
+                {"name": "Clone gecko tc-vcs ",
+                 "started_linenumber": 1,
+                 "finished_linenumber": 100000,
+                 "started": "2016-07-13 16:09:31",
+                 "finished": "2016-07-13 16:09:31",
+                 "result": "testfailed",
+                 "errors": [
+                     {"line": "12:34:13     INFO -  Assertion failure: addr % CellSize == 0, at ../../../js/src/gc/Heap.h:1041", "linenumber": 61918},
+                     {"line": "12:34:24  WARNING -  TEST-UNEXPECTED-FAIL | file:///builds/slave/talos-slave/test/build/tests/jsreftest/tests/jsreftest.html?test=ecma_5/JSON/parse-array-gc.js | Exited with code 1 during test run", "linenumber": 61919}, {"line": "12:34:37  WARNING -  PROCESS-CRASH | file:///builds/slave/talos-slave/test/build/tests/jsreftest/tests/jsreftest.html?test=ecma_5/JSON/parse-array-gc.js | application crashed [@ js::gc::Cell::tenuredZone() const]", "linenumber": 61922},
+                     {"line": "12:34:38    ERROR - Return code: 256", "linenumber": 64435}
+                 ]},
+                {"name": "Build ./build-b2g-desktop.sh /home/worker/workspace", "started_linenumber": 1, "finished_linenumber": 1, "result": "success",
+                 "started": "2016-07-13 16:09:31",
+                 "finished": "2016-07-13 16:09:31"}
             ],
             "errors_truncated": False
         },
@@ -146,8 +155,8 @@ def test_post_job_with_text_log_summary_artifact_parsed(
 
     post_collection(test_project, tjc)
 
-    check_artifacts(test_project, job_guid, JobLog.PARSED, 2,
-                    {'Bug suggestions', 'text_log_summary'}, mock_error_summary)
+    check_artifacts(test_project, job_guid, JobLog.PARSED, 1,
+                    {'Bug suggestions'}, mock_error_summary)
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False
@@ -195,8 +204,8 @@ def test_post_job_with_text_log_summary_artifact_parsed_dict_blob(
 
     post_collection(test_project, tjc)
 
-    check_artifacts(test_project, job_guid, JobLog.PARSED, 2,
-                    {'Bug suggestions', 'text_log_summary'}, mock_error_summary)
+    check_artifacts(test_project, job_guid, JobLog.PARSED, 1,
+                    {'Bug suggestions'}, mock_error_summary)
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False
@@ -246,73 +255,11 @@ def test_post_job_with_text_log_summary_artifact_pending(
 
     post_collection(test_project, tjc)
 
-    check_artifacts(test_project, job_guid, JobLog.PARSED, 2,
-                    {'Bug suggestions', 'text_log_summary'}, mock_error_summary)
+    check_artifacts(test_project, job_guid, JobLog.PARSED, 1,
+                    {'Bug suggestions'}, mock_error_summary)
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False
-
-
-def test_post_job_with_text_log_summary_and_bug_suggestions_artifact(
-        test_project,
-        monkeypatch,
-        result_set_stored,
-        mock_post_json,
-        mock_error_summary,
-        text_log_summary_dict,
-        ):
-    """
-    test submitting a job with a pre-parsed log and both artifacts
-    does not generate parse the log or generate any artifacts, just uses
-    the supplied ones.
-    """
-
-    mock_parse = MagicMock(name="parse_line")
-    monkeypatch.setattr(StepParser, 'parse_line', mock_parse)
-    mock_get_error_summary = MagicMock(name="get_error_summary_artifacts")
-    monkeypatch.setattr(error_summary, 'get_error_summary_artifacts', mock_get_error_summary)
-
-    error_summary_blob = ["fee", "fie", "foe", "fum"]
-
-    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
-    tjc = client.TreeherderJobCollection()
-    tj = client.TreeherderJob({
-        'project': test_project,
-        'revision': result_set_stored[0]['revision'],
-        'job': {
-            'job_guid': job_guid,
-            'state': 'completed',
-            'log_references': [{
-                'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
-                'name': 'buildbot_text',
-                'parse_status': 'parsed'
-            }],
-            'artifacts': [
-                {
-                    "blob": json.dumps(text_log_summary_dict),
-                    "type": "json",
-                    "name": "text_log_summary",
-                    "job_guid": job_guid
-                },
-                {
-                    "blob": json.dumps(error_summary_blob),
-                    "type": "json",
-                    "name": "Bug suggestions",
-                    "job_guid": job_guid
-                },
-            ]
-        }
-    })
-
-    tjc.add(tj)
-
-    post_collection(test_project, tjc)
-
-    check_artifacts(test_project, job_guid, JobLog.PARSED, 2,
-                    {'Bug suggestions', 'text_log_summary'}, error_summary_blob)
-
-    assert mock_parse.called is False
-    assert mock_get_error_summary.called is False
 
 
 def test_post_job_artifacts_by_add_artifact(
@@ -358,9 +305,18 @@ def test_post_job_artifacts_by_add_artifact(
         "logurl": "https://autophone-dev.s3.amazonaws.com/pub/mozilla.org/mobile/tinderbox-builds/mozilla-inbound-android-api-9/1432676531/en-US/autophone-autophone-s1s2-s1s2-nytimes-local.ini-1-nexus-one-1.log",
         "step_data": {
             "all_errors": [
-                {"line": "TEST_UNEXPECTED_FAIL | /sdcard/tests/autophone/s1s2test/nytimes.com/index.html | Failed to get uncached measurement.", "linenumber": 64435},
             ],
-            "steps": [{"buncha": "info"}]
+            "steps": [{
+                "name": "foobar",
+                "result": "testfailed",
+                "started_linenumber": 1,
+                "finished_linenumber": 100000,
+                "started": "2016-07-13 16:09:31",
+                "finished": "2016-07-13 16:09:31",
+                "errors": [
+                    {"line": "TEST_UNEXPECTED_FAIL | /sdcard/tests/autophone/s1s2test/nytimes.com/index.html | Failed to get uncached measurement.", "linenumber": 64435}
+                ]
+            }]
         }
     })
 
@@ -387,9 +343,29 @@ def test_post_job_artifacts_by_add_artifact(
         'url': None
     }
 
-    check_artifacts(test_project, job_guid, JobLog.PARSED, 4,
-                    {'Bug suggestions', 'text_log_summary',
-                     'privatebuild', 'buildapi'}, mock_error_summary)
+    assert TextLogStep.objects.count() == 1
+    assert model_to_dict(TextLogStep.objects.get(job__guid=job_guid)) == {
+        'id': 1,
+        'job': 1,
+        'started': datetime.datetime(2016, 7, 13, 16, 9, 31),
+        'finished': datetime.datetime(2016, 7, 13, 16, 9, 31),
+        'name': 'foobar',
+        'result': 1,
+        'started_line_number': 1,
+        'finished_line_number': 100000
+    }
+
+    assert TextLogError.objects.count() == 1
+    assert model_to_dict(TextLogError.objects.get(job__guid=job_guid)) == {
+        'id': 1,
+        'job': 1,
+        'line': 'TEST_UNEXPECTED_FAIL | /sdcard/tests/autophone/s1s2test/nytimes.com/index.html | Failed to get uncached measurement.',
+        'line_number': 64435,
+        'step': 1
+    }
+
+    check_artifacts(test_project, job_guid, JobLog.PARSED, 3,
+                    {'Bug suggestions', 'privatebuild', 'buildapi'}, mock_error_summary)
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False

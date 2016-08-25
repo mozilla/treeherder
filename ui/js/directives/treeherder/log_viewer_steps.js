@@ -39,7 +39,7 @@ treeherder.directive('lvLogSteps', ['$timeout', '$q', function ($timeout, $q) {
             scope.toggleSuccessfulSteps = function () {
                 scope.showSuccessful = !scope.showSuccessful;
 
-                var firstError = scope.artifact.step_data.steps.filter(function (step) {
+                var firstError = scope.steps.filter(function (step) {
                     return step.result && step.result !== "success";
                 })[0];
 
@@ -56,13 +56,13 @@ treeherder.directive('lvLogSteps', ['$timeout', '$q', function ($timeout, $q) {
 
             scope.displayLog = function (step, state) {
                 scope.displayedStep = step;
-                scope.currentLineNumber = step.started_linenumber;
-                scope.selectedBegin = step.started_linenumber;
-                scope.selectedEnd = step.finished_linenumber;
+                scope.currentLineNumber = step.started_line_number;
+                scope.selectedBegin = step.started_line_number;
+                scope.selectedEnd = step.finished_line_number;
                 scope.loadMore({}).then(function () {
                     $timeout(function () {
                         var raw = $('.lv-log-container')[0];
-                        var line = $('.lv-log-line[line="' + step.started_linenumber + '"]');
+                        var line = $('.lv-log-line[line="' + step.started_line_number + '"]');
                         if (state !== 'initialLoad') {
                             raw.scrollTop += line.offset().top - $('.run-data').outerHeight() -
                                              $('.navbar').outerHeight() - 9;
