@@ -5,38 +5,11 @@ perf.value('e10sDefaultTimeRange', 86400 * 2);
 perf.controller('e10sCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$http', '$httpParamSerializer',
     'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
-    'thServiceDomain', 'thDefaultRepo', 'phTimeRanges', 'e10sDefaultTimeRange',
+    'thServiceDomain', 'thDefaultRepo', 'phTimeRanges', 'e10sDefaultTimeRange', 'phBlockers',
     function e10sCtrl($state, $stateParams, $scope, $rootScope, $q, $http, $httpParamSerializer,
                       ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
                       thServiceDomain, thDefaultRepo, phTimeRanges,
-                      e10sDefaultTimeRange) {
-        var blockers = {
-            "cart summary": 2.0,
-            "damp summary": 2.0,
-            "dromaeo_css summary": 2.0,
-            "dromaeo_dom summary": 2.0,
-            "glterrain summary": 5.0,
-            "kraken summary": 2.0,
-            "sessionrestore": 5.0,
-            "sessionrestore_no_auto_restore": 5.0,
-            "tart summary": 5.0,
-            "tcanvasmark summary": 5.0,
-            "tp5o % Processor Time": 2.0,
-            "tp5o Main_RSS": 2.0,
-            "tp5o Modified Page List Bytes": 2.0,
-            "tp5o Private Bytes": 2.0,
-            "tp5o XRes": 2.0,
-            "tp5o responsiveness": 2.0,
-            "tp5o summary": 5.0,
-            "tp5o_scroll summary": 2.0,
-            "tpaint": 5.0,
-            "tps summary": 5.0,
-            "tresize": 5.0,
-            "ts_paint": 2.0,
-            "tscrollx": 2.0,
-            "tsvgr_opacity summary": 5.0,
-            "tsvgx summary": 5.0
-        };
+                      e10sDefaultTimeRange, phBlockers) {
 
         $scope.dataLoading = true;
         $scope.timeRanges = phTimeRanges;
@@ -123,7 +96,7 @@ perf.controller('e10sCtrl', [
                             if (e10sSig && baseSig) {
                                 var cmap = PhCompare.getCounterMap(
                                     testName, resultsMap['base'][baseSig],
-                                    resultsMap['e10s'][e10sSig], blockers);
+                                    resultsMap['e10s'][e10sSig], phBlockers);
                                 cmap.name = platform + ' ' + resultsMap['base'][baseSig].option;
                                 cmap.links = [{
                                     title: 'graph',

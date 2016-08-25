@@ -252,6 +252,7 @@ treeherder.factory('PhCompare', [
                     return resultsMap;
                 });
             },
+
             getGraphsLink: function(seriesList, resultSets) {
                 var graphsLink = 'perf.html#/graphs?' + $httpParamSerializer({
                     series: _.map(seriesList, function(series) {
@@ -278,7 +279,55 @@ treeherder.factory('PhCompare', [
                               }));
                 }
                 return graphsLink;
-            }
+            },
 
+            // Compares baseData and newData and returns object of results
+            // The result object has the following properties:
+            // - .isEmpty: true if no data for either side.
+            // If both originalData/newData exist, comparison data:
+            // - .newIsBetter              // is new result better or worse (even if unsure)
+            // - .isImprovement            // is new result better + we're confident about it
+            // - .isRegression             // is new result worse + we're confident about it
+            // - .isBlocker                // new result matches "blocker" criteria
+            // - .delta
+            // - .deltaPercentage
+            // - .isMeaningful             // for highlighting - bool over t-test threshold
+            // And some data to help formatting of the comparison:
+            // - .className
+            // - .magnitude
+            getTrendMap: function getDisplayLineData(testName, baseData, newData) {
+
+                // Eventually the result object, after setting properties as required.
+                var trendMap = { isEmpty: true };
+
+                // It's possible to get an object with empty values, so check for that too.
+                if (!baseData.delta && !newData.delta)
+                    return trendMap; // No data for either side
+
+                trendMap.isEmpty = false;
+
+                // Compare the sides
+                trendMap.delta = (newData.delta - baseData.delta);
+                trendMap.newIsBetter = (baseData.lowerIsBetter && trendMap.delta < 0) ||
+                    (!baseData.lowerIsBetter && trendMap.delta > 0);
+
+                // delta percentage (for display)
+                trendMap.deltaPercentage = math.percentOf(trendMap.delta, baseData.delta);
+
+                // is meaningful (show only important) if change is > 2%
+                trendMap.isMeaningful = (Math.abs(trendMap.deltaPercentage)) > 2.0 ? true : false;
+
+                // mark not confident if either base or new data results are not confident
+                trendMap.isConfident = (baseData.isConfident === false || newData.isConfident === false) ? false : true;
+
+                // mark is blocking if either base or new data resuls are maked as blocking
+                trendMap.isBlocker = (baseData.isBlocker === true || newData.isBlocker === true) ? true : false;
+
+                // arbitrary scale from 0-20% multiplied by 5, capped
+                // at 100 (so 20% regression === 100% bad)
+                trendMap.magnitude = Math.min(Math.abs(trendMap.deltaPercentage)*5, 100);
+
+                return trendMap;
+            }
         };
     }]);

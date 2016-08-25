@@ -1,0 +1,115 @@
+<form class="form-inline">
+  <div class="form-group" ng-show="$ctrl.filterByFramework">
+    <select ng-model="$ctrl.filterOptions.framework"
+            ng-options="framework.name for framework in $ctrl.frameworks track by framework.id"
+            ng-change="frameworkChanged()"/>
+    &nbsp;
+  </div>
+  <div class="form-group">
+    <input id="filter" type="text" class="form-control"
+           placeholder="filter text e.g. linux tp5o"
+           ng-model="$ctrl.filterOptions.filter"
+           ng-change="$ctrl.updateFilteredTestList()"
+           ng-model-options="{debounce: 250}"/>
+  </div>
+  <div class="checkbox" uib-tooltip="Non-trivial changes (2%+)">
+    <label>
+      <input type="checkbox"
+             ng-model="$ctrl.filterOptions.showOnlyImportant"
+             ng-change="$ctrl.updateFilteredTestList()"/>
+      Show only important changes
+    </label>
+  </div>
+  <div class="checkbox" uib-tooltip="At least 6 datapoints OR 2+ datapoints and a large difference">
+    <label>
+      <input type="checkbox"
+             ng-model="$ctrl.filterOptions.showOnlyConfident"
+             ng-change="$ctrl.updateFilteredTestList()"/>
+      Hide uncertain results
+    </label>
+  </div>
+  <div ng-if="$ctrl.releaseBlockerCriteria" class="checkbox">
+    <label>
+      <input type="checkbox"
+             ng-model="$ctrl.filterOptions.showOnlyBlockers"
+             ng-change="$ctrl.updateFilteredTestList()"/>
+      Show only regressions blocking release
+    </label>
+  </div>
+</form>
+<hr/>
+<table class="table table-condensed compare-table" style="table-layout: fixed;" ng-repeat="compareResults in $ctrl.filteredResultList | orderBy: 'testName' track by compareResults.testName">
+  <tbody>
+    <tr class="subtest-header">
+      <!-- Manually specify table widths because it's just easier this way -->
+      <th class="test-title"><span style=" word-wrap: break-word;">{{$ctrl.titles[compareResults.testName]}}</span></th>
+      <th style="width: 140px;">{{$ctrl.baseTitle}}</th>
+      <th style="width: 30px;"><!-- less than / greater than --></th>
+      <th style="width: 140px;">{{$ctrl.newTitle}}</th>
+      <th style="width: 80px;">Change</th>
+      <th style="width: 120px"><!-- Graphical difference --></th>
+    </tr>
+    <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults.results | orderBy: 'name' track by compareResult.baseResult.name">
+      <td class="test-title">{{compareResult.baseResult.name}}&nbsp;&nbsp;
+        <span class="result-links" ng-if="compareResult.baseResult.links.length > 0">
+          <span ng-repeat="link in compareResult.baseResult.links track by link.title">
+            <a ng-href="{{link.href}}">{{link.title}}</a>
+            <span ng-if="!$last"> · </span>
+          </span>
+        </span>
+      </td>
+      <td ng-class="$ctrl.getCompareClasses(compareResult.baseResult)">
+        <span ng-if="compareResult.baseResult.delta" class="detail-hint" uib-tooltip="Mean difference: {{compareResult.baseResult.delta|displayPrecision}} (= {{compareResult.baseResult.deltaPercentage|displayPrecision}}%)">
+          {{compareResult.baseResult.deltaPercentage|displayPrecision}}%
+        </span>
+      </td>
+      <td>
+        <span ng-class="getCompareClasses(compareResult)" ng-if="compareResult.baseResult.delta < compareResult.newResult.delta">
+          &lt;
+        </span>
+        <span ng-class="getCompareClasses(compareResult)" ng-if="compareResult.baseResult.delta > compareResult.newResult.delta">
+          &gt;
+        </span>
+      </td>
+      <td ng-class="$ctrl.getCompareClasses(compareResult.newResult)">
+        <span ng-if="compareResult.newResult.delta" class="detail-hint" uib-tooltip="Mean difference: {{compareResult.newResult.delta|displayPrecision}} (= {{compareResult.newResult.deltaPercentage|displayPrecision}}%)">
+          {{compareResult.newResult.deltaPercentage|displayPrecision}}%
+        </span>
+      </td>
+      <td ng-class="$ctrl.getCompareClasses(compareResult.trendResult)">
+        <span ng-if="compareResult.trendResult.delta" class="detail-hint" uib-tooltip="Mean difference: {{compareResult.trendResult.delta|displayPrecision}} (= {{compareResult.trendResult.deltaPercentage|displayPrecision}}%)">
+          {{compareResult.trendResult.deltaPercentage|displayPrecision}}%
+        </span>
+      </td>
+      <td ng-if="compareResult.trendResult.delta">
+        <div ng-if="!compareResult.trendResult.newIsBetter" style="margin: auto; width: 80%;"
+             uib-tooltip="Relative magnitude of change (scale from 0 - 20%+)">
+          <div class="bar bar-scale"
+               style="width: {{100 - compareResult.trendResult.magnitude}}%; height: 1em; float: left;">
+          </div>
+          <div class="bar"
+               ng-class="{'bar-regression': compareResult.trendResult.isRegression}"
+               style="width: {{compareResult.trendResult.magnitude}}%; float: left;">
+          </div>
+        </div>
+        <div ng-if="compareResult.trendResult.newIsBetter" style="margin: auto; width: 80%;"
+             uib-tooltip="Relative magnitude of change (scale from 0 - 20%+)">
+          <div class="bar"
+               ng-class="{'bar-improvement': compareResult.trendResult.isImprovement}"
+               style="width: {{compareResult.trendResult.magnitude}}%; float: left;">
+          </div>
+          <div class="bar bar-scale"
+               style="width: {{100 - compareResult.trendResult.magnitude}}%; float: left; ">
+          </div>
+        </div>
+      </td>
+      <td ng-if="!compareResult.trendResult.delta"></td>
+    </tr>
+  </tbody>
+</table>
+<p class="lead text-center" ng-show="!$ctrl.filteredResultList.length">
+  No results to show for these two revisions.
+  <span ng-show="$ctrl.testList.length">
+    Try changing your filter settings?
+  </span>
+</p>
