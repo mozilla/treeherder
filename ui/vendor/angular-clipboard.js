@@ -3,6 +3,10 @@
  * Licensed under the MIT license
  */
 
+/* this has been modified from the upstream version to fix a bug in
+   our production code pipeline (involving babel). see
+   https://bugzilla.mozilla.org/show_bug.cgi?id=1298086 */
+
 angular.module('angular-clipboard', [])
     .factory('clipboard', ['$document', function ($document) {
         function createNode(text, context) {
