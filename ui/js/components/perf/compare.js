@@ -1,7 +1,11 @@
 'use strict';
 
 treeherder.component('phCompareTable', {
-    templateUrl: 'partials/perf/comparetable.html',
+    templateUrl: function($element, $attrs) {
+        if ($attrs.type === 'trend')
+            return 'partials/perf/trendtable.html';
+        return 'partials/perf/comparetable.html';
+    },
     bindings: {
         baseTitle: '@',
         newTitle: '@',

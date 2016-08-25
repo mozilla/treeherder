@@ -1,0 +1,62 @@
+<div class="container-fluid">
+  <div class="alert alert-danger" ng-show="revisionNotFound" role="alert">
+    Couldn't find revision {{revision}} for {{selectedRepo.name}}
+  </div>
+  <div ng-if="!revision">
+    <h1>Perfherder e10s trend subtest comparison</h1>
+    <p><a href="perf.html#/e10s-trend?repo={{selectedRepo.name}}&timerange={{selectedTimeRange.value}}&basedate={{selectedBaseDate.value}}&newdate={{selectedNewDate.value}}">Show all tests and platforms</a></p>
+    <p>See how the e10s vs non-e10s delta changed over time. For each test, get
+      the difference between e10s and non-e10s for a data point in the past
+      (defaults to 1 week ago). Also get the difference between e10s and non-e10s
+      for each test for another date (defaults to today). For each test compare
+      these two values, and see how the e10s vs non-e10s delta has changed over time.
+    </p>
+    <p>For more information on what is considered "acceptable" in terms of a Talos
+      regression, see
+      <a href="https://wiki.mozilla.org/index.php?title=Electrolysis/Release_Criteria">
+        the official e10s release criteria</a>.
+    </p>
+    <div class="form-group">
+      Branch to compare:
+      <select ng-change="globalOptionsChanged(selectedRepo, selectedBaseDate,
+              selectedNewDate, selectedSampleSize)"
+              ng-model="selectedRepo"
+              ng-options="repo.name for repo in projects">
+      </select>
+      Base date:
+      <select ng-model="selectedBaseDate"
+              ng-options="datePoint.text for datePoint in datePoints track by datePoint.value"
+              ng-change="globalOptionsChanged(selectedRepo, selectedBaseDate,
+              selectedNewDate, selectedSampleSize)">
+      </select>
+      New date:
+      <select ng-model="selectedNewDate"
+              ng-options="datePoint.text for datePoint in datePoints track by datePoint.value"
+              ng-change="globalOptionsChanged(selectedRepo, selectedBaseDate,
+              selectedNewDate, selectedSampleSize)">
+      </select>
+      Sample size:
+      <select ng-model="selectedSampleSize"
+              ng-options="sampleSize.text for sampleSize in sampleSizes track by sampleSize.value"
+              ng-change="globalOptionsChanged(selectedRepo, selectedBaseDate,
+              selectedNewDate, selectedSampleSize)">
+      </select>
+    </div>
+  </div>
+  <div ng-if="dataLoading">
+    Loading all results, please wait a minute...
+    <img src="img/dancing_cat.gif" />
+  </div>
+  <div ng-if="!dataLoading">
+    <ph-compare-table
+       type="trend"
+       base-title="Base Delta"
+       new-title="New Delta"
+       titles="titles"
+       test-list="testList"
+       compare-results="compareResults"
+       filter-options="filterOptions"
+       release-blocker-criteria="1">
+    </ph-compare-table>
+  </div>
+</div>
