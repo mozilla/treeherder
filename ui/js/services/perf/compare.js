@@ -252,6 +252,7 @@ treeherder.factory('PhCompare', [
                     return resultsMap;
                 });
             },
+
             getGraphsLink: function(seriesList, resultSets) {
                 var graphsLink = 'perf.html#/graphs?' + $httpParamSerializer({
                     series: _.map(seriesList, function(series) {
@@ -278,7 +279,60 @@ treeherder.factory('PhCompare', [
                               }));
                 }
                 return graphsLink;
-            }
+            },
 
+            // Compares baseData and newData and returns object of results
+            // The result object has the following properties:
+            // - .isEmpty: true if no data for either side.
+            // If both originalData/newData exist, comparison data:
+            // - .newIsBetter              // is new result better or worse (even if unsure)
+            // - .isImprovement            // is new result better + we're confident about it
+            // - .isRegression             // is new result worse + we're confident about it
+            // - .isBlocker                // new result matches "blocker" criteria
+            // - .delta
+            // - .deltaPercentage
+            // - .confidence               // t-test value
+            // - .confidenceText           // 'low'/'med'/'high'
+            // - .confidenceTextLong       // more explanation on what confidenceText means
+            // - .isMeaningful             // for highlighting - bool over t-test threshold
+            // And some data to help formatting of the comparison:
+            // - .className
+            // - .magnitude
+            // - .marginDirection
+            getTrendMap: function getDisplayLineData(testName, baseData, newData, blockerCriteria) {
+
+                // Eventually the result object, after setting properties as required.
+                var trendMap = { isEmpty: true };
+
+                // It's possible to get an object with empty values, so check for that too.
+                if (!baseData.delta && !newData.delta)
+                    return trendMap; // No data for either side
+
+                trendMap.isEmpty = false;
+
+                // Compare the sides.
+                // Normally tests are "lower is better", can be over-ridden with a series option
+                trendMap.delta = (newData.delta - baseData.delta);
+                trendMap.newIsBetter = (baseData.lowerIsBetter && trendMap.delta < 0) ||
+                    (!baseData.lowerIsBetter && trendMap.delta > 0);
+
+                // delta percentage (for display)
+                trendMap.deltaPercentage = math.percentOf(trendMap.delta, baseData.delta);
+                // arbitrary scale from 0-20% multiplied by 5, capped
+                // at 100 (so 20% regression === 100% bad)
+                trendMap.magnitude = Math.min(Math.abs(trendMap.deltaPercentage)*5, 100);
+
+                trendMap.isRegression = (trendMap.className === 'compare-regression');
+                trendMap.isImprovement = (trendMap.className === 'compare-improvement');
+                if (!_.isUndefined(blockerCriteria) &&
+                    !_.isUndefined(blockerCriteria[testName]) &&
+                    trendMap.isRegression &&
+                    trendMap.deltaPercentage > blockerCriteria[testName]) {
+                    trendMap.isBlocker = true;
+                } else {
+                    trendMap.isBlocker = false;
+                }
+                return trendMap;
+            }
         };
     }]);

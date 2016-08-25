@@ -41,6 +41,11 @@ perf.config(function($compileProvider, $httpProvider, $stateProvider, $urlRouter
         templateUrl: 'partials/perf/e10s-subtest.html',
         url: '/e10s_comparesubtest?filter&showOnlyImportant&showOnlyConfident&baseSignature&e10sSignature&repo&timerange&revision',
         controller: 'e10sSubtestCtrl'
+    }).state('e10s_trend', {
+        title: 'e10s trend dashboard',
+        templateUrl: 'partials/perf/e10s-trend.html',
+        url: '/e10s-trend?filter&showOnlyImportant&showOnlyConfident&showOnlyBlockers&repo&basedate&newdate&timerange&revision',
+        controller: 'e10sTrendCtrl'
     });
 
     $urlRouterProvider.otherwise('/graphs');

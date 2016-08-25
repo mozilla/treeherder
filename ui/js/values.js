@@ -124,6 +124,25 @@ treeherder.value("phTimeRanges", [
 
 treeherder.value("phDefaultTimeRangeValue", 1209600);
 
+treeherder.value("phDatePoints", [
+    { "value":0, "text": "Today" },
+    { "value":604800, "text": "1 week ago" },
+    { "value":1209600, "text": "2 weeks ago" },
+    { "value":2419200, "text": "4 weeks ago" },
+    { "value":3628800, "text": "6 weeks ago" }
+]);
+
+treeherder.value("phSampleSizes", [
+    { "value":86400, "text": "1 day" },
+    { "value":172800, "text": "2 days" },
+    { "value":604800, "text": "7 days" },
+    { "value":1209600, "text": "14 days" },
+    { "value":2592000, "text": "30 days" },
+    { "value":5184000, "text": "60 days" },
+    { "value":7776000, "text": "90 days" },
+    { "value":31536000, "text": "1 year" }
+]);
+
 treeherder.value("phDefaultFramework", "talos");
 
 treeherder.value("phAlertSummaryStatusMap", {
