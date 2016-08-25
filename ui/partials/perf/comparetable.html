@@ -1,50 +1,61 @@
 <form class="form-inline">
-  <div class="form-group" ng-show="filterByFramework">
-    <select ng-model="filterOptions.framework"
-            ng-options="framework.name for framework in frameworks track by framework.id"/>
+  <div class="form-group" ng-show="$ctrl.filterByFramework">
+    <select ng-model="$ctrl.filterOptions.framework"
+            ng-options="framework.name for framework in $ctrl.frameworks track by framework.id"
+            ng-change="frameworkChanged()"/>
     &nbsp;
   </div>
   <div class="form-group">
-    <input id="filter" type="text" class="form-control" ng-model="filterOptions.filter" placeholder="filter text e.g. linux tp5o" ng-model-options="{debounce: 250}"/>
+    <input id="filter" type="text" class="form-control"
+           placeholder="filter text e.g. linux tp5o"
+           ng-model="$ctrl.filterOptions.filter"
+           ng-change="$ctrl.updateFilteredTestList()"
+           ng-model-options="{debounce: 250}"/>
   </div>
   <div class="checkbox" uib-tooltip="Non-trivial changes (2%+)">
     <label>
-      <input type="checkbox" ng-model="filterOptions.showOnlyImportant"/>
+      <input type="checkbox"
+             ng-model="$ctrl.filterOptions.showOnlyImportant"
+             ng-change="$ctrl.updateFilteredTestList()"/>
       Show only important changes
     </label>
   </div>
   <div class="checkbox" uib-tooltip="At least 6 datapoints OR 2+ datapoints and a large difference">
     <label>
-      <input type="checkbox" ng-model="filterOptions.showOnlyConfident"/>
+      <input type="checkbox"
+             ng-model="$ctrl.filterOptions.showOnlyConfident"
+             ng-change="$ctrl.updateFilteredTestList()"/>
       Hide uncertain results
     </label>
   </div>
-  <div ng-if="releaseBlockerCriteria" class="checkbox">
+  <div ng-if="$ctrl.releaseBlockerCriteria" class="checkbox">
     <label>
-      <input type="checkbox" ng-model="filterOptions.showOnlyBlockers"/>
+      <input type="checkbox"
+             ng-model="$ctrl.filterOptions.showOnlyBlockers"
+             ng-change="$ctrl.updateFilteredTestList()"/>
       Show only regressions blocking release
     </label>
   </div>
 </form>
 <hr/>
-<table class="table table-condensed compare-table" style="table-layout: fixed;" ng-repeat="compareResults in filteredResultList | orderBy: 'testName'">
+<table class="table table-condensed compare-table" style="table-layout: fixed;" ng-repeat="compareResults in $ctrl.filteredResultList | orderBy: 'testName' track by compareResults.testName">
   <tbody>
     <tr class="subtest-header">
       <!-- Manually specify table widths because it's just easier this way -->
-      <th class="test-title"><span style=" word-wrap: break-word;">{{titles[compareResults.testName]}}</span></th>
-      <th style="width: 140px;">{{baseTitle}}</th>
+      <th class="test-title"><span style=" word-wrap: break-word;">{{$ctrl.titles[compareResults.testName]}}</span></th>
+      <th style="width: 140px;">{{$ctrl.baseTitle}}</th>
       <th style="width: 30px;"><!-- less than / greater than --></th>
-      <th style="width: 140px;">{{newTitle}}</th>
+      <th style="width: 140px;">{{$ctrl.newTitle}}</th>
       <th style="width: 80px;">Delta</th>
       <th style="width: 120px"><!-- Graphical difference --></th>
       <th style="width: 100px;">Confidence</th>
       <th class="num-runs" style="width: 80px"># Runs</th>
       <th class="test-warning" style="width: 30px"><!-- warning if not enough --></th>
     </tr>
-    <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults.results | orderBy: 'name'">
+    <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults.results | orderBy: 'name' track by compareResult.name">
       <td class="test-title">{{compareResult.name}}&nbsp;&nbsp;
         <span class="result-links" ng-if="compareResult.links.length > 0">
-          <span ng-repeat="link in compareResult.links">
+          <span ng-repeat="link in compareResult.links track by link.title">
             <a ng-href="{{link.href}}">{{link.title}}</a>
             <span ng-if="!$last"> · </span>
           </span>
@@ -70,7 +81,7 @@
                     stddevpct="{{compareResult.newStddevPct}}"
                     replicates="compareResult.newRuns"></ph-average>
       </td>
-      <td ng-class="getCompareClasses(compareResult)">
+      <td ng-class="$ctrl.getCompareClasses(compareResult)">
         <span ng-if="compareResult.delta" class="detail-hint" uib-tooltip="Mean difference: {{compareResult.delta|displayPrecision}} (= {{compareResult.deltaPercentage|displayPrecision}}%)">
           {{compareResult.deltaPercentage|displayPrecision}}%
         </span>
@@ -129,9 +140,9 @@
     </tr>
   </tbody>
 </table>
-<p class="lead text-center" ng-show="hasNoResults">
+<p class="lead text-center" ng-show="!$ctrl.filteredResultList.length">
   No results to show for these two revisions.
-  <span ng-show="testList.length">
+  <span ng-show="$ctrl.testList.length">
     Try changing your filter settings?
   </span>
 </p>
