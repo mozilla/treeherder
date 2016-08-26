@@ -310,12 +310,10 @@ logViewerApp.controller('LogviewerCtrl', [
         }
 
         function getStepFromLine(linenumber) {
-            var steps = $scope.artifact.step_data.steps;
-            for (var i = 1; i < steps.length; i++) {
-                if (steps[i].started_linenumber >= linenumber) {
-                    return steps[i-1];
-                }
-            }
+            return $scope.artifact.step_data.steps.find(function(step) {
+                return (step.started_linenumber <= linenumber &&
+                        step.finished_linenumber >= linenumber);
+            });
         }
 
         function getSelectedLines () {
