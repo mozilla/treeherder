@@ -235,11 +235,17 @@ treeherder.factory('thNotify', [
     }]);
 
 treeherder.factory('thPlatformName', [
-    'thPlatformNameMap',
-    function(thPlatformNameMap) {
+    'thPlatformMap',
+    function(thPlatformMap) {
 
         return function(name) {
-            return thPlatformNameMap[name] || name;
+            var platformName = thPlatformMap[name];
+            if(typeof(platformName) !== "object") {
+                platformName = name;
+            } else {
+                platformName = platformName[0];
+            }
+            return platformName;
         };
     }]);
 
