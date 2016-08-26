@@ -550,7 +550,7 @@ MEMCACHED_LOCATION = TREEHERDER_MEMCACHED.strip(',').split(',')
 
 CACHES = {
     "default": {
-        "BACKEND": "django_pylibmc.memcached.PyLibMCCache",
+        "BACKEND": 'django_pylibmc.memcached.PyLibMCCache',
         "LOCATION": MEMCACHED_LOCATION,
         # Cache forever
         "TIMEOUT": None,
@@ -567,6 +567,8 @@ CACHES = {
         }
     }
 }
+
+PYLIBMC_MIN_COMPRESS_LEN = 128
 
 KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX
 

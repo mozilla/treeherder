@@ -24,6 +24,8 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
+from caching.base import (CachingManager,
+                          CachingMixin)
 from treeherder import path
 
 from .fields import (BigAutoField,
@@ -38,9 +40,11 @@ SQL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sql')
 
 
 @python_2_unicode_compatible
-class NamedModel(models.Model):
+class NamedModel(CachingMixin, models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100, unique=True)
+
+    objects = CachingManager()
 
     class Meta:
         abstract = True
@@ -55,11 +59,13 @@ class Product(NamedModel):
 
 
 @python_2_unicode_compatible
-class BuildPlatform(models.Model):
+class BuildPlatform(CachingMixin, models.Model):
     id = models.AutoField(primary_key=True)
     os_name = models.CharField(max_length=25, db_index=True)
     platform = models.CharField(max_length=100, db_index=True)
     architecture = models.CharField(max_length=25, blank=True, db_index=True)
+
+    objects = CachingManager()
 
     class Meta:
         db_table = 'build_platform'
@@ -85,7 +91,7 @@ class RepositoryGroup(NamedModel):
 
 
 @python_2_unicode_compatible
-class Repository(models.Model):
+class Repository(CachingMixin, models.Model):
     id = models.AutoField(primary_key=True)
     repository_group = models.ForeignKey('RepositoryGroup')
     name = models.CharField(max_length=50, unique=True, db_index=True)
@@ -97,6 +103,8 @@ class Repository(models.Model):
     active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
     performance_alerts_enabled = models.BooleanField(default=False)
 
+    objects = CachingManager()
+
     class Meta:
         db_table = 'repository'
         verbose_name_plural = 'repositories'
@@ -107,11 +115,13 @@ class Repository(models.Model):
 
 
 @python_2_unicode_compatible
-class MachinePlatform(models.Model):
+class MachinePlatform(CachingMixin, models.Model):
     id = models.AutoField(primary_key=True)
     os_name = models.CharField(max_length=25, db_index=True)
     platform = models.CharField(max_length=100, db_index=True)
     architecture = models.CharField(max_length=25, blank=True, db_index=True)
+
+    objects = CachingManager()
 
     class Meta:
         db_table = 'machine_platform'
@@ -123,7 +133,7 @@ class MachinePlatform(models.Model):
 
 
 @python_2_unicode_compatible
-class Bugscache(models.Model):
+class Bugscache(CachingMixin, models.Model):
     id = models.AutoField(primary_key=True)
     status = models.CharField(max_length=64, blank=True, db_index=True)
     resolution = models.CharField(max_length=64, blank=True, db_index=True)
@@ -132,6 +142,8 @@ class Bugscache(models.Model):
     keywords = models.TextField(blank=True)
     os = models.CharField(max_length=64, blank=True)
     modified = models.DateTimeField(null=True, blank=True)
+
+    objects = CachingManager()
 
     class Meta:
         db_table = 'bugscache'
@@ -341,11 +353,13 @@ class Datasource(models.Model):
 
 
 @python_2_unicode_compatible
-class JobGroup(models.Model):
+class JobGroup(CachingMixin, models.Model):
     id = models.AutoField(primary_key=True)
     symbol = models.CharField(max_length=10, default='?', db_index=True)
     name = models.CharField(max_length=100, db_index=True)
     description = models.TextField(blank=True)
+
+    objects = CachingManager()
 
     class Meta:
         db_table = 'job_group'
@@ -357,7 +371,7 @@ class JobGroup(models.Model):
 
 
 @python_2_unicode_compatible
-class OptionCollection(models.Model):
+class OptionCollection(CachingMixin, models.Model):
     id = models.AutoField(primary_key=True)
     option_collection_hash = models.CharField(max_length=40, db_index=True)
     option = models.ForeignKey(Option, db_index=True)
@@ -371,6 +385,8 @@ class OptionCollection(models.Model):
         sha_hash.update(''.join(options))
         return sha_hash.hexdigest()
 
+    objects = CachingManager()
+
     class Meta:
         db_table = 'option_collection'
         unique_together = ('option_collection_hash', 'option')
@@ -380,12 +396,14 @@ class OptionCollection(models.Model):
 
 
 @python_2_unicode_compatible
-class JobType(models.Model):
+class JobType(CachingMixin, models.Model):
     id = models.AutoField(primary_key=True)
     job_group = models.ForeignKey(JobGroup, null=True, blank=True)
     symbol = models.CharField(max_length=10, default='?', db_index=True)
     name = models.CharField(max_length=100, db_index=True)
     description = models.TextField(blank=True)
+
+    objects = CachingManager()
 
     class Meta:
         db_table = 'job_type'
@@ -616,7 +634,7 @@ class JobDetail(models.Model):
                                             self.url)
 
 
-class JobLog(models.Model):
+class JobLog(CachingMixin, models.Model):
     '''
     Represents a log associated with a job
 
@@ -634,6 +652,8 @@ class JobLog(models.Model):
     name = models.CharField(max_length=50)
     url = models.URLField(max_length=255)
     status = models.IntegerField(choices=STATUSES, default=PENDING)
+
+    objects = CachingManager()
 
     class Meta:
         db_table = "job_log"
@@ -1089,7 +1109,7 @@ class Matcher(models.Model):
         raise ValueError
 
 
-class FailureMatch(models.Model):
+class FailureMatch(CachingMixin, models.Model):
     id = BigAutoField(primary_key=True)
     failure_line = FlexibleForeignKey(FailureLine,
                                       related_name="matches",
@@ -1102,6 +1122,8 @@ class FailureMatch(models.Model):
     score = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
 
     # TODO: add indexes once we know which queries will be typically executed
+
+    objects = CachingManager()
 
     class Meta:
         db_table = 'failure_match'
@@ -1135,12 +1157,14 @@ class RunnableJob(models.Model):
                                     self.build_system_type)
 
 
-class TextLogSummary(models.Model):
+class TextLogSummary(CachingMixin, models.Model):
     id = BigAutoField(primary_key=True)
     job_guid = models.CharField(max_length=50)
     repository = models.ForeignKey(Repository)
     text_log_summary_artifact_id = models.PositiveIntegerField(blank=True, null=True)
     bug_suggestions_artifact_id = models.PositiveIntegerField(blank=True, null=True)
+
+    objects = CachingManager()
 
     class Meta:
         db_table = 'text_log_summary'
