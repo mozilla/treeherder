@@ -188,10 +188,6 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
                     .then(function() {
                         $rootScope.$emit(thEvents.classificationVerified);
                     })
-                    .then(function() {
-                        thNotify.send("Classification saved", "success");
-                        $rootScope.$emit(thEvents.classificationVerified);
-                    })
                     .catch(function(err) {
                         var msg = "Error saving classifications:\n ";
                         if (err.stack) {
@@ -290,17 +286,7 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
                 return setupClassifiedFailures
                     .then(function() {return ThFailureLinesModel.verifyMany(bestClassifications);})
                     .then(function() {
-                        thNotify.send("Classification saved", "success");
                         $rootScope.$emit(thEvents.classificationVerified);
-                    })
-                    .catch(function(err) {
-                        var msg = "Error saving classifications:\n ";
-                        if (err.stack) {
-                            msg += err + err.stack;
-                        } else {
-                            msg += err.statusText + " - " + err.data.detail;
-                        }
-                        thNotify.send(msg, "danger");
                     });
             }
         };
@@ -960,13 +946,25 @@ treeherder.controller('ClassificationPluginCtrl', [
                     .map(function(x) {return types[x].saveAll(byType[x]);});
 
             savePromises
-            // Convert the array of promises into a chain
+                // Convert the array of promises into a chain
                 .reduce(function (prev, cur) {
                     return prev.then(cur);
                 }, $q.resolve())
-            .then(function() {
-                thTabs.tabs.autoClassification.update();
-            });
+                .then(function() {
+                    thNotify.send("Classification saved", "success");
+                })
+                .then(function() {
+                    thTabs.tabs.autoClassification.update();
+                })
+                .catch(function(err) {
+                    var msg = "Error saving classifications:\n ";
+                    if (err.stack) {
+                        msg += err + err.stack;
+                    } else {
+                        msg += err.statusText + " - " + err.data.detail;
+                    }
+                    thNotify.send(msg, "danger");
+                });
         };
 
         $scope.canIgnore = function() {
