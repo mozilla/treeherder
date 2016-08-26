@@ -6,7 +6,7 @@ from treeherder.perf.models import PerformanceFramework
 
 
 class JobTypeAdmin(admin.ModelAdmin):
-    list_display = ['name', 'job_group', 'symbol', 'description', 'active_status']
+    list_display = ['name', 'job_group', 'symbol', 'description']
     list_editable = ['symbol', 'job_group']
 
 

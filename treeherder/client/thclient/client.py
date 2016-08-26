@@ -742,8 +742,7 @@ class TreeherderClient(object):
             {
               id: <id>,
               name: <name>,
-              description: <description>,
-              active_status: <active_status>
+              description: <description>
             }
         """
         return self._get_json(self.PRODUCT_ENDPOINT)
@@ -772,8 +771,7 @@ class TreeherderClient(object):
             {
               id: <id>,
               name: <name>,
-              description: <description>,
-              active_status: <active_status>
+              description: <description>
             }
         """
         return self._get_json(self.FAILURE_CLASSIFICATION_ENDPOINT)
@@ -789,7 +787,6 @@ class TreeherderClient(object):
               os_name: <os_name>,
               platform: <platform>,
               architecture: <architecture>
-              active_status: <active_status>
             }
         """
         return self._get_json(self.BUILD_PLATFORM_ENDPOINT)
@@ -820,8 +817,7 @@ class TreeherderClient(object):
               id: <id>,
               name: <name>,
               first_timestamp: <first_timestamp>,
-              last_timestamp: <last_timestamp>,
-              active_status: <active_status>
+              last_timestamp: <last_timestamp>
             }
         """
         return self._get_json(self.MACHINE_ENDPOINT)
@@ -836,8 +832,7 @@ class TreeherderClient(object):
               id: <id>
               os_name: <os_name>
               platform: <platform>,
-              architecture: <architecture>,
-              active_status: <active_status>
+              architecture: <architecture>
             }
         """
         return self._get_json(self.MACHINE_PLATFORM_ENDPOINT)

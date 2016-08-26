@@ -98,8 +98,7 @@ def test_performance_platforms_framework_filtering(webapp, test_perf_signature):
     platform2 = MachinePlatform.objects.create(
         os_name='win',
         platform='win7-a',
-        architecture='x86',
-        active_status='active')
+        architecture='x86')
     PerformanceSignature.objects.create(
         repository=test_perf_signature.repository,
         signature_hash=test_perf_signature.signature_hash,
