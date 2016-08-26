@@ -177,6 +177,10 @@ treeherder.controller('BugFilerCtrl', [
 
             var keywords = $scope.isIntermittent ? "intermittent-failure" : "";
 
+            var blocks = $scope.modalBlocks;
+            var dependsOn = $scope.modalDependsOn;
+            var seeAlso = $scope.modalSeeAlso;
+
             // Fetch product information from bugzilla to get version numbers, then submit the new bug
             // Only request the versions because some products take quite a long time to fetch the full object
             $.ajax("https://bugzilla.mozilla.org/rest/product/" + productString + "?include_fields=versions").done(function(productJSON) {
@@ -196,6 +200,9 @@ treeherder.controller('BugFilerCtrl', [
                         "summary": summarystring,
                         "keywords": keywords,
                         "version": version.name,
+                        "blocks": blocks,
+                        "depends_on": dependsOn,
+                        "see_also": seeAlso,
                         "comment": descriptionStrings,
                         "comment_tags": "treeherder"
                     }
