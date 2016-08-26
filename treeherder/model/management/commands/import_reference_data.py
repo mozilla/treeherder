@@ -43,10 +43,7 @@ class Command(BaseCommand):
             MachinePlatform.objects.get_or_create(
                     os_name=machine_platform['os_name'],
                     platform=machine_platform['platform'],
-                    architecture=machine_platform['architecture'],
-                    defaults={
-                        'active_status': machine_platform['active_status']
-                    })
+                    architecture=machine_platform['architecture'])
 
         # machine
         for machine in c.get_machines():
@@ -55,8 +52,7 @@ class Command(BaseCommand):
                     name=machine['name'],
                     defaults={
                         'first_timestamp': machine['first_timestamp'],
-                        'last_timestamp': machine['last_timestamp'],
-                        'active_status': machine['active_status']
+                        'last_timestamp': machine['last_timestamp']
                     })
 
         # job group
@@ -66,8 +62,7 @@ class Command(BaseCommand):
                     symbol=job_group['symbol'],
                     name=job_group['name'],
                     defaults={
-                        'description': job_group['description'],
-                        'active_status': job_group['active_status']
+                        'description': job_group['description']
                     })
 
         # job type
@@ -80,8 +75,7 @@ class Command(BaseCommand):
                     name=job_type['name'],
                     defaults={
                         'job_group': jgroup,
-                        'description': job_type['description'],
-                        'active_status': job_type['active_status']
+                        'description': job_type['description']
                     })
             except JobGroup.DoesNotExist:
                 # ignore job types whose job group does not exist
@@ -96,8 +90,7 @@ class Command(BaseCommand):
                     id=product['id'],
                     name=product['name'],
                     defaults={
-                        'description': product['description'],
-                        'active_status': product['active_status']
+                        'description': product['description']
                     })
 
         # failure classification
@@ -106,8 +99,7 @@ class Command(BaseCommand):
                     id=failure_classification['id'],
                     name=failure_classification['name'],
                     defaults={
-                        'description': failure_classification['description'],
-                        'active_status': failure_classification['active_status']
+                        'description': failure_classification['description']
                     })
 
         # build platform
@@ -117,8 +109,7 @@ class Command(BaseCommand):
                     os_name=build_platform['os_name'],
                     defaults={
                         'platform': build_platform['platform'],
-                        'architecture': build_platform['architecture'],
-                        'active_status': build_platform['active_status']
+                        'architecture': build_platform['architecture']
                     })
 
         # repository and repository group

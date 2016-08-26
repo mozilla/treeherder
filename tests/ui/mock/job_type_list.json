@@ -4,2055 +4,1798 @@
     "job_group": 1,
     "symbol": "Be",
     "name": "Hamachi Device Image Build (Engineering)",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 2,
     "job_group": 2,
     "symbol": "B",
     "name": "Build",
-    "description": "Build from sources",
-    "active_status": "active"
+    "description": "Build from sources"
   },
   {
     "id": 3,
     "job_group": 2,
     "symbol": "B",
     "name": "B2G Emulator Image Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 4,
     "job_group": 3,
     "symbol": "arm",
     "name": "SpiderMonkey ARM Simulator Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 5,
     "job_group": 4,
     "symbol": "1",
     "name": "Mochitest",
-    "description": "integration test",
-    "active_status": "active"
+    "description": "integration test"
   },
   {
     "id": 6,
     "job_group": 4,
     "symbol": "3",
     "name": "Mochitest",
-    "description": "integration test",
-    "active_status": "active"
+    "description": "integration test"
   },
   {
     "id": 7,
     "job_group": 5,
     "symbol": "R2",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 8,
     "job_group": 5,
     "symbol": "R8",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 9,
     "job_group": 5,
     "symbol": "R5",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 10,
     "job_group": 2,
     "symbol": "X",
     "name": "XPCShell",
-    "description": "API direct unit testing",
-    "active_status": "active"
+    "description": "API direct unit testing"
   },
   {
     "id": 11,
     "job_group": 6,
     "symbol": "rp",
     "name": "Talos robopan",
-    "description": "Run page scrolling benchmark",
-    "active_status": "active"
+    "description": "Run page scrolling benchmark"
   },
   {
     "id": 12,
     "job_group": 4,
     "symbol": "5",
     "name": "Mochitest",
-    "description": "integration test",
-    "active_status": "active"
+    "description": "integration test"
   },
   {
     "id": 13,
     "job_group": 4,
     "symbol": "rc5",
     "name": "Robocop",
-    "description": "UI-level testing on Android",
-    "active_status": "active"
+    "description": "UI-level testing on Android"
   },
   {
     "id": 14,
     "job_group": 6,
     "symbol": "tpn",
     "name": "Talos tp nochrome",
-    "description": "Run page load benchmark without starting the chrome",
-    "active_status": "active"
+    "description": "Run page load benchmark without starting the chrome"
   },
   {
     "id": 15,
     "job_group": 4,
     "symbol": "oth",
     "name": "Mochitest Other",
-    "description": "integration test",
-    "active_status": "active"
+    "description": "integration test"
   },
   {
     "id": 16,
     "job_group": 2,
     "symbol": "Cpp",
     "name": "CPP Unit Tests",
-    "description": "C++ Unitary Tests",
-    "active_status": "active"
+    "description": "C++ Unitary Tests"
   },
   {
     "id": 17,
     "job_group": 4,
     "symbol": "bc3",
     "name": "Mochitest Browser Chrome",
-    "description": "integration test with a standard browser",
-    "active_status": "active"
+    "description": "integration test with a standard browser"
   },
   {
     "id": 18,
     "job_group": 5,
     "symbol": "R",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 19,
     "job_group": 4,
     "symbol": "6",
     "name": "Mochitest",
-    "description": "integration test",
-    "active_status": "active"
+    "description": "integration test"
   },
   {
     "id": 20,
     "job_group": 2,
     "symbol": "Jit",
     "name": "JIT Tests",
-    "description": "Just-In-time feature",
-    "active_status": "active"
+    "description": "Just-In-time feature"
   },
   {
     "id": 21,
     "job_group": 4,
     "symbol": "4",
     "name": "Mochitest",
-    "description": "integration test",
-    "active_status": "active"
+    "description": "integration test"
   },
   {
     "id": 22,
     "job_group": 5,
     "symbol": "R3",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 23,
     "job_group": 4,
     "symbol": "8",
     "name": "Mochitest",
-    "description": "integration test",
-    "active_status": "active"
+    "description": "integration test"
   },
   {
     "id": 24,
     "job_group": 4,
     "symbol": "rc1",
     "name": "Robocop",
-    "description": "UI-level testing on Android",
-    "active_status": "active"
+    "description": "UI-level testing on Android"
   },
   {
     "id": 25,
     "job_group": 4,
     "symbol": "gl",
     "name": "Mochitest WebGL",
-    "description": "integration test using WebGL",
-    "active_status": "active"
+    "description": "integration test using WebGL"
   },
   {
     "id": 26,
     "job_group": 4,
     "symbol": "rc4",
     "name": "Robocop",
-    "description": "UI-level testing on Android",
-    "active_status": "active"
+    "description": "UI-level testing on Android"
   },
   {
     "id": 27,
     "job_group": 3,
     "symbol": "Hf",
     "name": "Static Rooting Hazard Analysis, Full Browser",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 28,
     "job_group": 4,
     "symbol": "rc3",
     "name": "Robocop",
-    "description": "UI-level testing on Android",
-    "active_status": "active"
+    "description": "UI-level testing on Android"
   },
   {
     "id": 29,
     "job_group": 4,
     "symbol": "2",
     "name": "Mochitest",
-    "description": "integration test",
-    "active_status": "active"
+    "description": "integration test"
   },
   {
     "id": 30,
     "job_group": 5,
     "symbol": "J1",
     "name": "JSReftest",
-    "description": "JavaScript correctness",
-    "active_status": "active"
+    "description": "JavaScript correctness"
   },
   {
     "id": 31,
     "job_group": 4,
     "symbol": "7",
     "name": "Mochitest",
-    "description": "integration test",
-    "active_status": "active"
+    "description": "integration test"
   },
   {
     "id": 32,
     "job_group": 4,
     "symbol": "bc1",
     "name": "Mochitest Browser Chrome",
-    "description": "integration test with a standard browser",
-    "active_status": "active"
+    "description": "integration test with a standard browser"
   },
   {
     "id": 33,
     "job_group": 5,
     "symbol": "J2",
     "name": "JSReftest",
-    "description": "JavaScript correctness",
-    "active_status": "active"
+    "description": "JavaScript correctness"
   },
   {
     "id": 34,
     "job_group": 5,
     "symbol": "R4",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 35,
     "job_group": 4,
     "symbol": "rc2",
     "name": "Robocop",
-    "description": "UI-level testing on Android",
-    "active_status": "active"
+    "description": "UI-level testing on Android"
   },
   {
     "id": 36,
     "job_group": 6,
     "symbol": "rck2",
     "name": "Talos robocheck2",
-    "description": "Run Checkerboarding Real User benchmark, stress the browser, uses real-world test page, scrolls in all directions, and also zooms the page in various way",
-    "active_status": "active"
+    "description": "Run Checkerboarding Real User benchmark, stress the browser, uses real-world test page, scrolls in all directions, and also zooms the page in various way"
   },
   {
     "id": 37,
     "job_group": 5,
     "symbol": "C",
     "name": "Crashtest",
-    "description": "Check if crashes on a page",
-    "active_status": "active"
+    "description": "Check if crashes on a page"
   },
   {
     "id": 38,
     "job_group": 6,
     "symbol": "tsp",
     "name": "Talos tspaint",
-    "description": "Benchmark that measures time from startup to first paint",
-    "active_status": "active"
+    "description": "Benchmark that measures time from startup to first paint"
   },
   {
     "id": 39,
     "job_group": 7,
     "symbol": "Be",
     "name": "Flame Device Image Build (Engineering)",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 40,
     "job_group": 4,
     "symbol": "bc2",
     "name": "Mochitest Browser Chrome",
-    "description": "integration tests with a standard browser",
-    "active_status": "active"
+    "description": "integration tests with a standard browser"
   },
   {
     "id": 41,
     "job_group": 5,
     "symbol": "R7",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 42,
     "job_group": 2,
     "symbol": "Bo",
     "name": "AddressSanitizer Opt Build",
-    "description": "Optimized build using ASan, a memory error detector",
-    "active_status": "active"
+    "description": "Optimized build using ASan, a memory error detector"
   },
   {
     "id": 43,
     "job_group": 5,
     "symbol": "J",
     "name": "JSReftest",
-    "description": "JavaScript correctness",
-    "active_status": "active"
+    "description": "JavaScript correctness"
   },
   {
     "id": 44,
     "job_group": 2,
     "symbol": "V",
     "name": "Valgrind Nightly",
-    "description": "Run memory-related tests",
-    "active_status": "active"
+    "description": "Run memory-related tests"
   },
   {
     "id": 45,
     "job_group": 4,
     "symbol": "dt",
     "name": "Mochitest DevTools Browser Chrome",
-    "description": "integration test with a standard browser with the devtools frame",
-    "active_status": "active"
+    "description": "integration test with a standard browser with the devtools frame"
   },
   {
     "id": 46,
     "job_group": 5,
     "symbol": "R6",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 47,
     "job_group": 6,
     "symbol": "rpr",
     "name": "Talos roboprovider",
-    "description": "Run performance of the history and bookmarks ContentProvider database benchmark for Android",
-    "active_status": "active"
+    "description": "Run performance of the history and bookmarks ContentProvider database benchmark for Android"
   },
   {
     "id": 48,
     "job_group": 5,
     "symbol": "R1",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 49,
     "job_group": 5,
     "symbol": "J3",
     "name": "JSReftest",
-    "description": "JavaScript correctness",
-    "active_status": "active"
+    "description": "JavaScript correctness"
   },
   {
     "id": 50,
     "job_group": 6,
     "symbol": "s",
     "name": "Talos svg",
-    "description": "run SVG benchmark (animation, performance)",
-    "active_status": "active"
+    "description": "run SVG benchmark (animation, performance)"
   },
   {
     "id": 51,
     "job_group": 6,
     "symbol": "d",
     "name": "Talos dromaeojs",
-    "description": "Run Dromaeo JavaScript benchmark suite",
-    "active_status": "active"
+    "description": "Run Dromaeo JavaScript benchmark suite"
   },
   {
     "id": 52,
     "job_group": 6,
     "symbol": "tp",
     "name": "Talos tp",
-    "description": "Run page load benchmark",
-    "active_status": "active"
+    "description": "Run page load benchmark"
   },
   {
     "id": 53,
     "job_group": 6,
     "symbol": "o",
     "name": "Talos other",
-    "description": "Run other benchmark with Talos, performance testing framework",
-    "active_status": "active"
+    "description": "Run other benchmark with Talos, performance testing framework"
   },
   {
     "id": 54,
     "job_group": 6,
     "symbol": "c",
     "name": "Talos chrome",
-    "description": "Run chrome benchmark suite with Talos, performance testing framework",
-    "active_status": "active"
+    "description": "Run chrome benchmark suite with Talos, performance testing framework"
   },
   {
     "id": 55,
     "job_group": 5,
     "symbol": "Ru",
     "name": "Reftest Unaccelerated",
-    "description": "layout and graphics correctness, no accelerated graphic",
-    "active_status": "active"
+    "description": "layout and graphics correctness, no accelerated graphic"
   },
   {
     "id": 56,
     "job_group": 2,
     "symbol": "JP",
     "name": "Jetpack SDK Test",
-    "description": "Add-on SDK",
-    "active_status": "active"
+    "description": "Add-on SDK"
   },
   {
     "id": 57,
     "job_group": 2,
     "symbol": "Bd",
     "name": "AddressSanitizer Debug Build",
-    "description": "Debug build using ASan, a memory error detector",
-    "active_status": "active"
+    "description": "Debug build using ASan, a memory error detector"
   },
   {
     "id": 58,
     "job_group": 2,
     "symbol": "Gu",
     "name": "Gaia UI Test",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 59,
     "job_group": 8,
     "symbol": "S4",
     "name": "Android x86 Test Set",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 60,
     "job_group": 9,
     "symbol": "M-e10s",
     "name": "Mochitest e10s",
-    "description": "multiprocess - integration test",
-    "active_status": "active"
+    "description": "multiprocess - integration test"
   },
   {
     "id": 61,
     "job_group": 5,
     "symbol": "J4",
     "name": "JSReftest",
-    "description": "JavaScript correctness",
-    "active_status": "active"
+    "description": "JavaScript correctness"
   },
   {
     "id": 62,
     "job_group": 2,
     "symbol": "Mn",
     "name": "Marionette Framework Unit Tests",
-    "description": "Check UI or the internal JavaScript using marionette",
-    "active_status": "active"
+    "description": "Check UI or the internal JavaScript using marionette"
   },
   {
     "id": 63,
     "job_group": 2,
     "symbol": "S",
     "name": "Static Checking Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 64,
     "job_group": 2,
     "symbol": "Bn",
     "name": "Non-Unified Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 65,
     "job_group": 10,
     "symbol": "B",
     "name": "Wasabi Device Image Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 66,
     "job_group": 7,
     "symbol": "B",
     "name": "Flame Device Image Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 67,
     "job_group": 2,
     "symbol": "?",
     "name": "unknown",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 68,
     "job_group": 1,
     "symbol": "B",
     "name": "Hamachi Device Image Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 69,
     "job_group": 11,
     "symbol": "Be",
     "name": "Nexus 4 Device Image Build (Engineering)",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 70,
     "job_group": 11,
     "symbol": "B",
     "name": "Nexus 4 Device Image Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 71,
     "job_group": 6,
     "symbol": "cm",
     "name": "Talos canvasmark",
-    "description": "Run third-party CanvasMark benchmark suite",
-    "active_status": "active"
+    "description": "Run third-party CanvasMark benchmark suite"
   },
   {
     "id": 72,
     "job_group": 5,
     "symbol": "J5",
     "name": "JSReftest",
-    "description": "JavaScript correctness",
-    "active_status": "active"
+    "description": "JavaScript correctness"
   },
   {
     "id": 73,
     "job_group": 5,
     "symbol": "J6",
     "name": "JSReftest",
-    "description": "JavaScript correctness",
-    "active_status": "active"
+    "description": "JavaScript correctness"
   },
   {
     "id": 74,
     "job_group": 5,
     "symbol": "R9",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 75,
     "job_group": 5,
     "symbol": "R10",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 76,
     "job_group": 5,
     "symbol": "R11",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 77,
     "job_group": 5,
     "symbol": "R12",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 78,
     "job_group": 5,
     "symbol": "R13",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 79,
     "job_group": 5,
     "symbol": "R14",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 80,
     "job_group": 5,
     "symbol": "R15",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 81,
     "job_group": 5,
     "symbol": "R16",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 82,
     "job_group": 5,
     "symbol": "C1",
     "name": "Crashtest",
-    "description": "Check if crashes on a page",
-    "active_status": "active"
+    "description": "Check if crashes on a page"
   },
   {
     "id": 83,
     "job_group": 5,
     "symbol": "C2",
     "name": "Crashtest",
-    "description": "Check if crashes on a page",
-    "active_status": "active"
+    "description": "Check if crashes on a page"
   },
   {
     "id": 84,
     "job_group": 6,
     "symbol": "x",
     "name": "Talos xperf",
-    "description": "Run IO counters for Windows in order to track files open during startup",
-    "active_status": "active"
+    "description": "Run IO counters for Windows in order to track files open during startup"
   },
   {
     "id": 85,
     "job_group": 1,
     "symbol": "N",
     "name": "Hamachi Device Image Nightly",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 86,
     "job_group": 4,
     "symbol": "11",
     "name": "Mochitest",
-    "description": "integration test",
-    "active_status": "active"
+    "description": "integration test"
   },
   {
     "id": 87,
     "job_group": 5,
     "symbol": "R20",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 88,
     "job_group": 4,
     "symbol": "10",
     "name": "Mochitest",
-    "description": "integration test",
-    "active_status": "active"
+    "description": "integration test"
   },
   {
     "id": 89,
     "job_group": 4,
     "symbol": "9",
     "name": "Mochitest",
-    "description": "integration test",
-    "active_status": "active"
+    "description": "integration test"
   },
   {
     "id": 90,
     "job_group": 4,
     "symbol": "13",
     "name": "Mochitest",
-    "description": "integration test",
-    "active_status": "active"
+    "description": "integration test"
   },
   {
     "id": 91,
     "job_group": 4,
     "symbol": "15",
     "name": "Mochitest",
-    "description": "integration test",
-    "active_status": "active"
+    "description": "integration test"
   },
   {
     "id": 92,
     "job_group": 4,
     "symbol": "12",
     "name": "Mochitest",
-    "description": "integration test",
-    "active_status": "active"
+    "description": "integration test"
   },
   {
     "id": 93,
     "job_group": 4,
     "symbol": "14",
     "name": "Mochitest",
-    "description": "integration test",
-    "active_status": "active"
+    "description": "integration test"
   },
   {
     "id": 94,
     "job_group": 2,
     "symbol": "Gi",
     "name": "Gaia Integration Test",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 95,
     "job_group": 5,
     "symbol": "R17",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 96,
     "job_group": 12,
     "symbol": "B",
     "name": "Helix Device Image Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 97,
     "job_group": 2,
     "symbol": "Li",
     "name": "Linter Test",
-    "description": "coding style compliance",
-    "active_status": "active"
+    "description": "coding style compliance"
   },
   {
     "id": 98,
     "job_group": 2,
     "symbol": "G",
     "name": "Gaia Unit Test",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 99,
     "job_group": 2,
     "symbol": "Gb",
     "name": "Gaia Build Test",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 100,
     "job_group": 4,
     "symbol": "?",
     "name": "Mochitest",
-    "description": "integration test",
-    "active_status": "active"
+    "description": "integration test"
   },
   {
     "id": 101,
     "job_group": 5,
     "symbol": "Cipc",
     "name": "Crashtest IPC",
-    "description": "layout and graphics correctness, separate process",
-    "active_status": "active"
+    "description": "layout and graphics correctness, separate process"
   },
   {
     "id": 102,
     "job_group": 5,
     "symbol": "Ripc",
     "name": "Reftest IPC",
-    "description": "layout and graphics correctness, separate process",
-    "active_status": "active"
+    "description": "layout and graphics correctness, separate process"
   },
   {
     "id": 103,
     "job_group": 5,
     "symbol": "R18",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 104,
     "job_group": 5,
     "symbol": "R19",
     "name": "Reftest",
-    "description": "layout and graphics correctness",
-    "active_status": "active"
+    "description": "layout and graphics correctness"
   },
   {
     "id": 105,
     "job_group": 5,
     "symbol": "C3",
     "name": "Crashtest",
-    "description": "Check if crashes on a page",
-    "active_status": "active"
+    "description": "Check if crashes on a page"
   },
   {
     "id": 106,
     "job_group": 2,
     "symbol": "Mnw",
     "name": "Marionette WebAPI Tests",
-    "description": "test WebAPIs using marionette",
-    "active_status": "active"
+    "description": "test WebAPIs using marionette"
   },
   {
     "id": 107,
     "job_group": 13,
     "symbol": "Be",
     "name": "Unknown B2G Device Image Build (Engineering)",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 108,
     "job_group": 3,
     "symbol": "r",
     "name": "SpiderMonkey Root Analysis Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 109,
     "job_group": 5,
     "symbol": "Ro",
     "name": "Reftest OMTC",
-    "description": "layout and graphics correctness, Off Main Thread Compositing",
-    "active_status": "active"
+    "description": "layout and graphics correctness, Off Main Thread Compositing"
   },
   {
     "id": 110,
     "job_group": 2,
     "symbol": "W",
     "name": "W3C Web Platform Tests",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 111,
     "job_group": 2,
     "symbol": "Mb",
     "name": "Mozbase Unit Tests",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 112,
     "job_group": 8,
     "symbol": "S1",
     "name": "Android x86 Test Set",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 113,
     "job_group": 8,
     "symbol": "S3",
     "name": "Android x86 Test Set",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 114,
     "job_group": 8,
     "symbol": "S2",
     "name": "Android x86 Test Set",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 115,
     "job_group": 3,
     "symbol": "ggc",
     "name": "SpiderMonkey GGC Shell Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 116,
     "job_group": 2,
     "symbol": "N",
     "name": "B2G Emulator Image Nightly",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 117,
     "job_group": 3,
     "symbol": "e",
     "name": "SpiderMonkey Fail-On-Warnings Build",
-    "description": "SpiderMonkey build, fail on the first warning found\r\n",
-    "active_status": "active"
+    "description": "SpiderMonkey build, fail on the first warning found\r\n"
   },
   {
     "id": 118,
     "job_group": 13,
     "symbol": "B",
     "name": "Unknown B2G Device Image Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 119,
     "job_group": 7,
     "symbol": "N",
     "name": "Flame Device Image Nightly",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 120,
     "job_group": 7,
     "symbol": "Ne",
     "name": "Flame Device Image Nightly (Engineering)",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 121,
     "job_group": 1,
     "symbol": "Ne",
     "name": "Hamachi Device Image Nightly (Engineering)",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 122,
     "job_group": 12,
     "symbol": "N",
     "name": "Helix Device Image Nightly",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 123,
     "job_group": 2,
     "symbol": "N",
     "name": "Nightly",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 124,
     "job_group": 14,
     "symbol": "N",
     "name": "L10n Nightly",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 125,
     "job_group": 11,
     "symbol": "N",
     "name": "Nexus 4 Device Image Nightly",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 126,
     "job_group": 10,
     "symbol": "N",
     "name": "Wasabi Device Image Nightly",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 127,
     "job_group": 13,
     "symbol": "N",
     "name": "Unknown B2G Device Image Nightly",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 128,
     "job_group": 13,
     "symbol": "Ne",
     "name": "Unknown B2G Device Image Nightly (Engineering)",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 129,
     "job_group": 11,
     "symbol": "Ne",
     "name": "Nexus 4 Device Image Nightly (Engineering)",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 130,
     "job_group": 2,
     "symbol": "Xr",
     "name": "XULRunner Nightly",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 131,
     "job_group": 2,
     "symbol": "Nd",
     "name": "AddressSanitizer Debug Nightly",
-    "description": "Debug build using ASan, a memory error detector",
-    "active_status": "active"
+    "description": "Debug build using ASan, a memory error detector"
   },
   {
     "id": 132,
     "job_group": 2,
     "symbol": "No",
     "name": "AddressSanitizer Opt Nightly",
-    "description": "Optimized build using ASan, a memory error detector",
-    "active_status": "active"
+    "description": "Optimized build using ASan, a memory error detector"
   },
   {
     "id": 133,
     "job_group": 4,
     "symbol": "bc",
     "name": "Mochitest Browser Chrome",
-    "description": "integration test with a standard browser",
-    "active_status": "active"
+    "description": "integration test with a standard browser"
   },
   {
     "id": 134,
     "job_group": 3,
     "symbol": "Hs",
     "name": "Static Rooting Hazard Analysis, JS Shell",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 135,
     "job_group": 3,
     "symbol": "exr",
     "name": "SpiderMonkey Exact Rooting Shell Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 136,
     "job_group": 2,
     "symbol": "Bn",
     "name": "B2G Emulator Image Non-Unified Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 137,
     "job_group": 15,
     "symbol": "M-oop",
     "name": "Mochitest OOP",
-    "description": "integration test, b2g out-of-process",
-    "active_status": "active"
+    "description": "integration test, b2g out-of-process"
   },
   {
     "id": 138,
     "job_group": 16,
     "symbol": "R-oop",
     "name": "Reftest Sanity OOP",
-    "description": "layout and graphics correctness, b2g out-of-process",
-    "active_status": "active"
+    "description": "layout and graphics correctness, b2g out-of-process"
   },
   {
     "id": 139,
     "job_group": 2,
     "symbol": "V",
     "name": "Valgrind Build",
-    "description": "memory-related errors",
-    "active_status": "active"
+    "description": "memory-related errors"
   },
   {
     "id": 140,
     "job_group": 4,
     "symbol": "wc",
     "name": "Webapprt Chrome",
-    "description": "Web App Runtime with the browser chrome",
-    "active_status": "active"
+    "description": "Web App Runtime with the browser chrome"
   },
   {
     "id": 141,
     "job_group": 2,
     "symbol": "Wr",
     "name": "W3C Web Platform Reftests",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 142,
     "job_group": 17,
     "symbol": "B",
     "name": "Dolphin Device Image Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 143,
     "job_group": 17,
     "symbol": "Be",
     "name": "Dolphin Device Image Build (Engineering)",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 144,
     "job_group": 17,
     "symbol": "N",
     "name": "Dolphin Device Image Nightly",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 145,
     "job_group": 17,
     "symbol": "Ne",
     "name": "Dolphin Device Image Nightly (Engineering)",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 146,
     "job_group": 6,
     "symbol": "g1",
     "name": "Talos g1",
-    "description": "performance testing framework",
-    "active_status": "active"
+    "description": "performance testing framework"
   },
   {
     "id": 147,
     "job_group": 2,
     "symbol": "Jit1",
     "name": "JIT Tests",
-    "description": "Just-In-time feature",
-    "active_status": "active"
+    "description": "Just-In-time feature"
   },
   {
     "id": 148,
     "job_group": 2,
     "symbol": "Jit2",
     "name": "JIT Tests",
-    "description": "Just-In-time feature",
-    "active_status": "active"
+    "description": "Just-In-time feature"
   },
   {
     "id": 149,
     "job_group": 4,
     "symbol": "dt1",
     "name": "Mochitest DevTools Browser Chrome",
-    "description": "integration test with some XUL",
-    "active_status": "active"
+    "description": "integration test with some XUL"
   },
   {
     "id": 150,
     "job_group": 4,
     "symbol": "dt2",
     "name": "Mochitest DevTools Browser Chrome",
-    "description": "integration test with some XUL",
-    "active_status": "active"
+    "description": "integration test with some XUL"
   },
   {
     "id": 151,
     "job_group": 4,
     "symbol": "dt3",
     "name": "Mochitest DevTools Browser Chrome",
-    "description": "integration test with some XUL",
-    "active_status": "active"
+    "description": "integration test with some XUL"
   },
   {
     "id": 152,
     "job_group": 9,
     "symbol": "1",
     "name": "Mochitest e10s",
-    "description": "multiprocess - integration tests",
-    "active_status": "active"
+    "description": "multiprocess - integration tests"
   },
   {
     "id": 153,
     "job_group": 9,
     "symbol": "4",
     "name": "Mochitest e10s",
-    "description": "multiprocess - integration tests",
-    "active_status": "active"
+    "description": "multiprocess - integration tests"
   },
   {
     "id": 154,
     "job_group": 9,
     "symbol": "3",
     "name": "Mochitest e10s",
-    "description": "multiprocess - integration tests",
-    "active_status": "active"
+    "description": "multiprocess - integration tests"
   },
   {
     "id": 155,
     "job_group": 9,
     "symbol": "2",
     "name": "Mochitest e10s",
-    "description": "multiprocess - integration tests",
-    "active_status": "active"
+    "description": "multiprocess - integration tests"
   },
   {
     "id": 156,
     "job_group": 9,
     "symbol": "5",
     "name": "Mochitest e10s",
-    "description": "multiprocess - integration tests",
-    "active_status": "active"
+    "description": "multiprocess - integration tests"
   },
   {
     "id": 157,
     "job_group": 2,
     "symbol": "Gu-oop",
     "name": "Gaia UI Test OOP",
-    "description": "B2G user interface integration test, b2g out-of-process",
-    "active_status": "active"
+    "description": "B2G user interface integration test, b2g out-of-process"
   },
   {
     "id": 158,
     "job_group": 2,
     "symbol": "G-oop",
     "name": "Gaia Unit Test OOP",
-    "description": "B2G user interface unit test, b2g out-of-process",
-    "active_status": "active"
+    "description": "B2G user interface unit test, b2g out-of-process"
   },
   {
     "id": 159,
     "job_group": 4,
     "symbol": "16",
     "name": "Mochitest",
-    "description": "integration tests",
-    "active_status": "active"
+    "description": "integration tests"
   },
   {
     "id": 160,
     "job_group": 2,
     "symbol": "Gbu",
     "name": "Gaia Build Unit Test",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 161,
     "job_group": 18,
     "symbol": "Rs-oop",
     "name": "Reftest Sanity OOP",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 162,
     "job_group": 2,
     "symbol": "Gip",
     "name": "Gaia Python Integration Test",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 163,
     "job_group": 5,
     "symbol": "Rs",
     "name": "Reftest Sanity",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 164,
     "job_group": 2,
     "symbol": "Gij",
     "name": "Gaia JS Integration Test",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 165,
     "job_group": 2,
     "symbol": "H",
     "name": "Hazard Analysis Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 166,
     "job_group": 15,
     "symbol": "M-oop1",
     "name": "Mochitest OOP",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 167,
     "job_group": 2,
     "symbol": "X3",
     "name": "XPCShell",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 168,
     "job_group": 2,
     "symbol": "Gu",
     "name": "Gaia Unit Test",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 169,
     "job_group": 2,
     "symbol": "X1",
     "name": "XPCShell",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 170,
     "job_group": 2,
     "symbol": "W3",
     "name": "W3C Web Platform Tests",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 171,
     "job_group": 19,
     "symbol": "B",
     "name": "Flame KitKat Device Image Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 172,
     "job_group": 19,
     "symbol": "Be",
     "name": "Flame KitKat Device Image Build (Engineering)",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 173,
     "job_group": 2,
     "symbol": "X2",
     "name": "XPCShell",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 174,
     "job_group": 2,
     "symbol": "W4",
     "name": "W3C Web Platform Tests",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 175,
     "job_group": 2,
     "symbol": "W1",
     "name": "W3C Web Platform Tests",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 176,
     "job_group": 2,
     "symbol": "W2",
     "name": "W3C Web Platform Tests",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 177,
     "job_group": 9,
     "symbol": "bc1",
     "name": "Mochitest e10s Browser Chrome",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 178,
     "job_group": 9,
     "symbol": "bc2",
     "name": "Mochitest e10s Browser Chrome",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 179,
     "job_group": 9,
     "symbol": "bc3",
     "name": "Mochitest e10s Browser Chrome",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 180,
     "job_group": 14,
     "symbol": "N4",
     "name": "L10n Nightly",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 181,
     "job_group": 14,
     "symbol": "N5",
     "name": "L10n Nightly",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 182,
     "job_group": 14,
     "symbol": "N3",
     "name": "L10n Nightly",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 183,
     "job_group": 14,
     "symbol": "N2",
     "name": "L10n Nightly",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 184,
     "job_group": 14,
     "symbol": "N1",
     "name": "L10n Nightly",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 185,
     "job_group": 3,
     "symbol": "H",
     "name": "SpiderMonkey Hazard Analysis Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 186,
     "job_group": 15,
     "symbol": "1",
     "name": "Mochitest OOP",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 187,
     "job_group": 2,
     "symbol": "Gip-oop",
     "name": "Gaia Python Integration Test OOP",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 188,
     "job_group": 2,
     "symbol": "Gu-oop",
     "name": "Gaia Unit Test OOP",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 189,
     "job_group": 4,
     "symbol": "M",
     "name": "Mochitest",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 190,
     "job_group": 19,
     "symbol": "Ne",
     "name": "Flame KitKat Device Image Nightly (Engineering)",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 191,
     "job_group": 19,
     "symbol": "N",
     "name": "Flame KitKat Device Image Nightly",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 192,
     "job_group": 2,
     "symbol": "Z",
     "name": "Mozmill",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 193,
     "job_group": 21,
     "symbol": "Ne",
     "name": "Tarako Device Image Nightly (Engineering)",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 194,
     "job_group": 21,
     "symbol": "N",
     "name": "Tarako Device Image Nightly",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 195,
     "job_group": 4,
     "symbol": "JP",
     "name": "Mochitest Jetpack",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 196,
     "job_group": 22,
     "symbol": "Gip",
     "name": "Gaia Python Integration Tests",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 197,
     "job_group": 24,
     "symbol": "1",
     "name": "W3C Web Platform Tests",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 198,
     "job_group": 24,
     "symbol": "2",
     "name": "W3C Web Platform Tests",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 199,
     "job_group": 24,
     "symbol": "3",
     "name": "W3C Web Platform Tests",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 200,
     "job_group": 24,
     "symbol": "4",
     "name": "W3C Web Platform Tests",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 201,
     "job_group": 25,
     "symbol": "Ba",
     "name": "Android Instrumentation Background",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 202,
     "job_group": 25,
     "symbol": "Br",
     "name": "Android Instrumentation Browser",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 203,
     "job_group": 23,
     "symbol": "1",
     "name": "Gaia JS Integration Test",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 204,
     "job_group": 23,
     "symbol": "2",
     "name": "Gaia JS Integration Test",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 205,
     "job_group": 23,
     "symbol": "3",
     "name": "Gaia JS Integration Test",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 206,
     "job_group": 23,
     "symbol": "4",
     "name": "Gaia JS Integration Test",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 207,
     "job_group": 22,
     "symbol": "f1",
     "name": "Gaia Python Functional Integration Tests",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 208,
     "job_group": 22,
     "symbol": "f2",
     "name": "Gaia Python Functional Integration Tests",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 209,
     "job_group": 22,
     "symbol": "f3",
     "name": "Gaia Python Functional Integration Tests",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 210,
     "job_group": 22,
     "symbol": "u",
     "name": "Gaia Python Integration Unit Tests",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 211,
     "job_group": 22,
     "symbol": "a",
     "name": "Gaia Python Accessibility Integration Tests",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 212,
     "job_group": 26,
     "symbol": "Gip-oop",
     "name": "Gaia Python Integration Tests OOP",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 213,
     "job_group": 27,
     "symbol": "s",
     "name": "Talos svg e10s",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 214,
     "job_group": 27,
     "symbol": "tp",
     "name": "Talos tp e10s",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 215,
     "job_group": 27,
     "symbol": "x",
     "name": "Talos xperf e10s",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 216,
     "job_group": 28,
     "symbol": "s",
     "name": "Autophone Smoketest",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 217,
     "job_group": 28,
     "symbol": "t",
     "name": "Autophone Throbber",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 218,
     "job_group": 28,
     "symbol": "w",
     "name": "Autophone Webappstartup",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 219,
     "job_group": 21,
     "symbol": "B",
     "name": "Tarako Device Image Build",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 220,
     "job_group": 21,
     "symbol": "Be",
     "name": "Tarako Device Image Build (Engineering)",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 221,
     "job_group": 4,
     "symbol": "18",
     "name": "Mochitest",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 222,
     "job_group": 4,
     "symbol": "17",
     "name": "Mochitest",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 223,
     "job_group": 4,
     "symbol": "20",
     "name": "Mochitest",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 224,
     "job_group": 4,
     "symbol": "19",
     "name": "Mochitest",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 225,
     "job_group": 19,
     "symbol": "Gip",
     "name": "Gaia Python Integration Test (Flame-KK)",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 226,
     "job_group": 27,
     "symbol": "o",
     "name": "Talos other e10s",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 227,
     "job_group": 27,
     "symbol": "c",
     "name": "Talos chrome e10s",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 228,
     "job_group": 27,
     "symbol": "d",
     "name": "Talos dromaeojs e10s",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 229,
     "job_group": 27,
     "symbol": "g1",
     "name": "Talos g1 e10s",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 230,
     "job_group": 7,
     "symbol": "Gip",
     "name": "Gaia Python Integration Test (flame)",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 231,
     "job_group": 29,
     "symbol": "1",
     "name": "Mochitest csb",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 232,
     "job_group": 29,
     "symbol": "2",
     "name": "Mochitest csb",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 233,
     "job_group": 29,
     "symbol": "3",
     "name": "Mochitest csb",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 234,
     "job_group": 29,
     "symbol": "4",
     "name": "Mochitest csb",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 235,
     "job_group": 29,
     "symbol": "5",
     "name": "Mochitest csb",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 236,
     "job_group": 9,
     "symbol": "dt",
     "name": "Mochitest e10s DevTools Browser Chrome",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 237,
     "job_group": 30,
     "symbol": "C",
     "name": "Crashtest e10s",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 238,
     "job_group": 30,
     "symbol": "R-e10s",
     "name": "Reftest e10s",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 239,
     "job_group": 4,
     "symbol": "rc7",
     "name": "Robocop",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 240,
     "job_group": 4,
     "symbol": "rc6",
     "name": "Robocop",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 241,
     "job_group": 4,
     "symbol": "gl1",
     "name": "Mochitest WebGL",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 242,
     "job_group": 4,
     "symbol": "gl2",
     "name": "Mochitest WebGL",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 243,
     "job_group": 31,
     "symbol": "GBI2",
     "name": "Gaia build tests 2",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 244,
     "job_group": 31,
     "symbol": "GBU",
     "name": "Gaia build tests",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 245,
     "job_group": 32,
     "symbol": "JSON",
     "name": "Gaia JSON Lint",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 246,
     "job_group": 31,
     "symbol": "GBI3",
     "name": "Gaia build tests 3",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 247,
     "job_group": 31,
     "symbol": "GBI1",
     "name": "Gaia build tests 1",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 248,
     "job_group": 32,
     "symbol": "CSS",
     "name": "Gaia CSS Lint",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 249,
     "job_group": 32,
     "symbol": "JSHint",
     "name": "Gaia JSHint",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 250,
     "job_group": 32,
     "symbol": "GJSLint",
     "name": "Gaia GJSLint",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 251,
     "job_group": 31,
     "symbol": "GBI4",
     "name": "Gaia build tests 4",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 252,
     "job_group": 23,
     "symbol": "5",
     "name": "Gaia JS Integration Test",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 253,
     "job_group": 23,
     "symbol": "10",
     "name": "Gaia JS Integration Test",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 254,
     "job_group": 23,
     "symbol": "6",
     "name": "Gaia JS Integration Test",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 255,
     "job_group": 23,
     "symbol": "8",
     "name": "Gaia JS Integration Test",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 256,
     "job_group": 23,
     "symbol": "9",
     "name": "Gaia JS Integration Test",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   },
   {
     "id": 257,
     "job_group": 23,
     "symbol": "7",
     "name": "Gaia JS Integration Test",
-    "description": "",
-    "active_status": "active"
+    "description": ""
   }
 ]

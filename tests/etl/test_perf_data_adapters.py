@@ -30,10 +30,7 @@ def perf_platform():
     return MachinePlatform.objects.get_or_create(
         os_name="my_os",
         platform="my_platform",
-        architecture="x86",
-        defaults={
-            'active_status': "active"
-        })[0]
+        architecture="x86")[0]
 
 
 @pytest.fixture

@@ -36,9 +36,6 @@ SOURCES_CACHE_KEY = "treeherder-datasources"
 
 SQL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sql')
 
-ACTIVE_STATUS_LIST = ['active', 'onhold', 'deleted']
-ACTIVE_STATUS_CHOICES = zip(ACTIVE_STATUS_LIST, ACTIVE_STATUS_LIST,)
-
 
 @python_2_unicode_compatible
 class NamedModel(models.Model):
@@ -63,7 +60,6 @@ class BuildPlatform(models.Model):
     os_name = models.CharField(max_length=25, db_index=True)
     platform = models.CharField(max_length=100, db_index=True)
     architecture = models.CharField(max_length=25, blank=True, db_index=True)
-    active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'build_platform'
@@ -116,7 +112,6 @@ class MachinePlatform(models.Model):
     os_name = models.CharField(max_length=25, db_index=True)
     platform = models.CharField(max_length=100, db_index=True)
     architecture = models.CharField(max_length=25, blank=True, db_index=True)
-    active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'machine_platform'
@@ -351,7 +346,6 @@ class JobGroup(models.Model):
     symbol = models.CharField(max_length=10, default='?', db_index=True)
     name = models.CharField(max_length=100, db_index=True)
     description = models.TextField(blank=True)
-    active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'job_group'
@@ -392,7 +386,6 @@ class JobType(models.Model):
     symbol = models.CharField(max_length=10, default='?', db_index=True)
     name = models.CharField(max_length=100, db_index=True)
     description = models.TextField(blank=True)
-    active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
 
     class Meta:
         db_table = 'job_type'

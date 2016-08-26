@@ -492,8 +492,7 @@ def test_perf_signature(test_repository, test_perf_framework):
     platform = MachinePlatform.objects.create(
         os_name='win',
         platform='win7',
-        architecture='x86',
-        active_status='active')
+        architecture='x86')
 
     signature = PerformanceSignature.objects.create(
         repository=test_repository,
