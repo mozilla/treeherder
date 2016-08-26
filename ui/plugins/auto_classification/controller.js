@@ -925,16 +925,6 @@ treeherder.controller('ClassificationPluginCtrl', [
             return rv;
         }
 
-        function mapObject(object, mapFunc) {
-            var rv = {};
-            for (var p in object) {
-                if (object.hasOwnProperty(p)) {
-                    rv[p] = mapFunc(object[p], p);
-                }
-            }
-            return rv;
-        }
-
         $scope.pendingLines = function() {
             return _.filter($scope.failureLines,
                             function(line) {
@@ -965,13 +955,18 @@ treeherder.controller('ClassificationPluginCtrl', [
             var byType = partitionByType(pending);
             var types = {"unstructured": ThUnstructuredLine,
                          "structured": ThStructuredLine};
-            var savePromises = mapObject(byType, function(val, key) {
-                return types[key].saveAll(val);
+            var savePromises = ["unstructured", "structured"]
+                    .filter(function(x) {return byType.hasOwnProperty(x);})
+                    .map(function(x) {return types[x].saveAll(byType[x]);});
+
+            savePromises
+            // Convert the array of promises into a chain
+                .reduce(function (prev, cur) {
+                    return prev.then(cur);
+                }, $q.resolve())
+            .then(function() {
+                thTabs.tabs.autoClassification.update();
             });
-            $q.all(savePromises)
-                .then(function() {
-                    thTabs.tabs.autoClassification.update();
-                });
         };
 
         $scope.canIgnore = function() {
