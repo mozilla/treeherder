@@ -175,13 +175,13 @@ treeherderApp.controller('ResultSetCtrl', [
             $rootScope.$emit(thEvents.deleteRunnableJobs, $scope.resultset);
         };
 
-        $scope.getCancelJobsTitle = function() {
+        $scope.getCancelJobsTitle = function(revision) {
             if (!$scope.user || !$scope.user.loggedin) {
                 return "Must be logged in to cancel jobs";
             }
             var job = ThResultSetStore.getSelectedJob($scope.repoName).job;
             var singleJobSelected = job instanceof ThJobModel;
-            if (singleJobSelected) {
+            if (singleJobSelected && job.revision === revision) {
                 if ($scope.canCancelJobs()) {
                     return "Cancel selected job";
                 }
@@ -190,13 +190,13 @@ treeherderApp.controller('ResultSetCtrl', [
             return "Cancel all jobs";
         };
 
-        $scope.canCancelJobs = function() {
+        $scope.canCancelJobs = function(revision) {
             if (!$scope.user || !$scope.user.loggedin) {
                 return false;
             }
             var job = ThResultSetStore.getSelectedJob($scope.repoName).job;
             var singleJobSelected = job instanceof ThJobModel;
-            if (singleJobSelected) {
+            if (singleJobSelected && job.revision === revision) {
                 // Check whether the job can be cancelled
                 return job.state === "pending" || job.state === "running";
             }
@@ -209,7 +209,7 @@ treeherderApp.controller('ResultSetCtrl', [
                 return;
             }
             var job = ThResultSetStore.getSelectedJob($scope.repoName).job;
-            var singleJobSelected = job instanceof ThJobModel;
+            var singleJobSelected = job instanceof ThJobModel && job.revision === revision;
             var message = singleJobSelected ?
                           'This will cancel the selected job. !\n\nClick "OK" if you\'re sure.':
                           'This will cancel all pending and running jobs for revision ' + revision + '!\n\nClick "OK" if you\'re sure.';
