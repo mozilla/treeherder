@@ -1030,4 +1030,31 @@
         "repository_group": 7,
         "description": "Example add-on repository for templates and best practices."
     }
-}]
+},
+{
+    "pk": 82,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "stylo",
+        "url": "https://hg.mozilla.org/incubator/stylo",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 1,
+        "description": "Testing Servo integration with Gecko"
+    }
+},
+{
+    "pk": 83,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "stylo-try",
+        "url": "https://hg.mozilla.org/incubator/stylo-try",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 1,
+        "description": "Try repo for Servo integration"
+    }
+}
+]
