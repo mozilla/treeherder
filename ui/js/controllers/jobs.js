@@ -98,8 +98,6 @@ treeherderApp.controller('ResultSetCtrl', [
         thBuildApi, thPinboard, ThResultSetModel, dateFilter, ThModelErrors, ThJobModel,
         ThJobArtifactModel) {
 
-        var $log = new ThLog(this.constructor.name);
-
         $scope.getCountClass = function(resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
         };
@@ -109,24 +107,6 @@ treeherderApp.controller('ResultSetCtrl', [
         $scope.viewJob = function(job) {
             // set the selected job
             $rootScope.selectedJob = job;
-        };
-        $scope.viewLog = function(job_uri) {
-            // open the logviewer for this job in a new window
-            // currently, invoked by right-clicking a job.
-
-            $http.get(thServiceDomain + job_uri).
-                success(function(data) {
-                    if (data.hasOwnProperty("artifacts")) {
-                        data.artifacts.forEach(function(artifact) {
-                            if (artifact.name === "text_log_summary") {
-                                window.open(thUrl.getLogViewerUrl(artifact.id));
-                            }
-                        });
-                    } else {
-                        $log.warn("Job had no artifacts: " + job_uri);
-                    }
-                });
-
         };
 
         $scope.toggleRevisions = function() {
@@ -317,10 +297,5 @@ treeherderApp.controller('ResultSetCtrl', [
         $scope.authorResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
             $scope.repoName + "&author=" +
             encodeURIComponent($scope.resultset.author);
-
-        $rootScope.$on(thEvents.jobContextMenu, function(){
-            $log.debug("caught", thEvents.jobContextMenu);
-            //$scope.viewLog(job.resource_uri);
-        });
     }
 ]);
