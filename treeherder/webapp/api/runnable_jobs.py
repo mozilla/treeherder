@@ -19,7 +19,7 @@ class RunnableJobsViewSet(viewsets.ViewSet):
         """
         GET method implementation for list of all runnable buildbot jobs
         """
-        decision_task_id = request.query_params.get('decisionTaskID')
+        decision_task_id = request.query_params.get('decision_task_id')
         if decision_task_id:
             tc_graph_url = settings.TASKCLUSTER_TASKGRAPH_URL.format(task_id=decision_task_id)
             tc_graph = None
