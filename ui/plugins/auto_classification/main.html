@@ -92,7 +92,7 @@
             <a href="{{::getBugUrl(line.verifiedBugNumber) }}"
                target="_blank">Bug {{ ::line.verifiedBugNumber }} -
               <span ng-if="line.verifiedBugSummary"
-                    ng-bind-html="line.verifiedBugSummary | escapeHTML | highlightCommonTerms:line.test:line.data.subtest:line.data.status:line.status.expected"></span>
+                    ng-bind-html="line.verifiedBugSummary | escapeHTML | highlightCommonTerms:line.test:line.data.subtest:line.data.status:line.status.expected:line.data.message"></span>
             </a>
           </span>
         </div>
@@ -121,7 +121,7 @@
                   <a href="{{::getBugUrl(option.bugNumber) }}"
                      target="_blank">Bug {{::option.bugNumber}} -
                     <span ng-if="line.type === 'structured'"
-                          ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:line.data.test:line.data.subtest:line.data.status:line.data.expected"></span>
+                          ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:line.data.test:line.data.subtest:line.data.status:line.data.expected:line.data.message"></span>
                     <span ng-if="line.type === 'unstructured'"
                           ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:line.data.search_terms"></span>
                   </a>
