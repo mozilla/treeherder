@@ -210,13 +210,13 @@ class ResultSetViewSet(viewsets.ViewSet):
                             status=HTTP_404_NOT_FOUND)
 
         requested_jobs = request.data.get('requested_jobs', [])
-        decisionTaskID = request.data.get('decisionTaskID', [])
+        decision_task_id = request.data.get('decision_task_id', [])
         if not requested_jobs:
             Response({"message": "The list of requested_jobs cannot be empty"},
                      status=HTTP_400_BAD_REQUEST)
 
         publish_resultset_runnable_job_action.apply_async(
-            args=[project, pk, request.user.email, requested_jobs, decisionTaskID],
+            args=[project, pk, request.user.email, requested_jobs, decision_task_id],
             routing_key='publish_to_pulse'
         )
 
