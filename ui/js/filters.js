@@ -108,11 +108,6 @@ treeherder.filter('initials', function() {
     };
 });
 
-function inTag(str, index, start, end) {
-    var prePart = str.substr(0, index);
-    return prePart.split(start).length > prePart.split(end).length;
-}
-
 treeherder.filter('highlightCommonTerms', function() {
     return function(input) {
         var compareStr = Array.prototype.slice.call(arguments, 1).filter(
@@ -125,9 +120,6 @@ treeherder.filter('highlightCommonTerms', function() {
         angular.forEach(tokens, function(elem) {
             if (elem.length > 0) {
                 input = input.replace(new RegExp("(^|\\W)(" + elem + ")($|\\W)", "gi"), function(match, prefix, token, suffix, index, str) {
-                    if (inTag(str, index, "<", ">") || inTag(str, index, "&", ";")){
-                        return match;
-                    }
                     return prefix + "<strong>" + token + "</strong>" + suffix;
                 });
             }
