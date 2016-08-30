@@ -200,6 +200,7 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
             },
 
             saveAll: function(lines) {
+                console.log("ThStructuredLinePersist.saveAll");
                 var byType = _.partition(
                     lines,
                     function(line) {
@@ -312,6 +313,7 @@ treeherder.factory('ThUnstructuredLinePersist', [
             },
 
             saveAll: function(lines) {
+                console.log("ThUnstructuredLinePersist.saveAll");
                 var updateData = _.map(
                     lines,
                     function(line) {
@@ -815,6 +817,7 @@ treeherder.controller('ClassificationPluginCtrl', [
         };
 
         thTabs.tabs.autoClassification.update = function() {
+            console.log("thTabs.tabs.autoClassification.update");
             if (reloadPromise !== null) {
                 reloadPromise.cancel();
             }
@@ -937,6 +940,7 @@ treeherder.controller('ClassificationPluginCtrl', [
         };
 
         $scope.saveAll = function() {
+            console.log("$scope.saveAll");
             var pending = $scope.pendingLines();
             var byType = partitionByType(pending);
             var types = {"unstructured": ThUnstructuredLine,

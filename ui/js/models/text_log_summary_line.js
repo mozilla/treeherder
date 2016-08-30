@@ -15,6 +15,7 @@ treeherder.factory('ThTextLogSummaryLineModel', [
         };
 
         ThTextLogSummaryLineModel.prototype.update = function(bug_number) {
+            console.log("ThTextLogSummaryLineModel.update");
             var summary_line = this;
             summary_line.bug_number = bug_number;
             summary_line.verified = true;
@@ -24,6 +25,7 @@ treeherder.factory('ThTextLogSummaryLineModel', [
         };
 
         ThTextLogSummaryLineModel.updateMany = function(data) {
+            console.log("ThTextLogSummaryLineModel.updateMany");
             if (!data.length) {
                 return Promise.resolve();
             }
