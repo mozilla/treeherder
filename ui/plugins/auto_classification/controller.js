@@ -278,6 +278,7 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
                             }
                         })
                         .then(function () {
+                            console.log("before updateMany");
                             return ThClassifiedFailuresModel.updateMany(updateClassifications);
                         })
                         .then(function(resp) {
@@ -956,11 +957,16 @@ treeherder.controller('ClassificationPluginCtrl', [
                     .filter(function(x) {return byType.hasOwnProperty(x);})
                     .map(function(x) {return types[x].saveAll(byType[x]);});
 
-            savePromises
+            console.log(savePromises);
+            var save = savePromises
                 // Convert the array of promises into a chain
                 .reduce(function (prev, cur) {
+                    console.log(prev);
+                    console.log(cur);
                     return prev.then(cur);
-                }, $q.resolve())
+                }, $q.resolve());
+            console.log(save);
+            save
                 .then(function() {
                     console.log("notify");
                     thNotify.send("Classification saved", "success");
