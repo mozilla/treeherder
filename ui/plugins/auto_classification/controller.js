@@ -278,7 +278,7 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
                             }
                         })
                         .then(function () {
-                            ThClassifiedFailuresModel.updateMany(updateClassifications);
+                            return ThClassifiedFailuresModel.updateMany(updateClassifications);
                         })
                         .then(function(resp) {
                             console.log("after updateMany");
