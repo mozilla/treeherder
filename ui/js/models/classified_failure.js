@@ -72,7 +72,7 @@ treeherder.factory('ThClassifiedFailuresModel', [
 
         ThClassifiedFailuresModel.updateMany = function(data) {
             if (!data.length) {
-                return Promise.resolve();
+                return $q.resolve();
             }
             return $http.put(ThClassifiedFailuresModel.get_url(), data);
         };
