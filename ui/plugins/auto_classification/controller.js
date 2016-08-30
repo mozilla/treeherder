@@ -270,21 +270,22 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
                               }));
                 }
 
-                var setupClassifiedFailures = $q.all(
-                    [ThClassifiedFailuresModel.createMany(newClassifications)
-                     .then(function(resp) {
-                         console.log("after createMany");
-                         if (resp) {
-                             updateBestClassifications(createFromBug, resp.data);
-                         }
-                     }),
-                     ThClassifiedFailuresModel.updateMany(updateClassifications)
-                     .then(function(resp) {
-                         console.log("after updateMany");
-                         if (resp) {
-                             updateBestClassifications(autoclassifiedCreateBug, resp.data);
-                         }
-                     })]);
+                var setupClassifiedFailures = ThClassifiedFailuresModel.createMany(newClassifications)
+                        .then(function(resp) {
+                            console.log("after createMany");
+                            if (resp) {
+                                updateBestClassifications(createFromBug, resp.data);
+                            }
+                        })
+                        .then(function () {
+                            ThClassifiedFailuresModel.updateMany(updateClassifications);
+                        })
+                        .then(function(resp) {
+                            console.log("after updateMany");
+                            if (resp) {
+                                updateBestClassifications(autoclassifiedCreateBug, resp.data);
+                            }
+                        });
 
                 return setupClassifiedFailures
                     .then(function() {
