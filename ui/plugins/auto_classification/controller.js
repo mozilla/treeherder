@@ -961,14 +961,14 @@ treeherder.controller('ClassificationPluginCtrl', [
                     .map(function(x) {return types[x].saveAll(byType[x]);});
 
             console.log(savePromises);
-            var save = savePromises
-                // Convert the array of promises into a chain
-                .reduce(function (prev, cur) {
-                    console.log(prev);
-                    console.log(cur);
-                    return prev.then(cur);
-                }, $q.resolve());
-            console.log(save);
+            var save = $q(function (resolve) {
+                setTimeout(resolve(savePromises
+                  // Convert the array of promises into a chain
+                  .reduce(function (prev, cur) {
+                      return prev.then(cur);
+                  }, $q.resolve())), 0);
+            });
+
             save
                 .then(function() {
                     console.log("notify");
