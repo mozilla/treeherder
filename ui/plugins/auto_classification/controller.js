@@ -277,6 +277,7 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
                             if (resp) {
                                 updateBestClassifications(createFromBug, resp.data);
                             }
+                            return $q.defer();
                         })
                         .then(function () {
                             console.log("before updateMany");
@@ -287,6 +288,7 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
                             if (resp) {
                                 updateBestClassifications(autoclassifiedCreateBug, resp.data);
                             }
+                            return $q.defer();
                         });
 
                 return setupClassifiedFailures
