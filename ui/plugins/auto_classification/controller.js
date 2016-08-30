@@ -298,7 +298,10 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
                     })
                     .then(function() {
                         console.log("emit classificationVerified");
-                        $rootScope.$emit(thEvents.classificationVerified);
+                        $rootScope.$emit(thEvents.classificationVerified, "structured");
+                    })
+                    .catch(function(err) {
+                        $rootScope.$emit(thEvents.classificationError, "structured", err);
                     });
             }
         };
@@ -332,9 +335,12 @@ treeherder.factory('ThUnstructuredLinePersist', [
                                 bug_number: line.selectedOption.bugNumber,
                                 verified: true};
                     });
-                return ThTextLogSummaryLineModel.updateMany(updateData)
+                ThTextLogSummaryLineModel.updateMany(updateData)
                     .then(function() {
-                        $rootScope.$emit(thEvents.classificationVerified);
+                        $rootScope.$emit(thEvents.classificationVerified, "unstructured");
+                    })
+                    .catch(function(err) {
+                        $rootScope.$emit(thEvents.classificationError, "unstructured", err);
                     });
             }
         };
@@ -624,7 +630,7 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
         };
 
         ThStructuredLine.saveAll = function(lines) {
-            return ThStructuredLinePersist.saveAll(lines);
+            ThStructuredLinePersist.saveAll(lines);
         };
 
         return ThStructuredLine;
@@ -956,38 +962,69 @@ treeherder.controller('ClassificationPluginCtrl', [
             var byType = partitionByType(pending);
             var types = {"unstructured": ThUnstructuredLine,
                          "structured": ThStructuredLine};
-            var savePromises = ["unstructured", "structured"]
-                    .filter(function(x) {return byType.hasOwnProperty(x);})
+            var saveTypes = ["unstructured", "structured"]
+                    .filter(function(x) {return byType.hasOwnProperty(x);});
+            var savePromises = saveTypes
                     .map(function(x) {return types[x].saveAll(byType[x]);});
 
-            console.log(savePromises);
-            var save = $q(function (resolve) {
-                setTimeout(function() {
-                    resolve(savePromises
-                            // Convert the array of promises into a chain
-                            .reduce(function (prev, cur) {
-                                return prev.then(cur);
-                            }, $q.resolve()));
-                }, 0);
-            });
+            /*
+             Use a system of events to handle waiting for the
+             classifications to be saved before trying to update the
+             UI. A more obvious solution would seem to be something
+             like
 
-            save
-                .then(function() {
-                    console.log("notify");
+               $q.all(savePromises)
+                 .then(() => thNotify.send("Classification saved", "sucess"))
+                 .then(() => thTabs.tabs.autoClassification.update)
+
+             However it turns out that this doesn't work with angular
+             promises.  In particular it appears that promises which
+             do something actually asynchronous can't be chained
+             across scopes, so the above code will not wait for the
+             HTTP calls in savePromises to complete before running the
+             .then(() => thNotify.send(...)) call. Instead we hack a
+             one-off deferal mechanism using events.
+
+             When this code is rewritten, the design should be changed
+             to allow for this limitation without the hack.
+             */
+            var pendingTypes = new Set(saveTypes);
+
+            var errors = [];
+
+            function afterVerification() {
+                if (pendingTypes.size > 0) {
+                    return;
+                }
+                deregisterSuccess();
+                deregisterError();
+                if (!errors.length) {
                     thNotify.send("Classification saved", "success");
-                })
-                .then(function() {
-                    console.log("update");
-                    thTabs.tabs.autoClassification.update();
-                })
-                .catch(function(err) {
-                    var msg = "Error saving classifications:\n ";
-                    if (err.stack) {
-                        msg += err + err.stack;
-                    } else {
-                        msg += err.statusText + " - " + err.data.detail;
-                    }
-                    thNotify.send(msg, "danger");
+                } else {
+                    errors.map(function() {
+                        var msg = "Error saving classifications:\n ";
+                        if (err.stack) {
+                            msg += err + err.stack;
+                        } else {
+                            msg += err.statusText + " - " + err.data.detail;
+                        }
+                        thNotify.send(msg, "danger");
+                    });
+                }
+                thTabs.tabs.autoClassification.update();
+            };
+
+            var deregisterSuccess = $rootScope.$on(
+                thEvents.classificationVerified, function(evt, type) {
+                    pendingTypes.delete(type);
+                    afterVerification();
+                });
+
+            var deregisterError = $rootScope.$on(
+                thEvents.classificationError, function(evt, type, err) {
+                    pendingTypes.delete(type);
+                    errors.push(err);
+                    afterVerification();
                 });
         };
 
