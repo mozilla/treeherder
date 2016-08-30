@@ -273,20 +273,26 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
                 var setupClassifiedFailures = $q.all(
                     [ThClassifiedFailuresModel.createMany(newClassifications)
                      .then(function(resp) {
+                         console.log("after createMany");
                          if (resp) {
                              updateBestClassifications(createFromBug, resp.data);
                          }
                      }),
                      ThClassifiedFailuresModel.updateMany(updateClassifications)
                      .then(function(resp) {
+                         console.log("after updateMany");
                          if (resp) {
                              updateBestClassifications(autoclassifiedCreateBug, resp.data);
                          }
                      })]);
 
                 return setupClassifiedFailures
-                    .then(function() {return ThFailureLinesModel.verifyMany(bestClassifications);})
                     .then(function() {
+                        console.log("before verifyMany");
+                        return ThFailureLinesModel.verifyMany(bestClassifications);
+                    })
+                    .then(function() {
+                        console.log("emit classificationVerified");
                         $rootScope.$emit(thEvents.classificationVerified);
                     });
             }
@@ -955,9 +961,11 @@ treeherder.controller('ClassificationPluginCtrl', [
                     return prev.then(cur);
                 }, $q.resolve())
                 .then(function() {
+                    console.log("notify");
                     thNotify.send("Classification saved", "success");
                 })
                 .then(function() {
+                    console.log("update");
                     thTabs.tabs.autoClassification.update();
                 })
                 .catch(function(err) {
