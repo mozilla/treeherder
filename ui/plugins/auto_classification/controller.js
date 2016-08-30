@@ -270,7 +270,8 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
                               }));
                 }
 
-                var setupClassifiedFailures = ThClassifiedFailuresModel.createMany(newClassifications)
+                var setupClassifiedFailures =
+                        ThClassifiedFailuresModel.createMany(newClassifications)
                         .then(function(resp) {
                             console.log("after createMany");
                             if (resp) {
