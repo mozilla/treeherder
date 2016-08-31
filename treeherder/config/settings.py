@@ -546,6 +546,8 @@ if env.bool('IS_HEROKU', default=False):
         }
 
 # TREEHERDER_MEMCACHED is a string of comma-separated address:port pairs
+# NB: On Heroku this will be set to localhost, so that the connection
+# occurs via the stunnel established by memcachier-tls-buildpack.
 MEMCACHED_LOCATION = TREEHERDER_MEMCACHED.strip(',').split(',')
 
 CACHES = {
@@ -580,11 +582,20 @@ if server_supports_tls(BROKER_URL):
     BROKER_USE_SSL = True
 
 # This code handles the memcachier service on heroku.
+# TODO: Once no longer on SCL3, stop special-casing Heroku and use newer
+# best practices from https://www.memcachier.com/documentation#django.
 if env.bool('IS_HEROKU', default=False):
-    from memcacheify import memcacheify
-    CACHES['default'].update(
-        memcacheify().get('default')
-    )
+    # Prefs taken from:
+    # https://github.com/rdegges/django-heroku-memcacheify/blob/v1.0.0/memcacheify.py#L30-L39
+    CACHES['default'].update({
+        "BINARY": True,
+        "USERNAME": env('MEMCACHIER_USERNAME', default=None),
+        "PASSWORD": env('MEMCACHIER_PASSWORD', default=None),
+        "OPTIONS": {
+            "ketama": True,
+            "tcp_nodelay": True,
+        },
+    })
 
 CELERY_IGNORE_RESULT = True
 
