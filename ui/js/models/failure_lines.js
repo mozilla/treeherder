@@ -38,9 +38,7 @@ treeherder.factory('ThFailureLinesModel', [
 
         ThFailureLinesModel.verifyMany = function(data) {
             if (!data.length) {
-                var p = $q.defer();
-                p.resolve();
-                return p.promise;
+                return $q.resolve();
             }
             return $http.put(thUrl.getRootUrl("/failure-line/"), data);
         };
