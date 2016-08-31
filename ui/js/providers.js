@@ -228,6 +228,8 @@ treeherder.provider('thEvents', function() {
 
             classificationVerified: "classification-verified-EVT",
 
+            classificationError: "classification-error-EVT",
+
             saveAllAutoclassifications: "save-all-autoclassifications-EVT",
 
             ignoreOthersAutoclassifications: "ignore-others-autoclassifications-EVT"
