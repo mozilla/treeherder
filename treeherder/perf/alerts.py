@@ -102,6 +102,12 @@ def generate_new_alerts_in_series(signature):
                 if t_value == float('inf'):
                     t_value = 1000
 
+                type_name = signature.option_collection.option.name
+                title = signature.suite + " " + signature.test + " "
+                title = title + signature.platform.platform + " "
+                title = title + type_name
+                # Some logic for test_options
+
                 a = PerformanceAlert.objects.create(
                     summary=summary,
                     series_signature=signature,
@@ -110,5 +116,6 @@ def generate_new_alerts_in_series(signature):
                     amount_abs=alert_properties.delta,
                     prev_value=prev_value,
                     new_value=new_value,
-                    t_value=t_value)
+                    t_value=t_value,
+                    title=title)
                 a.save()

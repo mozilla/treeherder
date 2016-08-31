@@ -232,6 +232,7 @@ class PerformanceAlert(models.Model):
                                         null=True)
     series_signature = models.ForeignKey(PerformanceSignature)
     is_regression = models.BooleanField()
+    title = models.CharField(max_length=255, blank=True)
     classifier = models.ForeignKey(User, null=True)  # null if autoclassified
 
     UNTRIAGED = 0
