@@ -6,7 +6,7 @@
 ./node_modules/.bin/grunt build --production
 
 # Make the current Git revision accessible at <site-root>/revision.txt
-echo $SOURCE_VERSION > dist/revision.txt
+echo $SOURCE_VERSION > ui/revision.txt
 
 # Generate gzipped versions of files that would benefit from compression, that
 # WhiteNoise can then serve in preference to the originals. This is required
