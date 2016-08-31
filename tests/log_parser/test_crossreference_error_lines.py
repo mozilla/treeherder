@@ -6,7 +6,7 @@ from treeherder.model.models import (FailureLine,
 
 from ..autoclassify.utils import (create_bug_suggestions_failures,
                                   create_failure_lines,
-                                  create_summary_lines_failures,
+                                  create_text_log_errors,
                                   test_line)
 
 
@@ -21,8 +21,7 @@ def test_crossreference_error_lines(test_repository, activate_responses, jm,
              (test_line, {"message": "message2"})]
 
     create_failure_lines(test_repository, job["job_guid"], lines)
-
-    create_summary_lines_failures(test_repository.name, job, lines)
+    create_text_log_errors(test_repository.name, job["id"], lines)
     create_bug_suggestions_failures(test_repository.name, job, lines)
 
     call_command('crossreference_error_lines', test_repository.name, job['job_guid'])
@@ -62,7 +61,7 @@ def test_crossreference_error_lines_truncated(test_repository, activate_response
     create_failure_lines(test_repository, job["job_guid"],
                          lines[:-1] + [({"action": "truncated"}, {})])
 
-    create_summary_lines_failures(test_repository.name, job, lines)
+    create_text_log_errors(test_repository.name, job["id"], lines)
     create_bug_suggestions_failures(test_repository.name, job, lines)
 
     call_command('crossreference_error_lines', test_repository.name, job['job_guid'])
@@ -85,7 +84,7 @@ def test_crossreference_error_lines_missing(test_repository, activate_responses,
 
     create_failure_lines(test_repository, job["job_guid"], lines[1:])
 
-    create_summary_lines_failures(test_repository.name, job, lines)
+    create_text_log_errors(test_repository.name, job["id"], lines)
     create_bug_suggestions_failures(test_repository.name, job, lines)
 
     call_command('crossreference_error_lines', test_repository.name, job['job_guid'])

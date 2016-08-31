@@ -2,14 +2,14 @@
 
 logViewerApp.controller('LogviewerCtrl', [
     '$anchorScroll', '$http', '$location', '$q', '$rootScope', '$scope',
-    '$timeout', 'ThJobArtifactModel', 'ThJobDetailModel', 'ThLog', 'ThLogSliceModel',
-    'ThJobModel', 'thNotify', 'dateFilter', 'ThResultSetModel', 'thDateFormat',
-    'thReftestStatus',
+    '$timeout', '$resource', 'ThTextLogStepModel', 'ThJobDetailModel', 'ThLog',
+    'ThLogSliceModel', 'ThJobModel', 'thNotify', 'dateFilter', 'ThResultSetModel',
+    'thDateFormat', 'thReftestStatus',
     function Logviewer(
         $anchorScroll, $http, $location, $q, $rootScope, $scope,
-        $timeout, ThJobArtifactModel, ThJobDetailModel, ThLog, ThLogSliceModel,
-        ThJobModel, thNotify, dateFilter, ThResultSetModel, thDateFormat,
-        thReftestStatus) {
+        $timeout, $resource, ThTextLogStepModel, ThJobDetailModel, ThLog,
+        ThLogSliceModel, ThJobModel, thNotify, dateFilter, ThResultSetModel,
+        thDateFormat, thReftestStatus) {
 
         // changes the size of chunks pulled from server
         var LINE_BUFFER_SIZE = 100;
@@ -34,8 +34,8 @@ logViewerApp.controller('LogviewerCtrl', [
         $scope.showSuccessful = true;
         $scope.willScroll = false;
 
-        $scope.$watch('artifact', function () {
-            if (!$scope.artifact) {
+        $scope.$watch('steps', function () {
+            if (!$scope.steps) {
                 return;
             }
             $scope.showSuccessful = !$scope.hasFailedSteps();
@@ -45,7 +45,7 @@ logViewerApp.controller('LogviewerCtrl', [
             var newHash = (newVal[0] === newVal[1]) ? newVal[0] : newVal[0] + "-L" + newVal[1];
             if (!isNaN(newVal[0])) {
                 $location.hash("L" + newHash);
-            } else if ($scope.artifact) {
+            } else if ($scope.steps) {
                 $location.hash("");
             }
         });
@@ -57,7 +57,7 @@ logViewerApp.controller('LogviewerCtrl', [
             var newLine = parseInt($scope.selectedBegin);
             var range = LINE_BUFFER_SIZE / 2;
             if ((newLine <= (oldLine - range) || newLine >= oldLine + range) && !$scope.willScroll) {
-                if ($scope.artifact) {
+                if ($scope.steps) {
                     moveScrollToLineNumber(newLine);
                 }
             }
@@ -90,7 +90,11 @@ logViewerApp.controller('LogviewerCtrl', [
         };
 
         $scope.hasFailedSteps = function () {
-            var steps = $scope.artifact.step_data.steps;
+            var steps = $scope.steps;
+            if (!steps) {
+                return false;
+            }
+
             for (var i = 0; i < steps.length; i++) {
                 // We only recently generated step results as part of ingestion,
                 // so we have to check the results property is present.
@@ -141,13 +145,9 @@ logViewerApp.controller('LogviewerCtrl', [
                     start_line: range.start,
                     end_line: range.end
                 };
-                if ($scope.artifact.logname) {
-                    lineRangeParams.name = $scope.artifact.logname;
-                }
                 LogSlice.get_line_range(lineRangeParams, {
                     buffer_size: LINE_BUFFER_SIZE
                 }).then(function(data) {
-
                     drawErrorLines(data);
 
                     if (bounds.top) {
@@ -202,7 +202,12 @@ logViewerApp.controller('LogviewerCtrl', [
         };
 
         // @@@ it may be possible to do this with the angular date filter?
-        $scope.formatTime = function(sec) {
+        $scope.formatTime = function(startedStr, finishedStr) {
+            if (!startedStr || !finishedStr) {
+                return "";
+            }
+
+            var sec = Math.abs(new Date(startedStr) - new Date(finishedStr)) / 1000.0;
             var h = Math.floor(sec/3600);
             var m = Math.floor(sec%3600/60);
             var s = Math.floor(sec%3600 % 60);
@@ -260,36 +265,39 @@ logViewerApp.controller('LogviewerCtrl', [
             });
 
             // Make the log and job artifacts available
-            ThJobArtifactModel.get_list({job_id: $scope.job_id, name: 'text_log_summary'})
-            .then(function(artifactList) {
-                if (artifactList.length === 0)
-                    return;
-                $scope.artifact = artifactList[0].blob;
-                $scope.step_data = $scope.artifact.step_data;
+            ThTextLogStepModel.query({
+                project: $rootScope.repoName,
+                jobId: $scope.job_id
+            }, function(textLogSteps) {
+                $scope.steps = textLogSteps;
+
+                // add an ordering to each step
+                var i = 0;
+                $scope.steps.forEach(function(step) {
+                    step.order = i++;
+                });
 
                 // If the log contains no errors load the head otherwise
                 // load the first failure step line in the artifact. We
                 // also need to test for the 0th element for outlier jobs.
-                if ($scope.step_data.steps[0]) {
-
-                    if ($scope.step_data.all_errors.length === 0) {
-                        angular.element(document).ready(function () {
-                            if (isNaN($scope.selectedBegin)) {
-                                for (var i = 0; i < $scope.step_data.steps.length; i++) {
-                                    var step = $scope.step_data.steps[i];
-                                    if (step.result !== "success") {
-                                        $scope.selectedBegin = step.started_linenumber;
-                                        $scope.selectedEnd = step.finished_linenumber;
-                                        break;
-                                    }
+                var allErrors = _.flatten(textLogSteps.map(s => s.errors));
+                if (allErrors.length === 0) {
+                    angular.element(document).ready(function () {
+                        if (isNaN($scope.selectedBegin)) {
+                            for (var i = 0; i < $scope.steps.length; i++) {
+                                var step = $scope.steps[i];
+                                if (step.result !== "success") {
+                                    $scope.selectedBegin = step.started_line_number;
+                                    $scope.selectedEnd = step.finished_line_number;
+                                    break;
                                 }
                             }
-                            moveScrollToLineNumber($scope.selectedBegin);
-                        });
-                    } else {
-                        $scope.setLineNumber($scope.step_data.all_errors[0].linenumber);
+                        }
                         moveScrollToLineNumber($scope.selectedBegin);
-                    }
+                    });
+                } else {
+                    $scope.setLineNumber(allErrors[0].line_number);
+                    moveScrollToLineNumber($scope.selectedBegin);
                 }
             });
         };
@@ -310,9 +318,9 @@ logViewerApp.controller('LogviewerCtrl', [
         }
 
         function getStepFromLine(linenumber) {
-            var steps = $scope.artifact.step_data.steps;
+            var steps = $scope.steps;
             for (var i = 1; i < steps.length; i++) {
-                if (steps[i].started_linenumber >= linenumber) {
+                if (steps[i].started_line_number >= linenumber) {
                     return steps[i-1];
                 }
             }
@@ -332,8 +340,8 @@ logViewerApp.controller('LogviewerCtrl', [
         }
 
         function logFileLineCount () {
-            var steps = $scope.artifact.step_data.steps;
-            return steps[ steps.length - 1 ].finished_linenumber + 1;
+            var steps = $scope.steps;
+            return steps[ steps.length - 1 ].finished_line_number + 1;
         }
 
         function moveLineNumber (bounds) {
@@ -357,9 +365,9 @@ logViewerApp.controller('LogviewerCtrl', [
             var min = data[0].index;
             var max = data[ data.length - 1 ].index;
 
-            $scope.artifact.step_data.steps.forEach(function(step) {
+            $scope.steps.forEach(function(step) {
                 step.errors.forEach(function(err) {
-                    var line = err.linenumber;
+                    var line = err.line_number;
 
                     if (line < min || line > max) {
                         return;

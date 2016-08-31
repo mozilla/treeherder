@@ -425,7 +425,7 @@ treeherder.controller('PluginCtrl', [
 
         var selectJobAndRender = function(job) {
             $scope.jobLoadedPromise = selectJob(job);
-            $scope.jobLoadedPromise.then(function(){
+            $scope.jobLoadedPromise.then(function() {
                 thTabs.showTab(thTabs.selectedTab, job.id);
             });
         };

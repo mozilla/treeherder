@@ -7,7 +7,10 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.test import APIClient
 
 from treeherder.model.models import (ExclusionProfile,
-                                     JobExclusion)
+                                     Job,
+                                     JobExclusion,
+                                     TextLogError,
+                                     TextLogStep)
 from treeherder.webapp.api.jobs import JobsViewSet
 
 
@@ -334,30 +337,62 @@ def test_job_error_lines(webapp, eleven_jobs_stored, jm, failure_lines, classifi
     assert set(classified.keys()) == set(exp_classified_keys)
 
 
-def test_job_text_log_summary(webapp, eleven_jobs_stored, jm, failure_lines,
-                              artifacts, text_summary_lines):
-    job = jm.get_job(1)[0]
+def test_text_log_steps_and_errors(webapp, eleven_jobs_stored, jm, test_repository):
 
+    job = Job.objects.get(project_specific_id=jm.get_job(1)[0]['id'])
+    TextLogStep.objects.create(job=job,
+                               name='step1',
+                               started=datetime.datetime.fromtimestamp(0),
+                               finished=datetime.datetime.fromtimestamp(100),
+                               started_line_number=1,
+                               finished_line_number=100,
+                               result=TextLogStep.SUCCESS)
+    step2 = TextLogStep.objects.create(job=job,
+                                       name='step2',
+                                       started=datetime.datetime.fromtimestamp(101),
+                                       finished=datetime.datetime.fromtimestamp(200),
+                                       started_line_number=101,
+                                       finished_line_number=200,
+                                       result=TextLogStep.TEST_FAILED)
+    TextLogError.objects.create(job=job, step=step2, line='failure 1',
+                                line_number=101)
+    TextLogError.objects.create(job=job, step=step2, line='failure 2',
+                                line_number=102)
     resp = webapp.get(
-        reverse("jobs-text-log-summary",
-                kwargs={"project": jm.project, "pk": job["id"]})
+        reverse("jobs-text-log-steps",
+                kwargs={"project": test_repository.name,
+                        "pk": job.project_specific_id})
     )
-
     assert resp.status_int == 200
-
-    text_log_summary = resp.json
-    assert isinstance(text_log_summary, object)
-
-    exp_keys = ["id", "job_guid", "repository", "text_log_summary_artifact_id",
-                "bug_suggestions_artifact_id", "bug_suggestions", "lines"]
-    assert set(text_log_summary.keys()) == set(exp_keys)
-
-    assert text_log_summary["bug_suggestions"] == artifacts[1]["blob"]
-
-    line_exp_keys = set(["id", "line_number", "bug_number", "verified", "summary",
-                         "failure_line", "line", "bug"])
-    for line in text_log_summary["lines"]:
-        assert line_exp_keys == set(line.keys())
+    assert resp.json == [
+        {
+            'errors': [],
+            'finished': '1969-12-31T16:01:40',
+            'finished_line_number': 100,
+            'name': 'step1',
+            'result': 'success',
+            'started': '1969-12-31T16:00:00',
+            'started_line_number': 1
+        },
+        {
+            'errors': [
+                {
+                    'line': 'failure 1',
+                    'line_number': 101
+                },
+                {
+                    'line': 'failure 2',
+                    'line_number': 102
+                }
+            ],
+            'finished': '1969-12-31T16:03:20',
+            'finished_line_number': 200,
+            'name': 'step2',
+            'result': 'testfailed',
+            'started': '1969-12-31T16:01:41',
+            'started_line_number': 101
+        }
+    ]
 
 
 def test_list_similar_jobs(webapp, eleven_jobs_stored, jm):
