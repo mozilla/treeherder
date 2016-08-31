@@ -1,8 +1,8 @@
 'use strict';
 
 treeherder.factory('ThTextLogSummaryLineModel', [
-    '$http', 'ThLog', 'thUrl',
-    function($http, ThLog, thUrl) {
+    '$http', '$q', 'ThLog', 'thUrl',
+    function($http, $q, ThLog, thUrl) {
 
         var ThTextLogSummaryLineModel = function(data) {
             // creates a new instance of ThTextLogSummaryLineModel
@@ -15,6 +15,7 @@ treeherder.factory('ThTextLogSummaryLineModel', [
         };
 
         ThTextLogSummaryLineModel.prototype.update = function(bug_number) {
+            console.log("ThTextLogSummaryLineModel.update");
             var summary_line = this;
             summary_line.bug_number = bug_number;
             summary_line.verified = true;
@@ -24,8 +25,9 @@ treeherder.factory('ThTextLogSummaryLineModel', [
         };
 
         ThTextLogSummaryLineModel.updateMany = function(data) {
+            console.log("ThTextLogSummaryLineModel.updateMany");
             if (!data.length) {
-                return Promise.resolve();
+                return $q.resolve();
             }
             return $http.put(ThTextLogSummaryLineModel.get_url(), data);
         };
