@@ -336,16 +336,16 @@ treeherder.factory('ThResultSetStore', [
             }
             return tcURLPromise.then(function(results) {
                 // Since we want to try this only on try first
-                var decisionTaskID = "";
+                var decision_task_id = "";
                 if (results && repoName === "try") {
                     var inspectTask = _.where(results, {"title": "Inspect Task"})[0];
-                    decisionTaskID = inspectTask.url.substring(inspectTask.url.indexOf("#") + 1);
+                    decision_task_id = inspectTask.url.substring(inspectTask.url.indexOf("#") + 1);
                     // Removing last two characters /0
-                    decisionTaskID = decisionTaskID.substring(0, decisionTaskID.lastIndexOf('/'));
+                    decision_task_id = decision_task_id.substring(0, decision_task_id.lastIndexOf('/'));
                 }
                 // Will be used later for the GET request
-                resultSet.geckoDecisionTaskID = decisionTaskID;
-                return ThRunnableJobModel.get_list(repoName, {"decisionTaskID": decisionTaskID}).then(function(jobList) {
+                resultSet.geckodecision_task_id = decision_task_id;
+                return ThRunnableJobModel.get_list(repoName, {"decision_task_id": decision_task_id}).then(function(jobList) {
                     var id = resultSet.id;
                     _.each(jobList, function(job) {
                         job.result_set_id = id;
@@ -903,11 +903,11 @@ treeherder.factory('ThResultSetStore', [
             return repositories[repoName].rsMap[resultsetId].selected_runnable_jobs;
         };
 
-        var getGeckoDecisionTaskID = function(repoName, resultsetId) {
-            if (!repositories[repoName].rsMap[resultsetId].rs_obj.geckoDecisionTaskID) {
-                repositories[repoName].rsMap[resultsetId].rs_obj.geckoDecisionTaskID = "";
+        var getGeckodecision_task_id = function(repoName, resultsetId) {
+            if (!repositories[repoName].rsMap[resultsetId].rs_obj.geckodecision_task_id) {
+                repositories[repoName].rsMap[resultsetId].rs_obj.geckodecision_task_id = "";
             }
-            return repositories[repoName].rsMap[resultsetId].rs_obj.geckoDecisionTaskID;
+            return repositories[repoName].rsMap[resultsetId].rs_obj.geckodecision_task_id;
         };
 
         var toggleSelectedRunnableJob = function(repoName, resultsetId, buildername) {
@@ -1249,7 +1249,7 @@ treeherder.factory('ThResultSetStore', [
             addRunnableJobs: addRunnableJobs,
             isRunnableJobSelected: isRunnableJobSelected,
             getSelectedRunnableJobs: getSelectedRunnableJobs,
-            getGeckoDecisionTaskID: getGeckoDecisionTaskID,
+            getGeckodecision_task_id: getGeckodecision_task_id,
             toggleSelectedRunnableJob: toggleSelectedRunnableJob,
             getResultSet: getResultSet,
             getResultSetsArray: getResultSetsArray,
