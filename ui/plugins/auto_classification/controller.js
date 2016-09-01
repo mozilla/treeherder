@@ -188,10 +188,6 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
                     .then(function() {
                         $rootScope.$emit(thEvents.classificationVerified);
                     })
-                    .then(function() {
-                        thNotify.send("Classification saved", "success");
-                        $rootScope.$emit(thEvents.classificationVerified);
-                    })
                     .catch(function(err) {
                         var msg = "Error saving classifications:\n ";
                         if (err.stack) {
@@ -273,34 +269,29 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
                               }));
                 }
 
-                var setupClassifiedFailures = $q.all(
-                    [ThClassifiedFailuresModel.createMany(newClassifications)
-                     .then(function(resp) {
-                         if (resp) {
-                             updateBestClassifications(createFromBug, resp.data);
-                         }
-                     }),
-                     ThClassifiedFailuresModel.updateMany(updateClassifications)
-                     .then(function(resp) {
-                         if (resp) {
-                             updateBestClassifications(autoclassifiedCreateBug, resp.data);
-                         }
-                     })]);
+                var setupClassifiedFailures = $q.all([
+                    ThClassifiedFailuresModel.createMany(newClassifications)
+                        .then(function(resp) {
+                            if (resp) {
+                                updateBestClassifications(createFromBug, resp.data);
+                            }
+                            return $q.defer();
+                        }),
+                    ThClassifiedFailuresModel.updateMany(updateClassifications)
+                        .then(function(resp) {
+                            if (resp) {
+                                updateBestClassifications(autoclassifiedCreateBug, resp.data);
+                            }
+                            return $q.defer();
+                        })
+                ]);
 
                 return setupClassifiedFailures
-                    .then(function() {return ThFailureLinesModel.verifyMany(bestClassifications);})
                     .then(function() {
-                        thNotify.send("Classification saved", "success");
-                        $rootScope.$emit(thEvents.classificationVerified);
+                        return ThFailureLinesModel.verifyMany(bestClassifications);
                     })
-                    .catch(function(err) {
-                        var msg = "Error saving classifications:\n ";
-                        if (err.stack) {
-                            msg += err + err.stack;
-                        } else {
-                            msg += err.statusText + " - " + err.data.detail;
-                        }
-                        thNotify.send(msg, "danger");
+                    .then(function() {
+                        $rootScope.$emit(thEvents.classificationVerified, "structured");
                     });
             }
         };
@@ -335,7 +326,7 @@ treeherder.factory('ThUnstructuredLinePersist', [
                     });
                 return ThTextLogSummaryLineModel.updateMany(updateData)
                     .then(function() {
-                        $rootScope.$emit(thEvents.classificationVerified);
+                        $rootScope.$emit(thEvents.classificationVerified, "unstructured");
                     });
             }
         };
@@ -925,16 +916,6 @@ treeherder.controller('ClassificationPluginCtrl', [
             return rv;
         }
 
-        function mapObject(object, mapFunc) {
-            var rv = {};
-            for (var p in object) {
-                if (object.hasOwnProperty(p)) {
-                    rv[p] = mapFunc(object[p], p);
-                }
-            }
-            return rv;
-        }
-
         $scope.pendingLines = function() {
             return _.filter($scope.failureLines,
                             function(line) {
@@ -965,13 +946,22 @@ treeherder.controller('ClassificationPluginCtrl', [
             var byType = partitionByType(pending);
             var types = {"unstructured": ThUnstructuredLine,
                          "structured": ThStructuredLine};
-            var savePromises = mapObject(byType, function(val, key) {
-                return types[key].saveAll(val);
-            });
-            $q.all(savePromises)
-                .then(function() {
-                    thTabs.tabs.autoClassification.update();
-                });
+            ["unstructured", "structured"]
+                .filter((x) => byType.hasOwnProperty(x))
+                .map((x) => () => types[x].saveAll(byType[x]))
+                // Turn an array of promises into a chain
+                .reduce((prev, cur) => prev.then(cur), $q.resolve())
+                .then(() => thNotify.send("Classification saved", "success"))
+                .catch((err) => {
+                    var msg = "Error saving classifications:\n ";
+                    if (err.stack) {
+                        msg += err + err.stack;
+                    } else {
+                        msg += err.statusText + " - " + err.data.detail;
+                    }
+                    thNotify.send(msg, "danger");
+                })
+                .finally(() => thTabs.tabs.autoClassification.update());
         };
 
         $scope.canIgnore = function() {
