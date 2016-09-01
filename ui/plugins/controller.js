@@ -111,6 +111,9 @@ treeherder.controller('PluginCtrl', [
         var selectJobPromise = null;
 
         var selectJob = function(job) {
+            // make super-extra sure that the autoclassify tab shows up when it should
+            showAutoClassifyTab();
+
             // set the scope variables needed for the job detail panel
             if (job.id) {
                 $scope.job_detail_loading = true;
