@@ -188,6 +188,10 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
                     .then(function() {
                         $rootScope.$emit(thEvents.classificationVerified);
                     })
+                    .then(function() {
+                        thNotify.send("Classification saved", "success");
+                        $rootScope.$emit(thEvents.classificationVerified);
+                    })
                     .catch(function(err) {
                         var msg = "Error saving classifications:\n ";
                         if (err.stack) {
@@ -269,32 +273,34 @@ treeherder.factory('ThStructuredLinePersist', ['$q',
                               }));
                 }
 
-                var setupClassifiedFailures = $q.all([
-                    ThClassifiedFailuresModel.createMany(newClassifications)
-                        .then(function(resp) {
-                            if (resp) {
-                                updateBestClassifications(createFromBug, resp.data);
-                            }
-                            return $q.defer();
-                        }),
-                    ThClassifiedFailuresModel.updateMany(updateClassifications)
-                        .then(function(resp) {
-                            if (resp) {
-                                updateBestClassifications(autoclassifiedCreateBug, resp.data);
-                            }
-                            return $q.defer();
-                        })
-                ]);
+                var setupClassifiedFailures = $q.all(
+                    [ThClassifiedFailuresModel.createMany(newClassifications)
+                     .then(function(resp) {
+                         if (resp) {
+                             updateBestClassifications(createFromBug, resp.data);
+                         }
+                     }),
+                     ThClassifiedFailuresModel.updateMany(updateClassifications)
+                     .then(function(resp) {
+                         if (resp) {
+                             updateBestClassifications(autoclassifiedCreateBug, resp.data);
+                         }
+                     })]);
 
                 return setupClassifiedFailures
+                    .then(function() {return ThFailureLinesModel.verifyMany(bestClassifications);})
                     .then(function() {
-                        return ThFailureLinesModel.verifyMany(bestClassifications);
-                    })
-                    .then(function() {
-                        $rootScope.$emit(thEvents.classificationVerified, "structured");
+                        thNotify.send("Classification saved", "success");
+                        $rootScope.$emit(thEvents.classificationVerified);
                     })
                     .catch(function(err) {
-                        $rootScope.$emit(thEvents.classificationError, "structured", err);
+                        var msg = "Error saving classifications:\n ";
+                        if (err.stack) {
+                            msg += err + err.stack;
+                        } else {
+                            msg += err.statusText + " - " + err.data.detail;
+                        }
+                        thNotify.send(msg, "danger");
                     });
             }
         };
@@ -327,12 +333,9 @@ treeherder.factory('ThUnstructuredLinePersist', [
                                 bug_number: line.selectedOption.bugNumber,
                                 verified: true};
                     });
-                ThTextLogSummaryLineModel.updateMany(updateData)
+                return ThTextLogSummaryLineModel.updateMany(updateData)
                     .then(function() {
-                        $rootScope.$emit(thEvents.classificationVerified, "unstructured");
-                    })
-                    .catch(function(err) {
-                        $rootScope.$emit(thEvents.classificationError, "unstructured", err);
+                        $rootScope.$emit(thEvents.classificationVerified);
                     });
             }
         };
@@ -622,7 +625,7 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
         };
 
         ThStructuredLine.saveAll = function(lines) {
-            ThStructuredLinePersist.saveAll(lines);
+            return ThStructuredLinePersist.saveAll(lines);
         };
 
         return ThStructuredLine;
@@ -922,6 +925,16 @@ treeherder.controller('ClassificationPluginCtrl', [
             return rv;
         }
 
+        function mapObject(object, mapFunc) {
+            var rv = {};
+            for (var p in object) {
+                if (object.hasOwnProperty(p)) {
+                    rv[p] = mapFunc(object[p], p);
+                }
+            }
+            return rv;
+        }
+
         $scope.pendingLines = function() {
             return _.filter($scope.failureLines,
                             function(line) {
@@ -952,69 +965,12 @@ treeherder.controller('ClassificationPluginCtrl', [
             var byType = partitionByType(pending);
             var types = {"unstructured": ThUnstructuredLine,
                          "structured": ThStructuredLine};
-            var saveTypes = ["unstructured", "structured"]
-                    .filter((x) => byType.hasOwnProperty(x));
-            saveTypes
-                    .forEach((x) => types[x].saveAll(byType[x]));
-
-            /*
-             Use a system of events to handle waiting for the
-             classifications to be saved before trying to update the
-             UI. A more obvious solution would seem to be something
-             like
-
-               $q.all(savePromises)
-                 .then(() => thNotify.send("Classification saved", "sucess"))
-                 .then(() => thTabs.tabs.autoClassification.update)
-
-             However it turns out that this doesn't work with angular
-             promises.  In particular it appears that promises which
-             do something actually asynchronous can't be chained
-             across scopes, so the above code will not wait for the
-             HTTP calls in savePromises to complete before running the
-             .then(() => thNotify.send(...)) call. Instead we hack a
-             one-off deferal mechanism using events.
-
-             When this code is rewritten, the design should be changed
-             to allow for this limitation without the hack.
-             */
-            var pendingTypes = new Set(saveTypes);
-
-            var errors = [];
-
-            function afterVerification() {
-                if (pendingTypes.size > 0) {
-                    return;
-                }
-                deregisterSuccess();
-                deregisterError();
-                if (!errors.length) {
-                    thNotify.send("Classification saved", "success");
-                } else {
-                    errors.map(function(err) {
-                        var msg = "Error saving classifications:\n ";
-                        if (err.stack) {
-                            msg += err + err.stack;
-                        } else {
-                            msg += err.statusText + " - " + err.data.detail;
-                        }
-                        thNotify.send(msg, "danger");
-                    });
-                }
-                thTabs.tabs.autoClassification.update();
-            }
-
-            var deregisterSuccess = $rootScope.$on(
-                thEvents.classificationVerified, function(evt, type) {
-                    pendingTypes.delete(type);
-                    afterVerification();
-                });
-
-            var deregisterError = $rootScope.$on(
-                thEvents.classificationError, function(evt, type, err) {
-                    pendingTypes.delete(type);
-                    errors.push(err);
-                    afterVerification();
+            var savePromises = mapObject(byType, function(val, key) {
+                return types[key].saveAll(val);
+            });
+            $q.all(savePromises)
+                .then(function() {
+                    thTabs.tabs.autoClassification.update();
                 });
         };
 

@@ -56,7 +56,9 @@ treeherder.factory('ThClassifiedFailuresModel', [
 
         ThClassifiedFailuresModel.createMany = function(data) {
             if (!data.length) {
-                return $q.resolve();
+                var p = $q.defer();
+                p.resolve();
+                return p.promise;
             }
             return $http.post(ThClassifiedFailuresModel.get_url(), data);
         };
@@ -70,7 +72,7 @@ treeherder.factory('ThClassifiedFailuresModel', [
 
         ThClassifiedFailuresModel.updateMany = function(data) {
             if (!data.length) {
-                return $q.resolve();
+                return Promise.resolve();
             }
             return $http.put(ThClassifiedFailuresModel.get_url(), data);
         };
