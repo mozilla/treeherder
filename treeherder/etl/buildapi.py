@@ -369,20 +369,6 @@ class PendingRunningTransformerMixin(object):
 
                     if source == 'running':
                         new_job['start_timestamp'] = job['start_time']
-                        # We store the original values to help debugging.
-                        new_job['artifacts'].append(
-                            {
-                                'type': 'json',
-                                'name': 'buildapi_running',
-                                'log_urls': [],
-                                'blob': {
-                                    'revision': revision,
-                                    'request_ids': job['request_ids'],
-                                    'submitted_at': job['submitted_at'],
-                                    'start_time': job['start_time'],
-                                }
-                            }
-                        )
 
                     treeherder_data['job'] = new_job
 
