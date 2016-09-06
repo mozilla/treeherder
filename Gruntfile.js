@@ -132,12 +132,7 @@ module.exports = function(grunt) {
             main: {
                 files: [
                     { src:'contribute.json', dest:'dist/contribute.json', nonull: true },
-                    { src:'ui/robots.txt', dest:'dist/robots.txt', nonull: true },
-                    { src:'ui/index.html', dest:'dist/index.html', nonull: true },
-                    { src:'ui/userguide.html', dest:'dist/userguide.html', nonull: true },
-                    { src:'ui/logviewer.html', dest:'dist/logviewer.html', nonull: true },
-                    { src:'ui/failureviewer.html', dest:'dist/failureviewer.html', nonull: true },
-                    { src:'ui/perf.html', dest:'dist/perf.html', nonull: true }
+                    { cwd: 'ui/', src: '*', dest:'dist/', expand: true, filter: 'isFile', nonull: true },
                 ]
             },
             // Copy img dir
