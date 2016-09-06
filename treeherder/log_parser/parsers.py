@@ -319,6 +319,11 @@ class TinderboxPrintParser(ParserBase):
                 title, value = line.split("<br/>", 1)
                 artifact["title"] = title
                 artifact["value"] = value
+            # and split TinderboxPrint or similar long lines
+            elif "href" in line and "title" in line:
+                artifact["url"] = line.split('href=')[1].split(' ')[0]
+                artifact["title"] = line.split('title=')[1].split('>')[0][1:-1]
+                artifact["value"] = line.split('>')[1].split('<')[0]
             else:
                 artifact["value"] = line
             self.artifact.append(artifact)
