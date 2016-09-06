@@ -64,10 +64,21 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
                 framework__in=frameworks)
 
         interval = request.query_params.get('interval')
+        start_date = request.query_params.get('start_date')  # 'YYYY-MM-DDTHH:MM:SS
+        end_date = request.query_params.get('end_date')  # 'YYYY-MM-DDTHH:MM:SS'
+        if interval and (start_date or end_date):
+            return Response({"message": "Provide either interval only -or- start (and end) date"},
+                            status=HTTP_400_BAD_REQUEST)
+
         if interval:
             signature_data = signature_data.filter(
                 last_updated__gte=datetime.datetime.fromtimestamp(
                     int(time.time() - int(interval))))
+
+        if start_date:
+            signature_data = signature_data.filter(last_updated__gte=start_date)
+        if end_date:
+            signature_data = signature_data.filter(last_updated__lte=end_date)
 
         platform = request.query_params.get('platform')
         if platform:
@@ -179,10 +190,21 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
                 signature__framework__in=frameworks)
 
         interval = request.query_params.get('interval')
+        start_date = request.query_params.get('start_date')  # 'YYYY-MM-DDTHH:MM:SS
+        end_date = request.query_params.get('end_date')  # 'YYYY-MM-DDTHH:MM:SS'
+        if interval and (start_date or end_date):
+            return Response({"message": "Provide either interval only -or- start (and end) date"},
+                            status=HTTP_400_BAD_REQUEST)
+
         if interval:
             datums = datums.filter(
                 push_timestamp__gt=datetime.datetime.fromtimestamp(
                     int(time.time() - int(interval))))
+
+        if start_date:
+            datums = datums.filter(push_timestamp__gt=start_date)
+        if end_date:
+            datums = datums.filter(push_timestamp__lt=end_date)
 
         ret = defaultdict(list)
         values_list = datums.values_list(

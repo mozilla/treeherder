@@ -9,6 +9,11 @@ from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceFramework,
                                     PerformanceSignature)
 
+NOW = datetime.datetime.now()
+ONE_DAY_AGO = NOW - datetime.timedelta(days=1)
+THREE_DAYS_AGO = NOW - datetime.timedelta(days=3)
+SEVEN_DAYS_AGO = NOW - datetime.timedelta(days=7)
+
 
 @pytest.fixture
 def summary_perf_signature(test_perf_signature):
@@ -235,3 +240,95 @@ def test_filter_data_by_framework(webapp, test_repository, test_perf_signature,
     assert len(datums) == 1
     assert datums[0]['job_id'] == 1
     assert datums[0]['signature_id'] == 2
+
+
+def test_filter_signatures_by_interval(webapp, test_repository, test_perf_signature):
+    # interval for the last 24 hours, only one signature exists last updated within that timeframe
+    resp = webapp.get(reverse('performance-signatures-list',
+                              kwargs={
+                                  "project": test_perf_signature.repository.name
+                              }) + '?interval={}'.format(86400))
+    assert resp.status_int == 200
+    assert len(resp.json.keys()) == 1
+    assert resp.json[test_perf_signature.signature_hash]['id'] == 1
+
+
+@pytest.mark.parametrize('start_date, end_date, exp_count, exp_id', [
+    (SEVEN_DAYS_AGO, ONE_DAY_AGO, 1, 1),
+    (THREE_DAYS_AGO, '', 1, 1),
+    (ONE_DAY_AGO, '', 0, 0)])
+def test_filter_signatures_by_range(webapp, test_repository, test_perf_signature,
+                                    start_date, end_date, exp_count, exp_id):
+    # set signature last updated to 3 days ago
+    test_perf_signature.last_updated = THREE_DAYS_AGO
+    test_perf_signature.save()
+
+    resp = webapp.get(reverse('performance-signatures-list',
+                              kwargs={
+                                  "project": test_perf_signature.repository.name
+                              }) + '?start_date={}&end_date={}'.format(start_date, end_date))
+    assert resp.status_int == 200
+    assert len(resp.json.keys()) == exp_count
+    if exp_count != 0:
+        assert resp.json[test_perf_signature.signature_hash]['id'] == exp_id
+
+
+@pytest.mark.parametrize('interval, exp_datums_len, exp_job_ids', [
+    (86400, 1, [0]),
+    (86400 * 3, 2, [1, 0])])
+def test_filter_data_by_interval(webapp, test_repository, test_perf_signature,
+                                 interval, exp_datums_len, exp_job_ids):
+    # create some test data
+    for (i, timestamp) in enumerate([NOW, NOW - datetime.timedelta(days=2), NOW - datetime.timedelta(days=7)]):
+        PerformanceDatum.objects.create(
+            repository=test_perf_signature.repository,
+            job_id=i,
+            result_set_id=i,
+            signature=test_perf_signature,
+            value=i,
+            push_timestamp=timestamp)
+
+    client = APIClient()
+
+    # going back interval of 1 day, should find 1 item
+    resp = client.get(reverse('performance-data-list',
+                              kwargs={"project": test_repository.name}) +
+                      '?signatures={}&interval={}'.format(
+                          test_perf_signature.signature_hash,
+                          interval))
+
+    assert resp.status_code == 200
+    datums = resp.data[test_perf_signature.signature_hash]
+    assert len(datums) == exp_datums_len
+    for x in range(exp_datums_len):
+        assert datums[x]['job_id'] == exp_job_ids[x]
+
+
+@pytest.mark.parametrize('start_date, end_date, exp_datums_len, exp_job_ids', [
+    (SEVEN_DAYS_AGO, THREE_DAYS_AGO, 1, [2]),
+    (THREE_DAYS_AGO, '', 2, [1, 0])])
+def test_filter_data_by_range(webapp, test_repository, test_perf_signature,
+                              start_date, end_date, exp_datums_len, exp_job_ids):
+    # create some test data
+    for (i, timestamp) in enumerate([NOW, NOW - datetime.timedelta(days=2), NOW - datetime.timedelta(days=5)]):
+        PerformanceDatum.objects.create(
+            repository=test_perf_signature.repository,
+            job_id=i,
+            result_set_id=i,
+            signature=test_perf_signature,
+            value=i,
+            push_timestamp=timestamp)
+
+    client = APIClient()
+
+    resp = client.get(reverse('performance-data-list',
+                              kwargs={"project": test_repository.name}) +
+                      '?signatures={}&start_date={}&end_date={}'.format(
+                          test_perf_signature.signature_hash,
+                          start_date, end_date))
+
+    assert resp.status_code == 200
+    datums = resp.data[test_perf_signature.signature_hash]
+    assert len(datums) == exp_datums_len
+    for x in range(exp_datums_len):
+        assert datums[x]['job_id'] == exp_job_ids[x]
