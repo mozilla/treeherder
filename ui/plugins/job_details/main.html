@@ -3,7 +3,7 @@
     <li ng-repeat="line in job_details | orderBy:'title'" class="small">
       <label>{{line.title ? line.title : 'Untitled data'}}:</label>
       <!-- URL provided -->
-      <a ng-if="line.url" title="{{line.value}}" href="{{line.url}}" target="_blank">{{line.value}}</a>
+      <a ng-if="line.url" title="{{line.title ? line.title : line.value}}" href="{{line.url}}" target="_blank">{{line.value}}</a>
       <span ng-if="line.url && line.value.endsWith('raw.log')">
         - <a title="{{line.value}}" href="https://mozilla.github.io/wptview/#/?urls={{line.url | encodeURIComponent}},{{job_details[buildernameIndex].value | encodeURIComponent}}">open in test results viewer</a>
       </span>
