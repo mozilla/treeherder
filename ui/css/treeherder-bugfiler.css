@@ -69,3 +69,9 @@
   overflow: auto;
   clear:both;
 }
+
+#modalRelatedBugs {
+  padding-top: 10px;
+  padding-right:10.5%;
+  float: right;
+}
