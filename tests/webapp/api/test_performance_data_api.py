@@ -1,4 +1,5 @@
 import datetime
+import time
 
 import pytest
 from django.core.urlresolvers import reverse
@@ -235,3 +236,115 @@ def test_filter_data_by_framework(webapp, test_repository, test_perf_signature,
     assert len(datums) == 1
     assert datums[0]['job_id'] == 1
     assert datums[0]['signature_id'] == 2
+
+
+def test_filter_signatures_by_interval(webapp, test_repository, test_perf_signature,
+                                        test_perf_signature_same_hash_different_framework):
+    # interval for the last 24 hours, only one signature exists last updated within that timeframe
+    resp = webapp.get(reverse('performance-signatures-list',
+                              kwargs={
+                                  "project": test_perf_signature.repository.name
+                              }) + '?interval={}'.format(86400))
+    assert resp.status_int == 200
+    assert len(resp.json.keys()) == 1
+    assert resp.json[test_perf_signature.signature_hash]['id'] == 2
+
+
+def test_filter_signatures_by_range(webapp, test_repository, test_perf_signature,
+                                        test_perf_signature_same_hash_different_framework):
+    # start date now, interval last 24 hours
+    now_epoch = int(time.time())
+    client = APIClient()
+    resp = webapp.get(reverse('performance-signatures-list',
+                              kwargs={
+                                  "project": test_perf_signature.repository.name
+                              }) + '?interval={}&start_date={}'.format(86400, now_epoch))
+    assert resp.status_int == 200
+    assert len(resp.json.keys()) == 1
+    assert resp.json[test_perf_signature.signature_hash]['id'] == 2
+
+
+def test_filter_data_by_interval(webapp, test_repository, test_perf_signature):
+    now_epoch = int(time.time())
+    now = datetime.datetime.now()
+    one_day_seconds = 86400
+
+    for (i, timestamp) in enumerate([now, now - datetime.timedelta(days=2), now - datetime.timedelta(days=7)]):
+        PerformanceDatum.objects.create(
+            repository=test_perf_signature.repository,
+            job_id=i,
+            result_set_id=i,
+            signature=test_perf_signature,
+            value=i,
+            push_timestamp=timestamp)
+
+    client = APIClient()
+
+    # going back interval of 1 day
+    resp = client.get(reverse('performance-data-list',
+                              kwargs={"project": test_repository.name}) +
+                      '?signatures={}&interval={}'.format(
+                          test_perf_signature.signature_hash,
+                          one_day_seconds))
+
+    assert resp.status_code == 200
+    datums = resp.data[test_perf_signature.signature_hash]
+    assert len(datums) == 1
+    assert datums[0]['job_id'] == 0
+
+    # interval of 3 days
+    resp = client.get(reverse('performance-data-list',
+                              kwargs={"project": test_repository.name}) +
+                      '?signatures={}&interval={}'.format(
+                          test_perf_signature.signature_hash,
+                          one_day_seconds * 3))
+
+    assert resp.status_code == 200
+    datums = resp.data[test_perf_signature.signature_hash]
+    assert len(datums) == 2
+    assert datums[0]['job_id'] == 1
+    assert datums[1]['job_id'] == 0
+
+
+def test_filter_data_by_range(webapp, test_repository, test_perf_signature):
+    now_epoch = int(time.time())
+    now = datetime.datetime.now()
+    one_day_seconds = 86400
+
+    for (i, timestamp) in enumerate([now, now - datetime.timedelta(days=2), now - datetime.timedelta(days=7)]):
+        PerformanceDatum.objects.create(
+            repository=test_perf_signature.repository,
+            job_id=i,
+            result_set_id=i,
+            signature=test_perf_signature,
+            value=i,
+            push_timestamp=timestamp)
+
+    client = APIClient()
+
+    # range starting date 6 days ago, going back (interval) of 3 days
+    start_date_epoch = now_epoch - (one_day_seconds * 6)
+    resp = client.get(reverse('performance-data-list',
+                              kwargs={"project": test_repository.name}) +
+                      '?signatures={}&interval={}&start_date={}'.format(
+                          test_perf_signature.signature_hash,
+                          one_day_seconds * 3,
+                          start_date_epoch))
+
+    assert resp.status_code == 200
+    datums = resp.data[test_perf_signature.signature_hash]
+    assert len(datums) == 1
+    assert datums[0]['job_id'] == 2
+
+    # range starting date 8 days ago, going back (interval) of 3 days
+    start_date_epoch = now_epoch - (one_day_seconds * 8)
+    resp = client.get(reverse('performance-data-list',
+                              kwargs={"project": test_repository.name}) +
+                      '?signatures={}&interval={}&start_date={}'.format(
+                          test_perf_signature.signature_hash,
+                          one_day_seconds * 3,
+                          start_date_epoch))
+
+    assert resp.status_code == 200
+    datums = resp.data[test_perf_signature.signature_hash]
+    assert len(datums) == 0

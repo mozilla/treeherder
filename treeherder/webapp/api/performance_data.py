@@ -64,7 +64,14 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
                 framework__in=frameworks)
 
         interval = request.query_params.get('interval')
-        if interval:
+        start_date = request.query_params.get('start_date') # epoch
+        if interval and start_date:
+            signature_data = signature_data.filter(
+                last_updated__gte=datetime.datetime.fromtimestamp(
+                    int(start_date) - int(interval)),
+                last_updated__lte=datetime.datetime.fromtimestamp(
+                    int(start_date)))
+        elif interval:
             signature_data = signature_data.filter(
                 last_updated__gte=datetime.datetime.fromtimestamp(
                     int(time.time() - int(interval))))
@@ -179,7 +186,14 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
                 signature__framework__in=frameworks)
 
         interval = request.query_params.get('interval')
-        if interval:
+        start_date = request.query_params.get('start_date') # epoch
+        if interval and start_date:
+            datums = datums.filter(
+                push_timestamp__gt=datetime.datetime.fromtimestamp(
+                    int(start_date) - int(interval)),
+                push_timestamp__lt=datetime.datetime.fromtimestamp(
+                    int(start_date)))
+        elif interval:
             datums = datums.filter(
                 push_timestamp__gt=datetime.datetime.fromtimestamp(
                     int(time.time() - int(interval))))
