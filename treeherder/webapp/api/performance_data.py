@@ -64,10 +64,24 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
                 framework__in=frameworks)
 
         interval = request.query_params.get('interval')
+        start_date = request.query_params.get('start_date')  # 'YYYY-MM-DDTHH:MM:SS
+        end_date = request.query_params.get('end_date')  # 'YYYY-MM-DDTHH:MM:SS'
+
         if interval:
+            if start_date:
+                return Response({"message": "Provide either interval only -or- start (and end) date"},
+                                status=HTTP_400_BAD_REQUEST)
+            else:
+                signature_data = signature_data.filter(
+                    last_updated__gte=datetime.datetime.fromtimestamp(
+                        int(time.time() - int(interval))))
+
+        if start_date and end_date:
             signature_data = signature_data.filter(
-                last_updated__gte=datetime.datetime.fromtimestamp(
-                    int(time.time() - int(interval))))
+                last_updated__gte=start_date, last_updated__lte=end_date)
+        elif start_date:
+            signature_data = signature_data.filter(
+                last_updated__gte=start_date)
 
         platform = request.query_params.get('platform')
         if platform:
@@ -179,10 +193,24 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
                 signature__framework__in=frameworks)
 
         interval = request.query_params.get('interval')
+        start_date = request.query_params.get('start_date')  # 'YYYY-MM-DDTHH:MM:SS
+        end_date = request.query_params.get('end_date')  # 'YYYY-MM-DDTHH:MM:SS'
+
         if interval:
+            if start_date:
+                return Response({"message": "Provide either interval only -or- start (and end) date"},
+                                status=HTTP_400_BAD_REQUEST)
+            else:
+                datums = datums.filter(
+                    push_timestamp__gt=datetime.datetime.fromtimestamp(
+                        int(time.time() - int(interval))))
+
+        if start_date and end_date:
             datums = datums.filter(
-                push_timestamp__gt=datetime.datetime.fromtimestamp(
-                    int(time.time() - int(interval))))
+                push_timestamp__gt=start_date, push_timestamp__lt=end_date)
+        elif start_date:
+            datums = datums.filter(
+                push_timestamp__gt=start_date)
 
         ret = defaultdict(list)
         values_list = datums.values_list(

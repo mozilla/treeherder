@@ -235,3 +235,134 @@ def test_filter_data_by_framework(webapp, test_repository, test_perf_signature,
     assert len(datums) == 1
     assert datums[0]['job_id'] == 1
     assert datums[0]['signature_id'] == 2
+
+
+def test_filter_signatures_by_interval(webapp, test_repository, test_perf_signature):
+    # interval for the last 24 hours, only one signature exists last updated within that timeframe
+    resp = webapp.get(reverse('performance-signatures-list',
+                              kwargs={
+                                  "project": test_perf_signature.repository.name
+                              }) + '?interval={}'.format(86400))
+    assert resp.status_int == 200
+    assert len(resp.json.keys()) == 1
+    assert resp.json[test_perf_signature.signature_hash]['id'] == 1
+
+
+def test_filter_signatures_by_range(webapp, test_repository, test_perf_signature):
+    today = datetime.datetime.now()
+    one_day_ago = today - datetime.timedelta(days=1)
+    three_days_ago = today - datetime.timedelta(days=3)
+    seven_days_ago = today - datetime.timedelta(days=7)
+
+    # set signature last updated to 3 days ago
+    test_perf_signature.last_updated = three_days_ago
+    test_perf_signature.save()
+
+    # start date 3 days ago, should find 1 signature
+    resp = webapp.get(reverse('performance-signatures-list',
+                              kwargs={
+                                  "project": test_perf_signature.repository.name
+                              }) + '?start_date={}'.format(three_days_ago))
+    assert resp.status_int == 200
+    assert len(resp.json.keys()) == 1
+    assert resp.json[test_perf_signature.signature_hash]['id'] == 1
+
+    # start date one day ago, so won't find any signatures
+    resp = webapp.get(reverse('performance-signatures-list',
+                              kwargs={
+                                  "project": test_perf_signature.repository.name
+                              }) + '?start_date={}'.format(one_day_ago))
+    assert resp.status_int == 200
+    assert len(resp.json.keys()) == 0
+
+    # start date 7 days ago, end date 1 day ago, should find 1 signature
+    resp = webapp.get(reverse('performance-signatures-list',
+                              kwargs={
+                                  "project": test_perf_signature.repository.name
+                              }) + '?start_date={}&end_date={}'.format(seven_days_ago, one_day_ago))
+    assert resp.status_int == 200
+    assert len(resp.json.keys()) == 1
+    assert resp.json[test_perf_signature.signature_hash]['id'] == 1
+
+
+def test_filter_data_by_interval(webapp, test_repository, test_perf_signature):
+    now = datetime.datetime.now()
+    one_day_seconds = 86400
+
+    for (i, timestamp) in enumerate([now, now - datetime.timedelta(days=2), now - datetime.timedelta(days=7)]):
+        PerformanceDatum.objects.create(
+            repository=test_perf_signature.repository,
+            job_id=i,
+            result_set_id=i,
+            signature=test_perf_signature,
+            value=i,
+            push_timestamp=timestamp)
+
+    client = APIClient()
+
+    # going back interval of 1 day, should find 1 item
+    resp = client.get(reverse('performance-data-list',
+                              kwargs={"project": test_repository.name}) +
+                      '?signatures={}&interval={}'.format(
+                          test_perf_signature.signature_hash,
+                          one_day_seconds))
+
+    assert resp.status_code == 200
+    datums = resp.data[test_perf_signature.signature_hash]
+    assert len(datums) == 1
+    assert datums[0]['job_id'] == 0
+
+    # interval of 3 days, should find 2 items
+    resp = client.get(reverse('performance-data-list',
+                              kwargs={"project": test_repository.name}) +
+                      '?signatures={}&interval={}'.format(
+                          test_perf_signature.signature_hash,
+                          one_day_seconds * 3))
+
+    assert resp.status_code == 200
+    datums = resp.data[test_perf_signature.signature_hash]
+    assert len(datums) == 2
+    assert datums[0]['job_id'] == 1
+    assert datums[1]['job_id'] == 0
+
+
+def test_filter_data_by_range(webapp, test_repository, test_perf_signature):
+    now = datetime.datetime.now()
+    three_days_ago = now - datetime.timedelta(days=3)
+    seven_days_ago = now - datetime.timedelta(days=7)
+
+    for (i, timestamp) in enumerate([now, now - datetime.timedelta(days=2), now - datetime.timedelta(days=5)]):
+        PerformanceDatum.objects.create(
+            repository=test_perf_signature.repository,
+            job_id=i,
+            result_set_id=i,
+            signature=test_perf_signature,
+            value=i,
+            push_timestamp=timestamp)
+
+    client = APIClient()
+
+    # start date 3 days ago, should find two results
+    resp = client.get(reverse('performance-data-list',
+                              kwargs={"project": test_repository.name}) +
+                      '?signatures={}&start_date={}'.format(
+                          test_perf_signature.signature_hash,
+                          three_days_ago))
+
+    assert resp.status_code == 200
+    datums = resp.data[test_perf_signature.signature_hash]
+    assert len(datums) == 2
+    assert datums[0]['job_id'] == 1
+    assert datums[1]['job_id'] == 0
+
+    # start date 7 days ago, end date 3 days ago, should find 1
+    resp = client.get(reverse('performance-data-list',
+                              kwargs={"project": test_repository.name}) +
+                      '?signatures={}&start_date={}&end_date={}'.format(
+                          test_perf_signature.signature_hash,
+                          seven_days_ago, three_days_ago))
+
+    assert resp.status_code == 200
+    datums = resp.data[test_perf_signature.signature_hash]
+    assert len(datums) == 1
+    assert datums[0]['job_id'] == 2
