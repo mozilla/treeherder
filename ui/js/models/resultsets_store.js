@@ -344,7 +344,7 @@ treeherder.factory('ThResultSetStore', [
                     decisionTaskID = decisionTaskID.substring(0, decisionTaskID.lastIndexOf('/'));
                 }
                 // Will be used later for the GET request
-                resultSet.geckodecisionTaskID = decisionTaskID;
+                resultSet.geckoDecisionTaskID = decisionTaskID;
                 return ThRunnableJobModel.get_list(repoName, {"decision_task_id": decisionTaskID}).then(function(jobList) {
                     var id = resultSet.id;
                     _.each(jobList, function(job) {
@@ -903,11 +903,11 @@ treeherder.factory('ThResultSetStore', [
             return repositories[repoName].rsMap[resultsetId].selected_runnable_jobs;
         };
 
-        var getGeckodecisionTaskID = function(repoName, resultsetId) {
-            if (!repositories[repoName].rsMap[resultsetId].rs_obj.geckodecisionTaskID) {
-                repositories[repoName].rsMap[resultsetId].rs_obj.geckodecisionTaskID = "";
+        var getgeckoDecisionTaskID = function(repoName, resultsetId) {
+            if (!repositories[repoName].rsMap[resultsetId].rs_obj.geckoDecisionTaskID) {
+                repositories[repoName].rsMap[resultsetId].rs_obj.geckoDecisionTaskID = "";
             }
-            return repositories[repoName].rsMap[resultsetId].rs_obj.geckodecisionTaskID;
+            return repositories[repoName].rsMap[resultsetId].rs_obj.geckoDecisionTaskID;
         };
 
         var toggleSelectedRunnableJob = function(repoName, resultsetId, buildername) {
@@ -1249,7 +1249,7 @@ treeherder.factory('ThResultSetStore', [
             addRunnableJobs: addRunnableJobs,
             isRunnableJobSelected: isRunnableJobSelected,
             getSelectedRunnableJobs: getSelectedRunnableJobs,
-            getGeckodecisionTaskID: getGeckodecisionTaskID,
+            getgeckoDecisionTaskID: getgeckoDecisionTaskID,
             toggleSelectedRunnableJob: toggleSelectedRunnableJob,
             getResultSet: getResultSet,
             getResultSetsArray: getResultSetsArray,
