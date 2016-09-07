@@ -155,6 +155,26 @@ class FailureLineNoStackSerializer(serializers.ModelSerializer):
                    'stackwalk_stderr']
 
 
+class TextLogErrorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.TextLogError
+        exclude = ['step']
+
+
+class TextLogStepSerializer(serializers.ModelSerializer):
+
+    errors = TextLogErrorSerializer(many=True, read_only=True)
+    result = serializers.SerializerMethodField()
+
+    def get_result(self, obj):
+        return obj.get_result_display()
+
+    class Meta:
+        model = models.TextLogStep
+        exclude = ['job']
+
+
 class TextLogSummaryLineSerializer(serializers.ModelSerializer):
     bug = BugscacheSerializer(read_only=True)
 

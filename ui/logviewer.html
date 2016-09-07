@@ -67,7 +67,7 @@
           </li>
 
           <!-- Show successful steps button -->
-          <li ng-if="artifact && hasFailedSteps()"
+          <li ng-if="hasFailedSteps()"
               class="lv-actionbtn">
             <div id="lv-successful-steps">
               <input type="checkbox"
@@ -155,6 +155,7 @@
     <script src="js/models/runnable_job.js"></script>
     <script src="js/models/resultset.js"></script>
     <script src="js/models/log_slice.js"></script>
+    <script src="js/models/text_log_step.js"></script>
 
     <!-- Filter -->
     <script src="js/filters.js"></script>

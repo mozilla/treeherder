@@ -6,7 +6,6 @@ from celery import task
 from django.conf import settings
 from django.core.management import call_command
 
-from treeherder.model.error_summary import load_error_summary
 from treeherder.model.exchanges import TreeherderPublisher
 from treeherder.model.models import (ReferenceDataSignatures,
                                      Repository)
@@ -139,16 +138,3 @@ def publish_resultset_runnable_job_action(project, resultset_id, requester,
         decisionTaskID=decisionTaskID,
         timestamp=timestamp
     )
-
-
-@task(name='populate-error-summary')
-def populate_error_summary(project, artifacts):
-    """
-    Create bug suggestions artifact(s) for any text_log_summary artifacts.
-
-    ``artifacts`` here is a list of one or more ``text_log_summary`` artifacts.
-    If any of them have ``error_lines``, then we generate the
-    ``bug suggestions`` artifact from them.
-    """
-    newrelic.agent.add_custom_parameter("project", project)
-    load_error_summary(project, artifacts)

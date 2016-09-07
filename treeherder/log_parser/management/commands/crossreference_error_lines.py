@@ -9,6 +9,7 @@ from treeherder.model.derived import (ArtifactsModel,
                                       JobsModel)
 from treeherder.model.models import (FailureLine,
                                      Repository,
+                                     TextLogError,
                                      TextLogSummary,
                                      TextLogSummaryLine)
 
@@ -42,33 +43,26 @@ class Command(BaseCommand):
                 return
 
         with ArtifactsModel(repository_name) as am:
-            conditions = {
-                'job_id': set([('=', job['id'])])
-            }
-
-            # Load the text log artifacts for this job
-            text_log_summary_conditions = conditions.copy()
-            text_log_summary_conditions["name"] = set([("=", "text_log_summary")])
-            text_log_summary = am.get_job_artifact_list(0, 1, text_log_summary_conditions)
-            if not text_log_summary:
-                logger.error("No text log summary generated for job")
-                return
-            text_log_summary = text_log_summary[0]
-
             # Load the bug suggestions for this job
-            bug_suggestions_conditions = conditions.copy()
-            bug_suggestions_conditions["name"] = set([("=", "Bug suggestions")])
-            bug_suggestions = am.get_job_artifact_list(0, 1, bug_suggestions_conditions)
+            bug_suggestions = am.get_job_artifact_list(
+                offset=0, limit=1, conditions={
+                    'job_id': set([('=', job['id'])]),
+                    'name': set([("=", "Bug suggestions")])
+                })
             if not bug_suggestions:
                 logger.error("No bug_suggestions generated for job")
                 return
             bug_suggestions = bug_suggestions[0]
 
-            self.crossreference_error_lines(repository, job_guid, failure_lines,
-                                            text_log_summary, bug_suggestions)
+        self.crossreference_error_lines(repository,
+                                        job_guid,
+                                        failure_lines,
+                                        TextLogError.objects.filter(
+                                            step__job__guid=job_guid),
+                                        bug_suggestions)
 
-    def crossreference_error_lines(self, repository, job_guid, failure_lines, text_log_summary,
-                                   bug_suggestions):
+    def crossreference_error_lines(self, repository, job_guid, failure_lines,
+                                   text_log_errors, bug_suggestions):
         """Populate the TextLogSummary and TextLogSummaryLine tables for a
         job. Specifically this function tries to match the
         unstructured error lines with the corresponding structured error lines, relying on
@@ -84,7 +78,6 @@ class Command(BaseCommand):
 
         summary, _ = TextLogSummary.objects.get_or_create(job_guid=job_guid,
                                                           repository=repository)
-        summary.text_log_summary_artifact_id = text_log_summary["id"]
         summary.bug_suggestions_artifact_id = bug_suggestions["id"]
 
         summary.save()
@@ -94,22 +87,22 @@ class Command(BaseCommand):
 
         summary_lines = []
 
-        # For each error in the text log summary artifact, try to match the next
-        # unmatched structured log line
-        for error in text_log_summary["blob"]["step_data"]["all_errors"]:
-            log_line = error["line"].strip()
-            line_number = error["linenumber"]
-            if regexp and regexp.match(log_line):
-                logger.debug("Matched '%s'" % (log_line,))
-                summary_lines.append(TextLogSummaryLine(summary=summary,
-                                                        line_number=line_number,
-                                                        failure_line=failure_line))
+        # For each error in the text log, try to match the next unmatched
+        # structured log line
+        for error in text_log_errors:
+            if regexp and regexp.match(error.line.strip()):
+                logger.debug("Matched '%s'" % (error.line,))
+                summary_lines.append(TextLogSummaryLine(
+                    summary=summary,
+                    line_number=error.line_number,
+                    failure_line=failure_line))
                 failure_line, regexp = match_iter.next()
             else:
-                logger.debug("Failed to match '%s'" % (log_line,))
-                summary_lines.append(TextLogSummaryLine(summary=summary,
-                                                        line_number=line_number,
-                                                        failure_line=None))
+                logger.debug("Failed to match '%s'" % (error.line,))
+                summary_lines.append(TextLogSummaryLine(
+                    summary=summary,
+                    line_number=error.line_number,
+                    failure_line=None))
 
         TextLogSummaryLine.objects.bulk_create(summary_lines)
         # We should have exhausted all structured lines

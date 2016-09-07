@@ -16,12 +16,12 @@ treeherder.directive('lvLogLines', ['$parse', function () {
 
         for (var i = 0, ll = lines.length; i < ll; i++) {
             if (lines[i].offsetTop > scrollTop) {
-                var steps = $scope.artifact.step_data.steps;
+                var steps = $scope.steps;
                 var lineNumber = +$(lines[i]).attr('line');
 
                 for (var j = 0, sl = steps.length; j < sl; j++) {
-                    if (lineNumber > (steps[j].started_linenumber - 1) &&
-                        lineNumber < (steps[j].finished_linenumber + 1)) {
+                    if (lineNumber > (steps[j].started_line_number - 1) &&
+                        lineNumber < (steps[j].finished_line_number + 1)) {
                         // make sure we aren't updating when its already correct
                         if ($scope.displayedStep.order === steps[j].order) {
                             return;

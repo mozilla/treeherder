@@ -1,9 +1,11 @@
 "use strict";
 
 treeherder.controller('BugsPluginCtrl', [
-    '$scope', '$rootScope', 'ThLog', 'ThJobArtifactModel','$q', 'thTabs', '$timeout', 'thUrl', '$uibModal', '$location',
+    '$scope', '$rootScope', 'ThLog', 'ThJobArtifactModel', 'ThTextLogStepModel',
+    '$q', 'thTabs', '$timeout', 'thUrl', '$uibModal', '$location',
     function BugsPluginCtrl(
-        $scope, $rootScope, ThLog, ThJobArtifactModel, $q, thTabs, $timeout, thUrl, $uibModal, $location) {
+        $scope, $rootScope, ThLog, ThJobArtifactModel, ThTextLogStepModel,
+        $q, thTabs, $timeout, thUrl, $uibModal, $location) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -21,7 +23,7 @@ treeherder.controller('BugsPluginCtrl', [
         thTabs.tabs.failureSummary.update = function() {
             var newValue = thTabs.tabs.failureSummary.contentId;
             $scope.suggestions = [];
-            if(angular.isDefined(newValue)) {
+            if (angular.isDefined(newValue)) {
                 thTabs.tabs.failureSummary.is_loading = true;
                 // if there's an ongoing timeout, cancel it
                 if (timeoutPromise !== null) {
@@ -35,7 +37,7 @@ treeherder.controller('BugsPluginCtrl', [
                 requestPromise = $q.defer();
 
                 ThJobArtifactModel.get_list({
-                    name__in: "Bug suggestions,text_log_summary",
+                    name__in: "Bug suggestions",
                     "type": "json",
                     job_id: newValue
                 }, {timeout: requestPromise})
@@ -65,21 +67,29 @@ treeherder.controller('BugsPluginCtrl', [
                             );
                             suggestions.push(suggestion);
                         });
-                        var errors = [];
-                        if (suggestions.length === 0 && artifact_list.length > 1) {
-                            artifact = _.find(artifact_list, {"name": "text_log_summary"});
-                            angular.forEach(artifact.blob.step_data.steps, function(step) {
-                                if (step.result !== "success") {
-                                    errors.push({
-                                        "name": step.name,
-                                        "result": step.result,
-                                        "lvURL": thUrl.getLogViewerUrl(artifact.job_id) + "#L" + step.finished_linenumber
+
+                        // if we have no bug suggestions, populate with the raw errors from
+                        // the log (we can do this asynchronously, it should normally be
+                        // fast)
+                        if (!suggestions.length) {
+                            ThTextLogStepModel.query({
+                                project: $rootScope.repoName,
+                                jobId: newValue
+                            }, function(textLogSteps) {
+                                $scope.errors = textLogSteps
+                                    .filter(step => step.result !== 'success')
+                                    .map(function(step) {
+                                        return {
+                                            name: step.name,
+                                            result: step.result,
+                                            lvURL: thUrl.getLogViewerUrl(newValue) +
+                                                "#L" + step.finished_line_number
+                                        };
                                     });
-                                }
                             });
                         }
+
                         $scope.suggestions = suggestions;
-                        $scope.errors = errors;
                         $scope.bugSuggestionsLoaded = true;
                     } else if ($scope.selectedJob && $scope.logParseStatus === "parsed") {
                         $scope.bugSuggestionsLoaded = false;

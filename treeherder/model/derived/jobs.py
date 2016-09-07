@@ -12,8 +12,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 from treeherder.etl.common import get_guid_root
-from treeherder.model import (error_summary,
-                              utils)
+from treeherder.model import utils
 from treeherder.model.models import (BugJobMap,
                                      BuildPlatform,
                                      ClassifiedFailure,
@@ -38,8 +37,7 @@ from treeherder.model.models import (BugJobMap,
                                      TextLogSummaryLine)
 from treeherder.model.search import bulk_delete as es_delete
 from treeherder.model.search import TestFailureLine
-from treeherder.model.tasks import (populate_error_summary,
-                                    publish_job_action,
+from treeherder.model.tasks import (publish_job_action,
                                     publish_resultset_action)
 from treeherder.model.utils import orm_delete
 
@@ -1028,8 +1026,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         retry_job_guids = []
 
-        async_error_summary_list = []
-
         self.set_lower_tier_signatures()
 
         reference_data_signatures = set()
@@ -1071,8 +1067,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     job_placeholders,
                     log_placeholders,
                     artifact_placeholders,
-                    retry_job_guids,
-                    async_error_summary_list
+                    retry_job_guids
                 )
                 reference_data_signatures.add(reference_data_signature)
                 for coalesced_guid in coalesced:
@@ -1136,15 +1131,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         with ArtifactsModel(self.project) as artifacts_model:
             artifacts_model.load_job_artifacts(artifact_placeholders)
-
-        # schedule the generation of ``Bug suggestions`` artifacts
-        # asynchronously now that the jobs have been created
-        # TODO: handle error line cross-referencing for this case
-        if async_error_summary_list:
-            populate_error_summary.apply_async(
-                args=[self.project, async_error_summary_list],
-                routing_key='error_summary'
-            )
 
         # If there is already a job_id stored with pending/running status
         # we need to update the information for the complete job
@@ -1267,8 +1253,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
     def _load_ref_and_job_data_structs(
         self, job, revision, unique_revisions, job_placeholders,
-        log_placeholders, artifact_placeholders, retry_job_guids,
-        async_artifact_list
+        log_placeholders, artifact_placeholders, retry_job_guids
     ):
         """
         Take the raw job object after etl and convert it to job_placeholders.
@@ -1457,12 +1442,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 artifact_placeholder = artifact.copy()
                 artifact_placeholders.append(artifact_placeholder)
 
-            # the artifacts in this list could be ones that should have
-            # bug suggestions generated for them.  If so, queue them to be
-            # scheduled for asynchronous generation.
-            tls_list = error_summary.get_artifacts_that_need_bug_suggestions(
-                artifacts)
-            async_artifact_list.extend(tls_list)
             has_text_log_summary = any(x for x in artifacts
                                        if x['name'] == 'text_log_summary')
 

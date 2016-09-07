@@ -1,14 +1,18 @@
 import logging
 import zlib
 
+import dateutil.parser
 import simplejson as json
 from django.forms import model_to_dict
 
 from treeherder.etl.perf import load_perf_artifacts
 from treeherder.model import utils
+from treeherder.model.error_summary import load_error_summary
 from treeherder.model.models import (Job,
                                      JobDetail,
-                                     ReferenceDataSignatures)
+                                     ReferenceDataSignatures,
+                                     TextLogError,
+                                     TextLogStep)
 
 from ..error_summary import is_helpful_search_term
 from .base import TreeherderModelBase
@@ -122,6 +126,47 @@ class ArtifactsModel(TreeherderModelBase):
                 job=job,
                 **job_detail_dict)
 
+    def store_text_log_summary(self, job, text_log_summary_artifact):
+        """
+        Store the contents of the text log summary artifact
+        """
+        step_data = json.loads(
+            text_log_summary_artifact['blob'])['step_data']
+        result_map = {v: k for (k, v) in TextLogStep.RESULTS}
+        for step in step_data['steps']:
+            name = step['name'][:TextLogStep._meta.get_field('name').max_length]
+            defaults = {
+                'name': name,
+                'result': result_map[step['result']]
+            }
+            # process start/end times if we have them
+            # we currently don't support timezones in treeherder, so
+            # just ignore that when importing/updating the bug to avoid
+            # a ValueError (though by default the text log summaries
+            # we produce should have time expressed in UTC anyway)
+            for tkey in ('started', 'finished'):
+                if step.get(tkey):
+                    defaults[tkey] = dateutil.parser.parse(
+                        step[tkey], ignoretz=True)
+
+            log_step, _ = TextLogStep.objects.get_or_create(
+                job=job,
+                started_line_number=step['started_linenumber'],
+                finished_line_number=step['finished_linenumber'],
+                defaults=defaults)
+
+            if step.get('errors'):
+                for error in step['errors']:
+                    TextLogError.objects.get_or_create(
+                        step=log_step,
+                        line_number=error['linenumber'],
+                        defaults={
+                            'line': error['line'].encode('unicode-escape')
+                        })
+
+        # create a set of bug suggestions immediately
+        load_error_summary(job.repository.name, job.id)
+
     def store_performance_artifact(
             self, job_ids, performance_artifact_placeholders):
         """
@@ -202,6 +247,13 @@ class ArtifactsModel(TreeherderModelBase):
                         job.project_specific_id)
                 elif artifact_name == 'Job Info':
                     self.store_job_details(job, artifact)
+                elif artifact_name == 'text_log_summary':
+                    self.store_text_log_summary(job, artifact)
+                    # continue to store text log summaries in db for now,
+                    # in case we need to revert db-stored summaries
+                    self._adapt_job_artifact_collection(
+                        artifact, job_artifact_list,
+                        job.project_specific_id)
                 else:
                     self._adapt_job_artifact_collection(
                         artifact, job_artifact_list,
