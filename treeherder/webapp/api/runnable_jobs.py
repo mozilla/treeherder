@@ -84,8 +84,7 @@ class RunnableJobsViewSet(viewsets.ViewSet):
                 # to be able to display them (and are not intended to be
                 # displayed). skip.
                 continue
-            else:
-                treeherder_options = extra['treeherder']
+            treeherder_options = extra['treeherder']
 
             task_metadata = node['task']['metadata']
             build_platform = treeherder_options.get('machine', {}).get('platform', '')
