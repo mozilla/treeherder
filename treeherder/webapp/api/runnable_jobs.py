@@ -78,8 +78,16 @@ class RunnableJobsViewSet(viewsets.ViewSet):
                 'result': 'runnable'})
 
         for label, node in tc_graph.iteritems():
+            extra = node['task'].get('extra')
+            if not extra or not extra.get('treeherder'):
+                # some tasks don't have the treeherder information we need
+                # to be able to display them (and are not intended to be
+                # displayed). skip.
+                continue
+            else:
+                treeherder_options = extra['treeherder']
+
             task_metadata = node['task']['metadata']
-            treeherder_options = node['task']['extra']['treeherder']
             build_platform = treeherder_options.get('machine', {}).get('platform', '')
 
             # Not all tasks have a group name
