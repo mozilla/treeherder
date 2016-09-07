@@ -25,10 +25,10 @@
     <span class="result-set-buttons">
       <span class="btn btn-sm btn-resultset cancel-all-jobs-btn"
             tabindex="0" role="button"
-            ng-attr-title="{{getCancelJobsTitle()}}"
+            ng-attr-title="{{getCancelJobsTitle(resultset.revision)}}"
             ng-show="currentRepo.repository_group.name == 'try' || user.is_staff"
             ignore-job-clear-on-click
-            ng-disabled="!canCancelJobs()"
+            ng-disabled="!canCancelJobs(resultset.revision)"
             ng-click="cancelJobs(resultset.revision)">
         <span class="fa fa-times-circle cancel-job-icon dim-quarter"
               ignore-job-clear-on-click></span>
