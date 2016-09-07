@@ -903,7 +903,7 @@ treeherder.factory('ThResultSetStore', [
             return repositories[repoName].rsMap[resultsetId].selected_runnable_jobs;
         };
 
-        var getgeckoDecisionTaskID = function(repoName, resultsetId) {
+        var getGeckoDecisionTaskID = function(repoName, resultsetId) {
             if (!repositories[repoName].rsMap[resultsetId].rs_obj.geckoDecisionTaskID) {
                 repositories[repoName].rsMap[resultsetId].rs_obj.geckoDecisionTaskID = "";
             }
@@ -1249,7 +1249,7 @@ treeherder.factory('ThResultSetStore', [
             addRunnableJobs: addRunnableJobs,
             isRunnableJobSelected: isRunnableJobSelected,
             getSelectedRunnableJobs: getSelectedRunnableJobs,
-            getgeckoDecisionTaskID: getgeckoDecisionTaskID,
+            getGeckoDecisionTaskID: getGeckoDecisionTaskID,
             toggleSelectedRunnableJob: toggleSelectedRunnableJob,
             getResultSet: getResultSet,
             getResultSetsArray: getResultSetsArray,
