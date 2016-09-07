@@ -78,36 +78,40 @@ class RunnableJobsViewSet(viewsets.ViewSet):
                 'result': 'runnable'})
 
         for label, node in tc_graph.iteritems():
-            task_metadata = node['task']['metadata']
-            treeherder_options = node['task']['extra']['treeherder']
-            build_platform = treeherder_options.get('machine', {}).get('platform', '')
+            try:
+                task_metadata = node['task']['metadata']
+                treeherder_options = node['task']['extra']['treeherder']
+                build_platform = treeherder_options.get('machine', {}).get('platform', '')
 
-            # Not all tasks have a group name
-            job_group_name = treeherder_options.get('groupName', '')
+                # Not all tasks have a group name
+                job_group_name = treeherder_options.get('groupName', '')
 
-            # Not all tasks have a group symbol
-            job_group_symbol = treeherder_options.get('groupSymbol', '')
+                # Not all tasks have a group symbol
+                job_group_symbol = treeherder_options.get('groupSymbol', '')
 
-            # Not all tasks have a collection
-            if 'collection' in treeherder_options:
-                platform_option = ' '.join(treeherder_options['collection'].keys())
-            else:
-                platform_option = ""
+                # Not all tasks have a collection
+                if 'collection' in treeherder_options:
+                    platform_option = ' '.join(treeherder_options['collection'].keys())
+                else:
+                    platform_option = ""
 
-            ret.append({
-                'build_platform': build_platform,
-                'platform': build_platform,
-                'job_group_name': job_group_name,
-                'job_group_symbol': job_group_symbol,
-                'job_type_name': task_metadata['name'],
-                'job_type_symbol': treeherder_options['symbol'],
-                'job_type_description': task_metadata['description'],
-                'ref_data_name': label,
-                'build_system_type': 'taskcluster',
-                'platform_option': platform_option,
-                'job_coalesced_to_guid': None,
-                'state': 'runnable',
-                'result': 'runnable'})
+                ret.append({
+                    'build_platform': build_platform,
+                    'platform': build_platform,
+                    'job_group_name': job_group_name,
+                    'job_group_symbol': job_group_symbol,
+                    'job_type_name': task_metadata['name'],
+                    'job_type_symbol': treeherder_options['symbol'],
+                    'job_type_description': task_metadata['description'],
+                    'ref_data_name': label,
+                    'build_system_type': 'taskcluster',
+                    'platform_option': platform_option,
+                    'job_coalesced_to_guid': None,
+                    'state': 'runnable',
+                    'result': 'runnable'})
+            except Exception:
+                # Skip this job, but keep going on the rest of them
+                pass
         response_body = dict(meta={"repository": project,
                                    "offset": 0,
                                    "count": len(ret)},
