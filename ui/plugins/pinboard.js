@@ -120,7 +120,7 @@ treeherder.controller('PinboardCtrl', [
 
         $scope.canSaveClassifications = function() {
             var thisClass = $scope.classification;
-            var canSave = $scope.hasPinnedJobs() && (thPinboard.hasRelatedBugs() ||
+            var canSave = $scope.hasPinnedJobs() && (thPinboard.hasRelatedBugs() && $scope.user.loggedin ||
                           thisClass.failure_classification_id !== 4 ||
                           $rootScope.currentRepo.repository_group.name === "try" ||
                           $rootScope.currentRepo.repository_group.name === "project repositories" ||
