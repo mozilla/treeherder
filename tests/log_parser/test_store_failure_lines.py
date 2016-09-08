@@ -3,8 +3,8 @@ import responses
 from django.conf import settings
 from requests.exceptions import HTTPError
 
-from treeherder.log_parser.failureline import (char_to_codepoint_ucs2,
-                                               store_failure_lines,
+from treeherder.etl.text import char_to_codepoint_ucs2
+from treeherder.log_parser.failureline import (store_failure_lines,
                                                write_failure_lines)
 from treeherder.model.models import (FailureLine,
                                      Job,
