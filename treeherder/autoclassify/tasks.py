@@ -1,6 +1,7 @@
 import logging
 
 import newrelic.agent
+from django.conf import settings
 from django.core.management import call_command
 
 from treeherder import celery_app
@@ -15,9 +16,10 @@ def autoclassify(project, job_guid):
     newrelic.agent.add_custom_parameter("job_guid", job_guid)
     logger.info('Running autoclassify')
     call_command('autoclassify', project, job_guid)
-    celery_app.send_task('detect-intermittents',
-                         [project, job_guid],
-                         routing_key='detect_intermittents')
+    if settings.DETECT_INTERMITTENTS:
+        celery_app.send_task('detect-intermittents',
+                             [project, job_guid],
+                             routing_key='detect_intermittents')
 
 
 @retryable_task(name='detect-intermittents', max_retries=10)

@@ -420,6 +420,7 @@ AUTOCLASSIFY_JOBS = env.bool("AUTOCLASSIFY_JOBS", default=True)
 # Ordered list of matcher classes to use during autoclassification
 AUTOCLASSIFY_MATCHERS = ["PreciseTestMatcher", "CrashSignatureMatcher",
                          "ElasticSearchTestMatcher"]
+DETECT_INTERMITTENTS = env.bool("DETECT_INTERMITTENTS", default=False)
 
 # timeout for requests to external sources
 # like ftp.mozilla.org or hg.mozilla.org
