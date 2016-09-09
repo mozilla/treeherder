@@ -47,23 +47,3 @@ def test_successful_lines_not_matched(line):
     parser = ErrorParser()
     is_error_line = parser.is_error_line(line)
     assert not is_error_line
-
-
-def test_taskcluster_strip_prefix():
-    parser = ErrorParser()
-    assert not parser.is_taskcluster
-    assert not parser.artifact
-
-    # Prefix should not be stripped unless we see a
-    # [taskcluster...] line, causing error detection to fail.
-    parser.parse_line("[vcs 2016-09-07T19:03:02.188327Z] 23:57:52 ERROR - Return code: 1", 1)
-    assert not parser.is_taskcluster
-    assert not parser.artifact
-
-    parser.parse_line("[taskcluster 2016-09-07 19:02:55.114Z] Task ID: PWden6jYS4SfVKYj4p7y6w", 2)
-    assert parser.is_taskcluster
-    assert not parser.artifact
-
-    parser.parse_line("[vcs 2016-09-07T19:03:02.188327Z] 23:57:52 ERROR - Return code: 1", 3)
-    assert len(parser.artifact) == 1
-    assert parser.artifact[0]['linenumber'] == 3

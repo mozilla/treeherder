@@ -408,15 +408,11 @@ class ErrorParser(ParserBase):
 
     RE_ERR_1_MATCH = re.compile(r"^\d+:\d+:\d+ +(?:ERROR|CRITICAL|FATAL) - ")
 
-    # [task 2016-08-18T17:50:56.955523Z]
-    RE_TASKCLUSTER_PREFIX = re.compile(r"^\[[^\]]+\]\s")
-
     RE_MOZHARNESS_PREFIX = re.compile(r"^\d+:\d+:\d+ +(?:DEBUG|INFO|WARNING) - +")
 
     def __init__(self):
         """A simple error detection sub-parser"""
         super(ErrorParser, self).__init__("errors")
-        self.is_taskcluster = False
 
     def add(self, line, lineno):
         self.artifact.append({
@@ -426,15 +422,6 @@ class ErrorParser(ParserBase):
 
     def parse_line(self, line, lineno):
         """Check a single line for an error.  Keeps track of the linenumber"""
-        # First line of TaskCluster logs almost certainly has this.
-        if line.startswith('[taskcluster '):
-            self.is_taskcluster = True
-
-        # For performance reasons, only do this if we have identified as
-        # a TC task.
-        if self.is_taskcluster:
-            line = re.sub(self.RE_TASKCLUSTER_PREFIX, "", line)
-
         if self.is_error_line(line):
             self.add(line, lineno)
 
