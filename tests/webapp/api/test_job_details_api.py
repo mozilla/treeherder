@@ -87,3 +87,11 @@ def test_job_details(test_repository, webapp):
     assert len(resp.json['results']) == 1
     assert set([v['job_guid'] for v in resp.json['results']]) == set(
         ['ijkl'])
+
+    # filter to just get those with a specific title
+    resp = webapp.get(reverse('jobdetail-list') +
+                      '?title=title')
+    print resp.json
+    assert resp.status_int == 200
+    assert len(resp.json['results']) == 1
+    assert set([v['job_guid'] for v in resp.json['results']]) == set(['abcd'])
