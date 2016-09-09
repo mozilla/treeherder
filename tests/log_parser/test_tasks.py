@@ -7,7 +7,8 @@ import simplejson as json
 from django.conf import settings
 from django.utils.six import BytesIO
 
-from treeherder.model.models import JobDetail
+from treeherder.model.models import (JobDetail,
+                                     TextLogError)
 
 from ..sampledata import SampleData
 
@@ -85,9 +86,8 @@ def test_parse_log(jm, jobs_with_local_log, sample_resultset):
         placeholders=[job_id]
     )
 
-    # we should have 3 artifacts:
-    # 1 for the log viewer
-    # 1 for the bug suggestions
+    # we should have two artifacts: bug suggestions and text log summaries
+    # (text log summaries are soon to be deleted)
     assert len(job_artifacts) == 2
     # this log generates 4 job detail objects at present
     print JobDetail.objects.count() == 4
@@ -118,24 +118,18 @@ def test_bug_suggestions_artifact(jm, jobs_with_local_log, sample_resultset, tes
         placeholders=[job_id]
     )
 
-    # we must have 3 artifacts:
-    # 1 for the log viewer
-    # 1 for the bug suggestions
+    # we should have just two artifacts, the bug suggestions one and a
+    # text log summary (the latter will be soon removed)
     assert len(job_artifacts) == 2
 
-    structured_log_artifact = [artifact for artifact in job_artifacts
-                               if artifact["name"] == "text_log_summary"][0]
     bug_suggestions_artifact = [artifact for artifact in job_artifacts
                                 if artifact["name"] == "Bug suggestions"][0]
-    structured_log = json.loads(zlib.decompress(structured_log_artifact["blob"]))
-
-    all_errors = structured_log["step_data"]["all_errors"]
     bug_suggestions = json.loads(zlib.decompress(bug_suggestions_artifact["blob"]))
 
     # we must have one bugs item per error in bug_suggestions.
     # errors with no bug suggestions will just have an empty
     # bugs list
-    assert len(all_errors) == len(bug_suggestions)
+    assert TextLogError.objects.count() == len(bug_suggestions)
 
     # We really need to add some tests that check the values of each entry
     # in bug_suggestions, but for now this is better than nothing.

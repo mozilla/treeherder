@@ -2,7 +2,6 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND
 
-from treeherder.log_parser.utils import create_artifacts
 from treeherder.model.derived import ArtifactsModel
 from treeherder.webapp.api import permissions
 from treeherder.webapp.api.utils import UrlQueryFilter
@@ -53,6 +52,9 @@ class ArtifactViewSet(viewsets.ViewSet):
             return Response(objs)
 
     def create(self, request, project):
-        create_artifacts(project, request.data)
+        serialized_artifacts = ArtifactsModel.serialize_artifact_json_blobs(
+            request.data)
+        with ArtifactsModel(project) as artifacts_model:
+            artifacts_model.load_job_artifacts(serialized_artifacts)
 
         return Response({'message': 'Artifacts stored successfully'})

@@ -15,6 +15,8 @@ from treeherder.model.models import (FailureLine,
                                      JobDetail,
                                      JobLog,
                                      OptionCollection,
+                                     TextLogError,
+                                     TextLogStep,
                                      TextLogSummary)
 from treeherder.webapp.api import (pagination,
                                    permissions,
@@ -257,20 +259,18 @@ class JobsViewSet(viewsets.ViewSet):
         with ArtifactsModel(project) as am:
             artifacts = am.get_job_artifact_list(
                 offset=0,
-                limit=2,
+                limit=1,
                 conditions={"job_id": set([("=", pk)]),
-                            "name": set([("IN", ("Bug suggestions", "text_log_summary"))]),
+                            "name": set([("=", "Bug suggestions")]),
                             "type": set([("=", "json")])})
             artifacts_by_name = {item["name"]: item for item in artifacts}
 
-        text_log_summary = artifacts_by_name.get("text_log_summary", {})
-        error_lines = text_log_summary.get("blob", {}).get("step_data", {}).get("all_errors", [])
         bug_suggestions = artifacts_by_name.get("Bug suggestions", {}).get("blob")
 
         summary = summary[0]
 
-        text_log_summary = artifacts_by_name.get("text_log_summary", {})
-        lines_by_number = {line["linenumber"]: line["line"] for line in error_lines}
+        lines_by_number = {error.line_number: error.line for error in
+                           TextLogError.objects.filter(step__job__guid=job['job_guid'])}
 
         rv = serializers.TextLogSummarySerializer(summary).data
         rv["bug_suggestions"] = bug_suggestions
@@ -279,6 +279,23 @@ class JobsViewSet(viewsets.ViewSet):
             line["line"] = lines_by_number[line["line_number"]]
 
         return Response(rv)
+
+    @detail_route(methods=['get'])
+    @with_jobs
+    def text_log_steps(self, request, project, jm, pk=None):
+        """
+        Gets a list of steps associated with this job
+        """
+        job = jm.get_job(pk)
+        if not job:
+            return Response("No job with id: {0}".format(pk),
+                            status=HTTP_404_NOT_FOUND)
+        textlog_steps = TextLogStep.objects.filter(
+            job__guid=job[0]['job_guid']).order_by(
+                'started_line_number').prefetch_related('errors')
+        return Response(serializers.TextLogStepSerializer(textlog_steps,
+                                                          many=True,
+                                                          read_only=True).data)
 
     @detail_route(methods=['get'])
     @with_jobs
