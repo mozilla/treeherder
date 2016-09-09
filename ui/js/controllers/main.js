@@ -204,6 +204,21 @@ treeherderApp.controller('MainCtrl', [
          * This new solution uses a simple model scope object and update function
          * to keep things in sync.
          */
+
+        var checkIfSingleTierSelected = function() {
+            var count = 0;
+            _.forEach($scope.tiers, function(tier) {
+                if(tier == true) {
+                    count = count + 1;
+                }
+            });
+            if(count == 1) {
+              $scope.isSingleTierSelected = true;
+            } else {
+              $scope.isSingleTierSelected = false;
+            }
+        };
+
         $scope.isTierShowing = function(tier) {
             return thJobFilters.isFilterSetToShow("tier", tier);
         };
@@ -222,6 +237,7 @@ treeherderApp.controller('MainCtrl', [
                 }
 
             });
+            checkIfSingleTierSelected();
             if (changed) {
                 $rootScope.$emit(thEvents.recalculateUnclassified);
             }
@@ -453,6 +469,7 @@ treeherderApp.controller('MainCtrl', [
         // clicked a checkbox in the tier menu
         $scope.tierToggled = function(tier) {
             thJobFilters.toggleFilters('tier', [tier], $scope.tiers[tier]);
+            checkIfSingleTierSelected();
             $rootScope.$emit(thEvents.recalculateUnclassified);
         };
 
