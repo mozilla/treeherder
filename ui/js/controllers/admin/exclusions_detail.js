@@ -70,4 +70,4 @@ admin.controller('ExclusionsDetailCtrl', [
             $scope.form_option_collections = angular.copy($scope.master_option_collections);
             $scope.form_repos = angular.copy($scope.master_repos);
         };
-}]);
+    }]);

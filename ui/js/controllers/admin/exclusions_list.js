@@ -1,10 +1,7 @@
 'use strict';
 
-admin.controller('ExclusionsListCtrl', [
-    '$scope', 'ThJobExclusionModel', 'ThExclusionProfileModel', '$state',
-    function ExclusionsListCtrl(
-        $scope, ThJobExclusionModel, ThExclusionProfileModel, $state) {
-
+admin.controller('ExclusionsListCtrl', ['$scope',
+    function ExclusionsListCtrl($scope) {
         $scope.delete_exclusion = function(exclusion) {
             exclusion.delete().then(function() {
                 // update the exclusion profiles since some of them may keep
