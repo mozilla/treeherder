@@ -42,6 +42,14 @@ admin.controller('AdminCtrl', [
             return field1 + " (" + field2 + ")";
         };
 
+        /**
+         * Initialize all the master lists of refdata values.  These are copied
+         * around for lists in the Exclusion editor.
+         *
+         * This code is in this controller instead of the exclusion controller
+         * so that it doesn't have to be reloaded each time you navigate to
+         * that page.
+         */
         $scope.initMasterLists = function() {
             // initialize the list of platform
             var promise = $q.resolve();
