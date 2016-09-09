@@ -1056,19 +1056,5 @@
         "repository_group": 3,
         "description": "Try repo for Servo integration"
     }
-},
-{
-    "pk": 84,
-    "model": "model.repository",
-    "fields": {
-        "dvcs_type": "git",
-        "name": "camdtest",
-        "url": "https://github.com/mozilla/camdtest",
-        "active_status": "active",
-        "branch": "master",
-        "codebase": "camdtest",
-        "repository_group": 7,
-        "description": "Test repo for pulse resultsets"
-    }
 }
 ]

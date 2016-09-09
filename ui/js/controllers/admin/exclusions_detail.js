@@ -39,7 +39,6 @@ admin.controller('ExclusionsDetailCtrl', [
         };
 
         $scope.saveExclusion = function(exclusion) {
-
             // convert option_collections to option_collection_hashes
             exclusion.info.option_collection_hashes = [];
             _.each(exclusion.info.option_collections, function(oc) {
@@ -71,7 +70,4 @@ admin.controller('ExclusionsDetailCtrl', [
             $scope.form_option_collections = angular.copy($scope.master_option_collections);
             $scope.form_repos = angular.copy($scope.master_repos);
         };
-
-
-
-    }]);
+}]);

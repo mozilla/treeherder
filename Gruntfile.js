@@ -323,8 +323,8 @@ module.exports = function(grunt) {
                     append: true,
                     htmlmin: {
                         collapseBooleanAttributes:      true,
-                        // collapseWhitespace:             true,
-                        // conservativeCollapse:           true,
+                        collapseWhitespace:             true,
+                        conservativeCollapse:           true,
                         removeAttributeQuotes:          true,
                         removeComments:                 true,
                         removeEmptyAttributes:          true,

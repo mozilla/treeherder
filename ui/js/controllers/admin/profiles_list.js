@@ -26,9 +26,7 @@ admin.controller('ProfilesListCtrl', ['$scope', 'thNotify',
                         elem.is_default = false;
                     }
                 });
-                // don't force the user to refresh, in case they want to make
-                // several changes.
-                thNotify.send("Refresh Treeherder windows to see changes reflected.");
+                thNotify.send($scope.REFRESH_MSG);
             }, null);
         };
     }]);

@@ -1,16 +1,13 @@
 'use strict';
 
 admin.controller('AdminCtrl', [
-    // '$scope', 'ThJobExclusionModel', 'ThExclusionProfileModel', '$state', '$q',
-    // function AdminCtrl(
-    //     $scope, ThJobExclusionModel, ThExclusionProfileModel, $state, $q) {
     '$scope', 'ThBuildPlatformModel', 'ThJobTypeModel', 'ThRepositoryModel',
-    'ThOptionCollectionModel', 'ThJobExclusionModel', 'thNotify', '$state',
-    '$stateParams', '$q','ThExclusionProfileModel',
+    'ThOptionCollectionModel', 'ThJobExclusionModel', '$state',
+    '$q','ThExclusionProfileModel',
     function AdminCtrl(
         $scope, ThBuildPlatformModel, ThJobTypeModel, ThRepositoryModel,
-        ThOptionCollectionModel, ThJobExclusionModel, thNotify, $state,
-        $stateParams, $q,ThExclusionProfileModel) {
+        ThOptionCollectionModel, ThJobExclusionModel, $state,
+        $q,ThExclusionProfileModel) {
 
         $scope.REFRESH_MSG = "Refresh Treeherder windows to see changes reflected.";
 
@@ -19,11 +16,7 @@ admin.controller('AdminCtrl', [
         // If we use ui-sref there, it will ignore the ng-disabled.
         $scope.go = $state.go.bind($state);
 
-        // TODO: just for testing by camd
-        // $scope.user = {is_staff: true};
-
         $scope.populateProfilesMap = function() {
-
             return ThExclusionProfileModel.get_list({}, false).then(function (data) {
                 $scope.profiles = _.map(data, function (profile) {
                     profile.showExcludedUrl = "/?exclusion_profile=" + profile.name +
@@ -40,6 +33,7 @@ admin.controller('AdminCtrl', [
                 $scope.exclusionsMap = _.indexBy($scope.exclusions, 'id');
             });
         };
+
         /**
          * Used to allow for selection of "platform (arch)" or
          * "job_type (job_symbol)"

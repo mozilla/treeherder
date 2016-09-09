@@ -1,7 +1,7 @@
   <!-- Job exclusions -->
   <div class="th-inline-option-group exclusion-container"
        ng-controller="ExclusionsListCtrl"
-       ng-init="init()">
+       ng-init="populateExclusionsMap()">
     <button ng-click="go('exclusions_detail', {id: 'new'})" type="button"
             ng-disabled="!user.is_staff"
             ng-attr-title="{{!user.is_staff ? 'Sheriff permissions required' : ''}}"
@@ -23,11 +23,10 @@
         <td>
           <!-- Exclusion name button -->
           <a ui-sref="exclusions_detail({id: exclusion.id})"
-                  ng-disabled="!user.is_staff"
-                  class="admin-btn pointable"
-                  ng-class="!user.is_staff ? 'text-btn-disabled' :
-                           'text-btn'"
-                  ng-attr-title="{{!user.is_staff ? '' : 'Modify this exclusion'}}">
+             ng-disabled="!user.is_staff"
+             class="admin-btn pointable"
+             ng-class="!user.is_staff ? 'text-btn-disabled' : 'text-btn'"
+             ng-attr-title="{{!user.is_staff ? '' : 'Modify this exclusion'}}">
             {{::exclusion.name}}
           </a>
         </td>

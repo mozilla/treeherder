@@ -35,14 +35,15 @@ admin.controller('ProfilesDetailCtrl', [
                 thNotify.send("Unknown profile id: " + id, "danger");
                 $state.go("profiles");
             }
-
         };
 
+        // set the profile page back to blank
         $scope.resetProfile = function() {
             $scope.form_profile = angular.copy($scope.master_profile);
             $scope.form_profile_choices = {};
         };
 
+        // save the profile changes
         $scope.saveProfile = function(profile) {
             var choices = [];
             angular.forEach($scope.form_profile_choices, function(value, key) {
