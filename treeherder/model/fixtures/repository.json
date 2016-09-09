@@ -767,7 +767,7 @@
     "fields": {
         "dvcs_type": "git",
         "name": "bmo-master",
-        "url": "https://github.com/mozilla/webtools-bmo-bugzilla",
+        "url": "https://github.com/mozilla-bteam/bmo",
         "branch": "master",
         "active_status": "active",
         "codebase": "bugzilla",
@@ -849,7 +849,7 @@
     "fields": {
         "dvcs_type": "git",
         "name": "bmo-development",
-        "url": "https://github.com/mozilla/webtools-bmo-bugzilla",
+        "url": "https://github.com/mozilla-bteam/bmo",
         "branch": "development",
         "active_status": "active",
         "codebase": "bugzilla",
@@ -889,7 +889,7 @@
     "fields": {
         "dvcs_type": "git",
         "name": "bmo-upstream-merge",
-        "url": "https://github.com/mozilla/webtools-bmo-bugzilla",
+        "url": "https://github.com/mozilla-bteam/bmo",
         "branch": "upstream-merge",
         "active_status": "active",
         "codebase": "bugzilla",
@@ -942,7 +942,7 @@
     "fields": {
         "dvcs_type": "git",
         "name": "servo",
-        "url": "https://www.github.com/servo/servo",
+        "url": "https://github.com/servo/servo",
         "branch": "master",
         "active_status": "active",
         "codebase": "servo",
