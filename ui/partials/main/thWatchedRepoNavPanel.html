@@ -27,11 +27,12 @@
               role="menu">
             <li ng-repeat="tier in jobFilters.tiers">
               <div class="checkbox dropdown-link">
-                <label>
+                <label title="{{(isSingleTierSelected() && tiers[tier] == true) ? 'Must have at least one tier selected at all times' : ''}}">
                   <input id="tier-checkbox"
                          type="checkbox"
                          class="dropdown-checkboxk"
                          ng-model="tiers[tier]"
+                         ng-disabled="isSingleTierSelected() && tiers[tier] == true"
                          ng-change="tierToggled(tier)">
                   tier {{::tier}}
                 </label>

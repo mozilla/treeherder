@@ -204,6 +204,11 @@ treeherderApp.controller('MainCtrl', [
          * This new solution uses a simple model scope object and update function
          * to keep things in sync.
          */
+
+        $scope.isSingleTierSelected = function() {
+            return _.without(_.values($scope.tiers), false).length === 1;
+        };
+
         $scope.isTierShowing = function(tier) {
             return thJobFilters.isFilterSetToShow("tier", tier);
         };
