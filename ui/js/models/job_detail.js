@@ -3,12 +3,12 @@
 treeherder.factory('ThJobDetailModel', [
     '$http', 'thUrl', function($http, thUrl) {
         return {
-            getJobDetails: function(jobGuid, config) {
+            getJobDetails: function(params, config) {
                 config = config || {};
                 var timeout = config.timeout || null;
 
                 return $http.get(thUrl.getRootUrl("/jobdetail/"), {
-                    params: { job_guid: jobGuid },
+                    params: params,
                     timeout: timeout
                 }).then(function(response) {
                     return response.data.results;

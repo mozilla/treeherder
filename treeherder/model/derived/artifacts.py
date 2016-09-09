@@ -202,6 +202,17 @@ class ArtifactsModel(TreeherderModelBase):
                         job.project_specific_id)
                 elif artifact_name == 'Job Info':
                     self.store_job_details(job, artifact)
+                elif artifact_name == 'buildapi':
+                    buildbot_request_id = json.loads(artifact['blob']).get(
+                        'request_id')
+                    if buildbot_request_id:
+                        JobDetail.objects.update_or_create(
+                            job=job,
+                            title='buildbot_request_id',
+                            value=str(buildbot_request_id))
+                    self._adapt_job_artifact_collection(
+                        artifact, job_artifact_list,
+                        job.project_specific_id)
                 else:
                     self._adapt_job_artifact_collection(
                         artifact, job_artifact_list,

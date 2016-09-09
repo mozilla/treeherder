@@ -328,7 +328,8 @@ treeherder.factory('ThResultSetStore', [
                 // This extra search is important to avoid confusion with Action Tasks
                 var decision_task = _.find(platform.groups[0].jobs, {"job_type_symbol": "D"});
                 var job_guid = decision_task.job_guid;
-                tcURLPromise = ThJobDetailModel.getJobDetails(job_guid, {timeout: null});
+                tcURLPromise = ThJobDetailModel.getJobDetails({job_guid: job_guid},
+                                                              {timeout: null});
             }
             if (!tcURLPromise) {
                 // Here we are passing false to the results instead of skipping the promise

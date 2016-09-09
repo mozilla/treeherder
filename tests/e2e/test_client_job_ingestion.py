@@ -442,3 +442,35 @@ def test_post_job_with_default_tier(test_project, result_set_stored,
         job = [x for x in jobs_model.get_job_list(0, 20)
                if x['job_guid'] == job_guid][0]
         assert job['tier'] == 1
+
+
+def test_post_job_with_buildapi_artifact(test_project, result_set_stored,
+                                         mock_post_json):
+    """
+    test submitting a job with a buildapi artifact gets that stored (and
+    we update the job object)
+    """
+    tjc = client.TreeherderJobCollection()
+    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
+    tj = client.TreeherderJob({
+        'project': test_project,
+        'revision': result_set_stored[0]['revision'],
+        'job': {
+            'artifacts': [],
+            'job_guid': job_guid,
+            'state': 'completed',
+        }
+    })
+    tj.add_artifact("buildapi", "json",
+                    json.dumps({"buildername": "Windows 8 64-bit cheezburger",
+                                "request_id": 1234}))
+    tjc.add(tj)
+    post_collection(test_project, tjc)
+
+    assert Job.objects.count() == 1
+    assert JobDetail.objects.count() == 1
+
+    buildbot_request_id_detail = JobDetail.objects.all()[0]
+    assert buildbot_request_id_detail.title == 'buildbot_request_id'
+    assert buildbot_request_id_detail.value == str(1234)
+    assert buildbot_request_id_detail.url == None
