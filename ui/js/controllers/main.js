@@ -5,13 +5,13 @@ treeherderApp.controller('MainCtrl', [
     'ThLog', 'ThRepositoryModel', 'thPinboard', 'thTabs', '$document',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
-    'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit', 'thNotify',
+    'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit',
     function MainController(
         $scope, $rootScope, $routeParams, $location, $timeout,
         ThLog, ThRepositoryModel, thPinboard, thTabs, $document,
         thClassificationTypes, thEvents, $interval, $window,
         ThExclusionProfileModel, thJobFilters, ThResultSetStore,
-        thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit, thNotify) {
+        thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit) {
         var $log = new ThLog("MainCtrl");
 
         // Query String param for selected job

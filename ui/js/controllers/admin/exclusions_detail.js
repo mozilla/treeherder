@@ -1,13 +1,9 @@
 'use strict';
 
 admin.controller('ExclusionsDetailCtrl', [
-    '$scope', 'ThBuildPlatformModel', 'ThJobTypeModel', 'ThRepositoryModel',
-    'ThOptionCollectionModel', 'ThJobExclusionModel', 'thNotify', '$state',
-    '$stateParams', '$q',
+    '$scope', 'ThJobExclusionModel', 'thNotify', '$state', '$stateParams',
     function ExclusionsDetailCtrl(
-        $scope, ThBuildPlatformModel, ThJobTypeModel, ThRepositoryModel,
-        ThOptionCollectionModel, ThJobExclusionModel, thNotify, $state,
-        $stateParams, $q) {
+        $scope, ThJobExclusionModel, thNotify, $state, $stateParams) {
 
         $scope.init = function() {
             $scope.initMasterLists().then(function() {

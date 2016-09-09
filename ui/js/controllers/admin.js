@@ -20,7 +20,7 @@ admin.controller('AdminCtrl', [
         $scope.go = $state.go.bind($state);
 
         // TODO: just for testing by camd
-        $scope.user = {is_staff: true};
+        // $scope.user = {is_staff: true};
 
         $scope.populateProfilesMap = function() {
 
@@ -35,7 +35,6 @@ admin.controller('AdminCtrl', [
         };
 
         $scope.populateExclusionsMap = function() {
-            console.log("popExcl");
             return ThJobExclusionModel.get_list().then(function (data) {
                 $scope.exclusions = data;
                 $scope.exclusionsMap = _.indexBy($scope.exclusions, 'id');
@@ -51,6 +50,7 @@ admin.controller('AdminCtrl', [
 
         $scope.initMasterLists = function() {
             // initialize the list of platform
+            var promise = $q.resolve();
             if (!$scope.masterListsInitialized) {
                 $scope.master_platforms = [];
                 var platformPromise = ThBuildPlatformModel.get_list()
@@ -121,13 +121,12 @@ admin.controller('AdminCtrl', [
                 // us that we don't need to re-run this function.
                 $scope.masterListsInitialized = true;
 
-                return $q.all([platformPromise,
-                               jobTypePromise,
-                               repoPromise,
-                               optPromise]);
-            } else {
-                return $q.resolve();
+                promise = $q.all([platformPromise,
+                                  jobTypePromise,
+                                  repoPromise,
+                                  optPromise]);
             }
+            return promise;
         };
     }
 ]);
