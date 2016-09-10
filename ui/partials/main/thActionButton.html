@@ -13,7 +13,7 @@
     <li><a target="_blank" ignore-job-clear-on-click
            title="Add new jobs to this resultset"
            href=""
-           ng-hide="resultset.isRunnableVisible"
+           ng-hide="!user.loggedin || resultset.isRunnableVisible"
            ng-click="showRunnableJobs()">Add new Jobs</a></li>
     <li><a target="_blank" ignore-job-clear-on-click
            title="Hide Runnable Jobs"
