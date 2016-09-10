@@ -128,6 +128,31 @@ treeherder.controller('PinboardCtrl', [
             return canSave;
         };
 
+        // Dyanmic btn/anchor title for any combination of save conditions
+        $scope.saveClassificationTitle = function() {
+            var title = "";
+
+            if (!$scope.user.loggedin) {
+                title = title.concat("not logged in / ");
+            }
+            if (!$scope.canSaveClassifications()) {
+                title = title.concat("ineligible classification data / ");
+            }
+            if (!$scope.hasPinnedJobs()) {
+                title = title.concat("no pinned jobs");
+            }
+
+            if (title === "") {
+                title = "Save classification data";
+            } else {
+                // cut off trailing "/ " if one exists, capitalize first letter
+                title = title.replace(/\/ $/,"");
+                title = title.replace(/^./, function(l) { return l.toUpperCase(); });
+            }
+
+            return title;
+        };
+
         $scope.hasPinnedJobs = function() {
             return thPinboard.hasPinnedJobs();
         };

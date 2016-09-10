@@ -63,13 +63,12 @@
 
 <!-- Save UI -->
 <div id="pinboard-controls" class="btn-group-vertical"
-     title="{{!hasPinnedJobs() ? 'No jobs pinned' : ''}}">
+     title="{{!hasPinnedJobs() ? 'No pinned jobs' : ''}}">
   <div class="btn-group">
     <button class="btn btn-default btn-xs save-btn"
-            title="{{ !user.loggedin && !canSaveClassifications() ?
-                      'Not logged in / default classification data / no job pinned' : 'Save all classification data' }}"
+            title="{{ saveClassificationTitle() }}"
             ng-click="save()"
-            ng-disabled=" !user.loggedin && !canSaveClassifications()">save
+            ng-disabled="!user.loggedin || !canSaveClassifications()">save
     </button>
     <button class="btn btn-default btn-xs dropdown-toggle save-btn-dropdown"
             title="{{ !hasPinnedJobs() ? 'No pinned jobs' : 'Additional pinboard functions' }}"
@@ -78,18 +77,16 @@
       <span class="caret"></span>
     </button>
     <ul class="dropdown-menu pull-right" role="menu">
-      <li class="{{ !user.loggedin && !canSaveClassifications() ? 'disabled' : '' }}"
-          title="{{ !user.loggedin && !canSaveClassifications() ?
-                    'Not logged in / default classification data / no job pinned' : 'Save classification only' }}">
-        <a ng-click="!canSaveClassifications() || saveClassificationOnly()">Save classification only</a></li>
+      <li class="{{ !user.loggedin || !canSaveClassifications() ? 'disabled' : '' }}"
+          title="{{ saveClassificationTitle() }}">
+        <a ng-click="!user.loggedin || !canSaveClassifications() || saveClassificationOnly()">Save classification only</a></li>
       <li class="{{ !user.loggedin || !hasRelatedBugs() ? 'disabled' : '' }}"
           title="{{ !user.loggedin || !hasRelatedBugs() ?
-                    'Not logged in / no related bugs added' : 'Save bug classification data' }}">
+                    'Not logged in / no related bugs added' : 'Save bug data' }}">
         <a ng-click="!canSaveClassifications() || saveBugsOnly()">Save bugs only</a></li>
       <li class="{{ !user.loggedin ? 'disabled' : '' }}"
-          title="{{ !user.loggedin ? 'Must be logged in to retrigger all pinned jobs' : 'Repeat the pinned jobs'}}">
-        <a ng-disabled="!user.loggedin"
-           ng-click="!user.loggedin || retriggerAllPinnedJobs()">Retrigger all</a></li>
+          title="{{ !user.loggedin ? 'Not logged in' : 'Repeat the pinned jobs'}}">
+        <a ng-click="!user.loggedin || retriggerAllPinnedJobs()">Retrigger all</a></li>
       <li><a ng-click="unPinAll()">Clear all</a></li>
     </ul>
   </div>
