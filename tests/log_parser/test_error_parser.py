@@ -41,9 +41,48 @@ def test_error_lines_matched(line):
     is_error_line = parser.is_error_line(line)
     assert is_error_line
 
+    # Now feed the line into the parser and verify we still find an error.
+    parser.parse_line(line, 1)
+    assert len(parser.artifact) == 1
+
+
+@pytest.mark.parametrize("line", ERROR_TEST_CASES)
+def test_error_lines_taskcluster(line):
+    parser = ErrorParser()
+    # Make the log parser think this is a TaskCluster log.
+    parser.parse_line('[taskcluster foo] this is a taskcluster log', 1)
+    assert parser.is_taskcluster
+    parser.parse_line(line, 2)
+    assert len(parser.artifact) == 1
+
 
 @pytest.mark.parametrize("line", NON_ERROR_TEST_CASES)
 def test_successful_lines_not_matched(line):
     parser = ErrorParser()
     is_error_line = parser.is_error_line(line)
     assert not is_error_line
+
+
+def test_taskcluster_strip_prefix():
+    parser = ErrorParser()
+    assert not parser.is_taskcluster
+    assert not parser.artifact
+
+    # Prefix should not be stripped unless we see a
+    # [taskcluster...] line. Not stripping the prefix causes error parsing to
+    # fail.
+    parser.parse_line("[vcs 2016-09-07T19:03:02.188327Z] 23:57:52 ERROR - Return code: 1", 1)
+    assert not parser.is_taskcluster
+    assert not parser.artifact
+
+    # Parsing a line with the [taskcluster...] prefix marks the log as
+    # associated with TC.
+    parser.parse_line("[taskcluster 2016-09-07 19:02:55.114Z] Task ID: PWden6jYS4SfVKYj4p7y6w", 2)
+    assert parser.is_taskcluster
+    assert not parser.artifact
+
+    # And parsing the same line as above should detect the error since the
+    # TC prefix is stripped.
+    parser.parse_line("[vcs 2016-09-07T19:03:02.188327Z] 23:57:52 ERROR - Return code: 1", 3)
+    assert len(parser.artifact) == 1
+    assert parser.artifact[0]['linenumber'] == 3
