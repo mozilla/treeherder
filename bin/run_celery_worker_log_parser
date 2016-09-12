@@ -25,7 +25,6 @@ log_store_failure_lines_fail,\
 log_crossreference_error_lines,\
 log_crossreference_error_lines_fail,\
 log_autoclassify,\
-log_autoclassify_fail,\
-error_summary\
+log_autoclassify_fail\
     --concurrency=5 --logfile=$LOGFILE -l INFO \
     --maxtasksperchild=500 -n log_parser.%h

@@ -548,15 +548,15 @@ def bugs(mock_bugzilla_api_request):
 @pytest.fixture
 def artifacts(jm, failure_lines, test_repository):
     from treeherder.model.models import FailureLine
-    from autoclassify.utils import create_summary_lines_failures, create_bug_suggestions_failures
+    from autoclassify.utils import create_text_log_errors, create_bug_suggestions_failures
     job = jm.get_job(1)[0]
 
     lines = [(item, {}) for item in FailureLine.objects.filter(job_guid=job["job_guid"]).values()]
 
-    summary_lines = create_summary_lines_failures(test_repository.name, job, lines)
+    errors = create_text_log_errors(test_repository.name, job['id'], lines)
     bug_suggestions = create_bug_suggestions_failures(test_repository.name, job, lines)
 
-    return summary_lines, bug_suggestions
+    return errors, bug_suggestions
 
 
 @pytest.fixture
@@ -567,7 +567,7 @@ def text_summary_lines(jm, failure_lines, test_repository, artifacts):
     summary = TextLogSummary(
         job_guid=job["job_guid"],
         repository=test_repository,
-        text_log_summary_artifact_id=artifacts[0]["id"],
+        text_log_summary_artifact_id=None,
         bug_suggestions_artifact_id=artifacts[1]["id"]
     )
     summary.save()
