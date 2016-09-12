@@ -208,7 +208,6 @@ CELERY_QUEUES = [
     Queue('detect_intermittents', Exchange('default'), routing_key='detect_intermittents'),
     # Queue for mirroring the failure classification activity to Elasticsearch.
     Queue('classification_mirroring', Exchange('default'), routing_key='classification_mirroring'),
-    Queue('error_summary', Exchange('default'), routing_key='error_summary'),
     Queue('publish_to_pulse', Exchange('default'), routing_key='publish_to_pulse'),
     Queue('pushlog', Exchange('default'), routing_key='pushlog'),
     Queue('buildapi_pending', Exchange('default'), routing_key='buildapi_pending'),

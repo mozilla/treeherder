@@ -7,7 +7,7 @@ from django.core.management import call_command
 from tests import test_utils
 from tests.autoclassify.utils import (create_bug_suggestions_failures,
                                       create_failure_lines,
-                                      create_summary_lines_failures,
+                                      create_text_log_errors,
                                       test_line)
 from tests.sample_data_generator import (job_data,
                                          result_set)
@@ -937,7 +937,7 @@ def test_update_autoclassification_bug(jm, test_repository, classified_failures)
     failure_lines[0].save()
     classified_failures[0].bug_number = None
     lines = [(item, {}) for item in FailureLine.objects.filter(job_guid=job["job_guid"]).values()]
-    create_summary_lines_failures(test_repository.name, job, lines)
+    create_text_log_errors(test_repository.name, job["id"], lines)
     create_bug_suggestions_failures(test_repository.name, job, lines)
     assert jm.update_autoclassification_bug(2, 1234) == classified_failures[0]
     classified_failures[0].refresh_from_db()

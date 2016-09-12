@@ -4,9 +4,13 @@ var treeherderApp = angular.module('treeherder.app',
                                    ['treeherder', 'ui.bootstrap', 'ngRoute',
                                     'mc.resizer', 'angular-toArrayFilter']);
 
-treeherderApp.config(function($compileProvider, $routeProvider, $httpProvider, $logProvider) {
+treeherderApp.config(function($compileProvider, $routeProvider,
+                              $httpProvider, $logProvider, $resourceProvider) {
     // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
     $compileProvider.debugInfoEnabled(false);
+
+    // Don't strip trailing slashes from calculated URLs
+    $resourceProvider.defaults.stripTrailingSlashes = false;
 
     // enable or disable debug messages using $log.
     // comment out the next line to enable them

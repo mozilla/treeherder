@@ -1,10 +1,13 @@
+from __future__ import unicode_literals
+
 import json
 
 import pytest
 
 from treeherder.model.derived import (ArtifactsModel,
                                       JobsModel)
-from treeherder.model.models import JobDetail
+from treeherder.model.models import (JobDetail,
+                                     TextLogError)
 
 xfail = pytest.mark.xfail
 
@@ -121,3 +124,49 @@ def test_load_long_job_details(test_project, eleven_jobs_stored):
     assert jd.title == long_title[:max_length("title")]
     assert jd.value == long_value[:max_length("value")]
     assert jd.url == long_url[:max_length("url")]
+
+
+def test_load_non_ascii_textlog_errors(test_project, eleven_jobs_stored):
+    with JobsModel(test_project) as jobs_model:
+        job = jobs_model.get_job_list(0, 1)[0]
+
+    text_log_summary_artifact = {
+        'type': 'json',
+        'name': 'text_log_summary',
+        'blob': json.dumps({
+            'step_data': {
+                "steps": [
+                    {
+                        'name': 'foo',
+                        'started': '2016-05-10 12:44:23.103904',
+                        'started_linenumber': 8,
+                        'finished_linenumber': 10,
+                        'finished': '2016-05-10 12:44:23.104394',
+                        'error_count': 0,
+                        'duration': 0,
+                        'order': 0,
+                        'result': 'success',
+                        'errors': [
+                            {
+                                # non-ascii character
+                                "line": '07:51:28  WARNING - \U000000c3'.encode('utf-8'),
+                                "linenumber": 1587
+                            },
+                            {
+                                # astral character (i.e. higher than ucs2)
+                                "line": '07:51:29  WARNING - \U0001d400'.encode('utf-8'),
+                                "linenumber": 1588
+                            }
+                        ]
+                    }
+                ]
+            }
+        }),
+        'job_guid': job['job_guid']
+    }
+    with ArtifactsModel(test_project) as am:
+        am.load_job_artifacts([text_log_summary_artifact])
+
+    assert TextLogError.objects.count() == 2
+    assert TextLogError.objects.get(line_number=1587).line == '07:51:28  WARNING - \U000000c3'
+    assert TextLogError.objects.get(line_number=1588).line == '07:51:29  WARNING - <U+01D400>'

@@ -1,14 +1,15 @@
 "use strict";
 
 treeherder.controller('SimilarJobsPluginCtrl', [
-    '$scope', 'ThLog', 'ThJobModel', 'thResultStatusInfo',
+    '$scope', 'ThLog', 'ThJobModel', 'ThTextLogStepModel', 'thResultStatusInfo',
     'thEvents', 'numberFilter', 'dateFilter', 'thClassificationTypes',
     'thResultStatus', 'ThJobArtifactModel', 'ThResultSetModel', 'thNotify',
     'thTabs',
     function SimilarJobsPluginCtrl(
-        $scope, ThLog, ThJobModel, thResultStatusInfo, thEvents,
-        numberFilter, dateFilter, thClassificationTypes, thResultStatus,
-        ThJobArtifactModel, ThResultSetModel, thNotify, thTabs) {
+        $scope, ThLog, ThJobModel, ThTextLogStepModel, thResultStatusInfo,
+        thEvents, numberFilter, dateFilter, thClassificationTypes,
+        thResultStatus, ThJobArtifactModel, ThResultSetModel, thNotify,
+        thTabs) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -130,14 +131,12 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                 ];
 
                 //retrieve the list of error lines
-                ThJobArtifactModel.get_list({
-                    name: "text_log_summary",
-                    job_id: $scope.similar_job_selected.id
-                })
-                .then(function(artifact_list){
-                    if(artifact_list.length > 0){
-                        $scope.similar_job_selected.error_lines = artifact_list[0].blob.step_data.all_errors;
-                    }
+                ThTextLogStepModel.query({
+                    project: $scope.repoName,
+                    jobId: $scope.similar_job_selected.id
+                }, function(textLogSteps) {
+                    $scope.similar_job_selected.error_lines = _.flatten(
+                        textLogSteps.map(s => s.errors));
                 });
             });
         };
