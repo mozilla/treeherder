@@ -255,7 +255,7 @@ logViewerApp.controller('LogviewerCtrl', [
                     $scope.logProperties.push({label: "Revision", value: revision});
                 });
 
-                ThJobDetailModel.getJobDetails(job.job_guid).then(function(jobDetails) {
+                ThJobDetailModel.getJobDetails({job_guid: job.job_guid}).then(function(jobDetails) {
                     $scope.job_details = jobDetails;
                 });
             }, function () {

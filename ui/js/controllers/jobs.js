@@ -90,13 +90,13 @@ treeherderApp.controller('ResultSetCtrl', [
     'thUrl', 'thServiceDomain', 'thResultStatusInfo', 'thDateFormat',
     'ThResultSetStore', 'thEvents', 'thJobFilters', 'thNotify',
     'thBuildApi', 'thPinboard', 'ThResultSetModel', 'dateFilter',
-    'ThModelErrors', 'ThJobModel', 'ThJobArtifactModel',
+    'ThModelErrors', 'ThJobModel', 'ThJobDetailModel',
     function ResultSetCtrl(
         $scope, $rootScope, $http, ThLog, $location,
         thUrl, thServiceDomain, thResultStatusInfo, thDateFormat,
         ThResultSetStore, thEvents, thJobFilters, thNotify,
         thBuildApi, thPinboard, ThResultSetModel, dateFilter, ThModelErrors, ThJobModel,
-        ThJobArtifactModel) {
+        ThJobDetailModel) {
 
         $scope.getCountClass = function(resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -200,14 +200,16 @@ treeherderApp.controller('ResultSetCtrl', [
             if (singleJobSelected) {
                 ThJobModel.cancel($scope.repoName, job.id).then(function() {
                     // XXX: Remove this after 1134929 is resolved.
-                    ThJobArtifactModel.get_list(
-                        {name: "buildapi", "type": "json", job_id: job.id}).then(
-                            function(artifactList) {
-                                if (artifactList.length) {
-                                    var requestId = artifactList[0].blob.request_id;
-                                    return thBuildApi.cancelJob($scope.repoName, requestId);
-                                }
-                            });
+                    ThJobDetailModel.getJobDetails({
+                        title: "buildbot_request_id",
+                        job_id: job.id
+                    }).then(function(data) {
+                        // non-buildbot jobs will have no request id, and that's ok (they
+                        // are covered above)
+                        if (data.length) {
+                            return thBuildApi.cancelJob($scope.repoName, data[0].value);
+                        }
+                    });
                 }).catch(function(e) {
                     thNotify.send(
                         ThModelErrors.format(e, "Unable to cancel job"),
