@@ -211,7 +211,7 @@ describe('linkifyClassifications filter', function() {
     it('linkifies classifications', function() {
         var linkifyClassifications = $filter('linkifyClassifications');
         expect(linkifyClassifications('1234567890ab', 'mozilla-central'))
-          .toEqual('<a href="https://hg.mozilla.org/mozilla/central/rev/1234567890ab">1234567890ab</a>');
+          .toEqual("<a href='https://hg.mozilla.org/mozilla/central/rev/1234567890ab'>1234567890ab</a>");
     });
 });
 

@@ -33,7 +33,7 @@ treeherder.filter('linkifyClassifications', ['ThRepositoryModel', function(ThRep
         var repo = ThRepositoryModel.getRepo(projectName);
 
         if(repo.dvcs_type === "hg" && isSHA(str)) {
-            var hg_url = '<a href="' + repo.url + '/rev/' + str + '">' + str + '</a>';
+            var hg_url = "<a href=\'" + repo.url + "/rev/" + str + "\'>" + str + "</a>";
             str = hg_url;
         }
 
