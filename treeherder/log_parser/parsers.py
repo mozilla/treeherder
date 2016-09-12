@@ -408,11 +408,25 @@ class ErrorParser(ParserBase):
 
     RE_ERR_1_MATCH = re.compile(r"^\d+:\d+:\d+ +(?:ERROR|CRITICAL|FATAL) - ")
 
+    # Looks for a leading value inside square brackets containing a "YYYY-"
+    # year pattern but isn't a TaskCluster error indicator (like
+    # ``taskcluster:error``.
+    #
+    # This matches the following:
+    #   [task 2016-08-18T17:50:56.955523Z]
+    #   [2016- task]
+    #
+    # But not:
+    #   [taskcluster:error]
+    #   [taskcluster:something 2016-]
+    RE_TASKCLUSTER_NORMAL_PREFIX = re.compile(r"^\[(?!taskcluster:)[^\]]*20\d{2}-[^\]]+\]\s")
+
     RE_MOZHARNESS_PREFIX = re.compile(r"^\d+:\d+:\d+ +(?:DEBUG|INFO|WARNING) - +")
 
     def __init__(self):
         """A simple error detection sub-parser"""
         super(ErrorParser, self).__init__("errors")
+        self.is_taskcluster = False
 
     def add(self, line, lineno):
         self.artifact.append({
@@ -422,6 +436,39 @@ class ErrorParser(ParserBase):
 
     def parse_line(self, line, lineno):
         """Check a single line for an error.  Keeps track of the linenumber"""
+        # TaskCluster logs are a bit wonky.
+        #
+        # TaskCluster logs begin with output coming from TaskCluster itself,
+        # before it has transitioned control of the task to the configured
+        # process. These "internal" logs look like the following:
+        #
+        #   [taskcluster 2016-09-09 17:41:43.544Z] Worker Group: us-west-2b
+        #
+        # If an error occurs during this "setup" phase, TaskCluster may emit
+        # lines beginning with ``[taskcluster:error]``.
+        #
+        # Once control has transitioned from TaskCluster to the configured
+        # task process, lines can be whatever the configured process emits.
+        # The popular ``run-task`` wrapper prefixes output to emulate
+        # TaskCluster's "internal" logs. e.g.
+        #
+        #   [vcs 2016-09-09T17:45:02.842230Z] adding changesets
+        #
+        # This prefixing can confuse error parsing. So, we strip it.
+        #
+        # Because regular expression matching and string manipulation can be
+        # expensive when performed on every line, we only strip the TaskCluster
+        # log prefix if we know we're in a TaskCluster log.
+
+        # First line of TaskCluster logs almost certainly has this.
+        if line.startswith('[taskcluster '):
+            self.is_taskcluster = True
+
+        # For performance reasons, only do this if we have identified as
+        # a TC task.
+        if self.is_taskcluster:
+            line = re.sub(self.RE_TASKCLUSTER_NORMAL_PREFIX, "", line)
+
         if self.is_error_line(line):
             self.add(line, lineno)
 
