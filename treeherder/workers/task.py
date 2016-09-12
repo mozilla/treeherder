@@ -16,6 +16,7 @@ class retryable_task(object):
         TypeError,
         IntegrityError,
         ProgrammingError,
+        UnicodeDecodeError,
         jsonschema.ValidationError,
         # eg during log decompression
         zlib.error,
