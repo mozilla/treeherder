@@ -49,7 +49,7 @@
             <a title="{{logError ? 'Raw log link no longer exists or has expired (click for path)' :
                       'Open the raw log in a new window'}}"
                target="_blank"
-               href="{{::artifact.logurl}}">
+               href="{{::rawLogURL}}">
               <span ng-class="logError ? 'fa-warning actionbtn-warning' : 'fa-file-text-o actionbtn-icon'"
                     class="fa"></span>
               <span>open raw log</span>
