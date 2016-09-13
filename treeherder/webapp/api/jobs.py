@@ -359,11 +359,13 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
                                     lookup_expr='in')
         job_guid = django_filters.CharFilter(name='job__guid')
         job__guid = django_filters.CharFilter(name='job__guid')  # for backwards compat
+        title = django_filters.CharFilter(name='title')
         repository = django_filters.CharFilter(name='job__repository__name')
 
         class Meta:
             model = JobDetail
-            fields = ['job_guid', 'job__guid', 'job_id__in', 'repository']
+            fields = ['job_guid', 'job__guid', 'job_id__in', 'title',
+                      'repository']
 
     filter_backends = [filters.DjangoFilterBackend]
     filter_class = JobDetailFilter

@@ -130,12 +130,9 @@ treeherder.controller('PluginCtrl', [
                     $scope.repoName, job.id,
                     {timeout: selectJobPromise});
 
-                var buildapiArtifactPromise = ThJobArtifactModel.get_list(
-                    {name: "buildapi", "type": "json", job_id: job.id},
-                    {timeout: selectJobPromise});
-
                 var jobDetailPromise = ThJobDetailModel.getJobDetails(
-                    job.job_guid, {timeout: selectJobPromise});
+                    {job_guid: job.job_guid},
+                    {timeout: selectJobPromise});
 
                 var jobLogUrlPromise = ThJobLogUrlModel.get_list(
                     job.id,
@@ -146,7 +143,6 @@ treeherder.controller('PluginCtrl', [
 
                 return $q.all([
                     jobPromise,
-                    buildapiArtifactPromise,
                     jobDetailPromise,
                     jobLogUrlPromise,
                     phSeriesPromise
@@ -165,35 +161,32 @@ treeherder.controller('PluginCtrl', [
                     // set the tab options and selections based on the selected job
                     initializeTabs($scope.job);
 
-                    // the second result come from the buildapi artifact promise
-                    var buildapi_artifact = results[1];
-                    // if this is a buildbot job use the buildername for searching
-                    if (buildapi_artifact.length > 0 &&
-                        _.has(buildapi_artifact[0], 'blob')){
-                        // this is needed to cancel/retrigger jobs
-                        $scope.artifacts.buildapi = buildapi_artifact[0];
-                    }
-
                     // filtering values for data fields and signature
                     $scope.jobSearchStr = $scope.job.get_title();
                     $scope.jobSearchSignature = $scope.job.signature;
                     $scope.jobSearchStrHref = getJobSearchStrHref($scope.jobSearchStr);
                     $scope.jobSearchSignatureHref = getJobSearchStrHref($scope.job.signature);
 
-                    // the third result comes from the job detail promise
-                    $scope.job_details = results[2];
-                    // incorporate the buildername into the job details if it is present
-                    if ($scope.artifacts.buildapi) {
-                        $scope.artifacts.buildapi.blob.title = "Buildername";
-                        $scope.artifacts.buildapi.blob.value = $scope.artifacts.buildapi.blob.buildername;
-                        $scope.job_details = $scope.job_details.concat($scope.artifacts.buildapi.blob);
+                    // the second result comes from the job detail promise
+                    $scope.job_details = results[1];
+
+                    // incorporate the buildername into the job details if this is a buildbot job
+                    // (i.e. it has a buildbot request id)
+                    var buildbotRequestIdDetail = _.find($scope.job_details,
+                                                   {title: 'buildbot_request_id'});
+                    if (buildbotRequestIdDetail) {
+                        $scope.job_details = $scope.job_details.concat({
+                            title: "Buildername",
+                            value: $scope.job.ref_data_name
+                        });
                         $scope.buildernameIndex = _.findIndex($scope.job_details, {title: "Buildername"});
+                        $scope.job.buildbot_request_id = parseInt(buildbotRequestIdDetail.value);
                     }
 
-                    // the fourth result comes from the jobLogUrl artifact
+                    // the third result comes from the jobLogUrl artifact
                     // exclude the json log URLs
                     $scope.job_log_urls = _.reject(
-                        results[3],
+                        results[2],
                         function(log) {
                             return log.name.endsWith("_json");
                         });
@@ -217,7 +210,7 @@ treeherder.controller('PluginCtrl', [
                     }
                     $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
 
-                    var performanceData = results[4];
+                    var performanceData = results[3];
                     if (performanceData) {
                         var seriesList = [];
                         $scope.perfJobDetail = [];
@@ -326,16 +319,6 @@ treeherder.controller('PluginCtrl', [
                    ($scope.job.state === "pending" || $scope.job.state === "running");
         };
 
-        /**
-         * Get the build_id needed to cancel or retrigger from the currently
-         * selected job.
-         */
-        var getBuildbotRequestId = function() {
-            if ($scope.artifacts.buildapi) {
-                return $scope.artifacts.buildapi.blob.request_id;
-            }
-        };
-
         $scope.retriggerJob = function(jobs) {
             if ($scope.user.loggedin) {
                 var job_id_list = _.pluck(jobs, 'id');
@@ -346,14 +329,12 @@ treeherder.controller('PluginCtrl', [
                 // to the self serve api (which does not listen over pulse!).
                 ThJobModel.retrigger($scope.repoName, job_id_list).then(function() {
                     // XXX: Remove this after 1134929 is resolved.
-                    return ThJobArtifactModel.get_list({"name": "buildapi",
-                                                        "type": "json",
-                                                        "count": job_id_list.length,
-                                                        "job_id__in": job_id_list.join(',')})
+                    return ThJobDetailModel.getJobDetails({"title": "buildbot_request_id",
+                                                           "job_id__in": job_id_list.join(',')})
                         .then(function(data) {
-                            var request_id_list = _.pluck(_.pluck(data, 'blob'), 'request_id');
-                            _.each(request_id_list, function(request_id) {
-                                thBuildApi.retriggerJob($scope.repoName, request_id);
+                            var requestIdList = _.pluck(data, 'value');
+                            requestIdList.forEach(function(requestId) {
+                                thBuildApi.retriggerJob($scope.repoName, requestId);
                             });
                         });
                 }).then(function() {
@@ -404,7 +385,7 @@ treeherder.controller('PluginCtrl', [
                 // See note in retrigger logic.
                 ThJobModel.cancel($scope.repoName, $scope.job.id).then(function() {
                   // XXX: Remove this after 1134929 is resolved.
-                    var requestId = getBuildbotRequestId();
+                    var requestId = $scope.job.buildbot_request_id;
                     if (requestId) {
                         return thBuildApi.cancelJob($scope.repoName, requestId);
                     }
