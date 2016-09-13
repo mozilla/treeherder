@@ -74,7 +74,16 @@ treeherder.controller('PinboardCtrl', [
         };
 
         $scope.save = function() {
-            if ($scope.user.loggedin) {
+            var errorFree = true;
+            if(!$scope.canSaveClassifications()) {
+                thNotify.send("Please classify this failure before saving", "danger");
+                errorFree = false;
+            }
+            if (!$scope.user.loggedin) {
+                thNotify.send("Must be logged in to save job classifications", "danger");
+                errorFree = false;
+            }
+            if(errorFree) {
                 if ($scope.enteringBugNumber) {
                     // we should save this for the user, as they likely
                     // just forgot to hit enter.
@@ -91,8 +100,6 @@ treeherder.controller('PinboardCtrl', [
                 // reason which I don't understand. Chrome (any platform)
                 // or Firefox on Mac works fine though.
                 document.activeElement.blur();
-            } else {
-                thNotify.send("Must be logged in to save job classifications", "danger");
             }
         };
 
