@@ -84,17 +84,18 @@ class Command(BaseCommand):
                     c.execute("""SELECT job_id, `blob` from job_artifact where `name` = 'buildapi' and job_id in ({})""".format(",".join([str(job_id) for job_id in ds_job_ids])))
 
                     def unwrap(row):
-                        request_id = json.loads(zlib.decompress(row[1]))['request_id']
+                        request_id = json.loads(zlib.decompress(row[1])).get('request_id')
                         return (row[0], request_id)
 
                     request_id_details = []
                     with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
                         for (ds_job_id, request_id) in executor.map(unwrap, c.fetchall()):
-                            request_id_details.append(JobDetail(
-                                job_id=job_id_mapping[ds_job_id],
-                                title='buildbot_request_id',
-                                value=str(request_id)))
-                        JobDetail.objects.bulk_create(request_id_details)
+                            if request_id:
+                                request_id_details.append(JobDetail(
+                                    job_id=job_id_mapping[ds_job_id],
+                                    title='buildbot_request_id',
+                                    value=str(request_id)))
+                    JobDetail.objects.bulk_create(request_id_details)
                 self.stdout.write('{} ({})'.format(offset, time.time() - start), ending='')
                 self.stdout.flush()
                 offset = max([job_id_pair[0] for job_id_pair in job_id_pairs])
