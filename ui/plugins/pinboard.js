@@ -74,26 +74,30 @@ treeherder.controller('PinboardCtrl', [
         };
 
         $scope.save = function() {
-            if ($scope.user.loggedin) {
-                if ($scope.enteringBugNumber) {
-                    // we should save this for the user, as they likely
-                    // just forgot to hit enter.
-                    $scope.saveEnteredBugNumber();
-                }
-                $scope.classification.who = $scope.user.email;
-                var classification = $scope.classification;
-                thPinboard.save(classification);
-                $scope.completeClassification();
-                $scope.classification = thPinboard.createNewClassification();
+            if($scope.canSaveClassifications()) {
+                if ($scope.user.loggedin) {
+                    if ($scope.enteringBugNumber) {
+                        // we should save this for the user, as they likely
+                        // just forgot to hit enter.
+                        $scope.saveEnteredBugNumber();
+                    }
+                    $scope.classification.who = $scope.user.email;
+                    var classification = $scope.classification;
+                    thPinboard.save(classification);
+                    $scope.completeClassification();
+                    $scope.classification = thPinboard.createNewClassification();
 
-                // HACK: it looks like Firefox on Linux and Windows doesn't
-                // want to accept keyboard input after this change for some
-                // reason which I don't understand. Chrome (any platform)
-                // or Firefox on Mac works fine though.
-                document.activeElement.blur();
-            } else {
-                thNotify.send("Must be logged in to save job classifications", "danger");
-            }
+                    // HACK: it looks like Firefox on Linux and Windows doesn't
+                    // want to accept keyboard input after this change for some
+                    // reason which I don't understand. Chrome (any platform)
+                    // or Firefox on Mac works fine though.
+                    document.activeElement.blur();
+                } else {
+                    thNotify.send("Must be logged in to save job classifications", "danger");
+                }
+          } else {
+              thNotify.send("Please classify this failure before saving", "danger");
+          }
         };
 
         $scope.saveClassificationOnly = function() {
