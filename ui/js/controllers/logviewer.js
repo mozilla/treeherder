@@ -230,6 +230,9 @@ logViewerApp.controller('LogviewerCtrl', [
                 // set the title of the browser window/tab
                 $scope.logViewerTitle = job.get_title();
 
+                if (job.logs && job.logs.length) {
+                    $scope.rawLogURL = job.logs[0].url;
+                }
                 // set the result value and shading color class
                 $scope.result = {label: "Result", value: job.result};
                 $scope.resultStatusShading = $scope.getShadingClass(job.result);
