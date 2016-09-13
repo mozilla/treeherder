@@ -24,16 +24,18 @@ class ResultsetLoader:
             transformed_data = transformer.transform(repo.name)
 
             with JobsModel(repo.name) as jobs_model:
-                logger.info("Storing resultset for {} {}".format(
+                logger.info("Storing resultset for {} {} {}".format(
                     repo.name,
-                    transformer.repo_url))
+                    transformer.repo_url,
+                    transformer.branch))
                 jobs_model.store_result_set_data([transformed_data])
 
         except ObjectDoesNotExist:
             newrelic.agent.record_custom_event("skip_unknown_repository",
                                                message_body["details"])
-            logger.warn("Skipping unsupported repo: {}".format(
-                transformer.repo_url))
+            logger.warn("Skipping unsupported repo: {} {}".format(
+                transformer.repo_url,
+                transformer.branch))
         except Exception as ex:
             newrelic.agent.record_exception(exc=ex)
             logger.exception("Error transforming resultset", exc_info=ex)
