@@ -573,6 +573,27 @@ class Job(models.Model):
     cross referencing data between the per-project databases and those
     objects in the Django ORM
     """
+
+    # with the exception of unknown, these "result" possibilities come from
+    # buildbot
+    SUCCESS = 1
+    TESTFAILED = 2
+    BUSTED = 3
+    SKIPPED = 4
+    EXCEPTION = 5
+    RETRY = 6
+    USERCANCEL = 7
+    UNKNOWN = 8
+
+    RESULTS = ((SUCCESS, 'success'),
+               (TESTFAILED, 'testfailed'),
+               (BUSTED, 'busted'),
+               (SKIPPED, 'skipped'),
+               (EXCEPTION, 'exception'),
+               (RETRY, 'retry'),
+               (USERCANCEL, 'usercancel'),
+               (UNKNOWN, 'unknown'))
+
     id = BigAutoField(primary_key=True)
     repository = models.ForeignKey(Repository)
     guid = models.CharField(max_length=50, unique=True, db_index=True)
@@ -580,6 +601,7 @@ class Job(models.Model):
     # faster (since we'll need to cross-reference those row-by-row), see
     # https://bugzilla.mozilla.org/show_bug.cgi?id=1265503
     project_specific_id = models.PositiveIntegerField(db_index=True)
+    result = models.IntegerField(choices=RESULTS, default=UNKNOWN)
 
     class Meta:
         db_table = 'job'

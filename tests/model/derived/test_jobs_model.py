@@ -254,6 +254,7 @@ def test_ingest_running_to_retry_sample_job(jm, sample_data,
     assert JobLog.objects.count() == 1
     intermediary_job = Job.objects.all()[0]
     assert intermediary_job.project_specific_id == initial_job_id
+    assert intermediary_job.result == Job.RETRY
     # intermediary guid should be the retry one
     assert intermediary_job.guid == job_data[-1]['job']['job_guid']
 
@@ -297,8 +298,8 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, sample_data,
 
     assert Job.objects.count() == 2
     assert JobLog.objects.count() == 2
-    assert set(Job.objects.values_list('id', flat=True)) == set([j['id'] for j in jl])
-
+    assert Job.objects.get(id=1).result == Job.RETRY
+    assert Job.objects.get(id=2).result == Job.SUCCESS
 
 @pytest.mark.parametrize("ingestion_cycles", [[(0, 1), (1, 3), (3, 4)],
                                               [(0, 3), (3, 4)]])
@@ -344,7 +345,8 @@ def test_ingest_running_to_retry_to_success_sample_job_multiple_retries(
 
     assert Job.objects.count() == 2
     assert JobLog.objects.count() == 2
-    assert set(Job.objects.values_list('id', flat=True)) == set([j['id'] for j in jl])
+    assert Job.objects.get(id=1).result == Job.RETRY
+    assert Job.objects.get(id=2).result == Job.SUCCESS
 
 
 def test_ingest_retry_sample_job_no_running(jm, sample_data,

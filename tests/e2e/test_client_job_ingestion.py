@@ -263,6 +263,7 @@ def test_post_job_with_text_log_summary_artifact_pending(
 
 
 def test_post_job_artifacts_by_add_artifact(
+        test_repository,
         test_project,
         monkeypatch,
         result_set_stored,
@@ -298,6 +299,7 @@ def test_post_job_artifacts_by_add_artifact(
                 }
             ],
             "state": "completed",
+            "result": "success"
         },
     })
 
@@ -333,6 +335,15 @@ def test_post_job_artifacts_by_add_artifact(
     tjc.add(tj)
 
     post_collection(test_project, tjc)
+
+    assert Job.objects.count() == 1
+    assert model_to_dict(Job.objects.get(guid=job_guid)) == {
+        'guid': 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33',
+        'id': 1,
+        'project_specific_id': 1,
+        'repository': test_repository.id,
+        'result': Job.SUCCESS
+    }
 
     assert JobDetail.objects.count() == 1
     assert model_to_dict(JobDetail.objects.get(job__guid=job_guid)) == {
