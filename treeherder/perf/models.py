@@ -181,7 +181,8 @@ class PerformanceAlertSummary(models.Model):
         # if not one of the resolved statuses and there are regressions,
         # otherwise we'll say it's an improvement
         if len([a for a in alerts if a.status == PerformanceAlert.ACKNOWLEDGED]):
-            if all([not alert.is_regression for alert in alerts]):
+            if all([not alert.is_regression for alert in
+                    alerts if alert.status == PerformanceAlert.ACKNOWLEDGED]):
                 return PerformanceAlertSummary.IMPROVEMENT
             elif self.status not in (PerformanceAlertSummary.IMPROVEMENT,
                                      PerformanceAlertSummary.INVESTIGATING,
