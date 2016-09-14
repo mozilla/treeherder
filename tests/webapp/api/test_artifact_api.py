@@ -95,5 +95,5 @@ def test_artifact_create_text_log_summary(webapp, test_project, eleven_jobs_stor
     artifact_names = {x['name'] for x in artifacts}
     act_bs_obj = [x['blob'] for x in artifacts if x['name'] == 'Bug suggestions'][0]
 
-    assert set(artifact_names) == {'Bug suggestions', 'text_log_summary'}
+    assert set(artifact_names) == {'Bug suggestions'}
     assert mock_error_summary == act_bs_obj
