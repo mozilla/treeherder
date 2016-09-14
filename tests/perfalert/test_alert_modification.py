@@ -27,6 +27,18 @@ def test_summary_modification(test_repository, test_perf_signature,
     s = PerformanceAlertSummary.objects.get(id=1)
     assert s.status == PerformanceAlertSummary.UNTRIAGED
 
+    # ignore downstream and reassigned to update the summary status
+    s = PerformanceAlertSummary.objects.get(id=1)
+    s.status = PerformanceAlertSummary.INVESTIGATING
+    s.save()
+    a.status = PerformanceAlert.REASSIGNED
+    a.save()
+    b = test_perf_alert
+    b.status = PerformanceAlert.ACKNOWLEDGED
+    b.save()
+    s = PerformanceAlertSummary.objects.get(id=1)
+    assert s.status == PerformanceAlertSummary.IMPROVEMENT
+
 
 def test_alert_modification(test_repository, test_perf_signature,
                             test_perf_alert_summary, test_perf_alert):
