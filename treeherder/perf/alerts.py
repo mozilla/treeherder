@@ -102,13 +102,14 @@ def generate_new_alerts_in_series(signature):
                 if t_value == float('inf'):
                     t_value = 1000
 
-                a = PerformanceAlert.objects.create(
+                PerformanceAlert.objects.update_or_create(
                     summary=summary,
                     series_signature=signature,
-                    is_regression=alert_properties.is_regression,
-                    amount_pct=alert_properties.pct_change,
-                    amount_abs=alert_properties.delta,
-                    prev_value=prev_value,
-                    new_value=new_value,
-                    t_value=t_value)
-                a.save()
+                    defaults={
+                        'is_regression': alert_properties.is_regression,
+                        'amount_pct': alert_properties.pct_change,
+                        'amount_abs': alert_properties.delta,
+                        'prev_value': prev_value,
+                        'new_value': new_value,
+                        't_value': t_value
+                    })
