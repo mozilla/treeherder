@@ -258,9 +258,6 @@ class ArtifactsModel(TreeherderModelBase):
                             job=job,
                             title='buildbot_request_id',
                             value=str(buildbot_request_id))
-                    self._adapt_job_artifact_collection(
-                        artifact, job_artifact_list,
-                        job.project_specific_id)
                 else:
                     self._adapt_job_artifact_collection(
                         artifact, job_artifact_list,
