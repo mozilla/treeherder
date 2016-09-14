@@ -94,15 +94,6 @@ def create_text_log_errors(project, job_id, failure_line_list):
                                             line_number=i)
         errors.append(error)
 
-    # this is just a fake text log summary to keep the crossreference failure
-    # lines script something to hang on to. we can remove this once we stop
-    # storing (and referencing) text log summary artifacts
-    placeholders = [job.project_specific_id, 'text_log_summary',
-                    'json', zlib.compress(json.dumps({})),
-                    job.project_specific_id, 'text_log_summary']
-    with ArtifactsModel(project) as artifacts_model:
-        artifacts_model.store_job_artifact([placeholders])
-
     return errors
 
 

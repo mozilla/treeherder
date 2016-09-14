@@ -86,9 +86,8 @@ def test_parse_log(jm, jobs_with_local_log, sample_resultset):
         placeholders=[job_id]
     )
 
-    # we should have two artifacts: bug suggestions and text log summaries
-    # (text log summaries are soon to be deleted)
-    assert len(job_artifacts) == 2
+    # we should have just one artifact, "bug suggestions"
+    assert len(job_artifacts) == 1
     # this log generates 4 job detail objects at present
     print JobDetail.objects.count() == 4
 
@@ -118,9 +117,8 @@ def test_bug_suggestions_artifact(jm, jobs_with_local_log, sample_resultset, tes
         placeholders=[job_id]
     )
 
-    # we should have just two artifacts, the bug suggestions one and a
-    # text log summary (the latter will be soon removed)
-    assert len(job_artifacts) == 2
+    # we should have just one artifact, "bug suggestions"
+    assert len(job_artifacts) == 1
 
     bug_suggestions_artifact = [artifact for artifact in job_artifacts
                                 if artifact["name"] == "Bug suggestions"][0]
