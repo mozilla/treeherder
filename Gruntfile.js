@@ -67,8 +67,7 @@ module.exports = function(grunt) {
             },
         },
 
-        usemin:{ html:['dist/index.html', 'dist/userguide.html', 'dist/logviewer.html',
-                       'dist/perf.html', 'dist/failureviewer.html'] },
+        usemin:{ html:['dist/*.html'] },
 
         'cache-busting': {
             indexjs: {
