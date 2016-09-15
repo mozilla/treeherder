@@ -15,7 +15,7 @@ do so, you must ensure you have ``npm`` installed and execute::
 
 This will start a "watcher" that will continuously recompile any ``JSX`` file
 in the ``ui/js/react_components`` folder.  They are compiled to a single
-file called ``ui/js/react-compiled.js``.  Every chang you make to any ``JSX``
+file called ``ui/js/react-compiled.js``.  Every change you make to any ``JSX``
 file in that folder will be recompiled automatically.
 
 .. _AngularJS: https://angularjs.org/

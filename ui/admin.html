@@ -95,16 +95,24 @@
 
   <script src="js/directives/treeherder/persona.js"></script>
   <script src="js/directives/treeherder/main.js"></script>
+
   <script src="js/controllers/admin.js"></script>
   <script src="js/controllers/admin/exclusions_list.js"></script>
   <script src="js/controllers/admin/exclusions_detail.js"></script>
   <script src="js/controllers/admin/profiles_list.js"></script>
   <script src="js/controllers/admin/profiles_detail.js"></script>
-  <script src="js/react-compiled.js"></script>
+
+  <!--If this does not exist, it will use the JSX above instead-->
+  <!--<script src="js/react-compiled.js"></script>-->
+   <!--endbuild-->
+
+  <!-- build:dontbuild -->
+  <script src="js/react_components/reactselect.jsx" type="text/jsx"></script>
   <!-- endbuild -->
 
   <script src="vendor/ngReact/ngReact.min.js"></script>
   <script src="https://login.persona.org/include.js"></script>
+
 
 </body>
 </html>

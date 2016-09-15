@@ -35,14 +35,6 @@ admin.controller('AdminCtrl', [
         };
 
         /**
-         * Used to allow for selection of "platform (arch)" or
-         * "job_type (job_symbol)"
-         */
-        var getJobComboField = function(field1, field2) {
-            return field1 + " (" + field2 + ")";
-        };
-
-        /**
          * Initialize all the master lists of refdata values.  These are copied
          * around for lists in the Exclusion editor.
          *
@@ -54,39 +46,30 @@ admin.controller('AdminCtrl', [
             // initialize the list of platform
             var promise = $q.resolve();
             if (!$scope.masterListsInitialized) {
-                $scope.master_platforms = [];
+
                 var platformPromise = ThBuildPlatformModel.get_list()
-                    .then(function(data) {
-                        for (var i = 0; i < data.length; i++) {
-                            $scope.master_platforms.push(
-                                getJobComboField(data[i].platform, data[i].architecture)
-                            );
-                        }
-                        $scope.master_platforms = _.uniq($scope.master_platforms.sort());
+                    .then(function(buildPlatforms) {
+                        $scope.master_platforms = _.uniq(buildPlatforms.map(function(buildPlatform) {
+                            return `${buildPlatform.platform} (${buildPlatform.architecture})`;
+                        }).sort());
                         $scope.form_platforms = angular.copy($scope.master_platforms);
                     });
 
                 // initialize the list of job_types
-                $scope.master_job_types = [];
                 var jobTypePromise = ThJobTypeModel.get_list()
-                    .then(function(data) {
-                        for (var i = 0; i < data.length; i++) {
-                            $scope.master_job_types.push(
-                                getJobComboField(data[i].name, data[i].symbol)
-                            );
-                        }
-                        $scope.master_job_types = _.uniq($scope.master_job_types.sort());
+                    .then(function(jobTypes) {
+                        $scope.master_job_types = _.uniq(jobTypes.map(function(jobType) {
+                            return `${jobType.name} (${jobType.symbol})`;
+                        }).sort());
                         $scope.form_job_types = angular.copy($scope.master_job_types);
                     });
 
                 // initialize the list of repos
-                $scope.master_repos = [];
                 var repoPromise = ThRepositoryModel.get_list()
-                    .success(function(data) {
-                        for (var i = 0; i < data.length; i++) {
-                            $scope.master_repos.push(data[i].name);
-                        }
-                        $scope.master_repos = _.uniq($scope.master_repos.sort());
+                    .success(function(repos) {
+                        $scope.master_repos = _.uniq(repos.map(function(repo) {
+                            return repo.name;
+                        }).sort());
                         $scope.form_repos = angular.copy($scope.master_repos);
                     });
 

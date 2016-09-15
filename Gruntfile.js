@@ -74,8 +74,7 @@ module.exports = function(grunt) {
             },
         },
 
-        usemin:{ html:['dist/index.html', 'dist/userguide.html', 'dist/logviewer.html',
-                       'dist/perf.html', 'dist/failureviewer.html', 'dist/admin.html'] },
+        usemin:{ html:['dist/*.html'] },
 
         'cache-busting': {
             indexjs: {
@@ -181,9 +180,16 @@ module.exports = function(grunt) {
             // Copy vendor files that don't work with grouped minification
             vendor:{
                 files: [
-                    { src: 'ui/vendor/ngReact/ngReact.min.js', dest: 'dist/vendor/ngReact/ngReact.min.js', nonull: true },
-                    { src: 'ui/vendor/react/react.min.js', dest: 'dist/vendor/react/react.min.js', nonull: true },
-                    { src: 'ui/vendor/react/react-dom.min.js', dest: 'dist/vendor/react/react-dom.min.js', nonull: true },
+                    { src: 'ui/vendor/ngReact/ngReact.min.js',
+                      dest: 'dist/vendor/ngReact/ngReact.min.js',
+                      nonull: true
+                    },
+                    { cwd: 'ui/vendor/react',
+                      src: '*',
+                      dest: 'dist/vendor/react',
+                      nonull: true,
+                      expand: true
+                    },
                 ]
             },
             // Copy html in plugins, make sure not to flatten
@@ -200,7 +206,7 @@ module.exports = function(grunt) {
         },
         babel: {
             options: {
-                compact : true,
+                compact: true,
                 sourceMap: false,
                 presets: ['babel-preset-es2015']
             },
@@ -209,7 +215,19 @@ module.exports = function(grunt) {
                     '.tmp/concat/js/index.min.js': '.tmp/concat/js/index.min.js',
                     '.tmp/concat/js/logviewer.min.js': '.tmp/concat/js/logviewer.min.js',
                     '.tmp/concat/js/perf.min.js': '.tmp/concat/js/perf.min.js',
-                    '.tmp/concat/js/admin.min.js': '.tmp/concat/js/admin.min.js',
+                    '.tmp/concat/js/admin.min.js': '.tmp/concat/js/admin.min.js'
+                }
+            }
+        },
+        babelreactjsx: {
+            options: {
+                compact: true,
+                sourceMap: false,
+                plugins: ['transform-react-jsx']
+            },
+            dist: {
+                files: {
+                    'ui/js/react_components/*.jsx': 'dist/js/react-compiled.js',
                 }
             }
         },

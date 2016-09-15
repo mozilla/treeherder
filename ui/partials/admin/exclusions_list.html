@@ -7,8 +7,8 @@
             ng-attr-title="{{!user.is_staff ? 'Sheriff permissions required' : ''}}"
             class="btn btn-sm btn-primary action-buttons">Add exclusion</button>
 
-    <p ng-if="exclusions.length == 0">No exclusion available</p>
-    <table ng-if="exclusions.length > 0"
+    <p ng-if="!exclusions.length">No exclusion available</p>
+    <table ng-if="exclusions.length"
            class="table table-condensed">
       <tr>
         <th>Name</th>
