@@ -12,5 +12,4 @@ Contents:
    :maxdepth: 2
 
    installation
-   development
    plugin
