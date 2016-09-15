@@ -70,7 +70,9 @@
         "failureViewerApp": true,
         "logViewerApp": true,
         "userguideApp": true,
+        "admin": true,
         "Mousetrap": true,
-        "jQuery": true
+        "jQuery": true,
+        "React": true
     }
 }

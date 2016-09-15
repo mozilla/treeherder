@@ -383,7 +383,6 @@ treeherderApp.controller('MainCtrl', [
             ['escape', function() {
                 $scope.$evalAsync($scope.setFilterPanelShowing(false));
                 $scope.$evalAsync($scope.setSettingsPanelShowing(false));
-                $scope.$evalAsync($scope.setSheriffPanelShowing(false));
                 $scope.$evalAsync($scope.closeJob());
                 $scope.$evalAsync($scope.setOnscreenShortcutsShowing(false));
             }],
@@ -551,16 +550,6 @@ treeherderApp.controller('MainCtrl', [
         $scope.isSettingsPanelShowing = false;
         $scope.setSettingsPanelShowing = function(tf) {
             $scope.isSettingsPanelShowing = tf;
-        };
-
-        $scope.isSheriffPanelShowing = false;
-        $scope.setSheriffPanelShowing = function(tf) {
-            if (tf) {
-                // lazy fetching of exclusion profiles, because we don't
-                // need them unless you're editing them on this page
-                $rootScope.$emit(thEvents.initSheriffPanel);
-            }
-            $scope.isSheriffPanelShowing = tf;
         };
 
         $scope.pinboardCount = thPinboard.count;

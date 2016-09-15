@@ -14,17 +14,12 @@
     </span>
 
     <span class="navbar-right">
-      <!-- Sheriffing Button -->
-      <span class="btn btn-view-nav btn-right-navbar nav-menu-btn"
-            ng-class="{'active': (isSheriffPanelShowing)}"
-            ng-click="setSheriffPanelShowing(!isSheriffPanelShowing)"
+      <!-- Admin Button -->
+      <a class="btn btn-view-nav btn-right-navbar"
             tabindex="0"
-            role="button"><span>Sheriffing</span>
-        <i class="fa fa-angle-down lightgray"
-           ng-hide="isSheriffPanelShowing"></i>
-        <i class="fa fa-angle-up lightgray"
-           ng-show="isSheriffPanelShowing"></i>
-      </span>
+            href="admin.html" target="_blank"
+            role="button"><span class="fa fa-wrench"></span> <span>Admin</span>
+      </a>
 
       <!-- Infra Menu -->
       <span class="dropdown">
@@ -102,6 +97,5 @@
 
   </div>
   <ng-include class="watched-repo-navbar" src="'partials/main/thWatchedRepoNavPanel.html'" ng-show="locationPath==='jobs'"></ng-include>
-  <ng-include src="'partials/main/thSheriffPanel.html'" ng-show="isSheriffPanelShowing"></ng-include>
   <ng-include src="'partials/main/thFilterPanel.html'" ng-show="isFilterPanelShowing"></ng-include>
 </nav>

@@ -300,3 +300,7 @@ treeherder.value("thBugzillaProductObject", {
     "xulrunner":
         ["Toolkit :: XULRunner"]
 });
+
+treeherder.value("strReloadTreeherder",
+    "Reload Treeherder windows to see changes reflected."
+);

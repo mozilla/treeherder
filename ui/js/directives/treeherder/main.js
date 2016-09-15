@@ -183,25 +183,27 @@ treeherder.directive("thMultiSelect",
                 leftList: "=",
                 rightList: "="
             },
-            link: function(scope){
+            link: function(scope, elem){
 
-                scope.leftSelected = [];
-                scope.rightSelected = [];
                 // move the elements selected from one list to the other
-                var move_options = function(what, from, to){
+                var move_options = function(sourceSide, from, to) {
+                    var selectBoxObj = $(elem).find("select." + sourceSide).first();
+                    var what = selectBoxObj.val();
                     var found;
-                    for(var i=0;i<what.length; i++){
+                    for(var i = 0; i < what.length; i++) {
                         found = from.indexOf(what[i]);
                         if(found !== -1){
                             to.push(from.splice(found, 1)[0]);
                         }
                     }
+                    // clear the selection from the source list
+                    selectBoxObj.val([]);
                 };
                 scope.move_left = function(){
-                    move_options(scope.rightSelected, scope.rightList, scope.leftList);
+                    move_options("right", scope.rightList, scope.leftList);
                 };
                 scope.move_right = function(){
-                    move_options(scope.leftSelected, scope.leftList, scope.rightList);
+                    move_options("left", scope.leftList, scope.rightList);
                 };
             }
         };

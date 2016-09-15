@@ -299,7 +299,7 @@ fieldset[disabled] .btn-unclassified-failures.active {
  * Navbar button customization
  */
 
-.btn-view-nav {
+.btn-view-nav, .btn-view-nav:visited {
   background-color: transparent;
   border-color: #373d40;
   color: lightgray;
