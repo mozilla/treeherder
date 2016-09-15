@@ -75,8 +75,8 @@ class Command(BaseCommand):
             )
             try:
                 cursor = conn.cursor()
+                conn.autocommit(True)
                 cursor.execute(sql_code)
-                conn.commit()
                 self.stdout.write("Sql code executed on {}:".format(datasource))
                 for row in cursor:
                     self.stdout.write("  {}".format(row))
