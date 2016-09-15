@@ -219,18 +219,6 @@ module.exports = function(grunt) {
                 }
             }
         },
-        babelreactjsx: {
-            options: {
-                compact: true,
-                sourceMap: false,
-                plugins: ['transform-react-jsx']
-            },
-            dist: {
-                files: {
-                    'ui/js/react_components/*.jsx': 'dist/js/react-compiled.js',
-                }
-            }
-        },
         uglify:{
             options:{
                 report: 'min',

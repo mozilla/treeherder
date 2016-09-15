@@ -2,10 +2,10 @@
 
 admin.controller('ProfilesDetailCtrl', [
     '$scope', 'ThExclusionProfileModel', 'thNotify', '$state',
-    '$stateParams', '$q',
+    '$stateParams', '$q', 'strReloadTreeherder',
     function ProfilesDetailCtrl(
         $scope, ThExclusionProfileModel, thNotify, $state,
-        $stateParams, $q) {
+        $stateParams, $q, strReloadTreeherder) {
 
         $scope.init = function() {
             $q.all([
@@ -63,7 +63,7 @@ admin.controller('ProfilesDetailCtrl', [
                         $state.go('profiles');
                     }, null);
             }
-            thNotify.send($scope.REFRESH_MSG);
+            thNotify.send(strReloadTreeherder);
         };
 
     }]);

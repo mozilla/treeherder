@@ -2,8 +2,10 @@
 
 admin.controller('ExclusionsDetailCtrl', [
     '$scope', 'ThJobExclusionModel', 'thNotify', '$state', '$stateParams',
+    'strReloadTreeherder',
     function ExclusionsDetailCtrl(
-        $scope, ThJobExclusionModel, thNotify, $state, $stateParams) {
+        $scope, ThJobExclusionModel, thNotify, $state, $stateParams,
+        strReloadTreeherder) {
 
         $scope.init = function() {
             $scope.initMasterLists().then(function() {
@@ -58,7 +60,7 @@ admin.controller('ExclusionsDetailCtrl', [
                     $state.go('exclusions');
                 }, null);
             }
-            thNotify.send($scope.REFRESH_MSG);
+            thNotify.send(strReloadTreeherder);
         };
 
         $scope.resetExclusion = function() {

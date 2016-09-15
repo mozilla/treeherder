@@ -1,7 +1,7 @@
 'use strict';
 
-admin.controller('ProfilesListCtrl', ['$scope', 'thNotify',
-    function ProfilesListCtrl($scope, thNotify) {
+admin.controller('ProfilesListCtrl', ['$scope', 'thNotify', 'strReloadTreeherder',
+    function ProfilesListCtrl($scope, thNotify, strReloadTreeherder) {
 
         $scope.init = function() {
             $scope.populateProfilesData();
@@ -26,7 +26,7 @@ admin.controller('ProfilesListCtrl', ['$scope', 'thNotify',
                         elem.is_default = false;
                     }
                 });
-                thNotify.send($scope.REFRESH_MSG);
+                thNotify.send(strReloadTreeherder);
             }, null);
         };
     }]);

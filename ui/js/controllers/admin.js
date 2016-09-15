@@ -9,8 +9,6 @@ admin.controller('AdminCtrl', [
         ThOptionCollectionModel, ThJobExclusionModel, $state,
         $q,ThExclusionProfileModel) {
 
-        $scope.REFRESH_MSG = "Refresh Treeherder windows to see changes reflected.";
-
         // allow ng-click to do state navigation.  This allows us to use it
         // with buttons that have ng-disabled conditional on sheriff access.
         // If we use ui-sref there, it will ignore the ng-disabled.
