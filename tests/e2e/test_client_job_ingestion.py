@@ -363,8 +363,8 @@ def test_post_job_artifacts_by_add_artifact(
         'step': 1
     }
 
-    check_artifacts(test_project, job_guid, JobLog.PARSED, 3,
-                    {'Bug suggestions', 'privatebuild', 'buildapi'},
+    check_artifacts(test_project, job_guid, JobLog.PARSED, 2,
+                    {'Bug suggestions', 'privatebuild'},
                     mock_error_summary)
 
     # ensure the parsing didn't happen
