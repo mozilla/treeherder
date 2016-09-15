@@ -7,7 +7,6 @@ from hashlib import sha1
 from itertools import chain
 
 import newrelic.agent
-from _mysql_exceptions import IntegrityError
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -951,7 +950,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
     def store_job_data(self, data):
         """
-        Store JobData instances into jobs db
+        Store job data instances into jobs db
 
         Example:
         [
@@ -1247,7 +1246,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             debug_show=self.DEBUG,
         )
         if not len(rh):
-            raise JobDataError("Revision hash not found: {}".format(
+            raise ValueError("Revision hash not found: {}".format(
                 revision_hash))
         return rh[0]["long_revision"]
 
@@ -1428,7 +1427,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             # present in the beginning
             for artifact in artifacts:
                 if not all(k in artifact for k in ("name", "type", "blob")):
-                    raise JobDataError(
+                    raise ValueError(
                         "Artifact missing properties: {}".format(artifact))
                 # Ensure every artifact has a ``job_guid`` value.
                 # It is legal to submit an artifact that doesn't have a
@@ -2059,45 +2058,3 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             placeholders=[ref_job_guid],
             debug_show=self.DEBUG)
         return job_list
-
-
-class JobDataError(ValueError):
-    pass
-
-
-class JobDataIntegrityError(IntegrityError):
-    pass
-
-
-class JobData(dict):
-
-    """
-    Encapsulates data access from incoming test data structure.
-
-    All missing-data errors raise ``JobDataError`` with a useful
-    message. Unlike regular nested dictionaries, ``JobData`` keeps track of
-    context, so errors contain not only the name of the immediately-missing
-    key, but the full parent-key context as well.
-
-    """
-
-    def __init__(self, data, context=None):
-        """Initialize ``JobData`` with a data dict and a context list."""
-        self.context = context or []
-        super(JobData, self).__init__(data)
-
-    def __getitem__(self, name):
-        """Get a data value, raising ``JobDataError`` if missing."""
-        full_context = list(self.context) + [name]
-
-        try:
-            value = super(JobData, self).__getitem__(name)
-        except KeyError:
-            raise JobDataError("Missing data: {0}.".format(
-                "".join(["['{0}']".format(c) for c in full_context])))
-
-        # Provide the same behavior recursively to nested dictionaries.
-        if isinstance(value, dict):
-            value = self.__class__(value, full_context)
-
-        return value
