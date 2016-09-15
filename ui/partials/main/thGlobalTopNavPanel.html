@@ -14,6 +14,27 @@
     </span>
 
     <span class="navbar-right">
+      <!-- Watched Pushes Menu -->
+      <span class="dropdown">
+        <span th-checkbox-dropdown-container class="watched-pushes-menu dropdown">
+          <button id="watchedPushesLabel" title="Infrastructure status" role="button"
+                  ng-show="watchedResultsets.length > 0"
+                  data-toggle="dropdown" data-target="#"
+                  class="btn btn-view-nav btn-right-navbar nav-menu-btn">Watched Pushes
+            <span class="fa fa-angle-down lightgray"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="watchedPushesLabel">
+              <span>
+                  <li>Click button to remove</li>
+                  <li role="presentation" class="divider" ng-hide="$first"></li>
+                  <li ng-repeat="rs in watchedResultsets">
+                      <button ng-click="removeFromWatchedResultsets(rs)" target="_blank">{{rs | limitTo: 12}}</button>
+                  </li>
+              </span>
+          </ul>
+        </span>
+      </span>
+            
       <!-- Sheriffing Button -->
       <span class="btn btn-view-nav btn-right-navbar nav-menu-btn"
             ng-class="{'active': (isSheriffPanelShowing)}"

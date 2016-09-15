@@ -86,17 +86,25 @@ treeherderApp.controller('JobsCtrl', [
 
 
 treeherderApp.controller('ResultSetCtrl', [
-    '$scope', '$rootScope', '$http', 'ThLog', '$location',
+    '$scope', '$rootScope', '$http', 'ThLog', '$location', '$interval',
     'thUrl', 'thServiceDomain', 'thResultStatusInfo', 'thDateFormat',
     'ThResultSetStore', 'thEvents', 'thJobFilters', 'thNotify',
     'thBuildApi', 'thPinboard', 'ThResultSetModel', 'dateFilter',
     'ThModelErrors', 'ThJobModel', 'ThJobDetailModel',
     function ResultSetCtrl(
-        $scope, $rootScope, $http, ThLog, $location,
+        $scope, $rootScope, $http, ThLog, $location, $interval,
         thUrl, thServiceDomain, thResultStatusInfo, thDateFormat,
         ThResultSetStore, thEvents, thJobFilters, thNotify,
         thBuildApi, thPinboard, ThResultSetModel, dateFilter, ThModelErrors, ThJobModel,
         ThJobDetailModel) {
+
+        // These have to be $rootScope because $scope is per-push, which makes this useless
+        $rootScope.watchedResultsets = [];
+        $rootScope.watchedResultsetsInterval = undefined;
+        $rootScope.removeFromWatchedResultsets = function(rs) {
+            var i = $rootScope.watchedResultsets.indexOf(rs);
+            $rootScope.watchedResultsets.splice(i,1);
+        };
 
         $scope.getCountClass = function(resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -108,6 +116,58 @@ treeherderApp.controller('ResultSetCtrl', [
             // set the selected job
             $rootScope.selectedJob = job;
         };
+
+        $scope.notifyWhenDone = function(revision) {
+            Notification.requestPermission().then(function(result) {
+                if(result === "granted") {
+                    if($rootScope.watchedResultsets.length === 0) {
+                        if(!angular.isDefined($rootScope.watchedResultsetsInterval)) {
+                            $rootScope.watchedResultsetsInterval = $interval(function() {
+                                $rootScope.watchedResultsets.forEach(function(revision) {
+                                    var resultsets = ThResultSetStore.getResultSetsArray($scope.repoName);
+                                    resultsets.forEach(function(rs) {
+                                        if(rs.revision === revision) {
+                                            var percent = rs.job_counts.percentComplete;
+                                            if(percent === 100) {
+                                                spawnNotification("Push completed", revision, revision);
+                                                $rootScope.removeFromWatchedResultsets(revision);
+                                            } else {
+                                                console.log(percent);
+                                            }
+                                        }
+                                    });
+                                });
+                            }, 10000);
+                        }
+
+                    }
+                    if($rootScope.watchedResultsets.indexOf(revision) >= 0) {
+                        thNotify.send("This revision is already being watched", "warning");
+                        // I guess this could be a toggle and remove revision from watchedResultsets?
+                    } else {
+                        $rootScope.watchedResultsets.push(revision);
+                        thNotify.send("Watching revision: " + revision);
+                    }
+                } else if(result === "denied") {
+                    thNotify.send("Notifications for " + document.domain + " denied.",
+                                  "danger", "true");
+                }
+            });
+        };
+
+        function spawnNotification(title, body, tag) {
+            var options = {
+                body: body,
+                icon: "img/tree_open.png",
+                tag: tag
+            };
+            var n = new Notification(title, options);
+            n.addEventListener('click', notification_clicked);
+        }
+
+        function notification_clicked(evt) {
+            console.log(evt.target);
+        }
 
         $scope.toggleRevisions = function() {
 

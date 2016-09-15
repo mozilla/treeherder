@@ -167,3 +167,8 @@ a.sheriff-panel-btn {
 .sheriff-panel-text-btn:hover > .sheriff-panel-profile-edit-button {
     opacity:1 !important;
 }
+
+.watched-pushes-menu ul {
+	width: 175px;
+	padding: 10px;
+}
