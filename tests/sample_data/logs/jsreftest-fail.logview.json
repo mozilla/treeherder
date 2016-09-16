@@ -1,211 +1,5 @@
 {
     "step_data": {
-        "all_errors": [
-            {
-                "line": "TypeError: invalid XML name <x/>[0]", 
-                "linenumber": 26935
-            }, 
-            {
-                "line": "NEXT ERROR <#err1> REFTEST TEST-UNEXPECTED-FAIL | file:///c:/talos-slave/mozilla-central_win7_test-jsreftest/build/jsreftest/tests/jsreftest.html?test=ecma_3/RegExp/15.10.6.2-2.js | Section 6 of test -", 
-                "linenumber": 77428
-            }, 
-            {
-                "line": "NEXT ERROR <#err2> REFTEST TEST-UNEXPECTED-FAIL | file:///c:/talos-slave/mozilla-central_win7_test-jsreftest/build/jsreftest/tests/jsreftest.html?test=ecma_3/RegExp/15.10.6.2-2.js | Section 7 of test -", 
-                "linenumber": 77435
-            }, 
-            {
-                "line": "NEXT ERROR <#err3> REFTEST TEST-UNEXPECTED-FAIL | file:///c:/talos-slave/mozilla-central_win7_test-jsreftest/build/jsreftest/tests/jsreftest.html?test=ecma_3/RegExp/15.10.6.2-2.js | Section 8 of test -", 
-                "linenumber": 77442
-            }, 
-            {
-                "line": "NEXT ERROR <#err4> REFTEST TEST-UNEXPECTED-FAIL | file:///c:/talos-slave/mozilla-central_win7_test-jsreftest/build/jsreftest/tests/jsreftest.html?test=ecma_3/RegExp/15.10.6.2-2.js | Section 9 of test -", 
-                "linenumber": 77449
-            }, 
-            {
-                "line": "NEXT ERROR <#err5> REFTEST TEST-UNEXPECTED-FAIL | file:///c:/talos-slave/mozilla-central_win7_test-jsreftest/build/jsreftest/tests/jsreftest.html?test=ecma_3/RegExp/15.10.6.2-2.js | Section 10 of test -", 
-                "linenumber": 77456
-            }, 
-            {
-                "line": "NEXT ERROR <#err6> REFTEST TEST-UNEXPECTED-FAIL | file:///c:/talos-slave/mozilla-central_win7_test-jsreftest/build/jsreftest/tests/jsreftest.html?test=ecma_3/RegExp/15.10.6.2-2.js | Section 11 of test -", 
-                "linenumber": 77463
-            }, 
-            {
-                "line": "NEXT ERROR <#err7> REFTEST TEST-UNEXPECTED-FAIL | file:///c:/talos-slave/mozilla-central_win7_test-jsreftest/build/jsreftest/tests/jsreftest.html?test=ecma_3/RegExp/15.10.6.2-2.js | Section 12 of test -", 
-                "linenumber": 77470
-            }, 
-            {
-                "line": "REFTEST TEST-UNEXPECTED-FAIL | file:///c:/talos-slave/mozilla-central_win7_test-jsreftest/build/jsreftest/tests/jsreftest.html?test=ecma_3/RegExp/15.10.6.2-2.js | Section 13 of test -", 
-                "linenumber": 77477
-            }, 
-            {
-                "line": "REFTEST TEST-UNEXPECTED-FAIL | file:///c:/talos-slave/mozilla-central_win7_test-jsreftest/build/jsreftest/tests/jsreftest.html?test=ecma_3/RegExp/15.10.6.2-2.js | Section 14 of test -", 
-                "linenumber": 77484
-            }, 
-            {
-                "line": "REFTEST TEST-UNEXPECTED-FAIL | file:///c:/talos-slave/mozilla-central_win7_test-jsreftest/build/jsreftest/tests/jsreftest.html?test=ecma_3/RegExp/15.10.6.2-2.js | Section 15 of test -", 
-                "linenumber": 77491
-            }, 
-            {
-                "line": "568786: \"Assertion failure: !(attrs & (JSPROP_GETTER | JSPROP_SETTER)),\" with Object.defineProperty", 
-                "linenumber": 80717
-            }, 
-            {
-                "line": "ReferenceError: foo is not defined", 
-                "linenumber": 83922
-            }, 
-            {
-                "line": "InternalError: script stack space quota is exhausted", 
-                "linenumber": 84364
-            }, 
-            {
-                "line": "SyntaxError: property name a appears more than once in object literal", 
-                "linenumber": 85639
-            }, 
-            {
-                "line": "SyntaxError: property name 1 appears more than once in object literal", 
-                "linenumber": 85641
-            }, 
-            {
-                "line": "TypeError: redeclaration of const 5", 
-                "linenumber": 85643
-            }, 
-            {
-                "line": "TypeError: variable v redeclares argument", 
-                "linenumber": 85741
-            }, 
-            {
-                "line": "TypeError: redeclaration of const document", 
-                "linenumber": 85966
-            }, 
-            {
-                "line": "InternalError: script stack space quota is exhausted", 
-                "linenumber": 86509
-            }, 
-            {
-                "line": "InternalError: script stack space quota is exhausted", 
-                "linenumber": 86515
-            }, 
-            {
-                "line": "InternalError: too much recursion", 
-                "linenumber": 88173
-            }, 
-            {
-                "line": "TypeError: anonymous function does not always return a value", 
-                "linenumber": 88222
-            }, 
-            {
-                "line": "TypeError: anonymous function does not always return a value", 
-                "linenumber": 88224
-            }, 
-            {
-                "line": "SyntaxError: return not in function", 
-                "linenumber": 88484
-            }, 
-            {
-                "line": "SyntaxError: syntax error", 
-                "linenumber": 88878
-            }, 
-            {
-                "line": "STATUS: Do not assert: Assertion failed: \"need a way to EOT now, since this is trace end\": 0", 
-                "linenumber": 89486
-            }, 
-            {
-                "line": "ReferenceError: a is not defined | undefined | 45", 
-                "linenumber": 89791
-            }, 
-            {
-                "line": "TypeError: z is not a function", 
-                "linenumber": 90060
-            }, 
-            {
-                "line": "SyntaxError: return not in function", 
-                "linenumber": 90066
-            }, 
-            {
-                "line": "TypeError: 6 is not a function", 
-                "linenumber": 90510
-            }, 
-            {
-                "line": "TypeError: p.z = [1].some(function (y) {return y > 0;}) ? 4 : [6] is not a function", 
-                "linenumber": 90570
-            }, 
-            {
-                "line": "TypeError: (void 0) is undefined", 
-                "linenumber": 91297
-            }, 
-            {
-                "line": "ReferenceError: d is not defined", 
-                "linenumber": 91434
-            }, 
-            {
-                "line": "ReferenceError: d is not defined", 
-                "linenumber": 91435
-            }, 
-            {
-                "line": "TypeError: [15].some([].watch) is not a function", 
-                "linenumber": 91664
-            }, 
-            {
-                "line": "TypeError: null has no properties", 
-                "linenumber": 91725
-            }, 
-            {
-                "line": "TypeError: (void 0) is undefined", 
-                "linenumber": 91894
-            }, 
-            {
-                "line": "TypeError: already executing generator iter.send", 
-                "linenumber": 91911
-            }, 
-            {
-                "line": "TypeError: already executing generator iter.next", 
-                "linenumber": 91917
-            }, 
-            {
-                "line": "TypeError: already executing generator iter.close", 
-                "linenumber": 91923
-            }, 
-            {
-                "line": "SyntaxError: let declaration not directly within block", 
-                "linenumber": 92193
-            }, 
-            {
-                "line": "SyntaxError: let declaration not directly within block", 
-                "linenumber": 92199
-            }, 
-            {
-                "line": "SyntaxError: let declaration not directly within block", 
-                "linenumber": 92205
-            }, 
-            {
-                "line": "SyntaxError: let declaration not directly within block", 
-                "linenumber": 92211
-            }, 
-            {
-                "line": "ReferenceError: d is not defined", 
-                "linenumber": 92321
-            }, 
-            {
-                "line": "TypeError: missing argument 1 when calling function watch", 
-                "linenumber": 92347
-            }, 
-            {
-                "line": "TypeError: [] is not a function", 
-                "linenumber": 92794
-            }, 
-            {
-                "line": "TypeError: XML filter is applied to non-XML value NaN", 
-                "linenumber": 92840
-            }, 
-            {
-                "line": "TypeError: null has no properties", 
-                "linenumber": 93348
-            }, 
-            {
-                "line": "STATUS: Assertion failure: staticLevel == script->staticLevel, at ../jsobj.cpp", 
-                "linenumber": 93457
-            }
-        ], 
         "steps": [
             {
                 "errors": [], 
@@ -214,10 +8,7 @@
                 "started_linenumber": 8, 
                 "finished_linenumber": 10, 
                 "finished": "2013-06-05 12:51:48.768393", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 0, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -226,10 +17,7 @@
                 "started_linenumber": 12, 
                 "finished_linenumber": 14, 
                 "finished": "2013-06-05 12:51:48.769473", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 1, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [
@@ -443,10 +231,7 @@
                 "started_linenumber": 16, 
                 "finished_linenumber": 99130, 
                 "finished": "2013-06-05 13:15:39.235146", 
-                "result": "testfailed", 
-                "duration": 1244, 
-                "order": 2, 
-                "error_count": 51
+                "result": "testfailed"
             }, 
             {
                 "errors": [], 
@@ -455,10 +240,7 @@
                 "started_linenumber": 99132, 
                 "finished_linenumber": 99176, 
                 "finished": "2013-06-05 13:16:04.014823", 
-                "result": "success", 
-                "duration": 25, 
-                "order": 3, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -467,10 +249,7 @@
                 "started_linenumber": 99178, 
                 "finished_linenumber": 99180, 
                 "finished": "2013-06-05 13:16:04.963614", 
-                "result": "success", 
-                "duration": 1, 
-                "order": 4, 
-                "error_count": 0
+                "result": "success"
             }
         ], 
         "errors_truncated": false

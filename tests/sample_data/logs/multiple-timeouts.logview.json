@@ -1,51 +1,5 @@
 {
     "step_data": {
-        "all_errors": [
-            {
-                "line": "TEST-UNEXPECTED-FAIL | chrome://mochikit/content/browser/browser/components/sessionstore/test/browser/browser_480148.js | Test timed out", 
-                "linenumber": 130983
-            }, 
-            {
-                "line": "TEST-UNEXPECTED-FAIL | chrome://mochikit/content/browser/browser/components/sessionstore/test/browser/browser_480148.js | Found a browser window after previous test timed out", 
-                "linenumber": 130987
-            }, 
-            {
-                "line": "TEST-UNEXPECTED-FAIL | chrome://mochikit/content/browser/browser/components/sessionstore/test/browser/browser_480148.js | Found a browser window after previous test timed out", 
-                "linenumber": 130990
-            }, 
-            {
-                "line": "TEST-UNEXPECTED-FAIL | chrome://mochikit/content/browser/browser/components/sessionstore/test/browser/browser_480148.js | Found a browser window after previous test timed out", 
-                "linenumber": 130993
-            }, 
-            {
-                "line": "TEST-UNEXPECTED-FAIL | chrome://mochikit/content/browser/browser/components/sessionstore/test/browser/browser_480148.js | Found a browser window after previous test timed out", 
-                "linenumber": 130996
-            }, 
-            {
-                "line": "TEST-UNEXPECTED-FAIL | chrome://mochikit/content/browser/browser/components/sessionstore/test/browser/browser_480148.js | Found a browser window after previous test timed out", 
-                "linenumber": 130999
-            }, 
-            {
-                "line": "TEST-UNEXPECTED-FAIL | chrome://mochikit/content/browser/browser/components/sessionstore/test/browser/browser_480148.js | Found a browser window after previous test timed out", 
-                "linenumber": 131002
-            }, 
-            {
-                "line": "TEST-UNEXPECTED-FAIL | chrome://mochikit/content/browser/browser/components/sessionstore/test/browser/browser_522545.js | Test timed out", 
-                "linenumber": 133780
-            }, 
-            {
-                "line": "TEST-UNEXPECTED-FAIL | chrome://mochikit/content/browser/browser/components/sessionstore/test/browser/browser_524745.js | application timed out after 330 seconds with no output", 
-                "linenumber": 133959
-            }, 
-            {
-                "line": "command timed out: 1200 seconds without output", 
-                "linenumber": 133961
-            }, 
-            {
-                "line": "buildbot.slave.commands.TimeoutError: command timed out: 1200 seconds without output", 
-                "linenumber": 133965
-            }
-        ], 
         "steps": [
             {
                 "errors": [], 
@@ -54,10 +8,7 @@
                 "started_linenumber": 8, 
                 "finished_linenumber": 10, 
                 "finished": "2013-06-05 12:51:48.768393", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 0, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -66,10 +17,7 @@
                 "started_linenumber": 12, 
                 "finished_linenumber": 14, 
                 "finished": "2013-06-05 12:51:48.769473", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 1, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [
@@ -123,10 +71,7 @@
                 "started_linenumber": 16, 
                 "finished_linenumber": 169837, 
                 "finished": "2013-06-05 13:15:39.235146", 
-                "result": "testfailed", 
-                "duration": 1244, 
-                "order": 2, 
-                "error_count": 11
+                "result": "testfailed"
             }, 
             {
                 "errors": [], 
@@ -135,10 +80,7 @@
                 "started_linenumber": 169839, 
                 "finished_linenumber": 169883, 
                 "finished": "2013-06-05 13:16:04.014823", 
-                "result": "success", 
-                "duration": 25, 
-                "order": 3, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -147,10 +89,7 @@
                 "started_linenumber": 169885, 
                 "finished_linenumber": 169887, 
                 "finished": "2013-06-05 13:16:04.963614", 
-                "result": "success", 
-                "duration": 1, 
-                "order": 4, 
-                "error_count": 0
+                "result": "success"
             }
         ], 
         "errors_truncated": false

@@ -142,9 +142,6 @@ def test_load_non_ascii_textlog_errors(test_project, eleven_jobs_stored):
                         'started_linenumber': 8,
                         'finished_linenumber': 10,
                         'finished': '2016-05-10 12:44:23.104394',
-                        'error_count': 0,
-                        'duration': 0,
-                        'order': 0,
                         'result': 'success',
                         'errors': [
                             {

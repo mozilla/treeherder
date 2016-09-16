@@ -1,407 +1,5 @@
 {
     "step_data": {
-        "all_errors": [
-            {
-                "line": "10:33:08     INFO -  19 INFO TEST-UNEXPECTED-FAIL | toolkit/components/passwordmgr/test/browser/browser_passwordmgr_fields.js | Test timed out - expected PASS", 
-                "linenumber": 1343
-            }, 
-            {
-                "line": "10:33:08     INFO -  26 INFO TEST-UNEXPECTED-FAIL | toolkit/components/passwordmgr/test/browser/browser_passwordmgr_fields.js | Found a Toolkit:PasswordManager after previous test timed out - expected PASS", 
-                "linenumber": 1350
-            }, 
-            {
-                "line": "10:33:52     INFO -  32 INFO TEST-UNEXPECTED-FAIL | toolkit/components/passwordmgr/test/browser/browser_passwordmgr_observers.js | Test timed out - expected PASS", 
-                "linenumber": 1357
-            }, 
-            {
-                "line": "10:33:52     INFO -  38 INFO TEST-UNEXPECTED-FAIL | toolkit/components/passwordmgr/test/browser/browser_passwordmgr_observers.js | Found a Toolkit:PasswordManager after previous test timed out - expected PASS", 
-                "linenumber": 1363
-            }, 
-            {
-                "line": "10:33:52     INFO -  39 INFO TEST-UNEXPECTED-FAIL | toolkit/components/passwordmgr/test/browser/browser_passwordmgr_observers.js | Found a Toolkit:PasswordManagerExceptions after previous test timed out - expected PASS", 
-                "linenumber": 1364
-            }, 
-            {
-                "line": "10:34:37     INFO -  45 INFO TEST-UNEXPECTED-FAIL | toolkit/components/passwordmgr/test/browser/browser_passwordmgr_sort.js | Test timed out - expected PASS", 
-                "linenumber": 1371
-            }, 
-            {
-                "line": "10:34:38     INFO -  51 INFO TEST-UNEXPECTED-FAIL | toolkit/components/passwordmgr/test/browser/browser_passwordmgr_sort.js | Found a Toolkit:PasswordManager after previous test timed out - expected PASS", 
-                "linenumber": 1377
-            }, 
-            {
-                "line": "10:45:04     INFO -  67 ERROR TEST-UNEXPECTED-TIMEOUT | toolkit/components/passwordmgr/test/browser/browser_passwordmgr_switchtab.js | application timed out after 330 seconds with no output on toolkit/components/passwordmgr/test/browser", 
-                "linenumber": 1402
-            }, 
-            {
-                "line": "10:45:04     INFO -  68 ERROR TEST-UNEXPECTED-FAIL | toolkit/components/passwordmgr/test/browser/browser_passwordmgr_switchtab.js | application terminated with exit code 6", 
-                "linenumber": 1405
-            }, 
-            {
-                "line": "10:45:16  WARNING -  PROCESS-CRASH | toolkit/components/passwordmgr/test/browser/browser_passwordmgr_switchtab.js | application crashed [@ libc-2.15.so + 0xe8403]", 
-                "linenumber": 1413
-            }, 
-            {
-                "line": "10:48:53     INFO -  229 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/browser_about.js | Test timed out - expected PASS", 
-                "linenumber": 4875
-            }, 
-            {
-                "line": "10:48:53     INFO -  236 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/browser_about.js | Found a tab after previous test timed out: about:addons - expected PASS", 
-                "linenumber": 4882
-            }, 
-            {
-                "line": "10:48:53     INFO -  238 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/browser_about.js | Found a  after previous test timed out - expected PASS", 
-                "linenumber": 4884
-            }, 
-            {
-                "line": "10:48:53  WARNING -  TEST-UNEXPECTED-FAIL | unknown test url | uncaught exception - ReferenceError: info is not defined at chrome://mochitests/content/browser/toolkit/mozapps/extensions/test/browser/browser_about.js:60", 
-                "linenumber": 4887
-            }, 
-            {
-                "line": "10:52:09     INFO -  394 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/browser_select_compatoverrides.js | Test timed out - expected PASS", 
-                "linenumber": 8136
-            }, 
-            {
-                "line": "10:52:54     INFO -  428 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/browser_select_confirm.js | Test timed out - expected PASS", 
-                "linenumber": 8191
-            }, 
-            {
-                "line": "10:52:54     INFO -  435 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/browser_select_confirm.js | Found a  after previous test timed out - expected PASS", 
-                "linenumber": 8198
-            }, 
-            {
-                "line": "10:53:39     INFO -  457 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/browser_select_selection.js | Test timed out - expected PASS", 
-                "linenumber": 8236
-            }, 
-            {
-                "line": "10:53:39     INFO -  464 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/browser_select_selection.js | Found a  after previous test timed out - expected PASS", 
-                "linenumber": 8243
-            }, 
-            {
-                "line": "10:54:25     INFO -  487 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/browser_select_update.js | Test timed out - expected PASS", 
-                "linenumber": 8282
-            }, 
-            {
-                "line": "10:54:25     INFO -  494 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/browser_select_update.js | Found a  after previous test timed out - expected PASS", 
-                "linenumber": 8289
-            }, 
-            {
-                "line": "10:56:18     INFO -  557 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_about.js | Test timed out - expected PASS", 
-                "linenumber": 12179
-            }, 
-            {
-                "line": "10:56:18     INFO -  558 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_about.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12180
-            }, 
-            {
-                "line": "10:57:03     INFO -  579 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug557943.js | Test timed out - expected PASS", 
-                "linenumber": 12211
-            }, 
-            {
-                "line": "10:57:04     INFO -  580 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug557943.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12212
-            }, 
-            {
-                "line": "10:58:34     INFO -  602 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug562854.js | Test timed out - expected PASS", 
-                "linenumber": 12245
-            }, 
-            {
-                "line": "10:58:34     INFO -  603 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug562854.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12246
-            }, 
-            {
-                "line": "11:00:04     INFO -  625 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug562890.js | Test timed out - expected PASS", 
-                "linenumber": 12280
-            }, 
-            {
-                "line": "11:00:04     INFO -  626 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug562890.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12281
-            }, 
-            {
-                "line": "11:00:49     INFO -  648 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug562899.js | Test timed out - expected PASS", 
-                "linenumber": 12317
-            }, 
-            {
-                "line": "11:00:49     INFO -  649 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug562899.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12318
-            }, 
-            {
-                "line": "11:01:34     INFO -  667 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug562992.js | Test timed out - expected PASS", 
-                "linenumber": 12346
-            }, 
-            {
-                "line": "11:01:35     INFO -  668 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug562992.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12347
-            }, 
-            {
-                "line": "11:02:20     INFO -  684 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug567127.js | Test timed out - expected PASS", 
-                "linenumber": 12370
-            }, 
-            {
-                "line": "11:02:20     INFO -  685 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug567127.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12371
-            }, 
-            {
-                "line": "11:03:05     INFO -  699 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug567137.js | Test timed out - expected PASS", 
-                "linenumber": 12392
-            }, 
-            {
-                "line": "11:03:05     INFO -  700 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug567137.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12393
-            }, 
-            {
-                "line": "11:03:50     INFO -  718 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug572561.js | Test timed out - expected PASS", 
-                "linenumber": 12421
-            }, 
-            {
-                "line": "11:03:50     INFO -  719 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug572561.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12422
-            }, 
-            {
-                "line": "11:04:35     INFO -  738 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug577990.js | Test timed out - expected PASS", 
-                "linenumber": 12451
-            }, 
-            {
-                "line": "11:04:35     INFO -  739 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug577990.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12452
-            }, 
-            {
-                "line": "11:05:21     INFO -  758 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug580298.js | Test timed out - expected PASS", 
-                "linenumber": 12481
-            }, 
-            {
-                "line": "11:05:21     INFO -  759 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug580298.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12482
-            }, 
-            {
-                "line": "11:06:06     INFO -  774 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug581076.js | Test timed out - expected PASS", 
-                "linenumber": 12504
-            }, 
-            {
-                "line": "11:06:06     INFO -  775 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug581076.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12505
-            }, 
-            {
-                "line": "11:06:51     INFO -  794 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug586574.js | Test timed out - expected PASS", 
-                "linenumber": 12534
-            }, 
-            {
-                "line": "11:06:51     INFO -  795 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug586574.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12535
-            }, 
-            {
-                "line": "11:07:36     INFO -  815 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug587970.js | Test timed out - expected PASS", 
-                "linenumber": 12565
-            }, 
-            {
-                "line": "11:07:36     INFO -  816 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug587970.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12566
-            }, 
-            {
-                "line": "11:08:22     INFO -  835 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug590347.js | Test timed out - expected PASS", 
-                "linenumber": 12595
-            }, 
-            {
-                "line": "11:08:22     INFO -  836 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug590347.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12596
-            }, 
-            {
-                "line": "11:09:07     INFO -  855 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug591465.js | Test timed out - expected PASS", 
-                "linenumber": 12625
-            }, 
-            {
-                "line": "11:09:07     INFO -  856 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug591465.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12626
-            }, 
-            {
-                "line": "11:09:52     INFO -  875 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug591663.js | Test timed out - expected PASS", 
-                "linenumber": 12655
-            }, 
-            {
-                "line": "11:09:52     INFO -  876 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug591663.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12656
-            }, 
-            {
-                "line": "11:10:37     INFO -  891 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug596336.js | Test timed out - expected PASS", 
-                "linenumber": 12678
-            }, 
-            {
-                "line": "11:10:37     INFO -  892 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug596336.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12679
-            }, 
-            {
-                "line": "11:11:23     INFO -  911 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug608316.js | Test timed out - expected PASS", 
-                "linenumber": 12708
-            }, 
-            {
-                "line": "11:11:23     INFO -  912 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug608316.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12709
-            }, 
-            {
-                "line": "11:12:08     INFO -  927 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug610764.js | Test timed out - expected PASS", 
-                "linenumber": 12731
-            }, 
-            {
-                "line": "11:12:08     INFO -  928 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug610764.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12732
-            }, 
-            {
-                "line": "11:12:53     INFO -  943 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug618502.js | Test timed out - expected PASS", 
-                "linenumber": 12754
-            }, 
-            {
-                "line": "11:12:53     INFO -  944 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug618502.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12755
-            }, 
-            {
-                "line": "11:13:38     INFO -  958 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug679604.js | Test timed out - expected PASS", 
-                "linenumber": 12776
-            }, 
-            {
-                "line": "11:13:38     INFO -  959 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug679604.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12777
-            }, 
-            {
-                "line": "11:14:23     INFO -  977 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug714593.js | Test timed out - expected PASS", 
-                "linenumber": 12805
-            }, 
-            {
-                "line": "11:14:23     INFO -  978 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_bug714593.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12806
-            }, 
-            {
-                "line": "11:15:54     INFO -  998 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_debug_button.js | Test timed out - expected PASS", 
-                "linenumber": 12836
-            }, 
-            {
-                "line": "11:15:54     INFO -  999 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_debug_button.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12837
-            }, 
-            {
-                "line": "11:17:24     INFO -  1023 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_details.js | Test timed out - expected PASS", 
-                "linenumber": 12871
-            }, 
-            {
-                "line": "11:17:24     INFO -  1024 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_details.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12872
-            }, 
-            {
-                "line": "11:18:09     INFO -  1039 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_dragdrop.js | Test timed out - expected PASS", 
-                "linenumber": 12894
-            }, 
-            {
-                "line": "11:18:09     INFO -  1040 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_dragdrop.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12895
-            }, 
-            {
-                "line": "11:19:39     INFO -  1055 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_eula.js | Test timed out - expected PASS", 
-                "linenumber": 12917
-            }, 
-            {
-                "line": "11:19:39     INFO -  1056 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_eula.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12918
-            }, 
-            {
-                "line": "11:20:25     INFO -  1073 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_globalwarnings.js | Test timed out - expected PASS", 
-                "linenumber": 12942
-            }, 
-            {
-                "line": "11:20:25     INFO -  1074 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_globalwarnings.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 12943
-            }, 
-            {
-                "line": "11:21:10     INFO -  1115 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_inlinesettings.js | Test timed out - expected PASS", 
-                "linenumber": 13017
-            }, 
-            {
-                "line": "11:21:10     INFO -  1116 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_inlinesettings.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 13018
-            }, 
-            {
-                "line": "11:21:55     INFO -  1157 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_inlinesettings_custom.js | Test timed out - expected PASS", 
-                "linenumber": 13091
-            }, 
-            {
-                "line": "11:21:55     INFO -  1158 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_inlinesettings_custom.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 13092
-            }, 
-            {
-                "line": "11:22:40     INFO -  1202 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_inlinesettings_info.js | Test timed out - expected PASS", 
-                "linenumber": 13171
-            }, 
-            {
-                "line": "11:22:40     INFO -  1203 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_inlinesettings_info.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 13172
-            }, 
-            {
-                "line": "11:24:11     INFO -  1219 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_install.js | Test timed out - expected PASS", 
-                "linenumber": 13195
-            }, 
-            {
-                "line": "11:24:11     INFO -  1220 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_install.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 13196
-            }, 
-            {
-                "line": "11:24:56     INFO -  1238 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_list.js | Test timed out - expected PASS", 
-                "linenumber": 13224
-            }, 
-            {
-                "line": "11:24:56     INFO -  1239 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_list.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 13225
-            }, 
-            {
-                "line": "11:25:41     INFO -  1258 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_manualupdates.js | Test timed out - expected PASS", 
-                "linenumber": 13254
-            }, 
-            {
-                "line": "11:25:41     INFO -  1259 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_manualupdates.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 13255
-            }, 
-            {
-                "line": "11:26:27     INFO -  1276 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_pluginprefs.js | Test timed out - expected PASS", 
-                "linenumber": 13291
-            }, 
-            {
-                "line": "11:26:27     INFO -  1277 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_pluginprefs.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 13292
-            }, 
-            {
-                "line": "11:27:12     INFO -  1295 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_recentupdates.js | Test timed out - expected PASS", 
-                "linenumber": 13320
-            }, 
-            {
-                "line": "11:27:12     INFO -  1296 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_recentupdates.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 13321
-            }, 
-            {
-                "line": "11:28:42     INFO -  1316 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_searching.js | Test timed out - expected PASS", 
-                "linenumber": 13351
-            }, 
-            {
-                "line": "11:28:42     INFO -  1317 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_searching.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 13352
-            }, 
-            {
-                "line": "11:29:28     INFO -  1336 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_sorting.js | Test timed out - expected PASS", 
-                "linenumber": 13381
-            }, 
-            {
-                "line": "11:29:28     INFO -  1337 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_sorting.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 13382
-            }, 
-            {
-                "line": "11:30:13     INFO -  1356 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_sorting_plugins.js | Test timed out - expected PASS", 
-                "linenumber": 13411
-            }, 
-            {
-                "line": "11:30:13     INFO -  1357 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_sorting_plugins.js | Found unexpected Addons:Manager window still open -", 
-                "linenumber": 13412
-            }, 
-            {
-                "line": "11:31:54     INFO -  1403 INFO TEST-UNEXPECTED-FAIL | toolkit/mozapps/extensions/test/browser/test-window/browser_about.js | Test timed out - expected PASS", 
-                "linenumber": 13623
-            }
-        ], 
         "steps": [
             {
                 "errors": [], 
@@ -410,9 +8,6 @@
                 "started_linenumber": 8, 
                 "finished_linenumber": 10, 
                 "finished": "2015-01-22 10:29:53.296573", 
-                "error_count": 0, 
-                "duration": 0, 
-                "order": 0, 
                 "result": "success"
             }, 
             {
@@ -422,9 +17,6 @@
                 "started_linenumber": 12, 
                 "finished_linenumber": 37, 
                 "finished": "2015-01-22 10:29:53.408820", 
-                "error_count": 0, 
-                "duration": 0, 
-                "order": 1, 
                 "result": "success"
             }, 
             {
@@ -434,9 +26,6 @@
                 "started_linenumber": 39, 
                 "finished_linenumber": 40, 
                 "finished": "2015-01-22 10:29:53.450124", 
-                "error_count": 0, 
-                "duration": 0, 
-                "order": 2, 
                 "result": "success"
             }, 
             {
@@ -446,9 +35,6 @@
                 "started_linenumber": 42, 
                 "finished_linenumber": 65, 
                 "finished": "2015-01-22 10:29:53.518076", 
-                "error_count": 0, 
-                "duration": 0, 
-                "order": 3, 
                 "result": "success"
             }, 
             {
@@ -458,9 +44,6 @@
                 "started_linenumber": 67, 
                 "finished_linenumber": 69, 
                 "finished": "2015-01-22 10:29:53.518865", 
-                "error_count": 0, 
-                "duration": 0, 
-                "order": 4, 
                 "result": "success"
             }, 
             {
@@ -470,9 +53,6 @@
                 "started_linenumber": 71, 
                 "finished_linenumber": 94, 
                 "finished": "2015-01-22 10:29:53.611941", 
-                "error_count": 0, 
-                "duration": 0, 
-                "order": 5, 
                 "result": "success"
             }, 
             {
@@ -482,9 +62,6 @@
                 "started_linenumber": 96, 
                 "finished_linenumber": 127, 
                 "finished": "2015-01-22 10:29:59.025351", 
-                "error_count": 0, 
-                "duration": 5, 
-                "order": 6, 
                 "result": "success"
             }, 
             {
@@ -494,9 +71,6 @@
                 "started_linenumber": 129, 
                 "finished_linenumber": 153, 
                 "finished": "2015-01-22 10:29:59.667828", 
-                "error_count": 0, 
-                "duration": 1, 
-                "order": 7, 
                 "result": "success"
             }, 
             {
@@ -506,9 +80,6 @@
                 "started_linenumber": 155, 
                 "finished_linenumber": 180, 
                 "finished": "2015-01-22 10:30:00.236152", 
-                "error_count": 0, 
-                "duration": 1, 
-                "order": 8, 
                 "result": "success"
             }, 
             {
@@ -518,9 +89,6 @@
                 "started_linenumber": 182, 
                 "finished_linenumber": 183, 
                 "finished": "2015-01-22 10:30:00.275536", 
-                "error_count": 0, 
-                "duration": 0, 
-                "order": 9, 
                 "result": "success"
             }, 
             {
@@ -530,9 +98,6 @@
                 "started_linenumber": 185, 
                 "finished_linenumber": 187, 
                 "finished": "2015-01-22 10:30:00.276399", 
-                "error_count": 0, 
-                "duration": 0, 
-                "order": 10, 
                 "result": "success"
             }, 
             {
@@ -943,9 +508,6 @@
                 "started_linenumber": 189, 
                 "finished_linenumber": 17614, 
                 "finished": "2015-01-22 12:14:23.234476", 
-                "error_count": 181, 
-                "duration": 6263, 
-                "order": 11, 
                 "result": "busted"
             }, 
             {
@@ -955,9 +517,6 @@
                 "started_linenumber": 17616, 
                 "finished_linenumber": 17643, 
                 "finished": "2015-01-22 12:14:23.317817", 
-                "error_count": 0, 
-                "duration": 0, 
-                "order": 12, 
                 "result": "success"
             }, 
             {
@@ -967,9 +526,6 @@
                 "started_linenumber": 17645, 
                 "finished_linenumber": 17668, 
                 "finished": "2015-01-22 12:14:23.387528", 
-                "error_count": 0, 
-                "duration": 0, 
-                "order": 13, 
                 "result": "success"
             }, 
             {
@@ -979,9 +535,6 @@
                 "started_linenumber": 17670, 
                 "finished_linenumber": 17671, 
                 "finished": "2015-01-22 12:14:23.388290", 
-                "error_count": 0, 
-                "duration": 0, 
-                "order": 14, 
                 "result": "skipped"
             }
         ], 

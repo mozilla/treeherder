@@ -1,55 +1,5 @@
 {
     "step_data": {
-        "all_errors": [
-            {
-                "line": "12:46:31     INFO -  Assertion failure: pNew->iVersion == pSub->iVersion, at ../../../storage/src/TelemetryVFS.cpp:357", 
-                "linenumber": 825
-            }, 
-            {
-                "line": "12:46:31  WARNING -  TEST-UNEXPECTED-FAIL | automation.py | Exited with code 11 during test run", 
-                "linenumber": 826
-            }, 
-            {
-                "line": "12:46:37  WARNING -  PROCESS-CRASH | automation.py | application crashed [@ xOpen]", 
-                "linenumber": 829
-            }, 
-            {
-                "line": "12:46:38    ERROR - Return code: 1", 
-                "linenumber": 1600
-            }, 
-            {
-                "line": "12:46:40     INFO -  Assertion failure: pNew->iVersion == pSub->iVersion, at ../../../storage/src/TelemetryVFS.cpp:357", 
-                "linenumber": 1632
-            }, 
-            {
-                "line": "12:46:40  WARNING -  TEST-UNEXPECTED-FAIL | automation.py | Exited with code 11 during test run", 
-                "linenumber": 1633
-            }, 
-            {
-                "line": "12:46:46  WARNING -  PROCESS-CRASH | automation.py | application crashed [@ xOpen]", 
-                "linenumber": 1636
-            }, 
-            {
-                "line": "12:46:46    ERROR - Return code: 1", 
-                "linenumber": 2283
-            }, 
-            {
-                "line": "12:46:48     INFO -  Assertion failure: pNew->iVersion == pSub->iVersion, at ../../../storage/src/TelemetryVFS.cpp:357", 
-                "linenumber": 2315
-            }, 
-            {
-                "line": "12:46:48  WARNING -  TEST-UNEXPECTED-FAIL | automation.py | Exited with code 11 during test run", 
-                "linenumber": 2316
-            }, 
-            {
-                "line": "12:46:55  WARNING -  PROCESS-CRASH | automation.py | application crashed [@ xOpen]", 
-                "linenumber": 2319
-            }, 
-            {
-                "line": "12:46:55    ERROR - Return code: 1", 
-                "linenumber": 3062
-            }
-        ], 
         "steps": [
             {
                 "errors": [], 
@@ -58,10 +8,7 @@
                 "started_linenumber": 8, 
                 "finished_linenumber": 10, 
                 "finished": "2013-06-05 12:44:58.843804", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 0, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -70,10 +17,7 @@
                 "started_linenumber": 12, 
                 "finished_linenumber": 52, 
                 "finished": "2013-06-05 12:44:58.975106", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 1, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -82,10 +26,7 @@
                 "started_linenumber": 54, 
                 "finished_linenumber": 55, 
                 "finished": "2013-06-05 12:44:59.037644", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 2, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -94,10 +35,7 @@
                 "started_linenumber": 57, 
                 "finished_linenumber": 95, 
                 "finished": "2013-06-05 12:44:59.112857", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 3, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -106,10 +44,7 @@
                 "started_linenumber": 97, 
                 "finished_linenumber": 135, 
                 "finished": "2013-06-05 12:44:59.201908", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 4, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -118,10 +53,7 @@
                 "started_linenumber": 137, 
                 "finished_linenumber": 182, 
                 "finished": "2013-06-05 12:45:02.180652", 
-                "result": "success", 
-                "duration": 3, 
-                "order": 5, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -130,10 +62,7 @@
                 "started_linenumber": 184, 
                 "finished_linenumber": 223, 
                 "finished": "2013-06-05 12:45:02.421021", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 6, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -142,10 +71,7 @@
                 "started_linenumber": 225, 
                 "finished_linenumber": 265, 
                 "finished": "2013-06-05 12:45:02.558016", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 7, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -154,10 +80,7 @@
                 "started_linenumber": 267, 
                 "finished_linenumber": 269, 
                 "finished": "2013-06-05 12:45:02.559173", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 8, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [
@@ -215,10 +138,7 @@
                 "started_linenumber": 271, 
                 "finished_linenumber": 3070, 
                 "finished": "2013-06-05 12:46:55.430095", 
-                "result": "testfailed", 
-                "duration": 113, 
-                "order": 9, 
-                "error_count": 12
+                "result": "testfailed"
             }, 
             {
                 "errors": [], 
@@ -227,10 +147,7 @@
                 "started_linenumber": 3072, 
                 "finished_linenumber": 3114, 
                 "finished": "2013-06-05 12:46:55.479840", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 10, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -239,10 +156,7 @@
                 "started_linenumber": 3116, 
                 "finished_linenumber": 3118, 
                 "finished": "2013-06-05 12:46:57.867188", 
-                "result": "success", 
-                "duration": 2, 
-                "order": 11, 
-                "error_count": 0
+                "result": "success"
             }
         ], 
         "errors_truncated": false

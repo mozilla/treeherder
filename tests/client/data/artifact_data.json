@@ -11,7 +11,6 @@
     {
         "blob": {
             "step_data": {
-                "all_errors": [],
                 "steps": [
                     {
                         "errors": [],
@@ -19,10 +18,7 @@
                         "started": "2014-03-07 07:12:03.636406",
                         "started_linenumber": 8,
                         "finished_linenumber": 10,
-                        "finished": "2014-03-07 07:12:03.636818",
-                        "error_count": 0,
-                        "duration": 0.00041199999999999999,
-                        "order": 0
+                        "finished": "2014-03-07 07:12:03.636818"
                     },
                     {
                         "errors": [],
@@ -30,10 +26,7 @@
                         "started": "2014-03-07 07:12:03.637105",
                         "started_linenumber": 12,
                         "finished_linenumber": 55,
-                        "finished": "2014-03-07 07:12:03.879738",
-                        "error_count": 0,
-                        "duration": 0.24263299999999999,
-                        "order": 1
+                        "finished": "2014-03-07 07:12:03.879738"
                     },
                     {
                         "errors": [],
@@ -41,10 +34,7 @@
                         "started": "2014-03-07 07:12:03.880087",
                         "started_linenumber": 57,
                         "finished_linenumber": 58,
-                        "finished": "2014-03-07 07:12:03.924320",
-                        "error_count": 0,
-                        "duration": 0.044233000000000001,
-                        "order": 2
+                        "finished": "2014-03-07 07:12:03.924320"
                     },
                     {
                         "errors": [],
@@ -52,10 +42,7 @@
                         "started": "2014-03-07 07:12:03.924713",
                         "started_linenumber": 60,
                         "finished_linenumber": 101,
-                        "finished": "2014-03-07 07:12:04.181933",
-                        "error_count": 0,
-                        "duration": 0.25722,
-                        "order": 3
+                        "finished": "2014-03-07 07:12:04.181933"
                     },
                     {
                         "errors": [],
@@ -63,10 +50,7 @@
                         "started": "2014-03-07 07:12:04.182263",
                         "started_linenumber": 103,
                         "finished_linenumber": 144,
-                        "finished": "2014-03-07 07:12:08.199403",
-                        "error_count": 0,
-                        "duration": 4.0171400000000004,
-                        "order": 4
+                        "finished": "2014-03-07 07:12:08.199403"
                     },
                     {
                         "errors": [],
@@ -74,10 +58,7 @@
                         "started": "2014-03-07 07:12:08.199729",
                         "started_linenumber": 146,
                         "finished_linenumber": 194,
-                        "finished": "2014-03-07 07:12:12.978266",
-                        "error_count": 0,
-                        "duration": 4.778537,
-                        "order": 5
+                        "finished": "2014-03-07 07:12:12.978266"
                     },
                     {
                         "errors": [],
@@ -85,10 +66,7 @@
                         "started": "2014-03-07 07:12:12.978609",
                         "started_linenumber": 196,
                         "finished_linenumber": 238,
-                        "finished": "2014-03-07 07:12:13.389483",
-                        "error_count": 0,
-                        "duration": 0.41087400000000002,
-                        "order": 6
+                        "finished": "2014-03-07 07:12:13.389483"
                     },
                     {
                         "errors": [],
@@ -96,10 +74,7 @@
                         "started": "2014-03-07 07:12:13.389785",
                         "started_linenumber": 240,
                         "finished_linenumber": 283,
-                        "finished": "2014-03-07 07:12:13.658294",
-                        "error_count": 0,
-                        "duration": 0.268509,
-                        "order": 7
+                        "finished": "2014-03-07 07:12:13.658294"
                     },
                     {
                         "errors": [],
@@ -107,10 +82,7 @@
                         "started": "2014-03-07 07:12:13.658595",
                         "started_linenumber": 285,
                         "finished_linenumber": 286,
-                        "finished": "2014-03-07 07:12:13.670954",
-                        "error_count": 0,
-                        "duration": 0.012359,
-                        "order": 8
+                        "finished": "2014-03-07 07:12:13.670954"
                     },
                     {
                         "errors": [],
@@ -118,10 +90,7 @@
                         "started": "2014-03-07 07:12:13.671280",
                         "started_linenumber": 288,
                         "finished_linenumber": 290,
-                        "finished": "2014-03-07 07:12:13.671644",
-                        "error_count": 0,
-                        "duration": 0.00036400000000000001,
-                        "order": 9
+                        "finished": "2014-03-07 07:12:13.671644"
                     },
                     {
                         "errors": [],
@@ -129,10 +98,7 @@
                         "started": "2014-03-07 07:12:13.671901",
                         "started_linenumber": 292,
                         "finished_linenumber": 97498,
-                        "finished": "2014-03-07 07:22:58.578709",
-                        "error_count": 0,
-                        "duration": 644.90680799999996,
-                        "order": 10
+                        "finished": "2014-03-07 07:22:58.578709"
                     },
                     {
                         "errors": [],
@@ -140,10 +106,7 @@
                         "started": "2014-03-07 07:22:58.584633",
                         "started_linenumber": 97500,
                         "finished_linenumber": 97543,
-                        "finished": "2014-03-07 07:22:58.850768",
-                        "error_count": 0,
-                        "duration": 0.26613500000000001,
-                        "order": 11
+                        "finished": "2014-03-07 07:22:58.850768"
                     },
                     {
                         "errors": [],
@@ -151,10 +114,7 @@
                         "started": "2014-03-07 07:22:58.851093",
                         "started_linenumber": 97545,
                         "finished_linenumber": 97586,
-                        "finished": "2014-03-07 07:22:59.078797",
-                        "error_count": 0,
-                        "duration": 0.22770399999999999,
-                        "order": 12
+                        "finished": "2014-03-07 07:22:59.078797"
                     },
                     {
                         "errors": [],
@@ -162,10 +122,7 @@
                         "started": "2014-03-07 07:22:59.079128",
                         "started_linenumber": 97588,
                         "finished_linenumber": 97590,
-                        "finished": "2014-03-07 07:23:00.519294",
-                        "error_count": 0,
-                        "duration": 1.4401660000000001,
-                        "order": 13
+                        "finished": "2014-03-07 07:23:00.519294"
                     }
                 ]
             },
@@ -187,7 +144,6 @@
     {
         "blob": {
             "step_data": {
-                "all_errors": [],
                 "steps": [
                     {
                         "errors": [],
@@ -195,10 +151,7 @@
                         "started": "2014-03-07 07:18:22.729550",
                         "started_linenumber": 8,
                         "finished_linenumber": 10,
-                        "finished": "2014-03-07 07:18:22.729923",
-                        "error_count": 0,
-                        "duration": 0.00037300000000000001,
-                        "order": 0
+                        "finished": "2014-03-07 07:18:22.729923"
                     },
                     {
                         "errors": [],
@@ -206,10 +159,7 @@
                         "started": "2014-03-07 07:18:22.730379",
                         "started_linenumber": 12,
                         "finished_linenumber": 60,
-                        "finished": "2014-03-07 07:18:22.774796",
-                        "error_count": 0,
-                        "duration": 0.044416999999999998,
-                        "order": 1
+                        "finished": "2014-03-07 07:18:22.774796"
                     },
                     {
                         "errors": [],
@@ -217,10 +167,7 @@
                         "started": "2014-03-07 07:18:22.775105",
                         "started_linenumber": 62,
                         "finished_linenumber": 63,
-                        "finished": "2014-03-07 07:18:22.819873",
-                        "error_count": 0,
-                        "duration": 0.044768000000000002,
-                        "order": 2
+                        "finished": "2014-03-07 07:18:22.819873"
                     },
                     {
                         "errors": [],
@@ -228,10 +175,7 @@
                         "started": "2014-03-07 07:18:22.820284",
                         "started_linenumber": 65,
                         "finished_linenumber": 111,
-                        "finished": "2014-03-07 07:18:22.858509",
-                        "error_count": 0,
-                        "duration": 0.038225000000000002,
-                        "order": 3
+                        "finished": "2014-03-07 07:18:22.858509"
                     },
                     {
                         "errors": [],
@@ -239,10 +183,7 @@
                         "started": "2014-03-07 07:18:22.858795",
                         "started_linenumber": 113,
                         "finished_linenumber": 159,
-                        "finished": "2014-03-07 07:18:22.907592",
-                        "error_count": 0,
-                        "duration": 0.048797,
-                        "order": 4
+                        "finished": "2014-03-07 07:18:22.907592"
                     },
                     {
                         "errors": [],
@@ -250,10 +191,7 @@
                         "started": "2014-03-07 07:18:22.907870",
                         "started_linenumber": 161,
                         "finished_linenumber": 214,
-                        "finished": "2014-03-07 07:18:26.841475",
-                        "error_count": 0,
-                        "duration": 3.933605,
-                        "order": 5
+                        "finished": "2014-03-07 07:18:26.841475"
                     },
                     {
                         "errors": [],
@@ -261,10 +199,7 @@
                         "started": "2014-03-07 07:18:26.841785",
                         "started_linenumber": 216,
                         "finished_linenumber": 263,
-                        "finished": "2014-03-07 07:18:27.404940",
-                        "error_count": 0,
-                        "duration": 0.56315499999999996,
-                        "order": 6
+                        "finished": "2014-03-07 07:18:27.404940"
                     },
                     {
                         "errors": [],
@@ -272,10 +207,7 @@
                         "started": "2014-03-07 07:18:27.405297",
                         "started_linenumber": 265,
                         "finished_linenumber": 313,
-                        "finished": "2014-03-07 07:18:27.750008",
-                        "error_count": 0,
-                        "duration": 0.34471099999999999,
-                        "order": 7
+                        "finished": "2014-03-07 07:18:27.750008"
                     },
                     {
                         "errors": [],
@@ -283,10 +215,7 @@
                         "started": "2014-03-07 07:18:27.753553",
                         "started_linenumber": 315,
                         "finished_linenumber": 316,
-                        "finished": "2014-03-07 07:18:27.908032",
-                        "error_count": 0,
-                        "duration": 0.15447900000000001,
-                        "order": 8
+                        "finished": "2014-03-07 07:18:27.908032"
                     },
                     {
                         "errors": [],
@@ -294,10 +223,7 @@
                         "started": "2014-03-07 07:18:27.908301",
                         "started_linenumber": 318,
                         "finished_linenumber": 320,
-                        "finished": "2014-03-07 07:18:27.908645",
-                        "error_count": 0,
-                        "duration": 0.00034400000000000001,
-                        "order": 9
+                        "finished": "2014-03-07 07:18:27.908645"
                     },
                     {
                         "errors": [],
@@ -305,10 +231,7 @@
                         "started": "2014-03-07 07:18:27.908937",
                         "started_linenumber": 322,
                         "finished_linenumber": 1739,
-                        "finished": "2014-03-07 07:24:06.327614",
-                        "error_count": 0,
-                        "duration": 338.418677,
-                        "order": 10
+                        "finished": "2014-03-07 07:24:06.327614"
                     },
                     {
                         "errors": [],
@@ -316,10 +239,7 @@
                         "started": "2014-03-07 07:24:06.332695",
                         "started_linenumber": 1741,
                         "finished_linenumber": 1789,
-                        "finished": "2014-03-07 07:24:06.361854",
-                        "error_count": 0,
-                        "duration": 0.029159000000000001,
-                        "order": 11
+                        "finished": "2014-03-07 07:24:06.361854"
                     },
                     {
                         "errors": [],
@@ -327,10 +247,7 @@
                         "started": "2014-03-07 07:24:06.362241",
                         "started_linenumber": 1791,
                         "finished_linenumber": 1837,
-                        "finished": "2014-03-07 07:24:06.380120",
-                        "error_count": 0,
-                        "duration": 0.017878999999999999,
-                        "order": 12
+                        "finished": "2014-03-07 07:24:06.380120"
                     },
                     {
                         "errors": [],
@@ -338,10 +255,7 @@
                         "started": "2014-03-07 07:24:06.380445",
                         "started_linenumber": 1839,
                         "finished_linenumber": 1841,
-                        "finished": "2014-03-07 07:24:10.781191",
-                        "error_count": 0,
-                        "duration": 4.4007459999999998,
-                        "order": 13
+                        "finished": "2014-03-07 07:24:10.781191"
                     }
                 ]
             },
@@ -363,7 +277,6 @@
     {
         "blob": {
             "step_data": {
-                "all_errors": [],
                 "steps": [
                     {
                         "errors": [],
@@ -371,10 +284,7 @@
                         "started": "2014-03-07 07:14:41.792299",
                         "started_linenumber": 8,
                         "finished_linenumber": 10,
-                        "finished": "2014-03-07 07:14:41.792958",
-                        "error_count": 0,
-                        "duration": 0.00065899999999999997,
-                        "order": 0
+                        "finished": "2014-03-07 07:14:41.792958"
                     },
                     {
                         "errors": [],
@@ -382,10 +292,7 @@
                         "started": "2014-03-07 07:14:41.793432",
                         "started_linenumber": 12,
                         "finished_linenumber": 56,
-                        "finished": "2014-03-07 07:14:41.858335",
-                        "error_count": 0,
-                        "duration": 0.064903000000000002,
-                        "order": 1
+                        "finished": "2014-03-07 07:14:41.858335"
                     },
                     {
                         "errors": [],
@@ -393,10 +300,7 @@
                         "started": "2014-03-07 07:14:41.858813",
                         "started_linenumber": 58,
                         "finished_linenumber": 59,
-                        "finished": "2014-03-07 07:14:41.893872",
-                        "error_count": 0,
-                        "duration": 0.035059,
-                        "order": 2
+                        "finished": "2014-03-07 07:14:41.893872"
                     },
                     {
                         "errors": [],
@@ -404,10 +308,7 @@
                         "started": "2014-03-07 07:14:41.894339",
                         "started_linenumber": 61,
                         "finished_linenumber": 103,
-                        "finished": "2014-03-07 07:14:41.990805",
-                        "error_count": 0,
-                        "duration": 0.096465999999999996,
-                        "order": 3
+                        "finished": "2014-03-07 07:14:41.990805"
                     },
                     {
                         "errors": [],
@@ -415,10 +316,7 @@
                         "started": "2014-03-07 07:14:41.991277",
                         "started_linenumber": 105,
                         "finished_linenumber": 147,
-                        "finished": "2014-03-07 07:14:42.387667",
-                        "error_count": 0,
-                        "duration": 0.39639000000000002,
-                        "order": 4
+                        "finished": "2014-03-07 07:14:42.387667"
                     },
                     {
                         "errors": [],
@@ -426,10 +324,7 @@
                         "started": "2014-03-07 07:14:42.388135",
                         "started_linenumber": 149,
                         "finished_linenumber": 198,
-                        "finished": "2014-03-07 07:14:46.490504",
-                        "error_count": 0,
-                        "duration": 4.1023690000000004,
-                        "order": 5
+                        "finished": "2014-03-07 07:14:46.490504"
                     },
                     {
                         "errors": [],
@@ -437,10 +332,7 @@
                         "started": "2014-03-07 07:14:46.491031",
                         "started_linenumber": 200,
                         "finished_linenumber": 243,
-                        "finished": "2014-03-07 07:14:46.959315",
-                        "error_count": 0,
-                        "duration": 0.46828399999999998,
-                        "order": 6
+                        "finished": "2014-03-07 07:14:46.959315"
                     },
                     {
                         "errors": [],
@@ -448,10 +340,7 @@
                         "started": "2014-03-07 07:14:46.959819",
                         "started_linenumber": 245,
                         "finished_linenumber": 289,
-                        "finished": "2014-03-07 07:14:47.217313",
-                        "error_count": 0,
-                        "duration": 0.257494,
-                        "order": 7
+                        "finished": "2014-03-07 07:14:47.217313"
                     },
                     {
                         "errors": [],
@@ -459,10 +348,7 @@
                         "started": "2014-03-07 07:14:47.217835",
                         "started_linenumber": 291,
                         "finished_linenumber": 292,
-                        "finished": "2014-03-07 07:14:47.238172",
-                        "error_count": 0,
-                        "duration": 0.020337000000000001,
-                        "order": 8
+                        "finished": "2014-03-07 07:14:47.238172"
                     },
                     {
                         "errors": [],
@@ -470,10 +356,7 @@
                         "started": "2014-03-07 07:14:47.238666",
                         "started_linenumber": 294,
                         "finished_linenumber": 296,
-                        "finished": "2014-03-07 07:14:47.239335",
-                        "error_count": 0,
-                        "duration": 0.000669,
-                        "order": 9
+                        "finished": "2014-03-07 07:14:47.239335"
                     },
                     {
                         "errors": [],
@@ -481,10 +364,7 @@
                         "started": "2014-03-07 07:14:47.239846",
                         "started_linenumber": 298,
                         "finished_linenumber": 10126,
-                        "finished": "2014-03-07 07:24:34.027012",
-                        "error_count": 0,
-                        "duration": 586.78716599999996,
-                        "order": 10
+                        "finished": "2014-03-07 07:24:34.027012"
                     },
                     {
                         "errors": [],
@@ -492,10 +372,7 @@
                         "started": "2014-03-07 07:24:34.028119",
                         "started_linenumber": 10128,
                         "finished_linenumber": 10172,
-                        "finished": "2014-03-07 07:24:34.086304",
-                        "error_count": 0,
-                        "duration": 0.058185000000000001,
-                        "order": 11
+                        "finished": "2014-03-07 07:24:34.086304"
                     },
                     {
                         "errors": [],
@@ -503,10 +380,7 @@
                         "started": "2014-03-07 07:24:34.086806",
                         "started_linenumber": 10174,
                         "finished_linenumber": 10216,
-                        "finished": "2014-03-07 07:24:34.129472",
-                        "error_count": 0,
-                        "duration": 0.042666000000000003,
-                        "order": 12
+                        "finished": "2014-03-07 07:24:34.129472"
                     },
                     {
                         "errors": [],
@@ -514,10 +388,7 @@
                         "started": "2014-03-07 07:24:34.129930",
                         "started_linenumber": 10218,
                         "finished_linenumber": 10220,
-                        "finished": "2014-03-07 07:24:38.385365",
-                        "error_count": 0,
-                        "duration": 4.2554350000000003,
-                        "order": 13
+                        "finished": "2014-03-07 07:24:38.385365"
                     }
                 ]
             },
@@ -539,7 +410,6 @@
     {
         "blob": {
             "step_data": {
-                "all_errors": [],
                 "steps": [
                     {
                         "errors": [],
@@ -547,10 +417,7 @@
                         "started": "2014-03-07 07:14:34.298831",
                         "started_linenumber": 8,
                         "finished_linenumber": 10,
-                        "finished": "2014-03-07 07:14:34.299526",
-                        "error_count": 0,
-                        "duration": 0.00069499999999999998,
-                        "order": 0
+                        "finished": "2014-03-07 07:14:34.299526"
                     },
                     {
                         "errors": [],
@@ -558,10 +425,7 @@
                         "started": "2014-03-07 07:14:34.299969",
                         "started_linenumber": 12,
                         "finished_linenumber": 56,
-                        "finished": "2014-03-07 07:14:36.493319",
-                        "error_count": 0,
-                        "duration": 2.1933500000000001,
-                        "order": 1
+                        "finished": "2014-03-07 07:14:36.493319"
                     },
                     {
                         "errors": [],
@@ -569,10 +433,7 @@
                         "started": "2014-03-07 07:14:36.493812",
                         "started_linenumber": 58,
                         "finished_linenumber": 59,
-                        "finished": "2014-03-07 07:14:36.842727",
-                        "error_count": 0,
-                        "duration": 0.34891499999999998,
-                        "order": 2
+                        "finished": "2014-03-07 07:14:36.842727"
                     },
                     {
                         "errors": [],
@@ -580,10 +441,7 @@
                         "started": "2014-03-07 07:14:36.843133",
                         "started_linenumber": 61,
                         "finished_linenumber": 103,
-                        "finished": "2014-03-07 07:14:36.917108",
-                        "error_count": 0,
-                        "duration": 0.073974999999999999,
-                        "order": 3
+                        "finished": "2014-03-07 07:14:36.917108"
                     },
                     {
                         "errors": [],
@@ -591,10 +449,7 @@
                         "started": "2014-03-07 07:14:36.917553",
                         "started_linenumber": 105,
                         "finished_linenumber": 147,
-                        "finished": "2014-03-07 07:14:38.049526",
-                        "error_count": 0,
-                        "duration": 1.1319729999999999,
-                        "order": 4
+                        "finished": "2014-03-07 07:14:38.049526"
                     },
                     {
                         "errors": [],
@@ -602,10 +457,7 @@
                         "started": "2014-03-07 07:14:38.050029",
                         "started_linenumber": 149,
                         "finished_linenumber": 198,
-                        "finished": "2014-03-07 07:14:53.802561",
-                        "error_count": 0,
-                        "duration": 15.752532,
-                        "order": 5
+                        "finished": "2014-03-07 07:14:53.802561"
                     },
                     {
                         "errors": [],
@@ -613,10 +465,7 @@
                         "started": "2014-03-07 07:14:53.803111",
                         "started_linenumber": 200,
                         "finished_linenumber": 243,
-                        "finished": "2014-03-07 07:14:54.140737",
-                        "error_count": 0,
-                        "duration": 0.33762599999999998,
-                        "order": 6
+                        "finished": "2014-03-07 07:14:54.140737"
                     },
                     {
                         "errors": [],
@@ -624,10 +473,7 @@
                         "started": "2014-03-07 07:14:54.141318",
                         "started_linenumber": 245,
                         "finished_linenumber": 289,
-                        "finished": "2014-03-07 07:14:54.330501",
-                        "error_count": 0,
-                        "duration": 0.18918299999999999,
-                        "order": 7
+                        "finished": "2014-03-07 07:14:54.330501"
                     },
                     {
                         "errors": [],
@@ -635,10 +481,7 @@
                         "started": "2014-03-07 07:14:54.330976",
                         "started_linenumber": 291,
                         "finished_linenumber": 292,
-                        "finished": "2014-03-07 07:14:54.354151",
-                        "error_count": 0,
-                        "duration": 0.023175000000000001,
-                        "order": 8
+                        "finished": "2014-03-07 07:14:54.354151"
                     },
                     {
                         "errors": [],
@@ -646,10 +489,7 @@
                         "started": "2014-03-07 07:14:54.354709",
                         "started_linenumber": 294,
                         "finished_linenumber": 296,
-                        "finished": "2014-03-07 07:14:54.355354",
-                        "error_count": 0,
-                        "duration": 0.00064499999999999996,
-                        "order": 9
+                        "finished": "2014-03-07 07:14:54.355354"
                     },
                     {
                         "errors": [],
@@ -657,10 +497,7 @@
                         "started": "2014-03-07 07:14:54.355786",
                         "started_linenumber": 298,
                         "finished_linenumber": 17699,
-                        "finished": "2014-03-07 07:22:43.052819",
-                        "error_count": 0,
-                        "duration": 468.69703299999998,
-                        "order": 10
+                        "finished": "2014-03-07 07:22:43.052819"
                     },
                     {
                         "errors": [],
@@ -668,10 +505,7 @@
                         "started": "2014-03-07 07:22:43.085835",
                         "started_linenumber": 17701,
                         "finished_linenumber": 17745,
-                        "finished": "2014-03-07 07:22:43.401531",
-                        "error_count": 0,
-                        "duration": 0.31569599999999998,
-                        "order": 11
+                        "finished": "2014-03-07 07:22:43.401531"
                     },
                     {
                         "errors": [],
@@ -679,10 +513,7 @@
                         "started": "2014-03-07 07:22:43.402049",
                         "started_linenumber": 17747,
                         "finished_linenumber": 17789,
-                        "finished": "2014-03-07 07:22:43.451869",
-                        "error_count": 0,
-                        "duration": 0.049820000000000003,
-                        "order": 12
+                        "finished": "2014-03-07 07:22:43.451869"
                     },
                     {
                         "errors": [],
@@ -690,10 +521,7 @@
                         "started": "2014-03-07 07:22:43.452327",
                         "started_linenumber": 17791,
                         "finished_linenumber": 17793,
-                        "finished": "2014-03-07 07:22:48.221966",
-                        "error_count": 0,
-                        "duration": 4.7696389999999997,
-                        "order": 13
+                        "finished": "2014-03-07 07:22:48.221966"
                     }
                 ]
             },
@@ -715,7 +543,6 @@
     {
         "blob": {
             "step_data": {
-                "all_errors": [],
                 "steps": [
                     {
                         "errors": [],
@@ -723,10 +550,7 @@
                         "started": "2014-03-07 07:14:30.412431",
                         "started_linenumber": 8,
                         "finished_linenumber": 10,
-                        "finished": "2014-03-07 07:14:30.413108",
-                        "error_count": 0,
-                        "duration": 0.00067699999999999998,
-                        "order": 0
+                        "finished": "2014-03-07 07:14:30.413108"
                     },
                     {
                         "errors": [],
@@ -734,10 +558,7 @@
                         "started": "2014-03-07 07:14:30.413529",
                         "started_linenumber": 12,
                         "finished_linenumber": 56,
-                        "finished": "2014-03-07 07:14:30.758181",
-                        "error_count": 0,
-                        "duration": 0.34465200000000001,
-                        "order": 1
+                        "finished": "2014-03-07 07:14:30.758181"
                     },
                     {
                         "errors": [],
@@ -745,10 +566,7 @@
                         "started": "2014-03-07 07:14:30.758641",
                         "started_linenumber": 58,
                         "finished_linenumber": 59,
-                        "finished": "2014-03-07 07:14:30.805123",
-                        "error_count": 0,
-                        "duration": 0.046482000000000002,
-                        "order": 2
+                        "finished": "2014-03-07 07:14:30.805123"
                     },
                     {
                         "errors": [],
@@ -756,10 +574,7 @@
                         "started": "2014-03-07 07:14:30.805562",
                         "started_linenumber": 61,
                         "finished_linenumber": 103,
-                        "finished": "2014-03-07 07:14:30.859079",
-                        "error_count": 0,
-                        "duration": 0.053517000000000002,
-                        "order": 3
+                        "finished": "2014-03-07 07:14:30.859079"
                     },
                     {
                         "errors": [],
@@ -767,10 +582,7 @@
                         "started": "2014-03-07 07:14:30.859546",
                         "started_linenumber": 105,
                         "finished_linenumber": 147,
-                        "finished": "2014-03-07 07:14:31.271884",
-                        "error_count": 0,
-                        "duration": 0.41233799999999998,
-                        "order": 4
+                        "finished": "2014-03-07 07:14:31.271884"
                     },
                     {
                         "errors": [],
@@ -778,10 +590,7 @@
                         "started": "2014-03-07 07:14:31.272719",
                         "started_linenumber": 149,
                         "finished_linenumber": 198,
-                        "finished": "2014-03-07 07:14:36.816646",
-                        "error_count": 0,
-                        "duration": 5.543927,
-                        "order": 5
+                        "finished": "2014-03-07 07:14:36.816646"
                     },
                     {
                         "errors": [],
@@ -789,10 +598,7 @@
                         "started": "2014-03-07 07:14:36.817194",
                         "started_linenumber": 200,
                         "finished_linenumber": 243,
-                        "finished": "2014-03-07 07:14:38.062517",
-                        "error_count": 0,
-                        "duration": 1.245323,
-                        "order": 6
+                        "finished": "2014-03-07 07:14:38.062517"
                     },
                     {
                         "errors": [],
@@ -800,10 +606,7 @@
                         "started": "2014-03-07 07:14:38.062993",
                         "started_linenumber": 245,
                         "finished_linenumber": 289,
-                        "finished": "2014-03-07 07:14:38.241590",
-                        "error_count": 0,
-                        "duration": 0.17859700000000001,
-                        "order": 7
+                        "finished": "2014-03-07 07:14:38.241590"
                     },
                     {
                         "errors": [],
@@ -811,10 +614,7 @@
                         "started": "2014-03-07 07:14:38.242080",
                         "started_linenumber": 291,
                         "finished_linenumber": 292,
-                        "finished": "2014-03-07 07:14:38.267092",
-                        "error_count": 0,
-                        "duration": 0.025012,
-                        "order": 8
+                        "finished": "2014-03-07 07:14:38.267092"
                     },
                     {
                         "errors": [],
@@ -822,10 +622,7 @@
                         "started": "2014-03-07 07:14:38.267614",
                         "started_linenumber": 294,
                         "finished_linenumber": 296,
-                        "finished": "2014-03-07 07:14:38.268277",
-                        "error_count": 0,
-                        "duration": 0.00066299999999999996,
-                        "order": 9
+                        "finished": "2014-03-07 07:14:38.268277"
                     },
                     {
                         "errors": [],
@@ -833,10 +630,7 @@
                         "started": "2014-03-07 07:14:38.268708",
                         "started_linenumber": 298,
                         "finished_linenumber": 32014,
-                        "finished": "2014-03-07 07:24:06.398324",
-                        "error_count": 0,
-                        "duration": 568.12961600000006,
-                        "order": 10
+                        "finished": "2014-03-07 07:24:06.398324"
                     },
                     {
                         "errors": [],
@@ -844,10 +638,7 @@
                         "started": "2014-03-07 07:24:06.403049",
                         "started_linenumber": 32016,
                         "finished_linenumber": 32060,
-                        "finished": "2014-03-07 07:24:06.464080",
-                        "error_count": 0,
-                        "duration": 0.061031000000000002,
-                        "order": 11
+                        "finished": "2014-03-07 07:24:06.464080"
                     },
                     {
                         "errors": [],
@@ -855,10 +646,7 @@
                         "started": "2014-03-07 07:24:06.464585",
                         "started_linenumber": 32062,
                         "finished_linenumber": 32104,
-                        "finished": "2014-03-07 07:24:06.507310",
-                        "error_count": 0,
-                        "duration": 0.042724999999999999,
-                        "order": 12
+                        "finished": "2014-03-07 07:24:06.507310"
                     },
                     {
                         "errors": [],
@@ -866,10 +654,7 @@
                         "started": "2014-03-07 07:24:06.507796",
                         "started_linenumber": 32106,
                         "finished_linenumber": 32108,
-                        "finished": "2014-03-07 07:24:11.035626",
-                        "error_count": 0,
-                        "duration": 4.5278299999999998,
-                        "order": 13
+                        "finished": "2014-03-07 07:24:11.035626"
                     }
                 ]
             },

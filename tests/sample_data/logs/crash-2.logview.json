@@ -1,35 +1,5 @@
 {
     "step_data": {
-        "all_errors": [
-            {
-                "line": "10536 ERROR TEST-UNEXPECTED-FAIL | /tests/layout/base/tests/test_flush_on_paint.html | Test timed out.", 
-                "linenumber": 40138
-            }, 
-            {
-                "line": "37733 ERROR TEST-UNEXPECTED-FAIL | /tests/layout/base/tests/test_mozPaintCount.html | Test timed out.", 
-                "linenumber": 67346
-            }, 
-            {
-                "line": "132016 ERROR TEST-UNEXPECTED-FAIL | /tests/modules/plugin/test/test_painting.html | partially clipped plugin painted once - got 0, expected 1", 
-                "linenumber": 178796
-            }, 
-            {
-                "line": "132017 ERROR TEST-UNEXPECTED-FAIL | /tests/modules/plugin/test/test_painting.html | painted after invalidate - got 1, expected 2", 
-                "linenumber": 178797
-            }, 
-            {
-                "line": "PROCESS-CRASH | Main app process exited normally | application crashed (minidump found)", 
-                "linenumber": 179725
-            }, 
-            {
-                "line": "PROCESS-CRASH | Main app process exited normally | application crashed (minidump found)", 
-                "linenumber": 179851
-            }, 
-            {
-                "line": "PROCESS-CRASH | Main app process exited normally | application crashed (minidump found)", 
-                "linenumber": 180176
-            }
-        ], 
         "steps": [
             {
                 "errors": [], 
@@ -38,10 +8,7 @@
                 "started_linenumber": 8, 
                 "finished_linenumber": 10, 
                 "finished": "2013-06-05 12:51:48.768393", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 0, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -50,10 +17,7 @@
                 "started_linenumber": 12, 
                 "finished_linenumber": 14, 
                 "finished": "2013-06-05 12:51:48.769473", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 1, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [
@@ -91,10 +55,7 @@
                 "started_linenumber": 16, 
                 "finished_linenumber": 180434, 
                 "finished": "2013-06-05 13:15:39.235146", 
-                "result": "testfailed", 
-                "duration": 1244, 
-                "order": 2, 
-                "error_count": 7
+                "result": "testfailed"
             }, 
             {
                 "errors": [], 
@@ -103,10 +64,7 @@
                 "started_linenumber": 180436, 
                 "finished_linenumber": 180480, 
                 "finished": "2013-06-05 13:16:04.014823", 
-                "result": "success", 
-                "duration": 25, 
-                "order": 3, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -115,10 +73,7 @@
                 "started_linenumber": 180482, 
                 "finished_linenumber": 180484, 
                 "finished": "2013-06-05 13:16:04.963614", 
-                "result": "success", 
-                "duration": 1, 
-                "order": 4, 
-                "error_count": 0
+                "result": "success"
             }
         ], 
         "errors_truncated": false
