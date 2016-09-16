@@ -49,7 +49,7 @@ admin.controller('AdminCtrl', [
                 var platformPromise = ThBuildPlatformModel.get_list()
                     .then(function(buildPlatforms) {
                         $scope.master_platforms = _.uniq(buildPlatforms.map(function(buildPlatform) {
-                            return `${buildPlatform.platform} (${buildPlatform.architecture})`;
+                            return buildPlatform.platform + "(" + buildPlatform.architecture + ")";
                         }).sort());
                         $scope.form_platforms = angular.copy($scope.master_platforms);
                     });
@@ -58,7 +58,7 @@ admin.controller('AdminCtrl', [
                 var jobTypePromise = ThJobTypeModel.get_list()
                     .then(function(jobTypes) {
                         $scope.master_job_types = _.uniq(jobTypes.map(function(jobType) {
-                            return `${jobType.name} (${jobType.symbol})`;
+                            return jobType.name + " (" + jobType.symbol + ")";
                         }).sort());
                         $scope.form_job_types = angular.copy($scope.master_job_types);
                     });
