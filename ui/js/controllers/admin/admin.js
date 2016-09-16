@@ -7,7 +7,7 @@ admin.controller('AdminCtrl', [
     function AdminCtrl(
         $scope, ThBuildPlatformModel, ThJobTypeModel, ThRepositoryModel,
         ThOptionCollectionModel, ThJobExclusionModel, $state,
-        $q,ThExclusionProfileModel) {
+        $q, ThExclusionProfileModel) {
 
         // allow ng-click to do state navigation.  This allows us to use it
         // with buttons that have ng-disabled conditional on sheriff access.
