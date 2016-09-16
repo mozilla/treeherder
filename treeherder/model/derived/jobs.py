@@ -278,6 +278,10 @@ class JobsModel(TreeherderModelBase):
             placeholders=[resultset_id],
             debug_show=self.DEBUG
         )
+        Job.objects.filter(
+            repository__name=self.project,
+            project_specific_id__in=[job['id'] for job in jobs]).update(
+                result=Job.USERCANCEL)
 
         # Sending 'cancel_all' action to pulse. Right now there is no listener
         # for this, so we cannot remove 'cancel' action for each job below.
@@ -1601,18 +1605,30 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         # create an intermediate representation of the job useful for doing
         # lookups (this will eventually become the main/only/primary jobs table
-        # when we finish migrating away from Datasource, see bug 1178641
+        # when we finish migrating away from Datasource, see bug 1178641)
+        # (in the case of retries, we *update* the old job with a new guid,
+        # then create a new job with an old guid when the retry actually
+        # starts/completes -- this is complicated because we have two
+        # id representations which need to be kept in sync, when we drop
+        # datasource, we can just create new jobs with retry guids
+        # transparently and it all should just work)
         repository = Repository.objects.get(name=self.project)
+        job_result_map = {k: v for (v, k) in Job.RESULTS}
+        job_results = {
+            job_placeholder[self.JOB_PH_JOB_GUID]: job_placeholder[self.JOB_PH_RESULT]
+            for job_placeholder in job_placeholders
+        }
         for job_guid in jobs_to_update.keys():
-            # in the case of retries, we *update* the old job with a new guid,
-            # then create a new job with an old guid when the retry actually
-            # starts/completes
+            updatedict = {
+                'guid': job_guid
+            }
+            if job_results.get(job_guid):
+                updatedict['result'] = job_result_map[job_results[job_guid]]
             Job.objects.update_or_create(
                 repository=repository,
                 project_specific_id=job_id_lookup[job_guid]['id'],
-                defaults={
-                    'guid': job_guid
-                })
+                defaults=updatedict)
+
         return job_id_lookup
 
     def get_average_job_durations(self, reference_data_signatures):

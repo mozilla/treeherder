@@ -343,19 +343,20 @@ def test_resultset_cancel_all(jm, resultset_with_three_jobs,
     client.force_authenticate(user=test_user)
 
     # Ensure all jobs are pending..
-    jobs = jm.get_job_list(0, 3)
-    for job in jobs:
-        assert job['state'] == 'pending'
+    for (ds_job, job) in zip(jm.get_job_list(0, 3), Job.objects.all()):
+        assert ds_job['state'] == 'pending'
+        assert ds_job['result'] == 'success'
+        assert job.result == Job.SUCCESS
 
     url = reverse("resultset-cancel-all",
                   kwargs={"project": jm.project, "pk": resultset_with_three_jobs})
     client.post(url)
 
     # Ensure all jobs are cancelled..
-    jobs = jm.get_job_list(0, 3)
-    for job in jobs:
-        assert job['state'] == 'completed'
-        assert job['result'] == 'usercancel'
+    for (ds_job, job) in zip(jm.get_job_list(0, 3), Job.objects.all()):
+        assert ds_job['state'] == 'completed'
+        assert ds_job['result'] == 'usercancel'
+        assert job.result == Job.USERCANCEL
 
     for _ in range(0, 3):
         message = pulse_action_consumer.get(block=True, timeout=2)
