@@ -250,11 +250,6 @@ class ArtifactsModel(TreeherderModelBase):
                     self.store_job_details(job, artifact)
                 elif artifact_name == 'text_log_summary':
                     self.store_text_log_summary(job, artifact)
-                    # continue to store text log summaries in db for now,
-                    # in case we need to revert db-stored summaries
-                    self._adapt_job_artifact_collection(
-                        artifact, job_artifact_list,
-                        job.project_specific_id)
                 elif artifact_name == 'buildapi':
                     buildbot_request_id = json.loads(artifact['blob']).get(
                         'request_id')
@@ -263,9 +258,6 @@ class ArtifactsModel(TreeherderModelBase):
                             job=job,
                             title='buildbot_request_id',
                             value=str(buildbot_request_id))
-                    self._adapt_job_artifact_collection(
-                        artifact, job_artifact_list,
-                        job.project_specific_id)
                 else:
                     self._adapt_job_artifact_collection(
                         artifact, job_artifact_list,

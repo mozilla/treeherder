@@ -43,23 +43,11 @@ class Command(BaseCommand):
                 return
 
         with ArtifactsModel(repository_name) as am:
-            conditions = {
-                'job_id': set([('=', job['id'])])
-            }
-
-            # Load the text log artifacts for this job
-            text_log_summary_conditions = conditions.copy()
-            text_log_summary_conditions["name"] = set([("=", "text_log_summary")])
-            text_log_summary = am.get_job_artifact_list(0, 1, text_log_summary_conditions)
-            if not text_log_summary:
-                logger.error("No text log summary generated for job")
-                return
-            text_log_summary = text_log_summary[0]
-
             # Load the bug suggestions for this job
-            bug_suggestions_conditions = conditions.copy()
-            bug_suggestions_conditions["name"] = set([("=", "Bug suggestions")])
-            bug_suggestions = am.get_job_artifact_list(0, 1, bug_suggestions_conditions)
+            bug_suggestions = am.get_job_artifact_list(0, 1, {
+                'job_id': set([('=', job['id'])]),
+                'name': set([("=", "Bug suggestions")])
+            })
             if not bug_suggestions:
                 logger.error("No bug_suggestions generated for job")
                 return
@@ -71,12 +59,10 @@ class Command(BaseCommand):
                                         job_guid,
                                         failure_lines,
                                         text_log_errors,
-                                        text_log_summary,
                                         bug_suggestions)
 
     def crossreference_error_lines(self, repository, job_guid, failure_lines,
-                                   text_log_errors, text_log_summary,
-                                   bug_suggestions):
+                                   text_log_errors, bug_suggestions):
         """Populate the TextLogSummary and TextLogSummaryLine tables for a
         job. Specifically this function tries to match the
         unstructured error lines with the corresponding structured error lines, relying on
@@ -92,7 +78,6 @@ class Command(BaseCommand):
 
         summary, _ = TextLogSummary.objects.get_or_create(job_guid=job_guid,
                                                           repository=repository)
-        summary.text_log_summary_artifact_id = text_log_summary["id"]
         summary.bug_suggestions_artifact_id = bug_suggestions["id"]
 
         summary.save()

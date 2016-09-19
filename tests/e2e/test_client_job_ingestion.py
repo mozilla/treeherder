@@ -155,8 +155,8 @@ def test_post_job_with_text_log_summary_artifact_parsed(
 
     post_collection(test_project, tjc)
 
-    check_artifacts(test_project, job_guid, JobLog.PARSED, 2,
-                    {'Bug suggestions', 'text_log_summary'}, mock_error_summary)
+    check_artifacts(test_project, job_guid, JobLog.PARSED, 1,
+                    {'Bug suggestions'}, mock_error_summary)
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False
@@ -204,8 +204,8 @@ def test_post_job_with_text_log_summary_artifact_parsed_dict_blob(
 
     post_collection(test_project, tjc)
 
-    check_artifacts(test_project, job_guid, JobLog.PARSED, 2,
-                    {'Bug suggestions', 'text_log_summary'}, mock_error_summary)
+    check_artifacts(test_project, job_guid, JobLog.PARSED, 1,
+                    {'Bug suggestions'}, mock_error_summary)
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False
@@ -255,8 +255,8 @@ def test_post_job_with_text_log_summary_artifact_pending(
 
     post_collection(test_project, tjc)
 
-    check_artifacts(test_project, job_guid, JobLog.PARSED, 2,
-                    {'Bug suggestions', 'text_log_summary'}, mock_error_summary)
+    check_artifacts(test_project, job_guid, JobLog.PARSED, 1,
+                    {'Bug suggestions'}, mock_error_summary)
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False
@@ -363,9 +363,9 @@ def test_post_job_artifacts_by_add_artifact(
         'step': 1
     }
 
-    check_artifacts(test_project, job_guid, JobLog.PARSED, 4,
-                    {'Bug suggestions', 'text_log_summary',
-                     'privatebuild', 'buildapi'}, mock_error_summary)
+    check_artifacts(test_project, job_guid, JobLog.PARSED, 2,
+                    {'Bug suggestions', 'privatebuild'},
+                    mock_error_summary)
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False

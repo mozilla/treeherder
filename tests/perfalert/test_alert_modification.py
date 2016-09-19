@@ -1,35 +1,11 @@
 import datetime
 
 import pytest
-
 from django.core.exceptions import ValidationError
+
 from treeherder.perf.models import (PerformanceAlert,
-                                    PerformanceAlertSummary)
-from treeherder.model.models import (MachinePlatform,
-                                     Option,
-                                     OptionCollection)
-from treeherder.perf.models import PerformanceSignature
-
-
-def repo_ref(transactional_db, reponame, project):
-    from treeherder.model.models import Repository, RepositoryGroup
-    test_project = "%s_jobs" % project
-    RepositoryGroup.objects.create(
-        name=reponame,
-        description=""
-    )
-
-    r = Repository.objects.create(
-        dvcs_type="hg",
-        name=test_project,
-        url="https://hg.mozilla.org/mozilla-central",
-        active_status="active",
-        codebase="gecko",
-        repository_group_id=1,
-        description="",
-        performance_alerts_enabled=True
-    )
-    return r
+                                    PerformanceAlertSummary,
+                                    PerformanceSignature)
 
 
 def test_summary_modification(test_repository, test_perf_signature,
@@ -55,47 +31,20 @@ def test_summary_modification(test_repository, test_perf_signature,
 
 def test_summary_status(test_repository, test_perf_signature,
                         test_perf_alert_summary, test_perf_framework):
-    option_1 = Option.objects.create(name='opt1')
-    option_2 = Option.objects.create(name='opt2')
-    option_collection_1 = OptionCollection.objects.create(
-        option_collection_hash='my_option_hash_1',
-        option=option_1)
-    option_collection_2 = OptionCollection.objects.create(
-        option_collection_hash='my_option_hash_2',
-        option=option_2)
-    platform_1 = MachinePlatform.objects.create(
-        os_name='win1',
-        platform='win8',
-        architecture='x86')
-    platform_2 = MachinePlatform.objects.create(
-        os_name='win2',
-        platform='win7',
-        architecture='x86')
-    signature1 = PerformanceSignature.objects.create(
-        repository=repo_ref('default', "dev1", "test_treeherder_1"),
-        signature_hash=(30*'t'),
-        framework=test_perf_framework,
-        platform=platform_1,
-        option_collection=option_collection_1,
-        suite='mysuite_1',
-        test='mytest_1',
-        has_subtests=False,
-        last_updated=datetime.datetime.now() + datetime.timedelta(hours=1)
-    )
+    signature1 = test_perf_signature
     signature2 = PerformanceSignature.objects.create(
-        repository=repo_ref('default', "dev2", "test_treeherder_2"),
-        signature_hash=(40*'t'),
-        framework=test_perf_framework,
-        platform=platform_2,
-        option_collection=option_collection_2,
+        repository=test_repository,
+        signature_hash=(40*'u'),
+        framework=test_perf_signature.framework,
+        platform=test_perf_signature.platform,
+        option_collection=test_perf_signature.option_collection,
         suite='mysuite_2',
         test='mytest_2',
         has_subtests=False,
         last_updated=datetime.datetime.now()
     )
-
-    # ignore downstream and reassigned to update the summary status
     s = test_perf_alert_summary
+
     a = PerformanceAlert.objects.create(
             summary=s,
             series_signature=signature1,
@@ -105,6 +54,9 @@ def test_summary_status(test_repository, test_perf_signature,
             prev_value=100.0,
             new_value=150.0,
             t_value=20.0)
+
+    # this is the test case
+    # ignore downstream and reassigned to update the summary status
     a.status = PerformanceAlert.REASSIGNED
     a.related_summary = s
     a.save()
