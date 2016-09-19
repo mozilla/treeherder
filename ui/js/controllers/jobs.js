@@ -202,7 +202,7 @@ treeherderApp.controller('ResultSetCtrl', [
                     // XXX: Remove this after 1134929 is resolved.
                     ThJobDetailModel.getJobDetails({
                         title: "buildbot_request_id",
-                        job_id: job.id
+                        job_guid: job.guid
                     }).then(function(data) {
                         // non-buildbot jobs will have no request id, and that's ok (they
                         // are covered above)
