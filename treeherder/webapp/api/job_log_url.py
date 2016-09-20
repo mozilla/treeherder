@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from treeherder.model.models import JobLog
 
 
-class JobLogUrlViewSet(viewsets.ReadOnlyModelViewSet):
+class JobLogUrlViewSet(viewsets.ViewSet):
     """
     A job_log_url object holds a reference to a job log.
     """
