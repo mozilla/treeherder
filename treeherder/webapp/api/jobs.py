@@ -63,6 +63,7 @@ class JobsViewSet(viewsets.ViewSet):
                                       kwargs={"project": jm.project, "pk": job["id"]})
         job["logs"] = []
         for (name, url) in JobLog.objects.filter(
+                job__repository__name=jm.project,
                 job__project_specific_id=job['id']).values_list('name', 'url'):
             job["logs"].append({'name': name, 'url': url})
 
