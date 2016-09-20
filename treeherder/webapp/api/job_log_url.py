@@ -2,9 +2,7 @@ from rest_framework import viewsets
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 
-from treeherder.model.models import (Job,
-                                     JobLog,
-                                     Repository)
+from treeherder.model.models import JobLog
 
 
 class JobLogUrlViewSet(viewsets.ReadOnlyModelViewSet):
