@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import (DetailView,
@@ -46,3 +47,9 @@ class CredentialsDetail(LoginRequiredMixin, DetailView):
 class CredentialsDelete(LoginRequiredMixin, DeleteView):
     model = Credentials
     success_url = reverse_lazy('credentials-list')
+
+    def get_object(self, queryset=None):
+        obj = super(CredentialsDelete, self).get_object(queryset=queryset)
+        if not obj.owner == self.request.user and not obj.owner.is_superuser:
+            raise PermissionDenied
+        return obj
