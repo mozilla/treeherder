@@ -9,7 +9,7 @@ from requests_hawk import HawkAuth
 
 # The Python client release process is documented here:
 # https://treeherder.readthedocs.io/common_tasks.html#releasing-a-new-version-of-the-python-client
-__version__ = '3.0.0'
+__version__ = '3.1.0'
 
 logger = logging.getLogger(__name__)
 
