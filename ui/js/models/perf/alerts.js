@@ -84,7 +84,7 @@ treeherder.factory('PhAlerts', [
                 return !alert.is_regression && alert.visible;}),
             'amount_pct').reverse();
             var regressed = _.sortBy(_.filter(this.alerts, function(alert) {
-                return alert.is_regression && alert.visible;}),
+                return alert.is_regression && alert.visible && !alert.isInvalid();}),
             'amount_pct').reverse();
 
             var formatAlert = function(alert, alertList){
