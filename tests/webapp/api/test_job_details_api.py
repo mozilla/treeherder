@@ -48,15 +48,15 @@ def test_job_details(test_repository, webapp):
             job=job, **params)
         i += 1
     print JobDetail.objects.filter(job__guid='abcd')
-    # get them all
-    resp = webapp.get(reverse('jobdetail-list'))
-    assert resp.status_int == 200
-    assert len(resp.json['results']) == 3
-    for result in resp.json['results']:
-        job_guid = result['job_guid']
-        del result['job_guid']
-        del result['job_id']
-        assert result == details[job_guid]
+
+    # trying to get them all should return an error
+    resp = webapp.get(reverse('jobdetail-list'), expect_errors=True)
+    assert resp.status_int == 400
+
+    # likewise so should trying to filter by job id but not repository
+    resp = webapp.get(reverse('jobdetail-list') + '?job_id=1',
+                      expect_errors=True)
+    assert resp.status_int == 400
 
     # filter to just get one guid at a time
     for guid_identifier in ['job_guid', 'job__guid']:
@@ -69,6 +69,15 @@ def test_job_details(test_repository, webapp):
             del result['job_guid']
             del result['job_id']
             assert result == details[guid]
+
+    # filter to get first with job_id and repository
+    resp = webapp.get(reverse('jobdetail-list') +
+                      '?repository={}&job_id=1'.format(
+                          test_repository.name))
+    assert resp.status_int == 200
+    assert len(resp.json['results']) == 1
+    assert set([v['job_guid'] for v in resp.json['results']]) == set(
+        ['abcd'])
 
     # filter to get the first and second with job_id__in and repository
     resp = webapp.get(reverse('jobdetail-list') +
@@ -88,9 +97,12 @@ def test_job_details(test_repository, webapp):
     assert set([v['job_guid'] for v in resp.json['results']]) == set(
         ['ijkl'])
 
-    # filter to just get those with a specific title
+    # add an extra one, but filter to just get those with a specific title.
+    # we should only have one
+    JobDetail.objects.create(title='title2', job=Job.objects.get(guid='abcd'),
+                             value='foo')
     resp = webapp.get(reverse('jobdetail-list') +
-                      '?title=title')
+                      '?title=title&job_guid=abcd')
     print resp.json
     assert resp.status_int == 200
     assert len(resp.json['results']) == 1

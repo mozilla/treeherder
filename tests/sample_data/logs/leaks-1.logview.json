@@ -1,31 +1,5 @@
 {
     "step_data": {
-        "all_errors": [
-            {
-                "line": "TEST-UNEXPECTED-FAIL | automationutils.processLeakLog() | leaked 599603 bytes during test execution", 
-                "linenumber": 145445
-            }, 
-            {
-                "line": "TEST-UNEXPECTED-FAIL | automationutils.processLeakLog() | leaked 168 instances of AtomImpl with size 40 bytes each (6720 bytes total)", 
-                "linenumber": 145446
-            }, 
-            {
-                "line": "TEST-UNEXPECTED-FAIL | automationutils.processLeakLog() | leaked 1 instance of BackstagePass with size 48 bytes", 
-                "linenumber": 145447
-            }, 
-            {
-                "line": "TEST-UNEXPECTED-FAIL | automationutils.processLeakLog() | leaked 2 instances of CSSImportRuleImpl with size 88 bytes each (176 bytes total)", 
-                "linenumber": 145448
-            }, 
-            {
-                "line": "TEST-UNEXPECTED-FAIL | automationutils.processLeakLog() | leaked 46 instances of CSSImportantRule with size 32 bytes each (1472 bytes total)", 
-                "linenumber": 145449
-            }, 
-            {
-                "line": "TEST-UNEXPECTED-FAIL | automationutils.processLeakLog() | leaked 13 instances of CSSNameSpaceRuleImpl with size 80 bytes each (1040 bytes total)", 
-                "linenumber": 145450
-            }
-        ], 
         "steps": [
             {
                 "errors": [], 
@@ -34,10 +8,7 @@
                 "started_linenumber": 8, 
                 "finished_linenumber": 10, 
                 "finished": "2013-06-05 12:51:48.768393", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 0, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -46,10 +17,7 @@
                 "started_linenumber": 12, 
                 "finished_linenumber": 14, 
                 "finished": "2013-06-05 12:51:48.769473", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 1, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [
@@ -83,10 +51,7 @@
                 "started_linenumber": 16, 
                 "finished_linenumber": 147796, 
                 "finished": "2013-06-05 13:15:39.235146", 
-                "result": "testfailed", 
-                "duration": 1244, 
-                "order": 2, 
-                "error_count": 6
+                "result": "testfailed"
             }, 
             {
                 "errors": [], 
@@ -95,10 +60,7 @@
                 "started_linenumber": 147798, 
                 "finished_linenumber": 147842, 
                 "finished": "2013-06-05 13:16:04.014823", 
-                "result": "success", 
-                "duration": 25, 
-                "order": 3, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -107,10 +69,7 @@
                 "started_linenumber": 147844, 
                 "finished_linenumber": 147846, 
                 "finished": "2013-06-05 13:16:04.963614", 
-                "result": "success", 
-                "duration": 1, 
-                "order": 4, 
-                "error_count": 0
+                "result": "success"
             }
         ], 
         "errors_truncated": false

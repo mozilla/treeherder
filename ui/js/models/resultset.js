@@ -202,7 +202,7 @@ treeherder.factory(
                  var uri = resultset_id + '/trigger_runnable_jobs/';
                  var data = {
                      "requested_jobs": buildernames,
-                     "decisionTaskID": decisionTaskID
+                     "decision_task_id": decisionTaskID
                  };
                  return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri, data);
              }

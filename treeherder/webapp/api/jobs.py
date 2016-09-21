@@ -4,6 +4,7 @@ from rest_framework import (filters,
                             viewsets)
 from rest_framework.decorators import (detail_route,
                                        list_route)
+from rest_framework.exceptions import ParseError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -355,6 +356,7 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
                              django_filters.NumberFilter):
             pass
 
+        job_id = django_filters.NumberFilter(name='job__project_specific_id')
         job_id__in = NumberInFilter(name='job__project_specific_id',
                                     lookup_expr='in')
         job_guid = django_filters.CharFilter(name='job__guid')
@@ -377,3 +379,23 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
         page_size = 2000
 
     pagination_class = JobDetailPagination
+
+    # one of these is required
+    required_filters = ['job_guid', 'job__guid', 'job_id', 'job_id__in']
+
+    def list(self, request):
+        query_param_keys = request.query_params.keys()
+
+        # unfiltered requests can potentially create huge sql queries, so
+        # make sure the user passes a job id or guid
+        if set(self.required_filters).isdisjoint(set(query_param_keys)):
+            raise ParseError("Must filter on one of: {}".format(
+                ", ".join(self.required_filters)))
+        # passing a job id without repository doesn't currently make sense
+        # (it will once we only have one jobs table and job ids are unique)
+        if set(['job_id', 'job_id__in']).intersection(query_param_keys) and \
+           'repository' not in query_param_keys:
+            raise ParseError("Must also filter on repository if filtering "
+                             "on job id")
+
+        return viewsets.ReadOnlyModelViewSet.list(self, request)

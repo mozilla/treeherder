@@ -1,15 +1,5 @@
 {
     "step_data": {
-        "all_errors": [
-            {
-                "line": "09:14:00     INFO -  org.json.JSONException: Unterminated string at character 23963 of {\"reason\":\"android-anr-report\",\"slug\":\"5e99c087-ebb5-4091-b5c8-75bd0889509c\",\"payload\":{\"ver\":1,\"simpleMeasurements\":{\"uptime\":0},\"info\":{\"reason\":\"android-anr-report\",\"OS\":\"Android\",\"version\":\"17\",\"appID\":\"{aa3c5121-dab2-40e2-81ca-7ea25febc110}\",\"appVersion\":\"33.0a1\",\"appName\":\"Fennec\",\"appBuildID\":\"20140717073317\",\"appUpdateChannel\":\"default\",\"platformBuildID\":\"20140717073317\",\"locale\":\"en-US\",\"cpucount\":1,\"", 
-                "linenumber": 3544
-            }, 
-            {
-                "line": "09:14:00     INFO -  17 INFO TEST-UNEXPECTED-FAIL | testANRReporter | Exception caught - org.json.JSONException: Unterminated string at character 23963 of {\"reason\":\"android-anr-report\",\"slug\":\"5e99c087-ebb5-4091-b5c8-75bd0889509c\",\"payload\":{\"ver\":1,\"simpleMeasurements\":{\"uptime\":0},\"info\":{\"reason\":\"android-anr-report\",\"OS\":\"Android\",\"version\":\"17\",\"appID\":\"{aa3c5121-dab2-40e2-81ca-7ea25febc110}\",\"appVersion\":\"33.0a1\",\"appName\":\"Fennec\",\"appBuildID\":\"20140717073317\",\"appUpdateChannel\":\"default", 
-                "linenumber": 3571
-            }
-        ], 
         "steps": [
             {
                 "errors": [], 
@@ -18,10 +8,7 @@
                 "started_linenumber": 8, 
                 "finished_linenumber": 10, 
                 "finished": "2014-07-17 08:45:18.802011", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 0, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -30,10 +17,7 @@
                 "started_linenumber": 12, 
                 "finished_linenumber": 56, 
                 "finished": "2014-07-17 08:45:18.854874", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 1, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -42,10 +26,7 @@
                 "started_linenumber": 58, 
                 "finished_linenumber": 59, 
                 "finished": "2014-07-17 08:45:18.904210", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 2, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -54,10 +35,7 @@
                 "started_linenumber": 61, 
                 "finished_linenumber": 103, 
                 "finished": "2014-07-17 08:45:18.943479", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 3, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -66,10 +44,7 @@
                 "started_linenumber": 105, 
                 "finished_linenumber": 147, 
                 "finished": "2014-07-17 08:45:19.043322", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 4, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -78,10 +53,7 @@
                 "started_linenumber": 149, 
                 "finished_linenumber": 198, 
                 "finished": "2014-07-17 08:45:21.830887", 
-                "result": "success", 
-                "duration": 3, 
-                "order": 5, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -90,10 +62,7 @@
                 "started_linenumber": 200, 
                 "finished_linenumber": 243, 
                 "finished": "2014-07-17 08:45:22.037742", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 6, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -102,10 +71,7 @@
                 "started_linenumber": 245, 
                 "finished_linenumber": 289, 
                 "finished": "2014-07-17 08:45:22.126650", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 7, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -114,10 +80,7 @@
                 "started_linenumber": 291, 
                 "finished_linenumber": 292, 
                 "finished": "2014-07-17 08:45:22.140342", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 8, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -126,10 +89,7 @@
                 "started_linenumber": 294, 
                 "finished_linenumber": 296, 
                 "finished": "2014-07-17 08:45:22.141210", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 9, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [
@@ -147,10 +107,7 @@
                 "started_linenumber": 298, 
                 "finished_linenumber": 10231, 
                 "finished": "2014-07-17 09:18:15.066397", 
-                "result": "testfailed", 
-                "duration": 1973, 
-                "order": 10, 
-                "error_count": 2
+                "result": "testfailed"
             }, 
             {
                 "errors": [], 
@@ -159,10 +116,7 @@
                 "started_linenumber": 10233, 
                 "finished_linenumber": 10279, 
                 "finished": "2014-07-17 09:18:15.266212", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 11, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -171,10 +125,7 @@
                 "started_linenumber": 10281, 
                 "finished_linenumber": 10323, 
                 "finished": "2014-07-17 09:18:15.290870", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 12, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -183,10 +134,7 @@
                 "started_linenumber": 10325, 
                 "finished_linenumber": 10369, 
                 "finished": "2014-07-17 09:18:22.104200", 
-                "result": "success", 
-                "duration": 7, 
-                "order": 13, 
-                "error_count": 0
+                "result": "success"
             }
         ], 
         "errors_truncated": false

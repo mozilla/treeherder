@@ -181,15 +181,11 @@ class JobLoader:
         if "logs" in job:
             for log in job["logs"]:
                 if "steps" in log:
-                    all_errors = []
                     old_steps = log["steps"]
                     new_steps = []
 
                     for idx, step in enumerate(old_steps):
                         errors = step.get("errors", [])
-                        error_count = len(errors)
-                        if error_count:
-                            all_errors.extend(errors)
 
                         new_steps.append({
                             "name": step["name"],
@@ -199,14 +195,12 @@ class JobLoader:
                             "started_linenumber": step["lineStarted"],
                             "finished_linenumber": step["lineFinished"],
                             "errors": errors,
-                            "error_count": error_count,
                             "order": idx
                         })
 
                     return {
                         "blob": {
                             "step_data": {
-                                "all_errors": all_errors,
                                 "steps": new_steps,
                                 "errors_truncated": log.get("errorsTruncated")
                             },

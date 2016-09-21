@@ -1,23 +1,5 @@
 {
     "step_data": {
-        "all_errors": [
-            {
-                "line": "Assertion failure: !(addr & GC_CELL_MASK), at e:/builds/moz2_slave/mozilla-central-win32-debug/build/js/src/jsgc.cpp:425", 
-                "linenumber": 38365
-            }, 
-            {
-                "line": "NEXT ERROR <#err1> TEST-UNEXPECTED-FAIL | /tests/dom/tests/mochitest/ajax/jquery/test_jQuery.html | Exited with code -1073741819 during test run", 
-                "linenumber": 38373
-            }, 
-            {
-                "line": "PROCESS-CRASH | /tests/dom/tests/mochitest/ajax/jquery/test_jQuery.html | application crashed (minidump found)", 
-                "linenumber": 38376
-            }, 
-            {
-                "line": "TEST-UNEXPECTED-FAIL | automationutils.processLeakLog() | missing output line for total leaks!", 
-                "linenumber": 39521
-            }
-        ], 
         "steps": [
             {
                 "errors": [], 
@@ -26,10 +8,7 @@
                 "started_linenumber": 8, 
                 "finished_linenumber": 10, 
                 "finished": "2013-06-05 12:51:48.768393", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 0, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -38,10 +17,7 @@
                 "started_linenumber": 12, 
                 "finished_linenumber": 14, 
                 "finished": "2013-06-05 12:51:48.769473", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 1, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [
@@ -67,10 +43,7 @@
                 "started_linenumber": 16, 
                 "finished_linenumber": 39766, 
                 "finished": "2013-06-05 13:15:39.235146", 
-                "result": "testfailed", 
-                "duration": 1244, 
-                "order": 2, 
-                "error_count": 4
+                "result": "testfailed"
             }, 
             {
                 "errors": [], 
@@ -79,10 +52,7 @@
                 "started_linenumber": 39768, 
                 "finished_linenumber": 39812, 
                 "finished": "2013-06-05 13:16:04.014823", 
-                "result": "success", 
-                "duration": 25, 
-                "order": 3, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -91,10 +61,7 @@
                 "started_linenumber": 39814, 
                 "finished_linenumber": 39816, 
                 "finished": "2013-06-05 13:16:04.963614", 
-                "result": "success", 
-                "duration": 1, 
-                "order": 4, 
-                "error_count": 0
+                "result": "success"
             }
         ], 
         "errors_truncated": false

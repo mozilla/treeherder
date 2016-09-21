@@ -126,20 +126,6 @@
           "type": "json",
           "blob": {
             "step_data": {
-              "all_errors": [
-                {
-                  "line": "14:38:05     INFO -  PROCESS | 16672 | [Child 17361] ###!!! ABORT: Aborting on channel error.: file /builds/slave/m-in-l64-000000000000000000000/build/src/ipc/glue/MessageChannel.cpp, line 1823",
-                  "linenumber": 3211
-                },
-                {
-                  "line": "14:38:05     INFO -  TEST-UNEXPECTED-ERROR | tart | TIMEOUT: TART",
-                  "linenumber": 3212
-                },
-                {
-                  "line": "14:38:05    ERROR -  Traceback (most recent call last):",
-                  "linenumber": 3213
-                }
-              ],
               "steps": [
                 {
                   "errors": [],
@@ -148,7 +134,6 @@
                   "started_linenumber": 231,
                   "finished_linenumber": 232,
                   "finished": "2016-02-02T14:27:05-08:00",
-                  "error_count": 0,
                   "order": 0,
                   "result": "success"
                 },
@@ -172,7 +157,6 @@
                   "started_linenumber": 234,
                   "finished_linenumber": 3269,
                   "finished": "2016-02-02T14:38:09-08:00",
-                  "error_count": 3,
                   "order": 1,
                   "result": "testfailed"
                 }

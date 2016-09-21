@@ -52,10 +52,7 @@ class StepParser(ParserBase):
             "started_linenumber": 8,
             "finished_linenumber": 10,
             "finished": "2013-06-05 12:39:57.839226",
-            "result": 0,
-            "error_count": 0,
-            "duration": 0.000699, # in seconds
-            "order": 0  # the order the process came in the log file
+            "result": 0
         },
         ...
     ]
@@ -87,7 +84,6 @@ class StepParser(ParserBase):
         self.stepnum = -1
         self.artifact = {
             "steps": [],
-            "all_errors": [],
             "errors_truncated": False
         }
         self.sub_parser = ErrorParser()
@@ -199,7 +195,6 @@ class StepParser(ParserBase):
             "name": name,
             "started": timestamp,
             "started_linenumber": lineno,
-            "order": self.stepnum,
             "errors": [],
         })
 
@@ -219,12 +214,8 @@ class StepParser(ParserBase):
             # the log output is unbuffered, so Taskcluster does not know the real result at
             # that point. As such, we only set the result when ending a step.
             "result": RESULT_DICT.get(result_code, "unknown"),
-            "errors": step_errors,
-            "error_count": step_error_count
+            "errors": step_errors
         })
-        self.current_step["duration"] = self.calculate_duration()
-        # Append errors from current step to "all_errors" field
-        self.artifact["all_errors"].extend(step_errors)
         # reset the sub_parser for the next step
         self.sub_parser.clear()
 
@@ -233,10 +224,10 @@ class StepParser(ParserBase):
         if self.state == self.STATES['step_in_progress']:
             # We've reached the end of the log without seeing the final "step finish"
             # marker, which would normally have triggered updating the step. As such we
-            # must manually close out the current step, so things like all_errors,
-            # result, finish time and duration are set for it. This ensures that the
-            # error summary for Taskcluster infra failures actually lists the error
-            # that occurs at the end of the log.
+            # must manually close out the current step, so things like result, finish
+            # time are set for it. This ensures that the error summary for Taskcluster
+            # infra failures actually lists the error that occurs at the
+            # end of the log.
             self.end_step(last_lineno_seen)
 
     def parsetime(self, match):
@@ -246,27 +237,6 @@ class StepParser(ParserBase):
         if "." not in match:
             match = "{0}.0".format(match)
         return datetime.datetime.strptime(match, self.DATE_FORMAT)
-
-    def calculate_duration(self):
-        """Sets duration for the step in seconds."""
-        started_string = self.current_step["started"]
-        finished_string = self.current_step["finished"]
-        if not (started_string and finished_string):
-            # Handle the dummy steps (created to hold Taskcluster log content that
-            # is between step markers), which have no recorded start/finish time.
-            return None
-        try:
-            start_time = self.parsetime(started_string)
-            finish_time = self.parsetime(finished_string)
-        except ValueError:
-            # Gracefully fail if the dates were malformed in the log,
-            # otherwise we won't get an error summary at all.
-            return None
-        td = finish_time - start_time
-        secs = (
-            td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6
-        ) / 10.0**6
-        return int(round(secs))
 
     @property
     def steps(self):

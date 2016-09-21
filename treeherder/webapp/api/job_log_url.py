@@ -2,12 +2,10 @@ from rest_framework import viewsets
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 
-from treeherder.model.models import (Job,
-                                     JobLog,
-                                     Repository)
+from treeherder.model.models import JobLog
 
 
-class JobLogUrlViewSet(viewsets.ReadOnlyModelViewSet):
+class JobLogUrlViewSet(viewsets.ViewSet):
     """
     A job_log_url object holds a reference to a job log.
     """
@@ -33,8 +31,6 @@ class JobLogUrlViewSet(viewsets.ReadOnlyModelViewSet):
         GET method implementation for list view
         job_id -- Mandatory filter indicating which job these log belongs to.
         """
-        repository = Repository.objects.get(name=project)
-
         job_id = request.query_params.get('job_id')
         if not job_id:
             raise ParseError(
@@ -44,7 +40,7 @@ class JobLogUrlViewSet(viewsets.ReadOnlyModelViewSet):
         except ValueError:
             raise ParseError(detail="The job_id parameter must be an integer")
 
-        jobs = Job.objects.filter(repository=repository,
-                                  project_specific_id=job_id)
-        return Response([self._log_as_dict(log) for log in
-                         JobLog.objects.filter(job__in=jobs)])
+        logs = JobLog.objects.filter(job__repository__name=project,
+                                     job__project_specific_id=job_id)
+
+        return Response([self._log_as_dict(log) for log in logs])
