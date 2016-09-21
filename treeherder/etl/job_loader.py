@@ -50,6 +50,7 @@ class JobLoader:
                 for pulse_job in job_list:
                     if pulse_job["state"] != "unscheduled":
                         try:
+                            self.clean_revision(pulse_job, jobs_model)
                             storeable_job_list.append(
                                 self.transform(pulse_job)
                             )
@@ -58,6 +59,38 @@ class JobLoader:
                                         exc_info=1)
 
                 jobs_model.store_job_data(storeable_job_list)
+
+    def clean_revision(self, pulse_job, jobs_model):
+        # It is possible there will be either a revision or a revision_hash
+        # At some point we will ONLY get revisions and no longer receive
+        # revision_hashes and then this check can be removed.
+        revision = pulse_job["origin"].get("revision", None)
+        if revision:
+            # check the revision for this job has an existing resultset
+            # If it doesn't, then except out so that the celery task will
+            # retry till it DOES exist.
+            if not jobs_model.get_resultset_top_revision_lookup([revision]):
+                raise ValueError(
+                    "No resultset found for revision {}".format(revision))
+
+        else:
+            # This will also raise a ValueError if the resultset for the
+            # revision_hash is not found.
+            revision = jobs_model.get_revision_from_revision_hash(
+                pulse_job["origin"]["revision_hash"]
+            )
+            logger.warning(
+                "Pulse job had revision_hash instead of revision: {}:{}".format(
+                    pulse_job["origin"]["project"],
+                    pulse_job["origin"]["revision_hash"]
+                ))
+            params = {
+                "project": pulse_job["origin"]["project"],
+                "revision_hash": pulse_job["origin"]["revision_hash"]
+            }
+            newrelic.agent.record_custom_event("revision_hash_usage", params=params)
+
+        pulse_job["origin"]["revision"] = revision
 
     def transform(self, pulse_job):
         """
@@ -88,27 +121,9 @@ class JobLoader:
                 "log_references": self._get_log_references(pulse_job),
                 "artifacts": self._get_artifacts(pulse_job, job_guid),
             },
-            "coalesced": pulse_job.get("coalesced", [])
+            "coalesced": pulse_job.get("coalesced", []),
+            "revision": pulse_job["origin"]["revision"]
         }
-
-        # It is possible there will be either a revision or a revision_hash
-        # At some point we will ONLY get revisions and no longer receive
-        # revision_hashes and then this check can be removed.
-        revision = pulse_job["origin"].get("revision", None)
-        if revision:
-            x["revision"] = revision
-        else:
-            x["revision_hash"] = pulse_job["origin"]["revision_hash"]
-            logger.warning(
-                "Pulse job had revision_hash instead of revision: {}:{}".format(
-                    pulse_job["origin"]["project"],
-                    x["revision_hash"]
-                ))
-            params = {
-                "project": pulse_job["origin"]["project"],
-                "revision_hash": x["revision_hash"]
-            }
-            newrelic.agent.record_custom_event("revision_hash_usage", params=params)
 
         # some or all the time fields may not be present in some cases
         for k, v in self.TIME_FIELD_MAP.items():
