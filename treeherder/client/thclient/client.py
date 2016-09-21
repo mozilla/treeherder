@@ -605,6 +605,7 @@ class TreeherderClient(object):
 
     RESULTSET_ENDPOINT = 'resultset'
     JOBS_ENDPOINT = 'jobs'
+    JOB_DETAIL_ENDPOINT = 'jobdetail'
     JOB_LOG_URL_ENDPOINT = 'job-log-url'
     ARTIFACTS_ENDPOINT = 'artifact'
     OPTION_COLLECTION_HASH_ENDPOINT = 'optioncollectionhash'
@@ -856,6 +857,19 @@ class TreeherderClient(object):
         :param params: keyword arguments to filter results
         """
         return self._get_json_list(self.JOBS_ENDPOINT, project, **params)
+
+    def get_job_details(self, **params):
+        """
+        Gets jobs from project, filtered by parameters
+
+        Typically you would filter by `job_guid`. Example:
+
+        details = client.get_job_details(job_guid='22fb7e6b-d4e7-43cb-a268-c897c1112c0f/0')
+
+        :param params: keyword arguments to filter results
+        """
+        return self._get_json_list(self.JOB_DETAIL_ENDPOINT, None,
+                                   **params)
 
     def get_job_log_url(self, project, **params):
         """
