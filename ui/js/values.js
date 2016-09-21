@@ -17,7 +17,8 @@ treeherder.value("thPlatformMap", {
     "windows8-64": ["Windows 8 x64", 25],
     "windows10-32": ["Windows 10", 26],
     "windows10-64": ["Windows 10 x64", 27],
-    "windows2012-64": ["Windows 2012 x64", 28],
+    "windows2012-32": ["Windows 2012", 28],
+    "windows2012-64": ["Windows 2012 x64", 29],
 
     "android-2-2-armv6": ["Android 2.2 Armv6", 30],
     "android-2-2": ["Android 2.2", 31],
