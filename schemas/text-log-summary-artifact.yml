@@ -7,20 +7,6 @@ properties:
       step_data:
         type: object
         properties:
-          all_errors:
-            type: array
-            items:
-              type: object
-              properties:
-                line:
-                  type: string
-                linenumber:
-                  type: integer
-              additionalProperties: false
-              required:
-              - line
-              - linenumber
-            additionalItems: false
           steps:
             type: array
             items:
@@ -49,12 +35,6 @@ properties:
                 finished:
                   type: string
                   format: date-time
-                error_count:
-                  type: integer
-                duration:
-                  type: integer
-                order:
-                  type: integer
                 result:
                   type: string
                   enum: [busted, testfailed, exception, success, canceled, unknown, retry, skipped]
@@ -65,9 +45,6 @@ properties:
               - started_linenumber
               - finished_linenumber
               - finished
-              - error_count
-              - duration
-              - order
               - result
               additionalProperties: false
             additionalItems: false
@@ -75,7 +52,6 @@ properties:
             type: boolean
         additionalProperties: false
         required:
-        - all_errors
         - steps
         - errors_truncated
       logurl:

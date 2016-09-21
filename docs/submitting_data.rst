@@ -636,7 +636,6 @@ log name.  You must specify the name in two places for this to work.
     {
         "blob":{
             "step_data": {
-                "all_errors": [ ],
                 "steps": [
                     {
                         "errors": [ ],
@@ -645,9 +644,6 @@ log name.  You must specify the name in two places for this to work.
                         "finished_linenumber": 1,
                         "finished": "2015-07-08 06:13:46",
                         "result": "success",
-                        "duration": 2671,
-                        "order": 0,
-                        "error_count": 0
                     }
                 ],
                 "errors_truncated": false

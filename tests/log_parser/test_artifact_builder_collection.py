@@ -50,7 +50,6 @@ def test_all_builders_complete():
     exp = {
         "text_log_summary": {
             "step_data": {
-                "all_errors": [],
                 "steps": [],
                 "errors_truncated": False
             },

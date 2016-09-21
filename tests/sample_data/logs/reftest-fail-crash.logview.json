@@ -1,27 +1,5 @@
 {
     "step_data": {
-        "all_errors": [
-            {
-                "line": "REFTEST TEST-UNEXPECTED-FAIL | file:///C:/talos-slave/test/build/reftest/tests/layout/reftests/svg/tspan-rotate-02.svg | image comparison (==)", 
-                "linenumber": 77772
-            }, 
-            {
-                "line": "PROCESS-CRASH | Main app process exited normally | application crashed (minidump found)", 
-                "linenumber": 85070
-            }, 
-            {
-                "line": "PROCESS-CRASH | Main app process exited normally | application crashed (minidump found)", 
-                "linenumber": 85274
-            }, 
-            {
-                "line": "PROCESS-CRASH | Main app process exited normally | application crashed (minidump found)", 
-                "linenumber": 85478
-            }, 
-            {
-                "line": "PROCESS-CRASH | Main app process exited normally | application crashed (minidump found)", 
-                "linenumber": 85682
-            }
-        ], 
         "steps": [
             {
                 "errors": [], 
@@ -30,10 +8,7 @@
                 "started_linenumber": 8, 
                 "finished_linenumber": 10, 
                 "finished": "2013-06-05 12:51:48.768393", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 0, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -42,10 +17,7 @@
                 "started_linenumber": 12, 
                 "finished_linenumber": 14, 
                 "finished": "2013-06-05 12:51:48.769473", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 1, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [
@@ -75,10 +47,7 @@
                 "started_linenumber": 16, 
                 "finished_linenumber": 85981, 
                 "finished": "2013-06-05 13:15:39.235146", 
-                "result": "testfailed", 
-                "duration": 1244, 
-                "order": 2, 
-                "error_count": 5
+                "result": "testfailed"
             }, 
             {
                 "errors": [], 
@@ -87,10 +56,7 @@
                 "started_linenumber": 85983, 
                 "finished_linenumber": 86027, 
                 "finished": "2013-06-05 13:16:04.014823", 
-                "result": "success", 
-                "duration": 25, 
-                "order": 3, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -99,10 +65,7 @@
                 "started_linenumber": 86029, 
                 "finished_linenumber": 86031, 
                 "finished": "2013-06-05 13:16:04.963614", 
-                "result": "success", 
-                "duration": 1, 
-                "order": 4, 
-                "error_count": 0
+                "result": "success"
             }
         ], 
         "errors_truncated": false

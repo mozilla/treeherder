@@ -1,11 +1,5 @@
 {
     "step_data": {
-        "all_errors": [
-            {
-                "line": "[taskcluster] Error: Task timeout after 3600 seconds. Force killing container.", 
-                "linenumber": 1550
-            }
-        ], 
         "steps": [
             {
                 "errors": [], 
@@ -14,9 +8,6 @@
                 "started_linenumber": 0, 
                 "finished_linenumber": 14, 
                 "finished": null, 
-                "error_count": 0, 
-                "duration": null, 
-                "order": 0, 
                 "result": "unknown"
             }, 
             {
@@ -26,9 +17,6 @@
                 "started_linenumber": 14, 
                 "finished_linenumber": 24, 
                 "finished": "2015-08-12 16:42:31.715643", 
-                "error_count": 0, 
-                "duration": 3, 
-                "order": 1, 
                 "result": "success"
             }, 
             {
@@ -38,9 +26,6 @@
                 "started_linenumber": 25, 
                 "finished_linenumber": 26, 
                 "finished": null, 
-                "error_count": 0, 
-                "duration": null, 
-                "order": 2, 
                 "result": "unknown"
             }, 
             {
@@ -55,9 +40,6 @@
                 "started_linenumber": 26, 
                 "finished_linenumber": 1551, 
                 "finished": null, 
-                "error_count": 1, 
-                "duration": null, 
-                "order": 3, 
                 "result": "unknown"
             }
         ], 

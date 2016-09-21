@@ -304,8 +304,6 @@ def test_post_job_artifacts_by_add_artifact(
     tls_blob = json.dumps({
         "logurl": "https://autophone-dev.s3.amazonaws.com/pub/mozilla.org/mobile/tinderbox-builds/mozilla-inbound-android-api-9/1432676531/en-US/autophone-autophone-s1s2-s1s2-nytimes-local.ini-1-nexus-one-1.log",
         "step_data": {
-            "all_errors": [
-            ],
             "steps": [{
                 "name": "foobar",
                 "result": "testfailed",

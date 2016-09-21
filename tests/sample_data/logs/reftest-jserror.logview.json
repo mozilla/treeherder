@@ -1,11 +1,5 @@
 {
     "step_data": {
-        "all_errors": [
-            {
-                "line": "REFTEST TEST-UNEXPECTED-FAIL | | EXCEPTION: [Exception... \"Component returned failure code: 0x8000ffff (NS_ERROR_UNEXPECTED) [nsIPrefBranch2.getBoolPref]\"  nsresult: \"0x8000ffff (NS_ERROR_UNEXPECTED)\"  location: \"JS frame :: chrome://reftest/content/reftest.js :: anonymous :: line 461\"  data: no]", 
-                "linenumber": 23521
-            }
-        ], 
         "steps": [
             {
                 "errors": [], 
@@ -14,10 +8,7 @@
                 "started_linenumber": 8, 
                 "finished_linenumber": 10, 
                 "finished": "2013-06-05 12:51:48.768393", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 0, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -26,10 +17,7 @@
                 "started_linenumber": 12, 
                 "finished_linenumber": 14, 
                 "finished": "2013-06-05 12:51:48.769473", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 1, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [
@@ -43,10 +31,7 @@
                 "started_linenumber": 16, 
                 "finished_linenumber": 23576, 
                 "finished": "2013-06-05 13:15:39.235146", 
-                "result": "testfailed", 
-                "duration": 1244, 
-                "order": 2, 
-                "error_count": 1
+                "result": "testfailed"
             }, 
             {
                 "errors": [], 
@@ -55,10 +40,7 @@
                 "started_linenumber": 23578, 
                 "finished_linenumber": 23622, 
                 "finished": "2013-06-05 13:16:04.014823", 
-                "result": "success", 
-                "duration": 25, 
-                "order": 3, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -67,10 +49,7 @@
                 "started_linenumber": 23624, 
                 "finished_linenumber": 23626, 
                 "finished": "2013-06-05 13:16:04.963614", 
-                "result": "success", 
-                "duration": 1, 
-                "order": 4, 
-                "error_count": 0
+                "result": "success"
             }
         ], 
         "errors_truncated": false

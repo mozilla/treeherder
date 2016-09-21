@@ -1,19 +1,5 @@
 {
     "step_data": {
-        "all_errors": [
-            {
-                "line": "TypeError: invalid XML name <x/>[0]", 
-                "linenumber": 26621
-            }, 
-            {
-                "line": "TEST-UNEXPECTED-FAIL | file:///Users/cltbld/talos-slave/mozilla-central_leopard_test-jsreftest/build/jsreftest/tests/jsreftest.html?test=ecma_3/Array/15.4.4.3-1.js | application timed out after 330 seconds with no output", 
-                "linenumber": 75757
-            }, 
-            {
-                "line": "PROCESS-CRASH | file:///Users/cltbld/talos-slave/mozilla-central_leopard_test-jsreftest/build/jsreftest/tests/jsreftest.html?test=ecma_3/Array/15.4.4.3-1.js | application crashed (minidump found)", 
-                "linenumber": 75761
-            }
-        ], 
         "steps": [
             {
                 "errors": [], 
@@ -22,10 +8,7 @@
                 "started_linenumber": 8, 
                 "finished_linenumber": 10, 
                 "finished": "2013-06-05 12:51:48.768393", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 0, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -34,10 +17,7 @@
                 "started_linenumber": 12, 
                 "finished_linenumber": 14, 
                 "finished": "2013-06-05 12:51:48.769473", 
-                "result": "success", 
-                "duration": 0, 
-                "order": 1, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [
@@ -59,10 +39,7 @@
                 "started_linenumber": 16, 
                 "finished_linenumber": 75808, 
                 "finished": "2013-06-05 13:15:39.235146", 
-                "result": "testfailed", 
-                "duration": 1244, 
-                "order": 2, 
-                "error_count": 3
+                "result": "testfailed"
             }, 
             {
                 "errors": [], 
@@ -71,10 +48,7 @@
                 "started_linenumber": 75810, 
                 "finished_linenumber": 75854, 
                 "finished": "2013-06-05 13:16:04.014823", 
-                "result": "success", 
-                "duration": 25, 
-                "order": 3, 
-                "error_count": 0
+                "result": "success"
             }, 
             {
                 "errors": [], 
@@ -83,10 +57,7 @@
                 "started_linenumber": 75856, 
                 "finished_linenumber": 75858, 
                 "finished": "2013-06-05 13:16:04.963614", 
-                "result": "success", 
-                "duration": 1, 
-                "order": 4, 
-                "error_count": 0
+                "result": "success"
             }
         ], 
         "errors_truncated": false
