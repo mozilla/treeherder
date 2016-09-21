@@ -330,6 +330,7 @@ treeherder.controller('PluginCtrl', [
                 ThJobModel.retrigger($scope.repoName, job_id_list).then(function() {
                     // XXX: Remove this after 1134929 is resolved.
                     return ThJobDetailModel.getJobDetails({"title": "buildbot_request_id",
+                                                           "repository": $scope.repoName,
                                                            "job_id__in": job_id_list.join(',')})
                         .then(function(data) {
                             var requestIdList = _.pluck(data, 'value');
