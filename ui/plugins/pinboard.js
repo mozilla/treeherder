@@ -120,12 +120,11 @@ treeherder.controller('PinboardCtrl', [
 
         $scope.canSaveClassifications = function() {
             var thisClass = $scope.classification;
-            var canSave = $scope.hasPinnedJobs() && (thPinboard.hasRelatedBugs() && $scope.user.loggedin ||
-                          thisClass.failure_classification_id !== 4 ||
-                          $rootScope.currentRepo.repository_group.name === "try" ||
-                          $rootScope.currentRepo.repository_group.name === "project repositories" ||
-                          (thisClass.failure_classification_id === 4 && thisClass.text.length > 0));
-            return canSave;
+            return $scope.hasPinnedJobs() && (thPinboard.hasRelatedBugs() && $scope.user.loggedin ||
+                   thisClass.failure_classification_id !== 4 ||
+                   $rootScope.currentRepo.repository_group.name === "try" ||
+                   $rootScope.currentRepo.repository_group.name === "project repositories" ||
+                   (thisClass.failure_classification_id === 4 && thisClass.text.length > 0));
         };
 
         // Dyanmic btn/anchor title for classification save
