@@ -2,6 +2,9 @@ import json
 import logging
 import re
 
+from memoize import memoize
+
+from treeherder.config.settings import BUG_SUGGESTION_CACHE_TIMEOUT
 from treeherder.model.models import (Bugscache,
                                      Job,
                                      TextLogError)
@@ -17,6 +20,7 @@ MOZHARNESS_RE = re.compile(
 REFTEST_RE = re.compile("\s+[=!]=\s+.*")
 
 
+@memoize(timeout=BUG_SUGGESTION_CACHE_TIMEOUT)
 def get_error_summary(job):
     """
     Create a list of bug suggestions for a job
@@ -167,6 +171,11 @@ def is_helpful_search_term(search_term):
     ]
 
     return len(search_term) > 4 and not (search_term in blacklist)
+
+
+def get_filtered_error_lines(job):
+    return [item for item in get_error_summary(job) if
+            is_helpful_search_term(item["search"])]
 
 
 def load_error_summary(project, job_id):
