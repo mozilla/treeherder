@@ -139,7 +139,7 @@ def test_update_failure_line_mark_job(jm, test_job,
         assert failure_line.best_classification == classified_failures[1]
         assert failure_line.best_is_verified
 
-    assert jm.is_fully_verified(test_job.project_specific_id)
+    assert test_job.is_fully_verified()
 
     # should only be one, will assert if that isn't the case
     note = JobNote.objects.get(job=test_job)
@@ -189,7 +189,7 @@ def test_update_failure_line_mark_job_with_human_note(test_job,
 
         assert resp.status_code == 200
 
-    assert jm.is_fully_verified(job.project_specific_id)
+    assert job.is_fully_verified()
 
     # should only be one, will assert if that isn't the case
     note = JobNote.objects.get(job=job)
@@ -233,7 +233,7 @@ def test_update_failure_line_mark_job_with_auto_note(test_job,
 
         assert resp.status_code == 200
 
-    assert jm.is_fully_verified(test_job.project_specific_id)
+    assert test_job.is_fully_verified()
 
     notes = JobNote.objects.filter(job=test_job).order_by('-created')
     assert notes.count() == 2
@@ -294,7 +294,7 @@ def test_update_failure_lines(mock_autoclassify_jobs_true, jm,
         assert failure_line.best_is_verified
 
     for job in jobs:
-        assert jm.is_fully_verified(job.project_specific_id)
+        assert job.is_fully_verified()
 
         # will assert if we don't have exactly one job, which is what we want
         note = JobNote.objects.get(job=job)
@@ -375,7 +375,7 @@ def test_update_failure_line_all_ignore_mark_job(test_job,
         assert failure_line.best_classification is None
         assert failure_line.best_is_verified
 
-    assert jm.is_fully_verified(test_job.project_specific_id)
+    assert test_job.is_fully_verified()
 
     assert JobNote.objects.count() == 1
 
@@ -423,7 +423,7 @@ def test_update_failure_line_partial_ignore_mark_job(test_job,
             assert failure_line.best_classification == classified_failures[0]
         assert failure_line.best_is_verified
 
-    assert jm.is_fully_verified(test_job.project_specific_id)
+    assert test_job.is_fully_verified()
 
     # will assert if we don't have exactly one note for this job, which is
     # what we want

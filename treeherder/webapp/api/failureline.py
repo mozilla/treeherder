@@ -8,9 +8,9 @@ from rest_framework.status import (HTTP_200_OK,
                                    HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
 
-from treeherder.model.derived import JobsModel
 from treeherder.model.models import (ClassifiedFailure,
-                                     FailureLine)
+                                     FailureLine,
+                                     Job)
 from treeherder.webapp.api import serializers
 from treeherder.webapp.api.utils import as_dict
 
@@ -73,10 +73,8 @@ class FailureLineViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
             failure_line.mark_best_classification_verified(classification)
 
         for project, job_guids in by_project.iteritems():
-            with JobsModel(project) as jm:
-                jobs = jm.get_job_ids_by_guid(job_guids)
-                for job in jobs.values():
-                    jm.update_after_verification(job["id"], user)
+            for job in Job.objects.filter(guid__in=job_guids):
+                job.update_after_verification(user)
 
         # Force failure line to be reloaded, including .classified_failures
         rv = FailureLine.objects.prefetch_related('classified_failures').filter(

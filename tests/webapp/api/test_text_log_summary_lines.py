@@ -3,6 +3,7 @@ from rest_framework.test import APIClient
 
 from treeherder.model.models import (BugJobMap,
                                      FailureLine,
+                                     Job,
                                      JobNote,
                                      TextLogSummary)
 
@@ -148,7 +149,7 @@ def test_put_verify_job(webapp, jm, test_job, text_summary_lines, test_user,
 
     assert resp.status_code == 200
 
-    assert jm.is_fully_verified(test_job.project_specific_id)
+    assert test_job.is_fully_verified()
 
     bug_job_items = BugJobMap.objects.filter(job=test_job)
     assert {item.bug_id for item in bug_job_items} == set(range(1, len(text_summary_lines) + 1))
