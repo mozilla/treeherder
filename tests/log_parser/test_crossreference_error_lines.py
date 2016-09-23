@@ -10,28 +10,26 @@ from ..autoclassify.utils import (create_bug_suggestions_failures,
                                   test_line)
 
 
-def test_crossreference_error_lines(test_repository, activate_responses, jm,
-                                    eleven_jobs_stored):
-    job = jm.get_job(1)[0]
-
+def test_crossreference_error_lines(test_job):
     lines = [(test_line, {}),
              (test_line, {"subtest": "subtest2"}),
              (test_line, {"status": "TIMEOUT"}),
              (test_line, {"expected": "ERROR"}),
              (test_line, {"message": "message2"})]
 
-    create_failure_lines(test_repository, job["job_guid"], lines)
-    create_text_log_errors(test_repository.name, job["id"], lines)
-    create_bug_suggestions_failures(test_repository.name, job, lines)
+    create_failure_lines(test_job, lines)
+    create_text_log_errors(test_job, lines)
+    create_bug_suggestions_failures(test_job, lines)
 
-    call_command('crossreference_error_lines', test_repository.name, job['job_guid'])
+    call_command('crossreference_error_lines', test_job.repository.name,
+                 test_job.guid)
 
     summary = TextLogSummary.objects.all()
     assert len(summary) == 1
     summary = summary[0]
 
-    assert summary.repository == test_repository
-    assert summary.job_guid == job["job_guid"]
+    assert summary.repository == test_job.repository
+    assert summary.job_guid == test_job.guid
 
     summary_lines = TextLogSummaryLine.objects.all()
     assert len(summary_lines) == len(lines)
@@ -47,10 +45,7 @@ def test_crossreference_error_lines(test_repository, activate_responses, jm,
         assert summary_line.bug_number is None
 
 
-def test_crossreference_error_lines_truncated(test_repository, activate_responses, jm,
-                                              eleven_jobs_stored):
-    job = jm.get_job(1)[0]
-
+def test_crossreference_error_lines_truncated(test_job):
     lines = [(test_line, {}),
              (test_line, {"subtest": "subtest2"}),
              (test_line, {"status": "TIMEOUT"}),
@@ -58,22 +53,20 @@ def test_crossreference_error_lines_truncated(test_repository, activate_response
              (test_line, {"message": "message2"}),
              ]
 
-    create_failure_lines(test_repository, job["job_guid"],
+    create_failure_lines(test_job,
                          lines[:-1] + [({"action": "truncated"}, {})])
+    create_text_log_errors(test_job, lines)
+    create_bug_suggestions_failures(test_job, lines)
 
-    create_text_log_errors(test_repository.name, job["id"], lines)
-    create_bug_suggestions_failures(test_repository.name, job, lines)
-
-    call_command('crossreference_error_lines', test_repository.name, job['job_guid'])
+    call_command('crossreference_error_lines', test_job.repository.name,
+                 test_job.guid)
 
     summary_lines = TextLogSummaryLine.objects.all()
     assert len(summary_lines) == len(lines)
     assert summary_lines[len(summary_lines) - 1].failure_line is None
 
 
-def test_crossreference_error_lines_missing(test_repository, activate_responses, jm,
-                                            eleven_jobs_stored):
-    job = jm.get_job(1)[0]
+def test_crossreference_error_lines_missing(test_job):
 
     lines = [(test_line, {}),
              (test_line, {"subtest": "subtest2"}),
@@ -82,12 +75,12 @@ def test_crossreference_error_lines_missing(test_repository, activate_responses,
              (test_line, {"message": "message2"}),
              ]
 
-    create_failure_lines(test_repository, job["job_guid"], lines[1:])
+    create_failure_lines(test_job, lines[1:])
+    create_text_log_errors(test_job, lines)
+    create_bug_suggestions_failures(test_job, lines)
 
-    create_text_log_errors(test_repository.name, job["id"], lines)
-    create_bug_suggestions_failures(test_repository.name, job, lines)
-
-    call_command('crossreference_error_lines', test_repository.name, job['job_guid'])
+    call_command('crossreference_error_lines', test_job.repository.name,
+                 test_job.guid)
 
     failure_lines = FailureLine.objects.all()
     summary_lines = TextLogSummaryLine.objects.all()

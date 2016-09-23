@@ -131,14 +131,14 @@ def test_put_multiple_duplicate(webapp, text_summary_lines, test_user):
     assert resp.status_code == 400
 
 
-def test_put_verify_job(webapp, jm, text_summary_lines, test_user, failure_classifications):
+def test_put_verify_job(webapp, jm, test_job, text_summary_lines, test_user,
+                        failure_classifications):
     client = APIClient()
     client.force_authenticate(user=test_user)
 
-    job = jm.get_job(1)[0]
-    FailureLine.objects.filter(job_guid=job["job_guid"]).update(best_is_verified=True)
+    FailureLine.objects.filter(job_guid=test_job.guid).update(best_is_verified=True)
 
-    text_summary_lines = TextLogSummary.objects.filter(job_guid=job["job_guid"]).get().lines.all()
+    text_summary_lines = TextLogSummary.objects.filter(job_guid=test_job.guid).get().lines.all()
     assert len(text_summary_lines) > 0
     data = [{"id": item.id, "bug_number": i + 1, "verified": True} for
             i, item in enumerate(text_summary_lines)]
@@ -148,12 +148,12 @@ def test_put_verify_job(webapp, jm, text_summary_lines, test_user, failure_class
 
     assert resp.status_code == 200
 
-    assert jm.is_fully_verified(1)
+    assert jm.is_fully_verified(test_job.project_specific_id)
 
-    bug_job_items = BugJobMap.objects.filter(job__project_specific_id=1)
+    bug_job_items = BugJobMap.objects.filter(job=test_job)
     assert {item.bug_id for item in bug_job_items} == set(range(1, len(text_summary_lines) + 1))
     assert all(item.user == test_user for item in bug_job_items)
 
-    note = JobNote.objects.filter(job__project_specific_id=1).get()
+    note = JobNote.objects.filter(job=test_job).get()
     assert note.user == test_user
     assert note.failure_classification.name == "intermittent"

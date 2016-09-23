@@ -151,6 +151,24 @@ def test_repository(transactional_db):
 
 
 @pytest.fixture
+def test_job(eleven_job_blobs, jm):
+    from treeherder.model.models import Job
+
+    jm.store_job_data(eleven_job_blobs[0:1])
+
+    return Job.objects.get(id=1)
+
+
+@pytest.fixture
+def test_job_2(eleven_job_blobs, test_job, jm):
+    from treeherder.model.models import Job
+
+    jm.store_job_data(eleven_job_blobs[1:2])
+
+    return Job.objects.get(id=2)
+
+
+@pytest.fixture
 def mock_log_parser(monkeypatch):
     from celery import task
     from treeherder.log_parser import tasks
@@ -348,14 +366,10 @@ def mock_error_summary(monkeypatch):
 
 
 @pytest.fixture
-def failure_lines(jm, test_repository, eleven_jobs_stored, elasticsearch):
+def failure_lines(test_job, elasticsearch):
     from tests.autoclassify.utils import test_line, create_failure_lines
 
-    test_repository.save()
-
-    job = jm.get_job(1)[0]
-    return create_failure_lines(test_repository,
-                                job["job_guid"],
+    return create_failure_lines(test_job,
                                 [(test_line, {}),
                                  (test_line, {"subtest": "subtest2"})])
 
@@ -391,20 +405,19 @@ def test_matcher(request):
 
 
 @pytest.fixture
-def classified_failures(request, jm, eleven_jobs_stored, failure_lines,
-                        test_matcher, failure_classifications):
+def classified_failures(test_job, failure_lines, test_matcher,
+                        failure_classifications):
     from treeherder.model.models import ClassifiedFailure
     from treeherder.model.search import refresh_all
-
-    job_1 = jm.get_job(1)[0]
 
     classified_failures = []
 
     for failure_line in failure_lines:
-        if failure_line.job_guid == job_1["job_guid"]:
+        if failure_line.job_guid == test_job.guid:
             classified_failure = ClassifiedFailure()
             classified_failure.save()
-            failure_line.set_classification(test_matcher.db_object, classified_failure,
+            failure_line.set_classification(test_matcher.db_object,
+                                            classified_failure,
                                             mark_best=True)
             classified_failures.append(classified_failure)
 
@@ -413,15 +426,16 @@ def classified_failures(request, jm, eleven_jobs_stored, failure_lines,
 
 
 @pytest.fixture
-def retriggers(jm, eleven_jobs_stored):
-    original = jm.get_job(2)[0]
-    retrigger = original.copy()
-    retrigger['job_guid'] = "f1c75261017c7c5ce3000931dce4c442fe0a1298"
+def retriggered_job(test_job, jm, eleven_job_blobs):
+    # a copy of test_job with a different guid, representing a "retrigger"
+    from treeherder.model.models import Job
+    original = eleven_job_blobs[0]
+    retrigger = copy.deepcopy(original)
+    retrigger['job']['job_guid'] = "f1c75261017c7c5ce3000931dce4c442fe0a129a"
 
-    jm.execute(proc="jobs_test.inserts.duplicate_job",
-               placeholders=[retrigger['job_guid'], original['job_guid']])
+    jm.store_job_data([retrigger])
 
-    return [retrigger]
+    return Job.objects.get(guid=retrigger['job']['job_guid'])
 
 
 @pytest.fixture
@@ -546,27 +560,25 @@ def bugs(mock_bugzilla_api_request):
 
 
 @pytest.fixture
-def artifacts(jm, failure_lines, test_repository):
+def artifacts(test_job, failure_lines):
     from treeherder.model.models import FailureLine
     from autoclassify.utils import create_text_log_errors, create_bug_suggestions_failures
-    job = jm.get_job(1)[0]
 
-    lines = [(item, {}) for item in FailureLine.objects.filter(job_guid=job["job_guid"]).values()]
+    lines = [(item, {}) for item in FailureLine.objects.filter(job_guid=test_job.guid).values()]
 
-    errors = create_text_log_errors(test_repository.name, job['id'], lines)
-    bug_suggestions = create_bug_suggestions_failures(test_repository.name, job, lines)
+    errors = create_text_log_errors(test_job, lines)
+    bug_suggestions = create_bug_suggestions_failures(test_job, lines)
 
     return errors, bug_suggestions
 
 
 @pytest.fixture
-def text_summary_lines(jm, failure_lines, test_repository, artifacts):
+def text_summary_lines(test_job, failure_lines, artifacts):
     from treeherder.model.models import TextLogSummary, TextLogSummaryLine
-    job = jm.get_job(1)[0]
 
     summary = TextLogSummary(
-        job_guid=job["job_guid"],
-        repository=test_repository,
+        job_guid=test_job.guid,
+        repository=test_job.repository,
         text_log_summary_artifact_id=None,
         bug_suggestions_artifact_id=artifacts[1]["id"]
     )
