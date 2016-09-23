@@ -937,6 +937,6 @@ def test_update_autoclassification_bug(jm, test_job, test_job_2,
     lines = [(item, {}) for item in FailureLine.objects.filter(job_guid=test_job_2.guid).values()]
     create_text_log_errors(test_job_2, lines)
     create_bug_suggestions_failures(test_job_2, lines)
-    assert jm.update_autoclassification_bug(test_job_2.project_specific_id, 1234) == classified_failures[0]
+    assert test_job_2.update_autoclassification_bug(1234) == classified_failures[0]
     classified_failures[0].refresh_from_db()
     assert classified_failures[0].bug_number == 1234

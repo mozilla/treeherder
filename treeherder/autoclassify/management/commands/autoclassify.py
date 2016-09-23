@@ -8,6 +8,8 @@ from django.db.utils import IntegrityError
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import (FailureLine,
                                      FailureMatch,
+                                     Job,
+                                     JobNote,
                                      Matcher)
 
 logger = logging.getLogger(__name__)
@@ -40,8 +42,6 @@ def match_errors(repository, jm, job_guid):
                      '{0} job_guid {1}'.format(repository, job_guid))
         return
 
-    job_id = job.get("id")
-
     # Only try to autoclassify where we have a failure status; sometimes there can be
     # error lines even in jobs marked as passing.
     if job["result"] not in ["testfailed", "busted", "exception"]:
@@ -53,7 +53,7 @@ def match_errors(repository, jm, job_guid):
         return
 
     matches, all_matched = find_matches(unmatched_failures)
-    update_db(jm, job_id, matches, all_matched)
+    update_db(job_guid, matches, all_matched)
 
 
 def find_matches(unmatched_failures):
@@ -74,7 +74,7 @@ def find_matches(unmatched_failures):
     return all_matches, len(unmatched_failures) == 0
 
 
-def update_db(jm, job_id, matches, all_matched):
+def update_db(job_guid, matches, all_matched):
     matches_by_failure_line = defaultdict(set)
     for item in matches:
         matches_by_failure_line[item[1].failure_line].add(item)
@@ -97,4 +97,10 @@ def update_db(jm, job_id, matches, all_matched):
             failure_line.save()
 
     if all_matched:
-        jm.update_after_autoclassification(job_id)
+        job = Job.objects.get(guid=job_guid)
+        if job.is_fully_autoclassified():
+            # We don't want to add a job note after an autoclassification if there is already
+            # one and after a verification if there is already one not supplied by the
+            # autoclassifier
+            if not JobNote.objects.filter(job=job).exists():
+                JobNote.objects.create_autoclassify_job_note(job)

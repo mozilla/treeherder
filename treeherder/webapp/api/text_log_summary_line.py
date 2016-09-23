@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 import rest_framework_filters as filters
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -7,8 +5,8 @@ from rest_framework.status import (HTTP_200_OK,
                                    HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
 
-from treeherder.model.derived import JobsModel
-from treeherder.model.models import TextLogSummaryLine
+from treeherder.model.models import (Job,
+                                     TextLogSummaryLine)
 from treeherder.webapp.api import (pagination,
                                    serializers)
 
@@ -49,7 +47,7 @@ class TextLogSummaryLineViewSet(viewsets.ModelViewSet):
         if len(lines_by_id) != len(line_ids):
             return "Got duplicate line ids", HTTP_400_BAD_REQUEST
 
-        by_project = defaultdict(list)
+        job_guids_to_update = []
 
         for line in data:
             line_id = int(line.get("id"))
@@ -58,14 +56,11 @@ class TextLogSummaryLineViewSet(viewsets.ModelViewSet):
             obj.verified = line.get("verified", False)
             obj.save()
             summary = obj.summary
-            by_project[summary.repository.name].append(summary.job_guid)
+            job_guids_to_update.append(summary.job_guid)
             rv.append(obj)
 
-        for project, job_guids in by_project.iteritems():
-            with JobsModel(project) as jm:
-                jobs = jm.get_job_ids_by_guid(job_guids)
-                for job in jobs.values():
-                    jm.update_after_verification(job["id"], user)
+        for job in Job.objects.filter(guid__in=job_guids_to_update):
+            job.update_after_verification(user)
 
         if not many:
             rv = rv[0]
