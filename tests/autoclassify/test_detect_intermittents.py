@@ -9,12 +9,9 @@ from .utils import (create_failure_lines,
                     test_line)
 
 
-def test_detect_intermittents(test_repository, activate_responses, jm, eleven_jobs_stored,
-                              failure_lines, classified_failures, retriggers):
-    retrigger = retriggers[0]
-
-    test_failure_lines = create_failure_lines(test_repository,
-                                              retrigger["job_guid"],
+def test_detect_intermittents(test_job, failure_lines, classified_failures,
+                              retriggered_job):
+    test_failure_lines = create_failure_lines(retriggered_job,
                                               [(test_line, {"subtest": "subtest2"}),
                                                (test_line, {"status": "TIMEOUT"}),
                                                (test_line, {"expected": "ERROR"}),
@@ -29,7 +26,8 @@ def test_detect_intermittents(test_repository, activate_responses, jm, eleven_jo
     MatcherManager._detector_funcs = {}
     detector = MatcherManager.register_detector(TestFailureDetector)
 
-    call_command('detect_intermittents', test_repository.name, retrigger['job_guid'])
+    call_command('detect_intermittents', retriggered_job.repository.name,
+                 retriggered_job.guid)
 
     assert ClassifiedFailure.objects.count() == len(old_failure_ids) + 4
 

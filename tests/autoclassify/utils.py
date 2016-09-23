@@ -6,7 +6,6 @@ from mozlog.formatters.tbplformatter import TbplFormatter
 
 from treeherder.model.derived.artifacts import ArtifactsModel
 from treeherder.model.models import (FailureLine,
-                                     Job,
                                      MatcherManager,
                                      TextLogError,
                                      TextLogStep)
@@ -18,12 +17,12 @@ log_line = {"action": "log", "level": "ERROR", "message": "message1"}
 crash_line = {"action": "crash", "signature": "signature"}
 
 
-def create_failure_lines(repository, job_guid, failure_line_list,
+def create_failure_lines(job, failure_line_list,
                          start_line=0):
     failure_lines = []
     for i, (base_data, updates) in enumerate(failure_line_list[start_line:]):
-        data = {"job_guid": job_guid,
-                "repository": repository,
+        data = {"job_guid": job.guid,
+                "repository": job.repository,
                 "line": i + start_line}
         data.update(base_data)
         data.update(updates)
@@ -37,19 +36,19 @@ def create_failure_lines(repository, job_guid, failure_line_list,
     return failure_lines
 
 
-def create_bug_suggestions(job, project, *bug_suggestions):
+def create_bug_suggestions(job, *bug_suggestions):
     for item in bug_suggestions:
         for key in ["search_terms", "bugs"]:
             if key not in item:
                 item[key] = []
 
     bug_suggestions_placeholders = [
-        job["id"], 'Bug suggestions',
+        job.project_specific_id, 'Bug suggestions',
         'json', zlib.compress(json.dumps(bug_suggestions)),
-        job["id"], 'Bug suggestions',
+        job.project_specific_id, 'Bug suggestions',
     ]
 
-    with ArtifactsModel(project) as artifacts_model:
+    with ArtifactsModel(job.repository.name) as artifacts_model:
         artifacts_model.store_job_artifact([bug_suggestions_placeholders])
 
 
@@ -71,9 +70,7 @@ def get_data(base_data, updates):
     return data
 
 
-def create_text_log_errors(project, job_id, failure_line_list):
-    job = Job.objects.get(repository__name=project,
-                          project_specific_id=job_id)
+def create_text_log_errors(job, failure_line_list):
     step = TextLogStep.objects.create(
         job=job,
         name='everything',
@@ -97,7 +94,7 @@ def create_text_log_errors(project, job_id, failure_line_list):
     return errors
 
 
-def create_bug_suggestions_failures(project, job, failure_line_list):
+def create_bug_suggestions_failures(job, failure_line_list):
     formatter = TbplFormatter()
 
     bug_suggestions = []
@@ -112,14 +109,14 @@ def create_bug_suggestions_failures(project, job, failure_line_list):
              "bugs": {"all_others": [],
                       "open_recent": []}})
 
-    placeholders = [job["id"], 'Bug suggestions',
+    placeholders = [job.project_specific_id, 'Bug suggestions',
                     'json', zlib.compress(json.dumps(bug_suggestions)),
-                    job["id"], 'Bug suggestions']
+                    job.project_specific_id, 'Bug suggestions']
 
-    with ArtifactsModel(project) as artifacts_model:
+    with ArtifactsModel(job.repository.name) as artifacts_model:
         artifacts_model.store_job_artifact([placeholders])
         return artifacts_model.get_job_artifact_list(
-            0, 1, {'job_id': set([('=', job['id'])]),
+            0, 1, {'job_id': set([('=', job.project_specific_id)]),
                    "name": set([("=", "Bug suggestions")])})[0]
 
 
