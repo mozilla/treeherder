@@ -374,8 +374,8 @@ def test_cycle_one_job(jm, sample_data,
 
     extra_objects = {
         'failure_lines': (FailureLine,
-                          create_failure_lines(test_repository,
-                                               job_not_deleted["job_guid"],
+                          create_failure_lines(Job.objects.get(
+                              guid=job_not_deleted["job_guid"]),
                                                [(test_line, {}),
                                                 (test_line, {"subtest": "subtest2"})])),
         'job_details': (JobDetail, [JobDetail.objects.create(
@@ -458,8 +458,7 @@ def test_cycle_all_data_in_chunks(jm, sample_data,
     )
 
     job = jm.get_job(jobs_to_be_deleted[0]['id'])[0]
-    create_failure_lines(test_repository,
-                         job["job_guid"],
+    create_failure_lines(Job.objects.get(guid=job["job_guid"]),
                          [(test_line, {})] * 7)
 
     jobs_before = jm.execute(proc="jobs_test.selects.jobs")
@@ -832,20 +831,19 @@ def test_retry_on_operational_failure(jm, monkeypatch):
     assert retry_count['num'] == 20
 
 
-def test_update_autoclassification_bug(jm, test_repository, classified_failures):
+def test_update_autoclassification_bug(jm, test_job, test_job_2,
+                                       classified_failures):
     # Job 1 has two failure lines so nothing should be updated
     assert jm.update_autoclassification_bug(1, 1234) is None
 
-    job = jm.get_job(2)[0]
-    failure_lines = create_failure_lines(test_repository,
-                                         job["job_guid"],
+    failure_lines = create_failure_lines(test_job_2,
                                          [(test_line, {})])
     failure_lines[0].best_classification = classified_failures[0]
     failure_lines[0].save()
     classified_failures[0].bug_number = None
-    lines = [(item, {}) for item in FailureLine.objects.filter(job_guid=job["job_guid"]).values()]
-    create_text_log_errors(test_repository.name, job["id"], lines)
-    create_bug_suggestions_failures(test_repository.name, job, lines)
-    assert jm.update_autoclassification_bug(2, 1234) == classified_failures[0]
+    lines = [(item, {}) for item in FailureLine.objects.filter(job_guid=test_job_2.guid).values()]
+    create_text_log_errors(test_job_2, lines)
+    create_bug_suggestions_failures(test_job_2, lines)
+    assert jm.update_autoclassification_bug(test_job_2.project_specific_id, 1234) == classified_failures[0]
     classified_failures[0].refresh_from_db()
     assert classified_failures[0].bug_number == 1234

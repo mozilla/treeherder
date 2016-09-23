@@ -353,7 +353,7 @@ def test_put_multiple_duplicate_2(webapp, classified_failures, test_user):
     assert resp.status_code == 400
 
 
-def test_get_matching_lines(webapp, test_repository, failure_lines, classified_failures):
+def test_get_matching_lines(webapp, test_job, failure_lines, classified_failures):
     """
     test getting a single failure line
     """
@@ -362,8 +362,7 @@ def test_get_matching_lines(webapp, test_repository, failure_lines, classified_f
         failure_line.best_classification = classified_failures[0]
         failure_line.save()
 
-    extra_lines = create_failure_lines(test_repository,
-                                       failure_lines[0].job_guid,
+    extra_lines = create_failure_lines(test_job,
                                        [(test_line, {"test": "test2", "line": 2}),
                                         (test_line, {"test": "test2", "subtest": "subtest2",
                                                      "line": 3})])
