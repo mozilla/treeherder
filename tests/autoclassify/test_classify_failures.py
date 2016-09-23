@@ -12,7 +12,6 @@ from treeherder.autoclassify.matchers import (CrashSignatureMatcher,
 from treeherder.model.models import (BugJobMap,
                                      ClassifiedFailure,
                                      FailureMatch,
-                                     Job,
                                      JobNote)
 
 from .utils import (crash_line,
@@ -28,30 +27,27 @@ def autoclassify(jm, job, test_failure_lines, matchers, status="testfailed"):
 
     jm.execute(
         proc="jobs_test.updates.set_job_result",
-        placeholders=[status, job["id"]]
+        placeholders=[status, job.project_specific_id]
     )
 
     register_matchers(*matchers)
 
-    call_command('autoclassify', jm.project, job['job_guid'])
+    call_command('autoclassify', jm.project, job.guid)
 
     for item in test_failure_lines:
         item.refresh_from_db()
 
 
-def test_classify_test_failure(activate_responses, jm, test_project, test_repository,
-                               eleven_jobs_stored, failure_lines, classified_failures):
-    job = jm.get_job(2)[0]
-
-    test_failure_lines = create_failure_lines(test_repository,
-                                              job["job_guid"],
+def test_classify_test_failure(jm, failure_lines, classified_failures,
+                               test_job_2):
+    test_failure_lines = create_failure_lines(test_job_2,
                                               [(test_line, {}),
                                                (test_line, {"subtest": "subtest2"}),
                                                (test_line, {"status": "TIMEOUT"}),
                                                (test_line, {"expected": "ERROR"}),
                                                (test_line, {"message": "message2"})])
 
-    autoclassify(jm, job, test_failure_lines, [PreciseTestMatcher])
+    autoclassify(jm, test_job_2, test_failure_lines, [PreciseTestMatcher])
 
     expected_classified = test_failure_lines[:2]
     expected_unclassified = test_failure_lines[2:]
@@ -63,19 +59,15 @@ def test_classify_test_failure(activate_responses, jm, test_project, test_reposi
         assert item.classified_failures.count() == 0
 
 
-def test_no_autoclassify_job_success(activate_responses, jm, test_project, test_repository,
-                                     eleven_jobs_stored, failure_lines, classified_failures):
-    job = jm.get_job(2)[0]
-
-    test_failure_lines = create_failure_lines(test_repository,
-                                              job["job_guid"],
+def test_no_autoclassify_job_success(jm, failure_lines, classified_failures, test_job_2):
+    test_failure_lines = create_failure_lines(test_job_2,
                                               [(test_line, {}),
                                                (test_line, {"subtest": "subtest2"}),
                                                (test_line, {"status": "TIMEOUT"}),
                                                (test_line, {"expected": "ERROR"}),
                                                (test_line, {"message": "message2"})])
 
-    autoclassify(jm, job, test_failure_lines, [PreciseTestMatcher], status="success")
+    autoclassify(jm, test_job_2, test_failure_lines, [PreciseTestMatcher], status="success")
 
     expected_classified = []
     expected_unclassified = test_failure_lines
@@ -87,66 +79,48 @@ def test_no_autoclassify_job_success(activate_responses, jm, test_project, test_
         assert item.classified_failures.count() == 0
 
 
-def test_autoclassify_update_job_classification(activate_responses, jm, test_repository,
-                                                test_project, eleven_jobs_stored,
-                                                failure_lines, classified_failures,
-                                                mock_autoclassify_jobs_true):
-    ds_job = jm.get_job(2)[0]
-
+def test_autoclassify_update_job_classification(jm, failure_lines, classified_failures,
+                                                test_job_2, mock_autoclassify_jobs_true):
     for i, item in enumerate(classified_failures):
         item.bug_number = "1234%i" % i
         item.save()
 
-    create_bug_suggestions(ds_job, test_project, {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
+    create_bug_suggestions(test_job_2, {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
 
-    test_failure_lines = create_failure_lines(test_repository,
-                                              ds_job["job_guid"],
+    test_failure_lines = create_failure_lines(test_job_2,
                                               [(test_line, {})])
 
-    autoclassify(jm, ds_job, test_failure_lines, [PreciseTestMatcher])
+    autoclassify(jm, test_job_2, test_failure_lines, [PreciseTestMatcher])
 
-    job = Job.objects.get(project_specific_id=ds_job["id"])
-
-    assert JobNote.objects.filter(job=job).count() == 1
+    assert JobNote.objects.filter(job=test_job_2).count() == 1
 
     # Check that a bug isn't added by the autoclassifier
-    assert BugJobMap.objects.filter(job=job).count() == 0
+    assert BugJobMap.objects.filter(job=test_job_2).count() == 0
 
 
-def test_autoclassify_no_update_job_classification(activate_responses, jm, test_repository,
-                                                   test_project, eleven_jobs_stored,
-                                                   failure_lines, classified_failures):
-    ds_job = jm.get_job(2)[0]
-
-    create_bug_suggestions(ds_job, test_project,
+def test_autoclassify_no_update_job_classification(jm, test_job_2,
+                                                   failure_lines,
+                                                   classified_failures):
+    create_bug_suggestions(test_job_2,
                            {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"},
                            {"search": "Some error that isn't in the structured logs"})
 
-    test_failure_lines = create_failure_lines(test_repository,
-                                              ds_job["job_guid"],
-                                              [(test_line, {})])
+    test_failure_lines = create_failure_lines(test_job_2, [(test_line, {})])
 
-    autoclassify(jm, ds_job, test_failure_lines, [PreciseTestMatcher])
+    autoclassify(jm, test_job_2, test_failure_lines, [PreciseTestMatcher])
 
-    job = Job.objects.get(project_specific_id=ds_job["id"])
-    assert JobNote.objects.filter(job=job).count() == 0
+    assert JobNote.objects.filter(job=test_job_2).count() == 0
 
 
-def test_autoclassified_after_manual_classification(activate_responses, jm, test_repository,
-                                                    test_project, test_user, eleven_jobs_stored,
+def test_autoclassified_after_manual_classification(jm, test_user, test_job_2,
                                                     failure_lines, failure_classifications):
     register_detectors(ManualDetector, TestFailureDetector)
 
-    ds_job = jm.get_job(2)[0]
+    create_bug_suggestions(test_job_2, {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
 
-    create_bug_suggestions(ds_job, test_project, {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
+    test_failure_lines = create_failure_lines(test_job_2, [(test_line, {})])
 
-    test_failure_lines = create_failure_lines(test_repository,
-                                              ds_job["job_guid"],
-                                              [(test_line, {})])
-
-    JobNote.objects.create(job=Job.objects.get(repository=test_repository,
-                                               project_specific_id=ds_job["id"]),
+    JobNote.objects.create(job=test_job_2,
                            failure_classification_id=4,
                            user=test_user,
                            text="")
@@ -159,24 +133,18 @@ def test_autoclassified_after_manual_classification(activate_responses, jm, test
     assert test_failure_lines[0].best_is_verified
 
 
-def test_autoclassified_no_update_after_manual_classification_1(activate_responses, jm,
-                                                                test_repository, test_project,
-                                                                test_user, eleven_jobs_stored,
+def test_autoclassified_no_update_after_manual_classification_1(jm, test_job_2,
+                                                                test_user,
                                                                 failure_classifications):
     register_detectors(ManualDetector, TestFailureDetector)
 
-    ds_job = jm.get_job(2)[0]
-
-    create_bug_suggestions(ds_job, test_project,
+    create_bug_suggestions(test_job_2,
                            {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
 
     # Line type won't be detected by the detectors we have registered
-    test_failure_lines = create_failure_lines(test_repository,
-                                              ds_job["job_guid"],
-                                              [(log_line, {})])
+    test_failure_lines = create_failure_lines(test_job_2, [(log_line, {})])
 
-    JobNote.objects.create(job=Job.objects.get(repository=test_repository,
-                                               project_specific_id=ds_job["id"]),
+    JobNote.objects.create(job=test_job_2,
                            failure_classification_id=4,
                            user=test_user,
                            text="")
@@ -187,24 +155,18 @@ def test_autoclassified_no_update_after_manual_classification_1(activate_respons
     assert len(test_failure_lines[0].matches.all()) == 0
 
 
-def test_autoclassified_no_update_after_manual_classification_2(activate_responses, jm,
-                                                                test_repository, test_project,
-                                                                test_user, eleven_jobs_stored,
+def test_autoclassified_no_update_after_manual_classification_2(test_user, test_job_2,
                                                                 failure_classifications):
     register_detectors(ManualDetector, TestFailureDetector)
 
-    ds_job = jm.get_job(2)[0]
-
     # Too many failure lines
-    test_failure_lines = create_failure_lines(test_repository,
-                                              ds_job["job_guid"],
+    test_failure_lines = create_failure_lines(test_job_2,
                                               [(log_line, {}),
                                                (test_line, {"subtest": "subtest2"})])
 
-    create_bug_suggestions(ds_job, test_project, {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
+    create_bug_suggestions(test_job_2, {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
 
-    JobNote.objects.create(job=Job.objects.get(repository=test_repository,
-                                               project_specific_id=ds_job["id"]),
+    JobNote.objects.create(job=test_job_2,
                            failure_classification_id=4,
                            user=test_user,
                            text="")
@@ -215,20 +177,18 @@ def test_autoclassified_no_update_after_manual_classification_2(activate_respons
     assert len(test_failure_lines[0].matches.all()) == 0
 
 
-def test_classify_skip_ignore(activate_responses, jm, test_project, test_repository,
-                              eleven_jobs_stored, failure_lines, classified_failures):
-    job = jm.get_job(2)[0]
+def test_classify_skip_ignore(jm, test_job_2, failure_lines,
+                              classified_failures):
 
     failure_lines[1].best_is_verified = True
     failure_lines[1].best_classification = None
     failure_lines[1].save()
 
-    test_failure_lines = create_failure_lines(test_repository,
-                                              job["job_guid"],
+    test_failure_lines = create_failure_lines(test_job_2,
                                               [(test_line, {}),
                                                (test_line, {"subtest": "subtest2"})])
 
-    autoclassify(jm, job, test_failure_lines, [PreciseTestMatcher])
+    autoclassify(jm, test_job_2, test_failure_lines, [PreciseTestMatcher])
 
     expected_classified = test_failure_lines[:1]
     expected_unclassified = test_failure_lines[1:]
@@ -240,12 +200,8 @@ def test_classify_skip_ignore(activate_responses, jm, test_project, test_reposit
         assert item.classified_failures.count() == 0
 
 
-def test_classify_es(activate_responses, jm, test_project, test_repository,
-                     eleven_jobs_stored, failure_lines, classified_failures):
-    job = jm.get_job(2)[0]
-
-    test_failure_lines = create_failure_lines(test_repository,
-                                              job["job_guid"],
+def test_classify_es(jm, test_job_2, failure_lines, classified_failures):
+    test_failure_lines = create_failure_lines(test_job_2,
                                               [(test_line, {}),
                                                (test_line, {"message": "message2"}),
                                                (test_line, {"message": "message 1.2"}),
@@ -254,7 +210,7 @@ def test_classify_es(activate_responses, jm, test_project, test_repository,
                                                (test_line, {"status": "TIMEOUT"}),
                                                (test_line, {"expected": "ERROR"})])
 
-    autoclassify(jm, job, test_failure_lines, [ElasticSearchTestMatcher])
+    autoclassify(jm, test_job_2, test_failure_lines, [ElasticSearchTestMatcher])
 
     expected_classified = test_failure_lines[:4]
     expected_unclassified = test_failure_lines[4:]
@@ -266,19 +222,16 @@ def test_classify_es(activate_responses, jm, test_project, test_repository,
         assert item.classified_failures.count() == 0
 
 
-def test_classify_multiple(activate_responses, jm, test_project, test_repository,
-                           eleven_jobs_stored, failure_lines, classified_failures):
-    job = jm.get_job(2)[0]
-
-    test_failure_lines = create_failure_lines(test_repository,
-                                              job["job_guid"],
+def test_classify_multiple(jm, test_job_2, failure_lines, classified_failures):
+    test_failure_lines = create_failure_lines(test_job_2,
                                               [(test_line, {}),
                                                (test_line, {"message": "message 1.2"})])
 
     expected_classified_precise = [test_failure_lines[0]]
     expected_classified_fuzzy = [test_failure_lines[1]]
 
-    autoclassify(jm, job, test_failure_lines, [PreciseTestMatcher, ElasticSearchTestMatcher])
+    autoclassify(jm, test_job_2, test_failure_lines, [PreciseTestMatcher,
+                                                      ElasticSearchTestMatcher])
 
     for actual, expected in zip(expected_classified_precise, classified_failures):
         assert [item.id for item in actual.classified_failures.all()] == [expected.id]
@@ -289,17 +242,11 @@ def test_classify_multiple(activate_responses, jm, test_project, test_repository
         assert [item.matcher.id == 2 for item in item.matches.all()]
 
 
-def test_classify_crash(activate_responses, jm, test_project, test_repository,
-                        eleven_jobs_stored, test_matcher):
-    job_ref = jm.get_job(1)[0]
-    job = jm.get_job(2)[0]
-
-    failure_lines_ref = create_failure_lines(test_repository,
-                                             job_ref["job_guid"],
+def test_classify_crash(jm, test_project, test_job, test_job_2, test_matcher):
+    failure_lines_ref = create_failure_lines(test_job,
                                              [(crash_line, {})])
 
-    failure_lines = create_failure_lines(test_repository,
-                                         job["job_guid"],
+    failure_lines = create_failure_lines(test_job_2,
                                          [(crash_line, {}),
                                           (crash_line, {"test": "test1"}),
                                           (crash_line, {"signature": "signature1"}),
@@ -310,7 +257,7 @@ def test_classify_crash(activate_responses, jm, test_project, test_repository,
                                 classified_failure=classified_failure,
                                 matcher=test_matcher.db_object,
                                 score=1.0)
-    autoclassify(jm, job, failure_lines, [CrashSignatureMatcher])
+    autoclassify(jm, test_job_2, failure_lines, [CrashSignatureMatcher])
 
     expected_classified = failure_lines[0:2]
     expected_unclassified = failure_lines[2:]
