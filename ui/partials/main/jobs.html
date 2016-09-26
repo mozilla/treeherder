@@ -44,7 +44,8 @@
       <span class="btn btn-sm btn-resultset trigger-new-jobs-btn"
             tabindex="0" role="button"
             title="Trigger new jobs"
-            ng-show="user.loggedin && showTriggerButton()"
+            ng-show="showTriggerButton()"
+            ng-disabled="!user.loggedin"
             ignore-job-clear-on-click
             ng-click="triggerNewJobs()">
            Trigger New Jobs
