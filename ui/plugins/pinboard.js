@@ -126,6 +126,12 @@ treeherder.controller('PinboardCtrl', [
         };
 
         $scope.canSaveClassifications = function() {
+            if ($scope.enteringBugNumber) {
+                // we should save this for the user, as they likely
+                // just forgot to hit enter.
+                $scope.saveEnteredBugNumber();
+            }
+            $scope.completeClassification();
             var thisClass = $scope.classification;
             return $scope.hasPinnedJobs() && (thPinboard.hasRelatedBugs() && $scope.user.loggedin ||
                    thisClass.failure_classification_id !== 4 ||
