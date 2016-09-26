@@ -90,13 +90,13 @@ treeherderApp.controller('ResultSetCtrl', [
     'thUrl', 'thServiceDomain', 'thResultStatusInfo', 'thDateFormat',
     'ThResultSetStore', 'thEvents', 'thJobFilters', 'thNotify',
     'thBuildApi', 'thPinboard', 'ThResultSetModel', 'dateFilter',
-    'ThModelErrors', 'ThJobModel', 'ThJobDetailModel',
+    'ThModelErrors', 'ThJobModel',
     function ResultSetCtrl(
         $scope, $rootScope, $http, ThLog, $location,
         thUrl, thServiceDomain, thResultStatusInfo, thDateFormat,
         ThResultSetStore, thEvents, thJobFilters, thNotify,
-        thBuildApi, thPinboard, ThResultSetModel, dateFilter, ThModelErrors, ThJobModel,
-        ThJobDetailModel) {
+        thBuildApi, thPinboard, ThResultSetModel, dateFilter, ThModelErrors,
+        ThJobModel) {
 
         $scope.getCountClass = function(resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -170,62 +170,31 @@ treeherderApp.controller('ResultSetCtrl', [
             return "Cancel all jobs";
         };
 
-        $scope.canCancelJobs = function(revision) {
-            if (!$scope.user || !$scope.user.loggedin) {
-                return false;
-            }
-            var job = ThResultSetStore.getSelectedJob($scope.repoName).job;
-            var singleJobSelected = job instanceof ThJobModel;
-            if (singleJobSelected && job.revision === revision) {
-                // Check whether the job can be cancelled
-                return job.state === "pending" || job.state === "running";
-            }
-
-            return true;
+        $scope.canCancelJobs = function() {
+            return $scope.user && $scope.user.loggedin;
         };
 
-        $scope.cancelJobs = function(revision) {
-            if (!$scope.canCancelJobs()) {
-                return;
-            }
-            var job = ThResultSetStore.getSelectedJob($scope.repoName).job;
-            var singleJobSelected = job instanceof ThJobModel && job.revision === revision;
-            var message = singleJobSelected ?
-                          'This will cancel the selected job. !\n\nClick "OK" if you\'re sure.':
-                          'This will cancel all pending and running jobs for revision ' + revision + '!\n\nClick "OK" if you\'re sure.';
-            if (!window.confirm(message)) {
-                return;
-            }
+        $scope.confirmCancelAllJobs = function() {
+            $scope.showConfirmCancelAll = true;
+        };
 
-            if (singleJobSelected) {
-                ThJobModel.cancel($scope.repoName, job.id).then(function() {
-                    // XXX: Remove this after 1134929 is resolved.
-                    ThJobDetailModel.getJobDetails({
-                        title: "buildbot_request_id",
-                        job_guid: job.guid
-                    }).then(function(data) {
-                        // non-buildbot jobs will have no request id, and that's ok (they
-                        // are covered above)
-                        if (data.length) {
-                            return thBuildApi.cancelJob($scope.repoName, data[0].value);
-                        }
-                    });
-                }).catch(function(e) {
-                    thNotify.send(
-                        ThModelErrors.format(e, "Unable to cancel job"),
-                        "danger", true
-                    );
-                });
-            } else {
-                ThResultSetModel.cancelAll($scope.resultset.id, $scope.repoName).then(function() {
-                    return thBuildApi.cancelAll($scope.repoName, revision);
-                }).catch(function(e) {
-                    thNotify.send(
-                        ThModelErrors.format(e, "Failed to cancel all jobs"),
-                        'danger', true
-                    );
-                });
-            }
+        $scope.hideConfirmCancelAll = function() {
+            $scope.showConfirmCancelAll = false;
+        };
+
+        $scope.cancelAllJobs = function(revision) {
+            $scope.showConfirmCancelAll = false;
+            if (!$scope.canCancelJobs())
+                return;
+
+            ThResultSetModel.cancelAll($scope.resultset.id, $scope.repoName).then(function() {
+                return thBuildApi.cancelAll($scope.repoName, revision);
+            }).catch(function(e) {
+                thNotify.send(
+                    ThModelErrors.format(e, "Failed to cancel all jobs"),
+                    'danger', true
+                );
+            });
         };
 
         $scope.triggerMissingJobs = function(revision) {
