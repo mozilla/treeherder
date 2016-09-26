@@ -106,6 +106,10 @@ fieldset[disabled] .btn-resultset:hover {
   padding-left: 0;
 }
 
+.result-set .cancel-all-jobs-confirm {
+  padding: 8px 34px 0px 34px;
+}
+
 /*
  * Revision list
  */
