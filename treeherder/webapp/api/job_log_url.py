@@ -14,6 +14,7 @@ class JobLogUrlViewSet(viewsets.ViewSet):
     def _log_as_dict(log):
         return {
             'id': log.id,
+            'job_id': log.job_id,
             'name': log.name,
             'url': log.url,
             'parse_status': log.get_status_display(),
@@ -31,16 +32,16 @@ class JobLogUrlViewSet(viewsets.ViewSet):
         GET method implementation for list view
         job_id -- Mandatory filter indicating which job these log belongs to.
         """
-        job_id = request.query_params.get('job_id')
-        if not job_id:
+        job_ids = request.query_params.getlist('job_id')
+        if not job_ids:
             raise ParseError(
                 detail="The job_id parameter is mandatory for this endpoint")
         try:
-            job_id = int(job_id)
+            job_ids = [int(job_id) for job_id in job_ids]
         except ValueError:
-            raise ParseError(detail="The job_id parameter must be an integer")
+            raise ParseError(detail="The job_id parameter(s) must be integers")
 
         logs = JobLog.objects.filter(job__repository__name=project,
-                                     job__project_specific_id=job_id)
+                                     job__project_specific_id__in=job_ids)
 
         return Response([self._log_as_dict(log) for log in logs])
