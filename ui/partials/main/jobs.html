@@ -45,6 +45,7 @@
             tabindex="0" role="button"
             title="Trigger new jobs"
             ng-show="showTriggerButton()"
+            ng-disabled="!user.loggedin"
             ignore-job-clear-on-click
             ng-click="triggerNewJobs()">
            Trigger New Jobs

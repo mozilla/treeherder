@@ -17,6 +17,9 @@ treeherderApp.controller('MainCtrl', [
         // Query String param for selected job
         var QS_SELECTED_JOB = "selectedJob";
 
+        // Ensure user is available on initial page load
+        $rootScope.user = {};
+
         thClassificationTypes.load();
 
         $rootScope.getWindowTitle = function() {

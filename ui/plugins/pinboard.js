@@ -127,12 +127,44 @@ treeherder.controller('PinboardCtrl', [
 
         $scope.canSaveClassifications = function() {
             var thisClass = $scope.classification;
-            var canSave = $scope.hasPinnedJobs() && (thPinboard.hasRelatedBugs() ||
-                          thisClass.failure_classification_id !== 4 ||
-                          $rootScope.currentRepo.repository_group.name === "try" ||
-                          $rootScope.currentRepo.repository_group.name === "project repositories" ||
-                          (thisClass.failure_classification_id === 4 && thisClass.text.length > 0));
-            return canSave;
+            return $scope.hasPinnedJobs() && (thPinboard.hasRelatedBugs() && $scope.user.loggedin ||
+                   thisClass.failure_classification_id !== 4 ||
+                   $rootScope.currentRepo.repository_group.name === "try" ||
+                   $rootScope.currentRepo.repository_group.name === "project repositories" ||
+                   (thisClass.failure_classification_id === 4 && thisClass.text.length > 0));
+        };
+
+        // Dyanmic btn/anchor title for classification save
+        $scope.saveUITitle = function(category) {
+            var title = "";
+
+            if (!$scope.user.loggedin) {
+                title = title.concat("not logged in / ");
+            }
+
+            if (category === "classification") {
+                if (!$scope.canSaveClassifications()) {
+                    title = title.concat("ineligible classification data / ");
+                }
+                if (!$scope.hasPinnedJobs()) {
+                    title = title.concat("no pinned jobs");
+                }
+            // We don't check pinned jobs because the menu dropdown handles it
+            } else if (category === "bug") {
+                if (!$scope.hasRelatedBugs()) {
+                    title = title.concat("no related bugs");
+                }
+            }
+
+            if (title === "") {
+                title = "Save " + category + " data";
+            } else {
+                // Cut off trailing "/ " if one exists, capitalize first letter
+                title = title.replace(/\/ $/,"");
+                title = title.replace(/^./, function(l) { return l.toUpperCase(); });
+            }
+
+            return title;
         };
 
         $scope.hasPinnedJobs = function() {
