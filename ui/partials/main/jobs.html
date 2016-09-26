@@ -28,8 +28,8 @@
             ng-attr-title="{{getCancelJobsTitle(resultset.revision)}}"
             ng-show="currentRepo.repository_group.name == 'try' || user.is_staff"
             ignore-job-clear-on-click
-            ng-disabled="!canCancelJobs(resultset.revision)"
-            ng-click="cancelJobs(resultset.revision)">
+            ng-disabled="!canCancelJobs()"
+            ng-click="confirmCancelAllJobs()">
         <span class="fa fa-times-circle cancel-job-icon dim-quarter"
               ignore-job-clear-on-click></span>
       </span>
@@ -53,8 +53,15 @@
       <th-action-button></th-action-button>
     </span>
   </div>
-
   <div class="result-set-body-divider"></div>
+  <div class="cancel-all-jobs-confirm animate-show" uib-collapse="!showConfirmCancelAll">
+    <div uib-alert class="alert-danger" close="hideConfirmCancelAll()">
+      <span class="fa fa-exclamation-triangle"/> This action will cancel all pending and running jobs for this push.
+      <i>It cannot be undone!</i>
+      &nbsp;
+      <button ng-click="cancelAllJobs(resultset.revision)" class="btn btn-xs btn-danger">Confirm</button>
+    </div>
+  </div>
   <!-- Job table -->
   <div class="result-set-body" th-clone-jobs ></div>
 </div>
