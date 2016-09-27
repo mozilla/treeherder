@@ -58,7 +58,7 @@ treeherderApp.controller('MainCtrl', [
             }
 
             for (var i=0; i<revisions.length; i++) {
-                var title = revisions[i].escaped_comment;
+                var title = _.unescape(revisions[i].escaped_comment);
 
                 /*
                  *  Strip out unwanted things like additional lines, trychooser
