@@ -70,7 +70,7 @@ class JobLoader:
             # If it doesn't, then except out so that the celery task will
             # retry till it DOES exist.
             if not jobs_model.get_resultset_top_revision_lookup([revision]):
-                raise ValueError(
+                raise MissingResultsetException(
                     "No resultset found for revision {}".format(revision))
 
         else:
@@ -311,3 +311,7 @@ class JobLoader:
                     "JSON Schema validation error during job ingestion: {}".format(e))
 
         return validated_jobs
+
+
+class MissingResultsetException(Exception):
+    pass

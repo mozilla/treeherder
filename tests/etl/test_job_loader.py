@@ -2,7 +2,8 @@ import copy
 
 import pytest
 
-from treeherder.etl.job_loader import JobLoader
+from treeherder.etl.job_loader import (JobLoader,
+                                       MissingResultsetException)
 from treeherder.model.derived.artifacts import ArtifactsModel
 from treeherder.model.models import (Job,
                                      JobDetail,
@@ -112,7 +113,7 @@ def test_ingest_pulse_jobs_with_missing_resultset(pulse_jobs, test_project, jm,
     try:
         jl.process_job_list(pulse_jobs)
         assert False
-    except ValueError:
+    except MissingResultsetException:
         assert True
 
     # if one job isn't ready, except on the whole batch.  They'll retry as a
