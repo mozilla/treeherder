@@ -88,13 +88,14 @@ def test_parse_log(jm, jobs_with_local_log, sample_resultset):
 
     # we should have just one artifact, "bug suggestions"
     assert len(job_artifacts) == 1
+
     # this log generates 4 job detail objects at present
     print JobDetail.objects.count() == 4
 
 
 def test_bug_suggestions_artifact(jm, jobs_with_local_log, sample_resultset, test_repository):
     """
-    check that at least 3 job_artifacts get inserted when running
+    check that a bug suggestions artifact gets inserted when running
     a parse_log task for a failed job, and that the number of
     bug search terms/suggestions matches the number of error lines.
     """

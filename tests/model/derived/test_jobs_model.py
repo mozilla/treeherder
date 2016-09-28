@@ -5,8 +5,7 @@ import pytest
 from django.core.management import call_command
 
 from tests import test_utils
-from tests.autoclassify.utils import (create_bug_suggestions_failures,
-                                      create_failure_lines,
+from tests.autoclassify.utils import (create_failure_lines,
                                       create_text_log_errors,
                                       test_line)
 from tests.sample_data_generator import (job_data,
@@ -924,10 +923,10 @@ def test_retry_on_operational_failure(jm, monkeypatch):
     assert retry_count['num'] == 20
 
 
-def test_update_autoclassification_bug(jm, test_job, test_job_2,
+def test_update_autoclassification_bug(test_job, test_job_2,
                                        classified_failures):
     # Job 1 has two failure lines so nothing should be updated
-    assert jm.update_autoclassification_bug(1, 1234) is None
+    assert test_job.update_autoclassification_bug(1234) is None
 
     failure_lines = create_failure_lines(test_job_2,
                                          [(test_line, {})])
@@ -936,7 +935,7 @@ def test_update_autoclassification_bug(jm, test_job, test_job_2,
     classified_failures[0].bug_number = None
     lines = [(item, {}) for item in FailureLine.objects.filter(job_guid=test_job_2.guid).values()]
     create_text_log_errors(test_job_2, lines)
-    create_bug_suggestions_failures(test_job_2, lines)
+
     assert test_job_2.update_autoclassification_bug(1234) == classified_failures[0]
     classified_failures[0].refresh_from_db()
     assert classified_failures[0].bug_number == 1234
