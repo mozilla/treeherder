@@ -2,10 +2,10 @@
 
 treeherder.directive('personaButtons', [
     '$http', '$q', '$log', '$rootScope',
-    'thServiceDomain', 'BrowserId', 'ThUserModel', 'thNotify',
+    'thServiceDomain', 'BrowserId', 'ThUserModel', 'thNotify', 'ThModelErrors',
     function(
         $http, $q, $log, $rootScope, thServiceDomain,
-        BrowserId, ThUserModel, thNotify) {
+        BrowserId, ThUserModel, thNotify, ThModelErrors) {
 
         return {
             restrict: "E",
@@ -69,7 +69,7 @@ treeherder.directive('personaButtons', [
                                     $rootScope.$broadcast('userChange');
                                 }, null);
                             },function(response){
-                                var message = "Login failed: " + response.status + " " + response.statusText;
+                                var message = ThModelErrors.format(response, "Login failed");
                                 thNotify.send(message, "danger", true);
 
                                 // logout if the verification failed

@@ -2,10 +2,10 @@
 
 treeherder.factory('thPinboard', [
     '$http', 'thUrl', 'ThJobClassificationModel', '$rootScope', 'thEvents',
-    'ThBugJobMapModel', 'thNotify', 'ThLog', 'ThResultSetStore',
+    'ThBugJobMapModel', 'thNotify', 'ThModelErrors', 'ThLog', 'ThResultSetStore',
     function(
         $http, thUrl, ThJobClassificationModel, $rootScope, thEvents,
-        ThBugJobMapModel, thNotify, ThLog, ThResultSetStore) {
+        ThBugJobMapModel, thNotify, ThModelErrors, ThLog, ThResultSetStore) {
 
         var $log = new ThLog("thPinboard");
 
@@ -25,13 +25,13 @@ treeherder.factory('thPinboard', [
                 classification.job_id = job.id;
                 classification.create().
                     success(function() {
-                        thNotify.send("Classification saved for " + job.platform + ": " + job.job_type_name, "success");
+                        thNotify.send("Classification saved for " + job.platform + " " + job.job_type_name, "success");
                     }).error(function(data) {
-                        var error = "Error saving classification for " + job.platform + ": " + job.job_type_name;
-                        if(data.detail === "Authentication credentials were not provided.") {
-                            error = "Authentication failed, try refreshing page and signing in again?";
-                        }
-                        thNotify.send(error, "danger");
+                        var message = "Error saving classification for " + job.platform + " " + job.job_type_name;
+                        thNotify.send(
+                            ThModelErrors.format(data, message),
+                            "danger"
+                        );
                         $log.debug("classification failed", data);
                     });
             }
@@ -46,13 +46,13 @@ treeherder.factory('thPinboard', [
                 });
                 bjm.create().
                     success(function() {
-                        thNotify.send("Bug association saved for " + job.platform + ": " + job.job_type_name, "success");
+                        thNotify.send("Bug association saved for " + job.platform + " " + job.job_type_name, "success");
                     }).error(function(data) {
-                        var error = "Error saving bug association for " + job.platform + ": " + job.job_type_name;
-                        if(data.detail === "Authentication credentials were not provided.") {
-                            error = "Authentication failed, try refreshing page and signing in again?";
-                        }
-                        thNotify.send(error, "danger");
+                        var message = "Error saving bug association for " + job.platform + " " + job.job_type_name;
+                        thNotify.send(
+                            ThModelErrors.format(data, message),
+                            "danger"
+                        );
                     });
             });
         };
