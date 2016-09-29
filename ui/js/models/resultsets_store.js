@@ -14,6 +14,9 @@ treeherder.factory('ThResultSetStore', [
 
         var $log = new ThLog("ThResultSetStore");
 
+        // indexOf doesn't work on objects so we need to map thPlatformMap to an array
+        var platformArray = _.map(thPlatformMap, function(val, idx, list) { return idx; });
+
         /******
          * Handle updating the resultset datamodel based on a queue of jobs
          * and resultsets.
@@ -1221,9 +1224,6 @@ treeherder.factory('ThResultSetStore', [
                             return jobGroupOrder[group.symbol];
                         });
                     });
-
-                    // indexOf doesn't work on objects so we need to map thPlatformMap to an array
-                    var platformArray = _.map(thPlatformMap, function(val, idx, list) { return idx; });
 
                     groupedJobs.platforms = _.sortBy(groupedJobs.platforms, function(platform){
                         var priority = platformArray.indexOf(platform.name);
