@@ -5,8 +5,9 @@ from treeherder.etl.tasks.pulse_tasks import store_pulse_jobs
 from treeherder.model.models import Job
 
 
-def test_retry_missing_revision(sample_data, sample_resultset, test_project,
-                                jm, mock_log_parser, monkeypatch):
+def test_retry_missing_revision_succeeds(sample_data, sample_resultset,
+                                         test_project, jm, mock_log_parser,
+                                         monkeypatch):
     """
     Ensure that when the missing resultset exists after a retry, that the job
     is then ingested.
@@ -32,3 +33,21 @@ def test_retry_missing_revision(sample_data, sample_resultset, test_project,
     assert Job.objects.count() == 1
     assert Job.objects.values()[0]["guid"] == job["taskId"]
     assert thread_data.retries == 1
+
+
+def test_retry_missing_revision_never_succeeds(sample_data, test_project,
+                                               jm, mock_log_parser, monkeypatch):
+    """
+    Ensure that when the missing resultset exists after a retry, that the job
+    is then ingested.
+    """
+    job = sample_data.pulse_jobs[0]
+    job["origin"]["project"] = test_project
+
+    try:
+        store_pulse_jobs.delay(job, "foo", "bar")
+        assert False
+    except MissingResultsetException:
+        assert True
+
+    assert Job.objects.count() == 0
