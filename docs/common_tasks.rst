@@ -20,7 +20,7 @@ Or for more control, run each tool individually:
   .. code-block:: bash
 
      vagrant ~/treeherder$ py.test tests/
-     vagrant ~/treeherder$ py.test tests/log_parser/test_utils.py
+     vagrant ~/treeherder$ py.test tests/log_parser/test_tasks.py
      vagrant ~/treeherder$ py.test tests/etl/test_buildapi.py -k test_ingest_builds4h_jobs
 
   To run all tests, including slow tests that are normally skipped, use:
