@@ -73,7 +73,7 @@ treeherder.value("thPlatformMap", {
     "horizon-win64": "Horizon Windows x64",
 
     "gecko-decision": "Gecko Decision Task",
-    "other": "Other",
+    "other": "Other"
 });
 
 treeherder.value("thOptionOrder", {
