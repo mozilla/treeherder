@@ -41,6 +41,8 @@ SOURCES_CACHE_KEY = "treeherder-datasources"
 
 SQL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sql')
 
+logger = logging.getLogger(__name__)
+
 
 @python_2_unicode_compatible
 class NamedModel(models.Model):
@@ -595,24 +597,24 @@ class Job(models.Model):
                                         self.project_specific_id)
 
     def is_fully_autoclassified(self):
+        """
+        Returns whether a job is fully autoclassified (i.e. we have
+        classification information for all failure lines)
+        """
         if FailureLine.objects.filter(job_guid=self.guid,
                                       action="truncated").count() > 0:
             return False
 
-        classified_failure_lines = FailureLine.objects.filter(
+        classified_failure_lines_count = FailureLine.objects.filter(
             best_classification__isnull=False,
             job_guid=self.guid).count()
 
-        if classified_failure_lines == 0:
+        if classified_failure_lines_count == 0:
             return False
 
-        # horrible hack (but will be blown away in next commit)
-        from treeherder.model.derived.jobs import ArtifactsModel
-        with ArtifactsModel(self.repository.name) as am:
-            bug_suggestion_lines = am.filter_bug_suggestions(
-                am.bug_suggestions(self.project_specific_id))
+        from treeherder.model.error_summary import get_filtered_error_lines
 
-        return classified_failure_lines == len(bug_suggestion_lines)
+        return classified_failure_lines_count == len(get_filtered_error_lines(self))
 
     def is_fully_verified(self):
         if FailureLine.objects.filter(job_guid=self.guid,
@@ -676,14 +678,9 @@ class Job(models.Model):
 
         # Only propagate the classification if there is exactly one unstructured failure
         # line for the job
-        # horrible hack (but will be blown away in next commit)
-        from treeherder.model.derived.jobs import ArtifactsModel
-        with ArtifactsModel(self.repository.name) as am:
-            bug_suggestion_lines = am.filter_bug_suggestions(
-                am.bug_suggestions(self.project_specific_id))
-
-            if len(bug_suggestion_lines) != 1:
-                return None
+        from treeherder.model.error_summary import get_filtered_error_lines
+        if len(get_filtered_error_lines(self)) != 1:
+            return None
 
         # Check that some detector would match this. This is being used as an indication
         # that the autoclassifier will be able to work on this classification
@@ -1054,16 +1051,11 @@ class FailureLine(models.Model):
         if not components:
             return []
 
-        # Importing this at the top level causes circular import misery
-        from treeherder.model.derived import JobsModel, ArtifactsModel
-        with JobsModel(self.repository.name) as jm, \
-                ArtifactsModel(self.repository.name) as am:
-            job_id = jm.get_job_ids_by_guid([self.job_guid])[self.job_guid]["id"]
-            bug_suggestions = am.filter_bug_suggestions(am.bug_suggestions(job_id))
-
+        from treeherder.model.error_summary import get_filtered_error_lines
+        job = Job.objects.get(guid=self.job_guid)
         rv = []
         ids_seen = set()
-        for item in bug_suggestions:
+        for item in get_filtered_error_lines(job):
             if all(component in item["search"] for component in components):
                 for suggestion in itertools.chain(item["bugs"]["open_recent"],
                                                   item["bugs"]["all_others"]):

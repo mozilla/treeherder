@@ -139,6 +139,7 @@ INSTALLED_APPS = [
     'hawkrest',
     'corsheaders',
     'django_browserid',
+    'memoize',
     # treeherder apps
     'treeherder.model',
     'treeherder.webapp',
@@ -352,6 +353,9 @@ BUILDAPI_BUILDS4H_URL = "https://secure.pub.build.mozilla.org/builddata/buildjso
 ALLTHETHINGS_URL = "https://secure.pub.build.mozilla.org/builddata/reports/allthethings.json"
 TASKCLUSTER_TASKGRAPH_URL = 'https://queue.taskcluster.net/v1/task/{task_id}/artifacts/public/full-task-graph.json'
 
+# the amount of time we cache bug suggestion lookups (to speed up loading the bug
+# suggestions or autoclassify panels for recently finished jobs)
+BUG_SUGGESTION_CACHE_TIMEOUT = 86400
 
 # the max size of a posted request to treeherder client during Buildbot
 # data job ingestion.

@@ -11,12 +11,9 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from treeherder.etl.common import get_guid_root
 from treeherder.model import utils
-from treeherder.model.models import (BugJobMap,
-                                     BuildPlatform,
-                                     ClassifiedFailure,
+from treeherder.model.models import (BuildPlatform,
                                      Datasource,
                                      ExclusionProfile,
-                                     FailureClassification,
                                      FailureLine,
                                      Job,
                                      JobDuration,
@@ -26,13 +23,11 @@ from treeherder.model.models import (BugJobMap,
                                      JobType,
                                      Machine,
                                      MachinePlatform,
-                                     Matcher,
                                      Option,
                                      OptionCollection,
                                      Product,
                                      ReferenceDataSignatures,
-                                     Repository,
-                                     TextLogSummaryLine)
+                                     Repository)
 from treeherder.model.search import bulk_delete as es_delete
 from treeherder.model.search import TestFailureLine
 from treeherder.model.tasks import (publish_job_action,
@@ -387,78 +382,6 @@ class JobsModel(TreeherderModelBase):
             ],
             debug_show=self.DEBUG
         )
-
-    def get_manual_classification_line(self, job_id):
-        """
-        Return the FailureLine from a job if it can be manually classified as a side effect
-        of the overall job being classified.
-        Otherwise return None.
-        """
-
-        job = self.get_job(job_id)[0]
-        try:
-            failure_lines = [FailureLine.objects.get(job_guid=job["job_guid"])]
-        except (FailureLine.DoesNotExist, FailureLine.MultipleObjectsReturned):
-            return None
-
-        # Only propagate the classification if there is exactly one unstructured failure
-        # line for the job
-        with ArtifactsModel(self.project) as am:
-            bug_suggestion_lines = am.filter_bug_suggestions(
-                am.bug_suggestions(job_id))
-
-            if len(bug_suggestion_lines) != 1:
-                return None
-
-        # Check that some detector would match this. This is being used as an indication
-        # that the autoclassifier will be able to work on this classification
-        if not any(detector(failure_lines)
-                   for detector in Matcher.objects.registered_detectors()):
-            return None
-
-        return failure_lines[0]
-
-    def is_fully_verified(self, job_id):
-        job = self.get_job(job_id)[0]
-
-        if FailureLine.objects.filter(job_guid=job["job_guid"],
-                                      action="truncated").count() > 0:
-            logger.error("Job %s truncated storage of FailureLines" % job["job_guid"])
-            return False
-
-        # Line is not fully verified if there are either structured failure lines
-        # with no best failure, or unverified unstructured lines not associated with
-        # a structured line
-
-        unverified_failure_lines = FailureLine.objects.filter(
-            best_is_verified=False,
-            job_guid=job["job_guid"]).count()
-
-        if unverified_failure_lines:
-            logger.error("Job %s has unverified FailureLines" % job["job_guid"])
-            return False
-
-        unverified_text_lines = TextLogSummaryLine.objects.filter(
-            verified=False,
-            failure_line=None,
-            summary__job_guid=job["job_guid"]).count()
-
-        if unverified_text_lines:
-            logger.error("Job %s has unverified TextLogSummary" % job["job_guid"])
-            return False
-
-        logger.info("Job %s is fully verified" % job["job_guid"])
-        return True
-
-    def update_autoclassification_bug(self, job_id, bug_number):
-        failure_line = self.get_manual_classification_line(job_id)
-
-        if failure_line is None:
-            return
-
-        classification = failure_line.best_classification
-        if classification and classification.bug_number is None:
-            return classification.set_bug(bug_number)
 
     def calculate_durations(self, sample_window_seconds, debug):
         # Get the most recent timestamp from jobs
