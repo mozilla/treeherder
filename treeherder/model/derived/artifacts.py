@@ -15,7 +15,6 @@ from treeherder.model.models import (Job,
                                      TextLogError,
                                      TextLogStep)
 
-from ..error_summary import is_helpful_search_term
 from .base import TreeherderModelBase
 
 logger = logging.getLogger(__name__)
@@ -326,19 +325,3 @@ class ArtifactsModel(TreeherderModelBase):
                 artifact['blob'] = json.dumps(blob)
 
         return artifacts
-
-    def bug_suggestions(self, job_id):
-        """Get the list of log lines and associated bug suggestions for a job"""
-        # TODO: Filter some junk from this
-        objs = self.get_job_artifact_list(
-            offset=0,
-            limit=1,
-            conditions={"job_id": set([("=", job_id)]),
-                        "name": set([("=", "Bug suggestions")]),
-                        "type": set([("=", "json")])})
-
-        lines = objs[0]["blob"] if objs else []
-        return lines
-
-    def filter_bug_suggestions(self, suggestion_lines):
-        return [item for item in suggestion_lines if is_helpful_search_term(item["search"])]

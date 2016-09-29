@@ -2,6 +2,9 @@ import json
 import logging
 import re
 
+from memoize import memoize
+
+from treeherder.config.settings import BUG_SUGGESTION_CACHE_TIMEOUT
 from treeherder.model.models import (Bugscache,
                                      Job,
                                      TextLogError)
@@ -17,14 +20,15 @@ MOZHARNESS_RE = re.compile(
 REFTEST_RE = re.compile("\s+[=!]=\s+.*")
 
 
-def get_error_summary(job):
+@memoize(timeout=BUG_SUGGESTION_CACHE_TIMEOUT)
+def get_error_summary(job_id):
     """
     Create a list of bug suggestions for a job
     """
     error_summary = []
     terms_requested = {}
 
-    for err in TextLogError.objects.filter(step__job=job):
+    for err in TextLogError.objects.filter(step__job_id=job_id):
         # remove the mozharness prefix
         clean_line = get_mozharness_substring(err.line)
         search_terms = []
@@ -169,15 +173,19 @@ def is_helpful_search_term(search_term):
     return len(search_term) > 4 and not (search_term in blacklist)
 
 
+def get_filtered_error_lines(job):
+    return [item for item in get_error_summary(job.id) if
+            is_helpful_search_term(item["search"])]
+
+
 def load_error_summary(project, job_id):
     """Load new bug suggestions artifacts if we generate them."""
 
-    job = Job.objects.get(id=job_id)
     bug_suggestion_artifact = {
-        "job_guid": job.guid,
+        "job_guid": Job.objects.values_list('guid', flat=True).get(id=job_id),
         "name": 'Bug suggestions',
         "type": 'json',
-        "blob": json.dumps(get_error_summary(job))
+        "blob": json.dumps(get_error_summary(job_id))
     }
     from treeherder.model.derived import ArtifactsModel
     with ArtifactsModel(project) as artifacts_model:

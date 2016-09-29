@@ -12,11 +12,13 @@ from treeherder.autoclassify.matchers import (CrashSignatureMatcher,
 from treeherder.model.models import (BugJobMap,
                                      ClassifiedFailure,
                                      FailureMatch,
-                                     JobNote)
+                                     JobNote,
+                                     TextLogError,
+                                     TextLogStep)
 
 from .utils import (crash_line,
-                    create_bug_suggestions,
                     create_failure_lines,
+                    create_text_log_errors,
                     log_line,
                     register_detectors,
                     register_matchers,
@@ -85,11 +87,10 @@ def test_autoclassify_update_job_classification(jm, failure_lines, classified_fa
         item.bug_number = "1234%i" % i
         item.save()
 
-    create_bug_suggestions(test_job_2, {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
-
     test_failure_lines = create_failure_lines(test_job_2,
                                               [(test_line, {})])
 
+    create_text_log_errors(test_job_2, [(test_line, {})])
     autoclassify(jm, test_job_2, test_failure_lines, [PreciseTestMatcher])
 
     assert JobNote.objects.filter(job=test_job_2).count() == 1
@@ -98,14 +99,24 @@ def test_autoclassify_update_job_classification(jm, failure_lines, classified_fa
     assert BugJobMap.objects.filter(job=test_job_2).count() == 0
 
 
-def test_autoclassify_no_update_job_classification(jm, test_job_2,
+def test_autoclassify_no_update_job_classification(jm, test_job, test_job_2,
                                                    failure_lines,
                                                    classified_failures):
-    create_bug_suggestions(test_job_2,
-                           {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"},
-                           {"search": "Some error that isn't in the structured logs"})
 
-    test_failure_lines = create_failure_lines(test_job_2, [(test_line, {})])
+    test_failure_lines = create_failure_lines(test_job, [(test_line, {})])
+    step = TextLogStep.objects.create(job=test_job_2,
+                                      name='unnamed step',
+                                      started_line_number=1,
+                                      finished_line_number=10,
+                                      result=TextLogStep.TEST_FAILED)
+    TextLogError.objects.create(step=step,
+                                line='TEST-UNEXPECTED-FAIL | test1 | message1',
+                                line_number=1)
+    TextLogError.objects.create(step=step,
+                                line="Some error that isn't in the structured logs",
+                                line_number=2)
+    test_failure_lines = create_failure_lines(test_job_2,
+                                              [(test_line, {})])
 
     autoclassify(jm, test_job_2, test_failure_lines, [PreciseTestMatcher])
 
@@ -116,8 +127,7 @@ def test_autoclassified_after_manual_classification(jm, test_user, test_job_2,
                                                     failure_lines, failure_classifications):
     register_detectors(ManualDetector, TestFailureDetector)
 
-    create_bug_suggestions(test_job_2, {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
-
+    create_text_log_errors(test_job_2, [(test_line, {})])
     test_failure_lines = create_failure_lines(test_job_2, [(test_line, {})])
 
     JobNote.objects.create(job=test_job_2,
@@ -137,9 +147,6 @@ def test_autoclassified_no_update_after_manual_classification_1(jm, test_job_2,
                                                                 test_user,
                                                                 failure_classifications):
     register_detectors(ManualDetector, TestFailureDetector)
-
-    create_bug_suggestions(test_job_2,
-                           {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
 
     # Line type won't be detected by the detectors we have registered
     test_failure_lines = create_failure_lines(test_job_2, [(log_line, {})])
@@ -163,8 +170,6 @@ def test_autoclassified_no_update_after_manual_classification_2(test_user, test_
     test_failure_lines = create_failure_lines(test_job_2,
                                               [(log_line, {}),
                                                (test_line, {"subtest": "subtest2"})])
-
-    create_bug_suggestions(test_job_2, {"search": "TEST-UNEXPECTED-FAIL | test1 | message1"})
 
     JobNote.objects.create(job=test_job_2,
                            failure_classification_id=4,

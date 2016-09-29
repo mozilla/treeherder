@@ -352,20 +352,6 @@ def pulse_action_consumer(request):
 
 
 @pytest.fixture
-def mock_error_summary(monkeypatch):
-    bs_obj = ["foo", "bar"]
-
-    from treeherder.model import error_summary
-
-    def _get_error_summary(params):
-        return bs_obj
-
-    monkeypatch.setattr(error_summary, "get_error_summary", _get_error_summary)
-
-    return bs_obj
-
-
-@pytest.fixture
 def failure_lines(test_job, elasticsearch):
     from tests.autoclassify.utils import test_line, create_failure_lines
 
