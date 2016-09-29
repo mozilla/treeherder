@@ -19,20 +19,14 @@ treeherder.factory('ThModelErrors', [function() {
                                 found in the error object.
         */
         format: function(e, message) {
-            // If there is nothing in the server message return default...
-            if (!e || !e.data) {
-                return message;
+            // If we failed to authenticate for some reason return a nicer error message.
+            if (e.status === 401 || e.status === 403) {
+                return AUTH_ERROR_MSG;
             }
 
-            switch (e.status) {
-                case 401:
-                case 403:
-                    // If we failed to authenticate for some reason return a nicer
-                    // error message.
-                    return AUTH_ERROR_MSG;
-                default:
-                    return message + ':' + e.data.detail;
-            }
+            // If there is nothing in the server message use the HTTP response status.
+            var errorMessage = e.data.detail || e.status + ' ' + e.statusText;
+            return message + ': ' + errorMessage;
         }
     };
 }]);
