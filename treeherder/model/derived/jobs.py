@@ -779,28 +779,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return lookup
 
-    def _create_missing_resultsets(self, resultset_lookup, all_revisions):
-        """Create any missing resultsets and update the revision_lookup"""
-
-        # revision_lookup here will have both short and long revisions,
-        # so this list will filter properly, whether entries in all_revisions
-        # are long or short.
-        missing_revisions = [r for r in all_revisions if r not in resultset_lookup]
-
-        if missing_revisions:
-            result_sets = []
-            for new_rev in missing_revisions:
-                result_sets.append({
-                    "revision": new_rev,
-                    "push_timestamp": 0,
-                    "author": "pending...",
-                    "revisions": []
-                })
-            self.store_result_set_data(result_sets)
-
-            new_lookup = self.get_resultset_top_revision_lookup(missing_revisions)
-            resultset_lookup.update(new_lookup)
-
     def get_result_set_list(
             self, offset_id, limit, full=True, conditions=None):
         """
@@ -1055,7 +1033,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                             "revision_hash": datum["revision_hash"]
                         }
                     )
-                    revision = self._get_revision_from_revision_hash(datum["revision_hash"])
+                    revision = self.get_revision_from_revision_hash(datum["revision_hash"])
 
                 # json object can be successfully deserialized
                 # load reference data
@@ -1090,7 +1068,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 continue
 
         rs_lookup = self.get_resultset_all_revision_lookup(unique_revisions)
-        self._create_missing_resultsets(rs_lookup, unique_revisions)
         # this will be keyed ONLY by long_revision, at this point.
         # Add the resultsets keyed by short_revision in case the job came in
         # with a short revision.
@@ -1225,7 +1202,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return new_data
 
-    def _get_revision_from_revision_hash(self, revision_hash):
+    def get_revision_from_revision_hash(self, revision_hash):
         """
         Find a revision based on a revision_hash, if possible
 

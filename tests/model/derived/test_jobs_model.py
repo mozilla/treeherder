@@ -82,102 +82,6 @@ def test_ingest_twice_log_parsing_status_changed(jm, sample_data,
         job_log.status == JobLog.FAILED
 
 
-@pytest.mark.parametrize("total_resultset_count", [3, 10])
-def test_missing_resultsets(jm, sample_data, sample_resultset, test_repository,
-                            mock_log_parser, total_resultset_count):
-    """
-    Ingest some sample jobs, some of which will be missing a resultset.
-
-    When a resultset is missing, it should create a skeleton.  Then have it
-    fill in the values by the normal resultset mechanism.
-    """
-
-    job_data = sample_data.job_data[:total_resultset_count]
-    resultsets_to_store_after = sample_resultset[:3]
-    missing_revisions = [r["revision"] for r in resultsets_to_store_after]
-
-    if total_resultset_count > len(missing_revisions):
-        # if this is true, then some of the resultsets will get updates,
-        # and some won't, otherwise we want to have some other resultsets
-        # pre-loaded before the test.
-        resultsets_to_store_before = sample_resultset[3:total_resultset_count]
-        jm.store_result_set_data(resultsets_to_store_before)
-
-    for idx, rev in enumerate(missing_revisions):
-        job_data[idx]["revision"] = rev
-
-    jm.store_job_data(job_data)
-
-    assert len(jm.get_job_list(0, 20)) == total_resultset_count
-    test_utils.verify_result_sets(jm, set(missing_revisions))
-
-    result_set_skeletons = jm.get_dhub().execute(
-        proc='jobs_test.selects.result_sets',
-        return_type='dict',
-        key_column="long_revision",
-    )
-    for rev in missing_revisions:
-        resultset = result_set_skeletons[rev]
-        assert resultset["short_revision"] == rev[:12]
-        assert resultset["author"] == "pending..."
-        assert resultset["push_timestamp"] == 0
-
-    jm.store_result_set_data(resultsets_to_store_after)
-
-    # get the resultsets that were created as skeletons and should have now been
-    # filled-in by the async task
-    updated_resultsets = jm.get_result_set_list(
-        0, len(missing_revisions),
-        conditions={"long_revision": {("IN", tuple(missing_revisions))}}
-    )
-
-    assert len(updated_resultsets) == len(missing_revisions)
-    for rs in updated_resultsets:
-        assert rs["push_timestamp"] > 0
-        assert len(rs["revisions"]) > 0
-    act_revisions = {x["revision"] for x in updated_resultsets}
-    assert set(missing_revisions).issubset(act_revisions)
-
-
-def test_missing_resultsets_short_revision(
-        jm, sample_data, sample_resultset,
-        test_repository, mock_log_parser):
-    """
-    Ingest a sample job with a short revision.
-
-    Should create an skeleton resultset that fills in and gets the long
-    revision
-    """
-    job_data = sample_data.job_data[:1]
-
-    resultsets_to_store = sample_resultset[:1]
-    missing_long_revision = resultsets_to_store[0]["revision"]
-    missing_short_revision = missing_long_revision[:12]
-
-    job_data[0]["revision"] = missing_short_revision
-
-    jm.store_job_data(job_data)
-
-    assert len(jm.get_job_list(0, 20)) == 1
-    test_utils.verify_result_sets(jm, {missing_short_revision})
-
-    jm.store_result_set_data(resultsets_to_store)
-
-    # get the resultsets that were created as skeletons and should have now been
-    # filled-in by the async task
-    updated_resultsets = jm.get_result_set_list(
-        0, 2,
-        conditions={"short_revision": {("=", missing_short_revision)}}
-    )
-
-    assert len(updated_resultsets) == 1
-    for rs in updated_resultsets:
-        assert rs["push_timestamp"] > 0
-        assert len(rs["revisions"]) > 0
-    act_revisions = {x["revision"] for x in updated_resultsets}
-    assert {missing_long_revision} == act_revisions
-
-
 def test_get_inserted_row_ids(jm, sample_resultset, test_repository):
 
     slice_limit = 8
@@ -741,7 +645,10 @@ def test_remove_existing_jobs_one_existing_one_new(jm, sample_data,
 
 
 def test_new_job_in_exclusion_profile(jm, sample_data, sample_resultset, mock_log_parser,
-                                      test_sheriff, test_project):
+                                      test_sheriff, test_project, result_set_stored):
+    for job in sample_data.job_data[:2]:
+        job["revision"] = result_set_stored[0]["revision"]
+
     job = sample_data.job_data[1]
     platform = job["job"]["machine_platform"]["platform"]
     arch = job["job"]["machine_platform"]["architecture"]
