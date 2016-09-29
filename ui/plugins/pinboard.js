@@ -84,6 +84,12 @@ treeherder.controller('PinboardCtrl', [
 
         $scope.save = function() {
             var errorFree = true;
+            if ($scope.enteringBugNumber) {
+                // we should save this for the user, as they likely
+                // just forgot to hit enter. Returns false if invalid
+                thNotify.send("Please enter a valid bug number", "danger");
+                errorFree = $scope.saveEnteredBugNumber();
+            }
             if (!$scope.canSaveClassifications()) {
                 thNotify.send("Please classify this failure before saving", "danger");
                 errorFree = false;
@@ -93,11 +99,6 @@ treeherder.controller('PinboardCtrl', [
                 errorFree = false;
             }
             if (errorFree) {
-                if ($scope.enteringBugNumber) {
-                    // we should save this for the user, as they likely
-                    // just forgot to hit enter.
-                    $scope.saveEnteredBugNumber();
-                }
                 $scope.classification.who = $scope.user.email;
                 var classification = $scope.classification;
                 thPinboard.save(classification);
@@ -158,15 +159,16 @@ treeherder.controller('PinboardCtrl', [
 
         $scope.canSaveClassifications = function() {
             var thisClass = $scope.classification;
-            return $scope.hasPinnedJobs() && (thPinboard.hasRelatedBugs() && $scope.user.loggedin ||
-                   thisClass.failure_classification_id !== 4 && thisClass.failure_classification_id !== 2 ||
+            return $scope.hasPinnedJobs() && $scope.user.loggedin &&
+                   (thPinboard.hasRelatedBugs() ||
+                   (thisClass.failure_classification_id !== 4 && thisClass.failure_classification_id !== 2) ||
                    $rootScope.currentRepo.repository_group.name === "try" ||
                    $rootScope.currentRepo.repository_group.name === "project repositories" ||
                    (thisClass.failure_classification_id === 4 && thisClass.text.length > 0) ||
                    (thisClass.failure_classification_id === 2 && thisClass.text.length > 7));
         };
 
-        // Dyanmic btn/anchor title for classification save
+        // Dynamic btn/anchor title for classification save
         $scope.saveUITitle = function(category) {
             var title = "";
 
@@ -249,10 +251,16 @@ treeherder.controller('PinboardCtrl', [
                 if (!$scope.newEnteredBugNumber) {
                     $scope.toggleEnterBugNumber(false);
                 } else {
-                    $log.debug("new bug number to be saved: ",
-                               $scope.newEnteredBugNumber);
-                    thPinboard.addBug({id:$scope.newEnteredBugNumber});
-                    $scope.toggleEnterBugNumber(false);
+                    var num = parseInt($scope.newEnteredBugNumber);
+                    if (num == $scope.newEnteredBugNumber && num > 0) {
+                        $log.debug("new bug number to be saved: ",
+                                   $scope.newEnteredBugNumber);
+                        thPinboard.addBug({id:$scope.newEnteredBugNumber});
+                        $scope.toggleEnterBugNumber(false);
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
             }
         };
