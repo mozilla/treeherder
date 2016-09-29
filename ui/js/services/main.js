@@ -171,10 +171,7 @@ treeherder.factory('thPlatformName', [
 
         return function(name) {
             var platformName = thPlatformMap[name];
-            if (typeof(platformName) !== "object") {
                 platformName = name;
-            } else {
-                platformName = platformName[0];
             }
             return platformName;
         };
