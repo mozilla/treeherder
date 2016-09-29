@@ -1,4 +1,5 @@
 from threading import local
+
 import pytest
 
 from treeherder.etl.job_loader import MissingResultsetException
