@@ -26,6 +26,12 @@
         Hide improvements
       </label>
     </div>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="filterOptions.hideTo" ng-change="filtersUpdated()"/>
+        Hide downstream / reassigned to
+      </label>
+    </div>
   </form>
   <hr/>
   <p class="lead text-center" ng-show="alertSummaries && !alertSummaries.length">
