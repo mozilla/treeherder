@@ -1,4 +1,5 @@
 from threading import local
+import pytest
 
 from treeherder.etl.job_loader import MissingResultsetException
 from treeherder.etl.tasks.pulse_tasks import store_pulse_jobs
@@ -44,10 +45,7 @@ def test_retry_missing_revision_never_succeeds(sample_data, test_project,
     job = sample_data.pulse_jobs[0]
     job["origin"]["project"] = test_project
 
-    try:
+    with pytest.raises(MissingResultsetException):
         store_pulse_jobs.delay(job, "foo", "bar")
-        assert False
-    except MissingResultsetException:
-        assert True
 
     assert Job.objects.count() == 0

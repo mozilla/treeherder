@@ -99,9 +99,7 @@ def test_ingest_pulse_jobs_with_revision_hash(pulse_jobs, test_project, jm,
     assert Job.objects.count() == 4
 
 
-def test_ingest_pulse_jobs_with_missing_resultset(pulse_jobs, test_project, jm,
-                                                  result_set_stored,
-                                                  mock_log_parser):
+def test_ingest_pulse_jobs_with_missing_resultset(pulse_jobs):
     """
     Ingest jobs with missing resultsets, so they should throw an exception
     """
@@ -110,11 +108,8 @@ def test_ingest_pulse_jobs_with_missing_resultset(pulse_jobs, test_project, jm,
     job = pulse_jobs[0]
     job["origin"]["revision"] = "1234567890123456789012345678901234567890"
 
-    try:
+    with pytest.raises(MissingResultsetException):
         jl.process_job_list(pulse_jobs)
-        assert False
-    except MissingResultsetException:
-        assert True
 
     # if one job isn't ready, except on the whole batch.  They'll retry as a
     # task after the timeout.
