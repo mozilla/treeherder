@@ -305,6 +305,7 @@ treeherder.factory('PhCompare', [
                     return trendMap; // No data for either side
 
                 trendMap.isEmpty = false;
+                trendMap.name = baseData.name;
 
                 // Compare the sides
                 trendMap.delta = (newData.delta - baseData.delta);
