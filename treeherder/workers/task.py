@@ -48,7 +48,11 @@ class retryable_task(object):
                 params = {
                     "number_of_prior_retries": number_of_prior_retries,
                 }
-                newrelic.agent.record_exception(params=params)
+                if "silent_exceptions" in kwargs and e.__class__ in kwargs["silent_exceptions"]:
+                    pass # don't log the exception in new relic
+                else:
+                    newrelic.agent.record_exception(params=params)
+
                 # Implement exponential backoff with some randomness to prevent
                 # thundering herd type problems. Constant factor chosen so we get
                 # reasonable pause between the fastest retries.

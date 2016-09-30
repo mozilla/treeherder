@@ -23,11 +23,11 @@ def test_retry_missing_revision_succeeds(sample_data, sample_resultset,
 
     orig_retry = store_pulse_jobs.retry
 
-    def retry_mock(exc):
+    def retry_mock(exc=None, countdown=None):
         assert isinstance(exc, MissingResultsetException)
         thread_data.retries += 1
         jm.store_result_set_data([rs])
-        orig_retry()
+        orig_retry(exc=exc, countdown=countdown)
 
     monkeypatch.setattr(store_pulse_jobs, "retry", retry_mock)
     store_pulse_jobs.delay(job, "foo", "bar")
