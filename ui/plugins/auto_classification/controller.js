@@ -821,7 +821,7 @@ treeherder.controller('ClassificationPluginCtrl', [
 
         thTabs.tabs.autoClassification.update = function() {
             if (reloadPromise !== null) {
-                reloadPromise.cancel();
+                $timeout.cancel(reloadPromise);
             }
             $scope.jobId = thTabs.tabs.autoClassification.contentId;
 
@@ -839,10 +839,12 @@ treeherder.controller('ClassificationPluginCtrl', [
 
             // If we have a TextLogSummaryModel then we should have enough data to
             // load this panel
-            var checkLoaded = ThTextLogSummaryModel.get($scope.jobId,
-                                                        {timeout: requestPromise,
-                                                         cache: true});
-            checkLoaded
+            ThTextLogSummaryModel
+                .get($scope.jobId,
+                     {timeout: requestPromise,
+                      cache: true})
+                .then(() => true)
+                .catch(() => false)
                 .then(function(loaded) {
                     if (!loaded) {
                         reloadPromise = $timeout(thTabs.tabs.autoClassification.update, 5000);
