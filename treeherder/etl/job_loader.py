@@ -45,6 +45,7 @@ class JobLoader:
         validated_jobs = self._get_validated_jobs_by_project(all_jobs_list)
 
         for project, job_list in validated_jobs.items():
+            newrelic.agent.add_custom_parameter("project", project)
             with JobsModel(project) as jobs_model:
                 storeable_job_list = []
                 for pulse_job in job_list:
