@@ -17,7 +17,7 @@ treeherder.component('phCompareTable', {
         filterByFramework: '@',
         releaseBlockerCriteria: '@'
     },
-    controller: function() {
+    controller: function($element, $attrs) {
         var ctrl = this;
 
         if (!ctrl.baseTitle) {
@@ -49,8 +49,10 @@ treeherder.component('phCompareTable', {
                 return results;
             }
             return _.filter(results, function(result) {
-                var testCondition = key + ' ' + result.name;
+                var testCondition = `${key} ${($attrs.type === 'trend') ? result.trendResult.name : result.name}`;
                 return _.every(ctrl.filterOptions.filter.split(' '), function(matchText) {
+                    if ($attrs.type === 'trend')
+                        return filter(testCondition, matchText) && shouldBeShown(result.trendResult);
                     return filter(testCondition, matchText) && shouldBeShown(result);
                 });
             });
