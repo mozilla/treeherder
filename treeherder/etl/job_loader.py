@@ -7,6 +7,8 @@ import newrelic.agent
 from treeherder.etl.common import to_timestamp
 from treeherder.etl.schema import job_json_schema
 from treeherder.model.derived.jobs import JobsModel
+from treeherder.model.derived import DatasetNotFoundError
+
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +61,10 @@ class JobLoader:
                             logger.warn("Skipping job due to bad attribute",
                                         exc_info=1)
 
-                jobs_model.store_job_data(storeable_job_list)
+                try:
+                    jobs_model.store_job_data(storeable_job_list)
+                except(DatasetNotFoundError):
+                    logger.warn("Job with unsupported project: {}".format(project))
 
     def clean_revision(self, pulse_job, jobs_model):
         # It is possible there will be either a revision or a revision_hash

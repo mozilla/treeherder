@@ -1,5 +1,6 @@
 from threading import local
-
+from celery.app.task import Task
+from celery.app.amqp import TaskProducer, TaskPublisher
 import pytest
 
 from treeherder.etl.job_loader import MissingResultsetException
@@ -29,7 +30,7 @@ def test_retry_missing_revision_succeeds(sample_data, sample_resultset,
         jm.store_result_set_data([rs])
         orig_retry(exc=exc, countdown=countdown)
 
-    monkeypatch.setattr(store_pulse_jobs, "retry", retry_mock)
+    monkeypatch.setattr(TaskProducer, "retry", retry_mock)
     store_pulse_jobs.delay(job, "foo", "bar")
 
     assert Job.objects.count() == 1
