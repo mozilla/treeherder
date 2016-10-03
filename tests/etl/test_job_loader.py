@@ -81,7 +81,7 @@ def test_ingest_pulse_jobs(pulse_jobs, test_project, jm, result_set_stored,
 
 
 def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_project, jm, result_set_stored,
-                           mock_log_parser):
+                                       mock_log_parser):
     """
     Ingest a job through the JSON Schema validated JobLoader used by Pulse
     """
@@ -94,7 +94,6 @@ def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_project, jm, result_set_
 
     with pytest.raises(DatasetNotFoundError):
         jl.process_job_list(pulse_jobs)
-
 
 
 def test_ingest_pulse_jobs_with_revision_hash(pulse_jobs, test_project, jm,

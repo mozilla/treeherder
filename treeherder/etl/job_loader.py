@@ -319,5 +319,5 @@ class JobLoader:
         return validated_jobs
 
 
-class MissingResultsetException(BaseException):
+class MissingResultsetException(Exception):
     pass

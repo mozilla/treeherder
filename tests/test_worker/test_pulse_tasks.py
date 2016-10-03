@@ -1,12 +1,14 @@
 from threading import local
-from celery.app.task import Task
-from celery.app.amqp import TaskProducer, TaskPublisher
+from celery.app.task import Task, TaskType, BaseTask
 import pytest
+from treeherder.workers.task import retryable_task
 
-from treeherder.etl.job_loader import MissingResultsetException
 from treeherder.etl.tasks.pulse_tasks import store_pulse_jobs
 from treeherder.model.models import Job
+from functools import wraps
 
+from treeherder.etl.job_loader import (JobLoader,
+                                       MissingResultsetException)
 
 def test_retry_missing_revision_succeeds(sample_data, sample_resultset,
                                          test_project, jm, mock_log_parser,
@@ -28,10 +30,10 @@ def test_retry_missing_revision_succeeds(sample_data, sample_resultset,
         assert isinstance(exc, MissingResultsetException)
         thread_data.retries += 1
         jm.store_result_set_data([rs])
-        orig_retry(exc=exc, countdown=countdown)
+        return orig_retry(exc=exc, countdown=countdown)
 
-    monkeypatch.setattr(TaskProducer, "retry", retry_mock)
-    store_pulse_jobs.delay(job, "foo", "bar")
+    monkeypatch.setattr(store_pulse_jobs, "retry", retry_mock)
+    store_pulse_jobs.delay(job, "foo", "bar").wait()
 
     assert Job.objects.count() == 1
     assert Job.objects.values()[0]["guid"] == job["taskId"]
