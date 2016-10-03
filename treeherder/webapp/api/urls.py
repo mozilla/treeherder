@@ -18,6 +18,7 @@ from treeherder.webapp.api import (artifact,
                                    refdata,
                                    resultset,
                                    runnable_jobs,
+                                   seta,
                                    text_log_summary,
                                    text_log_summary_line)
 
@@ -35,6 +36,12 @@ project_bound_router.register(
     r'runnable_jobs',
     runnable_jobs.RunnableJobsViewSet,
     base_name='runnable_jobs',
+)
+
+project_bound_router.register(
+    r'seta/v1/job-priorities',
+    seta.SetaJobPriorityViewSet,
+    base_name='seta-job-priorities'
 )
 
 project_bound_router.register(

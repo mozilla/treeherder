@@ -15,6 +15,7 @@ urlpatterns = [
    url(r'^admin/', include(admin.site.urls)),
    url(r'^docs/', include('rest_framework_swagger.urls')),
    url(r'^credentials/', include(credentials_patterns)),
+   url(r'', include('django_browserid.urls')),
 ]
 
 if settings.DEBUG:
