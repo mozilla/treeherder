@@ -1,14 +1,11 @@
 from threading import local
-from celery.app.task import Task, TaskType, BaseTask
-import pytest
-from treeherder.workers.task import retryable_task
 
+import pytest
+
+from treeherder.etl.job_loader import MissingResultsetException
 from treeherder.etl.tasks.pulse_tasks import store_pulse_jobs
 from treeherder.model.models import Job
-from functools import wraps
 
-from treeherder.etl.job_loader import (JobLoader,
-                                       MissingResultsetException)
 
 def test_retry_missing_revision_succeeds(sample_data, sample_resultset,
                                          test_project, jm, mock_log_parser,

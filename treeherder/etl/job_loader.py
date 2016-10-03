@@ -6,9 +6,8 @@ import newrelic.agent
 
 from treeherder.etl.common import to_timestamp
 from treeherder.etl.schema import job_json_schema
-from treeherder.model.derived.jobs import JobsModel
 from treeherder.model.derived import DatasetNotFoundError
-
+from treeherder.model.derived.jobs import JobsModel
 
 logger = logging.getLogger(__name__)
 
