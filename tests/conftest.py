@@ -279,9 +279,9 @@ def eleven_jobs_stored(jm, failure_classifications, eleven_job_blobs):
 def test_job_with_notes(test_job, test_user):
     """test job with job notes."""
 
-    for fcid in [2, 3]:
+    for failure_classification_id in [2, 3]:
         JobNote.objects.create(job=test_job,
-                               failure_classification_id=fcid,
+                               failure_classification_id=failure_classification_id,
                                user=test_user,
                                text="you look like a man-o-lantern")
 
