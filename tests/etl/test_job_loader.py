@@ -4,6 +4,7 @@ import pytest
 
 from treeherder.etl.job_loader import (JobLoader,
                                        MissingResultsetException)
+from treeherder.model.derived import DatasetNotFoundError
 from treeherder.model.derived.artifacts import ArtifactsModel
 from treeherder.model.models import (Job,
                                      JobDetail,
@@ -77,6 +78,22 @@ def test_ingest_pulse_jobs(pulse_jobs, test_project, jm, result_set_stored,
         assert len(artifacts) == 2
 
     assert JobDetail.objects.count() == 2
+
+
+def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_project, jm, result_set_stored,
+                                       mock_log_parser):
+    """
+    Ingest a job through the JSON Schema validated JobLoader used by Pulse
+    """
+
+    jl = JobLoader()
+    revision = result_set_stored[0]["revision"]
+    for job in pulse_jobs:
+        job["origin"]["revision"] = revision
+        job["origin"]["project"] = "ferd"
+
+    with pytest.raises(DatasetNotFoundError):
+        jl.process_job_list(pulse_jobs)
 
 
 def test_ingest_pulse_jobs_with_revision_hash(pulse_jobs, test_project, jm,
