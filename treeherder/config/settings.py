@@ -60,6 +60,13 @@ PERFHERDER_ALERTS_FORE_WINDOW = 12
 # Only generate alerts for data newer than this time in seconds in perfherder
 PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)
 
+# SETA configuration
+SETA_HIGH_VALUE_PRIORITY = 1
+SETA_HIGH_VALUE_TIMEOUT = 0
+SETA_LOW_VALUE_PRIORITY = 5
+SETA_LOW_VALUE_TIMEOUT = 5400
+
+
 # Create hashed+gzipped versions of assets during collectstatic,
 # which will then be served by WhiteNoise with a suitable max-age.
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -141,6 +148,7 @@ INSTALLED_APPS = [
     'treeherder.perf',
     'treeherder.autoclassify',
     'treeherder.credentials',
+    'treeherder.seta',
 ]
 
 if ENABLE_DEBUG_TOOLBAR:
@@ -249,6 +257,7 @@ CELERY_QUEUES = [
     Queue('generate_perf_alerts', Exchange('default'), routing_key='generate_perf_alerts'),
     Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs'),
     Queue('store_pulse_resultsets', Exchange('default'), routing_key='store_pulse_resultsets'),
+    Queue('seta_analyze_failures', Exchange('default'), routing_key='seta_analyze_failures'),
 ]
 
 CELERY_ACCEPT_CONTENT = ['json']
@@ -324,7 +333,15 @@ CELERYBEAT_SCHEDULE = {
         'options': {
             'queue': 'fetch_bugs'
         }
-    }
+    },
+    'seta-analyze-failures': {
+        'task': 'seta-analyze-failures',
+        'schedule': timedelta(days=1),
+        'relative': True,
+        'options': {
+            'queue': "seta_analyze_failures"
+        }
+    },
 }
 
 # rest-framework settings
