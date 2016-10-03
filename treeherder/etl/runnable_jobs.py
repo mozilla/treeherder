@@ -50,7 +50,7 @@ class RunnableJobsProcess(AllthethingsTransformerMixin):
         sha_hash.update(''.join(options))
         return sha_hash.hexdigest()
 
-    def load(self, jobs_per_branch):
+    def update_runnable_jobs_table(self, jobs_per_branch):
         active_repositories = Repository.objects.all().filter(
             active_status='active')
 
