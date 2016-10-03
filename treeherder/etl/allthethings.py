@@ -48,7 +48,7 @@ class RunnableJobsProcess(AllthethingsTransformerMixin):
         sha_hash.update(''.join(options))
         return sha_hash.hexdigest()
 
-    def load(self, jobs_per_branch):
+    def update_runnable_jobs_table(self, jobs_per_branch):
         active_repositories = Repository.objects.all().filter(
             active_status='active')
 
@@ -108,6 +108,8 @@ class RunnableJobsProcess(AllthethingsTransformerMixin):
         RunnableJob.objects.filter(last_touched__lt=now).delete()
 
     def run(self):
+        logger.info('Fetching allthethings.json')
         all_the_things = fetch_json(settings.ALLTHETHINGS_URL)
         jobs_per_branch = self.transform(all_the_things)
-        self.load(jobs_per_branch)
+        logger.info('Updating runnable jobs table with transformed allthethings.json data.')
+        self.update_runnable_jobs_table(jobs_per_branch)

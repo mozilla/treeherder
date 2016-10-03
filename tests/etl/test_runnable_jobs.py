@@ -24,7 +24,7 @@ def test_prune_old_runnable_job(jm, eleven_jobs_stored):
 
     buildername = "Android 4.2 x86 Emulator larch opt test androidx86-set-4"
     sym_plat = get_symbols_and_platforms(buildername)
-    etl_process.load({jm.project: [sym_plat]})
+    etl_process.update_runnable_jobs_table({jm.project: [sym_plat]})
     rj = RunnableJob.objects.all()
     assert len(rj) == 1
 

@@ -171,16 +171,6 @@ class JobsViewSet(viewsets.ViewSet):
     _option_collection_hash_idx = [pq[0] for pq in _property_query_mapping].index(
         'option_collection_hash')
 
-    def _get_option_collection_map(self):
-        option_collection_map = {}
-        for (hash, option_name) in OptionCollection.objects.values_list(
-                'option_collection_hash', 'option__name'):
-            if not option_collection_map.get(hash):
-                option_collection_map[hash] = option_name
-            else:
-                option_collection_map[hash] += (' ' + option_name)
-        return option_collection_map
-
     def _get_job_list_response(self, job_qs, offset, count, return_type):
         '''
         custom method to serialize + format jobs information
@@ -189,7 +179,7 @@ class JobsViewSet(viewsets.ViewSet):
         the django rest framework serializer or whatever) as
         this function is often in the critical path
         '''
-        option_collection_map = self._get_option_collection_map()
+        option_collection_map = OptionCollection.objects.get_option_collection_map()
         results = []
         for values in job_qs[offset:(offset+count)].values_list(
                 *[pq[1] for pq in self._property_query_mapping]):
@@ -245,10 +235,9 @@ class JobsViewSet(viewsets.ViewSet):
                 'name', 'url'):
             resp["logs"].append({'name': name, 'url': url})
 
-        option_hash = job.option_collection_hash
-        if option_hash:
-            option_collection_map = self._get_option_collection_map()
-            resp["platform_option"] = option_collection_map[option_hash]
+        platform_option = job.get_platform_option()
+        if platform_option:
+            resp["platform_option"] = platform_option
 
         return Response(resp)
 
