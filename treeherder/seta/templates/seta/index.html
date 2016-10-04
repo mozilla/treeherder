@@ -1,0 +1,48 @@
+{% load static %}
+
+<html>
+<head>
+<title>
+SETA - Search for Extraneous Test Automation
+</title>
+<style>
+.annotated a{
+  background-image: none !important;
+  color: Black !important;
+  font-weight: bold !important;
+  font-size: 14pt;
+}
+</style>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+<script src="http://underscorejs.org/underscore-min.js"></script>
+<!--
+<script src="{% static 'seta/seta.js' %}"></script>
+-->
+</head>
+<body>
+<h1>SETA - Search for Extraneous Test Automation</h1>
+<p>
+<h3>
+Every day our test automation finds failures!  Do we need all 400+ desktop unittest jobs for every push?<p>
+Right now we skip many jobs due to coalescing, SETA aims to do this in a smarter way.<p>
+With some analysis of historical data we can find the minimal set of jobs required to run in order for us to catch every single failure!<p>
+</h3>
+<p>
+<a href="http://seta-dev.herokuapp.com/data/seta/">Raw Data</a><br />
+<a href="https://github.com/dminor/ouija">Source Code</a><br />
+<p>
+While it is true that past performance is not an indicator of future performance, we can use historical data to make smarter decisions.<p>
+We will eventually require new jobs to catch some new failures.<p>
+<div id="New Jobs"></div>
+<p></p>
+<input type="submit" value="Show all Jobs" id="toggle" />
+<div id="datedesc">Date</div>
+<div id="setatable">
+  <table id="seta" border="0"></table>
+</div><br />
+<div id="jobs_number"><div>
+</body>
+</html>
