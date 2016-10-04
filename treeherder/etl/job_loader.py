@@ -76,7 +76,9 @@ class JobLoader:
             # retry till it DOES exist.
             if not jobs_model.get_resultset_top_revision_lookup([revision]):
                 raise MissingResultsetException(
-                    "No resultset found for revision {}".format(revision))
+                    "No resultset found in {} for revision {}".format(
+                        pulse_job["origin"]["project"],
+                        revision))
 
         else:
             # This will also raise a ValueError if the resultset for the
