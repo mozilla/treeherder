@@ -4,7 +4,8 @@ import pytest
 
 from treeherder.etl.job_loader import (JobLoader,
                                        MissingResultsetException)
-from treeherder.model.derived import DatasetNotFoundError, JobsModel
+from treeherder.model.derived import (DatasetNotFoundError,
+                                      JobsModel)
 from treeherder.model.derived.artifacts import ArtifactsModel
 from treeherder.model.models import (Job,
                                      JobDetail,
