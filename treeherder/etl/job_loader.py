@@ -59,11 +59,10 @@ class JobLoader:
                         except AttributeError:
                             logger.warn("Skipping job due to bad attribute",
                                         exc_info=1)
+                        except DatasetNotFoundError:
+                            logger.warn("Job with unsupported project: {}".format(project))
 
-                try:
-                    jobs_model.store_job_data(storeable_job_list)
-                except DatasetNotFoundError:
-                    logger.warn("Job with unsupported project: {}".format(project))
+                jobs_model.store_job_data(storeable_job_list)
 
     def clean_revision(self, pulse_job, jobs_model):
         # It is possible there will be either a revision or a revision_hash
