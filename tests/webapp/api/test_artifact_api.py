@@ -7,6 +7,7 @@ from treeherder.client.thclient import client
 from treeherder.model.derived import (ArtifactsModel,
                                       JobsModel)
 
+pytestmark = pytest.mark.skip(reason='Maintenance mode')
 xfail = pytest.mark.xfail
 
 

@@ -1,8 +1,11 @@
 import json
 
+import pytest
 import responses
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
+
+pytestmark = pytest.mark.skip(reason='Maintenance mode')
 
 
 def test_create_bug(webapp, eleven_jobs_stored, activate_responses, test_user):

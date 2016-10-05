@@ -7,6 +7,8 @@ from rest_framework.test import APIClient
 from treeherder.model.models import (Job,
                                      JobNote)
 
+pytestmark = pytest.mark.skip(reason='Maintenance mode')
+
 
 def test_note_list(webapp, sample_notes, jm, test_user):
     """

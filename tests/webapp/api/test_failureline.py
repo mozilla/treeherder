@@ -1,5 +1,6 @@
 import json
 
+import pytest
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
@@ -14,6 +15,8 @@ from treeherder.model.models import (BugJobMap,
                                      Matcher,
                                      MatcherManager)
 from treeherder.model.search import TestFailureLine
+
+pytestmark = pytest.mark.skip(reason='Maintenance mode')
 
 
 def test_get_failure_line(webapp, eleven_jobs_stored, jm, failure_lines):

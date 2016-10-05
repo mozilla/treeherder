@@ -16,6 +16,8 @@ from treeherder.model.models import (Job,
                                      TextLogError,
                                      TextLogStep)
 
+pytestmark = pytest.mark.skip(reason='Maintenance mode')
+
 
 @pytest.fixture
 def text_log_summary_dict():

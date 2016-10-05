@@ -1,4 +1,3 @@
-import random
 import zlib
 from functools import wraps
 
@@ -49,10 +48,8 @@ class retryable_task(object):
                     "number_of_prior_retries": number_of_prior_retries,
                 }
                 newrelic.agent.record_exception(params=params)
-                # Implement exponential backoff with some randomness to prevent
-                # thundering herd type problems. Constant factor chosen so we get
-                # reasonable pause between the fastest retries.
-                timeout = 10 * int(random.uniform(1.9, 2.1) ** number_of_prior_retries)
+                # Retry after 5 seconds, so we can empty the queues faster.
+                timeout = 5
                 raise task_func.retry(exc=e, countdown=timeout)
 
         task_func = task(*self.task_args, **self.task_kwargs)(inner)
