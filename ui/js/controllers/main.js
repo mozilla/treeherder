@@ -1,26 +1,62 @@
 "use strict";
 
 treeherderApp.controller('MainCtrl', [
-    '$scope', '$rootScope', '$routeParams', '$location', '$timeout',
+    '$scope', '$rootScope', '$routeParams', '$location', '$timeout', '$q',
     'ThLog', 'ThRepositoryModel', 'thPinboard', 'thTabs', '$document',
-    'thClassificationTypes', 'thEvents', '$interval', '$window',
+    'thClassificationTypes', 'thEvents', '$interval', '$window', 'thNotify',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
-    'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit',
+    'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit', '$http',
     function MainController(
-        $scope, $rootScope, $routeParams, $location, $timeout,
+        $scope, $rootScope, $routeParams, $location, $timeout, $q,
         ThLog, ThRepositoryModel, thPinboard, thTabs, $document,
-        thClassificationTypes, thEvents, $interval, $window,
+        thClassificationTypes, thEvents, $interval, $window, thNotify,
         ThExclusionProfileModel, thJobFilters, ThResultSetStore,
-        thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit) {
+        thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit, $http) {
         var $log = new ThLog("MainCtrl");
 
         // Query String param for selected job
         var QS_SELECTED_JOB = "selectedJob";
 
+        //var revisionPollInterval = 60000 * 5;
+        var revisionPollInterval = 15000;
+
         // Ensure user is available on initial page load
         $rootScope.user = {};
 
         thClassificationTypes.load();
+
+        $rootScope.checkServerRevision = function() {
+            return $q(function(resolve, reject) {
+                $http({
+                    method: 'GET',
+                    url: '/revision.txt'
+                }).then(function successCallback(response) {
+                    resolve(response.data);
+                }, function errorCallback(response) {
+                    reject("Error loading revision.txt: " + response.statusText);
+                });
+            });
+        };
+
+        if(_.isUndefined($rootScope.serverRev)) {
+            $rootScope.checkServerRevision().then(function(revision) {
+                $rootScope.serverRev = revision;
+            }, function(reason) {
+                $log.log(reason);
+            });
+        }
+
+        $interval(function() {
+            $rootScope.checkServerRevision().then(function(revision) {
+                // This request returns the treeherder git revision running on the server
+                // If this differs from the version chosen during the UI page load, show a warning
+                // Update $rootScope.serverRev so this warning is only shown once per server-side change
+                if($rootScope.serverRev && $rootScope.serverRev !== revision) {
+                    thNotify.send("Treeherder has updated, please reload the page to pick up the changes", "warning", true);
+                    $rootScope.serverRev = revision;
+                }
+            });
+        }, revisionPollInterval);
 
         $rootScope.getWindowTitle = function() {
             var ufc = $scope.getUnclassifiedFailureCount($rootScope.repoName);
