@@ -2,10 +2,13 @@
 
 var treeherderApp = angular.module('treeherder.app',
                                    ['treeherder', 'ui.bootstrap', 'ngRoute',
-                                    'mc.resizer', 'angular-toArrayFilter']);
+                                    'mc.resizer', 'angular-toArrayFilter',
+                                    'ngCookies']);
 
-treeherderApp.config(function($compileProvider, $routeProvider,
-                              $httpProvider, $logProvider, $resourceProvider) {
+treeherderApp.config(['$compileProvider', '$routeProvider', '$httpProvider',
+                      '$logProvider', '$resourceProvider',
+                      function($compileProvider, $routeProvider, $httpProvider,
+                               $logProvider, $resourceProvider) {
     // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
     $compileProvider.debugInfoEnabled(false);
 
@@ -40,5 +43,10 @@ treeherderApp.config(function($compileProvider, $routeProvider,
             templateUrl: 'partials/main/jobs.html',
             reloadOnSearch: false
         }).
+        when('/login', {
+            // TODO: need a template here so we can show that we are trying to
+            // log in, in case it is slow (spinner) or "login failed".
+            resolve: {redirect: 'loginCallback'}
+        }).
         otherwise({redirectTo: '/jobs'});
-});
+}]);

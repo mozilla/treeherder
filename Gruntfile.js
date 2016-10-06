@@ -190,6 +190,10 @@ module.exports = function(grunt) {
                       nonull: true,
                       expand: true
                     },
+                    { src: 'ui/vendor/ngStorage.min.js',
+                      dest: 'dist/vendor/ngStorage.min.js',
+                      nonull: true
+                    },
                 ]
             },
             // Copy html in plugins, make sure not to flatten

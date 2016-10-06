@@ -20,7 +20,6 @@
         <link href="css/treeherder-resultsets.css" rel="stylesheet" media="screen">
         <link href="css/treeherder-pinboard.css" rel="stylesheet" media="screen">
         <link href="css/treeherder-bugfiler.css" rel="stylesheet" media="screen">
-        <link href="vendor/css/persona-buttons.css" rel="stylesheet" media="screen">
         <!-- endbuild -->
 
     </head>
@@ -66,21 +65,22 @@
         <script src="vendor/toArrayFilter.js"></script>
         <script src="vendor/ui-bootstrap-tpls-1.3.3.js"></script>
         <script src="vendor/bootstrap.js"></script>
-        <script src="vendor/angular-local-storage.min.js"></script>
         <script src="vendor/mousetrap.min.js"></script>
         <script src="vendor/jquery.scrollTo.js"></script>
         <script src="vendor/lodash.min.js"></script>
         <script src="vendor/resizer.js"></script>
+        <script src="vendor/hawk/browser.js"></script>
 
         <script src="js/treeherder.js"></script>
         <script src="js/treeherder_app.js"></script>
         <script src="js/services/log.js"></script>
         <script src="js/providers.js"></script>
         <script src="js/values.js"></script>
+        <!-- Components-->
+        <script src="js/components/auth.js"></script>
         <!-- Directives -->
         <script src="js/directives/treeherder/main.js"></script>
         <script src="js/directives/treeherder/clonejobs.js"></script>
-        <script src="js/directives/treeherder/persona.js"></script>
         <script src="js/directives/treeherder/resultsets.js"></script>
         <script src="js/directives/treeherder/top_nav_bar.js"></script>
         <script src="js/directives/treeherder/bottom_nav_panel.js"></script>
@@ -136,11 +136,11 @@
         <script src="js/filters.js"></script>
         <!-- endbuild -->
 
+        <script src="vendor/ngStorage.min.js"></script>
+
         <!-- build:dontbuild -->
         <script src="js/config/local.conf.js"></script>
         <!-- endbuild -->
-
-        <script src="https://login.persona.org/include.js"></script>
 
         <!-- Clone targets -->
 
