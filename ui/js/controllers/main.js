@@ -5,13 +5,13 @@ treeherderApp.controller('MainCtrl', [
     'ThLog', 'ThRepositoryModel', 'thPinboard', 'thTabs', '$document',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
-    'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit',
+    'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit', '$http',
     function MainController(
         $scope, $rootScope, $routeParams, $location, $timeout,
         ThLog, ThRepositoryModel, thPinboard, thTabs, $document,
         thClassificationTypes, thEvents, $interval, $window,
         ThExclusionProfileModel, thJobFilters, ThResultSetStore,
-        thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit) {
+        thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit, $http) {
         var $log = new ThLog("MainCtrl");
 
         // Query String param for selected job
@@ -21,6 +21,17 @@ treeherderApp.controller('MainCtrl', [
         $rootScope.user = {};
 
         thClassificationTypes.load();
+
+        if(_.isUndefined($rootScope.serverRev)) {
+            $http({
+                method: 'GET',
+                url: '/revision.txt'
+            }).then(function successCallback(response) {
+                $rootScope.serverRev = response.data;
+            }, function errorCallback(response) {
+                console.log("Error loading revision.txt: " + response.statusText);
+            });
+        }
 
         $rootScope.getWindowTitle = function() {
             var ufc = $scope.getUnclassifiedFailureCount($rootScope.repoName);

@@ -783,6 +783,13 @@ treeherder.factory('ThResultSetStore', [
         };
 
         var prependResultSets = function(repoName, data) {
+            // This request returns the treeherder git revision running on the server.
+            // If this differs from the version chosen during the UI page load, show a message.
+            if($rootScope.serverRev && $rootScope.serverRev !== data.meta.serverrev && _.isUndefined($rootScope.dismissedServerRev)) {
+                thNotify.send("Treeherder revision has changed, please reload the page", "warning", true);
+                $rootScope.dismissedServerRev = true;
+            }
+
             // prepend the resultsets because they'll be newer.
             var added = [];
             for (var i = data.results.length - 1; i > -1; i--) {

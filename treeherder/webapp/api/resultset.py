@@ -13,6 +13,7 @@ from treeherder.webapp.api import permissions
 from treeherder.webapp.api.utils import (UrlQueryFilter,
                                          to_timestamp,
                                          with_jobs)
+from git import Repo
 
 
 class ResultSetViewSet(viewsets.ViewSet):
@@ -108,6 +109,10 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         meta['count'] = len(results)
         meta['repository'] = project
+
+        repo = Repo()
+        git = repo.git
+        meta['serverrev'] =  git.rev_parse('HEAD')
 
         resp = {
             'meta': meta,
