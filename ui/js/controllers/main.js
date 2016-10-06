@@ -1,26 +1,80 @@
 "use strict";
 
 treeherderApp.controller('MainCtrl', [
-    '$scope', '$rootScope', '$routeParams', '$location', '$timeout',
+    '$scope', '$rootScope', '$routeParams', '$location', '$timeout', '$q',
     'ThLog', 'ThRepositoryModel', 'thPinboard', 'thTabs', '$document',
-    'thClassificationTypes', 'thEvents', '$interval', '$window',
+    'thClassificationTypes', 'thEvents', '$interval', '$window', 'thNotify',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
-    'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit',
+    'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit', '$http',
     function MainController(
-        $scope, $rootScope, $routeParams, $location, $timeout,
+        $scope, $rootScope, $routeParams, $location, $timeout, $q,
         ThLog, ThRepositoryModel, thPinboard, thTabs, $document,
-        thClassificationTypes, thEvents, $interval, $window,
+        thClassificationTypes, thEvents, $interval, $window, thNotify,
         ThExclusionProfileModel, thJobFilters, ThResultSetStore,
-        thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit) {
+        thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit, $http) {
         var $log = new ThLog("MainCtrl");
 
         // Query String param for selected job
         var QS_SELECTED_JOB = "selectedJob";
 
+        /*
+         *  revisionPollInterval: How often we check revision.txt for changes
+         *  revisionPollDelayedInterval: Aggressively notify about revision changes after this delay
+         */
+        var revisionPollInterval = 1000 * 60 * 5;
+        var revisionPollDelayedInterval = 1000 * 60 * 60;
+        $rootScope.serverChanged = false;
+        $rootScope.serverChangedDelayed = false;
+
         // Ensure user is available on initial page load
         $rootScope.user = {};
 
         thClassificationTypes.load();
+
+        var checkServerRevision = function() {
+            return $q(function(resolve, reject) {
+                $http({
+                    method: 'GET',
+                    url: '/revision.txt'
+                }).then(function successCallback(response) {
+                    resolve(response.data);
+                }, function errorCallback(response) {
+                    reject("Error loading revision.txt: " + response.statusText);
+                });
+            });
+        };
+
+        $scope.updateButtonClick = function() {
+            if (window.confirm("Reload the page to pick up Treeherder updates?")) {
+                window.location.reload(true);
+            }
+        };
+
+        // Only set up the revision polling interval if revision.txt exists on page load
+        checkServerRevision().then(function(revision) {
+            $rootScope.serverRev = revision;
+            $interval(function() {
+                checkServerRevision().then(function(revision) {
+                    if ($rootScope.serverChanged) {
+                        if (Date.now() - $rootScope.serverChangedTimestamp > revisionPollDelayedInterval) {
+                            $rootScope.serverChangedDelayed = true;
+                        }
+                    }
+                    // This request returns the treeherder git revision running on the server
+                    // If this differs from the version chosen during the UI page load, show a warning
+                    // Update $rootScope.serverRev so this warning is only shown once per server-side change
+                    if ($rootScope.serverRev && $rootScope.serverRev !== revision) {
+                        $rootScope.serverRev = revision;
+                        if ($rootScope.serverChanged === false) {
+                            $rootScope.serverChanged = true;
+                            $rootScope.serverChangedTimestamp = Date.now();
+                        }
+                    }
+                });
+            }, revisionPollInterval);
+        }, function(reason) {
+            $log.log(reason);
+        });
 
         $rootScope.getWindowTitle = function() {
             var ufc = $scope.getAllUnclassifiedFailureCount($rootScope.repoName);
