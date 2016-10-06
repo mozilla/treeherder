@@ -1,8 +1,20 @@
+import logging
+
 import newrelic.agent
+from django.contrib.auth import login as django_login
+from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework import viewsets
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.response import Response
+from taskcluster.sync import Auth
+from hashlib import sha1
+from django.db.models import Q
+
 
 from treeherder.credentials.models import Credentials
 
+logger = logging.getLogger(__name__)
 
 def hawk_lookup(id):
     try:
@@ -16,3 +28,64 @@ def hawk_lookup(id):
         'key': str(credentials.secret),
         'algorithm': 'sha256'
     }
+
+
+
+
+class TaskclusterAuthViewSet(viewsets.ViewSet):
+
+    def list(self, request):
+        """
+        Verify credentials with Taskcluster
+
+        result of tc_auth.authenticateHawk has the form:
+            {
+                'status': 'auth-success',
+                'scopes': [...],
+                'scheme': 'hawk',
+                'clientId': 'mozilla-ldap/dlebowski@mozilla.com',
+                'expires': '2016-10-23T21:17:20.726Z'
+            }
+
+        """
+        authorization = request.META.get("HTTP_OTH", None)
+        tc_auth = Auth()
+        result = tc_auth.authenticateHawk({
+            "host": "localhost",
+            "port": 8080,
+            "resource": "/",
+            "method": "get",
+            "authorization": authorization
+        })
+
+        if result["status"] == "auth-success":
+            username = result["clientId"][-30:]
+            email = result["clientId"].split("/")[1]
+            logger.error(email)
+
+            user = User.objects.filter(
+                Q(email=email) | Q(username=username)).first()
+
+            if not user:
+                # the user doesn't already exist, create it.
+                logger.warning("Creating new user: {}".format(email))
+                sha = sha1()
+                sha.update(email)
+                user = User(email=email,
+                            username=username,
+                            password=sha.hexdigest()[25:]
+                )
+                user.save()
+
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            django_login(request, user)
+
+            return Response({
+                "message": "login success",
+                "result": str(result),
+                "user": {"email": user.email,
+                         "isSheriff": user.is_staff}
+            })
+        else:
+            return Response({"message": "login failed",
+                             "result": str(result)})

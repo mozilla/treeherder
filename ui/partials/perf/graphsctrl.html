@@ -93,10 +93,10 @@
         <p class="text-muted" ng-if="!tooltipContent.alertSummary">
           <span ng-if="!creatingAlert">
             No alert
-            <span ng-if="user.is_staff">
-              (<a href="" ng-click="createAlert(tooltipContent)" ng-disabled="user.is_staff">create</a>)
+            <span ng-if="user.isSheriff">
+              (<a href="" ng-click="createAlert(tooltipContent)" ng-disabled="user.isSheriff">create</a>)
             </span>
-            <span ng-if="!user.is_staff">
+            <span ng-if="!user.isSheriff">
               (log in as a a sheriff to create)
             </span>
           </span>

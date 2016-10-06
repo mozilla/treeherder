@@ -27,11 +27,11 @@
            href="https://secure.pub.build.mozilla.org/buildapi/self-serve/{{::repoName}}/rev/{{::resultset.revision}}">BuildAPI</a></li>
     <li><a target="_blank" ignore-job-clear-on-click
            href=""
-           ng-show="user.is_staff"
+           ng-show="user.isSheriff"
            ng-click="triggerMissingJobs(resultset.revision)">Trigger missing jobs</a></li>
     <li><a target="_blank" ignore-job-clear-on-click
            href=""
-           ng-show="user.is_staff"
+           ng-show="user.isSheriff"
            ng-click="triggerAllTalosJobs(resultset.revision)">Trigger all Talos jobs</a></li>
     <li><a target="_blank"
            href="{{toChangeValue()}}&tochange={{resultset.revision}}" prevent-default-on-left-click

@@ -3,8 +3,8 @@
        ng-controller="ExclusionsListCtrl"
        ng-init="populateExclusionsData()">
     <button ng-click="go('exclusions_detail', {id: 'new'})" type="button"
-            ng-disabled="!user.is_staff"
-            ng-attr-title="{{!user.is_staff ? 'Sheriff permissions required' : ''}}"
+            ng-disabled="!user.isSheriff"
+            ng-attr-title="{{!user.isSheriff ? 'Sheriff permissions required' : ''}}"
             class="btn btn-sm btn-primary action-buttons">Add exclusion</button>
 
     <p ng-if="!exclusions.length">No exclusion available</p>
@@ -23,10 +23,10 @@
         <td>
           <!-- Exclusion name button -->
           <a ui-sref="exclusions_detail({id: exclusion.id})"
-             ng-disabled="!user.is_staff"
+             ng-disabled="!user.isSheriff"
              class="admin-btn pointable"
-             ng-class="!user.is_staff ? 'text-btn-disabled' : 'text-btn'"
-             ng-attr-title="{{!user.is_staff ? '' : 'Modify this exclusion'}}">
+             ng-class="!user.isSheriff ? 'text-btn-disabled' : 'text-btn'"
+             ng-attr-title="{{!user.isSheriff ? '' : 'Modify this exclusion'}}">
             {{::exclusion.name}}
           </a>
         </td>
@@ -37,7 +37,7 @@
         <td><th-truncated-list numvisible="2" elements="exclusion.info.job_types" /></td>
         <td>
           <button ng-click="delete_exclusion(exclusion)"
-                  ng-if="user.is_staff"
+                  ng-if="user.isSheriff"
                   class="admin-btn delete-icon hover-warning pointable"
                   title="Delete this exclusion">
             <i class="fa fa-times-circle"></i>
