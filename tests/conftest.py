@@ -13,6 +13,7 @@ from webtest.app import TestApp
 
 from treeherder.client import TreeherderClient
 from treeherder.config.wsgi import application
+from treeherder.model.models import Push
 from treeherder.model.derived.jobs import JobsModel
 
 
@@ -214,16 +215,16 @@ def mock_message_broker(monkeypatch):
 
 
 @pytest.fixture
-def resultset_with_three_jobs(jm, sample_data, sample_resultset, test_repository):
+def push_with_three_jobs(jm, sample_data, sample_resultset, test_repository):
     """
     Stores a number of jobs in the same resultset.
     """
     num_jobs = 3
     resultset = sample_resultset[0]
-    jobs = sample_data.job_data[0:num_jobs]
+    jobs = copy.deepcopy(sample_data.job_data[0:num_jobs])
 
     # Only store data for the first resultset....
-    resultset_creation = jm.store_result_set_data([resultset])
+    jm.store_result_set_data([resultset])
 
     blobs = []
     for index, blob in enumerate(jobs):
@@ -241,7 +242,8 @@ def resultset_with_three_jobs(jm, sample_data, sample_resultset, test_repository
 
     # Store and process the jobs so they are present in the tables.
     jm.store_job_data(blobs)
-    return resultset_creation['inserted_result_set_ids'][0]
+    return Push.objects.get(repository=test_repository,
+                            revision=resultset['revision'])
 
 
 @pytest.fixture
@@ -580,13 +582,15 @@ def text_summary_lines(test_job, failure_lines, text_log_error_lines):
 
 
 @pytest.fixture
-def test_perf_alert_summary(test_repository, test_perf_framework):
+def test_perf_alert_summary(test_repository, result_set_stored, test_perf_framework):
     from treeherder.perf.models import PerformanceAlertSummary
     return PerformanceAlertSummary.objects.create(
         repository=test_repository,
         framework=test_perf_framework,
         prev_result_set_id=1,
         result_set_id=2,
+        prev_push_id=1,
+        push_id=2,
         manually_created=False,
         last_updated=datetime.datetime.now())
 

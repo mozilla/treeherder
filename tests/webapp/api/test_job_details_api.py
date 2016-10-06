@@ -5,7 +5,7 @@ from treeherder.model.models import (Job,
                                      Repository)
 
 
-def test_job_details(test_repository, webapp):
+def test_job_details(test_repository, result_set_stored, webapp):
     details = {
         'abcd': {
             'title': 'title',
@@ -43,6 +43,7 @@ def test_job_details(test_repository, webapp):
         print (i, repository)
         job = Job.objects.create(guid=job_guid,
                                  repository=repository,
+                                 push_id=1,
                                  project_specific_id=i)
         JobDetail.objects.create(
             job=job, **params)

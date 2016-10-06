@@ -1,7 +1,7 @@
 [
   {
     "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
-    "push_timestamp": 1384353511,
+    "push_timestamp": 1384347643,
     "author": "Eric Chou <echou@mozilla.com>",
     "revisions": [
       {
@@ -15,7 +15,7 @@
   },
   {
     "revision": "b11529c9865a4dee3a93d63d119ebb89fcbbdf69",
-    "push_timestamp": 1384347643,
+    "push_timestamp": 1384353511,
     "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
     "revisions": [
       {

@@ -393,7 +393,7 @@ perf.controller('AlertsCtrl', [
                            _.set({}, alertSummary.repository, {}));
 
                 _.forEach(
-                    [alertSummary.result_set_id, alertSummary.prev_result_set_id],
+                    [alertSummary.push_id, alertSummary.prev_push_id],
                     function(resultSetId) {
                         var repoMap = resultSetToSummaryMap[alertSummary.repository];
                         // initialize map for this result set, if not already
@@ -418,9 +418,9 @@ perf.controller('AlertsCtrl', [
                                     }));
                                 _.forEach(resultSetToSummaryMap[repo][resultSet.id],
                                           function(summary) {
-                                              if (summary.result_set_id === resultSet.id) {
+                                              if (summary.push_id === resultSet.id) {
                                                   summary.resultSetMetadata = resultSet;
-                                              } else if (summary.prev_result_set_id === resultSet.id) {
+                                              } else if (summary.prev_push_id === resultSet.id) {
                                                   summary.prevResultSetMetadata = resultSet;
                                               }
                                           });

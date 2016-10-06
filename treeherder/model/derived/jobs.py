@@ -73,7 +73,7 @@ class JobsModel(TreeherderModelBase):
             "id": "j.id",
             "job_guid": "j.job_guid",
             "job_coalesced_to_guid": "j.job_coalesced_to_guid",
-            "result_set_id": "j.result_set_id",
+            "push_id": "j.push_id",
             "platform": "mp.platform",
             "build_platform_id": "j.build_platform_id",
             "build_platform": "bp.platform",
@@ -243,32 +243,32 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
-    def get_incomplete_job_ids(self, resultset_id):
-        """Get list of ids for jobs of resultset that are not in complete state."""
+    def get_incomplete_job_ids(self, push_id):
+        """Get list of ids for jobs of a push that are not in complete state."""
         return self.execute(
             proc='jobs.selects.get_incomplete_job_ids',
-            placeholders=[resultset_id],
+            placeholders=[push_id],
             debug_show=self.DEBUG,
             return_type='tuple'
         )
 
-    def cancel_all_resultset_jobs(self, requester, resultset_id):
+    def cancel_all_jobs_for_push(self, requester, push_id):
         """Set all pending/running jobs in resultset to usercancel."""
-        jobs = self.get_incomplete_job_ids(resultset_id)
+        jobs = self.get_incomplete_job_ids(push_id)
 
         # Mark pending jobs as cancelled to work around buildbot not including
         # cancelled jobs in builds-4hr if they never started running.
         # TODO: Remove when we stop using buildbot.
         self.execute(
             proc='jobs.updates.cancel_all',
-            placeholders=[resultset_id],
+            placeholders=[push_id],
             debug_show=self.DEBUG
         )
 
         # Sending 'cancel_all' action to pulse. Right now there is no listener
         # for this, so we cannot remove 'cancel' action for each job below.
         publish_resultset_action.apply_async(
-            args=[self.project, 'cancel_all', resultset_id, requester],
+            args=[self.project, 'cancel_all', push_id, requester],
             routing_key='publish_to_pulse'
         )
 
@@ -276,15 +276,16 @@ class JobsModel(TreeherderModelBase):
         for job in jobs:
             self._job_action_event(job, 'cancel', requester)
 
-    def trigger_missing_resultset_jobs(self, requester, resultset_id, project):
+    def trigger_missing_jobs(self, requester, push_id):
         publish_resultset_action.apply_async(
-            args=[self.project, "trigger_missing_jobs", resultset_id, requester],
+            args=[self.project, "trigger_missing_jobs", push_id, requester],
             routing_key='publish_to_pulse'
         )
 
-    def trigger_all_talos_jobs(self, requester, resultset_id, project, times):
+    def trigger_all_talos_jobs(self, requester, push_id, times):
         publish_resultset_action.apply_async(
-            args=[self.project, "trigger_all_talos_jobs", resultset_id, requester, times],
+            args=[self.project, "trigger_all_talos_jobs", push_id, requester,
+                  times],
             routing_key='publish_to_pulse'
         )
 
@@ -662,20 +663,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             return_list.append(list_item)
 
         return return_list
-
-    def get_resultset_revisions_list(self, result_set_id):
-        """
-        Return the revisions for the given resultset
-        """
-
-        proc = "jobs.selects.get_result_set_details"
-        lookups = self.execute(
-            proc=proc,
-            debug_show=self.DEBUG,
-            placeholders=[result_set_id],
-            replace=["%s"],
-        )
-        return lookups
 
     def get_result_set_details(self, result_set_ids):
         """
@@ -1327,11 +1314,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
     def store_result_set_data(self, result_sets):
         """
-        Build single queries to add new result_sets, revisions, and
-        revision_map for a list of result_sets.
-
-        Determine which ones we already have, which ones we need and
-        which ones we need to update.
+        Stores "result sets" (legacy nomenclature) as push data in
+        the treeherder database
 
         result_sets = [
             {
@@ -1601,7 +1585,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 rs_revision = revision_to_rs_revision_lookup[revision]
                 revision_id = revision_id_lookup[revision]['id']
                 result_set_id = result_set_id_lookup[rs_revision]['id']
-
                 revision_map_placeholders.append(
                     [revision_id,
                      result_set_id,
@@ -1645,11 +1628,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     'comments': revision['comment']
                 })
 
-    def get_resultset_status(self, resultset_id, exclusion_profile="default"):
+    def get_push_status(self, push_id, exclusion_profile="default"):
         """Retrieve an aggregated job count for the given resultset.
         If an exclusion profile is provided, the job counted will be filtered accordingly"""
         replace = [settings.DATABASES['default']['NAME']]
-        placeholders = [resultset_id]
+        placeholders = [push_id]
         if exclusion_profile:
             try:
                 signature_list = ExclusionProfile.objects.get_signatures_for_project(
@@ -1664,7 +1647,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 pass
 
         resultset_status_list = self.execute(
-            proc='jobs.selects.get_resultset_status',
+            proc='jobs.selects.get_push_status',
             placeholders=placeholders,
             replace=replace,
             debug_show=self.DEBUG)

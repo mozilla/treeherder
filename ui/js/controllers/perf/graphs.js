@@ -120,7 +120,7 @@ perf.controller('GraphsCtrl', [
                     dv = v - v0,
                     dvp = v / v0 - 1;
                 var alertSummary = _.find(phSeries.relatedAlertSummaries, function(alertSummary) {
-                    return alertSummary.result_set_id === dataPoint.resultSetId;
+                    return alertSummary.push_id === dataPoint.resultSetId;
                 });
                 var alert;
                 if (alertSummary) {
@@ -400,7 +400,7 @@ perf.controller('GraphsCtrl', [
                 _.forEach($scope.seriesList, function(series) {
                     if (series.visible) {
                         _.forEach(series.relatedAlertSummaries, function(alertSummary) {
-                            addHighlightedDatapoint(series, alertSummary.result_set_id);
+                            addHighlightedDatapoint(series, alertSummary.push_id);
                         });
                     }
                 });
@@ -604,7 +604,7 @@ perf.controller('GraphsCtrl', [
                             }),
                         resultSetData: _.pluck(
                             seriesData[series.signature],
-                            'result_set_id'),
+                            'push_id'),
                         thSeries: jQuery.extend({}, series),
                         jobIdData: _.pluck(seriesData[series.signature],
                                            'job_id')

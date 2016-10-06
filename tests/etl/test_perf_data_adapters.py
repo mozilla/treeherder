@@ -10,6 +10,7 @@ from treeherder.model.derived import JobsModel
 from treeherder.model.models import (MachinePlatform,
                                      Option,
                                      OptionCollection,
+                                     Push,
                                      Repository)
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
@@ -42,6 +43,7 @@ def perf_push(jm):
         'author': 'foo@bar.com',
         'revisions': []
     }])
+    return Push.objects.get(id=1)
     # FIXME: Delete above and switch to this when we've finished
     # migrating away from resultsets
     # return Push.objects.create(
@@ -57,8 +59,7 @@ def perf_job_data(perf_push):
         'fake_job_guid': {
             'id': 1,
             'push_id': 1,
-            'result_set_id': 1,
-            'push_timestamp': 1402692388
+            'result_set_id': 1
         }
     }
 
@@ -184,7 +185,8 @@ def _verify_datum(suitename, testname, value, push_timestamp):
 
 def test_load_generic_data(test_project, test_repository,
                            perf_option_collection, perf_platform,
-                           perf_job_data, perf_reference_data):
+                           perf_push, perf_job_data, perf_reference_data,
+                           jm):
     framework_name = 'cheezburger'
     PerformanceFramework.objects.get_or_create(name=framework_name, enabled=True)
 
@@ -257,8 +259,6 @@ def test_load_generic_data(test_project, test_repository,
 
     perf_datum = datum['blob']
 
-    push_timestamp = perf_job_data['fake_job_guid']['push_timestamp']
-    pushtime = datetime.datetime.fromtimestamp(push_timestamp)
     for suite in perf_datum['suites']:
         # verify summary, then subtests
         _verify_signature(test_repository.name,
@@ -269,8 +269,8 @@ def test_load_generic_data(test_project, test_repository,
                           'my_platform',
                           suite.get('lowerIsBetter', True),
                           suite.get('extraOptions'),
-                          pushtime)
-        _verify_datum(suite['name'], '', suite['value'], pushtime)
+                          perf_push.timestamp)
+        _verify_datum(suite['name'], '', suite['value'], perf_push.timestamp)
         for subtest in suite['subtests']:
             _verify_signature(test_repository.name,
                               perf_datum['framework']['name'],
@@ -280,24 +280,34 @@ def test_load_generic_data(test_project, test_repository,
                               'my_platform',
                               subtest.get('lowerIsBetter', True),
                               suite.get('extraOptions'),
-                              pushtime)
+                              perf_push.timestamp)
             _verify_datum(suite['name'], subtest['name'], subtest['value'],
-                          pushtime)
+                          perf_push.timestamp)
 
     summary_signature = PerformanceSignature.objects.get(
         suite=perf_datum['suites'][0]['name'], test='')
     subtest_signatures = PerformanceSignature.objects.filter(
         parent_signature=summary_signature).values_list('signature_hash', flat=True)
     assert len(subtest_signatures) == 3
+
     # send another datum, a little later, verify that signature's
     # `last_updated` is changed accordingly
-    perf_job_data['fake_job_guid']['push_timestamp'] += 1
+    # FIXME: again, we should switch to just creating a Push object when we can
+    later_timestamp = int(time.time()) + 5
+    jm.store_result_set_data([{
+        'revision': '1234abcd12',
+        'push_timestamp': later_timestamp,
+        'author': 'foo@bar.com',
+        'revisions': []
+    }])
+    perf_job_data['fake_job_guid']['push_id'] += 1
+    perf_job_data['fake_job_guid']['result_set_id'] += 1
     load_perf_artifacts(test_repository.name, perf_reference_data,
                         perf_job_data, submit_datum)
     signature = PerformanceSignature.objects.get(
         suite=perf_datum['suites'][0]['name'],
         test=perf_datum['suites'][0]['subtests'][0]['name'])
-    signature.last_updated == datetime.datetime.fromtimestamp(push_timestamp + 1)
+    signature.last_updated == datetime.datetime.fromtimestamp(later_timestamp)
 
 
 def test_no_performance_framework(test_project, test_repository,
