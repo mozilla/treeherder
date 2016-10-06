@@ -1,0 +1,38 @@
+{% load static %}
+<html>
+  <head>
+    <link rel="stylesheet" href="{% static "webapp/css/bootstrap.min.css" %}">
+  </head>
+  <body>
+    <div class="container">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Treeherder Admin</h3>
+        </div>
+        <div class="panel-body">
+          <p class="text-center">
+            {% if user.is_authenticated %}
+            <!--shouldn't see this page, if you're logged in.  should just go to admin-->
+                Current user: {{ user.email }}
+                <div>you could log out</div>
+            {% else %}
+                <div><button onclick="tcLogin()">Log in</button></div>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+    </div>
+    <script src="{% static "webapp/js/jquery-2.1.4.min.js" %}"></script>
+    <script>
+      var tcLogin = function() {
+          console.log("logging in with TC");
+          var colon = encodeURIComponent(":");
+          var target = `"http"${colon}//"localhost"${colon}${"8080"}/adminlogin`;
+          var description = "Treeherder";
+          var url = `https://login.taskcluster.net/?target=${target}&description=${description}`;
+
+          window.open(url, "_blank");
+      };
+    </script>
+  </body>
+</html>

@@ -19,6 +19,7 @@ treeherderApp.controller('MainCtrl', [
 
         // Ensure user is available on initial page load
         $rootScope.user = {};
+        $scope.root = $rootScope;
 
         thClassificationTypes.load();
 

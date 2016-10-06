@@ -1,6 +1,7 @@
 from django.views.generic import TemplateView
 
 
+# TODO: remove this template?
 class LoginView(TemplateView):
     template_name = 'webapp/persona_login.html'
 

@@ -2,7 +2,7 @@
 
 var treeherderApp = angular.module('treeherder.app',
                                    ['treeherder', 'ui.bootstrap', 'ngRoute',
-                                    'mc.resizer', 'angular-toArrayFilter']);
+                                    'mc.resizer', 'angular-toArrayFilter', 'ngCookies']);
 
 treeherderApp.config(function($compileProvider, $routeProvider,
                               $httpProvider, $logProvider, $resourceProvider) {
@@ -39,6 +39,9 @@ treeherderApp.config(function($compileProvider, $routeProvider,
             controller: 'JobsCtrl',
             templateUrl: 'partials/main/jobs.html',
             reloadOnSearch: false
+        }).
+        when('/login', {
+            resolve: {redirect: 'loginCallback'}
         }).
         otherwise({redirectTo: '/jobs'});
 });
