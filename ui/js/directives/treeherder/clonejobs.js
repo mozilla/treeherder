@@ -6,13 +6,13 @@ treeherder.directive('thCloneJobs', [
     'thServiceDomain', 'thResultStatusInfo', 'thEvents', 'thAggregateIds',
     'thJobFilters', 'thResultStatusObject', 'ThResultSetStore',
     'ThJobModel', 'linkifyBugsFilter', 'thResultStatus', 'thPlatformName',
-    'thNotify', '$timeout',
+    'thNotify', '$timeout', '$q',
     function(
         $rootScope, $http, ThLog, thUrl, thCloneHtml,
         thServiceDomain, thResultStatusInfo, thEvents, thAggregateIds,
         thJobFilters, thResultStatusObject, ThResultSetStore,
         ThJobModel, linkifyBugsFilter, thResultStatus, thPlatformName,
-        thNotify, $timeout){
+        thNotify, $timeout, $q){
 
         var $log = new ThLog("thCloneJobs");
 
@@ -899,10 +899,15 @@ treeherder.directive('thCloneJobs', [
                         rsMap[resultSetId].rs_obj.platforms.forEach(function(platform) {
                             addAdditionalJobParameters(platform.groups);
                         });
-                        _.defer(
-                            generateJobElements,
-                            resultsetAggregateId,
-                            rsMap[resultSetId].rs_obj);
+                        $q.when(
+                            _.defer(
+                                generateJobElements,
+                                resultsetAggregateId,
+                                rsMap[resultSetId].rs_obj
+                            )
+                        ).then(function() {
+                            $rootScope.jobsReady = true;
+                        });
                     }
                 });
 
