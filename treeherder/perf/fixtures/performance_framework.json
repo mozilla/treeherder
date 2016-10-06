@@ -59,7 +59,7 @@
         "pk": 9,
         "model": "perf.PerformanceFramework",
         "fields": {
-            "name": "hasal-perf"
+            "name": "hasal"
         }
     }
 ]
