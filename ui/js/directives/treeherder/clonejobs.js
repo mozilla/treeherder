@@ -890,19 +890,21 @@ treeherder.directive('thCloneJobs', [
                         );
 
                         /**************
-                      Resultset job pollers updates can
-                      trigger re-rendering rows at anytime during a
-                      session, this can give the appearance of sluggishness
-                      in the UI. Use defer to avoid rendering jankiness
-                      here.
+                          Resultset job pollers updates can
+                          trigger re-rendering rows at anytime during a
+                          session, this can give the appearance of sluggishness
+                          in the UI. Use a timeout to avoid rendering jankiness
+                          here.
                         **************/
                         rsMap[resultSetId].rs_obj.platforms.forEach(function(platform) {
                             addAdditionalJobParameters(platform.groups);
                         });
-                        _.defer(
-                            generateJobElements,
-                            resultsetAggregateId,
-                            rsMap[resultSetId].rs_obj);
+                        $timeout(generateJobElements(
+                          resultsetAggregateId,
+                          rsMap[resultSetId].rs_obj
+                        )).then(function() {
+                            $rootScope.jobsReady = true;
+                        });
                     }
                 });
 
