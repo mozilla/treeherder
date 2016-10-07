@@ -24,6 +24,7 @@ Contents:
    code_style
    troubleshooting
    ui/index
+   testcases
 
 
 Indices and tables
