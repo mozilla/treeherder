@@ -22,6 +22,14 @@ treeherderApp.controller('MainCtrl', [
 
         thClassificationTypes.load();
 
+
+        $.event.props.push('dataTransfer');
+        $(document).on("dragstart", ".revision-holder > a", function(evt) {
+            evt.dataTransfer.effectAllowed = "link";
+            var revision = $(this).text();
+            evt.dataTransfer.setData("text/x-treeherder-revision", revision);
+        });
+
         $rootScope.getWindowTitle = function() {
             var ufc = $scope.getUnclassifiedFailureCount($rootScope.repoName);
             var params = $location.search();

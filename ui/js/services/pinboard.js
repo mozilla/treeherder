@@ -12,6 +12,23 @@ treeherder.factory('thPinboard', [
         var pinnedJobs = {};
         var relatedBugs = {};
 
+        // Handle some drops specially
+        $(document).on("dragover", "#pinboard-panel", function(e) {
+            e.preventDefault();
+        });
+        $(document).on("drop", "#pinboard-panel", function(e) {
+            var revision = e.dataTransfer.getData("text/x-treeherder-revision");
+            var commentBox = document.getElementById("classification-comment");
+            var classificationType = document.getElementById("pinboard-classification-select");
+            if(revision) {
+                commentBox.value = revision;
+                classificationType.selectedIndex = 2;
+            } else {
+                commentBox.value = e.dataTransfer.getData("text/plain");
+            }
+            return false;
+        });
+
         var saveClassification = function(job) {
             var classification = new ThJobClassificationModel(this);
 
