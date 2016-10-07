@@ -6,8 +6,8 @@ Initial page load
 ------
 Load Treeherder. eg.
 
-* [stage](https://treeherder.allizom.org)
-* [production](https://treeherder.mozilla.org)
+* `stage`_
+* `production`_
 
 Depending on your test requirement.
 
@@ -282,7 +282,7 @@ View a single resultset via its Date link. Click Get next 10| resultsets.
 
 Filter resultsets by URL fromchange, tochange
 ------
-See also Treeherder [help](https://treeherder.mozilla.org/help.html) for URL Query String Parameters. Please test variants and perform exploratory testing as top/bottom of range is new functionality (Jun 3, 15')
+See also Treeherder `userguide`_ for URL Query String Parameters. Please test variants and perform exploratory testing as top/bottom of range is new functionality (Jun 3, 15')
 Navigate to the 2nd resultset loaded, from the resultset action menu select 'Set as top of range'.
 
     **Expected**: Ensure: (1) 1st resultset is omitted (2) url contains `&tochange=SHA` and (3) ten resultsets are loaded from that new top
@@ -301,7 +301,7 @@ Click Get Next | 10 in the page footer.
 
 Filter resultsets by URL date range
 ------
-See also Treeherder [help](https://treeherder.mozilla.org/userguide.html) for URL Query String Parameters
+See also Treeherder `userguide`_ for URL Query String Parameters
 Add a revision range to the URL in the format, eg:
 
 &startdate=2015-09-28&enddate=2015-09-28
@@ -374,7 +374,7 @@ Click on the 'Graph' link for a sub-compare row if it exists.
 All keyboard shortcuts
 ------
 Note: Listed "Toggle in-progress" shortcut 'i' is known not to be working at this time.
-Check all keyboard shortcut functionality as listed in [help](https://treeherder.mozilla.org/help.html).
+Check all keyboard shortcut functionality as listed in `userguide`_.
 
     **Expected**: Each shortcut should work as expected.
 
@@ -405,3 +405,7 @@ expand all the groups, (the url querystring will reflect this) then reload the p
     **Expected**: groups should still be expanded for all resultsets
 
 Optional: There are other variants that can be tested: classification of expanded job count members, Filters, and any other workflow integration testing.
+
+.. _`stage`: https://treeherder.allizom.org
+.. _`production`: https://treeherder.mozilla.org
+.. _`userguide`: https://treeherder.allizom.org/userguide.html
