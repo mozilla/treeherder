@@ -282,7 +282,7 @@ View a single resultset via its Date link. Click Get next 10| resultsets.
 
 Filter resultsets by URL fromchange, tochange
 ------
-See also Treeherder `userguide`_ for URL Query String Parameters. Please test variants and perform exploratory testing as top/bottom of range is new functionality (Jun 3, 15')
+See also the Treeherder `userguide`_ for URL Query String Parameters. Please test variants and perform exploratory testing as top/bottom of range is new functionality (Jun 3, 15')
 Navigate to the 2nd resultset loaded, from the resultset action menu select 'Set as top of range'.
 
     **Expected**: Ensure: (1) 1st resultset is omitted (2) url contains `&tochange=SHA` and (3) ten resultsets are loaded from that new top
@@ -301,7 +301,7 @@ Click Get Next | 10 in the page footer.
 
 Filter resultsets by URL date range
 ------
-See also Treeherder `userguide`_ for URL Query String Parameters
+See also the Treeherder `userguide`_ for URL Query String Parameters
 Add a revision range to the URL in the format, eg:
 
 &startdate=2015-09-28&enddate=2015-09-28
@@ -374,7 +374,7 @@ Click on the 'Graph' link for a sub-compare row if it exists.
 All keyboard shortcuts
 ------
 Note: Listed "Toggle in-progress" shortcut 'i' is known not to be working at this time.
-Check all keyboard shortcut functionality as listed in `userguide`_.
+Check all keyboard shortcut functionality as listed in the `userguide`_.
 
     **Expected**: Each shortcut should work as expected.
 
