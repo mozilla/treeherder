@@ -210,6 +210,7 @@ treeherder.factory('ThResultSetStore', [
                             resultSet
                         );
                         updateUnclassifiedFailureCountForTiers(repoName);
+                        updateFilteredUnclassifiedFailureCount(repoName);
                         $rootScope.$emit(thEvents.applyNewJobs, resultSetId);
                     });
             }
@@ -217,10 +218,19 @@ treeherder.factory('ThResultSetStore', [
         };
 
         $rootScope.$on(thEvents.recalculateUnclassified, function() {
-            $timeout(updateUnclassifiedFailureCountForTiers, 0, true, $rootScope.repoName);
+            $timeout(function(repoName) {
+                updateUnclassifiedFailureCountForTiers(repoName);
+                updateFilteredUnclassifiedFailureCount(repoName);
+            }, 0, true, $rootScope.repoName);
         });
         $rootScope.$on(thEvents.jobsClassified, function() {
-            $timeout(updateUnclassifiedFailureCountForTiers, 0, true, $rootScope.repoName);
+            $timeout(function(repoName) {
+                updateUnclassifiedFailureCountForTiers(repoName);
+                updateFilteredUnclassifiedFailureCount(repoName);
+            }, 0, true, $rootScope.repoName);
+        });
+        $rootScope.$on(thEvents.globalFilterChanged, function() {
+            $timeout(updateFilteredUnclassifiedFailureCount, 0, true, $rootScope.repoName);
         });
 
         var addRepository = function(repoName){
@@ -261,6 +271,8 @@ treeherder.factory('ThResultSetStore', [
                     unclassifiedFailureMap: {},
                     // count of unclassified for the currently enabled tiers
                     unclassifiedFailureCountForTiers: 0,
+                    // count of unclassified jobs within enabled tiers and filtered out
+                    filteredUnclassifiedFailureCount: 0,
                     //used as the offset in paging
                     rsMapOldestTimestamp:null,
                     resultSets:[],
@@ -483,10 +495,41 @@ treeherder.factory('ThResultSetStore', [
             }
         };
 
-        var getUnclassifiedFailureCount = function(repoName) {
+        /**
+         * Loops through the map of unlcassified failures and checks if it is
+         * within the enabled tiers and if the job should be shown. This essentially
+         * gives us the difference in unclassified failures and, of those jobs, the
+         * ones that have been filtered out
+         *
+         * @param {String} repoName - the name of the repository from which to match the unclassified jobs
+         * @private
+         */
+        var updateFilteredUnclassifiedFailureCount = function(repoName) {
+            if (!_.has(repositories, repoName)) {
+                return;
+            }
+
+            var repo = repositories[repoName];
+            repo.filteredUnclassifiedFailureCount = 0;
+            _.forEach(repo.unclassifiedFailureMap, function (job) {
+                if (thJobFilters.isFilterSetToShow("tier", job.tier) && thJobFilters.showJob(job)) {
+                    repo.filteredUnclassifiedFailureCount++;
+                }
+            });
+        };
+
+        var getAllUnclassifiedFailureCount = function(repoName) {
             if (repositories[repoName]) {
                 return repositories[repoName].unclassifiedFailureCountForTiers;
             }
+            return 0;
+        };
+
+        var getFilteredUnclassifiedFailureCount = function(repoName) {
+            if (repositories.hasOwnProperty(repoName)) {
+                return repositories[repoName].filteredUnclassifiedFailureCount;
+            }
+
             return 0;
         };
 
@@ -1256,7 +1299,8 @@ treeherder.factory('ThResultSetStore', [
             getResultSetsArray: getResultSetsArray,
             getResultSetsMap: getResultSetsMap,
             getSelectedJob: getSelectedJob,
-            getUnclassifiedFailureCount: getUnclassifiedFailureCount,
+            getFilteredUnclassifiedFailureCount: getFilteredUnclassifiedFailureCount,
+            getAllUnclassifiedFailureCount: getAllUnclassifiedFailureCount,
             isNotLoaded: isNotLoaded,
             loadRevisions: loadRevisions,
             setSelectedJob: setSelectedJob,

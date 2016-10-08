@@ -8,11 +8,19 @@
         <span class="btn btn-sm"
               title="Loaded failures / Toggle filtering for unclassified failures"
               tabindex="0" role="button"
-              ng-class="{'btn-unclassified-failures': getUnclassifiedFailureCount(repoName),
-                         'btn-view-nav': getUnclassifiedFailureCount(repoName)===0}"
+              ng-class="{'btn-unclassified-failures': getAllUnclassifiedFailureCount(repoName),
+                         'btn-view-nav': getAllUnclassifiedFailureCount(repoName)===0}"
               ng-click="toggleUnclassifiedFailures()">
           <span id="unclassified-failure-count">
-            {{ getUnclassifiedFailureCount(repoName) }}</span> unclassified
+            {{ getAllUnclassifiedFailureCount(repoName) }}</span> unclassified
+        </span>
+
+        <!--Filtered Unclassified Failures Button-->
+        <span class="navbar-badge badge"
+              title="Reflects the currently unclassified failures which are being filtered"
+              ng-hide="getFilteredUnclassifiedFailureCount(repoName) === getAllUnclassifiedFailureCount(repoName)">
+          <span id="filtered-unclassified-failure-count">
+            {{ getFilteredUnclassifiedFailureCount(repoName) }}</span>
         </span>
 
         <!--Toggle Tiers filter Button-->

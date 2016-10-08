@@ -374,3 +374,7 @@ fieldset[disabled] .btn-view-nav-closed.active {
     text-decoration: line-through;
   }
 }
+
+.navbar-badge.badge * {
+  cursor: default;
+}
