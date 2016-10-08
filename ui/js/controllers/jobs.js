@@ -197,6 +197,15 @@ treeherderApp.controller('ResultSetCtrl', [
             });
         };
 
+        $scope.togglePushCollapse = function(evt) {
+            var target = evt.target.parentNode.parentNode;
+            if(target.getAttribute("collapsed") === "true") {
+                target.removeAttribute("collapsed");
+            } else {
+                target.setAttribute("collapsed", "true");
+            }
+        };
+
         $scope.triggerMissingJobs = function(revision) {
             if (!window.confirm('This will trigger all missing jobs for revision ' + revision + '!\n\nClick "OK" if you want to proceed.')) {
                 return;

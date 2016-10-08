@@ -11,6 +11,9 @@
      data-id="{{::resultset.id}}">
 
   <div class="result-set-bar">
+    <button class="result-set-collapser btn btn-sm btn-resultset"
+            title="Collapse/expand this push"
+            ng-click="togglePushCollapse($event)" />
     <span class="result-set-left">
       <span class="result-set-title-left">
         <span>
