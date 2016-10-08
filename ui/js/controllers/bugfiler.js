@@ -92,12 +92,21 @@ treeherder.controller('BugFilerCtrl', [
         $scope.findProduct = function() {
             $scope.suggestedProducts = [];
             var failurePath = $uibModalInstance.parsedSummary[0][0];
+
+            // If the "TEST-UNEXPECTED-foo" isn't one of the omitted ones, use the next piece in the summary
+            if(failurePath.includes("TEST-UNEXPECTED-")) {
+                failurePath = $uibModalInstance.parsedSummary[0][1];
+            }
             var failurePathRoot = failurePath.split("/")[0];
 
             // Look up the product via the root of the failure's file path
             if(thBugzillaProductObject[failurePathRoot]) {
                 $scope.suggestedProducts.push(thBugzillaProductObject[failurePathRoot][0]);
-                $scope.selection.selectedProduct = $scope.suggestedProducts[0];
+            }
+
+            // Some job types are special, lets explicitly handle them.
+            if(selectedJob.job_group_name.includes("Web Platform")) {
+                $scope.suggestedProducts.push("Testing :: web-platform-tests");
             }
 
             // Look up product suggestions via Bugzilla's api
@@ -122,6 +131,8 @@ treeherder.controller('BugFilerCtrl', [
                     $scope.selection.selectedProduct = $scope.suggestedProducts[0];
                 });
             }
+
+            $scope.selection.selectedProduct = $scope.suggestedProducts[0];
         };
 
         /*
