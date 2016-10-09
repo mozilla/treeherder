@@ -2,4 +2,8 @@
   <span ng-if="percentComplete == 100">- Complete -</span>
   <span ng-if="percentComplete < 100"
         title="Proportion of jobs that are complete">{{percentComplete}}% - {{inProgress}} in progress</span>
+  <uib-progressbar ng-cloak class="progress-striped" ng-class="{active: percentComplete != 100}" max="100" value="percentComplete">
+      <span ng-if="percentComplete == 100">- Complete -</span>
+      <span ng-if="percentComplete < 100">{{percentComplete}}% - {{inProgress}} in progress</span>
+  </uib-progressbar>
 </span>
