@@ -5,12 +5,12 @@ treeherder.factory('ThResultSetStore', [
     'ThResultSetModel', 'ThJobModel', 'ThJobDetailModel', 'thEvents',
     'thResultStatusObject', 'thAggregateIds', 'ThLog', 'thNotify',
     'thJobFilters', 'thOptionOrder', 'ThRepositoryModel', '$timeout',
-    'ThJobTypeModel', 'ThJobGroupModel', 'ThRunnableJobModel',
+    'ThRunnableJobModel',
     function(
         $rootScope, $q, $location, $interval, thPlatformMap, ThResultSetModel,
         ThJobModel, ThJobDetailModel, thEvents, thResultStatusObject, thAggregateIds,
         ThLog, thNotify, thJobFilters, thOptionOrder, ThRepositoryModel,
-        $timeout, ThJobTypeModel, ThJobGroupModel, ThRunnableJobModel) {
+        $timeout, ThRunnableJobModel) {
 
         var $log = new ThLog("ThResultSetStore");
 
@@ -202,16 +202,13 @@ treeherder.factory('ThResultSetStore', [
                     sortGroupedJobs,
                     groupJobByPlatform
                 );
-                return sortAndGroupJobs(resultSet.jobList).
-                    then(function(groupedJobs){
-                        _.extend(resultSet, groupedJobs);
-                        mapPlatforms(
-                            repoName,
-                            resultSet
-                        );
-                        updateUnclassifiedFailureCountForTiers(repoName);
-                        $rootScope.$emit(thEvents.applyNewJobs, resultSetId);
-                    });
+                _.extend(resultSet, sortAndGroupJobs(resultSet.jobList));
+                mapPlatforms(
+                    repoName,
+                    resultSet
+                );
+                updateUnclassifiedFailureCountForTiers(repoName);
+                $rootScope.$emit(thEvents.applyNewJobs, resultSetId);
             }
             return $q.defer().resolve();
         };
@@ -1162,16 +1159,15 @@ treeherder.factory('ThResultSetStore', [
             return groupedJobs;
         };
 
-        var jobTypeOrderPromise = ThJobTypeModel.get_list().
-            then(function(jobTypeList){
-                var jobSymbolList = _.uniq(_.pluck(jobTypeList, 'symbol'));
-                /*
-                 * Symbol could be something like 1, 2 or 3. Or A, B, C or R1, R2, R10.
-                 * So this will pad the numeric portion with 0s like R001, R010, etc.
-                 */
-                var paddedJobSymbolList = _.map(
-                    jobSymbolList, function(jobSymbol){
-                        return jobSymbol.replace(
+        var sortGroupedJobs = function(groupedJobs){
+            _.each(groupedJobs.platforms, function(platform){
+                _.each(platform.groups, function(group){
+                    group.jobs = _.sortBy(group.jobs, function(job){
+                        // Symbol could be something like 1, 2 or 3. Or A, B, C or R1,
+                        // R2, R10.
+                        // So this will pad the numeric portion with 0s like R001, R010,
+                        // etc.
+                        return job.job_type_symbol.replace(
                                 /([\D]*)([\d]*)/g,
                             function(matcher, s1, s2){
                                 if(s2 !== ""){
@@ -1182,56 +1178,24 @@ treeherder.factory('ThResultSetStore', [
                                 return matcher;
                             }
                         );
-                    }
-                );
-                var symbolMap = _.object(paddedJobSymbolList, jobSymbolList);
-                paddedJobSymbolList.sort();
-                var outputOrderMap = {};
-                _.each(paddedJobSymbolList, function(paddedJob, index){
-                    outputOrderMap[symbolMap[paddedJob]] = index;
-                });
-                return outputOrderMap;
-            });
-        var jobGroupOrderPromise = ThJobGroupModel.get_list().
-            then(function(jobGroupList){
-                var jobGroupSymbolList = _.uniq(_.pluck(jobGroupList, 'symbol'));
-                jobGroupSymbolList.sort();
-                return _.object(
-                    jobGroupSymbolList,
-                    _.range(0, jobGroupSymbolList.length)
-                );
-            });
-
-        /*
-         * This function returns a promise because it requires
-         * jobTypeOrderPromise and jobGroupOrderPromise to be fulfilled
-         */
-        var sortGroupedJobs = function(groupedJobs){
-            return $q.all([jobTypeOrderPromise, jobGroupOrderPromise]).
-                then(function(promises){
-                    var jobTypeOrder = promises[0];
-                    var jobGroupOrder = promises[1];
-                    _.each(groupedJobs.platforms, function(platform){
-                        _.each(platform.groups, function(group){
-                            group.jobs = _.sortBy(group.jobs, function(job){
-                                return jobTypeOrder[job.job_type_symbol];
-                            });
-                        });
-                        platform.groups = _.sortBy(platform.groups, function(group){
-                            return jobGroupOrder[group.symbol];
-                        });
                     });
-                    groupedJobs.platforms = _.sortBy(groupedJobs.platforms, function(platform){
-                        var priority = thPlatformMap[platform.name];
-                        if(priority) {
-                            priority = priority[1]*100 + thOptionOrder[platform.option];
-                        } else {
-                            priority = NaN;
-                        }
-                        return priority;
-                    });
-                    return groupedJobs;
                 });
+                platform.groups = _.sortBy(platform.groups, function(group) {
+                    if (!group.symbol.length)
+                        return undefined;
+                    return group.symbol;
+                });
+            });
+            groupedJobs.platforms = _.sortBy(groupedJobs.platforms, function(platform){
+                var priority = thPlatformMap[platform.name];
+                if(priority) {
+                    priority = priority[1]*100 + thOptionOrder[platform.option];
+                } else {
+                    priority = NaN;
+                }
+                return priority;
+            });
+            return groupedJobs;
         };
 
         //Public interface
