@@ -126,9 +126,9 @@ treeherderApp.controller('ResultSetCtrl', [
             var target = evt.target;
             var pushElement = target.parentNode.parentNode;
             if(pushElement.getAttribute(attribute)) {
-              pushElement.removeAttribute(attribute);
+                pushElement.removeAttribute(attribute);
             } else {
-              pushElement.setAttribute(attribute, "true");
+                pushElement.setAttribute(attribute, "true");
             }
         };
 
