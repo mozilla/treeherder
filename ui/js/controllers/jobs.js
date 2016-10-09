@@ -121,6 +121,17 @@ treeherderApp.controller('ResultSetCtrl', [
 
         };
 
+        $scope.toggleMobileVisibility = function(evt, id, type) {
+            var attribute = "show-mobile-" + type;
+            var target = evt.target;
+            var pushElement = target.parentNode.parentNode;
+            if(pushElement.getAttribute(attribute)) {
+              pushElement.removeAttribute(attribute);
+            } else {
+              pushElement.setAttribute(attribute, "true");
+            }
+        };
+
         /**
          * Pin all jobs that pass the global filters.
          *

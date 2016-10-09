@@ -1,5 +1,14 @@
 <div id="watched-repo-navbar" class="th-context-navbar watched-repo-navbar clearfix">
   <th-watched-repo ng-repeat="(name, repoData) in repoModel.watchedRepos"></th-watched-repo>
+  <span class="repo-select" ng-controller="RepositoryMenuCtrl" >
+      <select ng-cloak>
+          <optgroup ng-repeat="(group_order, group) in groupedRepos()" label="{{::group.name}}">
+              <option ng-repeat="repo in group.repos | orderBy : 'name'" ng-selected="repo.name === repoName">
+                  {{::repo.name}}
+              </option>
+          </optgroup>
+      </select>
+  </span>
   <div class="navbar-right">
     <span>
       <form role="search" class="form-inline">

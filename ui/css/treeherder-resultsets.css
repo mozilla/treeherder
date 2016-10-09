@@ -1,3 +1,124 @@
+@media (min-width: 601px) {
+  #repo-select {
+    display:none;
+  }
+  
+  .result-set-mobile-bar {
+    display:none;
+  }
+  
+  th-result-counts div.progress {
+    display:none;
+  }
+}
+
+@media (max-width: 600px) {
+  #info-panel {
+    display: none!important;
+  }
+  .result-set-body:not([show-mobile-revisions]):not([show-mobile-jobs]) {
+    display: none;
+  }
+  .result-set-body:not([show-mobile-revisions]) .revision-list {
+    display: none !important;
+  }
+  .result-set-body:not([show-mobile-jobs]) .job-list {
+    display: none;
+  }
+  
+  .navbar-right > :not(persona-buttons):not(#settingsButton) {
+    display: none;
+  }
+  
+  .result-set-mobile-bar > span > th-action-button .btn {
+    width: 100%;
+  }
+  
+  persona-buttons {
+    float: right;
+  }
+  
+  th-watched-repo {
+    display: none;
+  }
+  
+  th-author > span > a {
+    text-overflow: ellipsis;
+  }
+  
+  .result-set-bar, .result-set-body-divider {
+    display:none!important;
+  }
+  
+  .result-set-mobile-bar {
+    border: 1px solid gray;
+    padding: 5px;
+    margin: 5px;
+    text-align: center;
+  }
+
+  th-result-counts div.progress {
+    margin: 5px;
+  }
+
+  th-result-counts > span > span {
+    display: none;
+  }
+  
+  .result-set-mobile-bar > .btn {
+    width:45%;
+  }
+
+  /* SHOW REVISION LIST STUFF */
+  .result-set[show-mobile-revisions] .result-set-body {
+    display: block;
+  }
+  .result-set[show-mobile-revisions] .result-set-body .revision-list {
+    width: 100%;
+    padding: 5px;
+    margin: 5px;
+    display: block !important;
+  }
+  .result-set[show-mobile-revisions] .result-set-body .revision-list li {
+    border: 1px solid gray;
+    padding: 5px;
+  }
+  .result-set[show-mobile-revisions] .result-set-body .revision-list .revision > .revision-holder {
+    padding-left: unset;
+  }
+  .result-set[show-mobile-revisions] .result-set-body .revision-list .revision > span:nth-of-type(3) {
+    display: block;
+  }
+  .result-set[show-mobile-revisions] .result-set-body .revision-list .revision > span:nth-of-type(3) em {
+    white-space: pre-wrap;
+  }
+  /* END SHOW REVISION LIST STUFF */
+
+  /* SHOW JOB LIST STUFF */
+  .result-set[show-mobile-jobs] .result-set-body {
+    display: block;
+  }
+  .result-set[show-mobile-jobs] .result-set-body .job-list {
+    width:100%;
+    padding: 5px;
+    margin: 5px;
+    display: unset;
+  }
+  .result-set[show-mobile-jobs] .result-set-body .job-list table {
+    border: 1px solid gray;
+    padding: 5px;
+  }
+  .result-set[show-mobile-jobs] .result-set-body .job-list table tr {
+    border: 1px solid gray;
+  }
+  .result-set[show-mobile-jobs] .result-set-body .job-list table .platform {
+    width: 12%;
+    min-width: 12%;
+  }
+  /* END SHOW JOB LIST STUFF */
+
+}
+
 /*
  * Resultset bar
  */

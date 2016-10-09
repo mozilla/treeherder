@@ -6,7 +6,6 @@ treeherderApp.controller('RepositoryMenuCtrl', [
         $scope, ThRepositoryModel) {
 
         $scope.groupedRepos = ThRepositoryModel.getOrderedRepoGroups;
-
         $scope.closeable = true;
 
     }
