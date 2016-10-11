@@ -194,6 +194,18 @@
             "resolution": "",
             "op_sys": "Unspecified",
             "last_change_time": "2016-07-25T01:04:15Z"
+        },
+        {
+            "status": "NEW",
+            "id": 100,
+            "summary": "Intermittent [taskcluster:error]  Command \" [./test-macosx.sh --no-read-buildbot-config --installer-url=https://queue.taskcluster.net/v1/task/Qs1_DYVKQASBhy0o_Uo4jA/artifacts/public/build/target.dmg --test-packages-url=https://queue.taskcluster.net/v1/task/Qs1_DYVKQASBhy0o_Uo4jA/artifacts/public/build/target.test_packages.json --mochitest-suite=plain-gpu,chrome-gpu,browser-chrome-gpu --allow-software-gl-layers --total-chunk=1 --this-chunk=1 --download-symbols=ondemand] \" failed to run:  exit status 2",
+            "cf_crash_signature": "",
+            "keywords": [
+                "intermittent-failure"
+            ],
+            "resolution": "",
+            "op_sys": "Unspecified",
+            "last_change_time": "2016-07-25T01:04:15Z"
         }
     ]
 }
