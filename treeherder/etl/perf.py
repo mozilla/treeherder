@@ -48,7 +48,7 @@ def _get_signature_hash(signature_properties):
     str_values = []
     for value in signature_properties.values():
         if not isinstance(value, basestring):
-            str_values.append(json.dumps(value))
+            str_values.append(json.dumps(value, sort_keys=True))
         else:
             str_values.append(value)
     signature_prop_values.extend(str_values)
@@ -105,17 +105,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
             suite_extra_properties = {
                 'test_options': sorted(suite['extraOptions'])
             }
-        subtest_properties = []
         summary_signature_hash = None
-        for subtest in suite['subtests']:
-            subtest_metadata = {
-                'suite': suite['name'],
-                'test': subtest['name'],
-                'lowerIsBetter': subtest.get('lowerIsBetter', True)
-            }
-            subtest_metadata.update(reference_data)
-            subtest_properties.append(subtest_metadata)
-        subtest_properties.sort(key=lambda s: s['test'])
 
         # if we have a summary value, create or get its signature by all its subtest
         # properties.
@@ -123,7 +113,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
             # summary series
             summary_properties = {
                 'suite': suite['name'],
-                'subtest_properties': subtest_properties
+                'lowerIsBetter': suite.get('lowerIsBetter', True)
             }
             summary_properties.update(reference_data)
             summary_properties.update(suite_extra_properties)
@@ -162,32 +152,36 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                 generate_alerts.apply_async(args=[signature.id],
                                             routing_key='generate_perf_alerts')
 
-        for (subtest, subtest_metadata) in zip(sorted(
-                suite['subtests'], key=lambda s: s['name']),
-                                               subtest_properties):
-            # we calculate the subtest signature incorporating
-            # the hash of the parent.
+        for subtest in suite['subtests']:
+            subtest_properties = {
+                'suite': suite['name'],
+                'test': subtest['name'],
+                'lowerIsBetter': subtest.get('lowerIsBetter', True)
+            }
+            subtest_properties.update(reference_data)
+            subtest_properties.update(suite_extra_properties)
+
             summary_signature = None
             if summary_signature_hash is not None:
-                subtest_metadata.update({'parent_signature': summary_signature_hash})
+                subtest_properties.update({'parent_signature': summary_signature_hash})
                 summary_signature = PerformanceSignature.objects.get(
                     repository=repository,
                     framework=framework,
                     signature_hash=summary_signature_hash)
-            subtest_signature_hash = _get_signature_hash(subtest_metadata)
+            subtest_signature_hash = _get_signature_hash(subtest_properties)
             value = list(subtest['value'] for subtest in suite['subtests'] if
-                         subtest['name'] == subtest_metadata['test'])
+                         subtest['name'] == subtest_properties['test'])
             signature, _ = PerformanceSignature.objects.update_or_create(
                 repository=repository,
                 signature_hash=subtest_signature_hash,
                 framework=framework,
                 defaults={
-                    'test': subtest_metadata['test'],
+                    'test': subtest_properties['test'],
                     'suite': suite['name'],
                     'option_collection': option_collection,
                     'platform': platform,
                     'extra_properties': suite_extra_properties,
-                    'lower_is_better': subtest_metadata['lowerIsBetter'],
+                    'lower_is_better': subtest_properties['lowerIsBetter'],
                     'has_subtests': False,
                     # these properties below can be either True, False, or
                     # null (None). Null indicates no preference has been
