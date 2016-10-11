@@ -23,7 +23,7 @@ treeherderApp.controller('MainCtrl', [
         thClassificationTypes.load();
 
         $rootScope.getWindowTitle = function() {
-            var ufc = $scope.getUnclassifiedFailureCount($rootScope.repoName);
+            var ufc = $scope.getAllUnclassifiedFailureCount($rootScope.repoName);
             var params = $location.search();
 
             // repoName is undefined for the first few title update attempts, show something sensible
@@ -140,7 +140,8 @@ treeherderApp.controller('MainCtrl', [
 
         };
 
-        $scope.getUnclassifiedFailureCount = ThResultSetStore.getUnclassifiedFailureCount;
+        $scope.getFilteredUnclassifiedFailureCount = ThResultSetStore.getFilteredUnclassifiedFailureCount;
+        $scope.getAllUnclassifiedFailureCount = ThResultSetStore.getAllUnclassifiedFailureCount;
 
         $scope.isSkippingExclusionProfiles = $location.search().exclusion_profile === 'false';
 
