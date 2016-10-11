@@ -487,6 +487,12 @@
 
             "host_type": "master_host"
         },
+        "get_resultset_id_from_revision":{
+            "sql":"SELECT `id`
+                   FROM `result_set`
+                   WHERE INSTR(`long_revision`, ?)",
+            "host_type": "master_host"
+        },
         "get_result_set_list":{
             "sql":"SELECT DISTINCT
                       rs.id,

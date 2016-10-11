@@ -53,6 +53,8 @@ def parse_job_logs(project, tasks):
     :param tasks: Dict of {job_guid: [task_dict]} where task_dict contains
                   detail of the tasks to schedule.
     """
+    # DEPRECATED: just here to drain remaining queues, remove once bug
+    # 1308528 has landed and stuck
     task_funcs = {
         "store_failure_lines": store_failure_lines,
         "parse_log": parse_log,
@@ -92,6 +94,48 @@ def parse_job_logs(project, tasks):
 
         callback = crossreference_error_lines.si(project, job_guid)
         callback.set(routing_key="crossreference_error_lines.%s" % callback_priority)
+        create_taskset(callback_group, callback)
+
+
+def parse_job_log(project, func_name, routing_key, job_guid, job_log_id):
+    """
+    Schedule the log-related tasks to parse an individual log
+    """
+    task_funcs = {
+        "store_failure_lines": store_failure_lines,
+        "parse_log": parse_log,
+    }
+
+    task_priorities = {
+        "normal": 0,
+        "failures": 1,
+    }
+
+    callback_priority = "normal"
+
+    callback_group = []
+
+    logger.debug("parse_job_log for job %s (%s, %s)", job_guid, func_name,
+                 routing_key)
+    priority = routing_key.rsplit(".", 1)[1]
+    if task_priorities[priority] > task_priorities[callback_priority]:
+        callback_priority = priority
+
+    signature = task_funcs[func_name].si(project,
+                                         job_guid,
+                                         job_log_id,
+                                         priority)
+    signature.set(routing_key=routing_key)
+
+    if func_name in ["parse_log", "store_failure_lines"]:
+        callback_group.append(signature)
+    else:
+        signature.apply_async()
+
+    if callback_group:
+        callback = crossreference_error_lines.si(project, job_guid)
+        callback.set(routing_key="crossreference_error_lines.%s" %
+                     callback_priority)
         create_taskset(callback_group, callback)
 
 
