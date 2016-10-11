@@ -1,4 +1,6 @@
 <!-- Load progress bar -->
+<span class="hidden" ng-class="{'ready':jobsReady}"></span>
+
 <div class="progress progress-striped active"
      ng-show="isLoadingRsBatch.prepending && result_sets.length === 0">
   <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
