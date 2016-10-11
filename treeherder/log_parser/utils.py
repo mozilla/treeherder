@@ -1,9 +1,10 @@
 import logging
-import urllib2
+import requests
 
 import simplejson as json
 
-from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
+from treeherder.log_parser.artifactbuildercollection import (ArtifactBuilderCollection,
+                                                             LogTooLargeException)
 from treeherder.model.derived import ArtifactsModel
 from treeherder.model.models import JobLog
 
@@ -40,21 +41,42 @@ def post_log_artifacts(project, job_guid, job_log):
     except Exception as e:
         job_log.update_status(JobLog.FAILED)
 
-        # unrecoverable http error (doesn't exist or permission denied)
+        if isinstance(e, requests.ConnectionError):
+            # possibly recoverable http error (e.g. problems on our end)
+            logger.error("Failed to download log for %s: %s", log_description, e)
+            # raise so this can retry
+            raise
+
+        # unrecoverable errors: don't retry on these
+
+        #  http error (doesn't exist or permission denied)
         # (apparently this can happen somewhat often with taskcluster if
         # the job fails, so just warn about it -- see
         # https://bugzilla.mozilla.org/show_bug.cgi?id=1154248)
-        if isinstance(e, urllib2.HTTPError) and e.code in (403, 404):
-            logger.warning("Unable to retrieve log for %s: %s", log_description, e)
-            return
-
-        if isinstance(e, urllib2.URLError):
-            # possibly recoverable http error (e.g. problems on our end)
-            logger.error("Failed to download log for %s: %s", log_description, e)
+        if isinstance(e, requests.HTTPError) and e.response.status_code in (403, 404):
+            err_msg = "Unable to retrieve log for {}: {}".format(log_description, e)
+        elif isinstance(e, LogTooLargeException):
+            # the log was too large to parse
+            err_msg = e.message
         else:
             # parse error or other unrecoverable error
-            logger.error("Failed to download/parse log for %s: %s", log_description, e)
-        raise
+            err_msg = "Failed to download/parse log for {}: {}".format(log_description, e)
+
+        logger.error(err_msg)
+        # Store a job info that explains the unrecoverable problem with this log
+        create_artifacts(project, [{
+            "name": 'Job Info',
+            "blob": {"job_details": [{
+                'content_type': 'raw_html',
+                'title': 'ERROR',
+                'value': err_msg
+            }]},
+            "type": "json",
+            "job_guid": job_guid
+        }])
+
+        # returning here will prevent retry, since these are all unrecoverable
+        return
 
     try:
         serialized_artifacts = ArtifactsModel.serialize_artifact_json_blobs(

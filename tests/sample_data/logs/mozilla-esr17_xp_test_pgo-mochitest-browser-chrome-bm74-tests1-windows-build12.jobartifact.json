@@ -2,7 +2,7 @@
   "job_details": [
     {
       "content_type": "raw_html",
-      "value": "<a href=http://hg.mozilla.org/releases/mozilla-esr17/rev/e2eecb449eeb title=\"Built from revision e2eecb449eeb\">rev:e2eecb449eeb</a>\r"
+      "value": "<a href=http://hg.mozilla.org/releases/mozilla-esr17/rev/e2eecb449eeb title=\"Built from revision e2eecb449eeb\">rev:e2eecb449eeb</a>"
     },
     {
       "content_type": "raw_html",

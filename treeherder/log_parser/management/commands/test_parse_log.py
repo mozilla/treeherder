@@ -40,7 +40,6 @@ class Command(BaseCommand):
             artifact_bc = ArtifactBuilderCollection(args[0])
             artifact_bc.parse()
             times.append(time.time() - start)
-
             if not options['profile']:
                 for name, artifact in artifact_bc.artifacts.items():
                     print("%s, %s" % (name, json.dumps(artifact)))

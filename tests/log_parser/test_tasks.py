@@ -1,4 +1,5 @@
 import gzip
+import responses
 import urllib2
 import zlib
 
@@ -11,53 +12,21 @@ from treeherder.model.models import (JobDetail,
                                      TextLogError)
 
 from ..sampledata import SampleData
+from tests.test_utils import add_log_response
 
 
 @pytest.fixture
-def jobs_with_local_log():
-    log = ("mozilla-inbound_ubuntu64_vm-debug_test-"
-           "mochitest-other-bm53-tests1-linux-build122")
+def jobs_with_local_log(activate_responses):
     sample_data = SampleData()
-    url = "file://{0}".format(
-        sample_data.get_log_path("{0}.txt.gz".format(log)))
+    url = add_log_response(
+        "mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.txt.gz"
+    )
 
     job = sample_data.job_data[0]
 
     # substitute the log url with a local url
     job['job']['log_references'][0]['url'] = url
     return [job]
-
-
-@pytest.fixture
-def jobs_with_local_mozlog_log():
-    log = ("plain-chunked_raw.log")
-    sample_data = SampleData()
-    url = "file://{0}".format(
-        sample_data.get_log_path("{0}.gz".format(log)))
-
-    # sample url to test with a real log, during development
-    # url = "http://mozilla-releng-blobs.s3.amazonaws.com/blobs/try/sha512/6a690d565effa5a485a9385cc62eccd59feaa93fa6bb167073f012a105dc33aeaa02233daf081426b5363cd9affd007e42aea2265f47ddbc334a4493de1879b5"
-    job = sample_data.job_data[0]
-
-    # substitute the log url with a local url
-    job['job']['log_references'][0]['url'] = url
-    job['job']['log_references'][0]['name'] = 'mozlog_json'
-    return [job]
-
-
-@pytest.fixture
-def mock_mozlog_get_log_handler(monkeypatch):
-
-    def _get_log_handle(mockself, url):
-        response = urllib2.urlopen(
-               url,
-               timeout=settings.REQUESTS_TIMEOUT
-        )
-        return gzip.GzipFile(fileobj=BytesIO(response.read()))
-
-    import treeherder.etl.common
-    monkeypatch.setattr(treeherder.log_parser.artifactbuilders.MozlogArtifactBuilder,
-                        'get_log_handle', _get_log_handle)
 
 
 def test_parse_log(jm, jobs_with_local_log, sample_resultset):
