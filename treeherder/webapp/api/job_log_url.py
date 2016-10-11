@@ -14,7 +14,7 @@ class JobLogUrlViewSet(viewsets.ViewSet):
     def _log_as_dict(log):
         return {
             'id': log.id,
-            'job_id': log.job_id,
+            'job_id': log.job.project_specific_id,
             'name': log.name,
             'url': log.url,
             'parse_status': log.get_status_display(),
@@ -42,6 +42,7 @@ class JobLogUrlViewSet(viewsets.ViewSet):
             raise ParseError(detail="The job_id parameter(s) must be integers")
 
         logs = JobLog.objects.filter(job__repository__name=project,
-                                     job__project_specific_id__in=job_ids)
+                                     job__project_specific_id__in=job_ids).select_related(
+                                         'job__project_specific_id')
 
         return Response([self._log_as_dict(log) for log in logs])
