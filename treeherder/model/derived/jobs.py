@@ -1,7 +1,5 @@
-import copy
 import logging
 import time
-from collections import defaultdict
 from datetime import datetime
 from hashlib import sha1
 
@@ -823,20 +821,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         if not data:
             return
 
-        # Structures supporting resultset SQL
-        unique_revisions = set()
-
-        # Structures supporting job SQL
-        job_placeholders = []
-        log_placeholders = []
-        artifact_placeholders = []
         coalesced_job_guid_placeholders = []
-
-        retry_job_guids = []
 
         self.set_lower_tier_signatures()
 
-        reference_data_signatures = set()
         for datum in data:
             try:
                 # TODO: this might be a good place to check the datum against
@@ -853,8 +841,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 # migrate to ONLY ``revision``.  But initially, we will need
                 # to find the revision from the revision_hash.
                 rs_fields = ["revision", "revision_hash"]
-                assert any([x for x in rs_fields if x in datum]), \
-                    "Job must have either ``revision`` or ``revision_hash``"
+                if not any([x for x in rs_fields if x in datum]):
+                    raise ValueError("Job must have either ``revision`` or ``revision_hash``")
 
                 revision = datum.get("revision", None)
                 if not revision:
@@ -866,18 +854,19 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     )
                     revision = self.get_revision_from_revision_hash(datum["revision_hash"])
 
-                # json object can be successfully deserialized
-                # load reference data
-                (job_guid, reference_data_signature) = self._load_ref_and_job_data_structs(
-                    job,
-                    revision,
-                    unique_revisions,
-                    job_placeholders,
-                    log_placeholders,
-                    artifact_placeholders,
-                    retry_job_guids
-                )
-                reference_data_signatures.add(reference_data_signature)
+                # we assume that there is a result set for this revision by this point
+                result_set_id_list = self.execute(
+                    proc='jobs.selects.get_resultset_id_from_revision',
+                    debug_show=self.DEBUG,
+                    placeholders=[revision])
+                if not result_set_id_list:
+                    raise ValueError("Result set not found for revision")
+                result_set_id = result_set_id_list[0]['id']
+
+                # load job
+                (job_guid, reference_data_signature) = self._load_job(
+                    job, result_set_id)
+
                 for coalesced_guid in coalesced:
                     coalesced_job_guid_placeholders.append(
                         # coalesced to guid, coalesced guid
@@ -898,62 +887,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 # skip any jobs that hit errors in these stages.
                 continue
 
-        rs_lookup = self.get_resultset_all_revision_lookup(unique_revisions)
-        # this will be keyed ONLY by long_revision, at this point.
-        # Add the resultsets keyed by short_revision in case the job came in
-        # with a short revision.
-        self._add_short_revision_lookups(rs_lookup)
-
-        average_job_durations = self.get_average_job_durations(
-            reference_data_signatures
-        )
-
-        job_update_placeholders = []
-        job_guid_list = []
-        push_timestamps = {}
-
-        for index, job in enumerate(job_placeholders):
-            # Replace reference data with their associated ids
-            self._set_data_ids(
-                index,
-                job_placeholders,
-                job_guid_list,
-                job_update_placeholders,
-                rs_lookup,
-                average_job_durations,
-                push_timestamps
-            )
-
-        job_id_lookup = self._load_jobs(job_placeholders, job_guid_list,
-                                        retry_job_guids)
-
-        # Need to iterate over log references separately since they could
-        # be a different length. Replace job_guid with id in log url
-        # placeholders
-        # need also to retrieve the updated status to distinguish between
-        # failed and successful jobs
-        job_results = dict((el[0], el[9]) for el in job_update_placeholders)
-
-        self._load_log_urls(log_placeholders, job_results)
-
-        with ArtifactsModel(self.project) as artifacts_model:
-            artifacts_model.load_job_artifacts(artifact_placeholders)
-
-        # If there is already a job_id stored with pending/running status
-        # we need to update the information for the complete job
-        if job_update_placeholders:
-            # replace job_guid with job_id
-            for row in job_update_placeholders:
-                row[-1] = job_id_lookup[
-                    get_guid_root(row[-1])
-                ]['id']
-
-            self.execute(
-                proc='jobs.updates.update_job_data',
-                debug_show=self.DEBUG,
-                placeholders=job_update_placeholders,
-                executemany=True)
-
         # set the job_coalesced_to_guid column for any coalesced
         # job found
         if coalesced_job_guid_placeholders:
@@ -972,7 +905,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
            are in ``data``.
         3. build a new list of jobs in ``new_data`` that are not already in
            the db and pass that back.  It could end up empty at that point.
-
         """
         states = {
             'pending': [],
@@ -1058,12 +990,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 revision_hash))
         return rh[0]["long_revision"]
 
-    def _load_ref_and_job_data_structs(
-        self, job, revision, unique_revisions, job_placeholders,
-        log_placeholders, artifact_placeholders, retry_job_guids
-    ):
+    def _load_job(self, job_datum, result_set_id):
         """
-        Take the raw job object after etl and convert it to job_placeholders.
+        Load a job into the treeherder database
 
         If the job is a ``retry`` the ``job_guid`` will have a special
         suffix on it.  But the matching ``pending``/``running`` job will not.
@@ -1072,24 +1001,19 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         ``job_guid`` (root ``job_guid``). Then we can find the right
         ``pending``/``running`` job and update it with this ``retry`` job.
         """
-
-        # Store revision to support SQL construction
-        # for result_set entry
-        unique_revisions.add(revision)
-
         build_platform, _ = BuildPlatform.objects.get_or_create(
-            os_name=job.get('build_platform', {}).get('os_name', 'unknown'),
-            platform=job.get('build_platform', {}).get('platform', 'unknown'),
-            architecture=job.get('build_platform', {}).get('architecture',
-                                                           'unknown'))
+            os_name=job_datum.get('build_platform', {}).get('os_name', 'unknown'),
+            platform=job_datum.get('build_platform', {}).get('platform', 'unknown'),
+            architecture=job_datum.get('build_platform', {}).get('architecture',
+                                                                 'unknown'))
 
         machine_platform, _ = MachinePlatform.objects.get_or_create(
-            os_name=job.get('machine_platform', {}).get('os_name', 'unknown'),
-            platform=job.get('machine_platform', {}).get('platform', 'unknown'),
-            architecture=job.get('machine_platform', {}).get('architecture',
-                                                             'unknown'))
+            os_name=job_datum.get('machine_platform', {}).get('os_name', 'unknown'),
+            platform=job_datum.get('machine_platform', {}).get('platform', 'unknown'),
+            architecture=job_datum.get('machine_platform', {}).get('architecture',
+                                                                   'unknown'))
 
-        option_names = job.get('option_collection', [])
+        option_names = job_datum.get('option_collection', [])
         option_collection_hash = OptionCollection.calculate_hash(
             option_names)
         if not OptionCollection.objects.filter(
@@ -1106,46 +1030,43 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     option=option)
 
         machine, _ = Machine.objects.get_or_create(
-            name=job.get('machine', 'unknown'))
+            name=job_datum.get('machine', 'unknown'))
 
         # if a job with this symbol and name exists, always
         # use its default group (even if that group is different
         # from that specified)
         job_type, _ = JobType.objects.get_or_create(
-            symbol=job.get('job_symbol') or 'unknown',
-            name=job.get('name') or 'unknown')
+            symbol=job_datum.get('job_symbol') or 'unknown',
+            name=job_datum.get('name') or 'unknown')
         if job_type.job_group:
             job_group = job_type.job_group
         else:
             job_group, _ = JobGroup.objects.get_or_create(
-                name=job.get('group_name') or 'unknown',
-                symbol=job.get('group_symbol') or 'unknown')
+                name=job_datum.get('group_name') or 'unknown',
+                symbol=job_datum.get('group_symbol') or 'unknown')
             job_type.job_group = job_group
             job_type.save(update_fields=['job_group'])
 
-        product_name = job.get('product_name', 'unknown')
+        product_name = job_datum.get('product_name', 'unknown')
         if len(product_name.strip()) == 0:
             product_name = 'unknown'
         product, _ = Product.objects.get_or_create(name=product_name)
 
-        job_guid = job['job_guid']
+        job_guid = job_datum['job_guid']
         job_guid = job_guid[0:50]
 
-        who = job.get('who') or 'unknown'
+        who = job_datum.get('who') or 'unknown'
         who = who[0:50]
 
-        reason = job.get('reason') or 'unknown'
+        reason = job_datum.get('reason') or 'unknown'
         reason = reason[0:125]
 
-        state = job.get('state') or 'unknown'
+        state = job_datum.get('state') or 'unknown'
         state = state[0:25]
 
-        if job.get('result', 'unknown') == 'retry':
-            retry_job_guids.append(job_guid)
+        build_system_type = job_datum.get('build_system_type', 'buildbot')
 
-        build_system_type = job.get('build_system_type', 'buildbot')
-
-        reference_data_name = job.get('reference_data_name', None)
+        reference_data_name = job_datum.get('reference_data_name', None)
 
         sh = sha1()
         sh.update(''.join(
@@ -1189,10 +1110,12 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 item.save()
             self.set_lower_tier_signatures()
 
-        tier = job.get('tier') or 1
+        tier = job_datum.get('tier') or 1
         # job tier signatures override the setting from the job structure
         # Check the signatures list for any supported LOWER_TIERS that have
         # an active exclusion profile.
+
+        result = job_datum.get('result', 'unknown')
 
         # As stated elsewhere, a job will end up in the lowest tier where its
         # signature belongs.  So if a signature is in Tier-2 and Tier-3, it
@@ -1201,33 +1124,95 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             if signature_hash in tier_info["signatures"]:
                 tier = tier_info["tier"]
 
-        job_placeholders.append([
-            job_guid,
-            signature_hash,
-            None,                   # idx:2, job_coalesced_to_guid,
-            revision,               # idx:3, replace with result_set_id
-            build_platform.id,
-            machine_platform.id,
-            machine.id,
-            option_collection_hash,
-            job_type.id,
-            product.id,
-            who,
-            reason,
-            job.get('result', 'unknown'),  # idx:12, this is typically an int
-            state,
-            self.get_number(job.get('submit_timestamp')),
-            self.get_number(job.get('start_timestamp')),
-            self.get_number(job.get('end_timestamp')),
-            0,                      # idx:17, replace with average job duration
-            tier,
-            job_guid,
-            get_guid_root(job_guid)  # will be the same except for ``retry`` jobs
-        ])
+        try:
+            duration = JobDuration.objects.values_list(
+                'average_duration', flat=True).get(
+                    repository__name=self.project, signature=signature_hash)
+        except JobDuration.DoesNotExist:
+            duration = 0
 
-        artifacts = job.get('artifacts', [])
+        # try to insert the job unconditionally (if it already exists, this
+        # will be a no-op)
+        self.execute(
+            proc='jobs.inserts.create_job_data',
+            debug_show=self.DEBUG,
+            placeholders=[
+                [
+                    job_guid,
+                    signature_hash,
+                    None,                   # idx:2, job_coalesced_to_guid,
+                    result_set_id,
+                    build_platform.id,
+                    machine_platform.id,
+                    machine.id,
+                    option_collection_hash,
+                    job_type.id,
+                    product.id,
+                    who,
+                    reason,
+                    result,
+                    state,
+                    self.get_number(job_datum.get('submit_timestamp')),
+                    self.get_number(job_datum.get('start_timestamp')),
+                    self.get_number(job_datum.get('end_timestamp')),
+                    duration,
+                    tier,
+                    job_guid,
+                    get_guid_root(job_guid)  # will be the same except for ``retry`` jobs
+                ]
+            ],
+            executemany=True)
 
-        has_text_log_summary = False
+        # by default we should try to update the "root" object
+        guid_root = get_guid_root(job_guid)
+        ds_job_ids = self.get_job_ids_by_guid([guid_root])
+        if ds_job_ids:
+            ds_job_id = ds_job_ids[guid_root]['id']
+        else:
+            ds_job_id = self.get_job_ids_by_guid([job_guid])[job_guid]['id']
+
+        # we might both insert *and* update a job if it comes in with a status
+        # that isn't pending, but we're ok with this I think (since this code
+        # will be going away soon)
+        if state != 'pending':
+            self.execute(
+                proc="jobs.updates.update_job_data",
+                debug_show=self.DEBUG,
+                placeholders=[
+                    [
+                        job_guid,
+                        None,
+                        result_set_id,
+                        machine.id,
+                        option_collection_hash,
+                        job_type.id,
+                        product.id,
+                        who,
+                        reason,
+                        result,
+                        state,
+                        self.get_number(job_datum.get('start_timestamp')),
+                        self.get_number(job_datum.get('end_timestamp')),
+                        state,
+                        ds_job_id
+                    ]
+                ],
+                executemany=True)
+
+        # create an intermediate representation of the job useful for doing
+        # lookups (this will eventually become the main/only/primary jobs table
+        # when we finish migrating away from Datasource, see bug 1178641)
+        job, _ = Job.objects.update_or_create(
+            repository=Repository.objects.get(name=self.project),
+            project_specific_id=ds_job_id,
+            defaults={
+                'guid': job_guid
+            })
+
+        artifacts = job_datum.get('artifacts', [])
+
+        has_text_log_summary = any(x for x in artifacts
+                                   if x['name'] == 'text_log_summary')
         if artifacts:
             artifacts = ArtifactsModel.serialize_artifact_json_blobs(artifacts)
 
@@ -1243,13 +1228,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 # value from the job itself.
                 if "job_guid" not in artifact:
                     artifact["job_guid"] = job_guid
-                artifact_placeholder = artifact.copy()
-                artifact_placeholders.append(artifact_placeholder)
 
-            has_text_log_summary = any(x for x in artifacts
-                                       if x['name'] == 'text_log_summary')
+            with ArtifactsModel(self.project) as artifacts_model:
+                artifacts_model.load_job_artifacts(artifacts)
 
-        log_refs = job.get('log_references', [])
+        log_refs = job_datum.get('log_references', [])
         if log_refs:
             for log in log_refs:
                 name = log.get('name') or 'unknown'
@@ -1274,7 +1257,12 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     else:
                         parse_status = JobLog.PENDING
 
-                log_placeholders.append([job_guid, name, url, parse_status])
+                jl, _ = JobLog.objects.get_or_create(
+                    job=job, name=name, url=url, defaults={
+                        'status': parse_status
+                    })
+
+                self._schedule_log_parsing(job_guid, jl, result)
 
         return (job_guid, signature_hash)
 
@@ -1283,155 +1271,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             return long(s)
         except (ValueError, TypeError):
             return 0
-
-    def _set_data_ids(
-        self, index, job_placeholders,
-        job_guid_list, job_update_placeholders,
-        result_set_ids, average_job_durations, push_timestamps
-    ):
-        """
-        Supplant ref data with ids and create update placeholders
-
-        Pending jobs should be updated, rather than created.
-
-        ``job_placeholders`` are used for creating new jobs.
-
-        ``job_update_placeholders`` are used for updating existing non-complete
-        jobs
-        """
-
-        # Replace reference data with their ids
-        job_guid = job_placeholders[index][
-            self.JOB_PH_JOB_GUID]
-        job_coalesced_to_guid = job_placeholders[index][
-            self.JOB_PH_COALESCED_TO_GUID]
-        revision = job_placeholders[index][
-            self.JOB_PH_RESULT_SET_ID]
-        machine_id = job_placeholders[index][
-            self.JOB_PH_MACHINE_NAME]
-        option_collection_hash = job_placeholders[index][
-            self.JOB_PH_OPTION_COLLECTION_HASH]
-        job_type_id = job_placeholders[index][self.JOB_PH_TYPE_KEY]
-        product_id = job_placeholders[index][self.JOB_PH_PRODUCT_TYPE]
-        who = job_placeholders[index][self.JOB_PH_WHO]
-        reason = job_placeholders[index][self.JOB_PH_REASON]
-        result = job_placeholders[index][self.JOB_PH_RESULT]
-        job_state = job_placeholders[index][self.JOB_PH_STATE]
-        start_timestamp = job_placeholders[index][self.JOB_PH_START_TIMESTAMP]
-        end_timestamp = job_placeholders[index][self.JOB_PH_END_TIMESTAMP]
-
-        # Load job_placeholders
-
-        # replace revision_hash with id
-        result_set = result_set_ids[revision]
-        job_placeholders[index][
-            self.JOB_PH_RESULT_SET_ID] = result_set['id']
-        push_timestamps[result_set['id']] = result_set['push_timestamp']
-
-        job_guid_list.append(job_guid)
-
-        # for retry jobs, we may have a different job_guid than the root of job_guid
-        # because retry jobs append a suffix for uniqueness (since the job_guid
-        # won't be unique due to them all having the same request_id and request_time.
-        # But there may be a ``pending`` or ``running`` job that this retry
-        # should be updating, so make sure to add the root ``job_guid`` as well.
-        job_guid_root = get_guid_root(job_guid)
-        if job_guid != job_guid_root:
-            job_guid_list.append(job_guid_root)
-
-        reference_data_signature = job_placeholders[index][1]
-        average_duration = average_job_durations.get(reference_data_signature, 0)
-
-        job_placeholders[index][self.JOB_PH_RUNNING_AVG] = average_duration
-
-        # Load job_update_placeholders
-        if job_state != 'pending':
-
-            job_update_placeholders.append([
-                job_guid,
-                job_coalesced_to_guid,
-                result_set['id'],
-                machine_id,
-                option_collection_hash,
-                job_type_id,
-                product_id,
-                who,
-                reason,
-                result,
-                job_state,
-                start_timestamp,
-                end_timestamp,
-                job_state,
-                get_guid_root(job_guid)
-            ])
-
-    def _load_jobs(self, job_placeholders, job_guid_list, retry_job_guids):
-
-        if not job_placeholders:
-            return {}
-
-        # Store job data
-        self.execute(
-            proc='jobs.inserts.create_job_data',
-            debug_show=self.DEBUG,
-            placeholders=job_placeholders,
-            executemany=True)
-
-        job_id_lookup = self.get_job_ids_by_guid(job_guid_list)
-        jobs_to_update = copy.copy(job_id_lookup)
-
-        # For each of these ``retry_job_guids`` the job_id_lookup will
-        # either contain the retry guid, or the root guid (based on whether we
-        # inserted, or skipped insertion to do an update).  So add in
-        # whichever is missing.
-        for retry_guid in retry_job_guids:
-            retry_guid_root = get_guid_root(retry_guid)
-            lookup_keys = job_id_lookup.keys()
-
-            if retry_guid in lookup_keys:
-                # this retry was inserted in the db at some point
-                if retry_guid_root not in lookup_keys:
-                    # the root isn't there because there was, for some reason,
-                    # never a pending/running version of this job
-                    retry_job = job_id_lookup[retry_guid]
-                    job_id_lookup[retry_guid_root] = retry_job
-            elif retry_guid_root in lookup_keys:
-                # if job_id_lookup contains the root, then the insert
-                # will have skipped, so we want to find that job
-                # when looking for the retry_guid for update later.
-                retry_job = job_id_lookup[retry_guid_root]
-                job_id_lookup[retry_guid] = retry_job
-                # for the intermediate representation (see below), we only
-                # want to modify the job who was retriggered
-                if retry_guid_root in jobs_to_update:
-                    del jobs_to_update[retry_guid_root]
-                jobs_to_update[retry_guid] = retry_job
-
-        # create an intermediate representation of the job useful for doing
-        # lookups (this will eventually become the main/only/primary jobs table
-        # when we finish migrating away from Datasource, see bug 1178641
-        repository = Repository.objects.get(name=self.project)
-        for job_guid in jobs_to_update.keys():
-            # in the case of retries, we *update* the old job with a new guid,
-            # then create a new job with an old guid when the retry actually
-            # starts/completes
-            Job.objects.update_or_create(
-                repository=repository,
-                project_specific_id=job_id_lookup[job_guid]['id'],
-                defaults={
-                    'guid': job_guid
-                })
-        return job_id_lookup
-
-    def get_average_job_durations(self, reference_data_signatures):
-        if not reference_data_signatures:
-            return {}
-
-        repository = Repository.objects.get(name=self.project)
-        durations = JobDuration.objects.filter(signature__in=reference_data_signatures,
-                                               repository=repository
-                                               ).values_list('signature', 'average_duration')
-        return dict(durations)
 
     def get_job_ids_by_guid(self, job_guid_list):
 
@@ -1447,33 +1286,14 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return job_id_lookup
 
-    def _load_log_urls(self, log_placeholders, job_results):
-        if log_placeholders:
-            job_log_list = []
-            for (job_guid, name, url, status) in log_placeholders:
-                try:
-                    job = Job.objects.get(guid=job_guid)
-                except Job.DoesNotExist:
-                    # in the case of retries, a job object might temporarily
-                    # not exist, just ignore the job log objects in this case
-                    # (we'll pick them up later)
-                    continue
-                jl, _ = JobLog.objects.get_or_create(
-                    job=job, name=name, url=url, defaults={
-                        'status': status
-                    })
-                job_log_list.append((jl, job_results[job_guid]))
-
-            self.schedule_log_parsing(job_log_list)
-
-    def schedule_log_parsing(self, log_data):
+    def _schedule_log_parsing(self, job_guid, job_log, result):
         """Kick off the initial task that parses the log data.
 
         log_data is a list of job log objects and the result for that job
         """
 
         # importing here to avoid an import loop
-        from treeherder.log_parser.tasks import parse_job_logs
+        from treeherder.log_parser.tasks import parse_job_log
 
         task_types = {
             "errorsummary_json": ("store_failure_lines", "store_failure_lines"),
@@ -1481,32 +1301,26 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             "builds-4h": ("parse_log", "log_parser"),
         }
 
-        tasks = defaultdict(list)
+        # a log can be submitted already parsed.  So only schedule
+        # a parsing task if it's ``pending``
+        # the submitter is then responsible for submitting the
+        # text_log_summary artifact
+        if job_log.status != JobLog.PENDING:
+            return
 
-        for (job_log, job_result) in log_data:
-            # a log can be submitted already parsed.  So only schedule
-            # a parsing task if it's ``pending``
-            # the submitter is then responsible for submitting the
-            # text_log_summary artifact
-            if job_log.status != JobLog.PENDING:
-                continue
+        # if this is not a known type of log, abort parse
+        if not task_types.get(job_log.name):
+            return
 
-            func_name, routing_key = task_types.get(job_log.name, (None, None))
-            if routing_key is None:
-                continue
+        func_name, routing_key = task_types[job_log.name]
 
-            if job_result != 'success':
-                routing_key += '.failures'
-            else:
-                routing_key += ".normal"
+        if result != 'success':
+            routing_key += '.failures'
+        else:
+            routing_key += ".normal"
 
-            tasks[job_log.job.guid].append({
-                "func_name": func_name,
-                "routing_key": routing_key,
-                "job_log_id": job_log.id
-            })
-
-        parse_job_logs(self.project, tasks)
+        parse_job_log(self.project, func_name, routing_key, job_guid,
+                      job_log.id)
 
     def _get_last_insert_id(self):
         """Return last-inserted ID."""
