@@ -162,14 +162,14 @@ def test_ingest_running_to_retry_sample_job(jm, sample_data,
 
 
 @pytest.mark.parametrize("ingestion_cycles", [[(0, 1), (1, 2), (2, 3)],
-                                              [(0, 2), (2, 3)]])
+                                              [(0, 2), (2, 3)],
+                                              [(0, 3)], [(0, 1), (1, 3)]])
 def test_ingest_running_to_retry_to_success_sample_job(jm, sample_data,
                                                        sample_resultset,
                                                        test_repository,
                                                        mock_log_parser,
                                                        ingestion_cycles):
     # verifies that retries to success work, no matter how jobs are batched
-    # should work but doesn't (retries not generated): [(0, 3)], [(0, 1), (1, 3)],
     jm.store_result_set_data(sample_resultset)
 
     job_datum = copy.deepcopy(sample_data.job_data[0])
@@ -204,14 +204,14 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, sample_data,
 
 
 @pytest.mark.parametrize("ingestion_cycles", [[(0, 1), (1, 3), (3, 4)],
-                                              [(0, 3), (3, 4)]])
+                                              [(0, 3), (3, 4)],
+                                              [(0, 2), (2, 4)]])
 def test_ingest_running_to_retry_to_success_sample_job_multiple_retries(
         jm, sample_data, sample_resultset, test_repository,
         mock_log_parser, ingestion_cycles):
-    # this verifies that if we try to ingest multiple retries:
+    # this verifies that if we ingest multiple retries:
     # (1) nothing errors out
-    # (2) we only end up with two jobs (the original + a retry job)
-    # should work but doesn't (generates 3 jobs): [(0, 2), (2, 4)],
+    # (2) we end up with three jobs (the original + 2 retry jobs)
 
     jm.store_result_set_data(sample_resultset)
 
@@ -241,12 +241,13 @@ def test_ingest_running_to_retry_to_success_sample_job_multiple_retries(
         print Job.objects.all()
     print Job.objects.all()
     jl = jm.get_job_list(0, 10)
-    assert len(jl) == 2
+    assert len(jl) == 3
     assert jl[0]['result'] == 'retry'
-    assert jl[1]['result'] == 'success'
+    assert jl[1]['result'] == 'retry'
+    assert jl[2]['result'] == 'success'
 
-    assert Job.objects.count() == 2
-    assert JobLog.objects.count() == 2
+    assert Job.objects.count() == 3
+    assert JobLog.objects.count() == 3
     assert set(Job.objects.values_list('id', flat=True)) == set([j['id'] for j in jl])
 
 
