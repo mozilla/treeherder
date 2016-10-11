@@ -2,6 +2,7 @@ import datetime
 import json
 import logging
 import re
+from HTMLParser import HTMLParser
 
 import jsonschema
 from django.conf import settings
@@ -319,6 +320,26 @@ class TinderboxPrintParser(ParserBase):
                 title, value = line.split("<br/>", 1)
                 artifact["title"] = title
                 artifact["value"] = value
+            # or similar long lines if they contain a url
+            elif "href" in line and "title" in line:
+                def parse_url_line(line_data):
+                    class TpLineParser(HTMLParser):
+
+                        def handle_starttag(self, tag, attrs):
+                            d = dict(attrs)
+                            artifact["url"] = d['href']
+                            artifact["title"] = d['title']
+
+                        def handle_data(self, data):
+                            artifact["value"] = data
+
+                    p = TpLineParser()
+                    p.feed(line_data)
+                    p.close()
+
+                # strip ^M returns on windows lines otherwise
+                # handle_data will yield no data 'value'
+                parse_url_line(line.replace('\r', ''))
             else:
                 artifact["value"] = line
             self.artifact.append(artifact)
