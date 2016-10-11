@@ -52,6 +52,10 @@ BUG_SEARCHES = (
         [1054456]
     ),
     (
+        "[taskcluster:error]  Command \" [./test-macosx.sh --no-read-buildbot-config --installer-url=https://q",
+        [100]
+    ),
+    (
         "should not be match_d",
         []
     ),

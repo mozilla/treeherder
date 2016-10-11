@@ -153,7 +153,7 @@ class Bugscache(models.Model):
         # 90 days ago
         time_limit = datetime.datetime.now() - datetime.timedelta(days=90)
         # Wrap search term so it is used as a phrase in the full-text search.
-        search_term_fulltext = search_term.join('""')
+        search_term_fulltext = '"%s"' % search_term.replace("\"", "")
         # Substitute escape and wildcard characters, so the search term is used
         # literally in the LIKE statement.
         search_term_like = search_term.replace('=', '==').replace(
