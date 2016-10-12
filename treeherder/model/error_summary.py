@@ -20,8 +20,17 @@ MOZHARNESS_RE = re.compile(
 REFTEST_RE = re.compile("\s+[=!]=\s+.*")
 
 
-@memoize(timeout=BUG_SUGGESTION_CACHE_TIMEOUT)
 def get_error_summary(job_id):
+    # if we don't have any text log errors, we don't want to cache
+    # (since this might be an incomplete job)
+    if TextLogError.objects.filter(step__job_id=job_id).exists():
+        return _get_error_summary(job_id)
+    else:
+        return []
+
+
+@memoize(timeout=BUG_SUGGESTION_CACHE_TIMEOUT)
+def _get_error_summary(job_id):
     """
     Create a list of bug suggestions for a job
     """
