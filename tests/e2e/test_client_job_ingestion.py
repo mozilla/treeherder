@@ -121,6 +121,53 @@ def test_post_job_with_unparsed_log(test_project, result_set_stored,
                     {'Bug suggestions'})
 
 
+def test_post_job_pending_to_completed_with_unparsed_log(test_project,
+                                                         result_set_stored,
+                                                         mock_post_json):
+
+    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
+
+    # the first time, submit it as running (with no logs)
+    tjc = client.TreeherderJobCollection()
+    tj = client.TreeherderJob({
+        'project': test_project,
+        'revision': result_set_stored[0]['revision'],
+        'job': {
+            'job_guid': job_guid,
+            'state': 'running'
+        }
+    })
+    tjc.add(tj)
+    post_collection(test_project, tjc)
+    # should have no text log errors or bug suggestions
+    assert TextLogError.objects.count() == 0
+    assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 0
+
+    # the second time, post a log that will get parsed
+    log_url = "file://{0}".format(
+        SampleData().get_log_path("mozilla-central-macosx64-debug-bm65-build1-build15.txt.gz"))
+    tjc = client.TreeherderJobCollection()
+    tj = client.TreeherderJob({
+        'project': test_project,
+        'revision': result_set_stored[0]['revision'],
+        'job': {
+            'job_guid': job_guid,
+            'state': 'completed',
+            'log_references': [{
+                'url': log_url,
+                'name': 'buildbot_text',
+                'parse_status': 'pending'
+            }]
+        }
+    })
+    tjc.add(tj)
+    post_collection(test_project, tjc)
+
+    # should have a full set of text log errors
+    assert TextLogError.objects.count() == 2
+    assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 2
+
+
 def test_post_job_with_parsed_log(test_project, result_set_stored,
                                   mock_post_json,
                                   monkeypatch,
