@@ -1338,6 +1338,10 @@ class TextLogError(models.Model):
         db_table = "text_log_error"
         unique_together = ('step', 'line_number')
 
+    def bug_suggestions(self):
+        from treeherder.model import error_summary
+        return error_summary.bug_suggestions_line(self)
+
 
 class TextLogSummary(models.Model):
     """

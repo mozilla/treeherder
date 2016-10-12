@@ -26,47 +26,48 @@ def get_error_summary(job_id):
     Create a list of bug suggestions for a job
     """
     error_summary = []
-    terms_requested = {}
+    term_cache = {}
 
     for err in TextLogError.objects.filter(step__job_id=job_id):
-        # remove the mozharness prefix
-        clean_line = get_mozharness_substring(err.line)
-        search_terms = []
-        # get a meaningful search term out of the error line
-        search_term = get_error_search_term(clean_line)
-        bugs = dict(open_recent=[], all_others=[])
-
-        # collect open recent and all other bugs suggestions
-        if search_term:
-            search_terms.append(search_term)
-            if search_term not in terms_requested:
-                bugs = Bugscache.search(search_term)
-                terms_requested[search_term] = bugs
-            else:
-                bugs = terms_requested[search_term]
-
-        if not bugs or not (bugs['open_recent'] or
-                            bugs['all_others']):
-            # no suggestions, try to use
-            # the crash signature as search term
-            crash_signature = get_crash_signature(clean_line)
-            if crash_signature:
-                search_terms.append(crash_signature)
-                if crash_signature not in terms_requested:
-                    bugs = Bugscache.search(crash_signature)
-                    terms_requested[crash_signature] = bugs
-                else:
-                    bugs = terms_requested[crash_signature]
-
-        # TODO: Rename 'search' to 'error_text' or similar, since that's
-        # closer to what it actually represents (bug 1091060).
-        error_summary.append({
-            "search": clean_line,
-            "search_terms": search_terms,
-            "bugs": bugs
-        })
-
+        error_summary.append(bug_suggestions_line(err, term_cache))
     return error_summary
+
+
+def bug_suggestions_line(err, term_cache=None):
+    if term_cache is None:
+        term_cache = {}
+    # remove the mozharness prefix
+    clean_line = get_mozharness_substring(err.line)
+    search_terms = []
+    # get a meaningful search term out of the error line
+    search_term = get_error_search_term(clean_line)
+    bugs = dict(open_recent=[], all_others=[])
+
+    # collect open recent and all other bugs suggestions
+    if search_term:
+        search_terms.append(search_term)
+        if search_term not in term_cache:
+            term_cache[search_term] = Bugscache.search(search_term)
+        bugs = term_cache[search_term]
+
+    if not bugs or not (bugs['open_recent'] or
+                        bugs['all_others']):
+        # no suggestions, try to use
+        # the crash signature as search term
+        crash_signature = get_crash_signature(clean_line)
+        if crash_signature:
+            search_terms.append(crash_signature)
+            if crash_signature not in term_cache:
+                term_cache[crash_signature] = Bugscache.search(crash_signature)
+            bugs = term_cache[crash_signature]
+
+    # TODO: Rename 'search' to 'error_text' or similar, since that's
+    # closer to what it actually represents (bug 1091060).
+    return {
+        "search": clean_line,
+        "search_terms": search_terms,
+        "bugs": bugs,
+    }
 
 
 def get_mozharness_substring(line):

@@ -292,6 +292,24 @@ class JobsViewSet(viewsets.ViewSet):
                                                           read_only=True).data)
 
     @detail_route(methods=['get'])
+    def text_log_errors(self, request, project, pk=None):
+        """
+        Gets a list of steps associated with this job
+        """
+        try:
+            job = Job.objects.get(repository__name=project,
+                                  project_specific_id=pk)
+        except job.DoesNotExist:
+            return Response("No job with id: {0}".format(pk),
+                            status=HTTP_404_NOT_FOUND)
+        textlog_errors = (TextLogError.objects
+                          .filter(step__job=job)
+                          .order_by('id'))
+        return Response(serializers.TextLogErrorSerializer(textlog_errors,
+                                                           many=True,
+                                                           read_only=True).data)
+
+    @detail_route(methods=['get'])
     def bug_suggestions(self, request, project, pk=None):
         """
         Gets a set of bug suggestions for this job
@@ -302,7 +320,7 @@ class JobsViewSet(viewsets.ViewSet):
         except ObjectDoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
-        return Response(get_error_summary(job))
+        return Response(get_error_summary(job.id))
 
     @detail_route(methods=['get'])
     @with_jobs

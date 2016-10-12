@@ -14,6 +14,6 @@ class TextLogSummaryFilter(filters.FilterSet):
 
 class TextLogSummaryViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.TextLogSummarySerializer
-    queryset = TextLogSummary.objects.all()
+    queryset = TextLogSummary.objects.prefetch_related("lines").all()
     filter_class = TextLogSummaryFilter
     pagination_class = pagination.IdPagination
