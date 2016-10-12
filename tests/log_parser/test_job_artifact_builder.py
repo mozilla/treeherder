@@ -15,12 +15,17 @@ def do_test(log):
 
     url = "file://{0}".format(
         SampleData().get_log_path("{0}.txt.gz".format(log)))
-    exp = test_utils.load_exp("{0}.jobartifact.json".format(log))
 
     builder = BuildbotJobArtifactBuilder(url)
     lpc = ArtifactBuilderCollection(url, builders=builder)
     lpc.parse()
     act = lpc.artifacts[builder.name]
+    exp = test_utils.load_exp("{0}.jobartifact.json".format(log))
+
+    # :: Uncomment to create the ``exp`` files, if you're making a lot of them
+    # import json
+    # with open(SampleData().get_log_path("{0}.jobartifact.json".format(log)), "w") as f:
+    #     f.write(json.dumps(act, indent=4))
 
     # we can't compare the "logurl" field, because it's a fully qualified url,
     # so it will be different depending on the config it's run in.
