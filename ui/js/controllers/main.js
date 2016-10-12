@@ -528,6 +528,14 @@ treeherderApp.controller('MainCtrl', [
                 $rootScope.$emit(thEvents.groupStateChanged);
             }
 
+            // handle a change in the show duplicate jobs variable
+            // whether it was by the button or directly in the url.
+            var showDuplicateJobs = $scope.isShowDuplicateJobs();
+            if (showDuplicateJobs !== $scope.showDuplicateJobs) {
+                $scope.showDuplicateJobs = showDuplicateJobs;
+                $rootScope.$emit(thEvents.duplicateJobsVisibilityChanged);
+            }
+
             // update the tier drop-down menu if a tier setting was changed
             $scope.updateTiers();
         });
@@ -564,6 +572,16 @@ treeherderApp.controller('MainCtrl', [
         $scope.pinnedJobs = thPinboard.pinnedJobs;
         $scope.jobFilters = thJobFilters;
 
+        $scope.isShowDuplicateJobs = function() {
+            return $location.search().duplicate_jobs !== 'hidden';
+        };
+        $scope.showDuplicateJobs = $scope.isShowDuplicateJobs();
+        $scope.toggleShowDuplicateJobs = function() {
+            var showDuplicateJobs = !$scope.showDuplicateJobs;
+
+            // $scope.showDuplicateJobs will be changed in watch function above
+            $location.search("duplicate_jobs", !showDuplicateJobs ? 'hidden' : null);
+        };
     }
 ]);
 

@@ -65,8 +65,8 @@
           </span>
         </span>
 
-        <!--Toggle Group State Button-->
         <span class="btn-group">
+          <!--Toggle Group State Button-->
           <span class="btn btn-view-nav btn-sm btn-toggle-group-state"
                 tabindex="0" role="button"
                 ng-click="toggleGroupState()">(
@@ -77,6 +77,16 @@
                   class="group-state-nav-icon"
                   title="Collapse job groups">-</span>
           )</span>
+
+          <!-- Toggle Duplicate Jobs -->
+          <span class="btn btn-view-nav btn-sm btn-hide-duplicate-jobs"
+                tabindex="1" role="button" 
+                title="{{ showDuplicateJobs ? 'Hide Duplicate Jobs' : 'Show Duplicate Jobs' }}"
+                ng-click="groupState !== 'expanded' && toggleShowDuplicateJobs()"
+                ng-disabled="groupState === 'expanded'">
+            <i class="fa"
+               ng-class="{ 'fa-eye-slash': !showDuplicateJobs,
+                           'fa-eye': showDuplicateJobs }"></i></span>
         </span>
 
         <!--Result Status Filter Chicklets-->
