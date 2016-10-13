@@ -373,4 +373,8 @@ fieldset[disabled] .btn-view-nav-closed.active {
   .btn-excluded::after {
     text-decoration: line-through;
   }
+
+  .btn-toggle-duplicate-jobs::after {
+    content: " Duplicates";
+  }
 }

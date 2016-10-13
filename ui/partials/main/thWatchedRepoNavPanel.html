@@ -54,6 +54,15 @@
           </span>
         </span>
 
+        <!-- Toggle Duplicate Jobs -->
+        <span class="btn btn-view-nav btn-sm btn-toggle-duplicate-jobs"
+              tabindex="1" role="button" 
+              title="{{ showDuplicateJobs ? 'Hide Duplicate Jobs' : 'Show Duplicate Jobs' }}"
+              ng-click="groupState !== 'expanded' && toggleShowDuplicateJobs()"
+              ng-disabled="groupState === 'expanded'"
+              ng-class="{ 'btn-excluded': !showDuplicateJobs }">
+        </span>
+
         <!--Toggle Revisions Button-->
         <span class="btn-group">
           <span class="btn btn-view-nav btn-sm btn-collapse-resultsets"
@@ -65,8 +74,8 @@
           </span>
         </span>
 
-        <!--Toggle Group State Button-->
         <span class="btn-group">
+          <!--Toggle Group State Button-->
           <span class="btn btn-view-nav btn-sm btn-toggle-group-state"
                 tabindex="0" role="button"
                 ng-click="toggleGroupState()">(

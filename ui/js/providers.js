@@ -194,6 +194,8 @@ treeherder.provider('thEvents', function() {
 
             groupStateChanged: "group-state-changed-EVT",
 
+            duplicateJobsVisibilityChanged: "duplicate-jobs-visibility-changed-EVT",
+
             toggleRevisions: "toggle-revisions-EVT",
 
             showRunnableJobs: "show-runnable-jobs-EVT",
