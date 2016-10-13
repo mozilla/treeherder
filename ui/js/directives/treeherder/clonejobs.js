@@ -323,9 +323,10 @@ treeherder.directive('thCloneJobs', [
                 // or filtered out (like in the case of unclassified failures).
                 //
                 // We don't add it to group counts, because it should not be counted
-                // when filtered out.  Failures don't get included in counts anyway.
+                // when filtered out and duplicate jobs are being shown.
+                // Failures don't get included in counts anyway.
                 if (_.contains(failResults, resultStatus) ||
-                    typeSymbolCounts[job.job_type_symbol] > 1) {
+                        (typeSymbolCounts[job.job_type_symbol] > 1 && $scope.showDuplicateJobs)) {
                     // render the job itself, not a count
                     addJobBtnToArray(job, lastJobSelected, jobBtnArray);
                 } else if (job.visible) {
@@ -847,6 +848,9 @@ treeherder.directive('thCloneJobs', [
                     _.bind(renderGroups, scope, element, true)();
                     scrollToElement($(viewContentSel).find(".selected-job, .selected-count"), 1);
                 });
+            $rootScope.$on(thEvents.duplicateJobsVisibilityChanged, function() {
+                _.bind(renderGroups, scope, element, true)();
+            });
 
             $rootScope.$on(
                 thEvents.searchPage, function(){
