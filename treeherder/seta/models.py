@@ -18,19 +18,19 @@ class TaskRequest(models.Model):
 
     def __str__(self):
         return '%s/%s/%s'.format(
-            self.repository,
+            self.repository.name,
             self.counter,
             self.reset_delta
         )
 
 
 class JobPriority(models.Model):
-    # e.g. web-platform-tests-1; {opt,pgo,debug}; windows8-64; 5; 5400; {buildbot,taskcluster,*}
-    testtype = models.CharField(max_length=128)
-    buildtype = models.CharField(max_length=64)
-    platform = models.CharField(max_length=64)
-    priority = models.IntegerField()
-    timeout = models.IntegerField()
+    # This field is sanitized to unify name from Buildbot and TaskCluster
+    testtype = models.CharField(max_length=128)  # e.g. web-platform-tests-1
+    buildtype = models.CharField(max_length=64)  # e.g. {opt,pgo,debug}
+    platform = models.CharField(max_length=64)  # e.g. windows8-64
+    priority = models.IntegerField()  # 1 or 5
+    timeout = models.IntegerField()  # e.g. 5400
     expires = models.DateTimeField()
     buildsystem = models.CharField(max_length=64)
 
