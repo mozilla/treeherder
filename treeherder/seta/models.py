@@ -1,7 +1,7 @@
-from treeherder.model.models import Repository
-
 from django.db import models
 from django.utils import timezone
+
+from treeherder.model.models import Repository
 
 
 class TaskRequest(models.Model):
