@@ -265,19 +265,11 @@ class Datasource(models.Model):
         if 'OPTIONS' in settings.DATABASES['default']:
             master_host_config.update(settings.DATABASES['default']['OPTIONS'])
 
-        read_host_config = {
-            "host": settings.DATABASES['read_only']['HOST'],
-            "user": settings.DATABASES['read_only']['USER'],
-            "passwd": settings.DATABASES['read_only'].get('PASSWORD') or '',
-        }
-        if 'OPTIONS' in settings.DATABASES['read_only']:
-            read_host_config.update(settings.DATABASES['read_only']['OPTIONS'])
-
         data_source = {
             self.key: {
                 "hub": "MySQL",
                 "master_host": master_host_config,
-                "read_host": read_host_config,
+                "read_host": master_host_config,
                 "require_host_type": True,
                 "default_db": self.name,
                 "procs": [

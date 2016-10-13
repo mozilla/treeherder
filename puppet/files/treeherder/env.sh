@@ -4,7 +4,6 @@ export LD_LIBRARY_PATH="/home/vagrant/venv/lib/x86_64-linux-gnu"
 export ENABLE_LOCAL_SETTINGS_FILE='True'
 export BROKER_URL='amqp://guest:guest@localhost//'
 export DATABASE_URL='mysql://root@localhost/treeherder'
-export DATABASE_URL_RO='$DATABASE_URL'
 export ELASTICSEARCH_URL='http://localhost:9200'
 
 export TREEHERDER_DEBUG='True'

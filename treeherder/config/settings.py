@@ -536,7 +536,6 @@ TEMPLATE_DEBUG = DEBUG
 # ...which django-environ converts into the Django DB settings dict format.
 DATABASES = {
     'default': env.db_url('DATABASE_URL'),
-    'read_only': env.db_url('DATABASE_URL_RO')
 }
 
 # We're intentionally not using django-environ's query string options feature,
