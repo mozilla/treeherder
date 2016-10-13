@@ -1,9 +1,10 @@
+from treeherder.model.models import Repository
+
 from django.db import models
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
 from treeherder.model.models import Repository
-
 
 @python_2_unicode_compatible
 class TaskRequest(models.Model):
