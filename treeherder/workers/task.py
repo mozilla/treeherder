@@ -14,6 +14,7 @@ class retryable_task(object):
 
     NON_RETRYABLE_EXCEPTIONS = (
         TypeError,
+        ValueError,
         IntegrityError,
         ProgrammingError,
         UnicodeDecodeError,
