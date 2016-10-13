@@ -378,3 +378,8 @@ fieldset[disabled] .btn-view-nav-closed.active {
     content: " Duplicates";
   }
 }
+
+.navbar-badge.badge * {
+  cursor: default;
+}
+
