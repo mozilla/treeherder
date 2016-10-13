@@ -56,7 +56,7 @@ class Command(BaseCommand):
         if options['age']:
             n_days_ago = datetime.datetime.now() + datetime.timedelta(-1 *
                                                                       options['age'])
-            datums.filter(push_timestamp__gt=n_days_ago)
+            datums = datums.filter(push_timestamp__gt=n_days_ago)
         try:
             datums.update(signature=new_signature)
         except IntegrityError:
