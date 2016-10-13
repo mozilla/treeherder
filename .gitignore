@@ -2,6 +2,7 @@
 node_modules/
 .DS_store
 *.pyc
+.vscode/
 
 # vi
 *.swp
