@@ -1,14 +1,16 @@
 {
-  "job_details": [
-    {
-      "content_type": "raw_html",
-      "value": "<a href=http://hg.mozilla.org/projects/ux/rev/546ccc10a18f title=\"Built from revision 546ccc10a18f\">rev:546ccc10a18f</a>"
-    },
-    {
-      "content_type": "raw_html",
-      "value": "7270/6",
-      "title": "jetpack"
-    }
-  ],
-  "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/ux_ubuntu32_vm_test-jetpack-bm67-tests1-linux-build16.txt.gz"
+    "job_details": [
+        {
+            "url": "http://hg.mozilla.org/projects/ux/rev/546ccc10a18f",
+            "value": "rev:546ccc10a18f",
+            "content_type": "raw_html",
+            "title": "Built from revision 546ccc10a18f"
+        },
+        {
+            "value": "7270/6",
+            "content_type": "raw_html",
+            "title": "jetpack"
+        }
+    ],
+    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/ux_ubuntu32_vm_test-jetpack-bm67-tests1-linux-build16.txt.gz"
 }

@@ -1,5 +1,6 @@
 import django_filters
 from dateutil import parser
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import (filters,
                             viewsets)
 from rest_framework.decorators import (detail_route,
@@ -12,7 +13,9 @@ from rest_framework.status import (HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
 
 from treeherder.model.derived import ArtifactsModel
+from treeherder.model.error_summary import get_error_summary
 from treeherder.model.models import (FailureLine,
+                                     Job,
                                      JobDetail,
                                      JobLog,
                                      OptionCollection,
@@ -237,18 +240,18 @@ class JobsViewSet(viewsets.ViewSet):
         return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
     @detail_route(methods=['get'])
-    @with_jobs
-    def text_log_summary(self, request, project, jm, pk=None):
+    def text_log_summary(self, request, project, pk=None):
         """
         Get a list of test failure lines for the job
         """
-        job = jm.get_job(pk)
-        if not job:
+        try:
+            job = Job.objects.get(repository__name=project,
+                                  project_specific_id=pk)
+        except ObjectDoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
-        job = job[0]
         summary = TextLogSummary.objects.filter(
-            job_guid=job['job_guid']
+            job_guid=job.guid
         ).prefetch_related("lines").all()
 
         if len(summary) > 1:
@@ -258,24 +261,13 @@ class JobsViewSet(viewsets.ViewSet):
             return Response("No text_log_summary generated for job with id: {0}".format(pk),
                             status=HTTP_404_NOT_FOUND)
 
-        with ArtifactsModel(project) as am:
-            artifacts = am.get_job_artifact_list(
-                offset=0,
-                limit=1,
-                conditions={"job_id": set([("=", pk)]),
-                            "name": set([("=", "Bug suggestions")]),
-                            "type": set([("=", "json")])})
-            artifacts_by_name = {item["name"]: item for item in artifacts}
-
-        bug_suggestions = artifacts_by_name.get("Bug suggestions", {}).get("blob")
-
         summary = summary[0]
 
         lines_by_number = {error.line_number: error.line for error in
-                           TextLogError.objects.filter(step__job__guid=job['job_guid'])}
+                           TextLogError.objects.filter(step__job=job)}
 
         rv = serializers.TextLogSummarySerializer(summary).data
-        rv["bug_suggestions"] = bug_suggestions
+        rv["bug_suggestions"] = get_error_summary(job)
 
         for line in rv["lines"]:
             line["line"] = lines_by_number[line["line_number"]]
@@ -298,6 +290,37 @@ class JobsViewSet(viewsets.ViewSet):
         return Response(serializers.TextLogStepSerializer(textlog_steps,
                                                           many=True,
                                                           read_only=True).data)
+
+    @detail_route(methods=['get'])
+    def text_log_errors(self, request, project, pk=None):
+        """
+        Gets a list of steps associated with this job
+        """
+        try:
+            job = Job.objects.get(repository__name=project,
+                                  project_specific_id=pk)
+        except job.DoesNotExist:
+            return Response("No job with id: {0}".format(pk),
+                            status=HTTP_404_NOT_FOUND)
+        textlog_errors = (TextLogError.objects
+                          .filter(step__job=job)
+                          .order_by('id'))
+        return Response(serializers.TextLogErrorSerializer(textlog_errors,
+                                                           many=True,
+                                                           read_only=True).data)
+
+    @detail_route(methods=['get'])
+    def bug_suggestions(self, request, project, pk=None):
+        """
+        Gets a set of bug suggestions for this job
+        """
+        try:
+            job = Job.objects.get(repository__name=project,
+                                  project_specific_id=pk)
+        except ObjectDoesNotExist:
+            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+
+        return Response(get_error_summary(job.id))
 
     @detail_route(methods=['get'])
     @with_jobs

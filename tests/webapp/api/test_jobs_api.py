@@ -380,12 +380,22 @@ def test_text_log_steps_and_errors(webapp, eleven_jobs_stored, jm, test_reposito
                 {
                     'id': 1,
                     'line': 'failure 1',
-                    'line_number': 101
+                    'line_number': 101,
+                    'bug_suggestions': {
+                        'search': 'failure 1',
+                        'search_terms': ['failure 1'],
+                        'bugs': {'open_recent': [], 'all_others': []}
+                    }
                 },
                 {
                     'id': 2,
                     'line': 'failure 2',
-                    'line_number': 102
+                    'line_number': 102,
+                    'bug_suggestions': {
+                        'search': 'failure 2',
+                        'search_terms': ['failure 2'],
+                        'bugs': {'open_recent': [], 'all_others': []}
+                    }
                 }
             ],
             'finished': '1969-12-31T16:03:20',
@@ -395,6 +405,57 @@ def test_text_log_steps_and_errors(webapp, eleven_jobs_stored, jm, test_reposito
             'result': 'testfailed',
             'started': '1969-12-31T16:01:41',
             'started_line_number': 101
+        }
+    ]
+
+
+def test_text_log_errors(webapp, eleven_jobs_stored, jm, test_repository):
+
+    job = Job.objects.get(project_specific_id=jm.get_job(1)[0]['id'])
+    TextLogStep.objects.create(job=job,
+                               name='step1',
+                               started=datetime.datetime.fromtimestamp(0),
+                               finished=datetime.datetime.fromtimestamp(100),
+                               started_line_number=1,
+                               finished_line_number=100,
+                               result=TextLogStep.SUCCESS)
+    step2 = TextLogStep.objects.create(job=job,
+                                       name='step2',
+                                       started=datetime.datetime.fromtimestamp(101),
+                                       finished=datetime.datetime.fromtimestamp(200),
+                                       started_line_number=101,
+                                       finished_line_number=200,
+                                       result=TextLogStep.TEST_FAILED)
+    TextLogError.objects.create(step=step2, line='failure 1',
+                                line_number=101)
+    TextLogError.objects.create(step=step2, line='failure 2',
+                                line_number=102)
+    resp = webapp.get(
+        reverse("jobs-text-log-errors",
+                kwargs={"project": test_repository.name,
+                        "pk": job.project_specific_id})
+    )
+    assert resp.status_int == 200
+    assert resp.json == [
+        {
+            'id': 1,
+            'line': 'failure 1',
+            'line_number': 101,
+            'bug_suggestions': {
+                'search': 'failure 1',
+                'search_terms': ['failure 1'],
+                'bugs': {'open_recent': [], 'all_others': []}
+            }
+        },
+        {
+            'id': 2,
+            'line': 'failure 2',
+            'line_number': 102,
+            'bug_suggestions': {
+                'search': 'failure 2',
+                'search_terms': ['failure 2'],
+                'bugs': {'open_recent': [], 'all_others': []}
+            }
         }
     ]
 

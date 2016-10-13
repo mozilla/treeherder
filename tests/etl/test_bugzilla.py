@@ -10,8 +10,8 @@ def test_bz_api_process(mock_bugzilla_api_request):
     process.run()
 
     # the number of rows inserted should equal to the number of bugs
-    assert Bugscache.objects.count() == 16
+    assert Bugscache.objects.count() == 17
 
     # test that a second ingestion of the same bugs doesn't insert new rows
     process.run()
-    assert Bugscache.objects.count() == 16
+    assert Bugscache.objects.count() == 17

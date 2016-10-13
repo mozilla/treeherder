@@ -1,14 +1,16 @@
 {
-  "job_details": [
-    {
-      "content_type": "raw_html",
-      "value": "<a href=http://hg.mozilla.org/releases/mozilla-esr17/rev/e2eecb449eeb title=\"Built from revision e2eecb449eeb\">rev:e2eecb449eeb</a>\r"
-    },
-    {
-      "content_type": "raw_html",
-      "value": "31776/<em class=\"testfail\">2</em>/40",
-      "title": "mochitest-browser-chrome"
-    }
-  ],
-  "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/mozilla-esr17_xp_test_pgo-mochitest-browser-chrome-bm74-tests1-windows-build12.txt.gz"
+    "job_details": [
+        {
+            "url": "http://hg.mozilla.org/releases/mozilla-esr17/rev/e2eecb449eeb",
+            "value": "rev:e2eecb449eeb",
+            "content_type": "raw_html",
+            "title": "Built from revision e2eecb449eeb"
+        },
+        {
+            "value": "31776/<em class=\"testfail\">2</em>/40",
+            "content_type": "raw_html",
+            "title": "mochitest-browser-chrome"
+        }
+    ],
+    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/mozilla-esr17_xp_test_pgo-mochitest-browser-chrome-bm74-tests1-windows-build12.txt.gz"
 }

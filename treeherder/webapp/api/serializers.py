@@ -92,6 +92,12 @@ class MachinePlatformSerializer(serializers.ModelSerializer):
         model = models.MachinePlatform
 
 
+class JobSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Job
+
+
 class JobGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -156,6 +162,7 @@ class FailureLineNoStackSerializer(serializers.ModelSerializer):
 
 
 class TextLogErrorSerializer(serializers.ModelSerializer):
+    bug_suggestions = NoOpSerializer(read_only=True)
 
     class Meta:
         model = models.TextLogError
@@ -163,7 +170,6 @@ class TextLogErrorSerializer(serializers.ModelSerializer):
 
 
 class TextLogStepSerializer(serializers.ModelSerializer):
-
     errors = TextLogErrorSerializer(many=True, read_only=True)
     result = serializers.SerializerMethodField()
 

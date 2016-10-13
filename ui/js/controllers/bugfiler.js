@@ -41,7 +41,7 @@ treeherder.controller('BugFilerCtrl', [
             var thisFailure = "";
             for(var i = 0; i < allFailures.length; i++) {
                 for(var j=0; j < $scope.omittedLeads.length; j++) {
-                    if(allFailures[i][0].search($scope.omittedLeads[j]) >= 0) {
+                    if(allFailures[i][0].search($scope.omittedLeads[j]) >= 0 && allFailures[i].length > 1) {
                         allFailures[i].shift();
                     }
                 }
@@ -67,7 +67,7 @@ treeherder.controller('BugFilerCtrl', [
             summary = summary.split(" | ");
 
             for(var i=0; i < $scope.omittedLeads.length; i++) {
-                if(summary[0].search($scope.omittedLeads[i]) >= 0) {
+                if(summary[0].search($scope.omittedLeads[i]) >= 0 && summary.length > 1) {
                     summary.shift();
                 }
             }

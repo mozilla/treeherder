@@ -10,11 +10,14 @@ from treeherder.client.thclient import client
 from treeherder.log_parser.parsers import StepParser
 from treeherder.model.derived import (ArtifactsModel,
                                       JobsModel)
+from treeherder.model.error_summary import get_error_summary
 from treeherder.model.models import (Job,
                                      JobDetail,
                                      JobLog,
                                      TextLogError,
                                      TextLogStep)
+
+from ..sampledata import SampleData
 
 
 @pytest.fixture
@@ -30,7 +33,8 @@ def text_log_summary_dict():
                  "result": "testfailed",
                  "errors": [
                      {"line": "12:34:13     INFO -  Assertion failure: addr % CellSize == 0, at ../../../js/src/gc/Heap.h:1041", "linenumber": 61918},
-                     {"line": "12:34:24  WARNING -  TEST-UNEXPECTED-FAIL | file:///builds/slave/talos-slave/test/build/tests/jsreftest/tests/jsreftest.html?test=ecma_5/JSON/parse-array-gc.js | Exited with code 1 during test run", "linenumber": 61919}, {"line": "12:34:37  WARNING -  PROCESS-CRASH | file:///builds/slave/talos-slave/test/build/tests/jsreftest/tests/jsreftest.html?test=ecma_5/JSON/parse-array-gc.js | application crashed [@ js::gc::Cell::tenuredZone() const]", "linenumber": 61922},
+                     {"line": "12:34:24  WARNING -  TEST-UNEXPECTED-FAIL | file:///builds/slave/talos-slave/test/build/tests/jsreftest/tests/jsreftest.html?test=ecma_5/JSON/parse-array-gc.js | Exited with code 1 during test run", "linenumber": 61919},
+                     {"line": "12:34:37  WARNING -  PROCESS-CRASH | file:///builds/slave/talos-slave/test/build/tests/jsreftest/tests/jsreftest.html?test=ecma_5/JSON/parse-array-gc.js | application crashed [@ js::gc::Cell::tenuredZone() const]", "linenumber": 61922},
                      {"line": "12:34:38    ERROR - Return code: 256", "linenumber": 64435}
                  ]},
                 {"name": "Build ./build-b2g-desktop.sh /home/worker/workspace", "started_linenumber": 1, "finished_linenumber": 1, "result": "success",
@@ -47,8 +51,7 @@ def check_artifacts(test_project,
                     job_guid,
                     parse_status,
                     num_artifacts,
-                    exp_artifact_names=None,
-                    exp_error_summary=None):
+                    exp_artifact_names=None):
 
     job_logs = JobLog.objects.filter(job__guid=job_guid)
     assert len(job_logs) == 1
@@ -68,9 +71,101 @@ def check_artifacts(test_project,
             artifact_names = {x['name'] for x in artifacts}
             assert set(artifact_names) == exp_artifact_names
 
-        if exp_error_summary:
-            act_bs_obj = [x['blob'] for x in artifacts if x['name'] == 'Bug suggestions'][0]
-            assert exp_error_summary == act_bs_obj
+
+def test_post_job_with_unparsed_log(test_project, result_set_stored,
+                                    mock_post_json, monkeypatch):
+    """
+    test submitting a job with an unparsed log parses the log,
+    generates an appropriate set of text log steps, and calls
+    get_error_summary (to warm the bug suggestions cache)
+    """
+
+    # create a wrapper around get_error_summary that records whether
+    # it's been called
+    mock_get_error_summary = MagicMock(name='get_error_summary',
+                                       wraps=get_error_summary)
+    import treeherder.model.error_summary
+    monkeypatch.setattr(treeherder.model.error_summary, 'get_error_summary',
+                        mock_get_error_summary)
+
+    log_url = "file://{0}".format(
+        SampleData().get_log_path("mozilla-central-macosx64-debug-bm65-build1-build15.txt.gz"))
+
+    tjc = client.TreeherderJobCollection()
+    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
+    tj = client.TreeherderJob({
+        'project': test_project,
+        'revision': result_set_stored[0]['revision'],
+        'job': {
+            'job_guid': job_guid,
+            'state': 'completed',
+            'log_references': [{
+                'url': log_url,
+                'name': 'buildbot_text',
+                'parse_status': 'pending'
+            }]
+        }
+    })
+    tjc.add(tj)
+    post_collection(test_project, tjc)
+
+    # show have 2 errors
+    assert TextLogError.objects.count() == 2
+    # verify that get_error_summary was called (to warm the bug suggestions
+    # cache)
+    assert mock_get_error_summary.called
+    # should have 2 error summary lines (aka bug suggestions)
+    assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 2
+    # we still store bug suggestions for now
+    check_artifacts(test_project, job_guid, JobLog.PARSED, 1,
+                    {'Bug suggestions'})
+
+
+def test_post_job_pending_to_completed_with_unparsed_log(test_project,
+                                                         result_set_stored,
+                                                         mock_post_json):
+
+    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
+
+    # the first time, submit it as running (with no logs)
+    tjc = client.TreeherderJobCollection()
+    tj = client.TreeherderJob({
+        'project': test_project,
+        'revision': result_set_stored[0]['revision'],
+        'job': {
+            'job_guid': job_guid,
+            'state': 'running'
+        }
+    })
+    tjc.add(tj)
+    post_collection(test_project, tjc)
+    # should have no text log errors or bug suggestions
+    assert TextLogError.objects.count() == 0
+    assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 0
+
+    # the second time, post a log that will get parsed
+    log_url = "file://{0}".format(
+        SampleData().get_log_path("mozilla-central-macosx64-debug-bm65-build1-build15.txt.gz"))
+    tjc = client.TreeherderJobCollection()
+    tj = client.TreeherderJob({
+        'project': test_project,
+        'revision': result_set_stored[0]['revision'],
+        'job': {
+            'job_guid': job_guid,
+            'state': 'completed',
+            'log_references': [{
+                'url': log_url,
+                'name': 'buildbot_text',
+                'parse_status': 'pending'
+            }]
+        }
+    })
+    tjc.add(tj)
+    post_collection(test_project, tjc)
+
+    # should have a full set of text log errors
+    assert TextLogError.objects.count() == 2
+    assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 2
 
 
 def test_post_job_with_parsed_log(test_project, result_set_stored,
@@ -107,6 +202,7 @@ def test_post_job_with_parsed_log(test_project, result_set_stored,
 
     post_collection(test_project, tjc)
 
+    # should have no artifacts
     check_artifacts(test_project, job_guid, JobLog.PARSED, 0)
 
     # ensure the parsing didn't happen
@@ -118,13 +214,12 @@ def test_post_job_with_text_log_summary_artifact_parsed(
         monkeypatch,
         result_set_stored,
         mock_post_json,
-        mock_error_summary,
         text_log_summary_dict,
         ):
     """
     test submitting a job with a pre-parsed log gets parse_status of
-    "parsed" and doesn't parse the log, but still generates
-    the bug suggestions.
+    "parsed" and doesn't parse the log, but we get the expected set of
+    text log steps/errors and bug suggestions.
     """
 
     mock_parse = MagicMock(name="parse_line")
@@ -155,57 +250,11 @@ def test_post_job_with_text_log_summary_artifact_parsed(
 
     post_collection(test_project, tjc)
 
+    # should have 4 error summary lines (aka bug suggestions)
+    assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 4
+    # we still store bug suggestions for now
     check_artifacts(test_project, job_guid, JobLog.PARSED, 1,
-                    {'Bug suggestions'}, mock_error_summary)
-
-    # ensure the parsing didn't happen
-    assert mock_parse.called is False
-
-
-def test_post_job_with_text_log_summary_artifact_parsed_dict_blob(
-        test_project,
-        monkeypatch,
-        result_set_stored,
-        mock_post_json,
-        mock_error_summary,
-        text_log_summary_dict,
-        ):
-    """
-    test submitting a job with a pre-parsed log gets parse_status of
-    "parsed" and doesn't parse the log, but still generates
-    the bug suggestions.
-    """
-
-    mock_parse = MagicMock(name="parse_line")
-    monkeypatch.setattr(StepParser, 'parse_line', mock_parse)
-
-    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
-    tjc = client.TreeherderJobCollection()
-    tj = client.TreeherderJob({
-        'project': test_project,
-        'revision': result_set_stored[0]['revision'],
-        'job': {
-            'job_guid': job_guid,
-            'state': 'completed',
-            'log_references': [{
-                'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
-                'name': 'buildbot_text',
-                'parse_status': 'parsed'
-            }],
-            'artifacts': [{
-                "blob": text_log_summary_dict,
-                "type": "json",
-                "name": "text_log_summary",
-                "job_guid": job_guid
-            }]
-        }
-    })
-    tjc.add(tj)
-
-    post_collection(test_project, tjc)
-
-    check_artifacts(test_project, job_guid, JobLog.PARSED, 1,
-                    {'Bug suggestions'}, mock_error_summary)
+                    {'Bug suggestions'})
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False
@@ -216,7 +265,6 @@ def test_post_job_with_text_log_summary_artifact_pending(
         monkeypatch,
         result_set_stored,
         mock_post_json,
-        mock_error_summary,
         text_log_summary_dict,
         ):
     """
@@ -255,8 +303,11 @@ def test_post_job_with_text_log_summary_artifact_pending(
 
     post_collection(test_project, tjc)
 
+    # should have 4 error summary lines (aka bug suggestions)
+    assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 4
+    # check to make sure bug suggestions are stored
     check_artifacts(test_project, job_guid, JobLog.PARSED, 1,
-                    {'Bug suggestions'}, mock_error_summary)
+                    {'Bug suggestions'})
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False
@@ -267,7 +318,6 @@ def test_post_job_artifacts_by_add_artifact(
         monkeypatch,
         result_set_stored,
         mock_post_json,
-        mock_error_summary,
         ):
     """
     test submitting a job with artifacts added by ``add_artifact``
@@ -362,8 +412,7 @@ def test_post_job_artifacts_by_add_artifact(
     }
 
     check_artifacts(test_project, job_guid, JobLog.PARSED, 2,
-                    {'Bug suggestions', 'privatebuild'},
-                    mock_error_summary)
+                    {'Bug suggestions', 'privatebuild'})
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False
