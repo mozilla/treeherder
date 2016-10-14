@@ -1,4 +1,3 @@
-import datetime
 import json
 import time
 from optparse import make_option
@@ -40,12 +39,7 @@ class Command(BaseCommand):
                     dest='delete',
                     help='remove orphan signatures after migration',
                     action='store_true',
-                    default=False),
-        make_option('--age',
-                    dest='age',
-                    help='maximum age of datum to update',
-                    type='int',
-                    default=30)
+                    default=False)
     )
 
     def _reassign_signatures(self, old_signature_ids, new_signature, options,
@@ -53,10 +47,6 @@ class Command(BaseCommand):
         start_time = time.time()
         datums = PerformanceDatum.objects.filter(
             signature_id__in=old_signature_ids)
-        if options['age']:
-            n_days_ago = datetime.datetime.now() + datetime.timedelta(-1 *
-                                                                      options['age'])
-            datums = datums.filter(push_timestamp__gt=n_days_ago)
         try:
             datums.update(signature=new_signature)
         except IntegrityError:
@@ -88,9 +78,10 @@ class Command(BaseCommand):
             'machine_platform': self.platform_name_map[signature.platform_id]
         }
         parent_signature_id = None
-        if (signature.extra_properties and
-            signature.extra_properties.get('test_options')) == ['e10s']:
-            signature_properties['test_options'] = json.dumps(['e10s'])
+        if signature.extra_properties and \
+           signature.extra_properties.get('test_options'):
+            signature_properties['test_options'] = json.dumps(
+                signature.extra_properties['test_options'])
         if not parent and len(signature.test):
             signature_properties['test'] = signature.test
             # try to get a parent signature hash (if one exists)
@@ -105,7 +96,7 @@ class Command(BaseCommand):
                             framework=signature.framework,
                             signature_hash=parent_signature_hash)
                         self.parent_signature_id_map[parent_signature_hash] = parent_signature_id
-                        signature_properties['parent_signature'] = parent_signature_hash
+                    signature_properties['parent_signature'] = parent_signature_hash
                 except PerformanceSignature.DoesNotExist:
                     # there should be a parent signature for this test, but
                     # isn't.. wait for next iteration
