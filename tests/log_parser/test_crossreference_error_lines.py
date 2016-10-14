@@ -21,8 +21,7 @@ def test_crossreference_error_lines(test_job):
     create_text_log_errors(test_job, lines)
     create_bug_suggestions_failures(test_job, lines)
 
-    call_command('crossreference_error_lines', test_job.repository.name,
-                 test_job.guid)
+    call_command('crossreference_error_lines', str(test_job.id))
 
     summary = TextLogSummary.objects.all()
     assert len(summary) == 1
@@ -58,8 +57,7 @@ def test_crossreference_error_lines_truncated(test_job):
     create_text_log_errors(test_job, lines)
     create_bug_suggestions_failures(test_job, lines)
 
-    call_command('crossreference_error_lines', test_job.repository.name,
-                 test_job.guid)
+    call_command('crossreference_error_lines', str(test_job.id))
 
     summary_lines = TextLogSummaryLine.objects.all()
     assert len(summary_lines) == len(lines)
@@ -67,7 +65,6 @@ def test_crossreference_error_lines_truncated(test_job):
 
 
 def test_crossreference_error_lines_missing(test_job):
-
     lines = [(test_line, {}),
              (test_line, {"subtest": "subtest2"}),
              (test_line, {"status": "TIMEOUT"}),
@@ -79,8 +76,7 @@ def test_crossreference_error_lines_missing(test_job):
     create_text_log_errors(test_job, lines)
     create_bug_suggestions_failures(test_job, lines)
 
-    call_command('crossreference_error_lines', test_job.repository.name,
-                 test_job.guid)
+    call_command('crossreference_error_lines', str(test_job.id))
 
     failure_lines = FailureLine.objects.all()
     summary_lines = TextLogSummaryLine.objects.all()
