@@ -88,9 +88,10 @@ class Command(BaseCommand):
             'machine_platform': self.platform_name_map[signature.platform_id]
         }
         parent_signature_id = None
-        if (signature.extra_properties and
-            signature.extra_properties.get('test_options')) == ['e10s']:
-            signature_properties['test_options'] = json.dumps(['e10s'])
+        if signature.extra_properties and \
+           signature.extra_properties.get('test_options'):
+            signature_properties['test_options'] = json.dumps(
+                signature.extra_properties['test_options'])
         if not parent and len(signature.test):
             signature_properties['test'] = signature.test
             # try to get a parent signature hash (if one exists)
@@ -105,7 +106,7 @@ class Command(BaseCommand):
                             framework=signature.framework,
                             signature_hash=parent_signature_hash)
                         self.parent_signature_id_map[parent_signature_hash] = parent_signature_id
-                        signature_properties['parent_signature'] = parent_signature_hash
+                    signature_properties['parent_signature'] = parent_signature_hash
                 except PerformanceSignature.DoesNotExist:
                     # there should be a parent signature for this test, but
                     # isn't.. wait for next iteration
