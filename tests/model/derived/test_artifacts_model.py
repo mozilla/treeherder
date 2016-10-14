@@ -7,7 +7,8 @@ import pytest
 from treeherder.model.derived import (ArtifactsModel,
                                       JobsModel)
 from treeherder.model.models import (JobDetail,
-                                     TextLogError)
+                                     TextLogError,
+                                     TextLogStep)
 
 xfail = pytest.mark.xfail
 
@@ -122,6 +123,44 @@ def test_load_long_job_details(test_project, eleven_jobs_stored):
     assert jd.title == long_title[:max_length("title")]
     assert jd.value == long_value[:max_length("value")]
     assert jd.url == long_url[:max_length("url")]
+
+
+def test_load_textlog_summary_twice(test_project, test_job):
+    text_log_summary_artifact = {
+        'type': 'json',
+        'name': 'text_log_summary',
+        'blob': json.dumps({
+            'step_data': {
+                "steps": [
+                    {
+                        'name': 'foo',
+                        'started': '2016-05-10 12:44:23.103904',
+                        'started_linenumber': 8,
+                        'finished_linenumber': 10,
+                        'finished': '2016-05-10 12:44:23.104394',
+                        'result': 'success',
+                        'errors': [
+                            {
+                                "line": '07:51:28  WARNING - foobar',
+                                "linenumber": 1587
+                            }
+                        ]
+                    }
+                ]
+            }
+        }),
+        'job_guid': test_job.guid
+    }
+
+    with ArtifactsModel(test_project) as am:
+        am.load_job_artifacts([text_log_summary_artifact])
+        assert TextLogError.objects.count() == 1
+        assert TextLogStep.objects.count() == 1
+        # load again (simulating the job being parsed twice,
+        # which sometimes happens)
+        am.load_job_artifacts([text_log_summary_artifact])
+        assert TextLogError.objects.count() == 1
+        assert TextLogStep.objects.count() == 1
 
 
 def test_load_non_ascii_textlog_errors(test_project, eleven_jobs_stored):

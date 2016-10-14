@@ -3,6 +3,8 @@ import zlib
 
 import dateutil.parser
 import simplejson as json
+from django.db import transaction
+from django.db.utils import IntegrityError
 from django.forms import model_to_dict
 
 from treeherder.etl.perf import load_perf_artifacts
@@ -126,6 +128,7 @@ class ArtifactsModel(TreeherderModelBase):
                 job=job,
                 **job_detail_dict)
 
+    @transaction.atomic
     def store_text_log_summary(self, job, text_log_summary_artifact):
         """
         Store the contents of the text log summary artifact
@@ -133,36 +136,34 @@ class ArtifactsModel(TreeherderModelBase):
         step_data = json.loads(
             text_log_summary_artifact['blob'])['step_data']
         result_map = {v: k for (k, v) in TextLogStep.RESULTS}
-        for step in step_data['steps']:
-            name = step['name'][:TextLogStep._meta.get_field('name').max_length]
-            defaults = {
-                'name': name,
-                'result': result_map[step['result']]
-            }
-            # process start/end times if we have them
-            # we currently don't support timezones in treeherder, so
-            # just ignore that when importing/updating the bug to avoid
-            # a ValueError (though by default the text log summaries
-            # we produce should have time expressed in UTC anyway)
-            for tkey in ('started', 'finished'):
-                if step.get(tkey):
-                    defaults[tkey] = dateutil.parser.parse(
-                        step[tkey], ignoretz=True)
+        with transaction.atomic():
+            for step in step_data['steps']:
+                name = step['name'][:TextLogStep._meta.get_field('name').max_length]
+                # process start/end times if we have them
+                # we currently don't support timezones in treeherder, so
+                # just ignore that when importing/updating the bug to avoid
+                # a ValueError (though by default the text log summaries
+                # we produce should have time expressed in UTC anyway)
+                time_kwargs = {}
+                for tkey in ('started', 'finished'):
+                    if step.get(tkey):
+                        time_kwargs[tkey] = dateutil.parser.parse(
+                            step[tkey], ignoretz=True)
 
-            log_step, _ = TextLogStep.objects.update_or_create(
-                job=job,
-                started_line_number=step['started_linenumber'],
-                finished_line_number=step['finished_linenumber'],
-                defaults=defaults)
+                log_step = TextLogStep.objects.create(
+                    job=job,
+                    started_line_number=step['started_linenumber'],
+                    finished_line_number=step['finished_linenumber'],
+                    name=name,
+                    result=result_map[step['result']],
+                    **time_kwargs)
 
-            if step.get('errors'):
-                for error in step['errors']:
-                    TextLogError.objects.update_or_create(
-                        step=log_step,
-                        line_number=error['linenumber'],
-                        defaults={
-                            'line': astral_filter(error['line'])
-                        })
+                if step.get('errors'):
+                    for error in step['errors']:
+                        TextLogError.objects.create(
+                            step=log_step,
+                            line_number=error['linenumber'],
+                            line=astral_filter(error['line']))
 
         # create a set of bug suggestions immediately
         load_error_summary(job.repository.name, job.id)
@@ -248,7 +249,13 @@ class ArtifactsModel(TreeherderModelBase):
                 elif artifact_name == 'Job Info':
                     self.store_job_details(job, artifact)
                 elif artifact_name == 'text_log_summary':
-                    self.store_text_log_summary(job, artifact)
+                    try:
+                        self.store_text_log_summary(job, artifact)
+                    except IntegrityError:
+                        logger.warning("Couldn't insert text log information "
+                                       "for job with guid %s, this probably "
+                                       "means the job was already parsed",
+                                       job_guid)
                 elif artifact_name == 'buildapi':
                     buildbot_request_id = json.loads(artifact['blob']).get(
                         'request_id')
