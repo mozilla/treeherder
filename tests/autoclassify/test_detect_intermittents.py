@@ -26,8 +26,9 @@ def test_detect_intermittents(test_job, failure_lines, classified_failures,
     MatcherManager._detector_funcs = {}
     detector = MatcherManager.register_detector(TestFailureDetector)
 
-    call_command('detect_intermittents', retriggered_job.repository.name,
-                 retriggered_job.guid)
+    # This allows us to test that the command works and avoids the
+    # issue that the task is a no-op for !mozilla-inbound
+    call_command('detect_intermittents', str(test_job.id))
 
     assert ClassifiedFailure.objects.count() == len(old_failure_ids) + 4
 

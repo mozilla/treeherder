@@ -957,16 +957,17 @@ class JobNote(models.Model):
 
 
 class FailureLineManager(models.Manager):
-    def unmatched_for_job(self, repository, job_guid):
+    def unmatched_for_job(self, job):
         return FailureLine.objects.filter(
-            job_guid=job_guid,
-            repository__name=repository,
+            job_guid=job.guid,
+            repository=job.repository,
             classified_failures=None,
         )
 
     def for_jobs(self, *jobs, **filters):
-        failures = FailureLine.objects.filter(job_guid__in=[item["job_guid"] for item in jobs],
-                                              **filters)
+        failures = FailureLine.objects.filter(
+            job_guid__in=[item.guid for item in jobs],
+            **filters)
         failures_by_job = defaultdict(list)
         for item in failures:
             failures_by_job[item.job_guid].append(item)

@@ -26,7 +26,7 @@ def test_store_error_summary(activate_responses, test_repository, jm, eleven_job
 
     log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
 
-    store_failure_lines(jm.project, job.guid, log_obj)
+    store_failure_lines(log_obj)
 
     assert FailureLine.objects.count() == 1
 
@@ -52,7 +52,7 @@ def test_store_error_summary_truncated(activate_responses, test_repository, jm,
 
     log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
 
-    store_failure_lines(jm.project, job.guid, log_obj)
+    store_failure_lines(log_obj)
 
     assert FailureLine.objects.count() == 5 + 1
 
@@ -76,7 +76,7 @@ def test_store_error_summary_astral(activate_responses, test_repository, jm,
 
     log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
 
-    store_failure_lines(jm.project, job.guid, log_obj)
+    store_failure_lines(log_obj)
 
     assert FailureLine.objects.count() == 1
 
@@ -106,7 +106,7 @@ def test_store_error_summary_404(activate_responses, test_repository, jm, eleven
 
     log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
 
-    store_failure_lines(jm.project, job.guid, log_obj)
+    store_failure_lines(log_obj)
 
     log_obj.refresh_from_db()
     assert log_obj.status == JobLog.FAILED
@@ -125,7 +125,7 @@ def test_store_error_summary_500(activate_responses, test_repository, jm, eleven
     log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
 
     with pytest.raises(HTTPError):
-        store_failure_lines(jm.project, job.guid, log_obj)
+        store_failure_lines(log_obj)
 
     log_obj.refresh_from_db()
     assert log_obj.status == JobLog.FAILED
@@ -150,18 +150,18 @@ def test_store_error_summary_duplicate(activate_responses, test_repository, jm, 
     job = Job.objects.get(guid=jm.get_job(1)[0]['job_guid'])
     log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
 
-    write_failure_lines(test_repository, job.guid, log_obj, [{"action": "log",
-                                                              "level": "debug",
-                                                              "message": "test",
-                                                              "line": 1}])
-    write_failure_lines(test_repository, job.guid, log_obj, [{"action": "log",
-                                                              "level": "debug",
-                                                              "message": "test",
-                                                              "line": 1},
-                                                             {"action": "log",
-                                                              "level": "debug",
-                                                              "message": "test 1",
-                                                              "line": 2}])
+    write_failure_lines(log_obj, [{"action": "log",
+                                   "level": "debug",
+                                   "message": "test",
+                                   "line": 1}])
+    write_failure_lines(log_obj, [{"action": "log",
+                                   "level": "debug",
+                                   "message": "test",
+                                   "line": 1},
+                                  {"action": "log",
+                                   "level": "debug",
+                                   "message": "test 1",
+                                   "line": 2}])
 
     assert FailureLine.objects.count() == 2
 
@@ -179,7 +179,7 @@ def test_store_error_summary_elastic_search(activate_responses, test_repository,
 
     log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
 
-    store_failure_lines(jm.project, job.guid, log_obj)
+    store_failure_lines(log_obj)
 
     assert FailureLine.objects.count() == 1
 
