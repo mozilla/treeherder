@@ -533,20 +533,22 @@ TEMPLATE_DEBUG = DEBUG
 
 # The database config is defined using environment variables of form:
 #   'mysql://username:password@host:optional_port/database_name'
+# ...which django-environ converts into the Django DB settings dict format.
 DATABASES = {
     'default': env.db_url('DATABASE_URL'),
     'read_only': env.db_url('DATABASE_URL_RO')
 }
 
-# Setup ssl connection for aws rds.
-# Can be removed when django-environ supports setting this:
-# https://github.com/joke2k/django-environ/issues/72
-if env.bool('IS_HEROKU', default=False):
-    for db_name in DATABASES:
-        DATABASES[db_name]['OPTIONS'] = {
+# We're intentionally not using django-environ's query string options feature,
+# since it hides configuration outside of the repository, plus could lead to
+# drift between environments.
+for alias in DATABASES:
+    if DATABASES[alias]['HOST'] != 'localhost':
+        # Use TLS when connecting to RDS.
+        DATABASES[alias]['OPTIONS'] = {
             'ssl': {
-                'ca': '/app/deployment/aws/combined-ca-bundle.pem'
-            }
+                'ca': 'deployment/aws/combined-ca-bundle.pem',
+            },
         }
 
 # TREEHERDER_MEMCACHED is a string of comma-separated address:port pairs
