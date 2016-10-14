@@ -1262,7 +1262,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                         'status': parse_status
                     })
 
-                self._schedule_log_parsing(job_guid, jl, result)
+                self._schedule_log_parsing(jl, result)
 
         return (job_guid, signature_hash)
 
@@ -1286,7 +1286,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return job_id_lookup
 
-    def _schedule_log_parsing(self, job_guid, job_log, result):
+    def _schedule_log_parsing(self, job_log, result):
         """Kick off the initial task that parses the log data.
 
         log_data is a list of job log objects and the result for that job
@@ -1319,8 +1319,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         else:
             routing_key += ".normal"
 
-        parse_job_log(self.project, func_name, routing_key, job_guid,
-                      job_log.id)
+        parse_job_log(func_name, routing_key, job_log)
 
     def _get_last_insert_id(self):
         """Return last-inserted ID."""

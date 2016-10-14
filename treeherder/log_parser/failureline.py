@@ -11,25 +11,18 @@ from requests.exceptions import HTTPError
 from treeherder.etl.common import fetch_text
 from treeherder.etl.text import astral_filter
 from treeherder.model.models import (FailureLine,
-                                     JobLog,
-                                     Repository)
+                                     JobLog)
 from treeherder.model.search import (TestFailureLine,
                                      bulk_insert)
 
 logger = logging.getLogger(__name__)
 
 
-def store_failure_lines(repository_name, job_guid, job_log):
-    try:
-        repository = Repository.objects.get(name=repository_name, active_status='active')
-    except Repository.DoesNotExist:
-        logger.error("Unknown repository %s" % repository_name)
-        raise
-
+def store_failure_lines(job_log):
     log_iter = fetch_log(job_log)
     if not log_iter:
         return
-    write_failure_lines(repository, job_guid, job_log, log_iter)
+    write_failure_lines(job_log, log_iter)
 
 
 def fetch_log(job_log):
@@ -49,7 +42,7 @@ def fetch_log(job_log):
     return (json.loads(item) for item in log_text.splitlines())
 
 
-def write_failure_lines(repository, job_guid, job_log, log_iter):
+def write_failure_lines(job_log, log_iter):
     failure_lines_cutoff = settings.FAILURE_LINES_CUTOFF
     log_list = list(islice(log_iter, failure_lines_cutoff+1))
 
@@ -60,7 +53,7 @@ def write_failure_lines(repository, job_guid, job_log, log_iter):
     retry = False
     with transaction.atomic():
         try:
-            failure_lines = create(repository, job_guid, job_log, log_list)
+            failure_lines = create(job_log, log_list)
         except OperationalError as e:
             logger.warning("Got OperationalError inserting failure_line")
             # Retry iff this error is the "incorrect String Value" error
@@ -83,14 +76,16 @@ def write_failure_lines(repository, job_guid, job_log, log_iter):
     if retry:
         with transaction.atomic():
             log_list = list(transformer(log_list))
-            failure_lines = create(repository, job_guid, job_log, log_list)
+            failure_lines = create(job_log, log_list)
 
     create_es(failure_lines)
 
 
-def create(repository, job_guid, job_log, log_list):
+def create(job_log, log_list):
     failure_lines = [
-        FailureLine.objects.create(repository=repository, job_guid=job_guid, job_log=job_log,
+        FailureLine.objects.create(repository=job_log.job.repository,
+                                   job_guid=job_log.job.guid,
+                                   job_log=job_log,
                                    **failure_line)
         for failure_line in log_list]
     job_log.update_status(JobLog.PARSED)

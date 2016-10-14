@@ -34,7 +34,7 @@ def autoclassify(jm, job, test_failure_lines, matchers, status="testfailed"):
 
     register_matchers(*matchers)
 
-    call_command('autoclassify', jm.project, job.guid)
+    call_command('autoclassify', str(job.id))
 
     for item in test_failure_lines:
         item.refresh_from_db()
