@@ -542,6 +542,8 @@ DATABASES = {
 # since it hides configuration outside of the repository, plus could lead to
 # drift between environments.
 for alias in DATABASES:
+    # Persist database connections for 5 minutes, to avoid expensive reconnects.
+    DATABASES[alias]['CONN_MAX_AGE'] = 300
     if DATABASES[alias]['HOST'] != 'localhost':
         # Use TLS when connecting to RDS.
         DATABASES[alias]['OPTIONS'] = {
