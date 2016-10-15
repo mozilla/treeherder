@@ -7,8 +7,8 @@ from django.forms import model_to_dict
 
 from treeherder.etl.perf import load_perf_artifacts
 from treeherder.etl.text import astral_filter
-from treeherder.model import utils
-from treeherder.model.error_summary import load_error_summary
+from treeherder.model import (error_summary,
+                              utils)
 from treeherder.model.models import (Job,
                                      JobDetail,
                                      ReferenceDataSignatures,
@@ -164,8 +164,8 @@ class ArtifactsModel(TreeherderModelBase):
                             'line': astral_filter(error['line'])
                         })
 
-        # create a set of bug suggestions immediately
-        load_error_summary(job.repository.name, job.id)
+        # get error summary immediately (to warm the cache)
+        error_summary.get_error_summary(job.id)
 
     def store_performance_artifact(
             self, job_ids, performance_artifact_placeholders):

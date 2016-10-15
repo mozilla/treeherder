@@ -5,8 +5,7 @@ from django.core.management.base import (BaseCommand,
                                          CommandError)
 from mozlog.formatters.tbplformatter import TbplFormatter
 
-from treeherder.model.derived import (ArtifactsModel,
-                                      JobsModel)
+from treeherder.model.derived import JobsModel
 from treeherder.model.models import (FailureLine,
                                      Repository,
                                      TextLogError,
@@ -42,27 +41,15 @@ class Command(BaseCommand):
                              '{0} job_guid {1}'.format(repository, job_guid))
                 return
 
-        with ArtifactsModel(repository_name) as am:
-            # Load the bug suggestions for this job
-            bug_suggestions = am.get_job_artifact_list(0, 1, {
-                'job_id': set([('=', job['id'])]),
-                'name': set([("=", "Bug suggestions")])
-            })
-            if not bug_suggestions:
-                logger.error("No bug_suggestions generated for job")
-                return
-            bug_suggestions = bug_suggestions[0]
-
         text_log_errors = TextLogError.objects.filter(
             step__job__guid=job_guid).order_by('line_number')
         self.crossreference_error_lines(repository,
                                         job_guid,
                                         failure_lines,
-                                        text_log_errors,
-                                        bug_suggestions)
+                                        text_log_errors)
 
     def crossreference_error_lines(self, repository, job_guid, failure_lines,
-                                   text_log_errors, bug_suggestions):
+                                   text_log_errors):
         """Populate the TextLogSummary and TextLogSummaryLine tables for a
         job. Specifically this function tries to match the
         unstructured error lines with the corresponding structured error lines, relying on
@@ -73,14 +60,10 @@ class Command(BaseCommand):
         :param repository: Repository containing the job
         :param job_guid: guid for the job being crossreferenced
         :param failure_lines: List of FailureLine objects for this job
-        :param text_log_summary: text_log_summary artifact for this job
-        :param bug_suggestions: Bug suggestions artifact for this job"""
+        :param text_log_errors: text log error lines for this job"""
 
         summary, _ = TextLogSummary.objects.get_or_create(job_guid=job_guid,
                                                           repository=repository)
-        summary.bug_suggestions_artifact_id = bug_suggestions["id"]
-
-        summary.save()
 
         match_iter = structured_iterator(failure_lines)
         failure_line, regexp = match_iter.next()

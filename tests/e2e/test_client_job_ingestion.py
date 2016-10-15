@@ -87,7 +87,6 @@ def test_post_job_with_unparsed_log(test_project, result_set_stored,
     import treeherder.model.error_summary
     monkeypatch.setattr(treeherder.model.error_summary, 'get_error_summary',
                         mock_get_error_summary)
-
     log_url = "file://{0}".format(
         SampleData().get_log_path("mozilla-central-macosx64-debug-bm65-build1-build15.txt.gz"))
 
@@ -109,16 +108,13 @@ def test_post_job_with_unparsed_log(test_project, result_set_stored,
     tjc.add(tj)
     post_collection(test_project, tjc)
 
-    # show have 2 errors
+    # should have 2 errors
     assert TextLogError.objects.count() == 2
     # verify that get_error_summary was called (to warm the bug suggestions
     # cache)
     assert mock_get_error_summary.called
     # should have 2 error summary lines (aka bug suggestions)
-    assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 2
-    # we still store bug suggestions for now
-    check_artifacts(test_project, job_guid, JobLog.PARSED, 1,
-                    {'Bug suggestions'})
+    assert len(get_error_summary(1)) == 2
 
 
 def test_post_job_pending_to_completed_with_unparsed_log(test_project,
@@ -202,9 +198,6 @@ def test_post_job_with_parsed_log(test_project, result_set_stored,
 
     post_collection(test_project, tjc)
 
-    # should have no artifacts
-    check_artifacts(test_project, job_guid, JobLog.PARSED, 0)
-
     # ensure the parsing didn't happen
     assert mock_parse.called is False
 
@@ -252,9 +245,6 @@ def test_post_job_with_text_log_summary_artifact_parsed(
 
     # should have 4 error summary lines (aka bug suggestions)
     assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 4
-    # we still store bug suggestions for now
-    check_artifacts(test_project, job_guid, JobLog.PARSED, 1,
-                    {'Bug suggestions'})
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False
@@ -305,9 +295,6 @@ def test_post_job_with_text_log_summary_artifact_pending(
 
     # should have 4 error summary lines (aka bug suggestions)
     assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 4
-    # check to make sure bug suggestions are stored
-    check_artifacts(test_project, job_guid, JobLog.PARSED, 1,
-                    {'Bug suggestions'})
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False
@@ -411,8 +398,11 @@ def test_post_job_artifacts_by_add_artifact(
         'step': 1
     }
 
-    check_artifacts(test_project, job_guid, JobLog.PARSED, 2,
-                    {'Bug suggestions', 'privatebuild'})
+    # assert that some bug suggestions got generated
+    assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 1
+
+    check_artifacts(test_project, job_guid, JobLog.PARSED, 1,
+                    {'privatebuild'})
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False

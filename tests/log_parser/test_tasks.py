@@ -1,12 +1,11 @@
 import gzip
 import urllib2
-import zlib
 
 import pytest
-import simplejson as json
 from django.conf import settings
 from django.utils.six import BytesIO
 
+from treeherder.model.error_summary import get_error_summary
 from treeherder.model.models import (JobDetail,
                                      TextLogError)
 
@@ -86,14 +85,15 @@ def test_parse_log(jm, jobs_with_local_log, sample_resultset):
         placeholders=[job_id]
     )
 
-    # we should have just one artifact, "bug suggestions"
-    assert len(job_artifacts) == 1
+    # should no longer be generating any job artifacts
+    assert len(job_artifacts) == 0
 
     # this log generates 4 job detail objects at present
     print JobDetail.objects.count() == 4
 
 
-def test_bug_suggestions_artifact(jm, jobs_with_local_log, sample_resultset, test_repository):
+def test_create_error_summary(jm, jobs_with_local_log, sample_resultset,
+                              test_repository):
     """
     check that a bug suggestions artifact gets inserted when running
     a parse_log task for a failed job, and that the number of
@@ -118,12 +118,10 @@ def test_bug_suggestions_artifact(jm, jobs_with_local_log, sample_resultset, tes
         placeholders=[job_id]
     )
 
-    # we should have just one artifact, "bug suggestions"
-    assert len(job_artifacts) == 1
+    bug_suggestions = get_error_summary(1)
 
-    bug_suggestions_artifact = [artifact for artifact in job_artifacts
-                                if artifact["name"] == "Bug suggestions"][0]
-    bug_suggestions = json.loads(zlib.decompress(bug_suggestions_artifact["blob"]))
+    # should no longer have any bug suggestions artifacts
+    assert len(job_artifacts) == 0
 
     # we must have one bugs item per error in bug_suggestions.
     # errors with no bug suggestions will just have an empty
