@@ -6,6 +6,8 @@ from django.core.urlresolvers import reverse
 from treeherder.client.thclient import client
 from treeherder.model.derived import (ArtifactsModel,
                                       JobsModel)
+from treeherder.model.models import (TextLogError,
+                                     TextLogStep)
 
 xfail = pytest.mark.xfail
 
@@ -65,14 +67,18 @@ def test_artifact_detail_bad_project(webapp, jm):
     assert resp.json == {"detail": "No project with name foo"}
 
 
-def test_artifact_create_text_log_summary(webapp, test_project, eleven_jobs_stored,
+def test_artifact_create_text_log_summary(webapp, test_project, test_job,
                                           mock_post_json, sample_data):
     """
-    test submitting a text_log_summary artifact which auto-generates bug suggestions
+    test submitting a text_log_summary artifact creates some text log summary objects
     """
     with JobsModel(test_project) as jobs_model:
         job = jobs_model.get_job_list(0, 1)[0]
     tls = sample_data.text_log_summary
+
+    # assert that we had no text log objects before this operation
+    assert not TextLogStep.objects.filter(
+        job__guid=job['job_guid']).exists()
 
     tac = client.TreeherderArtifactCollection()
     ta = client.TreeherderArtifact({
@@ -86,10 +92,8 @@ def test_artifact_create_text_log_summary(webapp, test_project, eleven_jobs_stor
     cli = client.TreeherderClient(server_url='http://localhost')
     cli.post_collection(test_project,  tac)
 
-    with ArtifactsModel(test_project) as artifacts_model:
-        artifacts = artifacts_model.get_job_artifact_list(0, 10, conditions={
-            'job_id': {('=', job["id"])}
-        })
-
-    artifact_names = {x['name'] for x in artifacts}
-    assert set(artifact_names) == {'Bug suggestions'}
+    # assert we generated some objects
+    assert TextLogStep.objects.filter(
+        job__guid=job['job_guid']).count() > 0
+    assert TextLogError.objects.filter(
+        step__job__guid=job['job_guid']).count() > 0
