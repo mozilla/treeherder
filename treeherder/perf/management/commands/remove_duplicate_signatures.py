@@ -119,8 +119,8 @@ class Command(BaseCommand):
             (id, platform) in
             MachinePlatform.objects.values_list('id', 'platform')
         }
-        signature_hashes_seen = set()
         for project in projects:
+            signature_hashes_seen = set()
             self.parent_signature_id_map = {}
             self.revised_signature_map = {}
             i = 0
