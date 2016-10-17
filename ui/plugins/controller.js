@@ -426,6 +426,27 @@ treeherder.controller('PluginCtrl', [
             }
         });
 
+        $rootScope.$on(thEvents.selectNextTab, function() {
+            // Establish the visible tabs for the job
+            var visibleTabs = [];
+            for (var i in thTabs.tabOrder) {
+                if (thTabs.tabs[thTabs.tabOrder[i]].enabled) {
+                    visibleTabs.push(thTabs.tabOrder[i]);
+                }
+            }
+
+            // Establish where we are and increment one tab
+            var t = visibleTabs.indexOf(thTabs.selectedTab);
+            if (t === visibleTabs.length -1) {
+                t = 0;
+            } else {
+                t++;
+            }
+
+            // Select that new tab
+            thTabs.showTab(visibleTabs[t], $scope.selectedJob.id);
+        });
+
         $scope.bug_job_map_list = [];
 
         $scope.classificationTypes = thClassificationTypes;

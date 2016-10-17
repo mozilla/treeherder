@@ -161,6 +161,9 @@ treeherder.provider('thEvents', function() {
             // fired when the job details are loaded
             jobDetailLoaded: "job-detail-loaded-EVT",
 
+            // fired with a selected job on 't'
+            selectNextTab: "select-next-tab-EVT",
+
             // fired with a selected job on spacebar
             jobPin: "job-pin-EVT",
 
