@@ -742,7 +742,6 @@ def test_ingest_job_with_revision_hash(jm, test_repository, sample_data,
     revision_hash = "12345abc"
     resultset = sample_resultset[0].copy()
     resultset["revision_hash"] = revision_hash
-    del resultset["revision"]
     jm.store_result_set_data([resultset])
 
     first_job = sample_data.job_data[0]

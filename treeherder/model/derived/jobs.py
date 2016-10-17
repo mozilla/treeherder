@@ -5,10 +5,12 @@ from hashlib import sha1
 
 import newrelic.agent
 from django.conf import settings
+from django.db import transaction
 
 from treeherder.etl.common import get_guid_root
 from treeherder.model import utils
 from treeherder.model.models import (BuildPlatform,
+                                     Commit,
                                      Datasource,
                                      ExclusionProfile,
                                      FailureLine,
@@ -23,6 +25,7 @@ from treeherder.model.models import (BuildPlatform,
                                      Option,
                                      OptionCollection,
                                      Product,
+                                     Push,
                                      ReferenceDataSignatures,
                                      Repository)
 from treeherder.model.search import bulk_delete as es_delete
@@ -851,10 +854,13 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 if not result_set_id_list:
                     raise ValueError("Result set not found for revision")
                 result_set_id = result_set_id_list[0]['id']
+                push_id = Push.objects.values_list('id', flat=True).get(
+                    repository__name=self.project,
+                    revision__startswith=revision)
 
                 # load job
                 (job_guid, reference_data_signature) = self._load_job(
-                    job, result_set_id, lower_tier_signatures)
+                    job, result_set_id, push_id, lower_tier_signatures)
 
                 for coalesced_guid in coalesced:
                     coalesced_job_guid_placeholders.append(
@@ -979,7 +985,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 revision_hash))
         return rh[0]["long_revision"]
 
-    def _load_job(self, job_datum, result_set_id, lower_tier_signatures):
+    def _load_job(self, job_datum, result_set_id, push_id, lower_tier_signatures):
         """
         Load a job into the treeherder database
 
@@ -1130,6 +1136,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     signature_hash,
                     None,                   # idx:2, job_coalesced_to_guid,
                     result_set_id,
+                    push_id,
                     build_platform.id,
                     machine_platform.id,
                     machine.id,
@@ -1171,6 +1178,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                         job_guid,
                         None,
                         result_set_id,
+                        push_id,
                         machine.id,
                         option_collection_hash,
                         job_type.id,
@@ -1194,7 +1202,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             repository=Repository.objects.get(name=self.project),
             project_specific_id=ds_job_id,
             defaults={
-                'guid': job_guid
+                'guid': job_guid,
+                'push_id': push_id  # FIXME: make this mandatory after migration done
             })
 
         artifacts = job_datum.get('artifacts', [])
@@ -1351,6 +1360,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         if not result_sets:
             logger.info("No new resultsets to store")
             return {}
+
+        #
+        for result_set in result_sets:
+            self._store_push(result_set)
 
         # revision data structures
         revision_placeholders = []
@@ -1607,6 +1620,32 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         else:
             revision_id_lookup = []
         return revision_id_lookup
+
+    def _store_push(self, result_set):
+        repository = Repository.objects.get(name=self.project)
+        result_set_revision = result_set.get('revision')
+        if not result_set.get('revision'):
+            raise ValueError("Result set must have a revision "
+                             "associated with it!")
+        with transaction.atomic():
+            push, _ = Push.objects.update_or_create(
+                repository=repository,
+                revision=result_set_revision,
+                defaults={
+                    'revision_hash': result_set.get('revision_hash',
+                                                    result_set_revision),
+                    'author': result_set['author'],
+                    'timestamp': datetime.fromtimestamp(
+                        result_set['push_timestamp'])
+                })
+            for revision in result_set['revisions']:
+                commit, _ = Commit.objects.update_or_create(
+                    push=push,
+                    revision=revision['revision'],
+                    defaults={
+                        'author': revision['author'],
+                        'comments': revision['comment']
+                    })
 
     def get_resultset_status(self, resultset_id, exclusion_profile="default"):
         """Retrieve an aggregated job count for the given resultset.
