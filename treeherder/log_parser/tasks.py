@@ -32,7 +32,7 @@ def parser_task(f):
             logger.info("log already parsed")
             return True
 
-        return f(job_log, priority)
+        return f(job_log)
 
     inner.__name__ = f.__name__
     inner.__doc__ = f.__doc__
@@ -64,7 +64,7 @@ def parse_job_log(func_name, routing_key, job_log):
     if task_priorities[priority] > task_priorities[callback_priority]:
         callback_priority = priority
 
-    signature = task_funcs[func_name].si(job_log.id, priority)
+    signature = task_funcs[func_name].si(job_log.id)
     signature.set(routing_key=routing_key)
 
     if func_name in ["parse_log", "store_failure_lines"]:
@@ -73,7 +73,8 @@ def parse_job_log(func_name, routing_key, job_log):
         signature.apply_async()
 
     if callback_group:
-        callback = crossreference_error_lines.si(job_log.job.id)
+        callback = crossreference_error_lines.si(job_log.job.id,
+                                                 callback_priority)
         callback.set(routing_key="crossreference_error_lines.%s" %
                      callback_priority)
         create_taskset(callback_group, callback)
@@ -82,7 +83,7 @@ def parse_job_log(func_name, routing_key, job_log):
 @retryable_task(name='log-parser', max_retries=10)
 @taskset
 @parser_task
-def parse_log(job_log, _priority):
+def parse_log(job_log):
     """
     Call ArtifactBuilderCollection on the given job.
     """
@@ -92,14 +93,12 @@ def parse_log(job_log, _priority):
 @retryable_task(name='store-failure-lines', max_retries=10)
 @taskset
 @parser_task
+<<<<<<< HEAD
 def store_failure_lines(job_log, priority):
     """Store the failure lines from a log corresponding to the structured
     errorsummary file."""
     logger.debug('Running store_failure_lines for job %s' % job_log.job.id)
     failureline.store_failure_lines(job_log)
-    if settings.AUTOCLASSIFY_JOBS:
-        autoclassify.apply_async(args=[job_log.job.id],
-                                 routing_key="autoclassify.%s" % priority)
 
 
 @retryable_task(name='crossreference-error-lines', max_retries=10)
@@ -109,4 +108,7 @@ def crossreference_error_lines(job_id):
     newrelic.agent.add_custom_parameter("job_id", job_id)
     logger.debug("Running crossreference-error-lines for job %s" % job_id)
     job = Job.objects.get(id=job_id)
-    crossreference_job(job)
+    has_lines = crossreference_job(job)
+    if has_lines and settings.AUTOCLASSIFY_JOBS:
+        autoclassify.apply_async(args=[job_id.job.id],
+                                 routing_key="autoclassify.%s" % priority)
