@@ -18,6 +18,7 @@
                 `signature`,
                 `job_coalesced_to_guid`,
                 `result_set_id`,
+                `push_id`,
                 `build_platform_id`,
                 `machine_platform_id`,
                 `machine_id`,
@@ -33,7 +34,7 @@
                 `end_timestamp`,
                 `running_eta`,
                 `tier`)
-                SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+                SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
                 FROM DUAL WHERE NOT EXISTS (
                     SELECT `job_guid`
                     FROM `job`
@@ -149,6 +150,7 @@
                 `job_guid` = ?,
                 `job_coalesced_to_guid` = ?,
                 `result_set_id` = ?,
+                `push_id` = ?,
                 `machine_id` = ?,
                 `option_collection_hash` = ?,
                 `job_type_id` = ?,
@@ -219,6 +221,7 @@
 
             "sql":"SELECT j.id,
                           j.result_set_id,
+                          j.push_id,
                           j.job_guid,
                           j.signature,
                           r.push_timestamp
