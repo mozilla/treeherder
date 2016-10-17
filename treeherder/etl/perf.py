@@ -84,6 +84,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
     # data for performance series
     job_id = job_data[job_guid]['id']
     result_set_id = job_data[job_guid]['result_set_id']
+    push_id = job_data[job_guid]['push_id']
     push_timestamp = datetime.datetime.utcfromtimestamp(
         job_data[job_guid]['push_timestamp'])
 
@@ -142,6 +143,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
                 repository=repository,
                 result_set_id=result_set_id,
+                push_id=push_id,
                 job_id=job_id,
                 signature=signature,
                 push_timestamp=push_timestamp,
@@ -195,6 +197,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
                 repository=repository,
                 result_set_id=result_set_id,
+                push_id=push_id,
                 job_id=job_id,
                 signature=signature,
                 push_timestamp=push_timestamp,

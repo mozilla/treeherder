@@ -6,6 +6,7 @@ import time
 import pytest
 
 from treeherder.etl.perf import load_perf_artifacts
+from treeherder.model.derived import JobsModel
 from treeherder.model.models import (MachinePlatform,
                                      Option,
                                      OptionCollection,
@@ -34,10 +35,28 @@ def perf_platform():
 
 
 @pytest.fixture
-def perf_job_data():
+def perf_push(jm):
+    jm.store_result_set_data([{
+        'revision': '1234abcd',
+        'push_timestamp': int(time.time()),
+        'author': 'foo@bar.com',
+        'revisions': []
+    }])
+    # FIXME: Delete above and switch to this when we've finished
+    # migrating away from resultsets
+    # return Push.objects.create(
+    #    repository=test_repository,
+    #    revision='1234abcd',
+    #    author='foo@bar.com',
+    #    time=datetime.datetime.now())
+
+
+@pytest.fixture
+def perf_job_data(perf_push):
     return {
         'fake_job_guid': {
             'id': 1,
+            'push_id': 1,
             'result_set_id': 1,
             'push_timestamp': 1402692388
         }
@@ -68,11 +87,26 @@ def _generate_perf_data_range(test_project, test_repository,
         PerformanceFramework.objects.create(name=framework_name, enabled=enable_framework)
 
     now = int(time.time())
+
     for (i, value) in zip(range(30), [1]*15 + [2]*15):
+        with JobsModel(test_repository.name) as jm:
+            jm.store_result_set_data([{
+                'revision': 'abcdefgh%s' % i,
+                'push_timestamp': now + i,
+                'author': 'foo@bar.com',
+                'revisions': []
+            }])
+        # FIXME: delete above and switch to this when we're no longer using
+        # result sets
+        # push = Push.objects.create(repository=test_repository,
+        #                           revision='abcdefgh%s' % i,
+        #                           author='foo@bar.com',
+        #                           time=datetime.datetime.fromtimestamp(now+i))
         perf_job_data = {
             'fake_job_guid': {
                 'id': i,
-                'result_set_id': i,
+                'push_id': i + 1,
+                'result_set_id': i + 1,
                 'push_timestamp': now + i
             }
         }
@@ -417,8 +451,10 @@ def test_alert_generation(test_project, test_repository,
     if expected_num_alerts > 0:
         assert 1 == PerformanceAlertSummary.objects.all().count()
         summary = PerformanceAlertSummary.objects.get(id=1)
-        assert summary.result_set_id == 15
-        assert summary.prev_result_set_id == 14
+        assert summary.result_set_id == 16
+        assert summary.push_id == 16
+        assert summary.prev_result_set_id == 15
+        assert summary.prev_push_id == 15
     else:
         assert 0 == PerformanceAlertSummary.objects.all().count()
 
