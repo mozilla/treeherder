@@ -299,6 +299,15 @@ treeherderApp.controller('MainCtrl', [
                                  thJobNavSelectors.UNCLASSIFIED_FAILURES);
             }],
 
+            // Shortcut: select next job tab
+            [['t'], function() {
+                if ($scope.selectedJob) {
+                    $scope.$evalAsync(
+                        $rootScope.$emit(thEvents.selectNextTab)
+                    );
+                }
+            }],
+
             // Shortcut: retrigger selected job
             ['r', function() {
                 if ($scope.selectedJob) {
