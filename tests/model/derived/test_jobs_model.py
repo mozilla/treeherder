@@ -673,8 +673,9 @@ def test_new_job_in_exclusion_profile(jm, sample_data, sample_resultset, mock_lo
     # We check all the jobs applying the exclusion profile
     # If we find the excluded job, there is a problem
     assert job['job']['job_guid'] not in [ob['job_guid'] for ob in obtained]
-    assert len(jm.lower_tier_signatures) == 1
-    assert jm.lower_tier_signatures[0]['tier'] == 2
+    lower_tier_signatures = jm._get_lower_tier_signatures()
+    assert len(lower_tier_signatures) == 1
+    assert lower_tier_signatures[0]['tier'] == 2
 
 
 def test_ingesting_skip_existing(jm, sample_data,
