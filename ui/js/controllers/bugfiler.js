@@ -3,14 +3,14 @@
 treeherder.controller('BugFilerCtrl', [
     '$scope', '$rootScope', '$uibModalInstance', '$http', 'summary', 'thBugzillaProductObject',
     'thPinboard', 'thEvents', 'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures',
-    'thNotify',
+    'thNotify', 'fromAutoclassify',
     function BugFilerCtrl(
         $scope, $rootScope, $uibModalInstance, $http, summary, thBugzillaProductObject,
         thPinboard, thEvents, fullLog, parsedLog, reftest, selectedJob, allFailures,
-        thNotify) {
+        thNotify, fromAutoclassify) {
 
         $scope.omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR"];
-
+        $scope.fromAutoclassify = fromAutoclassify;
         /**
          *  'enter' from the product search input should initiate the search
          */
@@ -48,7 +48,12 @@ treeherder.controller('BugFilerCtrl', [
                 if(i !== 0) {
                     thisFailure += "\n";
                 }
-                thisFailure += allFailures[i].join(" | ");
+
+                if($scope.fromAutoclassify) {
+                    thisFailure += allFailures[i];
+                } else {
+                    thisFailure += allFailures[i].join(" | ");
+                }
             }
             $scope.thisFailure = thisFailure;
 

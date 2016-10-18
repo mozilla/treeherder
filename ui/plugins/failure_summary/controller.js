@@ -117,6 +117,9 @@ treeherder.controller('BugsPluginCtrl', [
                     },
                     allFailures: function() {
                         return allFailures;
+                    },
+                    fromAutoclassify: function() {
+                        return false;
                     }
                 }
             });
