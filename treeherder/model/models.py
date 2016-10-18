@@ -25,6 +25,8 @@ from django.forms import model_to_dict
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
+from memoize import (delete_memoized,
+                     memoize)
 
 from treeherder import path
 
@@ -426,6 +428,33 @@ class JobExclusion(models.Model):
         db_table = 'job_exclusion'
 
 
+class ExclusionProfileManager(models.Manager):
+    """
+    Convenience functions for operations on groups of exclusion profiles
+    """
+
+    @staticmethod
+    @memoize()
+    def get_signatures_for_project(project_name,
+                                   exclusion_profile_name):
+        signatures = []
+        try:
+            if exclusion_profile_name == "default":
+                profile = ExclusionProfile.objects.get(
+                    is_default=True
+                )
+            else:
+                profile = ExclusionProfile.objects.get(
+                    name=exclusion_profile_name
+                )
+            signatures = profile.flat_exclusion[project_name]
+        except KeyError:
+            # this repo/project has no hidden signatures
+            pass
+
+        return set(signatures)
+
+
 class ExclusionProfile(models.Model):
 
     """
@@ -438,6 +467,8 @@ class ExclusionProfile(models.Model):
     author = models.ForeignKey(User, related_name="exclusion_profiles_authored", db_index=True)
     modified = models.DateTimeField(auto_now=True)
 
+    objects = ExclusionProfileManager()
+
     def save(self, *args, **kwargs):
         super(ExclusionProfile, self).save(*args, **kwargs)
 
@@ -447,6 +478,10 @@ class ExclusionProfile(models.Model):
         if self.is_default:
             ExclusionProfile.objects.filter(is_default=True).exclude(
                 id=self.id).update(is_default=False)
+
+        # just to be safe, invalidate any existing exclusion profile
+        # cache lookups
+        delete_memoized(ExclusionProfileManager.get_signatures_for_project)
 
     def update_flat_exclusions(self):
         # this is necessary because the ``job_types`` come back in the form of
@@ -547,6 +582,17 @@ class ReferenceDataSignatures(models.Model):
         # Remove if/when the model is renamed to 'ReferenceDataSignature'.
         verbose_name_plural = 'reference data signatures'
         unique_together = ('name', 'signature', 'build_system_type', 'repository')
+
+    def save(self, *args, **kwargs):
+        super(ReferenceDataSignatures, self).save(*args, **kwargs)
+
+        # if we got this far, it indicates we added or changed something,
+        # so we need to update any exclusion profiles accordingly and
+        # uncache any calls to get_lower_tier_signatures
+        for exclusion_profile in ExclusionProfile.objects.all():
+            exclusion_profile.save()
+
+        delete_memoized(ExclusionProfileManager.get_signatures_for_project)
 
 
 class JobDuration(models.Model):

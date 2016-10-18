@@ -5,7 +5,6 @@ from hashlib import sha1
 
 import newrelic.agent
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 
 from treeherder.etl.common import get_guid_root
 from treeherder.model import utils
@@ -128,7 +127,6 @@ class JobsModel(TreeherderModelBase):
     ]
 
     LOWER_TIERS = [2, 3]
-    lower_tier_signatures = []
 
     @classmethod
     def create(cls, project):
@@ -181,35 +179,29 @@ class JobsModel(TreeherderModelBase):
 
         if exclusion_profile:
             try:
-                if exclusion_profile is "default":
-                    profile = ExclusionProfile.objects.get(
-                        is_default=True
+                signatures = ExclusionProfile.objects.get_signatures_for_project(
+                    self.project, exclusion_profile)
+                if signatures:
+                    # NOT here means "not part of the exclusion profile"
+                    inclusion = "NOT" if visibility == "included" else ""
+                    replace_str += " AND j.signature {0} IN ({1})".format(
+                        inclusion,
+                        ",".join(["%s"] * len(signatures))
                     )
+                    placeholders += signatures
                 else:
-                    profile = ExclusionProfile.objects.get(
-                        name=exclusion_profile
-                    )
-                signatures = profile.flat_exclusion[self.project]
-                # NOT here means "not part of the exclusion profile"
-                inclusion = "NOT" if visibility == "included" else ""
-
-                replace_str += " AND j.signature {0} IN ({1})".format(
-                    inclusion,
-                    ",".join(["%s"] * len(signatures))
-                )
-                placeholders += signatures
-            except KeyError:
-                # this repo/project has no hidden signatures
-                # if ``visibility`` is set to ``included`` then it's
-                # meaningless to add any of these limiting params to the query,
-                # just run it and give the user everything for the project.
-                #
-                # If ``visibility`` is ``excluded`` then we only want to
-                # include jobs that were excluded by this profile.  Since no
-                # jobs are excluded for this project, we should return an
-                # empty array and skip the query altogether.
-                if visibility == "excluded":
-                    return []
+                    # this repo/project has no hidden signatures
+                    # if ``visibility`` is set to ``included`` then it's
+                    # meaningless to add any of these limiting params to the
+                    # query, just run it and give the user everything for the
+                    # project.
+                    #
+                    # If ``visibility`` is ``excluded`` then we only want to
+                    # include jobs that were excluded by this profile.  Since
+                    # no jobs are excluded for this project, we should return
+                    # an empty array and skip the query altogether.
+                    if visibility == "excluded":
+                        return []
             except ExclusionProfile.DoesNotExist:
                 # Either there's no default profile setup or the profile
                 # specified is not available
@@ -731,29 +723,26 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return aggregate_details
 
-    def set_lower_tier_signatures(self):
+    def _get_lower_tier_signatures(self):
         # get the lower tier data signatures for this project.
         # if there are none, then just return an empty list
         # this keeps track of them order (2, then 3) so that the latest
         # will have precedence.  If a job signature is in both Tier-2 and
         # Tier-3, then it will end up in Tier-3.
-        self.lower_tier_signatures = []
+        lower_tier_signatures = []
         for tier_num in self.LOWER_TIERS:
-            tier_info = {"tier": tier_num}
             try:
-                lower_tier = ExclusionProfile.objects.get(
-                    name="Tier-{}".format(tier_num))
-                signatures = set(lower_tier.flat_exclusion[self.project])
-                tier_info["signatures"] = signatures
-                self.lower_tier_signatures.append(tier_info)
-            except KeyError:
-                # may be no jobs of this tier for the current project
-                # and that's ok.
+                signatures = ExclusionProfile.objects.get_signatures_for_project(
+                    self.project, "Tier-{}".format(tier_num))
+                lower_tier_signatures.append({
+                    'tier': tier_num,
+                    'signatures': signatures
+                })
+            except ExclusionProfile.DoesNotExist:
+                # no exclusion profile for this tier
                 pass
-            except ObjectDoesNotExist:
-                # if this profile doesn't exist, then no jobs of this tier
-                # and that's ok.
-                pass
+
+        return lower_tier_signatures
 
     def store_job_data(self, data):
         """
@@ -823,7 +812,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         coalesced_job_guid_placeholders = []
 
-        self.set_lower_tier_signatures()
+        lower_tier_signatures = self._get_lower_tier_signatures()
 
         for datum in data:
             try:
@@ -865,7 +854,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
                 # load job
                 (job_guid, reference_data_signature) = self._load_job(
-                    job, result_set_id)
+                    job, result_set_id, lower_tier_signatures)
 
                 for coalesced_guid in coalesced:
                     coalesced_job_guid_placeholders.append(
@@ -990,7 +979,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 revision_hash))
         return rh[0]["long_revision"]
 
-    def _load_job(self, job_datum, result_set_id):
+    def _load_job(self, job_datum, result_set_id, lower_tier_signatures):
         """
         Load a job into the treeherder database
 
@@ -1105,14 +1094,13 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             })
 
         if created:
-            # A new ReferenceDataSignature has been added
-            for item in ExclusionProfile.objects.all():
-                item.save()
-            self.set_lower_tier_signatures()
+            # A new ReferenceDataSignature has been added, so we need
+            # to reload lower tier exclusions
+            lower_tier_signatures = self._get_lower_tier_signatures()
 
         tier = job_datum.get('tier') or 1
         # job tier signatures override the setting from the job structure
-        # Check the signatures list for any supported LOWER_TIERS that have
+        # Check the signatures list for any supported lower tiers that have
         # an active exclusion profile.
 
         result = job_datum.get('result', 'unknown')
@@ -1120,7 +1108,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # As stated elsewhere, a job will end up in the lowest tier where its
         # signature belongs.  So if a signature is in Tier-2 and Tier-3, it
         # will end up in 3.
-        for tier_info in self.lower_tier_signatures:
+        for tier_info in lower_tier_signatures:
             if signature_hash in tier_info["signatures"]:
                 tier = tier_info["tier"]
 
@@ -1621,41 +1609,23 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             revision_id_lookup = []
         return revision_id_lookup
 
-    def get_exclusion_profile_signatures(self, exclusion_profile):
-        """Retrieve the reference data signatures associates to an exclusion profile"""
-        signatures = []
-        try:
-            if exclusion_profile == "default":
-                profile = ExclusionProfile.objects.get(
-                    is_default=True
-                )
-            else:
-                profile = ExclusionProfile.objects.get(
-                    name=exclusion_profile
-                )
-            signatures = profile.flat_exclusion[self.project]
-        except KeyError:
-            # this repo/project has no hidden signatures
-            pass
-        except ExclusionProfile.DoesNotExist:
-            # Either there's no default profile setup or the profile
-            # specified is not available
-            pass
-        return signatures
-
     def get_resultset_status(self, resultset_id, exclusion_profile="default"):
         """Retrieve an aggregated job count for the given resultset.
         If an exclusion profile is provided, the job counted will be filtered accordingly"""
         replace = [settings.DATABASES['default']['NAME']]
         placeholders = [resultset_id]
         if exclusion_profile:
-            signature_list = self.get_exclusion_profile_signatures(exclusion_profile)
-            if signature_list:
-                signatures_replacement = ",".join(["%s"] * len(signature_list))
-                replace.append(
-                    "AND signature NOT IN ({0})".format(signatures_replacement)
-                )
-                placeholders += signature_list
+            try:
+                signature_list = ExclusionProfile.objects.get_signatures_for_project(
+                    self.project, exclusion_profile)
+                if signature_list:
+                    signatures_replacement = ",".join(["%s"] * len(signature_list))
+                    replace.append(
+                        "AND signature NOT IN ({0})".format(signatures_replacement)
+                    )
+                    placeholders += signature_list
+            except ExclusionProfile.DoesNotExist:
+                pass
 
         resultset_status_list = self.execute(
             proc='jobs.selects.get_resultset_status',
