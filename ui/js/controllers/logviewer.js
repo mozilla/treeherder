@@ -267,7 +267,6 @@ logViewerApp.controller('LogviewerCtrl', [
                 thNotify.send("The job does not exist or has expired", 'danger', true);
             });
 
-            // Make the log and job artifacts available
             ThTextLogStepModel.query({
                 project: $rootScope.repoName,
                 jobId: $scope.job_id
@@ -278,8 +277,8 @@ logViewerApp.controller('LogviewerCtrl', [
                 textLogSteps.forEach((step, i) => {step.order = i;});
 
                 // If the log contains no errors load the head otherwise
-                // load the first failure step line in the artifact. We
-                // also need to test for the 0th element for outlier jobs.
+                // load the first failure step line. We also need to test
+                // for the 0th element for outlier jobs.
                 var allErrors = _.flatten(textLogSteps.map(s => s.errors));
                 if (allErrors.length === 0) {
                     angular.element(document).ready(function () {

@@ -4,7 +4,7 @@ treeherder.controller('PluginCtrl', [
     '$scope', '$rootScope', '$location', '$http', 'thUrl', 'ThJobClassificationModel',
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter', 'thDateFormat',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
-    'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
+    'ThResultSetModel', 'ThLog', '$q', 'thPinboard',
     'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors',
     'thTabs', '$timeout', 'thReftestStatus', 'ThResultSetStore',
     'PhSeries', 'thServiceDomain',
@@ -12,7 +12,7 @@ treeherder.controller('PluginCtrl', [
         $scope, $rootScope, $location, $http, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
         numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
-        ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
+        ThResultSetModel, ThLog, $q, thPinboard,
         ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs,
         $timeout, thReftestStatus, ThResultSetStore, PhSeries,
         thServiceDomain) {
@@ -20,7 +20,6 @@ treeherder.controller('PluginCtrl', [
         var $log = new ThLog("PluginCtrl");
 
         $scope.job = {};
-        $scope.artifacts = {};
 
         var reftestUrlRoot = "https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=";
 
@@ -124,7 +123,6 @@ treeherder.controller('PluginCtrl', [
                 selectJobPromise = $q.defer();
 
                 $scope.job = {};
-                $scope.artifacts = {};
                 $scope.job_details = [];
                 var jobPromise = ThJobModel.get(
                     $scope.repoName, job.id,
@@ -183,7 +181,7 @@ treeherder.controller('PluginCtrl', [
                         $scope.job.buildbot_request_id = parseInt(buildbotRequestIdDetail.value);
                     }
 
-                    // the third result comes from the jobLogUrl artifact
+                    // the third result comes from the jobLogUrl promise
                     // exclude the json log URLs
                     $scope.job_log_urls = _.reject(
                         results[2],
