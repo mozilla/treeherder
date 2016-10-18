@@ -40,63 +40,6 @@ def parser_task(f):
     return inner
 
 
-def parse_job_logs(project, tasks):
-    """Schedule the log-related tasks that can run when we get logs for a
-    set of jobs in a specific repository, and arrange for the future
-    running of tasks that depend on logs being parsed/stored.  In
-    particular schedules one or both of store_failure_lines and
-    parse_log, and adds a callback for crossreference_error_lines to
-    run when they are complete.
-
-    :param project: The repository name of the jobs for which these tasks
-                    are scheduled.
-    :param tasks: Dict of {job_guid: [task_dict]} where task_dict contains
-                  detail of the tasks to schedule.
-    """
-    # DEPRECATED: just here to drain remaining queues, remove once bug
-    # 1308528 has landed and stuck
-    task_funcs = {
-        "store_failure_lines": store_failure_lines,
-        "parse_log": parse_log,
-    }
-
-    task_priorities = {
-        "normal": 0,
-        "failures": 1,
-    }
-
-    callback_priority = "normal"
-
-    for job_guid, task_list in tasks.iteritems():
-        callback_group = []
-
-        logger.debug("parse_job_logs for job %s" % job_guid)
-        for t in task_list:
-
-            priority = t["routing_key"].rsplit(".", 1)[1] if "routing_key" in t else "normal"
-            if task_priorities[priority] > task_priorities[callback_priority]:
-                callback_priority = priority
-
-            signature = task_funcs[t["func_name"]].si(project,
-                                                      job_guid,
-                                                      t['job_log_id'],
-                                                      priority)
-            if "routing_key" in t:
-                signature.set(routing_key=t["routing_key"])
-
-            if t["func_name"] in ["parse_log", "store_failure_lines"]:
-                callback_group.append(signature)
-            else:
-                signature.apply_async()
-
-        if not callback_group:
-            continue
-
-        callback = crossreference_error_lines.si(project, job_guid)
-        callback.set(routing_key="crossreference_error_lines.%s" % callback_priority)
-        create_taskset(callback_group, callback)
-
-
 def parse_job_log(project, func_name, routing_key, job_guid, job_log_id):
     """
     Schedule the log-related tasks to parse an individual log
