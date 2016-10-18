@@ -33,8 +33,8 @@ VERSION="5.7.14"
 PACKAGE_URLS=(
     # We have to use packages from mysql.com since there is no Ubuntu distro
     # release available for MySQL 5.7 on Ubuntu 14.04.
-    "https://cdn.mysql.com/Downloads/MySQL-5.7/libmysqlclient20_${VERSION}-1ubuntu14.04_amd64.deb"
-    "https://cdn.mysql.com/Downloads/MySQL-5.7/libmysqlclient-dev_${VERSION}-1ubuntu14.04_amd64.deb"
+    "https://cdn.mysql.com/archives/mysql-5.7/libmysqlclient20_${VERSION}-1ubuntu14.04_amd64.deb"
+    "https://cdn.mysql.com/archives/mysql-5.7/libmysqlclient-dev_${VERSION}-1ubuntu14.04_amd64.deb"
 )
 
 # Skip vendoring if libmysqlclient-dev's `mysql_config` exists and reports the correct version.
