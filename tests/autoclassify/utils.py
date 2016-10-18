@@ -1,10 +1,7 @@
 import datetime
-import json
-import zlib
 
 from mozlog.formatters.tbplformatter import TbplFormatter
 
-from treeherder.model.derived.artifacts import ArtifactsModel
 from treeherder.model.models import (FailureLine,
                                      MatcherManager,
                                      TextLogError,
@@ -34,22 +31,6 @@ def create_failure_lines(job, failure_line_list,
     refresh_all()
 
     return failure_lines
-
-
-def create_bug_suggestions(job, *bug_suggestions):
-    for item in bug_suggestions:
-        for key in ["search_terms", "bugs"]:
-            if key not in item:
-                item[key] = []
-
-    bug_suggestions_placeholders = [
-        job.project_specific_id, 'Bug suggestions',
-        'json', zlib.compress(json.dumps(bug_suggestions)),
-        job.project_specific_id, 'Bug suggestions',
-    ]
-
-    with ArtifactsModel(job.repository.name) as artifacts_model:
-        artifacts_model.store_job_artifact([bug_suggestions_placeholders])
 
 
 def get_data(base_data, updates):
@@ -92,32 +73,6 @@ def create_text_log_errors(job, failure_line_list):
         errors.append(error)
 
     return errors
-
-
-def create_bug_suggestions_failures(job, failure_line_list):
-    formatter = TbplFormatter()
-
-    bug_suggestions = []
-
-    for i, (base_data, updates) in enumerate(failure_line_list):
-        data = get_data(base_data, updates)
-        if not data:
-            continue
-
-        bug_suggestions.append(
-            {"search": formatter(data).split("\n")[0],
-             "bugs": {"all_others": [],
-                      "open_recent": []}})
-
-    placeholders = [job.project_specific_id, 'Bug suggestions',
-                    'json', zlib.compress(json.dumps(bug_suggestions)),
-                    job.project_specific_id, 'Bug suggestions']
-
-    with ArtifactsModel(job.repository.name) as artifacts_model:
-        artifacts_model.store_job_artifact([placeholders])
-        return artifacts_model.get_job_artifact_list(
-            0, 1, {'job_id': set([('=', job.project_specific_id)]),
-                   "name": set([("=", "Bug suggestions")])})[0]
 
 
 def register_matchers(*args):

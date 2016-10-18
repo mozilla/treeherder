@@ -4,8 +4,7 @@ from treeherder.model.models import (FailureLine,
                                      TextLogSummary,
                                      TextLogSummaryLine)
 
-from ..autoclassify.utils import (create_bug_suggestions_failures,
-                                  create_failure_lines,
+from ..autoclassify.utils import (create_failure_lines,
                                   create_text_log_errors,
                                   test_line)
 
@@ -19,7 +18,6 @@ def test_crossreference_error_lines(test_job):
 
     create_failure_lines(test_job, lines)
     create_text_log_errors(test_job, lines)
-    create_bug_suggestions_failures(test_job, lines)
 
     call_command('crossreference_error_lines', test_job.repository.name,
                  test_job.guid)
@@ -56,7 +54,6 @@ def test_crossreference_error_lines_truncated(test_job):
     create_failure_lines(test_job,
                          lines[:-1] + [({"action": "truncated"}, {})])
     create_text_log_errors(test_job, lines)
-    create_bug_suggestions_failures(test_job, lines)
 
     call_command('crossreference_error_lines', test_job.repository.name,
                  test_job.guid)
@@ -77,7 +74,6 @@ def test_crossreference_error_lines_missing(test_job):
 
     create_failure_lines(test_job, lines[1:])
     create_text_log_errors(test_job, lines)
-    create_bug_suggestions_failures(test_job, lines)
 
     call_command('crossreference_error_lines', test_job.repository.name,
                  test_job.guid)
