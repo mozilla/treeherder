@@ -773,12 +773,12 @@ treeherder.factory('ThUnstructuredLine', ['thExtendProperties',
 treeherder.controller('ClassificationPluginCtrl', [
     '$q', '$scope', '$rootScope', 'ThLog', 'thEvents', 'thTabs',
     '$timeout', 'thNotify', 'ThFailureLinesModel', 'ThClassifiedFailuresModel',
-    'ThMatcherModel', 'ThJobArtifactModel', 'ThTextLogSummaryModel', 'ThStructuredLine',
+    'ThMatcherModel', 'ThTextLogSummaryModel', 'ThStructuredLine',
     'ThUnstructuredLine',
     function ClassificationPluginCtrl(
         $q, $scope, $rootScope, ThLog, thEvents, thTabs,
         $timeout, thNotify, ThFailureLinesModel, ThClassifiedFailuresModel,
-        ThMatcherModel, ThJobArtifactModel, ThTextLogSummaryModel, ThStructuredLine,
+        ThMatcherModel, ThTextLogSummaryModel, ThStructuredLine,
         ThUnstructuredLine) {
         var $log = new ThLog(this.constructor.name);
 
