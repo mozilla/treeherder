@@ -174,9 +174,10 @@
             <span ng-switch-when='unknown'>{{job.machine_name}}</span>
             <a title="Open buildbot slave health report" target="_blank"
                href="{{ getSlaveHealthUrl(job.machine_name) }}"
-               ng-switch-default>
+               ng-switch-default ng-if="job.buildbot_request_id">
                {{job.machine_name}}
             </a>
+            <span ng-switch-default ng-if="!job.buildbot_request_id">{{job.machine_name}}</span>
           </span>
         </li>
         <li class="small" ng-repeat="(label, value) in visibleFields">
