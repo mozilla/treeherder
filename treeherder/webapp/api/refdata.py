@@ -38,7 +38,9 @@ class JobGroupViewSet(viewsets.ReadOnlyModelViewSet):
 class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata Repository model"""
-    queryset = models.Repository.objects.filter(active_status='active')
+    queryset = models.Repository.objects.filter(
+        active_status='active').select_related(
+            'repository_group')
     serializer_class = th_serializers.RepositorySerializer
 
     """
