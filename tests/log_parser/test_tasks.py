@@ -6,7 +6,8 @@ from django.conf import settings
 from django.utils.six import BytesIO
 
 from treeherder.model.error_summary import get_error_summary
-from treeherder.model.models import (JobDetail,
+from treeherder.model.models import (Job,
+                                     JobDetail,
                                      TextLogError)
 
 from ..sampledata import SampleData
@@ -118,7 +119,7 @@ def test_create_error_summary(jm, jobs_with_local_log, sample_resultset,
         placeholders=[job_id]
     )
 
-    bug_suggestions = get_error_summary(1)
+    bug_suggestions = get_error_summary(Job.objects.get(id=1))
 
     # should no longer have any bug suggestions artifacts
     assert len(job_artifacts) == 0

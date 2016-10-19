@@ -165,7 +165,7 @@ class ArtifactsModel(TreeherderModelBase):
                             line=astral_filter(error['line']))
 
         # get error summary immediately (to warm the cache)
-        error_summary.get_error_summary(job.id)
+        error_summary.get_error_summary(job)
 
     def store_performance_artifact(
             self, job_ids, performance_artifact_placeholders):
