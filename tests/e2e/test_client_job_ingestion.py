@@ -114,7 +114,7 @@ def test_post_job_with_unparsed_log(test_project, result_set_stored,
     # cache)
     assert mock_get_error_summary.called
     # should have 2 error summary lines (aka bug suggestions)
-    assert len(get_error_summary(1)) == 2
+    assert len(get_error_summary(Job.objects.get(id=1))) == 2
 
 
 def test_post_job_pending_to_completed_with_unparsed_log(test_project,

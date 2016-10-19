@@ -320,7 +320,7 @@ class JobsViewSet(viewsets.ViewSet):
         except ObjectDoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
-        return Response(get_error_summary(job.id))
+        return Response(get_error_summary(job))
 
     @detail_route(methods=['get'])
     @with_jobs

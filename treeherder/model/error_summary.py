@@ -1,7 +1,7 @@
 import logging
 import re
 
-from memoize import memoize
+from django.core.cache import cache
 
 from treeherder.config.settings import BUG_SUGGESTION_CACHE_TIMEOUT
 from treeherder.model.models import (Bugscache,
@@ -18,25 +18,25 @@ MOZHARNESS_RE = re.compile(
 REFTEST_RE = re.compile("\s+[=!]=\s+.*")
 
 
-def get_error_summary(job_id):
-    # if we don't have any text log errors, we don't want to cache
-    # (since this might be an incomplete job)
-    if TextLogError.objects.filter(step__job_id=job_id).exists():
-        return _get_error_summary(job_id)
-    else:
-        return []
-
-
-@memoize(timeout=BUG_SUGGESTION_CACHE_TIMEOUT)
-def _get_error_summary(job_id):
+def get_error_summary(job):
     """
     Create a list of bug suggestions for a job
     """
-    error_summary = []
-    term_cache = {}
+    cache_key = 'error-summary-{}'.format(job.id)
+    cached_error_summary = cache.get(cache_key)
+    if cached_error_summary is not None:
+        return cached_error_summary
 
-    for err in TextLogError.objects.filter(step__job_id=job_id):
-        error_summary.append(bug_suggestions_line(err, term_cache))
+    # don't cache or do anything if we have no text log errors to get
+    # results for
+    errors = TextLogError.objects.filter(step__job=job)
+    if not errors:
+        return []
+
+    term_cache = {}
+    error_summary = [bug_suggestions_line(err, term_cache) for err in errors]
+    cache.set(cache_key, error_summary, BUG_SUGGESTION_CACHE_TIMEOUT)
+
     return error_summary
 
 
@@ -182,5 +182,5 @@ def is_helpful_search_term(search_term):
 
 
 def get_filtered_error_lines(job):
-    return [item for item in get_error_summary(job.id) if
+    return [item for item in get_error_summary(job) if
             is_helpful_search_term(item["search"])]
