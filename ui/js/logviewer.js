@@ -8,4 +8,7 @@ logViewerApp.config(function($compileProvider, $resourceProvider) {
 
     // Don't strip trailing slashes from calculated URLs
     $resourceProvider.defaults.stripTrailingSlashes = false;
+
+    // All queries should be cancellable by default (why is this configurable??)
+    $resourceProvider.defaults.cancellable = true;
 });

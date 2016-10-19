@@ -17,16 +17,23 @@ treeherder.controller('BugsPluginCtrl', [
 
         $scope.filerInAddress = false;
 
+        var query;
+
         // update function triggered by the plugins controller
         thTabs.tabs.failureSummary.update = function() {
             var newValue = thTabs.tabs.failureSummary.contentId;
             $scope.suggestions = [];
             $scope.bugSuggestionsLoaded = false;
 
+            // cancel any existing failure summary queries
+            if (query) {
+                query.$cancelRequest();
+            }
+
             if (angular.isDefined(newValue)) {
                 thTabs.tabs.failureSummary.is_loading = true;
 
-                ThBugSuggestionsModel.query({
+                query = ThBugSuggestionsModel.query({
                     project: $rootScope.repoName,
                     jobId: newValue
                 }, function(suggestions) {
@@ -54,7 +61,7 @@ treeherder.controller('BugsPluginCtrl', [
                     // the log (we can do this asynchronously, it should normally be
                     // fast)
                     if (!suggestions.length) {
-                        ThTextLogStepModel.query({
+                        query = ThTextLogStepModel.query({
                             project: $rootScope.repoName,
                             jobId: newValue
                         }, function(textLogSteps) {
