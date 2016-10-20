@@ -3,6 +3,7 @@ import re
 
 from django.core.management.base import (BaseCommand,
                                          CommandError)
+from django.db import transaction
 from mozlog.formatters.tbplformatter import TbplFormatter
 
 from treeherder.model.derived import (ArtifactsModel,
@@ -61,6 +62,7 @@ class Command(BaseCommand):
                                         text_log_errors,
                                         bug_suggestions)
 
+    @transaction.atomic
     def crossreference_error_lines(self, repository, job_guid, failure_lines,
                                    text_log_errors, bug_suggestions):
         """Populate the TextLogSummary and TextLogSummaryLine tables for a
@@ -76,8 +78,12 @@ class Command(BaseCommand):
         :param text_log_summary: text_log_summary artifact for this job
         :param bug_suggestions: Bug suggestions artifact for this job"""
 
-        summary, _ = TextLogSummary.objects.get_or_create(job_guid=job_guid,
-                                                          repository=repository)
+        if TextLogSummary.objects.filter(job_guid=job_guid).exists():
+            logger.info("crossreference_error_lines already ran for job %s" % job_guid)
+            return
+
+        summary = TextLogSummary.objects.create(job_guid=job_guid,
+                                                repository=repository)
         summary.bug_suggestions_artifact_id = bug_suggestions["id"]
 
         summary.save()
