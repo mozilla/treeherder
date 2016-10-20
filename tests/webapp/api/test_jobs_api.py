@@ -432,7 +432,8 @@ def test_text_log_steps_and_errors(webapp, test_job):
                         'search': 'failure 1',
                         'search_terms': ['failure 1'],
                         'bugs': {'open_recent': [], 'all_others': []}
-                    }
+                    },
+                    'metadata': None
                 },
                 {
                     'id': 2,
@@ -442,7 +443,8 @@ def test_text_log_steps_and_errors(webapp, test_job):
                         'search': 'failure 2',
                         'search_terms': ['failure 2'],
                         'bugs': {'open_recent': [], 'all_others': []}
-                    }
+                    },
+                    'metadata': None
                 }
             ],
             'finished': '1970-01-01T00:03:20',
@@ -491,7 +493,8 @@ def test_text_log_errors(webapp, test_job):
                 'search': 'failure 1',
                 'search_terms': ['failure 1'],
                 'bugs': {'open_recent': [], 'all_others': []}
-            }
+            },
+            'metadata': None
         },
         {
             'id': 2,
@@ -501,7 +504,8 @@ def test_text_log_errors(webapp, test_job):
                 'search': 'failure 2',
                 'search_terms': ['failure 2'],
                 'bugs': {'open_recent': [], 'all_others': []}
-            }
+            },
+            'metadata': None
         }
     ]
 

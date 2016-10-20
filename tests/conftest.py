@@ -16,7 +16,8 @@ from treeherder.config.wsgi import application
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.resultset import store_result_set_data
 from treeherder.model.models import (JobNote,
-                                     Push)
+                                     Push,
+                                     TextLogErrorMetadata)
 
 
 def pytest_addoption(parser):
@@ -346,6 +347,22 @@ def failure_classifications(transactional_db):
 
 
 @pytest.fixture
+def text_log_errors_failure_lines(test_job, failure_lines):
+    from tests.autoclassify.utils import test_line, create_text_log_errors
+
+    lines = [(test_line, {}),
+             (test_line, {"subtest": "subtest2"})]
+
+    text_log_errors = create_text_log_errors(test_job, lines)
+
+    for error_line, failure_line in zip(text_log_errors, failure_lines):
+        TextLogErrorMetadata.objects.create(text_log_error=error_line,
+                                            failure_line=failure_line)
+
+    return text_log_errors, failure_lines
+
+
+@pytest.fixture
 def test_matcher(request):
     from treeherder.autoclassify import detectors
     from treeherder.model.models import MatcherManager
@@ -367,10 +384,12 @@ def test_matcher(request):
 
 
 @pytest.fixture
-def classified_failures(test_job, failure_lines, test_matcher,
+def classified_failures(test_job, text_log_errors_failure_lines, test_matcher,
                         failure_classifications):
     from treeherder.model.models import ClassifiedFailure
     from treeherder.model.search import refresh_all
+
+    _, failure_lines = text_log_errors_failure_lines
 
     classified_failures = []
 
