@@ -62,8 +62,7 @@ Unipath==1.1 --hash=sha256:e6257e508d8abbfb6ddd8ec357e33589f1f48b1599127f23b0171
 # Required by django-rest-swagger
 PyYAML==3.12 --hash=sha256:592766c6303207a20efc445587778322d7f73b161bd994f227adaa341ba212ab
 
-# Used directly plus required by django-browserid, WebTest & responses
-requests==2.10.0 --hash=sha256:09bc1b5f3a56cd8c48d433213a8cba51a67d12936568f73b5f1793fcb0c0979e
+requests==2.11.1 --hash=sha256:545c4855cd9d7c12671444326337013766f4eea6068c3f0307fb2dc2696d580e
 
 # Required by django.contrib.migrations
 sqlparse==0.1.19 --hash=sha256:d896be1a1c7f24bffe08d7a64e6f0176b260e281c5f3685afe7826f8bada4ee8
