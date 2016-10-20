@@ -25,7 +25,7 @@ isort==4.2.2 --hash=sha256:3ad243ad738b2f9a58005ac44b13a3c297b0201327edaec32c245
 py==1.4.31 --hash=sha256:4a3e4f3000c123835ac39cab5ccc510642153bc47bc1f13e2bbb53039540ae69
 
 # Required by WebTest
-beautifulsoup4==4.4.1 --hash=sha256:82a253245aed9875f141dd98a7462572bca93d064cf3117bd33de4b61ee18e68
+beautifulsoup4==4.5.1 --hash=sha256:bb3dba571c2f7ddcaf3e70ad8b67878a85ac41889dcba75a30b8f7b0b5960b6d
 waitress==0.9.0 --hash=sha256:57192b7b9f26eae770f5bbf5a3cfeb781011305b1b6ca79a59d769dc267989a2
 WebOb==1.6.1 --hash=sha256:509ce06406bd9c63fc6fba4ea5e96d17f6080f126d6303d6ab583b5f20c3eced
 
