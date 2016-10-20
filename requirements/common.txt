@@ -5,10 +5,7 @@ gunicorn==19.6.0 --hash=sha256:723234ea1fa8dff370ab69830ba8bc37469a7cba13fd66055
 whitenoise==3.2 --hash=sha256:13e5d6673c7c0805c73037b7745e027141a8e39c5b6ba669b631c8fb3d05b06e
 
 # Used by the Whitenoise CLI tool to provide Brotli-compressed versions of static files.
-# There is not yet an official package on PyPI:
-# https://github.com/google/brotli/issues/72
-https://github.com/google/brotli/archive/v0.3.0.zip#egg=Brotli==0.3.0 \
-    --hash=sha256:0e1e88c74b5a4c9c39123fe8adfdce6262c80524398367420475716389d70791
+Brotli==0.5.2 --hash=sha256:3411b9acd2a2056e55084acf7a6ab3e4a8540c2ef37a4435bca62644e8aaf50e
 
 Django==1.8.15 --hash=sha256:e2e41aeb4fb757575021621dc28fceb9ad137879ae0b854067f1726d9a772807
 
