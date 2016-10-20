@@ -12,8 +12,7 @@ from treeherder.model.models import (BugJobMap,
                                      ClassifiedFailure,
                                      FailureMatch,
                                      JobNote,
-                                     TextLogError,
-                                     TextLogStep)
+                                     TextLogError)
 
 from .utils import (crash_line,
                     create_failure_lines,
@@ -39,45 +38,65 @@ def do_autoclassify(jm, job, test_failure_lines, matchers, status="testfailed"):
         item.refresh_from_db()
 
 
-def test_classify_test_failure(jm, failure_lines, classified_failures,
+def create_lines(test_job, lines):
+    error_lines = create_text_log_errors(test_job, lines)
+    failure_lines = create_failure_lines(test_job, lines)
+
+    for error_line, failure_line in zip(error_lines, failure_lines):
+        error_line.failure_line = failure_line
+        error_line.save()
+    return error_lines, failure_lines
+
+
+def test_classify_test_failure(jm,
+                               text_log_errors_failure_lines,
+                               classified_failures,
                                test_job_2):
-    test_failure_lines = create_failure_lines(test_job_2,
-                                              [(test_line, {}),
-                                               (test_line, {"subtest": "subtest2"}),
-                                               (test_line, {"status": "TIMEOUT"}),
-                                               (test_line, {"expected": "ERROR"}),
-                                               (test_line, {"message": "message2"})])
+    lines = [(test_line, {}),
+             (test_line, {"subtest": "subtest2"}),
+             (test_line, {"status": "TIMEOUT"}),
+             (test_line, {"expected": "ERROR"}),
+             (test_line, {"message": "message2"})]
+    test_error_lines, test_failure_lines = create_lines(test_job_2, lines)
 
     do_autoclassify(jm, test_job_2, test_failure_lines, [PreciseTestMatcher])
 
-    expected_classified = test_failure_lines[:2]
-    expected_unclassified = test_failure_lines[2:]
+    expected_classified = test_error_lines[:2], test_failure_lines[:2]
+    expected_unclassified = test_error_lines[2:], test_failure_lines[2:]
 
-    for actual, expected in zip(expected_classified, classified_failures):
-        assert [item.id for item in actual.classified_failures.all()] == [expected.id]
+    for (error_line, failure_line), expected in zip(zip(*expected_classified), classified_failures):
+        assert [item.id for item in error_line.classified_failures.all()] == [expected.id]
+        assert [item.id for item in failure_line.classified_failures.all()] == [expected.id]
 
-    for item in expected_unclassified:
-        assert item.classified_failures.count() == 0
+    for error_line, failure_line in zip(*expected_unclassified):
+        assert error_line.classified_failures.count() == 0
+        assert failure_line.classified_failures.count() == 0
 
 
-def test_no_autoclassify_job_success(jm, failure_lines, classified_failures, test_job_2):
-    test_failure_lines = create_failure_lines(test_job_2,
-                                              [(test_line, {}),
-                                               (test_line, {"subtest": "subtest2"}),
-                                               (test_line, {"status": "TIMEOUT"}),
-                                               (test_line, {"expected": "ERROR"}),
-                                               (test_line, {"message": "message2"})])
+def test_no_autoclassify_job_success(jm,
+                                     text_log_errors_failure_lines,
+                                     classified_failures,
+                                     test_job_2):
+    lines = [(test_line, {}),
+             (test_line, {"subtest": "subtest2"}),
+             (test_line, {"status": "TIMEOUT"}),
+             (test_line, {"expected": "ERROR"}),
+             (test_line, {"message": "message2"})]
+    test_error_lines, test_failure_lines = create_lines(test_job_2, lines)
 
     do_autoclassify(jm, test_job_2, test_failure_lines, [PreciseTestMatcher], status="success")
 
-    expected_classified = []
-    expected_unclassified = test_failure_lines
+    expected_classified = [], []
+    expected_unclassified = test_error_lines, test_failure_lines
 
-    for actual, expected in zip(expected_classified, classified_failures):
-        assert [item.id for item in actual.classified_failures.all()] == [expected.id]
+    for (error_line, failure_line), expected in zip(zip(*expected_classified),
+                                                    classified_failures):
+        assert [item.id for item in error_line.classified_failures.all()] == [expected.id]
+        assert [item.id for item in failure_line.classified_failures.all()] == [expected.id]
 
-    for item in expected_unclassified:
-        assert item.classified_failures.count() == 0
+    for error_line, failure_line in zip(*expected_unclassified):
+        assert error_line.classified_failures.count() == 0
+        assert failure_line.classified_failures.count() == 0
 
 
 def test_autoclassify_update_job_classification(jm, failure_lines, classified_failures,
@@ -86,10 +105,9 @@ def test_autoclassify_update_job_classification(jm, failure_lines, classified_fa
         item.bug_number = "1234%i" % i
         item.save()
 
-    test_failure_lines = create_failure_lines(test_job_2,
-                                              [(test_line, {})])
+    lines = [(test_line, {})]
+    test_error_lines, test_failure_lines = create_lines(test_job_2, lines)
 
-    create_text_log_errors(test_job_2, [(test_line, {})])
     do_autoclassify(jm, test_job_2, test_failure_lines, [PreciseTestMatcher])
 
     assert JobNote.objects.filter(job=test_job_2).count() == 1
@@ -102,20 +120,11 @@ def test_autoclassify_no_update_job_classification(jm, test_job, test_job_2,
                                                    failure_lines,
                                                    classified_failures):
 
-    test_failure_lines = create_failure_lines(test_job, [(test_line, {})])
-    step = TextLogStep.objects.create(job=test_job_2,
-                                      name='unnamed step',
-                                      started_line_number=1,
-                                      finished_line_number=10,
-                                      result=TextLogStep.TEST_FAILED)
-    TextLogError.objects.create(step=step,
-                                line='TEST-UNEXPECTED-FAIL | test1 | message1',
-                                line_number=1)
-    TextLogError.objects.create(step=step,
+    lines = [(test_line, {})]
+    test_error_lines, test_failure_lines = create_lines(test_job_2, lines)
+    TextLogError.objects.create(step=test_error_lines[0].step,
                                 line="Some error that isn't in the structured logs",
                                 line_number=2)
-    test_failure_lines = create_failure_lines(test_job_2,
-                                              [(test_line, {})])
 
     do_autoclassify(jm, test_job_2, test_failure_lines, [PreciseTestMatcher])
 
@@ -126,19 +135,23 @@ def test_autoclassified_after_manual_classification(jm, test_user, test_job_2,
                                                     failure_lines, failure_classifications):
     register_detectors(ManualDetector, TestFailureDetector)
 
-    create_text_log_errors(test_job_2, [(test_line, {})])
-    test_failure_lines = create_failure_lines(test_job_2, [(test_line, {})])
+    lines = [(test_line, {})]
+    test_error_lines, test_failure_lines = create_lines(test_job_2, lines)
 
     JobNote.objects.create(job=test_job_2,
                            failure_classification_id=4,
                            user=test_user,
                            text="")
 
-    for item in test_failure_lines:
-        item.refresh_from_db()
+    for error_line, failure_line in zip(test_error_lines, test_failure_lines):
+        error_line.refresh_from_db()
+        failure_line.refresh_from_db()
 
+    assert len(test_error_lines[0].matches.all()) == 1
     assert len(test_failure_lines[0].matches.all()) == 1
+    assert test_error_lines[0].best_classification == test_error_lines[0].classified_failures.all()[0]
     assert test_failure_lines[0].best_classification == test_failure_lines[0].classified_failures.all()[0]
+    assert test_error_lines[0].best_is_verified
     assert test_failure_lines[0].best_is_verified
 
 
@@ -148,16 +161,19 @@ def test_autoclassified_no_update_after_manual_classification_1(jm, test_job_2,
     register_detectors(ManualDetector, TestFailureDetector)
 
     # Line type won't be detected by the detectors we have registered
-    test_failure_lines = create_failure_lines(test_job_2, [(log_line, {})])
+    lines = [(log_line, {})]
+    test_error_lines, test_failure_lines = create_lines(test_job_2, lines)
 
     JobNote.objects.create(job=test_job_2,
                            failure_classification_id=4,
                            user=test_user,
                            text="")
 
-    for item in test_failure_lines:
-        item.refresh_from_db()
+    for error_line, failure_line in zip(test_error_lines, test_failure_lines):
+        error_line.refresh_from_db()
+        failure_line.refresh_from_db()
 
+    assert len(test_error_lines[0].matches.all()) == 0
     assert len(test_failure_lines[0].matches.all()) == 0
 
 
@@ -181,8 +197,13 @@ def test_autoclassified_no_update_after_manual_classification_2(test_user, test_
     assert len(test_failure_lines[0].matches.all()) == 0
 
 
-def test_classify_skip_ignore(jm, test_job_2, failure_lines,
+def test_classify_skip_ignore(jm, test_job_2, text_log_errors_failure_lines,
                               classified_failures):
+
+    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors[1].best_is_verified = True
+    text_log_errors[1].best_classification = None
+    text_log_errors[1].save()
 
     failure_lines[1].best_is_verified = True
     failure_lines[1].best_classification = None

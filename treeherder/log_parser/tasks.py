@@ -21,7 +21,7 @@ def parser_task(f):
     """Decorator that ensures that log parsing task has not already run,
     and also adds New Relic annotations.
     """
-    def inner(job_log_id, priority):
+    def inner(job_log_id):
         newrelic.agent.add_custom_parameter("job_log_id", job_log_id)
         job_log = JobLog.objects.select_related("job").get(id=job_log_id)
         newrelic.agent.add_custom_parameter("job_log_name", job_log.name)
@@ -93,8 +93,7 @@ def parse_log(job_log):
 @retryable_task(name='store-failure-lines', max_retries=10)
 @taskset
 @parser_task
-<<<<<<< HEAD
-def store_failure_lines(job_log, priority):
+def store_failure_lines(job_log):
     """Store the failure lines from a log corresponding to the structured
     errorsummary file."""
     logger.debug('Running store_failure_lines for job %s' % job_log.job.id)
@@ -102,7 +101,7 @@ def store_failure_lines(job_log, priority):
 
 
 @retryable_task(name='crossreference-error-lines', max_retries=10)
-def crossreference_error_lines(job_id):
+def crossreference_error_lines(job_id, priority):
     """Match structured (FailureLine) and unstructured (TextLogError) lines
     for a job."""
     newrelic.agent.add_custom_parameter("job_id", job_id)
