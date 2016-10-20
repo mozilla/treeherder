@@ -1,6 +1,7 @@
 from django.core.management import call_command
 
 from treeherder.model.models import (FailureLine,
+                                     TextLogError,
                                      TextLogSummary,
                                      TextLogSummaryLine)
 
@@ -21,6 +22,7 @@ def test_crossreference_error_lines(test_job):
 
     call_command('crossreference_error_lines', str(test_job.id))
 
+    error_lines = TextLogError.objects.filter(step__job=test_job).all()
     summary = TextLogSummary.objects.all()
     assert len(summary) == 1
     summary = summary[0]
@@ -34,12 +36,16 @@ def test_crossreference_error_lines(test_job):
     failure_lines = FailureLine.objects.all()
     assert len(failure_lines) == len(lines)
 
-    for i, (failure_line, summary_line) in enumerate(zip(failure_lines, summary_lines)):
+    for i, (failure_line, error_line, summary_line) in enumerate(
+            zip(failure_lines, error_lines, summary_lines)):
         assert summary_line.summary == summary
         assert summary_line.line_number == i
         assert summary_line.failure_line == failure_line
         assert summary_line.verified is False
         assert summary_line.bug_number is None
+        assert error_line.failure_line == failure_line
+        assert error_line.best_is_verified is False
+        assert error_line.best_classification is None
 
 
 def test_crossreference_error_lines_truncated(test_job):
@@ -75,43 +81,29 @@ def test_crossreference_error_lines_missing(test_job):
     call_command('crossreference_error_lines', str(test_job.id))
 
     failure_lines = FailureLine.objects.all()
+    error_lines = TextLogError.objects.filter(step__job=test_job).all()
     summary_lines = TextLogSummaryLine.objects.all()
     summary = TextLogSummary.objects.all()[0]
     assert len(summary_lines) == len(failure_lines) + 1
 
     summary_line = summary_lines[0]
+    error_line = error_lines[0]
     assert summary_line.summary == summary
     assert summary_line.line_number == 0
     assert summary_line.failure_line is None
     assert summary_line.verified is False
     assert summary_line.bug_number is None
+    assert error_line.failure_line is None
+    assert error_line.best_is_verified is False
+    assert error_line.best_classification is None
 
-    for i, (failure_line, summary_line) in enumerate(zip(failure_lines, summary_lines[1:])):
+    for i, (failure_line, error_line, summary_line) in enumerate(
+            zip(failure_lines, error_lines[1:], summary_lines[1:])):
         assert summary_line.summary == summary
         assert summary_line.line_number == i + 1
         assert summary_line.failure_line == failure_line
         assert summary_line.verified is False
         assert summary_line.bug_number is None
-
-
-def test_crossreference_error_lines_repeat(test_job):
-
-    lines = [(test_line, {})]
-
-    create_failure_lines(test_job, lines)
-    create_text_log_errors(test_job, lines)
-
-    call_command('crossreference_error_lines', str(test_job.id))
-
-    failure_lines = FailureLine.objects.all()
-    summary_lines = TextLogSummaryLine.objects.all()
-    summary = TextLogSummary.objects.all()[0]
-    assert len(summary_lines) == 1
-
-    summary_line = summary_lines[0]
-    assert summary_line.summary == summary
-    assert summary_line.failure_line == failure_lines[0]
-    assert summary_line.verified is False
-    assert summary_line.bug_number is None
-
-    call_command('crossreference_error_lines', str(test_job.id))
+        assert error_line.failure_line == failure_line
+        assert error_line.best_is_verified is False
+        assert error_line.best_classification is None
