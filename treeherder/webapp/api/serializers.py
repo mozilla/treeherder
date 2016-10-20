@@ -193,7 +193,7 @@ class ClassifiedFailureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ClassifiedFailure
-        exclude = ['failure_lines', 'created', 'modified']
+        exclude = ['failure_lines', 'created', 'modified', "text_log_errors"]
 
 
 class FailureMatchSerializer(serializers.ModelSerializer):

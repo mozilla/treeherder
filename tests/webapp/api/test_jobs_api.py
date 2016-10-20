@@ -412,6 +412,9 @@ def test_text_log_steps_and_errors(webapp, test_job):
                     'id': 1,
                     'line': 'failure 1',
                     'line_number': 101,
+                    'failure_line': None,
+                    'best_classification': None,
+                    'best_is_verified': False,
                     'bug_suggestions': {
                         'search': 'failure 1',
                         'search_terms': ['failure 1'],
@@ -422,6 +425,9 @@ def test_text_log_steps_and_errors(webapp, test_job):
                     'id': 2,
                     'line': 'failure 2',
                     'line_number': 102,
+                    'failure_line': None,
+                    'best_classification': None,
+                    'best_is_verified': False,
                     'bug_suggestions': {
                         'search': 'failure 2',
                         'search_terms': ['failure 2'],
@@ -471,6 +477,9 @@ def test_text_log_errors(webapp, test_job):
             'id': 1,
             'line': 'failure 1',
             'line_number': 101,
+            'failure_line': None,
+            'best_classification': None,
+            'best_is_verified': False,
             'bug_suggestions': {
                 'search': 'failure 1',
                 'search_terms': ['failure 1'],
@@ -481,6 +490,9 @@ def test_text_log_errors(webapp, test_job):
             'id': 2,
             'line': 'failure 2',
             'line_number': 102,
+            'failure_line': None,
+            'best_classification': None,
+            'best_is_verified': False,
             'bug_suggestions': {
                 'search': 'failure 2',
                 'search_terms': ['failure 2'],
