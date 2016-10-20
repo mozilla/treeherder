@@ -29,7 +29,8 @@ from jsonfield import JSONField
 from treeherder import path
 
 from .fields import (BigAutoField,
-                     FlexibleForeignKey)
+                     FlexibleForeignKey,
+                     FlexibleOneToOneField)
 from .search import (TestFailureLine,
                      es_connected)
 
@@ -1085,6 +1086,17 @@ class FailureLine(models.Model):
             ('job_log',  'line')
         )
 
+    def __str__(self):
+        return "{0} {1}".format(self.id, Job.objects.get(guid=self.job_guid).id)
+
+    @property
+    def error(self):
+        # Return the related text-log-error or None if there is no related field.
+        try:
+            return self.text_log_error
+        except TextLogError.DoesNotExist:
+            return None
+
     def best_automatic_match(self, min_score=0):
         return FailureMatch.objects.filter(
             failure_line_id=self.id,
@@ -1113,6 +1125,17 @@ class FailureLine(models.Model):
             if mark_best:
                 self.best_classification = classification
                 self.save(update_fields=['best_classification'])
+
+            if self.error:
+                TextLogErrorMatch.objects.create(
+                    text_log_error=self.error,
+                    classified_failure=classification,
+                    matcher=matcher,
+                    score=1)
+                if mark_best:
+                    self.error.best_classification = classification
+                    self.error.save(update_fields=['best_classification'])
+
             self.elastic_search_insert()
         return classification, new_link
 
@@ -1124,6 +1147,10 @@ class FailureLine(models.Model):
         self.best_classification = classification
         self.best_is_verified = True
         self.save()
+        if self.error:
+            self.error.best_classification = classification
+            self.error.best_is_verified = True
+            self.error.save(update_fields=["best_classification", "best_is_verified"])
         self.elastic_search_insert()
 
     def _serialized_components(self):
@@ -1180,11 +1207,16 @@ class ClassifiedFailure(models.Model):
     id = BigAutoField(primary_key=True)
     failure_lines = models.ManyToManyField(FailureLine, through='FailureMatch',
                                            related_name='classified_failures')
+    text_log_errors = models.ManyToManyField("TextLogError", through='TextLogErrorMatch',
+                                             related_name='classified_failures')
     # Note that we use a bug number of 0 as a sentinel value to indicate lines that
     # are not actually symptomatic of a real bug, but are still possible to autoclassify
     bug_number = models.PositiveIntegerField(blank=True, null=True, unique=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return "{0} {1}".format(self.id, self.bug_number)
 
     def bug(self):
         # Putting this here forces one query per object; there should be a way
@@ -1349,6 +1381,10 @@ class FailureMatch(models.Model):
             ('failure_line', 'classified_failure', 'matcher')
         )
 
+    def __str__(self):
+        return "{0} {1}".format(
+            self.failure_line.id, self.classified_failure.id)
+
 
 @python_2_unicode_compatible
 class RunnableJob(models.Model):
@@ -1424,14 +1460,54 @@ class TextLogError(models.Model):
     step = FlexibleForeignKey(TextLogStep, related_name='errors')
     line = models.TextField()
     line_number = models.PositiveIntegerField()
+    failure_line = FlexibleOneToOneField(FailureLine,
+                                         related_name="text_log_error",
+                                         null=True)
+    # Note that the case of best_classification = None and best_is_verified = True
+    # has the special semantic that the line is ignored and should not be considered
+    # for future autoclassifications.
+    best_classification = FlexibleForeignKey("ClassifiedFailure",
+                                             related_name="best_for_error",
+                                             null=True,
+                                             db_index=True,
+                                             on_delete=models.SET_NULL)
+
+    best_is_verified = models.BooleanField(default=False)
 
     class Meta:
         db_table = "text_log_error"
         unique_together = ('step', 'line_number')
 
+    def __str__(self):
+        return "{0} {1}".format(self.id, self.step.job.id)
+
     def bug_suggestions(self):
         from treeherder.model import error_summary
         return error_summary.bug_suggestions_line(self)
+
+
+class TextLogErrorMatch(models.Model):
+    id = BigAutoField(primary_key=True)
+    text_log_error = FlexibleForeignKey(TextLogError,
+                                        related_name="matches",
+                                        on_delete=models.CASCADE)
+    classified_failure = FlexibleForeignKey(ClassifiedFailure,
+                                            related_name="error_matches",
+                                            on_delete=models.CASCADE)
+
+    matcher = models.ForeignKey(Matcher)
+    score = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
+
+    class Meta:
+        db_table = 'text_log_error_match'
+        verbose_name_plural = 'text log error matches'
+        unique_together = (
+            ('text_log_error', 'classified_failure', 'matcher')
+        )
+
+    def __str__(self):
+        return "{0} {1}".format(
+            self.text_log_error.id, self.classified_failure.id)
 
 
 class TextLogSummary(models.Model):
