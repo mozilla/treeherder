@@ -193,7 +193,7 @@ class ClassifiedFailureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ClassifiedFailure
-        exclude = ['failure_lines', 'created', 'modified']
+        exclude = ['failure_lines', 'created', 'modified', "text_log_errors"]
 
 
 class FailureMatchSerializer(serializers.ModelSerializer):
@@ -215,8 +215,14 @@ class FailureLineNoStackSerializer(serializers.ModelSerializer):
                    'stackwalk_stderr']
 
 
+class TextLogErrorMetadataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TextLogErrorMetadata
+
+
 class TextLogErrorSerializer(serializers.ModelSerializer):
     bug_suggestions = NoOpSerializer(read_only=True)
+    metadata = TextLogErrorMetadataSerializer(read_only=True)
 
     class Meta:
         model = models.TextLogError

@@ -376,11 +376,12 @@ def test_post_job_artifacts_by_add_artifact(
     }
 
     assert TextLogError.objects.count() == 1
-    assert model_to_dict(TextLogError.objects.get(step__job__guid=job_guid)) == {
+    text_log_error = TextLogError.objects.get(step__job__guid=job_guid)
+    assert model_to_dict(text_log_error) == {
         'id': 1,
         'line': 'TEST_UNEXPECTED_FAIL | /sdcard/tests/autophone/s1s2test/nytimes.com/index.html | Failed to get uncached measurement.',
         'line_number': 64435,
-        'step': 1
+        'step': 1,
     }
 
     # assert that some bug suggestions got generated
