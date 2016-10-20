@@ -375,7 +375,10 @@ def test_post_job_artifacts_by_add_artifact(
         'id': 1,
         'line': 'TEST_UNEXPECTED_FAIL | /sdcard/tests/autophone/s1s2test/nytimes.com/index.html | Failed to get uncached measurement.',
         'line_number': 64435,
-        'step': 1
+        'step': 1,
+        'failure_line': None,
+        'best_classification': None,
+        'best_is_verified': False
     }
 
     # assert that some bug suggestions got generated
