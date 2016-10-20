@@ -100,3 +100,29 @@ def test_crossreference_error_lines_missing(test_job):
         assert summary_line.failure_line == failure_line
         assert summary_line.verified is False
         assert summary_line.bug_number is None
+
+
+def test_crossreference_error_lines_repeat(test_job):
+
+    lines = [(test_line, {})]
+
+    create_failure_lines(test_job, lines)
+    create_text_log_errors(test_job, lines)
+    create_bug_suggestions_failures(test_job, lines)
+
+    call_command('crossreference_error_lines', test_job.repository.name,
+                 test_job.guid)
+
+    failure_lines = FailureLine.objects.all()
+    summary_lines = TextLogSummaryLine.objects.all()
+    summary = TextLogSummary.objects.all()[0]
+    assert len(summary_lines) == 1
+
+    summary_line = summary_lines[0]
+    assert summary_line.summary == summary
+    assert summary_line.failure_line == failure_lines[0]
+    assert summary_line.verified is False
+    assert summary_line.bug_number is None
+
+    call_command('crossreference_error_lines', test_job.repository.name,
+                 test_job.guid)
