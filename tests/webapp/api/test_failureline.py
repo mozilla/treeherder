@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
 from tests.autoclassify.utils import (create_failure_lines,
+                                      create_text_log_errors,
                                       test_line)
 from treeherder.autoclassify.detectors import ManualDetector
 from treeherder.model.models import (BugJobMap,
@@ -9,7 +10,8 @@ from treeherder.model.models import (BugJobMap,
                                      Job,
                                      JobNote,
                                      Matcher,
-                                     MatcherManager)
+                                     MatcherManager,
+                                     TextLogError)
 from treeherder.model.search import TestFailureLine
 
 
@@ -34,15 +36,22 @@ def test_get_failure_line(webapp, failure_lines):
     assert set(failure_line.keys()) == set(exp_failure_keys)
 
 
-def test_update_failure_line_verify(test_repository, failure_lines, classified_failures,
+def test_update_failure_line_verify(test_repository,
+                                    text_log_errors_failure_lines,
+                                    classified_failures,
                                     test_user):
 
+    text_log_errors, failure_lines = text_log_errors_failure_lines
     client = APIClient()
     client.force_authenticate(user=test_user)
 
     failure_line = failure_lines[0]
+    error_line = text_log_errors[0]
     assert failure_line.best_classification == classified_failures[0]
     assert failure_line.best_is_verified is False
+    assert error_line.failure_line == failure_line
+    assert error_line.best_classification == classified_failures[0]
+    assert error_line.best_is_verified is False
 
     body = {"project": test_repository.name,
             "best_classification": classified_failures[0].id}
@@ -54,26 +63,36 @@ def test_update_failure_line_verify(test_repository, failure_lines, classified_f
     assert resp.status_code == 200
 
     failure_line.refresh_from_db()
+    error_line.refresh_from_db()
 
     assert failure_line.best_classification == classified_failures[0]
     assert failure_line.best_is_verified
+    assert error_line.best_classification == classified_failures[0]
+    assert error_line.best_is_verified
 
     es_line = TestFailureLine.get(failure_line.id, routing=failure_line.test)
     assert es_line.best_classification == classified_failures[0].id
     assert es_line.best_is_verified
 
 
-def test_update_failure_line_replace(test_repository, failure_lines,
-                                     classified_failures, test_user):
+def test_update_failure_line_replace(test_repository,
+                                     text_log_errors_failure_lines,
+                                     classified_failures,
+                                     test_user):
 
     MatcherManager.register_detector(ManualDetector)
 
     client = APIClient()
     client.force_authenticate(user=test_user)
 
+    text_log_errors, failure_lines = text_log_errors_failure_lines
     failure_line = failure_lines[0]
+    error_line = text_log_errors[0]
     assert failure_line.best_classification == classified_failures[0]
     assert failure_line.best_is_verified is False
+    assert error_line.failure_line == failure_line
+    assert error_line.best_classification == classified_failures[0]
+    assert error_line.best_is_verified is False
 
     body = {"project": test_repository.name,
             "best_classification": classified_failures[1].id}
@@ -85,19 +104,26 @@ def test_update_failure_line_replace(test_repository, failure_lines,
     assert resp.status_code == 200
 
     failure_line.refresh_from_db()
+    error_line.refresh_from_db()
 
     assert failure_line.best_classification == classified_failures[1]
     assert failure_line.best_is_verified
     assert len(failure_line.classified_failures.all()) == 2
+    assert error_line.failure_line == failure_line
+    assert error_line.best_classification == classified_failures[1]
+    assert error_line.best_is_verified
 
     expected_matcher = Matcher.objects.get(name="ManualDetector")
     assert failure_line.matches.get(classified_failure_id=classified_failures[1].id).matcher == expected_matcher
+    assert error_line.matches.get(classified_failure_id=classified_failures[1].id).matcher == expected_matcher
 
 
 def test_update_failure_line_mark_job(test_repository, test_job,
-                                      failure_lines,
+                                      text_log_errors_failure_lines,
                                       classified_failures,
                                       test_user):
+
+    text_log_errors, failure_lines = text_log_errors_failure_lines
 
     MatcherManager.register_detector(ManualDetector)
 
@@ -107,9 +133,10 @@ def test_update_failure_line_mark_job(test_repository, test_job,
     classified_failures[1].bug_number = 1234
     classified_failures[1].save()
 
-    for failure_line in failure_lines:
+    for text_log_error, failure_line in zip(text_log_errors, failure_lines):
 
         assert failure_line.best_is_verified is False
+        assert text_log_error.best_is_verified is False
 
         body = {"best_classification": classified_failures[1].id}
 
@@ -119,9 +146,12 @@ def test_update_failure_line_mark_job(test_repository, test_job,
         assert resp.status_code == 200
 
         failure_line.refresh_from_db()
+        text_log_error.refresh_from_db()
 
         assert failure_line.best_classification == classified_failures[1]
         assert failure_line.best_is_verified
+        assert text_log_error.best_classification == classified_failures[1]
+        assert text_log_error.best_is_verified
 
     assert test_job.is_fully_verified()
 
@@ -135,9 +165,10 @@ def test_update_failure_line_mark_job(test_repository, test_job,
 
 
 def test_update_failure_line_mark_job_with_human_note(test_job,
-                                                      failure_lines,
+                                                      text_log_errors_failure_lines,
                                                       classified_failures, test_user):
 
+    text_log_errors, failure_lines = text_log_errors_failure_lines
     MatcherManager.register_detector(ManualDetector)
 
     client = APIClient()
@@ -166,11 +197,13 @@ def test_update_failure_line_mark_job_with_human_note(test_job,
 
 
 def test_update_failure_line_mark_job_with_auto_note(test_job,
-                                                     mock_autoclassify_jobs_true, test_repository,
-                                                     failure_lines,
+                                                     mock_autoclassify_jobs_true,
+                                                     test_repository,
+                                                     text_log_errors_failure_lines,
                                                      classified_failures,
                                                      test_user):
 
+    text_log_errors, failure_lines = text_log_errors_failure_lines
     MatcherManager.register_detector(ManualDetector)
 
     client = APIClient()
@@ -181,7 +214,6 @@ def test_update_failure_line_mark_job_with_auto_note(test_job,
                            text="note")
 
     for failure_line in failure_lines:
-
         body = {"best_classification": classified_failures[1].id}
 
         resp = client.put(reverse("failure-line-detail", kwargs={"pk": failure_line.id}),
@@ -204,7 +236,9 @@ def test_update_failure_line_mark_job_with_auto_note(test_job,
 
 
 def test_update_failure_lines(mock_autoclassify_jobs_true,
-                              test_repository, classified_failures,
+                              test_repository,
+                              text_log_errors_failure_lines,
+                              classified_failures,
                               eleven_jobs_stored,
                               test_user):
 
@@ -215,14 +249,23 @@ def test_update_failure_lines(mock_autoclassify_jobs_true,
     client = APIClient()
     client.force_authenticate(user=test_user)
 
-    create_failure_lines(jobs[1],
-                         [(test_line, {}),
-                          (test_line, {"subtest": "subtest2"})])
+    lines = [(test_line, {}),
+             (test_line, {"subtest": "subtest2"})]
+    new_failure_lines = create_failure_lines(jobs[1], lines)
+    new_text_log_errors = create_text_log_errors(jobs[1], lines)
+
+    for text_log_error, failure_line in zip(new_text_log_errors,
+                                            new_failure_lines):
+        text_log_error.failure_line = failure_line
+        text_log_error.save()
 
     failure_lines = FailureLine.objects.filter(
         job_guid__in=[job.guid for job in jobs]).all()
+    text_log_errors = TextLogError.objects.filter(
+        step__job__in=jobs).all()
 
-    for failure_line in failure_lines:
+    for text_log_error, failure_line in zip(text_log_errors, failure_lines):
+        assert text_log_error.best_is_verified is False
         assert failure_line.best_is_verified is False
 
     body = [{"id": failure_line.id,
@@ -232,10 +275,13 @@ def test_update_failure_lines(mock_autoclassify_jobs_true,
 
     assert resp.status_code == 200
 
-    for failure_line in failure_lines:
+    for text_log_error, failure_line in zip(text_log_errors, failure_lines):
+        text_log_error.refresh_from_db()
         failure_line.refresh_from_db()
         assert failure_line.best_classification == classified_failures[1]
         assert failure_line.best_is_verified
+        assert text_log_error.best_classification == classified_failures[1]
+        assert text_log_error.best_is_verified
 
     for job in jobs:
         assert job.is_fully_verified()
@@ -246,15 +292,21 @@ def test_update_failure_lines(mock_autoclassify_jobs_true,
         assert note.user == test_user
 
 
-def test_update_failure_line_ignore(test_job, test_repository, failure_lines,
+def test_update_failure_line_ignore(test_job,
+                                    test_repository,
+                                    text_log_errors_failure_lines,
                                     classified_failures, test_user):
 
+    text_log_errors, failure_lines = text_log_errors_failure_lines
     client = APIClient()
     client.force_authenticate(user=test_user)
 
     MatcherManager.register_detector(ManualDetector)
 
+    text_log_error = text_log_errors[0]
     failure_line = failure_lines[0]
+    assert text_log_error.best_classification == classified_failures[0]
+    assert text_log_error.best_is_verified is False
     assert failure_line.best_classification == classified_failures[0]
     assert failure_line.best_is_verified is False
 
@@ -268,17 +320,21 @@ def test_update_failure_line_ignore(test_job, test_repository, failure_lines,
     assert resp.status_code == 200
 
     failure_line.refresh_from_db()
+    text_log_error.refresh_from_db()
 
     assert failure_line.best_classification is None
     assert failure_line.best_is_verified
+    assert text_log_error.best_classification is None
+    assert text_log_error.best_is_verified
 
 
 def test_update_failure_line_all_ignore_mark_job(test_job,
                                                  mock_autoclassify_jobs_true,
-                                                 failure_lines,
+                                                 text_log_errors_failure_lines,
                                                  classified_failures,
                                                  test_user):
 
+    text_log_errors, failure_lines = text_log_errors_failure_lines
     MatcherManager.register_detector(ManualDetector)
 
     client = APIClient()
@@ -286,15 +342,20 @@ def test_update_failure_line_all_ignore_mark_job(test_job,
 
     job_failure_lines = [line for line in failure_lines if
                          line.job_guid == test_job.guid]
+    job_text_log_errors = [error for error in text_log_errors if
+                           error.step.job == test_job]
 
-    for failure_line in job_failure_lines:
+    for error_line, failure_line in zip(job_text_log_errors, job_failure_lines):
+        error_line.best_is_verified = False
+        error_line.best_classification = None
         failure_line.best_is_verified = False
         failure_line.best_classification = None
 
     assert JobNote.objects.count() == 0
 
-    for failure_line in job_failure_lines:
+    for error_line, failure_line in zip(job_text_log_errors, job_failure_lines):
 
+        assert error_line.best_is_verified is False
         assert failure_line.best_is_verified is False
 
         body = {"best_classification": None}
@@ -304,8 +365,11 @@ def test_update_failure_line_all_ignore_mark_job(test_job,
 
         assert resp.status_code == 200
 
+        error_line.refresh_from_db()
         failure_line.refresh_from_db()
 
+        assert error_line.best_classification is None
+        assert error_line.best_is_verified
         assert failure_line.best_classification is None
         assert failure_line.best_is_verified
 
@@ -316,17 +380,19 @@ def test_update_failure_line_all_ignore_mark_job(test_job,
 
 def test_update_failure_line_partial_ignore_mark_job(test_job,
                                                      mock_autoclassify_jobs_true,
-                                                     failure_lines,
+                                                     text_log_errors_failure_lines,
                                                      classified_failures,
                                                      test_user):
 
+    text_log_errors, failure_lines = text_log_errors_failure_lines
     MatcherManager.register_detector(ManualDetector)
 
     client = APIClient()
     client.force_authenticate(user=test_user)
 
-    for i, failure_line in enumerate(failure_lines):
+    for i, (error_line, failure_line) in enumerate(zip(text_log_errors, failure_lines)):
 
+        assert error_line.best_is_verified is False
         assert failure_line.best_is_verified is False
 
         body = {"best_classification": None if i == 0 else classified_failures[0].id}
@@ -336,11 +402,14 @@ def test_update_failure_line_partial_ignore_mark_job(test_job,
 
         assert resp.status_code == 200
 
+        error_line.refresh_from_db()
         failure_line.refresh_from_db()
 
         if i == 0:
+            assert error_line.best_classification is None
             assert failure_line.best_classification is None
         else:
+            assert error_line.best_classification == classified_failures[0]
             assert failure_line.best_classification == classified_failures[0]
         assert failure_line.best_is_verified
 

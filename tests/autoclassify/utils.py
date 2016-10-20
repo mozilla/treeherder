@@ -44,7 +44,7 @@ def get_data(base_data, updates):
         else:
             data["action"] = "test_end"
     elif data["action"] == "log":
-        if data["level"] not in ("error", "critical"):
+        if data["level"] not in ("ERROR", "CRITICAL"):
             return
     else:
         return
