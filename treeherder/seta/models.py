@@ -34,6 +34,9 @@ class JobPriority(models.Model):
     expires = models.DateTimeField()
     buildsystem = models.CharField(max_length=64)
 
+    # Q: Do we need indexing?
+    unique_together = ('testtype', 'buildtype', 'platform')
+
     def has_expired(self):
         now = timezone.now()
         return self.expires < now
