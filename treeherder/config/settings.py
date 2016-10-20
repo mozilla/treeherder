@@ -13,12 +13,10 @@ env = environ.Env()
 
 def server_supports_tls(url):
     hostname = urlparse(url).hostname
-    # Services such as RabbitMQ/Elasticsearch running on Travis/Vagrant
-    # or in SCl3 do not support TLS. We could try adding locally using
-    # self-signed certs, but until Travis has support it's not overly useful.
-    if hostname == 'localhost' or hostname.endswith('.scl3.mozilla.com'):
-        return False
-    return True
+    # Services such as RabbitMQ/Elasticsearch running on Travis do not yet have TLS
+    # certificates set up. We could try using TLS locally using self-signed certs,
+    # but until Travis has support it's not overly useful.
+    return hostname != 'localhost'
 
 TREEHERDER_MEMCACHED = env("TREEHERDER_MEMCACHED", default="127.0.0.1:11211")
 TREEHERDER_MEMCACHED_KEY_PREFIX = env("TREEHERDER_MEMCACHED_KEY_PREFIX", default="treeherder")
@@ -411,12 +409,6 @@ SILENCED_SYSTEM_CHECKS = [
     'security.W017',
 ]
 
-# Disable the libmysqlclient TLS system check on SCl3, since we're moving to
-# Heroku soon, so it's not worth the hassle of trying to get it updated from
-# the ancient 5.1.X, given the DB is behind a VPN and so doesn't use TLS anyway.
-if '.scl3.mozilla.com' in env('DATABASE_URL'):
-    SILENCED_SYSTEM_CHECKS.append('treeherder.E001')
-
 # Enable integration between autoclassifier and jobs
 AUTOCLASSIFY_JOBS = env.bool("AUTOCLASSIFY_JOBS", default=True)
 # Ordered list of matcher classes to use during autoclassification
@@ -581,15 +573,15 @@ KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX
 # Celery broker setup
 BROKER_URL = env('BROKER_URL')
 
-# Force Celery to use TLS when appropriate (ie if not localhost or SCL3),
+# Force Celery to use TLS when appropriate (ie if not localhost),
 # rather than relying on `BROKER_URL` having `amqps://` or `?ssl=` set.
 # This is required since CloudAMQP's automatically defined URL uses neither.
 if server_supports_tls(BROKER_URL):
     BROKER_USE_SSL = True
 
 # This code handles the memcachier service on heroku.
-# TODO: Once no longer on SCL3, stop special-casing Heroku and use newer
-# best practices from https://www.memcachier.com/documentation#django.
+# TODO: Stop special-casing Heroku and use newer best practices from:
+# https://www.memcachier.com/documentation#django.
 if env.bool('IS_HEROKU', default=False):
     # Prefs taken from:
     # https://github.com/rdegges/django-heroku-memcacheify/blob/v1.0.0/memcacheify.py#L30-L39
