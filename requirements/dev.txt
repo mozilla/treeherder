@@ -12,7 +12,7 @@ mock==2.0.0 --hash=sha256:5ce3c71c5545b472da17b72268978914d0252980348636840bd34a
 
 responses==0.5.1 --hash=sha256:3a907f7aae2fd2286d06cfdf238957786c38bbcadc451adceecc769a4ef882b7
 
-django-extensions==1.6.6 --hash=sha256:21d648e8cd1e49b57ad8fa7406def2f826af2bd315da40b4ccec6ef0e95edcd3
+django-extensions==1.7.4 --hash=sha256:f355689ed8286504dbac11a6fc00cc9a1c7c5dd0759df3766ab2ff5d657d63d8
 
 # Required by django-extension's runserver_plus command.
 Werkzeug==0.11.11 --hash=sha256:eb3108af06aed08fb2f4fc883f2adf04c8f4997f6368517591b2becf15ae0da2
