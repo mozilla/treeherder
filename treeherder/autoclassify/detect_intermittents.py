@@ -61,7 +61,9 @@ def detect(test_job):
                 classification, failure_match = new_matches[failure_line.id]
                 if failure_match.score > AUTOCLASSIFY_CUTOFF_RATIO:
                     failure_line.best_classification = classification
-                    failure_line.save()
-            for job in job_repeats:
+                    failure_line.save(update_fields=['best_classification'])
+                    if failure_line.error:
+                        failure_line.error.best_classification = classification
+                        failure_line.error.save(update_fields=['best_classification'])
                 logger.debug("Trying rematch on job %s" % (job.guid))
                 match_errors(job)
