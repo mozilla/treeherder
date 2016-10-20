@@ -88,7 +88,7 @@ django-pylibmc==0.6.1 --hash=sha256:9cffdee703aaf9ebc029d9dbdee8abdd0723564b95e4
 
 elasticsearch==2.4.0 --hash=sha256:ede15c3573f46ea72c4d53ea7f11fe648c60d167d75d739e27f72d78a6d7f692
 
-elasticsearch-dsl==2.0.0 --hash=sha256:d19a055b2c4f5b537dc4e3d8f3d7d8392d9c090f8790d71697e587550e9f812a
+elasticsearch-dsl==2.1.0 --hash=sha256:48f5869035e852f68bfaf1ba586becf4b109c661e7c054045395f554ac7566af
 
 # required by elasticsearch
 urllib3==1.18 --hash=sha256:ed69856d262a6da3f201b1afed6d61b0c5a364fcc1d20d3f9ff461960c6626bf
