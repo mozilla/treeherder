@@ -7,7 +7,8 @@ from treeherder.model.derived import JobsModel
 from treeherder.model.models import (FailureLine,
                                      FailureMatch,
                                      JobNote,
-                                     Matcher)
+                                     Matcher,
+                                     TextLogErrorMatch)
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +67,12 @@ def update_db(job, matches, all_matched):
                     matcher=matcher,
                     classified_failure=match.classified_failure,
                     failure_line=failure_line)
+                if failure_line.error:
+                    TextLogErrorMatch.objects.create(
+                        score=match.score,
+                        matcher=matcher,
+                        classified_failure=match.classified_failure,
+                        text_log_error=failure_line.error)
             except IntegrityError:
                 logger.warning(
                     "Tried to create duplicate match for failure line %i with matcher %i and classified_failure %i" %
@@ -73,7 +80,10 @@ def update_db(job, matches, all_matched):
         best_match = failure_line.best_automatic_match(AUTOCLASSIFY_CUTOFF_RATIO)
         if best_match:
             failure_line.best_classification = best_match.classified_failure
-            failure_line.save()
+            failure_line.save(update_fields=['best_classification'])
+            if failure_line.error:
+                failure_line.error.best_classification = best_match.classified_failure
+                failure_line.error.save(update_fields=['best_classification'])
 
     if all_matched:
         if job.is_fully_autoclassified():
