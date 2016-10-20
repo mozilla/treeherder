@@ -2,7 +2,7 @@
 
 pytest==3.0.3 --hash=sha256:aea87ca4240b79868ccabd14ba56a12eceb1c1e8076b585fe2fa5602a5874db7
 
-django-debug-toolbar==1.4 --hash=sha256:852a37b80df9597048591ebc87d0ce85a4edceaef015dc5360ad89cc5960c27b
+django-debug-toolbar==1.6 --hash=sha256:62f95c09c0faa4b2deac7edba69a84d0d8ad794e79ce24d86c7cd004c91053d8
 
 datadiff==2.0.0 --hash=sha256:54049440a896de5247ee2e7b7aa5425f939ac832c37edb2101f8d3036e89caa8
 
