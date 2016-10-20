@@ -27,7 +27,7 @@ py==1.4.31 --hash=sha256:4a3e4f3000c123835ac39cab5ccc510642153bc47bc1f13e2bbb530
 # Required by WebTest
 beautifulsoup4==4.5.1 --hash=sha256:bb3dba571c2f7ddcaf3e70ad8b67878a85ac41889dcba75a30b8f7b0b5960b6d
 waitress==1.0.0 --hash=sha256:e27afdce0d4dc76d0f7cb515cbe7f87dc04a79e9797736412a85ce452f1e73d6
-WebOb==1.6.1 --hash=sha256:509ce06406bd9c63fc6fba4ea5e96d17f6080f126d6303d6ab583b5f20c3eced
+WebOb==1.6.2 --hash=sha256:f952b693a2d1ae32962e92156f77a451c7376806bda4e72bb966bc99fdfbdf09
 
 # Required by mock
 funcsigs==1.0.2 --hash=sha256:330cc27ccbf7f1e992e69fef78261dc7c6569012cf397db8d3de0234e6c937ca
