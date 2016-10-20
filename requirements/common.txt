@@ -80,7 +80,7 @@ requests-hawk==1.0.0 --hash=sha256:c2626ab31ebef0c81b97781c44c2275bfcc6d8e8520fc
 
 django-filter==0.15.3 --hash=sha256:2588847e33437d467c58b4acddcda7efc156f62b7006f9f7ad7d1ae6b5cba820
 
-djangorestframework-filters==0.8.0 --hash=sha256:c4d77bc01af20cc7551f704f35db5aa872f6ba717e43ddd21a1de5f448838244
+djangorestframework-filters==0.9.0 --hash=sha256:eddd632c31f56f0944689185ea7b00d5c073bc4f676d47acdb2d1a3ae81eeea8
 
 pylibmc==1.5.1 --hash=sha256:ecba261859c3e1ba3365389cb4f4dfffb7e02120a9f57a288cacf2f42c45cdd6
 
