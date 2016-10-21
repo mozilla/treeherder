@@ -7,6 +7,7 @@ from jsonfield import JSONField
 
 from treeherder.model.models import (MachinePlatform,
                                      OptionCollection,
+                                     Push,
                                      Repository)
 
 SIGNATURE_HASH_LENGTH = 40
@@ -86,6 +87,7 @@ class PerformanceDatum(models.Model):
     repository = models.ForeignKey(Repository)
     job_id = models.PositiveIntegerField(db_index=True)
     result_set_id = models.PositiveIntegerField(db_index=True)
+    push = models.ForeignKey(Push, null=True)
     signature = models.ForeignKey(PerformanceSignature)
     value = models.FloatField()
     push_timestamp = models.DateTimeField(db_index=True)
@@ -95,8 +97,10 @@ class PerformanceDatum(models.Model):
         index_together = [('repository', 'signature', 'push_timestamp'),
                           ('repository', 'job_id'),
                           ('repository', 'result_set_id')]
-        unique_together = ('repository', 'job_id', 'result_set_id',
-                           'signature', 'push_timestamp')
+        unique_together = [('repository', 'job_id', 'result_set_id',
+                            'signature'),
+                           ('repository', 'job_id', 'push',
+                            'signature')]
 
     def save(self, *args, **kwargs):
         super(PerformanceDatum, self).save(*args, **kwargs)  # Call the "real" save() method.
@@ -121,8 +125,12 @@ class PerformanceAlertSummary(models.Model):
     id = models.AutoField(primary_key=True)
     repository = models.ForeignKey(Repository)
     framework = models.ForeignKey(PerformanceFramework, null=True)
+
     prev_result_set_id = models.PositiveIntegerField(null=True)
     result_set_id = models.PositiveIntegerField()
+
+    prev_push = models.ForeignKey(Push, related_name='+', null=True)
+    push = models.ForeignKey(Push, related_name='+', null=True)
 
     manually_created = models.BooleanField(default=False)
 
@@ -204,8 +212,11 @@ class PerformanceAlertSummary(models.Model):
 
     class Meta:
         db_table = "performance_alert_summary"
-        unique_together = ('repository', 'framework', 'prev_result_set_id',
-                           'result_set_id')
+        unique_together = (('repository', 'framework', 'prev_result_set_id',
+                            'result_set_id'),
+                           ('framework', 'prev_push', 'push'))
+        index_together = [('repository', 'prev_result_set_id'),
+                          ('repository', 'result_set_id')]
 
     def __str__(self):
         return "{} {} {}-{}".format(self.framework, self.repository,
@@ -221,9 +232,9 @@ class PerformanceAlert(models.Model):
     series have consistently changed level at a specific time.
 
     An alert is always a member of an alert summary, which groups all
-    the alerts associated with a particular result set and repository
-    together. In many cases at Mozilla, the original alert summary is not
-    correct, so we allow reassigning it to a different (revised) summary.
+    the alerts associated with a particular push together. In many cases at
+    Mozilla, the original alert summary is not correct, so we allow reassigning
+    it to a different (revised) summary.
     '''
     id = models.AutoField(primary_key=True)
     summary = models.ForeignKey(PerformanceAlertSummary,
