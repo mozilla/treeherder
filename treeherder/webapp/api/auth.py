@@ -1,20 +1,19 @@
 import logging
+from hashlib import sha1
 
 import newrelic.agent
 from django.contrib.auth import login as django_login
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 from rest_framework import viewsets
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 from taskcluster.sync import Auth
-from hashlib import sha1
-from django.db.models import Q
-
 
 from treeherder.credentials.models import Credentials
 
 logger = logging.getLogger(__name__)
+
 
 def hawk_lookup(id):
     try:
@@ -28,8 +27,6 @@ def hawk_lookup(id):
         'key': str(credentials.secret),
         'algorithm': 'sha256'
     }
-
-
 
 
 class TaskclusterAuthViewSet(viewsets.ViewSet):
@@ -74,7 +71,7 @@ class TaskclusterAuthViewSet(viewsets.ViewSet):
                 user = User(email=email,
                             username=username,
                             password=sha.hexdigest()[25:]
-                )
+                            )
                 user.save()
 
             user.backend = 'django.contrib.auth.backends.ModelBackend'
