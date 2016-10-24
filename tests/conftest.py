@@ -190,24 +190,6 @@ def result_set_stored(jm, sample_resultset):
     return sample_resultset
 
 
-@pytest.fixture(scope='function')
-def mock_get_resultset(monkeypatch, result_set_stored):
-    from treeherder.etl import common
-
-    def _get_resultset(params):
-        for k in params:
-            rev = params[k][0]
-            params[k] = {
-                rev: {
-                    'id': 1,
-                    'revision': result_set_stored[0]['revision']
-                }
-            }
-        return params
-
-    monkeypatch.setattr(common, 'lookup_revisions', _get_resultset)
-
-
 @pytest.fixture
 def mock_message_broker(monkeypatch):
     from django.conf import settings
