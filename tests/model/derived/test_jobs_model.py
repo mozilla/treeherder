@@ -1,4 +1,5 @@
 import copy
+import datetime
 import time
 
 import pytest
@@ -11,7 +12,8 @@ from tests.autoclassify.utils import (create_failure_lines,
 from tests.sample_data_generator import (job_data,
                                          result_set)
 from treeherder.model.derived import ArtifactsModel
-from treeherder.model.models import (ExclusionProfile,
+from treeherder.model.models import (Commit,
+                                     ExclusionProfile,
                                      FailureLine,
                                      Job,
                                      JobDetail,
@@ -82,29 +84,26 @@ def test_ingest_twice_log_parsing_status_changed(jm, sample_data,
         job_log.status == JobLog.FAILED
 
 
-def test_get_inserted_row_ids(jm, sample_resultset, test_repository):
+def test_insert_result_sets(jm, sample_resultset, test_repository):
 
     slice_limit = 8
     sample_slice = sample_resultset[0:slice_limit]
-    new_id_set = set(range(1, len(sample_slice) + 1))
 
-    data = jm.store_result_set_data(sample_slice)
+    jm.store_result_set_data(sample_slice)
 
-    # Confirm the range of ids matches for the sample_resultset slice
-    assert set(data['inserted_result_set_ids']) == new_id_set
+    assert Push.objects.count() == len(sample_slice)
 
-    second_pass_data = jm.store_result_set_data(sample_slice)
+    jm.store_result_set_data(sample_slice)
 
     # Confirm if we store the same data twice we don't identify new
     # result set ids
-    assert second_pass_data['inserted_result_set_ids'] == []
+    assert Push.objects.count() == len(sample_slice)
 
-    third_pass_data = jm.store_result_set_data(sample_resultset)
+    jm.store_result_set_data(sample_resultset)
 
     # Confirm if we store a mix of new result sets and already stored
     # result sets we store/identify the new ones
-    assert len(set(third_pass_data['inserted_result_set_ids'])) == \
-        len(sample_resultset) - slice_limit
+    assert Push.objects.count() == len(sample_resultset)
 
 
 @pytest.mark.parametrize("same_ingestion_cycle", [False, True])
@@ -537,49 +536,37 @@ def test_bad_date_value_ingestion(jm, test_repository, mock_log_parser):
     # if no exception, we are good.
 
 
-def test_store_result_set_data(jm, sample_resultset):
+def test_store_result_set_data(jm, test_repository, sample_resultset):
 
-    data = jm.store_result_set_data(sample_resultset)
-
-    result_set_ids = jm.get_dhub().execute(
-        proc="jobs_test.selects.result_set_ids",
-        key_column='long_revision',
-        return_type='dict'
-    )
-    revision_ids = jm.get_dhub().execute(
-        proc="jobs_test.selects.revision_ids",
-        key_column='revision',
-        return_type='dict'
-    )
-
-    rs_revisions = set()
-    revisions = set()
-
-    for datum in sample_resultset:
-        rs_revisions.add(datum['revision'])
-        for revision in datum['revisions']:
-            revisions.add(revision['revision'])
+    jm.store_result_set_data(sample_resultset)
 
     # Confirm all of the pushes and revisions in the
     # sample_resultset have been stored
-    assert {r for r in data['result_set_ids'].keys() if len(r) == 40} == rs_revisions
-    assert set(data['revision_ids'].keys()) == revisions
+    exp_push_revisions = set()
+    exp_commit_revisions = set()
+    for rs in sample_resultset:
+        exp_push_revisions.add(rs['revision'])
+        for rs_revision in rs['revisions']:
+            exp_commit_revisions.add(rs_revision['revision'])
+
+    assert set(Push.objects.values_list('revision', flat=True)) == exp_push_revisions
+    assert set(Commit.objects.values_list('revision', flat=True)) == exp_commit_revisions
 
     # Confirm the data structures returned match what's stored in
     # the database
-    for rev in rs_revisions:
-        assert data['result_set_ids'][rev] == result_set_ids[rev]
-
-    assert data['revision_ids'] == revision_ids
-
-
-def test_store_result_set_revisions(jm, sample_resultset):
-    """Test that the ``top`` revision stored for resultset is correct"""
-    resultsets = sample_resultset[8:9]
-    jm.store_result_set_data(resultsets)
-    stored = jm.get_dhub().execute(proc="jobs_test.selects.result_sets")[0]
-    assert stored["long_revision"] == "997b28cb87373456789012345678901234567890"
-    assert stored["short_revision"] == "997b28cb8737"
+    for rs in sample_resultset:
+        push = Push.objects.get(
+            repository=test_repository,
+            revision=rs['revision'],
+            author=rs['author'],
+            revision_hash=rs.get('revision_hash', rs['revision']),
+            timestamp=datetime.datetime.fromtimestamp(rs['push_timestamp']))
+        for commit in rs['revisions']:
+            assert Commit.objects.get(
+                push=push,
+                revision=commit['revision'],
+                author=commit['author'],
+                comments=commit['comment'])
 
 
 def test_get_job_data(jm, test_project, sample_data,

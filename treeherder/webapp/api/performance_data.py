@@ -12,7 +12,6 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from treeherder.model import models
-from treeherder.model.derived import JobsModel
 from treeherder.perf.alerts import get_alert_properties
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
@@ -246,25 +245,12 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     ordering = ('-last_updated', '-id')
     pagination_class = AlertSummaryPagination
 
-    @staticmethod
-    def _get_result_set_id_for_push(push_id):
-        # horrible hack to get result set id information so we can roll
-        # this back if necessary, remove later
-        push = models.Push.objects.get(id=push_id)
-        with JobsModel(push.repository.name) as jm:
-            result_set_id_list = jm.execute(
-                proc='jobs.selects.get_resultset_id_from_revision',
-                placeholders=[push.revision])
-            return result_set_id_list[0]['id']
-
     def create(self, request, *args, **kwargs):
         data = request.data
 
         alert_summary, _ = PerformanceAlertSummary.objects.get_or_create(
             repository_id=data['repository_id'],
             framework=PerformanceFramework.objects.get(id=data['framework_id']),
-            result_set_id=self._get_result_set_id_for_push(data['push_id']),
-            prev_result_set_id=self._get_result_set_id_for_push(data['prev_push_id']),
             push_id=data['push_id'],
             prev_push_id=data['prev_push_id'],
             defaults={

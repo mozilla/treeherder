@@ -126,8 +126,7 @@ class Push(models.Model):
     repository = models.ForeignKey(Repository)
     revision_hash = models.CharField(max_length=50, null=True)  # legacy
     # revision can be null if revision_hash defined ^^
-    revision = models.CharField(max_length=40,
-                                null=True)
+    revision = models.CharField(max_length=40, null=True)
     author = models.CharField(max_length=150)
     timestamp = models.DateTimeField()
 
