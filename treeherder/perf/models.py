@@ -86,8 +86,8 @@ class PerformanceDatum(models.Model):
 
     repository = models.ForeignKey(Repository)
     job_id = models.PositiveIntegerField(db_index=True)
-    result_set_id = models.PositiveIntegerField(db_index=True)
-    push = models.ForeignKey(Push, null=True)
+    result_set_id = models.PositiveIntegerField(null=True)
+    push = models.ForeignKey(Push)
     signature = models.ForeignKey(PerformanceSignature)
     value = models.FloatField()
     push_timestamp = models.DateTimeField(db_index=True)
@@ -127,10 +127,10 @@ class PerformanceAlertSummary(models.Model):
     framework = models.ForeignKey(PerformanceFramework, null=True)
 
     prev_result_set_id = models.PositiveIntegerField(null=True)
-    result_set_id = models.PositiveIntegerField()
+    result_set_id = models.PositiveIntegerField(null=True)
 
-    prev_push = models.ForeignKey(Push, related_name='+', null=True)
-    push = models.ForeignKey(Push, related_name='+', null=True)
+    prev_push = models.ForeignKey(Push, related_name='+')
+    push = models.ForeignKey(Push, related_name='+')
 
     manually_created = models.BooleanField(default=False)
 
