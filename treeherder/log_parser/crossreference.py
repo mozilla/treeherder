@@ -1,6 +1,8 @@
 import logging
 import re
 
+from django.db import (IntegrityError,
+                       transaction)
 from mozlog.formatters.tbplformatter import TbplFormatter
 
 from treeherder.model.models import (FailureLine,
@@ -21,6 +23,19 @@ def crossreference_job(job):
 
     :job: - Job for which to perform the crossreferencing
     """
+
+    try:
+        return _crossreference(job)
+    except IntegrityError:
+        logger.warning("IntegrityError crossreferencing error lines for job %s" % job.id)
+
+
+@transaction.atomic
+def _crossreference(job):
+    if TextLogSummary.objects.filter(job_guid=job.guid).exists():
+        logger.info("crossreference_error_lines already ran for job %s" % job.id)
+        return
+
     failure_lines = FailureLine.objects.filter(job_guid=job.guid)
 
     text_log_errors = TextLogError.objects.filter(
@@ -31,8 +46,8 @@ def crossreference_job(job):
     if not (failure_lines.exists() and text_log_errors.exists()):
         return []
 
-    summary, _ = TextLogSummary.objects.get_or_create(job_guid=job.guid,
-                                                      repository=job.repository)
+    summary = TextLogSummary.objects.create(job_guid=job.guid,
+                                            repository=job.repository)
 
     match_iter = structured_iterator(failure_lines)
     failure_line, regexp = match_iter.next()
