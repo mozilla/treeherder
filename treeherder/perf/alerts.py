@@ -5,7 +5,6 @@ from collections import namedtuple
 from django.conf import settings
 from django.db import transaction
 
-from treeherder.model.models import Push
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceDatum)
@@ -88,28 +87,11 @@ def generate_new_alerts_in_series(signature):
                     # threshold
                     continue
 
-                # temporary: look up result set information to go along
-                # with push stuff
-                from treeherder.model.derived import JobsModel
-                with JobsModel(signature.repository.name) as jm:
-                    push = Push.objects.get(id=cur.testrun_id)
-                    result_set_id = jm.execute(
-                        proc='jobs.selects.get_resultset_id_from_revision',
-                        placeholders=[push.revision])[0]['id']
-                    if prev_testrun_id:
-                        prev_push = Push.objects.get(id=prev_testrun_id)
-                        prev_result_set_id = jm.execute(
-                            proc='jobs.selects.get_resultset_id_from_revision',
-                            placeholders=[prev_push.revision])[0]['id']
-                    else:
-                        prev_result_set_id = None
                 summary, _ = PerformanceAlertSummary.objects.get_or_create(
                     repository=signature.repository,
                     framework=signature.framework,
                     push_id=cur.testrun_id,
                     prev_push_id=prev_testrun_id,
-                    result_set_id=result_set_id,
-                    prev_result_set_id=prev_result_set_id,
                     defaults={
                         'manually_created': False,
                         'last_updated': datetime.datetime.fromtimestamp(

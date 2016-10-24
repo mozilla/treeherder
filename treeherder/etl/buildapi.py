@@ -11,7 +11,8 @@ from treeherder.client import TreeherderJobCollection
 from treeherder.etl import (buildbot,
                             common)
 from treeherder.model.derived.jobs import JobsModel
-from treeherder.model.models import Datasource
+from treeherder.model.models import (Datasource,
+                                     Push)
 
 logger = logging.getLogger(__name__)
 CACHE_KEYS = {
@@ -83,8 +84,6 @@ class Builds4hTransformerMixin(object):
         transform the builds4h structure into something we can ingest via
         our restful api
         """
-        revisions = defaultdict(list)
-
         valid_projects = set(x.project for x in Datasource.objects.cached())
 
         for build in data['builds']:
@@ -102,12 +101,9 @@ class Builds4hTransformerMixin(object):
                 logger.warning("skipping builds-4hr job %s since missing property: %s", build['id'], str(e))
                 continue
 
-            revisions[project].append(prop['revision'])
-
-        revisions_lookup = common.lookup_revisions(revisions)
-
         job_ids_seen_last_time = cache.get(CACHE_KEYS['complete'], set())
         job_ids_seen_now = set()
+        revisions_seen_for_project = defaultdict(set)
 
         # Holds one collection per unique branch/project
         th_collections = {}
@@ -124,11 +120,17 @@ class Builds4hTransformerMixin(object):
             except KeyError:
                 continue
 
-            try:
-                resultset = revisions_lookup[project][prop['revision']]
-            except KeyError:
-                logger.warning("skipping builds-4hr job %s since %s revision %s not yet ingested", build['id'], project, prop['revision'])
+            # it should be quite rare for a job to be ingested before a
+            # revision, but it could happen
+            revision = prop['revision']
+            if (revision not in revisions_seen_for_project[project] and
+                not Push.objects.filter(repository__name=project,
+                                        revision__startswith=revision).exists()):
+                logger.warning("skipping jobs since %s revision %s "
+                               "not yet ingested", project, revision)
                 continue
+            else:
+                revisions_seen_for_project[project].add(revision)
 
             # We record the id here rather than at the start of the loop, since we
             # must not count jobs whose revisions were not yet imported as processed,
@@ -149,7 +151,6 @@ class Builds4hTransformerMixin(object):
 
             treeherder_data = {
                 'revision': prop['revision'],
-                'resultset_id': resultset['id'],
                 'project': project,
                 'coalesced': []
             }
@@ -272,9 +273,6 @@ class PendingRunningTransformerMixin(object):
                     continue
                 revision_dict[project].append(rev)
 
-        # retrieving the revision->resultset lookups
-        revisions_lookup = common.lookup_revisions(revision_dict)
-
         job_ids_seen_last_time = cache.get(CACHE_KEYS[source], set())
         job_ids_seen_now = set()
 
@@ -284,15 +282,21 @@ class PendingRunningTransformerMixin(object):
             if common.should_skip_project(project, valid_projects, project_filter):
                 continue
 
+            revisions_seen_now_for_project = set()
+
             for revision, jobs in revisions.items():
                 if common.should_skip_revision(revision, revision_filter):
                     continue
 
-                try:
-                    resultset = revisions_lookup[project][revision]
-                except KeyError:
-                    logger.warning("skipping jobs since %s revision %s not yet ingested", project, revision)
-                    continue
+                # it should be quite rare for a job to be ingested before a
+                # revision, but it could happen
+                if revision not in revisions_seen_now_for_project and \
+                   not Push.objects.filter(repository__name=project,
+                                           revision__startswith=revision).exists():
+                    logger.warning("skipping jobs since %s revision %s "
+                                   "not yet ingested", project, revision)
+                else:
+                    revisions_seen_now_for_project.add(revision)
 
                 # using project and revision form the revision lookups
                 # to filter those jobs with unmatched revision
@@ -306,7 +310,6 @@ class PendingRunningTransformerMixin(object):
 
                     treeherder_data = {
                         'revision': revision,
-                        'resultset_id': resultset['id'],
                         'project': project,
                     }
 

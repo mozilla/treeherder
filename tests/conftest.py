@@ -13,8 +13,8 @@ from webtest.app import TestApp
 
 from treeherder.client import TreeherderClient
 from treeherder.config.wsgi import application
-from treeherder.model.models import Push
 from treeherder.model.derived.jobs import JobsModel
+from treeherder.model.models import Push
 
 
 def pytest_addoption(parser):
@@ -188,24 +188,6 @@ def result_set_stored(jm, sample_resultset):
     jm.store_result_set_data(sample_resultset)
 
     return sample_resultset
-
-
-@pytest.fixture(scope='function')
-def mock_get_resultset(monkeypatch, result_set_stored):
-    from treeherder.etl import common
-
-    def _get_resultset(params):
-        for k in params:
-            rev = params[k][0]
-            params[k] = {
-                rev: {
-                    'id': 1,
-                    'revision': result_set_stored[0]['revision']
-                }
-            }
-        return params
-
-    monkeypatch.setattr(common, 'lookup_revisions', _get_resultset)
 
 
 @pytest.fixture

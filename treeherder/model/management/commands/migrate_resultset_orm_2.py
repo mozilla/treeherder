@@ -26,6 +26,5 @@ class Command(BaseCommand):
 
             try:
                 c.execute('alter table job modify column push_id int(10) unsigned NOT NULL;')
-                c.execute('alter table job modify column result_set_id int(10) unsigned DEFAULT NULL;')
             except:
                 pass

@@ -9,8 +9,7 @@ from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceDatum)
 
 
-def _verify_alert(alertid, expected_result_set_id,
-                  expected_prev_result_set_id,
+def _verify_alert(alertid, expected_push_id, expected_prev_push_id,
                   expected_signature, expected_prev_value,
                   expected_new_value, expected_is_regression,
                   expected_status, expected_summary_status,
@@ -24,39 +23,33 @@ def _verify_alert(alertid, expected_result_set_id,
     assert alert.classifier == expected_classifier
 
     summary = PerformanceAlertSummary.objects.get(id=alertid)
-    assert summary.result_set_id == expected_result_set_id
-    assert summary.prev_result_set_id == expected_prev_result_set_id
+    assert summary.result_set_id is None
+    assert summary.prev_result_set_id is None
+    assert summary.push_id == expected_push_id
+    assert summary.prev_push_id == expected_prev_push_id
     assert summary.status == expected_summary_status
 
 
-def _generate_performance_data(test_repository, test_perf_signature, jm,
+def _generate_performance_data(test_repository, test_perf_signature,
                                base_timestamp, start_id, value, amount):
     for (t, v) in zip([i for i in range(start_id, start_id + amount)],
                       [value for i in range(start_id, start_id + amount)]):
-        revision = '1234abcd%s' % t
-        jm.store_result_set_data([{
-            'revision': revision,
-            'push_timestamp': int(base_timestamp + t),
-            'author': 'foo@bar.com',
-            'revisions': []
-        }])
+        push, _ = Push.objects.get_or_create(
+            repository=test_repository,
+            revision='1234abcd%s' % t,
+            defaults={
+                'author': 'foo@bar.com',
+                'timestamp': datetime.datetime.fromtimestamp(base_timestamp + t)
+            })
         job = Job.objects.create(
             repository=test_repository,
             guid='abcd%s' % Job.objects.count(),
             project_specific_id=Job.objects.count(),
-            push=Push.objects.get(repository=test_repository,
-                                  revision=revision))
-        # FIXME: Delete above and switch to this when we've finished
-        # migrating away from resultsets
-        # return Push.objects.create(
-        #    repository=test_repository,
-        #    revision='1234abcd',
-        #    author='foo@bar.com',
-        #    timestamp=datetime.datetime.fromtimestamp(base_timestamp + t))
+            push=push)
         PerformanceDatum.objects.create(
             repository=test_repository,
             result_set_id=t,
-            push_id=t,
+            push=push,
             job_id=job.id,
             signature=test_perf_signature,
             push_timestamp=datetime.datetime.fromtimestamp(base_timestamp + t),
@@ -64,13 +57,13 @@ def _generate_performance_data(test_repository, test_perf_signature, jm,
 
 
 def test_detect_alerts_in_series(test_project, test_repository,
-                                 test_perf_signature, jm):
+                                 test_perf_signature):
 
     base_time = time.time()  # generate it based off current time
     INTERVAL = 30
-    _generate_performance_data(test_repository, test_perf_signature, jm,
+    _generate_performance_data(test_repository, test_perf_signature,
                                base_time, 1, 0.5, INTERVAL/2)
-    _generate_performance_data(test_repository, test_perf_signature, jm,
+    _generate_performance_data(test_repository, test_perf_signature,
                                base_time, (INTERVAL/2) + 1, 1.0, INTERVAL/2)
 
     generate_new_alerts_in_series(test_perf_signature)
@@ -90,7 +83,7 @@ def test_detect_alerts_in_series(test_project, test_repository,
                   PerformanceAlertSummary.UNTRIAGED, None)
 
     # add data that should be enough to generate a new alert if we rerun
-    _generate_performance_data(test_repository, test_perf_signature, jm,
+    _generate_performance_data(test_repository, test_perf_signature,
                                base_time, (INTERVAL+1), 2.0, INTERVAL)
     generate_new_alerts_in_series(test_perf_signature)
 
@@ -102,22 +95,22 @@ def test_detect_alerts_in_series(test_project, test_repository,
 
 
 def test_detect_alerts_in_series_with_retriggers(
-        test_project, test_repository, test_perf_signature, jm):
+        test_project, test_repository, test_perf_signature):
 
     # sometimes we detect an alert in the middle of a series
     # where there are retriggers, make sure we handle this case
     # gracefully by generating a sequence where the regression
-    # "appears" in the middle of a series with the same resultset
+    # "appears" in the middle of a series with the same push
     # to make sure things are calculated correctly
     base_time = time.time()  # generate it based off current time
     for i in range(30):
-        _generate_performance_data(test_repository, test_perf_signature, jm,
+        _generate_performance_data(test_repository, test_perf_signature,
                                    base_time, 1, 0.5, 1)
     for i in range(20):
-        _generate_performance_data(test_repository, test_perf_signature, jm,
+        _generate_performance_data(test_repository, test_perf_signature,
                                    base_time, 2, 0.5, 1)
     for i in range(40):
-        _generate_performance_data(test_repository, test_perf_signature, jm,
+        _generate_performance_data(test_repository, test_perf_signature,
                                    base_time, 2, 1.0, 1)
 
     generate_new_alerts_in_series(test_perf_signature)
@@ -127,12 +120,12 @@ def test_detect_alerts_in_series_with_retriggers(
 
 
 def test_no_alerts_with_old_data(
-        test_project, test_repository, test_perf_signature, jm):
+        test_project, test_repository, test_perf_signature):
     base_time = 0  # 1970, too old!
     INTERVAL = 30
-    _generate_performance_data(test_repository, test_perf_signature, jm,
+    _generate_performance_data(test_repository, test_perf_signature,
                                base_time, 1, 0.5, INTERVAL/2)
-    _generate_performance_data(test_repository, test_perf_signature, jm,
+    _generate_performance_data(test_repository, test_perf_signature,
                                base_time, (INTERVAL/2) + 1, 1.0, INTERVAL/2)
 
     generate_new_alerts_in_series(test_perf_signature)
@@ -152,11 +145,11 @@ def test_custom_alert_threshold(
     # of 200% that should only generate 1
     INTERVAL = 60
     base_time = time.time()
-    _generate_performance_data(test_repository, test_perf_signature, jm,
+    _generate_performance_data(test_repository, test_perf_signature,
                                base_time, 1, 0.5, INTERVAL/3)
-    _generate_performance_data(test_repository, test_perf_signature, jm,
+    _generate_performance_data(test_repository, test_perf_signature,
                                base_time, (INTERVAL/3) + 1, 0.6, INTERVAL/3)
-    _generate_performance_data(test_repository, test_perf_signature, jm,
+    _generate_performance_data(test_repository, test_perf_signature,
                                base_time, 2*(INTERVAL/3) + 1, 2.0, INTERVAL/3)
 
     generate_new_alerts_in_series(test_perf_signature)

@@ -169,16 +169,8 @@ def verify_products(products_ref):
 
 def verify_result_sets(jm, result_sets_ref):
 
-    assert result_sets_ref.issubset(models.Push.objects.values_list(
+    return result_sets_ref.issubset(models.Push.objects.values_list(
         'revision', flat=True))
-
-    ds_revisions = jm.get_dhub().execute(
-        proc='jobs.selects.get_all_result_set_revisions',
-        key_column='long_revision',
-        return_type='set'
-    )
-
-    assert result_sets_ref.issubset(ds_revisions)
 
 
 def verify_log_urls(jm, log_urls_ref):
