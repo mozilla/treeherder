@@ -185,6 +185,10 @@ perf.controller('AlertsCtrl', [
                         (!$scope.filterOptions.hideImprovements || alert.is_regression) &&
                         (alert.summary_id === alertSummary.id ||
                          alert.status !== phAlertStatusMap.DOWNSTREAM.id) &&
+                        !($scope.filterOptions.hideTo && alert.status === phAlertStatusMap.REASSIGNED.id &&
+                          alert.related_summary_id !== alertSummary.id) &&
+                        !($scope.filterOptions.hideTo && alert.status === phAlertStatusMap.DOWNSTREAM.id) &&
+                        (alert.status !== phAlertStatusMap.INVALID.id) &&
                         _.every($scope.filterOptions.filter.split(' '),
                             function(matchText) {
                                 return !matchText ||
@@ -218,6 +222,7 @@ perf.controller('AlertsCtrl', [
                 framework: $scope.alertId ? undefined : $scope.filterOptions.framework.id,
                 filter: $scope.filterOptions.filter,
                 hideImprovements: Boolean($scope.filterOptions.hideImprovements) ? 1 : undefined,
+                hideTo: Boolean($scope.filterOptions.hideTo) ? 1 : undefined,
                 page: 1
             }, {
                 location: true,
@@ -529,8 +534,13 @@ perf.controller('AlertsCtrl', [
                           filter: $stateParams.filter || "",
                           hideImprovements: $stateParams.hideImprovements !== undefined &&
                               parseInt($stateParams.hideImprovements),
+                          hideTo: $stateParams.hideTo !== undefined &&
+                              parseInt($stateParams.hideTo),
                           page: $stateParams.page || 1
                       };
+                      if ($stateParams.hideTo) {
+                          $scope.filterOptions.hideTo = true;
+                      }
                       if ($stateParams.id) {
                           $scope.alertId = $stateParams.id;
                           PhAlerts.getAlertSummary($stateParams.id).then(

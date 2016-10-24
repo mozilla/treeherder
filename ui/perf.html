@@ -30,7 +30,7 @@
       </span>
       <a ng-class="{active: $state.includes('graphs')}" class="btn btn-view-nav" ui-sref="graphs">Graphs</a>
       <a ng-class="{active: $state.current.name.startsWith('compare')}" class="btn btn-view-nav" ui-sref="comparechooser">Compare</a>
-      <a ng-class="{active: $state.current.name.indexOf('alerts') >= 0}" class="btn btn-view-nav" ui-sref="alerts({id: null, status: null, framework: null, filter: null, hideImprovements: null})">Alerts</a>
+      <a ng-class="{active: $state.current.name.indexOf('alerts') >= 0}" class="btn btn-view-nav" ui-sref="alerts({id: null, status: null, framework: null, filter: null, hideImprovements: null, hideTo: 1})">Alerts</a>
       <!-- Dashboard Menu -->
       <span class="dropdown">
         <button id="dashboardLabel" title="Dashboard" role="button"
