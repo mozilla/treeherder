@@ -1,11 +1,8 @@
-import json
-import zlib
 from time import time
 
 from datadiff import diff
 
 from treeherder.etl.classification_mirroring import ElasticsearchDocRequest
-from treeherder.model.derived import ArtifactsModel
 
 
 def test_elasticsearch_doc_request_body(test_project, eleven_jobs_stored):
@@ -14,16 +11,6 @@ def test_elasticsearch_doc_request_body(test_project, eleven_jobs_stored):
     """
     bug_id = 12345678
     job_id = 1
-    sample_artifact = {
-        "build_id": 39953854,
-        "buildername": "b2g_emulator_vm mozilla-inbound opt test crashtest-2"
-    }
-    placeholders = [
-        [job_id, "buildapi", "json",
-         zlib.compress(json.dumps(sample_artifact)), job_id, "buildapi"]
-    ]
-    with ArtifactsModel(test_project) as artifacts_model:
-        artifacts_model.store_job_artifact(placeholders)
 
     classification_timestamp = int(time())
     who = "user@mozilla.com"
@@ -32,7 +19,7 @@ def test_elasticsearch_doc_request_body(test_project, eleven_jobs_stored):
     req.generate_request_body()
 
     expected = {
-        "buildname": "b2g_emulator_vm mozilla-inbound opt test crashtest-2",
+        "buildname": "39643b5073cfb9473042884bfd3ced0289b3d7dd",
         "machinename": "bld-linux64-ec2-132",
         "os": "b2g-emu-jb",
         # I'm using the request time date here, as start time is not

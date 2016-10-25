@@ -6,8 +6,7 @@ from django.conf import settings
 from requests_hawk import HawkAuth
 
 from treeherder.etl.common import make_request
-from treeherder.model.derived import (ArtifactsModel,
-                                      JobsModel)
+from treeherder.model.derived import JobsModel
 from treeherder.model.models import OptionCollection
 
 logger = logging.getLogger(__name__)
@@ -27,25 +26,16 @@ class ElasticsearchDocRequest(object):
         """
         Create the data structure that will be sent to Elasticsearch.
         """
-        with JobsModel(self.project) as jobs_model, ArtifactsModel(self.project) as artifacts_model:
+        with JobsModel(self.project) as jobs_model:
             job_data = jobs_model.get_job(self.job_id)[0]
             buildtype = " ".join(sorted(OptionCollection.objects.values_list(
                 'option__name', flat=True).filter(
                     option_collection_hash=job_data["option_collection_hash"])))
             revision_list = jobs_model.get_resultset_revisions_list(job_data["result_set_id"])
-            buildapi_artifact = artifacts_model.get_job_artifact_list(0, 1, {
-                'job_id': set([("=", self.job_id)]),
-                'name': set([("=", "buildapi")])
-            })
-            if buildapi_artifact:
-                buildname = buildapi_artifact[0]["blob"]["buildername"]
-            else:
-                # OrangeFactor needs a buildname to be set or it skips the failure
-                # classification, so we make one up for non-buildbot jobs.
-                buildname = 'non-buildbot %s test %s' % (job_data["platform"], job_data["job_type_name"])
+            ref_data_name = job_data["ref_data_name"]
 
         self.body = {
-            "buildname": buildname,
+            "buildname": ref_data_name,
             "machinename": job_data["machine_name"],
             "os": job_data["platform"],
             # I'm using the request time date here, as start time is not
