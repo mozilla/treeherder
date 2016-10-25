@@ -92,10 +92,11 @@ class PulseConsumer(ConsumerMixin):
 class JobConsumer(PulseConsumer):
 
     def on_message(self, body, message):
+        exchange = message.delivery_info['exchange']
+        routing_key = message.delivery_info['routing_key']
+        logger.info('received job message from %s#%s' % (exchange, routing_key))
         store_pulse_jobs.apply_async(
-            args=[body,
-                  message.delivery_info["exchange"],
-                  message.delivery_info["routing_key"]],
+            args=[body, exchange, routing_key],
             routing_key='store_pulse_jobs'
         )
         message.ack()
@@ -104,10 +105,12 @@ class JobConsumer(PulseConsumer):
 class ResultsetConsumer(PulseConsumer):
 
     def on_message(self, body, message):
+        exchange = message.delivery_info['exchange']
+        routing_key = message.delivery_info['routing_key']
+        logger.info('received resultset message from %s#%s' % (exchange,
+                                                               routing_key))
         store_pulse_resultsets.apply_async(
-            args=[body,
-                  message.delivery_info["exchange"],
-                  message.delivery_info["routing_key"]],
+            args=[body, exchange, routing_key],
             routing_key='store_pulse_resultsets'
         )
         message.ack()
