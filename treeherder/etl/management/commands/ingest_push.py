@@ -1,5 +1,4 @@
 from cProfile import Profile
-from optparse import make_option
 
 from django.conf import settings
 from django.core.management.base import (BaseCommand,
@@ -17,28 +16,21 @@ class Command(BaseCommand):
     """Management command to ingest data from a single push."""
 
     help = "Ingests a single push into treeherder"
-    args = '<project> <changeset>'
 
-    option_list = BaseCommand.option_list + (
-        make_option('--profile-file',
-                    action='store',
-                    dest='profile_file',
-                    default=None,
-                    help='Profile command and write result to profile file'),
+    def add_arguments(self, parser):
+        parser.add_argument('--profile-file',
+                            help='Profile command and write result to profile '
+                            'file')
+        parser.add_argument('--filter-job-group',
+                            help="Only process jobs in specified group symbol "
+                            "(e.g. 'T')")
 
-        make_option('--filter-job-group',
-                    action='store',
-                    dest='filter_job_group',
-                    default=None,
-                    help="Only process jobs in specified group symbol "
-                    "(e.g. 'T')")
-    )
+        parser.add_argument('project', help='repository to query')
+        parser.add_argument('changeset', help='changeset to import')
 
     def _handle(self, *args, **options):
-        if len(args) != 2:
-            raise CommandError("Need to specify (only) branch and changeset")
-
-        (project, changeset) = args
+        project = options['project']
+        changeset = options['changeset']
 
         # get reference to repo
         repo = Repository.objects.get(name=project, active_status='active')
