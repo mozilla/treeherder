@@ -28,10 +28,10 @@ Vagrant, or in your ``config/settings_local.py`` file.  For example::
 To be able to ingest from exchanges, you need to create a Pulse user with
 `Pulse Guardian`_, so
 Treeherder can create your Queues for listening to the Pulse exchanges.  For
-this, you must specify the connection URL in your environment variables or
-``settings_local.py``.  For example::
+this, you must specify the connection URL in the ``PULSE_DATA_INGESTION_CONFIG``
+environment variable. e.g.::
 
-    PULSE_DATA_INGESTION_CONFIG = "amqp://mypulseuserid:mypassword@pulse.mozilla.org:5671/?ssl=1"
+    export PULSE_DATA_INGESTION_CONFIG="amqp://mypulseuserid:mypassword@pulse.mozilla.org:5671/?ssl=1"
 
 Ingesting Data
 --------------
