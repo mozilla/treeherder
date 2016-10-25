@@ -119,33 +119,45 @@ class JobExclusionViewSet(viewsets.ModelViewSet):
     permission_classes = (IsStaffOrReadOnly,)
     serializer_class = th_serializers.JobExclusionSerializer
 
+    def addUserToRequest(self, request):
+        request.data["author"] = request.user.id
+        request.data["author_email"] = request.user.email
+
+    """
+    Both create and update override the default Viewset  set custom variables on the request,
+    including setting the current user as the author of this filter
+    """
+
     def create(self, request, *args, **kwargs):
-        """
-        Overrides the default Viewset to set the current user
-        as the author of this filter
-        """
-        if "author" not in request.data:
-            request.data["author"] = request.user.id
+        self.addUserToRequest(request)
         return super(JobExclusionViewSet, self).create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        self.addUserToRequest(request)
+        return super(JobExclusionViewSet, self).update(request, *args, **kwargs)
 
 
 class ExclusionProfileViewSet(viewsets.ModelViewSet):
-
-    """
-
-    """
     queryset = models.ExclusionProfile.objects.all()
     permission_classes = (IsStaffOrReadOnly,)
     serializer_class = th_serializers.ExclusionProfileSerializer
 
+    def addUserToRequest(self, request):
+        request.data["author"] = request.user.id
+        request.data["author_email"] = request.user.email
+
+    """
+    Both create and update override the default Viewset  set custom variables on the request,
+    including setting the current user as the author of this filter
+    """
+
     def create(self, request, *args, **kwargs):
-        """
-        Overrides the default Viewset to set the current user
-        as the author of this exclusion profile
-        """
-        if "author" not in request.data:
-            request.data["author"] = request.user.id
+        self.addUserToRequest(request)
         return super(ExclusionProfileViewSet, self).create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        self.addUserToRequest(request)
+        return super(ExclusionProfileViewSet, self).update(request, *args, **kwargs)
 
 
 class MatcherViewSet(viewsets.ReadOnlyModelViewSet):

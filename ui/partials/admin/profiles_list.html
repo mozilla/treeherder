@@ -8,7 +8,13 @@
     <p ng-if="profiles.length == 0">No profile available</p>
     <table ng-if="profiles.length > 0" class="table table-condensed">
       <tr>
-        <th>Profile</th><th></th><th></th><th>Excluded</th><th></th>
+        <th>Profile</th>
+        <th></th>
+        <th></th>
+        <th>Excluded</th>
+        <th>Author</th>
+        <th>Last Modified</th>
+        <th></th>
       </tr>
       <tr ng-repeat="profile in profiles | orderBy: 'name'"
           class="exclusion-profiles-row">
@@ -54,6 +60,8 @@
                   ng-if="user.is_staff"></span>
           </a>
         </td>
+        <td>{{::profile.author_email}}</td>
+        <td>{{::profile.modified | date:'EEE MMM dd, HH:mm:ss'}}</td>  <!-- Mon Oct 24, 12:22:53 -->
         <td>
           <!-- Delete profile button -->
           <button ng-click="deleteProfile(profile)"

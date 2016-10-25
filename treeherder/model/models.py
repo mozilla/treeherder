@@ -416,6 +416,8 @@ class JobExclusion(models.Model):
     description = models.TextField(blank=True)
     info = JSONField()
     author = models.ForeignKey(User)
+    author_email = models.CharField(max_length=255, default="")
+    modified = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         super(JobExclusion, self).save(*args, **kwargs)
@@ -465,6 +467,7 @@ class ExclusionProfile(models.Model):
     exclusions = models.ManyToManyField(JobExclusion, related_name="profiles")
     flat_exclusion = JSONField(blank=True, default={})
     author = models.ForeignKey(User, related_name="exclusion_profiles_authored", db_index=True)
+    author_email = models.CharField(max_length=255, default="")
     modified = models.DateTimeField(auto_now=True)
 
     objects = ExclusionProfileManager()
