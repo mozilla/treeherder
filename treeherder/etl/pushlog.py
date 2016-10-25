@@ -14,6 +14,13 @@ from treeherder.model.derived.jobs import JobsModel
 logger = logging.getLogger(__name__)
 
 
+def last_push_id_from_server(repo):
+    """Obtain the last push ID from a ``Repository`` instance."""
+    url = '%s/json-pushes/?version=2' % repo.url
+    data = fetch_json(url)
+    return data['lastpushid']
+
+
 class HgPushlogTransformerMixin(object):
 
     def transform(self, pushlog, repository):
@@ -83,11 +90,12 @@ class HgPushlogProcess(HgPushlogTransformerMixin):
             logger.warning("HTTPError %s fetching: %s", e.response.status_code, url)
             raise
 
-    def run(self, source_url, repository, changeset=None):
+    def run(self, source_url, repository, changeset=None, last_push_id=None):
+        if not last_push_id:
+            # get the last object seen from cache. this will
+            # reduce the number of pushes processed every time
+            last_push_id = cache.get("{0}:last_push_id".format(repository))
 
-        # get the last object seen from cache. this will
-        # reduce the number of pushes processed every time
-        last_push_id = cache.get("{0}:last_push_id".format(repository))
         if not changeset and last_push_id:
             startid_url = "{}&startID={}".format(source_url, last_push_id)
             logger.info("Extracted last push for '%s', '%s', from cache, "

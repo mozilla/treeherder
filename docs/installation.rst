@@ -114,6 +114,19 @@ talos jobs for a particular push, try:
 
      vagrant ~/treeherder$ ./manage.py ingest_push --filter-job-group T mozilla-inbound 63f8a47cfdf
 
+Ingesting a range of pushes
+---------------------------
+
+It is also possible to ingest the last N pushes for a repository:
+
+  .. code-block:: bash
+
+    vagrant ~/treeherder$ ./manage.py ingest_push mozilla-central --last-n-pushes 100
+
+In this mode, only the pushlog data will be ingested: additional results
+associated with the pushes will not. This mode is useful to seed pushes so
+they are visible on the web interface and so you can easily copy and paste
+changesets from the web interface into subsequent ``ingest_push`` commands.
 
 .. _A-Team Bootcamp: https://ateam-bootcamp.readthedocs.io
 .. _Git: https://git-scm.com
