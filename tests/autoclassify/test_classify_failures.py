@@ -1,22 +1,18 @@
-from datetime import (datetime,
-                      timedelta)
-
 from treeherder.autoclassify.detectors import (ManualDetector,
                                                TestFailureDetector)
 from treeherder.autoclassify.matchers import (CrashSignatureMatcher,
                                               ElasticSearchTestMatcher,
-                                              PreciseTestMatcher,
-                                              time_window)
+                                              PreciseTestMatcher)
 from treeherder.autoclassify.tasks import autoclassify
 from treeherder.model.models import (BugJobMap,
                                      ClassifiedFailure,
                                      FailureMatch,
                                      JobNote,
-                                     TextLogError)
+                                     TextLogError,
+                                     TextLogErrorMatch)
 
 from .utils import (crash_line,
-                    create_failure_lines,
-                    create_text_log_errors,
+                    create_lines,
                     log_line,
                     register_detectors,
                     register_matchers,
@@ -38,16 +34,6 @@ def do_autoclassify(jm, job, test_failure_lines, matchers, status="testfailed"):
         item.refresh_from_db()
 
 
-def create_lines(test_job, lines):
-    error_lines = create_text_log_errors(test_job, lines)
-    failure_lines = create_failure_lines(test_job, lines)
-
-    for error_line, failure_line in zip(error_lines, failure_lines):
-        error_line.failure_line = failure_line
-        error_line.save()
-    return error_lines, failure_lines
-
-
 def test_classify_test_failure(jm,
                                text_log_errors_failure_lines,
                                classified_failures,
@@ -64,7 +50,8 @@ def test_classify_test_failure(jm,
     expected_classified = test_error_lines[:2], test_failure_lines[:2]
     expected_unclassified = test_error_lines[2:], test_failure_lines[2:]
 
-    for (error_line, failure_line), expected in zip(zip(*expected_classified), classified_failures):
+    for (error_line, failure_line), expected in zip(zip(*expected_classified),
+                                                    classified_failures):
         assert [item.id for item in error_line.classified_failures.all()] == [expected.id]
         assert [item.id for item in failure_line.classified_failures.all()] == [expected.id]
 
@@ -117,7 +104,7 @@ def test_autoclassify_update_job_classification(jm, failure_lines, classified_fa
 
 
 def test_autoclassify_no_update_job_classification(jm, test_job, test_job_2,
-                                                   failure_lines,
+                                                   text_log_errors_failure_lines,
                                                    classified_failures):
 
     lines = [(test_line, {})]
@@ -132,12 +119,16 @@ def test_autoclassify_no_update_job_classification(jm, test_job, test_job_2,
 
 
 def test_autoclassified_after_manual_classification(jm, test_user, test_job_2,
-                                                    failure_lines, failure_classifications):
+                                                    text_log_errors_failure_lines,
+                                                    failure_classifications):
     register_detectors(ManualDetector, TestFailureDetector)
 
     lines = [(test_line, {})]
     test_error_lines, test_failure_lines = create_lines(test_job_2, lines)
 
+    BugJobMap.objects.create(job=test_job_2,
+                             bug_id=1234,
+                             user=test_user)
     JobNote.objects.create(job=test_job_2,
                            failure_classification_id=4,
                            user=test_user,
@@ -182,9 +173,9 @@ def test_autoclassified_no_update_after_manual_classification_2(test_user, test_
     register_detectors(ManualDetector, TestFailureDetector)
 
     # Too many failure lines
-    test_failure_lines = create_failure_lines(test_job_2,
-                                              [(log_line, {}),
-                                               (test_line, {"subtest": "subtest2"})])
+    test_error_lines, test_failure_lines = create_lines(test_job_2,
+                                                        [(log_line, {}),
+                                                         (test_line, {"subtest": "subtest2"})])
 
     JobNote.objects.create(job=test_job_2,
                            failure_classification_id=4,
@@ -209,9 +200,9 @@ def test_classify_skip_ignore(jm, test_job_2, text_log_errors_failure_lines,
     failure_lines[1].best_classification = None
     failure_lines[1].save()
 
-    test_failure_lines = create_failure_lines(test_job_2,
-                                              [(test_line, {}),
-                                               (test_line, {"subtest": "subtest2"})])
+    test_error_lines, test_failure_lines = create_lines(test_job_2,
+                                                        [(test_line, {}),
+                                                         (test_line, {"subtest": "subtest2"})])
 
     do_autoclassify(jm, test_job_2, test_failure_lines, [PreciseTestMatcher])
 
@@ -226,14 +217,14 @@ def test_classify_skip_ignore(jm, test_job_2, text_log_errors_failure_lines,
 
 
 def test_classify_es(jm, test_job_2, failure_lines, classified_failures):
-    test_failure_lines = create_failure_lines(test_job_2,
-                                              [(test_line, {}),
-                                               (test_line, {"message": "message2"}),
-                                               (test_line, {"message": "message 1.2"}),
-                                               (test_line, {"message": "message 0x1F"}),
-                                               (test_line, {"subtest": "subtest3"}),
-                                               (test_line, {"status": "TIMEOUT"}),
-                                               (test_line, {"expected": "ERROR"})])
+    test_error_lines, test_failure_lines = create_lines(test_job_2,
+                                                        [(test_line, {}),
+                                                         (test_line, {"message": "message2"}),
+                                                         (test_line, {"message": "message 1.2"}),
+                                                         (test_line, {"message": "message 0x1F"}),
+                                                         (test_line, {"subtest": "subtest3"}),
+                                                         (test_line, {"status": "TIMEOUT"}),
+                                                         (test_line, {"expected": "ERROR"})])
 
     do_autoclassify(jm, test_job_2, test_failure_lines, [ElasticSearchTestMatcher])
 
@@ -248,9 +239,9 @@ def test_classify_es(jm, test_job_2, failure_lines, classified_failures):
 
 
 def test_classify_multiple(jm, test_job_2, failure_lines, classified_failures):
-    test_failure_lines = create_failure_lines(test_job_2,
-                                              [(test_line, {}),
-                                               (test_line, {"message": "message 1.2"})])
+    test_error_lines, test_failure_lines = create_lines(test_job_2,
+                                                        [(test_line, {}),
+                                                         (test_line, {"message": "message 1.2"})])
 
     expected_classified_precise = [test_failure_lines[0]]
     expected_classified_fuzzy = [test_failure_lines[1]]
@@ -268,20 +259,24 @@ def test_classify_multiple(jm, test_job_2, failure_lines, classified_failures):
 
 
 def test_classify_crash(jm, test_project, test_job, test_job_2, test_matcher):
-    failure_lines_ref = create_failure_lines(test_job,
-                                             [(crash_line, {})])
+    error_lines_ref, failure_lines_ref = create_lines(test_job,
+                                                      [(crash_line, {})])
 
-    failure_lines = create_failure_lines(test_job_2,
-                                         [(crash_line, {}),
-                                          (crash_line, {"test": "test1"}),
-                                          (crash_line, {"signature": "signature1"}),
-                                          (crash_line, {"signature": None})])
+    error_lines, failure_lines = create_lines(test_job_2,
+                                              [(crash_line, {}),
+                                               (crash_line, {"test": "test1"}),
+                                               (crash_line, {"signature": "signature1"}),
+                                               (crash_line, {"signature": None})])
 
     classified_failure = ClassifiedFailure.objects.create()
     FailureMatch.objects.create(failure_line=failure_lines_ref[0],
                                 classified_failure=classified_failure,
                                 matcher=test_matcher.db_object,
                                 score=1.0)
+    TextLogErrorMatch.objects.create(text_log_error=error_lines_ref[0],
+                                     classified_failure=classified_failure,
+                                     matcher=test_matcher.db_object,
+                                     score=1.0)
     do_autoclassify(jm, test_job_2, failure_lines, [CrashSignatureMatcher])
 
     expected_classified = failure_lines[0:2]
@@ -292,22 +287,3 @@ def test_classify_crash(jm, test_project, test_job, test_job_2, test_matcher):
 
     for item in expected_unclassified:
         assert item.classified_failures.count() == 0
-
-
-def test_classify_test_failure_window(failure_lines, classified_failures):
-    failure_lines[0].created = datetime.now() - timedelta(days=2)
-    failure_lines[0].save()
-
-    failure_matches = FailureMatch.objects.all()
-    failure_matches[1].score = 0.5
-    failure_matches[1].save()
-
-    best_match = time_window(FailureMatch.objects.all(), timedelta(days=1), 0,
-                             lambda x: x.score)
-
-    assert best_match == failure_matches[1]
-
-    best_match = time_window(FailureMatch.objects.all(), timedelta(days=1), None,
-                             lambda x: x.score)
-
-    assert best_match == failure_matches[1]

@@ -4,10 +4,11 @@ from collections import defaultdict
 from django.db.utils import IntegrityError
 
 from treeherder.model.derived import JobsModel
-from treeherder.model.models import (FailureLine,
+from treeherder.model.models import (ClassifiedFailure,
                                      FailureMatch,
                                      JobNote,
                                      Matcher,
+                                     TextLogError,
                                      TextLogErrorMatch)
 
 logger = logging.getLogger(__name__)
@@ -22,68 +23,78 @@ def match_errors(job):
     # Only try to autoclassify where we have a failure status; sometimes there can be
     # error lines even in jobs marked as passing.
 
+    if job.autoclassify_status < Job.CROSSREFERENCED:
+        logger.error("Tried to autoclassify job %i without crossreferenced error lines" % job.id)
+        return
+
+    if job.autoclassify_status == Job.AUTOCLASSIFIED:
+        logger.error("Tried to autoclassify job %i which was already autoclassified" % job.id)
+        return
+
     with JobsModel(job.repository.name) as jm:
         ds_job = jm.get_job(job.project_specific_id)[0]
         if ds_job["result"] not in ["testfailed", "busted", "exception"]:
+            logger.info("Skipping autoclassify of job %i with result %s" % (job.id,
+                                                                            ds_job["result"]))
             return
 
-    unmatched_failures = set(FailureLine.objects.unmatched_for_job(job))
+    unmatched_errors = set(TextLogError.objects.unmatched_for_job(job))
 
-    if not unmatched_failures:
+    if not unmatched_errors:
         return
 
-    matches, all_matched = find_matches(unmatched_failures)
+    matches, all_matched = find_matches(unmatched_errors)
     update_db(job, matches, all_matched)
 
 
-def find_matches(unmatched_failures):
+def find_matches(unmatched_errors):
     all_matches = set()
 
     for matcher in Matcher.objects.registered_matchers():
-        matches = matcher(unmatched_failures)
+        matches = matcher(unmatched_errors)
         for match in matches:
-            logger.info("Matched failure %i with intermittent %i" %
-                        (match.failure_line.id, match.classified_failure.id))
+            logger.info("Matched error %i with intermittent %i" %
+                        (match.text_log_error.id, match.classified_failure_id))
             all_matches.add((matcher.db_object, match))
             if match.score >= AUTOCLASSIFY_GOOD_ENOUGH_RATIO:
-                unmatched_failures.remove(match.failure_line)
+                unmatched_errors.remove(match.text_log_error)
 
-        if not unmatched_failures:
+        if not unmatched_errors:
             break
 
-    return all_matches, len(unmatched_failures) == 0
+    return all_matches, len(unmatched_errors) == 0
 
 
 def update_db(job, matches, all_matched):
-    matches_by_failure_line = defaultdict(set)
-    for item in matches:
-        matches_by_failure_line[item[1].failure_line].add(item)
+    matches_by_error = defaultdict(set)
+    classified_failures = {item.id: item for item in
+                           ClassifiedFailure.objects.filter(
+                               id__in=[match.classified_failure_id for _, match in matches])}
+    for matcher, match in matches:
+        classified_failure = classified_failures[match.classified_failure_id]
+        matches_by_error[match.text_log_error].add((matcher, match, classified_failure))
 
-    for failure_line, matches in matches_by_failure_line.iteritems():
-        for matcher, match in matches:
+    for text_log_error, matches in matches_by_error.iteritems():
+        for (matcher, match, classified_failure) in matches:
             try:
-                FailureMatch.objects.create(
+                TextLogErrorMatch.objects.create(
                     score=match.score,
                     matcher=matcher,
-                    classified_failure=match.classified_failure,
-                    failure_line=failure_line)
-                if failure_line.error:
-                    TextLogErrorMatch.objects.create(
+                    classified_failure=classified_failure,
+                    text_log_error=match.text_log_error)
+                if match.text_log_error.failure_line:
+                    FailureMatch.objects.create(
                         score=match.score,
                         matcher=matcher,
-                        classified_failure=match.classified_failure,
-                        text_log_error=failure_line.error)
+                        classified_failure=classified_failure,
+                        failure_line=match.text_log_error.failure_line)
             except IntegrityError:
                 logger.warning(
-                    "Tried to create duplicate match for failure line %i with matcher %i and classified_failure %i" %
-                    (failure_line.id, matcher.id, match.classified_failure.id))
-        best_match = failure_line.best_automatic_match(AUTOCLASSIFY_CUTOFF_RATIO)
+                    "Tried to create duplicate match for TextLogError %i with matcher %i and classified_failure %i" %
+                    (text_log_error.id, matcher.id, match.classified_failure.id))
+        best_match = text_log_error.best_automatic_match(AUTOCLASSIFY_CUTOFF_RATIO)
         if best_match:
-            failure_line.best_classification = best_match.classified_failure
-            failure_line.save(update_fields=['best_classification'])
-            if failure_line.error:
-                failure_line.error.best_classification = best_match.classified_failure
-                failure_line.error.save(update_fields=['best_classification'])
+            text_log_error.mark_best_classification(classified_failure)
 
     if all_matched:
         if job.is_fully_autoclassified():

@@ -4,6 +4,7 @@ from rest_framework.test import APIClient
 from treeherder.model.models import (BugJobMap,
                                      FailureLine,
                                      JobNote,
+                                     TextLogError,
                                      TextLogSummary)
 
 
@@ -136,6 +137,7 @@ def test_put_verify_job(webapp, jm, test_job, text_summary_lines, test_user,
     client = APIClient()
     client.force_authenticate(user=test_user)
 
+    TextLogError.objects.filter(step__job=test_job).update(best_is_verified=True)
     FailureLine.objects.filter(job_guid=test_job.guid).update(best_is_verified=True)
 
     text_summary_lines = TextLogSummary.objects.filter(job_guid=test_job.guid).get().lines.all()
