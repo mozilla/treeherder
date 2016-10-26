@@ -44,7 +44,7 @@ def _crossreference(job):
     # If we don't have failure lines and text log errors nothing will happen
     # so return early
     if not (failure_lines.exists() and text_log_errors.exists()):
-        return []
+        return False
 
     summary = TextLogSummary.objects.create(job_guid=job.guid,
                                             repository=job.repository)
@@ -79,6 +79,8 @@ def _crossreference(job):
             break
         logger.error("Failed to match structured line '%s' to an unstructured line" %
                      (leftover[1].pattern,))
+
+    return bool(summary_lines)
 
 
 def structured_iterator(failure_lines):
