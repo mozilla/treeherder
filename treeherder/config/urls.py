@@ -18,6 +18,7 @@ urlpatterns = [
    url(r'^admin/', include(browserid_admin.urls)),
    url(r'^docs/', include('rest_framework_swagger.urls')),
    url(r'^credentials/', include(credentials_patterns)),
+   url(r'^seta/', include('treeherder.seta.urls')),
    url(r'', include('django_browserid.urls')),
 ]
 
