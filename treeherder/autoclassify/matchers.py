@@ -3,8 +3,6 @@ import time
 from abc import (ABCMeta,
                  abstractmethod)
 from collections import namedtuple
-from datetime import (datetime,
-                      timedelta)
 from difflib import SequenceMatcher
 
 from django.conf import settings
@@ -12,16 +10,15 @@ from django.db.models import Q
 from elasticsearch_dsl.query import Match as ESMatch
 
 from treeherder.autoclassify.autoclassify import AUTOCLASSIFY_GOOD_ENOUGH_RATIO
-from treeherder.model.models import (ClassifiedFailure,
-                                     FailureLine,
-                                     FailureMatch,
-                                     MatcherManager)
+from treeherder.model.models import (MatcherManager,
+                                     TextLogError,
+                                     TextLogErrorMatch)
 from treeherder.model.search import (TestFailureLine,
                                      es_connected)
 
 logger = logging.getLogger(__name__)
 
-Match = namedtuple('Match', ['failure_line', 'classified_failure', 'score'])
+Match = namedtuple('Match', ['text_log_error', 'classified_failure_id', 'score'])
 
 
 class Matcher(object):
@@ -37,83 +34,134 @@ class Matcher(object):
     def __init__(self, db_object):
         self.db_object = db_object
 
+    def __call__(self, text_log_errors):
+        rv = []
+        for text_log_error in text_log_errors:
+            match = self.match(text_log_error)
+            if match:
+                rv.append(match)
+        return rv
+
+    def match(self, text_log_error):
+        best_match = self.query_best(text_log_error)
+        if best_match:
+            classified_failure_id, score = best_match
+            logger.debug("Matched using %s" % self.__class__.__name__)
+            return Match(text_log_error,
+                         classified_failure_id,
+                         score)
+
     @abstractmethod
-    def __call__(self, failure_lines):
+    def query_best(self, text_log_error):
         pass
 
 
-ignored_line = (Q(failure_line__best_classification=None) &
-                Q(failure_line__best_is_verified=True))
+ignored_line = (Q(text_log_error___metadata__best_classification=None) &
+                Q(text_log_error___metadata__best_is_verified=True))
 
 
-def time_window(queryset, interval, time_budget_ms, match_filter):
-    upper_cutoff = datetime.now()
-    lower_cutoff = upper_cutoff - interval
-    matches = []
+class id_window(object):
+    def __init__(self, size, time_budget):
+        self.size = size
+        self.time_budget_ms = time_budget
 
-    time_budget = time_budget_ms / 1000. if time_budget_ms is not None else None
-    t0 = time.time()
+    def __call__(self, f):
+        outer = self
 
-    min_date = FailureLine.objects.order_by("id")[0].created
+        def inner(self, text_log_error):
+            queries = f(self, text_log_error)
+            if not queries:
+                return
 
-    count = 0
-    while True:
-        count += 1
-        window_queryset = queryset.filter(
-            failure_line__created__range=(lower_cutoff, upper_cutoff))
-        logger.debug("[time_window] Queryset: %s" % window_queryset.query)
-        match = window_queryset.first()
-        if match is not None:
-            matches.append(match)
-            if match.score >= AUTOCLASSIFY_GOOD_ENOUGH_RATIO:
+            for item in queries:
+                if isinstance(item, tuple):
+                    query, score_multiplier = item
+                else:
+                    query = item
+                    score_multiplier = (1, 1)
+
+                result = outer.run(query, score_multiplier)
+                if result:
+                    return result
+        inner.__name__ = f.__name__
+        inner.__doc__ = f.__doc__
+        return inner
+
+    def run(self, query, score_multiplier):
+        matches = []
+        time_budget = self.time_budget_ms / 1000. if self.time_budget_ms is not None else None
+        t0 = time.time()
+
+        upper_cutoff = (TextLogError.objects
+                        .order_by('-id')
+                        .values_list('id', flat=True)[0])
+
+        count = 0
+        while upper_cutoff > 0:
+            count += 1
+            lower_cutoff = max(upper_cutoff - self.size, 0)
+            window_queryset = query.filter(
+                text_log_error__id__range=(lower_cutoff, upper_cutoff))
+            logger.debug("[time_window] Queryset: %s" % window_queryset.query)
+            match = window_queryset.first()
+            if match is not None:
+                score = match.score * score_multiplier[0] / score_multiplier[1]
+                matches.append((match, score))
+                if score >= AUTOCLASSIFY_GOOD_ENOUGH_RATIO:
+                    break
+            upper_cutoff -= self.size
+
+            if time_budget is not None and time.time() - t0 > time_budget:
+                # Putting the condition at the end of the loop ensures that we always
+                # run it once, which is useful for testing
                 break
-        upper_cutoff = lower_cutoff
-        lower_cutoff = upper_cutoff - interval
-        if upper_cutoff < min_date:
-            break
 
-        if time_budget_ms is not None and time.time() - t0 > time_budget:
-            # Putting the condition at the end of the loop ensures that we always
-            # run it once, which is useful for testing
-            break
+        logger.debug("[time_window] Used %i queries" % count)
+        if matches:
+            matches.sort(key=lambda x: (-x[1], -x[0].classified_failure_id))
+            best = matches[0]
+            return best[0].classified_failure_id, best[1]
 
-    logger.debug("[time_window] Used %i queries" % count)
-    if matches:
-        matches.sort(key=match_filter)
-        return matches[0]
-    return None
+        return None
+
+
+def with_failure_lines(f):
+    def inner(self, text_log_errors):
+        with_failure_lines = [item for item in text_log_errors
+                              if item.metadata and item.metadata.failure_line]
+        return f(self, with_failure_lines)
+    inner.__name__ = f.__name__
+    inner.__doc__ = f.__doc__
+    return inner
 
 
 class PreciseTestMatcher(Matcher):
-    """Matcher that looks for existing failures with identical tests and identical error
-    message."""
+    """Matcher that looks for existing failures with identical tests and
+    identical error message."""
 
-    def __call__(self, failure_lines):
-        rv = []
-        for failure_line in failure_lines:
-            logger.debug("Looking for test match in failure %d" % failure_line.id)
+    @with_failure_lines
+    def __call__(self, text_log_errors):
+        return super(PreciseTestMatcher, self).__call__(text_log_errors)
 
-            if failure_line.action != "test_result" or failure_line.message is None:
-                continue
+    @id_window(size=20000,
+               time_budget=500)
+    def query_best(self, text_log_error):
+        failure_line = text_log_error.metadata.failure_line
+        logger.debug("Looking for test match in failure %d" % failure_line.id)
 
-            matching_failures = FailureMatch.objects.filter(
-                failure_line__action="test_result",
-                failure_line__test=failure_line.test,
-                failure_line__subtest=failure_line.subtest,
-                failure_line__status=failure_line.status,
-                failure_line__expected=failure_line.expected,
-                failure_line__message=failure_line.message).exclude(
-                    ignored_line | Q(failure_line__job_guid=failure_line.job_guid)
-                ).order_by("-score", "-classified_failure")
+        if failure_line.action != "test_result" or failure_line.message is None:
+            return
 
-            best_match = time_window(matching_failures, timedelta(days=7), 500,
-                                     lambda x: (-x.score, -x.classified_failure_id))
-            if best_match:
-                logger.debug("Matched using precise test matcher")
-                rv.append(Match(failure_line,
-                                best_match.classified_failure,
-                                best_match.score))
-        return rv
+        return [(TextLogErrorMatch.objects
+                 .filter(text_log_error___metadata__failure_line__action="test_result",
+                         text_log_error___metadata__failure_line__test=failure_line.test,
+                         text_log_error___metadata__failure_line__subtest=failure_line.subtest,
+                         text_log_error___metadata__failure_line__status=failure_line.status,
+                         text_log_error___metadata__failure_line__expected=failure_line.expected,
+                         text_log_error___metadata__failure_line__message=failure_line.message)
+                 .exclude(ignored_line |
+                          Q(text_log_error__step__job=text_log_error.step.job))
+                 .order_by("-score", "-classified_failure"))]
 
 
 class ElasticSearchTestMatcher(Matcher):
@@ -126,79 +174,68 @@ class ElasticSearchTestMatcher(Matcher):
         self.calls = 0
 
     @es_connected(default=[])
-    def __call__(self, failure_lines):
-        rv = []
-        self.lines += len(failure_lines)
-        for failure_line in failure_lines:
-            if failure_line.action != "test_result" or not failure_line.message:
-                logger.debug("Skipped elasticsearch matching")
-                continue
-            match = ESMatch(message={"query": failure_line.message[:1024],
-                                     "type": "phrase"})
-            search = (TestFailureLine.search()
-                      .filter("term", test=failure_line.test)
-                      .filter("term", status=failure_line.status)
-                      .filter("term", expected=failure_line.expected)
-                      .filter("exists", field="best_classification")
-                      .query(match))
-            if failure_line.subtest:
-                search = search.filter("term", subtest=failure_line.subtest)
-            try:
-                self.calls += 1
-                resp = search.execute()
-            except:
-                logger.error("Elastic search lookup failed: %s %s %s %s %s",
-                             failure_line.test, failure_line.subtest, failure_line.status,
-                             failure_line.expected, failure_line.message)
-                raise
-            scorer = MatchScorer(failure_line.message)
-            matches = [(item, item.message) for item in resp]
-            best_match = scorer.best_match(matches)
-            if best_match:
-                logger.debug("Matched using elastic search test matcher")
-                rv.append(Match(failure_line,
-                                ClassifiedFailure.objects.get(
-                                    id=best_match[1].best_classification),
-                                best_match[0]))
-        return rv
+    @with_failure_lines
+    def __call__(self, text_log_errors):
+        return super(ElasticSearchTestMatcher, self).__call__(text_log_errors)
+
+    def query_best(self, text_log_error):
+        failure_line = text_log_error.metadata.failure_line
+        if failure_line.action != "test_result" or not failure_line.message:
+            logger.debug("Skipped elasticsearch matching")
+            return
+        match = ESMatch(message={"query": failure_line.message[:1024],
+                                 "type": "phrase"})
+        search = (TestFailureLine.search()
+                  .filter("term", test=failure_line.test)
+                  .filter("term", status=failure_line.status)
+                  .filter("term", expected=failure_line.expected)
+                  .filter("exists", field="best_classification")
+                  .query(match))
+        if failure_line.subtest:
+            search = search.filter("term", subtest=failure_line.subtest)
+        try:
+            self.calls += 1
+            resp = search.execute()
+        except:
+            logger.error("Elastic search lookup failed: %s %s %s %s %s",
+                         failure_line.test, failure_line.subtest, failure_line.status,
+                         failure_line.expected, failure_line.message)
+            raise
+        scorer = MatchScorer(failure_line.message)
+        matches = [(item, item.message) for item in resp]
+        best_match = scorer.best_match(matches)
+        if best_match:
+            return (best_match[1].best_classification, best_match[0])
 
 
 class CrashSignatureMatcher(Matcher):
     """Matcher that looks for crashes with identical signature"""
 
-    def __call__(self, failure_lines):
-        rv = []
+    @with_failure_lines
+    def __call__(self, text_log_errors):
+        return super(CrashSignatureMatcher, self).__call__(text_log_errors)
 
-        for failure_line in failure_lines:
-            if (failure_line.action != "crash" or failure_line.signature is None
-                    or failure_line.signature == "None"):
-                continue
-            matching_failures = FailureMatch.objects.filter(
-                failure_line__action="crash",
-                failure_line__signature=failure_line.signature).exclude(
-                    ignored_line | Q(failure_line__job_guid=failure_line.job_guid)
-                ).select_related('failure_line').order_by(
-                    "-score",
-                    "-classified_failure")
+    @id_window(size=20000,
+               time_budget=250)
+    def query_best(self, text_log_error):
+        failure_line = text_log_error.metadata.failure_line
 
-            score_multiplier = 10
-            matching_failures_same_test = matching_failures.filter(
-                failure_line__test=failure_line.test)
+        if (failure_line.action != "crash" or
+            failure_line.signature is None or
+            failure_line.signature == "None"):
+            return
 
-            best_match = time_window(matching_failures_same_test, timedelta(days=7), 250,
-                                     lambda x: (-x.score, -x.classified_failure_id))
-            if not best_match:
-                score_multiplier = 8
-                best_match = time_window(matching_failures, timedelta(days=7), 250,
-                                         lambda x: (-x.score, -x.classified_failure_id))
+        matching_failures = (TextLogErrorMatch.objects
+                             .filter(text_log_error___metadata__failure_line__action="crash",
+                                     text_log_error___metadata__failure_line__signature=failure_line.signature)
+                             .exclude(ignored_line |
+                                      Q(text_log_error__step__job=text_log_error.step.job))
+                             .select_related('text_log_error',
+                                             'text_log_error___metadata')
+                             .order_by("-score", "-classified_failure"))
 
-            if best_match:
-                logger.debug("Matched using crash signature matcher")
-                score = best_match.score * score_multiplier / 10
-                rv.append(Match(failure_line,
-                                best_match.classified_failure,
-                                score))
-        return rv
+        return [matching_failures.filter(text_log_error___metadata__failure_line__test=failure_line.test),
+                (matching_failures, (8, 10))]
 
 
 class MatchScorer(object):
