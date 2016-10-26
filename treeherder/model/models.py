@@ -7,7 +7,6 @@ import time
 from collections import (OrderedDict,
                          defaultdict)
 from hashlib import sha1
-from itertools import chain
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -735,45 +734,31 @@ class Job(models.Model):
                                       action="truncated").count() > 0:
             return False
 
-        classified_failure_lines_count = FailureLine.objects.filter(
+        classified_error_count = TextLogError.objects.filter(
             best_classification__isnull=False,
-            job_guid=self.guid).count()
+            step__job=self).count()
 
-        if classified_failure_lines_count == 0:
+        if classified_error_count == 0:
             return False
 
         from treeherder.model.error_summary import get_filtered_error_lines
 
-        return classified_failure_lines_count == len(get_filtered_error_lines(self))
+        return classified_error_count == len(get_filtered_error_lines(self))
 
     def is_fully_verified(self):
-        if FailureLine.objects.filter(job_guid=self.guid,
-                                      action="truncated").count() > 0:
-            logger.error("Job %s truncated storage of FailureLines" % self.guid)
-            return False
-
         # Line is not fully verified if there are either structured failure lines
         # with no best failure, or unverified unstructured lines not associated with
         # a structured line
 
-        unverified_failure_lines = FailureLine.objects.filter(
+        unverified_errors = TextLogError.objects.filter(
             best_is_verified=False,
-            job_guid=self.guid).count()
+            step__job=self).count()
 
-        if unverified_failure_lines:
-            logger.error("Job %s has unverified FailureLines" % self.guid)
+        if unverified_errors:
+            logger.error("Job %r has unverified TextLogErrors" % self)
             return False
 
-        unverified_text_lines = TextLogSummaryLine.objects.filter(
-            verified=False,
-            failure_line=None,
-            summary__job_guid=self.guid).count()
-
-        if unverified_text_lines:
-            logger.error("Job %s has unverified TextLogSummary" % self.guid)
-            return False
-
-        logger.info("Job %s is fully verified" % self.guid)
+        logger.info("Job %r is fully verified" % self)
         return True
 
     def update_after_verification(self, user):
@@ -797,13 +782,13 @@ class Job(models.Model):
 
     def get_manual_classification_line(self):
         """
-        Return the FailureLine from a job if it can be manually classified as a side effect
+        Return the TextLogError from a job if it can be manually classified as a side effect
         of the overall job being classified.
         Otherwise return None.
         """
         try:
-            failure_lines = [FailureLine.objects.get(job_guid=self.guid)]
-        except (FailureLine.DoesNotExist, FailureLine.MultipleObjectsReturned):
+            text_log_errors = [TextLogError.objects.get(step__job=self)]
+        except (TextLogError.DoesNotExist, TextLogError.MultipleObjectsReturned):
             return None
 
         # Only propagate the classification if there is exactly one unstructured failure
@@ -814,19 +799,19 @@ class Job(models.Model):
 
         # Check that some detector would match this. This is being used as an indication
         # that the autoclassifier will be able to work on this classification
-        if not any(detector(failure_lines)
+        if not any(detector(text_log_errors)
                    for detector in Matcher.objects.registered_detectors()):
             return None
 
-        return failure_lines[0]
+        return text_log_errors[0]
 
     def update_autoclassification_bug(self, bug_number):
-        failure_line = self.get_manual_classification_line()
+        text_log_error = self.get_manual_classification_line()
 
-        if failure_line is None:
+        if text_log_error is None:
             return
 
-        classification = failure_line.best_classification
+        classification = text_log_error.best_classification
         if classification and classification.bug_number is None:
             return classification.set_bug(bug_number)
 
@@ -955,18 +940,18 @@ class JobNoteManager(models.Manager):
 
         # Only insert bugs for verified failures since these are automatically
         # mirrored to ES and the mirroring can't be undone
-        classified_failures = ClassifiedFailure.objects.filter(
-            best_for_lines__job_guid=job.guid,
-            best_for_lines__best_is_verified=True)
+        bug_numbers = set(ClassifiedFailure.objects
+                          .filter(best_for_errors__step__job=job,
+                                  best_for_errors__best_is_verified=True)
+                          .exclude(bug_number=None)
+                          .values_list('bug_number', flat=True))
 
-        text_log_summary_lines = TextLogSummaryLine.objects.filter(
-            summary__job_guid=job.guid, verified=True).exclude(
-                bug_number=None)
-
-        bug_numbers = {item.bug_number
-                       for item in chain(classified_failures,
-                                         text_log_summary_lines)
-                       if item.bug_number}
+        # Legacy
+        bug_numbers |= set(TextLogSummaryLine.objects
+                           .filter(summary__job_guid=job.guid,
+                                   verified=True)
+                           .exclude(bug_number=None)
+                           .values_list('bug_number', flat=True))
 
         for bug_number in bug_numbers:
             BugJobMap.objects.get_or_create(job=job,
@@ -1025,12 +1010,34 @@ class JobNote(models.Model):
         self.job.save()
 
         # if a manually filed job, update the autoclassification information
-        if self.user:
-            if self.failure_classification.name in [
-                    "intermittent", "intermittent needs filing"]:
-                failure_line = self.job.get_manual_classification_line()
-                if failure_line:
-                    failure_line.update_autoclassification()
+        if not self.user:
+            return
+
+        if self.failure_classification.name not in [
+                "intermittent", "intermittent needs filing"]:
+            return
+
+        text_log_error = self.job.get_manual_classification_line()
+        if not text_log_error:
+            return
+        bug_numbers = set(BugJobMap.objects
+                          .filter(job=self.job)
+                          .values_list('bug_id', flat=True))
+
+        existing_bugs = set(ClassifiedFailure.objects
+                            .filter(error_matches__text_log_error=text_log_error)
+                            .values_list('bug_number', flat=True))
+
+        add_bugs = (bug_numbers - existing_bugs)
+        if not add_bugs:
+            return
+
+        manual_detector = Matcher.objects.get(name="ManualDetector")
+        for bug_number in add_bugs:
+            classification, _ = text_log_error.set_classification(manual_detector,
+                                                                  bug_number=bug_number)
+        if len(add_bugs) == 1 and not existing_bugs:
+            text_log_error.mark_best_classification_verified(classification)
 
     def save(self, *args, **kwargs):
         super(JobNote, self).save(*args, **kwargs)
@@ -1045,24 +1052,6 @@ class JobNote(models.Model):
                                         self.job.guid,
                                         self.failure_classification,
                                         self.who)
-
-
-class FailureLineManager(models.Manager):
-    def unmatched_for_job(self, job):
-        return FailureLine.objects.filter(
-            job_guid=job.guid,
-            repository=job.repository,
-            classified_failures=None,
-        )
-
-    def for_jobs(self, *jobs, **filters):
-        failures = FailureLine.objects.filter(
-            job_guid__in=[item.guid for item in jobs],
-            **filters)
-        failures_by_job = defaultdict(list)
-        for item in failures:
-            failures_by_job[item.job_guid].append(item)
-        return failures_by_job
 
 
 class FailureLine(models.Model):
@@ -1108,9 +1097,6 @@ class FailureLine(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-
-    objects = FailureLineManager()
-    # TODO: add indexes once we know which queries will be typically executed
 
     class Meta:
         db_table = 'failure_line'
@@ -1296,8 +1282,6 @@ class ClassifiedFailure(models.Model):
         FailureMatch.objects.filter(id__in=delete_ids).delete()
         FailureLine.objects.filter(best_classification=self).update(best_classification=other)
         self.delete()
-
-    # TODO: add indexes once we know which queries will be typically executed
 
     class Meta:
         db_table = 'classified_failure'
@@ -1490,6 +1474,23 @@ class TextLogStep(models.Model):
                            'finished_line_number')
 
 
+class TextLogErrorManager(models.Manager):
+    def unmatched_for_job(self, job):
+        return TextLogError.objects.filter(
+            step__job=job,
+            classified_failures=None,
+        ).prefetch_related('step', 'failure_line')
+
+    def for_jobs(self, *jobs, **filters):
+        error_lines = TextLogError.objects.filter(
+            step__job__in=jobs,
+            **filters)
+        lines_by_job = defaultdict(list)
+        for item in error_lines:
+            lines_by_job[item.step.job].append(item)
+        return lines_by_job
+
+
 class TextLogError(models.Model):
     """
     A detected error line in the textual (unstructured) log
@@ -1512,6 +1513,8 @@ class TextLogError(models.Model):
                                             on_delete=models.SET_NULL)
     best_is_verified = models.BooleanField(default=False)
 
+    objects = TextLogErrorManager()
+
     class Meta:
         db_table = "text_log_error"
         unique_together = ('step', 'line_number')
@@ -1522,6 +1525,80 @@ class TextLogError(models.Model):
     def bug_suggestions(self):
         from treeherder.model import error_summary
         return error_summary.bug_suggestions_line(self)
+
+    def best_automatic_match(self, min_score=0):
+        return (TextLogErrorMatch.objects
+                .filter(text_log_error__id=self.id,
+                        score__gt=min_score)
+                .order_by("-score",
+                          "-classified_failure_id")
+                .select_related('classified_failure')
+                .first())
+
+    def set_classification(self, matcher, classification=None, bug_number=None,
+                           mark_best=False):
+        with transaction.atomic():
+            if classification is None:
+                if bug_number:
+                    classification, _ = ClassifiedFailure.objects.get_or_create(
+                        bug_number=bug_number)
+                else:
+                    classification = ClassifiedFailure.objects.create()
+
+            new_link = TextLogErrorMatch(
+                text_log_error=self,
+                classified_failure=classification,
+                matcher=matcher,
+                score=1)
+            new_link.save()
+
+            if self.failure_line:
+                new_link_failure = FailureMatch(
+                    failure_line=self.failure_line,
+                    classified_failure=classification,
+                    matcher=matcher,
+                    score=1)
+                new_link_failure.save()
+
+            if mark_best:
+                self.mark_best_classification(classification)
+
+        return classification, new_link
+
+    def mark_best_classification(self, classification):
+        self.best_classification = classification
+        self.save(update_fields=['best_classification'])
+        if self.failure_line:
+            self.failure_line.best_classification = classification
+            self.failure_line.save(update_fields=['best_classification'])
+
+            self.failure_line.elastic_search_insert()
+
+    def mark_best_classification_verified(self, classification):
+        if classification not in self.classified_failures.all():
+            manual_detector = Matcher.objects.get(name="ManualDetector")
+            self.set_classification(manual_detector, classification=classification)
+
+        self.best_classification = classification
+        self.best_is_verified = True
+        self.save()
+        if self.failure_line:
+            self.failure_line.best_classification = classification
+            self.failure_line.best_is_verified = True
+            self.failure_line.save()
+            self.failure_line.elastic_search_insert()
+
+    def update_autoclassification(self):
+        """
+        If a job is manually classified and has a single line in the logs matching a single
+        TextLogError, but the TextLogError has not matched any ClassifiedFailure, add a
+        new match due to the manual classification.
+        """
+
+        manual_detector = Matcher.objects.get(name="ManualDetector")
+
+        classification, _ = self.set_classification(manual_detector)
+        self.mark_best_classification_verified(classification)
 
 
 class TextLogErrorMatch(models.Model):
