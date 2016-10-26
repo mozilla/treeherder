@@ -87,7 +87,7 @@
           {{ ::line.data.search }}
         </div>
         <div ng-if="line.status === 'verified'">
-          <span class="glyphicon glyphicon-star best-classification-star"></span>
+          <span class="glyphicon glyphicon-star"></span>
           <span class="line-option-text" ng-if="line.verifiedBugNumber">
             <a href="{{::getBugUrl(line.verifiedBugNumber) }}"
                target="_blank">Bug {{ ::line.verifiedBugNumber }} -
