@@ -5,17 +5,17 @@ from treeherder.autoclassify.matchers import PreciseTestMatcher
 from treeherder.model.models import (ClassifiedFailure,
                                      MatcherManager)
 
-from .utils import (create_failure_lines,
+from .utils import (create_lines,
                     test_line)
 
 
 def test_detect_intermittents(test_job, failure_lines, classified_failures,
                               retriggered_job):
-    test_failure_lines = create_failure_lines(retriggered_job,
-                                              [(test_line, {"subtest": "subtest2"}),
-                                               (test_line, {"status": "TIMEOUT"}),
-                                               (test_line, {"expected": "ERROR"}),
-                                               (test_line, {"message": "message2"})])
+    test_error_lines, test_failure_lines = create_lines(retriggered_job,
+                                                        [(test_line, {"subtest": "subtest2"}),
+                                                         (test_line, {"status": "TIMEOUT"}),
+                                                         (test_line, {"expected": "ERROR"}),
+                                                         (test_line, {"message": "message2"})])
 
     old_failure_ids = set(item.id for item in ClassifiedFailure.objects.all())
 
