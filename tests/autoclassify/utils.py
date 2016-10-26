@@ -3,15 +3,31 @@ import datetime
 from mozlog.formatters.tbplformatter import TbplFormatter
 
 from treeherder.model.models import (FailureLine,
+                                     Job,
                                      MatcherManager,
                                      TextLogError,
+                                     TextLogErrorMetadata,
                                      TextLogStep)
 from treeherder.model.search import refresh_all
 
 test_line = {"action": "test_result", "test": "test1", "subtest": "subtest1",
              "status": "FAIL", "expected": "PASS", "message": "message1"}
 log_line = {"action": "log", "level": "ERROR", "message": "message1"}
-crash_line = {"action": "crash", "signature": "signature"}
+crash_line = {"action": "crash", "signature": "signature", "test": "test1"}
+
+
+def create_lines(test_job, lines):
+    error_lines = create_text_log_errors(test_job, lines)
+    failure_lines = create_failure_lines(test_job, lines)
+
+    for error_line, failure_line in zip(error_lines, failure_lines):
+        TextLogErrorMetadata.objects.create(text_log_error=error_line,
+                                            failure_line=failure_line)
+
+    test_job.autoclassify_status = Job.CROSSREFERENCED
+    test_job.save()
+
+    return error_lines, failure_lines
 
 
 def create_failure_lines(job, failure_line_list,
@@ -46,6 +62,8 @@ def get_data(base_data, updates):
     elif data["action"] == "log":
         if data["level"] not in ("ERROR", "CRITICAL"):
             return
+    elif data["action"] == "crash":
+        pass
     else:
         return
     return data
