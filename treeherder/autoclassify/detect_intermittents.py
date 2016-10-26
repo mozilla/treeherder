@@ -1,8 +1,8 @@
 import logging
 
-from treeherder.model.models import (FailureLine,
-                                     Job,
-                                     Matcher)
+from treeherder.model.models import (Job,
+                                     Matcher,
+                                     TextLogError)
 
 from .autoclassify import (AUTOCLASSIFY_CUTOFF_RATIO,
                            match_errors)
@@ -11,10 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 def detect(test_job):
-    job_repeats = Job.objects.filter(
-        push=test_job.push,
-        signature=test_job.signature).exclude(
-        id=test_job.id)
+    job_repeats = (Job.objects
+                   .filter(push=test_job.push,
+                           signature=test_job.signature)
+                   .exclude(id=test_job.id))
 
     # The approach here is currently to look for new intermittents to add, one at a time
     # and then rerun the matching on other jobs
@@ -29,18 +29,18 @@ def detect(test_job):
         logger.debug("No successful jobs to compare against")
         return
 
-    failures_by_job = FailureLine.objects.for_jobs(*(job for job in job_repeats))
+    errors_by_job = TextLogError.objects.for_jobs(*(job for job in job_repeats))
 
     for job in job_repeats:
         logger.info("Looking for new intermittents from job %s" % (job.guid,))
-        job_failures = failures_by_job.get(job.guid)
-        if job_failures is None:
-            logger.debug("Job has no failures")
+        job_errors = errors_by_job.get(job)
+        if job_errors is None:
+            logger.debug("Job has no errors")
             continue
 
         new_matches = {}
 
-        unmatched_lines = [item for item in job_failures if
+        unmatched_lines = [item for item in job_errors if
                            not item.classified_failures.count()]
 
         for detector in Matcher.objects.registered_detectors():
@@ -51,19 +51,15 @@ def detect(test_job):
             detected_indicies = detector(unmatched_lines)
 
             for index in detected_indicies:
-                failure = unmatched_lines[index]
-                classification, failure_match = failure.set_classification(detector.db_object)
-                new_matches[failure.id] = (classification, failure_match)
+                text_log_error = unmatched_lines[index]
+                classification, match = text_log_error.set_classification(detector.db_object)
+                new_matches[text_log_error.id] = (classification, match)
 
         if new_matches:
-            failure_lines = [item for item in job_failures if item.id in new_matches]
-            for failure_line in failure_lines:
-                classification, failure_match = new_matches[failure_line.id]
-                if failure_match.score > AUTOCLASSIFY_CUTOFF_RATIO:
-                    failure_line.best_classification = classification
-                    failure_line.save(update_fields=['best_classification'])
-                    if failure_line.error:
-                        failure_line.error.best_classification = classification
-                        failure_line.error.save(update_fields=['best_classification'])
+            errors = [item for item in job_errors if item.id in new_matches]
+            for text_log_error in errors:
+                classification, match = new_matches[text_log_error.id]
+                if match.score > AUTOCLASSIFY_CUTOFF_RATIO:
+                    text_log_error.mark_best_classification(classification)
                 logger.debug("Trying rematch on job %s" % (job.guid))
                 match_errors(job)

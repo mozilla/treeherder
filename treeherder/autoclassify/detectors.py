@@ -25,9 +25,12 @@ class Detector(object):
 
 
 class TestFailureDetector(Detector):
-    def __call__(self, failure_lines):
+    def __call__(self, text_log_errors):
         rv = []
-        for i, failure in enumerate(failure_lines):
+        with_failure_lines = [(i, item) for (i, item) in enumerate(text_log_errors)
+                              if item.failure_line]
+        for i, text_log_error in with_failure_lines:
+            failure = text_log_error.failure_line
             if (failure.action == "test_result" and failure.test and failure.status
                     and failure.expected):
                 rv.append(i)
@@ -37,7 +40,7 @@ class TestFailureDetector(Detector):
 class ManualDetector(Detector):
     """Small hack; this ensures that there's a matcher object indicating that a match
     was by manual association, but which never automatically matches any lines"""
-    def __call__(self, failure_lines):
+    def __call__(self, text_log_errors):
         return []
 
 
