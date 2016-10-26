@@ -52,13 +52,12 @@ def test_update_autoclassification_bug(test_job, test_job_2,
     # Job 1 has two failure lines so nothing should be updated
     assert test_job.update_autoclassification_bug(1234) is None
 
-    failure_lines = create_failure_lines(test_job_2,
-                                         [(test_line, {})])
-    failure_lines[0].best_classification = classified_failures[0]
-    failure_lines[0].save()
-    classified_failures[0].bug_number = None
-    lines = [(item, {}) for item in FailureLine.objects.filter(job_guid=test_job_2.guid).values()]
-    create_text_log_errors(test_job_2, lines)
+    lines = [(test_line, {})]
+    create_failure_lines(test_job_2, lines)
+    error_lines = create_text_log_errors(test_job_2, lines)
+
+    error_lines[0].mark_best_classification(classified_failures[0])
+    assert classified_failures[0].bug_number is None
 
     assert test_job_2.update_autoclassification_bug(1234) == classified_failures[0]
     classified_failures[0].refresh_from_db()
