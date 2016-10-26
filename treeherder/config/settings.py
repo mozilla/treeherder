@@ -102,6 +102,7 @@ if ENABLE_DEBUG_TOOLBAR:
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
+    'treeherder.auth.backends.TaskclusterAuthBackend',
 )
 
 # Path to redirect to on successful login.

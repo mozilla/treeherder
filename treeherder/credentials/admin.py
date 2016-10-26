@@ -1,7 +1,7 @@
 import uuid
 
 from django.contrib import admin
-from django_browserid.admin import site as browserid_admin
+from treeherder.webapp.admin import admin_site
 
 from .models import Credentials
 
@@ -11,7 +11,7 @@ def get_owner_email(credentials):
 get_owner_email.short_description = 'owner'
 
 
-@admin.register(Credentials, site=browserid_admin)
+@admin.register(Credentials, site=admin_site)
 class CredentialsAdmin(admin.ModelAdmin):
 
     def reset_secret(self, request, queryset):

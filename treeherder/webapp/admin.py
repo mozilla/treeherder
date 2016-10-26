@@ -1,8 +1,19 @@
 from django.contrib import admin
-from django_browserid.admin import site as browserid_admin
 
 from treeherder.model.models import *
 from treeherder.perf.models import PerformanceFramework
+
+
+class TreeherderAdminSite(admin.AdminSite):
+    site_header = "Treeherder Admin"
+    login_template = 'webapp/admin_login.html'
+
+    #: If True, include the normal username and password form as well as
+    #: the BrowserID button.
+    include_password_form = True
+
+
+admin_site = TreeherderAdminSite(name="treeherder_admin")
 
 
 class JobTypeAdmin(admin.ModelAdmin):
@@ -24,19 +35,19 @@ class ReferenceDataSignatureAdmin(admin.ModelAdmin):
 
 
 # custom admin classes
-browserid_admin.register(JobType, JobTypeAdmin)
-browserid_admin.register(Repository)
-browserid_admin.register(ReferenceDataSignatures, ReferenceDataSignatureAdmin)
+admin_site.register(JobType, JobTypeAdmin)
+admin_site.register(Repository)
+admin_site.register(ReferenceDataSignatures, ReferenceDataSignatureAdmin)
 # default admin classes
-browserid_admin.register(Product)
-browserid_admin.register(BuildPlatform)
-browserid_admin.register(Option)
-browserid_admin.register(RepositoryGroup)
-browserid_admin.register(MachinePlatform)
-browserid_admin.register(Bugscache)
-browserid_admin.register(Machine)
-browserid_admin.register(Datasource)
-browserid_admin.register(JobGroup)
-browserid_admin.register(OptionCollection)
-browserid_admin.register(FailureClassification)
-browserid_admin.register(PerformanceFramework)
+admin_site.register(Product)
+admin_site.register(BuildPlatform)
+admin_site.register(Option)
+admin_site.register(RepositoryGroup)
+admin_site.register(MachinePlatform)
+admin_site.register(Bugscache)
+admin_site.register(Machine)
+admin_site.register(Datasource)
+admin_site.register(JobGroup)
+admin_site.register(OptionCollection)
+admin_site.register(FailureClassification)
+admin_site.register(PerformanceFramework)
