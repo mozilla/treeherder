@@ -140,6 +140,9 @@ default_router.register(r'performance/framework',
 default_router.register(r'performance/bug-template',
                         performance_data.PerformanceBugTemplateViewSet,
                         base_name='performance-bug-template')
+default_router.register(r'seta/high-value-jobs',
+                        seta.SetaHighValueJobsViewSet,
+                        base_name='seta-high-value-jobs')
 default_router.register(r'bugzilla', bugzilla.BugzillaViewSet,
                         base_name='bugzilla')
 default_router.register(r'jobdetail', jobs.JobDetailViewSet,
