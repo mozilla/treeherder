@@ -124,6 +124,10 @@ treeherder.directive('thCloneJobs', [
             clearSelectJobStyles();
         });
 
+        /**
+         * Sets the styling for the selected job and sets the selectedJob
+         * in ThResultSetStore
+         */
         var selectJob = function(job, job_selection_type) {
             var jobKey = getJobMapKey(job);
             var jobEl = $('.' + jobKey);
@@ -252,6 +256,10 @@ treeherder.directive('thCloneJobs', [
             return jobBtnHTML;
         };
 
+        /**
+         * Decide what the job should look like as a button and add it to the
+         * array that's passed in.
+         */
         var addJobBtnToArray = function(job, lastJobSelected, jobBtnArray) {
             var jobStatus, jobBtn;
 
@@ -303,7 +311,6 @@ treeherder.directive('thCloneJobs', [
          * Each job receives a corresponding resultState which determines its
          * display.
          */
-
         var renderGroupJobsAndCounts = function(jgObj) {
             var jobCountBtnArray = [];
             var jobBtnArray = [];
@@ -380,6 +387,9 @@ treeherder.directive('thCloneJobs', [
             platformGroup.find(".group-count-list").html(jobCountBtnArray);
         };
 
+        /**
+         * When a job is clicked
+         */
         var jobMouseDown = function(resultset, ev){
 
             var el = $(ev.target);
@@ -431,6 +441,9 @@ treeherder.directive('thCloneJobs', [
             }
         };
 
+        /**
+         * Add the list of revisions to the resultset
+         */
         var addRevisions = function(resultset, element){
 
             if(resultset.revisions.length > 0){
@@ -482,6 +495,9 @@ treeherder.directive('thCloneJobs', [
             }
         };
 
+        /**
+         * Toggle the visibility of the list of revisions
+         */
         var toggleRevisions = function(element, expand) {
 
             var revisionsEl = element.find('ul').parent();
@@ -540,6 +556,9 @@ treeherder.directive('thCloneJobs', [
             el.addClass(col12Cls);
         };
 
+        /**
+         * Initial rendering of a Platform row on page load
+         */
         var getJobTableRowHTML = function(jobGroups) {
             //Empty the job column before populating it
             var btnHTML = "", countBtnHTML = "", jobTdHtml = "";
@@ -551,10 +570,12 @@ treeherder.directive('thCloneJobs', [
                     } else {
                         var btnArrays = renderGroupJobsAndCounts(jobGroup);
                         btnHTML = "";
+                        // put individual jobs first
                         btnArrays.jobBtnArray.forEach(function(element) {
                             btnHTML += element;
                         });
                         countBtnHTML = "";
+                        // put counts after individual jobs
                         btnArrays.jobCountBtnArray.forEach(function(element) {
                             countBtnHTML += element;
                         });
@@ -576,12 +597,18 @@ treeherder.directive('thCloneJobs', [
             return jobTdHtml;
         };
 
+        /**
+         * Update all platforms for a resultset when job updates come in.
+         */
         var renderJobTableRow = function(row, jobTdEl, jobGroups) {
             jobTdEl.html(getJobTableRowHTML(jobGroups));
             row.append(jobTdEl);
             filterPlatform(row);
         };
 
+        /**
+         * Called when filters are changed after the page has loaded
+         */
         var filterJobs = function(element){
             $log.debug("filterJobs", element);
 
@@ -619,6 +646,9 @@ treeherder.directive('thCloneJobs', [
         };
 
         /**
+         * Called when either filters are changed, or the setting for counts
+         * or dup job display is changed.
+         *
          * Render all the job groups for a resultset.  Make decisions on whether
          * to render all the jobs in the group, or to collapse them as counts.
          *
@@ -679,6 +709,10 @@ treeherder.directive('thCloneJobs', [
             }
         };
 
+        /**
+         * Decide whether or not a platform row should be shown based on
+         * whether or not it has any visible jobs
+         */
         var filterPlatform = function(platform) {
             var showPlt = platform.find('.job-row .filter-shown').length !== 0;
             var showGrp;
@@ -696,6 +730,10 @@ treeherder.directive('thCloneJobs', [
             }
         };
 
+        /**
+         * If we get new jobs and some are in a platform that never existed
+         * before, then this will get called to create that new platform row.
+         */
         var appendPlatformRow = function(tableEl, rowEl, platformName) {
 
             var tableRows = $(tableEl).find('tr');
@@ -733,6 +771,10 @@ treeherder.directive('thCloneJobs', [
             }
         };
 
+        /**
+         * Update / create a platform when new jobs are loaded/updated.
+         * The platform may not have existed before
+         */
         var updateJobs = function(platformData){
             angular.forEach(platformData, function(value, platformId) {
                 addAdditionalJobParameters(value.jobGroups);
@@ -785,6 +827,9 @@ treeherder.directive('thCloneJobs', [
             }, this);
         };
 
+        /**
+         * When job selection change, scroll the viewport to display it
+         */
         var scrollToElement = function(el, duration) {
             if (_.isUndefined(duration)) {
                 duration = 50;
