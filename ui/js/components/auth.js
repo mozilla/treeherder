@@ -27,11 +27,24 @@ treeherder.component("login", {
     bindings: {
         onUserChange: "&"
     },
-    controller: function ($scope, $location, $window, $localStorage) {
+    controller: function ($scope, $location, $window, $localStorage, ThUserModel) {
         this.user = {};
         // can't reference "this" within a $watch
         var user = this.user;
         var onUserChange = this.onUserChange;
+
+        // determine whether a user is currently logged in
+        ThUserModel.get().then(function(currentUser) {
+            if (user.email) {
+                console.log("initial user", currentUser);
+                $localStorage.user = currentUser;
+                onUserChange({$event: {user: currentUser}});
+
+            } else {
+                delete $localStorage.user;
+                _.extend(user, {isSheriff: false, email: "", loggedin: false});
+            }
+        });
 
         this.login = function () {
             console.log("logging in with TC");
@@ -59,40 +72,37 @@ treeherder.component("login", {
             console.log("logging out with TC");
             delete $localStorage.user;
             _.extend(user, {isSheriff: false, email: "", loggedin: false});
+
+            // need to clear the session cookies, too.  But I think the login part is
+            // working now
         };
     }
 });
 
 treeherder.service(
-    'loginCallback', ['$localStorage', '$location', '$window', '$http',
-    function($localStorage, $location, $window, $http) {
+    'loginCallback', ['$localStorage', '$location', '$window', '$http', '$cookies',
+    function($localStorage, $location, $window, $http, $cookies) {
 
+    const urlBase = `${$location.protocol()}://${$location.host()}:${$location.port()}/`;
     const certificate = $location.search().certificate;
     const credentials = {
         id: $location.search().clientId,
         key: $location.search().accessToken,
         algorithm: 'sha256'
     };
-    const urlBase = `${$location.protocol()}://${$location.host()}:${$location.port()}`;
-    const authUrl = `${urlBase}/`;
 
-    // Request options
-    // const requestOptions = {uri: authUrl, method: 'GET', headers: {}};
-
-    const header = hawk.client.header(authUrl, 'GET', {
+    const header = hawk.client.header(urlBase, 'GET', {
         credentials: credentials,
         ext: hawk.utils.base64urlEncode(JSON.stringify({"certificate": JSON.parse(certificate)}))}
     );
-    // requestOptions.headers.Authorization = header.field;
 
     console.log("header", header);
     // So here we send a request from client side to your server signed with TC creds from login.taskcluster.net
-    $http.get(`${urlBase}/api/auth/`, {headers: {"oth": header.field}})
+    $http.get(`${urlBase}api/auth/`, {headers: {"oth": header.field}})
         .then(function(resp) {
             console.log("success", resp);
             $localStorage.user = resp.data.user;
-            console.log("user", $localStorage.user);
-            $window.close();
+            // $window.close();
         },function(data) {
             console.log("failed", data);
         });

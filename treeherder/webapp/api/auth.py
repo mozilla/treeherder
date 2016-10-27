@@ -2,7 +2,7 @@ import logging
 from hashlib import sha1
 
 import newrelic.agent
-from django.contrib.auth import login as django_login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.db.models import Q
 from rest_framework import viewsets
@@ -58,7 +58,6 @@ class TaskclusterAuthViewSet(viewsets.ViewSet):
         if result["status"] == "auth-success":
             username = result["clientId"][-30:]
             email = result["clientId"].split("/")[1]
-            logger.error(email)
 
             user = User.objects.filter(
                 Q(email=email) | Q(username=username)).first()
@@ -74,8 +73,8 @@ class TaskclusterAuthViewSet(viewsets.ViewSet):
                             )
                 user.save()
 
-            user.backend = 'django.contrib.auth.backends.ModelBackend'
-            django_login(request, user)
+            authenticated = authenticate(remote_user=user.username)
+            login(request, authenticated)
 
             return Response({
                 "message": "login success",
