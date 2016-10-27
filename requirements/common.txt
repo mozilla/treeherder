@@ -95,5 +95,8 @@ certifi==2016.9.26 --hash=sha256:a60073d7bb5cb01671877efda875e8dab755b98baedfbb9
 
 django-memoize==2.0.0 --hash sha256:bd35702eabdbd6dc0a11463c688e2b7f2e9f584ee489ba021a825bff486aa77f
 
+# required for taskcluster
+slugid==1.0.7 --hash=sha256:6dab3c7eef0bb423fb54cb7752e0f466ddd0ee495b78b763be60e8a27f69e779
+
 # Used for Taskcluster auth
 taskcluster==0.3.4 --hash sha256:d4fe5e2a44fe27e195b92830ece0a6eb9eb7ad9dc556a0cb16f6f2a6429f1b65
