@@ -2,7 +2,8 @@
 
 var treeherderApp = angular.module('treeherder.app',
                                    ['treeherder', 'ui.bootstrap', 'ngRoute',
-                                    'mc.resizer', 'angular-toArrayFilter', 'ngCookies']);
+                                    'mc.resizer', 'angular-toArrayFilter',
+                                    'ngCookies', 'hawk']);
 
 treeherderApp.config(function($compileProvider, $routeProvider,
                               $httpProvider, $logProvider, $resourceProvider) {
