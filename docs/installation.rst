@@ -90,8 +90,8 @@ Ingestion tasks populate the database with version control push logs, queued/run
   The "-B" option tells the celery worker to startup a beat service, so that periodic tasks can be executed.
   You only need one worker with the beat service enabled. Multiple beat services will result in periodic tasks being executed multiple times.
 
-Ingesting a single push (at a time)
------------------------------------
+Ingesting a current push in builds-4h
+-------------------------------------
 
 Alternatively, instead of running a full ingestion task, you can process just
 the jobs associated with any single push generated in the last 4 hours
@@ -103,7 +103,7 @@ the jobs associated with any single push generated in the last 4 hours
 
      vagrant ~/treeherder$ ./manage.py ingest_push mozilla-inbound 63f8a47cfdf5
 
-If running this locally, replace `63f8a47cfdf5` with a recent revision (= pushed within 
+If running this locally, replace `63f8a47cfdf5` with a recent revision (= pushed within
 the last four hours) on mozilla-inbound.
 
 You can further restrict the amount of data to a specific type of job
@@ -113,6 +113,36 @@ talos jobs for a particular push, try:
   .. code-block:: bash
 
      vagrant ~/treeherder$ ./manage.py ingest_push --filter-job-group T mozilla-inbound 63f8a47cfdf
+
+Ingesting a push from a past builds-4h
+--------------------------------------
+
+If you need to ingest a specific push that is more than 4 hours old, or for example
+in a repo which does not experience frequent hourly pushes, you can use this workflow:
+
+* Find the older resultset on production you'd like to ingest and note its date/time
+
+* Find the corresponding date/time window .gz in builds-4h_
+
+* Download, extract, and open the .gz and confirm the presence of the matching 'got_revision' SHA
+
+* Optional: thpurge, re-provision your vagrant to be certain you're ingesting anew
+
+  .. code-block:: bash
+
+     vagrant ~/treeherder$ thpurge
+
+* Switch treeherder/config/settings.py BUILDAPI_BUILDS4H_URL to your custom value, for example:
+
+  .. code-block:: bash
+
+     BUILDAPI_BUILDS4H_URL = "http://builddata.pub.build.mozilla.org/buildjson/builds-2016-08-28.js.gz"
+
+* Ingest the push, as an example for the URL above:
+
+  .. code-block:: bash
+
+     vagrant ~/treeherder$ ./manage.py ingest_push comm-central 2540c39cc958
 
 
 .. _A-Team Bootcamp: https://ateam-bootcamp.readthedocs.io
