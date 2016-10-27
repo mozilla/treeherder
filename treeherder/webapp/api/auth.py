@@ -1,11 +1,12 @@
 import logging
 
 import newrelic.agent
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import (authenticate,
+                                 login,
+                                 logout)
 from rest_framework import viewsets
-from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.decorators import list_route
-
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 
 from treeherder.credentials.models import Credentials
