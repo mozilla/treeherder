@@ -193,7 +193,11 @@ perf.controller('AlertsCtrl', [
                             function(matchText) {
                                 return !matchText ||
                                     alert.title.toLowerCase().indexOf(
-                                        matchText.toLowerCase()) > (-1);
+                                        matchText.toLowerCase()) > (-1) ||
+                                    (alertSummary.bug_number && alertSummary.bug_number.toString().indexOf(
+                                        matchText) === 0) ||
+                                    (alertSummary.resultSetMetadata.revision.indexOf(
+                                        matchText) === 0);
                             });
                     // reset alert's selected status if it is no longer visible
                     alert.selected = alert.selected && alert.visible;
