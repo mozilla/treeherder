@@ -31,7 +31,7 @@ class JobPriority(models.Model):
     platform = models.CharField(max_length=64)  # e.g. windows8-64
     priority = models.IntegerField()  # 1 or 5
     timeout = models.IntegerField()  # e.g. 5400
-    expires = models.DateTimeField()
+    expiration_date = models.DateTimeField(null=True)
     buildsystem = models.CharField(max_length=64)
 
     # Q: Do we need indexing?
