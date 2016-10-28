@@ -183,7 +183,7 @@
         "codebase": "gecko",
         "repository_group": 1,
         "description": "",
-        "performance_alerts_enabled": true
+        "performance_alerts_enabled": false
     }
 },
 {
