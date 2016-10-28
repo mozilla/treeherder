@@ -2,7 +2,6 @@ import logging
 from hashlib import sha1
 
 from django.contrib.auth.models import User
-from django.db.models import Q
 from taskcluster.sync import Auth
 from taskcluster.utils import scope_match
 
@@ -90,7 +89,6 @@ class TaskclusterAuthBackend(object):
                 # will return the latest is_staff value we got from LDAP.
                 user.save()
         return user
-
 
     def get_user(self, user_id):
         try:
