@@ -94,3 +94,6 @@ elasticsearch-dsl==2.1.0 --hash=sha256:48f5869035e852f68bfaf1ba586becf4b109c661e
 urllib3==1.18 --hash=sha256:ed69856d262a6da3f201b1afed6d61b0c5a364fcc1d20d3f9ff461960c6626bf
 
 certifi==2016.9.26 --hash=sha256:a60073d7bb5cb01671877efda875e8dab755b98baedfbb9b8b3d9be2d52ad022
+
+# required by seta
+redo==1.5 --hash=sha256:ad8bdd4c6c9a2b4e2bf35f0aade6a0f24edb889c06d90fe5b5d5203acde865d8
