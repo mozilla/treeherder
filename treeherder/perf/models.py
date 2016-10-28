@@ -84,11 +84,11 @@ class PerformanceSignature(models.Model):
 class PerformanceDatum(models.Model):
 
     repository = models.ForeignKey(Repository)
-    job_id = models.PositiveIntegerField(db_index=True)
-    result_set_id = models.PositiveIntegerField(db_index=True)
+    job_id = models.PositiveIntegerField()
+    result_set_id = models.PositiveIntegerField()
     signature = models.ForeignKey(PerformanceSignature)
     value = models.FloatField()
-    push_timestamp = models.DateTimeField(db_index=True)
+    push_timestamp = models.DateTimeField()
 
     class Meta:
         db_table = 'performance_datum'
