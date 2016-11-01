@@ -1,9 +1,11 @@
 from django.db import models
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 
 from treeherder.model.models import Repository
 
 
+@python_2_unicode_compatible
 class TaskRequest(models.Model):
     ''' Track TaskCluster requests for SETA information.
 
@@ -24,6 +26,7 @@ class TaskRequest(models.Model):
         )
 
 
+@python_2_unicode_compatible
 class JobPriority(models.Model):
     # This field is sanitized to unify name from Buildbot and TaskCluster
     testtype = models.CharField(max_length=128)  # e.g. web-platform-tests-1
@@ -42,8 +45,4 @@ class JobPriority(models.Model):
         return self.expires < now
 
     def __str__(self):
-        return '%s/%s/%s'.format(
-            self.testtype,
-            self.buildype,
-            self.priority
-        )
+        return ','.join((self.testtype, self.buildtype, self.platform))
