@@ -7,7 +7,8 @@ from requests_hawk import HawkAuth
 
 from treeherder.etl.common import make_request
 from treeherder.model.derived import JobsModel
-from treeherder.model.models import OptionCollection
+from treeherder.model.models import (OptionCollection,
+                                     Push)
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,8 @@ class ElasticsearchDocRequest(object):
             buildtype = " ".join(sorted(OptionCollection.objects.values_list(
                 'option__name', flat=True).filter(
                     option_collection_hash=job_data["option_collection_hash"])))
-            revision_list = jobs_model.get_resultset_revisions_list(job_data["result_set_id"])
+            revision = Push.objects.values_list(
+                'revision', flat=True).get(id=job_data['push_id'])
             ref_data_name = job_data["ref_data_name"]
 
         self.body = {
@@ -47,7 +49,7 @@ class ElasticsearchDocRequest(object):
             # with TBPL's legacy output format.
             "starttime": str(job_data["start_timestamp"]),
             "tree": self.project,
-            "rev": revision_list[0]["revision"],
+            "rev": revision,
             "bug": str(self.bug_id),
             "who": self.who,
             "timestamp": str(self.classification_timestamp),

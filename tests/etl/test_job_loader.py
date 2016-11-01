@@ -3,12 +3,13 @@ import copy
 import pytest
 
 from treeherder.etl.job_loader import (JobLoader,
-                                       MissingResultsetException)
-from treeherder.model.derived import DatasetNotFoundError
+                                       MissingPushException)
 from treeherder.model.derived.artifacts import ArtifactsModel
 from treeherder.model.models import (Job,
                                      JobDetail,
-                                     JobLog)
+                                     JobLog,
+                                     Push,
+                                     Repository)
 
 
 @pytest.fixture
@@ -92,7 +93,7 @@ def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_project, jm, result_set_
         job["origin"]["revision"] = revision
         job["origin"]["project"] = "ferd"
 
-    with pytest.raises(DatasetNotFoundError):
+    with pytest.raises(Repository.DoesNotExist):
         jl.process_job_list(pulse_jobs)
 
 
@@ -104,8 +105,8 @@ def test_ingest_pulse_jobs_with_revision_hash(pulse_jobs, test_project, jm,
     """
 
     jl = JobLoader()
-    rs = jm.get_result_set_list(0, 10)[0]
-    revision_hash = rs["revision_hash"]
+    revision_hash = Push.objects.values_list('revision_hash',
+                                             flat=True).get(id=1)
     for job in pulse_jobs:
         origin = job["origin"]
         del(origin["revision"])
@@ -125,7 +126,7 @@ def test_ingest_pulse_jobs_with_missing_resultset(pulse_jobs):
     job = pulse_jobs[0]
     job["origin"]["revision"] = "1234567890123456789012345678901234567890"
 
-    with pytest.raises(MissingResultsetException):
+    with pytest.raises(MissingPushException):
         jl.process_job_list(pulse_jobs)
 
     # if one job isn't ready, except on the whole batch.  They'll retry as a

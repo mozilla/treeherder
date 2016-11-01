@@ -39,14 +39,16 @@ def generate_new_alerts_in_series(signature):
                      settings.PERFHERDER_ALERTS_MAX_AGE)
     series = PerformanceDatum.objects.filter(signature=signature).filter(
         push_timestamp__gte=max_alert_age).order_by('push_timestamp')
-    existing_alerts = PerformanceAlert.objects.filter(
+    latest_alert_timestamp = PerformanceAlert.objects.filter(
         series_signature=signature).select_related(
-            'summary').order_by('-summary__result_set_id')[:1]
-    if existing_alerts:
+            'summary__push__timestamp').order_by(
+                '-summary__push__timestamp').values_list(
+                    'summary__push__timestamp', flat=True)[:1]
+    if latest_alert_timestamp:
         series = series.filter(
-            result_set_id__gt=existing_alerts[0].summary.result_set_id)
+            push_timestamp__gt=latest_alert_timestamp[0])
 
-    data = [Datum(int(time.mktime(d.push_timestamp.timetuple())), d.value, testrun_id=d.result_set_id) for d in series]
+    data = [Datum(int(time.mktime(d.push_timestamp.timetuple())), d.value, testrun_id=d.push_id) for d in series]
     prev = None
 
     min_back_window = signature.min_back_window
@@ -88,8 +90,8 @@ def generate_new_alerts_in_series(signature):
                 summary, _ = PerformanceAlertSummary.objects.get_or_create(
                     repository=signature.repository,
                     framework=signature.framework,
-                    result_set_id=cur.testrun_id,
-                    prev_result_set_id=prev_testrun_id,
+                    push_id=cur.testrun_id,
+                    prev_push_id=prev_testrun_id,
                     defaults={
                         'manually_created': False,
                         'last_updated': datetime.datetime.fromtimestamp(

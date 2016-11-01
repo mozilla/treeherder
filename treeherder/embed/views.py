@@ -20,7 +20,7 @@ class ResultsetStatusView(TemplateView):
                 raise Http404("No resultset found for revision {0}".format(
                     kwargs['revision']))
             result_set_id = resultset_list[kwargs['revision']]['id']
-            resultset_status_dict = jm.get_resultset_status(result_set_id)
+            resultset_status_dict = jm.get_push_status(result_set_id)
             update_needed = (('pending' in resultset_status_dict) or
                              ('running' in resultset_status_dict) or
                              not resultset_status_dict)

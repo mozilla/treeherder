@@ -1,7 +1,8 @@
 [
   {
     "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
-    "push_timestamp": 1384353511,
+    "push_timestamp": 1384347643,
+    "author": "Eric Chou <echou@mozilla.com>",
     "revisions": [
       {
         "comment": "Bug 936711 - Fix crash which happened at disabling Bluetooth during reconnection. r=gyeh, a=koi+",
@@ -14,7 +15,8 @@
   },
   {
     "revision": "b11529c9865a4dee3a93d63d119ebb89fcbbdf69",
-    "push_timestamp": 1384347643,
+    "push_timestamp": 1384353511,
+    "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
     "revisions": [
       {
         "comment": "Bumping gaia.json for 1 gaia-1_2 revision(s) a=gaia-bump\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/b946d5776d33\nAuthor: Ben Kelly <bkelly@mozilla.com>\nDesc: Merge pull request #13593 from wanderview/contacts-group-overflow\n\nBug 937291:  Limit overflow of each group list.  r=jmcf",
@@ -28,6 +30,7 @@
   {
     "revision": "130965d3df6c9a1093b4725f3b877eaef80d72bc",
     "push_timestamp": 1384363842,
+    "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
     "revisions": [
       {
         "comment": "Bumping gaia.json for 1 gaia-1_2 revision(s) a=gaia-bump\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/b5b1d9aa0cc4\nAuthor: Sergey Tupchiy <tupchii.sergii@gmail.com>\nDesc: Bug 934402 - Write an atom to send SMS using 'MozSMS' API",
@@ -41,6 +44,7 @@
   {
     "revision": "9d54ce168c996edaf211bf0edb20462675ad6ea1",
     "push_timestamp": 1384358742,
+    "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
     "revisions": [
       {
         "comment": "Bumping gaia.json for 2 gaia-1_2 revision(s) a=gaia-bump\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/39145004f7c6\nAuthor: Teodosia Pop <teodosia.pop@gmail.com>\nDesc: Merge pull request #13659 from AndreiH/bug925851_v1.2\n\nBug 925851 - Re-enable test_capture_multiple_shots\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/b8010ab0e121\nAuthor: Andrei Hutusoru <andreihutusoru@P5069.(none)>\nDesc: Bug 925851 - Re-enable test_capture_multiple_shots",
@@ -54,6 +58,7 @@
   {
     "revision": "a69390334818373e2d7e6e9c8d626a328ed37d47",
     "push_timestamp": 1384365342,
+    "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
     "revisions": [
       {
         "comment": "Bumping gaia.json for 8 gaia-1_2 revision(s) a=gaia-bump\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/3b19a90a8cec\nAuthor: Germán Toro del Valle <gtorodelvalle@gmail.com>\nDesc: Merge pull request #13628 from gtorodelvalle/contacts-bug-936283-search-bar-plus-Gmail-or-Outlook\n\nBug 936283 - [B2G][Contacts] Search bar stops functioning when searching contacts in Gmail or Outlook more than once(cherry picked from commit 351f9ad4b8f5e427cd90ae6bdfbafb9a4c9639c7)\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/aa52963f4c22\nAuthor: Timothy Guan-tin Chien <timdream@gmail.com>\nDesc: Merge pull request #13604 from snowmantw/issue937023\n\nBug 937023 - [v1.2] Remove transparent to blue transition of lock screen handle and animation after unlock, r=timdream(cherry picked from commit 002578cc3cd0ca31e1333aafd8d019d9dd83e408)\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/05617615ced6\nAuthor: Timothy Guan-tin Chien <timdream@gmail.com>\nDesc: Merge pull request #13570 from timdream/keyboard-settings-back\n\nBug 914093 - Back button for Gaia Keyboard settings page, r=rudyl(cherry picked from commit 9abc79e45a7283a557f177a3f9b54bec2668a2b8)\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/13af00ed5c50\nAuthor: Andrew Sutherland <asutherland@asutherland.org>\nDesc: Merge pull request #13540 from asutherland/makefile-fix\n\nBug 931550 - Clock and Mail app only have rocket icon on homescreen, can't launch/broken. r=:yurenju(cherry picked from commit 513bafaceb391b5fb102ae3ac5a2a753f91ce164)\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/d0df3d96ac80\nAuthor: Fernando Campo <fernando.campo@o2.com>\nDesc: Merge pull request #13516 from fcampo/sim-import-FTE-933381\n\nBug 933381 - [FTE] No message when importing from empty SIM (r=jmcf)(cherry picked from commit c560ddbda27b4c3cc129acad2fa8a6ec0d148308)\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/3521ebd132ea\nAuthor: Jose M. Cantera <jmcanterafonseca@gmail.com>\nDesc: Merge pull request #13531 from fcampo/retry-import-Contacts-935301\n\nBug 935301 - [Contacts] Clicking retry on error while importing from SD doesn't retry(cherry picked from commit 164bed00446439e2aabb6e58587c379ff8850800)\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/303169692648\nAuthor: Jan Jongboom <janjongboom@gmail.com>\nDesc: Merge pull request #13568 from comoyo/hu_gone\n\nBug 936579 - Bring back Hungarian autocorrect. r=RudyL(cherry picked from commit fecd21241feb20df0e9bbed2f279c42112cd283c)\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/70d7967a35e7\nAuthor: mpizza <mmm198219@gmail.com>\nDesc: Bug 936418 - [keyboard] 'Layout selection' in keyboard style switcher dialog isn't localized\n(cherry picked from commit ff35da1e70028276510c39f7ebaa421a7acb3ade)",
@@ -67,6 +72,7 @@
   {
     "revision": "7f417c3505e3d2599ac9540f02e3dbee307a3963",
     "push_timestamp": 1384364465,
+    "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
     "revisions": [
       {
         "comment": "Bumping gaia.json for 1 gaia-1_2 revision(s) a=gaia-bump\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/c7e53e332dcb\nAuthor: Julien Wajsberg <felash@gmail.com>\nDesc: Revert \"Merge pull request #13504 from jaoo/927486\"\n\nThis reverts commit c624b65c1333d2f951533ff5f5d3094681cb1916.",
@@ -80,6 +86,7 @@
   {
     "revision": "f361dcb60bbedaa01257fbca211452972f7a74b2",
     "push_timestamp": 1384365942,
+    "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
     "revisions": [
       {
         "comment": "Bumping gaia.json for 2 gaia-1_2 revision(s) a=gaia-bump\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/33a44ec49b53\nAuthor: Bob Silverberg <bob.silverberg@gmail.com>\nDesc: Merge pull request #13662 from AndreiH/bug934446_v1.2\n\nBug 934446 - Test Messages contact input validation\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/c6fdfdccfb2e\nAuthor: Andrei Hutusoru <andreihutusoru@P5069.(none)>\nDesc: Bug 934446 - Test Messages contact input validation",
@@ -93,6 +100,7 @@
   {
     "revision": "ce17cad5d554cfffddee13d1d8421ae9ec5aad82",
     "push_timestamp": 1384366574,
+    "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
     "revisions": [
       {
         "comment": "Bumping gaia.json for 2 gaia-1_2 revision(s) a=gaia-bump\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/2ba51c7eadb0\nAuthor: Bob Silverberg <bob.silverberg@gmail.com>\nDesc: Merge pull request #13624 from teodosia/aurora-contact-photo-wait\n\nBug 937068 - Unxfail and enhance wait in test_contact_add_photo\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/d195214d4708\nAuthor: Teodosia Pop <teodosia.pop@gmail.com>\nDesc: Bug 937068 - Unxfail and enhance wait in test_contact_add_photo",
@@ -106,6 +114,7 @@
   {
     "revision": "997b28cb87373456789012345678901234567890",
     "push_timestamp": 1384367498,
+    "author": "Ryan VanderMeulen <ryanvm@gmail.com>",
     "revisions": [
       {
         "comment": "Bug 930281 - Use nsINode instead of nsIContent. r=smaug, a=lsblakk.",
@@ -182,6 +191,7 @@
   {
     "revision": "26b1b814be96c1902561872049de1579549e0c29",
     "push_timestamp": 1384377343,
+    "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
     "revisions": [
       {
         "comment": "Bumping gaia.json for 2 gaia-1_2 revision(s) a=gaia-bump\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/9cde9c357524\nAuthor: Bob Silverberg <bob.silverberg@gmail.com>\nDesc: Merge pull request #13618 from viorelaioia/bug_937344_v1.2\n\n[v1.2] Bug 937344 - Replace get_all_video files in test_camera_capture_video with video_files property\n\n========\n\nhttps://hg.mozilla.org/integration/gaia-1_2/rev/d7f28b459e97\nAuthor: Viorela Ioia <viorelaioia@gmail.com>\nDesc: [v1.2] Bug 937344 - Replace get_all_video files in test_camera_capture_video with video_files property",

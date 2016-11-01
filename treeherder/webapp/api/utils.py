@@ -106,12 +106,16 @@ def with_jobs(model_func):
     return use_jobs_model
 
 
-def to_timestamp(datestr):
+def to_datetime(datestr):
     """get a timestamp from a datestr like 2014-03-31"""
-    return time.mktime(datetime.datetime.strptime(
+    return datetime.datetime.strptime(
         datestr,
-        "%Y-%m-%d"
-    ).timetuple())
+        "%Y-%m-%d")
+
+
+def to_timestamp(datetime_obj):
+    """get a unix timestamp from a datetime object"""
+    return int(time.mktime(datetime_obj.timetuple()))
 
 
 def as_dict(queryset, key):

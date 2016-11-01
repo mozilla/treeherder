@@ -54,24 +54,6 @@ def fetch_text(url):
     return response.text
 
 
-def lookup_revisions(revision_dict):
-    """
-    Retrieve a list of revision->resultset lookups
-    """
-    from treeherder.model.derived import JobsModel
-
-    lookup = dict()
-    for project, revisions in revision_dict.items():
-        revision_list = list(set(revisions))
-
-        with JobsModel(project) as jm:
-            lookup_content = jm.get_resultset_all_revision_lookup(revision_list)
-
-        if lookup_content:
-            lookup[project] = lookup_content
-    return lookup
-
-
 def should_skip_project(project, valid_projects, project_filter):
     if project_filter and project != project_filter:
         return True

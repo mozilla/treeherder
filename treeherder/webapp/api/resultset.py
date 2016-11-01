@@ -1,16 +1,22 @@
+import datetime
+
 import newrelic.agent
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.exceptions import ParseError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 from rest_framework.status import (HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
 
+from serializers import (CommitSerializer,
+                         PushSerializer)
+from treeherder.model.models import (Commit,
+                                     Push,
+                                     Repository)
 from treeherder.model.tasks import publish_resultset_runnable_job_action
 from treeherder.webapp.api import permissions
-from treeherder.webapp.api.utils import (UrlQueryFilter,
+from treeherder.webapp.api.utils import (to_datetime,
                                          to_timestamp,
                                          with_jobs)
 
@@ -25,11 +31,9 @@ class ResultSetViewSet(viewsets.ViewSet):
     throttle_scope = 'resultset'
     permission_classes = (permissions.HasHawkPermissionsOrReadOnly,)
 
-    @with_jobs
-    def list(self, request, project, jm):
+    def list(self, request, project):
         """
         GET method for list of ``resultset`` records with revisions
-
         """
         # What is the upper limit on the number of resultsets returned by the api
         MAX_RESULTS_COUNT = 1000
@@ -47,97 +51,115 @@ class ResultSetViewSet(viewsets.ViewSet):
                 del(filter_params[param])
                 meta[param] = v
 
-        # create a timestamp lookup based on the from/to change params that may
-        # exist. This means we only make 1 DB query rather than 2, if we have
-        # both a ``fromchange`` and a ``tochange`` value.
-        ts_lookup = jm.get_resultset_all_revision_lookup(
-            [meta[x] for x in ['fromchange', 'tochange'] if x in meta]
-        )
+        try:
+            repository = Repository.objects.get(name=project)
+        except Repository.DoesNotExist:
+            return Response({
+                "detail": "No project with name {}".format(project)
+            }, status=HTTP_404_NOT_FOUND)
 
-        # translate these params into our own filtering mechanism
-        if 'fromchange' in meta:
-            filter_params.update({
-                "push_timestamp__gte": ts_lookup[meta['fromchange']]["push_timestamp"]
+        pushes = Push.objects.filter(repository=repository).order_by('-timestamp')
 
-            })
-        if 'tochange' in meta:
-            filter_params.update({
-                "push_timestamp__lte": ts_lookup[meta['tochange']]["push_timestamp"]
-            })
-        if 'startdate' in meta:
-            filter_params.update({
-                "push_timestamp__gte": to_timestamp(meta['startdate'])
-            })
-        if 'enddate' in meta:
+        for (param, value) in meta.iteritems():
+            if param == 'fromchange':
+                frompush_timestamp = Push.objects.values_list(
+                    'timestamp', flat=True).get(
+                        repository=repository, revision__startswith=value)
+                pushes = pushes.filter(timestamp__gte=frompush_timestamp)
+                filter_params.update({
+                    "push_timestamp__gte": to_timestamp(frompush_timestamp)
+                })
 
-            # add a day because we aren't supplying a time, just a date.  So
-            # we're doing ``less than``, rather than ``less than or equal to``.
-            filter_params.update({
-                "push_timestamp__lt": to_timestamp(meta['enddate']) + 86400
-            })
-        if 'revision' in meta:
-            # Allow the user to search by either the short or long version of
-            # a revision.
-            rev_key = "revisions_long_revision" \
-                if len(meta['revision']) == 40 else "revisions_short_revision"
-            filter_params.update({rev_key: meta['revision']})
+            elif param == 'tochange':
+                topush_timestamp = Push.objects.values_list(
+                    'timestamp', flat=True).get(
+                        repository=repository, revision__startswith=value)
+                pushes = pushes.filter(timestamp__lte=topush_timestamp)
+                filter_params.update({
+                    "push_timestamp__lte": to_timestamp(topush_timestamp)
+                })
+            elif param == 'startdate':
+                pushes = pushes.filter(timestamp__gte=to_datetime(value))
+                filter_params.update({
+                    "push_timestamp__gte": to_timestamp(to_datetime(value))
+                })
+            elif param == 'enddate':
+                real_end_date = to_datetime(value) + datetime.timedelta(days=1)
+                pushes = pushes.filter(timestamp__lte=real_end_date)
+                filter_params.update({
+                    "push_timestamp__lt": to_timestamp(real_end_date)
+                })
+            elif param == 'revision':
+                # revision can be either the revision of the push itself, or
+                # any of the commits it refers to
+                pushes = pushes.filter(commits__revision__startswith=value)
+                rev_key = "revisions_long_revision" \
+                          if len(meta['revision']) == 40 else "revisions_short_revision"
+                filter_params.update({rev_key: meta['revision']})
 
-        meta['filter_params'] = filter_params
+        id_lt = int(filter_params.get("id__lt", 0))
+        if id_lt:
+            pushes = pushes.filter(id__lt=id_lt)
 
-        filter = UrlQueryFilter(filter_params)
+        id_in = filter_params.get("id__in")
+        if id_in:
+            try:
+                id_in_list = [int(id) for id in id_in.split(',')]
+            except ValueError:
+                return Response({"error": "Invalid id__in specification"},
+                                status=HTTP_400_BAD_REQUEST)
+            pushes = pushes.filter(id__in=id_in_list)
 
-        offset_id = int(filter.pop("id__lt", 0))
-        count = int(filter.pop("count", 10))
+        count = int(filter_params.get("count", 10))
 
         if count > MAX_RESULTS_COUNT:
             msg = "Specified count exceeds api limit: {}".format(MAX_RESULTS_COUNT)
             return Response({"error": msg}, status=HTTP_400_BAD_REQUEST)
 
-        full = filter.pop('full', 'true').lower() == 'true'
+        # we used to have a "full" parameter for this endpoint so you could
+        # specify to not fetch the revision information if it was set to
+        # false. however AFAIK no one ever used it (default was to fetch
+        # everything), so let's just leave it out. it doesn't break
+        # anything to send extra data when not required.
+        pushes = pushes.select_related('repository').prefetch_related('commits')[:count]
+        serializer = PushSerializer(pushes, many=True)
 
-        results = jm.get_result_set_list(
-            offset_id,
-            count,
-            full,
-            filter.conditions
-        )
-
-        for rs in results:
-            rs["revisions_uri"] = reverse("resultset-revisions",
-                                          kwargs={"project": jm.project, "pk": rs["id"]})
-
-        meta['count'] = len(results)
+        meta['count'] = len(pushes)
         meta['repository'] = project
+        meta['filter_params'] = filter_params
 
         resp = {
             'meta': meta,
-            'results': results
+            'results': serializer.data
         }
 
         return Response(resp)
 
-    @with_jobs
-    def retrieve(self, request, project, jm, pk=None):
+    def retrieve(self, request, project, pk=None):
         """
         GET method implementation for detail view of ``resultset``
         """
-        filter = UrlQueryFilter({"id": pk})
-
-        full = filter.pop('full', 'true').lower() == 'true'
-
-        result_set_list = jm.get_result_set_list(0, 1, full, filter.conditions)
-        if result_set_list:
-            return Response(result_set_list[0])
-        return Response("No resultset with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+        try:
+            push = Push.objects.get(repository__name=project,
+                                    id=pk)
+            serializer = PushSerializer(push)
+            return Response(serializer.data)
+        except Push.DoesNotExist:
+            return Response("No resultset with id: {0}".format(pk),
+                            status=HTTP_404_NOT_FOUND)
 
     @detail_route()
-    @with_jobs
-    def revisions(self, request, project, jm, pk=None):
+    def revisions(self, request, project, pk=None):
         """
         GET method for revisions of a resultset
         """
-        objs = jm.get_resultset_revisions_list(pk)
-        return Response(objs)
+        try:
+            serializer = CommitSerializer(Commit.objects.filter(push_id=pk),
+                                          many=True)
+            return Response(serializer.data)
+        except Commit.DoesNotExist:
+            return Response("No resultset with id: {0}".format(pk),
+                            status=HTTP_404_NOT_FOUND)
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
@@ -149,12 +171,8 @@ class ResultSetViewSet(viewsets.ViewSet):
         if not pk:  # pragma nocover
             return Response({"message": "resultset id required"}, status=HTTP_400_BAD_REQUEST)
 
-        try:
-            jm.cancel_all_resultset_jobs(request.user.email, pk)
-            return Response({"message": "pending and running jobs canceled for resultset '{0}'".format(pk)})
-
-        except Exception as ex:
-            return Response("Exception: {0}".format(ex), status=HTTP_404_NOT_FOUND)
+        jm.cancel_all_jobs_for_push(request.user.email, pk)
+        return Response({"message": "pending and running jobs canceled for resultset '{0}'".format(pk)})
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
@@ -165,12 +183,8 @@ class ResultSetViewSet(viewsets.ViewSet):
         if not pk:
             return Response({"message": "resultset id required"}, status=HTTP_400_BAD_REQUEST)
 
-        try:
-            jm.trigger_missing_resultset_jobs(request.user.email, pk, project)
-            return Response({"message": "Missing jobs triggered for push '{0}'".format(pk)})
-
-        except Exception as ex:
-            return Response("Exception: {0}".format(ex), status=HTTP_404_NOT_FOUND)
+        jm.trigger_missing_jobs(request.user.email, pk)
+        return Response({"message": "Missing jobs triggered for result set '{0}'".format(pk)})
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
@@ -185,12 +199,8 @@ class ResultSetViewSet(viewsets.ViewSet):
         if not times:
             raise ParseError(detail="The 'times' parameter is mandatory for this endpoint")
 
-        try:
-            jm.trigger_all_talos_jobs(request.user.email, pk, project, times)
-            return Response({"message": "Talos jobs triggered for push '{0}'".format(pk)})
-
-        except Exception as ex:
-            return Response("Exception: {0}".format(ex), status=HTTP_404_NOT_FOUND)
+        jm.trigger_all_talos_jobs(request.user.email, pk, times)
+        return Response({"message": "Talos jobs triggered for result set '{0}'".format(pk)})
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
@@ -199,14 +209,12 @@ class ResultSetViewSet(viewsets.ViewSet):
         Add new jobs to a resultset.
         """
         if not pk:
-            return Response({"message": "resultset id required"}, status=HTTP_400_BAD_REQUEST)
+            return Response({"message": "result set id required"},
+                            status=HTTP_400_BAD_REQUEST)
 
-        # Making sure a resultset with this id exists
-        filter = UrlQueryFilter({"id": pk})
-        full = filter.pop('full', 'true').lower() == 'true'
-        result_set_list = jm.get_result_set_list(0, 1, full, filter.conditions)
-        if not result_set_list:
-            return Response({"message": "No resultset with id: {0}".format(pk)},
+        # Making sure a push with this id exists
+        if not Push.objects.filter(id=pk).exists():
+            return Response({"message": "No result set with id: {0}".format(pk)},
                             status=HTTP_404_NOT_FOUND)
 
         requested_jobs = request.data.get('requested_jobs', [])
@@ -243,16 +251,15 @@ class ResultSetViewSet(viewsets.ViewSet):
                     }
                     newrelic.agent.record_exception(params=params)
 
-        stored_resultsets = jm.store_result_set_data(request.data)
+        jm.store_result_set_data(request.data)
 
-        return Response({"message": "well-formed JSON stored",
-                         "resultsets": stored_resultsets["result_set_ids"].values()})
+        return Response({"message": "well-formed JSON stored"})
 
     @detail_route()
     @with_jobs
     def status(self, request, project, jm, pk=None):
         """
-        Return a count of the jobs belonging to this resultset
+        Return a count of the jobs belonging to this push (resultset)
         grouped by job status.
         """
-        return Response(jm.get_resultset_status(pk))
+        return Response(jm.get_push_status(pk))

@@ -37,7 +37,8 @@ DROP TABLE IF EXISTS `job`;
  *
  *  job_coalesced_to_guid - If present the job was coalesced to this job_guid
  *  signature - If populated, references treeherder_reference_1.buildbot_buildernames.signature
- *  result_set_id - References result_set.id
+ *  result_set_id - References result_set.id (obsolete)
+ *  push_id - References pushes in the main treeherder database
  *  build_platform_id - References treeherder_reference_1.build_platform.id
  *  machine_platform_id - References treeherder_reference_1.machine_platform.id
  *  machine_id - References treeherder_reference_1.machine.id
@@ -60,7 +61,8 @@ CREATE TABLE `job` (
   `job_guid` varchar(50) COLLATE utf8_bin NOT NULL,
   `signature` varchar(50) DEFAULT NULL,
   `job_coalesced_to_guid` varchar(50) COLLATE utf8_bin DEFAULT NULL,
-  `result_set_id` bigint(20) unsigned NOT NULL,
+  `result_set_id` bigint(20) unsigned DEFAULT NULL,
+  `push_id` int(10) unsigned NOT NULL,
   `build_platform_id` int(10) unsigned NOT NULL,
   `machine_platform_id` int(10) unsigned NOT NULL,
   `machine_id` int(10) unsigned DEFAULT NULL,
@@ -84,6 +86,7 @@ CREATE TABLE `job` (
   KEY `idx_job_coalesced_to_guid` (`job_coalesced_to_guid`),
   KEY `idx_signature` (`signature`),
   KEY `idx_result_set_id` (`result_set_id`),
+  KEY `idx_push_id` (`push_id`),
   KEY `idx_build_platform_id` (`build_platform_id`),
   KEY `idx_machine_platform_id` (`machine_platform_id`),
   KEY `idx_machine_id` (`machine_id`),
@@ -101,8 +104,7 @@ CREATE TABLE `job` (
   KEY `idx_last_modified` (`last_modified`),
   KEY `idx_running` (`running_eta`),
   KEY `idx_tier` (`tier`),
-  KEY `idx_active_status` (`active_status`),
-  CONSTRAINT `fk_result_set` FOREIGN KEY (`result_set_id`) REFERENCES `result_set` (`id`)
+  KEY `idx_active_status` (`active_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

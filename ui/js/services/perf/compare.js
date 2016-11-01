@@ -220,7 +220,7 @@ treeherder.factory('PhCompare', [
                         projectName, {
                             signatures: _.pluck(seriesChunk, 'signature'),
                             framework: _.uniq(_.pluck(seriesChunk, 'frameworkId')),
-                            result_set_id: resultSetIds }
+                            push_id: resultSetIds }
                     ).then(function(seriesData) {
                         resultSetIds.forEach(function(resultSetId) {
                             if (resultsMap[resultSetId] === undefined) {
@@ -232,7 +232,7 @@ treeherder.factory('PhCompare', [
                                 // with description (name/platform) and values.
                                 // The values are later processed at getCounterMap as the data arguments.
                                 var values = [];
-                                _.where(data, { result_set_id: resultSetId }).forEach(function(pdata) {
+                                _.where(data, { push_id: resultSetId }).forEach(function(pdata) {
                                     values.push(pdata.value);
                                 });
                                 var seriesData = _.find(seriesList, {'signature': signature});

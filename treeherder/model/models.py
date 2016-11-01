@@ -114,6 +114,50 @@ class Repository(models.Model):
 
 
 @python_2_unicode_compatible
+class Push(models.Model):
+    '''
+    A push to a repository
+
+    A push should contain one or more commit objects, representing
+    the changesets that were part of the push
+    '''
+    repository = models.ForeignKey(Repository)
+    revision_hash = models.CharField(max_length=50, null=True)  # legacy
+    # revision can be null if revision_hash defined ^^
+    revision = models.CharField(max_length=40, null=True)
+    author = models.CharField(max_length=150)
+    timestamp = models.DateTimeField()
+
+    class Meta:
+        db_table = 'push'
+        unique_together = [('repository', 'revision'),
+                           ('repository', 'revision_hash')]
+
+    def __str__(self):
+        return "{0} {1}".format(
+            self.repository.name, self.revision)
+
+
+@python_2_unicode_compatible
+class Commit(models.Model):
+    '''
+    A single commit in a push
+    '''
+    push = models.ForeignKey(Push, related_name='commits')
+    revision = models.CharField(max_length=40)
+    author = models.CharField(max_length=150)
+    comments = models.TextField()
+
+    class Meta:
+        db_table = 'commit'
+        unique_together = ('push', 'revision')
+
+    def __str__(self):
+        return "{0} {1}".format(
+            self.push.repository.name, self.revision)
+
+
+@python_2_unicode_compatible
 class MachinePlatform(models.Model):
     id = models.AutoField(primary_key=True)
     os_name = models.CharField(max_length=25, db_index=True)
@@ -631,6 +675,8 @@ class Job(models.Model):
     # faster (since we'll need to cross-reference those row-by-row), see
     # https://bugzilla.mozilla.org/show_bug.cgi?id=1265503
     project_specific_id = models.PositiveIntegerField(db_index=True)
+
+    push = models.ForeignKey(Push)
 
     class Meta:
         db_table = 'job'

@@ -34,7 +34,7 @@ perf.controller('e10sCtrl', [
                     $scope.selectedRepo.name, $scope.revision).then(function(resultSets) {
                         resultSetId = resultSets[0].id;
                         return PhSeries.getSeriesList($scope.selectedRepo.name, {
-                            result_set_id: resultSetId, subtests: 0 });
+                            push_id: resultSetId, subtests: 0 });
                     }, function() {
                         $scope.revisionNotFound = true;
                     });
@@ -61,7 +61,7 @@ perf.controller('e10sCtrl', [
                     var params = { signatures: _.map(seriesChunk, 'signature'),
                                    framework: 1 };
                     if ($scope.revision) {
-                        params.result_set_id = resultSetId;
+                        params.push_id = resultSetId;
                     } else {
                         params.interval = $scope.selectedTimeRange.value;
                     }
@@ -246,7 +246,7 @@ perf.controller('e10sSubtestCtrl', [
                     var params = { signatures: _.map(seriesChunk, 'signature'),
                                    framework: 1 };
                     if ($scope.revision) {
-                        params.result_set_id = resultSetId;
+                        params.push_id = resultSetId;
                     } else {
                         params.interval = $scope.selectedTimeRange.value;
                     }
