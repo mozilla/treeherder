@@ -129,7 +129,7 @@
 
             "sql":"UPDATE `job`
                    SET    `state` = 'completed', `result` = 'usercancel'
-                   WHERE  `result_set_id` = ?
+                   WHERE  `push_id` = ?
                    AND `state` = 'pending'",
 
                 "host_type":"master_host"
@@ -223,11 +223,8 @@
                           j.result_set_id,
                           j.push_id,
                           j.job_guid,
-                          j.signature,
-                          r.push_timestamp
+                          j.signature
                    FROM job AS j
-                   JOIN result_set AS r
-                    ON j.result_set_id = r.id
                    WHERE j.id IN (REP0)",
             "host_type":"master_host"
 
@@ -245,10 +242,8 @@
         "get_incomplete_job_ids": {
             "sql": "SELECT j.id
                     FROM job as j
-                    LEFT JOIN result_set as rs
-                      ON j.result_set_id = rs.id
                     WHERE j.state <> 'completed'
-                    AND j.result_set_id = ?",
+                    AND j.push_id = ?",
             "host_type":"read_host"
         },
 
@@ -277,7 +272,7 @@
                     jg.`description` as job_group_description,
                     j.`who`,
                     j.failure_classification_id,
-                    j.`result_set_id`,
+                    j.`push_id`,
                     j.`result`,
                     j.`state`,
                     j.`reason`,
@@ -332,7 +327,7 @@
                     jg.`symbol` as job_group_symbol,
                     jg.`description` as job_group_description,
                     j.`who`,
-                    j.`result_set_id`,
+                    j.`push_id`,
                     j.`result`,
                     j.`state`,
                     j.`reason`,
@@ -389,7 +384,7 @@
                     jg.`symbol` as job_group_symbol,
                     jg.`description` as job_group_description,
                     j.`who`,
-                    j.`result_set_id`,
+                    j.`push_id`,
                     j.`result`,
                     j.`state`,
                     j.`reason`,
@@ -414,13 +409,12 @@
                     ON jt.`job_group_id` = jg.id
                   LEFT JOIN `REP0`.reference_data_signatures rds
                     ON j.signature = rds.signature
-                  LEFT JOIN result_set rs
-                    ON rs.id = j.result_set_id
+                  LEFT JOIN `REP0`.`push` push
+                    ON j.`push_id` = push.id
                   WHERE 1
                   REP1
                   GROUP BY j.id
-                  ORDER BY
-                    rs.push_timestamp DESC
+                  ORDER BY push.time DESC
                   ",
 
             "host_type":"read_host"
@@ -449,7 +443,7 @@
             "host_type": "read_host"
         },
         "get_job_ids_by_guids":{
-            "sql":"SELECT `id`, `job_guid`, `result_set_id`, `state`, `result`
+            "sql":"SELECT `id`, `job_guid`, `push_id`, `state`, `result`
                    FROM `job`
                    WHERE `active_status` = 'active' AND `job_guid` IN (REP0)",
             "host_type": "master_host"
@@ -561,7 +555,7 @@
 
             "host_type":"read_host"
         },
-        "get_resultset_status":{
+        "get_push_status":{
             "sql":"SELECT
                         job.id,
                         state,
@@ -571,7 +565,7 @@
                    FROM job
                    LEFT JOIN REP0.failure_classification fc
                         ON fc.id = job.failure_classification_id
-                   WHERE result_set_id = ? and (
+                   WHERE push_id = ? and (
                     fc.name = 'not classified' or fc.id IS NULL)
                     and job.tier <> 3
                    REP1
@@ -586,7 +580,7 @@
                    FROM job
                    JOIN job as ref_job ON
                     job.signature = ref_job.signature AND
-                    job.result_set_id = ref_job.result_set_id
+                    job.push_id = ref_job.push_id
                    WHERE
                     job.state = 'completed' AND
                     ref_job.job_guid = ?",

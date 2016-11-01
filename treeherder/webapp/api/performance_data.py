@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from treeherder.model import models
+from treeherder.model.derived import JobsModel
 from treeherder.perf.alerts import get_alert_properties
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
@@ -162,12 +163,12 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
         repository = models.Repository.objects.get(name=project)
 
         signature_hashes = request.query_params.getlist("signatures")
-        result_set_ids = request.query_params.getlist("result_set_id")
+        push_ids = request.query_params.getlist("push_id")
         job_ids = request.query_params.getlist("job_id")
 
-        if not (signature_hashes or result_set_ids or job_ids):
+        if not (signature_hashes or push_ids or job_ids):
             raise exceptions.ValidationError('Need to specify either '
-                                             'signatures, result_set_id, or '
+                                             'signatures, push_id, or '
                                              'job_id')
 
         datums = PerformanceDatum.objects.filter(
@@ -179,8 +180,8 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
                 repository=repository,
                 signature_hash__in=signature_hashes).values_list('id', flat=True)
             datums = datums.filter(signature__id__in=list(signature_ids))
-        if result_set_ids:
-            datums = datums.filter(result_set_id__in=result_set_ids)
+        if push_ids:
+            datums = datums.filter(push_id__in=push_ids)
         if job_ids:
             datums = datums.filter(job_id__in=job_ids)
 
@@ -208,14 +209,14 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
 
         ret = defaultdict(list)
         values_list = datums.values_list(
-            'signature_id', 'signature__signature_hash', 'job_id', 'result_set_id',
+            'signature_id', 'signature__signature_hash', 'job_id', 'push_id',
             'push_timestamp', 'value')
-        for (signature_id, signature_hash, job_id, result_set_id,
+        for (signature_id, signature_hash, job_id, push_id,
              push_timestamp, value) in values_list:
             ret[signature_hash].append({
                 'signature_id': signature_id,
                 'job_id': job_id,
-                'result_set_id': result_set_id,
+                'push_id': push_id,
                 'push_timestamp': int(time.mktime(push_timestamp.timetuple())),
                 'value': round(value, 2)  # round to 2 decimal places
             })
@@ -245,13 +246,27 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     ordering = ('-last_updated', '-id')
     pagination_class = AlertSummaryPagination
 
+    @staticmethod
+    def _get_result_set_id_for_push(push_id):
+        # horrible hack to get result set id information so we can roll
+        # this back if necessary, remove later
+        push = models.Push.objects.get(id=push_id)
+        with JobsModel(push.repository.name) as jm:
+            result_set_id_list = jm.execute(
+                proc='jobs.selects.get_resultset_id_from_revision',
+                placeholders=[push.revision])
+            return result_set_id_list[0]['id']
+
     def create(self, request, *args, **kwargs):
         data = request.data
+
         alert_summary, _ = PerformanceAlertSummary.objects.get_or_create(
             repository_id=data['repository_id'],
             framework=PerformanceFramework.objects.get(id=data['framework_id']),
-            result_set_id=data['result_set_id'],
-            prev_result_set_id=data['prev_result_set_id'],
+            result_set_id=self._get_result_set_id_for_push(data['push_id']),
+            prev_result_set_id=self._get_result_set_id_for_push(data['prev_push_id']),
+            push_id=data['push_id'],
+            prev_push_id=data['prev_push_id'],
             defaults={
                 'manually_created': True,
                 'last_updated': datetime.datetime.now()
@@ -299,11 +314,11 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
 
         prev_data = PerformanceDatum.objects.filter(
             signature=signature,
-            result_set_id__lte=summary.prev_result_set_id).order_by(
+            push_timestamp__lte=summary.prev_push.time).order_by(
                 '-push_timestamp').values_list('value', flat=True)[:prev_range]
         new_data = PerformanceDatum.objects.filter(
             signature=signature,
-            result_set_id__gt=summary.prev_result_set_id).order_by(
+            push_timestamp__gt=summary.prev_push.time).order_by(
                 'push_timestamp').values_list('value', flat=True)[:new_range]
         if not prev_data or not new_data:
             return Response({"message": "Insufficient data to create an "

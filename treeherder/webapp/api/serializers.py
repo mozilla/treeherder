@@ -1,7 +1,9 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
 from treeherder.model import models
+from treeherder.webapp.api.utils import to_timestamp
 
 
 class NoOpSerializer(serializers.Serializer):
@@ -237,3 +239,48 @@ class JobNoteSerializer(serializers.ModelSerializer):
         model = models.JobNote
         fields = ['id', 'job_id', 'failure_classification_id',
                   'created', 'who', 'text']
+
+
+class CommitSerializer(serializers.ModelSerializer):
+
+    result_set_id = serializers.PrimaryKeyRelatedField(
+        source="push", read_only=True)
+    repository_id = serializers.SlugRelatedField(
+        slug_field="repository_id", source="push", read_only=True)
+
+    class Meta:
+        model = models.Commit
+        fields = ['result_set_id', 'repository_id', 'revision', 'author',
+                  'comments']
+
+
+class PushSerializer(serializers.ModelSerializer):
+
+    def get_revisions_uri(self, obj):
+        return reverse("resultset-revisions",
+                       kwargs={"project": obj.repository.name,
+                               "pk": obj.id})
+
+    def get_revisions(self, push):
+        serializer = CommitSerializer(instance=push.commits.all()[:20],
+                                      many=True)
+        return serializer.data
+
+    def get_revision_count(self, push):
+        return push.commits.count()
+
+    def get_push_timestamp(self, push):
+        return to_timestamp(push.time)
+
+    revisions_uri = serializers.SerializerMethodField()
+    revisions = serializers.SerializerMethodField()
+    revision_count = serializers.SerializerMethodField()
+    push_timestamp = serializers.SerializerMethodField()
+    repository_id = serializers.PrimaryKeyRelatedField(
+        source="repository", read_only=True)
+
+    class Meta:
+        model = models.Push
+        fields = ['id', 'revision_hash', 'revision', 'author', 'revisions_uri',
+                  'revisions', 'revision_count', 'push_timestamp',
+                  'repository_id']

@@ -21,6 +21,7 @@ from treeherder.model.models import (ExclusionProfile,
                                      JobLog,
                                      JobType,
                                      Machine,
+                                     Push,
                                      TaskSetMeta)
 from treeherder.model.search import (TestFailureLine,
                                      refresh_all)
@@ -581,25 +582,6 @@ def test_store_result_set_revisions(jm, sample_resultset):
     assert stored["short_revision"] == "997b28cb8737"
 
 
-def test_store_result_set_12_then_40(jm, sample_resultset):
-    """Test that you can update a 12 char resultset to 40 and revisions"""
-    long_resultset = sample_resultset[8]
-    short_resultset = copy.deepcopy(long_resultset)
-    short_resultset["revisions"] = []
-    short_resultset["revision"] = short_resultset["revision"][:12]
-
-    jm.store_result_set_data([short_resultset])
-    # now update that short revision to a long revision
-    jm.store_result_set_data([long_resultset])
-
-    stored = jm.get_dhub().execute(proc="jobs_test.selects.result_sets")[0]
-    revisions = jm.get_resultset_revisions_list(stored["id"])
-
-    assert stored["long_revision"] == "997b28cb87373456789012345678901234567890"
-    assert stored["short_revision"] == "997b28cb8737"
-    assert len(revisions) > 0
-
-
 def test_get_job_data(jm, test_project, sample_data,
                       sample_resultset, test_repository, mock_log_parser):
 
@@ -764,7 +746,7 @@ def test_ingest_job_revision_and_revision_hash(jm, test_repository,
     resultset = sample_resultset[0].copy()
     resultset["revision_hash"] = rs_revision_hash
     revision = resultset["revision"]
-    stored_resultsets = jm.store_result_set_data([resultset])
+    jm.store_result_set_data([resultset])
 
     first_job = sample_data.job_data[0]
     first_job["revision_hash"] = "abcdef123"
@@ -773,7 +755,8 @@ def test_ingest_job_revision_and_revision_hash(jm, test_repository,
 
     jl = jm.get_job_list(0, 10)
     assert len(jl) == 1
-    assert jl[0]["result_set_id"] == stored_resultsets["inserted_result_set_ids"][0]
+    assert jl[0]["push_id"] == Push.objects.values_list(
+        'id', flat=True).get(revision=revision)
 
 
 def test_ingest_job_revision_hash_blank_revision(jm, test_repository,
@@ -786,7 +769,7 @@ def test_ingest_job_revision_hash_blank_revision(jm, test_repository,
     rs_revision_hash = "12345abc"
     resultset = sample_resultset[0].copy()
     resultset["revision_hash"] = rs_revision_hash
-    stored_resultsets = jm.store_result_set_data([resultset])
+    jm.store_result_set_data([resultset])
 
     first_job = sample_data.job_data[0]
     first_job["revision_hash"] = rs_revision_hash
@@ -795,7 +778,8 @@ def test_ingest_job_revision_hash_blank_revision(jm, test_repository,
 
     jl = jm.get_job_list(0, 10)
     assert len(jl) == 1
-    assert jl[0]["result_set_id"] == stored_resultsets["inserted_result_set_ids"][0]
+    assert jl[0]["push_id"] == Push.objects.values_list(
+        'id', flat=True).get(revision_hash=rs_revision_hash)
 
     assert Job.objects.count() == 1
 

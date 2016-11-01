@@ -102,13 +102,13 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     # marking these fields as readonly, the user should not be modifying them
     # (after the item is first created, where we don't use this serializer
     # class)
-    prev_result_set_id = serializers.ReadOnlyField()
-    result_set_id = serializers.ReadOnlyField()
+    prev_push_id = serializers.ReadOnlyField()
+    push_id = serializers.ReadOnlyField()
     last_updated = serializers.ReadOnlyField()
 
     class Meta:
         model = PerformanceAlertSummary
-        fields = ['id', 'result_set_id', 'prev_result_set_id',
+        fields = ['id', 'push_id', 'prev_push_id',
                   'last_updated', 'repository', 'framework', 'alerts',
                   'related_alerts', 'status', 'bug_number']
 
