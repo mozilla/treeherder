@@ -6,15 +6,12 @@ from rest_framework import (filters,
 from treeherder.seta.models import JobPriority
 
 
-class SetaHighValueSerializer(serializers.HyperlinkedModelSerializer):
+class SetaJobPrioritySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = JobPriority
-        fields = ['id', 'testtype', 'buildtype', 'platform', 'priority',
-                  'timeout', 'expires', 'buildsystem']
+        fields = ('testtype')
 
 
-class SetaHighValueJobsViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = JobPriority.objects.all()
-    serializer_class = SetaHighValueSerializer
-    filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter)
-    filter_fields = ['testtype']
+class SetaLowValueJobsViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = JobPriority.objects.exclude(buildsystem='buildbot')
+    serializer_class = SetaJobPrioritySerializer
