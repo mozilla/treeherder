@@ -93,24 +93,6 @@
                 )",
 
             "host_type":"master_host"
-        },
-        "set_job_artifact":{
-
-            "sql":"INSERT INTO `job_artifact` (
-                `job_id`,
-                `name`,
-                `type`,
-                `blob`
-                )
-                SELECT ?,?,?,?
-                FROM DUAL
-                WHERE NOT EXISTS (
-                    SELECT `job_id`
-                    FROM `job_artifact`
-                    WHERE `job_id` = ? and `name` = ?
-                )",
-
-            "host_type":"master_host"
         }
     },
 
@@ -422,25 +404,6 @@
 
             "host_type":"read_host"
         },
-        "get_job_artifact":{
-            "sql":"SELECT
-                      id,
-                      job_id,
-                      name,
-                      `type`,
-                      `blob`
-                   FROM job_artifact
-                   WHERE active_status = 'active'
-                   REP0
-                   ORDER BY id DESC, name
-                   ",
-            "host_type": "read_host"
-        },
-        "get_job_artifact_references":{
-            "sql":"SELECT `id`, `name`, `type` from `job_artifact`
-                   WHERE `job_id` = ?",
-            "host_type": "read_host"
-        },
         "get_max_job_id":{
             "sql":"SELECT max(`id`) as max_id from `job`",
             "host_type": "read_host"
@@ -551,12 +514,6 @@
                    ORDER BY r.id DESC",
 
             "host_type": "read_host"
-        },
-        "get_all_artifacts":{
-
-            "sql":"SELECT `name`, `type`, `blob`  FROM `job_artifact`",
-
-            "host_type":"read_host"
         },
         "get_resultset_status":{
             "sql":"SELECT

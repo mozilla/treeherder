@@ -12,7 +12,6 @@ from rest_framework.reverse import reverse
 from rest_framework.status import (HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
 
-from treeherder.model.derived import ArtifactsModel
 from treeherder.model.error_summary import get_error_summary
 from treeherder.model.models import (FailureLine,
                                      Job,
@@ -70,17 +69,6 @@ class JobsViewSet(viewsets.ViewSet):
                 job__repository__name=jm.project,
                 job__project_specific_id=job['id']).values_list('name', 'url'):
             job["logs"].append({'name': name, 'url': url})
-
-        # make artifact ids into uris
-
-        with ArtifactsModel(project) as artifacts_model:
-            artifact_refs = artifacts_model.get_job_artifact_references(pk)
-        job["artifacts"] = []
-        for art in artifact_refs:
-            ref = reverse("artifact-detail",
-                          kwargs={"project": jm.project, "pk": art["id"]})
-            art["resource_uri"] = ref
-            job["artifacts"].append(art)
 
         option_hash = job['option_collection_hash']
         if option_hash:
