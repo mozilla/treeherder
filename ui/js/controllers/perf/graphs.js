@@ -89,23 +89,19 @@ perf.controller('GraphsCtrl', [
 
                 // we need the flot data for calculating values/deltas and to know where
                 // on the graph to position the tooltip
-                var index;
-                if (dataPoint.jobId) {
-                    index = phSeries.flotSeries.jobIdData.indexOf(dataPoint.jobId);
-                } else {
-                    index = phSeries.flotSeries.resultSetData.indexOf(dataPoint.resultSetId);
-                }
+                var index = phSeries.flotSeries.resultSetData.indexOf(
+                    dataPoint.resultSetId);
                 var flotData = {
                     series: _.find($scope.plot.getData(), function(fs) {
                         return fs.thSeries.projectName === dataPoint.projectName &&
                             fs.thSeries.signature === dataPoint.signature;
                     }),
-                    pointIndex: index ? index : phSeries.flotSeries.resultSetData.indexOf(dataPoint.resultSetId)
+                    pointIndex: index
                 };
-                var prevResultSetId = _.findLast(phSeries.flotSeries.resultSetData,
-                                             function(resultSetId) {
-                                                 return (resultSetId < dataPoint.resultSetId);
-                                             });
+                var prevResultSetId = null;
+                if (index > 0) {
+                    prevResultSetId = phSeries.flotSeries.resultSetData[index- 1];
+                }
                 var retriggerNum = _.countBy(phSeries.flotSeries.resultSetData,
                                              function(resultSetId) {
                                                  return resultSetId === dataPoint.resultSetId ? 'retrigger':'original';
@@ -120,7 +116,7 @@ perf.controller('GraphsCtrl', [
                     dv = v - v0,
                     dvp = v / v0 - 1;
                 var alertSummary = _.find(phSeries.relatedAlertSummaries, function(alertSummary) {
-                    return alertSummary.result_set_id === dataPoint.resultSetId;
+                    return alertSummary.push_id === dataPoint.resultSetId;
                 });
                 var alert;
                 if (alertSummary) {
@@ -400,7 +396,7 @@ perf.controller('GraphsCtrl', [
                 _.forEach($scope.seriesList, function(series) {
                     if (series.visible) {
                         _.forEach(series.relatedAlertSummaries, function(alertSummary) {
-                            addHighlightedDatapoint(series, alertSummary.result_set_id);
+                            addHighlightedDatapoint(series, alertSummary.push_id);
                         });
                     }
                 });
@@ -604,7 +600,7 @@ perf.controller('GraphsCtrl', [
                             }),
                         resultSetData: _.pluck(
                             seriesData[series.signature],
-                            'result_set_id'),
+                            'push_id'),
                         thSeries: jQuery.extend({}, series),
                         jobIdData: _.pluck(seriesData[series.signature],
                                            'job_id')

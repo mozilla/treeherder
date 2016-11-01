@@ -5,6 +5,7 @@ import pytest
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
+from treeherder.model.models import Push
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceDatum)
@@ -36,15 +37,17 @@ def test_alerts_get(webapp, test_repository, test_perf_alert):
     assert resp.json['results'][0]['related_summary_id'] is None
 
 
-def test_alerts_put(webapp, test_repository, test_perf_alert, test_user,
-                    test_sheriff):
+def test_alerts_put(webapp, result_set_stored, test_repository,
+                    test_perf_alert, test_user, test_sheriff):
     # create a new summary and try to reassign the alert to it with varying
     # levels of permission, then verify the return value changes accordingly
     PerformanceAlertSummary.objects.create(
         id=2,
         repository=test_repository,
-        prev_result_set_id=1,
-        result_set_id=2,
+        prev_result_set_id=2,
+        result_set_id=3,
+        prev_push_id=2,
+        push_id=3,
         last_updated=datetime.datetime.now(),
         manually_created=False)
 
@@ -106,15 +109,18 @@ def test_alerts_post(webapp, test_repository, test_perf_signature,
     # generate enough data for a proper alert to be generated (with enough
     # extra data on both sides to make sure we're using the proper values
     # to generate the actual alert)
-    for i in range(0, 5, 2):
-        for (result_set_id, value) in zip([i]*30 + [i+1]*30,
-                                          [i]*30 + [i+1]*30):
-            PerformanceDatum.objects.create(repository=test_repository,
-                                            job_id=0,
-                                            result_set_id=result_set_id,
-                                            signature=test_perf_signature,
-                                            value=value,
-                                            push_timestamp=datetime.datetime.now())
+    for (push_id, job_id, value) in zip([1]*30 + [2]*30,
+                                        range(1, 61),
+                                        [1]*30 + [2]*30):
+        # push_id == result_set_id == timestamp for purposes of this test
+        push = Push.objects.get(id=push_id)
+        PerformanceDatum.objects.create(repository=test_repository,
+                                        job_id=job_id,
+                                        result_set_id=push_id,
+                                        push_id=push_id,
+                                        signature=test_perf_signature,
+                                        value=value,
+                                        push_timestamp=push.timestamp)
 
     # verify that we fail if not authenticated
     webapp.post_json(reverse('performance-alerts-list'),

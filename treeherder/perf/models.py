@@ -215,7 +215,8 @@ class PerformanceAlertSummary(models.Model):
 
     def __str__(self):
         return "{} {} {}-{}".format(self.framework, self.repository,
-                                    self.prev_result_set_id, self.result_set_id)
+                                    self.prev_push.revision,
+                                    self.prev_push.revision)
 
 
 @python_2_unicode_compatible

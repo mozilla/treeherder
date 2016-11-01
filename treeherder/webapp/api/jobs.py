@@ -100,7 +100,17 @@ class JobsViewSet(viewsets.ViewSet):
         """
         MAX_JOBS_COUNT = 2000
 
-        filter = UrlQueryFilter(request.query_params)
+        # make a mutable copy of these params
+        filter_params = request.query_params.copy()
+
+        # horrible hack to replace `result_set_id` with `push_id`
+        for param_key in filter_params.keys():
+            if param_key.startswith('result_set_id'):
+                new_param_key = param_key.replace('result_set_id', 'push_id')
+                filter_params[new_param_key] = filter_params[param_key]
+                del filter_params[param_key]
+
+        filter = UrlQueryFilter(filter_params)
 
         offset = int(filter.pop("offset", 0))
         count = int(filter.pop("count", 10))
@@ -136,6 +146,10 @@ class JobsViewSet(viewsets.ViewSet):
                 option_hash = job['option_collection_hash']
                 if option_hash:
                     job["platform_option"] = option_collection_map[option_hash]
+
+        # add result set id for backwards compatibility
+        for result in results:
+            result['result_set_id'] = result['push_id']
 
         response_body = dict(meta={"repository": project}, results=[])
 
@@ -343,6 +357,10 @@ class JobsViewSet(viewsets.ViewSet):
         return_type = url_query_filter.pop("return_type", "dict").lower()
         results = jm.get_job_list_sorted(offset, count,
                                          conditions=url_query_filter.conditions)
+
+        # add result set id for backwards compatibility
+        for result in results:
+            result['result_set_id'] = result['push_id']
 
         response_body = dict(meta={"repository": project}, results=[])
 

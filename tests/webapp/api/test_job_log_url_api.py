@@ -4,14 +4,16 @@ from treeherder.model.models import (Job,
                                      JobLog)
 
 
-def test_get_job_log_urls(test_repository, webapp):
+def test_get_job_log_urls(test_repository, result_set_stored, webapp):
     job1 = Job.objects.create(
         repository=test_repository,
         guid='1234',
+        push_id=1,
         project_specific_id=1)
     job2 = Job.objects.create(
         repository=test_repository,
         guid='5678',
+        push_id=1,
         project_specific_id=2)
 
     JobLog.objects.create(job=job1,
