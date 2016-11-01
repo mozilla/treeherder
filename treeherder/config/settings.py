@@ -136,7 +136,6 @@ INSTALLED_APPS = [
     'hawkrest',
     'corsheaders',
     'django_browserid',
-    'memoize',
     # treeherder apps
     'treeherder.model',
     'treeherder.webapp',
