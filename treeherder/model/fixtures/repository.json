@@ -193,7 +193,7 @@
         "dvcs_type": "hg",
         "name": "graphics",
         "url": "https://hg.mozilla.org/projects/graphics",
-        "active_status": "onhold",
+        "active_status": "active",
         "codebase": "gecko",
         "repository_group": 6,
         "description": ""
