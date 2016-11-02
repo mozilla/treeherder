@@ -7,6 +7,7 @@ from jsonfield import JSONField
 
 from treeherder.model.models import (MachinePlatform,
                                      OptionCollection,
+                                     Push,
                                      Repository)
 
 SIGNATURE_HASH_LENGTH = 40
@@ -86,6 +87,7 @@ class PerformanceDatum(models.Model):
     repository = models.ForeignKey(Repository)
     job_id = models.PositiveIntegerField()
     result_set_id = models.PositiveIntegerField()
+    push = models.ForeignKey(Push, null=True, default=None)
     signature = models.ForeignKey(PerformanceSignature)
     value = models.FloatField()
     push_timestamp = models.DateTimeField()
@@ -121,8 +123,14 @@ class PerformanceAlertSummary(models.Model):
     id = models.AutoField(primary_key=True)
     repository = models.ForeignKey(Repository)
     framework = models.ForeignKey(PerformanceFramework, null=True)
+
     prev_result_set_id = models.PositiveIntegerField(null=True)
     result_set_id = models.PositiveIntegerField()
+
+    prev_push = models.ForeignKey(Push, related_name='+', null=True,
+                                  default=None)
+    push = models.ForeignKey(Push, related_name='+', null=True,
+                             default=None)
 
     manually_created = models.BooleanField(default=False)
 
@@ -221,9 +229,9 @@ class PerformanceAlert(models.Model):
     series have consistently changed level at a specific time.
 
     An alert is always a member of an alert summary, which groups all
-    the alerts associated with a particular result set and repository
-    together. In many cases at Mozilla, the original alert summary is not
-    correct, so we allow reassigning it to a different (revised) summary.
+    the alerts associated with a particular push together. In many cases at
+    Mozilla, the original alert summary is not correct, so we allow reassigning
+    it to a different (revised) summary.
     '''
     id = models.AutoField(primary_key=True)
     summary = models.ForeignKey(PerformanceAlertSummary,
