@@ -11,8 +11,8 @@
 treeherder.component("login", {
     template: `
         <span class="dropdown"
-              ng-if="$ctrl.user.loggedin">
-          <button id="logoutLabel" title="Logged in as: {{$ctrl.user.email}}" role="button"
+              ng-if="user.loggedin">
+          <button id="logoutLabel" title="Logged in as: {{user.email}}" role="button"
                   data-toggle="dropdown" data-target="#"
                   class="btn btn-view-nav btn-right-navbar nav-persona-btn">
             <div class="nav-user-icon">
@@ -28,7 +28,7 @@ treeherder.component("login", {
         </span>
 
         <a class="btn btn-view-nav btn-right-navbar nav-login-btn"
-           ng-if="!$ctrl.user.loggedin"
+           ng-if="!user.loggedin"
            ng-click="$ctrl.login()">Login/Register</a>
     `,
     bindings: {
@@ -38,10 +38,8 @@ treeherder.component("login", {
         'ThUserModel', '$http', 'thUrl',
         function ($scope, $location, $window, $localStorage,
                   ThUserModel, $http, thUrl) {
-            this.user = {};
-            // can't reference "this" within a $watch, create var references for
-            // them.
-            var user = this.user;
+            $scope.user = {};
+            // can't reference "this" within a $watch, create var reference
             // calls to the HTML which sets the user value in the $rootScope.
             var onUserChange = this.onUserChange;
             // "clears out" the user when it is detected to be logged out.
@@ -86,9 +84,9 @@ treeherder.component("login", {
                 if ($localStorage.user) {
                     // user exists and should be marked as logged in
                     console.log("User should be logged in now");
-                    _.extend(user, $localStorage.user);
-                    user.loggedin = true;
-                    onUserChange({$event: {user: user}});
+                    _.extend($scope.user, $localStorage.user);
+                    $scope.user.loggedin = true;
+                    onUserChange({$event: {user: $scope.user}});
                 } else {
                     setUserToLoggedOut();
                 }
@@ -96,7 +94,7 @@ treeherder.component("login", {
 
             var setUserToLoggedOut = function () {
                 delete $localStorage.user;
-                _.extend(user, loggedOutUser);
+                _.extend($scope.user, loggedOutUser);
                 onUserChange({$event: {user: loggedOutUser}});
             };
         }]
