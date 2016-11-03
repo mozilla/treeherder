@@ -76,73 +76,12 @@ module.exports = function(grunt) {
 
         usemin:{ html:['dist/*.html'] },
 
-        'cache-busting': {
-            indexjs: {
-                replace: ['dist/**/*.html'],
-                replacement: 'index.min.js',
-                file: 'dist/js/index.min.js',
-                cleanup: true //Remove previously generated hashed files.
+        'cacheBust': {
+            options: {
+                assets: ['js/*', 'css/*'],
+                baseDir: 'dist/'
             },
-            logviewerjs: {
-                replace: ['dist/**/*.html'],
-                replacement: 'logviewer.min.js',
-                file: 'dist/js/logviewer.min.js',
-                cleanup: true
-            },
-            failureviewerjs: {
-                replace: ['dist/**/*.html'],
-                replacement: 'failureviewer.min.js',
-                file: 'dist/js/failureviewer.min.js',
-                cleanup: true
-            },
-            perfjs: {
-                replace: ['dist/**/*.html'],
-                replacement: 'perf.min.js',
-                file: 'dist/js/perf.min.js',
-                cleanup: true
-            },
-            adminjs: {
-                replace: ['dist/**/*.html'],
-                replacement: 'admin.min.js',
-                file: 'dist/js/admin.min.js',
-                cleanup: true
-            },
-            userguidejs: {
-                replace: ['dist/**/*.html'],
-                replacement: 'userguide.min.js',
-                file: 'dist/js/userguide.min.js',
-                cleanup: true
-            },
-            indexcss: {
-                replace: ['dist/**/*.html'],
-                replacement: 'index.min.css',
-                file: 'dist/css/index.min.css',
-                cleanup: true
-            },
-            logviewercss: {
-                replace: ['dist/**/*.html'],
-                replacement: 'logviewer.min.css',
-                file: 'dist/css/logviewer.min.css',
-                cleanup: true
-            },
-            perfcss: {
-                replace: ['dist/**/*.html'],
-                replacement: 'perf.min.css',
-                file: 'dist/css/perf.min.css',
-                cleanup: true
-            },
-            admincss: {
-                replace: ['dist/**/*.html'],
-                replacement: 'admin.min.css',
-                file: 'dist/css/admin.min.css',
-                cleanup: true
-            },
-            userguidecss: {
-                replace: ['dist/**/*.html'],
-                replacement: 'userguide.min.css',
-                file: 'dist/css/userguide.min.css',
-                cleanup: true
-            }
+            src: ['dist/**/*.html']
         },
 
         copy:{
@@ -385,7 +324,7 @@ module.exports = function(grunt) {
         'uglify',
         'usemin',
         'ngtemplates',
-        'cache-busting',
+        'cacheBust',
         'clean:tmp'
     ]);
 
