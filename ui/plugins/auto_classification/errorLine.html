@@ -1,0 +1,107 @@
+<div ng-if="line.verified">
+  <a ng-if="!line.verifiedIgnore"
+     class="label label-xs label-primary"
+     title="This line is verified"
+     target="_blank"
+     ng-href="/failureviewer.html#/?classified_failure_id={{line.data.classifiedFailureId}}">Verified</a>
+
+  <span ng-if="line.verifiedIgnore"
+        class="label label-xs label-ignored"
+        title="This line is ignored">Ignored</span>
+</div>
+
+<div class="classification-line-detail">
+  <div ng-if="failureLine">
+    <span ng-if="failureLine.action === 'test_result'">
+      <span ng-class="{'ignored-line': line.verifiedIgnore}">
+        <strong class="failure-line-status">{{ ::failureLine.status }}</strong>
+        <span ng-if="failureLine.expected != 'PASS' && failureLine.expected != 'OK'">
+          (expected <strong>{{ ::failureLine.expected }}</strong>)
+        </span>
+        | <strong>{{ ::failureLine.test }}</strong>
+        <span ng-if="failureLine.subtest">| {{ ::failureLine.subtest }}</span>
+      </span>
+      <div ng-if="failureLine.message && !line.verifiedIgnore"
+           ng-init="messageExpanded=false"
+           class="failure-line-message">
+        <span class="failure-line-message-toggle fa fa-fw fa-lg"
+              ng-class="{'fa-caret-down': messageExpanded, 'fa-caret-right': !messageExpanded}"
+              ng-click="messageExpanded = !messageExpanded"></span>
+        <span ng-if="!messageExpanded"
+              class="failure-line-message-collapsed">{{ ::failureLine.message }}</span>
+        <span ng-if="messageExpanded"
+              class="failure-line-message-expanded">{{ ::failureLine.message }}</span>
+      </div>
+    </span>
+    <span ng-if="::failureLine.action === 'log'">
+      LOG {{ ::failureLine.level }} | {{ ::failureLine.message }}
+    </span>
+    <span ng-if="::failureLine.action === 'crash'">
+      CRASH |
+      <span ng-if="::failureLine.test">
+        <strong>{{ ::failureLine.test }}</strong> |
+      </span>
+      application crashed [{{ ::failureLine.signature }}]
+    </span>
+  </div>
+  <div ng-if="!failureLine"
+       ng-bind-html="::searchLine | escapeHTML | highlightLogLine">
+  </div>
+
+  <div ng-if="line.verified && !line.verifiedIgnore">
+    <span class="glyphicon glyphicon-star best-classification-star"></span>
+    <span class="line-option-text" ng-if="line.bugNumber">
+      <a href="{{ ::getBugUrl(line.bugNumber) }}"
+         target="_blank">Bug {{ ::line.bugNumber }} -
+        <span ng-if="line.bugSummary"
+              ng-bind-html="line.bugSummary | escapeHTML"></span>
+      </a>
+      <span class="line-option-text" ng-if="!line.bugNumber">
+        Classifed failure with no bug number
+      </span>
+    </span>
+  </div>
+
+  <div ng-if="!line.verified">
+    <ul class="list-unstyled">
+      <!--classification options for line-->
+      <li ng-repeat="option in options"
+          ng-if="showHidden || !option.hidden">
+        <th-classification-option
+           error-line="line"
+           option-data="option"
+           selected-option="selectedOption"
+           can-classify="$ctrl.canClassify"
+           on-change="optionChanged()">
+        </th-classification-option>
+      </li>
+    </ul>
+
+    <!-- Using a list here is totally a hack -->
+    <ul class="list-unstyled">
+      <li>
+        <a ng-if="hasHidden(options)"
+           ng-click="$parent.showHidden = !$parent.showHidden">
+          <!-- note we have to use ng-hide rather than ng-if here otherwise the
+               node gets taken out of the dom which interfers with the did-we-click-a-link
+               code -->
+          <span ng-hide="showHidden">More…</span>
+          <span ng-hide="!showHidden">Fewer</span>
+        </a>
+      </li>
+    </ul>
+    <ul class="list-unstyled"
+        ng-hide="!$ctrl.canClassify">
+      <!--classification options for line-->
+      <li ng-repeat="option in extraOptions">
+        <th-classification-option
+           error-line="line"
+           option-data="option"
+           selected-option="selectedOption"
+           can-classify="$ctrl.canClassify"
+           on-change="optionChanged()">
+        </th-classification-option>
+      </li>
+    </ul>
+  </div>
+</div>

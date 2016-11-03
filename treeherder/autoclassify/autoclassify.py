@@ -6,12 +6,16 @@ from django.db.utils import IntegrityError
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import (ClassifiedFailure,
                                      FailureMatch,
+                                     Job,
                                      JobNote,
                                      Matcher,
                                      TextLogError,
                                      TextLogErrorMatch)
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+logging.basicConfig()
+
 
 # The minimum goodness of match we need to mark a particular match as the best match
 AUTOCLASSIFY_CUTOFF_RATIO = 0.7
@@ -41,10 +45,21 @@ def match_errors(job):
     unmatched_errors = set(TextLogError.objects.unmatched_for_job(job))
 
     if not unmatched_errors:
+        logger.info("Skipping autoclassify of job %i because it has no unmatched errors" % job.id)
         return
 
-    matches, all_matched = find_matches(unmatched_errors)
-    update_db(job, matches, all_matched)
+    try:
+        matches, all_matched = find_matches(unmatched_errors)
+        update_db(job, matches, all_matched)
+    except:
+        logger.debug("Autoclassification of job %s failed" % job.id)
+        job.autoclassify_status = Job.FAILED
+        raise
+    else:
+        logger.debug("Autoclassification of job %s suceeded" % job.id)
+        job.autoclassify_status = Job.AUTOCLASSIFIED
+    finally:
+        job.save(update_fields=['autoclassify_status'])
 
 
 def find_matches(unmatched_errors):
@@ -91,7 +106,7 @@ def update_db(job, matches, all_matched):
             except IntegrityError:
                 logger.warning(
                     "Tried to create duplicate match for TextLogError %i with matcher %i and classified_failure %i" %
-                    (text_log_error.id, matcher.id, match.classified_failure.id))
+                    (text_log_error.id, matcher.id, classified_failure.id))
         best_match = text_log_error.best_automatic_match(AUTOCLASSIFY_CUTOFF_RATIO)
         if best_match:
             text_log_error.mark_best_classification(classified_failure)

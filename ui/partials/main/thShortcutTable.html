@@ -14,56 +14,82 @@
       <tr><td class="kbd">F1</td>
         <td>Display onscreen help</td></tr>
       -->
-      <tr><td class="kbd">esc</td>
-        <td>Close all open panels</td></tr>
-      <tr><td class="kbd">f</td>
-        <td>Enter a quick filter</td></tr>
       <tr>
-        <td><span class="kbd">ctrl</span><span class="kbd">shift
-          </span><span class="kbd">f</span></td>
-        <td>Clear the quick filter</td>
+        <th colspan=2>Jobs View</th>
       </tr>
-      <tr><td class="kbd">&larr;</td>
-        <td>Select previous job</td></tr>
-      <tr><td class="kbd">&rarr;</span></td>
-        <td>Select next job</td></tr>
-      <tr><td><span class="kbd">k</span> or <span class="kbd">p</span></td>
-        <td>Select previous unclassified failure</td></tr>
-      <tr><td><span class="kbd">j</span> or <span class="kbd">n</span></td>
-        <td>Select next unclassified failure</td></tr>
-      <tr><td class="kbd">t</td>
-        <td>Select next info tab</td></tr>
-      <tr><td class="kbd">l</td>
-        <td>Open the logviewer for the selected job</td></tr>
-      <tr><td><span class="kbd">ctrl</span> or <span class="kbd">cmd</span></td>
-        <td>Toggle pinning a job during click selection</td></tr>
-      <tr><td class="kbd">spacebar</td>
-        <td>Add a selected job to the pinboard</td></tr>
-      <tr><td class="kbd">b</td>
-        <td>Add a selected job to the pinboard + enter related bug</td></tr>
-      <tr><td class="kbd">c</td>
-        <td>Add a selected job to the pinboard + enter classification</td></tr>
-      <tr><td><span class="kbd">ctrl</span><span class="kbd">enter</span></td>
-        <td>Save pinboard classification and related bugs</td></tr>
+      <tbody>
+        <tr><td><kbd>esc</td>
+          <td>Close all open panels</td></tr>
+        <tr><td><kbd>f</td>
+          <td>Enter a quick filter</td></tr>
+        <tr>
+          <td><kbd>ctrl</kbd><kbd>shift</kbd><kbd>f</kbd></td>
+          <td>Clear the quick filter</td>
+        </tr>
+        <tr><td><kbd>&larr;</td>
+          <td>Select previous job</td></tr>
+        <tr><td><kbd>&rarr;</td>
+          <td>Select next job</td></tr>
+        <tr><td><kbd>k</kbd> or <kbd>p</kbd></td>
+          <td>Select previous unclassified failure</td></tr>
+        <tr><td><kbd>j</kbd> or <kbd>n</kbd></td>
+          <td>Select next unclassified failure</td></tr>
+        <tr><td><kbd>t</td>
+          <td>Select next info tab</td></tr>
+        <tr><td><kbd>l</td>
+          <td>Open the logviewer for the selected job</td></tr>
+        <tr><td><kbd>r</td>
+          <td>Retrigger selected job</td></tr>
+        <tr><td><kbd>u</td>
+          <td>Show only unclassified failures</td></tr>
+        <tr><td><kbd>i</td>
+          <td>Toggle pending and running jobs</td></tr>
+        <tr><td><kbd>ctrl</kbd> or <kbd>cmd</kbd></td>
+          <td>Toggle pinning a job during click selection</td></tr>
+      </tbody>
       <tr>
-        <td><span class="kbd">ctrl</span><span class="kbd">shift
-          </span><span class="kbd">u</span></td>
-        <td>Clear the pinboard</td>
+        <th colspan=2>Pinboard</th>
       </tr>
-      <tr><td class="kbd">r</span></td>
-        <td>Retrigger selected job</td></tr>
-      <tr><td><span class="kbd">ctrl</span><span class="kbd">backspace</span></td>
-        <td>Delete job classification and related bugs</td></tr>
-      <tr><td class="kbd">u</td>
-        <td>Show only unclassified failures</td></tr>
-      <tr><td class="kbd">i</td>
-        <td>Toggle pending and running jobs</td></tr>
-      <tr><td class="kbd">a</td>
-        <td>Ignore unclassified failure lines (autoclassify panel)</td></tr>
-      <tr><td class="kbd">s</td>
-        <td>Save all autoclassifications (autoclassify panel)</td></tr>
-      <tr ng-if="!onscreenShortcutsShowing"><td class="kbd">?</td>
-        <td>Display onscreen keyboard shortcuts</td></tr>
+      <tbody>
+        <tr><td><kbd>spacebar</td>
+          <td>Add a selected job to the pinboard</td></tr>
+        <tr><td><kbd>b</td>
+          <td>Add a selected job to the pinboard + enter related bug</td></tr>
+        <tr><td><kbd>c</td>
+          <td>Add a selected job to the pinboard + enter classification</td></tr>
+        <tr><td><kbd>ctrl</kbd><kbd>enter</kbd></td>
+          <td>Save pinboard classification and related bugs</td></tr>
+        <tr>
+          <td><kbd>ctrl</kbd><kbd>shift</kbd><kbd>u</kbd></td>
+          <td>Clear the pinboard</td>
+        </tr>
+        <tr><td><kbd>ctrl</kbd><kbd>backspace</td>
+          <td>Delete job classification and related bugs</td></tr>
+        <tr>
+          <th colspan=2>Autoclassify Panel</th>
+        </tr>
+        <tr><td><kbd>j</kbd></td>
+          <td>Select previous failure</td></tr>
+        <tr><td><kbd>k</kbd></td>
+          <td>Select next failure</td></tr>
+        <tr><td><kbd>a</kbd></td>
+          <td>Add all subsequent lines to the selection</td></tr>
+        <tr><td><kbd>0-9</kbd></td>
+          <td>Select the Nth classification option</td></tr>
+        <tr><td><kbd>-</kbd></td>
+          <td>Ignore the failure</td></tr>
+        <tr><td><kbd>=</kbd></td>
+          <td>Select the manual classification option</td></tr>
+        <tr><td><kbd>s</kbd></td>
+          <td>Save all classifications</td></tr>
+      </tbody>
+      <tr>
+        <th colspan=2>Help</th>
+      </tr>
+      <tbody>
+        <tr><td><kbd>?</td>
+          <td>Display onscreen keyboard shortcuts</td></tr>
+      </tbody>
     </table>
   </div>
 </div>

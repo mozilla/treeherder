@@ -17,28 +17,23 @@ treeherder.factory('ThMatcherModel', [
             return url;
         };
 
-        ThMatcherModel.get_list = function(options) {
-            // a static method to retrieve a list of ThMatcherModel
-            options = options || {};
-            return $http.get(ThMatcherModel.get_uri(),{
-                cache: true,
-                params: options
-            }).
-                then(function(response) {
-                    var item_list = [];
-                    angular.forEach(response.data, function(elem){
-                        item_list.push(new ThMatcherModel(elem));
-                    });
-                    return item_list;
-                });
+        ThMatcherModel.get_list = function() {
+            return matchers;
+        };
+
+        ThMatcherModel.by_id = function() {
+            return matchers.then((data) =>
+                                 data.reduce((matchersById, matcher) =>
+                                             matchersById.set(matcher.id, matcher), new Map()));
         };
 
         ThMatcherModel.get = function(pk) {
-            // a static method to retrieve a single instance of ThMatcherModel
-            return $http.get(ThMatcherModel.get_uri()+pk).then(function(response) {
-                return new ThMatcherModel(response.data);
-            });
+            ThMatcherModel.by_id.then((map) => map[pk]);
         };
+
+        var matchers = $http.get(ThMatcherModel.get_uri(), {
+            cache: true
+        }).then((response) => response.data.map((elem) => new ThMatcherModel(elem)));
 
         return ThMatcherModel;
     }]);

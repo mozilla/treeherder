@@ -1,0 +1,38 @@
+<span style="display:none"></span>
+<th-autoclassify-toolbar
+   class="th-context-navbar"
+   load-status="$ctrl.loadStatus"
+   autoclassify-status="$ctrl.autoclassifyStatus"
+   th-user="$ctrl.thUser"
+   has-selection="$ctrl.selectedLineIds.size > 0"
+   can-save="canSave(selectedLines())"
+   can-save-all="canSave(pendingLines())"
+   can-classify="canClassify"
+   on-ignore="$ctrl.onIgnore()"
+   on-save="$ctrl.onSave()"
+   on-save-all="$ctrl.onSaveAll()"
+   ></th-autoclassify-toolbar>
+
+<div ng-switch="$ctrl.loadStatus">
+  <span ng-switch-when="pending">Logs not fully parsed, please wait</span>
+  <span ng-switch-when="failed">Log parsing failed</span>
+  <span ng-switch-when="no_logs">No errors logged</span>
+  <div ng-switch-when="loading" class="overlay">
+    <div>
+      <span class="fa fa-spinner fa-pulse th-spinner-lg"></span>
+    </div>
+  </div>
+  <span ng-switch-when="ready"></span>
+  <span ng-switch-when="error">Error showing autoclassification data</span>
+  <span ng-switch-default>Unexpected status {{ $ctrl.status }}</span>
+</div>
+
+<th-autoclassify-errors
+   load-status="$ctrl.loadStatus"
+   error-matchers="errorMatchers"
+   error-lines="errorLines"
+   selected-line-ids="$ctrl.selectedLineIds"
+   can-classify="canClassify"
+   on-update-line="$ctrl.onUpdateLine(lineId, type, classifiedFailureId, bugNumber)"
+   on-toggle-select="$ctrl.onToggleSelect(lineIds, clear)"
+   ></th-autoclassify-errors>

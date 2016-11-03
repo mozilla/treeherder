@@ -259,7 +259,7 @@ input:focus::-moz-placeholder {
  * Text
  */
 
-.kbd {
+kbd {
   display: inline-block;
   padding: 3px 5px;
   font: 11px/10px Consolas,"Liberation Mono",Menlo,Courier,monospace;
@@ -333,9 +333,11 @@ input:focus::-moz-placeholder {
 }
 
 #onscreen-shortcuts {
-    position: relative;
-    top: 130px;
+    position: fixed;
+    top: 50%;
     left: 16.5%;
+    transform: translateY(-50%);
+    width:100%;
 }
 
 /*

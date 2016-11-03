@@ -163,7 +163,8 @@ module.exports = function(grunt) {
                 report: 'min',
                 // Cannot use mangle, it will break angularjs's dependency
                 // injection
-                mangle: false
+                mangle: false,
+                beautify: true
             }
         },
         ngtemplates: {
