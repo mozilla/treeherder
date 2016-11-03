@@ -35,9 +35,9 @@ treeherder.component("login", {
         onUserChange: "&"
     },
     controller: ['$scope', '$location', '$window', '$localStorage',
-                          'ThUserModel', '$http', 'thUrl',
-                 function ($scope, $location, $window, $localStorage,
-                          ThUserModel, $http, thUrl) {
+        'ThUserModel', '$http', 'thUrl',
+        function ($scope, $location, $window, $localStorage,
+                  ThUserModel, $http, thUrl) {
             this.user = {};
             // can't reference "this" within a $watch, create var references for
             // them.
@@ -101,34 +101,42 @@ treeherder.component("login", {
         }]
 });
 
-treeherder.service(
-    'loginCallback', ['$localStorage', '$location', '$window', '$http', '$cookies',
-    function($localStorage, $location, $window, $http) {
+treeherder.component("loginCallback", {
+    template: `
+        <div ng-if="!loginError">
+            <span>Logging in... <span class="fa fa-spinner fa-spin"></span></span>
+        </div>
+        <div ng-if="loginError">
+            <span>Error logging in: {{loginError}}</span>
+        </div>
+    `,
+    controller: ['$localStorage', '$location', '$window', '$http', '$scope',
+        function($localStorage, $location, $window, $http, $scope) {
+            const host = $location.host();
+            const port = $location.port();
+            const urlBase = `${$location.protocol()}://${host}:${port}/`;
+            const certificate = $location.search().certificate;
+            const credentials = {
+                id: $location.search().clientId,
+                key: $location.search().accessToken,
+                algorithm: 'sha256'
+            };
+            this.loginError = null;
+            const header = hawk.client.header(urlBase, 'GET', {
+                credentials: credentials,
+                ext: hawk.utils.base64urlEncode(JSON.stringify({"certificate": JSON.parse(certificate)}))}
+            );
 
-        const host = $location.host();
-        const port = $location.port();
-        const urlBase = `${$location.protocol()}://${host}:${port}/`;
-        const certificate = $location.search().certificate;
-        const credentials = {
-            id: $location.search().clientId,
-            key: $location.search().accessToken,
-            algorithm: 'sha256'
-        };
-
-        const header = hawk.client.header(urlBase, 'GET', {
-            credentials: credentials,
-            ext: hawk.utils.base64urlEncode(JSON.stringify({"certificate": JSON.parse(certificate)}))}
-        );
-
-        // send a request from client side to TH server signed with TC
-        // creds from login.taskcluster.net
-        $http.get(`${urlBase}api/auth/login/?host=${host}&port=${port}`,
-                  {headers: {"oth": header.field}})
-            .then(function(resp) {
-                $localStorage.user = resp.data.user;
-                $window.close();
-            }, function() {
-                console.log("error logging in");
-            });
-    }]
-);
+            // send a request from client side to TH server signed with TC
+            // creds from login.taskcluster.net
+            $http.get(`${urlBase}api/auth/login/?host=${host}&port=${port}`,
+                      {headers: {"oth": header.field}})
+                .then(function(resp) {
+                    $localStorage.user = resp.data.user;
+                    $window.close();
+                }, function(data) {
+                    $scope.loginError = data.statusText;
+                });
+        }
+    ]
+});
