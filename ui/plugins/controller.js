@@ -56,7 +56,8 @@ treeherder.controller('PluginCtrl', [
         // phase of this feature.
         var showAutoClassifyTab = function() {
             thTabs.tabs.autoClassification.enabled = ($location.search().autoclassify === true ||
-                                                      $location.host().indexOf('herokuapp.com') !== -1) &&
+                                                      $location.host().indexOf('herokuapp.com') !== -1 ||
+                                                      $location.host().indexOf('localhost') !== -1) &&
                                                       $location.search().noautoclassify !== true;
         };
         showAutoClassifyTab();
@@ -603,7 +604,7 @@ treeherder.controller('PluginCtrl', [
             $scope.updateBugs();
         });
 
-        $rootScope.$on(thEvents.classificationVerified, function() {
+        $rootScope.$on(thEvents.autoclassifyVerified, function() {
             // These operations are unneeded unless we verified the full job,
             // But getting that information to here seems to be non-trivial
             $scope.updateBugs();
