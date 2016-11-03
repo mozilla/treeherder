@@ -96,5 +96,8 @@ def crossreference_error_lines(job_id, priority):
         autoclassify.apply_async(
             args=[job_id],
             routing_key="autoclassify.%s" % priority)
+    elif not settings.AUTOCLASSIFY_JOBS:
+        job.autoclassify_status = Job.SKIPPED
+        job.save(update_fields=['autoclassify_status'])
     else:
         logger.debug("Job %i didn't have any crossreferenced lines, skipping autoclassify " % job_id)

@@ -216,7 +216,10 @@ class FailureLineNoStackSerializer(serializers.ModelSerializer):
 
 
 class TextLogErrorSerializer(serializers.ModelSerializer):
+    matches = FailureMatchSerializer(many=True)
+    classified_failures = ClassifiedFailureSerializer(many=True)
     bug_suggestions = NoOpSerializer(read_only=True)
+    failure_line = FailureLineNoStackSerializer(read_only=True)
 
     class Meta:
         model = models.TextLogError

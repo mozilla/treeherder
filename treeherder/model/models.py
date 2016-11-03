@@ -665,6 +665,7 @@ class Job(models.Model):
     repository = models.ForeignKey(Repository)
     guid = models.CharField(max_length=50, unique=True)
     project_specific_id = models.PositiveIntegerField(null=True)
+    autoclassify_status = models.IntegerField(choices=AUTOCLASSIFY_STATUSES, default=PENDING)
 
     coalesced_to_guid = models.CharField(max_length=50, null=True,
                                          default=None)
@@ -799,7 +800,7 @@ class Job(models.Model):
 
         # Check that some detector would match this. This is being used as an indication
         # that the autoclassifier will be able to work on this classification
-        if not any(detector(text_log_errors)
+        if not any(detector([text_log_error])
                    for detector in Matcher.objects.registered_detectors()):
             return None
 
@@ -1165,7 +1166,9 @@ class FailureLine(models.Model):
         return classification, new_link
 
     def mark_best_classification_verified(self, classification):
-        if classification not in self.classified_failures.all():
+        if (classification and
+            classification.id not in self.classified_failures.values_list('id', flat=True)):
+            logger.debug("Adding new classification to TextLogError")
             manual_detector = Matcher.objects.get(name="ManualDetector")
             self.set_classification(manual_detector, classification=classification)
 
@@ -1268,18 +1271,23 @@ class ClassifiedFailure(models.Model):
         # ON matches.classified_failure_id = <other.id> AND
         #    matches.failure_line_id = failure_match.failue_line_id
         delete_ids = []
-        for match in self.matches.all():
-            try:
-                existing = FailureMatch.objects.get(classified_failure=other,
-                                                    failure_line=match.failure_line)
-                if match.score > existing.score:
-                    existing.score = match.score
-                    existing.save()
-                delete_ids.append(match.id)
-            except FailureMatch.DoesNotExist:
-                match.classified_failure = other
-                match.save()
-        FailureMatch.objects.filter(id__in=delete_ids).delete()
+        for Match, key, matches in [(TextLogErrorMatch, "text_log_error",
+                                     self.error_matches.all()),
+                                    (FailureMatch, "failure_line",
+                                     self.matches.all())]:
+            for match in matches:
+                kwargs = {key: getattr(match, key)}
+                existing = Match.objects.filter(classified_failure=other, **kwargs)
+                if existing:
+                    for existing_match in existing:
+                        if match.score > existing_match.score:
+                            existing_match.score = match.score
+                            existing_match.save()
+                    delete_ids.append(match.id)
+                else:
+                    match.classified_failure = other
+                    match.save()
+            Match.objects.filter(id__in=delete_ids).delete()
         FailureLine.objects.filter(best_classification=self).update(best_classification=other)
         self.delete()
 

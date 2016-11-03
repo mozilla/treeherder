@@ -253,6 +253,9 @@ class JobsViewSet(viewsets.ViewSet):
         if platform_option:
             resp["platform_option"] = platform_option
 
+        status_map = {k: v for k, v in Job.AUTOCLASSIFY_STATUSES}
+        resp["autoclassify_status"] = status_map[job.autoclassify_status]
+
         return Response(resp)
 
     def list(self, request, project):
@@ -534,6 +537,10 @@ class JobsViewSet(viewsets.ViewSet):
                             status=HTTP_404_NOT_FOUND)
         textlog_errors = (TextLogError.objects
                           .filter(step__job=job)
+                          .select_related("failure_line")
+                          .prefetch_related("classified_failures",
+                                            "matches",
+                                            "matches__matcher")
                           .order_by('id'))
         return Response(serializers.TextLogErrorSerializer(textlog_errors,
                                                            many=True,

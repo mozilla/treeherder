@@ -6,6 +6,7 @@ from django.db import (IntegrityError,
 from mozlog.formatters.tbplformatter import TbplFormatter
 
 from treeherder.model.models import (FailureLine,
+                                     Job,
                                      TextLogError,
                                      TextLogSummary,
                                      TextLogSummaryLine)
@@ -13,7 +14,6 @@ from treeherder.model.models import (FailureLine,
 logger = logging.getLogger(__name__)
 
 
-@transaction.atomic
 def crossreference_job(job):
     """Populate the TextLogSummary and TextLogSummaryLine tables for a
     job. Specifically this function tries to match the
@@ -26,9 +26,21 @@ def crossreference_job(job):
     """
 
     try:
-        return _crossreference(job)
+        if job.autoclassify_status >= Job.CROSSREFERENCED:
+            logger.debug("Job %i already crossreferenced" % job.id)
+            return (TextLogError.objects
+                    .filter(step__job=job)
+                    .exists() and
+                    FailureLine.objects
+                    .filter(job_guid=job.guid)
+                    .exists())
+        rv = _crossreference(job)
+        job.autoclassify_status = Job.CROSSREFERENCED
+        job.save(update_fields=['autoclassify_status'])
+        return rv
     except IntegrityError:
         logger.warning("IntegrityError crossreferencing error lines for job %s" % job.id)
+        return False
 
 
 @transaction.atomic
@@ -42,7 +54,7 @@ def _crossreference(job):
     text_log_errors = TextLogError.objects.filter(
         step__job=job).order_by('line_number')
 
-    # If we don't have failure lines and text log errors nothing will happen
+    # If we don't have both failure lines and text log errors nothing will happen
     # so return early
     if not (failure_lines.exists() and text_log_errors.exists()):
         return False

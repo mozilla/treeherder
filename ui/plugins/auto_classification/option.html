@@ -1,0 +1,67 @@
+<div class="classification-icon">
+  <span ng-if="::option.isBest"
+        class="glyphicon glyphicon-star-empty"
+        title="Autoclassifier best match"></span>
+  <span ng-if="::!option.isBest"
+        class="classification-no-icon">&nbsp;</span>
+</div>
+
+<label>
+  <input type="radio"
+         value="{{ ::option.id }}"
+         id="{{ ::option.id }}"
+         name="{{ ::option.id }}"
+         ng-model="$ctrl.selectedOption.id"
+         ng-change="onChange()"
+         ng-if="!(option.type == 'classifiedFailure' && !option.bugNumber)"
+         ng-hide="!$ctrl.canClassify"/>
+  <span class="line-option-text" ng-if="option.bugNumber">
+    <span ng-if="option.bugResolution" class="classification-bug-resolution">[{{ option.bugResolution }}]</span>
+    <a href="{{ ::getBugUrl(option.bugNumber) }}"
+       target="_blank">{{::option.bugNumber}} -
+      <span ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:line.data.bug_suggestions.search"></span>
+    </a>
+    <span>[ {{ option.score }} ]</span>
+  </span>
+
+  <span ng-if="option.type == 'classifiedFailure' && !option.bugNumber">
+    Autoclassified failure with no associated bug number
+  </span>
+
+  <span ng-if="option.type == 'manual'"
+        class="line-option-text"
+        ng-hide="!$ctrl.canClassify">
+    Other bug <input class="manual-bug-input"
+                     id="{{ ::line.id }}-manual-bug"
+                     type="text"
+                     size="7"
+                     placeholder="Number"
+                     ng-change="onChange()"
+                     ng-model="$ctrl.selectedOption.manualBugNumber"/>
+    <a ng-if="$ctrl.selectedOption.id == 'manual' && $ctrl.selectedOption.manualBugNumber"
+       href="{{ ::getBugUrl(selectedOption.manualBugNumber) }}"
+       target="_blank">
+      [view]</a>
+  </span>
+
+  <span ng-if="option.type==='ignore'"
+        class="line-option-text"
+        ng-hide="!$ctrl.canClassify">Ignore line
+    <select ng-model="$ctrl.selectedOption.ignoreAlways"
+            ng-change="onChange()"
+            ng-options="key for (key,value) in {'Here only': false, 'For future classifications': true}">
+    </select>
+  </span>
+
+</label>
+
+
+<div class="classification-matchers" ng-if="option.type == 'classifiedFailure'">
+  Matched by:
+  <span ng-repeat='match in option.matches'>
+    {{match.matcher.name}} ({{match.score}})
+  </span>
+  <a target="th_similar"
+     ng-href="/failureviewer.html#/?classified_failure_id={{option.id}}"
+     target="_blank">Other matching failures...</a>
+</div>
