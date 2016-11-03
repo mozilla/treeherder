@@ -332,14 +332,14 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: select next unclassified failure
-            [['j', 'n'], function() {
+            ['n', function() {
                 $rootScope.$emit(thEvents.changeSelection,
                                  'next',
                                  thJobNavSelectors.UNCLASSIFIED_FAILURES);
             }],
 
             // Shortcut: select previous unclassified failure
-            [['k', 'p'], function() {
+            ['p', function() {
                 $rootScope.$emit(thEvents.changeSelection,
                                  'previous',
                                  thJobNavSelectors.UNCLASSIFIED_FAILURES);
@@ -477,17 +477,74 @@ treeherderApp.controller('MainCtrl', [
                 }
             }],
 
-            // Shortcut: delete classification and related bugs
+            // Shortcut: save all in the autoclasify panel
             ['s', function() {
                 if (thTabs.selectedTab === "autoClassification") {
-                    $scope.$evalAsync($rootScope.$emit(thEvents.saveAllAutoclassifications));
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifySaveAll));
                 }
             }],
 
-            // Shortcut: delete classification and related bugs
-            ['a', function() {
+            // Shortcut: ignore selected in the autoclasify panel
+            ['i', function() {
                 if (thTabs.selectedTab === "autoClassification") {
-                    $scope.$evalAsync($rootScope.$emit(thEvents.ignoreOthersAutoclassifications));
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyIgnore));
+                }
+            }],
+
+            // Shortcut: ignore selected in the autoclasify panel
+            [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'o'], function(ev) {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifySelectOption,
+                                                       ev.key === "o" ? "manual" : ev.key));
+                }
+            }],
+
+            // Shortcut: toggle edit mode for selected lines
+            ['e', function() {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyToggleEdit));
+                }
+            }],
+
+            // Shortcut: toggle more/fewer options in the autoclassify panel
+            ['x', function() {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyToggleExpandOptions));
+                }
+            }],
+
+            // Shortcut: select next unverified log line
+            [['j', 'shift+j'], function(ev) {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,
+                                                       'previous',
+                                                       !ev.shiftKey));
+                } else {
+                    $rootScope.$emit(thEvents.changeSelection,
+                                     'previous',
+                                     thJobNavSelectors.UNCLASSIFIED_FAILURES);
+                }
+            }],
+
+            // Shortcut: select previous unverified log line
+            [['k', 'shift+k'], function(ev) {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,
+                                                       'next',
+                                                       !ev.shiftKey));
+                } else {
+                    $rootScope.$emit(thEvents.changeSelection,
+                                     'next',
+                                     thJobNavSelectors.UNCLASSIFIED_FAILURES);
+                }
+            }],
+
+            // Shortcut: select all remaining unverified lines on the current job
+            [['a'], function() {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,
+                                                       'all_next',
+                                                       false));
                 }
             }],
 
