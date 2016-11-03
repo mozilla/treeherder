@@ -1,0 +1,16 @@
+<span></span>
+<ul class="list-unstyled" ng-if="$ctrl.loadStatus == 'ready'">
+  <li ng-repeat="errorLine in $ctrl.errorLines">
+    <th-error-line
+       ng-click="toggleSelect($event, errorLine.id)"
+       ng-class="{selected: $ctrl.selectedLineIds.has(errorLine.id)}"
+       error-matchers="$ctrl.errorMatchers"
+       error-line="errorLine"
+       is-selected="$ctrl.selectedLineIds.has(errorLine.id)"
+       can-classify="$ctrl.canClassify"
+       on-change="$ctrl.onUpdateLine({lineId: lineId,
+                                      type: type,
+                                      classifiedFailureId: classifiedFailureId,
+                                      bugNumber: bugNumber})"
+       ></th-error-line>
+</ul>

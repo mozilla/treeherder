@@ -1,0 +1,21 @@
+<div class="navbar-right">
+    <div ng-if="status === 'ready'" ng-switch="autoclassifyStatus">
+      <span ng-switch-when="cross_referenced">Autoclassification pending</span>
+      <span ng-switch-when="failed">Autoclassification failed</span>
+    </div>
+
+    <button class="btn btn-view-nav btn-sm nav-menu-btn"
+            title="{{ buttonTitle($ctrl.hasSelection, 'Ignore selected lines', 'Nothing selected') }}"
+            ng-disabled="!($ctrl.hasSelection && $ctrl.canClassify)"
+            ng-click="$ctrl.onIgnore()">Ignore</button>
+
+    <button class="btn btn-view-nav btn-sm nav-menu-btn"
+            title="{{ buttonTitle($ctrl.canSave, 'Save', 'Nothing selected') }}"
+            ng-disabled="!$ctrl.canSave"
+            ng-click="$ctrl.onSave()">Save</button>
+
+    <button class="btn btn-view-nav btn-sm nav-menu-btn"
+            title="{{ buttonTitle($ctrl.canSaveAll, 'Save All', 'Lines not classified') }}"
+            ng-disabled="!$ctrl.canSaveAll"
+            ng-click="$ctrl.onSaveAll()">Save All</button>
+</div>

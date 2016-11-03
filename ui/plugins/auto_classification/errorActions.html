@@ -1,0 +1,9 @@
+<span ng-if="actionOptions.length">{{actionOptions[0]}}</span>
+<select
+   ng-if="actionOptions.length > 1"
+   ng-model="model.value"
+   ng-change="onChange()"
+   title="{{loggedIn ? 'Update selected classifications' : 'Not logged in'}}"
+   ng-disabled="!loggedIn"
+   ng-options="value for (key, value) in updateText"
+   ></select><br>
