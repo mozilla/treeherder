@@ -82,13 +82,13 @@ class TaskclusterAuthBackend(object):
                 # TODO: remove this size limit when we upgrade to django 1.10
                 # in Bug 1311967
                 username = result["clientId"][-30:]
+                email = self._get_email(result)
 
                 try:
                     user = User.objects.get(username=username)
                 except ObjectDoesNotExist:
                     # the user doesn't already exist, create it.
                     logger.warning("Creating new user: {}".format(username))
-                    email = self._get_email(result)
                     sha = sha1()
                     sha.update(email)
                     user = User(email=email,
