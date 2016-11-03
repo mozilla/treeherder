@@ -85,6 +85,7 @@ treeherder.component("login", {
             }, function () {
                 if ($localStorage.user) {
                     // user exists and should be marked as logged in
+                    console.log("User should be logged in now");
                     _.extend(user, $localStorage.user);
                     user.loggedin = true;
                     onUserChange({$event: {user: user}});
