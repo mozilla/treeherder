@@ -53,7 +53,7 @@ treeherderApp.controller('MainCtrl', [
             }
 
             //Job counts are calculated at a later point in the page load, so this is undefined for a while
-            if(ThResultSetStore.getResultSetsArray($scope.repoName)[0].job_counts) {
+            if (ThResultSetStore.getResultSetsArray($scope.repoName)[0].job_counts) {
                 percentComplete = ThResultSetStore.getResultSetsArray($scope.repoName)[0].job_counts.percentComplete;
             }
 
@@ -148,7 +148,7 @@ treeherderApp.controller('MainCtrl', [
         $scope.toggleExcludedJobs = function() {
             if ($location.search().exclusion_profile === 'false') {
                 $location.search('exclusion_profile', null);
-            }else{
+            } else {
                 $location.search('exclusion_profile', 'false');
             }
         };
@@ -246,7 +246,7 @@ treeherderApp.controller('MainCtrl', [
             }
 
             // If the bug filer is opened, don't let these shortcuts work
-            if($document[0].body.classList.contains("filer-open")) {
+            if ($document[0].body.classList.contains("filer-open")) {
                 return true;
             }
             var overrideFunc = stopOverrides.get(combo);

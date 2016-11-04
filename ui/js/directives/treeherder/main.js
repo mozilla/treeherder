@@ -190,9 +190,9 @@ treeherder.directive("thMultiSelect",
                     var selectBoxObj = $(elem).find("select." + sourceSide).first();
                     var what = selectBoxObj.val();
                     var found;
-                    for(var i = 0; i < what.length; i++) {
+                    for (var i = 0; i < what.length; i++) {
                         found = from.indexOf(what[i]);
-                        if(found !== -1){
+                        if (found !== -1){
                             to.push(from.splice(found, 1)[0]);
                         }
                     }
@@ -223,20 +223,20 @@ treeherder.directive("thTruncatedList",
             link: function(scope, element){
                 scope.visible = parseInt(scope.numvisible);
 
-                if(typeof scope.visible !== 'number'
+                if (typeof scope.visible !== 'number'
                    || scope.visible < 0
                    || isNaN(scope.visible)){
                     throw new TypeError("The visible parameter must be a positive number");
                 }
                 // cloning the original list to avoid
                 scope.$watch("elem_list", function(newValue){
-                    if(newValue){
+                    if (newValue){
                         var elem_list_clone = angular.copy(newValue);
                         scope.visible = Math.min(scope.visible, elem_list_clone.length);
                         var visible_content = elem_list_clone.splice(0, scope.visible);
                         $(element[0]).empty();
                         $(element[0]).append(visible_content.join(", "));
-                        if(elem_list_clone.length > 0){
+                        if (elem_list_clone.length > 0){
                             $(element[0]).append(
                                 $("<a></a>")
                                     .attr("title", elem_list_clone.join(", "))
