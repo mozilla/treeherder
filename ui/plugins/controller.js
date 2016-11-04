@@ -27,7 +27,7 @@ treeherder.controller('PluginCtrl', [
             var absUrl = $location.absUrl();
 
             // Don't double up the searchStr param
-            if(absUrl.indexOf('filter-searchStr=') !== -1){
+            if (absUrl.indexOf('filter-searchStr=') !== -1){
                 var replaceString = 'filter-searchStr=' +
                                     absUrl.split('filter-searchStr=')[1].split('&')[0];
                 absUrl = absUrl.replace(replaceString, 'filter-searchStr=' +
@@ -36,7 +36,7 @@ treeherder.controller('PluginCtrl', [
                 // If there are parameters, the parameter delimiter '&'
                 // should be used
                 var delimiter = '?';
-                if(absUrl.indexOf('?') !== -1){
+                if (absUrl.indexOf('?') !== -1){
                     delimiter = '&';
                 }
 
@@ -115,7 +115,7 @@ treeherder.controller('PluginCtrl', [
             // set the scope variables needed for the job detail panel
             if (job.id) {
                 $scope.job_detail_loading = true;
-                if(selectJobPromise !== null){
+                if (selectJobPromise !== null){
                     $log.debug("timing out previous job request");
                     selectJobPromise.resolve();
                 }
@@ -418,7 +418,7 @@ treeherder.controller('PluginCtrl', [
         });
 
         $rootScope.$on(thEvents.clearSelectedJob, function() {
-            if(selectJobPromise !== null){
+            if (selectJobPromise !== null){
                 $timeout.cancel(selectJobPromise);
             }
         });

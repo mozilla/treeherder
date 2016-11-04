@@ -78,7 +78,7 @@ treeherder.directive('thSimilarJobs', [
             templateUrl: "partials/main/similar_jobs.html",
             link: function(scope) {
                 scope.$watch('job', function(newVal){
-                    if(newVal){
+                    if (newVal){
                         scope.update_similar_jobs(newVal);
                     }
                 });
@@ -91,7 +91,7 @@ treeherder.directive('thSimilarJobs', [
                 scope.update_similar_jobs = function(job){
                     var options = {result_set_id__ne: job.result_set_id};
                     angular.forEach(scope.similar_jobs_filters, function(elem, key){
-                        if(elem){
+                        if (elem){
                             options[key] = job[key];
                         }
                     });
