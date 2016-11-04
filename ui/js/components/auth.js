@@ -47,15 +47,19 @@ treeherder.component("login", {
 
             /**
              * Watch the local storage to determine if the user has changed.
-             * This is used during a frech login, but also for when other tabs may
-             * log in or out to keep all pages in sync.
+             * This is required because the login with TC happens on a separate
+             * tab and so watching localstorage is the only way to detect that
+             * a user has been logged in.
+             *
+             * This watch is hit on page load, during a fresh login, or when
+             * another tab logs in or out.
              */
             $scope.$watch(function () {
                 return $localStorage.user;
-            }, function () {
-                if ($localStorage.user) {
+            }, function (newValue) {
+                if (newValue) {
                     // user exists and should be marked as logged in
-                    _.extend($scope.user, $localStorage.user);
+                    _.extend($scope.user, newValue);
                     $scope.user.loggedin = true;
                     console.log("watch logging in", $scope.user);
                     onUserChange({$event: {user: $scope.user}});
@@ -69,8 +73,8 @@ treeherder.component("login", {
             // determine whether a user is currently logged in
             ThUserModel.get().then(function (currentUser) {
                 if (currentUser.email) {
-                    $localStorage.user = currentUser;
                     console.log("page load login", currentUser);
+                    $localStorage.user = currentUser;
                 } else {
                     console.log("page load logout");
                     delete $localStorage.user;
