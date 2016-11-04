@@ -22,14 +22,14 @@ treeherder.component("login", {
           </button>
           <ul class="dropdown-menu" role="menu" aria-labelledby="logoutLabel">
               <li>
-                <a ng-click="$ctrl.logout()">Logout</a>
+                <a ng-click="logout()">Logout</a>
               </li>
           </ul>
         </span>
 
         <a class="btn btn-view-nav btn-right-navbar nav-login-btn"
            ng-if="!user.loggedin"
-           ng-click="$ctrl.login()">Login/Register</a>
+           ng-click="login()">Login/Register</a>
     `,
     bindings: {
         onUserChange: "&"
@@ -57,16 +57,17 @@ treeherder.component("login", {
             $scope.$watch(function () {
                 return $localStorage.user;
             }, function (newValue) {
+                console.log("newValue", newValue);
                 if (newValue) {
                     // user exists and should be marked as logged in
                     _.extend($scope.user, newValue);
                     $scope.user.loggedin = true;
                     console.log("watch logging in", $scope.user);
                     onUserChange({$event: {user: $scope.user}});
-                } else {
-                    console.log("watch logging out");
-                    _.extend($scope.user, loggedOutUser);
-                    onUserChange({$event: {user: loggedOutUser}});
+                // } else {
+                //     console.log("watch logging out");
+                //     _.extend($scope.user, loggedOutUser);
+                //     onUserChange({$event: {user: loggedOutUser}});
                 }
             });
 
@@ -78,10 +79,11 @@ treeherder.component("login", {
                 } else {
                     console.log("page load logout");
                     delete $localStorage.user;
+                    setLoggedOut();
                 }
             });
 
-            this.login = function () {
+            $scope.login = function () {
                 var hash = encodeURIComponent("#");
                 var colon = encodeURIComponent(":");
                 var target = `${$location.protocol()}${colon}//${$location.host()}${colon}${$location.port()}/${hash}/login`;
@@ -93,9 +95,15 @@ treeherder.component("login", {
                 $window.open(url, "_blank");
             };
 
-            this.logout = function () {
+            $scope.logout = function () {
                 delete $localStorage.user;
                 $http.get(thUrl.getRootUrl("/auth/logout/"));
+                setLoggedOut();
+            };
+
+            var setLoggedOut = function() {
+                _.extend($scope.user, loggedOutUser);
+                onUserChange({$event: {user: loggedOutUser}});
             };
         }]
 });
