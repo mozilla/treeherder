@@ -53,6 +53,12 @@ treeherder.component("login", {
              *
              * This watch is hit on page load, during a fresh login, or when
              * another tab logs in or out.
+             *
+             * I was hitting an intermittent error where you would log in, and
+             * it would immediately hit this watcher with a value of
+             * ``undefined`` for ``newValue``.  For that reason, I'm not
+             * including an ``else`` clause that would log the user out if
+             * the value comes back empty
              */
             $scope.$watch(function () {
                 return $localStorage.user;
@@ -61,24 +67,20 @@ treeherder.component("login", {
                 if (newValue) {
                     // user exists and should be marked as logged in
                     _.extend($scope.user, newValue);
-                    $scope.user.loggedin = true;
-                    console.log("watch logging in", $scope.user);
+                    console.log("watch hit", $scope.user);
                     onUserChange({$event: {user: $scope.user}});
-                // } else {
-                //     console.log("watch logging out");
-                //     _.extend($scope.user, loggedOutUser);
-                //     onUserChange({$event: {user: loggedOutUser}});
                 }
-            });
+            }, true);
 
             // determine whether a user is currently logged in
             ThUserModel.get().then(function (currentUser) {
                 if (currentUser.email) {
                     console.log("page load login", currentUser);
+                    currentUser.loggedin = true;
                     $localStorage.user = currentUser;
                 } else {
                     console.log("page load logout");
-                    delete $localStorage.user;
+                    $localStorage.user = loggedOutUser;
                     setLoggedOut();
                 }
             });
@@ -89,14 +91,14 @@ treeherder.component("login", {
                 var target = `${$location.protocol()}${colon}//${$location.host()}${colon}${$location.port()}/${hash}/login`;
                 var description = "Treeherder";
                 var url = `https://login.taskcluster.net/?target=${target}&description=${description}`;
-                delete $localStorage.user;
+                $localStorage.user = loggedOutUser;
 
                 // open a new tab to show the taskcluster auth login page
                 $window.open(url, "_blank");
             };
 
             $scope.logout = function () {
-                delete $localStorage.user;
+                $localStorage.user = loggedOutUser;
                 $http.get(thUrl.getRootUrl("/auth/logout/"));
                 setLoggedOut();
             };
@@ -139,7 +141,9 @@ treeherder.component("loginCallback", {
             $http.get(`${urlBase}api/auth/login/?host=${host}&port=${port}`,
                       {headers: {"oth": header.field}})
                 .then(function(resp) {
-                    $localStorage.user = resp.data;
+                    var user = resp.data;
+                    user.loggedin = true;
+                    $localStorage.user = user;
                     $window.close();
                 }, function(data) {
                     $scope.loginError = data.statusText;
