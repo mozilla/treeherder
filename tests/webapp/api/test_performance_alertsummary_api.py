@@ -46,6 +46,48 @@ def test_alert_summaries_get(webapp, test_perf_alert_summary,
     assert len(resp.json['results'][0]['related_alerts']) == 0
 
 
+def test_alert_summaries_get_onhold(webapp, test_perf_alert_summary,
+                                    test_perf_alert, test_perf_alert_summary_onhold,
+                                    test_perf_alert_onhold, test_repository_onhold):
+    # verify that we get the performance summary + alert on GET
+    resp = webapp.get(reverse('performance-alert-summaries-list'))
+    assert resp.status_int == 200
+
+    # should just have the one alert summary (with one alert)
+    assert resp.json['next'] is None
+    assert resp.json['previous'] is None
+    assert len(resp.json['results']) == 1
+    assert set(resp.json['results'][0].keys()) == set([
+        'alerts',
+        'bug_number',
+        'framework',
+        'id',
+        'last_updated',
+        'prev_result_set_id',
+        'related_alerts',
+        'repository',
+        'result_set_id',
+        'status',
+    ])
+    assert len(resp.json['results'][0]['alerts']) == 1
+    assert set(resp.json['results'][0]['alerts'][0].keys()) == set([
+        'id',
+        'status',
+        'series_signature',
+        'is_regression',
+        'manually_created',
+        'prev_value',
+        'new_value',
+        't_value',
+        'amount_abs',
+        'amount_pct',
+        'summary_id',
+        'related_summary_id',
+        'classifier'
+    ])
+    assert len(resp.json['results'][0]['related_alerts']) == 0
+
+
 def test_alert_summaries_put(webapp, test_repository, test_perf_signature,
                              test_perf_alert_summary, test_user, test_sheriff):
     # verify that we fail if not authenticated

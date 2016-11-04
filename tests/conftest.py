@@ -151,6 +151,23 @@ def test_repository(transactional_db):
 
 
 @pytest.fixture
+def test_repository_onhold(transactional_db):
+    from treeherder.model.models import Repository
+
+    r = Repository.objects.create(
+        dvcs_type="hg",
+        name=settings.TREEHERDER_TEST_PROJECT + "_test_onhold",
+        url="https://hg.mozilla.org/mozilla-central",
+        active_status="onhold",
+        codebase="gecko",
+        repository_group_id=1,
+        description="",
+        performance_alerts_enabled=True
+    )
+    return r
+
+
+@pytest.fixture
 def test_job(eleven_job_blobs, jm):
     from treeherder.model.models import Job
 
@@ -592,10 +609,36 @@ def test_perf_alert_summary(test_repository, test_perf_framework):
 
 
 @pytest.fixture
+def test_perf_alert_summary_onhold(test_repository_onhold, test_perf_framework):
+    from treeherder.perf.models import PerformanceAlertSummary
+    return PerformanceAlertSummary.objects.create(
+        repository=test_repository_onhold,
+        framework=test_perf_framework,
+        prev_result_set_id=1,
+        result_set_id=2,
+        manually_created=False,
+        last_updated=datetime.datetime.now())
+
+
+@pytest.fixture
 def test_perf_alert(test_perf_signature, test_perf_alert_summary):
     from treeherder.perf.models import PerformanceAlert
     return PerformanceAlert.objects.create(
         summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        is_regression=True,
+        amount_pct=0.5,
+        amount_abs=50.0,
+        prev_value=100.0,
+        new_value=150.0,
+        t_value=20.0)
+
+
+@pytest.fixture
+def test_perf_alert_onhold(test_perf_signature, test_perf_alert_summary_onhold):
+    from treeherder.perf.models import PerformanceAlert
+    return PerformanceAlert.objects.create(
+        summary=test_perf_alert_summary_onhold,
         series_signature=test_perf_signature,
         is_regression=True,
         amount_pct=0.5,
