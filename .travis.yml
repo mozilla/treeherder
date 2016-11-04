@@ -26,6 +26,7 @@ matrix:
         - source ~/venv/bin/activate
         - pip install --disable-pip-version-check --upgrade pip==8.1.1
       install:
+        - node --version
         - npm prune
         - npm install
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
