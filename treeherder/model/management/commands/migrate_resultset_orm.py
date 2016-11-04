@@ -55,7 +55,7 @@ class Command(BaseCommand):
         try:
             print rs_id,
             push = Push.objects.get(repository=repository,
-                                    revision__startswith=revision)
+                                    revision__startswith=revision[:12])
             if skip_existing:
                 # already exists and we're skipping existing entries
                 return
