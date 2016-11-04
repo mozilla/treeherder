@@ -230,7 +230,7 @@ class AlertSummaryPagination(pagination.PageNumberPagination):
 
 class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     """ViewSet for the performance alert summary model"""
-    queryset = PerformanceAlertSummary.objects.all().prefetch_related(
+    queryset = PerformanceAlertSummary.objects.filter(repository__active_status='active').prefetch_related(
         'alerts', 'alerts__series_signature',
         'repository',
         'alerts__series_signature__platform',
