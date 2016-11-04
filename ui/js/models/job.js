@@ -68,7 +68,7 @@ treeherder.factory('ThJobModel', [
                     var item_list;
                     var next_pages_jobs = [];
                     // if the number of elements returned equals the page size, fetch the next pages
-                    if(fetch_all && (response.data.results.length === response.data.meta.count)) {
+                    if (fetch_all && (response.data.results.length === response.data.meta.count)) {
                         var current_offset = parseInt(response.data.meta.offset);
                         var page_size = parseInt(response.data.meta.count);
                         var new_options = angular.copy(options);
@@ -76,14 +76,14 @@ treeherder.factory('ThJobModel', [
                         new_options.count = page_size;
                         next_pages_jobs = ThJobModel.get_list(repoName, new_options, config);
                     }
-                    if(_.has(response.data, 'job_property_names')){
+                    if (_.has(response.data, 'job_property_names')){
                         // the results came as list of fields
                         //we need to convert them to objects
                         item_list = _.map(response.data.results, function(elem){
                             var job_obj = _.object(response.data.job_property_names, elem);
                             return new ThJobModel(job_obj);
                         });
-                    }else{
+                    } else {
                         item_list = _.map(response.data.results, function(job_obj){
                             return new ThJobModel(job_obj);
                         });

@@ -61,7 +61,7 @@ treeherder.factory('thCloneHtml', [
         var templateId, templateName, templateTxt, i;
 
         var cloneHtmlObjs = {};
-        for(i=0; i<cloneTemplateIds.length; i++){
+        for (i=0; i<cloneTemplateIds.length; i++){
 
             templateId = cloneTemplateIds[i];
             templateName = templateId.replace('.html', '');
@@ -216,8 +216,8 @@ treeherder.factory('thNotify', [
              * Delete the first non-sticky element from the notifications queue
              */
             shift: function(){
-                for(var i=0;i<thNotify.notifications.length; i++){
-                    if(!thNotify.notifications[i].sticky){
+                for (var i=0;i<thNotify.notifications.length; i++){
+                    if (!thNotify.notifications[i].sticky){
                         thNotify.remove(i);
                         return;
                     }
@@ -240,7 +240,7 @@ treeherder.factory('thPlatformName', [
 
         return function(name) {
             var platformName = thPlatformMap[name];
-            if(typeof(platformName) !== "object") {
+            if (typeof(platformName) !== "object") {
                 platformName = name;
             } else {
                 platformName = platformName[0];

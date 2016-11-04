@@ -51,14 +51,13 @@ treeherder.factory('ThJobExclusionModel', [
                         thNotify.send("Filter successfully created", "success");
                     },
                     function(reason){
-                        if(reason.status === 400){
+                        if (reason.status === 400){
                             angular.forEach(reason.data, function(error_list){
                                 angular.forEach(error_list, function(error){
                                     thNotify.send(error, "danger");
                                 });
                             });
-                        }
-                        else{
+                        } else {
                             thNotify.send(reason,"danger");
                         }
                         return $q.reject(reason);
@@ -79,14 +78,13 @@ treeherder.factory('ThJobExclusionModel', [
                         thNotify.send("Job filter successfully updated", "success");
                     },
                     function(reason){
-                        if(reason.status === 400){
+                        if (reason.status === 400){
                             angular.forEach(reason.data, function(error_list, field){
                                 angular.forEach(error_list, function(error){
                                     thNotify.send(field+": "+error, "danger");
                                 });
                             });
-                        }
-                        else{
+                        } else {
                             thNotify.send(reason,"danger");
                         }
                         return $q.reject(reason);

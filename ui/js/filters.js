@@ -32,7 +32,7 @@ treeherder.filter('linkifyClassifications', ['ThRepositoryModel', function(ThRep
 
         var repo = ThRepositoryModel.getRepo(projectName);
 
-        if(repo.dvcs_type === "hg" && isSHA(str)) {
+        if (repo.dvcs_type === "hg" && isSHA(str)) {
             var hg_url = "<a href=\'" + repo.url + "/rev/" + str + "\'>" + str + "</a>";
             str = hg_url;
         }
@@ -45,7 +45,7 @@ function isSHA(str) {
     var code, i, len;
 
     // SHAs come in 12 and 40 character varieties
-    if(str.length !== 12 && str.length !== 40) {
+    if (str.length !== 12 && str.length !== 40) {
         return false;
     }
 

@@ -9,14 +9,14 @@ treeherder.controller('PinboardCtrl', [
 
         $rootScope.$on(thEvents.toggleJobPin, function(event, job) {
             $scope.toggleJobPin(job);
-            if(!$scope.$$phase){
+            if (!$scope.$$phase){
                 $scope.$digest();
             }
         });
 
         $rootScope.$on(thEvents.jobPin, function(event, job) {
             $scope.pinJob(job);
-            if(!$scope.$$phase){
+            if (!$scope.$$phase){
                 $scope.$digest();
             }
         });
@@ -75,7 +75,7 @@ treeherder.controller('PinboardCtrl', [
 
         $scope.save = function() {
             var errorFree = true;
-            if(!$scope.canSaveClassifications()) {
+            if (!$scope.canSaveClassifications()) {
                 thNotify.send("Please classify this failure before saving", "danger");
                 errorFree = false;
             }
@@ -83,7 +83,7 @@ treeherder.controller('PinboardCtrl', [
                 thNotify.send("Must be logged in to save job classifications", "danger");
                 errorFree = false;
             }
-            if(errorFree) {
+            if (errorFree) {
                 if ($scope.enteringBugNumber) {
                     // we should save this for the user, as they likely
                     // just forgot to hit enter.

@@ -150,9 +150,9 @@ perf.controller('e10sCtrl', [
         function updateURL() {
             $state.transitionTo('e10s', {
                 filter: $scope.filterOptions.filter,
-                showOnlyImportant: Boolean($scope.filterOptions.showOnlyImportant) ? 1 : undefined,
-                showOnlyConfident: Boolean($scope.filterOptions.showOnlyConfident) ? 1 : undefined,
-                showOnlyBlockers: Boolean($scope.filterOptions.showOnlyBlockers) ? 1 : undefined,
+                showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
+                showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined,
+                showOnlyBlockers: $scope.filterOptions.showOnlyBlockers ? 1 : undefined,
                 repo: $scope.selectedRepo.name === thDefaultRepo ? undefined : $scope.selectedRepo.name,
                 timerange: ($scope.selectedTimeRange.value !== e10sDefaultTimeRange) ? $scope.selectedTimeRange.value : undefined
             }, {
@@ -317,8 +317,8 @@ perf.controller('e10sSubtestCtrl', [
         function updateURL() {
             $state.transitionTo('e10s_comparesubtest', {
                 filter: $scope.filterOptions.filter,
-                showOnlyImportant: Boolean($scope.filterOptions.showOnlyImportant) ? 1 : undefined,
-                showOnlyConfident: Boolean($scope.filterOptions.showOnlyConfident) ? 1 : undefined,
+                showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
+                showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined,
                 repo: $scope.selectedRepo.name === thDefaultRepo ? undefined : $scope.selectedRepo.name,
                 timerange: ($scope.selectedTimeRange.value !== e10sDefaultTimeRange) ? $scope.selectedTimeRange.value : undefined
             }, {

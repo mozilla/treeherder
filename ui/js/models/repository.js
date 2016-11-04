@@ -222,7 +222,7 @@ treeherder.factory('ThRepositoryModel', [
         var getCurrentTreeStatus = function() {
             try {
                 return repos[$rootScope.repoName].treeStatus.status;
-            } catch(Exception) {
+            } catch (Exception) {
                 return "unavailable";
             }
         };
