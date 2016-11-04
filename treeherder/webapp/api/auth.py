@@ -9,6 +9,7 @@ from rest_framework.decorators import list_route
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 
+from treeherder.webapp.api.serializers import UserSerializer
 from treeherder.credentials.models import Credentials
 
 logger = logging.getLogger(__name__)
@@ -40,14 +41,12 @@ class TaskclusterAuthViewSet(viewsets.ViewSet):
         host = request.query_params.get("host", None)
         port = request.query_params.get("port", None)
 
-        user = authenticate(authorization=authorization, host=host, port=int(port))
+        user = authenticate(authorization=authorization,
+                            host=host,
+                            port=int(port))
         login(request, user)
 
-        return Response({
-            "message": "login success",
-            "user": {"email": user.email,
-                     "is_staff": user.is_staff}
-        })
+        return Response(UserSerializer(user).data)
 
     @list_route(methods=['get'])
     def logout(self, request):

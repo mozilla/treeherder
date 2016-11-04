@@ -45,14 +45,35 @@ treeherder.component("login", {
             // "clears out" the user when it is detected to be logged out.
             var loggedOutUser = {is_staff: false, email: "", loggedin: false};
 
+            /**
+             * Watch the local storage to determine if the user has changed.
+             * This is used during a frech login, but also for when other tabs may
+             * log in or out to keep all pages in sync.
+             */
+            $scope.$watch(function () {
+                return $localStorage.user;
+            }, function () {
+                if ($localStorage.user) {
+                    // user exists and should be marked as logged in
+                    _.extend($scope.user, $localStorage.user);
+                    $scope.user.loggedin = true;
+                    console.log("watch logging in", $scope.user);
+                    onUserChange({$event: {user: $scope.user}});
+                } else {
+                    console.log("watch logging out");
+                    _.extend($scope.user, loggedOutUser);
+                    onUserChange({$event: {user: loggedOutUser}});
+                }
+            });
+
             // determine whether a user is currently logged in
             ThUserModel.get().then(function (currentUser) {
                 if (currentUser.email) {
                     $localStorage.user = currentUser;
-                    onUserChange({$event: {user: currentUser}});
-
+                    console.log("page load login", currentUser);
                 } else {
-                    setUserToLoggedOut();
+                    console.log("page load logout");
+                    delete $localStorage.user;
                 }
             });
 
@@ -69,33 +90,8 @@ treeherder.component("login", {
             };
 
             this.logout = function () {
-                setUserToLoggedOut();
-                $http.get(thUrl.getRootUrl("/auth/logout/"));
-            };
-
-            /**
-             * Watch the local storage to determine if the user has changed.
-             * This is used during a frech login, but also for when other tabs may
-             * log in or out to keep all pages in sync.
-             */
-            $scope.$watch(function () {
-                return $localStorage.user;
-            }, function () {
-                if ($localStorage.user) {
-                    // user exists and should be marked as logged in
-                    console.log("User should be logged in now");
-                    _.extend($scope.user, $localStorage.user);
-                    $scope.user.loggedin = true;
-                    onUserChange({$event: {user: $scope.user}});
-                } else {
-                    setUserToLoggedOut();
-                }
-            });
-
-            var setUserToLoggedOut = function () {
                 delete $localStorage.user;
-                _.extend($scope.user, loggedOutUser);
-                onUserChange({$event: {user: loggedOutUser}});
+                $http.get(thUrl.getRootUrl("/auth/logout/"));
             };
         }]
 });
@@ -131,7 +127,7 @@ treeherder.component("loginCallback", {
             $http.get(`${urlBase}api/auth/login/?host=${host}&port=${port}`,
                       {headers: {"oth": header.field}})
                 .then(function(resp) {
-                    $localStorage.user = resp.data.user;
+                    $localStorage.user = resp.data;
                     $window.close();
                 }, function(data) {
                     $scope.loginError = data.statusText;
