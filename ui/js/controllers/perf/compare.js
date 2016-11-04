@@ -339,8 +339,8 @@ perf.controller('CompareResultsCtrl', [
                 $state.transitionTo('compare', {
                     framework: $scope.filterOptions.framework.id,
                     filter: $scope.filterOptions.filter,
-                    showOnlyImportant: Boolean($scope.filterOptions.showOnlyImportant) ? undefined : 0,
-                    showOnlyConfident: Boolean($scope.filterOptions.showOnlyConfident) ? 1 : undefined
+                    showOnlyImportant: $scope.filterOptions.showOnlyImportant ? undefined : 0,
+                    showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined
                 }, {
                     location: true,
                     inherit: true,
@@ -516,8 +516,8 @@ perf.controller('CompareSubtestResultsCtrl', [
                                        function() {
                                            $state.transitionTo('comparesubtest', {
                                                filter: $scope.filterOptions.filter,
-                                               showOnlyImportant: Boolean($scope.filterOptions.showOnlyImportant) ? 1 : undefined,
-                                               showOnlyConfident: Boolean($scope.filterOptions.showOnlyConfident) ? 1 : undefined
+                                               showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
+                                               showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined
                                            }, {
                                                location: true,
                                                inherit: true,

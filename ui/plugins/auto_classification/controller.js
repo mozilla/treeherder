@@ -489,7 +489,7 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
             if (ui.best === "ignore") {
                 ui.best = ignoreOption;
                 ignoreOption.always = true;
-            } else if(ui.best && !ui.best.hasBug) {
+            } else if (ui.best && !ui.best.hasBug) {
                 // If we have a best option with no bug, the UI won't display a
                 // radio option for that case, set the default to the following option
                 ui.selectedOptionIndex = 1;
@@ -560,7 +560,7 @@ treeherder.factory('ThStructuredLine', ['thExtendProperties',
 
                     if (selected.type === "ignore") {
                         return ["Ignore"];
-                    } else if(this.best && !this.best.hasBug) {
+                    } else if (this.best && !this.best.hasBug) {
                         return ["Update", "Create"];
                     } else if (selected === this.best) {
                         return ["Verify"];
@@ -714,7 +714,7 @@ treeherder.factory('ThUnstructuredLine', ['thExtendProperties',
                 },
 
                 get bugNumber() {
-                    if(this.selectedOption.type === "manual") {
+                    if (this.selectedOption.type === "manual") {
                         return this.selectedOption.bugNumber;
                     } else if (this.selectedOption.type === "ignore") {
                         if (this.selected.always) {

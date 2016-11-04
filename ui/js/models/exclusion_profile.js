@@ -80,14 +80,13 @@ treeherder.factory('ThExclusionProfileModel', [
                         thNotify.send("Exclusion profile successfully updated", "success");
                     },
                     function(reason){
-                        if(reason.status === 400){
+                        if (reason.status === 400){
                             angular.forEach(reason.data, function(error_list, field){
                                 angular.forEach(error_list, function(error){
                                     thNotify.send(field+": "+error, "danger");
                                 });
                             });
-                        }
-                        else{
+                        } else {
                             thNotify.send(reason,"danger");
                         }
                         return $q.reject(reason);

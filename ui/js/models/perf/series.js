@@ -82,7 +82,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
         getSeriesData: function(projectName, params) {
             return $http.get(thServiceDomain + '/api/project/' + projectName + '/performance/data/',
                              { params: params }).then(function(response) {
-                                 if(response.data) {
+                                 if (response.data) {
                                      return response.data;
                                  }
                                  return $q.reject("No series data found");

@@ -59,7 +59,7 @@ treeherder.factory('thPinboard', [
 
         var api = {
             toggleJobPin: function(job) {
-                if(pinnedJobs[job.id]) {
+                if (pinnedJobs[job.id]) {
                     api.unPinJob(job.id);
                 } else {
                     api.pinJob(job);
