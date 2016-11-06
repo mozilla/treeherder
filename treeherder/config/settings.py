@@ -34,7 +34,7 @@ SITE_ID = 1
 ROOT_URLCONF = "treeherder.config.urls"
 WSGI_APPLICATION = 'treeherder.config.wsgi.application'
 
-TIME_ZONE = "America/Los_Angeles"
+TIME_ZONE = "UTC"
 USE_I18N = False
 USE_L10N = True
 

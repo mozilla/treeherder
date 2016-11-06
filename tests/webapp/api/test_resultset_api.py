@@ -219,8 +219,8 @@ def test_resultset_list_filter_by_date(webapp, test_repository,
         u'count': 4,
         u'enddate': u'2013-08-13',
         u'filter_params': {
-            u'push_timestamp__gte': 1376118000.0,
-            u'push_timestamp__lt': 1376463600.0
+            u'push_timestamp__gte': 1376092800.0,
+            u'push_timestamp__lt': 1376438400.0
         },
         u'repository': test_project,
         u'startdate': u'2013-08-10'}

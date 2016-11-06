@@ -67,7 +67,7 @@ class Command(BaseCommand):
                 revision=revision,
                 revision_hash=revision_hash,
                 author=self._get_unicode_string(author),
-                time=datetime.datetime.fromtimestamp(push_timestamp))
+                time=datetime.datetime.utcfromtimestamp(push_timestamp))
 
         #
         # update any jobs
