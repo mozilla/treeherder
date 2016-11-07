@@ -5,7 +5,8 @@ var treeherderApp = angular.module('treeherder.app',
                                     'mc.resizer', 'angular-toArrayFilter']);
 
 treeherderApp.config(function($compileProvider, $routeProvider,
-                              $httpProvider, $logProvider, $resourceProvider) {
+                              $httpProvider, $logProvider, $resourceProvider,
+                              localStorageServiceProvider) {
     // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
     $compileProvider.debugInfoEnabled(false);
 
@@ -18,6 +19,8 @@ treeherderApp.config(function($compileProvider, $routeProvider,
     // enable or disable debug messages using $log.
     // comment out the next line to enable them
     $logProvider.debugEnabled(false);
+
+    localStorageServiceProvider.setPrefix("treeherder");
 
     // avoid CORS issue when getting the logs from the ftp site
     $httpProvider.defaults.useXDomain = true;
@@ -39,6 +42,9 @@ treeherderApp.config(function($compileProvider, $routeProvider,
             controller: 'JobsCtrl',
             templateUrl: 'partials/main/jobs.html',
             reloadOnSearch: false
+        }).
+        when('/login', {
+            template: '<login-callback/>'
         }).
         otherwise({redirectTo: '/jobs'});
 });
