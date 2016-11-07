@@ -212,12 +212,14 @@ class PerformanceAlertSummary(models.Model):
 
     class Meta:
         db_table = "performance_alert_summary"
-        unique_together = ('repository', 'framework', 'prev_result_set_id',
-                           'result_set_id')
+        unique_together = [('repository', 'framework', 'prev_result_set_id',
+                            'result_set_id'),
+                           ('repository', 'framework', 'prev_push', 'push')]
 
     def __str__(self):
         return "{} {} {}-{}".format(self.framework, self.repository,
-                                    self.prev_result_set_id, self.result_set_id)
+                                    self.prev_push.revision,
+                                    self.prev_push.revision)
 
 
 @python_2_unicode_compatible
