@@ -85,7 +85,7 @@ class PerformanceSignature(models.Model):
 class PerformanceDatum(models.Model):
 
     repository = models.ForeignKey(Repository)
-    job_id = models.PositiveIntegerField()
+    job_id = models.PositiveIntegerField(db_column="ds_job_id")
     result_set_id = models.PositiveIntegerField(null=True)
     push = models.ForeignKey(Push)
     signature = models.ForeignKey(PerformanceSignature)
