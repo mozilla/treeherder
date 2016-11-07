@@ -40,7 +40,7 @@ def test_detect_alerts_in_series(test_project, test_repository,
             result_set_id=t,
             job_id=t,
             signature=test_perf_signature,
-            push_timestamp=datetime.datetime.fromtimestamp(now + t),
+            push_timestamp=datetime.datetime.utcfromtimestamp(now + t),
             value=v)
 
     generate_new_alerts_in_series(test_perf_signature)
@@ -67,7 +67,7 @@ def test_detect_alerts_in_series(test_project, test_repository,
             result_set_id=t,
             job_id=0,
             signature=test_perf_signature,
-            push_timestamp=datetime.datetime.fromtimestamp(now + t),
+            push_timestamp=datetime.datetime.utcfromtimestamp(now + t),
             value=v)
 
     generate_new_alerts_in_series(test_perf_signature)
@@ -100,7 +100,7 @@ def test_detect_alerts_in_series_with_retriggers(
             result_set_id=t,
             job_id=j,
             signature=test_perf_signature,
-            push_timestamp=datetime.datetime.fromtimestamp(now + t),
+            push_timestamp=datetime.datetime.utcfromtimestamp(now + t),
             value=v)
     generate_new_alerts_in_series(test_perf_signature)
     _verify_alert(1, 2, 1, test_perf_signature, 0.5, 1.0, True,
@@ -119,7 +119,7 @@ def test_no_alerts_with_old_data(
             result_set_id=t,
             job_id=t,
             signature=test_perf_signature,
-            push_timestamp=datetime.datetime.fromtimestamp(t),
+            push_timestamp=datetime.datetime.utcfromtimestamp(t),
             value=v)
 
     generate_new_alerts_in_series(test_perf_signature)
@@ -148,7 +148,7 @@ def test_custom_alert_threshold(
             result_set_id=t,
             job_id=t,
             signature=test_perf_signature,
-            push_timestamp=datetime.datetime.fromtimestamp(now + t),
+            push_timestamp=datetime.datetime.utcfromtimestamp(now + t),
             value=v)
 
     generate_new_alerts_in_series(test_perf_signature)

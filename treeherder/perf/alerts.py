@@ -92,7 +92,7 @@ def generate_new_alerts_in_series(signature):
                     prev_result_set_id=prev_testrun_id,
                     defaults={
                         'manually_created': False,
-                        'last_updated': datetime.datetime.fromtimestamp(
+                        'last_updated': datetime.datetime.utcfromtimestamp(
                             cur.push_timestamp)
                     })
 

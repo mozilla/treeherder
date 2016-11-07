@@ -56,7 +56,7 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity,
         'framework': framework,
         'extra_properties': extra_properties,
         'has_subtests': signature_props.get('has_subtests', False),
-        'last_updated': datetime.datetime.fromtimestamp(0)
+        'last_updated': datetime.datetime.utcfromtimestamp(0)
     }
 
     if parent_hash:
@@ -86,9 +86,9 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity,
 
     try:
         new_series = []
-        latest_timestamp = datetime.datetime.fromtimestamp(0)
+        latest_timestamp = datetime.datetime.utcfromtimestamp(0)
         for datum in series:
-            timestamp = datetime.datetime.fromtimestamp(datum['push_timestamp'])
+            timestamp = datetime.datetime.utcfromtimestamp(datum['push_timestamp'])
             new_series.append(PerformanceDatum(
                 repository=repository,
                 result_set_id=datum['result_set_id'],
@@ -112,7 +112,7 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity,
                     job_id=datum['job_id'],
                     signature=signature,
                     value=datum['value'],
-                    push_timestamp=datetime.datetime.fromtimestamp(datum['push_timestamp']))
+                    push_timestamp=datetime.datetime.utcfromtimestamp(datum['push_timestamp']))
 
 
 class Command(BaseCommand):

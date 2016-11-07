@@ -39,5 +39,5 @@ Type 'yes' to continue, or 'no' to cancel: """)
                 result_set_id=t,
                 job_id=t,
                 signature=s,
-                push_timestamp=datetime.datetime.fromtimestamp(now + (t * 60 * 60)),
+                push_timestamp=datetime.datetime.utcfromtimestamp(now + (t * 60 * 60)),
                 value=v)

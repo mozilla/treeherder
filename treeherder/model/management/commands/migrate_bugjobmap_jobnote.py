@@ -79,7 +79,7 @@ class Command(BaseCommand):
                     job_id=job_id_mapping[ds_job_id],
                     bug_id=ds_bug_id,
                     user_id=email_mapping.get(ds_email),
-                    created=datetime.datetime.fromtimestamp(ds_timestamp)))
+                    created=datetime.datetime.utcfromtimestamp(ds_timestamp)))
             BugJobMap.objects.bulk_create(migrated_bug_job_maps)
 
             #
@@ -105,5 +105,5 @@ class Command(BaseCommand):
                     failure_classification_id=ds_failure_classification_id,
                     user_id=email_mapping.get(ds_email),
                     text=ds_note_text,
-                    created=datetime.datetime.fromtimestamp(ds_timestamp)))
+                    created=datetime.datetime.utcfromtimestamp(ds_timestamp)))
             JobNote.objects.bulk_create(migrated_job_notes)

@@ -224,7 +224,7 @@ def test_load_generic_data(test_project, test_repository,
     perf_datum = datum['blob']
 
     push_timestamp = perf_job_data['fake_job_guid']['push_timestamp']
-    pushtime = datetime.datetime.fromtimestamp(push_timestamp)
+    pushtime = datetime.datetime.utcfromtimestamp(push_timestamp)
     for suite in perf_datum['suites']:
         # verify summary, then subtests
         _verify_signature(test_repository.name,
@@ -263,7 +263,7 @@ def test_load_generic_data(test_project, test_repository,
     signature = PerformanceSignature.objects.get(
         suite=perf_datum['suites'][0]['name'],
         test=perf_datum['suites'][0]['subtests'][0]['name'])
-    signature.last_updated == datetime.datetime.fromtimestamp(push_timestamp + 1)
+    signature.last_updated == datetime.datetime.utcfromtimestamp(push_timestamp + 1)
 
 
 def test_no_performance_framework(test_project, test_repository,

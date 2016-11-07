@@ -84,7 +84,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
     # data for performance series
     job_id = job_data[job_guid]['id']
     result_set_id = job_data[job_guid]['result_set_id']
-    push_timestamp = datetime.datetime.fromtimestamp(
+    push_timestamp = datetime.datetime.utcfromtimestamp(
         job_data[job_guid]['push_timestamp'])
 
     try:
