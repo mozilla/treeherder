@@ -5,6 +5,7 @@ from django.conf.urls import (include,
 from rest_framework import routers
 
 from treeherder.webapp.api import (artifact,
+                                   auth,
                                    bug,
                                    bugzilla,
                                    classifiedfailure,
@@ -137,6 +138,8 @@ default_router.register(r'bugzilla', bugzilla.BugzillaViewSet,
                         base_name='bugzilla')
 default_router.register(r'jobdetail', jobs.JobDetailViewSet,
                         base_name='jobdetail')
+default_router.register(r'auth', auth.TaskclusterAuthViewSet,
+                        base_name='auth')
 
 urlpatterns = [
     url(r'^project/(?P<project>[\w-]{0,50})/',
