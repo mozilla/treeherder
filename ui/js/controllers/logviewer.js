@@ -1,12 +1,12 @@
 'use strict';
 
 logViewerApp.controller('LogviewerCtrl', [
-    '$anchorScroll', '$http', '$location', '$q', '$rootScope', '$scope',
+    '$anchorScroll', '$http', '$location', '$window', '$document', '$q', '$rootScope', '$scope',
     '$timeout', '$resource', 'ThTextLogStepModel', 'ThJobDetailModel', 'ThLog',
     'ThLogSliceModel', 'ThJobModel', 'thNotify', 'dateFilter', 'ThResultSetModel',
     'thDateFormat', 'thReftestStatus',
     function Logviewer(
-        $anchorScroll, $http, $location, $q, $rootScope, $scope,
+        $anchorScroll, $http, $location, $window, $document, $q, $rootScope, $scope,
         $timeout, $resource, ThTextLogStepModel, ThJobDetailModel, ThLog,
         ThLogSliceModel, ThJobModel, thNotify, dateFilter, ThResultSetModel,
         thDateFormat, thReftestStatus) {
@@ -15,6 +15,7 @@ logViewerApp.controller('LogviewerCtrl', [
         var LINE_BUFFER_SIZE = 100;
         var LogSlice;
 
+        $rootScope.logBasePath = 'https://taskcluster.github.io/unified-logviewer/';
         $rootScope.urlBasePath = $location.absUrl().split('logviewer')[0];
 
         var query_string = $location.search();
@@ -41,6 +42,7 @@ logViewerApp.controller('LogviewerCtrl', [
             $scope.showSuccessful = !$scope.hasFailedSteps();
         });
 
+        /*
         $scope.$watch('[selectedBegin, selectedEnd]', function(newVal) {
             var newHash = (newVal[0] === newVal[1]) ? newVal[0] : newVal[0] + "-L" + newVal[1];
             if (!isNaN(newVal[0])) {
@@ -63,6 +65,7 @@ logViewerApp.controller('LogviewerCtrl', [
             }
             $scope.willScroll = false;
         });
+        */
 
         $scope.click = function(line, $event) {
             $scope.willScroll = true;
@@ -87,6 +90,14 @@ logViewerApp.controller('LogviewerCtrl', [
         $scope.setLineNumber = function(number) {
             $scope.selectedBegin = number;
             $scope.selectedEnd = number;
+        };
+
+        $scope.logPostMessage = (values) => {
+            if (!values.customStyle) {
+                updateQuery(values);
+            }
+
+            $document[0].getElementById('logview').contentWindow.postMessage(values, $rootScope.logBasePath);
         };
 
         $scope.hasFailedSteps = function () {
@@ -224,7 +235,7 @@ logViewerApp.controller('LogviewerCtrl', [
         };
 
         $scope.init = function() {
-
+            setlogListener();
             $scope.logProperties = [];
             ThJobModel.get($scope.repoName, $scope.job_id).then(function(job) {
                 // set the title of the browser window/tab
@@ -272,7 +283,6 @@ logViewerApp.controller('LogviewerCtrl', [
                 jobId: $scope.job_id
             }, function(textLogSteps) {
                 $scope.steps = textLogSteps;
-
                 // add an ordering to each step
                 textLogSteps.forEach((step, i) => {step.order = i;});
 
@@ -292,16 +302,29 @@ logViewerApp.controller('LogviewerCtrl', [
                                 }
                             }
                         }
-                        moveScrollToLineNumber($scope.selectedBegin);
+                        // moveScrollToLineNumber($scope.selectedBegin);
                     });
                 } else {
-                    $scope.setLineNumber(allErrors[0].line_number);
-                    moveScrollToLineNumber($scope.selectedBegin);
+                    // $scope.setLineNumber(allErrors[0].line_number);
+                    // moveScrollToLineNumber($scope.selectedBegin);
+                    displayErrorLines(allErrors);
+
+                    if (!$location.search().lineNumber) {
+                         $scope.logPostMessage({ lineNumber: allErrors[0].line_number + 1 });
+                    }
                 }
             });
         };
 
         /** utility functions **/
+
+        function updateQuery(values) {
+            Object.keys(values).forEach((prop) => {
+                values[prop] === 'undefined' ?
+                  $location.search(prop, '') :
+                  $location.search(prop, values[prop]);
+            });
+        }
 
         function moveScrollToLineNumber(linenumber) {
             $scope.currentLineNumber = linenumber;
@@ -375,6 +398,21 @@ logViewerApp.controller('LogviewerCtrl', [
                 });
             });
         }
+
+        function displayErrorLines(errors) {
+            const css = errors
+              .reduce((line, err) => `${line}a[id="${err.line_number + 1}"]+span, `, '')
+              .slice(0, -2)
+              .concat('{background-color:red;color:white}');
+
+            $scope.logPostMessage({ customStyle: css });
+        };
+
+        function setlogListener() {
+            $window.addEventListener('message', (e) => {
+                $timeout(updateQuery(e.data));
+            });
+        };
 
         function getChunksSurrounding(line) {
             var request = {start: null, end: null};

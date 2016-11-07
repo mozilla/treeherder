@@ -29,7 +29,8 @@ treeherder.factory('thUrl', [
                 }, "");
             },
             getLogViewerUrl: function(job_id) {
-                return "logviewer.html#?job_id=" + job_id + "&repo=" + $rootScope.repoName;
+                return "logviewer.html#?job_id=" + job_id + "&repo=" + $rootScope.repoName + "&highlightStart=" +
+                  "&highlightEnd=&lineNumber=&wrapLines=false&showLineNumbers=&jumpToHighlight=false&followLog=false";
             },
             getBugUrl: function(bug_id) {
                 return "https://bugzilla.mozilla.org/show_bug.cgi?id=" + bug_id;

@@ -1,12 +1,12 @@
 <div class="steps-data">
   <div ng-repeat="step in steps"
-       ng-click="displayLog(step)"
        ng-class="{'selected': (displayedStep.order === step.order)}"
        ng-show="showSuccessful === true || step.result !== 'success'"
        class="btn btn-block lv-step clearfix {{::getShadingClass(step.result)}}"
        order="{{step.order}}">
-    <span class="pull-left clearfix text-left">
-      {{::step.order+1}}. {{::step.name}}
+    <span class="pull-left clearfix text-left"
+          ng-click="logPostMessage({ lineNumber: step.started_line_number + 1, highlightStart: step.started_line_number + 1, highlightEnd: step.finished_line_number + 1 })">
+      {{::step.order + 1}}. {{::step.name}}
     </span>
 
     <span ng-init="time=(step.duration !== null ? formatTime(step.started, step.finished) : 'Duration unknown')"
@@ -21,10 +21,10 @@
            ng-mouseover="check=(step==displayedStep)"
            ng-mouseleave="check=false"
            ng-class="{'lv-line-highlight': check}"
-           ng-click="scrollTo($event, step, error.line_number); eraseSelected(); setLineNumber(error.line_number)"
+           ng-click="logPostMessage({ lineNumber: error.line_number + 1, highlightStart: error.line_number + 1, highlightEnd: error.line_number + 1 })"
            class="text-left pull-left lv-error-line">
         <span class="label label-default lv-line-no text-left">
-          {{::error.line_number}}
+          {{::error.line_number + 1}}
         </span>
 
         <span title="{{::error.line}}">

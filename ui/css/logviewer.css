@@ -105,6 +105,10 @@ body {
     white-space: normal;
 }
 
+.logview-container {
+    flex: 1;
+}
+
 .lv-log-container {
     flex: 1;
     overflow-x: auto;
