@@ -55,7 +55,7 @@ class Command(BaseCommand):
         try:
             print rs_id,
             push = Push.objects.get(repository=repository,
-                                    revision__startswith=revision)
+                                    revision__startswith=revision[:12])
             if skip_existing:
                 # already exists and we're skipping existing entries
                 return
@@ -67,7 +67,7 @@ class Command(BaseCommand):
                 revision=revision,
                 revision_hash=revision_hash,
                 author=self._get_unicode_string(author),
-                time=datetime.datetime.fromtimestamp(push_timestamp))
+                time=datetime.datetime.utcfromtimestamp(push_timestamp))
 
         #
         # update any jobs
@@ -87,8 +87,7 @@ class Command(BaseCommand):
         legacy_job_ids = [int(id[0]) for id in c.fetchall()]
         Job.objects.filter(
             repository=repository,
-            project_specific_id__in=legacy_job_ids,
-            push=None).update(push=push)
+            project_specific_id__in=legacy_job_ids).update(push=push)
 
         #
         # get revisions corresponding to this push, create them
@@ -120,17 +119,14 @@ class Command(BaseCommand):
         # update any performance data with this result set id
         #
         PerformanceDatum.objects.filter(repository=repository,
-                                        result_set_id=rs_id,
-                                        push=None).update(
+                                        result_set_id=rs_id).update(
                                             push=push)
         PerformanceAlertSummary.objects.filter(
             repository=repository,
-            prev_result_set_id=rs_id,
-            prev_push=None).update(prev_push=push)
+            prev_result_set_id=rs_id).update(prev_push=push)
         PerformanceAlertSummary.objects.filter(
             repository=repository,
-            result_set_id=rs_id,
-            push=None).update(push=push)
+            result_set_id=rs_id).update(push=push)
 
     def handle(self, *args, **options):
 

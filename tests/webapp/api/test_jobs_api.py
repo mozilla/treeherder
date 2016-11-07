@@ -342,15 +342,15 @@ def test_text_log_steps_and_errors(webapp, eleven_jobs_stored, jm, test_reposito
     job = Job.objects.get(project_specific_id=jm.get_job(1)[0]['id'])
     TextLogStep.objects.create(job=job,
                                name='step1',
-                               started=datetime.datetime.fromtimestamp(0),
-                               finished=datetime.datetime.fromtimestamp(100),
+                               started=datetime.datetime.utcfromtimestamp(0),
+                               finished=datetime.datetime.utcfromtimestamp(100),
                                started_line_number=1,
                                finished_line_number=100,
                                result=TextLogStep.SUCCESS)
     step2 = TextLogStep.objects.create(job=job,
                                        name='step2',
-                                       started=datetime.datetime.fromtimestamp(101),
-                                       finished=datetime.datetime.fromtimestamp(200),
+                                       started=datetime.datetime.utcfromtimestamp(101),
+                                       finished=datetime.datetime.utcfromtimestamp(200),
                                        started_line_number=101,
                                        finished_line_number=200,
                                        result=TextLogStep.TEST_FAILED)
@@ -367,12 +367,12 @@ def test_text_log_steps_and_errors(webapp, eleven_jobs_stored, jm, test_reposito
     assert resp.json == [
         {
             'errors': [],
-            'finished': '1969-12-31T16:01:40',
+            'finished': '1970-01-01T00:01:40',
             'finished_line_number': 100,
             'id': 1,
             'name': 'step1',
             'result': 'success',
-            'started': '1969-12-31T16:00:00',
+            'started': '1970-01-01T00:00:00',
             'started_line_number': 1
         },
         {
@@ -398,12 +398,12 @@ def test_text_log_steps_and_errors(webapp, eleven_jobs_stored, jm, test_reposito
                     }
                 }
             ],
-            'finished': '1969-12-31T16:03:20',
+            'finished': '1970-01-01T00:03:20',
             'finished_line_number': 200,
             'id': 2,
             'name': 'step2',
             'result': 'testfailed',
-            'started': '1969-12-31T16:01:41',
+            'started': '1970-01-01T00:01:41',
             'started_line_number': 101
         }
     ]
@@ -414,15 +414,15 @@ def test_text_log_errors(webapp, eleven_jobs_stored, jm, test_repository):
     job = Job.objects.get(project_specific_id=jm.get_job(1)[0]['id'])
     TextLogStep.objects.create(job=job,
                                name='step1',
-                               started=datetime.datetime.fromtimestamp(0),
-                               finished=datetime.datetime.fromtimestamp(100),
+                               started=datetime.datetime.utcfromtimestamp(0),
+                               finished=datetime.datetime.utcfromtimestamp(100),
                                started_line_number=1,
                                finished_line_number=100,
                                result=TextLogStep.SUCCESS)
     step2 = TextLogStep.objects.create(job=job,
                                        name='step2',
-                                       started=datetime.datetime.fromtimestamp(101),
-                                       finished=datetime.datetime.fromtimestamp(200),
+                                       started=datetime.datetime.utcfromtimestamp(101),
+                                       finished=datetime.datetime.utcfromtimestamp(200),
                                        started_line_number=101,
                                        finished_line_number=200,
                                        result=TextLogStep.TEST_FAILED)

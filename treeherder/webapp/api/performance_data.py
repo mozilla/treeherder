@@ -72,7 +72,7 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
 
         if interval:
             signature_data = signature_data.filter(
-                last_updated__gte=datetime.datetime.fromtimestamp(
+                last_updated__gte=datetime.datetime.utcfromtimestamp(
                     int(time.time() - int(interval))))
 
         if start_date:
@@ -135,7 +135,7 @@ class PerformancePlatformViewSet(viewsets.ViewSet):
         interval = request.query_params.get('interval')
         if interval:
             signature_data = signature_data.filter(
-                last_updated__gte=datetime.datetime.fromtimestamp(
+                last_updated__gte=datetime.datetime.utcfromtimestamp(
                     int(time.time() - int(interval))))
 
         frameworks = request.query_params.getlist('framework')
@@ -198,7 +198,7 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
 
         if interval:
             datums = datums.filter(
-                push_timestamp__gt=datetime.datetime.fromtimestamp(
+                push_timestamp__gt=datetime.datetime.utcfromtimestamp(
                     int(time.time() - int(interval))))
 
         if start_date:
@@ -230,7 +230,7 @@ class AlertSummaryPagination(pagination.PageNumberPagination):
 
 class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     """ViewSet for the performance alert summary model"""
-    queryset = PerformanceAlertSummary.objects.all().prefetch_related(
+    queryset = PerformanceAlertSummary.objects.filter(repository__active_status='active').prefetch_related(
         'alerts', 'alerts__series_signature',
         'repository',
         'alerts__series_signature__platform',

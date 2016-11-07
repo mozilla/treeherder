@@ -1,3 +1,7 @@
+import datetime
+
+import pytest
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
@@ -5,8 +9,93 @@ from rest_framework.test import APIClient
 from treeherder.perf.models import PerformanceAlertSummary
 
 
+@pytest.fixture
+def test_repository_onhold(transactional_db):
+    from treeherder.model.models import Repository
+
+    r = Repository.objects.create(
+        dvcs_type="hg",
+        name=settings.TREEHERDER_TEST_PROJECT + "_test_onhold",
+        url="https://hg.mozilla.org/mozilla-central",
+        active_status="onhold",
+        codebase="gecko",
+        repository_group_id=1,
+        description="",
+        performance_alerts_enabled=True
+    )
+    return r
+
+
+@pytest.fixture
+def test_perf_alert_summary_onhold(test_repository_onhold, test_perf_framework):
+    from treeherder.perf.models import PerformanceAlertSummary
+    return PerformanceAlertSummary.objects.create(
+        repository=test_repository_onhold,
+        framework=test_perf_framework,
+        prev_result_set_id=1,
+        result_set_id=2,
+        manually_created=False,
+        last_updated=datetime.datetime.now())
+
+
+@pytest.fixture
+def test_perf_alert_onhold(test_perf_signature, test_perf_alert_summary_onhold):
+    from treeherder.perf.models import PerformanceAlert
+    return PerformanceAlert.objects.create(
+        summary=test_perf_alert_summary_onhold,
+        series_signature=test_perf_signature,
+        is_regression=True,
+        amount_pct=0.5,
+        amount_abs=50.0,
+        prev_value=100.0,
+        new_value=150.0,
+        t_value=20.0)
+
+
 def test_alert_summaries_get(webapp, test_perf_alert_summary,
                              test_perf_alert):
+    # verify that we get the performance summary + alert on GET
+    resp = webapp.get(reverse('performance-alert-summaries-list'))
+    assert resp.status_int == 200
+
+    # should just have the one alert summary (with one alert)
+    assert resp.json['next'] is None
+    assert resp.json['previous'] is None
+    assert len(resp.json['results']) == 1
+    assert set(resp.json['results'][0].keys()) == set([
+        'alerts',
+        'bug_number',
+        'framework',
+        'id',
+        'last_updated',
+        'prev_result_set_id',
+        'related_alerts',
+        'repository',
+        'result_set_id',
+        'status',
+    ])
+    assert len(resp.json['results'][0]['alerts']) == 1
+    assert set(resp.json['results'][0]['alerts'][0].keys()) == set([
+        'id',
+        'status',
+        'series_signature',
+        'is_regression',
+        'manually_created',
+        'prev_value',
+        'new_value',
+        't_value',
+        'amount_abs',
+        'amount_pct',
+        'summary_id',
+        'related_summary_id',
+        'classifier'
+    ])
+    assert len(resp.json['results'][0]['related_alerts']) == 0
+
+
+def test_alert_summaries_get_onhold(webapp, test_perf_alert_summary,
+                                    test_perf_alert, test_perf_alert_summary_onhold,
+                                    test_perf_alert_onhold, test_repository_onhold):
     # verify that we get the performance summary + alert on GET
     resp = webapp.get(reverse('performance-alert-summaries-list'))
     assert resp.status_int == 200

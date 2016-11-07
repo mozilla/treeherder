@@ -87,7 +87,7 @@ def test_performance_platforms(webapp, test_perf_signature):
 
 def test_performance_platforms_expired_test(webapp, test_perf_signature):
     # check that we have no performance platform if the signatures are too old
-    test_perf_signature.last_updated = datetime.datetime.fromtimestamp(0)
+    test_perf_signature.last_updated = datetime.datetime.utcfromtimestamp(0)
     test_perf_signature.save()
     resp = webapp.get(reverse('performance-signatures-platforms-list',
                               kwargs={
