@@ -106,11 +106,11 @@ def generate_new_alerts_in_series(signature):
                 summary, _ = PerformanceAlertSummary.objects.get_or_create(
                     repository=signature.repository,
                     framework=signature.framework,
+                    push_id=cur.testrun_id,
+                    prev_push_id=prev_testrun_id,
                     result_set_id=result_set_id,
                     prev_result_set_id=prev_result_set_id,
                     defaults={
-                        'push_id': cur.testrun_id,
-                        'prev_push_id': prev_testrun_id,
                         'manually_created': False,
                         'last_updated': datetime.datetime.utcfromtimestamp(
                             cur.push_timestamp)
