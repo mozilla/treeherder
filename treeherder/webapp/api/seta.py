@@ -16,10 +16,22 @@ class SetaJobPrioritySerializer(serializers.HyperlinkedModelSerializer):
 
 class SetaLowValueJobsViewSet(viewsets.ViewSet):
     def _taskcluster(self):
-        return Response(['TODO - taskcluster'])
+        job_priorities = JobPriority.objects.exclude(buildsystem='buildbot').order_by('testtype')
+        today = str(datetime.date.today())
+        ret = {
+            'jobtypes': {
+                today: []
+            }
+        }
+        for job in sorted(job_priorities):
+            # XXX: This is not really the data TaskCluster wants. This is just for now
+            # e.g. reftest-13 vs desktop-test-linux64-pgo/opt-reftest-13
+            ret['jobtypes'][today].append(job.testtype)
+
+        return Response(ret)
 
     def _buildbot(self):
-        job_priorities = JobPriority.objects.exclude(buildsystem='buildbot')
+        job_priorities = JobPriority.objects.exclude(buildsystem='taskcluster').order_by('testtype')
         today = str(datetime.date.today())
         ret = {
             'jobtypes': {
@@ -28,6 +40,7 @@ class SetaLowValueJobsViewSet(viewsets.ViewSet):
         }
         for job in job_priorities:
             # XXX: This is not really the data Buildbot wants. This is just for now
+            # e.g. web-platform-tests-e10s vs Windows 7 VM 32-bit mozilla-inbound debug test marionette-e10s
             ret['jobtypes'][today].append(job.testtype)
 
         return Response(ret)
