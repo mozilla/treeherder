@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django_browserid.admin import site as browserid_admin
 
 from treeherder.model.models import *
 from treeherder.perf.models import PerformanceFramework
@@ -24,19 +23,19 @@ class ReferenceDataSignatureAdmin(admin.ModelAdmin):
 
 
 # custom admin classes
-browserid_admin.register(JobType, JobTypeAdmin)
-browserid_admin.register(Repository)
-browserid_admin.register(ReferenceDataSignatures, ReferenceDataSignatureAdmin)
+admin.site.register(JobType, JobTypeAdmin)
+admin.site.register(Repository)
+admin.site.register(ReferenceDataSignatures, ReferenceDataSignatureAdmin)
 # default admin classes
-browserid_admin.register(Product)
-browserid_admin.register(BuildPlatform)
-browserid_admin.register(Option)
-browserid_admin.register(RepositoryGroup)
-browserid_admin.register(MachinePlatform)
-browserid_admin.register(Bugscache)
-browserid_admin.register(Machine)
-browserid_admin.register(Datasource)
-browserid_admin.register(JobGroup)
-browserid_admin.register(OptionCollection)
-browserid_admin.register(FailureClassification)
-browserid_admin.register(PerformanceFramework)
+admin.site.register(Product)
+admin.site.register(BuildPlatform)
+admin.site.register(Option)
+admin.site.register(RepositoryGroup)
+admin.site.register(MachinePlatform)
+admin.site.register(Bugscache)
+admin.site.register(Machine)
+admin.site.register(Datasource)
+admin.site.register(JobGroup)
+admin.site.register(OptionCollection)
+admin.site.register(FailureClassification)
+admin.site.register(PerformanceFramework)

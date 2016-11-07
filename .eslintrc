@@ -72,6 +72,7 @@
         "admin": true,
         "Mousetrap": true,
         "jQuery": true,
-        "React": true
+        "React": true,
+        "hawk": true
     }
 }

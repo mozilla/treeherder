@@ -1,0 +1,17 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<html>
+  <body>
+    <div>
+        {% if user.is_authenticated %}
+        <!--shouldn't see this page if you're logged in.  It should just go to admin-->
+            Current user: {{ user.email }} - {{ user.username}} - {{user.is_superuser}}
+            <div>Something went wrong.
+                 Try logging out and back in through the main <a href="/" target="_blank">Treeherder UI</a>.</div>
+        {% else %}
+            <div>Please login through the main <a href="/" target="_blank">Treeherder UI</a>.</div>
+        {% endif %}
+    </div>
+  </body>
+</html>
+{% endblock %}
