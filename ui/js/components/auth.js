@@ -58,6 +58,7 @@ treeherder.component("login", {
                             setLoggedIn(newUser);
                         } else {
                             // TODO try without this next time
+                            console.log("Got empty newValue.  checking if I should log out");
                             var storedUser = localStorageService.get("user");
                             if (!storedUser || !storedUser.email) {
                                 setLoggedOut();
