@@ -249,7 +249,7 @@ treeherder.value("thJobNavSelectors",
 );
 
 treeherder.value("thPerformanceBranches", [
-    "autoland", "fx-team", "mozilla-inbound"
+    "autoland", "mozilla-inbound"
 ]);
 
 treeherder.value("thBugzillaProductObject", {
