@@ -319,6 +319,8 @@ logViewerApp.controller('LogviewerCtrl', [
         /** utility functions **/
 
         function updateQuery(values) {
+            delete values.url;
+
             Object.keys(values).forEach((prop) => {
                 values[prop] === 'undefined' ?
                   $location.search(prop, '') :
