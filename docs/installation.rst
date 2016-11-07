@@ -36,13 +36,6 @@ Setting up Vagrant
   it is almost guranteed that some things *will break* in
   hard-to-diagnose ways if vagrant provision is not run to completion.
 
-* While the previous command is running, use the time to add this line to your **host** machine's /etc/hosts:
-
-  .. code-block:: bash
-
-     # Copy this line verbatim (do not adjust the IP)
-     192.168.33.10    local.treeherder.mozilla.org
-
 * Once the virtual machine is set up, connect to it using:
 
   .. code-block:: bash
@@ -74,7 +67,7 @@ Starting a local Treeherder instance
 
   this is more convenient because it automatically refreshes every time there's a change in the code.
 
-* Visit http://local.treeherder.mozilla.org in your browser. Note: There will be no data to display until the ingestion tasks are run.
+* Visit http://localhost:8000 in your browser. Note: There will be no data to display until the ingestion tasks are run.
 
 Running the ingestion tasks
 ---------------------------
@@ -103,7 +96,7 @@ the jobs associated with any single push generated in the last 4 hours
 
      vagrant ~/treeherder$ ./manage.py ingest_push mozilla-inbound 63f8a47cfdf5
 
-If running this locally, replace `63f8a47cfdf5` with a recent revision (= pushed within 
+If running this locally, replace `63f8a47cfdf5` with a recent revision (= pushed within
 the last four hours) on mozilla-inbound.
 
 You can further restrict the amount of data to a specific type of job
