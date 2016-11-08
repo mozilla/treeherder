@@ -8,6 +8,7 @@ from .models import (JobPriority,
 TOMORROW = timezone.now() + datetime.timedelta(days=1)
 YESTERDAY = timezone.now() + datetime.timedelta(days=1)
 
+
 # TaskRequests test
 def test_create_instance():
     TaskRequest.objects.create(repo_name='mozilla-central',
@@ -18,14 +19,15 @@ def test_create_instance():
 
 # JobPriority tests
 def test_expired_job_priority():
-    JobPriority.objects.create(testtype='web-platform-tests-1',
-                               buildtype='opt',
-                               platform='windows8-64',
-                               priority=1,
-                               timeout=5400,
-                               expiration_date=YESTERDAY,
-                               buildsystem='taskcluster')
+    jb = JobPriority.objects.create(testtype='web-platform-tests-1',
+                                    buildtype='opt',
+                                    platform='windows8-64',
+                                    priority=1,
+                                    timeout=5400,
+                                    expiration_date=YESTERDAY,
+                                    buildsystem='taskcluster')
     assert jb.has_expired() is True
+
 
 def test_not_expired_job_priority():
     jb = JobPriority.objects.create(testtype='web-platform-tests-1',
@@ -36,6 +38,7 @@ def test_not_expired_job_priority():
                                     expiration_date=TOMORROW,
                                     buildsystem='taskcluster')
     assert jb.has_expired() is False
+
 
 def test_null_testtype():
     '''The expiration date accepts null values'''
@@ -48,6 +51,7 @@ def test_null_testtype():
                                expiration_date=TOMORROW,
                                buildsystem='taskcluster')
 
+
 def test_null_expiration_date():
     '''The expiration date accepts null values'''
     JobPriority.objects.create(testtype='web-platform-tests-2',
@@ -57,6 +61,7 @@ def test_null_expiration_date():
                                timeout=5400,
                                expiration_date=None,
                                buildsystem='taskcluster')
+
 
 def test_prevent_duplicates():
     '''The expiration date accepts null values'''
