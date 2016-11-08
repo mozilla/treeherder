@@ -6,15 +6,15 @@ treeherder.directive('thLogViewer', ['$sce', '$location', ($sce, $location) => {
         replace: true,
         link: function (scope, elem) {
             elem.on('load', () => {
-                const q = $location.search();
+                var q = $location.search();
 
                 if (q.highlightStart !== 'undefined' && q.highlightStart) {
                     scope.logPostMessage({ lineNumber: q.highlightStart });
                 }
             });
 
-            const searchPart = () => {
-                const q = $location.search();
+            var searchPart = () => {
+                var q = $location.search();
 
                 return "&highlightStart=" + q.highlightStart + "&highlightEnd=" + q.highlightEnd + "&lineNumber=" +
                     q.lineNumber + "&wrapLines=" + q.wrapLines + "&showLineNumbers=" + q.showLineNumbers +

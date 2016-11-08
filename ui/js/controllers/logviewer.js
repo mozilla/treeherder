@@ -402,7 +402,7 @@ logViewerApp.controller('LogviewerCtrl', [
         }
 
         function displayErrorLines(errors) {
-            const css = errors
+            var css = errors
               .reduce((line, err) => `${line}a[id="${err.line_number + 1}"]+span, `, '')
               .slice(0, -2)
               .concat('{background-color:red;color:white}');
