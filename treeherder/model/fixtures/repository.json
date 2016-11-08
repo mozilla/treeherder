@@ -179,7 +179,7 @@
         "dvcs_type": "hg",
         "name": "fx-team",
         "url": "https://hg.mozilla.org/integration/fx-team",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 1,
         "description": "",
