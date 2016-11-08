@@ -1,10 +1,10 @@
-'''This module is used to add new jobs to the job priority table.
+'''This script add new jobs to the job priority table.
 
-This will query the Treeherder runnable api based on the latest task ID from
+This script will query the Treeherder runnable api based on the latest task ID from the
 mozilla-inbound's TaskCluster index.
 
 Known bug:
- * Only considering mozilla-inbound makes SETA act similarly in all repositories where it is
+ * Only considering mozilla-inbound makes SETA act similar in all repositories where it is
    active. Right now, this works for integration repositories since they tend to have
    the same set of jobs. Unfortunately, this is less than ideal if we want to make this
    work for project repositories.
@@ -19,7 +19,8 @@ import time
 import requests
 from redo import retry
 
-from treeherder.seta.common import *
+from treeherder.seta.common import (get_root_dir,
+                                    get_runnable_jobs_path)
 from treeherder.seta.models import JobPriority
 
 HEADERS = {
@@ -40,9 +41,7 @@ class ManageJobPriorityTable():
         This makes sure that we use a consistent key between our code and selecting jobs from the
         table.
         """
-        return unique_key(testtype=str(job['testtype']),
-                          buildtype=str(job['platform_option']),
-                          platform=str(job['platform']))
+        return (str(job['testtype']), str(job['platform_option']), str(job['platform']))
 
     def sanitized_data(self, runnable_jobs_data):
         """We receive data from runnable jobs api and return the sanitized data that meets our needs.
