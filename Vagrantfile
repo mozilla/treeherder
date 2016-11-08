@@ -15,8 +15,12 @@ def puppet_provisioner(config)
 end
 
 Vagrant.configure("2") do |config|
-  config.vm.network "private_network", ip: "192.168.33.10"
-  config.vm.network "forwarded_port", guest: 80, host: 8000
+  # required for NFS to work
+  config.vm.network "private_network", type: "dhcp"
+  # for web server access from host
+  config.vm.network "forwarded_port", guest: 80, host: 8000, host_ip: "127.0.0.1"
+  # for DB access from host
+  config.vm.network "forwarded_port", guest: 3306, host: 3308, host_ip: "127.0.0.1"
 
   config.vm.synced_folder ".", "/home/vagrant/treeherder", type: "nfs"
 
