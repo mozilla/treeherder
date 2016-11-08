@@ -8,8 +8,7 @@ from mock import MagicMock
 from tests.test_utils import post_collection
 from treeherder.client.thclient import client
 from treeherder.log_parser.parsers import StepParser
-from treeherder.model.derived import (ArtifactsModel,
-                                      JobsModel)
+from treeherder.model.derived import JobsModel
 from treeherder.model.error_summary import get_error_summary
 from treeherder.model.models import (Job,
                                      JobDetail,
@@ -47,29 +46,10 @@ def text_log_summary_dict():
     }
 
 
-def check_artifacts(test_project,
-                    job_guid,
-                    parse_status,
-                    num_artifacts,
-                    exp_artifact_names=None):
-
+def check_job_log(test_project, job_guid, parse_status):
     job_logs = JobLog.objects.filter(job__guid=job_guid)
     assert len(job_logs) == 1
     assert job_logs[0].status == parse_status
-
-    with ArtifactsModel(test_project) as artifacts_model:
-        job_id = Job.objects.values_list('project_specific_id').get(
-            guid=job_guid)
-
-        artifacts = artifacts_model.get_job_artifact_list(0, 10, conditions={
-            'job_id': {('=', job_id)}
-        })
-
-        assert len(artifacts) == num_artifacts
-
-        if exp_artifact_names:
-            artifact_names = {x['name'] for x in artifacts}
-            assert set(artifact_names) == exp_artifact_names
 
 
 def test_post_job_with_unparsed_log(test_project, result_set_stored,
@@ -401,8 +381,7 @@ def test_post_job_artifacts_by_add_artifact(
     # assert that some bug suggestions got generated
     assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 1
 
-    check_artifacts(test_project, job_guid, JobLog.PARSED, 1,
-                    {'privatebuild'})
+    check_job_log(test_project, job_guid, JobLog.PARSED)
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False

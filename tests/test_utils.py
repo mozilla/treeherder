@@ -109,7 +109,6 @@ def do_job_ingestion(jm, job_data, sample_resultset, verify_data=True):
         verify_products(products_ref)
         verify_result_sets(jm, result_sets_ref)
         verify_log_urls(jm, log_urls_ref)
-        verify_artifacts(jm, artifacts_ref)
         verify_coalesced(jm, coalesced_job_guids, coalesced_replacements)
 
 
@@ -183,20 +182,6 @@ def verify_log_urls(jm, log_urls_ref):
     log_urls = set(models.JobLog.objects.values_list('url', flat=True))
 
     assert log_urls_ref.issubset(log_urls)
-
-
-def verify_artifacts(jm, artifacts_ref):
-
-    artifacts = jm.get_dhub().execute(
-        proc='jobs.selects.get_all_artifacts',
-        key_column='name',
-        return_type='dict'
-    )
-
-    for key in artifacts.keys():
-        assert artifacts[key]['name'] == artifacts_ref[key]['name']
-        assert artifacts[key]['type'] == artifacts_ref[key]['type']
-        assert json.loads(artifacts[key]['blob']) == artifacts_ref[key]['blob']
 
 
 def verify_coalesced(jm, coalesced_job_guids, coalesced_replacements):
