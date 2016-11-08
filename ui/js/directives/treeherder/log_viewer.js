@@ -17,12 +17,12 @@ treeherder.directive('thLogViewer', ['$sce', '$location', ($sce, $location) => {
                 var q = $location.search();
 
                 return [
-                  'highlightStart',
-                  'highlightEnd',
-                  'lineNumber',
-                  'wrapLines',
-                  'showLineNumbers',
-                  'jumpToHighlight'
+                    'highlightStart',
+                    'highlightEnd',
+                    'lineNumber',
+                    'wrapLines',
+                    'showLineNumbers',
+                    'jumpToHighlight'
                 ].reduce((qs, key) => `${qs}&${key}=${q[key]}`, '');
             };
 
