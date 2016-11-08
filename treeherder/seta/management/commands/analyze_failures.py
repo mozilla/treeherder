@@ -7,7 +7,8 @@ from django.core.management.base import BaseCommand
 from redo import retry
 
 from treeherder.seta.models import JobPriority
-from ._seta import get_high_value_jobs
+from treeherder.seta.seta import get_high_value_jobs
+from treeherder.seta.update_job_priority import ManageJobPriorityTable
 
 
 DAYS_TO_ANALYZE = 90  # Number of days to go back and gather failures
@@ -51,9 +52,9 @@ class Command(BaseCommand):
 
         revisions_fixed_by_commit_plus_tagged_jobs = self.get_raw_data()
         if revisions_fixed_by_commit_plus_tagged_jobs:
-            # XXX: Temporary. This is because we can't run this command without the table
-            #      containing all jobs first; See increase_job_priority() function
-            os.system('/home/vagrant/treeherder/manage.py update_job_priority')
+            # This is because we can't run this command without the table containing
+            # all jobs first; See increase_job_priority() function about the root issue
+            ManageJobPriorityTable().update_job_priority_table()
             high_value_jobs = get_high_value_jobs(revisions_fixed_by_commit_plus_tagged_jobs,
                                                   self.analysis_percentage,
                                                   self.ignore_failures)

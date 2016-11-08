@@ -17,7 +17,6 @@ import os
 import time
 
 import requests
-from django.core.management.base import BaseCommand
 from redo import retry
 
 from treeherder.seta.common import (get_root_dir,
@@ -28,15 +27,13 @@ HEADERS = {
     'Accept': 'application/json',
     'User-Agent': 'treeherder-seta',
 }
+LOG = logging.getLogger(__name__)
 TREEHERDER_HOST = 'https://treeherder.mozilla.org'
 RUNNABLE_API = TREEHERDER_HOST + '/api/project/{0}/runnable_jobs/?decision_task_id={1}&format=json'
 
 
-class Command(BaseCommand):
-    help = 'Updates the seta_jobpriority table with information from new jobs'
-
-    def handle(self, *args, **options):
-        self.update_job_priority_table()
+class ManageJobPriorityTable():
+    ''''Updates the seta_jobpriority table with information from new jobs'''
 
     def _unique_key(self, job):
         """Return a key to query our uniqueness mapping system.
@@ -145,7 +142,7 @@ class Command(BaseCommand):
         """
         url = "https://index.taskcluster.net/v1/task/gecko.v2.%s.latest.firefox.decision/" % repo_name
         try:
-            self.stdout.write('Fetching {}'.format(url))
+            LOG.info('Fetching {}'.format(url))
             latest_task = retry(
                 requests.get,
                 args=(url, ),
@@ -154,7 +151,7 @@ class Command(BaseCommand):
             task_id = latest_task['taskId']
         except Exception as error:
             # we will end this function if got exception here
-            self.stderr.write("The request for %s failed due to %s" % (url, error))
+            LOG.warning("The request for %s failed due to %s" % (url, error))
             return None
 
         path = os.path.join(get_root_dir(), '%s.json' % task_id)
@@ -162,10 +159,10 @@ class Command(BaseCommand):
         # we do nothing if the timestamp of runablejobs.json is equal with the latest task
         # otherwise we download and update it
         if os.path.isfile(path):
-            self.stdout.write("We have already processed the data from this task (%s)." % task_id)
+            LOG.info("We have already processed the data from this task (%s)." % task_id)
             return None
         else:
-            self.stdout.write("We're going to fetch new runnable jobs data.")
+            LOG.info("We're going to fetch new runnable jobs data.")
             # We never store the output of runnable api but the minimal data we need
             data = self.sanitized_data(self.query_the_runnablejobs(repo_name=repo_name, task_id=task_id))
 
@@ -185,7 +182,7 @@ class Command(BaseCommand):
         if data:
             self._update_job_priority_table(data)
         else:
-            self.stderr.write('We received an empty data set')
+            LOG.warning('We received an empty data set')
             return
 
     def query_the_runnablejobs(self, task_id, repo_name='mozilla-inbound'):
@@ -199,8 +196,8 @@ class Command(BaseCommand):
 
             return data
         except Exception as e:
-            self.stderr.write("We failed to get runnablejobs via %s" % url)
-            self.stderr.write(str(e))
+            LOG.warning("We failed to get runnablejobs via %s" % url)
+            LOG.warning(str(e))
             return None
 
     def parse_testtype(self, build_system_type, job_type_name, platform_option, refdata):
@@ -266,7 +263,7 @@ class Command(BaseCommand):
         ]
 
     def _initialize_values(self):
-        self.stdout.write('Fetch all rows from the job priority table.')
+        LOG.info('Fetch all rows from the job priority table.')
         # Get all rows of job priorities
         db_data = JobPriority.objects.all()
         map = {}
@@ -313,7 +310,7 @@ class Command(BaseCommand):
                     db_job.buildsystem = '*'
                     db_job.save()
 
-                    self.stdout.write('Updated {}/{} from {} to {}'.format(
+                    LOG.info('Updated {}/{} from {} to {}'.format(
                        job.testtype, job.buildtype, job['build_system_type'], db_job.buildsystem
                     ))
                     updated_jobs += 1
@@ -331,18 +328,18 @@ class Command(BaseCommand):
                         buildsystem=job["build_system_type"]
                     )
                     jobpriority.save()
-                    self.stdout.write('New job was found ({},{},{},{})'.format(
+                    LOG.info('New job was found ({},{},{},{})'.format(
                         job['testtype'], job['platform_option'], job['platform'],
                         job["build_system_type"]))
                     new_jobs += 1
                 except Exception as error:
-                    self.stderr.write(str(error))
+                    LOG.warning(str(error))
                     failed_changes += 1
 
-        self.stdout.write('We have {} new jobs and {} updated jobs out of {} total jobs '
+        LOG.info('We have {} new jobs and {} updated jobs out of {} total jobs '
                           'processed.'.format(new_jobs, updated_jobs, total_jobs))
 
         if failed_changes != 0:
-            self.stderr.write('We have failed {} changes out of {} total jobs processed.'.format(
+            LOG.warning('We have failed {} changes out of {} total jobs processed.'.format(
                 failed_changes, total_jobs
             ))
