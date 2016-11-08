@@ -46,12 +46,18 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
                 parent_signature__in=parent_signatures)
 
         if not int(request.query_params.get('subtests', True)):
-            signature_data = signature_data.filter(parent_signature__isnull=True)
+            try:
+                signature_data = signature_data.filter(parent_signature__isnull=True)
+            except ValueError:
+                return "No available subtest provided", HTTP_400_BAD_REQUEST
 
         signature_ids = request.query_params.getlist('id')
         if signature_ids:
-            signature_data = signature_data.filter(id__in=map(int,
-                                                              signature_ids))
+            try:
+                signature_data = signature_data.filter(id__in=map(int,
+                                                                  signature_ids))
+            except ValueError:
+                return "No id provided", HTTP_400_BAD_REQUEST
 
         signature_hashes = request.query_params.getlist('signature')
         if signature_hashes:
