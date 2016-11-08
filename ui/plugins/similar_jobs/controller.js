@@ -24,16 +24,16 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                 offset: ($scope.page - 1) * $scope.page_size
             };
             angular.forEach($scope.similar_jobs_filters, function(value, key){
-                if(value){
+                if (value){
                     options[key] = $scope.job[key];
                 }
             });
             ThJobModel.get_similar_jobs($scope.repoName, $scope.job.id, options)
                 .then(function(data){
-                    if(data.length > 0){
-                        if(data.length > $scope.page_size){
+                    if (data.length > 0){
+                        if (data.length > $scope.page_size){
                             $scope.has_next_page = true;
-                        }else{
+                        } else {
                             $scope.has_next_page = false;
                         }
                         data.pop();
@@ -57,7 +57,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                                 });
                                 $scope.similar_jobs = $.merge($scope.similar_jobs, data);
                                 // on the first page show the first element info by default
-                                if($scope.page === 1 && $scope.similar_jobs.length > 0){
+                                if ($scope.page === 1 && $scope.similar_jobs.length > 0){
                                     $scope.show_job_info($scope.similar_jobs[0]);
                                 }
                                 thTabs.tabs.similarJobs.is_loading = false;
@@ -72,7 +72,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
         // update function triggered by the plugins controller
 
         $scope.update_similar_jobs = function(){
-            if(angular.isDefined($scope.jobLoadedPromise)){
+            if (angular.isDefined($scope.jobLoadedPromise)){
                 $scope.jobLoadedPromise.then(function(){
                     $scope.similar_jobs = [];
                     $scope.page = 1;

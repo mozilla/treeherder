@@ -1,5 +1,4 @@
 import logging
-import zlib
 
 import dateutil.parser
 import simplejson as json
@@ -29,74 +28,8 @@ class ArtifactsModel(TreeherderModelBase):
 
     """
 
-    INDEXED_COLUMNS = {
-        "job_artifact": {
-            "id": "id",
-            "job_id": "job_id",
-            "name": "name",
-            "type": "type"
-        }
-    }
-
     def execute(self, **kwargs):
         return utils.retry_execute(self.get_dhub(), logger, **kwargs)
-
-    def get_job_artifact_references(self, job_id):
-        """
-        Return the job artifact references for the given ``job_id``.
-
-        This is everything about the artifact, but not the artifact blob
-        itself.
-        """
-        data = self.execute(
-            proc="jobs.selects.get_job_artifact_references",
-            placeholders=[job_id],
-            debug_show=self.DEBUG,
-        )
-        return data
-
-    def get_job_artifact_list(self, offset, limit, conditions=None):
-        """
-        Retrieve a list of job artifacts. The conditions parameter is a
-        dict containing a set of conditions for each key. e.g.:
-        {
-            'job_id': set([('IN', (1, 2))])
-        }
-        """
-
-        replace_str, placeholders = self._process_conditions(
-            conditions, self.INDEXED_COLUMNS['job_artifact']
-        )
-
-        repl = [replace_str]
-
-        proc = "jobs.selects.get_job_artifact"
-
-        data = self.execute(
-            proc=proc,
-            replace=repl,
-            placeholders=placeholders,
-            limit=limit,
-            offset=offset,
-            debug_show=self.DEBUG,
-        )
-        for artifact in data:
-            artifact["blob"] = zlib.decompress(artifact["blob"])
-
-            if artifact["type"] == "json":
-                artifact["blob"] = json.loads(artifact["blob"])
-
-        return data
-
-    def store_job_artifact(self, artifact_placeholders):
-        """
-        Store a list of job_artifacts given a list of placeholders
-        """
-        self.execute(
-            proc='jobs.inserts.set_job_artifact',
-            debug_show=self.DEBUG,
-            placeholders=artifact_placeholders,
-            executemany=True)
 
     def store_job_details(self, job, job_info_artifact):
         """
@@ -212,8 +145,6 @@ class ArtifactsModel(TreeherderModelBase):
             }
 
         """
-        job_artifact_list = []
-
         performance_artifact_list = []
         performance_artifact_job_id_list = []
 
@@ -264,34 +195,16 @@ class ArtifactsModel(TreeherderModelBase):
                             title='buildbot_request_id',
                             value=str(buildbot_request_id))
                 else:
-                    self._adapt_job_artifact_collection(
-                        artifact, job_artifact_list,
-                        job.project_specific_id)
+                    logger.warning("Unknown artifact type: %s submitted with job %s",
+                                   artifact_name, job.guid)
             else:
                 logger.error(
                     ('load_job_artifacts: artifact not '
                      'defined for {0}'.format(self.project)))
 
-        # Store the various artifact types if we collected them
-        if job_artifact_list:
-            self.store_job_artifact(job_artifact_list)
-
         if performance_artifact_list and performance_artifact_job_id_list:
             self.store_performance_artifact(
                 performance_artifact_job_id_list, performance_artifact_list)
-
-    def _adapt_job_artifact_collection(
-            self, artifact, artifact_data, job_id):
-
-        if job_id:
-            artifact_data.append((
-                job_id,
-                artifact['name'],
-                artifact['type'],
-                zlib.compress(artifact['blob']),
-                job_id,
-                artifact['name'],
-            ))
 
     def _adapt_performance_artifact_collection(
             self, artifact, artifact_data, job_id_list, job_id):

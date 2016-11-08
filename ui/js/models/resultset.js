@@ -62,7 +62,7 @@ treeherder.factory(
                  // count defaults to 10, but can be no larger than the max.
                  params.count = !count ? 10 : Math.min(count, MAX_RESULTSET_FETCH_SIZE);
 
-                 if(rsOffsetTimestamp){
+                 if (rsOffsetTimestamp){
                      params.push_timestamp__lte = rsOffsetTimestamp;
                      // we will likely re-fetch the oldest we already have, but
                      // that's not guaranteed.  There COULD be two resultsets

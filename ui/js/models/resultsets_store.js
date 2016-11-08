@@ -179,7 +179,7 @@ treeherder.factory('ThResultSetStore', [
         };
 
         var mapResultSetJobs = function(repoName, jobList) {
-            if(jobList.length > 0) {
+            if (jobList.length > 0) {
                 // jobList contains jobs belonging to the same resultset,
                 // so we can pick the result_set_id from the first job
                 var resultSetId = jobList[0].result_set_id;
@@ -241,7 +241,7 @@ treeherder.factory('ThResultSetStore', [
 
             $log.debug("locationSearch", locationSearch);
 
-            if(_.isEmpty(repositories[repoName]) ||
+            if (_.isEmpty(repositories[repoName]) ||
                !_.isEqual(locationSearch, repositories[repoName].search)){
                 $log.debug(
                     "fetching new resultset list with parameters:",
@@ -318,7 +318,7 @@ treeherder.factory('ThResultSetStore', [
 
         var getPlatformKey = function(name, option){
             var key = name;
-            if(option !== undefined){
+            if (option !== undefined){
                 key += option;
             }
             return key;
@@ -397,7 +397,7 @@ treeherder.factory('ThResultSetStore', [
                 repositories[repoName].rsMap[rs_obj.id] = rsMapElement;
 
                 // platforms
-                if(rs_obj.platforms !== undefined){
+                if (rs_obj.platforms !== undefined){
                     mapPlatforms(repoName, rs_obj);
                 }
             }
@@ -564,7 +564,7 @@ treeherder.factory('ThResultSetStore', [
                 };
 
                 // add the new platform to the datamodel and resort
-                if(rsMapElement.rs_obj.hasOwnProperty('platforms')){
+                if (rsMapElement.rs_obj.hasOwnProperty('platforms')){
                     rsMapElement.rs_obj.platforms.push(pl_obj);
 
                     // add the new platform to the resultset map
@@ -589,7 +589,7 @@ treeherder.factory('ThResultSetStore', [
             var plMapElement = getOrCreatePlatform(repoName, newJob);
             var grMapElement;
 
-            if(plMapElement){
+            if (plMapElement){
 
                 var groupInfo = getJobGroupInfo(newJob);
 
@@ -668,7 +668,7 @@ treeherder.factory('ThResultSetStore', [
 
             //the job was not updated or added to the model, don't include it
             //in the jobsLoaded broadcast
-            if(jobUpdated === false){
+            if (jobUpdated === false){
                 return;
             }
 
@@ -676,7 +676,7 @@ treeherder.factory('ThResultSetStore', [
             platformName = job.platform;
             platformOption = job.platform_option;
 
-            if(_.isEmpty(repositories[repoName].rsMap[ resultsetId ])){
+            if (_.isEmpty(repositories[repoName].rsMap[ resultsetId ])){
                 //We don't have this resultset
                 return;
             }
@@ -688,9 +688,9 @@ treeherder.factory('ThResultSetStore', [
                 job.platform_option
             );
 
-            if(!platformData[platformAggregateId]){
+            if (!platformData[platformAggregateId]){
 
-                if(!_.isEmpty(repositories[repoName].rsMap[resultsetId])){
+                if (!_.isEmpty(repositories[repoName].rsMap[resultsetId])){
 
                     revision = repositories[repoName].rsMap[resultsetId].rs_obj.revision;
 
@@ -703,7 +703,7 @@ treeherder.factory('ThResultSetStore', [
                     $log.debug("aggregateJobPlatform", repoName, resultsetId, platformKey, repositories);
 
                     jobGroups = [];
-                    if(repositories[repoName].rsMap[resultsetId].platforms[platformKey] !== undefined){
+                    if (repositories[repoName].rsMap[resultsetId].platforms[platformKey] !== undefined){
                         jobGroups = repositories[repoName].rsMap[resultsetId].platforms[platformKey].pl_obj.groups;
                     }
 
@@ -737,7 +737,7 @@ treeherder.factory('ThResultSetStore', [
                 aggregateJobPlatform(repoName, job, platformData);
             });
 
-            if(!_.isEmpty(platformData) && repoName === $rootScope.repoName) {
+            if (!_.isEmpty(platformData) && repoName === $rootScope.repoName) {
                 $timeout($rootScope.$emit(thEvents.jobsLoaded, platformData));
             }
         };
@@ -796,7 +796,7 @@ treeherder.factory('ThResultSetStore', [
 
                 var grpMapElement = getOrCreateGroup(repoName, newJob);
 
-                if(grpMapElement){
+                if (grpMapElement){
 
                     // add the job mapping to the group
                     grpMapElement.jobs[key] = {
@@ -844,7 +844,7 @@ treeherder.factory('ThResultSetStore', [
 
         var appendResultSets = function(repoName, data) {
 
-            if(data.results.length > 0){
+            if (data.results.length > 0){
 
                 $log.debug("appendResultSets", data.results);
                 var rsIds = repositories[repoName].resultSets.map((rs) => rs.id);
@@ -1161,17 +1161,17 @@ treeherder.factory('ThResultSetStore', [
                 job_counts: getJobCount(jobList)
             };
 
-            if(jobList.length === 0){return groupedJobs;}
+            if (jobList.length === 0){return groupedJobs;}
             groupedJobs.id = jobList[0].result_set_id;
             var lastModified = "";
-            for(var i=0; i<jobList.length; i++){
+            for (var i=0; i<jobList.length; i++){
                 // search for the right platform
                 var job = jobList[i];
                 var platform = _.find(groupedJobs.platforms, function(platform){
                     return job.platform === platform.name &&
                         job.platform_option === platform.option;
                 });
-                if(_.isUndefined(platform)){
+                if (_.isUndefined(platform)){
                     platform = {
                         name: job.platform,
                         option: job.platform_option,
@@ -1186,7 +1186,7 @@ treeherder.factory('ThResultSetStore', [
                     return (groupInfo.symbol === group.symbol &&
                             groupInfo.tier === group.tier);
                 });
-                if(_.isUndefined(group)){
+                if (_.isUndefined(group)){
                     group = {
                         name: groupInfo.name,
                         symbol: groupInfo.symbol,
@@ -1212,7 +1212,7 @@ treeherder.factory('ThResultSetStore', [
                         return job.job_type_symbol.replace(
                                 /([\D]*)([\d]*)/g,
                             function(matcher, s1, s2){
-                                if(s2 !== ""){
+                                if (s2 !== ""){
                                     s2 = "00" + s2;
                                     s2 = s2.slice(-3);
                                     return s1 + s2;

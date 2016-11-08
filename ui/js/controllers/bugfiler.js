@@ -39,13 +39,13 @@ treeherder.controller('BugFilerCtrl', [
         $scope.initiate = function() {
             thPinboard.pinJob($rootScope.selectedJob);
             var thisFailure = "";
-            for(var i = 0; i < allFailures.length; i++) {
-                for(var j=0; j < $scope.omittedLeads.length; j++) {
-                    if(allFailures[i][0].search($scope.omittedLeads[j]) >= 0 && allFailures[i].length > 1) {
+            for (var i = 0; i < allFailures.length; i++) {
+                for (var j=0; j < $scope.omittedLeads.length; j++) {
+                    if (allFailures[i][0].search($scope.omittedLeads[j]) >= 0 && allFailures[i].length > 1) {
                         allFailures[i].shift();
                     }
                 }
-                if(i !== 0) {
+                if (i !== 0) {
                     thisFailure += "\n";
                 }
                 thisFailure += allFailures[i].join(" | ");
@@ -66,8 +66,8 @@ treeherder.controller('BugFilerCtrl', [
         $uibModalInstance.parseSummary = function(summary) {
             summary = summary.split(" | ");
 
-            for(var i=0; i < $scope.omittedLeads.length; i++) {
-                if(summary[0].search($scope.omittedLeads[i]) >= 0 && summary.length > 1) {
+            for (var i=0; i < $scope.omittedLeads.length; i++) {
+                if (summary[0].search($scope.omittedLeads[i]) >= 0 && summary.length > 1) {
                     summary.shift();
                 }
             }
@@ -94,36 +94,36 @@ treeherder.controller('BugFilerCtrl', [
             var failurePath = $uibModalInstance.parsedSummary[0][0];
 
             // If the "TEST-UNEXPECTED-foo" isn't one of the omitted ones, use the next piece in the summary
-            if(failurePath.includes("TEST-UNEXPECTED-")) {
+            if (failurePath.includes("TEST-UNEXPECTED-")) {
                 failurePath = $uibModalInstance.parsedSummary[0][1];
             }
             var failurePathRoot = failurePath.split("/")[0];
 
             // Look up the product via the root of the failure's file path
-            if(thBugzillaProductObject[failurePathRoot]) {
+            if (thBugzillaProductObject[failurePathRoot]) {
                 $scope.suggestedProducts.push(thBugzillaProductObject[failurePathRoot][0]);
             }
 
             // Some job types are special, lets explicitly handle them.
-            if(selectedJob.job_group_name.includes("Web Platform")) {
+            if (selectedJob.job_group_name.includes("Web Platform")) {
                 $scope.suggestedProducts.push("Testing :: web-platform-tests");
             }
 
             // Look up product suggestions via Bugzilla's api
             var productSearch = $scope.productSearch;
 
-            if(productSearch) {
+            if (productSearch) {
                 $http.get("https://bugzilla.mozilla.org/rest/prod_comp_search/" + productSearch + "?limit=5").then(function(request) {
                     var data = request.data;
                     // We can't file unless product and component are provided, this api can return just product. Cut those out.
-                    for(var i = data.products.length - 1; i >= 0; i--) {
-                        if(!data.products[i].component) {
+                    for (var i = data.products.length - 1; i >= 0; i--) {
+                        if (!data.products[i].component) {
                             data.products.splice(i, 1);
                         }
                     }
                     $scope.suggestedProducts = [];
                     $scope.suggestedProducts = _.map(data.products, function(prod) {
-                        if(prod.product && prod.component) {
+                        if (prod.product && prod.component) {
                             return prod.product + " :: " + prod.component;
                         }
                         return prod.product;
@@ -160,13 +160,13 @@ treeherder.controller('BugFilerCtrl', [
 
             $scope.toggleForm(true);
 
-            if($scope.modalSummary.length > 255) {
+            if ($scope.modalSummary.length > 255) {
                 thNotify.send("Please ensure the summary is no more than 255 characters", "danger");
                 $scope.toggleForm(false);
                 return;
             }
 
-            if($scope.selection.selectedProduct) {
+            if ($scope.selection.selectedProduct) {
                 var prodParts = $scope.selection.selectedProduct.split(" :: ");
                 productString += prodParts[0];
                 componentString += prodParts[1];
@@ -177,12 +177,12 @@ treeherder.controller('BugFilerCtrl', [
             }
 
             var descriptionStrings = _.reduce($scope.checkedLogLinks, function(result, link) {
-                if(link) {
+                if (link) {
                     result = result + link + "\n\n";
                 }
                 return result;
             }, "");
-            if($scope.modalComment) {
+            if ($scope.modalComment) {
                 descriptionStrings += $scope.modalComment;
             }
 
@@ -218,7 +218,7 @@ treeherder.controller('BugFilerCtrl', [
                         "comment_tags": "treeherder"
                     }
                 }).then(function successCallback(json) {
-                    if(json.data.failure) {
+                    if (json.data.failure) {
                         var errorString = "";
                         for (var i = 0; i < json.data.failure.length; i++) {
                             errorString += json.data.failure[i];
@@ -237,7 +237,7 @@ treeherder.controller('BugFilerCtrl', [
                     }
                 }, function errorCallback(response) {
                     var failureString = "Bug Filer API returned status " + response.status + " (" + response.statusText + ")";
-                    if(response.data && response.data.failure) {
+                    if (response.data && response.data.failure) {
                         failureString += "\n\n" + response.data.failure;
                     }
                     thNotify.send(failureString, "danger");

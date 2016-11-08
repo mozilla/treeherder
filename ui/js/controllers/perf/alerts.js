@@ -224,8 +224,8 @@ perf.controller('AlertsCtrl', [
                 status: $scope.alertId ? undefined : $scope.filterOptions.status.id,
                 framework: $scope.alertId ? undefined : $scope.filterOptions.framework.id,
                 filter: $scope.filterOptions.filter,
-                hideImprovements: Boolean($scope.filterOptions.hideImprovements) ? 1 : undefined,
-                hideTo: Boolean($scope.filterOptions.hideTo) ? 1 : undefined,
+                hideImprovements: $scope.filterOptions.hideImprovements ? 1 : undefined,
+                hideTo: $scope.filterOptions.hideTo ? 1 : undefined,
                 page: 1
             }, {
                 location: true,

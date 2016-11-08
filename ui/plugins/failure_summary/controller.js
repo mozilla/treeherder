@@ -97,7 +97,7 @@ treeherder.controller('BugsPluginCtrl', [
             var summary = $scope.suggestions[index].search;
             var allFailures = [];
 
-            for( var i=0; i<$scope.suggestions.length; i++) {
+            for (var i=0; i<$scope.suggestions.length; i++) {
                 allFailures.push($scope.suggestions[i].search.split(" | "));
             }
 

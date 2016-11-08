@@ -204,9 +204,9 @@ perf.controller('e10sTrendCtrl', [
         function updateURL() {
             $state.transitionTo('e10s_trend', {
                 filter: $scope.filterOptions.filter,
-                showOnlyImportant: Boolean($scope.filterOptions.showOnlyImportant) ? 1 : undefined,
-                showOnlyConfident: Boolean($scope.filterOptions.showOnlyConfident) ? 1 : undefined,
-                showOnlyBlockers: Boolean($scope.filterOptions.showOnlyBlockers) ? 1 : undefined,
+                showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
+                showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined,
+                showOnlyBlockers: $scope.filterOptions.showOnlyBlockers ? 1 : undefined,
                 repo: $scope.selectedRepo.name === thDefaultRepo ? undefined : $scope.selectedRepo.name,
                 basedate: $scope.selectedBaseDate.value !== defaultBaseDate ? $scope.selectedBaseDate.value : undefined,
                 newdate: $scope.selectedNewDate.value !== defaultNewDate ? $scope.selectedNewDate.value : undefined,
@@ -434,9 +434,9 @@ perf.controller('e10sTrendSubtestCtrl', [
         function updateURL() {
             $state.transitionTo('e10s_trendsubtest', {
                 filter: $scope.filterOptions.filter,
-                showOnlyImportant: Boolean($scope.filterOptions.showOnlyImportant) ? 1 : undefined,
-                showOnlyConfident: Boolean($scope.filterOptions.showOnlyConfident) ? 1 : undefined,
-                showOnlyBlockers: Boolean($scope.filterOptions.showOnlyBlockers) ? 1 : undefined,
+                showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
+                showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined,
+                showOnlyBlockers: $scope.filterOptions.showOnlyBlockers ? 1 : undefined,
                 repo: $scope.selectedRepo.name === thDefaultRepo ? undefined : $scope.selectedRepo.name,
                 basedate: $scope.selectedBaseDate.value !== defaultBaseDate ? $scope.selectedBaseDate.value : undefined,
                 newdate: $scope.selectedNewDate.value !== defaultNewDate ? $scope.selectedNewDate.value : undefined,

@@ -200,7 +200,7 @@ def test_job_list_excluded(webapp, eleven_jobs_stored, sample_data,
     assert resp['results'][0]['job_guid'] == '9abb6f7d54a49d763c584926377f09835c5e1a32'
 
 
-def test_job_detail(webapp, eleven_jobs_stored, sample_artifacts, jm):
+def test_job_detail(webapp, eleven_jobs_stored, jm):
     """
     test retrieving a single job from the jobs-detail
     endpoint.
@@ -491,7 +491,7 @@ def test_job_create(webapp, test_repository, test_user, eleven_job_blobs, monkey
 
     assert resp.status_code == 200
     test_job_list(webapp, None, test_repository)
-    test_job_detail(webapp, None, None, jm)
+    test_job_detail(webapp, None, jm)
 
 
 @pytest.mark.parametrize('lm_key,lm_value,exp_status, exp_job_count', [

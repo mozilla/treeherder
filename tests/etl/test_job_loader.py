@@ -5,7 +5,6 @@ import pytest
 from treeherder.etl.job_loader import (JobLoader,
                                        MissingResultsetException)
 from treeherder.model.derived import DatasetNotFoundError
-from treeherder.model.derived.artifacts import ArtifactsModel
 from treeherder.model.models import (Job,
                                      JobDetail,
                                      JobLog)
@@ -72,10 +71,6 @@ def test_ingest_pulse_jobs(pulse_jobs, test_project, jm, result_set_stored,
                       "parse_status": 1}]
     assert [{"name": item.name, "url": item.url, "parse_status": item.status}
             for item in job_logs.all()] == logs_expected
-
-    with ArtifactsModel(test_project) as am:
-        artifacts = am.get_job_artifact_list(0, 10)
-        assert len(artifacts) == 2
 
     assert JobDetail.objects.count() == 2
 
