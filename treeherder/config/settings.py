@@ -339,7 +339,7 @@ DISALLOWED_USER_AGENTS = (
     re.compile(r'^ActiveData-ETL'),
 )
 
-SITE_URL = env("SITE_URL", default="http://local.treeherder.mozilla.org")
+SITE_URL = env("SITE_URL", default="http://localhost:8000/")
 SITE_HOSTNAME = urlparse(SITE_URL).hostname
 APPEND_SLASH = False
 
@@ -385,8 +385,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 if SITE_URL.startswith('https://'):
     SECURE_SSL_REDIRECT = True
-    # TODO: Uncomment once the Vagrant/Travis SITE_URLs aren't fake subdomains of stage/prod.
-    # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_SECONDS = int(timedelta(days=365).total_seconds())
     # Mark session and CSRF cookies as being HTTPS-only.
     CSRF_COOKIE_SECURE = True
@@ -400,9 +399,6 @@ SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'
 
 SILENCED_SYSTEM_CHECKS = [
-    # We can't set SECURE_HSTS_INCLUDE_SUBDOMAINS since the development
-    # environment has a SITE_URL of http://local.treeherder.mozilla.org.
-    'security.W005',
     # We can't set CSRF_COOKIE_HTTPONLY to True since the requests to the API
     # made using Angular's `httpProvider` require access to the cookie.
     'security.W017',

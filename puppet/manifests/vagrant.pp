@@ -11,12 +11,6 @@ Exec {
     path => "${VENV_DIR}/bin:/usr/local/bin:/usr/bin:/usr/sbin:/sbin:/bin",
 }
 
-line {"etc-hosts":
-  file => "/etc/hosts",
-  line => "127.0.0.1 local.treeherder.mozilla.org",
-  ensure => "present"
-}
-
 file {"/etc/profile.d/treeherder.sh":
     ensure => "link",
     target => "${PROJ_DIR}/puppet/files/treeherder/env.sh",

@@ -6,7 +6,7 @@ resultset, job, and performance data it stores internally. To allow
 inspection of this API, we use Swagger_, which provides a friendly
 browsable interface to Treeherder's API endpoints. After setting up a
 local instance of Treeherder, you can access Swagger at
-http://local.treeherder.mozilla.org/docs/. You can also view it on
+http://localhost:8000/docs/. You can also view it on
 our production instance at https://treeherder.mozilla.org/docs/.
 
 .. _Swagger: http://swagger.io/
@@ -45,7 +45,7 @@ constructor:
     client = TreeherderClient(server_url='https://treeherder.allizom.org')
 
     # Local vagrant instance
-    client = TreeherderClient(server_url='http://local.treeherder.mozilla.org')
+    client = TreeherderClient(server_url='http://localhost:8000')
 
 When using the Python client, don't forget to set up logging in the
 caller so that any API error messages are output, like so:
