@@ -16,9 +16,14 @@ treeherder.directive('thLogViewer', ['$sce', '$location', ($sce, $location) => {
             var searchPart = () => {
                 var q = $location.search();
 
-                return "&highlightStart=" + q.highlightStart + "&highlightEnd=" + q.highlightEnd + "&lineNumber=" +
-                    q.lineNumber + "&wrapLines=" + q.wrapLines + "&showLineNumbers=" + q.showLineNumbers +
-                    "&jumpToHighlight=" + q.jumpToHighlight;
+                return [
+                  'highlightStart',
+                  'highlightEnd',
+                  'lineNumber',
+                  'wrapLines',
+                  'showLineNumbers',
+                  'jumpToHighlight'
+                ].reduce((qs, key) => `${qs}&${key}=${q[key]}`, '');
             };
 
             scope.$watch('rawLogURL', () => {

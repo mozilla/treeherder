@@ -403,8 +403,8 @@ logViewerApp.controller('LogviewerCtrl', [
 
         function displayErrorLines(errors) {
             var css = errors
-              .reduce((line, err) => `${line}a[id="${err.line_number + 1}"]+span, `, '')
-              .slice(0, -2)
+              .map(({ line_number }) => `a[id="${line_number + 1}"]+span`)
+              .join(',')
               .concat('{background-color:red;color:white}');
 
             $scope.logPostMessage({ customStyle: css });
