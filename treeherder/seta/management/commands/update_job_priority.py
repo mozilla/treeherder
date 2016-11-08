@@ -87,7 +87,7 @@ class Command(BaseCommand):
 
             # NOTE: This is *all* the data we need from the runnable API
             new_job = {
-                'build_system_type': job['build_system_type']  # e.g. {buildbot,taskcluster,*}
+                'build_system_type': job['build_system_type'],  # e.g. {buildbot,taskcluster,*}
                 'platform': job['build_platform'],  # e.g. windows8-64
                 'platform_option': job['platform_option'],  # e.g. {opt,debug}
                 'testtype': testtype,  # e.g. web-platform-tests-1
@@ -216,12 +216,12 @@ class Command(BaseCommand):
         if build_system_type == 'buildbot':
             return refdata.split(' ')[-1]
         else:
-            if testtype.startswith('[funsize'):
-                return None
-
             # e.g. "desktop-test-linux64/opt-reftest-8",
             # taskcluster test types
             testtype = job_type_name
+            if testtype.startswith('[funsize'):
+                return None
+
             testtype = testtype.split('/opt-')[-1]
             testtype = testtype.split('/debug-')[-1]
 
