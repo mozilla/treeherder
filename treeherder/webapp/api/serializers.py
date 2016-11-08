@@ -237,3 +237,8 @@ class JobNoteSerializer(serializers.ModelSerializer):
         model = models.JobNote
         fields = ['id', 'job_id', 'failure_classification_id',
                   'created', 'who', 'text']
+
+class PulseStoreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.PulseStore

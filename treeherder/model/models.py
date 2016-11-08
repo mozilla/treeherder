@@ -1485,3 +1485,14 @@ class TaskSetMeta(models.Model):
 
     class Meta:
         db_table = 'task_set_meta'
+
+
+class PulseStore(models.Model):
+    id = models.AutoField(primary_key=True)
+    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
+    revision = models.CharField(max_length=40, db_index=True)
+    message = models.TextField()
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        db_table = "pulse_store"

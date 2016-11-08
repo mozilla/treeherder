@@ -14,6 +14,7 @@ from treeherder.webapp.api import (artifact,
                                    logslice,
                                    note,
                                    performance_data,
+                                   pulse_store,
                                    refdata,
                                    resultset,
                                    runnable_jobs,
@@ -121,6 +122,7 @@ default_router.register(r'text-log-summary',
 default_router.register(r'text-log-summary-line',
                         text_log_summary_line.TextLogSummaryLineViewSet,
                         base_name='text-log-summary-line')
+default_router.register(r'pulse-store', pulse_store.PulseStoreViewSet)
 default_router.register(r'performance/alertsummary',
                         performance_data.PerformanceAlertSummaryViewSet,
                         base_name='performance-alert-summaries')
