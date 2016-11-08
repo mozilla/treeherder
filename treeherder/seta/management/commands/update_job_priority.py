@@ -20,6 +20,8 @@ import requests
 from django.core.management.base import BaseCommand
 from redo import retry
 
+from treeherder.seta.common import (get_root_dir,
+                                    get_runnable_jobs_path)
 from treeherder.seta.models import JobPriority
 
 HEADERS = {
@@ -43,16 +45,6 @@ class Command(BaseCommand):
         table.
         """
         return (str(job['testtype']), str(job['platform_option']), str(job['platform']))
-
-    def get_rootdir(self):
-        path = os.path.expanduser('~/.mozilla/seta/')
-        if not os.path.exists(path):
-            os.makedirs(path)
-
-        return path
-
-    def get_runnable_jobs_path(self):
-        return os.path.join(self.get_rootdir(), 'runnable_jobs.json')
 
     def sanitized_data(self, runnable_jobs_data):
         """We receive data from runnable jobs api and return the sanitized data that meets our needs.
@@ -165,7 +157,7 @@ class Command(BaseCommand):
             self.stderr.write("The request for %s failed due to %s" % (url, error))
             return None
 
-        path = os.path.join(self.get_rootdir(), '%s.json' % task_id)
+        path = os.path.join(get_root_dir(), '%s.json' % task_id)
 
         # we do nothing if the timestamp of runablejobs.json is equal with the latest task
         # otherwise we download and update it
@@ -202,7 +194,7 @@ class Command(BaseCommand):
             data = retry(requests.get, args=(url, ), kwargs={'headers': HEADERS}).json()
             if data:
                 # A lot of code components still rely on the file being on disk
-                with open(self.get_runnable_jobs_path(), 'w') as f:
+                with open(get_runnable_jobs_path(), 'w') as f:
                     json.dump(data, f, indent=2, sort_keys=True)
 
             return data
