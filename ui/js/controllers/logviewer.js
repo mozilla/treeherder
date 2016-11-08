@@ -310,7 +310,7 @@ logViewerApp.controller('LogviewerCtrl', [
                     displayErrorLines(allErrors);
 
                     if (!$location.search().lineNumber) {
-                         $scope.logPostMessage({ lineNumber: allErrors[0].line_number + 1 });
+                        $scope.logPostMessage({ lineNumber: allErrors[0].line_number + 1 });
                     }
                 }
             });
@@ -322,12 +322,12 @@ logViewerApp.controller('LogviewerCtrl', [
             delete values.url;
 
             Object.keys(values).forEach((prop) => {
-                values[prop] === 'undefined' ?
+                return values[prop] === 'undefined' ?
                   $location.search(prop, '') :
                   $location.search(prop, values[prop]);
             });
         }
-
+        /*
         function moveScrollToLineNumber(linenumber) {
             $scope.currentLineNumber = linenumber;
             $scope.displayedStep = getStepFromLine(linenumber);
@@ -360,7 +360,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 $scope.selectedEnd = matchSelectedLines[3];
             }
         }
-
+        */
         function logFileLineCount () {
             var steps = $scope.steps;
             return steps[ steps.length - 1 ].finished_line_number + 1;
@@ -408,13 +408,13 @@ logViewerApp.controller('LogviewerCtrl', [
               .concat('{background-color:red;color:white}');
 
             $scope.logPostMessage({ customStyle: css });
-        };
+        }
 
         function setlogListener() {
             $window.addEventListener('message', (e) => {
                 $timeout(updateQuery(e.data));
             });
-        };
+        }
 
         function getChunksSurrounding(line) {
             var request = {start: null, end: null};
