@@ -19,7 +19,7 @@ class SetaJobPrioritySerializer(serializers.HyperlinkedModelSerializer):
         fields = ['testtype']
 
 
-class SetaLowValueJobsViewSet(viewsets.ViewSet):
+class SetaJobPriorityViewSet(viewsets.ViewSet):
     def _taskcluster(self, priority=5):
         '''
         TaskCluster sample data
@@ -89,7 +89,7 @@ class SetaLowValueJobsViewSet(viewsets.ViewSet):
 
         return Response(ret)
 
-    def list(self, request, format=None):
+    def list(self, request, project):
         build_system_type = request.query_params.get('build_system_type', '*')
         priority = request.query_params.get('priority')
 
