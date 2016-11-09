@@ -40,8 +40,6 @@ def test_perf_alert_summary_onhold(test_repository_onhold, test_perf_framework):
     return PerformanceAlertSummary.objects.create(
         repository=test_repository_onhold,
         framework=test_perf_framework,
-        prev_result_set_id=1,
-        result_set_id=2,
         prev_push_id=1,
         push_id=2,
         manually_created=False,

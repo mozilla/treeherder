@@ -841,13 +841,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 if not result_set_id_list:
                     raise ValueError("Result set not found for revision")
                 result_set_id = result_set_id_list[0]['id']
-                # this should throw an error once the migration is complete
-                try:
-                    push_id = Push.objects.values_list('id', flat=True).get(
-                        repository__name=self.project,
-                        revision__startswith=revision)
-                except Push.DoesNotExist:
-                    push_id = None
+                push_id = Push.objects.values_list('id', flat=True).get(
+                    repository__name=self.project,
+                    revision__startswith=revision)
 
                 # load job
                 (job_guid, reference_data_signature) = self._load_job(
@@ -1192,9 +1188,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         job, _ = Job.objects.update_or_create(
             repository=Repository.objects.get(name=self.project),
             project_specific_id=ds_job_id,
+            push_id=push_id,
             defaults={
-                'guid': job_guid,
-                'push_id': push_id  # FIXME: make this mandatory after migration done
+                'guid': job_guid
             })
 
         artifacts = job_datum.get('artifacts', [])

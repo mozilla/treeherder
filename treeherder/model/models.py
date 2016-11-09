@@ -677,8 +677,7 @@ class Job(models.Model):
     # https://bugzilla.mozilla.org/show_bug.cgi?id=1265503
     project_specific_id = models.PositiveIntegerField(db_index=True)
 
-    # push is temporarily left null to allow us time to migrate old data
-    push = models.ForeignKey(Push, null=True, default=None)
+    push = models.ForeignKey(Push)
 
     class Meta:
         db_table = 'job'
