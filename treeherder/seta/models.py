@@ -42,7 +42,7 @@ class JobPriority(models.Model):
 
     def has_expired(self):
         now = timezone.now()
-        return self.expires < now
+        return self.expiration_date < now
 
     def __str__(self):
         return ','.join((self.testtype, self.buildtype, self.platform))
