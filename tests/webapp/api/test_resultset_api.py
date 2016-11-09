@@ -1,4 +1,5 @@
 import copy
+import datetime
 
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
@@ -6,15 +7,15 @@ from rest_framework.test import APIClient
 from tests import test_utils
 from treeherder.client import TreeherderResultSetCollection
 from treeherder.model.models import (FailureClassification,
-                                     Job,
-                                     JobNote)
+                                     JobNote,
+                                     Push)
 from treeherder.webapp.api import utils
 
 
-def test_resultset_list(webapp, eleven_jobs_stored, jm, test_project):
+def test_resultset_list_basic(webapp, eleven_jobs_stored, jm, test_project):
     """
     test retrieving a list of ten json blobs from the jobs-list
-    endpoint.  ``full`` set to false, so it doesn't return revisions.
+    endpoint.
     """
     resp = webapp.get(
         reverse("resultset-list", kwargs={"project": jm.project}))
@@ -30,7 +31,6 @@ def test_resultset_list(webapp, eleven_jobs_stored, jm, test_project):
         u'id',
         u'repository_id',
         u'author',
-        u'comments',
         u'revision_hash',
         u'revision',
         u'revisions',
@@ -49,10 +49,9 @@ def test_resultset_list(webapp, eleven_jobs_stored, jm, test_project):
     })
 
 
-def test_resultset_list_bad_project(webapp, jm):
+def test_resultset_list_bad_project(webapp, transactional_db):
     """
-    test retrieving a list of ten json blobs from the jobs-list
-    endpoint.
+    test that we have a sane error when the repository does not exist
     """
     resp = webapp.get(
         reverse("resultset-list", kwargs={"project": "foo"}),
@@ -126,34 +125,34 @@ def test_resultset_list_single_long_revision(webapp, eleven_jobs_stored, jm, tes
     )
 
 
-def test_resultset_list_single_long_revision_stored_long(webapp, test_repository,
-                                                         sample_resultset, jm,
+def test_resultset_list_single_long_revision_stored_long(webapp, sample_resultset, jm,
                                                          test_project):
     """
     test retrieving a resultset list with store long revision, filtered by a single long revision
     """
+    long_revision = "21fb3eed1b5f3456789012345678901234567890"
 
     # store a resultset with long revision
     resultset = copy.deepcopy(sample_resultset[0])
-    resultset["revisions"][0]["revision"] = "21fb3eed1b5f3456789012345678901234567890"
+    resultset["revisions"][0]["revision"] = long_revision
     jm.store_result_set_data([resultset])
 
     resp = webapp.get(
         reverse("resultset-list", kwargs={"project": jm.project}),
-        {"revision": "21fb3eed1b5f3456789012345678901234567890"}
+        {"revision": long_revision}
     )
     assert resp.status_int == 200
     results = resp.json['results']
     meta = resp.json['meta']
     assert len(results) == 1
-    assert set([rs["revision"] for rs in results]) == {"21fb3eed1b5f3456789012345678901234567890"}
+    assert set([rs["revision"] for rs in results]) == {sample_resultset[0]['revision']}
     assert(meta == {
-        u'count': 1,
-        u'revision': u'21fb3eed1b5f3456789012345678901234567890',
-        u'filter_params': {
-            u'revisions_long_revision': u'21fb3eed1b5f3456789012345678901234567890'
+        'count': 1,
+        'revision': long_revision,
+        'filter_params': {
+            'revisions_long_revision': long_revision
         },
-        u'repository': test_project}
+        'repository': test_project}
     )
 
 
@@ -193,11 +192,11 @@ def test_resultset_list_filter_by_date(webapp, test_repository,
     """
     test retrieving a resultset list, filtered by a date range
     """
-    sample_resultset[3]["push_timestamp"] = utils.to_timestamp("2013-08-09")
-    sample_resultset[4]["push_timestamp"] = utils.to_timestamp("2013-08-10")
-    sample_resultset[5]["push_timestamp"] = utils.to_timestamp("2013-08-11")
-    sample_resultset[6]["push_timestamp"] = utils.to_timestamp("2013-08-12")
-    sample_resultset[7]["push_timestamp"] = utils.to_timestamp("2013-08-13")
+    for (i, datestr) in zip([3, 4, 5, 6, 7], ["2013-08-09", "2013-08-10",
+                                              "2013-08-11", "2013-08-12",
+                                              "2013-08-13"]):
+        sample_resultset[i]['push_timestamp'] = utils.to_timestamp(
+            utils.to_datetime(datestr))
 
     jm.store_result_set_data(sample_resultset)
 
@@ -225,6 +224,69 @@ def test_resultset_list_filter_by_date(webapp, test_repository,
         u'repository': test_project,
         u'startdate': u'2013-08-10'}
     )
+
+
+def test_resultset_list_id_in(webapp, test_repository):
+    """
+    test the id__in parameter
+    """
+    for (id, revision, author) in [(1, '1234abcd', 'foo@bar.com'),
+                                   (2, '2234abcd', 'foo2@bar.com'),
+                                   (3, '3234abcd', 'foo3@bar.com')]:
+        Push.objects.create(repository=test_repository,
+                            revision=revision,
+                            author=author,
+                            time=datetime.datetime.now())
+    resp = webapp.get(
+        reverse("resultset-list", kwargs={"project": test_repository.name}) +
+        '?id__in=1,2'
+    )
+    assert resp.status_int == 200
+
+    results = resp.json['results']
+    assert len(results) == 2  # would have 3 if filter not applied
+    assert set([result['id'] for result in results]) == set([1, 2])
+
+    # test that we do something sane if invalid list passed in
+    resp = webapp.get(
+        reverse("resultset-list", kwargs={"project": test_repository.name}) +
+        '?id__in=1,2,foobar',
+        expect_errors=True
+    )
+    assert resp.status_int == 400
+
+
+def test_resultset_author(webapp, test_repository):
+    """
+    test the author parameter
+    """
+    for (id, revision, author) in [(1, '1234abcd', 'foo@bar.com'),
+                                   (2, '2234abcd', 'foo@bar.com'),
+                                   (3, '3234abcd', 'foo2@bar.com')]:
+        Push.objects.create(repository=test_repository,
+                            revision=revision,
+                            author=author,
+                            time=datetime.datetime.now())
+
+    resp = webapp.get(
+        reverse("resultset-list", kwargs={"project": test_repository.name}) +
+        '?author=foo@bar.com'
+    )
+    assert resp.status_int == 200
+
+    results = resp.json['results']
+    assert len(results) == 2  # would have 3 if filter not applied
+    assert set([result['id'] for result in results]) == set([1, 2])
+
+    resp = webapp.get(
+        reverse("resultset-list", kwargs={"project": test_repository.name}) +
+        '?author=foo2@bar.com'
+    )
+    assert resp.status_int == 200
+
+    results = resp.json['results']
+    assert len(results) == 1  # would have 3 if filter not applied
+    assert results[0]['id'] == 3
 
 
 def test_resultset_list_without_jobs(webapp, test_repository,
@@ -258,19 +320,18 @@ def test_resultset_detail(webapp, eleven_jobs_stored, jm):
     endpoint.
     """
 
-    rs_list = jm.get_result_set_list(0, 10)
-    rs = rs_list[0]
+    push = Push.objects.get(id=1)
 
     resp = webapp.get(
         reverse("resultset-detail",
-                kwargs={"project": jm.project, "pk": int(rs["id"])})
+                kwargs={"project": jm.project, "pk": 1})
     )
     assert resp.status_int == 200
     assert isinstance(resp.json, dict)
-    assert resp.json["id"] == rs["id"]
+    assert resp.json["id"] == push.id
 
 
-def test_result_set_detail_not_found(webapp, jm):
+def test_resultset_detail_not_found(webapp, jm):
     """
     test retrieving a HTTP 404 from the resultset-detail
     endpoint.
@@ -283,18 +344,18 @@ def test_result_set_detail_not_found(webapp, jm):
     assert resp.status_int == 404
 
 
-def test_result_set_detail_bad_project(webapp, jm):
+def test_resultset_detail_bad_project(webapp, jm):
     """
     test retrieving a HTTP 404 from the resultset-detail
     endpoint.
     """
+    bad_pk = -32767
     resp = webapp.get(
         reverse("resultset-detail",
-                kwargs={"project": "foo", "pk": -32767}),
+                kwargs={"project": "foo", "pk": bad_pk}),
         expect_errors=True
     )
     assert resp.status_int == 404
-    assert resp.json == {"detail": "No project with name foo"}
 
 
 def test_resultset_create(jm, test_repository, sample_resultset,
@@ -307,10 +368,12 @@ def test_resultset_create(jm, test_repository, sample_resultset,
     - 1 resultset stored in the jobs schema
     """
 
+    assert Push.objects.count() == 0
+
     # store the first two, so we submit all, but should properly not re-
     # add the others.
-
     jm.store_result_set_data(sample_resultset[:2])
+    assert Push.objects.count() == 2
 
     trsc = TreeherderResultSetCollection()
     exp_revision_hashes = set()
@@ -320,21 +383,14 @@ def test_resultset_create(jm, test_repository, sample_resultset,
         trsc.add(result_set)
         exp_revision_hashes.add(rs["revision"])
 
-    resp = test_utils.post_collection(jm.project, trsc)
+    test_utils.post_collection(jm.project, trsc)
 
-    act_revision_hashes = {x["long_revision"] for x in resp.json["resultsets"]}
-    assert exp_revision_hashes == act_revision_hashes
-
-    stored_objs = jm.get_dhub().execute(
-        proc="jobs_test.selects.resultset_by_long_revision",
-        placeholders=[sample_resultset[0]['revision']]
-    )
-
-    assert len(stored_objs) == 1
-    assert stored_objs[0]['long_revision'] == sample_resultset[0]['revision']
+    assert Push.objects.count() == len(sample_resultset)
+    assert set(Push.objects.values_list('revision', flat=True)) == set(
+        [rs['revision'] for rs in sample_resultset])
 
 
-def test_resultset_cancel_all(jm, resultset_with_three_jobs,
+def test_resultset_cancel_all(jm, push_with_three_jobs,
                               pulse_action_consumer, test_user):
     """
     Issue cancellation of a resultset with three unfinished jobs.
@@ -348,7 +404,7 @@ def test_resultset_cancel_all(jm, resultset_with_three_jobs,
         assert job['state'] == 'pending'
 
     url = reverse("resultset-cancel-all",
-                  kwargs={"project": jm.project, "pk": resultset_with_three_jobs})
+                  kwargs={"project": jm.project, "pk": push_with_three_jobs.id})
     client.post(url)
 
     # Ensure all jobs are cancelled..
@@ -365,7 +421,7 @@ def test_resultset_cancel_all(jm, resultset_with_three_jobs,
         assert content['project'] == jm.project
 
 
-def test_resultset_status(jm, webapp, eleven_jobs_stored, test_user):
+def test_resultset_status(webapp, test_job, test_user):
     """
     test retrieving the status of a resultset
     """
@@ -373,26 +429,24 @@ def test_resultset_status(jm, webapp, eleven_jobs_stored, test_user):
     failure_classification = FailureClassification.objects.create(
         id=2, name="fixed by commit")
 
-    rs_list = jm.get_result_set_list(0, 10)
-    rs = rs_list[0]
+    push = test_job.push
 
     resp = webapp.get(
         reverse("resultset-status",
-                kwargs={"project": jm.project, "pk": int(rs["id"])})
+                kwargs={"project": push.repository.name, "pk": push.id})
     )
     assert resp.status_int == 200
     assert isinstance(resp.json, dict)
     assert resp.json == {'success': 1}
 
-    # the first ten resultsets have one job each, so resultset.id == job.id
-    JobNote.objects.create(job=Job.objects.get(project_specific_id=rs["id"]),
+    JobNote.objects.create(job=test_job,
                            failure_classification=failure_classification,
                            user=test_user,
                            text='A random note')
 
     resp = webapp.get(
         reverse("resultset-status",
-                kwargs={"project": jm.project, "pk": int(rs["id"])})
+                kwargs={"project": push.repository.name, "pk": push.id})
     )
     assert resp.status_int == 200
     assert isinstance(resp.json, dict)

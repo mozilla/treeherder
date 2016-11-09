@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
+from treeherder.model.models import Push
 from treeherder.perf.models import PerformanceAlertSummary
 
 
@@ -29,11 +30,20 @@ def test_repository_onhold(transactional_db):
 @pytest.fixture
 def test_perf_alert_summary_onhold(test_repository_onhold, test_perf_framework):
     from treeherder.perf.models import PerformanceAlertSummary
+    for i in range(2):
+        Push.objects.create(
+            repository=test_repository_onhold,
+            revision='1234abcd{}'.format(i),
+            author='foo@bar.com',
+            time=datetime.datetime.now())
+
     return PerformanceAlertSummary.objects.create(
         repository=test_repository_onhold,
         framework=test_perf_framework,
         prev_result_set_id=1,
         result_set_id=2,
+        prev_push_id=1,
+        push_id=2,
         manually_created=False,
         last_updated=datetime.datetime.now())
 
@@ -68,10 +78,10 @@ def test_alert_summaries_get(webapp, test_perf_alert_summary,
         'framework',
         'id',
         'last_updated',
-        'prev_result_set_id',
+        'prev_push_id',
         'related_alerts',
         'repository',
-        'result_set_id',
+        'push_id',
         'status',
     ])
     assert len(resp.json['results'][0]['alerts']) == 1
@@ -110,10 +120,10 @@ def test_alert_summaries_get_onhold(webapp, test_perf_alert_summary,
         'framework',
         'id',
         'last_updated',
-        'prev_result_set_id',
+        'prev_push_id',
         'related_alerts',
         'repository',
-        'result_set_id',
+        'push_id',
         'status',
     ])
     assert len(resp.json['results'][0]['alerts']) == 1
@@ -162,14 +172,16 @@ def test_alert_summaries_put(webapp, test_repository, test_perf_signature,
     assert PerformanceAlertSummary.objects.get(id=1).status == 1
 
 
-def test_alert_summary_post(webapp, test_repository, test_perf_signature):
+def test_alert_summary_post(webapp, test_repository,
+                            result_set_stored,
+                            test_perf_signature):
     # this blob should be sufficient to create a new alert summary (assuming
     # the user of this API is authorized to do so!)
     post_blob = {
         'repository_id': test_repository.id,
         'framework_id': test_perf_signature.framework.id,
-        'prev_result_set_id': 1,
-        'result_set_id': 2
+        'prev_push_id': 1,
+        'push_id': 2
     }
 
     # verify that we fail if not authenticated
@@ -200,8 +212,8 @@ def test_alert_summary_post(webapp, test_repository, test_perf_signature):
     alert_summary = PerformanceAlertSummary.objects.all()[0]
     assert alert_summary.repository == test_repository
     assert alert_summary.framework == test_perf_signature.framework
-    assert alert_summary.prev_result_set_id == post_blob['prev_result_set_id']
-    assert alert_summary.result_set_id == post_blob['result_set_id']
+    assert alert_summary.prev_push_id == post_blob['prev_push_id']
+    assert alert_summary.push_id == post_blob['push_id']
     assert resp.data['alert_summary_id'] == alert_summary.id
 
     # verify that we don't create a new performance alert summary if one

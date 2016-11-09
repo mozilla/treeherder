@@ -7,7 +7,8 @@ from treeherder.etl.job_loader import (JobLoader,
 from treeherder.model.derived import DatasetNotFoundError
 from treeherder.model.models import (Job,
                                      JobDetail,
-                                     JobLog)
+                                     JobLog,
+                                     Push)
 
 
 @pytest.fixture
@@ -99,8 +100,8 @@ def test_ingest_pulse_jobs_with_revision_hash(pulse_jobs, test_project, jm,
     """
 
     jl = JobLoader()
-    rs = jm.get_result_set_list(0, 10)[0]
-    revision_hash = rs["revision_hash"]
+    revision_hash = Push.objects.values_list('revision_hash',
+                                             flat=True).get(id=1)
     for job in pulse_jobs:
         origin = job["origin"]
         del(origin["revision"])

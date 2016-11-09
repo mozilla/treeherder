@@ -31,6 +31,7 @@ def test_job_list(webapp, eleven_jobs_stored, test_repository):
     exp_keys = [
         "submit_timestamp",
         "start_timestamp",
+        "push_id",
         "result_set_id",
         "who",
         "option_collection_hash",
