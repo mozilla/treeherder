@@ -44,6 +44,12 @@ project_bound_router.register(
 )
 
 project_bound_router.register(
+    r'seta/v1/job-priorities',
+    seta.SetaJobPriorityViewSet,
+    base_name='seta-job-priorities'
+)
+
+project_bound_router.register(
     r'resultset',
     resultset.ResultSetViewSet,
     base_name='resultset',
@@ -140,9 +146,6 @@ default_router.register(r'performance/framework',
 default_router.register(r'performance/bug-template',
                         performance_data.PerformanceBugTemplateViewSet,
                         base_name='performance-bug-template')
-default_router.register(r'seta/v1/low-value-jobs',
-                        seta.SetaLowValueJobsViewSet,
-                        base_name='seta-low-value-jobs')
 default_router.register(r'bugzilla', bugzilla.BugzillaViewSet,
                         base_name='bugzilla')
 default_router.register(r'jobdetail', jobs.JobDetailViewSet,
