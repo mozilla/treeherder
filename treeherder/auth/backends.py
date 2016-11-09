@@ -88,7 +88,6 @@ class TaskclusterAuthBackend(object):
         except ObjectDoesNotExist:
             return user.first()
 
-
     def authenticate(self, authorization=None, host=None, port=None):
         user = None
 
