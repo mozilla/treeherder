@@ -253,7 +253,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 };
 
                 // get the revision and linkify it
-                ThResultSetModel.getResultSet($scope.repoName, job.result_set_id).then(function(data){
+                ThResultSetModel.getResultSet($scope.repoName, job.push_id).then(function(data){
                     var revision = data.data.revision;
                     $scope.logProperties.push({label: "Revision", value: revision});
                 });
