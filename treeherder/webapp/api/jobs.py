@@ -75,6 +75,8 @@ class JobsViewSet(viewsets.ViewSet):
             option_collection_map = self._get_option_collection_map()
             job["platform_option"] = option_collection_map[option_hash]
 
+        job['result_set_id'] = job['push_id']
+
         return Response(job)
 
     @with_jobs
