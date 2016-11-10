@@ -574,6 +574,10 @@ BROKER_URL = env('BROKER_URL')
 if server_supports_tls(BROKER_URL):
     BROKER_USE_SSL = True
 
+# custom celery settings
+CELERY_IGNORE_RESULT = True
+CELERYD_TASK_TIME_LIMIT = env("CELERYD_TASK_TIME_LIMIT", default=15*60)
+
 # This code handles the memcachier service on heroku.
 # TODO: Stop special-casing Heroku and use newer best practices from:
 # https://www.memcachier.com/documentation#django.
@@ -589,8 +593,6 @@ if env.bool('IS_HEROKU', default=False):
             "tcp_nodelay": True,
         },
     })
-
-CELERY_IGNORE_RESULT = True
 
 BROWSERID_AUDIENCES = [SITE_URL]
 
