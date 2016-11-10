@@ -1188,9 +1188,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         job, _ = Job.objects.update_or_create(
             repository=Repository.objects.get(name=self.project),
             project_specific_id=ds_job_id,
-            push_id=push_id,
             defaults={
-                'guid': job_guid
+                'guid': job_guid,
+                'push_id': push_id
             })
 
         artifacts = job_datum.get('artifacts', [])
