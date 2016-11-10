@@ -41,6 +41,8 @@ matrix:
         # since caches are tied to the language/version combination.
         directories:
           - node_modules
+      addons:
+        firefox: latest
       install:
         - npm install
       before_script:
