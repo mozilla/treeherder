@@ -262,8 +262,9 @@ class PushSerializer(serializers.ModelSerializer):
                                "pk": obj.id})
 
     def get_revisions(self, push):
-        serializer = CommitSerializer(instance=push.commits.all()[:20],
-                                      many=True)
+        serializer = CommitSerializer(
+            instance=push.commits.all().order_by('-id')[:20],
+            many=True)
         return serializer.data
 
     def get_revision_count(self, push):
