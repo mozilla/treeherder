@@ -200,7 +200,7 @@ def test_filter_data_by_framework(webapp, test_repository, test_perf_signature,
     for (i, signature) in enumerate([test_perf_signature, signature2]):
         PerformanceDatum.objects.create(
             repository=signature.repository,
-            job_id=i,
+            ds_job_id=i,
             push=push,
             result_set_id=1,
             signature=signature,
@@ -290,7 +290,7 @@ def test_filter_data_by_interval(webapp, test_repository, test_perf_signature,
                                    time=timestamp)
         PerformanceDatum.objects.create(
             repository=test_perf_signature.repository,
-            job_id=i,
+            ds_job_id=i,
             result_set_id=push.id,
             push=push,
             signature=test_perf_signature,
@@ -327,7 +327,7 @@ def test_filter_data_by_range(webapp, test_repository, test_perf_signature,
                                    time=timestamp)
         PerformanceDatum.objects.create(
             repository=test_perf_signature.repository,
-            job_id=i,
+            ds_job_id=i,
             result_set_id=push.id,
             push=push,
             signature=test_perf_signature,
