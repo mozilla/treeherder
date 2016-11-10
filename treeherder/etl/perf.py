@@ -82,7 +82,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
         name=project_name)
 
     # data for performance series
-    job_id = job_data[job_guid]['id']
+    ds_job_id = job_data[job_guid]['id']
     push = Push.objects.get(id=job_data[job_guid]['push_id'])
 
     try:
@@ -140,7 +140,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
                 repository=repository,
                 push=push,
-                job_id=job_id,
+                ds_job_id=ds_job_id,
                 signature=signature,
                 push_timestamp=push.time,
                 defaults={'value': suite['value']})
@@ -193,7 +193,7 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
                 repository=repository,
                 push=push,
-                job_id=job_id,
+                ds_job_id=ds_job_id,
                 signature=signature,
                 push_timestamp=push.time,
                 defaults={'value': value[0]})

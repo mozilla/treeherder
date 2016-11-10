@@ -182,7 +182,7 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
         if push_ids:
             datums = datums.filter(push_id__in=push_ids)
         if job_ids:
-            datums = datums.filter(job_id__in=job_ids)
+            datums = datums.filter(ds_job_id__in=job_ids)
 
         frameworks = request.query_params.getlist('framework')
         if frameworks:
@@ -208,13 +208,13 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
 
         ret = defaultdict(list)
         values_list = datums.values_list(
-            'signature_id', 'signature__signature_hash', 'job_id', 'push_id',
+            'signature_id', 'signature__signature_hash', 'ds_job_id', 'push_id',
             'push_timestamp', 'value')
-        for (signature_id, signature_hash, job_id, push_id,
+        for (signature_id, signature_hash, ds_job_id, push_id,
              push_timestamp, value) in values_list:
             ret[signature_hash].append({
                 'signature_id': signature_id,
-                'job_id': job_id,
+                'job_id': ds_job_id,
                 'push_id': push_id,
                 'push_timestamp': int(time.mktime(push_timestamp.timetuple())),
                 'value': round(value, 2)  # round to 2 decimal places
