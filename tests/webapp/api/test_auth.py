@@ -1,9 +1,13 @@
+from django.contrib.sessions.models import Session
+from django.core.urlresolvers import reverse
 from mohawk import Sender
 from rest_framework import status
 from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory
+from taskcluster.sync import Auth
 
+from treeherder.model.models import User
 from treeherder.webapp.api import permissions
 
 
@@ -94,3 +98,64 @@ def test_post_no_auth():
     response = view(request)
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert response.data == {'detail': 'Authentication credentials were not provided.'}
+
+
+# TC Auth Login and Logout Tests
+
+def test_login_and_logout(test_user, webapp, monkeypatch):
+
+    def mock_auth(selfless, payload):
+        return {"status": "auth-success",
+                "clientId": "foo",
+                "scopes": ["assume:mozilla-user:user@foo.com"]
+                }
+    monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
+
+    assert "sessionid" not in webapp.cookies
+
+    webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=200)
+    session_key = webapp.cookies["sessionid"]
+    session = Session.objects.get(session_key=session_key)
+    session_data = session.get_decoded()
+    user = User.objects.get(id=session_data.get('_auth_user_id'))
+    assert user == test_user
+
+    webapp.get(reverse("auth-logout"), status=200)
+    assert "sessionid" not in webapp.cookies
+
+
+def test_login_not_active(test_user, webapp, monkeypatch):
+    def mock_auth(selfless, payload):
+        return {"status": "auth-success",
+                "clientId": "foo",
+                "scopes": ["assume:mozilla-user:user@foo.com"]
+                }
+    monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
+
+    test_user.is_active = False
+    test_user.save()
+
+    resp = webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=403)
+    assert resp.json["detail"] == "This user has been disabled."
+
+
+def test_login_no_email(webapp, monkeypatch):
+    def mock_auth(selfless, payload):
+        return {"status": "auth-success",
+                "clientId": "foo",
+                "scopes": ["assume:mozilla-user:meh"]
+                }
+    monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
+
+    resp = webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=403)
+    assert resp.json["detail"] == "Invalid email for user foo from scope 'assume:mozilla-user': meh"
+
+
+def test_login_invalid(webapp, monkeypatch):
+    def mock_auth(selfless, payload):
+        return {"status": "auth-failed",
+                "message": "Don't try to frighten us with your sorcerous ways, Lord Vader."}
+    monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
+
+    resp = webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=403)
+    assert resp.json["detail"] == "Don't try to frighten us with your sorcerous ways, Lord Vader."

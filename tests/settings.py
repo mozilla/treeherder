@@ -22,3 +22,7 @@ ELASTIC_SEARCH.update({
 })
 
 AUTOCLASSIFY_JOBS = True
+
+AUTHENTICATION_BACKENDS = (
+    'treeherder.auth.backends.TaskclusterAuthBackend',
+)

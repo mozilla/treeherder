@@ -232,8 +232,7 @@ module.exports = function(grunt) {
             },
             perf: {
                 cwd: 'ui',
-                src: ['partials/main/persona_buttons.html',
-                      'partials/main/thLogoutMenu.html',
+                src: ['partials/main/thLogoutMenu.html',
                       'partials/perf/*.html',
                       'partials/perf/*.tmpl'],
                 dest: 'dist/js/perf.min.js',
@@ -256,8 +255,7 @@ module.exports = function(grunt) {
             },
             admin: {
                 cwd: 'ui',
-                src: ['partials/main/persona_buttons.html',
-                      'partials/main/thLogoutMenu.html',
+                src: ['partials/main/thLogoutMenu.html',
                       'partials/main/thHelpMenu.html',
                       'partials/main/thNotificationsBox.html',
                       'partials/main/thMultiSelect.html',

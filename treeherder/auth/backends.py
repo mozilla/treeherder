@@ -1,12 +1,16 @@
+import base64
+import hashlib
 import logging
 import re
-from hashlib import sha1
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q
 from taskcluster.sync import Auth
-from taskcluster.utils import scope_match
+
+try:
+    from django.utils.encoding import smart_bytes
+except ImportError:
+    from django.utils.encoding import smart_str as smart_bytes
 
 logger = logging.getLogger(__name__)
 
@@ -32,8 +36,8 @@ class TaskclusterAuthBackend(object):
          'expires': '2016-10-31T17:40:45.692Z'}
     """
 
-    def _get_scope_value(self, result, scope_prefix):
-        for scope in result["scopes"]:
+    def _get_scope_value(self, scopes, scope_prefix):
+        for scope in scopes:
             if scope.startswith(scope_prefix):
                 return scope[len(scope_prefix):]
         return None
@@ -42,99 +46,86 @@ class TaskclusterAuthBackend(object):
         """
         Get the user's email from the mozilla-user scope
 
+        For more info on scopes:
+        https://docs.taskcluster.net/manual/3rdparty#authenticating-with-scopes
         """
-        email = self._get_scope_value(result, "assume:mozilla-user:")
+        email = self._get_scope_value(result["scopes"], "assume:mozilla-user:")
 
-        if not email or email == "*":
-            # try finding the email in the clientId.  It can then be used to
-            # find a matching user.
-            match = re.search(
-                r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)",
-                result["clientId"])
-            if match:
-                email = match.group(0)
-            else:
-                # if we STILL don't have an email at this point, then just
-                # use their clientId as a dummy email.  We don't
-                # send anything to it, so it doesn't matter much, in
-                # reality.  This can only happen if the user isn't using LDAP,
-                # and doesn't have an email in their clientId.
-                email = result["clientId"]
-        return email
+        if email and re.search(r'.+@.+', email):
+            return email
+        else:
+            raise TaskclusterAuthenticationFailed(
+                "Invalid email for user {} from scope 'assume:mozilla-user': {}".format(
+                    result["clientId"], email))
 
-    def _get_user(self, username, email):
+    def _get_user(self, email):
         """
-        Try to find an exising user that matches either the username
-        or email.  Prefer the username, since that's the unique key.  But
-        fallback to the email.
+        Try to find an exising user that matches the email.
+
+        TODO: Switch to using ``username`` instead of email once we are on
+        Django 1.10 in Bug 1311967.  will need to migrate existing hashed
+        usenames at that point.
 
         """
 
         # Since there is a unique index on username, but not on email,
         # it is POSSIBLE there could be two users with the same email and
         # different usernames.  Not very likely, but this is safer.
-        user = User.objects.filter(
-            Q(username=username) | Q(email=email))
+        user = User.objects.filter(email=email)
 
-        # if we didn't find either, then raise an exception so we create a new
+        # if we didn't find any, then raise an exception so we create a new
         # user
-        if not len(user):
+        if not user:
             raise ObjectDoesNotExist
 
-        # prefer a matching username.  If no username match, return the first
-        # user in the list.
+        return user.first()
+
+    def authenticate(self, auth_header=None, host=None, port=None):
+        if not auth_header:
+            # Doesn't have the right params for this backend.  So just
+            # skip and let another backend have a try at it.
+            return None
+
+        tc_auth = Auth()
+        # see: https://docs.taskcluster.net/reference/platform/auth/api-docs#authenticateHawk
+        # see: https://github.com/taskcluster/taskcluster-client.py/blob/master/README.md#authenticate-hawk-request
+        result = tc_auth.authenticateHawk({
+            "authorization": auth_header,
+            "host": host,
+            "port": port,
+            "resource": "/api/auth/login/",
+            "method": "get",
+        })
+
+        if result["status"] != "auth-success":
+            logger.warning("Error logging in: {}".format(result["message"]))
+            raise TaskclusterAuthenticationFailed(result["message"])
+
+        # TODO: remove this size limit when we upgrade to django 1.10
+        # in Bug 1311967
+        email = self._get_email(result)
+        if len(result["clientId"]) <= 30:
+            username = result["clientId"]
+        else:
+            username = base64.urlsafe_b64encode(
+                hashlib.sha1(smart_bytes(email)).digest()
+                ).rstrip(b'=')[-30:]
         try:
-            return user.get(username=username)
+            # Find the user by their email.
+            user = self._get_user(email)
+
         except ObjectDoesNotExist:
-            return user.first()
+            # the user doesn't already exist, create it.
+            logger.warning("Creating new user: {}".format(username))
+            user = User(email=email,
+                        username=username,
+                        )
 
-    def authenticate(self, authorization=None, host=None, port=None):
-        user = None
-
-        if authorization:
-            tc_auth = Auth()
-            result = tc_auth.authenticateHawk({
-                "authorization": authorization,
-                "host": host,
-                "port": port,
-                "resource": "/",
-                "method": "get",
-            })
-
-            if result["status"] == "auth-success":
-                # TODO: remove this size limit when we upgrade to django 1.10
-                # in Bug 1311967
-                username = result["clientId"][-30:]
-                email = self._get_email(result)
-
-                try:
-                    # Either find the user by their username or email.
-                    user = self._get_user(username, email)
-
-                except ObjectDoesNotExist:
-                    # the user doesn't already exist, create it.
-                    logger.warning("Creating new user: {}".format(username))
-                    sha = sha1()
-                    sha.update(email)
-                    is_staff = scope_match(
-                        result["scopes"],
-                        [["assume:project:treeherder:sheriff"]]
-                    )
-                    user = User(email=email,
-                                username=username,
-                                password=sha.hexdigest()[-25:],
-                                is_staff=is_staff
-                                )
-
-                # update their email if their scopes when the user was created
-                # didn't allow finding the email, but now it's been fixed.
-                user.email = email
-
-                # update the user object in the DB (perhaps Sheriff status
-                # or email changed.  This is so that when ``get_user`` is
-                # called, it will return the latest is_staff value we got from
-                # LDAP.
-                user.save()
+        # update the user object in the DB (perhaps Sheriff status
+        # or email changed.  This is so that when ``get_user`` is
+        # called, it will return the latest is_staff value we got from
+        # LDAP.
+        user.save()
         return user
 
     def get_user(self, user_id):
