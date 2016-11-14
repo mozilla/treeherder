@@ -125,9 +125,4 @@ def test_empty_json_pushes(jm, test_base_dir,
     process = HgPushlogProcess()
     process.run(pushlog_fake_url, jm.project)
 
-    pushes_stored = jm.get_dhub().execute(
-        proc="jobs_test.selects.result_set_ids",
-        return_type='tuple'
-    )
-
-    assert len(pushes_stored) == 0
+    assert Push.objects.count() == 0

@@ -23,44 +23,8 @@
             "sql": "SELECT * FROM `job_artifact` WHERE job_id = ?",
             "host_type": "master_host"
         },
-        "job_source": {
-            "sql": "SELECT res.push_timestamp,
-                           rev.comments,
-                           rev.repository_id,
-                           rev.revision
-                FROM `revision` as rev
-                LEFT JOIN `revision_map` as revmap
-                    ON rev.id = revmap.revision_id
-                LEFT JOIN `result_set` as res
-                    ON revmap.result_set_id = res.id
-                LEFT JOIN `job`
-                    ON job.result_set_id = res.id
-                WHERE job.id = ?
-                ",
-            "host_type": "master_host"
-        },
         "row_by_guid": {
             "sql": "SELECT * FROM `job` WHERE `job_guid` = ?",
-            "host_type": "master_host"
-        },
-        "resultset_by_long_revision": {
-            "sql": "SELECT * FROM `result_set` WHERE `long_revision` = ?",
-            "host_type": "master_host"
-        },
-        "revision_ids": {
-            "sql": "SELECT `id`, `revision`, `long_revision` FROM `revision`",
-            "host_type": "master_host"
-        },
-        "revision_map": {
-            "sql": "SELECT * FROM `revision_map`",
-            "host_type": "master_host"
-        },
-        "result_set_ids": {
-            "sql": "SELECT `id`, `push_timestamp`, `revision_hash`, `long_revision`, `short_revision` FROM `result_set`",
-            "host_type": "master_host"
-        },
-        "result_sets": {
-            "sql": "SELECT * FROM `result_set`",
             "host_type": "master_host"
         }
     },

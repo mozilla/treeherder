@@ -726,31 +726,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return new_data
 
-    def get_revision_from_revision_hash(self, revision_hash):
-        """
-        Find a revision based on a revision_hash, if possible
-
-        This function only exists for backward-compatibility.  This is needed
-        while we have older resultsets that were storing their revision_hashes
-        the old way, rather than just using their revisions.  And for any jobs
-        that use the old revision_hashes through the API as the way to
-        identify what resultset owns the current job.
-
-        Once jobs are no longer submitted with revision_hashes, then we can
-        remove this function.
-        """
-
-        proc = "jobs.selects.get_revision_from_revision_hash"
-        rh = self.execute(
-            placeholders=[revision_hash],
-            proc=proc,
-            debug_show=self.DEBUG,
-        )
-        if not len(rh):
-            raise ValueError("Revision hash not found: {}".format(
-                revision_hash))
-        return rh[0]["long_revision"]
-
     def _load_job(self, job_datum, push_id, lower_tier_signatures):
         """
         Load a job into the treeherder database
