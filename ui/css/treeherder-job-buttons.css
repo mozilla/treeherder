@@ -94,6 +94,7 @@
   border-radius: 3px;
   font-size: 12px;
   transform: scale(1.7, 1.7);
+  z-index: 10;
 }
 
 .filter-shown {
