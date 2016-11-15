@@ -391,12 +391,15 @@ treeherder.directive('thCloneJobs', [
          * When a job is clicked
          */
         var jobClick = function(resultset, ev){
-            // return in case 'mousedown' was fired and the button is 1
-            // (click will handle that case)
-            if (ev.type === 'mousedown' && ev.which === 1) {
+            var el = $(ev.target);
+
+            // return in case 'mousedown' was fired and target was clickable
+            // (so we don't handle two events)
+            if (ev.type === 'mousedown' && ev.which === 1 &&
+                el.is(":button")) {
                 return false;
             }
-            var el = $(ev.target);
+
             var key = el.attr(jobKeyAttr);
             var buildername = el.attr(runnableJobBuildernameAttr);
             //Confirm user selected a job
