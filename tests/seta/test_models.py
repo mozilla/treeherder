@@ -4,12 +4,21 @@ from django.db.utils import IntegrityError
 from django.utils import timezone
 import pytest
 
-from treeherder.seta.models import JobPriority
+from treeherder.seta.models import (JobPriority,
+                                    TaskRequest)
 
 TOMORROW = timezone.now() + datetime.timedelta(days=1)
 YESTERDAY = timezone.now() - datetime.timedelta(days=1)
 slow = pytest.mark.slow
 
+
+# TaskRequest tests
+@slow
+def test_create_instance(test_repository):
+    TaskRequest.objects.create(repository=test_repository,
+                               counter=0,
+                               last_request=timezone.now(),
+                               reset_delta=0)
 
 # JobPriority tests
 def test_expired_job_priority():
