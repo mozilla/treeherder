@@ -7,11 +7,12 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('model', '0040_push_and_commit_orm_2'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='JobPriorities',
+            name='JobPriority',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('testtype', models.CharField(max_length=128)),
@@ -19,17 +20,18 @@ class Migration(migrations.Migration):
                 ('platform', models.CharField(max_length=64)),
                 ('priority', models.IntegerField()),
                 ('timeout', models.IntegerField()),
-                ('expires', models.DateTimeField()),
+                ('expiration_date', models.DateTimeField(null=True)),
                 ('buildsystem', models.CharField(max_length=64)),
             ],
         ),
         migrations.CreateModel(
-            name='TaskRequests',
+            name='TaskRequest',
             fields=[
-                ('repo_name', models.CharField(max_length=128, serialize=False, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('counter', models.IntegerField()),
-                ('last_request', models.DateTimeField()),
+                ('last_reset', models.DateTimeField()),
                 ('reset_delta', models.IntegerField()),
+                ('repository', models.ForeignKey(to='model.Repository')),
             ],
         ),
     ]
