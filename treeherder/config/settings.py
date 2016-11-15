@@ -375,10 +375,7 @@ ORANGEFACTOR_HAWK_KEY = env("ORANGEFACTOR_HAWK_KEY", default=None)
 # this setting allows requests from any host
 CORS_ORIGIN_ALLOW_ALL = True
 
-# set ALLOWED_HOSTS to match your domain name.
-# An asterisk means everything but it's not secure.
-# IP addresses are also allowed. A dot is used to include all sub domains
-ALLOWED_HOSTS = env.list("TREEHERDER_ALLOWED_HOSTS", default=[".mozilla.org", ".allizom.org"])
+ALLOWED_HOSTS = [SITE_HOSTNAME]
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
