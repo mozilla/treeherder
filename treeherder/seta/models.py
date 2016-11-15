@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
 from treeherder.model.models import Repository
+from treeherder.seta.common import unique_key
 
 
 @python_2_unicode_compatible
@@ -15,15 +16,19 @@ class TaskRequest(models.Model):
     '''
     repository = models.ForeignKey(Repository)
     counter = models.IntegerField()  # Number of times TC has reached the API
-    last_request = models.DateTimeField()  # Last time TC reached the API
-    reset_delta = models.IntegerField()  # Maximum number of pushes before SETA is skipped
+    last_reset = models.DateTimeField()  # Last time we expired
+    reset_delta = models.IntegerField()  # Number of seconds
+
+    def has_expired(self):
+        now = timezone.now()
+        return (now - self.last_reset).total_seconds() >= self.reset_delta
+
+    def seconds_since_last_reset(self):
+        now = timezone.now()
+        return int((now - self.last_reset).total_seconds())
 
     def __str__(self):
-        return '%s/%s/%s'.format(
-            self.repository.name,
-            self.counter,
-            self.reset_delta
-        )
+        return ','.join((self.repository.name, self.counter, self.last_reset))
 
 
 @python_2_unicode_compatible
@@ -43,6 +48,11 @@ class JobPriority(models.Model):
     def has_expired(self):
         now = timezone.now()
         return self.expiration_date < now
+
+    def unique_identifier(self):
+        return unique_key(testtype=self.testtype,
+                          buildtype=self.buildtype,
+                          platform=self.platform)
 
     def __str__(self):
         return ','.join((self.testtype, self.buildtype, self.platform))
