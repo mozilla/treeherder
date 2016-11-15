@@ -1,9 +1,12 @@
 from django.utils import timezone
+import pytest
 
 from treeherder.seta.models import TaskRequest
 
+slow = pytest.mark.slow
 
-# TaskRequests test
+
+@slow
 def test_create_instance(test_repository):
     TaskRequest.objects.create(repository=test_repository,
                                counter=0,
