@@ -44,12 +44,6 @@ project_bound_router.register(
 )
 
 project_bound_router.register(
-    r'seta/v1/job-priorities',
-    seta.SetaJobPriorityViewSet,
-    base_name='seta-job-priorities'
-)
-
-project_bound_router.register(
     r'resultset',
     resultset.ResultSetViewSet,
     base_name='resultset',
