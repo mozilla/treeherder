@@ -1,5 +1,6 @@
 import datetime
 
+from django.db.utils import IntegrityError
 from django.utils import timezone
 import pytest
 
@@ -33,27 +34,35 @@ def test_not_expired_job_priority():
     assert jb.has_expired() is False
 
 
+@slow
+@pytest.mark.django_db(transaction=True)
 def test_null_testtype():
     '''The expiration date accepts null values'''
-    # XXX: This should probably raise an exception
-    JobPriority(testtype=None,
-                buildtype='opt',
-                platform='windows8-64',
-                priority=1,
-                timeout=5400,
-                expiration_date=TOMORROW,
-                buildsystem='taskcluster')
+    # XXX: It would be nice to be able to now have to wait for job insertion
+    #      to realize that testtype is None. That way this test would not have to be slow
+    with pytest.raises(IntegrityError):
+        JobPriority.objects.create(
+            testtype=None,
+            buildtype='opt',
+            platform='windows8-64',
+            priority=1,
+            timeout=5400,
+            expiration_date=TOMORROW,
+            buildsystem='taskcluster')
 
 
+@slow
+@pytest.mark.django_db(transaction=True)
 def test_null_expiration_date():
     '''The expiration date accepts null values'''
-    JobPriority(testtype='web-platform-tests-2',
-                buildtype='opt',
-                platform='windows8-64',
-                priority=1,
-                timeout=5400,
-                expiration_date=None,
-                buildsystem='taskcluster')
+    JobPriority.objects.create(
+        testtype='web-platform-tests-2',
+        buildtype='opt',
+        platform='windows8-64',
+        priority=1,
+        timeout=5400,
+        expiration_date=None,
+        buildsystem='taskcluster')
 
 
 @slow
