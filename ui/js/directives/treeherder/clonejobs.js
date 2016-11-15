@@ -442,7 +442,6 @@ treeherder.directive('thCloneJobs', [
             } else {
                 _.bind(clickGroupCb, this, el)();
             }
-            return false;
         };
 
         /**
