@@ -20,6 +20,7 @@ def test_create_instance(test_repository):
                                last_request=timezone.now(),
                                reset_delta=0)
 
+
 # JobPriority tests
 def test_expired_job_priority():
     jb = JobPriority(testtype='web-platform-tests-1',
