@@ -1,8 +1,20 @@
+import os
+import shutil
+
 from django.utils import timezone
 import pytest
 
+from treeherder.seta.common import get_root_dir
 from treeherder.seta.models import JobPriority
 from treeherder.seta.update_job_priority import ManageJobPriorityTable
+
+
+@pytest.fixture(scope="function")
+def test_setup(request):
+    path = get_root_dir()
+    if os.path.exists(path):
+        shutil.rmtree(path)
+    yield
 
 
 @pytest.fixture

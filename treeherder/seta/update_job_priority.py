@@ -99,6 +99,22 @@ class ManageJobPriorityTable():
 
         return sanitized_list
 
+    def _query_latest_gecko_decision_task_id(self, repo_name):
+        url = "https://index.taskcluster.net/v1/task/gecko.v2.%s.latest.firefox.decision/" % repo_name
+        try:
+            LOG.info('Fetching {}'.format(url))
+            latest_task = retry(
+                requests.get,
+                args=(url, ),
+                kwargs={'headers': {'accept-encoding': 'json'}, 'verify': True}
+            ).json()
+            task_id = latest_task['taskId']
+            LOG.info('For {} we found the task id: {}'.format(repo_name, task_id))
+        except Exception as error:
+            # we will end this function if got exception here
+            LOG.warning("The request for %s failed due to %s" % (url, error))
+            return None
+
     def query_sanitized_data(self, repo_name='mozilla-inbound'):
         """Return sanitized jobs data based on runnable api. None if failed to obtain or no new data.
 
@@ -141,18 +157,8 @@ class ManageJobPriorityTable():
                 "ref_data_name": "desktop-test-linux64/opt-reftest-8",
             },
         """
-        url = "https://index.taskcluster.net/v1/task/gecko.v2.%s.latest.firefox.decision/" % repo_name
-        try:
-            LOG.info('Fetching {}'.format(url))
-            latest_task = retry(
-                requests.get,
-                args=(url, ),
-                kwargs={'headers': {'accept-encoding': 'json'}, 'verify': True}
-            ).json()
-            task_id = latest_task['taskId']
-        except Exception as error:
-            # we will end this function if got exception here
-            LOG.warning("The request for %s failed due to %s" % (url, error))
+        task_id = self._query_latest_gecko_decision_task_id(repo_name)
+        if not task_id:
             return None
 
         path = os.path.join(get_root_dir(), '%s.json' % task_id)
@@ -165,7 +171,7 @@ class ManageJobPriorityTable():
         else:
             LOG.info("We're going to fetch new runnable jobs data.")
             # We never store the output of runnable api but the minimal data we need
-            data = self.sanitized_data(self.query_the_runnablejobs(repo_name=repo_name, task_id=task_id))
+            data = self.sanitized_data(self.query_runnable_jobs(repo_name=repo_name, task_id=task_id))
 
             if data:
                 # Store the sanitized data to disk for inspection
@@ -186,7 +192,7 @@ class ManageJobPriorityTable():
             LOG.warning('We received an empty data set')
             return
 
-    def query_the_runnablejobs(self, task_id, repo_name='mozilla-inbound'):
+    def query_runnable_jobs(self, task_id, repo_name='mozilla-inbound'):
         url = RUNNABLE_API.format(repo_name, task_id)
         try:
             data = retry(requests.get, args=(url, ), kwargs={'headers': HEADERS}).json()

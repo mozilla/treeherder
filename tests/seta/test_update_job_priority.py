@@ -1,3 +1,27 @@
+import pytest
+from mock import patch
+
+from treeherder.seta.update_job_priority import ManageJobPriorityTable
+
+
+# Prevent requests to be used in any of the tests
+@pytest.fixture(autouse=True)
+def no_requests(monkeypatch):
+    monkeypatch.delattr("requests.sessions.Session.request")
+
+TRANSFORMED_DATA = [{
+    'platform_option': 'debug',
+    'platform': 'windows8-64',
+    'build_system_type': 'buildbot',
+    'testtype': 'web-platform-tests-1'
+}, {
+    'platform_option': 'opt',
+    'platform': 'linux32',
+    'build_system_type': '*',
+    'testtype': 'reftest-e10s-1'
+}]
+
+
 def test_unique_key(job_priority_table_manager):
     new_job = {
         'build_system_type': 'buildbot',
@@ -22,3 +46,13 @@ def test_sanitized_data(job_priority_table_manager, runnable_jobs_data):
 
 def test_sanitized_data_empty_runnable_data(job_priority_table_manager):
     assert job_priority_table_manager.sanitized_data(None) == []
+
+
+@patch.object(ManageJobPriorityTable, '_query_latest_gecko_decision_task_id')
+@patch.object(ManageJobPriorityTable, 'query_runnable_jobs')
+def test_query_sanitized_data(query_runnable_jobs, query_task_id,
+                              job_priority_table_manager, runnable_jobs_data, test_setup):
+    query_runnable_jobs.return_value = runnable_jobs_data
+    query_task_id.return_value = 'MOCKED'
+    data = job_priority_table_manager.query_sanitized_data()
+    assert data == TRANSFORMED_DATA
