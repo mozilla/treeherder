@@ -1,6 +1,7 @@
 import copy
 import datetime
 
+import pytest
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
@@ -224,6 +225,34 @@ def test_resultset_list_filter_by_date(webapp, test_repository,
         u'repository': test_project,
         u'startdate': u'2013-08-10'}
     )
+
+
+@pytest.mark.parametrize('filter_param, exp_ids', [
+    ('id__lt=2', [1]),
+    ('id__lte=2', [1, 2]),
+    ('id=2', [2]),
+    ('id__gt=2', [3]),
+    ('id__gte=2', [2, 3])
+])
+def test_resultset_list_filter_by_id(webapp, test_repository, filter_param,
+                                     exp_ids):
+    """
+    test filtering by id in various ways
+    """
+    for (id, revision, author) in [(1, '1234abcd', 'foo@bar.com'),
+                                   (2, '2234abcd', 'foo2@bar.com'),
+                                   (3, '3234abcd', 'foo3@bar.com')]:
+        Push.objects.create(repository=test_repository,
+                            revision=revision,
+                            author=author,
+                            time=datetime.datetime.now())
+    resp = webapp.get(
+        reverse("resultset-list", kwargs={"project": test_repository.name}) +
+        '?' + filter_param
+    )
+    assert resp.status_int == 200
+    results = resp.json['results']
+    assert set([result['id'] for result in results]) == set(exp_ids)
 
 
 def test_resultset_list_id_in(webapp, test_repository):
