@@ -110,6 +110,7 @@ class ManageJobPriorityTable():
             ).json()
             task_id = latest_task['taskId']
             LOG.info('For {} we found the task id: {}'.format(repo_name, task_id))
+            return task_id
         except Exception as error:
             # we will end this function if got exception here
             LOG.warning("The request for %s failed due to %s" % (url, error))
