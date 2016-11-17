@@ -1,0 +1,33 @@
+<div class="container-fluid">
+  <div ng-if="!revision">
+    <h1>{{header}}: subtests</h1>
+    <p><a href="perf.html#/dashboard?topic={{topic}}&repo={{selectedRepo.name}}&timerange={{selectedTimeRange.value}}">Show all tests and platforms</a></p>
+    <p>{{descP1}}</p>
+    <div class="form-group">
+      Branch to compare:
+      <select ng-change="globalOptionsChanged(selectedRepo, selectedTimeRange)"
+              ng-model="selectedRepo"
+              ng-options="repo.name for repo in projects">
+      </select>
+      Time range to sample:
+      <select ng-model="selectedTimeRange"
+              ng-options="timeRange.text for timeRange in timeRanges track by timeRange.value"
+              ng-change="globalOptionsChanged(selectedRepo, selectedTimeRange)">
+      </select>
+    </div>
+  </div>
+  <div ng-if="dataLoading">
+    Loading all results, please wait a minute...
+    <img src="img/dancing_cat.gif"/>
+  </div>
+  <div ng-if="!dataLoading">
+    <ph-compare-table
+       base-title={{baseTitle}}
+       new-title={{variantTitle}}
+       titles="titles"
+       test-list="testList"
+       compare-results="compareResults"
+       filter-options="filterOptions">
+    </ph-compare-table>
+  </div>
+</div>
