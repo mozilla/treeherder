@@ -125,10 +125,19 @@ class id_window(object):
         return None
 
 
-def with_failure_lines(f):
+def with_failure_line(f):
     def inner(self, text_log_errors):
-        with_failure_lines = [item for item in text_log_errors if item.failure_line]
-        return f(self, with_failure_lines)
+        with_failure_line = [item for item in text_log_errors if item.failure_line]
+        return f(self, with_failure_line)
+    inner.__name__ = f.__name__
+    inner.__doc__ = f.__doc__
+    return inner
+
+
+def without_failure_line(f):
+    def inner(self, text_log_errors):
+        without_failure_line = [item for item in text_log_errors if not item.failure_line]
+        return f(self, without_failure_line)
     inner.__name__ = f.__name__
     inner.__doc__ = f.__doc__
     return inner
@@ -138,7 +147,7 @@ class PreciseTestMatcher(Matcher):
     """Matcher that looks for existing failures with identical tests and
     identical error message."""
 
-    @with_failure_lines
+    @with_failure_line
     def __call__(self, text_log_errors):
         return super(PreciseTestMatcher, self).__call__(text_log_errors)
 
@@ -163,6 +172,25 @@ class PreciseTestMatcher(Matcher):
                  .order_by("-score", "-classified_failure"))]
 
 
+class PreciseUnstructuredMatcher(Matcher):
+    """Matcher that looks for existing failures with identical tests and
+    identical error message."""
+
+    @without_failure_line
+    def __call__(self, text_log_errors):
+        return super(PreciseUnstructuredMatcher, self).__call__(text_log_errors)
+
+    @id_window(size=20000,
+               time_budget=500)
+    def query_best(self, text_log_error):
+        return [(TextLogErrorMatch.objects
+                 .filter(text_log_error__failure_line=None,
+                         text_log_error__line=text_log_error.line)
+                 .exclude(ignored_line |
+                          Q(text_log_error__step__job=text_log_error.step.job))
+                 .order_by("-score", "-classified_failure"))]
+
+
 class ElasticSearchTestMatcher(Matcher):
     """Matcher that looks for existing failures with identical tests, and error
     message that is a good match when non-alphabetic tokens have been removed."""
@@ -173,7 +201,7 @@ class ElasticSearchTestMatcher(Matcher):
         self.calls = 0
 
     @es_connected(default=[])
-    @with_failure_lines
+    @with_failure_line
     def __call__(self, text_log_errors):
         return super(ElasticSearchTestMatcher, self).__call__(text_log_errors)
 
@@ -210,7 +238,7 @@ class ElasticSearchTestMatcher(Matcher):
 class CrashSignatureMatcher(Matcher):
     """Matcher that looks for crashes with identical signature"""
 
-    @with_failure_lines
+    @with_failure_line
     def __call__(self, text_log_errors):
         return super(CrashSignatureMatcher, self).__call__(text_log_errors)
 
