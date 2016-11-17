@@ -35,6 +35,58 @@ def single_job_priority():
     )
 
 
+DATA = [
+    {
+        'platform_option': 'debug',
+        'platform': 'windows8-64',
+        'build_system_type': 'buildbot',
+        'testtype': 'web-platform-tests-1'
+    }, {
+        'platform_option': 'opt',
+        'platform': 'linux32',
+        'build_system_type': '*',
+        'testtype': 'reftest-e10s-1'
+    }
+]
+
+
+@pytest.fixture
+def sanitized_data():
+    return DATA
+
+
+@pytest.fixture
+def all_job_priorities():
+    data1 = DATA[0]
+    data2 = DATA[1]
+    return [
+        JobPriority(
+            testtype=data1['testtype'],
+            buildtype=data1['platform_option'],
+            platform=data1['platform'],
+            buildsystem=data1['build_system_type'],
+        ),
+        JobPriority(
+            testtype=data2['testtype'],
+            buildtype=data2['platform_option'],
+            platform=data1['platform'],
+            buildsystem=data2['build_system_type'],
+        )
+    ]
+
+
+@pytest.fixture
+def db_map():
+    return {
+        ('reftest-e10s-1', 'opt', 'windows8-64'): {
+            'pk': None, 'build_system_type': '*'
+        },
+        ('web-platform-tests-1', 'debug', 'windows8-64'): {
+            'pk': None, 'build_system_type': 'buildbot'
+        }
+    }
+
+
 @pytest.fixture
 def runnable_jobs_data():
     # The first platform only runs on Buildbot

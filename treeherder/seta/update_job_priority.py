@@ -187,7 +187,7 @@ class ManageJobPriorityTable():
         data = self.query_sanitized_data(repo_name='mozilla-inbound')
 
         if data:
-            self._update_job_priority_table(data)
+            self._update_table(data)
         else:
             LOG.warning('We received an empty data set')
             return
@@ -269,27 +269,27 @@ class ManageJobPriorityTable():
             'Win 6.3.9600 x86_64',
         ]
 
+    def _db_map(self, db_data):
+        map = {}
+        # Creating this data structure which reduces how many times we iterate through the DB rows
+        for jp in db_data:
+            key = jp.unique_identifier()
+            # This is guaranteed by a unique composite index for these 3 fields in models.py
+            assert key not in map,\
+                '"{}" should be a unique job priority and that is unexpected.'.format(key)
+            # (testtype, buildtype, platform)
+            map[key] = {'pk': jp.id, 'build_system_type': jp.buildsystem}
+
+        return map
+
     def _initialize_values(self):
         LOG.info('Fetch all rows from the job priority table.')
         # Get all rows of job priorities
         db_data = JobPriority.objects.all()
-        map = {}
+        map = self._db_map(db_data)
         if db_data:
             # For 2 weeks the job will be considered high value (priority=1)
             expiration_date = datetime.datetime.now() + datetime.timedelta(days=14)
-            # Creating this data structure which reduces how many times we iterate through the DB rows
-            for row in db_data:
-                key = self._unique_key({
-                    'testtype': row.testtype,
-                    'platform_option': row.buildtype,
-                    'platform': row.platform,
-                })
-                # This is guaranteed by a unique composite index for these 3 fields in models.py
-                assert key not in map,\
-                    '"{}" should be a unique row and that is unexpected.'.format(key)
-                # (testtype, buildtype, platform)
-                map[key] = {'pk': row.id, 'build_system_type': row.buildsystem}
-
             return db_data, map, 1, 0, expiration_date
         else:
             # When the table is empty it means that we're starting the system for the first time
@@ -299,7 +299,7 @@ class ManageJobPriorityTable():
             # into high value jobs.
             return db_data, map, 5, 5400, None
 
-    def _update_job_priority_table(self, data):
+    def _update_table(self, data):
         """Add new jobs to the priority table and update the build system if required."""
         db_data, map, priority, timeout, expiration_date = self._initialize_values()
 
