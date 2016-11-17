@@ -475,7 +475,9 @@ SILENCED_SYSTEM_CHECKS = [
 # Enable integration between autoclassifier and jobs
 AUTOCLASSIFY_JOBS = env.bool("AUTOCLASSIFY_JOBS", default=True)
 # Ordered list of matcher classes to use during autoclassification
-AUTOCLASSIFY_MATCHERS = ["PreciseTestMatcher", "CrashSignatureMatcher",
+AUTOCLASSIFY_MATCHERS = ["PreciseTestMatcher",
+                         "PreciseUnstructuredMatcher",
+                         "CrashSignatureMatcher",
                          "ElasticSearchTestMatcher"]
 
 # timeout for requests to external sources
