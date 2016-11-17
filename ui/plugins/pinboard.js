@@ -38,6 +38,10 @@ treeherder.controller('PinboardCtrl', [
             }
         });
 
+        $rootScope.$on('retriggerAllPinnedJobs', function() {
+            $scope.retriggerAllPinnedJobs();
+        });
+
         $scope.toggleJobPin = function(job) {
             thPinboard.toggleJobPin(job);
             if (!$scope.selectedJob) {

@@ -316,6 +316,12 @@ treeherder.controller('PluginCtrl', [
                    ($scope.job.state === "pending" || $scope.job.state === "running");
         };
 
+        $scope.retriggerAllPinnedJobs = function() {
+            if ($scope.user.loggedin && $scope.getCountPinnedJobs()) {
+                $rootScope.$emit('retriggerAllPinnedJobs');
+            }
+        };
+
         $scope.retriggerJob = function(jobs) {
             if ($scope.user.loggedin) {
                 var job_id_list = _.pluck(jobs, 'id');
