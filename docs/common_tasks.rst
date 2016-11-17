@@ -63,7 +63,7 @@ On our development (vagrant) instance we have `django-debug-toolbar
 <http://django-debug-toolbar.readthedocs.io/>`_ installed, which can give
 information on exactly what SQL is run to generate individual API
 endpoints. Just navigate to an endpoint
-(example: http://local.treeherder.mozilla.org/api/repository/) and
+(example: http://localhost:8000/api/repository/) and
 you should see the toolbar to your right.
 
 

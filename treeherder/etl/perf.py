@@ -1,5 +1,4 @@
 import copy
-import datetime
 import logging
 import os
 from hashlib import sha1
@@ -9,6 +8,7 @@ from jsonschema import validate
 
 from treeherder.model.models import (MachinePlatform,
                                      OptionCollection,
+                                     Push,
                                      Repository)
 from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceFramework,
@@ -82,11 +82,8 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
         name=project_name)
 
     # data for performance series
-    job_id = job_data[job_guid]['id']
-    result_set_id = job_data[job_guid]['result_set_id']
-    push_id = job_data[job_guid]['push_id']
-    push_timestamp = datetime.datetime.utcfromtimestamp(
-        job_data[job_guid]['push_timestamp'])
+    ds_job_id = job_data[job_guid]['id']
+    push = Push.objects.get(id=job_data[job_guid]['push_id'])
 
     try:
         framework = PerformanceFramework.objects.get(
@@ -138,15 +135,14 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                     'min_back_window': suite.get('minBackWindow'),
                     'max_back_window': suite.get('maxBackWindow'),
                     'fore_window': suite.get('foreWindow'),
-                    'last_updated': push_timestamp
+                    'last_updated': push.time
                 })
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
                 repository=repository,
-                result_set_id=result_set_id,
-                push_id=push_id,
-                job_id=job_id,
+                push=push,
+                ds_job_id=ds_job_id,
                 signature=signature,
-                push_timestamp=push_timestamp,
+                push_timestamp=push.time,
                 defaults={'value': suite['value']})
             if (signature.should_alert is not False and datum_created and
                 (repository.performance_alerts_enabled)):
@@ -192,15 +188,14 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                     'max_back_window': subtest.get('maxBackWindow'),
                     'fore_window': subtest.get('foreWindow'),
                     'parent_signature': summary_signature,
-                    'last_updated': push_timestamp
+                    'last_updated': push.time
                 })
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
                 repository=repository,
-                result_set_id=result_set_id,
-                push_id=push_id,
-                job_id=job_id,
+                push=push,
+                ds_job_id=ds_job_id,
                 signature=signature,
-                push_timestamp=push_timestamp,
+                push_timestamp=push.time,
                 defaults={'value': value[0]})
 
             # by default if there is no summary, we should schedule a

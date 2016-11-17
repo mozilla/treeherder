@@ -6,8 +6,9 @@ import newrelic.agent
 
 from treeherder.etl.common import to_timestamp
 from treeherder.etl.schema import job_json_schema
-from treeherder.model.derived import DatasetNotFoundError
 from treeherder.model.derived.jobs import JobsModel
+from treeherder.model.models import (Push,
+                                     Repository)
 
 logger = logging.getLogger(__name__)
 
@@ -60,32 +61,34 @@ class JobLoader:
                             logger.warn("Skipping job due to bad attribute",
                                         exc_info=1)
 
-                try:
-                    jobs_model.store_job_data(storeable_job_list)
-                except DatasetNotFoundError:
-                    logger.warn("Job with unsupported project: {}".format(project))
+                jobs_model.store_job_data(storeable_job_list)
 
     def clean_revision(self, pulse_job, jobs_model):
+        # get the repository first (we'll throw an exception if it doesn't
+        # exist)
+        repository = Repository.objects.get(
+            name=pulse_job["origin"]["project"])
+
         # It is possible there will be either a revision or a revision_hash
         # At some point we will ONLY get revisions and no longer receive
         # revision_hashes and then this check can be removed.
-        revision = pulse_job["origin"].get("revision", None)
+        revision = pulse_job["origin"].get("revision")
         if revision:
+            # will raise an exception if repository with name does not
+            # exist (which we want, I think, to draw attention to the problem)
             # check the revision for this job has an existing resultset
             # If it doesn't, then except out so that the celery task will
             # retry till it DOES exist.
-            if not jobs_model.get_resultset_top_revision_lookup([revision]):
-                raise MissingResultsetException(
-                    "No resultset found in {} for revision {}".format(
+            if not Push.objects.filter(repository=repository,
+                                       revision__startswith=revision).exists():
+                raise MissingPushException(
+                    "No push found in {} for revision {}".format(
                         pulse_job["origin"]["project"],
                         revision))
-
         else:
-            # This will also raise a ValueError if the resultset for the
-            # revision_hash is not found.
-            revision = jobs_model.get_revision_from_revision_hash(
-                pulse_job["origin"]["revision_hash"]
-            )
+            revision = Push.objects.values_list('revision', flat=True).get(
+                repository=repository,
+                revision_hash=pulse_job["origin"]["revision_hash"])
             logger.warning(
                 "Pulse job had revision_hash instead of revision: {}:{}".format(
                     pulse_job["origin"]["project"],
@@ -320,5 +323,5 @@ class JobLoader:
         return validated_jobs
 
 
-class MissingResultsetException(Exception):
+class MissingPushException(Exception):
     pass

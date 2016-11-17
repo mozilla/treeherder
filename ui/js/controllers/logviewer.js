@@ -162,20 +162,18 @@ logViewerApp.controller('LogviewerCtrl', [
                     if (!q.lineNumber) {
                         $scope.logPostMessage({ lineNumber: allErrors[0].line_number + 1 });
                     }
-                } else {
-                    if (!q.lineNumber) {
-                        for (let i = 0; i < $scope.steps.length; i++) {
-                            let step = $scope.steps[i];
+                } else if (!q.lineNumber) {
+                    for (let i = 0; i < $scope.steps.length; i++) {
+                        let step = $scope.steps[i];
 
-                            if (step.result !== "success") {
-                                $scope.logPostMessage({
-                                    lineNumber: step.started_line_number,
-                                    highlightStart: step.started_line_number,
-                                    highlightEnd: step.finished_line_number
-                                });
+                        if (step.result !== "success") {
+                            $scope.logPostMessage({
+                                lineNumber: step.started_line_number,
+                                highlightStart: step.started_line_number,
+                                highlightEnd: step.finished_line_number
+                            });
 
-                                break;
-                            }
+                            break;
                         }
                     }
                 }

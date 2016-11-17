@@ -6,6 +6,8 @@ from django.conf import settings
 from django.core.cache import cache
 
 from treeherder.etl.pushlog import HgPushlogProcess
+from treeherder.model.models import (Commit,
+                                     Push)
 
 
 def test_ingest_hg_pushlog(jm, test_base_dir,
@@ -17,7 +19,6 @@ def test_ingest_hg_pushlog(jm, test_base_dir,
     with open(pushlog_path) as f:
         pushlog_content = f.read()
     pushlog_fake_url = "http://www.thisismypushlog.com"
-    push_num = 10
     responses.add(responses.GET, pushlog_fake_url,
                   body=pushlog_content, status=200,
                   content_type='application/json')
@@ -26,19 +27,9 @@ def test_ingest_hg_pushlog(jm, test_base_dir,
 
     process.run(pushlog_fake_url, jm.project)
 
-    pushes_stored = jm.get_dhub().execute(
-        proc="jobs_test.selects.result_set_ids",
-        return_type='tuple'
-    )
-
-    assert len(pushes_stored) == push_num
-
-    revisions_stored = jm.get_dhub().execute(
-        proc="jobs_test.selects.revision_ids",
-        return_type='tuple'
-    )
-
-    assert len(revisions_stored) == 15
+    # should be 10 pushes, 15 revisions
+    assert Push.objects.count() == 10
+    assert Commit.objects.count() == 15
 
 
 def test_ingest_hg_pushlog_already_stored(jm, test_base_dir,
@@ -66,12 +57,7 @@ def test_ingest_hg_pushlog_already_stored(jm, test_base_dir,
     process = HgPushlogProcess()
     process.run(pushlog_fake_url, jm.project)
 
-    pushes_stored = jm.get_dhub().execute(
-        proc="jobs_test.selects.result_set_ids",
-        return_type='tuple'
-    )
-
-    assert len(pushes_stored) == 1
+    assert Push.objects.count() == 1
 
     # store both first and second push
     first_and_second_push_json = json.dumps(
@@ -89,12 +75,7 @@ def test_ingest_hg_pushlog_already_stored(jm, test_base_dir,
 
     process.run(pushlog_fake_url, jm.project)
 
-    pushes_stored = jm.get_dhub().execute(
-        proc="jobs_test.selects.result_set_ids",
-        return_type='tuple'
-    )
-
-    assert len(pushes_stored) == 2
+    assert Push.objects.count() == 2
 
 
 def test_ingest_hg_pushlog_cache_last_push(jm, test_repository,
@@ -144,9 +125,4 @@ def test_empty_json_pushes(jm, test_base_dir,
     process = HgPushlogProcess()
     process.run(pushlog_fake_url, jm.project)
 
-    pushes_stored = jm.get_dhub().execute(
-        proc="jobs_test.selects.result_set_ids",
-        return_type='tuple'
-    )
-
-    assert len(pushes_stored) == 0
+    assert Push.objects.count() == 0

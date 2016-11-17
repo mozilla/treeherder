@@ -87,9 +87,9 @@ def mock_buildapi_builds4h_missing_branch_url(activate_responses):
 
 
 def test_ingest_pending_jobs(jm,
+                             result_set_stored,
                              mock_buildapi_pending_url,
-                             mock_log_parser,
-                             mock_get_resultset):
+                             mock_log_parser):
     """
     a new buildapi pending job creates a new obj in the job table
     """
@@ -107,9 +107,9 @@ def test_ingest_pending_jobs(jm,
 
 
 def test_ingest_running_jobs(jm,
+                             result_set_stored,
                              mock_buildapi_running_url,
-                             mock_log_parser,
-                             mock_get_resultset):
+                             mock_log_parser):
     """
     a new buildapi running job creates a new obj in the job table
     """
@@ -127,9 +127,9 @@ def test_ingest_running_jobs(jm,
 
 
 def test_ingest_builds4h_jobs(jm,
+                              result_set_stored,
                               mock_buildapi_builds4h_url,
-                              mock_log_parser,
-                              mock_get_resultset):
+                              mock_log_parser):
     """
     a new buildapi completed job creates a new obj in the job table
     """
@@ -147,10 +147,10 @@ def test_ingest_builds4h_jobs(jm,
 
 
 def test_ingest_running_to_complete_job(jm,
+                                        result_set_stored,
                                         mock_buildapi_running_url,
                                         mock_buildapi_builds4h_url,
-                                        mock_log_parser,
-                                        mock_get_resultset):
+                                        mock_log_parser):
     """
     a new buildapi running job transitions to a new completed job
 
@@ -178,9 +178,9 @@ def test_ingest_running_to_complete_job(jm,
 
 
 def test_ingest_running_job_fields(jm,
+                                   result_set_stored,
                                    mock_buildapi_running_url,
-                                   mock_log_parser,
-                                   mock_get_resultset):
+                                   mock_log_parser):
     """
     a new buildapi running job creates a new obj in the job table
     """
@@ -194,8 +194,9 @@ def test_ingest_running_job_fields(jm,
 
 
 def test_ingest_builds4h_jobs_1_missing_resultset(jm,
-                                                  sample_resultset, mock_buildapi_builds4h_missing1_url,
-                                                  mock_log_parser, mock_get_resultset):
+                                                  result_set_stored,
+                                                  mock_buildapi_builds4h_missing1_url,
+                                                  mock_log_parser):
     """
     Ensure the builds4h job with the missing resultset is not ingested
     """
@@ -207,8 +208,9 @@ def test_ingest_builds4h_jobs_1_missing_resultset(jm,
 
 
 def test_ingest_builds4h_jobs_missing_branch(jm,
-                                             sample_resultset, mock_buildapi_builds4h_missing_branch_url,
-                                             mock_log_parser, mock_get_resultset):
+                                             result_set_stored,
+                                             mock_buildapi_builds4h_missing_branch_url,
+                                             mock_log_parser):
     """
     Ensure the builds4h job with the missing branch is not ingested
     """

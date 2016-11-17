@@ -2,7 +2,7 @@ from threading import local
 
 import pytest
 
-from treeherder.etl.job_loader import MissingResultsetException
+from treeherder.etl.job_loader import MissingPushException
 from treeherder.etl.tasks.pulse_tasks import store_pulse_jobs
 from treeherder.model.models import Job
 
@@ -25,7 +25,7 @@ def test_retry_missing_revision_succeeds(sample_data, sample_resultset,
     orig_retry = store_pulse_jobs.retry
 
     def retry_mock(exc=None, countdown=None):
-        assert isinstance(exc, MissingResultsetException)
+        assert isinstance(exc, MissingPushException)
         thread_data.retries += 1
         jm.store_result_set_data([rs])
         return orig_retry(exc=exc, countdown=countdown)
@@ -47,7 +47,7 @@ def test_retry_missing_revision_never_succeeds(sample_data, test_project,
     job = sample_data.pulse_jobs[0]
     job["origin"]["project"] = test_project
 
-    with pytest.raises(MissingResultsetException):
+    with pytest.raises(MissingPushException):
         store_pulse_jobs.delay(job, "foo", "bar")
 
     assert Job.objects.count() == 0

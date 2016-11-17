@@ -46,14 +46,14 @@ def test_summary_status(test_repository, test_perf_signature,
     s = test_perf_alert_summary
 
     a = PerformanceAlert.objects.create(
-            summary=s,
-            series_signature=signature1,
-            is_regression=True,
-            amount_pct=0.5,
-            amount_abs=50.0,
-            prev_value=100.0,
-            new_value=150.0,
-            t_value=20.0)
+        summary=s,
+        series_signature=signature1,
+        is_regression=True,
+        amount_pct=0.5,
+        amount_abs=50.0,
+        prev_value=100.0,
+        new_value=150.0,
+        t_value=20.0)
 
     # this is the test case
     # ignore downstream and reassigned to update the summary status
@@ -61,14 +61,14 @@ def test_summary_status(test_repository, test_perf_signature,
     a.related_summary = s
     a.save()
     b = PerformanceAlert.objects.create(
-            summary=s,
-            series_signature=signature2,
-            is_regression=False,
-            amount_pct=0.5,
-            amount_abs=50.0,
-            prev_value=100.0,
-            new_value=150.0,
-            t_value=20.0)
+        summary=s,
+        series_signature=signature2,
+        is_regression=False,
+        amount_pct=0.5,
+        amount_abs=50.0,
+        prev_value=100.0,
+        new_value=150.0,
+        t_value=20.0)
     b.status = PerformanceAlert.ACKNOWLEDGED
     b.save()
     s = PerformanceAlertSummary.objects.get(id=1)
@@ -76,13 +76,16 @@ def test_summary_status(test_repository, test_perf_signature,
 
 
 def test_alert_modification(test_repository, test_perf_signature,
-                            test_perf_alert_summary, test_perf_alert):
+                            test_perf_alert_summary, result_set_stored,
+                            test_perf_alert):
     p = test_perf_alert
     s2 = PerformanceAlertSummary.objects.create(
         id=2,
         repository=test_repository,
-        prev_result_set_id=1,
-        result_set_id=2,
+        prev_push_id=3,
+        push_id=4,
+        prev_result_set_id=3,
+        result_set_id=4,
         last_updated=datetime.datetime.now(),
         manually_created=False)
 

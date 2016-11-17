@@ -390,9 +390,16 @@ treeherder.directive('thCloneJobs', [
         /**
          * When a job is clicked
          */
-        var jobMouseDown = function(resultset, ev){
-
+        var jobClick = function(resultset, ev){
             var el = $(ev.target);
+
+            // return in case 'mousedown' was fired and target was clickable
+            // (so we don't handle two events)
+            if (ev.type === 'mousedown' && ev.which === 1 &&
+                el.is(":button")) {
+                return false;
+            }
+
             var key = el.attr(jobKeyAttr);
             var buildername = el.attr(runnableJobBuildernameAttr);
             //Confirm user selected a job
@@ -416,7 +423,6 @@ treeherder.directive('thCloneJobs', [
                         break;
 
                     case 2:
-                        ev.preventDefault();
                         //Middle mouse button pressed
                         ThJobModel.get(this.repoName, job.id).then(function(data){
                             // Open the logviewer in a new window
@@ -1033,7 +1039,7 @@ treeherder.directive('thCloneJobs', [
             element.off();
 
             //Register events callback
-            element.on('mousedown', _.bind(jobMouseDown, scope, scope.resultset));
+            element.on('click mousedown', _.bind(jobClick, scope, scope.resultset));
 
             registerCustomEventCallbacks(scope, element);
 

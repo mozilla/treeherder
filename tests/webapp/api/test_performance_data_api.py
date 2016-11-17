@@ -4,7 +4,8 @@ import pytest
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
-from treeherder.model.models import MachinePlatform
+from treeherder.model.models import (MachinePlatform,
+                                     Push)
 from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceFramework,
                                     PerformanceSignature)
@@ -192,17 +193,19 @@ def test_filter_signatures_by_framework(webapp, test_repository, test_perf_signa
 
 
 def test_filter_data_by_framework(webapp, test_repository, test_perf_signature,
+                                  result_set_stored,
                                   test_perf_signature_same_hash_different_framework):
     signature2 = test_perf_signature_same_hash_different_framework
-
+    push = Push.objects.get(id=1)
     for (i, signature) in enumerate([test_perf_signature, signature2]):
         PerformanceDatum.objects.create(
             repository=signature.repository,
-            job_id=i,
-            result_set_id=i,
+            ds_job_id=i,
+            push=push,
+            result_set_id=1,
             signature=signature,
             value=0.0,
-            push_timestamp=datetime.datetime.now())
+            push_timestamp=push.time)
 
     client = APIClient()
 
@@ -279,11 +282,17 @@ def test_filter_signatures_by_range(webapp, test_repository, test_perf_signature
 def test_filter_data_by_interval(webapp, test_repository, test_perf_signature,
                                  interval, exp_datums_len, exp_job_ids):
     # create some test data
-    for (i, timestamp) in enumerate([NOW, NOW - datetime.timedelta(days=2), NOW - datetime.timedelta(days=7)]):
+    for (i, timestamp) in enumerate([NOW, NOW - datetime.timedelta(days=2),
+                                     NOW - datetime.timedelta(days=7)]):
+        push = Push.objects.create(repository=test_repository,
+                                   revision='abcdefgh%s' % i,
+                                   author='foo@bar.com',
+                                   time=timestamp)
         PerformanceDatum.objects.create(
             repository=test_perf_signature.repository,
-            job_id=i,
-            result_set_id=i,
+            ds_job_id=i,
+            result_set_id=push.id,
+            push=push,
             signature=test_perf_signature,
             value=i,
             push_timestamp=timestamp)
@@ -310,11 +319,17 @@ def test_filter_data_by_interval(webapp, test_repository, test_perf_signature,
 def test_filter_data_by_range(webapp, test_repository, test_perf_signature,
                               start_date, end_date, exp_datums_len, exp_job_ids):
     # create some test data
-    for (i, timestamp) in enumerate([NOW, NOW - datetime.timedelta(days=2), NOW - datetime.timedelta(days=5)]):
+    for (i, timestamp) in enumerate([NOW, NOW - datetime.timedelta(days=2),
+                                     NOW - datetime.timedelta(days=5)]):
+        push = Push.objects.create(repository=test_repository,
+                                   revision='abcdefgh%s' % i,
+                                   author='foo@bar.com',
+                                   time=timestamp)
         PerformanceDatum.objects.create(
             repository=test_perf_signature.repository,
-            job_id=i,
-            result_set_id=i,
+            ds_job_id=i,
+            result_set_id=push.id,
+            push=push,
             signature=test_perf_signature,
             value=i,
             push_timestamp=timestamp)

@@ -43,57 +43,6 @@
                 )",
 
             "host_type":"master_host"
-        },
-        "set_result_set":{
-
-            "sql":"INSERT INTO `result_set` (`author`,`revision_hash`,`long_revision`,`short_revision`,`push_timestamp`, `active_status`)
-                SELECT ?,?,?,?,?,?
-                FROM DUAL
-                WHERE NOT EXISTS (
-                    SELECT `long_revision`, `push_timestamp`
-                    FROM `result_set`
-                    WHERE `long_revision` = ?
-                    OR `short_revision` = ?
-                    OR revision_hash = ?
-                )",
-
-            "host_type":"master_host"
-        },
-        "set_revision":{
-
-            "sql":"INSERT INTO `revision` (
-                    `long_revision`,
-                    `short_revision`,
-                    `revision`,
-                    `author`,
-                    `comments`,
-                    `repository_id`
-                    )
-                SELECT ?,?,?,?,?,?
-                FROM DUAL
-                WHERE NOT EXISTS (
-                    SELECT `revision`
-                    FROM `revision`
-                    WHERE `long_revision` = ? AND `repository_id` = ?
-                )",
-
-            "host_type":"master_host"
-        },
-        "set_revision_map":{
-
-            "sql":"INSERT INTO `revision_map` (
-                `revision_id`,
-                `result_set_id`
-                )
-                SELECT ?,?
-                FROM DUAL
-                WHERE NOT EXISTS (
-                    SELECT `revision_id`, `result_set_id`
-                    FROM `revision_map`
-                    WHERE `revision_id` = ? AND `result_set_id` = ?
-                )",
-
-            "host_type":"master_host"
         }
     },
 
@@ -111,7 +60,7 @@
 
             "sql":"UPDATE `job`
                    SET    `state` = 'completed', `result` = 'usercancel'
-                   WHERE  `result_set_id` = ?
+                   WHERE  `push_id` = ?
                    AND `state` = 'pending'",
 
                 "host_type":"master_host"
@@ -163,23 +112,6 @@
                    WHERE id = ?",
 
             "host_type":"master_host"
-        },
-        "update_result_set":{
-
-            "sql":"UPDATE `result_set`
-                   SET
-                   `author` = ?,
-                   `revision_hash` = ?,
-                   `long_revision` = ?,
-                   `short_revision` = ?,
-                   `push_timestamp` = ?,
-                   `active_status` = ?
-                WHERE long_revision = ?
-                  OR short_revision = ?
-                  OR revision_hash = ?
-                  ",
-
-            "host_type":"master_host"
         }
     },
     "selects":{
@@ -205,18 +137,11 @@
                           j.result_set_id,
                           j.push_id,
                           j.job_guid,
-                          j.signature,
-                          r.push_timestamp
+                          j.signature
                    FROM job AS j
-                   JOIN result_set AS r
-                    ON j.result_set_id = r.id
                    WHERE j.id IN (REP0)",
             "host_type":"master_host"
 
-        },
-        "get_revision_ids_to_cycle":{
-            "sql":"SELECT revision_id FROM revision_map WHERE result_set_id IN (REP0)",
-            "host_type":"master_host"
         },
 
         "get_jobs_to_cycle":{
@@ -227,10 +152,8 @@
         "get_incomplete_job_ids": {
             "sql": "SELECT j.id
                     FROM job as j
-                    LEFT JOIN result_set as rs
-                      ON j.result_set_id = rs.id
                     WHERE j.state <> 'completed'
-                    AND j.result_set_id = ?",
+                    AND j.push_id = ?",
             "host_type":"read_host"
         },
 
@@ -259,7 +182,7 @@
                     jg.`description` as job_group_description,
                     j.`who`,
                     j.failure_classification_id,
-                    j.`result_set_id`,
+                    j.`push_id`,
                     j.`result`,
                     j.`state`,
                     j.`reason`,
@@ -314,7 +237,7 @@
                     jg.`symbol` as job_group_symbol,
                     jg.`description` as job_group_description,
                     j.`who`,
-                    j.`result_set_id`,
+                    j.`push_id`,
                     j.`result`,
                     j.`state`,
                     j.`reason`,
@@ -371,7 +294,7 @@
                     jg.`symbol` as job_group_symbol,
                     jg.`description` as job_group_description,
                     j.`who`,
-                    j.`result_set_id`,
+                    j.`push_id`,
                     j.`result`,
                     j.`state`,
                     j.`reason`,
@@ -396,13 +319,12 @@
                     ON jt.`job_group_id` = jg.id
                   LEFT JOIN `REP0`.reference_data_signatures rds
                     ON j.signature = rds.signature
-                  LEFT JOIN result_set rs
-                    ON rs.id = j.result_set_id
+                  LEFT JOIN `REP0`.`push` push
+                    ON j.`push_id` = push.id
                   WHERE 1
                   REP1
                   GROUP BY j.id
-                  ORDER BY
-                    rs.push_timestamp DESC
+                  ORDER BY push.time DESC
                   ",
 
             "host_type":"read_host"
@@ -412,7 +334,7 @@
             "host_type": "read_host"
         },
         "get_job_ids_by_guids":{
-            "sql":"SELECT `id`, `job_guid`, `result_set_id`, `state`, `result`
+            "sql":"SELECT `id`, `job_guid`, `push_id`, `state`, `result`
                    FROM `job`
                    WHERE `active_status` = 'active' AND `job_guid` IN (REP0)",
             "host_type": "master_host"
@@ -434,91 +356,7 @@
             "host_type": "read_host"
 
         },
-        "get_resultset_top_revision_lookup":{
-            "sql":"SELECT `id`, `short_revision`, `long_revision`, `revision_hash`, `push_timestamp`
-                   FROM `result_set`
-                   WHERE `active_status` in ('active', 'onhold')
-                   REP0",
-            "host_type": "master_host"
-        },
-        "get_all_result_set_revisions":{
-            "sql":"SELECT `long_revision`
-                   FROM `result_set`
-                   WHERE `active_status` = 'active'",
-            "host_type": "read_host"
-        },
-        "get_revisions":{
-            "sql":"SELECT `id`, `revision`, `long_revision` FROM `revision`
-                   WHERE `active_status` = 'active' AND `long_revision` IN (REP0)",
-
-            "host_type": "master_host"
-        },
-        "get_resultset_id_from_revision":{
-            "sql":"SELECT `id`
-                   FROM `result_set`
-                   WHERE INSTR(`long_revision`, ?)",
-            "host_type": "master_host"
-        },
-        "get_result_set_list":{
-            "sql":"SELECT DISTINCT
-                      rs.id,
-                      rs.author,
-                      rs.long_revision,
-                      rs.revision_hash,
-                      rs.push_timestamp
-                   FROM result_set AS rs
-                   INNER JOIN revision_map
-                      ON rs.id = revision_map.result_set_id
-                   INNER JOIN revision
-                      ON revision_map.revision_id = revision.id
-                   WHERE rs.active_status = 'active'
-                   REP0
-                   ORDER BY rs.push_timestamp DESC
-                   ",
-            "host_type": "read_host"
-        },
-        "get_resultset_all_revision_lookup":{
-            "sql":"SELECT
-                      rs.id,
-                      rs.push_timestamp,
-                      rs.active_status,
-                      revision.id as revision_id,
-                      revision.long_revision,
-                      revision.short_revision
-                   FROM result_set AS rs
-                   INNER JOIN revision_map
-                      ON rs.id = revision_map.result_set_id
-                   INNER JOIN revision
-                      ON revision_map.revision_id = revision.id
-                   WHERE 1
-                   REP0
-                   ORDER BY rs.push_timestamp DESC
-                   ",
-            "host_type": "read_host"
-        },
-        "get_revision_from_revision_hash":{
-            "sql":"SELECT
-                      rs.long_revision
-                   FROM result_set AS rs
-                   WHERE rs.revision_hash = ?
-                   ",
-            "host_type": "read_host"
-        },
-        "get_result_set_details":{
-            "sql":"SELECT
-                    rm.result_set_id,
-                    r.repository_id,
-                    r.revision,
-                    r.author,
-                    r.comments
-                   FROM revision_map AS rm
-                   LEFT JOIN revision AS r ON rm.revision_id = r.id
-                   WHERE r.active_status = 'active' AND rm.result_set_id IN (REP0)
-                   ORDER BY r.id DESC",
-
-            "host_type": "read_host"
-        },
-        "get_resultset_status":{
+        "get_push_status":{
             "sql":"SELECT
                         job.id,
                         state,
@@ -528,7 +366,7 @@
                    FROM job
                    LEFT JOIN REP0.failure_classification fc
                         ON fc.id = job.failure_classification_id
-                   WHERE result_set_id = ? and (
+                   WHERE push_id = ? and (
                     fc.name = 'not classified' or fc.id IS NULL)
                     and job.tier <> 3
                    REP1
@@ -543,7 +381,7 @@
                    FROM job
                    JOIN job as ref_job ON
                     job.signature = ref_job.signature AND
-                    job.result_set_id = ref_job.result_set_id
+                    job.push_id = ref_job.push_id
                    WHERE
                     job.state = 'completed' AND
                     ref_job.job_guid = ?",

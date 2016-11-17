@@ -17,10 +17,11 @@ from treeherder.model.models import (Job,
     ('builds-4h', (0, 10), False, 2),
     ('builds-4h', (5, 8), True, 1),
     ('builds-4h', (1, 11), True, 1)])
-def test_logslice_api(test_repository, webapp, activate_responses, logname,
-                      line_range, gzipped, num_loads):
+def test_logslice_api(test_repository, result_set_stored, webapp,
+                      activate_responses, logname, line_range, gzipped,
+                      num_loads):
     job = Job.objects.create(repository=test_repository,
-                             guid="12345", project_specific_id=1)
+                             guid="12345", push_id=1, project_specific_id=1)
     fake_log_url = 'http://www.fakelog.com/log.gz'
     JobLog.objects.create(job=job, name=logname,
                           url=fake_log_url, status=JobLog.PARSED)

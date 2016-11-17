@@ -20,7 +20,7 @@ treeherder.directive('thLogViewer', ['$sce', '$location', ($sce, $location) => {
 
             elem.on('load', () => {
                 const q = $location.search();
-                
+
                 scope.logviewerInit();
 
                 if (q.highlightStart !== 'undefined' && q.highlightStart) {

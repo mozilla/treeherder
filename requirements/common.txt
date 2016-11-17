@@ -7,7 +7,7 @@ whitenoise==3.2.2 --hash=sha256:90a576ecb938cfef3fd1dba0c82d10e8e9ff0acb6079d7ed
 # Used by the Whitenoise CLI tool to provide Brotli-compressed versions of static files.
 Brotli==0.5.2 --hash=sha256:3411b9acd2a2056e55084acf7a6ab3e4a8540c2ef37a4435bca62644e8aaf50e
 
-Django==1.8.15 --hash=sha256:e2e41aeb4fb757575021621dc28fceb9ad137879ae0b854067f1726d9a772807
+Django==1.8.16 --hash=sha256:cc3a95187788627dfdc94b41de908aadfc4241fabb3ceaef19f4bd3b89c0fdf7
 
 celery==3.1.24 --hash=sha256:25396191954521184cc15018f776a2a2278b04dd4213d94f795daef4b7961b4b
 

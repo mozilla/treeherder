@@ -303,8 +303,8 @@ treeherder.factory('PhAlerts', [
                 return $http.post(thServiceDomain + '/api/performance/alertsummary/', {
                     repository_id: data.project.id,
                     framework_id: data.series.frameworkId,
-                    result_set_id: data.resultSetId,
-                    prev_result_set_id: data.prevResultSetId
+                    push_id: data.resultSetId,
+                    prev_push_id: data.prevResultSetId
                 }).then(function(response) {
                     var newAlertSummaryId = response.data.alert_summary_id;
                     return $http.post(thServiceDomain + '/api/performance/alert/', {
