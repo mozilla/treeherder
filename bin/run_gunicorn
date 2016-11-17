@@ -10,24 +10,11 @@ PATH=$PROJECT_ROOT/venv/bin:$PATH
 
 source /etc/profile.d/treeherder.sh
 
-LOGDIR=/var/log/gunicorn
-ACCESS_LOGFILE=$LOGDIR/treeherder_access.log
-ERROR_LOGFILE=$LOGDIR/treeherder_error.log
-
-if [ ! -f $ACCESS_LOGFILE ]; then
-    touch $ACCESS_LOGFILE
-fi
-
-if [ ! -f $ERROR_LOGFILE ]; then
-    touch $ERROR_LOGFILE
-fi
-
 NUM_WORKERS=5
 
 exec newrelic-admin run-program gunicorn -w $NUM_WORKERS \
     --max-requests=150 \
-    --access-logfile=$ACCESS_LOGFILE \
-    --error-logfile=$ERROR_LOGFILE treeherder.config.wsgi:application \
+    treeherder.config.wsgi:application \
     --keep-alive=3 \
     --log-level error \
     --timeout=30

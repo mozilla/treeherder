@@ -8,12 +8,6 @@ PATH=$PROJECT_ROOT/venv/bin:$PATH
 
 source /etc/profile.d/treeherder.sh
 
-LOGFILE=/var/log/celery/celery_worker_log_parser.log
-
-if [ ! -f $LOGFILE ]; then
-    touch $LOGFILE
-fi
-
 exec newrelic-admin run-program celery -A treeherder worker \
     -Q \
 log_parser,\
@@ -24,5 +18,5 @@ log_crossreference_error_lines,\
 log_crossreference_error_lines_fail,\
 log_autoclassify,\
 log_autoclassify_fail\
-    --concurrency=10 --logfile=$LOGFILE -l INFO \
+    --concurrency=10 -l INFO \
     --maxtasksperchild=500 -n log_parser.%h

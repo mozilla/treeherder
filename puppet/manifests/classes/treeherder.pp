@@ -24,15 +24,4 @@ class treeherder {
       owner => "${APP_USER}",
       group  => "${APP_GROUP}",
     }
-
-    file { [
-      "/var/log/gunicorn",
-      "/var/log/celery",
-      "/var/log/treeherder",
-      ]:
-      ensure => "directory",
-      owner  => "${APP_USER}",
-      group  => "${APP_GROUP}",
-      mode   => 755,
-    }
 }
