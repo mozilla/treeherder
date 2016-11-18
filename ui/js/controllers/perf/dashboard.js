@@ -22,8 +22,8 @@ perf.controller('dashCtrl', [
         // dashboard customization values
         ['variantDataOpt', 'framework', 'header', 'descP1', 'descP2',
          'linkUrl', 'linkDesc', 'baseTitle', 'variantTitle'].forEach(function(k) {
-            $scope[k] = phDashboardValues[$scope.topic][k];
-        });
+             $scope[k] = phDashboardValues[$scope.topic][k];
+         });
 
         // custom series filters based on dashboard topic
         function filterSeriesByTopic(series) {
@@ -229,8 +229,8 @@ perf.controller('dashSubtestCtrl', [
         // dashboard customization values
         ['variantDataOpt', 'framework', 'header', 'descP1', 'baseTitle',
          'variantTitle'].forEach(function(k) {
-            $scope[k] = phDashboardValues[$scope.topic][k];
-        });
+             $scope[k] = phDashboardValues[$scope.topic][k];
+         });
 
         function loadData() {
             var resultsMap = {
