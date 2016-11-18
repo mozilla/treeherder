@@ -111,9 +111,16 @@ class ResultSetViewSet(viewsets.ViewSet):
                     param.replace('push_timestamp', 'time'): value
                 })
 
-        id_lt = int(filter_params.get("id__lt", 0))
-        if id_lt:
-            pushes = pushes.filter(id__lt=id_lt)
+        for param in ['id__lt', 'id__lte', 'id__gt', 'id__gte', 'id']:
+            try:
+                value = int(filter_params.get(param, 0))
+            except ValueError:
+                return Response({
+                    "error": "Invalid timestamp specified for {}".format(
+                        param)
+                }, status=HTTP_400_BAD_REQUEST)
+            if value:
+                pushes = pushes.filter(**{param: value})
 
         id_in = filter_params.get("id__in")
         if id_in:

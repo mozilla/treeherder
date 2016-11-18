@@ -174,9 +174,9 @@ Click in the pinboard on the extreme right hand drop down menu, and select 'Clea
 
 Login / Logout
 ------
-Login via Persona.
+Login via Taskcluster Auth.
 
-    **Expected**: The login button should switch to a generic Persona avatar, and the user email should appear on hover.
+    **Expected**: The login button should switch to a generic "Person" avatar, and the user email should appear on hover.
 
 Logout
 

@@ -100,36 +100,25 @@ class ArtifactsModel(TreeherderModelBase):
         # get error summary immediately (to warm the cache)
         error_summary.get_error_summary(job)
 
-    def store_performance_artifact(
-            self, job_ids, performance_artifact_placeholders):
+    def store_performance_artifact(self, job, artifact):
         """
-        Store the performance data
+        Store a performance data artifact
         """
 
         # Retrieve list of job signatures associated with the jobs
-        job_data = self.get_job_signatures_from_ids(job_ids)
+        job_data = self.get_job_signatures_from_ids([job.project_specific_id])
+        ref_data_signature_hash = job_data[job.guid]['signature']
 
-        job_ref_data_signatures = set()
-        map(
-            lambda job_guid: job_ref_data_signatures.add(
-                job_data[job_guid]['signature']
-            ),
-            job_data.keys()
-        )
+        # At the moment there could be multiple signatures returned
+        # by this, but let's just ignore that and take the first
+        # if there are multiple (since the properties we care about should
+        # be the same)
+        ref_data = model_to_dict(ReferenceDataSignatures.objects.filter(
+            signature=ref_data_signature_hash,
+            repository=self.project)[0])
 
-        for perf_data in performance_artifact_placeholders:
-            job_guid = perf_data["job_guid"]
-            ref_data_signature = job_data[job_guid]['signature']
-            # At the moment there could be multiple signatures returned
-            # by this, but let's just ignore that and take the first
-            # if there are multiple (since the properties we care about should
-            # be the same)
-            ref_data = model_to_dict(ReferenceDataSignatures.objects.filter(
-                signature=ref_data_signature,
-                repository=self.project)[0])
-
-            # adapt and load data into placeholder structures
-            load_perf_artifacts(self.project, ref_data, job_data, perf_data)
+        # adapt and load data into placeholder structures
+        load_perf_artifacts(job, ref_data, artifact)
 
     def load_job_artifacts(self, artifact_data):
         """
@@ -145,9 +134,6 @@ class ArtifactsModel(TreeherderModelBase):
             }
 
         """
-        performance_artifact_list = []
-        performance_artifact_job_id_list = []
-
         for index, artifact in enumerate(artifact_data):
             # Determine what type of artifact we have received
             if artifact:
@@ -172,10 +158,7 @@ class ArtifactsModel(TreeherderModelBase):
                     continue
 
                 if artifact_name == 'performance_data':
-                    self._adapt_performance_artifact_collection(
-                        artifact, performance_artifact_list,
-                        performance_artifact_job_id_list,
-                        job.project_specific_id)
+                    self.store_performance_artifact(job, artifact)
                 elif artifact_name == 'Job Info':
                     self.store_job_details(job, artifact)
                 elif artifact_name == 'text_log_summary':
@@ -201,17 +184,6 @@ class ArtifactsModel(TreeherderModelBase):
                 logger.error(
                     ('load_job_artifacts: artifact not '
                      'defined for {0}'.format(self.project)))
-
-        if performance_artifact_list and performance_artifact_job_id_list:
-            self.store_performance_artifact(
-                performance_artifact_job_id_list, performance_artifact_list)
-
-    def _adapt_performance_artifact_collection(
-            self, artifact, artifact_data, job_id_list, job_id):
-
-        if job_id:
-            job_id_list.append(job_id)
-            artifact_data.append(artifact)
 
     def get_job_signatures_from_ids(self, job_ids):
 

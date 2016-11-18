@@ -6,7 +6,8 @@ import time
 import pytest
 
 from treeherder.etl.perf import load_perf_artifacts
-from treeherder.model.models import (MachinePlatform,
+from treeherder.model.models import (Job,
+                                     MachinePlatform,
                                      Option,
                                      OptionCollection,
                                      Push,
@@ -44,13 +45,12 @@ def perf_push(test_repository):
 
 
 @pytest.fixture
-def perf_job_data(perf_push):
-    return {
-        'fake_job_guid': {
-            'id': 1,
-            'push_id': 1
-        }
-    }
+def perf_job(perf_push):
+    return Job.objects.create(
+        repository=perf_push.repository,
+        guid='myfunguid',
+        push=perf_push,
+        project_specific_id=1)
 
 
 @pytest.fixture
@@ -79,17 +79,15 @@ def _generate_perf_data_range(test_project, test_repository,
     now = int(time.time())
 
     for (i, value) in zip(range(30), [1]*15 + [2]*15):
-        Push.objects.create(repository=test_repository,
-                            revision='abcdefgh%s' % i,
-                            author='foo@bar.com',
-                            time=datetime.datetime.fromtimestamp(now+i))
-        perf_job_data = {
-            'fake_job_guid': {
-                'id': i,
-                'push_id': i + 1,
-                'push_timestamp': now + i
-            }
-        }
+        push = Push.objects.create(
+            repository=test_repository,
+            revision='abcdefgh%s' % i,
+            author='foo@bar.com',
+            time=datetime.datetime.fromtimestamp(now+i))
+        job = Job.objects.create(repository=test_repository,
+                                 guid='myguid%s' % i,
+                                 push=push,
+                                 project_specific_id=i)
         datum = {
             'job_guid': 'fake_job_guid',
             'name': 'test',
@@ -122,8 +120,7 @@ def _generate_perf_data_range(test_project, test_repository,
         submit_datum['blob'] = json.dumps({
             'performance_data': submit_datum['blob']
         })
-        load_perf_artifacts(test_repository.name, perf_reference_data,
-                            perf_job_data, submit_datum)
+        load_perf_artifacts(job, perf_reference_data, submit_datum)
 
 
 def _verify_signature(repo_name, framework_name, suitename,
@@ -164,7 +161,7 @@ def _verify_datum(suitename, testname, value, push_timestamp):
 
 def test_load_generic_data(test_project, test_repository,
                            perf_option_collection, perf_platform,
-                           perf_push, perf_job_data, perf_reference_data,
+                           perf_push, perf_job, perf_reference_data,
                            jm):
     framework_name = 'cheezburger'
     PerformanceFramework.objects.get_or_create(name=framework_name, enabled=True)
@@ -229,8 +226,8 @@ def test_load_generic_data(test_project, test_repository,
         'performance_data': submit_datum['blob']
     })
 
-    load_perf_artifacts(test_repository.name, perf_reference_data,
-                        perf_job_data, submit_datum)
+    load_perf_artifacts(perf_job, perf_reference_data,
+                        submit_datum)
     assert 8 == PerformanceSignature.objects.all().count()
     assert 1 == PerformanceFramework.objects.all().count()
     framework = PerformanceFramework.objects.all()[0]
@@ -272,14 +269,17 @@ def test_load_generic_data(test_project, test_repository,
     # send another datum, a little later, verify that signature's
     # `last_updated` is changed accordingly
     later_timestamp = datetime.datetime.fromtimestamp(int(time.time()) + 5)
-    push = Push.objects.create(
+    later_push = Push.objects.create(
         repository=test_repository,
         revision='1234abcd12',
         author='foo@bar.com',
         time=later_timestamp)
-    perf_job_data['fake_job_guid']['push_id'] = push.id
-    load_perf_artifacts(test_repository.name, perf_reference_data,
-                        perf_job_data, submit_datum)
+    later_job = Job.objects.create(
+        repository=test_repository,
+        push=later_push,
+        guid='laterguid',
+        project_specific_id=2)
+    load_perf_artifacts(later_job, perf_reference_data, submit_datum)
     signature = PerformanceSignature.objects.get(
         suite=perf_datum['suites'][0]['name'],
         test=perf_datum['suites'][0]['subtests'][0]['name'])
@@ -303,7 +303,7 @@ def test_same_signature_multiple_performance_frameworks(test_project,
                                                         test_repository,
                                                         perf_option_collection,
                                                         perf_platform,
-                                                        perf_job_data,
+                                                        perf_job,
                                                         perf_reference_data):
     framework_names = ['cheezburger1', 'cheezburger2']
     for framework_name in framework_names:
@@ -333,8 +333,7 @@ def test_same_signature_multiple_performance_frameworks(test_project,
             'performance_data': submit_datum['blob']
         })
 
-        load_perf_artifacts(test_repository.name, perf_reference_data,
-                            perf_job_data, submit_datum)
+        load_perf_artifacts(perf_job, perf_reference_data, submit_datum)
 
     # we should have 2 performance signature objects, one for each framework
     # and one datum for each signature

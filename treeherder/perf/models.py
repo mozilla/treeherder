@@ -85,7 +85,7 @@ class PerformanceSignature(models.Model):
 class PerformanceDatum(models.Model):
 
     repository = models.ForeignKey(Repository)
-    job_id = models.PositiveIntegerField()
+    ds_job_id = models.PositiveIntegerField(db_column="ds_job_id")
     result_set_id = models.PositiveIntegerField(null=True)
     push = models.ForeignKey(Push)
     signature = models.ForeignKey(PerformanceSignature)
@@ -95,10 +95,10 @@ class PerformanceDatum(models.Model):
     class Meta:
         db_table = 'performance_datum'
         index_together = [('repository', 'signature', 'push_timestamp'),
-                          ('repository', 'job_id')]
-        unique_together = [('repository', 'job_id', 'result_set_id',
+                          ('repository', 'ds_job_id')]
+        unique_together = [('repository', 'ds_job_id', 'result_set_id',
                             'signature', 'push_timestamp'),
-                           ('repository', 'job_id', 'push', 'signature')]
+                           ('repository', 'ds_job_id', 'push', 'signature')]
 
     def save(self, *args, **kwargs):
         super(PerformanceDatum, self).save(*args, **kwargs)  # Call the "real" save() method.
