@@ -589,3 +589,61 @@ def test_perf_alert(test_perf_signature, test_perf_alert_summary):
         prev_value=100.0,
         new_value=150.0,
         t_value=20.0)
+
+
+@pytest.fixture
+def generic_reference_data(test_repository):
+    '''
+    Generic reference data (if you want to create a bunch of mock jobs)
+    '''
+    from treeherder.model.models import (BuildPlatform,
+                                         JobGroup,
+                                         JobType,
+                                         Machine,
+                                         MachinePlatform,
+                                         Option,
+                                         OptionCollection,
+                                         Product,
+                                         ReferenceDataSignatures)
+
+    class RefdataHolder(object):
+        pass
+    r = RefdataHolder()
+
+    r.option = Option.objects.create(name='my_option')
+    r.option_collection = OptionCollection.objects.create(
+        option_collection_hash='my_option_hash',
+        option=r.option)
+    r.option_collection_hash = r.option_collection.option_collection_hash
+    r.machine_platform = MachinePlatform.objects.create(
+        os_name="my_os",
+        platform="my_platform",
+        architecture="x86")
+    r.build_platform = BuildPlatform.objects.create(
+        os_name="my_os",
+        platform="my_platform",
+        architecture="x86")
+    r.machine = Machine.objects.create(name='mymachine')
+    r.job_group = JobGroup.objects.create(symbol='S', name='myjobgroup')
+    r.job_type = JobType.objects.create(job_group=r.job_group,
+                                        symbol='j', name='myjob')
+    r.product = Product.objects.create(name='myproduct')
+    r.signature = ReferenceDataSignatures.objects.create(
+        name='myreferencedatasignaeture',
+        signature='1234',
+        build_os_name=r.build_platform.os_name,
+        build_platform=r.build_platform.platform,
+        build_architecture=r.build_platform.architecture,
+        machine_os_name=r.machine_platform.os_name,
+        machine_platform=r.machine_platform.platform,
+        machine_architecture=r.machine_platform.architecture,
+        job_group_name=r.job_group.name,
+        job_group_symbol=r.job_group.symbol,
+        job_type_name=r.job_type.name,
+        job_type_symbol=r.job_type.symbol,
+        option_collection_hash=r.option_collection_hash,
+        build_system_type='buildbot',
+        repository=test_repository.name,
+        first_submission_timestamp=0)
+
+    return r

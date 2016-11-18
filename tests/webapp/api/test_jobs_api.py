@@ -502,20 +502,16 @@ def test_job_create(webapp, test_repository, test_user, eleven_job_blobs,
     ("last_modified__gt",  "-Infinity", HTTP_400_BAD_REQUEST, 0),
     ("last_modified__gt",  "whatever", HTTP_400_BAD_REQUEST, 0),
     ])
-def test_last_modified(webapp, jm, eleven_jobs_stored, test_project,
+def test_last_modified(webapp, eleven_jobs_stored, test_project,
                        lm_key, lm_value, exp_status, exp_job_count):
     try:
         param_date = parser.parse(lm_value)
         newer_date = param_date - datetime.timedelta(minutes=10)
 
-        jobs = jm.get_job_list(0, 11)
-        gt_ids = [str(x["id"]) for x in jobs[:3]]
-        # modify job last_modified
-        jm.execute(
-            proc="jobs_test.updates.set_jobs_last_modified",
-            placeholders=[str(newer_date)],
-            replace=[",".join(gt_ids)]
-        )
+        # modify job last_modified for 3 jobs
+        Job.objects.filter(
+            id__in=[j.id for j in Job.objects.all()[:3]]).update(
+                last_modified=newer_date)
     except ValueError:
         # no problem.  these params are the wrong
         pass

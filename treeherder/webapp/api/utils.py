@@ -3,6 +3,8 @@ import functools
 import time
 from collections import defaultdict
 
+import django_filters
+
 from treeherder.model.derived import JobsModel
 
 
@@ -89,6 +91,16 @@ class UrlQueryFilter(object):
             raise
 
 
+class NumberInFilter(django_filters.filters.BaseInFilter,
+                     django_filters.NumberFilter):
+    pass
+
+
+class CharInFilter(django_filters.filters.BaseInFilter,
+                   django_filters.CharFilter):
+    pass
+
+
 def with_jobs(model_func):
     """
     Create a jobsmodel and pass it to the ``func``.
@@ -115,7 +127,9 @@ def to_datetime(datestr):
 
 def to_timestamp(datetime_obj):
     """get a unix timestamp from a datetime object"""
-    return int(time.mktime(datetime_obj.timetuple()))
+    if datetime_obj:
+        return int(time.mktime(datetime_obj.timetuple()))
+    return None
 
 
 def as_dict(queryset, key):

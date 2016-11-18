@@ -96,8 +96,97 @@ class MachinePlatformSerializer(serializers.ModelSerializer):
 
 class JobSerializer(serializers.ModelSerializer):
 
+    class JobGroupNameField(serializers.RelatedField):
+        def to_representation(self, value):
+            return value.job_group.name
+
+    class JobGroupDescriptionField(serializers.RelatedField):
+        def to_representation(self, value):
+            return value.job_group.description
+
+    class JobGroupSymbolField(serializers.RelatedField):
+        def to_representation(self, value):
+            return value.job_group.symbol
+
+    id = serializers.IntegerField(source='project_specific_id')
+    build_architecture = serializers.SlugRelatedField(
+        slug_field="architecture", source="build_platform", read_only=True)
+    build_platform_id = serializers.IntegerField()
+    build_platform = serializers.SlugRelatedField(
+        slug_field="platform", read_only=True)
+    build_os = serializers.SlugRelatedField(
+        slug_field="os_name", read_only=True, source='build_platform')
+    failure_classification_id = serializers.IntegerField()
+    job_coalesced_to_guid = serializers.CharField(source='coalesced_to_guid')
+    job_guid = serializers.CharField(source='guid')
+    job_group_id = serializers.SlugRelatedField(
+        slug_field="job_group_id", source="job_type", read_only=True)
+    job_group_name = JobGroupNameField(read_only=True, source='job_type')
+    job_group_symbol = JobGroupSymbolField(read_only=True, source='job_type')
+    job_group_description = JobGroupDescriptionField(read_only=True,
+                                                     source='job_type')
+    job_type_name = serializers.SlugRelatedField(
+        slug_field="name", source="job_type", read_only=True)
+    job_type_description = serializers.SlugRelatedField(
+        slug_field="description", source="job_type", read_only=True)
+    job_type_symbol = serializers.SlugRelatedField(
+        slug_field="symbol", source="job_type", read_only=True)
+    job_type_id = serializers.IntegerField()
+    machine_name = serializers.SlugRelatedField(slug_field="name",
+                                                source="machine",
+                                                read_only=True)
+
+    platform = serializers.SlugRelatedField(
+        slug_field="platform", source="machine_platform", read_only=True)
+
+    machine_platform_architecture = serializers.SlugRelatedField(
+        slug_field="architecture", source="machine_platform", read_only=True)
+    machine_platform_os = serializers.SlugRelatedField(
+        slug_field="os_name", source="machine_platform", read_only=True)
+
+    ref_data_name = serializers.SlugRelatedField(
+        slug_field="name", source="signature", read_only=True)
+    build_system_type = serializers.SlugRelatedField(
+        slug_field="build_system_type", source="signature", read_only=True)
+    signature = serializers.SlugRelatedField(
+        slug_field="signature", read_only=True)
+
+    push_id = serializers.IntegerField()
+    result_set_id = serializers.IntegerField(source="push_id")
+
+    def get_submit_timestamp(self, job):
+        return to_timestamp(job.submit_time)
+
+    def get_start_timestamp(self, job):
+        return to_timestamp(job.start_time)
+
+    def get_end_timestamp(self, job):
+        return to_timestamp(job.end_time)
+
+    start_timestamp = serializers.SerializerMethodField()
+    end_timestamp = serializers.SerializerMethodField()
+    submit_timestamp = serializers.SerializerMethodField()
+
     class Meta:
         model = models.Job
+        fields = ['id', 'job_guid',
+                  'job_group_id', 'job_group_name', 'job_group_description',
+                  'job_group_symbol',
+                  'job_type_id', 'job_type_name', 'job_type_description',
+                  'job_type_symbol',
+                  'build_platform_id', 'build_architecture', 'build_platform',
+                  'build_os',
+                  'build_system_type',
+                  'machine_platform_os', 'machine_platform_architecture',
+                  'platform',
+                  'option_collection_hash',
+                  'machine_name',
+                  'ref_data_name',
+                  'result_set_id', 'push_id',
+                  'result', 'reason', 'state', 'failure_classification_id',
+                  'who', 'last_modified', 'running_eta', 'signature',
+                  'tier', 'job_coalesced_to_guid',
+                  'start_timestamp', 'end_timestamp', 'submit_timestamp']
 
 
 class JobGroupSerializer(serializers.ModelSerializer):

@@ -20,7 +20,10 @@ from django.core.cache import cache
 from django.db import (connection,
                        models,
                        transaction)
-from django.db.models import Q
+from django.db.models import (Q,
+                              Case,
+                              Count,
+                              When)
 from django.forms import model_to_dict
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
@@ -136,6 +139,38 @@ class Push(models.Model):
     def __str__(self):
         return "{0} {1}".format(
             self.repository.name, self.revision)
+
+    def get_status(self, exclusion_profile="default"):
+        '''
+        Gets a summary of what passed/failed for the push
+        '''
+        jobs = Job.objects.filter(push=self).filter(
+            Q(failure_classification__isnull=True) |
+            Q(failure_classification__name='not classified')).exclude(tier=3)
+        if exclusion_profile:
+            try:
+                signature_list = ExclusionProfile.objects.get_signatures_for_project(
+                    self.repository.name, exclusion_profile)
+                jobs.exclude(signature__signature__in=signature_list)
+            except ExclusionProfile.DoesNotExist:
+                pass
+
+        status_dict = {}
+        total_num_coalesced = 0
+        for (state, result, total, num_coalesced) in jobs.values_list(
+                'state', 'result').annotate(
+                    total=Count('result'),
+                    num_coalesced=Count(Case(When(
+                        coalesced_to_guid__isnull=False, then=1)))):
+            total_num_coalesced += num_coalesced
+            if state == 'completed':
+                status_dict[result] = total - num_coalesced
+            else:
+                status_dict[state] = total
+        if total_num_coalesced:
+            status_dict['coalesced'] = total_num_coalesced
+
+        return status_dict
 
 
 @python_2_unicode_compatible
@@ -686,7 +721,7 @@ class Job(models.Model):
     job_type = models.ForeignKey(JobType, null=True, default=None)
     product = models.ForeignKey(Product, null=True, default=None)
     failure_classification = models.ForeignKey(FailureClassification,
-                                               null=True, default=None)
+                                               default=1)
     who = models.CharField(max_length=50, null=True, default=None)
     reason = models.CharField(max_length=125, null=True, default=None)
     result = models.CharField(max_length=25, null=True, default=None)
@@ -906,31 +941,26 @@ class BugJobMap(models.Model):
     def save(self, *args, **kwargs):
         super(BugJobMap, self).save(*args, **kwargs)
 
-        # FIXME: using the JobsModel here is pretty horrible -- remove
-        # when we move jobs table to central db
-        from treeherder.model.derived.jobs import JobsModel
         from treeherder.etl.tasks import submit_elasticsearch_doc
 
-        with JobsModel(self.job.repository.name) as jm:
-            if settings.ORANGEFACTOR_HAWK_KEY:
-                ds_job = jm.get_job(self.job.project_specific_id)[0]
-                if ds_job["state"] == "completed":
-                    # Submit bug associations to Elasticsearch using an async
-                    # task.
-                    submit_elasticsearch_doc.apply_async(
-                        args=[
-                            self.job.repository.name,
-                            self.job.project_specific_id,
-                            self.bug_id,
-                            int(time.mktime(self.created.timetuple())),
-                            self.who
-                        ],
-                        routing_key='classification_mirroring'
-                    )
+        if settings.ORANGEFACTOR_HAWK_KEY:
+            if self.job.state == "completed":
+                # Submit bug associations to Elasticsearch using an async
+                # task.
+                submit_elasticsearch_doc.apply_async(
+                    args=[
+                        self.job.repository.name,
+                        self.job.project_specific_id,
+                        self.bug_id,
+                        int(time.mktime(self.created.timetuple())),
+                        self.who
+                    ],
+                    routing_key='classification_mirroring'
+                )
 
-            # if we have a user, then update the autoclassification relations
-            if self.user:
-                self.job.update_autoclassification_bug(self.bug_id)
+        # if we have a user, then update the autoclassification relations
+        if self.user:
+            self.job.update_autoclassification_bug(self.bug_id)
 
     def __str__(self):
         return "{0} {1} {2} {3}".format(self.id,

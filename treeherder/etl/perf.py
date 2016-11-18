@@ -6,8 +6,7 @@ from hashlib import sha1
 import simplejson as json
 from jsonschema import validate
 
-from treeherder.model.models import (MachinePlatform,
-                                     OptionCollection)
+from treeherder.model.models import OptionCollection
 from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceFramework,
                                     PerformanceSignature)
@@ -16,29 +15,8 @@ from treeherder.perf.tasks import generate_alerts
 logger = logging.getLogger(__name__)
 
 
-# keys useful for creating a non-redundant performance signature
-SIGNIFICANT_REFERENCE_DATA_KEYS = ['option_collection_hash',
-                                   'machine_platform']
-
-
 PERFHERDER_SCHEMA = json.load(open(os.path.join('schemas',
                                                 'performance-artifact.json')))
-
-
-def _transform_signature_properties(properties, significant_keys=None):
-    if significant_keys is None:
-        significant_keys = SIGNIFICANT_REFERENCE_DATA_KEYS
-    transformed_properties = {k: v for k, v in properties.iteritems() if
-                              k in significant_keys}
-
-    # HACK: determine if e10s is in job_group_symbol, and add an "e10s"
-    # property to a 'test_options' property if so (we should probably
-    # make talos produce this information somehow and consume it in the
-    # future)
-    if 'e10s' in properties.get('job_group_symbol', ''):
-        transformed_properties['test_options'] = json.dumps(['e10s'])
-
-    return transformed_properties
 
 
 def _get_signature_hash(signature_properties):
@@ -57,24 +35,20 @@ def _get_signature_hash(signature_properties):
     return sha.hexdigest()
 
 
-def _load_perf_artifact(job, reference_data, perf_datum):
+def _load_perf_datum(job, perf_datum):
     validate(perf_datum, PERFHERDER_SCHEMA)
 
-    if 'e10s' in reference_data.get('job_group_symbol', ''):
+    extra_properties = {}
+    reference_data = {
+        'option_collection_hash': job.signature.option_collection_hash,
+        'machine_platform': job.signature.machine_platform
+    }
+    if 'e10s' in job.job_type.job_group.symbol:
         extra_properties = {'test_options': ['e10s']}
-    else:
-        extra_properties = {}
+        reference_data['test_options'] = json.dumps(['e10s'])
 
-    # transform the reference data so it only contains what we actually
-    # care about (for calculating the signature hash reproducibly), then
-    # get the associated models
-    reference_data = _transform_signature_properties(reference_data)
     option_collection = OptionCollection.objects.get(
-        option_collection_hash=reference_data['option_collection_hash'])
-    # there may be multiple machine platforms with the same platform: use
-    # the first
-    platform = MachinePlatform.objects.filter(
-        platform=reference_data['machine_platform'])[0]
+        option_collection_hash=job.signature.option_collection_hash)
 
     try:
         framework = PerformanceFramework.objects.get(
@@ -116,7 +90,7 @@ def _load_perf_artifact(job, reference_data, perf_datum):
                     'test': '',
                     'suite': suite['name'],
                     'option_collection': option_collection,
-                    'platform': platform,
+                    'platform': job.machine_platform,
                     'extra_properties': suite_extra_properties,
                     'lower_is_better': suite.get('lowerIsBetter', True),
                     'has_subtests': True,
@@ -167,7 +141,7 @@ def _load_perf_artifact(job, reference_data, perf_datum):
                     'test': subtest_properties['test'],
                     'suite': suite['name'],
                     'option_collection': option_collection,
-                    'platform': platform,
+                    'platform': job.machine_platform,
                     'extra_properties': suite_extra_properties,
                     'lower_is_better': subtest.get('lowerIsBetter', True),
                     'has_subtests': False,
@@ -202,12 +176,12 @@ def _load_perf_artifact(job, reference_data, perf_datum):
                                             routing_key='generate_perf_alerts')
 
 
-def load_perf_artifacts(job, reference_data, artifact):
+def load_perf_artifact(job, artifact):
     blob = json.loads(artifact['blob'])
     performance_data = blob['performance_data']
 
     if type(performance_data) == list:
         for perfdatum in performance_data:
-            _load_perf_artifact(job, reference_data, perfdatum)
+            _load_perf_datum(job, perfdatum)
     else:
-        _load_perf_artifact(job, reference_data, performance_data)
+        _load_perf_datum(job, performance_data)
