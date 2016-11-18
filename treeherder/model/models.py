@@ -709,30 +709,25 @@ class Job(models.Model):
 
     coalesced_to_guid = models.CharField(max_length=50, null=True,
                                          default=None)
-    signature = models.ForeignKey(ReferenceDataSignatures, null=True,
-                                  default=None)
-    build_platform = models.ForeignKey(BuildPlatform, null=True,
-                                       default=None)
-    machine_platform = models.ForeignKey(MachinePlatform, null=True,
-                                         default=None)
-    machine = models.ForeignKey(Machine, null=True, default=None)
-    option_collection_hash = models.CharField(max_length=64, null=True,
-                                              default=None)
-    job_type = models.ForeignKey(JobType, null=True, default=None)
-    product = models.ForeignKey(Product, null=True, default=None)
-    failure_classification = models.ForeignKey(FailureClassification,
-                                               default=1)
-    who = models.CharField(max_length=50, null=True, default=None)
-    reason = models.CharField(max_length=125, null=True, default=None)
-    result = models.CharField(max_length=25, null=True, default=None)
-    state = models.CharField(max_length=25, null=True, default=None)
+    signature = models.ForeignKey(ReferenceDataSignatures)
+    build_platform = models.ForeignKey(BuildPlatform)
+    machine_platform = models.ForeignKey(MachinePlatform)
+    machine = models.ForeignKey(Machine)
+    option_collection_hash = models.CharField(max_length=64)
+    job_type = models.ForeignKey(JobType)
+    product = models.ForeignKey(Product)
+    failure_classification = models.ForeignKey(FailureClassification)
+    who = models.CharField(max_length=50)
+    reason = models.CharField(max_length=125)
+    result = models.CharField(max_length=25)
+    state = models.CharField(max_length=25)
 
-    submit_time = models.DateTimeField(null=True, default=None)
-    start_time = models.DateTimeField(null=True, default=None)
-    end_time = models.DateTimeField(null=True, default=None)
-    last_modified = models.DateTimeField(null=True, default=None)
+    submit_time = models.DateTimeField()
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    last_modified = models.DateTimeField(auto_now=True)
     running_eta = models.PositiveIntegerField(null=True, default=None)
-    tier = models.PositiveIntegerField(null=True, default=None)
+    tier = models.PositiveIntegerField()
 
     push = models.ForeignKey(Push)
 
@@ -743,10 +738,6 @@ class Job(models.Model):
     def __str__(self):
         return "{0} {1} {2} {3}".format(self.id, self.repository, self.guid,
                                         self.project_specific_id)
-
-    def save(self, *args, **kwargs):
-        self.last_modified = datetime.datetime.now()
-        super(Job, self).save(*args, **kwargs)
 
     def is_fully_autoclassified(self):
         """
