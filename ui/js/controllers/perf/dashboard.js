@@ -1,26 +1,41 @@
 "use strict";
 
-perf.value('e10sDefaultTimeRange', 86400 * 2);
+perf.value('defaultTimeRange', 86400 * 2);
 
-perf.controller('e10sCtrl', [
+perf.controller('dashCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$http', '$httpParamSerializer',
-    'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
-    'thServiceDomain', 'thDefaultRepo', 'phTimeRanges', 'e10sDefaultTimeRange', 'phBlockers',
-    function e10sCtrl($state, $stateParams, $scope, $rootScope, $q, $http, $httpParamSerializer,
+    'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare', 'thServiceDomain',
+    'thDefaultRepo', 'phTimeRanges', 'defaultTimeRange', 'phBlockers', 'phDashboardValues',
+    function dashCtrl($state, $stateParams, $scope, $rootScope, $q, $http, $httpParamSerializer,
                       ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
                       thServiceDomain, thDefaultRepo, phTimeRanges,
-                      e10sDefaultTimeRange, phBlockers) {
+                      defaultTimeRange, phBlockers, phDashboardValues) {
 
         $scope.dataLoading = true;
         $scope.timeRanges = phTimeRanges;
         $scope.selectedTimeRange = _.find($scope.timeRanges, {
-            value: ($stateParams.timerange) ? parseInt($stateParams.timerange) : e10sDefaultTimeRange
+            value: ($stateParams.timerange) ? parseInt($stateParams.timerange) : defaultTimeRange
         });
         $scope.revision = $stateParams.revision;
+        $scope.topic = $stateParams.topic;
+
+        // dashboard customization values
+        ['variantDataOpt', 'framework', 'header', 'descP1', 'descP2',
+         'linkUrl', 'linkDesc', 'baseTitle', 'variantTitle'].forEach(function(k) {
+             $scope[k] = phDashboardValues[$scope.topic][k];
+         });
+
+        // custom series filters based on dashboard topic
+        function filterSeriesByTopic(series) {
+            if ($scope.topic === "e10s") {
+                return series.options.indexOf('pgo') >= 0 ||
+                       (series.platform === 'osx-10-10' && series.options.indexOf('opt') >= 0);
+            }
+        }
 
         function loadData() {
             var resultsMap = {
-                e10s: {},
+                variant: {},
                 base: {}
             };
             $scope.testList = [];
@@ -42,11 +57,9 @@ perf.controller('e10sCtrl', [
                 getSeriesList = PhSeries.getSeriesList($scope.selectedRepo.name, {
                     interval: $scope.selectedTimeRange.value,
                     subtests: 0,
-                    framework: 1}).then(function(seriesList) {
+                    framework: $scope.framework}).then(function(seriesList) {
                         return _.filter(seriesList, function(series) {
-                            return series.options.indexOf('pgo') >= 0 ||
-                                (series.platform === 'osx-10-10' &&
-                                 series.options.indexOf('opt') >= 0);
+                            return filterSeriesByTopic(series);
                         });
                     });
             }
@@ -59,7 +72,7 @@ perf.controller('e10sCtrl', [
 
                 $q.all(_.chunk(seriesToMeasure, 20).map(function(seriesChunk) {
                     var params = { signatures: _.map(seriesChunk, 'signature'),
-                                   framework: 1 };
+                                   framework: $scope.framework };
                     if ($scope.revision) {
                         params.push_id = resultSetId;
                     } else {
@@ -69,7 +82,7 @@ perf.controller('e10sCtrl', [
                     return PhSeries.getSeriesData($scope.selectedRepo.name, params).then(function(seriesData) {
                         _.forIn(seriesData, function(data, signature) {
                             var series = _.find(seriesChunk, { signature: signature });
-                            var type = (series.options.indexOf('e10s') >= 0) ? 'e10s' : 'base';
+                            var type = (series.options.indexOf($scope.variantDataOpt) >= 0) ? 'variant' : 'base';
                             resultsMap[type][signature] = {
                                 platform: series.platform,
                                 name: series.testName,
@@ -89,30 +102,31 @@ perf.controller('e10sCtrl', [
                                 return resultsMap['base'][sig].name === testName &&
                                     resultsMap['base'][sig].platform === platform;
                             });
-                            var e10sSig = _.find(Object.keys(resultsMap['e10s']), function(sig) {
-                                return resultsMap['e10s'][sig].name === testName &&
-                                    resultsMap['e10s'][sig].platform === platform;
+                            var variantSig = _.find(Object.keys(resultsMap['variant']), function(sig) {
+                                return resultsMap['variant'][sig].name === testName &&
+                                    resultsMap['variant'][sig].platform === platform;
                             });
-                            if (e10sSig && baseSig) {
+                            if (variantSig && baseSig) {
                                 var cmap = PhCompare.getCounterMap(
                                     testName, resultsMap['base'][baseSig],
-                                    resultsMap['e10s'][e10sSig], phBlockers);
+                                    resultsMap['variant'][variantSig], phBlockers);
                                 cmap.name = platform + ' ' + resultsMap['base'][baseSig].option;
                                 cmap.links = [{
                                     title: 'graph',
                                     href: PhCompare.getGraphsLink(
-                                        _.map([baseSig, e10sSig], function(sig) {
+                                        _.map([baseSig, variantSig], function(sig) {
                                             return {
                                                 projectName: $scope.selectedRepo.name,
                                                 signature: sig,
-                                                frameworkId: 1
+                                                frameworkId: $scope.framework
                                             };
                                         }))
                                 }];
                                 if (resultsMap['base'][baseSig].hasSubTests) {
                                     var params = {
+                                        topic: $stateParams.topic,
                                         baseSignature: baseSig,
-                                        e10sSignature: e10sSig,
+                                        variantSignature: variantSig,
                                         repo: $scope.selectedRepo.name
                                     };
                                     if ($scope.revision) {
@@ -122,7 +136,7 @@ perf.controller('e10sCtrl', [
                                     }
                                     cmap.links.push({
                                         title: 'subtests',
-                                        href: 'perf.html#/e10s_comparesubtest?' + $httpParamSerializer(params)
+                                        href: 'perf.html#/dashboardsubtest?' + $httpParamSerializer(params)
                                     });
                                     if (!$scope.compareResults[testName]) {
                                         $scope.compareResults[testName] = [cmap];
@@ -148,13 +162,14 @@ perf.controller('e10sCtrl', [
         };
 
         function updateURL() {
-            $state.transitionTo('e10s', {
+            $state.transitionTo('dashboard', {
+                topic: $scope.topic,
                 filter: $scope.filterOptions.filter,
                 showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
                 showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined,
                 showOnlyBlockers: $scope.filterOptions.showOnlyBlockers ? 1 : undefined,
                 repo: $scope.selectedRepo.name === thDefaultRepo ? undefined : $scope.selectedRepo.name,
-                timerange: ($scope.selectedTimeRange.value !== e10sDefaultTimeRange) ? $scope.selectedTimeRange.value : undefined
+                timerange: ($scope.selectedTimeRange.value !== defaultTimeRange) ? $scope.selectedTimeRange.value : undefined
             }, {
                 location: true,
                 inherit: true,
@@ -168,6 +183,7 @@ perf.controller('e10sCtrl', [
             $scope.selectedRepo = _.findWhere($scope.projects, {
                 name: $stateParams.repo ? $stateParams.repo : thDefaultRepo
             });
+
             $scope.$watchGroup(['filterOptions.filter',
                                 'filterOptions.showOnlyImportant',
                                 'filterOptions.showOnlyConfident',
@@ -190,28 +206,35 @@ perf.controller('e10sCtrl', [
 
 ]);
 
-perf.controller('e10sSubtestCtrl', [
+perf.controller('dashSubtestCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$http',
-    'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
-    'thServiceDomain', 'thDefaultRepo', 'phTimeRanges', 'e10sDefaultTimeRange',
+    'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare', 'thServiceDomain',
+    'thDefaultRepo', 'phTimeRanges', 'defaultTimeRange', 'phDashboardValues',
     function($state, $stateParams, $scope, $rootScope, $q, $http,
              ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
-             thServiceDomain, thDefaultRepo, phTimeRanges,
-             e10sDefaultTimeRange) {
+             thServiceDomain, thDefaultRepo, phTimeRanges, defaultTimeRange,
+             phDashboardValues) {
 
         var baseSignature = $stateParams.baseSignature;
-        var e10sSignature = $stateParams.e10sSignature;
+        var variantSignature = $stateParams.variantSignature;
 
         $scope.dataLoading = true;
         $scope.timeRanges = phTimeRanges;
         $scope.selectedTimeRange = _.find(phTimeRanges, {
-            value: ($stateParams.timerange) ? parseInt($stateParams.timerange) : e10sDefaultTimeRange
+            value: ($stateParams.timerange) ? parseInt($stateParams.timerange) : defaultTimeRange
         });
         $scope.revision = $stateParams.revision;
+        $scope.topic = $stateParams.topic;
+
+        // dashboard customization values
+        ['variantDataOpt', 'framework', 'header', 'descP1', 'baseTitle',
+         'variantTitle'].forEach(function(k) {
+             $scope[k] = phDashboardValues[$scope.topic][k];
+         });
 
         function loadData() {
             var resultsMap = {
-                e10s: {},
+                variant: {},
                 base: {}
             };
             $scope.testList = [];
@@ -225,14 +248,14 @@ perf.controller('e10sSubtestCtrl', [
                     $scope.selectedRepo.name, $scope.revision).then(function(resultSets) {
                         resultSetId = resultSets[0].id;
                         return PhSeries.getSeriesList($scope.selectedRepo.name, {
-                            parent_signature: [ baseSignature, e10sSignature ],
-                            framework: 1
+                            parent_signature: [ baseSignature, variantSignature ],
+                            framework: $scope.framework
                         });
                     });
             } else {
                 getSeriesList = PhSeries.getSeriesList($scope.selectedRepo.name, {
-                    parent_signature: [ baseSignature, e10sSignature ],
-                    framework: 1
+                    parent_signature: [ baseSignature, variantSignature ],
+                    framework: $scope.framework
                 });
             }
 
@@ -244,7 +267,7 @@ perf.controller('e10sSubtestCtrl', [
 
                 return $q.all(_.chunk(seriesList, 20).map(function(seriesChunk) {
                     var params = { signatures: _.map(seriesChunk, 'signature'),
-                                   framework: 1 };
+                                   framework: $scope.framework };
                     if ($scope.revision) {
                         params.push_id = resultSetId;
                     } else {
@@ -254,7 +277,7 @@ perf.controller('e10sSubtestCtrl', [
                         $scope.selectedRepo.name, params).then(function(seriesData) {
                             _.forIn(seriesData, function(data, signature) {
                                 var series = _.find(seriesList, { signature: signature });
-                                var type = (series.options.indexOf('e10s') >= 0) ? 'e10s' : 'base';
+                                var type = (series.options.indexOf($scope.variantDataOpt) >= 0) ? 'variant' : 'base';
                                 resultsMap[type][signature] = {
                                     platform: series.platform,
                                     suite: series.suite,
@@ -274,22 +297,22 @@ perf.controller('e10sSubtestCtrl', [
                         var baseSig = _.find(Object.keys(resultsMap['base']), function (sig) {
                             return resultsMap['base'][sig].name === subtestName;
                         });
-                        var e10sSig = _.find(Object.keys(resultsMap['e10s']), function (sig) {
-                            return resultsMap['e10s'][sig].name === subtestName;
+                        var variantSig = _.find(Object.keys(resultsMap['variant']), function (sig) {
+                            return resultsMap['variant'][sig].name === subtestName;
                         });
-                        if (e10sSig && baseSig) {
+                        if (variantSig && baseSig) {
                             var cmap = PhCompare.getCounterMap(
                                 subtestName, resultsMap['base'][baseSig],
-                                resultsMap['e10s'][e10sSig]);
+                                resultsMap['variant'][variantSig]);
                             cmap.name = subtestName;
                             cmap.links = [{
                                 title: 'graph',
                                 href: PhCompare.getGraphsLink(
-                                        _.map([baseSig, e10sSig], function(sig) {
+                                        _.map([baseSig, variantSig], function(sig) {
                                             return {
                                                 projectName: $scope.selectedRepo.name,
                                                 signature: sig,
-                                                frameworkId: 1
+                                                frameworkId: $scope.framework
                                             };
                                         }))
                             }];
@@ -315,12 +338,13 @@ perf.controller('e10sSubtestCtrl', [
                                       parseInt($stateParams.showOnlyBlockers))
         };
         function updateURL() {
-            $state.transitionTo('e10s_comparesubtest', {
+            $state.transitionTo('dashboardsubtest', {
+                topic: $scope.topic,
                 filter: $scope.filterOptions.filter,
                 showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
                 showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined,
                 repo: $scope.selectedRepo.name === thDefaultRepo ? undefined : $scope.selectedRepo.name,
-                timerange: ($scope.selectedTimeRange.value !== e10sDefaultTimeRange) ? $scope.selectedTimeRange.value : undefined
+                timerange: ($scope.selectedTimeRange.value !== defaultTimeRange) ? $scope.selectedTimeRange.value : undefined
             }, {
                 location: true,
                 inherit: true,
