@@ -161,8 +161,8 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
  * Job details action bar
  */
 
-.actionbar-nav > li:not(:first-child) {
-  /* Preserve left side padding on our first icon but keep others compact */
+.actionbar-nav > li {
+  /* Override padding on all icons to keep compact */
   padding: 0 !important;
 }
 
@@ -182,8 +182,8 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
  */
 
 #job-details-panel {
-  width: 250px;
-  min-width: 250px;
+  width: 252px;
+  min-width: 252px;
 }
 
 #job-details-panel .content-spacer {
