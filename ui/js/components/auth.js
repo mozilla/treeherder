@@ -38,9 +38,9 @@ treeherder.component("login", {
         // calls to the HTML which sets the user value in the $rootScope.
         onUserChange: "&"
     },
-    controller: ['$location', '$window', 'localStorageService',
+    controller: ['$location', '$window', 'localStorageService', 'thNotify',
         'ThUserModel', '$http', 'thUrl', '$timeout', 'thServiceDomain',
-        function ($location, $window, localStorageService,
+        function ($location, $window, localStorageService, thNotify,
                   ThUserModel, $http, thUrl, $timeout, thServiceDomain) {
             var ctrl = this;
             ctrl.user = {};
@@ -48,11 +48,16 @@ treeherder.component("login", {
             var loggedOutUser = {is_staff: false, username: "", email: "", loggedin: false};
 
             // check if the user can login.  thServiceDomain must match
-            // host domain.  Remove this is we fix
+            // host domain.  Remove this if we fix
             // Bug 1317752 - Enable logging in with Taskcluster Auth cross-domain
-            var a = document.createElement('a');
-            a.href = thServiceDomain;
-            this.userCanLogin = a.hostname === $location.host();
+            if (!thServiceDomain) {
+                // thServiceDomain isn't being used, so no mismatch possible.
+                this.userCanLogin = true;
+            } else {
+                var a = document.createElement('a');
+                a.href = thServiceDomain;
+                this.userCanLogin = a.hostname === $location.host();
+            }
 
             /**
              * Using a window listener here because I wasn't getting reliable
@@ -112,20 +117,26 @@ treeherder.component("login", {
              * the session token.  Then updates the UI
              */
             ctrl.logout = function () {
-                $http.get(thUrl.getRootUrl("/auth/logout/"));
-                ctrl.setLoggedOut();
+                $http.get(thUrl.getRootUrl("/auth/logout/"))
+                    .then(function() {
+                        ctrl.setLoggedOut();
+                    }, function(data) {
+                        thNotify.send(`Logout failed: ${data.data}`, "danger", true);
+                    });
             };
 
             ctrl.setLoggedIn = function(newUser) {
                 newUser.loggedin = true;
                 localStorageService.set("user", newUser);
                 ctrl.user = newUser;
+                ctrl.onUserChange({$event: {user: newUser}});
 
             };
 
             ctrl.setLoggedOut = function() {
                 localStorageService.set("user", loggedOutUser);
                 ctrl.user = loggedOutUser;
+                ctrl.onUserChange({$event: {user: loggedOutUser}});
             };
         }]
 });

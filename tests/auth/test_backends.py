@@ -27,12 +27,23 @@ def test_get_user(username, email, user, exp_exception):
 
 
 @pytest.mark.parametrize(('result', 'exp_email', 'exp_exception'),
-                         [({'scopes': ['assume:mozilla-user:biped@mozilla.com', 'assume:mozillians-user:biped'],
+                         [({'scopes': ['assume:mozilla-user:biped@mozilla.com',
+                                       'assume:mozillians-user:biped'],
                             'clientId': 'mozilla-ldap/biped@mozilla.com'},
                            'biped@mozilla.com',
                            False),
                           ({'scopes': ['assume:mozillians-user:biped'],
                             'clientId': 'mozilla-ldap/biped@mozilla.com'},
+                           None,
+                           True),
+                          # typical mozillians account logged in with Auth0
+                          ({'scopes': ["assume:mozillians-user:dude",
+                                       "assume:mozillians-unvouched",
+                                       "auth:create-client:email/dude@lebowski.rug/*",
+                                       "auth:delete-client:email/dude@lebowski.rug/*",
+                                       "auth:update-client:email/dude@lebowski.rug/*",
+                                       "auth:reset-access-token:email/dude@lebowski.rug/*"],
+                            'clientId': 'email/dude@lebowski.rug'},
                            None,
                            True),
                           ])
@@ -51,7 +62,8 @@ def test_create_missing_user(monkeypatch):
 
     def authenticateHawk_mock(selfless, obj):
         return {'status': 'auth-success',
-                'scopes': ['assume:mozilla-user:biped@mozilla.com', 'assume:project:treeherder:*'],
+                'scopes': ['assume:mozilla-user:biped@mozilla.com',
+                           'assume:project:treeherder:*'],
                 'clientId': 'mozilla-ldap/biped@mozilla.com'}
 
     monkeypatch.setattr(Auth, "authenticateHawk", authenticateHawk_mock)

@@ -53,10 +53,9 @@ class TaskclusterAuthBackend(object):
 
         if email and re.search(r'.+@.+', email):
             return email
-        else:
-            raise TaskclusterAuthenticationFailed(
-                "Invalid email for user {} from scope 'assume:mozilla-user': {}".format(
-                    result["clientId"], email))
+        raise TaskclusterAuthenticationFailed(
+            "Invalid email for clientId: '{}'. Invalid value for scope 'assume:mozilla-user': '{}'".format(
+                result["clientId"], email))
 
     def _get_user(self, email):
         """
@@ -104,15 +103,17 @@ class TaskclusterAuthBackend(object):
         # TODO: remove this size limit when we upgrade to django 1.10
         # in Bug 1311967
         email = self._get_email(result)
-        if len(result["clientId"]) <= 30:
-            username = result["clientId"]
+        if len(email) <= 30:
+            username = email
         else:
             username = base64.urlsafe_b64encode(
                 hashlib.sha1(smart_bytes(email)).digest()
                 ).rstrip(b'=')[-30:]
+
         try:
             # Find the user by their email.
             user = self._get_user(email)
+            user.username = username
 
         except ObjectDoesNotExist:
             # the user doesn't already exist, create it.
@@ -121,10 +122,6 @@ class TaskclusterAuthBackend(object):
                         username=username,
                         )
 
-        # update the user object in the DB (perhaps Sheriff status
-        # or email changed.  This is so that when ``get_user`` is
-        # called, it will return the latest is_staff value we got from
-        # LDAP.
         user.save()
         return user
 

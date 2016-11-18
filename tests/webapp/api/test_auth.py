@@ -148,7 +148,7 @@ def test_login_no_email(webapp, monkeypatch):
     monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
 
     resp = webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=403)
-    assert resp.json["detail"] == "Invalid email for user foo from scope 'assume:mozilla-user': meh"
+    assert resp.json["detail"] == "Invalid email for clientId: 'foo'. Invalid value for scope 'assume:mozilla-user': 'meh'"
 
 
 def test_login_invalid(webapp, monkeypatch):

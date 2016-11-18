@@ -63,13 +63,13 @@ class TaskclusterAuthViewSet(viewsets.ViewSet):
             user = authenticate(auth_header=auth_header,
                                 host=host,
                                 port=int(port))
-            if user:
-                if user.is_active:
-                    login(request, user)
-                else:
-                    raise AuthenticationFailed("This user has been disabled.")
-            else:
+            if not user:
                 raise AuthenticationFailed("User not authenticated.")
+
+            if not user.is_active:
+                raise AuthenticationFailed("This user has been disabled.")
+
+            login(request, user)
 
             return Response(UserSerializer(user).data)
         except TaskclusterAuthenticationFailed as ex:
