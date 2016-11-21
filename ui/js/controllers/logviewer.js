@@ -36,10 +36,14 @@ logViewerApp.controller('LogviewerCtrl', [
         });
 
         $scope.logPostMessage = (values) => {
-            if (!values.customStyle) {
-                updateQuery(values);
+            const { lineNumber, highlightStart } = values;
+
+            if (lineNumber && !highlightStart) {
+                values.highlightStart = lineNumber;
+                values.highlightEnd = lineNumber;
             }
 
+            updateQuery(values);
             $document[0].getElementById('logview').contentWindow.postMessage(values, $rootScope.logBasePath);
         };
 
@@ -151,13 +155,14 @@ logViewerApp.controller('LogviewerCtrl', [
                 const allErrors = _.flatten(textLogSteps.map(s => s.errors));
                 const q = $location.search();
                 $scope.steps = textLogSteps;
+                let css = '';
 
                 // add an ordering to each step
                 textLogSteps.forEach((step, i) => {step.order = i;});
 
                 // load the first failure step line else load the head
                 if (allErrors.length) {
-                    drawErrorLines(allErrors);
+                    css += errorLinesCss(allErrors);
 
                     if (!q.lineNumber) {
                         $scope.logPostMessage({ lineNumber: allErrors[0].line_number + 1 });
@@ -177,6 +182,10 @@ logViewerApp.controller('LogviewerCtrl', [
                         }
                     }
                 }
+
+                css += hideLogToolbarCss();
+
+                $scope.logPostMessage({ customStyle: css });
             });
 
         };
@@ -184,22 +193,31 @@ logViewerApp.controller('LogviewerCtrl', [
         /** utility functions **/
 
         function updateQuery(values) {
-            delete values.url;
+            const lineNumber = values.lineNumber === 'undefined' ? '' : values.lineNumber;
+            const highlightStart = values.highlightStart === 'undefined' ? '' : values.highlightStart;
+            const highlightEnd = values.highlightEnd === 'undefined' ? '' : values.highlightEnd;
 
-            Object.keys(values).forEach((prop) => {
-                return values[prop] === 'undefined' ?
-                  $location.search(prop, '') :
-                  $location.search(prop, values[prop]);
-            });
+            if (lineNumber) {
+                if (highlightStart !== highlightEnd) {
+                    $location.search('lineNumber', `${highlightStart}-${highlightEnd}`);
+                }
+                else if (highlightStart) {
+                    $location.search('lineNumber', highlightStart);
+                } else {
+                    $location.search('lineNumber', lineNumber);
+                }
+            }
         }
 
-        function drawErrorLines(errors) {
-            const css = errors
+        function errorLinesCss(errors) {
+            return errors
               .map(({ line_number }) => `a[id="${line_number + 1}"]+span`)
               .join(',')
               .concat('{background-color:pink;color:red}');
+        }
 
-            $scope.logPostMessage({ customStyle: css });
+        function hideLogToolbarCss() {
+            return 'div[id="toolbar"]{display:none}';
         }
 
         function setlogListener() {
