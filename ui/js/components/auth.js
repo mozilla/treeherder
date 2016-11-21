@@ -162,10 +162,14 @@ treeherder.component("loginCallback", {
                 algorithm: 'sha256'
             };
             this.loginError = null;
-            const header = hawk.client.header(loginUrl, 'GET', {
+            var payload = {
                 credentials: credentials,
-                ext: hawk.utils.base64urlEncode(JSON.stringify({"certificate": JSON.parse(certificate)}))}
-            );
+            };
+            if (certificate) {
+                payload.ext = hawk.utils.base64urlEncode(JSON.stringify({"certificate": JSON.parse(certificate)}));
+            }
+
+            const header = hawk.client.header(loginUrl, 'GET', payload);
 
             // send a request from client side to TH server signed with TC
             // creds from login.taskcluster.net
