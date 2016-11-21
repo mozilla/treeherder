@@ -25,8 +25,7 @@
     </span>
     <th-result-counts class="result-counts"></th-result-counts>
     <span class="result-set-buttons">
-      <span class="btn btn-sm btn-resultset cancel-all-jobs-btn"
-            tabindex="0" role="button"
+      <button class="btn btn-sm btn-resultset cancel-all-jobs-btn"
             ng-attr-title="{{getCancelJobsTitle(resultset.revision)}}"
             ng-show="currentRepo.repository_group.name == 'try' || user.is_staff"
             ignore-job-clear-on-click
@@ -34,24 +33,22 @@
             ng-click="confirmCancelAllJobs()">
         <span class="fa fa-times-circle cancel-job-icon dim-quarter"
               ignore-job-clear-on-click></span>
-      </span>
-      <span class="btn btn-sm btn-resultset pin-all-jobs-btn"
-            tabindex="0" role="button"
+      </button>
+      <button class="btn btn-sm btn-resultset pin-all-jobs-btn"
             title="Pin all available jobs in this resultset"
             ignore-job-clear-on-click
             ng-click="pinAllShownJobs()">
         <span class="glyphicon glyphicon-pushpin"
               ignore-job-clear-on-click></span>
-      </span>
-      <span class="btn btn-sm btn-resultset trigger-new-jobs-btn"
-            tabindex="0" role="button"
+      </button>
+      <button class="btn btn-sm btn-resultset trigger-new-jobs-btn"
             title="Trigger new jobs"
             ng-show="showTriggerButton()"
             ng-disabled="!user.loggedin"
             ignore-job-clear-on-click
             ng-click="triggerNewJobs()">
            Trigger New Jobs
-      </span>
+      </button>
       <th-action-button></th-action-button>
     </span>
   </div>
