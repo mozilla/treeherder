@@ -11,18 +11,14 @@ treeherder.directive('thLogViewer', ['$sce', '$location', ($sce, $location) => {
                 const params = {
                     lineNumber: lines[0],
                     highlightStart: lines[0],
-                    highlightEnd: lines.length == 2 ? lines[1] : lines[0]
+                    highlightEnd: lines.length === 2 ? lines[1] : lines[0]
                 };
 
                 return Object.keys(params)
                   .reduce((qs, key) => `${qs}&${key}=${params[key]}`, '');
             };
 
-            elem.on('load', () => {
-                const q = $location.search();
-
-                scope.logviewerInit();
-            });
+            elem.on('load', () => scope.logviewerInit());
 
             scope.$watch('rawLogURL', () => {
                 if (scope.rawLogURL) {
