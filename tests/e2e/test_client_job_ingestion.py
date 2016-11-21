@@ -52,8 +52,9 @@ def check_job_log(test_project, job_guid, parse_status):
     assert job_logs[0].status == parse_status
 
 
-def test_post_job_with_unparsed_log(test_project, result_set_stored,
-                                    mock_post_json, monkeypatch):
+def test_post_job_with_unparsed_log(test_project, failure_classifications,
+                                    result_set_stored, mock_post_json,
+                                    monkeypatch):
     """
     test submitting a job with an unparsed log parses the log,
     generates an appropriate set of text log steps, and calls
@@ -99,6 +100,7 @@ def test_post_job_with_unparsed_log(test_project, result_set_stored,
 
 def test_post_job_pending_to_completed_with_unparsed_log(test_project,
                                                          result_set_stored,
+                                                         failure_classifications,
                                                          mock_post_json):
 
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
@@ -145,6 +147,7 @@ def test_post_job_pending_to_completed_with_unparsed_log(test_project,
 
 
 def test_post_job_with_parsed_log(test_project, result_set_stored,
+                                  failure_classifications,
                                   mock_post_json,
                                   monkeypatch,
                                   ):
@@ -184,8 +187,9 @@ def test_post_job_with_parsed_log(test_project, result_set_stored,
 
 def test_post_job_with_text_log_summary_artifact_parsed(
         test_project,
-        monkeypatch,
+        failure_classifications,
         result_set_stored,
+        monkeypatch,
         mock_post_json,
         text_log_summary_dict,
         ):
@@ -232,8 +236,9 @@ def test_post_job_with_text_log_summary_artifact_parsed(
 
 def test_post_job_with_text_log_summary_artifact_pending(
         test_project,
-        monkeypatch,
+        failure_classifications,
         result_set_stored,
+        monkeypatch,
         mock_post_json,
         text_log_summary_dict,
         ):
@@ -282,8 +287,9 @@ def test_post_job_with_text_log_summary_artifact_pending(
 
 def test_post_job_artifacts_by_add_artifact(
         test_project,
-        monkeypatch,
+        failure_classifications,
         result_set_stored,
+        monkeypatch,
         mock_post_json,
         ):
     """
@@ -387,7 +393,8 @@ def test_post_job_artifacts_by_add_artifact(
     assert mock_parse.called is False
 
 
-def test_post_job_with_tier(test_project, result_set_stored,
+def test_post_job_with_tier(test_project, failure_classifications,
+                            result_set_stored,
                             mock_post_json):
     """test submitting a job with tier specified"""
 
@@ -412,7 +419,8 @@ def test_post_job_with_tier(test_project, result_set_stored,
         assert job['tier'] == 3
 
 
-def test_post_job_with_default_tier(test_project, result_set_stored,
+def test_post_job_with_default_tier(test_project, failure_classifications,
+                                    result_set_stored,
                                     mock_post_json):
     """test submitting a job with no tier specified gets default"""
 
@@ -436,7 +444,8 @@ def test_post_job_with_default_tier(test_project, result_set_stored,
         assert job['tier'] == 1
 
 
-def test_post_job_with_buildapi_artifact(test_project, result_set_stored,
+def test_post_job_with_buildapi_artifact(test_project, failure_classifications,
+                                         result_set_stored,
                                          mock_post_json):
     """
     test submitting a job with a buildapi artifact gets that stored (and
