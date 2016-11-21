@@ -204,10 +204,10 @@
             <span class="platform-group" style="display: {{ display }};">
                 <span class="disabled job-group" title="{{ name }}"
                       data-grkey="{{ grkey }}">
-                    <span class="group-symbol"
+                    <button class="btn group-symbol"
                           ignore-job-clear-on-click>{{ symbol }}{{(tier) ?
                       '<span class="small text-muted">[tier ' + tier + ']</span>': ""}}
-                    </span>
+                    </button>
                     <span class="group-content">
                         <span class="group-job-list">
                             {{ btnHTML }}
