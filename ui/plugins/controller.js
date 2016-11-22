@@ -371,12 +371,32 @@ treeherder.controller('PluginCtrl', [
 
         // Can we backfill? At the moment, this only ensures we're not in a 'try' repo.
         $scope.canBackfill = function() {
-            return $scope.currentRepo && $scope.currentRepo.repository_group.name !== 'try';
+            return $scope.user.loggedin && $scope.currentRepo &&
+                   $scope.currentRepo.repository_group.name !== 'try';
         };
 
-        $scope.backfillEnabledString = "Trigger jobs of this type on prior pushes, " +
-                                       "to fill in gaps where the job was not run";
-        $scope.backfillDisabledString = "Backfilling not available in this repository";
+        $scope.backfillButtonTitle = function() {
+            var title = "";
+
+            if (!$scope.user.loggedin) {
+                title = title.concat("must be logged in to backfill a job / ");
+            }
+
+            if ($scope.currentRepo.repository_group.name === 'try') {
+                title = title.concat("backfill not available in this repository");
+            }
+
+            if (title === "") {
+                title = "Trigger jobs of ths type on prior pushes " +
+                        "to fill in gaps where the job was not run";
+            } else {
+                // Cut off trailing "/ " if one exists, capitalize first letter
+                title = title.replace(/\/ $/,"");
+                title = title.replace(/^./, function(l) { return l.toUpperCase(); });
+            }
+
+            return title;
+        };
 
         $scope.cancelJob = function() {
             if ($scope.user.loggedin) {
