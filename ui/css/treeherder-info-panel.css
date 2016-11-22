@@ -173,10 +173,6 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
   border-radius: 4px !important;
 }
 
-.pinned-job-count {
-  margin-left: 5px;
-}
-
 /*
  * Job details panel (left side)
  */

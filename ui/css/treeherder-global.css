@@ -97,8 +97,10 @@ input:focus::-moz-placeholder {
   font-size: 13px;
 }
 
-.icon-blue {
-  color: #68aae2;
+.icon-blue:hover,
+.icon-blue:focus,
+.icon-blue:active {
+  color: #68aae2 !important;
 }
 
 .icon-green:hover,

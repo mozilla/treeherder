@@ -45,15 +45,24 @@ treeherder.controller('PinboardCtrl', [
             }
         };
 
+        $scope.pulsePinCount = function() {
+            $( ".pin-count-group" ).addClass( "pin-count-pulse" );
+            $timeout(function() {
+                $( ".pin-count-group" ).removeClass( "pin-count-pulse" );
+            }, 700);
+        };
+
+        // Triggered on pin api events eg. from the job details navbar
+        $rootScope.$on(thEvents.pulsePinCount, function() {
+            $scope.pulsePinCount();
+        });
+
         $scope.pinJob = function(job) {
             thPinboard.pinJob(job);
             if (!$scope.selectedJob) {
                 $scope.viewJob(job);
             }
-        };
-
-        $scope.pinSelectedJob = function() {
-            thPinboard.pinJob($scope.selectedJob);
+            $scope.pulsePinCount();
         };
 
         $scope.unPinJob = function(id) {
