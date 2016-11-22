@@ -7,6 +7,11 @@ treeherder.directive('thLogViewer', ['$sce', '$location', ($sce, $location) => {
         link: (scope, elem) => {
             const logParams = () => {
                 const q = $location.search();
+
+                if (!q.lineNumber) {
+                    return '';
+                }
+
                 const lines = q.lineNumber.split('-');
                 const params = {
                     lineNumber: lines[0],
