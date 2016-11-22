@@ -68,31 +68,33 @@
             </a>
           </li>
           <li>
-            <a id="pin-job-btn" href=""
-               title="Add this job to the pinboard"
-               ng-click="pinboard_service.pinJob(selectedJob)">
-              <span class="glyphicon glyphicon-pushpin"
-                    ng-class="{'icon-blue': (pinboard_service.count.numPinnedJobs > 0)}">
-              </span>
-              <span ng-show="pinboard_service.count.numPinnedJobs"
-                    class="pinned-job-count">{{getCountPinnedJobs()}}</span>
-            </a>
+            <!--the first 3 items are in the same box-->
+            <ul class="nav navbar-nav">
+              <li>
+                <a id="pin-job-btn" href=""
+                   title="Add this job to the pinboard"
+                   ng-click="pinboard_service.pinJob(selectedJob)">
+                  <span class="glyphicon glyphicon-pushpin"
+                        ng-class="{'icon-blue': (pinboard_service.count.numPinnedJobs > 0)}">
+                  </span>
+                  <span ng-show="pinboard_service.count.numPinnedJobs"
+                        class="pinned-job-count">{{getCountPinnedJobs()}}</span>
+                </a>
+              </li>
+
+            </ul>
           </li>
-          <li>
-            <a id="retrigger-btn" href=""
-               ng-attr-title="{{user.loggedin ? 'Retrigger this job' :
+          <li class="dropdown">
+            <a id="retriggerLabel"
+               ng-attr-title="{{user.loggedin ? 'Retrigger or backfill this job' :
                               'Must be logged in to retrigger a job'}}"
-               ng-class="user.loggedin ? 'icon-green' : 'disabled'">
-              <span class="fa fa-repeat"></span>
+               ng-class="user.loggedin ? 'icon-green' : 'disabled'" href="" data-toggle="dropdown">
+              <span class="fa fa-repeat"></span>&nbsp
+              <span class="fa fa-angle-down lightgray"></span>
             </a>
-          </li>
-          <li>
-            <a id="backfill-btn" href=""
-               ng-attr-title="{{user.loggedin ? 'Backfill this job' :
-                              'Must be logged in to backfill a job'}}"
-               ng-class="user.loggedin ? 'icon-cyan' : 'disabled'">
-              <span class="fa fa-arrow-down"></span>
-            </a>
+            <ul class="dropdown-menu actionbar-menu" role="menu" aria-labelledby="retriggerLabel"
+                ng-include src="'partials/main/thJobDetailsRetriggerMenu.html'">
+            </ul>
           </li>
           <li ng-if="isReftest()" ng-repeat="job_log_url in job_log_urls">
             <a title="Launch the Reftest Analyser in a new window"
