@@ -80,17 +80,24 @@
               </li>
             </ul>
           </li>
-          <li class="dropdown">
-            <a id="retriggerLabel"
-               ng-attr-title="{{user.loggedin ? 'Retrigger or backfill this job' :
+          <li>
+            <button id="retrigger-btn" href=""
+               ng-attr-title="{{user.loggedin ? 'Repeat the selected job' :
                               'Must be logged in to retrigger a job'}}"
-               ng-class="user.loggedin ? 'icon-green' : 'disabled'" href="" data-toggle="dropdown">
-              <span class="fa fa-repeat"></span>&nbsp
-              <span class="fa fa-angle-down lightgray"></span>
-            </a>
-            <ul class="dropdown-menu actionbar-menu" role="menu" aria-labelledby="retriggerLabel"
-                ng-include src="'partials/main/thJobDetailsRetriggerMenu.html'">
-            </ul>
+               ng-class="user.loggedin ? 'icon-green' : 'disabled'"
+               ng-disabled="!user.loggedin"
+               ng-click="retriggerJob([selectedJob])">
+              <span class="fa fa-repeat"></span>
+            </button>
+          </li>
+          <li>
+            <button id="backfill-btn" href=""
+               ng-attr-title="{{backfillButtonTitle()}}"
+               ng-class="canBackfill() ? 'icon-cyan' : 'disabled'"
+               ng-disabled="!canBackfill()"
+               ng-click="backfillJob()">
+              <span class="fa fa-arrow-down"></span>
+            </button>
           </li>
           <li ng-if="isReftest()" ng-repeat="job_log_url in job_log_urls">
             <a title="Launch the Reftest Analyser in a new window"

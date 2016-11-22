@@ -81,7 +81,7 @@ input:focus::-moz-placeholder {
 .logviewer-icon {
   width: 14px;
   height: 16px;
-  vertical-align: text-bottom;
+  vertical-align: text-top;
   opacity: 0.7;
 }
 
@@ -107,6 +107,12 @@ input:focus::-moz-placeholder {
 .icon-green:focus,
 .icon-green:active {
   color: #0de00d !important;
+}
+
+.icon-cyan:hover,
+.icon-cyan:focus,
+.icon-cyan:active {
+  color: #00ffff !important;
 }
 
 .icon-superscript {
