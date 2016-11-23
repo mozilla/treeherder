@@ -85,6 +85,9 @@ BuildbotPerformanceDataArtifactBuilder
         """Hook to get a handle to the log with this url"""
         req = urllib2.Request(url)
         req.add_header('User-Agent', settings.TREEHERDER_USER_AGENT)
+        # Work around bug 1305768.
+        if 'queue.taskcluster.net' in url:
+            req.add_header('x-taskcluster-skip-cache', 'true')
         return urllib2.urlopen(
            req,
            timeout=settings.REQUESTS_TIMEOUT

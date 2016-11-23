@@ -33,6 +33,9 @@ def make_request(url, method='GET', headers=None,
     """A wrapper around requests to set defaults & call raise_for_status()."""
     headers = headers or {}
     headers['User-Agent'] = settings.TREEHERDER_USER_AGENT
+    # Work around bug 1305768.
+    if 'queue.taskcluster.net' in url:
+        headers['x-taskcluster-skip-cache'] = 'true'
     response = requests.request(method,
                                 url,
                                 headers=headers,
