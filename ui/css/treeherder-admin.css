@@ -1,3 +1,15 @@
+/*
+ * Admin settings
+ *
+ * This file contains settings specific to our Admin page
+ * or duplication from treeherder-global.css. Referencing -global
+ * in admin.html would break other Admin page layout and much of -global
+ * is not currently neeeded.
+ *
+ * Please consider the appropriate css file and attribute location
+ * when adding new styles.
+ */
+
 .action-buttons {
     float: right;
     margin: 5px;
@@ -31,6 +43,11 @@
   padding-right: 0;
   border: none;
   background: #fff;
+}
+
+.admin-action-btn {
+  margin-top: 5px;
+  margin-right: 5px;
 }
 
 .text-btn {
@@ -97,6 +114,7 @@
   min-width: 100%;
   border: none;
 }
+
 .btn-move {
   margin: 165px 5px 5px 5px;
 }
@@ -108,4 +126,12 @@
 
 .form-group-inline > .form-group {
   vertical-align: top;
+}
+
+.icon-menu li a span {
+  width: 20px;
+}
+
+.midgray, .midgray a {
+  color: gray;
 }
