@@ -68,10 +68,7 @@ def detect(test_job):
                 classification, failure_match = new_matches[failure_line.id]
                 if failure_match.score > AUTOCLASSIFY_CUTOFF_RATIO:
                     failure_line.best_classification = classification
-                    failure_line.save(update_fields=['best_classification'])
-                    if failure_line.error:
-                        failure_line.error.best_classification = classification
-                        failure_line.error.save(update_fields=['best_classification'])
+                    failure_line.save()
             for job, ds_job in jobs:
                 if job == test_job:
                     continue

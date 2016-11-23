@@ -13,7 +13,6 @@ from treeherder.model.models import (FailureLine,
 logger = logging.getLogger(__name__)
 
 
-@transaction.atomic
 def crossreference_job(job):
     """Populate the TextLogSummary and TextLogSummaryLine tables for a
     job. Specifically this function tries to match the
@@ -64,8 +63,6 @@ def _crossreference(job):
                 summary=summary,
                 line_number=error.line_number,
                 failure_line=failure_line))
-            error.failure_line = failure_line
-            error.save()
             failure_line, regexp = match_iter.next()
         else:
             logger.debug("Failed to match '%s'" % (error.line,))
