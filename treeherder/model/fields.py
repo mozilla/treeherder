@@ -34,15 +34,3 @@ class FlexibleForeignKey(models.ForeignKey):
         if hasattr(rel_field, 'get_related_db_type'):
             return rel_field.get_related_db_type(connection)
         return super(FlexibleForeignKey, self).db_type(connection)
-
-
-# This is required to support BigAutoField
-class FlexibleOneToOneField(models.OneToOneField):
-    def db_type(self, connection):
-        if django.VERSION >= (1, 9):
-            rel_field = self.target_field
-        else:
-            rel_field = self.related_field
-        if hasattr(rel_field, 'get_related_db_type'):
-            return rel_field.get_related_db_type(connection)
-        return super(FlexibleOneToOneField, self).db_type(connection)
