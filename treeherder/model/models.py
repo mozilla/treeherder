@@ -662,11 +662,7 @@ class JobDuration(models.Model):
 
 class Job(models.Model):
     """
-    Representation of a treeherder job
-
-    This is currently a transitional representation intended to assist in
-    cross referencing data between the per-project databases and those
-    objects in the Django ORM
+    This class represents a build or test job in Treeherder
     """
     id = BigAutoField(primary_key=True)
     repository = models.ForeignKey(Repository)
@@ -675,6 +671,33 @@ class Job(models.Model):
     # faster (since we'll need to cross-reference those row-by-row), see
     # https://bugzilla.mozilla.org/show_bug.cgi?id=1265503
     project_specific_id = models.PositiveIntegerField(db_index=True)
+
+    coalesced_to_guid = models.CharField(max_length=50, null=True,
+                                         default=None)
+    signature = models.ForeignKey(ReferenceDataSignatures, null=True,
+                                  default=None)
+    build_platform = models.ForeignKey(BuildPlatform, null=True,
+                                       default=None)
+    machine_platform = models.ForeignKey(MachinePlatform, null=True,
+                                         default=None)
+    machine = models.ForeignKey(Machine, null=True, default=None)
+    option_collection_hash = models.CharField(max_length=64, null=True,
+                                              default=None)
+    job_type = models.ForeignKey(JobType, null=True, default=None)
+    product = models.ForeignKey(Product, null=True, default=None)
+    failure_classification = models.ForeignKey(FailureClassification,
+                                               null=True, default=None)
+    who = models.CharField(max_length=50, null=True, default=None)
+    reason = models.CharField(max_length=125, null=True, default=None)
+    result = models.CharField(max_length=25, null=True, default=None)
+    state = models.CharField(max_length=25, null=True, default=None)
+
+    submit_time = models.DateTimeField(null=True, default=None)
+    start_time = models.DateTimeField(null=True, default=None)
+    end_time = models.DateTimeField(null=True, default=None)
+    last_modified = models.DateTimeField(null=True, default=None)
+    running_eta = models.PositiveIntegerField(null=True, default=None)
+    tier = models.PositiveIntegerField(null=True, default=None)
 
     push = models.ForeignKey(Push)
 
@@ -685,6 +708,10 @@ class Job(models.Model):
     def __str__(self):
         return "{0} {1} {2} {3}".format(self.id, self.repository, self.guid,
                                         self.project_specific_id)
+
+    def save(self, *args, **kwargs):
+        self.last_modified = datetime.datetime.now()
+        super(Job, self).save(*args, **kwargs)
 
     def is_fully_autoclassified(self):
         """

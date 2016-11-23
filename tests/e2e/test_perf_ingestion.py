@@ -7,8 +7,8 @@ from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceSignature)
 
 
-def test_post_perf_artifact(jobs_ds, test_repository, result_set_stored,
-                            mock_post_json):
+def test_post_perf_artifact(jobs_ds, test_repository, failure_classifications,
+                            result_set_stored, mock_post_json):
     PerformanceFramework.objects.get_or_create(name='cheezburger', enabled=True)
 
     tjc = client.TreeherderJobCollection()
@@ -52,7 +52,7 @@ def test_post_perf_artifact(jobs_ds, test_repository, result_set_stored,
     assert PerformanceDatum.objects.all().count() == 3
 
 
-def test_post_perf_artifact_revision_hash(test_repository,
+def test_post_perf_artifact_revision_hash(test_repository, failure_classifications,
                                           result_set_stored, mock_post_json):
     test_repository.save()
     PerformanceFramework.objects.get_or_create(name='cheezburger', enabled=True)
@@ -100,6 +100,7 @@ def test_post_perf_artifact_revision_hash(test_repository,
 
 
 def test_post_perf_artifact_multiple(jobs_ds, test_repository,
+                                     failure_classifications,
                                      result_set_stored, mock_post_json):
     PerformanceFramework.objects.get_or_create(name='cheezburger', enabled=True)
     perfobj = {

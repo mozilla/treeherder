@@ -13,6 +13,7 @@ from treeherder.model.models import (BuildPlatform,
                                      Commit,
                                      Datasource,
                                      ExclusionProfile,
+                                     FailureClassification,
                                      FailureLine,
                                      Job,
                                      JobDuration,
@@ -243,6 +244,9 @@ class JobsModel(TreeherderModelBase):
             placeholders=[state, job_id],
             debug_show=self.DEBUG
         )
+        Job.objects.filter(repository__name=self.project,
+                           project_specific_id=job_id).update(
+                               state=state)
 
     def get_incomplete_job_ids(self, push_id):
         """Get list of ids for jobs of a push that are not in complete state."""
@@ -265,6 +269,11 @@ class JobsModel(TreeherderModelBase):
             placeholders=[push_id],
             debug_show=self.DEBUG
         )
+        Job.objects.filter(repository__name=self.project,
+                           push_id=push_id,
+                           state='pending').update(
+                               state='completed',
+                               result='usercancel')
 
         # Sending 'cancel_all' action to pulse. Right now there is no listener
         # for this, so we cannot remove 'cancel' action for each job below.
@@ -345,6 +354,11 @@ class JobsModel(TreeherderModelBase):
             placeholders=[job['job_guid']],
             debug_show=self.DEBUG
         )
+        Job.objects.filter(repository__name=self.project,
+                           project_specific_id=job['id'],
+                           state='pending').update(
+                               state='completed',
+                               result='usercancel')
 
     def get_max_job_id(self):
         """Get the maximum job id."""
@@ -376,6 +390,9 @@ class JobsModel(TreeherderModelBase):
             ],
             debug_show=self.DEBUG
         )
+        Job.objects.filter(repository__name=self.project,
+                           project_specific_id=job_id).update(
+                               failure_classification_id=failure_classification_id)
 
     def calculate_durations(self, sample_window_seconds, debug):
         # Get the most recent timestamp from jobs
@@ -656,6 +673,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 debug_show=self.DEBUG,
                 placeholders=coalesced_job_guid_placeholders,
                 executemany=True)
+            for (coalesced_to_guid, job_guid) in coalesced_job_guid_placeholders:
+                Job.objects.filter(guid=job_guid).update(
+                    coalesced_to_guid=coalesced_to_guid)
 
     def _remove_existing_jobs(self, data):
         """
@@ -804,6 +824,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         reference_data_name = job_datum.get('reference_data_name', None)
 
+        default_failure_classification = FailureClassification.objects.get(
+            name='not classified')
+
         sh = sha1()
         sh.update(''.join(
             map(lambda x: str(x),
@@ -943,6 +966,26 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             repository=Repository.objects.get(name=self.project),
             project_specific_id=ds_job_id,
             defaults={
+                'signature': signature,
+                'build_platform': build_platform,
+                'machine_platform': machine_platform,
+                'machine': machine,
+                'option_collection_hash': option_collection_hash,
+                'job_type': job_type,
+                'product': product,
+                'failure_classification': default_failure_classification,
+                'who': who,
+                'reason': reason,
+                'result': result,
+                'state': state,
+                'tier': tier,
+                'last_modified': datetime.now(),
+                'submit_time': datetime.fromtimestamp(
+                    self.get_number(job_datum.get('submit_timestamp'))),
+                'start_time': datetime.fromtimestamp(
+                    self.get_number(job_datum.get('start_timestamp'))),
+                'end_time': datetime.fromtimestamp(
+                    self.get_number(job_datum.get('end_timestamp'))),
                 'guid': job_guid,
                 'push_id': push_id
             })
