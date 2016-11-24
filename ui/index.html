@@ -151,7 +151,7 @@
                     <span class="revision-holder">
                         <a href="{{currentRepo.getRevisionHref(revision)}}"
                            title="Open revision {{revision}} on {{currentRepo.url}}"
-                           ignore-job-clear-on-click>{{revision | limitTo: 12}}</a>
+                           ignore-job-clear-on-click draggable="true">{{revision | limitTo: 12}}</a>
                     </span>
                     <span title="{{name}}: {{email}}">{{name|initials}}</span>
                     <span title="{{escaped_comment}}">
