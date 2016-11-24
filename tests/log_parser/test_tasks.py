@@ -60,7 +60,7 @@ def mock_mozlog_get_log_handler(monkeypatch):
                         'get_log_handle', _get_log_handle)
 
 
-def test_parse_log(jm, jobs_with_local_log, sample_resultset):
+def test_parse_log(jm, failure_classifications, jobs_with_local_log, sample_resultset):
     """
     check that 2 job_artifacts get inserted when running a parse_log task for
     a successful job and that JobDetail objects get created
@@ -93,7 +93,8 @@ def test_parse_log(jm, jobs_with_local_log, sample_resultset):
     print JobDetail.objects.count() == 4
 
 
-def test_create_error_summary(jm, jobs_with_local_log, sample_resultset,
+def test_create_error_summary(jm, failure_classifications,
+                              jobs_with_local_log, sample_resultset,
                               test_repository):
     """
     check that a bug suggestions artifact gets inserted when running

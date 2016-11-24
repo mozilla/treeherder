@@ -152,7 +152,7 @@ def test_repository(transactional_db):
 
 
 @pytest.fixture
-def test_job(eleven_job_blobs, jm):
+def test_job(failure_classifications, eleven_job_blobs, jm):
     from treeherder.model.models import Job
 
     jm.store_job_data(eleven_job_blobs[0:1])
@@ -257,7 +257,7 @@ def eleven_job_blobs(jm, sample_data, sample_resultset, test_repository, mock_lo
 
 
 @pytest.fixture
-def eleven_jobs_stored(jm, eleven_job_blobs):
+def eleven_jobs_stored(jm, failure_classifications, eleven_job_blobs):
     """stores a list of 11 job samples"""
     jm.store_job_data(eleven_job_blobs)
 
@@ -345,7 +345,7 @@ def failure_lines(test_job, elasticsearch):
 
 
 @pytest.fixture
-def failure_classifications():
+def failure_classifications(transactional_db):
     from treeherder.model.models import FailureClassification
     for name in ["not classified", "fixed by commit", "expected fail",
                  "intermittent", "infra", "intermittent needs filing",

@@ -482,7 +482,8 @@ def test_list_similar_jobs(webapp, eleven_jobs_stored, jm):
     assert len(similar_jobs['results']) == 3
 
 
-def test_job_create(webapp, test_repository, test_user, eleven_job_blobs, monkeypatch, jm):
+def test_job_create(webapp, test_repository, test_user, eleven_job_blobs,
+                    failure_classifications, monkeypatch, jm):
     monkeypatch.setattr(JobsViewSet, 'permission_classes', ())
 
     url = reverse("jobs-list",

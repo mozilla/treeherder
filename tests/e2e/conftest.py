@@ -37,7 +37,8 @@ def completed_jobs(sample_data):
 
 @pytest.fixture
 def pending_jobs_stored(
-        jm, pending_jobs, result_set_stored, mock_post_json):
+        jm, failure_classifications, pending_jobs, result_set_stored,
+        mock_post_json):
     """
     stores a list of buildapi pending jobs into the jobs store
     using BuildApiTreeHerderAdapter
@@ -55,7 +56,8 @@ def pending_jobs_stored(
 
 @pytest.fixture
 def running_jobs_stored(
-        jm, running_jobs, result_set_stored, mock_post_json):
+        jm, failure_classifications, running_jobs, result_set_stored,
+        mock_post_json):
     """
     stores a list of buildapi running jobs
     """
@@ -71,7 +73,8 @@ def running_jobs_stored(
 
 @pytest.fixture
 def completed_jobs_stored(
-        jm, completed_jobs, result_set_stored, mock_post_json):
+        jm, failure_classifications, completed_jobs, result_set_stored,
+        mock_post_json):
     """
     stores a list of buildapi completed jobs
     """
