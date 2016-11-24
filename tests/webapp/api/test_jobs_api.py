@@ -14,20 +14,30 @@ from treeherder.model.models import (ExclusionProfile,
 from treeherder.webapp.api.jobs import JobsViewSet
 
 
-def test_job_list(webapp, eleven_jobs_stored, test_repository):
+@pytest.mark.parametrize(('offset', 'count', 'expected_num'),
+                         [(None, None, 10),
+                          (None, 5, 5),
+                          (5, None, 6),
+                          (0, 5, 5),
+                          (10, 10, 1)])
+def test_job_list(webapp, eleven_jobs_stored, test_repository,
+                  offset, count, expected_num):
     """
-    test retrieving a list of ten json blobs from the jobs-list
+    test retrieving a list of json blobs from the jobs-list
     endpoint.
     """
-    resp = webapp.get(
-        reverse("jobs-list",
-                kwargs={"project": test_repository.name})
-    )
+    url = reverse("jobs-list",
+                  kwargs={"project": test_repository.name})
+    params = '&'.join(['{}={}'.format(k, v) for k, v in
+                       [('offset', offset), ('count', count)] if v])
+    if params:
+        url += '?{}'.format(params)
+    resp = webapp.get(url)
     assert resp.status_int == 200
     response_dict = resp.json
     jobs = response_dict["results"]
     assert isinstance(jobs, list)
-    assert len(jobs) == 10
+    assert len(jobs) == expected_num
     exp_keys = [
         "submit_timestamp",
         "start_timestamp",
@@ -461,16 +471,27 @@ def test_text_log_errors(webapp, eleven_jobs_stored, jm, test_repository):
     ]
 
 
-def test_list_similar_jobs(webapp, eleven_jobs_stored, jm):
+@pytest.mark.parametrize(('offset', 'count', 'expected_num'),
+                         [(None, None, 3),
+                          (None, 2, 2),
+                          (1, None, 2),
+                          (0, 1, 1),
+                          (2, 10, 1)])
+def test_list_similar_jobs(webapp, eleven_jobs_stored, jm,
+                           offset, count, expected_num):
     """
     test retrieving similar jobs
     """
     job = jm.get_job(1)[0]
 
-    resp = webapp.get(
-        reverse("jobs-similar-jobs",
-                kwargs={"project": jm.project, "pk": job["id"]})
-    )
+    url = reverse("jobs-similar-jobs",
+                  kwargs={"project": jm.project, "pk": job["id"]})
+    params = '&'.join(['{}={}'.format(k, v) for k, v in
+                       [('offset', offset), ('count', count)] if v])
+    if params:
+        url += '?{}'.format(params)
+    resp = webapp.get(url)
+
     assert resp.status_int == 200
 
     similar_jobs = resp.json
@@ -479,7 +500,7 @@ def test_list_similar_jobs(webapp, eleven_jobs_stored, jm):
 
     assert isinstance(similar_jobs['results'], list)
 
-    assert len(similar_jobs['results']) == 3
+    assert len(similar_jobs['results']) == expected_num
 
 
 def test_job_create(webapp, test_repository, test_user, eleven_job_blobs,
@@ -492,7 +513,9 @@ def test_job_create(webapp, test_repository, test_user, eleven_job_blobs,
     resp = client.post(url, data=eleven_job_blobs, format="json")
 
     assert resp.status_code == 200
-    test_job_list(webapp, None, test_repository)
+
+    # test that the jobs were actually created
+    test_job_list(webapp, None, test_repository, None, None, 10)
     test_job_detail(webapp, None, jm)
 
 
@@ -502,20 +525,16 @@ def test_job_create(webapp, test_repository, test_user, eleven_job_blobs,
     ("last_modified__gt",  "-Infinity", HTTP_400_BAD_REQUEST, 0),
     ("last_modified__gt",  "whatever", HTTP_400_BAD_REQUEST, 0),
     ])
-def test_last_modified(webapp, jm, eleven_jobs_stored, test_project,
+def test_last_modified(webapp, eleven_jobs_stored, test_project,
                        lm_key, lm_value, exp_status, exp_job_count):
     try:
         param_date = parser.parse(lm_value)
         newer_date = param_date - datetime.timedelta(minutes=10)
 
-        jobs = jm.get_job_list(0, 11)
-        gt_ids = [str(x["id"]) for x in jobs[:3]]
-        # modify job last_modified
-        jm.execute(
-            proc="jobs_test.updates.set_jobs_last_modified",
-            placeholders=[str(newer_date)],
-            replace=[",".join(gt_ids)]
-        )
+        # modify job last_modified for 3 jobs
+        Job.objects.filter(
+            id__in=[j.id for j in Job.objects.all()[:3]]).update(
+                last_modified=newer_date)
     except ValueError:
         # no problem.  these params are the wrong
         pass

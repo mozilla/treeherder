@@ -1,20 +1,16 @@
 from django.core.urlresolvers import reverse
 
-from treeherder.model.models import (Job,
-                                     JobLog)
+from tests.test_utils import create_generic_job
+from treeherder.model.models import JobLog
 
 
-def test_get_job_log_urls(test_repository, result_set_stored, webapp):
-    job1 = Job.objects.create(
-        repository=test_repository,
-        guid='1234',
-        push_id=1,
-        project_specific_id=1)
-    job2 = Job.objects.create(
-        repository=test_repository,
-        guid='5678',
-        push_id=1,
-        project_specific_id=2)
+def test_get_job_log_urls(test_repository, result_set_stored,
+                          failure_classifications,
+                          generic_reference_data, webapp):
+    job1 = create_generic_job('1234', test_repository, 1, 1,
+                              generic_reference_data)
+    job2 = create_generic_job('5678', test_repository, 1, 2,
+                              generic_reference_data)
 
     JobLog.objects.create(job=job1,
                           name='test_log_1',

@@ -115,46 +115,9 @@
         }
     },
     "selects":{
-        "get_max_job_start_timestamp":{
-            "sql": "SELECT MAX(`start_timestamp`) AS 'start_timestamp' FROM `job`",
-            "host_type":"master_host"
-        },
-        "get_average_job_durations":{
-            "sql":"SELECT signature,
-                          CAST(
-                            ROUND( AVG(end_timestamp - start_timestamp) )
-                            AS UNSIGNED) AS 'average_duration'
-                   FROM job
-                   WHERE start_timestamp >= ? AND
-                         end_timestamp >= start_timestamp AND
-                         end_timestamp is NOT NULL
-                   GROUP BY signature",
-            "host_type":"read_host"
-        },
-        "get_signature_list_from_job_ids":{
-
-            "sql":"SELECT j.id,
-                          j.result_set_id,
-                          j.push_id,
-                          j.job_guid,
-                          j.signature
-                   FROM job AS j
-                   WHERE j.id IN (REP0)",
-            "host_type":"master_host"
-
-        },
-
         "get_jobs_to_cycle":{
             "sql":"SELECT id, job_guid FROM job WHERE submit_timestamp < ?",
             "host_type":"master_host"
-        },
-
-        "get_incomplete_job_ids": {
-            "sql": "SELECT j.id
-                    FROM job as j
-                    WHERE j.state <> 'completed'
-                    AND j.push_id = ?",
-            "host_type":"read_host"
         },
 
         "get_job":{
@@ -339,14 +302,6 @@
                    WHERE `active_status` = 'active' AND `job_guid` IN (REP0)",
             "host_type": "master_host"
         },
-        "get_job_guids_in_states":{
-            "sql":"SELECT `job_guid`
-                   FROM `job`
-                   WHERE
-                   REP0
-                   ",
-            "host_type": "master_host"
-        },
         "get_jobs_by_coalesced_guids":{
 
             "sql":"SELECT `id`, `job_guid`, `job_coalesced_to_guid`
@@ -372,19 +327,6 @@
                    REP1
                    group by state, result
                    ",
-            "host_type": "read_host"
-        },
-        "get_job_retriggers":{
-            "sql":"SELECT
-                    job.job_guid,
-                    job.result
-                   FROM job
-                   JOIN job as ref_job ON
-                    job.signature = ref_job.signature AND
-                    job.push_id = ref_job.push_id
-                   WHERE
-                    job.state = 'completed' AND
-                    ref_job.job_guid = ?",
             "host_type": "read_host"
         }
     }

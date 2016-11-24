@@ -281,10 +281,14 @@ class ResultSetViewSet(viewsets.ViewSet):
         return Response({"message": "well-formed JSON stored"})
 
     @detail_route()
-    @with_jobs
-    def status(self, request, project, jm, pk=None):
+    def status(self, request, project, pk=None):
         """
         Return a count of the jobs belonging to this push (resultset)
         grouped by job status.
         """
-        return Response(jm.get_push_status(pk))
+        try:
+            push = Push.objects.get(id=pk)
+        except Push.DoesNotExist:
+            return Response("No result set with id: {0}".format(pk),
+                            status=HTTP_404_NOT_FOUND)
+        return Response(push.get_status())

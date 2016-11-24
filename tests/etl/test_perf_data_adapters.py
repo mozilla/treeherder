@@ -5,34 +5,15 @@ import time
 
 import pytest
 
-from treeherder.etl.perf import load_perf_artifacts
-from treeherder.model.models import (Job,
-                                     MachinePlatform,
-                                     Option,
-                                     OptionCollection,
-                                     Push,
+from tests.test_utils import create_generic_job
+from treeherder.etl.perf import load_perf_artifact
+from treeherder.model.models import (Push,
                                      Repository)
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceDatum,
                                     PerformanceFramework,
                                     PerformanceSignature)
-
-
-@pytest.fixture
-def perf_option_collection():
-    option, _ = Option.objects.get_or_create(name='my_option')
-    return OptionCollection.objects.get_or_create(
-        option_collection_hash='my_option_hash',
-        option=option)[0]
-
-
-@pytest.fixture
-def perf_platform():
-    return MachinePlatform.objects.get_or_create(
-        os_name="my_os",
-        platform="my_platform",
-        architecture="x86")[0]
 
 
 @pytest.fixture
@@ -45,28 +26,13 @@ def perf_push(test_repository):
 
 
 @pytest.fixture
-def perf_job(perf_push):
-    return Job.objects.create(
-        repository=perf_push.repository,
-        guid='myfunguid',
-        push=perf_push,
-        project_specific_id=1)
-
-
-@pytest.fixture
-def perf_reference_data():
-    return {
-        'option_collection_hash': 'my_option_hash',
-        'machine_platform': 'my_platform',
-        'property1': 'value1',
-        'property2': 'value2',
-        'property3': 'value3'
-    }
+def perf_job(perf_push, failure_classifications, generic_reference_data):
+    return create_generic_job('myfunguid', perf_push.repository,
+                              perf_push.id, 1, generic_reference_data)
 
 
 def _generate_perf_data_range(test_project, test_repository,
-                              perf_option_collection, perf_platform,
-                              perf_reference_data,
+                              generic_reference_data,
                               create_perf_framework=True,
                               enable_framework=True,
                               add_suite_value=False,
@@ -79,15 +45,14 @@ def _generate_perf_data_range(test_project, test_repository,
     now = int(time.time())
 
     for (i, value) in zip(range(30), [1]*15 + [2]*15):
+        push_time = datetime.datetime.fromtimestamp(now+i)
         push = Push.objects.create(
             repository=test_repository,
             revision='abcdefgh%s' % i,
             author='foo@bar.com',
-            time=datetime.datetime.fromtimestamp(now+i))
-        job = Job.objects.create(repository=test_repository,
-                                 guid='myguid%s' % i,
-                                 push=push,
-                                 project_specific_id=i)
+            time=push_time)
+        job = create_generic_job('myguid%s' % i, test_repository,
+                                 push.id, i, generic_reference_data)
         datum = {
             'job_guid': 'fake_job_guid',
             'name': 'test',
@@ -120,7 +85,7 @@ def _generate_perf_data_range(test_project, test_repository,
         submit_datum['blob'] = json.dumps({
             'performance_data': submit_datum['blob']
         })
-        load_perf_artifacts(job, perf_reference_data, submit_datum)
+        load_perf_artifact(job, submit_datum)
 
 
 def _verify_signature(repo_name, framework_name, suitename,
@@ -160,9 +125,7 @@ def _verify_datum(suitename, testname, value, push_timestamp):
 
 
 def test_load_generic_data(test_project, test_repository,
-                           perf_option_collection, perf_platform,
-                           perf_push, perf_job, perf_reference_data,
-                           jm):
+                           perf_push, perf_job, generic_reference_data):
     framework_name = 'cheezburger'
     PerformanceFramework.objects.get_or_create(name=framework_name, enabled=True)
 
@@ -226,8 +189,7 @@ def test_load_generic_data(test_project, test_repository,
         'performance_data': submit_datum['blob']
     })
 
-    load_perf_artifacts(perf_job, perf_reference_data,
-                        submit_datum)
+    load_perf_artifact(perf_job, submit_datum)
     assert 8 == PerformanceSignature.objects.all().count()
     assert 1 == PerformanceFramework.objects.all().count()
     framework = PerformanceFramework.objects.all()[0]
@@ -274,12 +236,9 @@ def test_load_generic_data(test_project, test_repository,
         revision='1234abcd12',
         author='foo@bar.com',
         time=later_timestamp)
-    later_job = Job.objects.create(
-        repository=test_repository,
-        push=later_push,
-        guid='laterguid',
-        project_specific_id=2)
-    load_perf_artifacts(later_job, perf_reference_data, submit_datum)
+    later_job = create_generic_job('lateguid', test_repository,
+                                   later_push.id, 2, generic_reference_data)
+    load_perf_artifact(later_job, submit_datum)
     signature = PerformanceSignature.objects.get(
         suite=perf_datum['suites'][0]['name'],
         test=perf_datum['suites'][0]['subtests'][0]['name'])
@@ -287,11 +246,10 @@ def test_load_generic_data(test_project, test_repository,
 
 
 def test_no_performance_framework(test_project, test_repository,
-                                  perf_option_collection, perf_platform,
-                                  perf_reference_data):
+                                  failure_classifications,
+                                  generic_reference_data):
     _generate_perf_data_range(test_project, test_repository,
-                              perf_option_collection, perf_platform,
-                              perf_reference_data,
+                              generic_reference_data,
                               create_perf_framework=False
                               )
     # no errors, but no data either
@@ -301,10 +259,7 @@ def test_no_performance_framework(test_project, test_repository,
 
 def test_same_signature_multiple_performance_frameworks(test_project,
                                                         test_repository,
-                                                        perf_option_collection,
-                                                        perf_platform,
-                                                        perf_job,
-                                                        perf_reference_data):
+                                                        perf_job):
     framework_names = ['cheezburger1', 'cheezburger2']
     for framework_name in framework_names:
         PerformanceFramework.objects.create(name=framework_name, enabled=True)
@@ -333,7 +288,7 @@ def test_same_signature_multiple_performance_frameworks(test_project,
             'performance_data': submit_datum['blob']
         })
 
-        load_perf_artifacts(perf_job, perf_reference_data, submit_datum)
+        load_perf_artifact(perf_job, submit_datum)
 
     # we should have 2 performance signature objects, one for each framework
     # and one datum for each signature
@@ -388,13 +343,12 @@ def test_same_signature_multiple_performance_frameworks(test_project,
                                {'shouldAlert': True}, True, True),
                         ])
 def test_alert_generation(test_project, test_repository,
-                          perf_option_collection, perf_platform,
-                          perf_reference_data, add_suite_value,
-                          extra_suite_metadata, extra_subtest_metadata,
-                          expected_subtest_alert, expected_suite_alert):
+                          failure_classifications, generic_reference_data,
+                          add_suite_value, extra_suite_metadata,
+                          extra_subtest_metadata, expected_subtest_alert,
+                          expected_suite_alert):
     _generate_perf_data_range(test_project, test_repository,
-                              perf_option_collection, perf_platform,
-                              perf_reference_data,
+                              generic_reference_data,
                               add_suite_value=add_suite_value,
                               extra_suite_metadata=extra_suite_metadata,
                               extra_subtest_metadata=extra_subtest_metadata)
@@ -463,27 +417,25 @@ def test_alert_generation(test_project, test_repository,
 
 
 def test_alert_generation_repo_no_alerts(test_project, test_repository,
-                                         perf_option_collection, perf_platform,
-                                         perf_reference_data):
+                                         failure_classifications,
+                                         generic_reference_data):
     # validates that no alerts generated on "try" repos
     test_repository.performance_alerts_enabled = False
     test_repository.save()
 
     _generate_perf_data_range(test_project, test_repository,
-                              perf_option_collection, perf_platform,
-                              perf_reference_data)
+                              generic_reference_data)
 
     assert 0 == PerformanceAlert.objects.all().count()
     assert 0 == PerformanceAlertSummary.objects.all().count()
 
 
 def test_framework_not_enabled(test_project, test_repository,
-                               perf_option_collection, perf_platform,
-                               perf_reference_data):
+                               failure_classifications,
+                               generic_reference_data):
     # The field enabled has been defaulted to 'False'
     _generate_perf_data_range(test_project, test_repository,
-                              perf_option_collection, perf_platform,
-                              perf_reference_data,
+                              generic_reference_data,
                               create_perf_framework=True,
                               enable_framework=False)
 
