@@ -43,9 +43,6 @@ def _load_perf_datum(job, perf_datum):
         'option_collection_hash': job.signature.option_collection_hash,
         'machine_platform': job.signature.machine_platform
     }
-    if 'e10s' in job.job_type.job_group.symbol:
-        extra_properties = {'test_options': ['e10s']}
-        reference_data['test_options'] = json.dumps(['e10s'])
 
     option_collection = OptionCollection.objects.get(
         option_collection_hash=job.signature.option_collection_hash)
