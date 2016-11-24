@@ -4,15 +4,13 @@ import dateutil.parser
 import simplejson as json
 from django.db import transaction
 from django.db.utils import IntegrityError
-from django.forms import model_to_dict
 
-from treeherder.etl.perf import load_perf_artifacts
+from treeherder.etl.perf import load_perf_artifact
 from treeherder.etl.text import astral_filter
 from treeherder.model import (error_summary,
                               utils)
 from treeherder.model.models import (Job,
                                      JobDetail,
-                                     ReferenceDataSignatures,
                                      TextLogError,
                                      TextLogStep)
 
@@ -104,21 +102,7 @@ class ArtifactsModel(TreeherderModelBase):
         """
         Store a performance data artifact
         """
-
-        # Retrieve list of job signatures associated with the jobs
-        job_data = self.get_job_signatures_from_ids([job.project_specific_id])
-        ref_data_signature_hash = job_data[job.guid]['signature']
-
-        # At the moment there could be multiple signatures returned
-        # by this, but let's just ignore that and take the first
-        # if there are multiple (since the properties we care about should
-        # be the same)
-        ref_data = model_to_dict(ReferenceDataSignatures.objects.filter(
-            signature=ref_data_signature_hash,
-            repository=self.project)[0])
-
-        # adapt and load data into placeholder structures
-        load_perf_artifacts(job, ref_data, artifact)
+        load_perf_artifact(job, artifact)
 
     def load_job_artifacts(self, artifact_data):
         """
@@ -184,24 +168,6 @@ class ArtifactsModel(TreeherderModelBase):
                 logger.error(
                     ('load_job_artifacts: artifact not '
                      'defined for {0}'.format(self.project)))
-
-    def get_job_signatures_from_ids(self, job_ids):
-
-        job_data = {}
-
-        if job_ids:
-
-            jobs_signatures_where_in_clause = [','.join(['%s'] * len(job_ids))]
-
-            job_data = self.execute(
-                proc='jobs.selects.get_signature_list_from_job_ids',
-                debug_show=self.DEBUG,
-                replace=jobs_signatures_where_in_clause,
-                key_column='job_guid',
-                return_type='dict',
-                placeholders=job_ids)
-
-        return job_data
 
     @staticmethod
     def serialize_artifact_json_blobs(artifacts):

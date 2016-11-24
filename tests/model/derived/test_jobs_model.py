@@ -11,7 +11,6 @@ from tests.autoclassify.utils import (create_failure_lines,
                                       test_line)
 from tests.sample_data_generator import (job_data,
                                          result_set)
-from treeherder.model.derived import ArtifactsModel
 from treeherder.model.models import (Commit,
                                      ExclusionProfile,
                                      FailureLine,
@@ -575,19 +574,6 @@ def test_store_result_set_data(jm, test_repository, sample_resultset):
                 revision=commit['revision'],
                 author=commit['author'],
                 comments=commit['comment'])
-
-
-def test_get_job_data(jm, test_project, failure_classifications, sample_data,
-                      sample_resultset, test_repository, mock_log_parser):
-
-    target_len = 10
-    job_data = sample_data.job_data[:target_len]
-    test_utils.do_job_ingestion(jm, job_data, sample_resultset)
-
-    with ArtifactsModel(test_project) as artifacts_model:
-        job_data = artifacts_model.get_job_signatures_from_ids(range(1, 11))
-
-    assert len(job_data) is target_len
 
 
 def test_remove_existing_jobs_single_existing(jm, failure_classifications,
