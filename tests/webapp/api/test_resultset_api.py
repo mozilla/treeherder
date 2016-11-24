@@ -419,8 +419,9 @@ def test_resultset_create(jm, test_repository, sample_resultset,
         [rs['revision'] for rs in sample_resultset])
 
 
-def test_resultset_cancel_all(jm, push_with_three_jobs,
-                              pulse_action_consumer, test_user):
+def test_resultset_cancel_all(jm, failure_classifications,
+                              push_with_three_jobs, pulse_action_consumer,
+                              test_user):
     """
     Issue cancellation of a resultset with three unfinished jobs.
     """
@@ -454,9 +455,8 @@ def test_resultset_status(webapp, test_job, test_user):
     """
     test retrieving the status of a resultset
     """
-    # create a failure classification corresponding to "not successful"
-    failure_classification = FailureClassification.objects.create(
-        id=2, name="fixed by commit")
+    failure_classification = FailureClassification.objects.get(
+        name="fixed by commit")
 
     push = test_job.push
 

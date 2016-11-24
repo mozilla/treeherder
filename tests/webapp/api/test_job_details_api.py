@@ -1,11 +1,13 @@
 from django.core.urlresolvers import reverse
 
+from tests.test_utils import create_generic_job
 from treeherder.model.models import (Job,
                                      JobDetail,
                                      Repository)
 
 
-def test_job_details(test_repository, result_set_stored, webapp):
+def test_job_details(test_repository, failure_classifications,
+                     generic_reference_data, result_set_stored, webapp):
     details = {
         'abcd': {
             'title': 'title',
@@ -41,10 +43,8 @@ def test_job_details(test_repository, result_set_stored, webapp):
             repository = test_repository2
             i = 1
         print (i, repository)
-        job = Job.objects.create(guid=job_guid,
-                                 repository=repository,
-                                 push_id=1,
-                                 project_specific_id=i)
+        job = create_generic_job(job_guid, repository, 1, i,
+                                 generic_reference_data)
         JobDetail.objects.create(
             job=job, **params)
         i += 1

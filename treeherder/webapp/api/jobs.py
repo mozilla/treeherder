@@ -1,6 +1,9 @@
+import datetime
+
 import django_filters
 from dateutil import parser
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import models as django_models
 from rest_framework import (filters,
                             viewsets)
 from rest_framework.decorators import (detail_route,
@@ -13,19 +16,92 @@ from rest_framework.status import (HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
 
 from treeherder.model.error_summary import get_error_summary
-from treeherder.model.models import (FailureLine,
+from treeherder.model.models import (ExclusionProfile,
+                                     FailureLine,
                                      Job,
                                      JobDetail,
                                      JobLog,
                                      OptionCollection,
+                                     Repository,
                                      TextLogError,
                                      TextLogStep,
                                      TextLogSummary)
 from treeherder.webapp.api import (pagination,
                                    permissions,
                                    serializers)
-from treeherder.webapp.api.utils import (UrlQueryFilter,
+from treeherder.webapp.api.utils import (CharInFilter,
+                                         NumberInFilter,
                                          with_jobs)
+
+
+class JobFilter(django_filters.FilterSet):
+    """
+    We use this gigantic class to provide the same filtering interface
+    as the previous jobs API
+    """
+    id = django_filters.NumberFilter(name='project_specific_id')
+    id__in = NumberInFilter(name='project_specific_id', lookup_expr='in')
+    tier__in = NumberInFilter(name='tier', lookup_expr='in')
+    push_id__in = NumberInFilter(name='push_id', lookup_expr='in')
+    job_guid = django_filters.CharFilter(name='guid')
+    job_guid__in = CharInFilter(name='guid', lookup_expr='in')
+    job_coalesced_to_guid = django_filters.CharFilter(name='coalesced_to_guid')
+    build_architecture = django_filters.CharFilter(
+        name='build_platform__architecture')
+    build_os = django_filters.CharFilter(
+        name='build_platform__os_name')
+    build_platform = django_filters.CharFilter(
+        name='build_platform__platform')
+    build_system_type = django_filters.CharFilter(
+        name='signature__build_system_type')
+    job_group_id = django_filters.NumberFilter(
+        name='job_type__job_group_id')
+    job_group_name = django_filters.CharFilter(
+        name='job_type__job_group__name')
+    job_group_symbol = django_filters.CharFilter(
+        name='job_type__job_group__symbol')
+    job_type_name = django_filters.CharFilter(
+        name='job_type__name')
+    job_type_symbol = django_filters.CharFilter(
+        name='job_type__symbol')
+    machine_name = django_filters.CharFilter(
+        name='machine__name')
+    machine_platform_architecture = django_filters.CharFilter(
+        name='machine_platform__architecture')
+    machine_platform_os = django_filters.CharFilter(
+        name='machine_platform__os_name')
+    platform = django_filters.CharFilter(
+        name='machine_platform__platform')
+    ref_data_name = django_filters.CharFilter(
+        name='signature__name')
+    signature = django_filters.CharFilter(
+        name='signature__signature')
+
+    class Meta:
+        model = Job
+        fields = {
+            'option_collection_hash': ['exact'],
+            'build_platform_id': ['exact'],
+            'failure_classification_id': ['exact'],
+            'job_type_id': ['exact'],
+            'reason': ['exact'],
+            'state': ['exact'],
+            'result': ['exact'],
+            'who': ['exact'],
+            'tier': ['lt', 'lte', 'exact', 'gt', 'gte'],
+            'build_platform_id': ['exact'],
+            'id': ['lt', 'lte', 'exact', 'gt', 'gte'],
+            'push_id': ['lt', 'lte', 'exact', 'gt', 'gte'],
+            'last_modified': ['lt', 'lte', 'exact', 'gt', 'gte'],
+            'submit_time': ['lt', 'lte', 'exact', 'gt', 'gte'],
+            'start_time': ['lt', 'lte', 'exact', 'gt', 'gte'],
+            'end_time': ['lt', 'lte', 'exact', 'gt', 'gte']
+        }
+        filter_overrides = {
+            django_models.DateTimeField: {
+                'filter_class': django_filters.IsoDateTimeFilter
+            }
+        }
 
 
 class JobsViewSet(viewsets.ViewSet):
@@ -36,6 +112,18 @@ class JobsViewSet(viewsets.ViewSet):
     """
     throttle_scope = 'jobs'
     permission_classes = (permissions.HasHawkPermissionsOrReadOnly,)
+
+    # data that we want to do select_related on when returning job objects
+    # (so we don't have a zillion db queries)
+    _default_select_related = [
+        'build_platform',
+        'job_type',
+        'job_type__job_group',
+        'machine_platform',
+        'machine',
+        'signature',
+        'repository'
+    ]
 
     @staticmethod
     def _get_option_collection_map():
@@ -49,38 +137,37 @@ class JobsViewSet(viewsets.ViewSet):
 
         return option_collection_map
 
-    @with_jobs
-    def retrieve(self, request, project, jm, pk=None):
+    def retrieve(self, request, project, pk=None):
         """
         GET method implementation for detail view
 
         Return a single job with log_references and
         artifact names and links to the artifact blobs.
         """
-        obj = jm.get_job(pk)
-        if not obj:
+        try:
+            job = Job.objects.select_related(
+                *self._default_select_related).get(
+                    repository__name=project, id=pk)
+        except Job.DoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
-        job = obj[0]
-        job["resource_uri"] = reverse("jobs-detail",
-                                      kwargs={"project": jm.project, "pk": job["id"]})
-        job["logs"] = []
-        for (name, url) in JobLog.objects.filter(
-                job__repository__name=jm.project,
-                job__project_specific_id=job['id']).values_list('name', 'url'):
-            job["logs"].append({'name': name, 'url': url})
+        resp = serializers.JobSerializer(job).data
 
-        option_hash = job['option_collection_hash']
+        resp["resource_uri"] = reverse("jobs-detail",
+                                       kwargs={"project": project, "pk": pk})
+        resp["logs"] = []
+        for (name, url) in JobLog.objects.filter(job=job).values_list(
+                'name', 'url'):
+            resp["logs"].append({'name': name, 'url': url})
+
+        option_hash = job.option_collection_hash
         if option_hash:
             option_collection_map = self._get_option_collection_map()
-            job["platform_option"] = option_collection_map[option_hash]
+            resp["platform_option"] = option_collection_map[option_hash]
 
-        job['result_set_id'] = job['push_id']
+        return Response(resp)
 
-        return Response(job)
-
-    @with_jobs
-    def list(self, request, project, jm):
+    def list(self, request, project):
         """
         GET method implementation for list view
         Optional parameters (default):
@@ -93,43 +180,85 @@ class JobsViewSet(viewsets.ViewSet):
         # make a mutable copy of these params
         filter_params = request.query_params.copy()
 
-        # horrible hack to replace `result_set_id` with `push_id`
+        # various hacks to ensure API backwards compatibility
         for param_key in filter_params.keys():
+            # replace `result_set_id` with `push_id`
             if param_key.startswith('result_set_id'):
                 new_param_key = param_key.replace('result_set_id', 'push_id')
                 filter_params[new_param_key] = filter_params[param_key]
                 del filter_params[param_key]
-
-        filter = UrlQueryFilter(filter_params)
-
-        offset = int(filter.pop("offset", 0))
-        count = int(filter.pop("count", 10))
-
-        if "last_modified" in filter.conditions:
-            # could be more than one, this is a set
-            for lm in filter.conditions["last_modified"]:
-                datestr = lm[1]
+            # convert legacy timestamp parameters to time ones
+            elif param_key in ['submit_timestamp', 'start_timestamp',
+                               'end_timestamp']:
+                new_param_key = param_key.replace('timestamp', 'time')
+                filter_params[new_param_key] = datetime.datetime.fromtimestamp(
+                    float(filter_params[param_key]))
+                del filter_params[param_key]
+            # sanity check 'last modified'
+            elif param_key.startswith('last_modified'):
+                datestr = filter_params[param_key]
                 try:
-                    # ensure last_modified is a date
                     parser.parse(datestr)
                 except ValueError:
                     return Response(
                         "Invalid date value for `last_modified`: {}".format(datestr),
                         status=HTTP_400_BAD_REQUEST)
 
+        offset = int(filter_params.get("offset", 0))
+        count = int(filter_params.get("value", 10))
+        return_type = filter_params.get("return_type", "dict").lower()
+        exclusion_profile = filter_params.get("exclusion_profile", "default")
+        visibility = filter_params.get("visibility", "included")
+        if exclusion_profile in ('false', 'null'):
+            exclusion_profile = None
+
         if count > MAX_JOBS_COUNT:
             msg = "Specified count exceeds API MAX_JOBS_COUNT value: {}".format(MAX_JOBS_COUNT)
             return Response({"error": msg}, status=HTTP_400_BAD_REQUEST)
 
-        return_type = filter.pop("return_type", "dict").lower()
-        exclusion_profile = filter.pop("exclusion_profile", "default")
-        visibility = filter.pop("visibility", "included")
-        if exclusion_profile in ('false', 'null'):
-            exclusion_profile = None
-        results = jm.get_job_list(offset, count, conditions=filter.conditions,
-                                  exclusion_profile=exclusion_profile,
-                                  visibility=visibility)
+        try:
+            repository = Repository.objects.get(name=project)
+        except Repository.DoesNotExist:
+            return Response({
+                "detail": "No project with name {}".format(project)
+            }, status=HTTP_404_NOT_FOUND)
 
+        jobs = JobFilter({k: v for (k, v) in filter_params.iteritems()},
+                         queryset=Job.objects.filter(
+                             repository=repository).select_related(
+                                 *self._default_select_related)).qs
+
+        if exclusion_profile:
+            try:
+                signatures = ExclusionProfile.objects.get_signatures_for_project(
+                    project, exclusion_profile)
+                if signatures:
+                    # NOT here means "not part of the exclusion profile"
+                    if visibility == "included":
+                        jobs = jobs.exclude(
+                            signature__signature__in=signatures)
+                    else:
+                        jobs = jobs.filter(
+                            signature__signature__in=signatures)
+                else:
+                    # this repo/project has no hidden signatures
+                    # if ``visibility`` is set to ``included`` then it's
+                    # meaningless to add any of these limiting params to the
+                    # query, just run it and give the user everything for the
+                    # project.
+                    #
+                    # If ``visibility`` is ``excluded`` then we only want to
+                    # include jobs that were excluded by this profile.  Since
+                    # no jobs are excluded for this project, we should return
+                    # an empty array and skip the query altogether.
+                    if visibility == "excluded":
+                        jobs = []
+            except ExclusionProfile.DoesNotExist:
+                # Either there's no default profile setup or the profile
+                # specified is not available
+                pass
+
+        results = serializers.JobSerializer(jobs[offset:count], many=True).data
         if results:
             option_collection_map = self._get_option_collection_map()
             for job in results:
@@ -137,12 +266,7 @@ class JobsViewSet(viewsets.ViewSet):
                 if option_hash:
                     job["platform_option"] = option_collection_map[option_hash]
 
-        # add result set id for backwards compatibility
-        for result in results:
-            result['result_set_id'] = result['push_id']
-
         response_body = dict(meta={"repository": project}, results=[])
-
         if results and return_type == "list":
             response_body["job_property_names"] = results[0].keys()
             results = [job.values() for job in results]
@@ -327,30 +451,51 @@ class JobsViewSet(viewsets.ViewSet):
         return Response(get_error_summary(job))
 
     @detail_route(methods=['get'])
-    @with_jobs
-    def similar_jobs(self, request, project, jm, pk=None):
+    def similar_jobs(self, request, project, pk=None):
         """
         Get a list of jobs similar to the one selected.
         """
-        job = jm.get_job(pk)
-        if not job:
-            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+        try:
+            repository = Repository.objects.get(name=project)
+        except Repository.DoesNotExist:
+            return Response({
+                "detail": "No project with name {}".format(project)
+            }, status=HTTP_404_NOT_FOUND)
 
-        query_params = request.query_params.copy()
-        query_params['job_type_id'] = job[0]['job_type_id']
-        query_params['id__ne'] = job[0]['id']
-        url_query_filter = UrlQueryFilter(query_params)
-        offset = int(url_query_filter.pop("offset", 0))
+        try:
+            job = Job.objects.get(repository=repository,
+                                  project_specific_id=pk)
+        except ObjectDoesNotExist:
+            return Response("No job with id: {0}".format(pk),
+                            status=HTTP_404_NOT_FOUND)
+
+        filter_params = request.query_params.copy()
+
+        offset = int(filter_params.get("offset", 0))
         # we don't need a big page size on this endoint,
         # let's cap it to 50 elements
-        count = min(int(url_query_filter.pop("count", 10)), 50)
-        return_type = url_query_filter.pop("return_type", "dict").lower()
-        results = jm.get_job_list_sorted(offset, count,
-                                         conditions=url_query_filter.conditions)
+        count = int(filter_params.get("value", 50))
 
-        # add result set id for backwards compatibility
-        for result in results:
-            result['result_set_id'] = result['push_id']
+        return_type = filter_params.get("return_type", "dict").lower()
+
+        jobs = JobFilter({k: v for (k, v) in filter_params.iteritems()},
+                         queryset=Job.objects.filter(
+                             job_type_id=job.job_type_id,
+                             repository=repository).exclude(
+                                 id=job.id).select_related(
+                                     'build_platform',
+                                     'job_type',
+                                     'job_type__job_group',
+                                     'machine_platform',
+                                     'machine',
+                                     'push__time',
+                                     'signature',
+                                     'repository')).qs
+
+        # similar jobs we want in descending order from most recent
+        jobs = jobs.order_by('-push__time')[offset:count]
+
+        results = serializers.JobSerializer(jobs[offset:count], many=True).data
 
         response_body = dict(meta={"repository": project}, results=[])
 

@@ -5,8 +5,8 @@ import responses
 from django.core.urlresolvers import reverse
 from django.utils.six import BytesIO
 
-from treeherder.model.models import (Job,
-                                     JobLog)
+from tests.test_utils import create_generic_job
+from treeherder.model.models import JobLog
 
 
 @pytest.mark.parametrize('logname, line_range, gzipped, num_loads', [
@@ -17,11 +17,12 @@ from treeherder.model.models import (Job,
     ('builds-4h', (0, 10), False, 2),
     ('builds-4h', (5, 8), True, 1),
     ('builds-4h', (1, 11), True, 1)])
-def test_logslice_api(test_repository, result_set_stored, webapp,
+def test_logslice_api(test_repository, failure_classifications,
+                      generic_reference_data, result_set_stored, webapp,
                       activate_responses, logname, line_range, gzipped,
                       num_loads):
-    job = Job.objects.create(repository=test_repository,
-                             guid="12345", push_id=1, project_specific_id=1)
+    job = create_generic_job('12345', test_repository, 1, 1,
+                             generic_reference_data)
     fake_log_url = 'http://www.fakelog.com/log.gz'
     JobLog.objects.create(job=job, name=logname,
                           url=fake_log_url, status=JobLog.PARSED)
