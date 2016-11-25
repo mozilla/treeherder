@@ -18,7 +18,7 @@ as of November 2016 (obviously you should replace `myuser` and
 .. code-block:: sql
 
     CREATE USER 'myuser' IDENTIFIED BY 'mysecurepassword';
-    GRANT SELECT (id, username, email) ON treeherder.user to 'myuser' REQUIRE SSL;
+    GRANT SELECT (id, username, email) ON treeherder.auth_user to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.bug_job_map to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.bugscache to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.build_platform to 'myuser' REQUIRE SSL;
