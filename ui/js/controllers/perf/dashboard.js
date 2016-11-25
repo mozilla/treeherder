@@ -31,6 +31,10 @@ perf.controller('dashCtrl', [
                 return series.options.indexOf('pgo') >= 0 ||
                        (series.platform === 'osx-10-10' && series.options.indexOf('opt') >= 0);
             }
+            if ($scope.topic === "hasal") {
+                return series.options.indexOf('firefox') >= 0 ||
+                       series.options.indexOf('chrome') >= 0;
+            }
         }
 
         function loadData() {
