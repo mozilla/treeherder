@@ -9,9 +9,7 @@ from treeherder.model.derived import JobsModel
 from treeherder.model.models import (Datasource,
                                      JobGroup,
                                      JobType,
-                                     Machine,
-                                     TaskSetMeta)
-from treeherder.model.utils import orm_delete
+                                     Machine)
 
 
 class Command(BaseCommand):
@@ -71,9 +69,6 @@ class Command(BaseCommand):
         self.cycle_non_job_data(options['chunk_size'], options['sleep_time'])
 
     def cycle_non_job_data(self, chunk_size, sleep_time):
-        orm_delete(TaskSetMeta, TaskSetMeta.objects.filter(count=0),
-                   chunk_size, sleep_time)
-
         (used_job_type_ids, used_machine_ids) = (set(), set())
         for d in Datasource.objects.all():
             db_options = settings.DATABASES['default'].get('OPTIONS', {})

@@ -22,8 +22,7 @@ from treeherder.model.models import (Commit,
                                      JobLog,
                                      JobType,
                                      Machine,
-                                     Push,
-                                     TaskSetMeta)
+                                     Push)
 from treeherder.model.search import (TestFailureLine,
                                      refresh_all)
 
@@ -484,19 +483,6 @@ def test_cycle_all_data_in_chunks(jm, failure_classifications, sample_data,
     assert FailureLine.objects.count() == 0
     assert JobDetail.objects.count() == 0
     assert TestFailureLine.search().params(search_type="count").execute().hits.total == 0
-
-
-def test_cycle_task_set_meta(jm):
-    to_delete = TaskSetMeta(count=0)
-    to_delete.save()
-    to_keep = TaskSetMeta(count=1)
-    to_keep.save()
-
-    assert [item.id for item in TaskSetMeta.objects.all()] == [to_delete.id, to_keep.id]
-
-    call_command('cycle_data', sleep_time=0, days=1, chunk_size=3)
-
-    assert [item.id for item in TaskSetMeta.objects.all()] == [to_keep.id]
 
 
 def test_cycle_job_model_reference_data(jm, failure_classifications,
