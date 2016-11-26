@@ -6,5 +6,3 @@ omit =
   */migrations/*
   treeherder/config/wsgi.py
   treeherder/config/settings.py
-  treeherder/config/settings_local.py
-  treeherder/config/settings_local.example.py

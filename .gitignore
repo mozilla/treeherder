@@ -22,7 +22,6 @@ node_modules/
 deployment/update/commander_settings.py
 dist/
 docs/_build/
-treeherder/config/settings_local.py
 treeherder/media/
 treeherder/static/
 treeherder/webapp/log_cache/

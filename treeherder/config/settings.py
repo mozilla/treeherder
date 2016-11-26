@@ -453,8 +453,6 @@ PULSE_EXCHANGE_NAMESPACE = env("PULSE_EXCHANGE_NAMESPACE", default=None)
 
 # Specifies the Pulse exchanges Treeherder will ingest data from.  This list
 # will be updated as new applications come online that Treeherder supports.
-# Can be overridden in settings_local.py to specify fewer or completely different
-# exchanges for testing purposes on local machines.
 # Treeherder will subscribe with routing keys that are all combinations of
 # ``project`` and ``destination`` in the form of:
 #     <destination>.<project>
@@ -527,19 +525,6 @@ PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE = False
 
 GITHUB_CLIENT_ID = env("GITHUB_CLIENT_ID", default=None)
 GITHUB_CLIENT_SECRET = env("GITHUB_CLIENT_SECRET", default=None)
-
-# The git-ignored settings_local.py file should only be used for local development.
-if env.bool("ENABLE_LOCAL_SETTINGS_FILE", default=False):
-    # Note: All the configs below this import will take precedence over what is
-    # defined in settings_local.py!
-    try:
-        assert "update" not in globals()
-        from .settings_local import *
-        if "update" in globals():
-            update(globals())
-            del globals()['update']
-    except ImportError:
-        pass
 
 TEMPLATE_DEBUG = DEBUG
 
