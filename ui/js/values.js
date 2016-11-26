@@ -361,6 +361,18 @@ treeherder.value("phDashboardValues",
             linkUrl: "https://wiki.mozilla.org/index.php?title=Electrolysis/Release_Criteria",
             variantDataOpt: "e10s",
             variantTitle: "e10s"
+        },
+        hasal: {
+            baseTitle: "chrome",
+            defaultRepo: "mozilla-central",
+            descP1: "Comparing Firefox with Chrome browser.",
+            descP2: "For more information, see ",
+            linkDesc: "the Hasal repo.",
+            linkUrl: "https://github.com/Mozilla-TWQA/Hasal",
+            framework: 9,
+            header: "Perfherder hasal dashboard",
+            variantDataOpt: "firefox",
+            variantTitle: "firefox"
         }
     }
 );
