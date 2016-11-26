@@ -141,7 +141,8 @@ INSTALLED_APPS = [
     'treeherder.credentials',
 ]
 
-LOCAL_APPS = []
+if ENABLE_DEBUG_TOOLBAR:
+    INSTALLED_APPS.append('debug_toolbar')
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -504,8 +505,6 @@ if env.bool("ENABLE_LOCAL_SETTINGS_FILE", default=False):
             del globals()['update']
     except ImportError:
         pass
-
-INSTALLED_APPS += LOCAL_APPS
 
 TEMPLATE_DEBUG = DEBUG
 

@@ -1,9 +1,6 @@
 # Switch to using a different bugzilla instance
 BZ_API_URL = "https://bugzilla-dev.allizom.org"
 
-# Applications useful for development, e.g. debug_toolbar, django_extensions.
-LOCAL_APPS = ['debug_toolbar']
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
