@@ -184,6 +184,41 @@ LOGGING = {
     }
 }
 
+if DEBUG:
+    # TODO: Fold this into the logging config above, as part of bug 1318021.
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': True,
+        'formatters': {
+            'standard': {
+                'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            },
+        },
+        'handlers': {
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+                'formatter': 'standard'
+            },
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': True,
+            },
+            'hawkrest': {
+                'handlers': ['console'],
+                'level': 'WARNING',
+            },
+            'treeherder': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+                'propagate': False,
+            }
+        }
+    }
+
 CELERY_QUEUES = [
     Queue('default', Exchange('default'), routing_key='default'),
     # queue for failed jobs/logs
