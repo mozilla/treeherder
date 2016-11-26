@@ -19,7 +19,6 @@ node_modules/
 \#*
 
 # Treeherder-specific
-deployment/update/commander_settings.py
 dist/
 docs/_build/
 treeherder/media/
