@@ -210,14 +210,14 @@ class MachinePlatform(models.Model):
 
 @python_2_unicode_compatible
 class Bugscache(models.Model):
-    id = models.AutoField(primary_key=True)
-    status = models.CharField(max_length=64, blank=True, db_index=True)
+    id = models.PositiveIntegerField(primary_key=True)
+    status = models.CharField(max_length=64, db_index=True)
     resolution = models.CharField(max_length=64, blank=True, db_index=True)
     summary = models.CharField(max_length=255)
     crash_signature = models.TextField(blank=True)
     keywords = models.TextField(blank=True)
     os = models.CharField(max_length=64, blank=True)
-    modified = models.DateTimeField(null=True, blank=True)
+    modified = models.DateTimeField()
 
     class Meta:
         db_table = 'bugscache'
