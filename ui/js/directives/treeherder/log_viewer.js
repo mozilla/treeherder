@@ -7,17 +7,15 @@ treeherder.directive('thLogViewer', ['$sce', '$location', ($sce, $location) => {
         link: (scope, elem) => {
             const logParams = () => {
                 const q = $location.search();
+                let params = { lineHeight: 14 };
 
-                if (!q.lineNumber) {
-                    return '';
+                if (q.lineNumber) {
+                    const lines = q.lineNumber.split('-');
+
+                    params.lineNumber = lines[0];
+                    params.highlightStart = lines[0];
+                    params.highlightEnd = lines.length === 2 ? lines[1] : lines[0];
                 }
-
-                const lines = q.lineNumber.split('-');
-                const params = {
-                    lineNumber: lines[0],
-                    highlightStart: lines[0],
-                    highlightEnd: lines.length === 2 ? lines[1] : lines[0]
-                };
 
                 return Object.keys(params)
                   .reduce((qs, key) => `${qs}&${key}=${params[key]}`, '');

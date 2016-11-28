@@ -183,7 +183,7 @@ logViewerApp.controller('LogviewerCtrl', [
                     }
                 }
 
-                css += hideLogToolbarCss();
+                css += logCss();
 
                 $scope.logPostMessage({ customStyle: css });
             });
@@ -216,8 +216,11 @@ logViewerApp.controller('LogviewerCtrl', [
               .concat('{background-color:pink;color:red}');
         }
 
-        function hideLogToolbarCss() {
-            return 'div[id="toolbar"]{display:none}';
+        function logCss() {
+            const hideToolbar = 'div[id="toolbar"]{display:none}';
+            const fontSize = 'html,body{font-size:11px}';
+
+            return hideToolbar + fontSize;
         }
 
         function setlogListener() {
