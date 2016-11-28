@@ -1,6 +1,7 @@
 import datetime
 import time
 
+from tests.test_utils import create_generic_job
 from treeherder.model.models import (Job,
                                      Push)
 from treeherder.perf.alerts import generate_new_alerts_in_series
@@ -31,6 +32,7 @@ def _verify_alert(alertid, expected_push_id, expected_prev_push_id,
 
 
 def _generate_performance_data(test_repository, test_perf_signature,
+                               generic_reference_data,
                                base_timestamp, start_id, value, amount):
     for (t, v) in zip([i for i in range(start_id, start_id + amount)],
                       [value for i in range(start_id, start_id + amount)]):
@@ -41,11 +43,9 @@ def _generate_performance_data(test_repository, test_perf_signature,
                 'author': 'foo@bar.com',
                 'time': datetime.datetime.fromtimestamp(base_timestamp + t)
             })
-        job = Job.objects.create(
-            repository=test_repository,
-            guid='abcd%s' % Job.objects.count(),
-            project_specific_id=Job.objects.count(),
-            push=push)
+        job = create_generic_job('abcd%s' % Job.objects.count(),
+                                 test_repository, push.id, Job.objects.count(),
+                                 generic_reference_data)
         PerformanceDatum.objects.create(
             repository=test_repository,
             result_set_id=t,
@@ -58,13 +58,17 @@ def _generate_performance_data(test_repository, test_perf_signature,
 
 
 def test_detect_alerts_in_series(test_project, test_repository,
+                                 failure_classifications,
+                                 generic_reference_data,
                                  test_perf_signature):
 
     base_time = time.time()  # generate it based off current time
     INTERVAL = 30
     _generate_performance_data(test_repository, test_perf_signature,
+                               generic_reference_data,
                                base_time, 1, 0.5, INTERVAL/2)
     _generate_performance_data(test_repository, test_perf_signature,
+                               generic_reference_data,
                                base_time, (INTERVAL/2) + 1, 1.0, INTERVAL/2)
 
     generate_new_alerts_in_series(test_perf_signature)
@@ -85,6 +89,7 @@ def test_detect_alerts_in_series(test_project, test_repository,
 
     # add data that should be enough to generate a new alert if we rerun
     _generate_performance_data(test_repository, test_perf_signature,
+                               generic_reference_data,
                                base_time, (INTERVAL+1), 2.0, INTERVAL)
     generate_new_alerts_in_series(test_perf_signature)
 
@@ -96,7 +101,8 @@ def test_detect_alerts_in_series(test_project, test_repository,
 
 
 def test_detect_alerts_in_series_with_retriggers(
-        test_project, test_repository, test_perf_signature):
+        test_project, test_repository, failure_classifications,
+        generic_reference_data, test_perf_signature):
 
     # sometimes we detect an alert in the middle of a series
     # where there are retriggers, make sure we handle this case
@@ -106,12 +112,15 @@ def test_detect_alerts_in_series_with_retriggers(
     base_time = time.time()  # generate it based off current time
     for i in range(30):
         _generate_performance_data(test_repository, test_perf_signature,
+                                   generic_reference_data,
                                    base_time, 1, 0.5, 1)
     for i in range(20):
         _generate_performance_data(test_repository, test_perf_signature,
+                                   generic_reference_data,
                                    base_time, 2, 0.5, 1)
     for i in range(40):
         _generate_performance_data(test_repository, test_perf_signature,
+                                   generic_reference_data,
                                    base_time, 2, 1.0, 1)
 
     generate_new_alerts_in_series(test_perf_signature)
@@ -121,12 +130,15 @@ def test_detect_alerts_in_series_with_retriggers(
 
 
 def test_no_alerts_with_old_data(
-        test_project, test_repository, test_perf_signature):
+        test_project, test_repository, failure_classifications,
+        generic_reference_data, test_perf_signature):
     base_time = 0  # 1970, too old!
     INTERVAL = 30
     _generate_performance_data(test_repository, test_perf_signature,
+                               generic_reference_data,
                                base_time, 1, 0.5, INTERVAL/2)
     _generate_performance_data(test_repository, test_perf_signature,
+                               generic_reference_data,
                                base_time, (INTERVAL/2) + 1, 1.0, INTERVAL/2)
 
     generate_new_alerts_in_series(test_perf_signature)
@@ -136,7 +148,8 @@ def test_no_alerts_with_old_data(
 
 
 def test_custom_alert_threshold(
-        test_project, test_repository, test_perf_signature, jm):
+        test_project, test_repository, failure_classifications,
+        generic_reference_data, test_perf_signature, jm):
 
     test_perf_signature.alert_threshold = 200.0
     test_perf_signature.save()
@@ -147,10 +160,13 @@ def test_custom_alert_threshold(
     INTERVAL = 60
     base_time = time.time()
     _generate_performance_data(test_repository, test_perf_signature,
+                               generic_reference_data,
                                base_time, 1, 0.5, INTERVAL/3)
     _generate_performance_data(test_repository, test_perf_signature,
+                               generic_reference_data,
                                base_time, (INTERVAL/3) + 1, 0.6, INTERVAL/3)
     _generate_performance_data(test_repository, test_perf_signature,
+                               generic_reference_data,
                                base_time, 2*(INTERVAL/3) + 1, 2.0, INTERVAL/3)
 
     generate_new_alerts_in_series(test_perf_signature)

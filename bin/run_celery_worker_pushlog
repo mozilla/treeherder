@@ -8,14 +8,8 @@ PATH=$PROJECT_ROOT/venv/bin:$PATH
 
 source /etc/profile.d/treeherder.sh
 
-LOGFILE=/var/log/celery/celery_worker_pushlog.log
-
-if [ ! -f $LOGFILE ]; then
-    touch $LOGFILE
-fi
-
 exec newrelic-admin run-program celery -A treeherder worker \
     -Q pushlog \
-    --concurrency=5 --logfile=$LOGFILE -l INFO \
+    --concurrency=5 -l INFO \
     --maxtasksperchild=500 -n pushlog.%h
 

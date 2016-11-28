@@ -102,13 +102,8 @@ if ENABLE_DEBUG_TOOLBAR:
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'django_browserid.auth.BrowserIDBackend',
+    'treeherder.auth.backends.TaskclusterAuthBackend',
 )
-
-# this tells browserid to not create users.
-# a user must be created first in the admin
-# and then can be recognized with persona login
-BROWSERID_CREATE_USER = True
 
 # Path to redirect to on successful login.
 LOGIN_REDIRECT_URL = '/'
@@ -135,7 +130,6 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'hawkrest',
     'corsheaders',
-    'django_browserid',
     # treeherder apps
     'treeherder.model',
     'treeherder.webapp',
@@ -378,6 +372,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 ALLOWED_HOSTS = [SITE_HOSTNAME]
 
 USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 if SITE_URL.startswith('https://'):
@@ -588,8 +583,6 @@ if env.bool('IS_HEROKU', default=False):
     })
 
 CELERY_IGNORE_RESULT = True
-
-BROWSERID_AUDIENCES = [SITE_URL]
 
 SWAGGER_SETTINGS = {"enabled_methods": ['get', ]}
 

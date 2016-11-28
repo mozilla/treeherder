@@ -25,6 +25,7 @@ Contents:
    troubleshooting
    ui/index
    testcases
+   admin
 
 
 Indices and tables

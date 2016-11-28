@@ -126,7 +126,7 @@ Sharing UI-only changes with others using GitHub Pages
 
 It's possible to share UI-only changes with others (for prototyping/testing) using
 GitHub Pages. This is recommended over pushing a custom branch to stage, unless the
-feature requires that you be logged into Treeherder using Persona (which won't work
+feature requires that you be logged into Treeherder (which won't work
 cross-domain).
 
 To do this:

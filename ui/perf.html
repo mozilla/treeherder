@@ -7,7 +7,6 @@
     <link href="vendor/css/bootstrap.css" rel="stylesheet" media="screen">
     <link href="vendor/css/font-awesome.css" rel="stylesheet" media="screen">
     <link href="css/treeherder-navbar.css" rel="stylesheet" media="screen">
-    <link href="vendor/css/persona-buttons.css" rel="stylesheet" media="screen">
     <link href="css/perf.css" rel="stylesheet" media="screen">
     <!-- endbuild -->
     <link id="favicon" type="image/png" rel="shortcut icon" href="img/line_chart.png">
@@ -39,8 +38,9 @@
           <span class="fa fa-angle-down lightgray"></span>
         </button>
         <ul class="dropdown-menu icon-menu" role="menu">
-          <li><a ui-sref="e10s"><span class="fa fa-bar-chart midgray"></span> e10s</a></li>
-          <li><a ui-sref="e10s_trend"><span class="fa fa-line-chart midgray"></span> e10s-Trend</a></li>
+          <li><a ui-sref="dashboard({topic: 'e10s'})"><span class="fa fa-bar-chart midgray"></span> e10s</a></li>
+          <li><a ui-sref="e10s_trend"><span class="fa fa-line-chart midgray"></span> e10s-trend</a></li>
+          <li><a ui-sref="dashboard({topic: 'hasal', repo: 'mozilla-central'})"><span class="fa fa-bar-chart midgray"></span> hasal</a></li>
         </ul>
       </span>
       <div class="nav navbar-nav navbar-right">
@@ -56,8 +56,8 @@
               ng-include="'partials/perf/helpMenu.html'">
           </ul>
         </span>
-        <!-- Persona login -->
-        <persona-buttons></persona-buttons>
+        <!-- login -->
+        <login on-user-change="$root.user = $event.user"></login>
       </div>
     </div>
   </nav>
@@ -85,6 +85,7 @@
   <script src="vendor/jquery.flot.time.js"></script>
   <script src="vendor/jquery.flot.selection.min.js"></script>
   <script src="vendor/mousetrap.min.js"></script>
+  <script src="vendor/hawk/browser-6.6.0.js"></script>
   <script src="js/treeherder.js"></script>
   <script src="js/services/treestatus.js"></script>
   <script src="js/providers.js"></script>
@@ -109,15 +110,13 @@
   <script src="js/controllers/perf/compare.js"></script>
   <script src="js/controllers/perf/graphs.js"></script>
   <script src="js/controllers/perf/alerts.js"></script>
-  <script src="js/controllers/perf/e10s.js"></script>
+  <script src="js/controllers/perf/dashboard.js"></script>
   <script src="js/controllers/perf/e10s-trend.js"></script>
-  <script src="js/directives/treeherder/persona.js"></script>
   <script src="js/components/perf/compare.js"></script>
+  <script src="js/components/auth.js"></script>
   <script src="js/perfapp.js"></script>
   <script src="js/filters.js"></script>
   <!-- endbuild -->
-
-  <script src="https://login.persona.org/include.js"></script>
 
 </body>
 </html>

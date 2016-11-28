@@ -1,6 +1,7 @@
 import logging
 import time
-from datetime import datetime
+from datetime import (datetime,
+                      timedelta)
 from hashlib import sha1
 
 import newrelic.agent
@@ -13,6 +14,7 @@ from treeherder.model.models import (BuildPlatform,
                                      Commit,
                                      Datasource,
                                      ExclusionProfile,
+                                     FailureClassification,
                                      FailureLine,
                                      Job,
                                      JobDuration,
@@ -243,28 +245,12 @@ class JobsModel(TreeherderModelBase):
             placeholders=[state, job_id],
             debug_show=self.DEBUG
         )
-
-    def get_incomplete_job_ids(self, push_id):
-        """Get list of ids for jobs of a push that are not in complete state."""
-        return self.execute(
-            proc='jobs.selects.get_incomplete_job_ids',
-            placeholders=[push_id],
-            debug_show=self.DEBUG,
-            return_type='tuple'
-        )
+        Job.objects.filter(repository__name=self.project,
+                           project_specific_id=job_id).update(
+                               state=state)
 
     def cancel_all_jobs_for_push(self, requester, push_id):
         """Set all pending/running jobs in resultset to usercancel."""
-        jobs = self.get_incomplete_job_ids(push_id)
-
-        # Mark pending jobs as cancelled to work around buildbot not including
-        # cancelled jobs in builds-4hr if they never started running.
-        # TODO: Remove when we stop using buildbot.
-        self.execute(
-            proc='jobs.updates.cancel_all',
-            placeholders=[push_id],
-            debug_show=self.DEBUG
-        )
 
         # Sending 'cancel_all' action to pulse. Right now there is no listener
         # for this, so we cannot remove 'cancel' action for each job below.
@@ -274,8 +260,20 @@ class JobsModel(TreeherderModelBase):
         )
 
         # Notify the build systems which created these jobs...
-        for job in jobs:
-            self._job_action_event(job, 'cancel', requester)
+        for job in Job.objects.filter(push_id=push_id).exclude(state='completed'):
+            self._job_action_event(job.id, 'cancel', requester)
+
+        # Mark pending jobs as cancelled to work around buildbot not including
+        # cancelled jobs in builds-4hr if they never started running.
+        # TODO: Remove when we stop using buildbot.
+        self.execute(
+            proc='jobs.updates.cancel_all',
+            placeholders=[push_id],
+            debug_show=self.DEBUG
+        )
+        Job.objects.filter(push_id=push_id, state='pending').update(
+            state='completed',
+            result='usercancel')
 
     def trigger_missing_jobs(self, requester, push_id):
         publish_resultset_action.apply_async(
@@ -290,17 +288,17 @@ class JobsModel(TreeherderModelBase):
             routing_key='publish_to_pulse'
         )
 
-    def _job_action_event(self, job, action, requester):
+    def _job_action_event(self, job_id, action, requester):
         """
         Helper for issuing an 'action' for a given job (such as
         cancel/retrigger)
 
-        :param job dict: The job which this action was issued to.
+        :param job_id int: The id of job which this action was issued to.
         :param action str: Name of the action (cancel, etc..).
         :param requester str: Email address of the user who caused action.
         """
         publish_job_action.apply_async(
-            args=[self.project, action, job['id'], requester],
+            args=[self.project, action, job_id, requester],
             routing_key='publish_to_pulse'
         )
 
@@ -312,7 +310,7 @@ class JobsModel(TreeherderModelBase):
                               made this request
         :param job dict: A job object (typically a result of get_job)
         """
-        self._job_action_event(job, 'retrigger', requester)
+        self._job_action_event(job['id'], 'retrigger', requester)
 
     def backfill(self, requester, job):
         """
@@ -323,7 +321,7 @@ class JobsModel(TreeherderModelBase):
                               made this request
         :param job dict: A job object (typically a result of get_job)
         """
-        self._job_action_event(job, 'backfill', requester)
+        self._job_action_event(job['id'], 'backfill', requester)
 
     def cancel_job(self, requester, job):
         """
@@ -335,7 +333,7 @@ class JobsModel(TreeherderModelBase):
         :param job dict: A job object (typically a result of get_job)
         """
 
-        self._job_action_event(job, 'cancel', requester)
+        self._job_action_event(job['id'], 'cancel', requester)
 
         # Mark pending jobs as cancelled to work around buildbot not including
         # cancelled jobs in builds-4hr if they never started running.
@@ -345,14 +343,11 @@ class JobsModel(TreeherderModelBase):
             placeholders=[job['job_guid']],
             debug_show=self.DEBUG
         )
-
-    def get_max_job_id(self):
-        """Get the maximum job id."""
-        data = self.get_dhub().execute(
-            proc="jobs.selects.get_max_job_id",
-            debug_show=self.DEBUG,
-        )
-        return int(data[0]['max_id'] or 0)
+        Job.objects.filter(repository__name=self.project,
+                           project_specific_id=job['id'],
+                           state='pending').update(
+                               state='completed',
+                               result='usercancel')
 
     def update_last_job_classification(self, job_id):
         """
@@ -376,31 +371,42 @@ class JobsModel(TreeherderModelBase):
             ],
             debug_show=self.DEBUG
         )
+        Job.objects.filter(repository__name=self.project,
+                           project_specific_id=job_id).update(
+                               failure_classification_id=failure_classification_id)
 
     def calculate_durations(self, sample_window_seconds, debug):
         # Get the most recent timestamp from jobs
-        max_start_timestamp = self.execute(
-            proc='jobs.selects.get_max_job_start_timestamp',
-            return_type='iter',
-            debug_show=self.DEBUG
-        ).get_column_data('start_timestamp')
-
-        if not max_start_timestamp:
+        max_start_time = Job.objects.values_list(
+            'start_time', flat=True).latest('start_time')
+        if not max_start_time:
             return
-
-        time_window = int(max_start_timestamp) - sample_window_seconds
-        average_durations = self.execute(
-            proc='jobs.selects.get_average_job_durations',
-            placeholders=[time_window],
-            return_type='tuple',
-            debug_show=self.DEBUG
-        )
+        latest_start_time = max_start_time - timedelta(
+            seconds=sample_window_seconds)
 
         repository = Repository.objects.get(name=self.project)
-        for job in average_durations:
-            JobDuration.objects.update_or_create(signature=job['signature'],
-                                                 repository=repository,
-                                                 defaults={'average_duration': job['average_duration']})
+        jobs = Job.objects.filter(
+            repository__name=self.project,
+            start_time__gt=latest_start_time)
+
+        for signature_hash in jobs.values_list(
+                'signature__signature', flat=True).distinct():
+            # in theory we should be able to use a Django aggregation here,
+            # but it doesn't seem to work:
+            # http://stackoverflow.com/questions/3131107/annotate-a-queryset-with-the-average-date-difference-django#comment66231763_32856190
+            num_jobs = 0
+            total_time = 0.0
+            for (start_time, end_time) in jobs.filter(
+                    signature__signature=signature_hash).values_list(
+                        'start_time', 'end_time'):
+                total_time += (end_time - start_time).total_seconds()
+                num_jobs += 1
+            if not num_jobs:
+                continue
+            JobDuration.objects.update_or_create(
+                signature=signature_hash,
+                repository=repository,
+                defaults={'average_duration': int(total_time / num_jobs)})
 
     def cycle_data(self, cycle_interval, chunk_size, sleep_time):
         """Delete data older than cycle_interval, splitting the target data
@@ -656,6 +662,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 debug_show=self.DEBUG,
                 placeholders=coalesced_job_guid_placeholders,
                 executemany=True)
+            for (coalesced_to_guid, job_guid) in coalesced_job_guid_placeholders:
+                Job.objects.filter(guid=job_guid).update(
+                    coalesced_to_guid=coalesced_to_guid)
 
     def _remove_existing_jobs(self, data):
         """
@@ -667,62 +676,27 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         3. build a new list of jobs in ``new_data`` that are not already in
            the db and pass that back.  It could end up empty at that point.
         """
-        states = {
-            'pending': [],
-            'running': [],
-            'completed': [],
-        }
-        data_idx = []
         new_data = []
-        placeholders = []
-        state_clauses = []
 
-        for i, datum in enumerate(data):
+        guids = [datum['job']['job_guid'] for datum in data]
+        state_map = {
+            guid: state for (guid, state) in Job.objects.filter(
+                guid__in=guids).values_list('guid', 'state')
+        }
 
-            try:
-                job = datum['job']
-
-                job_guid = str(job['job_guid'])
-                states[str(job['state'])].append(job_guid)
-
-                # index this place in the ``data`` object
-                data_idx.append(job_guid)
-
-            except Exception:
-                data_idx.append("skipped")
-                # it will get caught later in ``store_job_data``
-                # adding the guid as "skipped" will mean it won't be found
-                # in the returned list of dup guids from the db.
-                # This will cause the bad job to be re-added
-                # to ``new_data`` so that the error can be handled
-                # in ``store_job_data``.
-
-        for state, guids in states.items():
-            if guids:
-                placeholders.append(state)
-                placeholders.extend(guids)
-                state_clauses.append(
-                    "(`state` = %s AND `job_guid` IN ({0}))".format(
-                        ",".join(["%s"] * len(guids))
-                    )
-                )
-
-        replacement = ' OR '.join(state_clauses)
-
-        if placeholders:
-            existing_guids = self.execute(
-                proc='jobs.selects.get_job_guids_in_states',
-                placeholders=placeholders,
-                replace=[replacement],
-                key_column='job_guid',
-                return_type='set',
-                debug_show=self.DEBUG,
-            )
-
-            # build a new list of jobs without those we already have loaded
-            for i, guid in enumerate(data_idx):
-                if guid not in existing_guids:
-                    new_data.append(data[i])
+        for datum in data:
+            job = datum['job']
+            if not state_map.get(job['job_guid']):
+                new_data.append(datum)
+            else:
+                # should not transition from running to pending,
+                # or completed to any other state
+                current_state = state_map[job['job_guid']]
+                if current_state == 'completed' or (
+                        job['state'] == 'pending' and
+                        current_state == 'running'):
+                    continue
+                new_data.append(datum)
 
         return new_data
 
@@ -803,6 +777,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         build_system_type = job_datum.get('build_system_type', 'buildbot')
 
         reference_data_name = job_datum.get('reference_data_name', None)
+
+        default_failure_classification = FailureClassification.objects.get(
+            name='not classified')
 
         sh = sha1()
         sh.update(''.join(
@@ -907,6 +884,35 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         else:
             ds_job_id = self.get_job_ids_by_guid([job_guid])[job_guid]['id']
 
+        job, _ = Job.objects.update_or_create(
+            repository=Repository.objects.get(name=self.project),
+            project_specific_id=ds_job_id,
+            defaults={
+                'signature': signature,
+                'build_platform': build_platform,
+                'machine_platform': machine_platform,
+                'machine': machine,
+                'option_collection_hash': option_collection_hash,
+                'job_type': job_type,
+                'product': product,
+                'failure_classification': default_failure_classification,
+                'who': who,
+                'reason': reason,
+                'result': result,
+                'state': state,
+                'tier': tier,
+                'submit_time': datetime.fromtimestamp(
+                    self.get_number(job_datum.get('submit_timestamp'))),
+                'start_time': datetime.fromtimestamp(
+                    self.get_number(job_datum.get('start_timestamp'))),
+                'end_time': datetime.fromtimestamp(
+                    self.get_number(job_datum.get('end_timestamp'))),
+                'last_modified': datetime.now(),
+                'guid': job_guid,
+                'push_id': push_id
+            })
+
+        # update the datasource job information if appropriate
         # we might both insert *and* update a job if it comes in with a status
         # that isn't pending, but we're ok with this I think (since this code
         # will be going away soon)
@@ -935,17 +941,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     ]
                 ],
                 executemany=True)
-
-        # create an intermediate representation of the job useful for doing
-        # lookups (this will eventually become the main/only/primary jobs table
-        # when we finish migrating away from Datasource, see bug 1178641)
-        job, _ = Job.objects.update_or_create(
-            repository=Repository.objects.get(name=self.project),
-            project_specific_id=ds_job_id,
-            defaults={
-                'guid': job_guid,
-                'push_id': push_id
-            })
 
         artifacts = job_datum.get('artifacts', [])
 
@@ -1162,10 +1157,3 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         if num_coalesced:
             resultset_status_dict['coalesced'] = num_coalesced
         return resultset_status_dict
-
-    def get_job_repeats(self, ref_job_guid):
-        job_list = self.execute(
-            proc='jobs.selects.get_job_retriggers',
-            placeholders=[ref_job_guid],
-            debug_show=self.DEBUG)
-        return job_list

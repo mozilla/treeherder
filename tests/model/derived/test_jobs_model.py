@@ -11,7 +11,6 @@ from tests.autoclassify.utils import (create_failure_lines,
                                       test_line)
 from tests.sample_data_generator import (job_data,
                                          result_set)
-from treeherder.model.derived import ArtifactsModel
 from treeherder.model.models import (Commit,
                                      ExclusionProfile,
                                      FailureLine,
@@ -47,15 +46,16 @@ def test_disconnect(jm):
     assert not jm.get_dhub().connection["master_host"]["con_obj"].open
 
 
-def test_ingest_single_sample_job(jm, sample_data,
-                                  sample_resultset, test_repository, mock_log_parser):
+def test_ingest_single_sample_job(jm, failure_classifications, sample_data,
+                                  sample_resultset,
+                                  mock_log_parser):
     """Process a single job structure in the job_data.txt file"""
     job_data = sample_data.job_data[:1]
     test_utils.do_job_ingestion(jm, job_data, sample_resultset)
 
 
-def test_ingest_all_sample_jobs(jm, sample_data,
-                                sample_resultset, test_repository, mock_log_parser):
+def test_ingest_all_sample_jobs(jm, failure_classifications, sample_data,
+                                sample_resultset, mock_log_parser):
     """
     Process each job structure in the job_data.txt file and verify.
     """
@@ -63,9 +63,10 @@ def test_ingest_all_sample_jobs(jm, sample_data,
     test_utils.do_job_ingestion(jm, job_data, sample_resultset)
 
 
-def test_ingest_twice_log_parsing_status_changed(jm, sample_data,
+def test_ingest_twice_log_parsing_status_changed(jm,
+                                                 failure_classifications,
+                                                 sample_data,
                                                  sample_resultset,
-                                                 test_repository,
                                                  mock_log_parser):
     """Process a single job twice, but change the log parsing status between,
     verify that nothing changes"""
@@ -107,8 +108,9 @@ def test_insert_result_sets(jm, sample_resultset, test_repository):
 
 
 @pytest.mark.parametrize("same_ingestion_cycle", [False, True])
-def test_ingest_running_to_retry_sample_job(jm, sample_data,
-                                            sample_resultset, test_repository,
+def test_ingest_running_to_retry_sample_job(jm, failure_classifications,
+                                            sample_data,
+                                            sample_resultset,
                                             mock_log_parser,
                                             same_ingestion_cycle):
     """Process a single job structure in the job_data.txt file"""
@@ -164,9 +166,10 @@ def test_ingest_running_to_retry_sample_job(jm, sample_data,
 @pytest.mark.parametrize("ingestion_cycles", [[(0, 1), (1, 2), (2, 3)],
                                               [(0, 2), (2, 3)],
                                               [(0, 3)], [(0, 1), (1, 3)]])
-def test_ingest_running_to_retry_to_success_sample_job(jm, sample_data,
+def test_ingest_running_to_retry_to_success_sample_job(jm,
+                                                       failure_classifications,
+                                                       sample_data,
                                                        sample_resultset,
-                                                       test_repository,
                                                        mock_log_parser,
                                                        ingestion_cycles):
     # verifies that retries to success work, no matter how jobs are batched
@@ -207,7 +210,7 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, sample_data,
                                               [(0, 3), (3, 4)],
                                               [(0, 2), (2, 4)]])
 def test_ingest_running_to_retry_to_success_sample_job_multiple_retries(
-        jm, sample_data, sample_resultset, test_repository,
+        jm, failure_classifications, sample_data, sample_resultset,
         mock_log_parser, ingestion_cycles):
     # this verifies that if we ingest multiple retries:
     # (1) nothing errors out
@@ -251,8 +254,10 @@ def test_ingest_running_to_retry_to_success_sample_job_multiple_retries(
     assert set(Job.objects.values_list('id', flat=True)) == set([j['id'] for j in jl])
 
 
-def test_ingest_retry_sample_job_no_running(jm, sample_data,
-                                            sample_resultset, test_repository, mock_log_parser):
+def test_ingest_retry_sample_job_no_running(jm, test_repository,
+                                            failure_classifications,
+                                            sample_data, sample_resultset,
+                                            mock_log_parser):
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
     job = job_data[0]['job']
@@ -279,7 +284,8 @@ def test_ingest_retry_sample_job_no_running(jm, sample_data,
     assert Job.objects.all()[0].guid == retry_guid
 
 
-def test_calculate_durations(jm, test_repository, mock_log_parser):
+def test_calculate_durations(jm, test_repository, failure_classifications,
+                             mock_log_parser):
     """
     Test the calculation of average job durations and their use during
     subsequent job ingestion.
@@ -316,7 +322,7 @@ def test_calculate_durations(jm, test_repository, mock_log_parser):
     assert durations[0].average_duration == expected_duration
 
 
-def test_cycle_all_data(jm, sample_data,
+def test_cycle_all_data(jm, failure_classifications, sample_data,
                         sample_resultset, test_repository, mock_log_parser,
                         failure_lines):
     """
@@ -359,7 +365,7 @@ def test_cycle_all_data(jm, sample_data,
     assert TestFailureLine.search().params(search_type="count").execute().hits.total == 0
 
 
-def test_cycle_one_job(jm, sample_data,
+def test_cycle_one_job(jm, failure_classifications, sample_data,
                        sample_resultset, test_repository, mock_log_parser,
                        elasticsearch, failure_lines):
     """
@@ -435,7 +441,7 @@ def test_cycle_one_job(jm, sample_data,
     assert set(int(item.meta.id) for item in TestFailureLine.search().execute()) == set(item.id for item in extra_objects["failure_lines"][1])
 
 
-def test_cycle_all_data_in_chunks(jm, sample_data,
+def test_cycle_all_data_in_chunks(jm, failure_classifications, sample_data,
                                   sample_resultset, test_repository, mock_log_parser):
     """
     Test cycling the sample data in chunks.
@@ -493,8 +499,9 @@ def test_cycle_task_set_meta(jm):
     assert [item.id for item in TaskSetMeta.objects.all()] == [to_keep.id]
 
 
-def test_cycle_job_model_reference_data(jm, sample_data, sample_resultset,
-                                        test_repository, mock_log_parser):
+def test_cycle_job_model_reference_data(jm, failure_classifications,
+                                        sample_data, sample_resultset,
+                                        mock_log_parser):
     job_data = sample_data.job_data[:20]
     test_utils.do_job_ingestion(jm, job_data, sample_resultset, False)
 
@@ -522,7 +529,7 @@ def test_cycle_job_model_reference_data(jm, sample_data, sample_resultset,
     assert Machine.objects.filter(id__in=original_machine_ids).count() == len(original_machine_ids)
 
 
-def test_bad_date_value_ingestion(jm, test_repository, mock_log_parser):
+def test_bad_date_value_ingestion(jm, failure_classifications, mock_log_parser):
     """
     Test ingesting an blob with bad date value
 
@@ -569,21 +576,9 @@ def test_store_result_set_data(jm, test_repository, sample_resultset):
                 comments=commit['comment'])
 
 
-def test_get_job_data(jm, test_project, sample_data,
-                      sample_resultset, test_repository, mock_log_parser):
-
-    target_len = 10
-    job_data = sample_data.job_data[:target_len]
-    test_utils.do_job_ingestion(jm, job_data, sample_resultset)
-
-    with ArtifactsModel(test_project) as artifacts_model:
-        job_data = artifacts_model.get_job_signatures_from_ids(range(1, 11))
-
-    assert len(job_data) is target_len
-
-
-def test_remove_existing_jobs_single_existing(jm, sample_data,
-                                              sample_resultset, mock_log_parser):
+def test_remove_existing_jobs_single_existing(jm, failure_classifications,
+                                              sample_data, sample_resultset,
+                                              mock_log_parser):
     """Remove single existing job prior to loading"""
 
     job_data = sample_data.job_data[:1]
@@ -599,8 +594,10 @@ def test_remove_existing_jobs_single_existing(jm, sample_data,
     assert Job.objects.count() == 1
 
 
-def test_remove_existing_jobs_one_existing_one_new(jm, sample_data,
-                                                   sample_resultset, mock_log_parser):
+def test_remove_existing_jobs_one_existing_one_new(jm, failure_classifications,
+                                                   sample_data,
+                                                   sample_resultset,
+                                                   mock_log_parser):
     """Remove single existing job prior to loading"""
 
     job_data = sample_data.job_data[:1]
@@ -612,8 +609,10 @@ def test_remove_existing_jobs_one_existing_one_new(jm, sample_data,
     assert Job.objects.count() == 1
 
 
-def test_new_job_in_exclusion_profile(jm, sample_data, sample_resultset, mock_log_parser,
-                                      test_sheriff, test_project, result_set_stored):
+def test_new_job_in_exclusion_profile(jm, failure_classifications, sample_data,
+                                      sample_resultset, mock_log_parser,
+                                      test_sheriff, test_project,
+                                      result_set_stored):
     for job in sample_data.job_data[:2]:
         job["revision"] = result_set_stored[0]["revision"]
 
@@ -647,7 +646,7 @@ def test_new_job_in_exclusion_profile(jm, sample_data, sample_resultset, mock_lo
     assert lower_tier_signatures[0]['tier'] == 2
 
 
-def test_ingesting_skip_existing(jm, sample_data,
+def test_ingesting_skip_existing(jm, failure_classifications, sample_data,
                                  sample_resultset, mock_log_parser):
     """Remove single existing job prior to loading"""
     job_data = sample_data.job_data[:1]
@@ -660,7 +659,8 @@ def test_ingesting_skip_existing(jm, sample_data,
     assert Job.objects.count() == 2
 
 
-def test_ingest_job_with_updated_job_group(jm, sample_data, mock_log_parser,
+def test_ingest_job_with_updated_job_group(jm, failure_classifications,
+                                           sample_data, mock_log_parser,
                                            result_set_stored):
     """
     When a job_type is associated with a job group on data ingestion,
@@ -697,7 +697,8 @@ def test_ingest_job_with_updated_job_group(jm, sample_data, mock_log_parser,
         JobGroup.objects.get(name="second group name")
 
 
-def test_ingest_job_with_revision_hash(jm, test_repository, sample_data,
+def test_ingest_job_with_revision_hash(jm, test_repository,
+                                       failure_classifications, sample_data,
                                        mock_log_parser, sample_resultset):
     """
     Test ingesting a job with only a revision hash, no revision.  And the
@@ -723,6 +724,7 @@ def test_ingest_job_with_revision_hash(jm, test_repository, sample_data,
 
 
 def test_ingest_job_revision_and_revision_hash(jm, test_repository,
+                                               failure_classifications,
                                                sample_data, mock_log_parser,
                                                sample_resultset):
 
@@ -747,6 +749,7 @@ def test_ingest_job_revision_and_revision_hash(jm, test_repository,
 
 
 def test_ingest_job_revision_hash_blank_revision(jm, test_repository,
+                                                 failure_classifications,
                                                  sample_data, mock_log_parser,
                                                  sample_resultset):
 

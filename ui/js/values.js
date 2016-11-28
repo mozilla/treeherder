@@ -342,3 +342,37 @@ treeherder.value("thBugzillaProductObject", {
 treeherder.value("strReloadTreeherder",
     "Reload Treeherder windows to see changes reflected."
 );
+
+treeherder.value("phDashboardValues",
+    {
+        e10s: {
+            baseTitle: "non-e10s",
+            defaultRepo: "mozilla-inbound",
+            descP1: "Comparing results of all Talos tests over the last two days on mozilla-inbound " +
+                    "(using pgo configuration on all platforms that support it). Because we're taking " +
+                    "a sample over a period of time, improvements or regressions will take a while " +
+                    "to be reflected in results. When in doubt, check the graphs by hovering over each " +
+                    "line. Also, if there are no results for the default time range, try specifying a " +
+                    "longer one.",
+            descP2: "For more information on what is considered 'acceptable' in terms of a Talos regression, see ",
+            framework: 1,
+            header: "Perfherder e10s dashboard",
+            linkDesc: "the official e10s release criteria.",
+            linkUrl: "https://wiki.mozilla.org/index.php?title=Electrolysis/Release_Criteria",
+            variantDataOpt: "e10s",
+            variantTitle: "e10s"
+        },
+        hasal: {
+            baseTitle: "chrome",
+            defaultRepo: "mozilla-central",
+            descP1: "Comparing Firefox with Chrome browser.",
+            descP2: "For more information, see ",
+            linkDesc: "the Hasal repo.",
+            linkUrl: "https://github.com/Mozilla-TWQA/Hasal",
+            framework: 9,
+            header: "Perfherder hasal dashboard",
+            variantDataOpt: "firefox",
+            variantTitle: "firefox"
+        }
+    }
+);

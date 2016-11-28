@@ -1,13 +1,11 @@
 <div class="container-fluid">
+  <div class="alert alert-danger" ng-show="revisionNotFound" role="alert">
+    Couldn't find revision {{revision}} for {{selectedRepo.name}}
+  </div>
   <div ng-if="!revision">
-    <h1>Perfherder e10s subtest comparison</h1>
-    <p><a href="perf.html#/e10s?repo={{selectedRepo.name}}&timerange={{selectedTimeRange.value}}">Show all tests and platforms</a></p>
-    <p>Comparing results of Talos subtests over the last two days
-      (using pgo configuration on all platforms that support it).
-      Because we're taking a sample over a period of time, improvements or regressions
-      will take a while to be reflected in results. When in doubt, check the graphs
-      by hovering over each line.
-    </p>
+    <h1>{{header}}</h1>
+    <p>{{descP1}}</p>
+    <p>{{descP2}} <a href="{{linkUrl}}">{{linkDesc}}</a></p>
     <div class="form-group">
       Branch to compare:
       <select ng-change="globalOptionsChanged(selectedRepo, selectedTimeRange)"
@@ -23,16 +21,17 @@
   </div>
   <div ng-if="dataLoading">
     Loading all results, please wait a minute...
-    <img src="img/dancing_cat.gif"/>
+    <img src="img/dancing_cat.gif" />
   </div>
-  <div ng-if="!dataLoading">
+  <div ng-if="!dataLoading && !revisionNotFound">
     <ph-compare-table
-       base-title="non-e10s"
-       new-title="e10s"
+       base-title={{baseTitle}}
+       new-title={{variantTitle}}
        titles="titles"
        test-list="testList"
        compare-results="compareResults"
-       filter-options="filterOptions">
+       filter-options="filterOptions"
+       release-blocker-criteria="1">
     </ph-compare-table>
   </div>
 </div>

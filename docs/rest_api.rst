@@ -74,7 +74,7 @@ can be set like so:
 
 .. code-block:: python
 
-    r = requests.get(url, headers={'User Agent': ...})
+    r = requests.get(url, headers={'User-Agent': ...})
 
 .. _bug 1230222: https://bugzilla.mozilla.org/show_bug.cgi?id=1230222
 

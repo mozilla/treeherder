@@ -45,12 +45,3 @@ If after a ``celery -A treeherder worker -B --concurrency 5`` you experience a s
    09:32:40,010: WARNING/MainProcess] celery@local ready.
 
 You should ctrl+c to shut down celery, remove the ``celerybeat-schedule`` file in the project root, and restart your worker.
-
-Where are my log files?
------------------------
-
-You can find the various services log files under
-  * /var/log/celery
-  * /var/log/gunicorn
-
-You may also want to inspect the main treeherder log file ~/treeherder/treeherder.log

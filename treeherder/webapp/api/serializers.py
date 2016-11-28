@@ -96,6 +96,46 @@ class MachinePlatformSerializer(serializers.ModelSerializer):
 
 class JobSerializer(serializers.ModelSerializer):
 
+    def to_representation(self, job):
+        return {
+            'build_architecture': job.build_platform.architecture,
+            'build_os': job.build_platform.os_name,
+            'build_platform': job.build_platform.platform,
+            'build_platform_id': job.build_platform_id,
+            'build_system_type': job.signature.build_system_type,
+            'end_timestamp': to_timestamp(job.end_time),
+            'failure_classification_id': job.failure_classification_id,
+            'id': job.project_specific_id,
+            'job_coalesced_to_guid': job.coalesced_to_guid,
+            'job_group_description': job.job_type.job_group.description,
+            'job_group_id': job.job_type.job_group_id,
+            'job_group_name': job.job_type.job_group.name,
+            'job_group_symbol': job.job_type.job_group.symbol,
+            'job_guid': job.guid,
+            'job_type_description': job.job_type.description,
+            'job_type_id': job.job_type_id,
+            'job_type_name': job.job_type.name,
+            'job_type_symbol': job.job_type.symbol,
+            'last_modified': job.last_modified,
+            'machine_name': job.machine.name,
+            'machine_platform_architecture': job.machine_platform.architecture,
+            'machine_platform_os': job.machine_platform.os_name,
+            'option_collection_hash': job.option_collection_hash,
+            'platform': job.machine_platform.platform,
+            'push_id': job.push_id,
+            'reason': job.reason,
+            'ref_data_name': job.signature.name,
+            'result': job.result,
+            'result_set_id': job.push_id,
+            'running_eta': job.running_eta,
+            'signature': job.signature.signature,
+            'start_timestamp': to_timestamp(job.start_time),
+            'state': job.state,
+            'submit_timestamp': to_timestamp(job.submit_time),
+            'tier': job.tier,
+            'who': job.who
+        }
+
     class Meta:
         model = models.Job
 

@@ -32,15 +32,6 @@ perf.config(function($compileProvider, $httpProvider, $stateProvider, $urlRouter
         templateUrl: 'partials/perf/comparechooserctrl.html',
         url: '/comparechooser?originalProject&originalRevision&newProject&newRevision',
         controller: 'CompareChooserCtrl'
-    }).state('e10s', {
-        title: 'e10s talos dashboard',
-        templateUrl: 'partials/perf/e10s.html',
-        url: '/e10s?filter&showOnlyImportant&showOnlyConfident&showOnlyBlockers&repo&timerange&revision',
-        controller: 'e10sCtrl'
-    }).state('e10s_comparesubtest', {
-        templateUrl: 'partials/perf/e10s-subtest.html',
-        url: '/e10s_comparesubtest?filter&showOnlyImportant&showOnlyConfident&baseSignature&e10sSignature&repo&timerange&revision',
-        controller: 'e10sSubtestCtrl'
     }).state('e10s_trend', {
         title: 'e10s trend dashboard',
         templateUrl: 'partials/perf/e10s-trend.html',
@@ -50,6 +41,15 @@ perf.config(function($compileProvider, $httpProvider, $stateProvider, $urlRouter
         templateUrl: 'partials/perf/e10s-trend-subtest.html',
         url: '/e10s_trendsubtest?filter&showOnlyImportant&showOnlyConfident&showOnlyBlockers&repo&basedate&newdate&timerange&revision&baseSignature&e10sSignature',
         controller: 'e10sTrendSubtestCtrl'
+    }).state('dashboard', {
+        title: 'Perfherder Dashboard',
+        templateUrl: 'partials/perf/dashboard.html',
+        url: '/dashboard?topic&filter&showOnlyImportant&showOnlyConfident&showOnlyBlockers&repo&timerange&revision',
+        controller: 'dashCtrl'
+    }).state('dashboardsubtest', {
+        templateUrl: 'partials/perf/dashboardsubtest.html',
+        url: '/dashboardsubtest?topic&filter&showOnlyImportant&showOnlyConfident&baseSignature&variantSignature&repo&timerange&revision',
+        controller: 'dashSubtestCtrl'
     });
 
     $urlRouterProvider.otherwise('/graphs');

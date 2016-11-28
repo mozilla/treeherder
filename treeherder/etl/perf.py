@@ -6,10 +6,7 @@ from hashlib import sha1
 import simplejson as json
 from jsonschema import validate
 
-from treeherder.model.models import (MachinePlatform,
-                                     OptionCollection,
-                                     Push,
-                                     Repository)
+from treeherder.model.models import OptionCollection
 from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceFramework,
                                     PerformanceSignature)
@@ -18,29 +15,8 @@ from treeherder.perf.tasks import generate_alerts
 logger = logging.getLogger(__name__)
 
 
-# keys useful for creating a non-redundant performance signature
-SIGNIFICANT_REFERENCE_DATA_KEYS = ['option_collection_hash',
-                                   'machine_platform']
-
-
 PERFHERDER_SCHEMA = json.load(open(os.path.join('schemas',
                                                 'performance-artifact.json')))
-
-
-def _transform_signature_properties(properties, significant_keys=None):
-    if significant_keys is None:
-        significant_keys = SIGNIFICANT_REFERENCE_DATA_KEYS
-    transformed_properties = {k: v for k, v in properties.iteritems() if
-                              k in significant_keys}
-
-    # HACK: determine if e10s is in job_group_symbol, and add an "e10s"
-    # property to a 'test_options' property if so (we should probably
-    # make talos produce this information somehow and consume it in the
-    # future)
-    if 'e10s' in properties.get('job_group_symbol', ''):
-        transformed_properties['test_options'] = json.dumps(['e10s'])
-
-    return transformed_properties
 
 
 def _get_signature_hash(signature_properties):
@@ -59,31 +35,17 @@ def _get_signature_hash(signature_properties):
     return sha.hexdigest()
 
 
-def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
-                        perf_datum):
+def _load_perf_datum(job, perf_datum):
     validate(perf_datum, PERFHERDER_SCHEMA)
 
-    if 'e10s' in reference_data.get('job_group_symbol', ''):
-        extra_properties = {'test_options': ['e10s']}
-    else:
-        extra_properties = {}
+    extra_properties = {}
+    reference_data = {
+        'option_collection_hash': job.signature.option_collection_hash,
+        'machine_platform': job.signature.machine_platform
+    }
 
-    # transform the reference data so it only contains what we actually
-    # care about (for calculating the signature hash reproducibly), then
-    # get the associated models
-    reference_data = _transform_signature_properties(reference_data)
     option_collection = OptionCollection.objects.get(
-        option_collection_hash=reference_data['option_collection_hash'])
-    # there may be multiple machine platforms with the same platform: use
-    # the first
-    platform = MachinePlatform.objects.filter(
-        platform=reference_data['machine_platform'])[0]
-    repository = Repository.objects.get(
-        name=project_name)
-
-    # data for performance series
-    ds_job_id = job_data[job_guid]['id']
-    push = Push.objects.get(id=job_data[job_guid]['push_id'])
+        option_collection_hash=job.signature.option_collection_hash)
 
     try:
         framework = PerformanceFramework.objects.get(
@@ -118,13 +80,14 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                 summary_properties)
 
             signature, _ = PerformanceSignature.objects.update_or_create(
-                repository=repository, signature_hash=summary_signature_hash,
+                repository=job.repository,
+                signature_hash=summary_signature_hash,
                 framework=framework,
                 defaults={
                     'test': '',
                     'suite': suite['name'],
                     'option_collection': option_collection,
-                    'platform': platform,
+                    'platform': job.machine_platform,
                     'extra_properties': suite_extra_properties,
                     'lower_is_better': suite.get('lowerIsBetter', True),
                     'has_subtests': True,
@@ -135,17 +98,17 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                     'min_back_window': suite.get('minBackWindow'),
                     'max_back_window': suite.get('maxBackWindow'),
                     'fore_window': suite.get('foreWindow'),
-                    'last_updated': push.time
+                    'last_updated': job.push.time
                 })
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
-                repository=repository,
-                push=push,
-                ds_job_id=ds_job_id,
+                repository=job.repository,
+                push=job.push,
+                ds_job_id=job.project_specific_id,
                 signature=signature,
-                push_timestamp=push.time,
+                push_timestamp=job.push.time,
                 defaults={'value': suite['value']})
-            if (signature.should_alert is not False and datum_created and
-                (repository.performance_alerts_enabled)):
+            if signature.should_alert is not False and datum_created and \
+               job.repository.performance_alerts_enabled:
                 generate_alerts.apply_async(args=[signature.id],
                                             routing_key='generate_perf_alerts')
 
@@ -161,21 +124,21 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
             if summary_signature_hash is not None:
                 subtest_properties.update({'parent_signature': summary_signature_hash})
                 summary_signature = PerformanceSignature.objects.get(
-                    repository=repository,
+                    repository=job.repository,
                     framework=framework,
                     signature_hash=summary_signature_hash)
             subtest_signature_hash = _get_signature_hash(subtest_properties)
             value = list(subtest['value'] for subtest in suite['subtests'] if
                          subtest['name'] == subtest_properties['test'])
             signature, _ = PerformanceSignature.objects.update_or_create(
-                repository=repository,
+                repository=job.repository,
                 signature_hash=subtest_signature_hash,
                 framework=framework,
                 defaults={
                     'test': subtest_properties['test'],
                     'suite': suite['name'],
                     'option_collection': option_collection,
-                    'platform': platform,
+                    'platform': job.machine_platform,
                     'extra_properties': suite_extra_properties,
                     'lower_is_better': subtest.get('lowerIsBetter', True),
                     'has_subtests': False,
@@ -188,14 +151,14 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
                     'max_back_window': subtest.get('maxBackWindow'),
                     'fore_window': subtest.get('foreWindow'),
                     'parent_signature': summary_signature,
-                    'last_updated': push.time
+                    'last_updated': job.push.time
                 })
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
-                repository=repository,
-                push=push,
-                ds_job_id=ds_job_id,
+                repository=job.repository,
+                push=job.push,
+                ds_job_id=job.project_specific_id,
                 signature=signature,
-                push_timestamp=push.time,
+                push_timestamp=job.push.time,
                 defaults={'value': value[0]})
 
             # by default if there is no summary, we should schedule a
@@ -204,21 +167,18 @@ def _load_perf_artifact(project_name, reference_data, job_data, job_guid,
             # property)
             if signature.should_alert or (signature.should_alert is None and
                                           (datum_created and
-                                           repository.performance_alerts_enabled and
+                                           job.repository.performance_alerts_enabled and
                                            suite.get('value') is None)):
                 generate_alerts.apply_async(args=[signature.id],
                                             routing_key='generate_perf_alerts')
 
 
-def load_perf_artifacts(project_name, reference_data, job_data, datum):
-    blob = json.loads(datum['blob'])
+def load_perf_artifact(job, artifact):
+    blob = json.loads(artifact['blob'])
     performance_data = blob['performance_data']
-    job_guid = datum["job_guid"]
 
     if type(performance_data) == list:
         for perfdatum in performance_data:
-            _load_perf_artifact(project_name, reference_data, job_data,
-                                job_guid, perfdatum)
+            _load_perf_datum(job, perfdatum)
     else:
-        _load_perf_artifact(project_name, reference_data, job_data,
-                            job_guid, performance_data)
+        _load_perf_datum(job, performance_data)

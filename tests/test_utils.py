@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from tests.sampledata import SampleData
@@ -218,3 +219,29 @@ def load_exp(filename):
         except ValueError:
             # if it's not parse-able, return an empty dict
             return {}
+
+
+def create_generic_job(guid, repository, push_id, project_specific_id,
+                       generic_reference_data):
+    job_time = datetime.datetime.fromtimestamp(0)
+    return models.Job.objects.create(
+        guid=guid,
+        repository=repository,
+        push_id=push_id,
+        signature=generic_reference_data.signature,
+        build_platform=generic_reference_data.build_platform,
+        machine_platform=generic_reference_data.machine_platform,
+        machine=generic_reference_data.machine,
+        option_collection_hash=generic_reference_data.option_collection_hash,
+        job_type=generic_reference_data.job_type,
+        product=generic_reference_data.product,
+        failure_classification_id=1,
+        who='testuser@foo.com',
+        reason='success',
+        result='finished',
+        state='completed',
+        submit_time=job_time,
+        start_time=job_time,
+        end_time=job_time,
+        project_specific_id=project_specific_id,
+        tier=1)

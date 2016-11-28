@@ -7,8 +7,7 @@ message handling.
 treeherder.factory('ThModelErrors', [function() {
     // Generic error message when we encounter 401 status codes from the
     // server.
-    var AUTH_ERROR_MSG = 'Please login to Treeherder using Persona to ' +
-                         'complete this action';
+    var AUTH_ERROR_MSG = 'Please login to Treeherder to complete this action';
 
     return {
         /**

@@ -18,18 +18,10 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'standard'
         },
-        'logfile': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/var/log/treeherder/treeherder.log',
-            'maxBytes': 5 * 1024 * 1024,
-            'backupCount': 2,
-            'formatter': 'standard',
-        },
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
         },
@@ -38,7 +30,7 @@ LOGGING = {
             'level': 'WARNING',
         },
         'treeherder': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': False,
         }

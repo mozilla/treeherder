@@ -45,7 +45,7 @@ def test_job_transformation(pulse_jobs, transformed_pulse_jobs):
 
 
 def test_ingest_pulse_jobs(pulse_jobs, test_project, jm, result_set_stored,
-                           mock_log_parser):
+                           failure_classifications, mock_log_parser):
     """
     Ingest a job through the JSON Schema validated JobLoader used by Pulse
     """
@@ -77,7 +77,7 @@ def test_ingest_pulse_jobs(pulse_jobs, test_project, jm, result_set_stored,
 
 
 def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_project, jm, result_set_stored,
-                                       mock_log_parser):
+                                       failure_classifications, mock_log_parser):
     """
     Ingest a job through the JSON Schema validated JobLoader used by Pulse
     """
@@ -94,6 +94,7 @@ def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_project, jm, result_set_
 
 def test_ingest_pulse_jobs_with_revision_hash(pulse_jobs, test_project, jm,
                                               result_set_stored,
+                                              failure_classifications,
                                               mock_log_parser):
     """
     Ingest a revision_hash job with the JobLoader used by Pulse
@@ -129,7 +130,9 @@ def test_ingest_pulse_jobs_with_missing_resultset(pulse_jobs):
     assert Job.objects.count() == 0
 
 
-def test_transition_pending_running_complete(first_job, jm, mock_log_parser):
+def test_transition_pending_running_complete(first_job, jm,
+                                             failure_classifications,
+                                             mock_log_parser):
     jl = JobLoader()
 
     change_state_result(first_job, jl, jm, "pending", "unknown", "pending", "unknown")
@@ -137,28 +140,36 @@ def test_transition_pending_running_complete(first_job, jm, mock_log_parser):
     change_state_result(first_job, jl, jm, "completed", "fail", "completed", "testfailed")
 
 
-def test_transition_complete_pending_stays_complete(first_job, jm, mock_log_parser):
+def test_transition_complete_pending_stays_complete(first_job, jm,
+                                                    failure_classifications,
+                                                    mock_log_parser):
     jl = JobLoader()
 
     change_state_result(first_job, jl, jm, "completed", "fail", "completed", "testfailed")
     change_state_result(first_job, jl, jm, "pending", "unknown", "completed", "testfailed")
 
 
-def test_transition_complete_running_stays_complete(first_job, jm, mock_log_parser):
+def test_transition_complete_running_stays_complete(first_job, jm,
+                                                    failure_classifications,
+                                                    mock_log_parser):
     jl = JobLoader()
 
     change_state_result(first_job, jl, jm, "completed", "fail", "completed", "testfailed")
     change_state_result(first_job, jl, jm, "running", "unknown", "completed", "testfailed")
 
 
-def test_transition_running_pending_stays_running(first_job, jm, mock_log_parser):
+def test_transition_running_pending_stays_running(first_job, jm,
+                                                  failure_classifications,
+                                                  mock_log_parser):
     jl = JobLoader()
 
     change_state_result(first_job, jl, jm, "running", "unknown", "running", "unknown")
     change_state_result(first_job, jl, jm, "pending", "unknown", "running", "unknown")
 
 
-def test_transition_pending_retry_fail_stays_retry(first_job, jm, mock_log_parser):
+def test_transition_pending_retry_fail_stays_retry(first_job, jm,
+                                                   failure_classifications,
+                                                   mock_log_parser):
     jl = JobLoader()
 
     change_state_result(first_job, jl, jm, "pending", "unknown", "pending", "unknown")
@@ -168,7 +179,8 @@ def test_transition_pending_retry_fail_stays_retry(first_job, jm, mock_log_parse
     change_state_result(first_job, jl, jm, "completed", "fail", "completed", "retry")
 
 
-def test_skip_unscheduled(first_job, jm, mock_log_parser):
+def test_skip_unscheduled(first_job, jm, failure_classifications,
+                          mock_log_parser):
     jl = JobLoader()
     first_job["state"] = "unscheduled"
     jl.process_job_list([first_job])

@@ -8,13 +8,7 @@ PATH=$PROJECT_ROOT/venv/bin:$PATH
 
 source /etc/profile.d/treeherder.sh
 
-LOGFILE=/var/log/celery/celery_worker_buildapi.log
-
-if [ ! -f $LOGFILE ]; then
-    touch $LOGFILE
-fi
-
 exec newrelic-admin run-program celery -A treeherder worker -Q buildapi_pending,buildapi_running,buildapi_4hr,store_pulse_jobs,store_pulse_resultsets \
-    --concurrency=5 --logfile=$LOGFILE -l INFO \
+    --concurrency=5 -l INFO \
     --maxtasksperchild=20 -n buildapi.%h
 
