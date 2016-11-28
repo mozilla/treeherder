@@ -229,7 +229,7 @@ class JobsViewSet(viewsets.ViewSet):
         try:
             job = Job.objects.select_related(
                 *self._default_select_related).get(
-                    repository__name=project, id=pk)
+                    repository__name=project, project_specific_id=pk)
         except Job.DoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
