@@ -313,7 +313,7 @@ treeherderApp.controller('MainCtrl', [
 
         var keyShortcuts = [
             // Shortcut: toggle display in-progress jobs (pending/running)
-            ['i', function() {
+            ['h i', function() {
                 $scope.$evalAsync($scope.toggleInProgress());
             }],
 
@@ -379,7 +379,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: display only unclassified failures
-            ['u', function() {
+            ['h u', function() {
                 $scope.$evalAsync($scope.toggleUnclassifiedFailures);
             }],
 
@@ -485,22 +485,29 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: ignore selected in the autoclasify panel
-            ['-', function() {
+            ['i', function() {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyIgnore));
                 }
             }],
 
             // Shortcut: ignore selected in the autoclasify panel
-            [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '='], function(ev) {
+            [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'o'], function(ev) {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifySelectOption,
-                                                       ev.key));
+                                                       ev.key === "o" ? "manual" : ev.key));
+                }
+            }],
+
+            // Shortcut: toggle edit mode for selected lines
+            ['e', function() {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyToggleEdit));
                 }
             }],
 
             // Shortcut: toggle more/fewer options in the autoclassify panel
-            ['e', function() {
+            ['x', function() {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyToggleExpandOptions));
                 }
