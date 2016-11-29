@@ -5,6 +5,11 @@
     </div>
 
     <button class="btn btn-view-nav btn-sm nav-menu-btn"
+            title="{{ buttonTitle($ctrl.hasSelection, 'Edit selected lines', 'Nothing selected') }}"
+            ng-disabled="!($ctrl.hasSelection && $ctrl.canClassify)"
+            ng-click="$ctrl.onEdit()">Edit</button>
+
+    <button class="btn btn-view-nav btn-sm nav-menu-btn"
             title="{{ buttonTitle($ctrl.hasSelection, 'Ignore selected lines', 'Nothing selected') }}"
             ng-disabled="!($ctrl.hasSelection && $ctrl.canClassify)"
             ng-click="$ctrl.onIgnore()">Ignore</button>

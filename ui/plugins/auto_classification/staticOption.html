@@ -1,0 +1,41 @@
+<div class="classification-icon">
+  <span ng-if="::option.isBest"
+        class="glyphicon glyphicon-star-empty"
+        title="Autoclassifier best match"></span>
+  <span ng-if="::!option.isBest"
+        class="classification-no-icon">&nbsp;</span>
+</div>
+
+
+<span class="line-option-text" ng-if="option.bugNumber">
+  <span ng-if="option.bugResolution" class="classification-bug-resolution">[{{ option.bugResolution }}]</span>
+  <a href="{{ ::getBugUrl(option.bugNumber) }}"
+     target="_blank">{{::option.bugNumber}} -
+    <span ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:line.data.bug_suggestions.search"></span>
+  </a>
+  <span>[ {{ option.score }} ]</span>
+</span>
+
+<span ng-if="option.type == 'classifiedFailure' && !option.bugNumber">
+  Autoclassified failure with no associated bug number
+</span>
+
+<span ng-if="option.type == 'manual'"
+      class="line-option-text">
+  Bug
+  <a ng-if="$ctrl.selectedOption.manualBugNumber"
+     href="{{ ::getBugUrl($ctrl.selectedOption.manualBugNumber) }}"
+     target="_blank">
+    {{ $ctrl.selectedOption.manualBugNumber }}</a>
+  <span ng-if="!$ctrl.selectedOption.manualBugNumber">
+    No bug number specified</span>
+</span>
+
+<span ng-if="option.type==='ignore'"
+      class="line-option-text">Ignore
+</span>
+
+<span ng-if="$ctrl.numOptions > 1">[{{ $ctrl.numOptions - 1 }} other
+  <ng-pluralize count="$ctrl.numOptions - 1" when="{1: 'option', 'other': 'options'}">
+  </ng-pluralize>]</span>
+
