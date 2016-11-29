@@ -76,7 +76,7 @@ def generate_new_alerts_in_series(signature):
             if prev.testrun_id != cur.testrun_id:
                 prev_testrun_id = prev.testrun_id
 
-            if cur.state == 'regression':
+            if cur.state == 'regression' and prev_testrun_id:
                 prev_value = cur.historical_stats['avg']
                 new_value = cur.forward_stats['avg']
                 alert_properties = get_alert_properties(
