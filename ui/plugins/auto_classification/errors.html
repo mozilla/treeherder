@@ -2,15 +2,21 @@
 <ul class="list-unstyled" ng-if="$ctrl.loadStatus == 'ready'">
   <li ng-repeat="errorLine in $ctrl.errorLines">
     <th-error-line
+       title="{{lineStatuses.has(errorLine.id) ? titles[lineStatuses.get(errorLine.id)] : ''}}"
        ng-click="toggleSelect($event, errorLine.id)"
        ng-class="{selected: $ctrl.selectedLineIds.has(errorLine.id)}"
        error-matchers="$ctrl.errorMatchers"
        error-line="errorLine"
+       prev-error-line="$ctrl.errorLines[$index - 1]"
        is-selected="$ctrl.selectedLineIds.has(errorLine.id)"
+       is-editable="$ctrl.editableLineIds.has(errorLine.id)"
        can-classify="$ctrl.canClassify"
        on-change="$ctrl.onUpdateLine({lineId: lineId,
                                       type: type,
                                       classifiedFailureId: classifiedFailureId,
                                       bugNumber: bugNumber})"
+       on-editable-change="$ctrl.onLineEditableChange({lineId: lineId,
+                                                       editable: editable})"
+       on-status-change="lineStatuses.set(errorLine.id, status)"
        ></th-error-line>
 </ul>
