@@ -10,15 +10,16 @@ from treeherder.seta.update_job_priority import ManageJobPriorityTable
 
 
 @pytest.fixture
-def task_request(test_repository):
-    # test_repository reprents mozilla-central
-    # XXX: save to database
-    return TaskRequest(
+def task_request_stored(test_repository):
+    # test_repository reprents the repository test_treeherder_jobs
+    tr = TaskRequest(
         repository=test_repository,
         counter=1,
         last_reset=timezone.now(),
         reset_delta=DEFAULT_TIMEOUT,
     )
+    tr.save()
+    return tr
 
 
 @pytest.fixture

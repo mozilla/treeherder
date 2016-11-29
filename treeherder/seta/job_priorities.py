@@ -92,21 +92,20 @@ def _gecko_decision_task_request(project):
 
 def _update_task_request(project):
     '''Update a repository's counter and/or reset timer.'''
-    task_request = TaskRequest.objects.get(repository__name=project)
     now = datetime.datetime.now()
 
-    if not task_request:
-        task_request = TaskRequest(repository=Repository.objects.get(name=project),
-                                   counter=1,
-                                   last_reset=now,
-                                   reset_delta=RESET_DELTA)
-    else:
+    try:
+        task_request = TaskRequest.objects.get(repository__name=project)
         # Increase the counter of how many times the gecko decision task
         # has contacted us
         task_request.counter += 1
         if task_request.has_expired():
             task_request.last_reset = now
-
+    except TaskRequest.DoesNotExist:
+        task_request = TaskRequest(repository=Repository.objects.get(name=project),
+                                   counter=1,
+                                   last_reset=now,
+                                   reset_delta=RESET_DELTA)
     task_request.save()
     return task_request
 
@@ -118,12 +117,16 @@ def _query_job_priorities(priority, exclude):
     return job_priorities.exclude(buildsystem=exclude)
 
 
-def seta_job_scheduling(project, build_system_type, priority=5, user_agent=None):
+def _validate_request(build_system_type, project):
     if build_system_type not in ('buildbot', 'taskcluster', '*'):
         raise SetaError('Valid build_system_type values are buildbot or taskcluster.')
 
     if project not in ('mozilla-inbound', 'autoland', 'mozilla-central', 'graphics'):
-        raise SetaError('We currently only support mozilla-inbound and autoland.')
+        raise SetaError('We currently do not support {}.'.format(project))
+
+
+def seta_job_scheduling(project, build_system_type, priority=5, user_agent=None):
+    _validate_request(build_system_type, project)
 
     if user_agent == GECKO_DECISION_TASK_USER_AGENT:
         ref_data_names = _gecko_decision_task_request(project)
