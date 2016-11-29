@@ -1,3 +1,5 @@
+<div ng-class="['status', status]">&nbsp;</div>
+
 <div ng-if="line.verified">
   <a ng-if="!line.verifiedIgnore"
      class="label label-xs label-primary"
@@ -62,7 +64,7 @@
     </span>
   </div>
 
-  <div ng-if="!line.verified">
+  <div ng-if="(!line.verified && $ctrl.isEditable) || !$ctrl.canClassify">
     <ul class="list-unstyled">
       <!--classification options for line-->
       <li ng-repeat="option in options"
@@ -103,5 +105,14 @@
         </th-classification-option>
       </li>
     </ul>
+  </div>
+
+  <div ng-if="!line.verified && !$ctrl.isEditable && $ctrl.canClassify">
+    <th-static-classification-option
+       error-line="line"
+       option-data="currentOption"
+       selected-option="selectedOption"
+       num-options="options.length">
+    </th-static-classification-option>
   </div>
 </div>

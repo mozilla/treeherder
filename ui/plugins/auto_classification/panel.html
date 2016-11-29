@@ -1,5 +1,6 @@
 <span style="display:none"></span>
 <th-autoclassify-toolbar
+   ng-hide="!canClassify"
    class="th-context-navbar"
    load-status="$ctrl.loadStatus"
    autoclassify-status="$ctrl.autoclassifyStatus"
@@ -9,6 +10,7 @@
    can-save-all="canSave(pendingLines())"
    can-classify="canClassify"
    on-ignore="$ctrl.onIgnore()"
+   on-edit="$ctrl.onToggleEditable()"
    on-save="$ctrl.onSave()"
    on-save-all="$ctrl.onSaveAll()"
    ></th-autoclassify-toolbar>
@@ -32,7 +34,9 @@
    error-matchers="errorMatchers"
    error-lines="errorLines"
    selected-line-ids="$ctrl.selectedLineIds"
+   editable-line-ids="$ctrl.editableLineIds"
    can-classify="canClassify"
    on-update-line="$ctrl.onUpdateLine(lineId, type, classifiedFailureId, bugNumber)"
+   on-line-editable-change="$ctrl.onEditableChange(lineId, editable)"
    on-toggle-select="$ctrl.onToggleSelect(lineIds, clear)"
    ></th-autoclassify-errors>
