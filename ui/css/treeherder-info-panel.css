@@ -542,7 +542,6 @@ th-autoclassify-errors {
 
 th-error-line {
   display: flex;
-  padding: 6px 6px 6px 6px;
 }
 
 th-error-line.selected {
@@ -553,6 +552,31 @@ th-error-line.selected {
 th-error-line .errorline-controls {
   width: 70px;
   text-align: center;
+}
+
+th-error-line .status {
+    width: 6px;
+    margin-right: 3px;
+}
+
+th-error-line .status.classification-disabled {
+    background-color: #0000;
+}
+
+th-error-line .status.verified {
+    background-color: green;
+}
+
+th-error-line .status.unverified-ignore {
+    background-color: grey;
+}
+
+th-error-line .status.unverified-no-bug {
+    background-color: red;
+}
+
+th-error-line .status.unverified {
+    background-color: orange;
 }
 
 th-error-actions select {
@@ -584,7 +608,7 @@ th-error-line .label-ignored {
   background-color: lightgrey;
 }
 
-th-classification-option .classification-icon {
+th-static-classification-option .classification-icon, th-classification-option .classification-icon {
   width: 24px;
   margin-top: auto;
   margin-bottom: auto;
@@ -592,7 +616,7 @@ th-classification-option .classification-icon {
   display: inline-block;
 }
 
-th-classification-option .classification-icon > * {
+th-static-classification-option .classification-icon > *, th-classification-option .classification-icon > * {
  margin-left: auto;
  margin-right: auto;
 }
