@@ -179,15 +179,14 @@
             </a>
           </span>
         </li>
-        <li class="small" ng-repeat="(label, value) in visibleFields"
-            ng-hide="label === 'Build' && job.build_system_type !== 'buildbot'">
+        <li class="small" ng-repeat="(label, value) in visibleFields">
           <label>{{label}}:</label>
-          <span ng-switch on="label">
-              <a ng-switch-when="Build"
+          <span ng-switch on="job.build_system_type === 'buildbot'">
+              <a ng-switch-when="true"
                  ng-repeat="job_log_url in job_log_urls"
                  title="Open build directory in a new tab"
                  ng-attr-href="{{job_log_url.buildUrl}}" target="_blank">{{value}}</a>
-              <span ng-switch-when="Job name"
+              <span ng-switch-when="false"
                     title="{{job.job_type_description}}">
                     {{value}}
                     <span ng-hide="job.job_type_description.length == 0" class="fa fa-info-circle"></span>
