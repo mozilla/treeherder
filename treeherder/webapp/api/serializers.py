@@ -56,7 +56,6 @@ class JobExclusionSerializer(serializers.ModelSerializer):
 
 
 class ExclusionProfileSerializer(serializers.ModelSerializer):
-    flat_exclusion = NoOpSerializer(read_only=True)
 
     class Meta:
         model = models.ExclusionProfile

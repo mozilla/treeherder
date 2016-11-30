@@ -510,10 +510,10 @@ class ExclusionProfileManager(models.Manager):
     Convenience functions for operations on groups of exclusion profiles
     """
 
-    def get_signatures_for_project(self, project_name,
+    def get_signatures_for_project(self, repository_name,
                                    exclusion_profile_name):
         cache_key = ExclusionProfile.get_signature_cache_key(
-            exclusion_profile_name, project_name)
+            exclusion_profile_name, repository_name)
         cached_signatures = cache.get(cache_key)
         if cached_signatures is not None:
             return cached_signatures
@@ -524,7 +524,7 @@ class ExclusionProfileManager(models.Manager):
                 profile = self.get(is_default=True)
             else:
                 profile = self.get(name=exclusion_profile_name)
-            signatures = set(profile.flat_exclusion[project_name])
+            signatures = set(profile.get_flat_exclusions(repository_name))
         except KeyError:
             # this repo/project has no hidden signatures
             pass
@@ -549,29 +549,26 @@ class ExclusionProfile(models.Model):
     objects = ExclusionProfileManager()
 
     @staticmethod
-    def get_signature_cache_key(exclusion_profile_name, project_name):
+    def get_signature_cache_key(exclusion_profile_name, repository_name):
         return "exclusion-profile-signatures-{}-{}".format(
-            exclusion_profile_name, project_name)
+            exclusion_profile_name, repository_name)
 
     def save(self, *args, **kwargs):
         super(ExclusionProfile, self).save(*args, **kwargs)
-
-        self.update_flat_exclusions()
 
         # update the old default profile
         if self.is_default:
             ExclusionProfile.objects.filter(is_default=True).exclude(
                 id=self.id).update(is_default=False)
 
-        # just to be safe, invalidate any existing exclusion profile
-        # cache lookups
+        # invalidate any existing exclusion profile cache lookups
         cache_entries_to_delete = [
             self.get_signature_cache_key(self.name, repository.name)
             for repository in Repository.objects.all()
         ]
         cache.delete_many(cache_entries_to_delete)
 
-    def update_flat_exclusions(self):
+    def get_flat_exclusions(self, repository_name):
         # this is necessary because the ``job_types`` come back in the form of
         # ``Mochitest (18)`` or ``Reftest IPC (Ripc)`` so we must split these
         # back out.
@@ -601,23 +598,12 @@ class ExclusionProfile(models.Model):
                           option_collection_hash__in=option_collection_hashes)
             query = (query | new_query) if query else new_query
 
-        self.flat_exclusion = {}
+        if not query:
+            return []
 
-        if query:
-            signatures = ReferenceDataSignatures.objects.filter(query).values_list(
-                'repository', 'signature')
-
-            self.flat_exclusion = defaultdict(list)
-
-            # group the signatures by repo, so the queries don't have to be
-            # so long when getting jobs
-            for repo, sig in signatures:
-                self.flat_exclusion[repo].append(sig)
-
-        super(ExclusionProfile, self).save(
-            force_insert=False,
-            force_update=True
-        )
+        return ReferenceDataSignatures.objects.filter(
+            query, repository=repository_name).values_list(
+                'signature', flat=True)
 
     class Meta:
         db_table = 'exclusion_profile'
@@ -675,9 +661,14 @@ class ReferenceDataSignatures(models.Model):
         super(ReferenceDataSignatures, self).save(*args, **kwargs)
 
         # if we got this far, it indicates we added or changed something,
-        # so we need to update any exclusion profiles accordingly
-        for exclusion_profile in ExclusionProfile.objects.all():
-            exclusion_profile.save()
+        # so we need to invalidate any existing exclusion profile
+        # cache lookups corresponding to this reference data signature's
+        # repository
+        cache_entries_to_delete = [
+            ExclusionProfile.get_signature_cache_key(name, self.repository)
+            for name in ExclusionProfile.objects.values_list('name', flat=True)
+        ]
+        cache.delete_many(cache_entries_to_delete)
 
 
 class JobDuration(models.Model):
