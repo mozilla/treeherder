@@ -8,7 +8,7 @@ from treeherder.model.models import (Job,
                                      JobNote)
 
 
-def test_note_list(webapp, sample_notes, jm, test_user):
+def test_note_list(webapp, eleven_jobs_with_notes, jm, test_user):
     """
     test retrieving a list of notes from the note-list endpoint
     """
@@ -31,7 +31,7 @@ def test_note_list(webapp, sample_notes, jm, test_user):
                                          job__project_specific_id=job_id)]
 
 
-def test_note_detail(webapp, sample_notes, test_user, jm):
+def test_note_detail(webapp, eleven_jobs_with_notes, test_user, jm):
     """
     test retrieving a single note from the notes-detail
     endpoint.
@@ -48,7 +48,7 @@ def test_note_detail(webapp, sample_notes, test_user, jm):
     assert resp.json == {
         "id": 1,
         "job_id": note.job.project_specific_id,
-        "failure_classification_id": 1,
+        "failure_classification_id": 2,
         "who": test_user.email,
         "created": note.created.isoformat(),
         "text": "you look like a man-o-lantern"
@@ -123,7 +123,7 @@ def test_create_note(webapp, eleven_jobs_stored, mock_message_broker, jm,
 
 
 @pytest.mark.parametrize('test_no_auth', [True, False])
-def test_delete_note(webapp, sample_notes, mock_message_broker, jm,
+def test_delete_note(webapp, eleven_jobs_with_notes, mock_message_broker, jm,
                      test_sheriff, test_no_auth):
     """
     test deleting a single note via endpoint
