@@ -200,8 +200,6 @@ def test_job_list_excluded(webapp, eleven_jobs_stored, sample_data,
         author=test_sheriff,
     )
     exclusion_profile.exclusions.add(job_exclusion)
-
-    # save populates the flat exclusions
     exclusion_profile.save()
 
     resp = webapp.get(reverse(
