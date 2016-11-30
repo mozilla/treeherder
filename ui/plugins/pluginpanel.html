@@ -73,15 +73,11 @@
               <li>
                 <a id="pin-job-btn" href=""
                    title="Add this job to the pinboard"
+                   class="icon-blue"
                    ng-click="pinboard_service.pinJob(selectedJob)">
-                  <span class="glyphicon glyphicon-pushpin"
-                        ng-class="{'icon-blue': (pinboard_service.count.numPinnedJobs > 0)}">
-                  </span>
-                  <span ng-show="pinboard_service.count.numPinnedJobs"
-                        class="pinned-job-count">{{getCountPinnedJobs()}}</span>
+                  <span class="glyphicon glyphicon-pushpin"></span>
                 </a>
               </li>
-
             </ul>
           </li>
           <li class="dropdown">
@@ -246,15 +242,18 @@
         <ul class="nav navbar-nav info-panel-navbar-controls">
           <li>
             <a href="" ng-click="togglePinboardVisibility()"
-               ng-class="{'pinboard-open-btn': isPinboardVisible}">
-              <span ng-hide="isPinboardVisible"
-                    title="Open the pinboard">Open pinboard&nbsp
-                    <span class="fa fa-angle-up"></span>
-              </span>
-              <span ng-show="isPinboardVisible"
-                    title="Close the pinboard">Close pinboard&nbsp
-                    <span class="fa fa-angle-down"></span>
-              </span>
+               class="pinboard-btn">
+              <div ng-attr-title="{{isPinboardVisible ? 'Close the pinboard' : 'Open the pinboard'}}">Pinboard
+                <div ng-if="pinboard_service.count.numPinnedJobs"
+                     title="{{getCountPinnedTitle()}}"
+                     class="pin-count-group"
+                     ng-class="{'pin-count-group-3-digit': (pinboard_service.count.numPinnedJobs > 99)}">
+                  <div class="pin-count-text"
+                       ng-class="{'pin-count-text-3-digit': (pinboard_service.count.numPinnedJobs > 99)}">
+                    {{getCountPinnedJobs()}}</div>
+                </div>
+                <span class="fa" ng-class="isPinboardVisible ? 'fa-angle-down' : 'fa-angle-up'"></span>
+              </div>
             </a>
           </li>
           <li>

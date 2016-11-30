@@ -70,6 +70,7 @@ treeherder.factory('thPinboard', [
                 if (api.spaceRemaining() > 0) {
                     pinnedJobs[job.id] = job;
                     api.count.numPinnedJobs = _.size(pinnedJobs);
+                    $rootScope.$emit(thEvents.pulsePinCount);
                 } else {
                     thNotify.send("Pinboard is already at maximum size of " + api.maxNumPinned,
                                   "danger");

@@ -301,6 +301,18 @@ treeherder.controller('PluginCtrl', [
             return thPinboard.count.numPinnedJobs;
         };
 
+        $scope.getCountPinnedTitle = function() {
+            var title = "";
+
+            if (thPinboard.count.numPinnedJobs === 1) {
+                title = "You have " + thPinboard.count.numPinnedJobs + " job pinned";
+            } else if (thPinboard.count.numPinnedJobs > 1) {
+                title = "You have " + thPinboard.count.numPinnedJobs + " jobs pinned";
+            }
+
+            return title;
+        };
+
         $scope.togglePinboardVisibility = function() {
             $scope.isPinboardVisible = !$scope.isPinboardVisible;
         };

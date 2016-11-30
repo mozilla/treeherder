@@ -170,6 +170,9 @@ treeherder.provider('thEvents', function() {
             // fired with a selected job on ctrl/cmd-click
             toggleJobPin: "job-togglepin-EVT",
 
+            // fired with api call to increment the pinned jobs
+            pulsePinCount: "pulse-pin-count-EVT",
+
             // fired with a selected job on 'r'
             jobRetrigger: "job-retrigger-EVT",
 
