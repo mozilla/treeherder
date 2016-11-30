@@ -37,17 +37,23 @@ div#info-panel .navbar-nav > ul {
   height: 32px;
 }
 
-div#info-panel .navbar-nav > li > a {
+div#info-panel .navbar-nav > li > a,
+div#info-panel .navbar-nav > li > button {
   padding: 6px 15px;
   line-height: 19px;
 }
 
+div#info-panel .navbar-nav > li > button {
+  border: none;
+  background: transparent;
+}
 /* Use a loaded image, rather than an icon, so it needs to be slightly shorter */
 div#info-panel .navbar-nav > li > a#logviewer-btn {
   line-height: 18px;
 }
 
 div#info-panel .navbar-nav > li > a.disabled,
+div#info-panel .navbar-nav > li > button.disabled,
 ul.actionbar-menu > li.disabled {
   cursor: not-allowed;
   text-decoration: none;
@@ -161,8 +167,8 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
  * Job details action bar
  */
 
-.actionbar-nav > li:not(:first-child) {
-  /* Preserve left side padding on our first icon but keep others compact */
+.actionbar-nav > li {
+  /* Override padding on all icons to keep compact */
   padding: 0 !important;
 }
 
@@ -182,8 +188,8 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
  */
 
 #job-details-panel {
-  width: 250px;
-  min-width: 250px;
+  width: 252px;
+  min-width: 252px;
 }
 
 #job-details-panel .content-spacer {
