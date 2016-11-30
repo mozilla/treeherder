@@ -542,7 +542,6 @@ class ExclusionProfile(models.Model):
     name = models.CharField(max_length=255, unique=True)
     is_default = models.BooleanField(default=False, db_index=True)
     exclusions = models.ManyToManyField(JobExclusion, related_name="profiles")
-    flat_exclusion = JSONField(blank=True, default={})
     author = models.ForeignKey(User, related_name="exclusion_profiles_authored", db_index=True)
     modified = models.DateTimeField(auto_now=True)
 
