@@ -16,8 +16,10 @@
     <span class="result-set-left">
       <span class="result-set-title-left">
         <span>
-          <a href="{{::revisionResultsetFilterUrl}}"
+          <a ng-href="{{::revisionResultsetFilterUrl}}"
+             ng-click="changeResultSet(repoName, resultset.revision)"
              title="View only this resultset"
+             prevent-default-on-left-click
              data-ignore-job-clear-on-click>{{::resultsetDateStr}}
             <span class="fa fa-external-link icon-superscript"></span></a> - </span>
         <th-author author="{{::resultset.author}}"></th-author>
