@@ -56,6 +56,7 @@ class TaskclusterAuthBackend(object):
             return email
         else:
             # Try finding the email in the clientId.
+            # Credit for regex to http://emailregex.com/ Python section
             match = re.search(
                 r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)",
                 result["clientId"])
