@@ -49,12 +49,22 @@ class TaskclusterAuthBackend(object):
         For more info on scopes:
         https://docs.taskcluster.net/manual/3rdparty#authenticating-with-scopes
         """
+        # Try finding the email in the mozilla-user scope
         email = self._get_scope_value(result["scopes"], "assume:mozilla-user:")
 
         if email and re.search(r'.+@.+', email):
             return email
+        else:
+            # Try finding the email in the clientId.
+            match = re.search(
+                r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)",
+                result["clientId"])
+            if match:
+                return match.group(0)
+
+        # If we get here, we couldn't find a valid email.  So deny login.
         raise TaskclusterAuthenticationFailed(
-            "Invalid email for clientId: '{}'. Invalid value for scope 'assume:mozilla-user': '{}'".format(
+            "Unable to determine email for clientId: '{}'. Scope 'assume:mozilla-user': '{}'".format(
                 result["clientId"], email))
 
     def _get_user(self, email):
