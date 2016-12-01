@@ -1,3 +1,4 @@
+import pytest
 from django.contrib.sessions.models import Session
 from django.core.urlresolvers import reverse
 from mohawk import Sender
@@ -103,11 +104,11 @@ def test_post_no_auth():
 
 # TC Auth Login and Logout Tests
 
-def test_login_and_logout(test_user, webapp, monkeypatch):
-
+def test_ldap_login_and_logout(test_user, webapp, monkeypatch):
+    """LDAP login user exists, has scope: find by email"""
     def mock_auth(selfless, payload):
         return {"status": "auth-success",
-                "clientId": "foo",
+                "clientId": "mozilla-ldap/user@foo.com",
                 "scopes": ["assume:mozilla-user:user@foo.com"]
                 }
     monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
@@ -119,16 +120,108 @@ def test_login_and_logout(test_user, webapp, monkeypatch):
     session = Session.objects.get(session_key=session_key)
     session_data = session.get_decoded()
     user = User.objects.get(id=session_data.get('_auth_user_id'))
-    assert user == test_user
+    assert user.id == test_user.id
 
     webapp.get(reverse("auth-logout"), status=200)
     assert "sessionid" not in webapp.cookies
 
 
-def test_login_not_active(test_user, webapp, monkeypatch):
+def test_ldap_login_no_mozilla_user_scope(test_user, webapp, monkeypatch):
+    """
+    LDAP login, user exists, no scope: find by username.
+    also covers logging in by email
+    """
+    client_id = "mozilla-ldap/test@foo.com"
+    existing_user = User.objects.create(username=client_id, email="test@foo.com")
+
     def mock_auth(selfless, payload):
         return {"status": "auth-success",
-                "clientId": "foo",
+                "clientId": client_id,
+                "scopes": []
+                }
+    monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
+
+    webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=200)
+
+    session_key = webapp.cookies["sessionid"]
+    session = Session.objects.get(session_key=session_key)
+    session_data = session.get_decoded()
+    user = User.objects.get(id=session_data.get('_auth_user_id'))
+    assert user.id == existing_user.id
+    assert user.username == client_id
+
+
+def test_ldap_login_no_mozilla_user_scope_create(test_user, webapp, monkeypatch):
+    """
+    LDAP login, user exists, no scope: find by username.
+    create because no username match
+    """
+    client_id = "mozilla-ldap/user@foo.com"
+
+    def mock_auth(selfless, payload):
+        return {"status": "auth-success",
+                "clientId": client_id,
+                "scopes": []
+                }
+    monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
+
+    webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=200)
+
+    session_key = webapp.cookies["sessionid"]
+    session = Session.objects.get(session_key=session_key)
+    session_data = session.get_decoded()
+    user = User.objects.get(id=session_data.get('_auth_user_id'))
+    assert user.id != test_user.id
+    assert user.username == client_id
+
+
+@pytest.mark.django_db
+def test_login_email_user_doesnt_exist(test_user, webapp, monkeypatch):
+    """email login, user doesn't exist, create it"""
+    def mock_auth(selfless, payload):
+        return {"status": "auth-success",
+                "clientId": "email/user@foo.com",
+                "scopes": []
+                }
+    monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
+
+    resp = webapp.get(reverse("auth-login"), headers={"tcauth": "foo"})
+    assert resp.json["username"] == "email/user@foo.com"
+
+
+@pytest.mark.django_db
+def test_login_no_email(test_user, webapp, monkeypatch):
+    """
+    When we move to clientId for display in the UI, we may decide users can
+    login without an email.  But for now, it's required.
+
+    Note: Need to have the ``test_user`` fixture in this test, even though we
+    don't use it directly.  If you don't, you will get a
+    TransactionManagementError.
+
+    I am MOSTLY certain this error happens because the model backend tries
+    to authenticate the user, but there are NO users at all, so it hits an
+    exception, which causes the TaskclusterAuthBackend to also fail because the
+    transaction has been compromised.
+
+    """
+    def mock_auth(selfless, payload):
+        return {"status": "auth-success",
+                "clientId": "foo/bar",
+                "scopes": ["assume:mozilla-user:meh"]
+                }
+    monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
+
+    resp = webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=403)
+    assert resp.json["detail"] == "No email in clientId.  Email required."
+
+
+@pytest.mark.django_db
+def test_login_not_active(test_user, webapp, monkeypatch):
+    """LDAP login, user not active"""
+    def mock_auth(selfless, payload):
+        return {"status": "auth-success",
+                "clientId": "email/user@foo.com",
                 "scopes": ["assume:mozilla-user:user@foo.com"]
                 }
     monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
@@ -138,18 +231,6 @@ def test_login_not_active(test_user, webapp, monkeypatch):
 
     resp = webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=403)
     assert resp.json["detail"] == "This user has been disabled."
-
-
-def test_login_no_email(webapp, monkeypatch):
-    def mock_auth(selfless, payload):
-        return {"status": "auth-success",
-                "clientId": "foo",
-                "scopes": ["assume:mozilla-user:meh"]
-                }
-    monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
-
-    resp = webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=403)
-    assert resp.json["detail"] == "Invalid email for clientId: 'foo'. Invalid value for scope 'assume:mozilla-user': 'meh'"
 
 
 def test_login_invalid(webapp, monkeypatch):
