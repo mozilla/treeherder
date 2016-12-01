@@ -1,5 +1,3 @@
-import base64
-import hashlib
 import logging
 import re
 
@@ -7,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.reverse import reverse
 from taskcluster.sync import Auth
+from taskcluster.utils import scope_match
 
 try:
     from django.utils.encoding import smart_bytes
@@ -37,58 +36,50 @@ class TaskclusterAuthBackend(object):
          'expires': '2016-10-31T17:40:45.692Z'}
     """
 
-    def _get_scope_value(self, scopes, scope_prefix):
-        for scope in scopes:
-            if scope.startswith(scope_prefix):
-                return scope[len(scope_prefix):]
-        return None
-
-    def _get_email(self, result):
+    def _extract_email_from_clientid(self, client_id):
         """
-        Get the user's email from the mozilla-user scope
+        Extract the user's email from the client_id
 
-        For more info on scopes:
-        https://docs.taskcluster.net/manual/3rdparty#authenticating-with-scopes
+        The client_id MUST be in the form:
+            "email/<username>@<domain>"
+              or
+            "mozilla-ldap/<username>@<domain>"
         """
-        # Try finding the email in the mozilla-user scope
-        email = self._get_scope_value(result["scopes"], "assume:mozilla-user:")
 
-        if email and re.search(r'.+@.+', email):
-            return email
-        else:
-            # Try finding the email in the clientId.
+        if client_id.startswith("email/") or client_id.startswith("mozilla-ldap/"):
+            email = client_id.split("/", 1)[1]
+            # ensure what we find after the split is a valid email and ONLY
+            # a valid email
             match = re.search(
-                r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)",
-                result["clientId"])
+                r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)",
+                email)
             if match:
                 return match.group(0)
+        raise NoEmailException("No email found in clientId: '{}'".format(client_id))
 
-        # If we get here, we couldn't find a valid email.  So deny login.
-        raise TaskclusterAuthenticationFailed(
-            "Unable to determine email for clientId: '{}'. Scope 'assume:mozilla-user': '{}'".format(
-                result["clientId"], email))
-
-    def _get_user(self, email):
+    def _find_user_by_email(self, email, username, scopes):
         """
-        Try to find an exising user that matches the email.
-
-        TODO: Switch to using ``username`` instead of email once we are on
-        Django 1.10 in Bug 1311967.  will need to migrate existing hashed
-        usenames at that point.
-
+        Try to find an existing user that matches the email.
         """
 
-        # Since there is a unique index on username, but not on email,
-        # it is POSSIBLE there could be two users with the same email and
-        # different usernames.  Not very likely, but this is safer.
-        user = User.objects.filter(email=email)
+        if scope_match(scopes, [["assume:mozilla-user:{}".format(email)]]):
+            # Find the user by their email.
 
-        # if we didn't find any, then raise an exception so we create a new
-        # user
-        if not user:
-            raise ObjectDoesNotExist
+            # Since there is a unique index on username, but not on email,
+            # it is POSSIBLE there could be two users with the same email and
+            # different usernames.  Not very likely, but this is safer.
+            users = User.objects.filter(email=email)
 
-        return user.first()
+            # update the username
+            if users:
+                user = users.first()
+                user.username = username
+                user.save()
+                return user
+
+        # if we didn't find any, or the user doesn't have the proper scope,
+        # then raise an exception so we create a new user
+        raise ObjectDoesNotExist
 
     def authenticate(self, auth_header=None, host=None, port=None):
         if not auth_header:
@@ -109,32 +100,30 @@ class TaskclusterAuthBackend(object):
 
         if result["status"] != "auth-success":
             logger.warning("Error logging in: {}".format(result["message"]))
-            raise TaskclusterAuthenticationFailed(result["message"])
+            raise TaskclusterAuthException(result["message"])
 
-        # TODO: remove this size limit when we upgrade to django 1.10
-        # in Bug 1311967
-        email = self._get_email(result)
-        if len(email) <= 30:
-            username = email
-        else:
-            username = base64.urlsafe_b64encode(
-                hashlib.sha1(smart_bytes(email)).digest()
-                ).rstrip(b'=')[-30:]
+        client_id = result["clientId"]
+        email = self._extract_email_from_clientid(client_id)
 
+        # Look for an existing user in this order:
+        #
+        # 1. Matching username/clientId
+        # 2. Matching email.
+        # Otherwise, create it, as long as it has an email.
         try:
-            # Find the user by their email.
-            user = self._get_user(email)
-            user.username = username
+            return User.objects.get(username=client_id)
 
         except ObjectDoesNotExist:
-            # the user doesn't already exist, create it.
-            logger.warning("Creating new user: {}".format(username))
-            user = User(email=email,
-                        username=username,
-                        )
+            try:
+                # TODO: remove this once all users are converted to clientId
+                # as username.
+                return self._find_user_by_email(email, client_id, result["scopes"])
 
-        user.save()
-        return user
+            except ObjectDoesNotExist:
+                # the user doesn't already exist, create it.
+                logger.warning("Creating new user: {}".format(client_id))
+                return User.objects.create(email=email,
+                                           username=client_id)
 
     def get_user(self, user_id):
         try:
@@ -143,5 +132,9 @@ class TaskclusterAuthBackend(object):
             return None
 
 
-class TaskclusterAuthenticationFailed(Exception):
+class TaskclusterAuthException(Exception):
+    pass
+
+
+class NoEmailException(Exception):
     pass
