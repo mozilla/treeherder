@@ -93,7 +93,8 @@ div#info-panel .info-panel-navbar > ul.tab-headers > li {
   white-space: nowrap;
 }
 
-.info-panel-navbar .navbar-nav > li > a {
+.info-panel-navbar .navbar-nav > li > a,
+.info-panel-navbar .navbar-nav > li > button {
   color: #9FA3A5;
 }
 
