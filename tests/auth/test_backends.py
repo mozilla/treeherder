@@ -34,16 +34,16 @@ def test_get_user(username, email, user, exp_exception):
                            False),
                           ({'scopes': ['assume:mozillians-user:biped'],
                             'clientId': 'mozilla-ldap/biped@mozilla.com'},
-                           None,
-                           True),
-                          # typical mozillians account logged in with Auth0
+                           "biped@mozilla.com",
+                           False),
+                          # a Mozillians account without email in clientId
                           ({'scopes': ["assume:mozillians-user:dude",
                                        "assume:mozillians-unvouched",
                                        "auth:create-client:email/dude@lebowski.rug/*",
                                        "auth:delete-client:email/dude@lebowski.rug/*",
                                        "auth:update-client:email/dude@lebowski.rug/*",
                                        "auth:reset-access-token:email/dude@lebowski.rug/*"],
-                            'clientId': 'email/dude@lebowski.rug'},
+                            'clientId': 'email/duderino'},
                            None,
                            True),
                           ])
