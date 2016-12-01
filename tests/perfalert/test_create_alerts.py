@@ -24,8 +24,6 @@ def _verify_alert(alertid, expected_push_id, expected_prev_push_id,
     assert alert.classifier == expected_classifier
 
     summary = PerformanceAlertSummary.objects.get(id=alertid)
-    assert summary.result_set_id is None
-    assert summary.prev_result_set_id is None
     assert summary.push_id == expected_push_id
     assert summary.prev_push_id == expected_prev_push_id
     assert summary.status == expected_summary_status

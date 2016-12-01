@@ -588,8 +588,6 @@ def test_perf_alert_summary(test_repository, result_set_stored, test_perf_framew
     return PerformanceAlertSummary.objects.create(
         repository=test_repository,
         framework=test_perf_framework,
-        prev_result_set_id=1,
-        result_set_id=2,
         prev_push_id=1,
         push_id=2,
         manually_created=False,

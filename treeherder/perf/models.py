@@ -124,9 +124,6 @@ class PerformanceAlertSummary(models.Model):
     repository = models.ForeignKey(Repository)
     framework = models.ForeignKey(PerformanceFramework, null=True)
 
-    prev_result_set_id = models.PositiveIntegerField(null=True)
-    result_set_id = models.PositiveIntegerField(null=True)
-
     prev_push = models.ForeignKey(Push, related_name='+')
     push = models.ForeignKey(Push, related_name='+')
 

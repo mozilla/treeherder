@@ -44,8 +44,6 @@ def test_alerts_put(webapp, result_set_stored, test_repository,
     PerformanceAlertSummary.objects.create(
         id=2,
         repository=test_repository,
-        prev_result_set_id=2,
-        result_set_id=3,
         prev_push_id=2,
         push_id=3,
         last_updated=datetime.datetime.now(),
