@@ -84,8 +84,6 @@ def test_alert_modification(test_repository, test_perf_signature,
         repository=test_repository,
         prev_push_id=3,
         push_id=4,
-        prev_result_set_id=3,
-        result_set_id=4,
         last_updated=datetime.datetime.now(),
         manually_created=False)
 

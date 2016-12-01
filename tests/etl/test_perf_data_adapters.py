@@ -390,9 +390,7 @@ def test_alert_generation(test_project, test_repository,
     if expected_num_alerts > 0:
         assert 1 == PerformanceAlertSummary.objects.all().count()
         summary = PerformanceAlertSummary.objects.get(id=1)
-        assert summary.result_set_id is None
         assert summary.push_id == 16
-        assert summary.prev_result_set_id is None
         assert summary.prev_push_id == 15
     else:
         assert 0 == PerformanceAlertSummary.objects.all().count()
