@@ -1,0 +1,6 @@
+<!-- Show this when the Treeherder server has updated -->
+<div class="alert alert-info update-alert-panel" ng-show="serverChangedDelayed" ng-cloak>
+  <i class="fa fa-info-circle" aria-hidden="true"></i>
+  Treeherder has updated. To pick up the changes, you can reload the page
+  <button ng-click="updateButtonClick()" class="btn btn-xs btn-danger">Reload</button>
+</div>

@@ -78,3 +78,12 @@
 .field-filter-placeholder a {
     cursor: pointer;
 }
+
+/*
+ * Update notification panel
+ */
+
+.update-alert-panel {
+    border-radius: 0px;
+    margin-bottom: 0px;
+}
