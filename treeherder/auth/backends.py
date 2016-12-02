@@ -5,6 +5,7 @@ import re
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.reverse import reverse
 from taskcluster.sync import Auth
 
 try:
@@ -92,7 +93,7 @@ class TaskclusterAuthBackend(object):
             "authorization": auth_header,
             "host": host,
             "port": port,
-            "resource": "/api/auth/login/",
+            "resource": reverse("auth-login"),
             "method": "get",
         })
 
