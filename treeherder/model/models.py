@@ -739,6 +739,15 @@ class Job(models.Model):
     class Meta:
         db_table = 'job'
         unique_together = ('repository', 'project_specific_id')
+        index_together = [
+            # these speed up the various permutations of the "similar jobs"
+            # queries
+            ('repository', 'job_type', 'start_time'),
+            ('repository', 'build_platform', 'job_type', 'start_time'),
+            ('repository', 'option_collection_hash', 'job_type', 'start_time'),
+            ('repository', 'build_platform', 'option_collection_hash',
+             'job_type', 'start_time'),
+        ]
 
     def __str__(self):
         return "{0} {1} {2} {3}".format(self.id, self.repository, self.guid,

@@ -563,11 +563,10 @@ class JobsViewSet(viewsets.ViewSet):
                              job_type_id=job.job_type_id,
                              repository=repository).exclude(
                                  id=job.id).select_related(
-                                     *self._default_select_related +
-                                     ['push__time'])).qs
+                                     *self._default_select_related)).qs
 
         # similar jobs we want in descending order from most recent
-        jobs = jobs.order_by('-push__time')
+        jobs = jobs.order_by('-start_time')
 
         response_body = self._get_job_list_response(jobs, offset, count,
                                                     return_type)
