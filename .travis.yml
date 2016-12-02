@@ -1,3 +1,4 @@
+group: deprecated # work around travis issue with trusty image https://github.com/travis-ci/travis-ci/issues/6928
 env:
   global:
     # Ensure the vendored libmysqlclient library can be found at run-time.
