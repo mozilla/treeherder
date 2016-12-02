@@ -14,7 +14,9 @@ from webtest.app import TestApp
 from treeherder.client import TreeherderClient
 from treeherder.config.wsgi import application
 from treeherder.model.derived.jobs import JobsModel
-from treeherder.model.models import Push
+from treeherder.model.models import (Job,
+                                     JobNote,
+                                     Push)
 
 
 def pytest_addoption(parser):
@@ -260,6 +262,23 @@ def eleven_job_blobs(jm, sample_data, sample_resultset, test_repository, mock_lo
 def eleven_jobs_stored(jm, failure_classifications, eleven_job_blobs):
     """stores a list of 11 job samples"""
     jm.store_job_data(eleven_job_blobs)
+
+
+@pytest.fixture
+def eleven_jobs_with_notes(jm, sample_data, eleven_jobs_stored, test_user,
+                           failure_classifications, test_repository):
+    """provide 11 jobs with job notes."""
+
+    jobs = jm.get_job_list(0, 10)
+
+    for ds_job in jobs:
+        for fcid in [2, 3]:
+            job = Job.objects.get(project_specific_id=ds_job['id'],
+                                  repository=test_repository)
+            JobNote.objects.create(job=job,
+                                   failure_classification_id=fcid,
+                                   user=test_user,
+                                   text="you look like a man-o-lantern")
 
 
 @pytest.fixture

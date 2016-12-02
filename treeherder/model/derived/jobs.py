@@ -358,11 +358,11 @@ class JobsModel(TreeherderModelBase):
         note = JobNote.objects.filter(
             job__repository__name=self.project,
             job__project_specific_id=job_id).order_by('-created').first()
-
         if note:
             failure_classification_id = note.failure_classification.id
         else:
-            failure_classification_id = 0
+            failure_classification_id = FailureClassification.objects.values_list(
+                'id', flat=True).get(name='not classified')
 
         self.execute(
             proc='jobs.updates.update_last_job_classification',
