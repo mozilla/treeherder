@@ -261,7 +261,8 @@ class JobsModel(TreeherderModelBase):
 
         # Notify the build systems which created these jobs...
         for job in Job.objects.filter(push_id=push_id).exclude(state='completed'):
-            self._job_action_event(job.id, 'cancel', requester)
+            self._job_action_event(job.project_specific_id, 'cancel',
+                                   requester)
 
         # Mark pending jobs as cancelled to work around buildbot not including
         # cancelled jobs in builds-4hr if they never started running.
