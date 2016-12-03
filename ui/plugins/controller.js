@@ -390,6 +390,13 @@ treeherder.controller('PluginCtrl', [
         $scope.backfillButtonTitle = function() {
             var title = "";
 
+            // Ensure currentRepo is available on initial page load
+            if (!$scope.currentRepo) {
+                $scope.currentRepo = {};
+                $scope.currentRepo.repository_group = {};
+                $scope.currentRepo.repository_group.name = '';
+            }
+
             if (!$scope.user.loggedin) {
                 title = title.concat("must be logged in to backfill a job / ");
             }
