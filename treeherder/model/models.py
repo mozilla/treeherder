@@ -421,7 +421,7 @@ class Datasource(models.Model):
 @python_2_unicode_compatible
 class JobGroup(models.Model):
     id = models.AutoField(primary_key=True)
-    symbol = models.CharField(max_length=10, default='?', db_index=True)
+    symbol = models.CharField(max_length=25, default='?', db_index=True)
     name = models.CharField(max_length=100, db_index=True)
     description = models.TextField(blank=True)
 
@@ -461,7 +461,7 @@ class OptionCollection(models.Model):
 class JobType(models.Model):
     id = models.AutoField(primary_key=True)
     job_group = models.ForeignKey(JobGroup, null=True, blank=True)
-    symbol = models.CharField(max_length=10, default='?', db_index=True)
+    symbol = models.CharField(max_length=25, default='?', db_index=True)
     name = models.CharField(max_length=100, db_index=True)
     description = models.TextField(blank=True)
 
