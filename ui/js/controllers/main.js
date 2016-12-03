@@ -73,7 +73,7 @@ treeherderApp.controller('MainCtrl', [
                 });
             }, revisionPollInterval);
         }, function(reason) {
-            $log.log(reason);
+            $log.debug(reason);
         });
 
         $rootScope.getWindowTitle = function() {
