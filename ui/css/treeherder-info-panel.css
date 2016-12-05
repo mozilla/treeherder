@@ -3,12 +3,28 @@ div#info-panel {
   font-size: 12px;
   height: 35%;
   max-height: 75%;
+  transform: translateY(0%);
   flex: none;
   -webkit-flex: none;
   display: -webkit-flex;
   display: flex;
   -webkit-flex-flow: column;
   flex-flow: column;
+}
+
+.info-panel-slide {
+  animation: info-panel-slide 0.4s;
+  -webkit-animation: info-panel-slide 0.4s;
+}
+
+@keyframes info-panel-slide {
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(0%); }
+}
+
+@-webkit-keyframes info-panel-slide {
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(0%); }
 }
 
 div#info-panel .navbar {
