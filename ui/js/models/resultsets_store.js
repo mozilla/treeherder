@@ -166,12 +166,21 @@ treeherder.factory('ThResultSetStore', [
                                                         (5 * jobPollInterval)),
                                                lastJobUpdate]);
                     }
+                    schedulePoll();
                 });
         };
         var registerJobsPoller = function() {
-            $interval(pollJobs, jobPollInterval);
             if (!lastPolltime) {
                 lastPolltime = Date.now();
+            }
+            schedulePoll();
+        };
+
+        var schedulePoll = function() {
+            if (window.requestIdleCallback) {
+                requestIdleCallback(pollJobs, {timeout: jobPollInterval});
+            } else {
+                $timeout(pollJobs, jobPollInterval);
             }
         };
 
