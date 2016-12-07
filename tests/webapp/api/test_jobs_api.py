@@ -261,26 +261,37 @@ def test_job_retrigger_authorized(webapp, eleven_jobs_stored, jm,
     assert content['requester'] == test_user.email
 
 
-def test_job_cancel_authorized(webapp, eleven_jobs_stored, jm,
+def test_job_cancel_authorized(webapp, test_repository, eleven_jobs_stored,
                                pulse_action_consumer, test_user):
     """
-    Validate that only authenticated users can hit this endpoint.
+    Validate that job gets updated when a valid user hits this endpoint.
     """
     client = APIClient()
     client.force_authenticate(user=test_user)
 
-    job = jm.get_job_list(0, 1)[0]
+    # get the job, set its state to pending
+    job = Job.objects.get(id=1)
+    job.state = 'pending'
+    job.save()
+
     url = reverse("jobs-cancel",
-                  kwargs={"project": jm.project, "pk": job["id"]})
+                  kwargs={"project": test_repository.name,
+                          "pk": job.project_specific_id
+                  })
     client.post(url)
 
     message = pulse_action_consumer.get(block=True, timeout=2)
     content = message.payload
 
-    assert content['project'] == jm.project
+    assert content['project'] == test_repository.name
     assert content['action'] == 'cancel'
-    assert content['job_guid'] == job['job_guid']
+    assert content['job_guid'] == job.guid
     assert content['requester'] == test_user.email
+
+    # validate that we modified the job structures appropriately
+    old_last_modified = job.last_modified
+    assert old_last_modified < Job.objects.values_list(
+        'last_modified', flat=True).get(id=job.id)
 
 
 def test_job_detail_bad_project(webapp, eleven_jobs_stored, jm):

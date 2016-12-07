@@ -247,7 +247,8 @@ class JobsModel(TreeherderModelBase):
         )
         Job.objects.filter(repository__name=self.project,
                            project_specific_id=job_id).update(
-                               state=state)
+                               state=state,
+                               last_modified=datetime.now())
 
     def cancel_all_jobs_for_push(self, requester, push_id):
         """Set all pending/running jobs in resultset to usercancel."""
@@ -348,7 +349,8 @@ class JobsModel(TreeherderModelBase):
                            project_specific_id=job['id'],
                            state='pending').update(
                                state='completed',
-                               result='usercancel')
+                               result='usercancel',
+                               last_modified=datetime.now())
 
     def update_last_job_classification(self, job_id):
         """
@@ -374,7 +376,8 @@ class JobsModel(TreeherderModelBase):
         )
         Job.objects.filter(repository__name=self.project,
                            project_specific_id=job_id).update(
-                               failure_classification_id=failure_classification_id)
+                               failure_classification_id=failure_classification_id,
+                               last_modified=datetime.now())
 
     def calculate_durations(self, sample_window_seconds, debug):
         # Get the most recent timestamp from jobs
