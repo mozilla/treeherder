@@ -123,10 +123,8 @@ treeherder.factory('ThResultSetStore', [
         };
 
         var pollJobs = function(){
-            var resultSetIdList = _.pluck(
-                repositories[$rootScope.repoName].resultSets,
-                'id'
-            );
+            var resultSetIdList = repositories[$rootScope.repoName].resultSets
+                    .map(x => x.id);
 
             var jobUpdatesPromise;
             if (!lastJobUpdate || (Date.now() - lastPolltime) > maxPollInterval) {
@@ -147,32 +145,31 @@ treeherder.factory('ThResultSetStore', [
                     _.pick($location.search(), ["exclusion_profile", "visibility"]));
             }
             lastPolltime = Date.now();
-            jobUpdatesPromise.then(function(jobList) {
-                jobList = _.flatten(jobList);
-                if (jobList.length > 0) {
-                    lastJobUpdate = getLastModifiedJobTime(jobList);
-                    var jobListByResultSet = _.values(
-                        _.groupBy(jobList, 'result_set_id')
-                    );
-                    _.each(
-                        jobListByResultSet,
-                        function(singleResultSetJobList){
-                            mapResultSetJobs($rootScope.repoName, singleResultSetJobList);
-                        }
-                    );
-                } else if (lastJobUpdate) {
-                    // try to update the last poll interval to the greater of the
-                    // last job update or the current time minus a small multiple of the
-                    // job poll interval
-                    // (this depends on the client having a reasonably accurate internal
-                    // clock, but it should hopefully prevent us from getting too
-                    // far behind in cases where we've stopped receiving job updates
-                    // due e.g. to looking at a completed push)
-                    lastJobUpdate = _.max([new Date(Date.now() -
-                                                    (5 * jobPollInterval)),
-                                           lastJobUpdate]);
-                }
-            });
+            jobUpdatesPromise
+                .then(function(jobList) {
+                    jobList = _.flatten(jobList);
+                    if (jobList.length > 0) {
+                        lastJobUpdate = getLastModifiedJobTime(jobList);
+                        var jobListByResultSet = _.values(
+                            _.groupBy(jobList, 'result_set_id')
+                        );
+                        jobListByResultSet
+                            .forEach((singleResultSetJobList) =>
+                                     mapResultSetJobs($rootScope.repoName,
+                                                      singleResultSetJobList));
+                    } else if (lastJobUpdate) {
+                        // try to update the last poll interval to the greater of the
+                        // last job update or the current time minus a small multiple of the
+                        // job poll interval
+                        // (this depends on the client having a reasonably accurate internal
+                        // clock, but it should hopefully prevent us from getting too
+                        // far behind in cases where we've stopped receiving job updates
+                        // due e.g. to looking at a completed push)
+                        lastJobUpdate = _.max([new Date(Date.now() -
+                                                        (5 * jobPollInterval)),
+                                               lastJobUpdate]);
+                    }
+                });
         };
         var registerJobsPoller = function() {
             $interval(pollJobs, jobPollInterval);
@@ -997,22 +994,17 @@ treeherder.factory('ThResultSetStore', [
                                                                 repositories[repoName].rsMapOldestTimestamp,
                                                                 count,
                                                                 true,
-                                                                keepFilters).
-                then(function(data) {
-                    resultsets = data.data;
-                });
+                                                                keepFilters)
+                    .then((data) => {resultsets = data.data;});
 
-            return $q.all([loadRepositories, loadResultsets]).
-                then(
-                    function() {
-                        appendResultSets(repoName, resultsets);
-                    },
-                    function(data) {
-                        thNotify.send("Error retrieving resultset data!", "danger", true);
-                        $log.error(data);
-                        appendResultSets(repoName, {results: []});
-                    }).
-                then(function(){
+            return $q.all([loadRepositories, loadResultsets])
+                .then(() => appendResultSets(repoName, resultsets),
+                     (data) => {
+                         thNotify.send("Error retrieving resultset data!", "danger", true);
+                         $log.error(data);
+                         appendResultSets(repoName, {results: []});
+                     })
+                .then(() => {
                     // if ``nojobs`` is on the query string, then don't load jobs.
                     // this allows someone to more quickly load ranges of revisions
                     // when they don't care about the specific jobs and results.
@@ -1024,43 +1016,40 @@ treeherder.factory('ThResultSetStore', [
                         repoName,
                         _.pick($location.search(), ["exclusion_profile", "visibility"])
                     );
-                    $q.all(jobsPromiseList).then(function(resultSetJobList) {
-                        var lastModifiedTimes = _.filter(
-                            _.map(resultSetJobList, function(jobList) {
-                                return getLastModifiedJobTime(jobList);
-                            }));
-                        if (lastModifiedTimes.length) {
-                            var lastModifiedTime = _.max(lastModifiedTimes);
-                            // subtract 3 seconds to take in account a possible delay
-                            // between the job requests
-                            lastModifiedTime.setSeconds(lastModifiedTime.getSeconds() - 3);
+                    $q.all(jobsPromiseList)
+                        .then((resultSetJobList) => {
+                            var lastModifiedTimes = resultSetJobList
+                                .map((jobList) => getLastModifiedJobTime(jobList))
+                                .filter(x => x);
+                            if (lastModifiedTimes.length) {
+                                var lastModifiedTime = _.max(lastModifiedTimes);
+                                // subtract 3 seconds to take in account a possible delay
+                                // between the job requests
+                                lastModifiedTime.setSeconds(lastModifiedTime.getSeconds() - 3);
 
-                            // only update lastJobUpdate if previously unset, as we
-                            // may have other pushes which need an earlier update
-                            // if it's been a while since we last polled
-                            if (!lastJobUpdate) {
-                                lastJobUpdate = lastModifiedTime;
+                                // only update lastJobUpdate if previously unset, as we
+                                // may have other pushes which need an earlier update
+                                // if it's been a while since we last polled
+                                if (!lastJobUpdate) {
+                                    lastJobUpdate = lastModifiedTime;
+                                }
                             }
-                        }
-                    });
+                        });
                     /*
                      * this list of promises will tell us when the
                      * mapResultSetJobs function will be applied to all the jobs
                      * ie when we can register the job poller
                      */
-                    var mapResultSetJobsPromiseList = _.map(
-                        jobsPromiseList,
-                        function(jobsPromise){
-                            return jobsPromise.then(function(jobs){
-                                return mapResultSetJobs(repoName, jobs);
-                            });
+                    var mapResultSetJobsPromiseList = jobsPromiseList
+                           .map((jobsPromise) => jobsPromise
+                                .then((jobs) => mapResultSetJobs(repoName, jobs)));
+                    $q.all(mapResultSetJobsPromiseList)
+                        .then(() => {
+                            setSelectedJobFromQueryString(repoName);
+                            if (!isAppend) {
+                                registerJobsPoller();
+                            }
                         });
-                    $q.all(mapResultSetJobsPromiseList).then(function() {
-                        setSelectedJobFromQueryString(repoName);
-                        if (!isAppend) {
-                            registerJobsPoller();
-                        }
-                    });
                 });
         };
 
