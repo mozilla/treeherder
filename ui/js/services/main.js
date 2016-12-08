@@ -171,6 +171,7 @@ treeherder.factory('thPlatformName', [
 
         return function(name) {
             var platformName = thPlatformMap[name];
+            if(_.isUndefined(platformName)) {
                 platformName = name;
             }
             return platformName;

@@ -1230,18 +1230,15 @@ treeherder.factory('ThResultSetStore', [
                 });
             });
 
-			// indexOf doesn't work on objects so we need to map thPlatformMap to an array
-			var platformArray = _.map(thPlatformMap, function(val, idx, list) { return idx; });
-
-			groupedJobs.platforms = _.sortBy(groupedJobs.platforms, function(platform){
-				var priority = platformArray.indexOf(platform.name);
-				if(priority >= 0) {
-					priority = priority*100 + thOptionOrder[platform.option];
-				} else {
-					priority = NaN;
-				}
-				return priority;
-			});
+            groupedJobs.platforms = _.sortBy(groupedJobs.platforms, function(platform){
+                var priority = platformArray.indexOf(platform.name);
+                if(priority >= 0) {
+                  priority = priority*100 + thOptionOrder[platform.option];
+                } else {
+                  priority = NaN;
+                }
+                return priority;
+            });
 
             return groupedJobs;
         };
