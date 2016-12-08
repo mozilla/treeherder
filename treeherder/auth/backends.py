@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.reverse import reverse
 from taskcluster.sync import Auth
+from taskcluster.utils import scope_match
 
 try:
     from django.utils.encoding import smart_bytes
@@ -37,37 +38,22 @@ class TaskclusterAuthBackend(object):
          'expires': '2016-10-31T17:40:45.692Z'}
     """
 
-    def _get_scope_value(self, scopes, scope_prefix):
-        for scope in scopes:
-            if scope.startswith(scope_prefix):
-                return scope[len(scope_prefix):]
-        return None
-
-    def _get_email(self, result):
+    def _get_email(self, client_id):
         """
         Get the user's email from the mozilla-user scope
 
         For more info on scopes:
         https://docs.taskcluster.net/manual/3rdparty#authenticating-with-scopes
         """
-        # Try finding the email in the mozilla-user scope
-        email = self._get_scope_value(result["scopes"], "assume:mozilla-user:")
-
-        if email and re.search(r'.+@.+', email):
-            return email
 
         # Try finding the email in the clientId.
         # Credit for regex to http://emailregex.com/ Python section
         match = re.search(
             r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)",
-            result["clientId"])
+            client_id)
         if match:
             return match.group(0)
-
-        # If we get here, we couldn't find a valid email.  So deny login.
-        raise TaskclusterAuthenticationFailed(
-            "Unable to determine email for clientId: '{}'. Scope 'assume:mozilla-user': '{}'".format(
-                result["clientId"], email))
+        return None
 
     def _get_user(self, email):
         """
@@ -112,28 +98,38 @@ class TaskclusterAuthBackend(object):
             logger.warning("Error logging in: {}".format(result["message"]))
             raise TaskclusterAuthenticationFailed(result["message"])
 
+        client_id = result["clientId"]
+        email = self._get_email(client_id)
         # TODO: remove this size limit when we upgrade to django 1.10
         # in Bug 1311967
-        email = self._get_email(result)
-        if len(email) <= 30:
-            username = email
+        if len(client_id) <= 30:
+            username = client_id
         else:
             username = base64.urlsafe_b64encode(
-                hashlib.sha1(smart_bytes(email)).digest()
+                hashlib.sha1(smart_bytes(client_id)).digest()
                 ).rstrip(b'=')[-30:]
 
-        try:
-            # Find the user by their email.
-            user = self._get_user(email)
-            user.username = username
+        if scope_match(result["scopes"], ["mozilla-user:{}".format(email)]):
 
-        except ObjectDoesNotExist:
-            # the user doesn't already exist, create it.
-            logger.warning("Creating new user: {}".format(username))
-            user = User(email=email,
-                        username=username,
-                        )
+            try:
+                # Find the user by their email.
+                user = self._get_user(email)
+                user.username = username
+                user.save()
+                return user
 
+            except ObjectDoesNotExist:
+                pass
+        else:
+            try:
+                return User.objects.get(username=username)
+            except ObjectDoesNotExist:
+                pass
+
+        # the user doesn't already exist, create it.
+        logger.warning("Creating new user: {}".format(username))
+        user = User(email=email,
+                    username=username)
         user.save()
         return user
 
