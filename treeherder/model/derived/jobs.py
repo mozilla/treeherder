@@ -275,7 +275,8 @@ class JobsModel(TreeherderModelBase):
         )
         Job.objects.filter(push_id=push_id, state='pending').update(
             state='completed',
-            result='usercancel')
+            result='usercancel',
+            last_updated=datetime.datetime.now())
 
     def trigger_missing_jobs(self, requester, push_id):
         publish_resultset_action.apply_async(

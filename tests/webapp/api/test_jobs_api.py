@@ -275,8 +275,9 @@ def test_job_cancel_authorized(webapp, test_repository, eleven_jobs_stored,
     job.save()
 
     url = reverse("jobs-cancel",
-                  kwargs={"project": test_repository.name,
-                          "pk": job.project_specific_id
+                  kwargs={
+                      "project": test_repository.name,
+                      "pk": job.project_specific_id
                   })
     client.post(url)
 
