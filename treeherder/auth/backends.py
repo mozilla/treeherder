@@ -55,14 +55,14 @@ class TaskclusterAuthBackend(object):
 
         if email and re.search(r'.+@.+', email):
             return email
-        else:
-            # Try finding the email in the clientId.
-            # Credit for regex to http://emailregex.com/ Python section
-            match = re.search(
-                r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)",
-                result["clientId"])
-            if match:
-                return match.group(0)
+
+        # Try finding the email in the clientId.
+        # Credit for regex to http://emailregex.com/ Python section
+        match = re.search(
+            r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)",
+            result["clientId"])
+        if match:
+            return match.group(0)
 
         # If we get here, we couldn't find a valid email.  So deny login.
         raise TaskclusterAuthenticationFailed(
