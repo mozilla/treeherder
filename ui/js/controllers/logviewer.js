@@ -213,7 +213,7 @@ logViewerApp.controller('LogviewerCtrl', [
             return errors
               .map(({ line_number }) => `a[id="${line_number + 1}"]+span`)
               .join(',')
-              .concat('{background-color:pink;color:red}');
+              .concat('{background-color:#fdbaba;color:#67221b}');
         }
 
         function logCss() {
