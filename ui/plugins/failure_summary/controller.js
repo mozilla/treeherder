@@ -102,11 +102,14 @@ treeherder.controller('BugsPluginCtrl', [
             for (var i=0; i<$scope.suggestions.length; i++) {
                 allFailures.push($scope.suggestions[i].search.split(" | "));
                 var crash = $scope.suggestions[i].search.match(crashRegex);
-                if(crash) {
-                    crashSignatures.push(crash[0].split("application crashed")[1]);
+
+                if (crash) {
+                    var signature = crash[0].split("application crashed")[1];
+                    if (!crashSignatures.includes(signature)) {
+                        crashSignatures.push(crash[0].split("application crashed")[1]);
+                    }
                 }
             }
-            $log.log(crashSignatures);
 
             var modalInstance = $uibModal.open({
                 templateUrl: 'partials/main/intermittent.html',
@@ -131,6 +134,9 @@ treeherder.controller('BugsPluginCtrl', [
                     },
                     allFailures: function() {
                         return allFailures;
+                    },
+                    crashSignatures: function() {
+                        return crashSignatures;
                     }
                 }
             });

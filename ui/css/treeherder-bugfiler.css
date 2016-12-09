@@ -6,7 +6,7 @@
 }
 
 #modalSummarylabel {
-  margin-top: -5px;
+    margin-top: -5px;
 }
 
 #modalSummary {
@@ -73,8 +73,12 @@
     padding-bottom: 15px;
 }
 
+#modalCrashSignature {
+    width: 80%;
+}
+
 #modalRelatedBugs {
-  padding-top: 10px;
-  padding-right:10.5%;
-  float: right;
+    padding-top: 10px;
+    padding-right:10.5%;
+    float: right;
 }
