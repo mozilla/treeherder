@@ -17,8 +17,7 @@ class ResultsetStatusView(TemplateView):
         context = super(ResultsetStatusView, self).get_context_data(**kwargs)
         pushes = Push.objects.filter(
             repository__name=repository_name,
-            commits__revision__startswith=revision).values_list(
-                'id', flat=True)
+            commits__revision__startswith=revision)
         if not len(pushes):
             raise Http404("No resultset found for revision {0}".format(
                 revision))
