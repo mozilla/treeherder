@@ -3,12 +3,14 @@
 treeherder.value("thPlatformMap", {
     "linux32": ["Linux", 0],
     "linux64": ["Linux x64", 1],
+    "linux64-qr": ["Linux QuantumRender", 2],
     "osx-10-6": ["OS X 10.6", 10],
     "osx-10-7": ["OS X 10.7", 11],
     "osx-10-8": ["OS X 10.8", 12],
     "osx-10-9": ["OS X 10.9", 13],
     "osx-10-10": ["OS X 10.10", 14],
     "osx-10-11": ["OS X 10.11", 15],
+    "osx-10-7-qr": ["OS X 10.7 QuantumRender", 16],
     "windowsxp": ["Windows XP", 20],
     "windows7-32": ["Windows 7", 21],
     "windows7-32-vm": ["Windows 7 VM", 22],
@@ -20,6 +22,7 @@ treeherder.value("thPlatformMap", {
     "windows10-64-vm": ["Windows 10 x64 VM", 28],
     "windows2012-32": ["Windows 2012", 29],
     "windows2012-64": ["Windows 2012 x64", 30],
+    "windows2012-64-qr": ["Windows 2012 x64 QuantumRender", 31],
 
     "android-2-2-armv6": ["Android 2.2 Armv6", 40],
     "android-2-2": ["Android 2.2", 41],
