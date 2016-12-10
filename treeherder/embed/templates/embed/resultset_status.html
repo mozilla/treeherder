@@ -1,9 +1,17 @@
 <!DOCTYPE html>
 <html>
     <head>
-        {% load staticfiles %}
-        <link rel="stylesheet" href="{% static "embed/css/embed.css" %}" media="screen"/>
-        <base target="_blank" />
+      #resultset_status ul {
+         padding-left:0;
+         margin: 0;
+         list-type: outside none none;
+      }
+      #resultset_status ul li {
+	display:inline-block;
+	padding: 0 5px;
+	border: 1px solid #D3D3D3;
+      }
+      <base target="_blank" />
     </head>
 <body>
     <div id="resultset_status">
