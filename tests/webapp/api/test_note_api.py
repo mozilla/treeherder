@@ -82,7 +82,7 @@ def test_note_detail_bad_project(webapp, jm):
 
 
 @pytest.mark.parametrize('test_no_auth', [True, False])
-def test_create_note(webapp, eleven_jobs_stored, mock_message_broker, jm,
+def test_create_note(webapp, eleven_jobs_stored, mock_message_broker,
                      test_user, test_repository, failure_classifications,
                      test_no_auth):
     """
@@ -92,11 +92,11 @@ def test_create_note(webapp, eleven_jobs_stored, mock_message_broker, jm,
     if not test_no_auth:
         client.force_authenticate(user=test_user)
 
-    ds_job = jm.get_job_list(0, 1)[0]
+    job = Job.objects.get(id=1)
     resp = client.post(
-        reverse("note-list", kwargs={"project": jm.project}),
+        reverse("note-list", kwargs={"project": test_repository.name}),
         {
-            "job_id": ds_job["id"],
+            "job_id": job.project_specific_id,
             "failure_classification_id": 2,
             "who": test_user.email,
             "text": "you look like a man-o-lantern"
@@ -110,16 +110,19 @@ def test_create_note(webapp, eleven_jobs_stored, mock_message_broker, jm,
         assert resp.status_code == 200
 
         content = json.loads(resp.content)
-        assert content['message'] == 'note stored for job %s' % ds_job["id"]
+        assert content['message'] == 'note stored for job %s' % job.id
 
-        job = Job.objects.get(repository=test_repository,
-                              project_specific_id=ds_job["id"])
         note_list = JobNote.objects.filter(job=job)
 
         assert len(note_list) == 1
         assert note_list[0].user == test_user
         assert note_list[0].failure_classification.id == 2
         assert note_list[0].text == 'you look like a man-o-lantern'
+
+        # verify that the job's last_modified field got updated
+        old_last_modified = job.last_modified
+        assert old_last_modified < Job.objects.values_list(
+            'last_modified', flat=True).get(id=job.id)
 
 
 @pytest.mark.parametrize('test_no_auth', [True, False])
