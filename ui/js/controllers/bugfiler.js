@@ -48,8 +48,7 @@ treeherder.controller('BugFilerCtrl', [
                 trees.push("mozilla-central");
             }
             return trees;
-        }
-
+        };
         /**
          *  Pre-fill the form with information/metadata from the failure
          */
@@ -82,12 +81,10 @@ treeherder.controller('BugFilerCtrl', [
         function findFileName(path) {
             // Try unix paths first, then Windows, then bail
             var splitFilePath;
-            if(path.split("/").length > 1) {
+            if (path.split("/").length > 1) {
                 splitFilePath = path.split("/");
-            } else {
-                if(summary[0].split("\\").length > 1) {
-                    splitFilePath = path.split("\\");
-                }
+            } else if (summary[0].split("\\").length > 1) {
+                splitFilePath = path.split("\\");
             }
             var file = splitFilePath ? splitFilePath.pop() : "";
             // (Arbitrarily) Ignore potential filenames that are longer than 128 charcters
