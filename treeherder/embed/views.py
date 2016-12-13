@@ -6,6 +6,7 @@ from django.views.generic.base import TemplateView
 from treeherder.model.models import Push
 
 
+@method_decorator(xframe_options_exempt, name='dispatch')
 class ResultsetStatusView(TemplateView):
 
     template_name = "embed/resultset_status.html"
@@ -29,7 +30,5 @@ class ResultsetStatusView(TemplateView):
         context['resultset_status_dict'] = resultset_status_dict
         return context
 
-    # TODO: Replace with the class-based method_decorator once using Django 1.9.
-    @method_decorator(xframe_options_exempt)
     def dispatch(self, *args, **kwargs):
         return super(ResultsetStatusView, self).dispatch(*args, **kwargs)
