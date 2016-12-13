@@ -1,7 +1,6 @@
 import logging
 
 import newrelic.agent
-from django.conf import settings
 from django.contrib.auth import (authenticate,
                                  login,
                                  logout)
@@ -33,20 +32,6 @@ def hawk_lookup(id):
     }
 
 
-def _get_port(request):
-    """
-    Return the port number for the request as a string.
-
-    Code taken from Django 1.10.  When we switch to that, remove
-    this function
-    """
-    if settings.USE_X_FORWARDED_PORT and 'HTTP_X_FORWARDED_PORT' in request.META:
-        port = request.META['HTTP_X_FORWARDED_PORT']
-    else:
-        port = request.META['SERVER_PORT']
-    return str(port)
-
-
 class TaskclusterAuthViewSet(viewsets.ViewSet):
 
     @list_route()
@@ -56,8 +41,7 @@ class TaskclusterAuthViewSet(viewsets.ViewSet):
         """
         auth_header = request.META.get("HTTP_TCAUTH", None)
         host = request.get_host().split(":")[0]
-        # when we switch to Django 1.10, use ``request.get_port``
-        port = _get_port(request)
+        port = request.get_port()
 
         try:
             user = authenticate(auth_header=auth_header,
