@@ -73,10 +73,10 @@ TEMPLATE_DIRS = [
     path("templates")
 ]
 
-TEMPLATE_CONTEXT_PROCESSORS = (
+TEMPLATE_CONTEXT_PROCESSORS = [
     'django.contrib.auth.context_processors.auth',
     'django.contrib.messages.context_processors.messages'
-)
+]
 
 MIDDLEWARE_CLASSES = [middleware for middleware in [
     # Redirect to HTTPS/set HSTS and other security headers.
@@ -100,10 +100,10 @@ if ENABLE_DEBUG_TOOLBAR:
     # set INTERNAL_IPS if debug enabled, so the toolbar works
     INTERNAL_IPS = ['127.0.0.1']
 
-AUTHENTICATION_BACKENDS = (
+AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'treeherder.auth.backends.TaskclusterAuthBackend',
-)
+]
 
 # Path to redirect to on successful login.
 LOGIN_REDIRECT_URL = '/'
