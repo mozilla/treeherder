@@ -213,14 +213,20 @@ logViewerApp.controller('LogviewerCtrl', [
             return errors
               .map(({ line_number }) => `a[id="${line_number + 1}"]+span`)
               .join(',')
-              .concat('{background-color:#fdbaba;color:#67221b}');
+              .concat('{background-color:#fbe3e3;color:#a94442}');
         }
 
         function logCss() {
             const hideToolbar = 'div[id="toolbar"]{display:none}';
-            const fontSize = 'html,body{font-size:11px}';
+            const body = 'html,body{background-color:#f8f8f8;color:#333;font-size:11px}';
+            const highlight = 'p.highlight{background-color:#f8eec7 !important}';
+            const hover = '#log p:hover{background-color:#f8eec7 !important}';
+            const stripe = '.lazy-list p:nth-child(2n){background-color:#fff}';
+            const lineNumber = '#log.show-line-numbers p a{color:rgba(0,0,0,.3)}';
+            const linePadding = '#log p{padding: 0 15px 0 35px}';
 
-            return hideToolbar + fontSize;
+
+            return hideToolbar + body + highlight + hover + stripe + lineNumber + linePadding;
         }
 
         function setlogListener() {
