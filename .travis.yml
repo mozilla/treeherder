@@ -67,7 +67,6 @@ matrix:
       before_install:
         - curl -sSo ~/elasticsearch.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.5/elasticsearch-2.3.5.deb && sudo dpkg -i ~/elasticsearch.deb
         - sudo service elasticsearch start
-        - while ! curl localhost:9200 &>/dev/null; do sleep 1; done
         - sudo cp puppet/files/mysql/my.cnf /etc/mysql/conf.d/treeherder.cnf
         - sudo service mysql restart
         # Create a clean virtualenv rather than using the one given to us,
@@ -80,6 +79,8 @@ matrix:
         - mysql -u root -e 'create database test_treeherder;'
       install:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
+      before_script:
+        - while ! curl localhost:9200 &>/dev/null; do sleep 1; done
       script:
         # Several security features in settings.py (eg setting HSTS headers) are conditional on
         # 'https://' being in the site URL. In addition, we override the test environment's debug
@@ -105,7 +106,6 @@ matrix:
       before_install:
         - curl -sSo ~/elasticsearch.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.5/elasticsearch-2.3.5.deb && sudo dpkg -i ~/elasticsearch.deb
         - sudo service elasticsearch start
-        - while ! curl localhost:9200 &>/dev/null; do sleep 1; done
         - sudo cp puppet/files/mysql/my.cnf /etc/mysql/conf.d/treeherder.cnf
         - sudo service mysql restart
         # Create a clean virtualenv rather than using the one given to us,
@@ -116,6 +116,8 @@ matrix:
         - ./bin/vendor-libmysqlclient.sh ~/venv
       install:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
+      before_script:
+        - while ! curl localhost:9200 &>/dev/null; do sleep 1; done
       script:
         - py.test tests/e2e/ tests/etl/ tests/log_parser/ --runslow
 
@@ -133,7 +135,6 @@ matrix:
       before_install:
         - curl -sSo ~/elasticsearch.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.5/elasticsearch-2.3.5.deb && sudo dpkg -i ~/elasticsearch.deb
         - sudo service elasticsearch start
-        - while ! curl localhost:9200 &>/dev/null; do sleep 1; done
         - sudo cp puppet/files/mysql/my.cnf /etc/mysql/conf.d/treeherder.cnf
         - sudo service mysql restart
         # Create a clean virtualenv rather than using the one given to us,
@@ -144,6 +145,8 @@ matrix:
         - ./bin/vendor-libmysqlclient.sh ~/venv
       install:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
+      before_script:
+        - while ! curl localhost:9200 &>/dev/null; do sleep 1; done
       script:
         - py.test tests/webapp/ --runslow
 
