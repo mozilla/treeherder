@@ -186,7 +186,7 @@ logViewerApp.controller('LogviewerCtrl', [
                     }
                 }
 
-                if(shouldPost) {
+                if (shouldPost) {
                     $scope.logPostMessage({ customStyle: css });
                 }
             });
