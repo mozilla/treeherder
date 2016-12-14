@@ -193,9 +193,10 @@ logViewerApp.controller('LogviewerCtrl', [
         /** utility functions **/
 
         function updateQuery(values) {
-            const lineNumber = values.lineNumber === 'undefined' ? '' : values.lineNumber;
-            const highlightStart = values.highlightStart === 'undefined' ? '' : values.highlightStart;
-            const highlightEnd = values.highlightEnd === 'undefined' ? '' : values.highlightEnd;
+            const data = typeof values === 'string' ? JSON.parse(values) : values;
+            const lineNumber = data.lineNumber;
+            const highlightStart = data.highlightStart;
+            const highlightEnd = data.highlightEnd;
 
             if (lineNumber) {
                 if (highlightStart !== highlightEnd) {
