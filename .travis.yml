@@ -64,7 +64,6 @@ matrix:
           - ~/venv
       services:
         - rabbitmq
-        - memcached
       before_install:
         - curl -sSo ~/elasticsearch.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.5/elasticsearch-2.3.5.deb && sudo dpkg -i ~/elasticsearch.deb
         - sudo service elasticsearch start
@@ -103,7 +102,6 @@ matrix:
           - ~/venv
       services:
         - rabbitmq
-        - memcached
       before_install:
         - curl -sSo ~/elasticsearch.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.5/elasticsearch-2.3.5.deb && sudo dpkg -i ~/elasticsearch.deb
         - sudo service elasticsearch start
@@ -132,7 +130,6 @@ matrix:
           - ~/venv
       services:
         - rabbitmq
-        - memcached
       before_install:
         - curl -sSo ~/elasticsearch.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.5/elasticsearch-2.3.5.deb && sudo dpkg -i ~/elasticsearch.deb
         - sudo service elasticsearch start
