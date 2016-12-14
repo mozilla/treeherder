@@ -219,15 +219,16 @@ logViewerApp.controller('LogviewerCtrl', [
 
         function logCss() {
             const hideToolbar = 'div[id="toolbar"]{display:none}';
-            const body = 'html,body{background-color:#f8f8f8;color:#333;font-size:11px}';
+            const body = 'html,body{background-color:#f8f8f8;color:#333;font-size:12px}';
             const highlight = 'p.highlight{background-color:#f8eec7 !important}';
             const hover = '#log p:hover{background-color:#f8eec7 !important}';
             const stripe = '.lazy-list p:nth-child(2n){background-color:#fff}';
             const lineNumber = '#log.show-line-numbers p a{color:rgba(0,0,0,.3)}';
             const linePadding = '#log p{padding: 0 15px 0 35px}';
+            const log = '#log{font-family:monospace}';
 
 
-            return hideToolbar + body + highlight + hover + stripe + lineNumber + linePadding;
+            return hideToolbar + body + highlight + hover + stripe + lineNumber + linePadding + log;
         }
 
         function setlogListener() {
