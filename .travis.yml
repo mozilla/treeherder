@@ -15,7 +15,7 @@ matrix:
     - env: python-linters
       sudo: false
       language: python
-      python: "2.7.11"
+      python: "2.7.12"
       cache:
         directories:
           - ~/venv
@@ -60,7 +60,7 @@ matrix:
       sudo: required
       dist: trusty
       language: python
-      python: "2.7.11"
+      python: "2.7.12"
       cache:
         directories:
           - ~/venv
@@ -108,7 +108,7 @@ matrix:
       sudo: required
       dist: trusty
       language: python
-      python: "2.7.11"
+      python: "2.7.12"
       cache:
         directories:
           - ~/venv
@@ -146,7 +146,7 @@ matrix:
       sudo: required
       dist: trusty
       language: python
-      python: "2.7.11"
+      python: "2.7.12"
       cache:
         directories:
           - ~/venv
