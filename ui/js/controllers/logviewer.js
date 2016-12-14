@@ -155,7 +155,8 @@ logViewerApp.controller('LogviewerCtrl', [
                 const allErrors = _.flatten(textLogSteps.map(s => s.errors));
                 const q = $location.search();
                 $scope.steps = textLogSteps;
-                let css = '';
+                let css = logCss();
+                let shouldPost = true;
 
                 // add an ordering to each step
                 textLogSteps.forEach((step, i) => {step.order = i;});
@@ -165,7 +166,8 @@ logViewerApp.controller('LogviewerCtrl', [
                     css += errorLinesCss(allErrors);
 
                     if (!q.lineNumber) {
-                        $scope.logPostMessage({ lineNumber: allErrors[0].line_number + 1 });
+                        $scope.logPostMessage({ lineNumber: allErrors[0].line_number + 1, customStyle: css });
+                        shouldPost = false;
                     }
                 } else if (!q.lineNumber) {
                     for (let i = 0; i < $scope.steps.length; i++) {
@@ -173,9 +175,10 @@ logViewerApp.controller('LogviewerCtrl', [
 
                         if (step.result !== "success") {
                             $scope.logPostMessage({
-                                lineNumber: step.started_line_number,
-                                highlightStart: step.started_line_number,
-                                highlightEnd: step.finished_line_number
+                                lineNumber: step.started_line_number + 1,
+                                highlightStart: step.started_line_number + 1,
+                                highlightEnd: step.finished_line_number + 1,
+                                customStyle: css
                             });
 
                             break;
@@ -183,11 +186,10 @@ logViewerApp.controller('LogviewerCtrl', [
                     }
                 }
 
-                css += logCss();
-
-                $scope.logPostMessage({ customStyle: css });
+                if(shouldPost) {
+                    $scope.logPostMessage({ customStyle: css });
+                }
             });
-
         };
 
         /** utility functions **/
@@ -198,15 +200,13 @@ logViewerApp.controller('LogviewerCtrl', [
             const highlightStart = data.highlightStart;
             const highlightEnd = data.highlightEnd;
 
-            if (lineNumber) {
-                if (highlightStart !== highlightEnd) {
-                    $location.search('lineNumber', `${highlightStart}-${highlightEnd}`);
-                }
-                else if (highlightStart) {
-                    $location.search('lineNumber', highlightStart);
-                } else {
-                    $location.search('lineNumber', lineNumber);
-                }
+            if (highlightStart !== highlightEnd) {
+                $location.search('lineNumber', `${highlightStart}-${highlightEnd}`);
+            }
+            else if (highlightStart) {
+                $location.search('lineNumber', highlightStart);
+            } else {
+                $location.search('lineNumber', lineNumber);
             }
         }
 
