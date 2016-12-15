@@ -12,6 +12,7 @@ logViewerApp.controller('LogviewerCtrl', [
         thDateFormat, thReftestStatus) {
 
         const query_string = $location.search();
+        $scope.css = '';
         $rootScope.logBasePath = 'https://taskcluster.github.io/unified-logviewer/';
         $rootScope.urlBasePath = $location.absUrl().split('logviewer')[0];
 
@@ -152,21 +153,20 @@ logViewerApp.controller('LogviewerCtrl', [
                 project: $rootScope.repoName,
                 jobId: $scope.job_id
             }, textLogSteps => {
+                let shouldPost = true;
                 const allErrors = _.flatten(textLogSteps.map(s => s.errors));
                 const q = $location.search();
                 $scope.steps = textLogSteps;
-                let css = logCss();
-                let shouldPost = true;
 
                 // add an ordering to each step
                 textLogSteps.forEach((step, i) => {step.order = i;});
 
                 // load the first failure step line else load the head
                 if (allErrors.length) {
-                    css += errorLinesCss(allErrors);
+                    $scope.css = $scope.css + errorLinesCss(allErrors);
 
                     if (!q.lineNumber) {
-                        $scope.logPostMessage({ lineNumber: allErrors[0].line_number + 1, customStyle: css });
+                        $scope.logPostMessage({ lineNumber: allErrors[0].line_number + 1, customStyle: $scope.css });
                         shouldPost = false;
                     }
                 } else if (!q.lineNumber) {
@@ -178,7 +178,7 @@ logViewerApp.controller('LogviewerCtrl', [
                                 lineNumber: step.started_line_number + 1,
                                 highlightStart: step.started_line_number + 1,
                                 highlightEnd: step.finished_line_number + 1,
-                                customStyle: css
+                                customStyle: $scope.css
                             });
 
                             break;
@@ -187,7 +187,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 }
 
                 if (shouldPost) {
-                    $scope.logPostMessage({ customStyle: css });
+                    $scope.logPostMessage({ customStyle: $scope.css });
                 }
             });
         };
@@ -232,7 +232,18 @@ logViewerApp.controller('LogviewerCtrl', [
         }
 
         function setlogListener() {
-            $window.addEventListener('message', (e) => $timeout(updateQuery(e.data)));
+            let workerReady = false;
+
+            $window.addEventListener('message', (e) => {
+                if (!workerReady) {
+                    workerReady = true;
+
+                    $scope.css = $scope.css + logCss();
+                    $scope.logPostMessage({ customStyle: $scope.css });
+                }
+
+                $timeout(updateQuery(e.data));
+            });
         }
     }
 ]);
