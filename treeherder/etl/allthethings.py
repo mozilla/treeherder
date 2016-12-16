@@ -108,6 +108,8 @@ class RunnableJobsProcess(AllthethingsTransformerMixin):
         RunnableJob.objects.filter(last_touched__lt=now).delete()
 
     def run(self):
+        logger.info('Fetching allthethings.json')
         all_the_things = fetch_json(settings.ALLTHETHINGS_URL)
         jobs_per_branch = self.transform(all_the_things)
+        logger.info('Loading the data')
         self.load(jobs_per_branch)

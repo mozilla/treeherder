@@ -4,44 +4,41 @@ import logging
 
 import requests
 
+from treeherder.seta.common import unique_key
+
 LOG = logging.getLogger(__name__)
 
 
 def get_distinct_tuples():
     '''
     Returned data:
-      [["windows8-64", "debug", "web-platform-tests-1"], ...]
+      [("windows8-64", "debug", "web-platform-tests-1"), ...]
     '''
-    # XXX: Investigate if jobtypes endpoint is simply data from job priority table
     url = "http://seta.herokuapp.com/data/jobtypes/"
     response = requests.get(url, headers={'accept-encoding': 'json'}, verify=True)
     data = json.loads(response.content)
-    return data['jobtypes']
+
+    # XXX: Investigate if jobtypes endpoint is simply data from job priority table
+    ret_data = []
+    for datum in data['jobtypes']:
+        ret_data.append(unique_key(testtype=datum[2],
+                                   buildtype=datum[1],
+                                   platform=datum[0]))
+
+    return ret_data
 
 
 def is_matched(failure, removals):
     found = False
-    tocheck = [str(failure[0]), str(failure[1]), str(failure[2])]
-    for jobtype in removals:
-        matched = 0
-        if tocheck[2] == jobtype[2]:
-            matched += 1
-        elif jobtype[2] == '':
-            matched += 1
-
-        if tocheck[1] == jobtype[1]:
-            matched += 1
-        elif jobtype[1] == '':
-            matched += 1
-
-        if tocheck[0] == jobtype[0]:
-            matched += 1
-        elif jobtype[0] == '':
-            matched += 1
-
-        if matched == 3:
-            found = True
-            break
+    if failure in removals:
+        found = True
+    else:
+        # XXX: Why do we also compare three other ways ''?
+        #      See if we can get rid of this
+        for job in removals:
+            if failure in (('', job[1:2]), (job[0], '', job[2]), (job[0:1], '')):
+                found = True
+                break
 
     return found
 

@@ -272,7 +272,7 @@ def eleven_jobs_with_notes(jm, sample_data, eleven_jobs_stored, test_user,
     jobs = jm.get_job_list(0, 10)
 
     for ds_job in jobs:
-        for fcid in [2, 3]:
+        for fcid in [2, 3]:  # failure classification id
             job = Job.objects.get(project_specific_id=ds_job['id'],
                                   repository=test_repository)
             JobNote.objects.create(job=job,

@@ -42,7 +42,6 @@ class JobPriorityManager(models.Manager):
             if job.has_expired():
                 job.expiration_date = None
                 job.save()
-                modified_jobs.append(job)
 
     def increase_jobs_priority(self, high_value_jobs, priority=1, timeout=0):
         """For every high value job see if we need to adjust the priority in the database
@@ -58,7 +57,7 @@ class JobPriorityManager(models.Manager):
                                                               platform=item[0])
             # Any job passed to this funtion s
             assert len(queryset) == 1, \
-                "Any job passed to this function should already be in the database ({})" % item
+                "Any job passed to this function should already be in the database ({})".format(item)
 
             job = queryset[0]
             if job.priority != priority:

@@ -3,6 +3,7 @@ from rest_framework import (serializers,
                             viewsets)
 from rest_framework.response import Response
 
+from treeherder.seta.analyze_failures import get_failures_fixed_by_commit
 from treeherder.seta.job_priorities import (SetaError,
                                             seta_job_scheduling)
 from treeherder.seta.models import JobPriority
@@ -37,3 +38,13 @@ class SetaJobPriorityViewSet(viewsets.ViewSet):
             return Response(seta_job_scheduling(project, build_system_type, priority, user_agent))
         except SetaError as e:
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+
+
+class SetaFailuresFixedByCommit(viewsets.ViewSet):
+    def list(self, request):
+        ''' Routing to /api/seta/v1/failures-fixed-by-commit/
+
+        Returns jobs annotated with fixed by commit (no empty string) grouped by
+        annotation text (generally a revision that fixes the issue).
+        '''
+        return Response(get_failures_fixed_by_commit())

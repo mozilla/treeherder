@@ -147,6 +147,9 @@ default_router.register(r'jobdetail', jobs.JobDetailViewSet,
                         base_name='jobdetail')
 default_router.register(r'auth', auth.TaskclusterAuthViewSet,
                         base_name='auth')
+default_router.register(r'seta/v1/failures-fixed-by-commit',
+                        seta.SetaFailuresFixedByCommit,
+                        base_name='seta_failures_fixed_by_commit')
 
 urlpatterns = [
     url(r'^project/(?P<project>[\w-]{0,50})/',

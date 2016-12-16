@@ -11,12 +11,6 @@ class Command(BaseCommand):
         super(Command, self).__init__(*args, **kwargs)
 
     def add_arguments(self, parser):
-        parser.add_argument("-s", "--start-date", metavar="YYYY-MM-DD", dest="start_date",
-                            help="Start date for analysis.")
-
-        parser.add_argument("-e", "--end-date", metavar="YYYY-MM-DD", dest="end_date",
-                            help="End date for analysis.")
-
         parser.add_argument("--dry-run", action="store_true", dest="dry_run",
                             help="This mode is for testing without interaction with "
                             "database and emails.")

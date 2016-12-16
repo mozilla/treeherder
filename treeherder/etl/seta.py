@@ -3,6 +3,8 @@ import logging
 from treeherder.seta.runnable_jobs import RunnableJobsClient
 
 LOG = logging.getLogger(__name__)
+
+
 class Treecodes:
     """This class contain all the mapping we need in SETA and makes it works"""
 
@@ -111,10 +113,16 @@ class Treecodes:
         return data
 
 
-def parse_testtype(build_system_type, job_type_name, platform_option, refdata):
+def parse_testtype(build_system_type, job_type_name, platform_option, ref_data_name):
+    '''
+    build_system_type - buildbot or taskcluster
+    job_type_name - e.g. Mochitest (JobType.name)
+    platform_option - e.g. opt
+    ref_data_name - builder name
+    '''
     # TODO: figure out how to ignore build, lint, etc. jobs
     if build_system_type == 'buildbot':
-        return refdata.split(' ')[-1]
+        return ref_data_name.split(' ')[-1]
     else:
         # e.g. "desktop-test-linux64/opt-reftest-8",
         # taskcluster test types
@@ -209,4 +217,3 @@ def valid_platform(platform):
         'windows8-32',
         'Win 6.3.9600 x86_64',
     ]
-

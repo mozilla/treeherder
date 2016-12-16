@@ -76,7 +76,7 @@ def _sanitize_data(runnable_jobs_data):
             build_system_type=job['build_system_type'],
             job_type_name=job['job_type_name'],
             platform_option=job['platform_option'],
-            refdata=job['ref_data_name']
+            ref_data_name=job['ref_data_name']
         )
 
         if not testtype:
