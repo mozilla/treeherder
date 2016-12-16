@@ -11,6 +11,21 @@
               title="New version of Treeherder has been deployed. Reload to pick up changes.">
           <span class="fa fa-exclamation-circle" />&nbsp;Treeherder update available
         </span>
+
+        <span class="btn btn-sm btn-view-nav nav-menu-btn"
+              ng-show="fromChange().length > 0"
+              title="Click to clear the fromchange filter"
+              ng-click="dropLocationSearchParam('fromchange')">
+            fromChange: {{fromChange() | limitTo: 6}}
+            <i class="fa fa-times-circle"/>
+        </span>
+        <span class="btn btn-sm btn-view-nav nav-menu-btn"
+              ng-show="toChange().length > 0"
+              title="Click to clear the tochange filter"
+              ng-click="dropLocationSearchParam('tochange')">
+            toChange: {{toChange() | limitTo: 6}}
+            <i class="fa fa-times-circle"/>
+        </span>
         <!--Unclassified Failures Button-->
         <span class="btn btn-sm"
               title="Loaded failures / Toggle filtering for unclassified failures"

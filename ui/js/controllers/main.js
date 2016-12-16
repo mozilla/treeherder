@@ -534,6 +534,14 @@ treeherderApp.controller('MainCtrl', [
             );
         };
 
+        $scope.fromChange = function() {
+            return $location.search()["fromchange"];
+        };
+
+        $scope.toChange = function() {
+            return $location.search()["tochange"];
+        };
+
         $scope.fromChangeValue = function() {
             var url = window.location.href;
             url = url.replace("&fromchange=" + $location.search()["fromchange"], "");
@@ -544,6 +552,12 @@ treeherderApp.controller('MainCtrl', [
             var url = window.location.href;
             url = url.replace("&tochange=" + $location.search()["tochange"], "");
             return url;
+        };
+
+        $scope.dropLocationSearchParam = function(param) {
+            var url = $location.url();
+            url = url.replace("&" + param + "=" + $location.search()[param], "");
+            $location.url(url);
         };
 
         $scope.setLocationSearchParam = function(param, value) {
