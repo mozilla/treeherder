@@ -31,27 +31,18 @@ class Treecodes:
                     LOG.info('Ignoring {}'.format(job['ref_data_name']))
                     continue
 
-            try:
-                platform = job['platform']
-                buildtype = job['platform_option']
-                self.jobtypes.append([platform, buildtype, testtype])
+            platform = job['platform']
+            buildtype = job['platform_option']
+            self.jobtypes.append([platform, buildtype, testtype])
 
-                # It's about get jobnames and both buildbot and taskcluster job have '?'
-                # when the job_group_symbol is unknown.
-                self.jobnames.append(self._get_jobnames(job, testtype, job_identifier))
-                # XXX Before merging remove this code
-                '''
-                job_group_symbol = job['job_group_symbol'] \
-                    if job['job_group_symbol'] != '?' else ''
-                job_type_symbol = job['job_type_symbol'] if job['job_type_symbol'] else ''
-                self.tbplnames.update({testtype: {'group': job_group_symbol,
-                                                  'code': job_type_symbol}})
-                '''
-            except:
-                # XXX: shold we simply let the exception bubble up?
-                LOG.exception('We failed to initialize.')
+            # It's about get jobnames and both buildbot and taskcluster job have '?'
+            # when the job_group_symbol is unknown.
+            self.jobnames.append(self._get_jobnames(job, testtype, job_identifier))
 
     def _testtype_job_identifier(self, job):
+        '''
+        job - treeherder job
+        '''
         job_identifier = None
         testtype = None
 
