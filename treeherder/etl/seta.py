@@ -14,7 +14,7 @@ class Treecodes:
         self.jobtypes = []
         self.jobnames = []
 
-        for job in RunnableJobsClient().query_runnable_jobs(repo_name):
+        for job in RunnableJobsClient().query_runnable_jobs(repo_name)['results']:
             # e.g. web-platform-tests-4
             # e.g. Ubuntu VM 12.04 x64 mozilla-inbound opt test web-platform-tests-4 OR
             #      desktop-test-linux64/opt-web-platform-tests-4
