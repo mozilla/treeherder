@@ -14,6 +14,9 @@ treeherder.factory('ThResultSetStore', [
 
         var $log = new ThLog("ThResultSetStore");
 
+        // indexOf doesn't work on objects so we need to map thPlatformMap to an array
+        var platformArray = _.map(thPlatformMap, function(val, idx) { return idx; });
+
         /******
          * Handle updating the resultset datamodel based on a queue of jobs
          * and resultsets.
@@ -1224,10 +1227,11 @@ treeherder.factory('ThResultSetStore', [
                     return (group.symbol.length) ? group.symbol : undefined;
                 });
             });
-            groupedJobs.platforms = _.sortBy(groupedJobs.platforms, function(platform) {
-                var priority = thPlatformMap[platform.name];
-                if (priority) {
-                    priority = priority[1]*100 + thOptionOrder[platform.option];
+
+            groupedJobs.platforms = _.sortBy(groupedJobs.platforms, function(platform){
+                var priority = platformArray.indexOf(platform.name);
+                if (priority >= 0) {
+                    priority = priority*100 + thOptionOrder[platform.option];
                 } else {
                     priority = NaN;
                 }
