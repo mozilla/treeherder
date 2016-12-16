@@ -25,7 +25,7 @@ class RunnableJobsClient():
         We do caching because the data does not really change and because bug 1288028 makes calls to
         the runnable_jobs API very slow.
         '''
-        if not repo_name in self.cache:
+        if repo_name not in self.cache:
             self.cache[repo_name] = {}
 
         if not task_id:

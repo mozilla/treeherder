@@ -169,7 +169,6 @@ def get_high_value_jobs(revisions_fixed_by_commit_plus_tagged_jobs, target=100):
         Percentage of failures to analyze
     """
     total = len(revisions_fixed_by_commit_plus_tagged_jobs)
-    copy_failures = copy.deepcopy(revisions_fixed_by_commit_plus_tagged_jobs)
     LOG.info("Processing %s failures" % total)
     # This fetches the jobtypes' endpoint
     # List of jobs (platform, platform_opt, testtype)
