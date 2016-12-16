@@ -6,6 +6,7 @@ import re
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.reverse import reverse
+from django.db import transaction
 from taskcluster.sync import Auth
 from taskcluster.utils import scope_match
 
@@ -53,7 +54,7 @@ class TaskclusterAuthBackend(object):
             client_id)
         if match:
             return match.group(0)
-        return None
+        return ""
 
     def _get_user(self, email):
         """
@@ -68,14 +69,13 @@ class TaskclusterAuthBackend(object):
         # Since there is a unique index on username, but not on email,
         # it is POSSIBLE there could be two users with the same email and
         # different usernames.  Not very likely, but this is safer.
-        user = User.objects.filter(email=email)
-
+        users = User.objects.filter(email=email)
         # if we didn't find any, then raise an exception so we create a new
         # user
-        if not user:
+        if not users:
             raise ObjectDoesNotExist
 
-        return user.first()
+        return users.first()
 
     def authenticate(self, auth_header=None, host=None, port=None):
         if not auth_header:
@@ -109,29 +109,27 @@ class TaskclusterAuthBackend(object):
                 hashlib.sha1(smart_bytes(client_id)).digest()
                 ).rstrip(b'=')[-30:]
 
-        if scope_match(result["scopes"], ["mozilla-user:{}".format(email)]):
-
+        with transaction.atomic():
             try:
-                # Find the user by their email.
-                user = self._get_user(email)
-                user.username = username
+                if scope_match(result["scopes"],
+                           [["assume:mozilla-user:{}".format(email)]]):
+                    # Find the user by their email.
+                    user = self._get_user(email)
+                    # update the username
+                    user.username = username
+                    user.save()
+                    return user
+
+                else:
+                    return User.objects.get(username=username)
+
+            except ObjectDoesNotExist:
+                # the user doesn't already exist, create it.
+                logger.warning("Creating new user: {}".format(username))
+                user = User.objects.create_user(email=email,
+                                           username=username)
                 user.save()
                 return user
-
-            except ObjectDoesNotExist:
-                pass
-        else:
-            try:
-                return User.objects.get(username=username)
-            except ObjectDoesNotExist:
-                pass
-
-        # the user doesn't already exist, create it.
-        logger.warning("Creating new user: {}".format(username))
-        user = User(email=email,
-                    username=username)
-        user.save()
-        return user
 
     def get_user(self, user_id):
         try:

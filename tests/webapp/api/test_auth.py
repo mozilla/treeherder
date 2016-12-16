@@ -1,5 +1,8 @@
+import pytest
+
 from django.contrib.sessions.models import Session
 from django.core.urlresolvers import reverse
+from django.db import transaction
 from mohawk import Sender
 from rest_framework import status
 from rest_framework.decorators import APIView
@@ -106,7 +109,7 @@ def test_login_and_logout(test_user, webapp, monkeypatch):
 
     def mock_auth(selfless, payload):
         return {"status": "auth-success",
-                "clientId": "foo",
+                "clientId": "prefix/user@foo.com",
                 "scopes": ["assume:mozilla-user:user@foo.com"]
                 }
     monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
@@ -118,16 +121,17 @@ def test_login_and_logout(test_user, webapp, monkeypatch):
     session = Session.objects.get(session_key=session_key)
     session_data = session.get_decoded()
     user = User.objects.get(id=session_data.get('_auth_user_id'))
-    assert user == test_user
+    assert user.id == test_user.id
 
     webapp.get(reverse("auth-logout"), status=200)
     assert "sessionid" not in webapp.cookies
 
 
+@pytest.mark.django_db
 def test_login_not_active(test_user, webapp, monkeypatch):
     def mock_auth(selfless, payload):
         return {"status": "auth-success",
-                "clientId": "foo",
+                "clientId": "user@foo.com",
                 "scopes": ["assume:mozilla-user:user@foo.com"]
                 }
     monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
@@ -139,15 +143,17 @@ def test_login_not_active(test_user, webapp, monkeypatch):
     assert resp.json["detail"] == "This user has been disabled."
 
 
+@pytest.mark.django_db
 def test_login_no_email(webapp, monkeypatch):
     def mock_auth(selfless, payload):
         return {"status": "auth-success",
-                "clientId": "foo",
+                "clientId": "foo/bar",
                 "scopes": ["assume:mozilla-user:meh"]
                 }
     monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
 
-    resp = webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=403)
+    with transaction.atomic():
+        resp = webapp.get(reverse("auth-login"), headers={"tcauth": "foo"})
     assert resp.json["detail"] == "Invalid email for clientId: 'foo'. Invalid value for scope 'assume:mozilla-user': 'meh'"
 
 
