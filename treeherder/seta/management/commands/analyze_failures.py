@@ -12,8 +12,8 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--dry-run", action="store_true", dest="dry_run",
-                            help="This mode is for testing without interaction with "
-                            "database and emails.")
+                            help="This mode is for analyzing failures without "
+                                 "updating the job priority table.")
 
         parser.add_argument("--ignore-failures", type=int, dest="ignore_failures", default=0,
                             help="If a job fails less than N times we don't take that job"

@@ -161,14 +161,12 @@ def failures_by_jobtype(failures, target, ignore_failure):
     return high_value_jobs, total_detected
 
 
-def get_high_value_jobs(revisions_fixed_by_commit_plus_tagged_jobs, target, ignore_failures=0):
+def get_high_value_jobs(revisions_fixed_by_commit_plus_tagged_jobs, target=100):
     """
     revisions_fixed_by_commit_plus_tagged_jobs:
         Revisions and jobs that have been starred for fixing a commit or associated to a bug
     target:
         Percentage of failures to analyze
-    ignore_failures:
-        Threshold for number of times a job needs to fail to be taken into consideration.
     """
     total = len(revisions_fixed_by_commit_plus_tagged_jobs)
     copy_failures = copy.deepcopy(revisions_fixed_by_commit_plus_tagged_jobs)
@@ -184,13 +182,6 @@ def get_high_value_jobs(revisions_fixed_by_commit_plus_tagged_jobs, target, igno
         active_jobs=active_jobs,
         failures=revisions_fixed_by_commit_plus_tagged_jobs,
         target=target)
-
-    # Every iteration of this loop is intended to increase the number of low value jobs
-    for i in range(1, ignore_failures + 1):
-        LOG.info("--------------Pass #{}----------------".format(i))
-        copy_failures = remove_root_cause_failures(copy_failures, failures_root_cause)
-        total = len(copy_failures)
-        low_value_jobs, failures_root_cause = build_removals(active_jobs, copy_failures, total)
 
     # Only return high value jobs
     for low_value_job in low_value_jobs:

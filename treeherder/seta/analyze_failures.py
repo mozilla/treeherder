@@ -19,8 +19,6 @@ LOG = logging.getLogger(__name__)
 
 class AnalyzeFailures:
     def __init__(self, **options):
-        self.analysis_percentage = 100  # 100% detection
-        self.ignore_failures = options['ignore_failures']
         self.dry_run = options['dry_run']
 
     def run(self):
@@ -29,9 +27,7 @@ class AnalyzeFailures:
             # We need to update the job priority table before we can call get_high_value_jobs()
             # See increase_job_priority() to understand the root issue
             update_job_priority_table()
-            high_value_jobs = get_high_value_jobs(revisions_fixed_by_commit_plus_tagged_jobs,
-                                                  self.analysis_percentage,
-                                                  self.ignore_failures)
+            high_value_jobs = get_high_value_jobs(revisions_fixed_by_commit_plus_tagged_jobs)
 
             if not self.dry_run:
                 LOG.info("Let's see if we need to increase the priority of any job")
