@@ -45,6 +45,12 @@ project_bound_router.register(
 )
 
 project_bound_router.register(
+    r'seta/v1/job-types',
+    seta.SetaJobTypes,
+    base_name='seta-job-types'
+)
+
+project_bound_router.register(
     r'resultset',
     resultset.ResultSetViewSet,
     base_name='resultset',

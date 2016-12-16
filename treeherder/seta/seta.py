@@ -1,31 +1,17 @@
 import copy
-import json
 import logging
 
-import requests
-
-from treeherder.seta.common import unique_key
+from treeherder.etl.seta import Treecodes
 
 LOG = logging.getLogger(__name__)
 
 
-def get_distinct_tuples():
+def get_distinct_tuples(repo_name='mozilla-inbound'):
     '''
     Returned data:
       [("windows8-64", "debug", "web-platform-tests-1"), ...]
     '''
-    url = "http://seta.herokuapp.com/data/jobtypes/"
-    response = requests.get(url, headers={'accept-encoding': 'json'}, verify=True)
-    data = json.loads(response.content)
-
-    # XXX: Investigate if jobtypes endpoint is simply data from job priority table
-    ret_data = []
-    for datum in data['jobtypes']:
-        ret_data.append(unique_key(testtype=datum[2],
-                                   buildtype=datum[1],
-                                   platform=datum[0]))
-
-    return ret_data
+    return Treecodes(repo_name).query_jobtypes()
 
 
 def is_matched(failure, removals):
