@@ -5,7 +5,9 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
-from treeherder.model.models import (MachinePlatform,
+from treeherder.model.fields import FlexibleForeignKey
+from treeherder.model.models import (Job,
+                                     MachinePlatform,
                                      OptionCollection,
                                      Push,
                                      Repository)
@@ -85,12 +87,17 @@ class PerformanceSignature(models.Model):
 class PerformanceDatum(models.Model):
 
     repository = models.ForeignKey(Repository)
-    ds_job_id = models.PositiveIntegerField(db_column="ds_job_id")
-    result_set_id = models.PositiveIntegerField(null=True)
-    push = models.ForeignKey(Push)
     signature = models.ForeignKey(PerformanceSignature)
     value = models.FloatField()
     push_timestamp = models.DateTimeField()
+
+    # job information can expire before the performance datum
+    job = FlexibleForeignKey(Job, null=True, default=None,
+                             on_delete=models.SET_NULL)
+    push = models.ForeignKey(Push)
+
+    ds_job_id = models.PositiveIntegerField(db_column="ds_job_id")
+    result_set_id = models.PositiveIntegerField(null=True)
 
     class Meta:
         db_table = 'performance_datum'
