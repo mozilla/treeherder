@@ -102,6 +102,7 @@ def _load_perf_datum(job, perf_datum):
                 })
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
                 repository=job.repository,
+                job=job,
                 push=job.push,
                 ds_job_id=job.project_specific_id,
                 signature=signature,
@@ -155,6 +156,7 @@ def _load_perf_datum(job, perf_datum):
                 })
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
                 repository=job.repository,
+                job=job,
                 push=job.push,
                 ds_job_id=job.project_specific_id,
                 signature=signature,

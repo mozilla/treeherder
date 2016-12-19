@@ -14,6 +14,7 @@ from treeherder.model.models import (FailureLine,
                                      Machine)
 from treeherder.model.search import (TestFailureLine,
                                      refresh_all)
+from treeherder.perf.models import PerformanceDatum
 
 
 def test_cycle_all_data(jm, failure_classifications, sample_data,
@@ -208,3 +209,36 @@ def test_cycle_job_model_reference_data(jm, failure_classifications,
     assert JobType.objects.filter(id__in=original_job_type_ids).count() == len(original_job_type_ids)
     assert JobGroup.objects.filter(id__in=original_job_group_ids).count() == len(original_job_group_ids)
     assert Machine.objects.filter(id__in=original_machine_ids).count() == len(original_machine_ids)
+
+
+def test_cycle_job_with_performance_data(test_repository, failure_classifications,
+                                         jm, sample_data, sample_resultset,
+                                         test_perf_signature):
+    # build a date that will cause the data to be cycled
+    time_now = time.time()
+    cycle_date_ts = int(time_now - 7 * 24 * 3600)
+
+    job_data = sample_data.job_data[:1]
+    job_data[0]['job']['submit_timestamp'] = cycle_date_ts
+    test_utils.do_job_ingestion(jm, job_data, sample_resultset, False)
+
+    job = Job.objects.get(id=1)
+
+    p = PerformanceDatum.objects.create(
+        repository=test_repository,
+        result_set_id=1,
+        push=job.push,
+        ds_job_id=job.project_specific_id,
+        job=job,
+        signature=test_perf_signature,
+        push_timestamp=job.push.time,
+        value=1.0)
+
+    call_command('cycle_data', sleep_time=0, days=1, chunk_size=3)
+
+    # assert that the job got cycled
+    assert Job.objects.count() == 0
+
+    # assert that the perf object is still there, but the job reference is None
+    p = PerformanceDatum.objects.get(id=1)
+    assert p.job is None
