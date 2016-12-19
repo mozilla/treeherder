@@ -64,7 +64,7 @@ perf.controller('CompareChooserCtrl', [
                 $scope.proposedRevision = $scope.newRevisionError = null;
 
                 // only check for a full revision
-                if ($scope.newRevision.length !== 12) return;
+                if ($scope.newRevision.length < 12) return;
 
                 $scope.proposedRevisionLoading = true;
 
@@ -144,7 +144,7 @@ perf.controller('CompareChooserCtrl', [
             };
 
             // if we have a try push prepopulated, automatically offer a new revision
-            if ($scope.newRevision.length === 12) {
+            if ($scope.newRevision.length >= 12) {
                 $scope.updateNewRevisionTips();
                 $scope.getPreviousRevision();
             }
