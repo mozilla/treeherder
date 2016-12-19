@@ -36,6 +36,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class JobExclusionSerializer(serializers.ModelSerializer):
     info = NoOpSerializer()
+    author = UserSerializer()
 
     class Meta:
         model = models.JobExclusion
@@ -57,6 +58,7 @@ class JobExclusionSerializer(serializers.ModelSerializer):
 
 class ExclusionProfileSerializer(serializers.ModelSerializer):
     flat_exclusion = NoOpSerializer(read_only=True)
+    author = UserSerializer()
 
     class Meta:
         model = models.ExclusionProfile

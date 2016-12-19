@@ -493,6 +493,7 @@ class JobExclusion(models.Model):
     description = models.TextField(blank=True)
     info = JSONField()
     author = models.ForeignKey(User)
+    modified = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         super(JobExclusion, self).save(*args, **kwargs)
