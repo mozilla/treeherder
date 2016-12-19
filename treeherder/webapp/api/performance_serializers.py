@@ -60,9 +60,6 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         slug_field="id", source="related_summary",
         allow_null=True, required=False,
         queryset=PerformanceAlertSummary.objects.all())
-    classifier = serializers.SlugRelatedField(
-        slug_field="email", allow_null=True, required=False,
-        queryset=User.objects.all())
 
     # express quantities in terms of decimals to save space
     amount_abs = PerformanceDecimalField(read_only=True)
@@ -88,7 +85,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         fields = ['id', 'status', 'series_signature', 'is_regression',
                   'prev_value', 'new_value', 't_value', 'amount_abs',
                   'amount_pct', 'summary_id', 'related_summary_id',
-                  'manually_created', 'classifier']
+                  'manually_created']
 
 
 class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
