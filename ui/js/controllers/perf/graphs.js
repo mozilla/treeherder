@@ -12,6 +12,7 @@ perf.controller('GraphsCtrl', [
 
         $scope.highlightedRevisions = [ undefined, undefined ];
         $scope.highlightAlerts = true;
+        $scope.loadingGraphs = false;
 
         $scope.timeranges = phTimeRanges;
 
@@ -720,6 +721,7 @@ perf.controller('GraphsCtrl', [
                                             {'value': phDefaultTimeRangeValue});
             }
             $scope.timeRangeChanged = function() {
+                $scope.loadingGraphs = true;
                 $scope.zoom = {};
                 deselectDataPoint();
 
@@ -727,6 +729,7 @@ perf.controller('GraphsCtrl', [
                 // refetch and re-render all graph data
                 $q.all($scope.seriesList.map(getSeriesData)).then(function() {
                     plotGraph();
+                    $scope.loadingGraphs = false;
                 });
             };
 
