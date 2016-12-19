@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('model', '0043_bugscache_cleanup'),
+        ('model', '0044_increase_symbol_lengths'),
     ]
 
     operations = [
