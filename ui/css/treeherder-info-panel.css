@@ -135,31 +135,6 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
   flex-flow: column;
 }
 
-.overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(242, 242, 242, 0.25);
-  z-index: 9999;
-  font-size: 30px;
-}
-
-.overlay > div {
-  position: relative;
-  height: 100%;
-  width: 100%;
-}
-
-.overlay > div > span {
-  position: absolute;
-  top: 40%;
-  left: 45%;
-}
-
 #job-details-actionbar, #job-tabs-navbar {
   min-height: 33px;
 }
