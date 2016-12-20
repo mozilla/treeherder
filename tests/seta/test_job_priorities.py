@@ -25,7 +25,7 @@ def test_gecko_decision_task(query_runnable_jobs, validate_request,
     However, once the Gecko decision task has called the API API DEFAULT_LOW_PRIORITY times we will return no jobs.
     This is interpreted by the Gecko decision task that it should run everything.
     '''
-    query_runnable_jobs.return_value = runnable_jobs_data['results']
+    query_runnable_jobs.return_value = runnable_jobs_data
     for i in range(1, DEFAULT_LOW_PRIORITY):
         jobs = seta_job_scheduling(project=test_repository.name,
                                    build_system_type='taskcluster',

@@ -68,16 +68,3 @@ def test_null_expiration_date():
         expiration_date=None,
         buildsystem='taskcluster')
     assert jp.expiration_date is None
-
-
-@pytest.mark.skip("I expect the second creation to fail due to the unique composite index.")
-@pytest.mark.django_db()
-def test_prevent_duplicates():
-    '''The expiration date accepts null values'''
-    JobPriority.objects.create(
-        testtype='web-platform-tests-1', buildtype='opt', platform='windows8-64',
-        priority=1, timeout=5400, expiration_date=TOMORROW, buildsystem='taskcluster')
-    # XXX: Should this not raise an exception?
-    JobPriority.objects.create(
-        testtype='web-platform-tests-1', buildtype='opt', platform='windows8-64',
-        priority=1, timeout=5400, expiration_date=TOMORROW, buildsystem='taskcluster')
