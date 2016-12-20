@@ -160,7 +160,7 @@ def _update_table(data):
             # We already know about this job, we might need to update the build system
             # We're seeing the job again with another build system (e.g. buildbot vs
             # taskcluster). We need to change it to '*'
-            if jp_index[key]['build_system_type'] != job["build_system_type"]:
+            if jp_index[key]['build_system_type'] != '*' and jp_index[key]['build_system_type'] != job["build_system_type"]:
                 db_job = JobPriority.objects.get(pk=jp_index[key]['pk'])
                 db_job.buildsystem = '*'
                 db_job.save()
