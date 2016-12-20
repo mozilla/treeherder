@@ -35,13 +35,13 @@ describe('linkifyBugs filter', function() {
     it('linkifies a Bug', function() {
         var linkifyBugs = $filter('linkifyBugs');
         expect(linkifyBugs('Bug 123456'))
-          .toEqual('Bug <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=123456" data-bugid=123456 title=bugzilla.mozilla.org>123456</a>');
+          .toEqual('Bug <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=123456" data-bugid="123456" title="bugzilla.mozilla.org">123456</a>');
     });
 
     it('linkifies a PR', function() {
         var linkifyBugs = $filter('linkifyBugs');
         expect(linkifyBugs('PR#123456'))
-          .toEqual('PR#<a href="https://github.com/mozilla-b2g/gaia/pull/123456" data-prid=123456 title=github.com>123456</a>');
+          .toEqual('PR#<a href="https://github.com/mozilla-b2g/gaia/pull/123456" data-prid="123456" title="github.com">123456</a>');
     });
 });
 

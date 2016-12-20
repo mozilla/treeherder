@@ -13,6 +13,9 @@ module.exports = function (config) {
         files: [
             'ui/vendor/angular/angular.js',
             'ui/vendor/angular/angular-*.js',
+            'tests/ui/vendor/react-with-addons.min.js',
+            'ui/vendor/react/react-dom.min.js',
+            'ui/vendor/ngReact/ngReact.min.js',
             'ui/vendor/ui-bootstrap-*.js',
             'ui/vendor/jquery-*.js',
             'ui/vendor/jquery.ui.effect.js',
@@ -30,6 +33,7 @@ module.exports = function (config) {
             'ui/js/directives/treeherder/**/*.js',
             'ui/js/models/**/*.js',
             'ui/js/services/**/*.js',
+            'ui/js/reactrevisions.js',
             'ui/plugins/**/*.js',
             'tests/ui/vendor/jasmine-jquery.js',
             'tests/ui/unit/**/*.js',

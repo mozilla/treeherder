@@ -18,7 +18,7 @@
         <span>
           <a href="{{::revisionResultsetFilterUrl}}"
              title="View only this resultset"
-             ignore-job-clear-on-click>{{::resultsetDateStr}}
+             data-ignore-job-clear-on-click>{{::resultsetDateStr}}
             <span class="fa fa-external-link icon-superscript"></span></a> - </span>
         <th-author author="{{::resultset.author}}"></th-author>
       </span>
@@ -28,24 +28,24 @@
       <button class="btn btn-sm btn-resultset cancel-all-jobs-btn"
             ng-attr-title="{{getCancelJobsTitle(resultset.revision)}}"
             ng-show="currentRepo.repository_group.name == 'try' || user.is_staff"
-            ignore-job-clear-on-click
+            data-ignore-job-clear-on-click
             ng-disabled="!canCancelJobs()"
             ng-click="confirmCancelAllJobs()">
         <span class="fa fa-times-circle cancel-job-icon dim-quarter"
-              ignore-job-clear-on-click></span>
+              data-ignore-job-clear-on-click></span>
       </button>
       <button class="btn btn-sm btn-resultset pin-all-jobs-btn"
             title="Pin all available jobs in this resultset"
-            ignore-job-clear-on-click
+            data-ignore-job-clear-on-click
             ng-click="pinAllShownJobs()">
         <span class="glyphicon glyphicon-pushpin"
-              ignore-job-clear-on-click></span>
+              data-ignore-job-clear-on-click></span>
       </button>
       <button class="btn btn-sm btn-resultset trigger-new-jobs-btn"
             title="Trigger new jobs"
             ng-show="showTriggerButton()"
             ng-disabled="!user.loggedin"
-            ignore-job-clear-on-click
+            data-ignore-job-clear-on-click
             ng-click="triggerNewJobs()">
            Trigger New Jobs
       </button>
