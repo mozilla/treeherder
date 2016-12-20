@@ -8,6 +8,8 @@ import newrelic.agent
 from django.conf import settings
 from django.db import transaction
 
+from treeherder.etl.artifact import (serialize_artifact_json_blobs,
+                                     store_job_artifacts)
 from treeherder.etl.common import get_guid_root
 from treeherder.model import utils
 from treeherder.model.models import (BuildPlatform,
@@ -36,7 +38,6 @@ from treeherder.model.tasks import (publish_job_action,
                                     publish_resultset_action)
 from treeherder.model.utils import orm_delete
 
-from .artifacts import ArtifactsModel
 from .base import TreeherderModelBase
 
 logger = logging.getLogger(__name__)
@@ -952,7 +953,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         has_text_log_summary = any(x for x in artifacts
                                    if x['name'] == 'text_log_summary')
         if artifacts:
-            artifacts = ArtifactsModel.serialize_artifact_json_blobs(artifacts)
+            artifacts = serialize_artifact_json_blobs(artifacts)
 
             # need to add job guid to artifacts, since they likely weren't
             # present in the beginning
@@ -967,8 +968,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 if "job_guid" not in artifact:
                     artifact["job_guid"] = job_guid
 
-            with ArtifactsModel(self.project) as artifacts_model:
-                artifacts_model.load_job_artifacts(artifacts)
+            store_job_artifacts(artifacts)
 
         log_refs = job_datum.get('log_references', [])
         if log_refs:

@@ -4,8 +4,8 @@ import json
 
 import pytest
 
-from treeherder.model.derived import (ArtifactsModel,
-                                      JobsModel)
+from treeherder.etl.artifact import store_job_artifacts
+from treeherder.model.derived import JobsModel
 from treeherder.model.models import (JobDetail,
                                      TextLogError,
                                      TextLogStep)
@@ -38,8 +38,7 @@ def test_load_long_job_details(test_project, eleven_jobs_stored):
         }),
         'job_guid': job['job_guid']
     }
-    with ArtifactsModel(test_project) as am:
-        am.load_job_artifacts([ji_artifact])
+    store_job_artifacts([ji_artifact])
 
     assert JobDetail.objects.count() == 1
 
@@ -76,15 +75,14 @@ def test_load_textlog_summary_twice(test_project, test_job):
         'job_guid': test_job.guid
     }
 
-    with ArtifactsModel(test_project) as am:
-        am.load_job_artifacts([text_log_summary_artifact])
-        assert TextLogError.objects.count() == 1
-        assert TextLogStep.objects.count() == 1
-        # load again (simulating the job being parsed twice,
-        # which sometimes happens)
-        am.load_job_artifacts([text_log_summary_artifact])
-        assert TextLogError.objects.count() == 1
-        assert TextLogStep.objects.count() == 1
+    store_job_artifacts([text_log_summary_artifact])
+    assert TextLogError.objects.count() == 1
+    assert TextLogStep.objects.count() == 1
+    # load again (simulating the job being parsed twice,
+    # which sometimes happens)
+    store_job_artifacts([text_log_summary_artifact])
+    assert TextLogError.objects.count() == 1
+    assert TextLogStep.objects.count() == 1
 
 
 def test_load_non_ascii_textlog_errors(test_project, eleven_jobs_stored):
@@ -122,8 +120,7 @@ def test_load_non_ascii_textlog_errors(test_project, eleven_jobs_stored):
         }),
         'job_guid': job['job_guid']
     }
-    with ArtifactsModel(test_project) as am:
-        am.load_job_artifacts([text_log_summary_artifact])
+    store_job_artifacts([text_log_summary_artifact])
 
     assert TextLogError.objects.count() == 2
     assert TextLogError.objects.get(line_number=1587).line == '07:51:28  WARNING - \U000000c3'

@@ -3,8 +3,9 @@ import urllib2
 
 import simplejson as json
 
+from treeherder.etl.artifact import (serialize_artifact_json_blobs,
+                                     store_job_artifacts)
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
-from treeherder.model.derived import ArtifactsModel
 from treeherder.model.models import JobLog
 
 logger = logging.getLogger(__name__)
@@ -55,13 +56,11 @@ def post_log_artifacts(job_log):
         raise
 
     try:
-        serialized_artifacts = ArtifactsModel.serialize_artifact_json_blobs(
-            artifact_list)
-        project = job_log.job.repository.name
-        with ArtifactsModel(project) as artifacts_model:
-            artifacts_model.load_job_artifacts(serialized_artifacts)
+        serialized_artifacts = serialize_artifact_json_blobs(artifact_list)
+        store_job_artifacts(serialized_artifacts)
         job_log.update_status(JobLog.PARSED)
-        logger.debug("Stored artifact for %s %s", project, job_log.job.id)
+        logger.debug("Stored artifact for %s %s", job_log.job.repository.name,
+                     job_log.job.id)
     except Exception as e:
         logger.error("Failed to store parsed artifact for %s: %s", job_log.id, e)
         raise

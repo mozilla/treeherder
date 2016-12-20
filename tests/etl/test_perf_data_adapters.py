@@ -6,7 +6,7 @@ import time
 import pytest
 
 from tests.test_utils import create_generic_job
-from treeherder.etl.perf import load_perf_artifact
+from treeherder.etl.perf import store_performance_artifact
 from treeherder.model.models import (Push,
                                      Repository)
 from treeherder.perf.models import (PerformanceAlert,
@@ -85,7 +85,7 @@ def _generate_perf_data_range(test_project, test_repository,
         submit_datum['blob'] = json.dumps({
             'performance_data': submit_datum['blob']
         })
-        load_perf_artifact(job, submit_datum)
+        store_performance_artifact(job, submit_datum)
 
 
 def _verify_signature(repo_name, framework_name, suitename,
@@ -189,7 +189,7 @@ def test_load_generic_data(test_project, test_repository,
         'performance_data': submit_datum['blob']
     })
 
-    load_perf_artifact(perf_job, submit_datum)
+    store_performance_artifact(perf_job, submit_datum)
     assert 8 == PerformanceSignature.objects.all().count()
     assert 1 == PerformanceFramework.objects.all().count()
     framework = PerformanceFramework.objects.all()[0]
@@ -238,7 +238,7 @@ def test_load_generic_data(test_project, test_repository,
         time=later_timestamp)
     later_job = create_generic_job('lateguid', test_repository,
                                    later_push.id, 2, generic_reference_data)
-    load_perf_artifact(later_job, submit_datum)
+    store_performance_artifact(later_job, submit_datum)
     signature = PerformanceSignature.objects.get(
         suite=perf_datum['suites'][0]['name'],
         test=perf_datum['suites'][0]['subtests'][0]['name'])
@@ -288,7 +288,7 @@ def test_same_signature_multiple_performance_frameworks(test_project,
             'performance_data': submit_datum['blob']
         })
 
-        load_perf_artifact(perf_job, submit_datum)
+        store_performance_artifact(perf_job, submit_datum)
 
     # we should have 2 performance signature objects, one for each framework
     # and one datum for each signature

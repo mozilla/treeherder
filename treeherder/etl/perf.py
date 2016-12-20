@@ -173,7 +173,7 @@ def _load_perf_datum(job, perf_datum):
                                             routing_key='generate_perf_alerts')
 
 
-def load_perf_artifact(job, artifact):
+def store_performance_artifact(job, artifact):
     blob = json.loads(artifact['blob'])
     performance_data = blob['performance_data']
 

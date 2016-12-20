@@ -2,7 +2,8 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.status import HTTP_405_METHOD_NOT_ALLOWED
 
-from treeherder.model.derived import ArtifactsModel
+from treeherder.etl.artifact import (serialize_artifact_json_blobs,
+                                     store_job_artifacts)
 from treeherder.webapp.api import permissions
 
 
@@ -21,9 +22,8 @@ class ArtifactViewSet(viewsets.ViewSet):
                         status=HTTP_405_METHOD_NOT_ALLOWED)
 
     def create(self, request, project):
-        serialized_artifacts = ArtifactsModel.serialize_artifact_json_blobs(
+        serialized_artifacts = serialize_artifact_json_blobs(
             request.data)
-        with ArtifactsModel(project) as artifacts_model:
-            artifacts_model.load_job_artifacts(serialized_artifacts)
+        store_job_artifacts(serialized_artifacts)
 
         return Response({'message': 'Artifacts stored successfully'})
