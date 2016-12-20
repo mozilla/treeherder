@@ -1,3 +1,6 @@
+SETA
+====
+
 SETA is desgined to reduce the number of jobs that are run pushes from certain Firefox development repositories (e.g. autoland).
 There's one main API that SETA offers consumers (e.g. the Gecko decision task) in order to show which jobs are consider low value
 (less likely to catch a regression). After a certain number of calls, the API will return all jobs that need to be run.
@@ -13,34 +16,53 @@ number of jobs.
 Jobs that appear on Treeherder for the first time will be treated as a job with high priority for a couple of
 weeks since we don't have historical data to determine how likely they're to catch a code regression.
 
-In order to find open bugs for SETA visit this [link](https://bugzilla.mozilla.org/buglist.cgi?query_format=specific&order=relevance%20desc&bug_status=__open__&product=Tree%20Management&content=SETA&comments=0&list_id=13358642).
+In order to find open bugs for SETA visit list of `SETA bugs <https://bugzilla.mozilla.org/buglist.cgi?query_format=specific&order=relevance%20desc&bug_status=__open__&product=Tree%20Management&content=SETA&comments=0&list_id=13358642>`_.
 
-= APIs =
+APIs
+----
 * /api/project/{project}/seta/v1/job-priorities/
+
   * This is the API that consumers like the Gecko decision task will use
+
 * /api/seta/v1/failures-fixed-by-commit/
+
   * This API shows job failures that have been annotated with "fixed by commit"
+
 * /api/project/{project}/seta/v1/job-types/
+
   * This API shows which jobs are defined for each project
 
-= Local set up =
+Local set up
+------------
 After you set up Treeherder, ssh into the provisioned VM and follow these steps:
+
 * Choose a couple of consecutive revisions from one of the Firefox development repositories
-  *  Import these jobs to your local setup. For example:
-```
-  ./manage.py ingest_push mozilla-inbound  d70bb3fba851
-  ./manage.py ingest_push mozilla-inbound  5a5d50943bbc
-```
+
+  * Import these jobs to your local setup. For example:
+
+  .. code-block:: bash
+
+     ./manage.py ingest_push mozilla-inbound  d70bb3fba851
+     ./manage.py ingest_push mozilla-inbound  5a5d50943bbc
+
+NOTE: Make sure these are pushes with jobs that have run in the last 4 hours
+
 NOTE: This will only import Buildbot jobs
+
 * Start the server with ./manage.py runserver
-* Open http://localhost:8000/#/jobs?repo=mozilla-inbound
+* Open `http://localhost:8000/#/jobs?repo=mozilla-inbound <http://localhost:8000/#/jobs?repo=mozilla-inbound>`_.
 * Select few failed jobs from the older pushes
-  * Tag them as fixed by commit and make a reference to the newer push
+* Tag the jobs as fixed by commit and make a reference to the newer push
 * Back inside of vagrant run the following:
-  * ./manage.py analyze_failures
-  * ./manage.py load_preseed
+
+  .. code-block:: bash
+
+     ./manage.py analyze_failures
+     ./manage.py load_preseed
+
 * Test the different APIs:
+
   * http://localhost:8000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=buildbot
   * http://localhost:8000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=taskcluster
-  * http://localhost:8000/api/project/mozilla-inbound/seta/v1/seta/v1/job-types/
+  * http://localhost:8000/api/project/mozilla-inbound/seta/v1/job-types/
   * http://localhost:8000/api/seta/v1/failures-fixed-by-commit/
