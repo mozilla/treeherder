@@ -101,4 +101,4 @@ class JobPriority(models.Model):
             datum.save()
 
     def __str__(self):
-        return ','.join((self.testtype, self.buildtype, self.platform, self.buildsystem))
+        return ','.join((self.buildsystem, self.platform, self.buildtype, self.testtype))
