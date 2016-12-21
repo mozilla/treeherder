@@ -9,6 +9,7 @@ from treeherder.seta.common import unique_key
 from treeherder.seta.models import JobPriority
 from treeherder.seta.seta import get_high_value_jobs
 from treeherder.seta.update_job_priority import update_job_priority_table
+from treeherder.webapp.api.jobs import JobsViewSet
 
 HEADERS = {
     'Accept': 'application/json',
@@ -84,10 +85,9 @@ def get_failures_fixed_by_commit():
         if job_note.text not in failures:
             failures[job_note.text] = []
 
-        # XXX: Fix this url
-        url = 'http://localhost:8000/api/project/mozilla-inbound/jobs/{}/'.format(job_note.job.id)
-        # It would be great if we did not have to hit the API to determine this information
-        job_info = retry(requests.get, args=(url, ), kwargs={'headers': HEADERS}).json()
+        job_info = JobsViewSet().retrieve(request=None,
+                                          project=job_note.job.repository.name,
+                                          pk=job_note.job.id).data
         testtype = parse_testtype(
             build_system_type=job_info['build_system_type'],  # e.g. taskcluster
             job_type_name=job_info['job_type_name'],  # e.g. Mochitest

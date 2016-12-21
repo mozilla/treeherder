@@ -112,3 +112,18 @@ def job_priority_list(sanitized_data):
 @pytest.fixture
 def jp_index_fixture(job_priority_list):
     return job_priority_index(job_priority_list)
+
+
+@pytest.fixture
+def failures_fixed_by_commit():
+    return {u'you look like a man-o-lantern': [
+        (u'39643b5073cfb9473042884bfd3ced0289b3d7dd', u'debug', u'b2g-emu-jb'),
+        (u'df822a71f7727bf3cb6d3b2aeba970d8a6d33ea1', u'opt', u'b2g-emu-jb'),
+        (u'1824f3350e2152d3272de09c8ec9b103cd3ad667', u'debug', u'osx-10-6'),
+        (u'58cab069cf08211159774de948094dd963fb9d44', u'debug', u'osx-10-7'),
+        (u'f2e06a487b304c16843fe53782a5888e5582be6b', u'debug', u'windows7-32'),
+        (u'fe762310e2f921b93df828ac68ee958f19e2d759', u'debug', u'windows8-32'),
+        (u'8d63b645c221e45ccf4a2fbc087fa0088535042c', u'debug', u'windowsxp'),
+        (u'93e11a88ea92cfa4d930072b22afca002c53f249', u'opt', u'b2g-device-image'),
+        (u'39643b5073cfb9473042884bfd3ced0289b3d7dd', u'debug', u'b2g-emu-jb'),
+        (u'2c057fb1cd2b6f8bd74121238d0287063d8f5562', u'opt', u'b2g-device-image')]}
