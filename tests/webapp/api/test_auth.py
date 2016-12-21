@@ -1,8 +1,6 @@
 import pytest
-
 from django.contrib.sessions.models import Session
 from django.core.urlresolvers import reverse
-from django.db import transaction
 from mohawk import Sender
 from rest_framework import status
 from rest_framework.decorators import APIView
@@ -143,8 +141,12 @@ def test_login_not_active(test_user, webapp, monkeypatch):
     assert resp.json["detail"] == "This user has been disabled."
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 def test_login_no_email(webapp, monkeypatch):
+    """
+    When we move to clientId for display in the UI, we may decide users can login
+    without an email.  But for now, it's required.
+    """
     def mock_auth(selfless, payload):
         return {"status": "auth-success",
                 "clientId": "foo/bar",
@@ -152,9 +154,8 @@ def test_login_no_email(webapp, monkeypatch):
                 }
     monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
 
-    with transaction.atomic():
-        resp = webapp.get(reverse("auth-login"), headers={"tcauth": "foo"})
-    assert resp.json["detail"] == "Invalid email for clientId: 'foo'. Invalid value for scope 'assume:mozilla-user': 'meh'"
+    resp = webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=403)
+    assert resp.json["detail"] == "No email in clientId.  Email required."
 
 
 def test_login_invalid(webapp, monkeypatch):

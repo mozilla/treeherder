@@ -6,7 +6,6 @@ import re
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.reverse import reverse
-from django.db import transaction
 from taskcluster.sync import Auth
 from taskcluster.utils import scope_match
 
@@ -58,11 +57,11 @@ class TaskclusterAuthBackend(object):
 
     def _get_user(self, email):
         """
-        Try to find an exising user that matches the email.
+        Try to find an existing user that matches the email.
 
         TODO: Switch to using ``username`` instead of email once we are on
         Django 1.10 in Bug 1311967.  will need to migrate existing hashed
-        usenames at that point.
+        usernames at that point.
 
         """
 
@@ -96,7 +95,7 @@ class TaskclusterAuthBackend(object):
 
         if result["status"] != "auth-success":
             logger.warning("Error logging in: {}".format(result["message"]))
-            raise TaskclusterAuthenticationFailed(result["message"])
+            raise TaskclusterAuthenticationFailedException(result["message"])
 
         client_id = result["clientId"]
         email = self._get_email(client_id)
@@ -109,27 +108,29 @@ class TaskclusterAuthBackend(object):
                 hashlib.sha1(smart_bytes(client_id)).digest()
                 ).rstrip(b'=')[-30:]
 
-        with transaction.atomic():
-            try:
-                if scope_match(result["scopes"],
+        try:
+            if scope_match(result["scopes"],
                            [["assume:mozilla-user:{}".format(email)]]):
-                    # Find the user by their email.
-                    user = self._get_user(email)
-                    # update the username
-                    user.username = username
-                    user.save()
-                    return user
+                # Find the user by their email.
+                user = self._get_user(email)
+                # update the username
+                user.username = username
+                user.save()
+                return user
 
-                else:
-                    return User.objects.get(username=username)
+            else:
+                # with transaction.atomic():
+                return User.objects.get(username=username)
 
-            except ObjectDoesNotExist:
+        except ObjectDoesNotExist:
+            if email:
                 # the user doesn't already exist, create it.
                 logger.warning("Creating new user: {}".format(username))
                 user = User.objects.create_user(email=email,
-                                           username=username)
+                                                username=username)
                 user.save()
                 return user
+            raise NoEmailException("No email in clientId.  Email required.")
 
     def get_user(self, user_id):
         try:
@@ -138,5 +139,9 @@ class TaskclusterAuthBackend(object):
             return None
 
 
-class TaskclusterAuthenticationFailed(Exception):
+class TaskclusterAuthenticationFailedException(Exception):
+    pass
+
+
+class NoEmailException(Exception):
     pass
