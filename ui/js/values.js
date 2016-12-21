@@ -109,7 +109,7 @@ treeherder.value("thRepoGroupOrder", {
     "qa automation tests": 6
 });
 
-treeherder.value("thDefaultRepo", "mozilla-inbound");
+treeherder.value("thDefaultRepo", localStorage.getItem("defaultRepo") || "mozilla-inbound");
 
 treeherder.value("thDateFormat", "EEE MMM d, H:mm:ss");
 

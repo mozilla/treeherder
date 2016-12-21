@@ -577,6 +577,7 @@ treeherderApp.controller('MainCtrl', [
             if (!defaulting && $scope.cachedReloadTriggerParams &&
                 !_.isEqual(newReloadTriggerParams, $scope.cachedReloadTriggerParams) &&
                 !$rootScope.skipNextPageReload) {
+                localStorage.setItem("defaultRepo", newReloadTriggerParams.repo);
 
                 $window.location.reload();
             } else {
@@ -648,4 +649,3 @@ treeherderApp.controller('MainCtrl', [
         };
     }
 ]);
-
