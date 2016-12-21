@@ -434,11 +434,31 @@ class JobGroup(models.Model):
             self.name, self.symbol)
 
 
+class OptionCollectionManager(models.Manager):
+    '''
+    Convenience function to determine the option collection map
+    '''
+    def _get_option_collection_map(self):
+        if hasattr(self, 'option_collection_map'):
+            return self.option_collection_map
+        else:
+            self.option_collection_map = {}
+            for (hash, option_name) in OptionCollection.objects.values_list(
+                    'option_collection_hash', 'option__name'):
+                if not self.option_collection_map.get(hash):
+                    self.option_collection_map[hash] = option_name
+                else:
+                    self.option_collection_map[hash] += (' ' + option_name)
+            return self.option_collection_map
+
+
 @python_2_unicode_compatible
 class OptionCollection(models.Model):
     id = models.AutoField(primary_key=True)
     option_collection_hash = models.CharField(max_length=40, db_index=True)
     option = models.ForeignKey(Option, db_index=True)
+
+    objects = OptionCollectionManager()
 
     @staticmethod
     def calculate_hash(options):
@@ -737,6 +757,20 @@ class Job(models.Model):
     def __str__(self):
         return "{0} {1} {2} {3}".format(self.id, self.repository, self.guid,
                                         self.project_specific_id)
+
+
+    def get_platform_option(self):
+        if hasattr(self, 'platform_option'):
+            return self.platform_option
+        else:
+            self.platform_option = None
+            option_hash = self.option_collection_hash
+            if option_hash:
+                option_collection_map = OptionCollection.objects._get_option_collection_map()
+                self.platform_option = option_collection_map[option_hash]
+
+            return self.platform_option
+
 
     def save(self, *args, **kwargs):
         self.last_modified = datetime.datetime.now()

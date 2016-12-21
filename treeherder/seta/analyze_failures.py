@@ -82,19 +82,16 @@ def get_failures_fixed_by_commit():
         if job_note.text not in failures:
             failures[job_note.text] = []
 
-        job_info = JobsViewSet().retrieve(request=None,
-                                          project=job_note.job.repository.name,
-                                          pk=job_note.job.id).data
         testtype = parse_testtype(
-            build_system_type=job_info['build_system_type'],  # e.g. taskcluster
-            job_type_name=job_info['job_type_name'],  # e.g. Mochitest
-            platform_option=job_info['platform_option'],  # e.g. 'opt'
-            ref_data_name=job_info['ref_data_name'],  # buildername or task label
+            build_system_type=job_note.job.signature.build_system_type,  # e.g. taskcluster
+            job_type_name=job_note.job.job_type.name,  # e.g. Mochitest
+            platform_option=job_note.job.get_platform_option(),  # e.g. 'opt'
+            ref_data_name=job_note.job.signature.name,  # buildername or task label
         )
         failures[job_note.text].append(unique_key(
             testtype=testtype,
-            buildtype=job_info['platform_option'],
-            platform=job_info['platform']
+            buildtype=job_note.job.get_platform_option(),  # e.g. 'opt'
+            platform=job_note.job.signature.build_platform
         ))
 
     LOG.info("failures: {}".format(len(failures)))
