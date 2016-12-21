@@ -240,6 +240,9 @@ treeherder.controller('BugFilerCtrl', [
                     if (response.data && response.data.failure) {
                         failureString += "\n\n" + response.data.failure;
                     }
+                    if (response.status === 403) {
+                        failureString += "\n\nAuthentication failed. Has your Treeherder session expired?";
+                    }
                     thNotify.send(failureString, "danger");
                     $scope.toggleForm(false);
                 });
