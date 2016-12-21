@@ -146,7 +146,7 @@ logViewerApp.controller('LogviewerCtrl', [
         };
 
         $scope.logviewerInit = () => {
-            // Listen for messages from child
+            // Listen for messages from child frame
             setlogListener();
 
             ThTextLogStepModel.query({
@@ -192,6 +192,27 @@ logViewerApp.controller('LogviewerCtrl', [
             });
         };
 
+        function errorLinesCss(errors) {
+            return errors
+              .map(({ line_number }) => `a[id="${line_number + 1}"]+span`)
+              .join(',')
+              .concat('{background:#fbe3e3;color:#a94442}');
+        }
+
+        function logCss() {
+            const hideToolbar = '#toolbar{display:none}';
+            const body = 'html,body{background:#f8f8f8;color:#333;font-size:12px}';
+            const highlight = '#log p.highlight a,#log p.highlight span{background:#f8eec7!important}';
+            const hover = '#log p:hover{background:transparent}#log a:hover{background:#f8eec7}';
+            const stripe = '.lazy-list p:nth-child(2n){background:#fff!important}.lazy-list p:nth-child(2n+1){background:#f8f8f8!important}';
+            const lineNumber = '#log.show-line-numbers p a{color:rgba(0,0,0,.3)}';
+            const linePadding = '#log p{padding:0 15px 0 35px}';
+            const log = '#log{font-family:monospace}';
+
+
+            return hideToolbar + body + highlight + hover + stripe + lineNumber + linePadding + log;
+        }
+
         /** utility functions **/
 
         function updateQuery(values) {
@@ -210,31 +231,11 @@ logViewerApp.controller('LogviewerCtrl', [
             }
         }
 
-        function errorLinesCss(errors) {
-            return errors
-              .map(({ line_number }) => `a[id="${line_number + 1}"]+span`)
-              .join(',')
-              .concat('{background-color:#fbe3e3;color:#a94442}');
-        }
-
-        function logCss() {
-            const hideToolbar = 'div[id="toolbar"]{display:none}';
-            const body = 'html,body{background-color:#f8f8f8;color:#333;font-size:12px}';
-            const highlight = 'p.highlight{background-color:#f8eec7 !important}';
-            const hover = '#log p:hover{background-color:#f8eec7 !important}';
-            const stripe = '.lazy-list p:nth-child(2n){background-color:#fff}';
-            const lineNumber = '#log.show-line-numbers p a{color:rgba(0,0,0,.3)}';
-            const linePadding = '#log p{padding: 0 15px 0 35px}';
-            const log = '#log{font-family:monospace}';
-
-
-            return hideToolbar + body + highlight + hover + stripe + lineNumber + linePadding + log;
-        }
-
         function setlogListener() {
             let workerReady = false;
 
             $window.addEventListener('message', (e) => {
+                // Send initial css when child frame loads URL successfully
                 if (!workerReady) {
                     workerReady = true;
 
