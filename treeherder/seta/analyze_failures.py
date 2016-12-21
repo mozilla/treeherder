@@ -1,8 +1,5 @@
 import logging
 
-import requests
-from redo import retry
-
 from treeherder.etl.seta import parse_testtype
 from treeherder.model import models
 from treeherder.seta.common import unique_key

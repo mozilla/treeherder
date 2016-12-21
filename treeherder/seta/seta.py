@@ -1,4 +1,3 @@
-import copy
 import logging
 
 from treeherder.etl.seta import Treecodes
@@ -110,41 +109,6 @@ def invert_index(failures, active_jobs):
         del failures[revision]
 
     return failures, max_job
-
-
-def failures_by_jobtype(failures, target, ignore_failure):
-    total = len(failures)
-    copy_failures = copy.deepcopy(failures)
-    # XXX: Find alternative data source for this
-    #      This could be data from job priority
-    #      How to determine if it is active or not?
-    active_jobs = get_distinct_tuples()
-    target = int(total * (target / 100))
-    failures_root_cause = []
-
-    job_needed = ""
-    remaining_jobs = []
-    while job_needed is not None:
-        copy_failures, job_needed = invert_index(copy_failures, active_jobs)
-        if job_needed is not None:
-            remaining_jobs.append(job_needed)
-
-    low_value_jobs = [x for x in active_jobs if str(x) not in remaining_jobs]
-
-    while ignore_failure > 0:
-        copy_failures = remove_root_cause_failures(copy_failures, failures_root_cause)
-        total = len(copy_failures)
-        low_value_jobs, failures_root_cause = build_removals(active_jobs, copy_failures, total)
-        ignore_failure -= 1
-    # only return high value job we want
-    for low_value_job in low_value_jobs:
-        try:
-            active_jobs.remove(low_value_job)
-        except ValueError:
-            LOG.info("%s is missing from the job list" % low_value_job)
-    total_detected = check_removal(failures, low_value_jobs)
-    high_value_jobs = active_jobs
-    return high_value_jobs, total_detected
 
 
 def get_high_value_jobs(revisions_fixed_by_commit_plus_tagged_jobs, target=100):
