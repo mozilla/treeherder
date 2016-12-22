@@ -226,78 +226,88 @@ logViewerApp.controller('LogviewerCtrl', [
         $scope.init = function() {
 
             $scope.logProperties = [];
-            ThJobModel.get($scope.repoName, $scope.job_id).then(function(job) {
-                // set the title of the browser window/tab
-                $scope.logViewerTitle = job.get_title();
 
-                if (job.logs && job.logs.length) {
-                    $scope.rawLogURL = job.logs[0].url;
+            // HACK: check if this was a link to an older job log with a
+            // project specific id, and rewrite the job_id if so
+            ThJobModel.get_list($scope.repoName, {
+                project_specific_id: $scope.job_id
+            }).then(function(jobList) {
+                if (jobList.length > 0) {
+                    $scope.job_id = jobList[0]['id'];
                 }
-                // set the result value and shading color class
-                $scope.result = {label: "Result", value: job.result};
-                $scope.resultStatusShading = $scope.getShadingClass(job.result);
 
-                // other properties, in order of appearance
-                $scope.logProperties = [
-                    {label: "Job", value: $scope.logViewerTitle},
-                    {label: "Machine", value: job.machine_name},
-                    {label: "Start", value: dateFilter(job.start_timestamp*1000, thDateFormat)},
-                    {label: "End", value: dateFilter(job.end_timestamp*1000, thDateFormat)}
-                ];
-
-                // Test to expose the reftest button in the logviewer actionbar
-                $scope.isReftest = function() {
-                    if (job.job_group_name) {
-                        return thReftestStatus(job);
+                ThJobModel.get($scope.repoName, $scope.job_id).then(function(job) {
+                    // set the title of the browser window/tab
+                    $scope.logViewerTitle = job.get_title();
+                    if (job.logs && job.logs.length) {
+                        $scope.rawLogURL = job.logs[0].url;
                     }
-                };
+                    // set the result value and shading color class
+                    $scope.result = {label: "Result", value: job.result};
+                    $scope.resultStatusShading = $scope.getShadingClass(job.result);
 
-                // get the revision and linkify it
-                ThResultSetModel.getResultSet($scope.repoName, job.push_id).then(function(data){
-                    var revision = data.data.revision;
-                    $scope.logProperties.push({label: "Revision", value: revision});
+                    // other properties, in order of appearance
+                    $scope.logProperties = [
+                        {label: "Job", value: $scope.logViewerTitle},
+                        {label: "Machine", value: job.machine_name},
+                        {label: "Start", value: dateFilter(job.start_timestamp*1000, thDateFormat)},
+                        {label: "End", value: dateFilter(job.end_timestamp*1000, thDateFormat)}
+                    ];
+
+                    // Test to expose the reftest button in the logviewer actionbar
+                    $scope.isReftest = function() {
+                        if (job.job_group_name) {
+                            return thReftestStatus(job);
+                        }
+                    };
+
+                    // get the revision and linkify it
+                    ThResultSetModel.getResultSet($scope.repoName, job.push_id).then(function(data){
+                        var revision = data.data.revision;
+                        $scope.logProperties.push({label: "Revision", value: revision});
+                    });
+
+                    ThJobDetailModel.getJobDetails({job_guid: job.job_guid}).then(function(jobDetails) {
+                        $scope.job_details = jobDetails;
+                    });
+                }, function () {
+                    $scope.loading = false;
+                    $scope.jobExists = false;
+                    thNotify.send("The job does not exist or has expired", 'danger', true);
                 });
 
-                ThJobDetailModel.getJobDetails({job_guid: job.job_guid}).then(function(jobDetails) {
-                    $scope.job_details = jobDetails;
-                });
-            }, function () {
-                $scope.loading = false;
-                $scope.jobExists = false;
-                thNotify.send("The job does not exist or has expired", 'danger', true);
-            });
+                ThTextLogStepModel.query({
+                    project: $rootScope.repoName,
+                    jobId: $scope.job_id
+                }, function(textLogSteps) {
+                    $scope.steps = textLogSteps;
 
-            ThTextLogStepModel.query({
-                project: $rootScope.repoName,
-                jobId: $scope.job_id
-            }, function(textLogSteps) {
-                $scope.steps = textLogSteps;
+                    // add an ordering to each step
+                    textLogSteps.forEach((step, i) => {step.order = i;});
 
-                // add an ordering to each step
-                textLogSteps.forEach((step, i) => {step.order = i;});
-
-                // If the log contains no errors load the head otherwise
-                // load the first failure step line. We also need to test
-                // for the 0th element for outlier jobs.
-                var allErrors = _.flatten(textLogSteps.map(s => s.errors));
-                if (allErrors.length === 0) {
-                    angular.element(document).ready(function () {
-                        if (isNaN($scope.selectedBegin)) {
-                            for (var i = 0; i < $scope.steps.length; i++) {
-                                var step = $scope.steps[i];
-                                if (step.result !== "success") {
-                                    $scope.selectedBegin = step.started_line_number;
-                                    $scope.selectedEnd = step.finished_line_number;
-                                    break;
+                    // If the log contains no errors load the head otherwise
+                    // load the first failure step line. We also need to test
+                    // for the 0th element for outlier jobs.
+                    var allErrors = _.flatten(textLogSteps.map(s => s.errors));
+                    if (allErrors.length === 0) {
+                        angular.element(document).ready(function () {
+                            if (isNaN($scope.selectedBegin)) {
+                                for (var i = 0; i < $scope.steps.length; i++) {
+                                    var step = $scope.steps[i];
+                                    if (step.result !== "success") {
+                                        $scope.selectedBegin = step.started_line_number;
+                                        $scope.selectedEnd = step.finished_line_number;
+                                        break;
+                                    }
                                 }
                             }
-                        }
+                            moveScrollToLineNumber($scope.selectedBegin);
+                        });
+                    } else {
+                        $scope.setLineNumber(allErrors[0].line_number);
                         moveScrollToLineNumber($scope.selectedBegin);
-                    });
-                } else {
-                    $scope.setLineNumber(allErrors[0].line_number);
-                    moveScrollToLineNumber($scope.selectedBegin);
-                }
+                    }
+                });
             });
         };
 
