@@ -49,7 +49,7 @@ treeherder.directive('thAuthor', function () {
         },
         template: '<span title="View resultsets for {{authorName}}: {{authorEmail}}">' +
             '<a href="{{authorResultsetFilterUrl}}"' +
-            'ignore-job-clear-on-click>{{authorName}}</a></span>'
+            'data-ignore-job-clear-on-click>{{authorName}}</a></span>'
     };
 });
 
