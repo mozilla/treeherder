@@ -160,6 +160,26 @@ def test_job_list_filter_fields(webapp, eleven_jobs_stored, test_repository, fie
     assert first[fieldname] == expected
 
 
+def test_job_list_filter_project_specific_id(webapp, test_job):
+    """
+    tests retrieving by project specific id
+
+    This is used by the logviewer in the front end so that old generated
+    urls still work
+    """
+    # resave the test_job with a different project specific id
+    test_job.project_specific_id = test_job.id + 1
+    test_job.save()
+
+    url = reverse("jobs-list",
+                  kwargs={"project": test_job.repository.name})
+    url += "?project_specific_id={}".format(test_job.project_specific_id)
+    resp = webapp.get(url).json
+
+    assert len(resp['results']) == 1
+    assert resp['results'][0]['id'] == test_job.id
+
+
 def test_job_list_in_filter(webapp, eleven_jobs_stored, test_repository):
     """
     test retrieving a job list with a querystring filter.
