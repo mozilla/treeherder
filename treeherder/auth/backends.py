@@ -118,9 +118,7 @@ class TaskclusterAuthBackend(object):
                 user.save()
                 return user
 
-            else:
-                # with transaction.atomic():
-                return User.objects.get(username=username)
+            return User.objects.get(username=username)
 
         except ObjectDoesNotExist:
             if email:
