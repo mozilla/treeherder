@@ -131,6 +131,7 @@ def test_ldap_login_no_mozilla_user_scope(test_user, webapp, monkeypatch):
     also covers logging in by email
     """
     client_id = "testuser1"
+
     def mock_auth(selfless, payload):
         return {"status": "auth-success",
                 "clientId": client_id,
@@ -154,6 +155,7 @@ def test_ldap_login_no_mozilla_user_scope_create(test_user, webapp, monkeypatch)
     create because no username match
     """
     client_id = "prefix/user@foo.com"
+
     def mock_auth(selfless, payload):
         return {"status": "auth-success",
                 "clientId": client_id,
