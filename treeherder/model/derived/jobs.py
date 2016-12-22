@@ -239,17 +239,15 @@ class JobsModel(TreeherderModelBase):
         )
         return data
 
-    def set_state(self, job_id, state):
+    def set_state(self, job, state):
         """Update the state of an existing job"""
         self.execute(
             proc='jobs.updates.set_state',
-            placeholders=[state, job_id],
+            placeholders=[state, job.project_specific_id],
             debug_show=self.DEBUG
         )
-        Job.objects.filter(repository__name=self.project,
-                           project_specific_id=job_id).update(
-                               state=state,
-                               last_modified=datetime.now())
+        job.state = state
+        job.save()
 
     def cancel_all_jobs_for_push(self, requester, push_id):
         """Set all pending/running jobs in resultset to usercancel."""
@@ -263,8 +261,7 @@ class JobsModel(TreeherderModelBase):
 
         # Notify the build systems which created these jobs...
         for job in Job.objects.filter(push_id=push_id).exclude(state='completed'):
-            self._job_action_event(job.project_specific_id, 'cancel',
-                                   requester)
+            self._job_action_event(job, 'cancel', requester)
 
         # Mark pending jobs as cancelled to work around buildbot not including
         # cancelled jobs in builds-4hr if they never started running.
@@ -292,7 +289,7 @@ class JobsModel(TreeherderModelBase):
             routing_key='publish_to_pulse'
         )
 
-    def _job_action_event(self, job_id, action, requester):
+    def _job_action_event(self, job, action, requester):
         """
         Helper for issuing an 'action' for a given job (such as
         cancel/retrigger)
@@ -302,7 +299,7 @@ class JobsModel(TreeherderModelBase):
         :param requester str: Email address of the user who caused action.
         """
         publish_job_action.apply_async(
-            args=[self.project, action, job_id, requester],
+            args=[self.project, action, job.project_specific_id, requester],
             routing_key='publish_to_pulse'
         )
 
@@ -312,9 +309,9 @@ class JobsModel(TreeherderModelBase):
 
         :param requester str: The email address associated with the user who
                               made this request
-        :param job dict: A job object (typically a result of get_job)
+        :param job dict: A job model object
         """
-        self._job_action_event(job['id'], 'retrigger', requester)
+        self._job_action_event(job, 'retrigger', requester)
 
     def backfill(self, requester, job):
         """
@@ -323,9 +320,9 @@ class JobsModel(TreeherderModelBase):
 
         :param requester str: The email address associated with the user who
                               made this request
-        :param job dict: A job object (typically a result of get_job)
+        :param job dict: A job model object
         """
-        self._job_action_event(job['id'], 'backfill', requester)
+        self._job_action_event(job, 'backfill', requester)
 
     def cancel_job(self, requester, job):
         """
@@ -334,35 +331,30 @@ class JobsModel(TreeherderModelBase):
 
         :param requester str: The email address associated with the user who
                               made this request
-        :param job dict: A job object (typically a result of get_job)
+        :param job dict: A job model object
         """
-
-        self._job_action_event(job['id'], 'cancel', requester)
+        self._job_action_event(job, 'cancel', requester)
 
         # Mark pending jobs as cancelled to work around buildbot not including
         # cancelled jobs in builds-4hr if they never started running.
         # TODO: Remove when we stop using buildbot.
         self.execute(
             proc='jobs.updates.cancel_job',
-            placeholders=[job['job_guid']],
+            placeholders=[job.guid],
             debug_show=self.DEBUG
         )
-        Job.objects.filter(repository__name=self.project,
-                           project_specific_id=job['id'],
-                           state='pending').update(
-                               state='completed',
-                               result='usercancel',
-                               last_modified=datetime.now())
+        Job.objects.filter(id=job.id, state='pending').update(
+            state='completed',
+            result='usercancel',
+            last_modified=datetime.now())
 
-    def update_last_job_classification(self, job_id):
+    def update_last_job_classification(self, job):
         """
         Update failure_classification_id no the job table accordingly to
         the latest annotation. If none is present it gets reverted to the
         default value
         """
-        note = JobNote.objects.filter(
-            job__repository__name=self.project,
-            job__project_specific_id=job_id).order_by('-created').first()
+        note = JobNote.objects.filter(job=job).order_by('-created').first()
         if note:
             failure_classification_id = note.failure_classification.id
         else:
@@ -372,12 +364,12 @@ class JobsModel(TreeherderModelBase):
         self.execute(
             proc='jobs.updates.update_last_job_classification',
             placeholders=[
-                failure_classification_id, job_id
+                failure_classification_id, job.project_specific_id
             ],
             debug_show=self.DEBUG
         )
         Job.objects.filter(repository__name=self.project,
-                           project_specific_id=job_id).update(
+                           id=job.id).update(
                                failure_classification_id=failure_classification_id,
                                last_modified=datetime.now())
 
