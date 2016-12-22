@@ -52,6 +52,8 @@ class PerformanceSignature(models.Model):
     # extra properties to distinguish the test (that don't fit into
     # option collection for whatever reason)
     extra_properties = JSONField(max_length=1024)
+    # extra_properties to be deprecated in favour of extra_options
+    extra_options = models.CharField(max_length=60, blank=True)
 
     # these properties override the default settings for how alert
     # generation works
