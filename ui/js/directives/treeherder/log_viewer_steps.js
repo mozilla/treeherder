@@ -31,7 +31,7 @@ treeherder.directive('lvLogSteps', ['$timeout', $timeout => {
                 $timeout(() => {
                     const scrollTop = getOffsetOfStep(firstError.order);
 
-                    $('.steps-data').scrollTop( scrollTop );
+                    $('.steps-data').scrollTop(scrollTop);
                 });
             };
         }
