@@ -39,6 +39,7 @@ def _load_perf_datum(job, perf_datum):
     validate(perf_datum, PERFHERDER_SCHEMA)
 
     extra_properties = {}
+    extra_options = ''
     reference_data = {
         'option_collection_hash': job.signature.option_collection_hash,
         'machine_platform': job.signature.machine_platform
@@ -61,10 +62,14 @@ def _load_perf_datum(job, perf_datum):
         return
     for suite in perf_datum['suites']:
         suite_extra_properties = copy.copy(extra_properties)
+        suite_extra_options = copy.copy(extra_options)
         if suite.get('extraOptions'):
             suite_extra_properties = {
                 'test_options': sorted(suite['extraOptions'])
             }
+            # store extraOptions list as comma-separated str
+            suite_extra_options = ','.join(sorted(suite['extraOptions']))
+
         summary_signature_hash = None
 
         # if we have a summary value, create or get its signature by all its subtest
@@ -88,7 +93,9 @@ def _load_perf_datum(job, perf_datum):
                     'suite': suite['name'],
                     'option_collection': option_collection,
                     'platform': job.machine_platform,
+                    # extra_properties to be deprecated in favour of extra_options
                     'extra_properties': suite_extra_properties,
+                    'extra_options': suite_extra_options,
                     'lower_is_better': suite.get('lowerIsBetter', True),
                     'has_subtests': True,
                     # these properties below can be either True, False, or null
@@ -141,6 +148,7 @@ def _load_perf_datum(job, perf_datum):
                     'option_collection': option_collection,
                     'platform': job.machine_platform,
                     'extra_properties': suite_extra_properties,
+                    'extra_options': suite_extra_options,
                     'lower_is_better': subtest.get('lowerIsBetter', True),
                     'has_subtests': False,
                     # these properties below can be either True, False, or

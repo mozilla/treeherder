@@ -28,4 +28,4 @@
     test: mytest
     last_updated: 2015-08-01 12:00:00.000000+00:00
     has_subtests: false
-    extra_properties: {}
+    extra_properties: {'test_options': ['e10s', 'shell']}
