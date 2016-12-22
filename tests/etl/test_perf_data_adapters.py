@@ -90,13 +90,19 @@ def _generate_perf_data_range(test_project, test_repository,
 
 def _verify_signature(repo_name, framework_name, suitename,
                       testname, option_collection_hash, platform,
-                      lower_is_better, extra_options, last_updated=None,
-                      alert_threshold=None, min_back_window=None,
-                      max_back_window=None, fore_window=None):
-    if not extra_options:
+                      lower_is_better, extra_props, extra_opts,
+                      last_updated=None, alert_threshold=None,
+                      min_back_window=None, max_back_window=None,
+                      fore_window=None):
+    if not extra_props:
         extra_properties = {}
     else:
-        extra_properties = {'test_options': sorted(extra_options)}
+        extra_properties = {'test_options': sorted(extra_props)}
+
+    if not extra_opts:
+        extra_options = ''
+    else:
+        extra_options = ' '.join(sorted(extra_opts))
 
     repository = Repository.objects.get(name=repo_name)
     signature = PerformanceSignature.objects.get(suite=suitename,
@@ -106,6 +112,7 @@ def _verify_signature(repo_name, framework_name, suitename,
     assert signature.platform.platform == platform
     assert signature.repository == repository
     assert signature.extra_properties == extra_properties
+    assert signature.extra_options == extra_options
     assert signature.lower_is_better == lower_is_better
     assert signature.alert_threshold == alert_threshold
     assert signature.min_back_window == min_back_window
@@ -207,6 +214,7 @@ def test_load_generic_data(test_project, test_repository,
                           'my_platform',
                           suite.get('lowerIsBetter', True),
                           suite.get('extraOptions'),
+                          suite.get('extraOptions'),
                           perf_push.time)
         _verify_datum(suite['name'], '', suite['value'], perf_push.time)
         for subtest in suite['subtests']:
@@ -217,6 +225,7 @@ def test_load_generic_data(test_project, test_repository,
                               'my_option_hash',
                               'my_platform',
                               subtest.get('lowerIsBetter', True),
+                              suite.get('extraOptions'),
                               suite.get('extraOptions'),
                               perf_push.time)
             _verify_datum(suite['name'], subtest['name'], subtest['value'],
@@ -362,6 +371,7 @@ def test_alert_generation(test_project, test_repository,
                       'my_platform',
                       True,
                       None,
+                      None,
                       alert_threshold=extra_subtest_metadata.get('alertThreshold'),
                       min_back_window=extra_subtest_metadata.get('minBackWindow'),
                       max_back_window=extra_subtest_metadata.get('maxBackWindow'),
@@ -374,6 +384,7 @@ def test_alert_generation(test_project, test_repository,
                           'my_option_hash',
                           'my_platform',
                           True,
+                          None,
                           None,
                           alert_threshold=extra_suite_metadata.get('alertThreshold'),
                           min_back_window=extra_suite_metadata.get('minBackWindow'),
