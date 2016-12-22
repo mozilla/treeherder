@@ -373,11 +373,13 @@ class JobsViewSet(viewsets.ViewSet):
         if not pk:  # pragma nocover
             return Response({"message": "job id required"}, status=HTTP_400_BAD_REQUEST)
 
-        obj = jm.get_job(pk)
-        if obj:
-            jm.set_state(pk, state)
-            return Response({"message": "state updated to '{0}'".format(state)})
-        return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+        try:
+            job = Job.objects.get(repository__name=project,
+                                  project_specific_id=pk)
+        except ObjectDoesNotExist:
+            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+        jm.set_state(job, state)
+        return Response({"message": "state updated to '{0}'".format(state)})
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
@@ -385,11 +387,14 @@ class JobsViewSet(viewsets.ViewSet):
         """
         Change the state of a job.
         """
-        job = jm.get_job(pk)
-        if job:
-            jm.cancel_job(request.user.email, job[0])
-            return Response({"message": "canceled job '{0}'".format(job[0]['job_guid'])})
-        return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+        try:
+            job = Job.objects.get(repository__name=project,
+                                  project_specific_id=pk)
+        except ObjectDoesNotExist:
+            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+
+        jm.cancel_job(request.user.email, job)
+        return Response({"message": "canceled job '{0}'".format(job.guid)})
 
     @list_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
@@ -401,10 +406,11 @@ class JobsViewSet(viewsets.ViewSet):
         job_id_list = request.data["job_id_list"]
         failure = []
         for pk in job_id_list:
-            job = jm.get_job(pk)
-            if job:
-                jm.retrigger(request.user.email, job[0])
-            else:
+            try:
+                job = Job.objects.get(repository__name=project,
+                                      project_specific_id=pk)
+                jm.retrigger(request.user.email, job)
+            except ObjectDoesNotExist:
                 failure.append(pk)
 
         if failure:
@@ -419,11 +425,13 @@ class JobsViewSet(viewsets.ViewSet):
         Issue a "backfill" to the underlying build_system_type by scheduling a
         pulse message.
         """
-        job = jm.get_job(pk)
-        if job:
-            jm.backfill(request.user.email, job[0])
-            return Response({"message": "backfilled job '{0}'".format(job[0]['job_guid'])})
-        return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+        try:
+            job = Job.objects.get(repository__name=project,
+                                  project_specific_id=pk)
+            jm.backfill(request.user.email, job)
+            return Response({"message": "backfilled job '{0}'".format(job.guid)})
+        except ObjectDoesNotExist:
+            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
     @detail_route(methods=['get'])
     @with_jobs
@@ -431,17 +439,19 @@ class JobsViewSet(viewsets.ViewSet):
         """
         Get a list of test failure lines for the job
         """
-        job = jm.get_job(pk)
-        if job:
+        try:
+            job = Job.objects.get(repository__name=project,
+                                  project_specific_id=pk)
             queryset = FailureLine.objects.filter(
-                job_guid=job[0]['job_guid']
-            ).prefetch_related(
-                "matches", "matches__matcher"
-            )
+                job_guid=job.guid).prefetch_related(
+                    "matches", "matches__matcher"
+                )
             failure_lines = [serializers.FailureLineNoStackSerializer(obj).data
                              for obj in queryset]
             return Response(failure_lines)
-        return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+        except ObjectDoesNotExist:
+            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+
 
     @detail_route(methods=['get'])
     def text_log_summary(self, request, project, pk=None):
@@ -479,18 +489,18 @@ class JobsViewSet(viewsets.ViewSet):
         return Response(rv)
 
     @detail_route(methods=['get'])
-    @with_jobs
-    def text_log_steps(self, request, project, jm, pk=None):
+    def text_log_steps(self, request, project, pk=None):
         """
         Gets a list of steps associated with this job
         """
-        job = jm.get_job(pk)
-        if not job:
-            return Response("No job with id: {0}".format(pk),
-                            status=HTTP_404_NOT_FOUND)
-        textlog_steps = TextLogStep.objects.filter(
-            job__guid=job[0]['job_guid']).order_by(
-                'started_line_number').prefetch_related('errors')
+        try:
+            job = Job.objects.get(repository__name=project,
+                                  project_specific_id=pk)
+        except ObjectDoesNotExist:
+            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+
+        textlog_steps = TextLogStep.objects.filter(job=job).order_by(
+            'started_line_number').prefetch_related('errors')
         return Response(serializers.TextLogStepSerializer(textlog_steps,
                                                           many=True,
                                                           read_only=True).data)

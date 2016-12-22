@@ -1034,7 +1034,7 @@ class JobNote(models.Model):
         # update the job classification
         from treeherder.model.derived.jobs import JobsModel
         with JobsModel(self.job.repository.name) as jm:
-            jm.update_last_job_classification(self.job.project_specific_id)
+            jm.update_last_job_classification(self.job)
 
         # if a manually filed job, update the autoclassification information
         if self.user:
