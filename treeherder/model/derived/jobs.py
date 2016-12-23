@@ -914,6 +914,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 'end_time': datetime.fromtimestamp(
                     self.get_number(job_datum.get('end_timestamp'))),
                 'last_modified': datetime.now(),
+                'running_eta': duration,
                 'guid': job_guid,
                 'push_id': push_id
             })
