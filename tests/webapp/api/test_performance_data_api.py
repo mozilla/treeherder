@@ -218,7 +218,6 @@ def test_filter_data_by_framework(webapp, test_repository, test_perf_signature,
     datums = resp.data[test_perf_signature.signature_hash]
     assert len(datums) == 2
     assert set([datum['signature_id'] for datum in datums]) == set([1, 2])
-    assert set([datum['job_id'] for datum in datums]) == set([0, 1])
 
     # Filtering by first framework
     resp = client.get(reverse('performance-data-list',
@@ -229,7 +228,6 @@ def test_filter_data_by_framework(webapp, test_repository, test_perf_signature,
     assert resp.status_code == 200
     datums = resp.data[test_perf_signature.signature_hash]
     assert len(datums) == 1
-    assert datums[0]['job_id'] == 0
     assert datums[0]['signature_id'] == 1
 
     # Filtering by second framework
@@ -241,7 +239,6 @@ def test_filter_data_by_framework(webapp, test_repository, test_perf_signature,
     assert resp.status_code == 200
     datums = resp.data[test_perf_signature.signature_hash]
     assert len(datums) == 1
-    assert datums[0]['job_id'] == 1
     assert datums[0]['signature_id'] == 2
 
 
@@ -276,11 +273,11 @@ def test_filter_signatures_by_range(webapp, test_repository, test_perf_signature
         assert resp.json[test_perf_signature.signature_hash]['id'] == exp_id
 
 
-@pytest.mark.parametrize('interval, exp_datums_len, exp_job_ids', [
-    (86400, 1, [0]),
-    (86400 * 3, 2, [1, 0])])
+@pytest.mark.parametrize('interval, exp_datums_len, exp_push_ids', [
+    (86400, 1, [1]),
+    (86400 * 3, 2, [2, 1])])
 def test_filter_data_by_interval(webapp, test_repository, test_perf_signature,
-                                 interval, exp_datums_len, exp_job_ids):
+                                 interval, exp_datums_len, exp_push_ids):
     # create some test data
     for (i, timestamp) in enumerate([NOW, NOW - datetime.timedelta(days=2),
                                      NOW - datetime.timedelta(days=7)]):
@@ -310,14 +307,15 @@ def test_filter_data_by_interval(webapp, test_repository, test_perf_signature,
     datums = resp.data[test_perf_signature.signature_hash]
     assert len(datums) == exp_datums_len
     for x in range(exp_datums_len):
-        assert datums[x]['job_id'] == exp_job_ids[x]
+        assert datums[x]['push_id'] == exp_push_ids[x]
 
 
-@pytest.mark.parametrize('start_date, end_date, exp_datums_len, exp_job_ids', [
-    (SEVEN_DAYS_AGO, THREE_DAYS_AGO, 1, [2]),
-    (THREE_DAYS_AGO, '', 2, [1, 0])])
+@pytest.mark.parametrize('start_date, end_date, exp_datums_len, exp_push_ids', [
+    (SEVEN_DAYS_AGO, THREE_DAYS_AGO, 1, [3]),
+    (THREE_DAYS_AGO, '', 2, [2, 1])])
 def test_filter_data_by_range(webapp, test_repository, test_perf_signature,
-                              start_date, end_date, exp_datums_len, exp_job_ids):
+                              start_date, end_date, exp_datums_len,
+                              exp_push_ids):
     # create some test data
     for (i, timestamp) in enumerate([NOW, NOW - datetime.timedelta(days=2),
                                      NOW - datetime.timedelta(days=5)]):
@@ -346,4 +344,4 @@ def test_filter_data_by_range(webapp, test_repository, test_perf_signature,
     datums = resp.data[test_perf_signature.signature_hash]
     assert len(datums) == exp_datums_len
     for x in range(exp_datums_len):
-        assert datums[x]['job_id'] == exp_job_ids[x]
+        assert datums[x]['push_id'] == exp_push_ids[x]

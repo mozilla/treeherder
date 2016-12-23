@@ -39,8 +39,7 @@ class NoteViewSet(viewsets.ViewSet):
         except ValueError:
             raise ParseError(detail="The job_id parameter must be an integer")
 
-        job = Job.objects.get(repository__name=project,
-                              project_specific_id=job_id)
+        job = Job.objects.get(repository__name=project, id=job_id)
         serializer = JobNoteSerializer(JobNote.objects.filter(job=job),
                                        many=True)
         return Response(serializer.data)
@@ -51,8 +50,7 @@ class NoteViewSet(viewsets.ViewSet):
         """
         JobNote.objects.create(
             job=Job.objects.get(repository__name=project,
-                                project_specific_id=int(
-                                    request.data['job_id'])),
+                                id=int(request.data['job_id'])),
             failure_classification_id=int(request.data['failure_classification_id']),
             user=request.user,
             text=request.data.get('text', ''))

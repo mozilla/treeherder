@@ -1,14 +1,13 @@
 import logging
-from datetime import datetime
+import time
 
 import requests
 from django.conf import settings
 from requests_hawk import HawkAuth
 
 from treeherder.etl.common import make_request
-from treeherder.model.derived import JobsModel
-from treeherder.model.models import (OptionCollection,
-                                     Push)
+from treeherder.model.models import (Job,
+                                     OptionCollection)
 
 logger = logging.getLogger(__name__)
 
@@ -27,27 +26,25 @@ class ElasticsearchDocRequest(object):
         """
         Create the data structure that will be sent to Elasticsearch.
         """
-        with JobsModel(self.project) as jobs_model:
-            job_data = jobs_model.get_job(self.job_id)[0]
-            buildtype = " ".join(sorted(OptionCollection.objects.values_list(
-                'option__name', flat=True).filter(
-                    option_collection_hash=job_data["option_collection_hash"])))
-            revision = Push.objects.values_list(
-                'revision', flat=True).get(id=job_data['push_id'])
-            ref_data_name = job_data["ref_data_name"]
+        job = Job.objects.get(id=self.job_id)
+        buildtype = " ".join(sorted(OptionCollection.objects.values_list(
+            'option__name', flat=True).filter(
+                option_collection_hash=job.option_collection_hash)))
+        revision = job.push.revision
+        ref_data_name = job.signature.name
 
         self.body = {
             "buildname": ref_data_name,
-            "machinename": job_data["machine_name"],
-            "os": job_data["platform"],
+            "machinename": job.machine.name,
+            "os": job.machine_platform.platform,
             # I'm using the request time date here, as start time is not
             # available for pending jobs
-            "date": datetime.utcfromtimestamp(job_data["submit_timestamp"]).strftime("%Y-%m-%d"),
-            "type": job_data["job_type_name"],
+            "date": job.submit_time.strftime("%Y-%m-%d"),
+            "type": job.job_type.name,
             "buildtype": buildtype,
             # Intentionally using strings for starttime, bug, timestamp for compatibility
             # with TBPL's legacy output format.
-            "starttime": str(job_data["start_timestamp"]),
+            "starttime": str(int(time.mktime(job.start_time.timetuple()))),
             "tree": self.project,
             "rev": revision,
             "bug": str(self.bug_id),

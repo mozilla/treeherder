@@ -40,8 +40,8 @@ class JobFilter(django_filters.FilterSet):
     We use this gigantic class to provide the same filtering interface
     as the previous jobs API
     """
-    id = django_filters.NumberFilter(name='project_specific_id')
-    id__in = NumberInFilter(name='project_specific_id', lookup_expr='in')
+    id = django_filters.NumberFilter(name='id')
+    id__in = NumberInFilter(name='id', lookup_expr='in')
     tier__in = NumberInFilter(name='tier', lookup_expr='in')
     push_id__in = NumberInFilter(name='push_id', lookup_expr='in')
     job_guid = django_filters.CharFilter(name='guid')
@@ -134,7 +134,7 @@ class JobsViewSet(viewsets.ViewSet):
         ('build_system_type', 'signature__build_system_type', None),
         ('end_timestamp', 'end_time', to_timestamp),
         ('failure_classification_id', 'failure_classification_id', None),
-        ('id', 'project_specific_id', None),
+        ('id', 'id', None),
         ('job_coalesced_to_guid', 'coalesced_to_guid', None),
         ('job_group_description', 'job_type__job_group__description', None),
         ('job_group_id', 'job_type__job_group_id', None),
@@ -229,7 +229,7 @@ class JobsViewSet(viewsets.ViewSet):
         try:
             job = Job.objects.select_related(
                 *self._default_select_related).get(
-                    repository__name=project, project_specific_id=pk)
+                    repository__name=project, id=pk)
         except Job.DoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
@@ -375,7 +375,7 @@ class JobsViewSet(viewsets.ViewSet):
 
         try:
             job = Job.objects.get(repository__name=project,
-                                  project_specific_id=pk)
+                                  id=pk)
         except ObjectDoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
         jm.set_state(job, state)
@@ -389,7 +389,7 @@ class JobsViewSet(viewsets.ViewSet):
         """
         try:
             job = Job.objects.get(repository__name=project,
-                                  project_specific_id=pk)
+                                  id=pk)
         except ObjectDoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
@@ -408,7 +408,7 @@ class JobsViewSet(viewsets.ViewSet):
         for pk in job_id_list:
             try:
                 job = Job.objects.get(repository__name=project,
-                                      project_specific_id=pk)
+                                      id=pk)
                 jm.retrigger(request.user.email, job)
             except ObjectDoesNotExist:
                 failure.append(pk)
@@ -427,21 +427,20 @@ class JobsViewSet(viewsets.ViewSet):
         """
         try:
             job = Job.objects.get(repository__name=project,
-                                  project_specific_id=pk)
+                                  id=pk)
             jm.backfill(request.user.email, job)
             return Response({"message": "backfilled job '{0}'".format(job.guid)})
         except ObjectDoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
     @detail_route(methods=['get'])
-    @with_jobs
-    def failure_lines(self, request, project, jm, pk=None):
+    def failure_lines(self, request, project, pk=None):
         """
         Get a list of test failure lines for the job
         """
         try:
             job = Job.objects.get(repository__name=project,
-                                  project_specific_id=pk)
+                                  id=pk)
             queryset = FailureLine.objects.filter(
                 job_guid=job.guid).prefetch_related(
                     "matches", "matches__matcher"
@@ -452,7 +451,6 @@ class JobsViewSet(viewsets.ViewSet):
         except ObjectDoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
-
     @detail_route(methods=['get'])
     def text_log_summary(self, request, project, pk=None):
         """
@@ -460,7 +458,7 @@ class JobsViewSet(viewsets.ViewSet):
         """
         try:
             job = Job.objects.get(repository__name=project,
-                                  project_specific_id=pk)
+                                  id=pk)
         except ObjectDoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
@@ -495,7 +493,7 @@ class JobsViewSet(viewsets.ViewSet):
         """
         try:
             job = Job.objects.get(repository__name=project,
-                                  project_specific_id=pk)
+                                  id=pk)
         except ObjectDoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
@@ -512,8 +510,8 @@ class JobsViewSet(viewsets.ViewSet):
         """
         try:
             job = Job.objects.get(repository__name=project,
-                                  project_specific_id=pk)
-        except job.DoesNotExist:
+                                  id=pk)
+        except Job.DoesNotExist:
             return Response("No job with id: {0}".format(pk),
                             status=HTTP_404_NOT_FOUND)
         textlog_errors = (TextLogError.objects
@@ -529,8 +527,7 @@ class JobsViewSet(viewsets.ViewSet):
         Gets a set of bug suggestions for this job
         """
         try:
-            job = Job.objects.get(repository__name=project,
-                                  project_specific_id=pk)
+            job = Job.objects.get(repository__name=project, id=pk)
         except ObjectDoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
@@ -549,8 +546,7 @@ class JobsViewSet(viewsets.ViewSet):
             }, status=HTTP_404_NOT_FOUND)
 
         try:
-            job = Job.objects.get(repository=repository,
-                                  project_specific_id=pk)
+            job = Job.objects.get(repository=repository, id=pk)
         except ObjectDoesNotExist:
             return Response("No job with id: {0}".format(pk),
                             status=HTTP_404_NOT_FOUND)
@@ -601,7 +597,6 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
     associated with a particular job
     '''
     queryset = JobDetail.objects.all().select_related('job__guid',
-                                                      'job__project_specific_id',
                                                       'job__repository__name')
     serializer_class = serializers.JobDetailSerializer
 
@@ -611,9 +606,8 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
                              django_filters.NumberFilter):
             pass
 
-        job_id = django_filters.NumberFilter(name='job__project_specific_id')
-        job_id__in = NumberInFilter(name='job__project_specific_id',
-                                    lookup_expr='in')
+        job_id = django_filters.NumberFilter(name='job')
+        job_id__in = NumberInFilter(name='job', lookup_expr='in')
         job_guid = django_filters.CharFilter(name='job__guid')
         job__guid = django_filters.CharFilter(name='job__guid')  # for backwards compat
         title = django_filters.CharFilter(name='title')
@@ -621,7 +615,7 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
 
         class Meta:
             model = JobDetail
-            fields = ['job_guid', 'job__guid', 'job_id__in', 'title',
+            fields = ['job_id', 'job_guid', 'job__guid', 'job_id__in', 'title',
                       'repository']
 
     filter_backends = [filters.DjangoFilterBackend]

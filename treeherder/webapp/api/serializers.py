@@ -104,7 +104,7 @@ class JobSerializer(serializers.ModelSerializer):
             'build_system_type': job.signature.build_system_type,
             'end_timestamp': to_timestamp(job.end_time),
             'failure_classification_id': job.failure_classification_id,
-            'id': job.project_specific_id,
+            'id': job.id,
             'job_coalesced_to_guid': job.coalesced_to_guid,
             'job_group_description': job.job_type.job_group.description,
             'job_group_id': job.job_type.job_group_id,
@@ -238,11 +238,11 @@ class TextLogSummarySerializer(serializers.ModelSerializer):
 
 class JobDetailSerializer(serializers.ModelSerializer):
 
+    job_id = serializers.PrimaryKeyRelatedField(
+        source="job", read_only=True)
+
     job_guid = serializers.SlugRelatedField(
         slug_field="guid", source="job",
-        queryset=models.Job.objects.all())
-    job_id = serializers.SlugRelatedField(
-        slug_field="project_specific_id", source="job",
         queryset=models.Job.objects.all())
 
     class Meta:
@@ -252,10 +252,8 @@ class JobDetailSerializer(serializers.ModelSerializer):
 
 class BugJobMapSerializer(serializers.ModelSerializer):
 
-    job_id = serializers.SlugRelatedField(
-        slug_field="project_specific_id",
-        source="job",
-        read_only=True)
+    job_id = serializers.PrimaryKeyRelatedField(
+        source="job", read_only=True)
 
     class Meta:
         model = models.BugJobMap
@@ -264,11 +262,10 @@ class BugJobMapSerializer(serializers.ModelSerializer):
 
 class JobNoteSerializer(serializers.ModelSerializer):
 
+    job_id = serializers.PrimaryKeyRelatedField(
+        source="job", read_only=True)
+
     # these custom fields are for backwards compatibility
-    job_id = serializers.SlugRelatedField(
-        slug_field="project_specific_id",
-        source="job",
-        read_only=True)
     failure_classification_id = serializers.SlugRelatedField(
         slug_field="id",
         source="failure_classification",

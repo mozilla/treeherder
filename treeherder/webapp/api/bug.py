@@ -17,10 +17,8 @@ class BugJobMapViewSet(viewsets.ViewSet):
         job_id, bug_id = map(int, (request.data['job_id'],
                                    request.data['bug_id']))
 
-        job = Job.objects.get(repository__name=project,
-                              project_specific_id=job_id)
         _, created = BugJobMap.objects.get_or_create(
-            job=job, bug_id=bug_id, defaults={
+            job_id=job_id, bug_id=bug_id, defaults={
                 'user': request.user
             })
         if created:
@@ -36,8 +34,7 @@ class BugJobMapViewSet(viewsets.ViewSet):
         bug_id-job_id
         """
         job_id, bug_id = map(int, pk.split("-"))
-        job = Job.objects.get(repository__name=project,
-                              project_specific_id=job_id)
+        job = Job.objects.get(repository__name=project, id=job_id)
         BugJobMap.objects.filter(job=job, bug_id=bug_id).delete()
 
         return Response({"message": "Bug job map deleted"})
@@ -48,8 +45,7 @@ class BugJobMapViewSet(viewsets.ViewSet):
         bug_id-job_id
         """
         job_id, bug_id = map(int, pk.split("-"))
-        job = Job.objects.get(repository__name=project,
-                              project_specific_id=job_id)
+        job = Job.objects.get(repository__name=project, id=job_id)
         try:
             bug_job_map = BugJobMap.objects.get(job=job, bug_id=bug_id)
             serializer = BugJobMapSerializer(bug_job_map)
@@ -64,9 +60,7 @@ class BugJobMapViewSet(viewsets.ViewSet):
             return Response({"message": "At least one job_id is required"},
                             status=400)
 
-        jobs = Job.objects.filter(
-            repository__name=project,
-            project_specific_id__in=job_ids)
+        jobs = Job.objects.filter(repository__name=project, id__in=job_ids)
         bug_job_maps = BugJobMap.objects.filter(job__in=jobs).select_related(
             'user')
         serializer = BugJobMapSerializer(bug_job_maps, many=True)

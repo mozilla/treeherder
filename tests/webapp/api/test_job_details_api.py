@@ -91,7 +91,7 @@ def test_job_details(test_repository, failure_classifications,
 
     # filter to get the last element with job_id__in and repository
     resp = webapp.get(reverse('jobdetail-list') +
-                      '?repository={}&job_id__in=1,2'.format(
+                      '?repository={}&job_id__in=3'.format(
                           test_repository2.name))
     assert resp.status_int == 200
     assert len(resp.json['results']) == 1
