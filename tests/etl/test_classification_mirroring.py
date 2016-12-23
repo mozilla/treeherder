@@ -19,7 +19,7 @@ def test_elasticsearch_doc_request_body(test_project, eleven_jobs_stored):
     req.generate_request_body()
 
     expected = {
-        "buildname": "39643b5073cfb9473042884bfd3ced0289b3d7dd",
+        "buildname": "b2g_mozilla-release_emulator-jb-debug_dep",
         "machinename": "bld-linux64-ec2-132",
         "os": "b2g-emu-jb",
         # I'm using the request time date here, as start time is not

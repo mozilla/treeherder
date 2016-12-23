@@ -128,15 +128,15 @@ job_filter_values = [
  (u'option_collection_hash', u'32faaecac742100f7753f0c1d0aa0add01b4046b'),
  (u'platform', u'osx-10-7'),
  (u'reason', u'scheduler'),
- (u'ref_data_name', u'58cab069cf08211159774de948094dd963fb9d44'),
+ (u'ref_data_name', u'Rev4 MacOSX Lion 10.7 mozilla-release debug test mochitest-browser-chrome'),
  (u'result', u'success'),
  (u'result_set_id', 4),
- (u'signature', u'58cab069cf08211159774de948094dd963fb9d44'),
+ (u'signature', u'aebe9066ff1c765815ec0513a3389238c80ef166'),
  (u'start_timestamp', 1384356880),
  (u'state', u'completed'),
  (u'submit_timestamp', 1384356854),
  (u'tier', 1),
- (u'who', u'tests-mozilla-b2g26_v1_2-lion-debug-unittest')
+ (u'who', u'tests-mozilla-release-lion-debug-unittest')
  ]
 
 
