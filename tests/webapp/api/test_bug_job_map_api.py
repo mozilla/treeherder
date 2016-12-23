@@ -13,7 +13,7 @@ from treeherder.model.models import (BugJobMap,
     (True, False),
     (False, False),
     (False, True)])
-def test_create_bug_job_map(eleven_jobs_stored, mock_message_broker, jm,
+def test_create_bug_job_map(test_job, mock_message_broker,
                             test_user, test_no_auth, test_duplicate_handling):
     """
     test creating a single note via endpoint
@@ -23,10 +23,8 @@ def test_create_bug_job_map(eleven_jobs_stored, mock_message_broker, jm,
     if not test_no_auth:
         client.force_authenticate(user=test_user)
 
-    job = jm.get_job_list(0, 1)[0]
-
     submit_obj = {
-        u"job_id": job["id"],
+        u"job_id": test_job.id,
         u"bug_id": 1L,
         u"type": u"manual"
     }
@@ -39,7 +37,7 @@ def test_create_bug_job_map(eleven_jobs_stored, mock_message_broker, jm,
 
     for i in range(num_times):
         resp = client.post(
-            reverse("bug-job-map-list", kwargs={"project": jm.project}),
+            reverse("bug-job-map-list", kwargs={"project": test_job.repository.name}),
             submit_obj, expect_errors=test_no_auth)
 
     if test_no_auth:

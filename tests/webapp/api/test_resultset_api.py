@@ -8,18 +8,19 @@ from rest_framework.test import APIClient
 from tests import test_utils
 from treeherder.client import TreeherderResultSetCollection
 from treeherder.model.models import (FailureClassification,
+                                     Job,
                                      JobNote,
                                      Push)
 from treeherder.webapp.api import utils
 
 
-def test_resultset_list_basic(webapp, eleven_jobs_stored, jm, test_project):
+def test_resultset_list_basic(webapp, eleven_jobs_stored, test_project):
     """
     test retrieving a list of ten json blobs from the jobs-list
     endpoint.
     """
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": jm.project}))
+        reverse("resultset-list", kwargs={"project": test_project}))
 
     results = resp.json['results']
     meta = resp.json['meta']
@@ -63,8 +64,7 @@ def test_resultset_list_bad_project(webapp, transactional_db):
     assert resp.json == {"detail": "No project with name foo"}
 
 
-def test_resultset_list_empty_rs_still_show(webapp, test_repository,
-                                            sample_resultset, jm):
+def test_resultset_list_empty_rs_still_show(webapp, sample_resultset, jm):
     """
     test retrieving a resultset list, when the resultset has no jobs.
     should show.
@@ -78,13 +78,13 @@ def test_resultset_list_empty_rs_still_show(webapp, test_repository,
     assert len(resp.json['results']) == 10
 
 
-def test_resultset_list_single_short_revision(webapp, eleven_jobs_stored, jm, test_project):
+def test_resultset_list_single_short_revision(webapp, eleven_jobs_stored, test_project):
     """
     test retrieving a resultset list, filtered by single short revision
     """
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": jm.project}),
+        reverse("resultset-list", kwargs={"project": test_project}),
         {"revision": "45f8637cb9f7"}
     )
     assert resp.status_int == 200
@@ -102,13 +102,13 @@ def test_resultset_list_single_short_revision(webapp, eleven_jobs_stored, jm, te
     )
 
 
-def test_resultset_list_single_long_revision(webapp, eleven_jobs_stored, jm, test_project):
+def test_resultset_list_single_long_revision(webapp, eleven_jobs_stored, test_project):
     """
     test retrieving a resultset list, filtered by a single long revision
     """
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": jm.project}),
+        reverse("resultset-list", kwargs={"project": test_project}),
         {"revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf"}
     )
     assert resp.status_int == 200
@@ -139,7 +139,7 @@ def test_resultset_list_single_long_revision_stored_long(webapp, sample_resultse
     jm.store_result_set_data([resultset])
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": jm.project}),
+        reverse("resultset-list", kwargs={"project": test_project}),
         {"revision": long_revision}
     )
     assert resp.status_int == 200
@@ -157,13 +157,13 @@ def test_resultset_list_single_long_revision_stored_long(webapp, sample_resultse
     )
 
 
-def test_resultset_list_filter_by_revision(webapp, eleven_jobs_stored, jm, test_project):
+def test_resultset_list_filter_by_revision(webapp, eleven_jobs_stored, test_project):
     """
     test retrieving a resultset list, filtered by a revision range
     """
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": jm.project}),
+        reverse("resultset-list", kwargs={"project": test_project}),
         {"fromchange": "130965d3df6c", "tochange": "f361dcb60bbe"}
     )
     assert resp.status_int == 200
@@ -319,7 +319,7 @@ def test_resultset_author(webapp, test_repository):
 
 
 def test_resultset_list_without_jobs(webapp, test_repository,
-                                     sample_resultset, jm, test_project):
+                                     sample_resultset, jm):
     """
     test retrieving a resultset list without jobs
     """
@@ -339,7 +339,7 @@ def test_resultset_list_without_jobs(webapp, test_repository,
     assert meta == {
         u'count': len(results),
         u'filter_params': {},
-        u'repository': test_project
+        u'repository': test_repository.name
     }
 
 
@@ -419,9 +419,9 @@ def test_resultset_create(jm, test_repository, sample_resultset,
         [rs['revision'] for rs in sample_resultset])
 
 
-def test_resultset_cancel_all(jm, failure_classifications,
+def test_resultset_cancel_all(failure_classifications,
                               push_with_three_jobs, pulse_action_consumer,
-                              test_user):
+                              test_project, test_user):
     """
     Issue cancellation of a resultset with three unfinished jobs.
     """
@@ -429,26 +429,24 @@ def test_resultset_cancel_all(jm, failure_classifications,
     client.force_authenticate(user=test_user)
 
     # Ensure all jobs are pending..
-    jobs = jm.get_job_list(0, 3)
-    for job in jobs:
-        assert job['state'] == 'pending'
+    for job in Job.objects.all():
+        assert job.state == 'pending'
 
     url = reverse("resultset-cancel-all",
-                  kwargs={"project": jm.project, "pk": push_with_three_jobs.id})
+                  kwargs={"project": test_project, "pk": push_with_three_jobs.id})
     client.post(url)
 
     # Ensure all jobs are cancelled..
-    jobs = jm.get_job_list(0, 3)
-    for job in jobs:
-        assert job['state'] == 'completed'
-        assert job['result'] == 'usercancel'
+    for job in Job.objects.all():
+        assert job.state == 'completed'
+        assert job.result == 'usercancel'
 
     for _ in range(0, 3):
         message = pulse_action_consumer.get(block=True, timeout=2)
         content = message.payload
 
         assert content['action'] == 'cancel'
-        assert content['project'] == jm.project
+        assert content['project'] == test_project
 
 
 def test_resultset_status(webapp, test_job, test_user):

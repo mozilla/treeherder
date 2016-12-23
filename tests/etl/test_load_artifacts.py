@@ -5,20 +5,15 @@ import json
 import pytest
 
 from treeherder.etl.artifact import store_job_artifacts
-from treeherder.model.derived import JobsModel
-from treeherder.model.models import (JobDetail,
+from treeherder.model.models import (Job,
+                                     JobDetail,
                                      TextLogError,
                                      TextLogStep)
 
 xfail = pytest.mark.xfail
 
 
-def test_load_long_job_details(test_project, eleven_jobs_stored):
-    # job details should still load even if excessively long,
-    # they'll just be truncated
-    with JobsModel(test_project) as jobs_model:
-        job = jobs_model.get_job_list(0, 1)[0]
-
+def test_load_long_job_details(test_job):
     def max_length(field):
         """Get the field's max_length for the JobDetail model"""
         return JobDetail._meta.get_field(field).max_length
@@ -36,7 +31,7 @@ def test_load_long_job_details(test_project, eleven_jobs_stored):
                 'url': long_url
             }]
         }),
-        'job_guid': job['job_guid']
+        'job_guid': test_job.guid
     }
     store_job_artifacts([ji_artifact])
 
@@ -85,10 +80,7 @@ def test_load_textlog_summary_twice(test_project, test_job):
     assert TextLogStep.objects.count() == 1
 
 
-def test_load_non_ascii_textlog_errors(test_project, eleven_jobs_stored):
-    with JobsModel(test_project) as jobs_model:
-        job = jobs_model.get_job_list(0, 1)[0]
-
+def test_load_non_ascii_textlog_errors(test_job):
     text_log_summary_artifact = {
         'type': 'json',
         'name': 'text_log_summary',
@@ -118,7 +110,7 @@ def test_load_non_ascii_textlog_errors(test_project, eleven_jobs_stored):
                 ]
             }
         }),
-        'job_guid': job['job_guid']
+        'job_guid': test_job.guid
     }
     store_job_artifacts([text_log_summary_artifact])
 
