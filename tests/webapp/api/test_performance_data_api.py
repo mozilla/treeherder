@@ -27,6 +27,7 @@ def summary_perf_signature(test_perf_signature):
         option_collection=test_perf_signature.option_collection,
         suite='mysuite',
         test='',
+        extra_options='e10s shell',
         has_subtests=True,
         last_updated=datetime.datetime.now()
     )
@@ -164,6 +165,8 @@ def test_summary_performance_data(webapp, test_repository,
             expected['has_subtests'] = True
         if signature.parent_signature:
             expected['parent_signature'] = signature.parent_signature.signature_hash
+        if signature.extra_options:
+            expected['extra_options'] = signature.extra_options
         assert resp.data[signature.signature_hash] == expected
 
 
