@@ -73,6 +73,11 @@ body {
     width: 3em;
 }
 
+.lv-line-no.label {
+    border-radius: 0px;
+    margin: 0em 0.6em 0em 0em;
+}
+
 .lv-line-text {
     white-space: pre;
 }
@@ -107,6 +112,13 @@ body {
 
 .logview-container {
     flex: 1;
+    overflow: hidden;
+}
+
+.logview-container > iframe {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
 }
 
 .lv-line-highlight {
