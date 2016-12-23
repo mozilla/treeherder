@@ -192,6 +192,14 @@ logViewerApp.controller('LogviewerCtrl', [
             });
         };
 
+        $scope.setDisplayedStep = (step) => {
+            const highlightStart = step.started_line_number + 1 || step.line_number + 1;
+            const highlightEnd = step.finished_line_number + 1 || step.line_number + 1;
+            $scope.displayedStep = step;
+
+            $scope.logPostMessage({ lineNumber: highlightStart, highlightStart, highlightEnd });
+        };
+
         function errorLinesCss(errors) {
             return errors
               .map(({ line_number }) => `a[id="${line_number + 1}"]+span`)
