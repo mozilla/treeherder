@@ -29,7 +29,7 @@ treeherder.factory('thUrl', [
                 }, "");
             },
             getLogViewerUrl: function(job_id) {
-                return "logviewer.html#?job_id=" + job_id + "&repo=" + $rootScope.repoName + "&lineNumber=";
+                return "logviewer.html#?job_id=" + job_id + "&repo=" + $rootScope.repoName;
             },
             getBugUrl: function(bug_id) {
                 return "https://bugzilla.mozilla.org/show_bug.cgi?id=" + bug_id;
