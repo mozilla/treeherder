@@ -44,7 +44,7 @@ def test_job_transformation(pulse_jobs, transformed_pulse_jobs):
         assert transformed_pulse_jobs[idx] == json.loads(json.dumps(jl.transform(job)))
 
 
-def test_ingest_pulse_jobs(pulse_jobs, test_project, jm, result_set_stored,
+def test_ingest_pulse_jobs(pulse_jobs, test_project, result_set_stored,
                            failure_classifications, mock_log_parser):
     """
     Ingest a job through the JSON Schema validated JobLoader used by Pulse
@@ -57,10 +57,10 @@ def test_ingest_pulse_jobs(pulse_jobs, test_project, jm, result_set_stored,
 
     jl.process_job_list(pulse_jobs)
 
-    jobs = jm.get_job_list(0, 10)
+    jobs = Job.objects.all()
     assert len(jobs) == 4
 
-    job_logs = JobLog.objects.filter(job__project_specific_id=jobs[0]["id"])
+    job_logs = JobLog.objects.filter(job_id=1)
     assert job_logs.count() == 2
     logs_expected = [{"name": "builds-4h",
                       "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
@@ -76,7 +76,7 @@ def test_ingest_pulse_jobs(pulse_jobs, test_project, jm, result_set_stored,
     assert JobDetail.objects.count() == 2
 
 
-def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_project, jm, result_set_stored,
+def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_project, result_set_stored,
                                        failure_classifications, mock_log_parser):
     """
     Ingest a job through the JSON Schema validated JobLoader used by Pulse
@@ -92,7 +92,7 @@ def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_project, jm, result_set_
         jl.process_job_list(pulse_jobs)
 
 
-def test_ingest_pulse_jobs_with_revision_hash(pulse_jobs, test_project, jm,
+def test_ingest_pulse_jobs_with_revision_hash(pulse_jobs, test_project,
                                               result_set_stored,
                                               failure_classifications,
                                               mock_log_parser):
@@ -130,66 +130,65 @@ def test_ingest_pulse_jobs_with_missing_resultset(pulse_jobs):
     assert Job.objects.count() == 0
 
 
-def test_transition_pending_running_complete(first_job, jm,
+def test_transition_pending_running_complete(first_job,
                                              failure_classifications,
                                              mock_log_parser):
     jl = JobLoader()
 
-    change_state_result(first_job, jl, jm, "pending", "unknown", "pending", "unknown")
-    change_state_result(first_job, jl, jm, "running", "unknown", "running", "unknown")
-    change_state_result(first_job, jl, jm, "completed", "fail", "completed", "testfailed")
+    change_state_result(first_job, jl, "pending", "unknown", "pending", "unknown")
+    change_state_result(first_job, jl, "running", "unknown", "running", "unknown")
+    change_state_result(first_job, jl, "completed", "fail", "completed", "testfailed")
 
 
-def test_transition_complete_pending_stays_complete(first_job, jm,
+def test_transition_complete_pending_stays_complete(first_job,
                                                     failure_classifications,
                                                     mock_log_parser):
     jl = JobLoader()
 
-    change_state_result(first_job, jl, jm, "completed", "fail", "completed", "testfailed")
-    change_state_result(first_job, jl, jm, "pending", "unknown", "completed", "testfailed")
+    change_state_result(first_job, jl, "completed", "fail", "completed", "testfailed")
+    change_state_result(first_job, jl, "pending", "unknown", "completed", "testfailed")
 
 
-def test_transition_complete_running_stays_complete(first_job, jm,
+def test_transition_complete_running_stays_complete(first_job,
                                                     failure_classifications,
                                                     mock_log_parser):
     jl = JobLoader()
 
-    change_state_result(first_job, jl, jm, "completed", "fail", "completed", "testfailed")
-    change_state_result(first_job, jl, jm, "running", "unknown", "completed", "testfailed")
+    change_state_result(first_job, jl, "completed", "fail", "completed", "testfailed")
+    change_state_result(first_job, jl, "running", "unknown", "completed", "testfailed")
 
 
-def test_transition_running_pending_stays_running(first_job, jm,
+def test_transition_running_pending_stays_running(first_job,
                                                   failure_classifications,
                                                   mock_log_parser):
     jl = JobLoader()
 
-    change_state_result(first_job, jl, jm, "running", "unknown", "running", "unknown")
-    change_state_result(first_job, jl, jm, "pending", "unknown", "running", "unknown")
+    change_state_result(first_job, jl, "running", "unknown", "running", "unknown")
+    change_state_result(first_job, jl, "pending", "unknown", "running", "unknown")
 
 
-def test_transition_pending_retry_fail_stays_retry(first_job, jm,
+def test_transition_pending_retry_fail_stays_retry(first_job,
                                                    failure_classifications,
                                                    mock_log_parser):
     jl = JobLoader()
 
-    change_state_result(first_job, jl, jm, "pending", "unknown", "pending", "unknown")
+    change_state_result(first_job, jl, "pending", "unknown", "pending", "unknown")
     first_job["isRetried"] = True
-    change_state_result(first_job, jl, jm, "completed", "fail", "completed", "retry")
+    change_state_result(first_job, jl, "completed", "fail", "completed", "retry")
     first_job["isRetried"] = False
-    change_state_result(first_job, jl, jm, "completed", "fail", "completed", "retry")
+    change_state_result(first_job, jl, "completed", "fail", "completed", "retry")
 
 
-def test_skip_unscheduled(first_job, jm, failure_classifications,
+def test_skip_unscheduled(first_job, failure_classifications,
                           mock_log_parser):
     jl = JobLoader()
     first_job["state"] = "unscheduled"
     jl.process_job_list([first_job])
 
-    jobs = jm.get_job_list(0, 10)
-    assert len(jobs) == 0
+    assert not Job.objects.count()
 
 
-def change_state_result(test_job, job_loader, jm, new_state, new_result, exp_state, exp_result):
+def change_state_result(test_job, job_loader, new_state, new_result, exp_state, exp_result):
     # make a copy so we can modify it and not affect other tests
     job = copy.deepcopy(test_job)
     job["state"] = new_state
@@ -205,7 +204,7 @@ def change_state_result(test_job, job_loader, jm, new_state, new_result, exp_sta
 
     job_loader.process_job_list([job])
 
-    jobs = jm.get_job_list(0, 10)
-    assert len(jobs) == 1
-    assert jobs[0]['state'] == exp_state
-    assert jobs[0]['result'] == exp_result
+    assert Job.objects.count() == 1
+    job = Job.objects.get(id=1)
+    assert job.state == exp_state
+    assert job.result == exp_result

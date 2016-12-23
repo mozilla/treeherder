@@ -8,7 +8,6 @@ from mock import MagicMock
 from tests.test_utils import post_collection
 from treeherder.client.thclient import client
 from treeherder.log_parser.parsers import StepParser
-from treeherder.model.derived import JobsModel
 from treeherder.model.error_summary import get_error_summary
 from treeherder.model.models import (Job,
                                      JobDetail,
@@ -413,10 +412,8 @@ def test_post_job_with_tier(test_project, failure_classifications,
 
     post_collection(test_project, tjc)
 
-    with JobsModel(test_project) as jobs_model:
-        job = [x for x in jobs_model.get_job_list(0, 20)
-               if x['job_guid'] == job_guid][0]
-        assert job['tier'] == 3
+    job = Job.objects.get(guid=job_guid)
+    assert job.tier == 3
 
 
 def test_post_job_with_default_tier(test_project, failure_classifications,
@@ -438,10 +435,8 @@ def test_post_job_with_default_tier(test_project, failure_classifications,
 
     post_collection(test_project, tjc)
 
-    with JobsModel(test_project) as jobs_model:
-        job = [x for x in jobs_model.get_job_list(0, 20)
-               if x['job_guid'] == job_guid][0]
-        assert job['tier'] == 1
+    job = Job.objects.get(guid=job_guid)
+    assert job.tier == 1
 
 
 def test_post_job_with_buildapi_artifact(test_project, failure_classifications,
