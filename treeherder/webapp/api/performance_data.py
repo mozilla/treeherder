@@ -89,14 +89,14 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
 
         ret = {}
         for (id, signature_hash, option_collection_hash, platform, framework,
-             suite, test, lower_is_better, extra_properties, has_subtests,
-             parent_signature_hash) in signature_data.values_list(
+             suite, test, lower_is_better, extra_properties, extra_options,
+             has_subtests, parent_signature_hash) in signature_data.values_list(
                  'id',
                  'signature_hash',
                  'option_collection__option_collection_hash',
                  'platform__platform', 'framework', 'suite',
                  'test', 'lower_is_better', 'extra_properties',
-                 'has_subtests',
+                 'extra_options', 'has_subtests',
                  'parent_signature__signature_hash').distinct():
             ret[signature_hash] = {
                 'id': id,
@@ -121,6 +121,10 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
                 ret[signature_hash]['parent_signature'] = parent_signature_hash
 
             ret[signature_hash].update(json.loads(extra_properties))
+
+            if extra_options:
+                # extra_options stored as charField but api returns as list
+                ret[signature_hash]['extra_options'] = extra_options.split(' ')
 
         return Response(ret)
 
