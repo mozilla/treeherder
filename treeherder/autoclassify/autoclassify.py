@@ -3,7 +3,6 @@ from collections import defaultdict
 
 from django.db.utils import IntegrityError
 
-from treeherder.model.derived import JobsModel
 from treeherder.model.models import (FailureLine,
                                      FailureMatch,
                                      JobNote,
@@ -21,10 +20,8 @@ def match_errors(job):
     # Only try to autoclassify where we have a failure status; sometimes there can be
     # error lines even in jobs marked as passing.
 
-    with JobsModel(job.repository.name) as jm:
-        ds_job = jm.get_job(job.project_specific_id)[0]
-        if ds_job["result"] not in ["testfailed", "busted", "exception"]:
-            return
+    if job.result not in ["testfailed", "busted", "exception"]:
+        return
 
     unmatched_failures = set(FailureLine.objects.unmatched_for_job(job))
 
