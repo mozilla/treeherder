@@ -944,7 +944,7 @@ class BugJobMap(models.Model):
                 submit_elasticsearch_doc.apply_async(
                     args=[
                         self.job.repository.name,
-                        self.job.project_specific_id,
+                        self.job.id,
                         self.bug_id,
                         int(time.mktime(self.created.timetuple())),
                         self.who

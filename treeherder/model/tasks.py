@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.management import call_command
 
 from treeherder.model.exchanges import TreeherderPublisher
-from treeherder.model.models import (ReferenceDataSignatures,
+from treeherder.model.models import (Job,
                                      Repository)
 from treeherder.model.pulse_publisher import load_schemas
 
@@ -71,32 +71,27 @@ def publish_job_action(project, action, job_id, requester):
     :param job_id str: The job id the action was requested for.
     :param requester str: The email address associated with the request.
     """
+    job = Job.objects.get(id=job_id)
+
     newrelic.agent.add_custom_parameter("project", project)
     newrelic.agent.add_custom_parameter("action", action)
-    newrelic.agent.add_custom_parameter("job_id", job_id)
+    newrelic.agent.add_custom_parameter("job_id", job.id)
     newrelic.agent.add_custom_parameter("requester", requester)
     publisher = pulse_connection.get_publisher()
     if not publisher:
         return
 
-    from treeherder.model.derived.jobs import JobsModel
-
-    with JobsModel(project) as jm:
-        job = jm.get_job(job_id)[0]
-
-        publisher.job_action(
-            version=1,
-            build_system_type=ReferenceDataSignatures.objects.values_list(
-                'build_system_type', flat=True).get(
-                    signature=job['signature']),
-            project=project,
-            action=action,
-            job_guid=job['job_guid'],
-            # Job id is included for convenience as you need it in some cases
-            # instead of job_guid...
-            job_id=job['id'],
-            requester=requester
-        )
+    publisher.job_action(
+        version=1,
+        build_system_type=job.signature.build_system_type,
+        project=project,
+        action=action,
+        job_guid=job.guid,
+        # Job id is included for convenience as you need it in some cases
+        # instead of job_guid...
+        job_id=job.id,
+        requester=requester
+    )
 
 
 @task(name='publish-resultset-action')

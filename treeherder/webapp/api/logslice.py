@@ -55,8 +55,7 @@ class LogSliceView(viewsets.ViewSet):
                             status=HTTP_400_BAD_REQUEST)
 
         try:
-            job = Job.objects.get(repository__name=project,
-                                  project_specific_id=job_id)
+            job = Job.objects.get(repository__name=project, id=job_id)
         except Job.DoesNotExist:
             return Response("Job does not exist", status=HTTP_404_NOT_FOUND)
 

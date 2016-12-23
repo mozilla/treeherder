@@ -299,7 +299,7 @@ class JobsModel(TreeherderModelBase):
         :param requester str: Email address of the user who caused action.
         """
         publish_job_action.apply_async(
-            args=[self.project, action, job.project_specific_id, requester],
+            args=[self.project, action, job.id, requester],
             routing_key='publish_to_pulse'
         )
 

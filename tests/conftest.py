@@ -14,8 +14,7 @@ from webtest.app import TestApp
 from treeherder.client import TreeherderClient
 from treeherder.config.wsgi import application
 from treeherder.model.derived.jobs import JobsModel
-from treeherder.model.models import (Job,
-                                     JobNote,
+from treeherder.model.models import (JobNote,
                                      Push)
 
 
@@ -265,20 +264,18 @@ def eleven_jobs_stored(jm, failure_classifications, eleven_job_blobs):
 
 
 @pytest.fixture
-def eleven_jobs_with_notes(jm, sample_data, eleven_jobs_stored, test_user,
-                           failure_classifications, test_repository):
-    """provide 11 jobs with job notes."""
+def test_job_with_notes(test_job, test_user):
+    """test job with job notes."""
 
-    jobs = jm.get_job_list(0, 10)
+    for fcid in [2, 3]:
+        JobNote.objects.create(job=test_job,
+                               failure_classification_id=fcid,
+                               user=test_user,
+                               text="you look like a man-o-lantern")
 
-    for ds_job in jobs:
-        for fcid in [2, 3]:
-            job = Job.objects.get(project_specific_id=ds_job['id'],
-                                  repository=test_repository)
-            JobNote.objects.create(job=job,
-                                   failure_classification_id=fcid,
-                                   user=test_user,
-                                   text="you look like a man-o-lantern")
+    test_job.refresh_from_db()
+
+    return test_job
 
 
 @pytest.fixture

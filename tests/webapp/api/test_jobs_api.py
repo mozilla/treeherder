@@ -81,23 +81,22 @@ def test_job_list(webapp, eleven_jobs_stored, test_repository,
         assert set(job.keys()) == set(exp_keys)
 
 
-def test_job_list_bad_project(webapp, eleven_jobs_stored, jm):
+def test_job_list_bad_project(webapp, transactional_db):
     """
     test retrieving a job list with a bad project throws 404.
     """
-    url = reverse("jobs-list",
-                  kwargs={"project": jm.project})
-    badurl = url.replace(jm.project, "badproject")
+    badurl = reverse("jobs-list",
+                     kwargs={"project": "badproject"})
 
     webapp.get(badurl, status=404)
 
 
-def test_job_list_equals_filter(webapp, eleven_jobs_stored, jm):
+def test_job_list_equals_filter(webapp, eleven_jobs_stored, test_repository):
     """
     test retrieving a job list with a querystring filter.
     """
     url = reverse("jobs-list",
-                  kwargs={"project": jm.project})
+                  kwargs={"project": test_repository.name})
     final_url = url + "?job_guid=f1c75261017c7c5ce3000931dce4c442fe0a1297"
 
     resp = webapp.get(final_url).json
@@ -141,7 +140,7 @@ job_filter_values = [
 
 
 @pytest.mark.parametrize(('fieldname', 'expected'), job_filter_values)
-def test_job_list_filter_fields(webapp, eleven_jobs_stored, jm, fieldname, expected):
+def test_job_list_filter_fields(webapp, eleven_jobs_stored, test_repository, fieldname, expected):
     """
     test retrieving a job list with a querystring filter.
 
@@ -152,7 +151,7 @@ def test_job_list_filter_fields(webapp, eleven_jobs_stored, jm, fieldname, expec
     to make this test easy.
     """
     url = reverse("jobs-list",
-                  kwargs={"project": jm.project})
+                  kwargs={"project": test_repository.name})
     final_url = url + "?{}={}".format(fieldname, expected)
     print(final_url)
     resp = webapp.get(final_url).json
@@ -161,12 +160,12 @@ def test_job_list_filter_fields(webapp, eleven_jobs_stored, jm, fieldname, expec
     assert first[fieldname] == expected
 
 
-def test_job_list_in_filter(webapp, eleven_jobs_stored, jm):
+def test_job_list_in_filter(webapp, eleven_jobs_stored, test_repository):
     """
     test retrieving a job list with a querystring filter.
     """
     url = reverse("jobs-list",
-                  kwargs={"project": jm.project})
+                  kwargs={"project": test_repository.name})
     final_url = url + ("?job_guid__in="
                        "f1c75261017c7c5ce3000931dce4c442fe0a1297,"
                        "9abb6f7d54a49d763c584926377f09835c5e1a32")
@@ -176,7 +175,7 @@ def test_job_list_in_filter(webapp, eleven_jobs_stored, jm):
 
 
 def test_job_list_excluded(webapp, eleven_jobs_stored, sample_data,
-                           test_project, test_sheriff):
+                           test_repository, test_sheriff):
     """
     retrieve a job list of only jobs excluded by specified profile
     """
@@ -188,7 +187,7 @@ def test_job_list_excluded(webapp, eleven_jobs_stored, sample_data,
         name="jobex",
         info={
             "platforms": ["{} ({})".format(platform, arch)],
-            "repos": [test_project],
+            "repos": [test_repository.name],
             "option_collections": ["opt"],
             "option_collection_hashes": ["102210fe594ee9b33d82058545b1ed14f4c8206e"],
             "job_types": ["B2G Emulator Image Build (B)"]},
@@ -203,40 +202,37 @@ def test_job_list_excluded(webapp, eleven_jobs_stored, sample_data,
     exclusion_profile.save()
 
     resp = webapp.get(reverse(
-        "jobs-list", kwargs={"project": test_project}) +
+        "jobs-list", kwargs={"project": test_repository.name}) +
         "?exclusion_profile=exprof&visibility=excluded").json
     assert len(resp['results']) == 1
     assert resp['results'][0]['job_guid'] == '9abb6f7d54a49d763c584926377f09835c5e1a32'
 
 
-def test_job_detail(webapp, eleven_jobs_stored, jm):
+def test_job_detail(webapp, test_job):
     """
     test retrieving a single job from the jobs-detail
     endpoint.
     """
-    job = jm.get_job_list(0, 1)[0]
-
     resp = webapp.get(
         reverse("jobs-detail",
-                kwargs={"project": jm.project, "pk": job["id"]})
+                kwargs={"project": test_job.repository.name,
+                        "pk": test_job.id})
     )
     assert resp.status_int == 200
     assert isinstance(resp.json, dict)
-    assert resp.json["id"] == job["id"]
+    assert resp.json["id"] == test_job.id
 
 
-def test_job_retrigger_unauthorized(webapp, eleven_jobs_stored, jm):
+def test_job_retrigger_unauthorized(webapp, test_repository):
     """
     Validate that only authenticated users can hit this endpoint.
     """
-    job = jm.get_job_list(0, 1)[0]
-    job_id_list = [job["id"]]
     url = reverse("jobs-retrigger",
-                  kwargs={"project": jm.project})
-    webapp.post(url, {"job_id_list": job_id_list}, status=403)
+                  kwargs={"project": test_repository.name})
+    webapp.post(url, {"job_id_list": [1]}, status=403)
 
 
-def test_job_retrigger_authorized(webapp, eleven_jobs_stored, jm,
+def test_job_retrigger_authorized(webapp, eleven_jobs_stored,
                                   pulse_action_consumer, test_user):
     """
     Validate that only authenticated users can hit this endpoint.
@@ -244,18 +240,17 @@ def test_job_retrigger_authorized(webapp, eleven_jobs_stored, jm,
     client = APIClient()
     client.force_authenticate(user=test_user)
 
-    job = jm.get_job_list(0, 1)[0]
-    job_id_list = [job["id"]]
+    job = Job.objects.get(id=1)
     url = reverse("jobs-retrigger",
-                  kwargs={"project": jm.project})
-    client.post(url, {"job_id_list": job_id_list}, format='json')
+                  kwargs={"project": job.repository.name})
+    client.post(url, {"job_id_list": [job.id]}, format='json')
 
     message = pulse_action_consumer.get(block=True, timeout=2)
     content = message.payload
 
-    assert content['project'] == jm.project
+    assert content['project'] == job.repository.name
     assert content['action'] == 'retrigger'
-    assert content['job_guid'] == job['job_guid']
+    assert content['job_guid'] == job.guid
     assert content['requester'] == test_user.email
 
 
@@ -275,7 +270,7 @@ def test_job_cancel_authorized(webapp, test_repository, eleven_jobs_stored,
     url = reverse("jobs-cancel",
                   kwargs={
                       "project": test_repository.name,
-                      "pk": job.project_specific_id
+                      "pk": job.id
                   })
     client.post(url)
 
@@ -293,42 +288,40 @@ def test_job_cancel_authorized(webapp, test_repository, eleven_jobs_stored,
         'last_modified', flat=True).get(id=job.id)
 
 
-def test_job_detail_bad_project(webapp, eleven_jobs_stored, jm):
+def test_job_detail_bad_project(webapp, transactional_db):
     """
     test retrieving a single job from the jobs-detail
     endpoint.
     """
-    job = jm.get_job_list(0, 1)[0]
-    url = reverse("jobs-detail",
-                  kwargs={"project": jm.project, "pk": job["id"]})
-    badurl = url.replace(jm.project, "badproject")
+    badurl = reverse("jobs-detail",
+                     kwargs={"project": "badproject", "pk": 1})
 
     webapp.get(badurl, status=404)
 
 
-def test_job_detail_not_found(webapp, jm):
+def test_job_detail_not_found(webapp, test_repository):
     """
     test retrieving a HTTP 404 from the jobs-detail
     endpoint.
     """
     resp = webapp.get(
         reverse("jobs-detail",
-                kwargs={"project": jm.project, "pk": -32767}),
+                kwargs={"project": test_repository.name, "pk": -32767}),
         expect_errors=True
     )
     assert resp.status_int == 404
 
 
 @pytest.mark.skipif(True, reason="Awaiting landing of Bug 1177519")
-def test_job_error_lines(webapp, eleven_jobs_stored, jm, failure_lines, classified_failures):
+def test_job_error_lines(webapp, eleven_jobs_stored, failure_lines, classified_failures):
     """
     test retrieving failure lines
     """
-    job = jm.get_job(1)[0]
+    job = Job.objects.get(id=1)
 
     resp = webapp.get(
         reverse("jobs-failure-lines",
-                kwargs={"project": jm.project, "pk": job["id"]})
+                kwargs={"project": job.repository.name, "pk": job.id})
     )
     assert resp.status_int == 200
 
@@ -358,17 +351,16 @@ def test_job_error_lines(webapp, eleven_jobs_stored, jm, failure_lines, classifi
     assert set(classified.keys()) == set(exp_classified_keys)
 
 
-def test_text_log_steps_and_errors(webapp, eleven_jobs_stored, jm, test_repository):
+def test_text_log_steps_and_errors(webapp, test_job):
 
-    job = Job.objects.get(project_specific_id=jm.get_job(1)[0]['id'])
-    TextLogStep.objects.create(job=job,
+    TextLogStep.objects.create(job=test_job,
                                name='step1',
                                started=datetime.datetime.utcfromtimestamp(0),
                                finished=datetime.datetime.utcfromtimestamp(100),
                                started_line_number=1,
                                finished_line_number=100,
                                result=TextLogStep.SUCCESS)
-    step2 = TextLogStep.objects.create(job=job,
+    step2 = TextLogStep.objects.create(job=test_job,
                                        name='step2',
                                        started=datetime.datetime.utcfromtimestamp(101),
                                        finished=datetime.datetime.utcfromtimestamp(200),
@@ -381,8 +373,8 @@ def test_text_log_steps_and_errors(webapp, eleven_jobs_stored, jm, test_reposito
                                 line_number=102)
     resp = webapp.get(
         reverse("jobs-text-log-steps",
-                kwargs={"project": test_repository.name,
-                        "pk": job.project_specific_id})
+                kwargs={"project": test_job.repository.name,
+                        "pk": test_job.id})
     )
     assert resp.status_int == 200
     assert resp.json == [
@@ -430,17 +422,16 @@ def test_text_log_steps_and_errors(webapp, eleven_jobs_stored, jm, test_reposito
     ]
 
 
-def test_text_log_errors(webapp, eleven_jobs_stored, jm, test_repository):
+def test_text_log_errors(webapp, test_job):
 
-    job = Job.objects.get(project_specific_id=jm.get_job(1)[0]['id'])
-    TextLogStep.objects.create(job=job,
+    TextLogStep.objects.create(job=test_job,
                                name='step1',
                                started=datetime.datetime.utcfromtimestamp(0),
                                finished=datetime.datetime.utcfromtimestamp(100),
                                started_line_number=1,
                                finished_line_number=100,
                                result=TextLogStep.SUCCESS)
-    step2 = TextLogStep.objects.create(job=job,
+    step2 = TextLogStep.objects.create(job=test_job,
                                        name='step2',
                                        started=datetime.datetime.utcfromtimestamp(101),
                                        finished=datetime.datetime.utcfromtimestamp(200),
@@ -453,8 +444,8 @@ def test_text_log_errors(webapp, eleven_jobs_stored, jm, test_repository):
                                 line_number=102)
     resp = webapp.get(
         reverse("jobs-text-log-errors",
-                kwargs={"project": test_repository.name,
-                        "pk": job.project_specific_id})
+                kwargs={"project": test_job.repository.name,
+                        "pk": test_job.id})
     )
     assert resp.status_int == 200
     assert resp.json == [
@@ -487,15 +478,15 @@ def test_text_log_errors(webapp, eleven_jobs_stored, jm, test_repository):
                           (1, None, 2),
                           (0, 1, 1),
                           (2, 10, 1)])
-def test_list_similar_jobs(webapp, eleven_jobs_stored, jm,
+def test_list_similar_jobs(webapp, eleven_jobs_stored,
                            offset, count, expected_num):
     """
     test retrieving similar jobs
     """
-    job = jm.get_job(1)[0]
+    job = Job.objects.get(id=1)
 
     url = reverse("jobs-similar-jobs",
-                  kwargs={"project": jm.project, "pk": job["id"]})
+                  kwargs={"project": job.repository.name, "pk": job.id})
     params = '&'.join(['{}={}'.format(k, v) for k, v in
                        [('offset', offset), ('count', count)] if v])
     if params:
@@ -514,19 +505,19 @@ def test_list_similar_jobs(webapp, eleven_jobs_stored, jm,
 
 
 def test_job_create(webapp, test_repository, test_user, eleven_job_blobs,
-                    failure_classifications, monkeypatch, jm):
+                    failure_classifications, monkeypatch):
     monkeypatch.setattr(JobsViewSet, 'permission_classes', ())
 
     url = reverse("jobs-list",
-                  kwargs={"project": jm.project})
+                  kwargs={"project": test_repository.name})
     client = APIClient()
     resp = client.post(url, data=eleven_job_blobs, format="json")
 
     assert resp.status_code == 200
 
     # test that the jobs were actually created
-    test_job_list(webapp, None, test_repository, None, None, 10)
-    test_job_detail(webapp, None, jm)
+    assert Job.objects.count() == 11
+    test_job_list(webapp, None, test_repository, 0, 11, 11)
 
 
 @pytest.mark.parametrize('lm_key,lm_value,exp_status, exp_job_count', [
@@ -535,7 +526,7 @@ def test_job_create(webapp, test_repository, test_user, eleven_job_blobs,
     ("last_modified__gt",  "-Infinity", HTTP_400_BAD_REQUEST, 0),
     ("last_modified__gt",  "whatever", HTTP_400_BAD_REQUEST, 0),
     ])
-def test_last_modified(webapp, eleven_jobs_stored, test_project,
+def test_last_modified(webapp, eleven_jobs_stored, test_repository,
                        lm_key, lm_value, exp_status, exp_job_count):
     try:
         param_date = parser.parse(lm_value)
@@ -549,7 +540,7 @@ def test_last_modified(webapp, eleven_jobs_stored, test_project,
         # no problem.  these params are the wrong
         pass
 
-    url = reverse("jobs-list", kwargs={"project": test_project})
+    url = reverse("jobs-list", kwargs={"project": test_repository.name})
     final_url = url + ("?{}={}".format(lm_key, lm_value))
 
     resp = webapp.get(final_url, expect_errors=(exp_status != 200))
