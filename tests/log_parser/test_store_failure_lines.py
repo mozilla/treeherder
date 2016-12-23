@@ -13,7 +13,7 @@ from treeherder.model.search import TestFailureLine
 from ..sampledata import SampleData
 
 
-def test_store_error_summary(activate_responses, test_repository, jm, eleven_jobs_stored):
+def test_store_error_summary(activate_responses, test_repository, test_job):
     log_path = SampleData().get_log_path("plain-chunked_errorsummary.log")
     log_url = 'http://my-log.mozilla.org'
 
@@ -21,9 +21,7 @@ def test_store_error_summary(activate_responses, test_repository, jm, eleven_job
         responses.add(responses.GET, log_url,
                       body=log_handler.read(), status=200)
 
-    job = Job.objects.get(guid=jm.get_job(1)[0]['job_guid'])
-
-    log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
+    log_obj = JobLog.objects.create(job=test_job, name="errorsummary_json", url=log_url)
 
     store_failure_lines(log_obj)
 
@@ -31,13 +29,13 @@ def test_store_error_summary(activate_responses, test_repository, jm, eleven_job
 
     failure = FailureLine.objects.get(pk=1)
 
-    assert failure.job_guid == job.guid
+    assert failure.job_guid == test_job.guid
 
     assert failure.repository == test_repository
 
 
-def test_store_error_summary_truncated(activate_responses, test_repository, jm,
-                                       eleven_jobs_stored, monkeypatch):
+def test_store_error_summary_truncated(activate_responses, test_repository,
+                                       test_job, monkeypatch):
     log_path = SampleData().get_log_path("plain-chunked_errorsummary_10_lines.log")
     log_url = 'http://my-log.mozilla.org'
 
@@ -47,9 +45,7 @@ def test_store_error_summary_truncated(activate_responses, test_repository, jm,
         responses.add(responses.GET, log_url,
                       body=log_handler.read(), status=200)
 
-    job = Job.objects.get(guid=jm.get_job(1)[0]['job_guid'])
-
-    log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
+    log_obj = JobLog.objects.create(job=test_job, name="errorsummary_json", url=log_url)
 
     store_failure_lines(log_obj)
 
@@ -57,13 +53,12 @@ def test_store_error_summary_truncated(activate_responses, test_repository, jm,
 
     failure = FailureLine.objects.get(action='truncated')
 
-    assert failure.job_guid == job.guid
+    assert failure.job_guid == test_job.guid
 
     assert failure.repository == test_repository
 
 
-def test_store_error_summary_astral(activate_responses, test_repository, jm,
-                                    eleven_jobs_stored):
+def test_store_error_summary_astral(activate_responses, test_repository, test_job):
     log_path = SampleData().get_log_path("plain-chunked_errorsummary_astral.log")
     log_url = 'http://my-log.mozilla.org'
 
@@ -71,9 +66,7 @@ def test_store_error_summary_astral(activate_responses, test_repository, jm,
         responses.add(responses.GET, log_url, content_type="text/plain;charset=utf-8",
                       body=log_handler.read(), status=200)
 
-    job = Job.objects.get(guid=jm.get_job(1)[0]['job_guid'])
-
-    log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
+    log_obj = JobLog.objects.create(job=test_job, name="errorsummary_json", url=log_url)
 
     store_failure_lines(log_obj)
 
@@ -81,7 +74,7 @@ def test_store_error_summary_astral(activate_responses, test_repository, jm,
 
     failure = FailureLine.objects.get(pk=1)
 
-    assert failure.job_guid == job.guid
+    assert failure.job_guid == test_job.guid
 
     assert failure.repository == test_repository
 
@@ -93,7 +86,7 @@ def test_store_error_summary_astral(activate_responses, test_repository, jm,
     assert failure.stackwalk_stderr is None
 
 
-def test_store_error_summary_404(activate_responses, test_repository, jm, eleven_jobs_stored):
+def test_store_error_summary_404(activate_responses, test_repository, test_job):
     log_path = SampleData().get_log_path("plain-chunked_errorsummary.log")
     log_url = 'http://my-log.mozilla.org'
 
@@ -101,9 +94,7 @@ def test_store_error_summary_404(activate_responses, test_repository, jm, eleven
         responses.add(responses.GET, log_url,
                       body=log_handler.read(), status=404)
 
-    job = Job.objects.get(guid=jm.get_job(1)[0]['job_guid'])
-
-    log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
+    log_obj = JobLog.objects.create(job=test_job, name="errorsummary_json", url=log_url)
 
     store_failure_lines(log_obj)
 
@@ -111,7 +102,7 @@ def test_store_error_summary_404(activate_responses, test_repository, jm, eleven
     assert log_obj.status == JobLog.FAILED
 
 
-def test_store_error_summary_500(activate_responses, test_repository, jm, eleven_jobs_stored):
+def test_store_error_summary_500(activate_responses, test_repository, test_job):
     log_path = SampleData().get_log_path("plain-chunked_errorsummary.log")
     log_url = 'http://my-log.mozilla.org'
 
@@ -119,9 +110,7 @@ def test_store_error_summary_500(activate_responses, test_repository, jm, eleven
         responses.add(responses.GET, log_url,
                       body=log_handler.read(), status=500)
 
-    job = Job.objects.get(guid=jm.get_job(1)[0]['job_guid'])
-
-    log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
+    log_obj = JobLog.objects.create(job=test_job, name="errorsummary_json", url=log_url)
 
     with pytest.raises(HTTPError):
         store_failure_lines(log_obj)
@@ -130,10 +119,9 @@ def test_store_error_summary_500(activate_responses, test_repository, jm, eleven
     assert log_obj.status == JobLog.FAILED
 
 
-def test_store_error_summary_duplicate(activate_responses, test_repository, jm, eleven_jobs_stored):
+def test_store_error_summary_duplicate(activate_responses, test_repository, test_job):
     log_url = 'http://my-log.mozilla.org'
-    job = Job.objects.get(guid=jm.get_job(1)[0]['job_guid'])
-    log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
+    log_obj = JobLog.objects.create(job=test_job, name="errorsummary_json", url=log_url)
 
     write_failure_lines(log_obj, [{"action": "log",
                                    "level": "debug",
@@ -152,7 +140,7 @@ def test_store_error_summary_duplicate(activate_responses, test_repository, jm, 
 
 
 def test_store_error_summary_elastic_search(activate_responses, test_repository,
-                                            jm, eleven_jobs_stored, elasticsearch):
+                                            test_job, elasticsearch):
     log_path = SampleData().get_log_path("plain-chunked_errorsummary.log")
     log_url = 'http://my-log.mozilla.org'
 
@@ -160,9 +148,8 @@ def test_store_error_summary_elastic_search(activate_responses, test_repository,
         responses.add(responses.GET, log_url,
                       body=log_handler.read(), status=200)
 
-    job = Job.objects.get(guid=jm.get_job(1)[0]['job_guid'])
-
-    log_obj = JobLog.objects.create(job=job, name="errorsummary_json", url=log_url)
+    log_obj = JobLog.objects.create(job=test_job, name="errorsummary_json",
+                                    url=log_url)
 
     store_failure_lines(log_obj)
 

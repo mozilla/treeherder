@@ -130,31 +130,20 @@ def test_ingest_running_to_retry_sample_job(jm, failure_classifications,
         new_job_datum['job'] = _simulate_retry_job(new_job_datum['job'])
         job_data.append(new_job_datum)
         jm.store_job_data(job_data)
-
-        initial_job_id = jm.get_job_list(0, 1)[0]["id"]
     else:
         # store the job in the initial state
         jm.store_job_data(job_data)
-
-        initial_job_id = jm.get_job_list(0, 1)[0]["id"]
 
         # now we simulate the complete version of the job coming in and
         # ingest a second time
         job = _simulate_retry_job(job)
         jm.store_job_data(job_data)
 
-    jl = jm.get_job_list(0, 10)
-
-    assert len(jl) == 1
-    assert jl[0]['result'] == 'retry'
-    assert jl[0]['id'] == initial_job_id
-
     assert Job.objects.count() == 1
-    assert JobLog.objects.count() == 1
-    intermediary_job = Job.objects.all()[0]
-    assert intermediary_job.project_specific_id == initial_job_id
-    # intermediary guid should be the retry one
-    assert intermediary_job.guid == job_data[-1]['job']['job_guid']
+    job = Job.objects.get(id=1)
+    assert job.result == 'retry'
+    # guid should be the retry one
+    assert job.guid == job_data[-1]['job']['job_guid']
 
 
 @pytest.mark.parametrize("ingestion_cycles", [[(0, 1), (1, 2), (2, 3)],
@@ -190,14 +179,10 @@ def test_ingest_running_to_retry_to_success_sample_job(jm,
     for (i, j) in ingestion_cycles:
         jm.store_job_data(job_data[i:j])
 
-    jl = jm.get_job_list(0, 10)
-    assert len(jl) == 2
-    assert jl[0]['result'] == 'retry'
-    assert jl[1]['result'] == 'success'
-
     assert Job.objects.count() == 2
+    assert Job.objects.get(id=1).result == 'retry'
+    assert Job.objects.get(id=2).result == 'success'
     assert JobLog.objects.count() == 2
-    assert set(Job.objects.values_list('id', flat=True)) == set([j['id'] for j in jl])
 
 
 @pytest.mark.parametrize("ingestion_cycles", [[(0, 1), (1, 3), (3, 4)],
@@ -235,17 +220,12 @@ def test_ingest_running_to_retry_to_success_sample_job_multiple_retries(
     for (i, j) in ingestion_cycles:
         ins = job_data[i:j]
         jm.store_job_data(ins)
-        print Job.objects.all()
-    print Job.objects.all()
-    jl = jm.get_job_list(0, 10)
-    assert len(jl) == 3
-    assert jl[0]['result'] == 'retry'
-    assert jl[1]['result'] == 'retry'
-    assert jl[2]['result'] == 'success'
 
     assert Job.objects.count() == 3
+    assert Job.objects.get(id=1).result == 'retry'
+    assert Job.objects.get(id=2).result == 'retry'
+    assert Job.objects.get(id=3).result == 'success'
     assert JobLog.objects.count() == 3
-    assert set(Job.objects.values_list('id', flat=True)) == set([j['id'] for j in jl])
 
 
 def test_ingest_retry_sample_job_no_running(jm, test_repository,
@@ -268,14 +248,10 @@ def test_ingest_retry_sample_job_no_running(jm, test_repository,
 
     jm.store_job_data(job_data)
 
-    jl = jm.get_job_list(0, 10)
-
-    assert len(jl) == 1
-    assert jl[0]['job_guid'] == retry_guid
-    assert jl[0]['result'] == 'retry'
-
     assert Job.objects.count() == 1
-    assert Job.objects.all()[0].guid == retry_guid
+    job = Job.objects.get(id=1)
+    assert job.result == 'retry'
+    assert job.guid == retry_guid
 
 
 def test_calculate_durations(jm, test_repository, failure_classifications,
@@ -370,15 +346,10 @@ def test_remove_existing_jobs_single_existing(jm, failure_classifications,
 
     job_data = sample_data.job_data[:1]
     test_utils.do_job_ingestion(jm, job_data, sample_resultset)
-
-    jl = jm.get_job_list(0, 10)
+    assert Job.objects.count() == 1
 
     data = jm._remove_existing_jobs(job_data)
     assert len(data) == 0
-    jl = jm.get_job_list(0, 10)
-    assert len(jl) == 1
-
-    assert Job.objects.count() == 1
 
 
 def test_remove_existing_jobs_one_existing_one_new(jm, failure_classifications,
@@ -424,10 +395,14 @@ def test_new_job_in_exclusion_profile(jm, failure_classifications, sample_data,
     )
     exclusion_profile.exclusions.add(job_exclusion)
     jm.store_job_data(sample_data.job_data[:2])
-    obtained = jm.get_job_list(offset=0, limit=100, exclusion_profile="Tier-2")
+
     # We check all the jobs applying the exclusion profile
     # If we find the excluded job, there is a problem
-    assert job['job']['job_guid'] not in [ob['job_guid'] for ob in obtained]
+    excluded_signatures = ExclusionProfile.objects.get_signatures_for_project(
+        test_project, exclusion_profile.name)
+    obtained = Job.objects.all().exclude(
+        signature__signature__in=excluded_signatures)
+    assert job['job']['job_guid'] not in [ob.guid for ob in obtained]
     lower_tier_signatures = jm._get_lower_tier_signatures()
     assert len(lower_tier_signatures) == 1
     assert lower_tier_signatures[0]['tier'] == 2
@@ -441,8 +416,6 @@ def test_ingesting_skip_existing(jm, failure_classifications, sample_data,
 
     jm.store_job_data(sample_data.job_data[:2])
 
-    jl = jm.get_job_list(0, 10)
-    assert len(jl) == 2
     assert Job.objects.count() == 2
 
 
@@ -454,28 +427,26 @@ def test_ingest_job_with_updated_job_group(jm, failure_classifications,
     that association will not updated ingesting a new job with the same
     job_type but different job_group
     """
-    first_job = sample_data.job_data[0]
-    first_job["job"]["group_name"] = "first group name"
-    first_job["job"]["group_symbol"] = "1"
-    first_job["revision"] = result_set_stored[0]["revision"]
-    jm.store_job_data([first_job])
+    first_job_datum = sample_data.job_data[0]
+    first_job_datum["job"]["group_name"] = "first group name"
+    first_job_datum["job"]["group_symbol"] = "1"
+    first_job_datum["revision"] = result_set_stored[0]["revision"]
+    jm.store_job_data([first_job_datum])
 
-    second_job = copy.deepcopy(first_job)
+    second_job_datum = copy.deepcopy(first_job_datum)
     # create a new guid to ingest the job again
     second_job_guid = "a-unique-job-guid"
-    second_job["job"]["job_guid"] = second_job_guid
-    second_job["job"]["group_name"] = "second group name"
-    second_job["job"]["group_symbol"] = "2"
-    second_job["revision"] = result_set_stored[0]["revision"]
+    second_job_datum["job"]["job_guid"] = second_job_guid
+    second_job_datum["job"]["group_name"] = "second group name"
+    second_job_datum["job"]["group_symbol"] = "2"
+    second_job_datum["revision"] = result_set_stored[0]["revision"]
 
-    jm.store_job_data([second_job])
+    jm.store_job_data([second_job_datum])
 
-    second_job_lookup = jm.get_job_ids_by_guid([second_job_guid])
-    second_job_stored = jm.get_job(second_job_lookup[second_job_guid]["id"])
+    second_job = Job.objects.get(guid=second_job_guid)
 
-    first_job_group_name = first_job["job"]["group_name"]
-
-    second_job_group_name = second_job_stored[0]["job_group_name"]
+    first_job_group_name = first_job_datum["job"]["group_name"]
+    second_job_group_name = second_job.job_type.job_group.name
 
     assert first_job_group_name == second_job_group_name
 
@@ -506,8 +477,7 @@ def test_ingest_job_with_revision_hash(jm, test_repository,
     del first_job["revision"]
     jm.store_job_data([first_job])
 
-    jl = jm.get_job_list(0, 10)
-    assert len(jl) == 1
+    assert Job.objects.count() == 1
 
 
 def test_ingest_job_revision_and_revision_hash(jm, test_repository,
@@ -529,9 +499,8 @@ def test_ingest_job_revision_and_revision_hash(jm, test_repository,
     first_job["revision"] = revision
     jm.store_job_data([first_job])
 
-    jl = jm.get_job_list(0, 10)
-    assert len(jl) == 1
-    assert jl[0]["push_id"] == Push.objects.values_list(
+    assert Job.objects.count() == 1
+    assert Job.objects.get(id=1).push_id == Push.objects.values_list(
         'id', flat=True).get(revision=revision)
 
 
@@ -553,12 +522,9 @@ def test_ingest_job_revision_hash_blank_revision(jm, test_repository,
     first_job["revision"] = ""
     jm.store_job_data([first_job])
 
-    jl = jm.get_job_list(0, 10)
-    assert len(jl) == 1
-    assert jl[0]["push_id"] == Push.objects.values_list(
-        'id', flat=True).get(revision_hash=rs_revision_hash)
-
     assert Job.objects.count() == 1
+    assert Job.objects.get(id=1).push_id == Push.objects.values_list(
+        'id', flat=True).get(revision_hash=rs_revision_hash)
 
 
 def test_retry_on_operational_failure(jm, monkeypatch):
