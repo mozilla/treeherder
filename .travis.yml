@@ -15,7 +15,7 @@ matrix:
     - env: python-linters
       sudo: false
       language: python
-      python: "2.7.12"
+      python: "2.7.13"
       cache:
         directories:
           - ~/venv
@@ -60,7 +60,7 @@ matrix:
       # TODO: Investigate switching back to the container infra, by setting `sudo: false`.
       sudo: required
       language: python
-      python: "2.7.12"
+      python: "2.7.13"
       cache:
         directories:
           - ~/venv
@@ -99,7 +99,7 @@ matrix:
       # TODO: Investigate switching back to the container infra, by setting `sudo: false`.
       sudo: required
       language: python
-      python: "2.7.12"
+      python: "2.7.13"
       cache:
         directories:
           - ~/venv
@@ -128,7 +128,7 @@ matrix:
       # TODO: Investigate switching back to the container infra, by setting `sudo: false`.
       sudo: required
       language: python
-      python: "2.7.12"
+      python: "2.7.13"
       cache:
         directories:
           - ~/venv
