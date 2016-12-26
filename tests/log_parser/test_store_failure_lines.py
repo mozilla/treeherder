@@ -3,7 +3,6 @@ import responses
 from django.conf import settings
 from requests.exceptions import HTTPError
 
-from treeherder.etl.text import char_to_codepoint_ucs2
 from treeherder.log_parser.failureline import (store_failure_lines,
                                                write_failure_lines)
 from treeherder.model.models import (FailureLine,
@@ -129,20 +128,6 @@ def test_store_error_summary_500(activate_responses, test_repository, jm, eleven
 
     log_obj.refresh_from_db()
     assert log_obj.status == JobLog.FAILED
-
-
-def test_char_data_to_codepoint_ucs2():
-    # Unbelivably, putting the two codepoints in a string seems to cause them to be
-    # interpreted as a single character, but only in unit tests, and only sometimes.
-    # Since we only use indexing operations, putting the codepoints in a tuple is
-    # equivalent to a lenth 2 string.
-    data = [
-        ((u"\ud800", u"\udc00"), 0x010000),
-        ((u"\udbff", u"\udfff"), 0x10FFFF),
-        ((u"\uda00", u"\uddff"), 0x0901ff),
-    ]
-    for value, expected in data:
-        assert char_to_codepoint_ucs2(value) == expected
 
 
 def test_store_error_summary_duplicate(activate_responses, test_repository, jm, eleven_jobs_stored):
