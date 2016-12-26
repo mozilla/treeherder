@@ -26,6 +26,7 @@ from treeherder.model.models import (ExclusionProfile,
                                      TextLogError,
                                      TextLogStep,
                                      TextLogSummary)
+from treeherder.model.tasks import publish_job_action
 from treeherder.webapp.api import (pagination,
                                    permissions,
                                    serializers)
@@ -212,6 +213,20 @@ class JobsViewSet(viewsets.ViewSet):
 
         return response_dict
 
+    def _job_action_event(self, job, action, requester_email):
+        """
+        Helper for issuing an 'action' for a given job (such as
+        cancel/retrigger)
+
+        :param job int: The job which this action pertains to.
+        :param action str: Name of the action (cancel, etc..).
+        :param requester str: Email address of the user who caused action.
+        """
+        publish_job_action.apply_async(
+            args=[job.repository.name, action, job.id, requester_email],
+            routing_key='publish_to_pulse'
+        )
+
     def retrieve(self, request, project, pk=None):
         """
         GET method implementation for detail view
@@ -344,20 +359,19 @@ class JobsViewSet(viewsets.ViewSet):
         return Response(response_body)
 
     @detail_route(methods=['post'])
-    @with_jobs
-    def update_state(self, request, project, jm, pk=None):
+    def update_state(self, request, project, pk=None):
         """
         Change the state of a job.
         """
         state = request.data.get('state', None)
 
         # check that this state is valid
-        if state not in jm.STATES:
+        if state not in Job.STATES:
             return Response(
                 {"message": ("'{0}' is not a valid state.  Must be "
                              "one of: {1}".format(
                                  state,
-                                 ", ".join(jm.STATES)
+                                 ", ".join(Job.STATES)
                              ))},
                 status=HTTP_400_BAD_REQUEST,
             )
@@ -368,16 +382,16 @@ class JobsViewSet(viewsets.ViewSet):
         try:
             job = Job.objects.get(repository__name=project,
                                   id=pk)
+            job.state = state
+            job.save()
         except ObjectDoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
-        jm.set_state(job, state)
         return Response({"message": "state updated to '{0}'".format(state)})
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
-    @with_jobs
-    def cancel(self, request, project, jm, pk=None):
+    def cancel(self, request, project, pk=None):
         """
-        Change the state of a job.
+        Cancels a jobChange the state of a job.
         """
         try:
             job = Job.objects.get(repository__name=project,
@@ -385,12 +399,20 @@ class JobsViewSet(viewsets.ViewSet):
         except ObjectDoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
-        jm.cancel_job(request.user.email, job)
+        self._job_action_event(job, 'cancel', request.user.email)
+
+        # Mark pending jobs as cancelled to work around buildbot not including
+        # cancelled jobs in builds-4hr if they never started running.
+        # TODO: Remove when we stop using buildbot.
+        if job.state == 'pending':
+            job.state = 'completed'
+            job.result = 'usercancel'
+            job.save()
+
         return Response({"message": "canceled job '{0}'".format(job.guid)})
 
     @list_route(methods=['post'], permission_classes=[IsAuthenticated])
-    @with_jobs
-    def retrigger(self, request, project, jm):
+    def retrigger(self, request, project):
         """
         Issue a "retrigger" to the underlying build_system_type by scheduling a
         pulse message.
@@ -401,7 +423,7 @@ class JobsViewSet(viewsets.ViewSet):
             try:
                 job = Job.objects.get(repository__name=project,
                                       id=pk)
-                jm.retrigger(request.user.email, job)
+                self._job_action_event(job, 'retrigger', request.user.email)
             except ObjectDoesNotExist:
                 failure.append(pk)
 
@@ -411,8 +433,7 @@ class JobsViewSet(viewsets.ViewSet):
         return Response({"message": "All jobs successfully retriggered."})
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
-    @with_jobs
-    def backfill(self, request, project, jm, pk=None):
+    def backfill(self, request, project, pk=None):
         """
         Issue a "backfill" to the underlying build_system_type by scheduling a
         pulse message.
@@ -420,7 +441,7 @@ class JobsViewSet(viewsets.ViewSet):
         try:
             job = Job.objects.get(repository__name=project,
                                   id=pk)
-            jm.backfill(request.user.email, job)
+            self._job_action_event(job, 'backfill', request.user.email)
             return Response({"message": "backfilled job '{0}'".format(job.guid)})
         except ObjectDoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)

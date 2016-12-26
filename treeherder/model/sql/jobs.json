@@ -47,15 +47,6 @@
     },
 
     "updates": {
-        "set_state":{
-
-            "sql":"UPDATE `job`
-                SET    `state` = ?
-                WHERE  `id` = ?
-                AND `state` <> 'completed'",
-
-                "host_type":"master_host"
-        },
         "cancel_all":{
 
             "sql":"UPDATE `job`

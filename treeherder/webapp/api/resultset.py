@@ -12,9 +12,12 @@ from rest_framework.status import (HTTP_400_BAD_REQUEST,
 from serializers import (CommitSerializer,
                          PushSerializer)
 from treeherder.model.models import (Commit,
+                                     Job,
                                      Push,
                                      Repository)
-from treeherder.model.tasks import publish_resultset_runnable_job_action
+from treeherder.model.tasks import (publish_job_action,
+                                    publish_resultset_action,
+                                    publish_resultset_runnable_job_action)
 from treeherder.webapp.api import permissions
 from treeherder.webapp.api.utils import (to_datetime,
                                          to_timestamp,
@@ -187,33 +190,54 @@ class ResultSetViewSet(viewsets.ViewSet):
                             status=HTTP_404_NOT_FOUND)
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
-    @with_jobs
-    def cancel_all(self, request, project, jm, pk=None):
+    def cancel_all(self, request, project, pk=None):
         """
         Cancel all pending and running jobs in this resultset
         """
-
         if not pk:  # pragma nocover
             return Response({"message": "resultset id required"}, status=HTTP_400_BAD_REQUEST)
 
-        jm.cancel_all_jobs_for_push(request.user.email, pk)
+        # Sending 'cancel_all' action to pulse. Right now there is no listener
+        # for this, so we cannot remove 'cancel' action for each job below.
+        publish_resultset_action.apply_async(
+            args=[project, 'cancel_all', pk, request.user.email],
+            routing_key='publish_to_pulse'
+        )
+
+        # Notify the build systems which created these jobs...
+        for job in Job.objects.filter(push_id=pk).exclude(state='completed'):
+            publish_job_action.apply_async(
+                args=[project, 'cancel', job.id, request.user.email],
+                routing_key='publish_to_pulse'
+            )
+
+        # Mark pending jobs as cancelled to work around buildbot not including
+        # cancelled jobs in builds-4hr if they never started running.
+        # TODO: Remove when we stop using buildbot.
+        Job.objects.filter(push_id=pk, state='pending').update(
+            state='completed',
+            result='usercancel',
+            last_modified=datetime.datetime.now())
+
         return Response({"message": "pending and running jobs canceled for resultset '{0}'".format(pk)})
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
-    @with_jobs
-    def trigger_missing_jobs(self, request, project, jm, pk=None):
+    def trigger_missing_jobs(self, request, project, pk=None):
         """
         Trigger jobs that are missing in a resultset.
         """
         if not pk:
             return Response({"message": "resultset id required"}, status=HTTP_400_BAD_REQUEST)
 
-        jm.trigger_missing_jobs(request.user.email, pk)
+        publish_resultset_action.apply_async(
+            args=[project, "trigger_missing_jobs", pk, request.user.email],
+            routing_key='publish_to_pulse'
+        )
+
         return Response({"message": "Missing jobs triggered for result set '{0}'".format(pk)})
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
-    @with_jobs
-    def trigger_all_talos_jobs(self, request, project, jm, pk=None):
+    def trigger_all_talos_jobs(self, request, project, pk=None):
         """
         Trigger all the talos jobs in a resultset.
         """
@@ -224,12 +248,16 @@ class ResultSetViewSet(viewsets.ViewSet):
         if not times:
             raise ParseError(detail="The 'times' parameter is mandatory for this endpoint")
 
-        jm.trigger_all_talos_jobs(request.user.email, pk, times)
+        publish_resultset_action.apply_async(
+            args=[project, "trigger_all_talos_jobs", pk, request.user.email,
+                  times],
+            routing_key='publish_to_pulse'
+        )
+
         return Response({"message": "Talos jobs triggered for result set '{0}'".format(pk)})
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
-    @with_jobs
-    def trigger_runnable_jobs(self, request, project, jm, pk=None):
+    def trigger_runnable_jobs(self, request, project, pk=None):
         """
         Add new jobs to a resultset.
         """

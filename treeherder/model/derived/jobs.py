@@ -22,7 +22,6 @@ from treeherder.model.models import (BuildPlatform,
                                      JobDuration,
                                      JobGroup,
                                      JobLog,
-                                     JobNote,
                                      JobType,
                                      Machine,
                                      MachinePlatform,
@@ -34,8 +33,6 @@ from treeherder.model.models import (BuildPlatform,
                                      Repository)
 from treeherder.model.search import bulk_delete as es_delete
 from treeherder.model.search import TestFailureLine
-from treeherder.model.tasks import (publish_job_action,
-                                    publish_resultset_action)
 
 from .base import TreeherderModelBase
 
@@ -48,8 +45,6 @@ class JobsModel(TreeherderModelBase):
     Represent a job repository
     """
 
-    INCOMPLETE_STATES = ["running", "pending"]
-    STATES = INCOMPLETE_STATES + ["completed", "coalesced"]
     LOWER_TIERS = [2, 3]
 
     @classmethod
@@ -69,118 +64,6 @@ class JobsModel(TreeherderModelBase):
     # Job schema data methods
     #
     ##################
-
-    def set_state(self, job, state):
-        """Update the state of an existing job"""
-        job.state = state
-        job.save()
-
-    def cancel_all_jobs_for_push(self, requester, push_id):
-        """Set all pending/running jobs in resultset to usercancel."""
-
-        # Sending 'cancel_all' action to pulse. Right now there is no listener
-        # for this, so we cannot remove 'cancel' action for each job below.
-        publish_resultset_action.apply_async(
-            args=[self.project, 'cancel_all', push_id, requester],
-            routing_key='publish_to_pulse'
-        )
-
-        # Notify the build systems which created these jobs...
-        for job in Job.objects.filter(push_id=push_id).exclude(state='completed'):
-            self._job_action_event(job, 'cancel', requester)
-
-        # Mark pending jobs as cancelled to work around buildbot not including
-        # cancelled jobs in builds-4hr if they never started running.
-        # TODO: Remove when we stop using buildbot.
-        Job.objects.filter(push_id=push_id, state='pending').update(
-            state='completed',
-            result='usercancel',
-            last_modified=datetime.now())
-
-    def trigger_missing_jobs(self, requester, push_id):
-        publish_resultset_action.apply_async(
-            args=[self.project, "trigger_missing_jobs", push_id, requester],
-            routing_key='publish_to_pulse'
-        )
-
-    def trigger_all_talos_jobs(self, requester, push_id, times):
-        publish_resultset_action.apply_async(
-            args=[self.project, "trigger_all_talos_jobs", push_id, requester,
-                  times],
-            routing_key='publish_to_pulse'
-        )
-
-    def _job_action_event(self, job, action, requester):
-        """
-        Helper for issuing an 'action' for a given job (such as
-        cancel/retrigger)
-
-        :param job_id int: The id of job which this action was issued to.
-        :param action str: Name of the action (cancel, etc..).
-        :param requester str: Email address of the user who caused action.
-        """
-        publish_job_action.apply_async(
-            args=[self.project, action, job.id, requester],
-            routing_key='publish_to_pulse'
-        )
-
-    def retrigger(self, requester, job):
-        """
-        Issue a retrigger to the given job
-
-        :param requester str: The email address associated with the user who
-                              made this request
-        :param job dict: A job model object
-        """
-        self._job_action_event(job, 'retrigger', requester)
-
-    def backfill(self, requester, job):
-        """
-        Issue a "backfill" to the underlying build_system_type by scheduling a
-        pulse message.
-
-        :param requester str: The email address associated with the user who
-                              made this request
-        :param job dict: A job model object
-        """
-        self._job_action_event(job, 'backfill', requester)
-
-    def cancel_job(self, requester, job):
-        """
-        Cancel the given job and send an event to notify the build_system type
-        who created it to do the actual work.
-
-        :param requester str: The email address associated with the user who
-                              made this request
-        :param job dict: A job model object
-        """
-        self._job_action_event(job, 'cancel', requester)
-
-        # Mark pending jobs as cancelled to work around buildbot not including
-        # cancelled jobs in builds-4hr if they never started running.
-        # TODO: Remove when we stop using buildbot.
-        Job.objects.filter(id=job.id, state='pending').update(
-            state='completed',
-            result='usercancel',
-            last_modified=datetime.now())
-
-    def update_last_job_classification(self, job):
-        """
-        Update failure_classification_id no the job table accordingly to
-        the latest annotation. If none is present it gets reverted to the
-        default value
-        """
-        note = JobNote.objects.filter(job=job).order_by('-created').first()
-        if note:
-            failure_classification_id = note.failure_classification.id
-        else:
-            failure_classification_id = FailureClassification.objects.values_list(
-                'id', flat=True).get(name='not classified')
-
-        Job.objects.filter(repository__name=self.project,
-                           id=job.id).update(
-                               failure_classification_id=failure_classification_id,
-                               last_modified=datetime.now())
 
     def calculate_durations(self, sample_window_seconds, debug):
         # Get the most recent timestamp from jobs

@@ -713,6 +713,9 @@ class Job(models.Model):
     """
     This class represents a build or test job in Treeherder
     """
+    INCOMPLETE_STATES = ["running", "pending"]
+    STATES = INCOMPLETE_STATES + ["completed", "coalesced"]
+
     id = BigAutoField(primary_key=True)
     repository = models.ForeignKey(Repository)
     guid = models.CharField(max_length=50, unique=True, db_index=True)
@@ -1066,9 +1069,13 @@ class JobNote(models.Model):
 
     def _update_failure_classification(self):
         # update the job classification
-        from treeherder.model.derived.jobs import JobsModel
-        with JobsModel(self.job.repository.name) as jm:
-            jm.update_last_job_classification(self.job)
+        note = JobNote.objects.filter(job=self.job).order_by('-created').first()
+        if note:
+            self.job.failure_classification_id = note.failure_classification.id
+        else:
+            self.job.failure_classification_id = FailureClassification.objects.values_list(
+                'id', flat=True).get(name='not classified')
+        self.job.save()
 
         # if a manually filed job, update the autoclassification information
         if self.user:
