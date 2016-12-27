@@ -39,6 +39,7 @@ class JobExclusionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.JobExclusion
+        fields = '__all__'
 
     # We need to override .create and .update because ModelSerializer raises an error
     # if it finds nested resources. A JSONField instance is either a dict or a list
@@ -59,6 +60,7 @@ class ExclusionProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ExclusionProfile
+        fields = '__all__'
 
 
 class RepositoryGroupSerializer(serializers.ModelSerializer):
@@ -73,24 +75,28 @@ class RepositorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Repository
+        fields = '__all__'
 
 
 class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Product
+        fields = '__all__'
 
 
 class BuildPlatformSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.BuildPlatform
+        fields = '__all__'
 
 
 class MachinePlatformSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.MachinePlatform
+        fields = '__all__'
 
 
 class JobSerializer(serializers.ModelSerializer):
@@ -137,42 +143,49 @@ class JobSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Job
+        fields = '__all__'
 
 
 class JobGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.JobGroup
+        fields = '__all__'
 
 
 class JobTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.JobType
+        fields = '__all__'
 
 
 class MachineSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Machine
+        fields = '__all__'
 
 
 class FailureClassificationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.FailureClassification
+        fields = '__all__'
 
 
 class BugscacheSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Bugscache
+        fields = '__all__'
 
 
 class MatcherSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Matcher
+        fields = '__all__'
 
 
 class ClassifiedFailureSerializer(serializers.ModelSerializer):
@@ -227,6 +240,7 @@ class TextLogSummaryLineSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.TextLogSummaryLine
+        fields = '__all__'
 
 
 class TextLogSummarySerializer(serializers.ModelSerializer):
@@ -234,6 +248,7 @@ class TextLogSummarySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.TextLogSummary
+        fields = '__all__'
 
 
 class JobDetailSerializer(serializers.ModelSerializer):
