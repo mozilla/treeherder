@@ -35,7 +35,7 @@ jsonschema==2.5.1 --hash=sha256:71e7b3bcf9fca408bcb65bb60892f375d3abdd2e4f296eee
 
 djangorestframework==3.5.3 --hash=sha256:f446041a944723e14502a0a5880d0bc74a499ac1075781177f2fa6d7fe7b415d
 
-django-rest-swagger==0.3.10 --hash=sha256:3dd8d3bd23ba2a04b9208f2b52ba4c9854c2a9f07aba29df19f40f514ea612e9
+django-rest-swagger==2.1.0 --hash=sha256:70f681bcccc75f5095104973e7ab47af3a979110202593c28c937f6dd6a04100
 
 django-cors-headers==1.2.2 --hash=sha256:c4ef22ce8734bb88cee381dcbb04dcca05bcdaffb09367a504bd388d2a6872aa
 
@@ -52,10 +52,12 @@ https://github.com/jeads/datasource/archive/v0.11.0.tar.gz#egg=datasource==0.11.
 functools32==3.2.3-2 --hash=sha256:89d824aa6c358c421a234d7f9ee0bd75933a67c29588ce50aaa3acdf4d403fa0
 
 # Required by django-rest-swagger
-Unipath==1.1 --hash=sha256:e6257e508d8abbfb6ddd8ec357e33589f1f48b1599127f23b017124d90b0fff7
+coreapi==2.1.1 --hash=sha256:59acf691c93ee267e9f60e75a0118d29ad46f30e779eadd6780bd61a0185091b
+openapi-codec==1.2.1 --hash=sha256:d8a04fe409ddf1bd58e27e247390dd3ac4090dbfd1eb63e7afa9c990feb86692
 
-# Required by django-rest-swagger
-PyYAML==3.12 --hash=sha256:592766c6303207a20efc445587778322d7f73b161bd994f227adaa341ba212ab
+# Required by coreapi
+itypes==1.1.0 --hash=sha256:c6e77bb9fd68a4bfeb9d958fea421802282451a25bac4913ec94db82a899c073
+uritemplate==3.0.0 --hash=sha256:1b9c467a940ce9fb9f50df819e8ddd14696f89b9a8cc87ac77952ba416e0a8fd
 
 requests==2.11.1 --hash=sha256:545c4855cd9d7c12671444326337013766f4eea6068c3f0307fb2dc2696d580e
 

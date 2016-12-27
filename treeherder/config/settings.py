@@ -603,7 +603,11 @@ if env.bool('IS_HEROKU', default=False):
 
 CELERY_IGNORE_RESULT = True
 
-SWAGGER_SETTINGS = {"enabled_methods": ['get', ]}
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {},
+    'SUPPORTED_SUBMIT_METHODS': ['get'],
+    'USE_SESSION_AUTH': False,
+}
 
 HAWK_CREDENTIALS_LOOKUP = 'treeherder.webapp.api.auth.hawk_lookup'
 
