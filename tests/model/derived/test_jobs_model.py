@@ -25,21 +25,6 @@ slow = pytest.mark.slow
 xfail = pytest.mark.xfail
 
 
-def test_unicode(jm):
-    """Unicode representation of a ``JobModel`` is the project name."""
-    assert unicode(jm) == unicode(jm.project)
-
-
-def test_disconnect(jm):
-    """test that your model disconnects"""
-
-    # establish the connection to jobs.
-    jm._get_last_insert_id()
-
-    jm.disconnect()
-    assert not jm.get_dhub().connection["master_host"]["con_obj"].open
-
-
 def test_ingest_single_sample_job(jm, failure_classifications, sample_data,
                                   sample_resultset,
                                   mock_log_parser):
@@ -525,37 +510,6 @@ def test_ingest_job_revision_hash_blank_revision(jm, test_repository,
     assert Job.objects.count() == 1
     assert Job.objects.get(id=1).push_id == Push.objects.values_list(
         'id', flat=True).get(revision_hash=rs_revision_hash)
-
-
-def test_retry_on_operational_failure(jm, monkeypatch):
-    """Test that we retry 20 times on operational failures"""
-    from _mysql_exceptions import OperationalError
-    from treeherder.model import utils
-    from datasource.bases.SQLHub import SQLHub
-
-    orig_retry_execute = utils.retry_execute
-    retry_count = {'num': 0}
-
-    def retry_execute_mock(dhub, logger, retries=0, **kwargs):
-        retry_count['num'] = retries
-
-        # if it goes beyond 20, we may be in an infinite retry loop
-        assert retries <= 20
-        return orig_retry_execute(dhub, logger, retries, **kwargs)
-
-    monkeypatch.setattr(utils, "retry_execute", retry_execute_mock)
-
-    def execute_mock(*args, **kwargs):
-        raise OperationalError("got exception")
-
-    monkeypatch.setattr(SQLHub, "execute", execute_mock)
-
-    try:
-        jm.get_job_list(0, 10)
-    except OperationalError:
-        assert True
-
-    assert retry_count['num'] == 20
 
 
 def test_update_autoclassification_bug(test_job, test_job_2,

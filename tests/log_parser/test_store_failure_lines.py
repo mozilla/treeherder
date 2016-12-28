@@ -7,7 +7,6 @@ from treeherder.etl.text import char_to_codepoint_ucs2
 from treeherder.log_parser.failureline import (store_failure_lines,
                                                write_failure_lines)
 from treeherder.model.models import (FailureLine,
-                                     Job,
                                      JobLog)
 from treeherder.model.search import TestFailureLine
 

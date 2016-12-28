@@ -104,7 +104,6 @@ def _load_perf_datum(job, perf_datum):
                 repository=job.repository,
                 job=job,
                 push=job.push,
-                ds_job_id=job.project_specific_id,
                 signature=signature,
                 push_timestamp=job.push.time,
                 defaults={'value': suite['value']})
@@ -158,7 +157,6 @@ def _load_perf_datum(job, perf_datum):
                 repository=job.repository,
                 job=job,
                 push=job.push,
-                ds_job_id=job.project_specific_id,
                 signature=signature,
                 push_timestamp=job.push.time,
                 defaults={'value': value[0]})

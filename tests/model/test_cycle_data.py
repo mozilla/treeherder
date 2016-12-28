@@ -1,4 +1,4 @@
-import time
+import datetime
 
 from django.core.management import call_command
 
@@ -26,33 +26,19 @@ def test_cycle_all_data(jm, failure_classifications, sample_data,
     job_data = sample_data.job_data[:20]
     test_utils.do_job_ingestion(jm, job_data, sample_resultset, False)
 
-    time_now = time.time()
-    cycle_date_ts = time_now - 7 * 24 * 3600
-
-    jm.execute(
-        proc="jobs_test.updates.set_jobs_submit_timestamp",
-        placeholders=[cycle_date_ts]
-    )
-
-    jobs_to_be_deleted = jm.execute(
-        proc="jobs_test.selects.get_jobs_for_cycling",
-        placeholders=[time_now - 24 * 3600]
-    )
-
-    jobs_before = jm.execute(proc="jobs_test.selects.jobs")
+    # set the submit time to be a week before today
+    cycle_date_ts = datetime.datetime.now() - datetime.timedelta(weeks=1)
+    for job in Job.objects.all():
+        job.submit_time = cycle_date_ts
+        job.save()
 
     call_command('cycle_data', sleep_time=0, days=1)
 
     refresh_all()
 
-    jobs_after = jm.execute(proc="jobs_test.selects.jobs")
-
-    assert len(jobs_after) == len(jobs_before) - len(jobs_to_be_deleted)
-
     # There should be no jobs or failure lines after cycling
-    assert len(jobs_after) == 0
-    assert FailureLine.objects.count() == 0
     assert Job.objects.count() == 0
+    assert FailureLine.objects.count() == 0
     assert JobDetail.objects.count() == 0
     assert JobLog.objects.count() == 0
 
@@ -60,9 +46,9 @@ def test_cycle_all_data(jm, failure_classifications, sample_data,
     assert TestFailureLine.search().params(search_type="count").execute().hits.total == 0
 
 
-def test_cycle_one_job(jm, failure_classifications, sample_data,
-                       sample_resultset, test_repository, mock_log_parser,
-                       elasticsearch, failure_lines):
+def test_cycle_all_but_one_job(jm, failure_classifications, sample_data,
+                               sample_resultset, test_repository, mock_log_parser,
+                               elasticsearch, failure_lines):
     """
     Test cycling one job in a group of jobs to confirm there are no
     unexpected deletions
@@ -71,62 +57,37 @@ def test_cycle_one_job(jm, failure_classifications, sample_data,
     job_data = sample_data.job_data[:20]
     test_utils.do_job_ingestion(jm, job_data, sample_resultset, False)
 
-    job_not_deleted = jm.get_job(2)[0]
+    # one job should not be deleted, set its submit time to now
+    job_not_deleted = Job.objects.get(id=2)
+    job_not_deleted.submit_time = datetime.datetime.now()
+    job_not_deleted.save()
 
     extra_objects = {
         'failure_lines': (FailureLine,
                           create_failure_lines(
-                              Job.objects.get(guid=job_not_deleted["job_guid"]),
+                              job_not_deleted,
                               [(test_line, {}),
                                (test_line, {"subtest": "subtest2"})])),
         'job_details': (JobDetail, [JobDetail.objects.create(
-            job=Job.objects.get(guid=job_not_deleted["job_guid"]),
+            job=job_not_deleted,
             title='test',
             value='testvalue')])
     }
 
-    time_now = time.time()
-    cycle_date_ts = int(time_now - 7 * 24 * 3600)
-
-    jm.execute(
-        proc="jobs_test.updates.set_jobs_submit_timestamp",
-        placeholders=[time_now]
-    )
-
-    jm.execute(
-        proc="jobs_test.updates.set_one_job_submit_timestamp",
-        placeholders=[cycle_date_ts]
-    )
-
-    jobs_to_be_deleted = jm.execute(
-        proc="jobs_test.selects.get_one_job_for_cycling",
-        placeholders=[1]
-    )
-    num_job_logs_to_be_deleted = JobLog.objects.filter(
-        job__project_specific_id__in=[job['id'] for job in
-                                      jobs_to_be_deleted]).count()
-
-    jobs_before = jm.execute(proc="jobs_test.selects.jobs")
-    job_logs_before = JobLog.objects.count()
+    # set other job's submit time to be a week ago from now
+    cycle_date_ts = datetime.datetime.now() - datetime.timedelta(weeks=1)
+    for job in Job.objects.all().exclude(id=job_not_deleted.id):
+        job.submit_time = cycle_date_ts
+        job.save()
+    num_job_logs_to_be_deleted = JobLog.objects.all().exclude(
+        id=job_not_deleted.id).count()
+    num_job_logs_before = JobLog.objects.count()
 
     call_command('cycle_data', sleep_time=0, days=1, debug=True)
     refresh_all()
 
-    jobs_after = jm.execute(proc="jobs_test.selects.jobs")
-
-    # Confirm that the target result set has no jobs in the
-    # jobs table
-    jobs_to_be_deleted_after = jm.execute(
-        proc="jobs_test.selects.get_one_job_for_cycling",
-        placeholders=[1]
-    )
-
-    assert len(jobs_to_be_deleted_after) == 0
-
-    assert len(jobs_after) == len(jobs_before) - len(jobs_to_be_deleted)
-    assert len(jobs_after) == Job.objects.count()
-
-    assert JobLog.objects.count() == (job_logs_before -
+    assert Job.objects.count() == 1
+    assert JobLog.objects.count() == (num_job_logs_before -
                                       num_job_logs_to_be_deleted)
 
     for (object_type, objects) in extra_objects.values():
@@ -145,36 +106,20 @@ def test_cycle_all_data_in_chunks(jm, failure_classifications, sample_data,
     test_utils.do_job_ingestion(jm, job_data, sample_resultset, False)
 
     # build a date that will cause the data to be cycled
-    time_now = time.time()
-    cycle_date_ts = int(time_now - 7 * 24 * 3600)
+    cycle_date_ts = datetime.datetime.now() - datetime.timedelta(weeks=1)
+    for job in Job.objects.all():
+        job.submit_time = cycle_date_ts
+        job.save()
 
-    jm.execute(
-        proc="jobs_test.updates.set_jobs_submit_timestamp",
-        placeholders=[cycle_date_ts]
-    )
-
-    jobs_to_be_deleted = jm.execute(
-        proc="jobs_test.selects.get_jobs_for_cycling",
-        placeholders=[time_now - 24 * 3600]
-    )
-
-    job = jm.get_job(jobs_to_be_deleted[0]['id'])[0]
-    create_failure_lines(Job.objects.get(guid=job["job_guid"]),
+    create_failure_lines(Job.objects.get(id=1),
                          [(test_line, {})] * 7)
-
-    jobs_before = jm.execute(proc="jobs_test.selects.jobs")
 
     assert TestFailureLine.search().params(search_type="count").execute().hits.total > 0
 
     call_command('cycle_data', sleep_time=0, days=1, chunk_size=3)
     refresh_all()
 
-    jobs_after = jm.execute(proc="jobs_test.selects.jobs")
-
-    assert len(jobs_after) == len(jobs_before) - len(jobs_to_be_deleted)
-
     # There should be no jobs after cycling
-    assert len(jobs_after) == 0
     assert Job.objects.count() == 0
     assert FailureLine.objects.count() == 0
     assert JobDetail.objects.count() == 0
@@ -212,26 +157,18 @@ def test_cycle_job_model_reference_data(jm, failure_classifications,
 
 
 def test_cycle_job_with_performance_data(test_repository, failure_classifications,
-                                         jm, sample_data, sample_resultset,
-                                         test_perf_signature):
+                                         test_job, test_perf_signature):
     # build a date that will cause the data to be cycled
-    time_now = time.time()
-    cycle_date_ts = int(time_now - 7 * 24 * 3600)
-
-    job_data = sample_data.job_data[:1]
-    job_data[0]['job']['submit_timestamp'] = cycle_date_ts
-    test_utils.do_job_ingestion(jm, job_data, sample_resultset, False)
-
-    job = Job.objects.get(id=1)
+    test_job.submit_time = datetime.datetime.now() - datetime.timedelta(weeks=1)
+    test_job.save()
 
     p = PerformanceDatum.objects.create(
         repository=test_repository,
         result_set_id=1,
-        push=job.push,
-        ds_job_id=job.project_specific_id,
-        job=job,
+        push=test_job.push,
+        job=test_job,
         signature=test_perf_signature,
-        push_timestamp=job.push.time,
+        push_timestamp=test_job.push.time,
         value=1.0)
 
     call_command('cycle_data', sleep_time=0, days=1, chunk_size=3)

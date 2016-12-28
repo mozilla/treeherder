@@ -1,12 +1,12 @@
 import datetime
 from optparse import make_option
 
-import MySQLdb
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import (Datasource,
+                                     Job,
                                      JobGroup,
                                      JobType,
                                      Machine)
@@ -70,24 +70,15 @@ class Command(BaseCommand):
 
     def cycle_non_job_data(self, chunk_size, sleep_time):
         (used_job_type_ids, used_machine_ids) = (set(), set())
-        for d in Datasource.objects.all():
-            db_options = settings.DATABASES['default'].get('OPTIONS', {})
-            db = MySQLdb.connect(
-                host=settings.DATABASES['default']['HOST'],
-                db=d.name,
-                user=settings.DATABASES['default']['USER'],
-                passwd=settings.DATABASES['default'].get('PASSWORD') or '',
-                **db_options
-            )
-            c = db.cursor()
-            c.execute("""select distinct job_type_id from job""")
-            used_job_type_ids.update(set([job_id[0] for job_id in c.fetchall()]))
-            c.execute("""select distinct machine_id from job""")
-            used_machine_ids.update(set([machine_id[0] for machine_id in c.fetchall()]))
+        used_job_type_ids = set(Job.objects.values_list(
+            'job_type_id', flat=True).distinct())
+        used_machine_ids = set(Job.objects.values_list(
+            'machine_id', flat=True).distinct())
 
         JobType.objects.exclude(id__in=used_job_type_ids).delete()
 
-        used_job_group_ids = set(JobType.objects.values_list('job_group', flat=True))
+        used_job_group_ids = set(JobType.objects.values_list(
+            'job_group', flat=True).distinct())
         JobGroup.objects.exclude(id__in=used_job_group_ids).delete()
 
         Machine.objects.exclude(id__in=used_machine_ids).delete()

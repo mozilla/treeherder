@@ -177,7 +177,6 @@ def test_alerts_post(webapp, test_repository, test_perf_signature,
         # push_id == result_set_id == timestamp for purposes of this test
         push = Push.objects.get(id=push_id)
         PerformanceDatum.objects.create(repository=test_repository,
-                                        ds_job_id=job_id,
                                         result_set_id=push_id,
                                         push_id=push_id,
                                         signature=test_perf_signature,

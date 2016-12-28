@@ -35,7 +35,6 @@ def do_job_ingestion(jm, job_data, sample_resultset, verify_data=True):
     result_sets_ref = set()
     log_urls_ref = set()
     coalesced_job_guids = {}
-    coalesced_replacements = []
     artifacts_ref = {}
 
     blobs = []
@@ -95,7 +94,6 @@ def do_job_ingestion(jm, job_data, sample_resultset, verify_data=True):
             coalesced = blob.get('coalesced', [])
             if coalesced:
                 coalesced_job_guids[job_guid] = coalesced
-                coalesced_replacements.append('%s')
 
     # Store the modified json blobs
     jm.store_job_data(blobs)
@@ -110,7 +108,7 @@ def do_job_ingestion(jm, job_data, sample_resultset, verify_data=True):
         verify_products(products_ref)
         verify_result_sets(jm, result_sets_ref)
         verify_log_urls(jm, log_urls_ref)
-        verify_coalesced(jm, coalesced_job_guids, coalesced_replacements)
+        verify_coalesced(coalesced_job_guids)
 
 
 def verify_build_platforms(build_platforms_ref):
@@ -180,25 +178,20 @@ def verify_log_urls(jm, log_urls_ref):
     assert log_urls_ref.issubset(log_urls)
 
 
-def verify_coalesced(jm, coalesced_job_guids, coalesced_replacements):
+def verify_coalesced(coalesced_job_guids):
 
     coalesced_job_guid_list = coalesced_job_guids.keys()
 
     if coalesced_job_guid_list:
-
-        rep_str = ','.join(coalesced_replacements)
-        data = jm.get_dhub().execute(
-            proc='jobs.selects.get_jobs_by_coalesced_guids',
-            replace=[rep_str],
-            placeholders=coalesced_job_guid_list
-        )
-
+        coalesced_guids = models.Job.objects.filter(
+            coalesced_to_guid__in=coalesced_job_guid_list).values_list(
+                'guid', 'coalesced_to_guid')
         coalesced_job_guids_stored = {}
-        for datum in data:
-            if datum['job_coalesced_to_guid'] not in coalesced_job_guids_stored:
-                coalesced_job_guids_stored[datum['job_coalesced_to_guid']] = []
-            coalesced_job_guids_stored[datum['job_coalesced_to_guid']].append(
-                datum['job_guid']
+        for (guid, coalesced_guid) in coalesced_guids:
+            if coalesced_guid not in coalesced_job_guids_stored:
+                coalesced_job_guids_stored[coalesced_guid] = []
+            coalesced_job_guids_stored[coalesced_guid].append(
+                guid
             )
 
         assert coalesced_job_guids_stored == coalesced_job_guids
