@@ -129,7 +129,7 @@ class PerformanceAlertSummary(models.Model):
     '''
     id = models.AutoField(primary_key=True)
     repository = models.ForeignKey(Repository)
-    framework = models.ForeignKey(PerformanceFramework, null=True)
+    framework = models.ForeignKey(PerformanceFramework)
 
     prev_push = models.ForeignKey(Push, related_name='+')
     push = models.ForeignKey(Push, related_name='+')
