@@ -37,16 +37,17 @@ def test_alerts_get(webapp, test_repository, test_perf_alert):
     assert resp.json['results'][0]['related_summary_id'] is None
 
 
-def test_alerts_put(webapp, result_set_stored, test_repository,
-                    test_perf_alert, test_user, test_sheriff):
+def test_alerts_put(webapp, result_set_stored, test_perf_alert, test_user,
+                    test_sheriff):
     # create a new summary and try to reassign the alert to it with varying
     # levels of permission, then verify the return value changes accordingly
     PerformanceAlertSummary.objects.create(
         id=2,
-        repository=test_repository,
+        repository=test_perf_alert.summary.repository,
         prev_push_id=2,
         push_id=3,
         last_updated=datetime.datetime.now(),
+        framework=test_perf_alert.summary.framework,
         manually_created=False)
 
     resp = webapp.get(reverse('performance-alerts-list'))

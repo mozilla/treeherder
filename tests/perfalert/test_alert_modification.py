@@ -75,16 +75,16 @@ def test_summary_status(test_repository, test_perf_signature,
     assert s.status == PerformanceAlertSummary.IMPROVEMENT
 
 
-def test_alert_modification(test_repository, test_perf_signature,
-                            test_perf_alert_summary, result_set_stored,
-                            test_perf_alert):
+def test_alert_modification(test_perf_signature, test_perf_alert_summary,
+                            result_set_stored, test_perf_alert):
     p = test_perf_alert
     s2 = PerformanceAlertSummary.objects.create(
         id=2,
-        repository=test_repository,
+        repository=test_perf_alert_summary.repository,
         prev_push_id=3,
         push_id=4,
         last_updated=datetime.datetime.now(),
+        framework=test_perf_alert_summary.framework,
         manually_created=False)
 
     assert p.related_summary is None
