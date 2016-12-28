@@ -305,8 +305,8 @@ def test_calculate_durations(jm, test_repository, failure_classifications,
                           end_timestamp=now + second_job_duration,
                           job_guid='a-different-unique-guid')
     jm.store_job_data([second_job])
-    ingested_second_job = jm.get_job(2)[0]
-    assert ingested_second_job['running_eta'] == first_job_duration
+    ingested_second_job = Job.objects.get(id=2)
+    assert ingested_second_job.running_eta == first_job_duration
 
     # Check that the average duration is updated now that there are two jobs.
     call_command('calculate_durations')
