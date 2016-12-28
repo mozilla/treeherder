@@ -72,14 +72,22 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
     new_value = PerformanceDecimalField(read_only=True)
 
     def update(self, instance, validated_data):
-        if instance.summary.repository != validated_data['summary'].repository:
-            raise exceptions.ValidationError("New summary's repository does "
-                                             "not match existing summary's "
-                                             "repository")
-        if instance.summary.framework != validated_data['summary'].framework:
-            raise exceptions.ValidationError("New summary's framework does "
-                                             "not match existing summary's "
-                                             "framework")
+        # ensure the related summary, if set, has the same repository and
+        # framework as the original summary
+        related_summary = validated_data.get('related_summary')
+        if related_summary:
+            if instance.summary.repository_id != related_summary.repository_id:
+                raise exceptions.ValidationError(
+                    "New summary's repository ({}) does not match existing "
+                    "summary's repository ({})".format(
+                        related_summary.repository,
+                        instance.summary.framework))
+            elif instance.summary.framework_id != related_summary.framework_id:
+                raise exceptions.ValidationError(
+                    "New summary's framework ({}) does not match existing "
+                    "summary's framework ({})".format(
+                        related_summary.framework,
+                        instance.summary.framework))
         return super(PerformanceAlertSerializer, self).update(instance,
                                                               validated_data)
 
