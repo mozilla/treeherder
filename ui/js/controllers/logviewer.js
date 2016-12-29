@@ -147,7 +147,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
         $scope.logviewerInit = () => {
             // Listen for messages from child frame
-            setlogListener();
+            setLogListener();
 
             ThTextLogStepModel.query({
                 project: $rootScope.repoName,
@@ -224,9 +224,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
         function updateQuery(values) {
             const data = typeof values === 'string' ? JSON.parse(values) : values;
-            const lineNumber = data.lineNumber;
-            const highlightStart = data.highlightStart;
-            const highlightEnd = data.highlightEnd;
+            const { lineNumber, highlightStart, highlightEnd } = data;
 
             if (highlightStart !== highlightEnd) {
                 $location.search('lineNumber', `${highlightStart}-${highlightEnd}`);
@@ -238,7 +236,7 @@ logViewerApp.controller('LogviewerCtrl', [
             }
         }
 
-        function setlogListener() {
+        function setLogListener() {
             let workerReady = false;
 
             $window.addEventListener('message', (e) => {

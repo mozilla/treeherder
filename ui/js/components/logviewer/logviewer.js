@@ -19,7 +19,7 @@ treeherder.component('thLogViewer', {
               .reduce((qs, key) => `${qs}&${key}=${params[key]}`, '');
         };
 
-        $scope.init = () => $scope.$parent.logviewerInit();
+        $element.find('iframe').bind('load', () => $scope.$parent.logviewerInit());
 
         $scope.$parent.$watch('rawLogURL', () => {
             const parent = $scope.$parent;
