@@ -319,7 +319,7 @@ treeherder.value("thBugzillaProductObject", {
     "security":
         ["Core :: Security","Firefox :: Security"],
     "services":
-        ["Core :: Web Services"],
+        ["Firefox :: Sync","Core :: FxAccounts","Cloud Services :: Firefox: Common"],
     "startupcache":
         ["Core :: XPCOM"],
     "storage":
