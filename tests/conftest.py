@@ -153,6 +153,18 @@ def test_repository(transactional_db):
 
 
 @pytest.fixture
+def test_repository_2(test_repository):
+    from treeherder.model.models import Repository
+
+    return Repository.objects.create(
+        repository_group=test_repository.repository_group,
+        name=test_repository.name + '_2',
+        dvcs_type=test_repository.dvcs_type,
+        url=test_repository.url + '_2',
+        codebase=test_repository.codebase)
+
+
+@pytest.fixture
 def test_job(failure_classifications, eleven_job_blobs, jm):
     from treeherder.model.models import Job
 

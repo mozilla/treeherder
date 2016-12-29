@@ -8,7 +8,8 @@ from rest_framework.test import APIClient
 from treeherder.model.models import Push
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
-                                    PerformanceDatum)
+                                    PerformanceDatum,
+                                    PerformanceFramework)
 
 
 def test_alerts_get(webapp, test_repository, test_perf_alert):
@@ -37,19 +38,21 @@ def test_alerts_get(webapp, test_repository, test_perf_alert):
     assert resp.json['results'][0]['related_summary_id'] is None
 
 
-def test_alerts_put(webapp, result_set_stored, test_perf_alert, test_user,
-                    test_sheriff):
-    # create a new summary and try to reassign the alert to it with varying
-    # levels of permission, then verify the return value changes accordingly
-    PerformanceAlertSummary.objects.create(
+@pytest.fixture
+def test_perf_alert_summary_2(test_perf_alert_summary):
+    return PerformanceAlertSummary.objects.create(
         id=2,
-        repository=test_perf_alert.summary.repository,
+        repository=test_perf_alert_summary.repository,
         prev_push_id=2,
         push_id=3,
         last_updated=datetime.datetime.now(),
-        framework=test_perf_alert.summary.framework,
+        framework=test_perf_alert_summary.framework,
         manually_created=False)
 
+
+def test_alerts_put(webapp, result_set_stored, test_repository,
+                    test_perf_alert, test_perf_alert_summary_2, test_user,
+                    test_sheriff):
     resp = webapp.get(reverse('performance-alerts-list'))
     assert resp.status_int == 200
     assert resp.json['results'][0]['related_summary_id'] is None
@@ -89,6 +92,66 @@ def test_alerts_put(webapp, result_set_stored, test_perf_alert, test_user,
     }, format='json')
     assert resp.status_code == 200
     assert PerformanceAlert.objects.get(id=1).related_summary_id is None
+
+
+def test_reassign_different_repository(result_set_stored,
+                                       test_repository, test_repository_2,
+                                       test_perf_alert,
+                                       test_perf_alert_summary_2,
+                                       test_sheriff):
+    # verify that we can't reassign to another performance alert summary
+    # with a different repository unless the new status is downstream
+    test_perf_alert_summary_2.repository = test_repository_2
+    test_perf_alert_summary_2.save()
+
+    client = APIClient()
+    client.force_authenticate(user=test_sheriff)
+
+    # reassign to summary with different repository, should fail
+    resp = client.put(reverse('performance-alerts-list') + '1/', {
+        'related_summary_id': test_perf_alert_summary_2.id,
+        'status': PerformanceAlert.REASSIGNED
+    }, format='json')
+    assert resp.status_code == 400
+    test_perf_alert.refresh_from_db()
+    assert test_perf_alert.related_summary_id is None
+    assert test_perf_alert.status == PerformanceAlert.UNTRIAGED
+
+    # mark downstream of summary with different repository,
+    # should succeed
+    resp = client.put(reverse('performance-alerts-list') + '1/', {
+        'related_summary_id': test_perf_alert_summary_2.id,
+        'status': PerformanceAlert.DOWNSTREAM
+    }, format='json')
+    assert resp.status_code == 200
+    test_perf_alert.refresh_from_db()
+    assert test_perf_alert.related_summary_id == test_perf_alert_summary_2.id
+    assert test_perf_alert.classifier == test_sheriff
+
+
+def test_reassign_different_framework(result_set_stored,
+                                      test_repository, test_repository_2,
+                                      test_perf_alert,
+                                      test_perf_alert_summary_2,
+                                      test_sheriff):
+    # try to assign to an alert with a different framework,
+    # should fail
+    framework_2 = PerformanceFramework.objects.create(
+        name='test_talos_2', enabled=True)
+    test_perf_alert_summary_2.framework = framework_2
+    test_perf_alert_summary_2.save()
+
+    client = APIClient()
+    client.force_authenticate(user=test_sheriff)
+
+    resp = client.put(reverse('performance-alerts-list') + '1/', {
+        'related_summary_id': test_perf_alert_summary_2.id,
+        'status': PerformanceAlert.REASSIGNED
+    }, format='json')
+    assert resp.status_code == 400
+    test_perf_alert.refresh_from_db()
+    assert test_perf_alert.related_summary_id is None
+    assert test_perf_alert.status == PerformanceAlert.UNTRIAGED
 
 
 @pytest.fixture
