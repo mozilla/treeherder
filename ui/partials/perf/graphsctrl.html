@@ -28,8 +28,11 @@
       <select ng-model="myTimerange" ng-options="timerange.text for timerange in timeranges track by timerange.value" ng-change="timeRangeChanged()">
       </select>
       <hr/>
-      <div id="overview-plot"></div>
-      <div id="graph"></div>
+      <div id = "loading-symbol" >
+        <div id="overview-plot"></div>
+        <div id="graph"></div>
+        <loading data="loadingGraphs"></loading>
+      </div>
       <div id="graph-bottom" ng-show="seriesList.length > 0">
         Highlight revisions:
         <span ng-repeat="highlightedRevision in highlightedRevisions track by $index">
