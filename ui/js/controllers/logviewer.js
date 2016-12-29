@@ -81,11 +81,11 @@ logViewerApp.controller('LogviewerCtrl', [
             }
 
             const sec = Math.abs(new Date(startedStr) - new Date(finishedStr)) / 1000.0;
-            const h = Math.floor(sec/3600);
-            const m = Math.floor(sec%3600/60);
-            const s = Math.floor(sec%3600 % 60);
+            const h = Math.floor(sec / 3600);
+            const m = Math.floor(sec % 3600 / 60);
+            const s = Math.floor(sec % 3600 % 60);
             const secStng = sec.toString();
-            const ms = secStng.substr(secStng.indexOf(".")+1, 2);
+            const ms = secStng.substr(secStng.indexOf(".") + 1, 2);
 
             return ((h > 0 ? h + 'h ' : '') + (m > 0 ? m + 'm ' : '') +
                    (s > 0 ? s + 's ' : '') + (ms > 0 ? ms + 'ms ' : '00ms'));
