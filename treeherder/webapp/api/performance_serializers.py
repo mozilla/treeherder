@@ -76,7 +76,8 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         # framework as the original summary
         related_summary = validated_data.get('related_summary')
         if related_summary:
-            if instance.summary.repository_id != related_summary.repository_id:
+            if (validated_data.get('status', instance.status) != PerformanceAlert.DOWNSTREAM and
+                instance.summary.repository_id != related_summary.repository_id):
                 raise exceptions.ValidationError(
                     "New summary's repository ({}) does not match existing "
                     "summary's repository ({})".format(
