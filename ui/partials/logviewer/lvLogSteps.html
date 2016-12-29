@@ -1,30 +1,32 @@
 <div class="steps-data">
   <div ng-repeat="step in steps"
-       ng-click="displayLog(step)"
        ng-class="{'selected': (displayedStep.order === step.order)}"
        ng-show="showSuccessful === true || step.result !== 'success'"
        class="btn btn-block lv-step clearfix {{::getShadingClass(step.result)}}"
        order="{{step.order}}">
-    <span class="pull-left clearfix text-left">
-      {{::step.order+1}}. {{::step.name}}
-    </span>
 
-    <span ng-init="time=(step.duration !== null ? formatTime(step.started, step.finished) : 'Duration unknown')"
-          ng-mouseover="time=displayTime(step.started, step.finished)"
-          ng-mouseleave="time=(step.duration !== null ? formatTime(step.duration) : 'Duration unknown')"
-          class="pull-right clearfix">
-      {{time}}
-    </span>
+    <div ng-click="setDisplayedStep(step)">&nbsp;
+      <span class="pull-left clearfix text-left">
+        {{::step.order + 1}}. {{::step.name}}
+      </span>
+
+      <span ng-init="time=(step.duration !== null ? formatTime(step.started, step.finished) : 'Duration unknown')"
+            ng-mouseover="time=displayTime(step.started, step.finished)"
+            ng-mouseleave="time=(step.duration !== null ? formatTime(step.duration) : 'Duration unknown')"
+            class="pull-right clearfix">
+        {{time}}
+      </span>
+    </div>
 
     <div ng-if="step.errors.length > 0">
       <div ng-repeat="error in step.errors"
-           ng-mouseover="check=(step==displayedStep)"
+           ng-mouseover="check=true"
            ng-mouseleave="check=false"
            ng-class="{'lv-line-highlight': check}"
-           ng-click="scrollTo($event, step, error.line_number); eraseSelected(); setLineNumber(error.line_number)"
+           ng-click="setDisplayedStep(error)"
            class="text-left pull-left lv-error-line">
         <span class="label label-default lv-line-no text-left">
-          {{::error.line_number}}
+          {{::error.line_number + 1}}
         </span>
 
         <span title="{{::error.line}}">

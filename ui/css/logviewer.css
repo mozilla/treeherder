@@ -73,6 +73,11 @@ body {
     width: 3em;
 }
 
+.lv-line-no.label {
+    border-radius: 0px;
+    margin: 0em 0.6em 0em 0em;
+}
+
 .lv-line-text {
     white-space: pre;
 }
@@ -105,25 +110,15 @@ body {
     white-space: normal;
 }
 
-.lv-log-container {
+.logview-container {
     flex: 1;
-    overflow-x: auto;
-    font-family: monospace;
-    font-size: small;
-    background: #f8f8f8;
+    overflow: hidden;
 }
 
-.lv-log-container > div:nth-child(even) {
-    background: #fff;
-}
-
-/* Equal weight selector needs to follow the above nth-child() */
-.lv-log-container > .lv-log-line > .text-danger {
-    background: #fbe3e3;
-}
-
-.lv-log-container > div.lv-log-line > div.lv-line-text.lv-selected-lines {
-    background: #F8EEC7;
+.logview-container > iframe {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
 }
 
 .lv-line-highlight {
@@ -195,30 +190,6 @@ div.lv-step {
     border: 1px solid #fbd890;
     border-radius: 2px;
     color: #8a6d3b;
-}
-
-.lv-line-no.label {
-    border-radius: 0px;
-    margin: 0em 0.6em 0em 0em;
-}
-
-.lv-log-msg {
-    position: relative;
-    padding: 26px 0 0 20px;
-    font-weight: bold;
-    font-family: sans-serif;
-    font-size: 11px;
-}
-
-.lv-log-overlay {
-    padding: 6px;
-    border: 2px solid #4cae4c;
-    border-radius: 3px;
-    background: #fff;
-}
-
-.lv-log-error {
-    border: 2px solid #ff0000;
 }
 
 .job-header {
