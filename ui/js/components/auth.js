@@ -135,6 +135,7 @@ treeherder.component("login", {
 
             ctrl.setLoggedOut = function() {
                 localStorageService.set("user", loggedOutUser);
+                localStorageService.set('taskcluster.credentials', {});
                 ctrl.user = loggedOutUser;
                 ctrl.onUserChange({$event: {user: loggedOutUser}});
             };
@@ -161,6 +162,14 @@ treeherder.component("loginCallback", {
                 key: $location.search().accessToken,
                 algorithm: 'sha256'
             };
+
+            // Cribbed from taskcluster-tools. Save this for interacting with tc
+            const results = $location.search();
+            if (typeof results.certificate === 'string') {
+                results.certificate = JSON.parse(results.certificate);
+            }
+            localStorageService.set('taskcluster.credentials', results);
+
             this.loginError = null;
             var payload = {
                 credentials: credentials,
