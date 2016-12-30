@@ -46,24 +46,6 @@ treeherder.controller('PluginCtrl', [
             return absUrl;
         };
 
-        // Take a taskcluster task and make all of the timestamps
-        // new again. This is pretty much lifted verbatim from
-        // mozilla_ci_tools which is used by pulse_actions.
-        // We need to do this because action tasks are created with
-        // timestamps for expires/created/deadline that are based
-        // on the time of the original decision task creation. We must
-        // update to the current time, or Taskcluster will reject the
-        // task upon creation.
-        var refreshTimestamps = function(task) {
-            task.expires = thTaskcluster.fromNow('366 days');
-            task.created = thTaskcluster.fromNow(0);
-            task.deadline = thTaskcluster.fromNow('1 day');
-            _.map(task.payload.artifacts, function(artifact) {
-                artifact.expires = thTaskcluster.fromNow('365 days');
-            });
-            return task;
-        };
-
         $scope.filterByJobSearchStr = function(jobSearchStr) {
             thJobFilters.replaceFilter('searchStr', jobSearchStr || null);
         };
@@ -398,7 +380,8 @@ treeherder.controller('PluginCtrl', [
                             ThResultSetStore.getGeckoDecisionTaskID(
                                 $scope.repoName,
                                 $scope.resultsetId).then(function(decisionTaskId) {
-                                    let queue = new thTaskcluster.Queue();
+                                    let tc = thTaskcluster.client();
+                                    let queue = new tc.Queue();
                                     let url = "";
                                     try {
                                         // buildSignedUrl is documented at
@@ -424,8 +407,8 @@ treeherder.controller('PluginCtrl', [
                                             action: 'backfill',
                                             action_args: '--project ' + $scope.repoName + ' --job ' + $scope.job.id,
                                         });
-                                        let task = refreshTimestamps(jsyaml.safeLoad(action));
-                                        let taskId = thTaskcluster.slugid();
+                                        let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
+                                        let taskId = tc.slugid();
                                         queue.createTask(taskId, task).then(function() {
                                             $scope.$apply(thNotify.send("Request sent to backfill jobs", 'success'));
                                         }, function(e) {

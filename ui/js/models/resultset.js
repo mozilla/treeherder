@@ -2,10 +2,10 @@
 
 treeherder.factory(
     'ThResultSetModel',
-    ['$rootScope', '$http', '$location', '$q', 'thUrl', 'thResultStatusObject',
-     'thEvents', 'thServiceDomain', 'ThLog', 'thNotify','ThJobModel',
-     function($rootScope, $http, $location, $q, thUrl, thResultStatusObject, thEvents, thServiceDomain,
-              ThLog, thNotify, ThJobModel) {
+    ['$rootScope', '$http', '$location', '$q', '$interpolate', 'thUrl', 'thResultStatusObject',
+     'thEvents', 'thServiceDomain', 'ThLog', 'thNotify','ThJobModel', 'thTaskcluster',
+     function($rootScope, $http, $location, $q, $interpolate, thUrl, thResultStatusObject, thEvents, thServiceDomain,
+              ThLog, thNotify, ThJobModel, thTaskcluster) {
 
          var $log = new ThLog("ThResultSetModel");
 
@@ -193,9 +193,37 @@ treeherder.factory(
                  return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri);
              },
 
-             triggerAllTalosJobs: function(resultset_id, repoName, times) {
-                 var uri = resultset_id + '/trigger_all_talos_jobs/?times=' + times;
-                 return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri);
+             triggerAllTalosJobs: function(resultset_id, repoName, times, decisionTaskID) {
+                 let uri = resultset_id + '/trigger_all_talos_jobs/?times=' + times;
+                 return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri).then(function() {
+                     // After we trigger the buildbot jobs, we can go ahead and trigger tc
+                     // jobs directly.
+                     let tc = thTaskcluster.client();
+                     let queue = new tc.Queue();
+                     let url = "";
+                     try {
+                         url = queue.buildSignedUrl(queue.getLatestArtifact, decisionTaskID, 'public/action.yml');
+                     } catch (e) {
+                         let errorMsg = e.message;
+                         if (errorMsg === 'credentials must be given') {
+                             errorMsg = 'Missing Taskcluster credentials! Please log out and back in again.';
+                         }
+                         throw new Error(errorMsg);
+                     }
+                     return $http.get(url).then(function(resp) {
+                         let action = resp.data;
+                         let template = $interpolate(action);
+                         action = template({
+                             action: 'add-talos',
+                             action_args: '--decision-task-id ' + decisionTaskID + ' --times ' + times,
+                         });
+                         let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
+                         let taskId = tc.slugid();
+                         return queue.createTask(taskId, task).then(function() {
+                             return "Request sent to trigger all talos jobs " + times + " time(s)";
+                         });
+                     });
+                 });
              },
 
              triggerNewJobs: function(repoName, resultset_id, buildernames, decisionTaskID) {
