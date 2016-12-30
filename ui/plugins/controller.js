@@ -1,21 +1,21 @@
 "use strict";
 
 treeherder.controller('PluginCtrl', [
-    '$scope', '$rootScope', '$location', '$http', 'thUrl', 'ThJobClassificationModel',
+    '$scope', '$rootScope', '$location', '$http', '$interpolate', 'thUrl', 'ThJobClassificationModel',
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter', 'thDateFormat',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard',
-    'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors',
+    'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'ThTaskclusterErrors',
     'thTabs', '$timeout', 'thReftestStatus', 'ThResultSetStore',
-    'PhSeries', 'thServiceDomain',
+    'PhSeries', 'thServiceDomain', 'thTaskcluster',
     function PluginCtrl(
-        $scope, $rootScope, $location, $http, thUrl, ThJobClassificationModel,
+        $scope, $rootScope, $location, $http, $interpolate, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
         numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
         ThResultSetModel, ThLog, $q, thPinboard,
-        ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs,
+        ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, ThTaskclusterErrors, thTabs,
         $timeout, thReftestStatus, ThResultSetStore, PhSeries,
-        thServiceDomain) {
+        thServiceDomain, thTaskcluster) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -44,6 +44,24 @@ treeherder.controller('PluginCtrl', [
                          encodeURIComponent(jobSearchStr);
             }
             return absUrl;
+        };
+
+        // Take a taskcluster task and make all of the timestamps
+        // new again. This is pretty much lifted verbatim from
+        // mozilla_ci_tools which is used by pulse_actions.
+        // We need to do this because action tasks are created with
+        // timestamps for expires/created/deadline that are based
+        // on the time of the original decision task creation. We must
+        // update to the current time, or Taskcluster will reject the
+        // task upon creation.
+        var refreshTimestamps = function(task) {
+            task.expires = thTaskcluster.fromNow('366 days');
+            task.created = thTaskcluster.fromNow(0);
+            task.deadline = thTaskcluster.fromNow('1 day');
+            _.map(task.payload.artifacts, function(artifact) {
+                artifact.expires = thTaskcluster.fromNow('365 days');
+            });
+            return task;
         };
 
         $scope.filterByJobSearchStr = function(jobSearchStr) {
@@ -152,8 +170,8 @@ treeherder.controller('PluginCtrl', [
                         $scope.eta_abs = Math.abs($scope.eta);
                     }
                     $scope.average_duration = $scope.job.get_average_duration();
-                    var resultsetId = ThResultSetStore.getSelectedJob($scope.repoName).job.result_set_id;
-                    $scope.jobRevision = ThResultSetStore.getResultSet($scope.repoName, resultsetId).revision;
+                    $scope.resultsetId = ThResultSetStore.getSelectedJob($scope.repoName).job.result_set_id;
+                    $scope.jobRevision = ThResultSetStore.getResultSet($scope.repoName, $scope.resultsetId).revision;
 
                     // set the tab options and selections based on the selected job
                     initializeTabs($scope.job);
@@ -375,16 +393,62 @@ treeherder.controller('PluginCtrl', [
         $scope.backfillJob = function() {
             if ($scope.canBackfill()) {
                 if ($scope.user.loggedin) {
-                    // Only backfill if we have a valid loaded job, if the user
-                    // tries to backfill eg. via shortcut before the load we warn them
                     if ($scope.job.id) {
-                        ThJobModel.backfill($scope.repoName, $scope.job.id).then(function() {
-                            thNotify.send("Request sent to backfill jobs", 'success');
-                        }, function(e) {
-                            // Generic error eg. the user doesn't have LDAP access
-                            thNotify.send(
-                                ThModelErrors.format(e, "Unable to send backfill"), 'danger');
-                        });
+                        if ($scope.job.build_system_type === 'taskcluster') {
+                            ThResultSetStore.getGeckoDecisionTaskID(
+                                $scope.repoName,
+                                $scope.resultsetId).then(function(decisionTaskId) {
+                                    let queue = new thTaskcluster.Queue();
+                                    let url = "";
+                                    try {
+                                        // buildSignedUrl is documented at
+                                        // https://github.com/taskcluster/taskcluster-client#construct-signed-urls
+                                        // It is necessary here because getLatestArtifact assumes it is getting back
+                                        // JSON as a reponse due to how the client library is constructed. Since this
+                                        // result is yml, we'll fetch it manually using $http and can use the url
+                                        // returned by this method.
+                                        url = queue.buildSignedUrl(
+                                            queue.getLatestArtifact,
+                                            decisionTaskId,
+                                            'public/action.yml'
+                                        );
+                                    } catch (e) {
+                                        let errorMsg = 'Missing Taskcluster credentials! Please log out and back in again.';
+                                        thNotify.send(errorMsg, 'danger', true);
+                                        return;
+                                    }
+                                    $http.get(url).then(function(resp) {
+                                        let action = resp.data;
+                                        let template = $interpolate(action);
+                                        action = template({
+                                            action: 'backfill',
+                                            action_args: '--project ' + $scope.repoName + ' --job ' + $scope.job.id,
+                                        });
+                                        let task = refreshTimestamps(jsyaml.safeLoad(action));
+                                        let taskId = thTaskcluster.slugid();
+                                        queue.createTask(taskId, task).then(function() {
+                                            $scope.$apply(thNotify.send("Request sent to backfill jobs", 'success'));
+                                        }, function(e) {
+                                            // The full message is too large to fit in a Treeherder
+                                            // notification box.
+                                            $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', true));
+                                        });
+                                    });
+                                });
+                        } else {
+                            ThJobModel.backfill(
+                                $scope.repoName,
+                                $scope.job.id
+                            ).then(function() {
+                                thNotify.send("Request sent to backfill jobs", 'success');
+                            }, function(e) {
+                                // Generic error eg. the user doesn't have LDAP access
+                                thNotify.send(
+                                    ThModelErrors.format(e, "Unable to send backfill"),
+                                    'danger'
+                                );
+                            });
+                        }
                     } else {
                         thNotify.send("Job not yet loaded for backfill", 'warning');
                     }
