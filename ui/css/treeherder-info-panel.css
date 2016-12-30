@@ -104,6 +104,10 @@ div#info-panel .info-panel-navbar > ul.tab-headers > li {
   color: #D3D8DA;
 }
 
+.info-panel-navbar .actionbar-nav {
+  flex: auto;
+}
+
 div#info-panel .info-panel-navbar .navbar-nav > li.active a,
 div#info-panel .info-panel-navbar .navbar-nav > li.active a:hover,
 div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {

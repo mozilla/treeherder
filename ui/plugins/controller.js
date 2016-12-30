@@ -167,6 +167,19 @@ treeherder.controller('PluginCtrl', [
                     // the second result comes from the job detail promise
                     $scope.job_details = results[1];
 
+                    // parse out some specific taskcluster options for display
+                    // in the action menu (if they exist)
+                    $scope.taskclusterOptions = [];
+                    $scope.job_details.forEach((line) => {
+                        if (line.value === "Inspect Task" ||
+                            line.value === "One Click Loaner") {
+                            $scope.taskclusterOptions.push({
+                                title: line.value,
+                                url: line.url
+                            });
+                        }
+                    });
+
                     // incorporate the buildername into the job details if this is a buildbot job
                     // (i.e. it has a buildbot request id)
                     var buildbotRequestIdDetail = _.find($scope.job_details,

@@ -90,15 +90,6 @@
               <span class="fa fa-repeat"></span>
             </button>
           </li>
-          <li>
-            <button id="backfill-btn" href=""
-               ng-attr-title="{{backfillButtonTitle()}}"
-               ng-class="canBackfill() ? 'icon-cyan' : 'disabled'"
-               ng-disabled="!canBackfill()"
-               ng-click="backfillJob()">
-              <span class="fa fa-arrow-down"></span>
-            </button>
-          </li>
           <li ng-if="isReftest()" ng-repeat="job_log_url in job_log_urls">
             <a title="Launch the Reftest Analyser in a new window"
                target="_blank"
@@ -114,6 +105,24 @@
                ng-click="cancelJob()">
               <span class="fa fa-times-circle cancel-job-icon"></span>
             </a>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li>
+            <button
+               class="dropdown-toggle icon-blue"
+               data-toggle="dropdown">
+              <span class="fa fa-ellipsis-h" aria-hidden="true"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li class="{{ canBackfill() ? '' : 'disabled' }}">
+                <a ng-attr-title="{{ backfillButtonTitle() }}"
+                   ng-click="!canBackfill() || backfillJob()">Backfill</a>
+              </li>
+              <li ng-repeat="taskclusterOption in taskclusterOptions">
+                <a href="{{taskclusterOption.url}}">{{taskclusterOption.title}}</a>
+              </li>
+            </ul>
           </li>
         </ul>
       </nav>
@@ -217,10 +226,6 @@
         <li class="small" ng-if="!job_log_urls.length">
           <label>Log parsing status:</label>
           <span>No logs</span>
-        </li>
-        <li class="small" ng-repeat="line in job_details" ng-if="line.value == 'Inspect Task'">
-          <label>Taskcluster:</label>
-          <span><a href="{{line.url}}" target="_blank">{{line.value}}</a></span>
         </li>
       </ul>
 
