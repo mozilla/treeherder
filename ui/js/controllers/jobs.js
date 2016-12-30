@@ -90,13 +90,13 @@ treeherderApp.controller('ResultSetCtrl', [
     'thUrl', 'thServiceDomain', 'thResultStatusInfo', 'thDateFormat',
     'ThResultSetStore', 'thEvents', 'thJobFilters', 'thNotify',
     'thBuildApi', 'thPinboard', 'ThResultSetModel', 'dateFilter',
-    'ThModelErrors', 'ThJobModel',
+    'ThModelErrors', 'ThJobModel', 'ThTaskclusterErrors',
     function ResultSetCtrl(
         $scope, $rootScope, $http, ThLog, $location,
         thUrl, thServiceDomain, thResultStatusInfo, thDateFormat,
         ThResultSetStore, thEvents, thJobFilters, thNotify,
         thBuildApi, thPinboard, ThResultSetModel, dateFilter, ThModelErrors,
-        ThJobModel) {
+        ThJobModel, ThTaskclusterErrors) {
 
         $scope.getCountClass = function(resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -222,13 +222,20 @@ treeherderApp.controller('ResultSetCtrl', [
                 times = window.prompt("We only allow instances of each talos job to be between 1 to 6 times. Enter again", 6);
             }
 
-            ThResultSetModel.triggerAllTalosJobs($scope.resultset.id, $scope.repoName, times).then(function() {
-                thNotify.send("Request sent to trigger all talos jobs " + times + " time(s)", "success");
-            }, function(e) {
-                thNotify.send(
-                    ThModelErrors.format(e, "The action 'trigger all talos jobs' failed"),
-                    'danger', true
-                );
+            ThResultSetStore.getGeckoDecisionTaskID(
+                $scope.repoName,
+                $scope.resultset.id
+            ).then(function(decisionTaskID) {
+                ThResultSetModel.triggerAllTalosJobs(
+                    $scope.resultset.id,
+                    $scope.repoName,
+                    times,
+                    decisionTaskID
+                ).then(function(msg) {
+                    thNotify.send(msg, "success");
+                }, function(e) {
+                    thNotify.send(ThTaskclusterErrors.format(e), 'danger', true);
+                });
             });
         };
 
