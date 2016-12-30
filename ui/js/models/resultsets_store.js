@@ -323,6 +323,9 @@ treeherder.factory('ThResultSetStore', [
 
         var setSelectedJob = function(repoName, lastJobObjSelected) {
             repositories[repoName].lastJobObjSelected = lastJobObjSelected;
+            if (lastJobObjSelected) {
+                fetchGeckoDecisionTaskID(repoName, lastJobObjSelected.result_set_id);
+            }
         };
 
         var getPlatformKey = function(name, option){
@@ -333,8 +336,16 @@ treeherder.factory('ThResultSetStore', [
             return key;
         };
 
-        var addRunnableJobs = function(repoName, resultSet) {
-            // first check whether the Gecko Decision Task has completed
+        var fetchGeckoDecisionTaskID = function(repoName, resultsetId) {
+            var dtid = repositories[repoName].rsMap[resultsetId].rs_obj.geckoDecisionTaskID;
+            // If we've retrieved it already, we can just return it again. Otherwise
+            // try to find it. If it doesn't exist, we set it to an empty string.
+            if (dtid || dtid === "") {
+                return dtid;
+            }
+
+            // If we've made it here, we need to try to find it.
+            var resultSet = getResultSet(repoName, resultsetId);
             var tcURLPromise;
             var platform = _.find(resultSet.platforms, {
                 "name": "gecko-decision",
@@ -355,28 +366,35 @@ treeherder.factory('ThResultSetStore', [
             return tcURLPromise.then(function(results) {
                 // Since we want to try this only on try first
                 var decisionTaskID = "";
-                if (results && repoName === "try") {
+                if (results) {
                     var inspectTask = _.where(results, {"title": "Inspect Task"})[0];
                     decisionTaskID = inspectTask.url.substring(inspectTask.url.indexOf("#") + 1);
                     // Removing last two characters /0
                     decisionTaskID = decisionTaskID.substring(0, decisionTaskID.lastIndexOf('/'));
                 }
-                // Will be used later for the GET request
-                resultSet.geckoDecisionTaskID = decisionTaskID;
-                return ThRunnableJobModel.get_list(repoName, {"decision_task_id": decisionTaskID}).then(function(jobList) {
-                    var id = resultSet.id;
-                    _.each(jobList, function(job) {
-                        job.result_set_id = id;
-                        job.id = thAggregateIds.escape(job.result_set_id + job.ref_data_name);
-                    });
+                repositories[repoName].rsMap[resultsetId].rs_obj.geckoDecisionTaskID = decisionTaskID;
+                return decisionTaskID;
+            });
+        };
 
-                    if (jobList.length === 0) {
-                        resultSet.isRunnableVisible = false;
-                        thNotify.send("No new jobs available");
-                    }
-
-                    mapResultSetJobs(repoName, jobList);
+        var addRunnableJobs = function(repoName, resultSet) {
+            var decisionTaskId = "";
+            if (repoName === "try") {
+                decisionTaskId = fetchGeckoDecisionTaskID(repoName, resultSet.id);
+            }
+            return ThRunnableJobModel.get_list(repoName, {"decision_task_id": decisionTaskId}).then(function(jobList) {
+                var id = resultSet.id;
+                _.each(jobList, function(job) {
+                    job.result_set_id = id;
+                    job.id = thAggregateIds.escape(job.result_set_id + job.ref_data_name);
                 });
+
+                if (jobList.length === 0) {
+                    resultSet.isRunnableVisible = false;
+                    thNotify.send("No new jobs available");
+                }
+
+                mapResultSetJobs(repoName, jobList);
             });
         };
 

@@ -64,6 +64,7 @@
         "$": true,
         "_": true,
         "treeherder": true,
+        "jsyaml": true,
         "perf": true,
         "treeherderApp": true,
         "failureViewerApp": true,
