@@ -1,5 +1,3 @@
-from optparse import make_option
-
 from django.core.management.base import BaseCommand
 
 from treeherder.client import TreeherderClient
@@ -17,14 +15,15 @@ from treeherder.model.models import (BuildPlatform,
 
 
 class Command(BaseCommand):
-
     help = "Pre-populate reference data from an external source (INCOMPLETE)"
-    option_list = BaseCommand.option_list + (
-        make_option('--server',
-                    action='store',
-                    dest='server',
-                    default='https://treeherder.mozilla.org',
-                    help='Server to get data from, default https://treeherder.mozilla.org'),
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--server',
+            action='store',
+            dest='server',
+            default='https://treeherder.mozilla.org',
+            help='Server to get data from, default https://treeherder.mozilla.org'
         )
 
     def handle(self, *args, **options):

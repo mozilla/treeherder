@@ -1,5 +1,4 @@
-from django.core.management.base import (BaseCommand,
-                                         make_option)
+from django.core.management.base import BaseCommand
 
 from treeherder.model.models import Matcher
 
@@ -7,16 +6,19 @@ from treeherder.model.models import Matcher
 class Command(BaseCommand):
     help = 'Add new matchers or list existing ones'
 
-    option_list = BaseCommand.option_list + (
-        make_option('--add',
-                    action='store',
-                    default=None,
-                    help="Add matcher with the specified name"),
-        make_option('--remove',
-                    action='store',
-                    default=None,
-                    help="Remove matcher with the specified name")
-    )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--add',
+            action='store',
+            default=None,
+            help="Add matcher with the specified name"
+        )
+        parser.add_argument(
+            '--remove',
+            action='store',
+            default=None,
+            help="Remove matcher with the specified name"
+        )
 
     def handle(self, *args, **options):
         if not (options["add"] or options["remove"]):

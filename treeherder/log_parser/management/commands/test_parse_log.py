@@ -1,5 +1,4 @@
 import time
-from optparse import make_option
 
 import simplejson as json
 from django.core.management.base import (BaseCommand,
@@ -17,13 +16,15 @@ class Command(BaseCommand):
     """
     args = "<log url>"
 
-    option_list = BaseCommand.option_list + (
-        make_option('--profile',
-                    action='store',
-                    dest='profile',
-                    type=int,
-                    default=None,
-                    help='Profile running command a number of times'),)
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--profile',
+            action='store',
+            dest='profile',
+            type=int,
+            default=None,
+            help='Profile running command a number of times'
+        )
 
     def handle(self, *args, **options):
         if len(args) != 1:

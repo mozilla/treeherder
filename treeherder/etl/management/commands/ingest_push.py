@@ -16,23 +16,33 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-
     """Management command to ingest data from a single push."""
 
     help = "Ingests a single push into treeherder"
 
     def add_arguments(self, parser):
-        parser.add_argument('--profile-file',
-                            help='Profile command and write result to profile '
-                            'file')
-        parser.add_argument('--filter-job-group',
-                            help="Only process jobs in specified group symbol "
-                            "(e.g. 'T')")
-        parser.add_argument('--last-n-pushes', type=int,
-                            help='fetch the last N pushes from the repository')
-
-        parser.add_argument('project', help='repository to query')
-        parser.add_argument('changeset', nargs='?', help='changeset to import')
+        parser.add_argument(
+            '--profile-file',
+            help='Profile command and write result to profile file'
+        )
+        parser.add_argument(
+            '--filter-job-group',
+            help="Only process jobs in specified group symbol (e.g. 'T')"
+        )
+        parser.add_argument(
+            '--last-n-pushes',
+            type=int,
+            help='fetch the last N pushes from the repository'
+        )
+        parser.add_argument(
+            'project',
+            help='repository to query'
+        )
+        parser.add_argument(
+            'changeset',
+            nargs='?',
+            help='changeset to import'
+        )
 
     def _handle(self, *args, **options):
         project = options['project']

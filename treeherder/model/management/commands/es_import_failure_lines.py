@@ -1,5 +1,4 @@
 import time
-from optparse import make_option
 
 from django.core.management.base import BaseCommand
 from elasticsearch_dsl import Search
@@ -16,20 +15,25 @@ class Command(BaseCommand):
 This script must be run when ElasticSearch is first set up, to ensure that
 existing data is considered for matching failure lines."""
 
-    option_list = BaseCommand.option_list + (
-        make_option('--recreate',
-                    action='store_true',
-                    help="Delete and recreate index"),
-        make_option('--chunk-size',
-                    action='store',
-                    type='int',
-                    default=10000,
-                    help='Chunk size to use for select/insert'),
-        make_option('--sleep',
-                    action='store',
-                    type='int',
-                    default=1,
-                    help='Seconds to sleep between batches'),
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--recreate',
+            action='store_true',
+            help="Delete and recreate index"
+        )
+        parser.add_argument(
+            '--chunk-size',
+            action='store',
+            type=int,
+            default=10000,
+            help='Chunk size to use for select/insert'
+        )
+        parser.add_argument(
+            '--sleep',
+            action='store',
+            type=int,
+            default=1,
+            help='Seconds to sleep between batches'
         )
 
     def handle(self, *args, **options):
@@ -39,8 +43,7 @@ existing data is considered for matching failure lines."""
         if options["recreate"]:
             connection.indices.delete(TestFailureLine._doc_type.index, ignore=404)
             TestFailureLine.init()
-        else:
-            if connection.indices.exists(TestFailureLine._doc_type.index):
+        elif connection.indices.exists(TestFailureLine._doc_type.index):
                 self.stderr.write("Index already exists; can't perform import")
                 return
 
