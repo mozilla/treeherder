@@ -6,7 +6,7 @@
 
 module.exports = function (config) {
     config.set({
-        frameworks: ['jasmine'],
+        frameworks: ['jasmine', 'browserify'],
 
         basePath: '../../../',
 
@@ -57,7 +57,12 @@ module.exports = function (config) {
 
         reporters: ['progress', 'coverage'],
         preprocessors: {
-            'ui/js/**/*.js': ['coverage']
+            'ui/js/**/*.js': ['coverage'],
+            'tests/ui/unit/react/**/*.js': ['browserify']
+        },
+
+        browserify: {
+          debug: true
         }
     });
 };
