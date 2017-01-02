@@ -64,18 +64,20 @@ PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)
 # which will then be served by WhiteNoise with a suitable max-age.
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-TEMPLATE_LOADERS = [
-    "django.template.loaders.filesystem.Loader",
-    "django.template.loaders.app_directories.Loader",
-    "django.template.loaders.eggs.Loader",
-]
-TEMPLATE_DIRS = [
-    path("templates")
-]
-
-TEMPLATE_CONTEXT_PROCESSORS = [
-    'django.contrib.auth.context_processors.auth',
-    'django.contrib.messages.context_processors.messages'
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            path("templates"),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
 ]
 
 MIDDLEWARE_CLASSES = [middleware for middleware in [
@@ -525,8 +527,6 @@ PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE = False
 
 GITHUB_CLIENT_ID = env("GITHUB_CLIENT_ID", default=None)
 GITHUB_CLIENT_SECRET = env("GITHUB_CLIENT_SECRET", default=None)
-
-TEMPLATE_DEBUG = DEBUG
 
 # The database config is defined using environment variables of form:
 #   'mysql://username:password@host:optional_port/database_name'
