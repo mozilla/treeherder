@@ -110,17 +110,17 @@
         <ul class="nav navbar-nav navbar-right">
           <li>
             <button
-               class="dropdown-toggle icon-blue"
+               class="dropdown-toggle"
                data-toggle="dropdown">
               <span class="fa fa-ellipsis-h" aria-hidden="true"></span>
             </button>
-            <ul class="dropdown-menu">
+            <ul class="dropdown-menu actionbar-menu" role="menu">
               <li class="{{ canBackfill() ? '' : 'disabled' }}">
                 <a ng-attr-title="{{ backfillButtonTitle() }}"
                    ng-click="!canBackfill() || backfillJob()">Backfill</a>
               </li>
               <li ng-repeat="taskclusterOption in taskclusterOptions">
-                <a href="{{taskclusterOption.url}}">{{taskclusterOption.title}}</a>
+                <a target="_blank" href="{{taskclusterOption.url}}">{{taskclusterOption.title}}</a>
               </li>
             </ul>
           </li>

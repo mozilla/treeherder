@@ -99,7 +99,10 @@ div#info-panel .info-panel-navbar > ul.tab-headers > li {
 }
 
 .info-panel-navbar .navbar-nav > li > a:hover,
-.info-panel-navbar .navbar-nav > li > a:focus {
+.info-panel-navbar .navbar-nav > li > a:focus,
+.info-panel-navbar .navbar-nav > li > button:hover,
+.info-panel-navbar .navbar-nav > li > button:focus
+{
   background-color: #1E252B;
   color: #D3D8DA;
 }
@@ -164,8 +167,8 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
  */
 
 #job-details-panel {
-  width: 252px;
-  min-width: 252px;
+  width: 260px;
+  min-width: 260px;
 }
 
 #job-details-panel .content-spacer {
