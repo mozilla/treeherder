@@ -47,6 +47,7 @@ def test_mysqlclient_tls_enforced():
     assert "SSL connection error" in str(e.value)
 
 
+@pytest.mark.django_db
 def test_no_missing_migrations():
     """Check no model changes have been made since the last `./manage.py makemigrations`."""
     with pytest.raises(SystemExit) as e:
