@@ -1,6 +1,5 @@
 import json
 import time
-from optparse import make_option
 
 from django.core.management.base import BaseCommand
 from django.db import (connection,
@@ -20,27 +19,34 @@ from treeherder.perf.models import (PerformanceAlert,
 
 class Command(BaseCommand):
     help = "migrate legacy signature data to new schema, which encodes subtests"
-    option_list = BaseCommand.option_list + (
-        make_option('--project',
-                    action='append',
-                    dest='project',
-                    help='Filter deletion to particular project(s)',
-                    type='string'),
-        make_option('--no-subtests',
-                    dest='no_subtests',
-                    help='Don\'t process subtests',
-                    action='store_true'),
-        make_option('--interval',
-                    dest='interval',
-                    help='Wait specified interval between signature migrations',
-                    type='float',
-                    default=0.0),
-        make_option('--delete',
-                    dest='delete',
-                    help='remove orphan signatures after migration',
-                    action='store_true',
-                    default=False)
-    )
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--project',
+            action='append',
+            dest='project',
+            help='Filter deletion to particular project(s)'
+        )
+        parser.add_argument(
+            '--no-subtests',
+            dest='no_subtests',
+            help='Don\'t process subtests',
+            action='store_true'
+        )
+        parser.add_argument(
+            '--interval',
+            dest='interval',
+            help='Wait specified interval between signature migrations',
+            type=float,
+            default=0.0
+        )
+        parser.add_argument(
+            '--delete',
+            dest='delete',
+            help='remove orphan signatures after migration',
+            action='store_true',
+            default=False
+        )
 
     def _reassign_signatures(self, old_signature_ids, new_signature, options,
                              i):

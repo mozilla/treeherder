@@ -10,14 +10,12 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-
     """
     Management command to publish a job to a pulse exchange.
 
     This is primarily intended as a mechanism to test new or changed jobs
     to ensure they validate and will show as expected in the Treeherder UI.
     """
-
     help = "Publish jobs to a pulse exchange"
 
     def add_arguments(self, parser):

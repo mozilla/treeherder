@@ -1,5 +1,3 @@
-from optparse import make_option
-
 from django.core.management.base import BaseCommand
 from django.utils.six.moves import input
 
@@ -8,16 +6,16 @@ from treeherder.model.models import (Datasource,
 
 
 class Command(BaseCommand):
-    help = ("Populate the datasource table and"
-            "create the connected databases")
+    help = "Populate the datasource table and create the connected databases"
 
-    option_list = BaseCommand.option_list + (
-        make_option('--reset',
-                    action='store_true',
-                    dest='reset',
-                    default=False,
-                    help='Reset the datasources if they already exists'),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--reset',
+            action='store_true',
+            dest='reset',
+            default=False,
+            help='Reset the datasources if they already exists'
+        )
 
     def handle(self, *args, **options):
         if options["reset"]:

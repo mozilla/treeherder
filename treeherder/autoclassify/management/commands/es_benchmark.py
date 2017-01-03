@@ -2,7 +2,6 @@ import json
 import logging
 import time
 from collections import defaultdict
-from optparse import make_option
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -17,27 +16,33 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     help = 'Mark failures on a job.'
 
-    option_list = BaseCommand.option_list + (
-        make_option('--min-id',
-                    action='store',
-                    type=int,
-                    default=None,
-                    help='Minimum id of failure line to use'),
-        make_option('--num-lines',
-                    action='store',
-                    type=int,
-                    default=1000,
-                    help='Minimum id of failure line to use'),
-        make_option('--profile',
-                    action='store',
-                    type=str,
-                    default=None,
-                    help='Enable profiling and write output to this file'),
-        make_option('--ref-data',
-                    action='store',
-                    type=str,
-                    default=None,
-                    help='json file to compare results to'))
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--min-id',
+            action='store',
+            type=int,
+            default=None,
+            help='Minimum id of failure line to use'
+        )
+        parser.add_argument(
+            '--num-lines',
+            action='store',
+            type=int,
+            default=1000,
+            help='Minimum id of failure line to use'
+        )
+        parser.add_argument(
+            '--profile',
+            action='store',
+            default=None,
+            help='Enable profiling and write output to this file'
+        )
+        parser.add_argument(
+            '--ref-data',
+            action='store',
+            default=None,
+            help='json file to compare results to'
+        )
 
     def handle(self, *args, **options):
         if options["min_id"] is None:

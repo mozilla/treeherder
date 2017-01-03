@@ -1,5 +1,4 @@
 import datetime
-from optparse import make_option
 
 import concurrent.futures
 from django.core.management.base import (BaseCommand,
@@ -116,40 +115,42 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity,
 
 
 class Command(BaseCommand):
-
     help = "Pre-populate performance data from an external source"
-    args = '<project>'
 
-    option_list = BaseCommand.option_list + (
-        make_option('--server',
-                    action='store',
-                    dest='server',
-                    default='https://treeherder.mozilla.org',
-                    help='Server to get data from, default https://treeherder.mozilla.org'),
-        make_option('--num-workers',
-                    action='store',
-                    dest='num_workers',
-                    type='int',
-                    default=4),
-        make_option('--filter-props',
-                    action='append',
-                    dest="filter_props",
-                    help="Only import series matching filter criteria (can "
-                    "specify multiple times)",
-                    type="string",
-                    metavar="KEY:VALUE"),
-
-        make_option('--time-interval',
-                    action='store',
-                    dest='time_interval',
-                    type='int',
-                    default=PerformanceTimeInterval.WEEK),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument('project')
+        parser.add_argument(
+            '--server',
+            action='store',
+            dest='server',
+            default='https://treeherder.mozilla.org',
+            help='Server to get data from, default https://treeherder.mozilla.org'
+        )
+        parser.add_argument(
+            '--num-workers',
+            action='store',
+            dest='num_workers',
+            type=int,
+            default=4
+        )
+        parser.add_argument(
+            '--filter-props',
+            action='append',
+            dest="filter_props",
+            help="Only import series matching filter criteria (can "
+            "specify multiple times)",
+            metavar="KEY:VALUE"
+        )
+        parser.add_argument(
+            '--time-interval',
+            action='store',
+            dest='time_interval',
+            type=int,
+            default=PerformanceTimeInterval.WEEK
+        )
 
     def handle(self, *args, **options):
-        if len(args) != 1:
-            raise CommandError("Need to (only) specify project/branch")
-        project = args[0]
+        project = options['project']
 
         time_interval = options['time_interval']
 

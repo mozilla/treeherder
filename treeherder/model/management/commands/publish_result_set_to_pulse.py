@@ -1,5 +1,3 @@
-from optparse import make_option
-
 from django.core.management.base import BaseCommand
 
 from treeherder.model.tasks import publish_to_pulse
@@ -8,20 +6,21 @@ from treeherder.model.tasks import publish_to_pulse
 class Command(BaseCommand):
     help = """Publish specified result sets to Pulse"""
 
-    option_list = BaseCommand.option_list + (
-
-        make_option('--project',
-                    action='store_true',
-                    dest='project',
-                    default='mozilla-inbound',
-                    help='Name of the treeherder project: mozilla-inbound, mozilla-aurora etc...'),
-
-        make_option('--result_set_ids',
-                    action='store',
-                    dest='result_set_ids',
-                    default=1,
-                    help='Comma delimited list of result set ids to publish to pulse'),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--project',
+            action='store_true',
+            dest='project',
+            default='mozilla-inbound',
+            help='Name of the treeherder project: mozilla-inbound, mozilla-aurora etc...'
+        )
+        parser.add_argument(
+            '--result_set_ids',
+            action='store',
+            dest='result_set_ids',
+            default=1,
+            help='Comma delimited list of result set ids to publish to pulse'
+        )
 
     def handle(self, *args, **options):
 

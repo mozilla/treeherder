@@ -7,14 +7,12 @@ from treeherder.etl.pulse_consumer import JobConsumer
 
 
 class Command(BaseCommand):
-
     """
     Management command to read jobs from a set of pulse exchanges
 
     This adds the jobs to a celery queue called ``store_pulse_jobs`` which
     does the actual storing of the jobs in the database.
     """
-
     help = "Read jobs from a set of pulse exchanges and queue for ingestion"
 
     def handle(self, *args, **options):

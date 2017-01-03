@@ -1,5 +1,4 @@
 import time
-from optparse import make_option
 
 from django.core.management.base import BaseCommand
 
@@ -9,20 +8,22 @@ from treeherder.perf.models import PerformanceSignature
 
 
 class Command(BaseCommand):
-
     help = "Remove single test summaries"
-    option_list = BaseCommand.option_list + (
-        make_option('--project',
-                    action='append',
-                    dest='project',
-                    help='Filter deletion to particular project(s)',
-                    type='string'),
-        make_option('--interval',
-                    dest='interval',
-                    help='Wait specified interval between deletions',
-                    type='float',
-                    default=0.0)
-    )
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--project',
+            action='append',
+            dest='project',
+            help='Filter deletion to particular project(s)'
+        )
+        parser.add_argument(
+            '--interval',
+            dest='interval',
+            help='Wait specified interval between deletions',
+            type=float,
+            default=0.0
+        )
 
     def handle(self, *args, **options):
         if options['project']:

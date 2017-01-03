@@ -10,7 +10,6 @@ from treeherder.perf.models import (PerformanceDatum,
 
 
 class Command(BaseCommand):
-
     help = "Populate a test set of data suitable for testing the perfherder UI"
 
     def handle(self, *args, **options):

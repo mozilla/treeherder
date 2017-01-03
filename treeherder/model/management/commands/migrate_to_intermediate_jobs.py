@@ -1,5 +1,4 @@
 import time
-from optparse import make_option
 
 from django.core.management.base import BaseCommand
 
@@ -10,19 +9,22 @@ from treeherder.model.models import (Datasource,
 
 
 class Command(BaseCommand):
-
     help = 'Migrate existing jobs to intermediate jobs table'
-    option_list = BaseCommand.option_list + (
-        make_option('--project',
-                    action='append',
-                    dest='project',
-                    help='Filter deletion to particular project(s)',
-                    type='string'),
-        make_option('--interval',
-                    dest='interval',
-                    help='Wait specified interval between signature migrations',
-                    type='float',
-                    default=0.0))
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--project',
+            action='append',
+            dest='project',
+            help='Filter deletion to particular project(s)'
+        )
+        parser.add_argument(
+            '--interval',
+            dest='interval',
+            help='Wait specified interval between signature migrations',
+            type=float,
+            default=0.0
+        )
 
     def handle(self, *args, **options):
         if options['project']:

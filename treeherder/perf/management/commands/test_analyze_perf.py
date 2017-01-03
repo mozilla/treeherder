@@ -1,5 +1,3 @@
-from optparse import make_option
-
 from django.conf import settings
 from django.core.management.base import (BaseCommand,
                                          CommandError)
@@ -11,30 +9,36 @@ from treeherder.perfalert import (Datum,
 
 
 class Command(BaseCommand):
-
     help = """
     Test running performance alert subsystem on a series, printing results
     to standard out
     """
 
-    option_list = BaseCommand.option_list + (
-        make_option('--server',
-                    action='store',
-                    dest='server',
-                    default=settings.SITE_URL,
-                    help='Server to get data from, default to local instance'),
-        make_option('--time-interval',
-                    action='store',
-                    default=PerformanceTimeInterval.WEEK,
-                    type='int',
-                    help='Time interval to test alert code on (defaults to one week)'),
-        make_option('--project',
-                    action='append',
-                    help='Project to get signatures from (specify multiple time to get multiple projects'),
-        make_option('--signature',
-                    action='store',
-                    help='Signature hash to process, defaults to all non-subtests')
-    )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--server',
+            action='store',
+            dest='server',
+            default=settings.SITE_URL,
+            help='Server to get data from, default to local instance'
+        )
+        parser.add_argument(
+            '--time-interval',
+            action='store',
+            default=PerformanceTimeInterval.WEEK,
+            type=int,
+            help='Time interval to test alert code on (defaults to one week)'
+        )
+        parser.add_argument(
+            '--project',
+            action='append',
+            help='Project to get signatures from (specify multiple time to get multiple projects'
+        )
+        parser.add_argument(
+            '--signature',
+            action='store',
+            help='Signature hash to process, defaults to all non-subtests'
+        )
 
     @staticmethod
     def _get_series_description(option_collection_hash, series_properties):

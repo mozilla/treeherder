@@ -7,7 +7,6 @@ from treeherder.perf.models import PerformanceSignature
 
 
 class Command(BaseCommand):
-
     help = """
     Bulk-create alerts for a set of signatures in a specific project
 
@@ -16,12 +15,15 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--project', action='append',
-            help='Project to get signatures from (specify multiple times to '
-            'get multiple projects')
+            '--project',
+            action='append',
+            help='Project to get signatures from (specify multiple times to get multiple projects'
+        )
         parser.add_argument(
-            '--signature', action='append',
-            help='Signature hashes to process, defaults to all non-subtests')
+            '--signature',
+            action='append',
+            help='Signature hashes to process, defaults to all non-subtests'
+        )
 
     def handle(self, *args, **options):
         if not options['project']:
