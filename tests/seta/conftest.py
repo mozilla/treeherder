@@ -5,6 +5,8 @@ from treeherder.config.settings import (SETA_HIGH_VALUE_PRIORITY,
                                         SETA_HIGH_VALUE_TIMEOUT,
                                         SETA_LOW_VALUE_PRIORITY,
                                         SETA_LOW_VALUE_TIMEOUT)
+from treeherder.model.models import (Job,
+                                     JobNote)
 from treeherder.seta.common import job_priority_index
 from treeherder.seta.models import (JobPriority,
                                     TaskRequest)
@@ -112,6 +114,21 @@ def job_priority_list(sanitized_data):
 @pytest.fixture
 def jp_index_fixture(job_priority_list):
     return job_priority_index(job_priority_list)
+
+
+@pytest.fixture
+def eleven_jobs_with_notes(jm, sample_data, eleven_jobs_stored, test_user,
+                           failure_classifications, test_repository):
+    """provide 11 jobs with job notes."""
+    jobs = jm.get_job_list(0, 10)
+
+    for ds_job in jobs:
+        for failure_classification_id in [2, 3]:
+            job = Job.objects.get(project_specific_id=ds_job['id'],
+                                  repository=test_repository)
+            JobNote.objects.create(job=job,
+                                   failure_classification_id=failure_classification_id,
+                                   user=test_user, text="you look like a man-o-lantern")
 
 
 @pytest.fixture
