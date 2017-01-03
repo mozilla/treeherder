@@ -600,7 +600,7 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
     associated with a particular job
     '''
     queryset = JobDetail.objects.all().select_related('job__guid',
-                                                      'job__repository__name')
+                                                      'job__repository')
     serializer_class = serializers.JobDetailSerializer
 
     class JobDetailFilter(filters.FilterSet):
