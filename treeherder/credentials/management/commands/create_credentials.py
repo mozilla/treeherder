@@ -7,7 +7,7 @@ class Command(BaseCommand):
     help = 'Create or retrieve a set of Hawk credentials for use with the API'
 
     def add_arguments(self, parser):
-        parser.add_argument('client_id', type=str)
+        parser.add_argument('client_id')
 
     def handle(self, *args, **options):
         credentials, created = Credentials.objects.get_or_create(

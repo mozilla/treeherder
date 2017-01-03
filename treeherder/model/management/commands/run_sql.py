@@ -1,5 +1,3 @@
-from optparse import make_option
-
 import MySQLdb
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -8,33 +6,30 @@ from treeherder.model.models import Datasource
 
 
 class Command(BaseCommand):
-    help = ("Runs an arbitrary sql statement or file"
-            " on a number of databases.")
+    help = "Runs an arbitrary sql statement or file on a number of databases."
 
-    option_list = BaseCommand.option_list + (
-
-        make_option(
+    def add_arguments(self, parser):
+        parser.add_argument(
             '--datasources',
             action='store',
             dest='datasources',
             default='all',
-            help='A comma separated list of datasources to execute the sql code on'),
-
-        make_option(
+            help='A comma separated list of datasources to execute the sql code on'
+        )
+        parser.add_argument(
             '-s', '--sql-statement',
             action='store',
             dest='sql_statement',
             help='Sql statement',
-            default=''),
-
-        make_option(
+            default=''
+        )
+        parser.add_argument(
             '-f', '--file',
             dest='sql_file',
             help='Sql source file',
             metavar='FILE',
-            default="")
-
-    )
+            default=""
+        )
 
     def handle(self, *args, **options):
 
