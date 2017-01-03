@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import logging
 import re
 from datetime import timedelta
@@ -225,3 +226,110 @@ def classify(num_alerts):
                     "Possible upstreams: {1}".format(
                         downstream, value
                         ))
+=======
+import re
+from datetime import timedelta
+from treeherder.etl.common import fetch_json
+from treeherder.perf.models import PerformanceAlertSummary
+
+def get_result_set_from_hg(repo_url, from_revision, to_revision):
+    """
+    Args:
+        repo_name, revision
+        from_revision - a revision
+        to_revision - a revision
+    Returns a result set dictionaries
+    """
+    # TODO
+    # each repo seems to have a different url, I may have to query itno each
+    # repo for the correct url
+    hg_url = "{}/json-pushes".format(repo_url)
+    return fetch_json(hg_url, {"full": 1,
+                               "version": 2,
+                               "fromchange": from_revision,
+                               "tochange": to_revision})
+
+
+def merge_regex(comment):
+    """
+    Determines whether the string given contains the word ``merge``
+    Args:
+        comment - A string
+    Returns a Bool
+    """
+    if re.search('(merge\s)(.*)', comment.lower()):
+        return True
+    else:
+        return False
+
+
+def is_downstream_summary(summary):
+    current_push = summary.push
+    prev_push = summary.prev_push
+    return is_downstream_resultset(summary.repository.url, current_push.revision, prev_push.revision) 
+
+
+def get_possible_upstreams(downstream, upstreams):
+    """
+    Args:
+        downsteam - A single AlertSummary
+        upstream - A queryset of AlertSummaries that could possibly be upstream
+
+    Return a queryset of AlertSummaries that contain the same performance signature
+    as the given downstream, and was created within the last 7 days.
+    """
+    signature_hashes = [alert.series_signature.signature_hash
+                        for alert in downstream.alerts.all()
+                        .select_related('series_signature__signature_hash')]
+    return upstreams.filter(
+            # alerts__series_signature__signature_hash=signature_hashes,
+            last_updated__gte=downstream.last_updated - timedelta(days=7))
+
+def is_downstream_resultset(repo_url, from_revision, to_revision):
+    """
+    Determines whether a resultset given is downstream
+    Args:
+        repo_name - a Repository
+        from_revision - a revision
+        to_revision - a revision
+    Returns a bool
+    """
+    try:
+        result_set = get_result_set_from_hg(repo_url, from_revision, to_revision)
+    except IndexError:
+        return False
+    else:
+        return any([merge_regex(changeset['desc']) for push in result_set['pushes'].values() for changeset in push['changesets']])
+
+
+
+def classify_downstream(downstream, upstreams):
+    """
+    Classifies a single downstream AlertSummary with the possible upstreams
+    given
+    Args:
+        downstream - An AlertSummary
+        upstreams - A AlertSummary queryset
+    Returns a Bool of whether or not all of the alerts have been successfully
+    classified
+    """
+    downstream_resultsets = get_result_set_from_hg(downstream.repository.url,
+                                              downstream.push.revision,
+                                              downstream.prev_push.revision)
+    upstream_resultsets = [(upstream, get_result_set_from_hg(upstream.repository.url,
+                                                        upstream.push.revision,
+                                                        upstream.prev_push.revision))
+                          for upstream in upstreams]
+    return any([])
+
+def classify(num_alerts):
+    """
+    Classify AlertSumamries
+    Args:
+        num_alerts - Number of AlertSummaries to classify
+    """
+    alertsummaries = (PerformanceAlertSummary.objects
+                                             .order_by("-last_updated")
+                                             .filter(status=0)[:num_alerts])
+    return alertsummaries
+>>>>>>> Stashed changes
