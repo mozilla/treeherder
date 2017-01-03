@@ -176,6 +176,10 @@ fieldset[disabled] .btn-resultset:hover {
   border-bottom: 1px dotted lightgrey;
 }
 
+.job-list table tr > * {
+  display: table-cell;
+}
+
 .job-list table tr:nth-child(even) {
   background: #f8f8f8;
 }

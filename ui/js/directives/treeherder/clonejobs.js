@@ -39,9 +39,6 @@ treeherder.directive('thCloneJobs', [
 
         var tableInterpolator = thCloneHtml.get('resultsetClone').interpolator;
 
-        //Retrieve platform interpolator
-        var platformInterpolator = thCloneHtml.get('platformClone').interpolator;
-
         //Instantiate job group interpolator
         var jobGroupInterpolator = thCloneHtml.get('jobGroupClone').interpolator;
 
@@ -602,7 +599,7 @@ treeherder.directive('thCloneJobs', [
 
             // hide platforms and groups where all jobs are hidden
             element.find(".platform").each(function internalFilterPlatform() {
-                var platform = $(this.parentNode);
+                var platform = $(this).closest('tr');
                 filterPlatform(platform);
             });
 
@@ -752,7 +749,7 @@ treeherder.directive('thCloneJobs', [
                 }
 
                 var tdEls, rowEl, platformTdEl, jobTdEl,
-                    platformName, option;
+                    platformName;
 
                 platformName = thPlatformName(value.platformName);
 
@@ -769,12 +766,12 @@ treeherder.directive('thCloneJobs', [
 
                     rowEl.prop('id', platformId);
 
-                    option = value.platformOption;
-
-                    //Add platforms
-                    platformTdEl = $(platformInterpolator(
-                        {'name':platformName, 'option':option, 'id':platformId}
-                    ));
+                    var scope = _.extend($rootScope.$new(), {
+                        name: platformName,
+                        option: value.platformOption,
+                        id: platformId
+                    });
+                    platformTdEl = $compile('<jobplatformtd watch-depth="reference" id="id" name="name" option="option"></jobplatformtd>')(scope);
 
                     rowEl.append(platformTdEl);
 
@@ -958,9 +955,9 @@ treeherder.directive('thCloneJobs', [
         };
         var generateJobElements = function(resultsetAggregateId, resultset) {
             var tableEl = $('#' + resultsetAggregateId);
-            var waitSpanEl = $(tableEl).prev();
+            var waitSpanEl = tableEl.prev();
             $(waitSpanEl).css('display', 'none');
-            var tableHtml = "";
+            var tableContent = $(`<table id="${resultsetAggregateId}"></table>`);
             resultset.platforms.forEach(function(platform) {
                 var platformId = thAggregateIds.getPlatformRowId(
                     $rootScope.repoName,
@@ -974,22 +971,20 @@ treeherder.directive('thCloneJobs', [
                     return _.some(jobGroup.jobs, {visible: true});
                 });
                 var display_style = anyVisible ? "table-row" : "none";
-                var rowHtml = '<tr id="' + platformId + '" style="display: ' + display_style + ';">';
+                var rowContent = $('<tr id="' + platformId + '" style="display: ' + display_style + ';"></tr>');
                 //Add platforms
-                rowHtml += platformInterpolator(
-                    {
-                        'name':thPlatformName(platform.name), 'option':platform.option,
-                        'id':thAggregateIds.getPlatformRowId(
-                            resultset.id,
-                            platform.name,
-                            platform.option
-                        )
-                    }
-                );
-                rowHtml += '<td class="job-row">' + getJobTableRowHTML(platform.groups) + '</td></tr>';
-                tableHtml += rowHtml;
+                var scope = _.extend($rootScope.$new(), {
+                    'name': thPlatformName(platform.name),
+                    'option': platform.option,
+                    'id': platformId
+                });
+                var platformTdEl = $compile('<jobplatformtd watch-depth="reference" id="id" name="name" option="option" watch-depth="reference"></jobplatformtd>')(scope);
+                rowContent.append(platformTdEl);
+                var jobsTd = $('<td class="job-row">' + getJobTableRowHTML(platform.groups) + '</td>');
+                rowContent.append(jobsTd);
+                tableContent.append(rowContent);
             });
-            tableEl.html(tableHtml);
+            tableEl.replaceWith(tableContent);
         };
 
         var $scope = null;

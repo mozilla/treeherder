@@ -47,7 +47,6 @@ treeherder.factory('thCloneHtml', [
     function($interpolate) {
 
         var cloneTemplateIds = [
-            'platformClone.html',
             'jobTdClone.html',
             'jobGroupClone.html',
             'jobGroupCountClone.html',
