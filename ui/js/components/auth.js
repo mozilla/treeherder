@@ -156,27 +156,24 @@ treeherder.component("loginCallback", {
             const host = $location.host();
             const port = $location.port();
             const loginUrl = `${$location.protocol()}://${host}:${port}/api/auth/login/`;
-            const certificate = $location.search().certificate;
             const credentials = {
                 id: $location.search().clientId,
                 key: $location.search().accessToken,
                 algorithm: 'sha256'
             };
 
-            // Cribbed from taskcluster-tools. Save this for interacting with tc
-            const results = $location.search();
-            if (typeof results.certificate === 'string') {
-                results.certificate = JSON.parse(results.certificate);
-            }
-            localStorageService.set('taskcluster.credentials', results);
-
             this.loginError = null;
             var payload = {
                 credentials: credentials,
             };
-            if (certificate) {
-                payload.ext = hawk.utils.base64urlEncode(JSON.stringify({"certificate": JSON.parse(certificate)}));
+
+            // Cribbed from taskcluster-tools. Save this for interacting with tc
+            const results = $location.search();
+            if (results.certificate) {
+                results.certificate = JSON.parse(results.certificate);
+                payload.ext = hawk.utils.base64urlEncode(JSON.stringify({"certificate": results.certificate}));
             }
+            localStorageService.set('taskcluster.credentials', results);
 
             const header = hawk.client.header(loginUrl, 'GET', payload);
 
