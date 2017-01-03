@@ -1,9 +1,14 @@
+import logging
+
 from django.db import models
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
+from treeherder.config.settings import SETA_LOW_VALUE_PRIORITY
 from treeherder.model.models import Repository
 from treeherder.seta.common import unique_key
+
+logger = logging.getLogger(__name__)
 
 
 @python_2_unicode_compatible
@@ -40,26 +45,24 @@ class JobPriorityManager(models.Manager):
                 job.expiration_date = None
                 job.save()
 
-    def increase_jobs_priority(self, high_value_jobs, priority=1, timeout=0):
-        """For every high value job see if we need to adjust the priority in the database
+    def adjust_jobs_priority(self, high_value_jobs, priority=1, timeout=0):
+        """For every job priority determine if we need to increase or decrease the job priority
 
         Currently, high value jobs have a priority of 1 and a timeout of 0.
         """
-        # Ignore job priorities without an expiration date set
-        job_priorities_with_expirations = JobPriority.objects.filter(expiration_date__isnull=True)
-        for item in high_value_jobs:
-            # This is a query of a unique composite index, thus, a list of zero or one
-            queryset = job_priorities_with_expirations.filter(testtype=item[0],
-                                                              buildtype=item[1],
-                                                              platform=item[2])
-            assert len(queryset) == 1, \
-                "Any job passed to this function should already be in the database ({})".format(item)
-
-            job = queryset[0]
-            if job.priority != priority:
-                job.priority = priority
-                job.timeout = timeout
-                job.save()
+        # Only job priorities that don't have an expiration date (2 weeks for new jobs or year 2100
+        # for jobs update via load_preseed) are updated
+        for jp in JobPriority.objects.filter(expiration_date__isnull=True):
+            if jp.unique_identifier() not in high_value_jobs:
+                if jp.priority != SETA_LOW_VALUE_PRIORITY:
+                    logger.info('Decreasing priority of {}'.format(jp.unique_identifier()))
+                    jp.priority = SETA_LOW_VALUE_PRIORITY
+                    jp.save(update_fields=['priority'])
+            elif jp.priority != priority:
+                logger.info('Increasing priority of {}'.format(jp.unique_identifier()))
+                jp.priority = priority
+                jp.timeout = timeout
+                jp.save(update_fields=['priority', 'timeout'])
 
 
 @python_2_unicode_compatible

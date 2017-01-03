@@ -30,7 +30,7 @@ class AnalyzeFailures:
             if not self.dry_run:
                 logger.info("Let's see if we need to increase the priority of any job")
                 JobPriority.objects.clear_expiration_field_for_expired_jobs()
-                JobPriority.objects.increase_jobs_priority(high_value_jobs)
+                JobPriority.objects.adjust_jobs_priority(high_value_jobs)
 
 
 def get_failures_fixed_by_commit():
