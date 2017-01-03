@@ -8,8 +8,9 @@ from treeherder.seta.models import (JobPriority,
                                     TaskRequest)
 
 GECKO_DECISION_TASK_USER_AGENT = 'TaskCluster'
-LOG = logging.getLogger(__name__)
 RESET_DELTA = 5400
+
+logger = logging.getLogger(__name__)
 
 
 class SetaError(Exception):
@@ -66,7 +67,7 @@ def _process(build_system, job_priorities):
             # e.g. desktop-test-linux64-pgo/opt-reftest-13 or builder name
             jobs.append(ref_data_names[key])
         else:
-            LOG.warning('We did not find job priority ({}) in the list of accepted jobs'.format(jp))
+            logger.warning('We did not find job priority ({}) in the list of accepted jobs'.format(jp))
 
     return jobs
 

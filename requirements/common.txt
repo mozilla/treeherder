@@ -104,6 +104,3 @@ slugid==1.0.7 --hash=sha256:6dab3c7eef0bb423fb54cb7752e0f466ddd0ee495b78b763be60
 
 # Used for Taskcluster auth
 taskcluster==0.3.4 --hash sha256:d4fe5e2a44fe27e195b92830ece0a6eb9eb7ad9dc556a0cb16f6f2a6429f1b65
-
-# required by seta
-redo==1.5 --hash=sha256:ad8bdd4c6c9a2b4e2bf35f0aade6a0f24edb889c06d90fe5b5d5203acde865d8

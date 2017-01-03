@@ -39,13 +39,13 @@ project_bound_router.register(
 )
 
 project_bound_router.register(
-    r'seta/v1/job-priorities',
+    r'seta/job-priorities',
     seta.SetaJobPriorityViewSet,
     base_name='seta-job-priorities'
 )
 
 project_bound_router.register(
-    r'seta/v1/job-types',
+    r'seta/job-types',
     seta.SetaJobTypes,
     base_name='seta-job-types'
 )
@@ -153,7 +153,7 @@ default_router.register(r'jobdetail', jobs.JobDetailViewSet,
                         base_name='jobdetail')
 default_router.register(r'auth', auth.TaskclusterAuthViewSet,
                         base_name='auth')
-default_router.register(r'seta/v1/failures-fixed-by-commit',
+default_router.register(r'seta/failures-fixed-by-commit',
                         seta.SetaFailuresFixedByCommit,
                         base_name='seta_failures_fixed_by_commit')
 

@@ -11,6 +11,7 @@ HEADERS = {
     'Accept': 'application/json',
     'User-Agent': 'treeherder-seta',
 }
+
 logger = logging.getLogger(__name__)
 
 

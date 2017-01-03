@@ -1,13 +1,13 @@
 import logging
 
-import requests
-from redo import retry
+from treeherder.etl.common import make_request
 
 HEADERS = {
     'Accept': 'application/json',
     'User-Agent': 'treeherder-seta',
 }
-LOG = logging.getLogger(__name__)
+
+logger = logging.getLogger(__name__)
 
 
 class RunnableJobsClient():
@@ -35,25 +35,21 @@ class RunnableJobsClient():
         else:
             if task_id in self.cache:
                 # XXX: In previous code, we were returning None; what should we do for this case?
-                LOG.info("We have already processed the data from this task (%s)." % task_id)
+                logger.info("We have already processed the data from this task (%s)." % task_id)
                 return self.cache[repo_name][task_id]
             else:
-                LOG.info("We're going to fetch new runnable jobs data.")
+                logger.info("We're going to fetch new runnable jobs data.")
                 self.cache[repo_name][task_id] = self._query_runnable_jobs(repo_name=repo_name, task_id=task_id)
                 return self.cache[repo_name][task_id]
 
     def _query_latest_gecko_decision_task_id(self, repo_name):
         url = self.tc_index_url % repo_name
-        LOG.info('Fetching {}'.format(url))
-        latest_task = retry(
-            requests.get,
-            args=(url, ),
-            kwargs={'headers': {'accept-encoding': 'json'}, 'verify': True}
-        ).json()
+        logger.info('Fetching {}'.format(url))
+        latest_task = make_request(url, headers={'accept-encoding': 'json'}).json()
         task_id = latest_task['taskId']
-        LOG.info('For {} we found the task id: {}'.format(repo_name, task_id))
+        logger.info('For {} we found the task id: {}'.format(repo_name, task_id))
         return task_id
 
     def _query_runnable_jobs(self, repo_name, task_id):
         url = self.th_api.format(repo_name, task_id)
-        return retry(requests.get, args=(url, ), kwargs={'headers': HEADERS}).json()
+        return make_request(url, headers=HEADERS).json()

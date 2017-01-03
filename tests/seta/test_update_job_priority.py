@@ -12,12 +12,6 @@ from treeherder.seta.update_job_priority import (_initialize_values,
                                                  query_sanitized_data)
 
 
-# Prevent requests to be used in any of the tests
-@pytest.fixture(autouse=True)
-def no_requests(monkeypatch):
-    monkeypatch.delattr("requests.sessions.Session.request")
-
-
 def test_unique_key():
     new_job = {
         'build_system_type': 'buildbot',

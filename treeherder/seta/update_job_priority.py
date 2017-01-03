@@ -16,9 +16,6 @@ import logging
 import os
 import time
 
-import requests
-from redo import retry
-
 from treeherder.config.settings import (SETA_HIGH_VALUE_PRIORITY,
                                         SETA_HIGH_VALUE_TIMEOUT,
                                         SETA_LOW_VALUE_PRIORITY,
@@ -30,7 +27,7 @@ from treeherder.seta.common import (job_priority_index,
 from treeherder.seta.models import JobPriority
 from treeherder.seta.runnable_jobs import RunnableJobsClient
 
-LOG = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def update_job_priority_table():
@@ -42,7 +39,7 @@ def update_job_priority_table():
         return _update_table(data)
     else:
         # XXX: Should we do this differently?
-        LOG.warning('We received an empty data set')
+        logger.warning('We received an empty data set')
         return
 
 
@@ -72,7 +69,7 @@ def _sanitize_data(runnable_jobs_data):
     sanitized_list = []
     for job in runnable_jobs_data['results']:
         if not valid_platform(job['platform']):
-            LOG.info('Invalid platform {}'.format(job['platform']))
+            logger.info('Invalid platform {}'.format(job['platform']))
             continue
 
         testtype = parse_testtype(
@@ -132,7 +129,7 @@ def _two_weeks_from_now():
     return datetime.datetime.now() + datetime.timedelta(days=14)
 
 def _initialize_values():
-    LOG.info('Fetch all rows from the job priority table.')
+    logger.info('Fetch all rows from the job priority table.')
     # Get all rows of job priorities
     jp_index = job_priority_index(JobPriority.objects.all())
     if jp_index:
@@ -168,7 +165,7 @@ def _update_table(data):
                 db_job.buildsystem = '*'
                 db_job.save()
 
-                LOG.info('Updated {}/{} from {} to {}'.format(
+                logger.info('Updated {}/{} from {} to {}'.format(
                    db_job.testtype, db_job.buildtype, job['build_system_type'], db_job.buildsystem
                 ))
                 updated_jobs += 1
@@ -186,19 +183,19 @@ def _update_table(data):
                     buildsystem=job["build_system_type"]
                 )
                 jobpriority.save()
-                LOG.info('New job was found ({},{},{},{})'.format(
+                logger.info('New job was found ({},{},{},{})'.format(
                     job['testtype'], job['platform_option'], job['platform'],
                     job["build_system_type"]))
                 new_jobs += 1
             except Exception as error:
-                LOG.warning(str(error))
+                logger.warning(str(error))
                 failed_changes += 1
 
-    LOG.info('We have {} new jobs and {} updated jobs out of {} total jobs '
+    logger.info('We have {} new jobs and {} updated jobs out of {} total jobs '
                       'processed.'.format(new_jobs, updated_jobs, total_jobs))
 
     if failed_changes != 0:
-        LOG.warning('We have failed {} changes out of {} total jobs processed.'.format(
+        logger.warning('We have failed {} changes out of {} total jobs processed.'.format(
             failed_changes, total_jobs
         ))
 

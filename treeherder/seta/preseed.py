@@ -5,8 +5,9 @@ import os
 
 from treeherder.seta.models import JobPriority
 
-LOG = logging.getLogger(__name__)
 THE_FUTURE = datetime.datetime(2100, 12, 31)
+
+logger = logging.getLogger(__name__)
 
 
 def load_preseed():
@@ -49,7 +50,7 @@ def create_new_entry(job):
     if job['expiration_date'] == '*':
         job['expiration_date'] = THE_FUTURE
 
-    LOG.info("Adding a new job to the database: %s" % job)
+    logger.info("Adding a new job to the database: %s" % job)
     JobPriority.objects.create(
             testtype=job['testtype'],
             buildtype=job['buildtype'],
@@ -76,5 +77,5 @@ def process_job_priority(jp, job):
         update_fields.append('expiration_date')
 
     if update_fields:
-        LOG.info("Updating ({}) for these fields {}".format(str(jp), ','.join(update_fields)))
+        logger.info("Updating ({}) for these fields {}".format(str(jp), ','.join(update_fields)))
         jp.save(update_fields=update_fields)

@@ -17,7 +17,7 @@ class SetaJobPrioritySerializer(serializers.HyperlinkedModelSerializer):
 
 class SetaJobPriorityViewSet(viewsets.ViewSet):
     def list(self, request, project):
-        ''' Routing to /api/project/{project}/seta/v1/job-priorities/
+        ''' Routing to /api/project/{project}/seta/job-priorities/
 
         This API can potentially have these consumers:
             * Buildbot
@@ -41,7 +41,7 @@ class SetaJobPriorityViewSet(viewsets.ViewSet):
 
 class SetaFailuresFixedByCommit(viewsets.ViewSet):
     def list(self, request):
-        ''' Routing to /api/seta/v1/failures-fixed-by-commit/
+        ''' Routing to /api/seta/failures-fixed-by-commit/
 
         Returns jobs annotated with fixed by commit (no empty string) grouped by
         annotation text (generally a revision that fixes the issue).
@@ -53,7 +53,7 @@ class SetaFailuresFixedByCommit(viewsets.ViewSet):
 
 class SetaJobTypes(viewsets.ViewSet):
     def list(self, request, project):
-        ''' Routing to /api/project/{project}/seta/v1/job-types/
+        ''' Routing to /api/project/{project}/seta/job-types/
 
         Returns all distinct jobtypes for a project.
 
