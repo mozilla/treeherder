@@ -64,6 +64,9 @@ requests==2.11.1 --hash=sha256:545c4855cd9d7c12671444326337013766f4eea6068c3f030
 # Required by django.contrib.migrations
 sqlparse==0.2.2 --hash=sha256:9b61c319b3c7b64681e1b4d554a9c3fe81ed52da00a901ccf3fe72962734e444
 
+# Used directly and also by Django's YAML serializer.
+PyYAML==3.12 --hash=sha256:592766c6303207a20efc445587778322d7f73b161bd994f227adaa341ba212ab
+
 django-environ==0.4.0 --hash=sha256:70cf521f87e64f4dd2aeb87ced006dc98f621e2cdb38134fbcbcf6309fde6244
 
 # required by mohawk & django-environ
