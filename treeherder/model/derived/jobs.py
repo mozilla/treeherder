@@ -6,12 +6,12 @@ from hashlib import sha1
 
 import newrelic.agent
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 
 from treeherder.etl.artifact import (serialize_artifact_json_blobs,
                                      store_job_artifacts)
 from treeherder.etl.common import get_guid_root
-from treeherder.model import utils
 from treeherder.model.models import (BuildPlatform,
                                      Commit,
                                      Datasource,
@@ -36,7 +36,6 @@ from treeherder.model.search import bulk_delete as es_delete
 from treeherder.model.search import TestFailureLine
 from treeherder.model.tasks import (publish_job_action,
                                     publish_resultset_action)
-from treeherder.model.utils import orm_delete
 
 from .base import TreeherderModelBase
 
@@ -51,87 +50,6 @@ class JobsModel(TreeherderModelBase):
 
     INCOMPLETE_STATES = ["running", "pending"]
     STATES = INCOMPLETE_STATES + ["completed", "coalesced"]
-
-    # indexes of specific items in the ``job_placeholder`` objects
-    JOB_PH_JOB_GUID = 0
-    JOB_PH_COALESCED_TO_GUID = 2
-    JOB_PH_RESULT_SET_ID = 3
-    JOB_PH_BUILD_PLATFORM_KEY = 4
-    JOB_PH_MACHINE_PLATFORM_KEY = 5
-    JOB_PH_MACHINE_NAME = 6
-    JOB_PH_OPTION_COLLECTION_HASH = 7
-    JOB_PH_TYPE_KEY = 8
-    JOB_PH_PRODUCT_TYPE = 9
-    JOB_PH_WHO = 10
-    JOB_PH_REASON = 11
-    JOB_PH_RESULT = 12
-    JOB_PH_STATE = 13
-    JOB_PH_START_TIMESTAMP = 15
-    JOB_PH_END_TIMESTAMP = 16
-    JOB_PH_RUNNING_AVG = 17
-
-    # list of searchable columns, i.e. those who have an index
-    # it would be nice to get this directly from the db and cache it
-    INDEXED_COLUMNS = {
-        "job": {
-            "id": "j.id",
-            "job_guid": "j.job_guid",
-            "job_coalesced_to_guid": "j.job_coalesced_to_guid",
-            "push_id": "j.push_id",
-            "platform": "mp.platform",
-            "build_platform_id": "j.build_platform_id",
-            "build_platform": "bp.platform",
-            "build_os": "bp.os_name",
-            "build_architecture": "bp.architecture",
-            "build_system_type": "rds.build_system_type",
-            "machine_platform_id": "j.machine_platform_id",
-            "machine_platform_os": "mp.os_name",
-            "machine_platform_architecture": "mp.architecture",
-            "machine_id": "j.machine_id",
-            "machine_name": "m.name",
-            "option_collection_hash": "j.option_collection_hash",
-            "job_type_id": "j.job_type_id",
-            "job_type_symbol": "jt.symbol",
-            "job_type_name": "jt.name",
-            "job_group_id": "jg.id",
-            "job_group_symbol": "jg.symbol",
-            "job_group_name": "jg.name",
-            "product_id": "j.product_id",
-            "failure_classification_id": "j.failure_classification_id",
-            "who": "j.who",
-            "reason": "j.reason",
-            "result": "j.result",
-            "state": "j.state",
-            "submit_timestamp": "j.submit_timestamp",
-            "start_timestamp": "j.start_timestamp",
-            "end_timestamp": "j.end_timestamp",
-            "last_modified": "j.last_modified",
-            "signature": "j.signature",
-            "ref_data_name": "rds.name",
-            "tier": "j.tier"
-        },
-        "result_set": {
-            "id": "rs.id",
-            "revision_hash": "rs.revision_hash",
-            "revisions_long_revision": "revision.long_revision",
-            "revisions_short_revision": "revision.short_revision",
-            "short_revision": "rs.short_revision",
-            "long_revision": "rs.long_revision",
-            "author": "rs.author",
-            "push_timestamp": "rs.push_timestamp",
-            "last_modified": "rs.last_modified"
-        }
-    }
-
-    # jobs cycle targets
-    # NOTE: There is an order dependency here, cycle_job and
-    # cycle_result_set should be after any tables with foreign keys
-    # to their ids.
-    JOBS_CYCLE_TARGETS = [
-        "jobs.deletes.cycle_job_artifact",
-        "jobs.deletes.cycle_job",
-    ]
-
     LOWER_TIERS = [2, 3]
 
     @classmethod
@@ -146,9 +64,6 @@ class JobsModel(TreeherderModelBase):
 
         return cls(project=project)
 
-    def execute(self, **kwargs):
-        return utils.retry_execute(self.get_dhub(), logger, **kwargs)
-
     ##################
     #
     # Job schema data methods
@@ -157,11 +72,6 @@ class JobsModel(TreeherderModelBase):
 
     def set_state(self, job, state):
         """Update the state of an existing job"""
-        self.execute(
-            proc='jobs.updates.set_state',
-            placeholders=[state, job.project_specific_id],
-            debug_show=self.DEBUG
-        )
         job.state = state
         job.save()
 
@@ -182,11 +92,6 @@ class JobsModel(TreeherderModelBase):
         # Mark pending jobs as cancelled to work around buildbot not including
         # cancelled jobs in builds-4hr if they never started running.
         # TODO: Remove when we stop using buildbot.
-        self.execute(
-            proc='jobs.updates.cancel_all',
-            placeholders=[push_id],
-            debug_show=self.DEBUG
-        )
         Job.objects.filter(push_id=push_id, state='pending').update(
             state='completed',
             result='usercancel',
@@ -254,11 +159,6 @@ class JobsModel(TreeherderModelBase):
         # Mark pending jobs as cancelled to work around buildbot not including
         # cancelled jobs in builds-4hr if they never started running.
         # TODO: Remove when we stop using buildbot.
-        self.execute(
-            proc='jobs.updates.cancel_job',
-            placeholders=[job.guid],
-            debug_show=self.DEBUG
-        )
         Job.objects.filter(id=job.id, state='pending').update(
             state='completed',
             result='usercancel',
@@ -277,13 +177,6 @@ class JobsModel(TreeherderModelBase):
             failure_classification_id = FailureClassification.objects.values_list(
                 'id', flat=True).get(name='not classified')
 
-        self.execute(
-            proc='jobs.updates.update_last_job_classification',
-            placeholders=[
-                failure_classification_id, job.project_specific_id
-            ],
-            debug_show=self.DEBUG
-        )
         Job.objects.filter(repository__name=self.project,
                            id=job.id).update(
                                failure_classification_id=failure_classification_id,
@@ -326,52 +219,37 @@ class JobsModel(TreeherderModelBase):
         """Delete data older than cycle_interval, splitting the target data
 into chunks of chunk_size size. Returns the number of result sets deleted"""
 
-        jobs_max_timestamp = self._get_max_timestamp(cycle_interval)
         # Retrieve list of jobs to delete
-        jobs_to_cycle = self.execute(
-            proc='jobs.selects.get_jobs_to_cycle',
-            placeholders=[jobs_max_timestamp],
-            debug_show=self.DEBUG
-        )
-        if not jobs_to_cycle:
+        jobs_max_timestamp = datetime.now() - cycle_interval
+        job_guids_to_cycle = list(Job.objects.filter(
+            repository__name=self.project,
+            submit_time__lt=jobs_max_timestamp).values_list('guid',
+                                                            flat=True))
+
+        if not job_guids_to_cycle:
             return 0
 
         # group the job in chunks
-        jobs_chunk_list = zip(*[iter(jobs_to_cycle)] * chunk_size)
+        jobs_chunk_list = zip(*[iter(job_guids_to_cycle)] * chunk_size)
         # append the remaining job data not fitting in a complete chunk
         jobs_chunk_list.append(
-            jobs_to_cycle[-(len(jobs_to_cycle) % chunk_size):])
+            job_guids_to_cycle[-(len(job_guids_to_cycle) % chunk_size):])
 
         for jobs_chunk in jobs_chunk_list:
-            job_id_list = [d['id'] for d in jobs_chunk]
-            job_guid_list = [d['job_guid'] for d in jobs_chunk]
-            job_where_in_clause = [','.join(['%s'] * len(job_id_list))]
+            Job.objects.filter(guid__in=jobs_chunk).delete()
 
-            # Associate placeholders and replace data with sql
-            jobs_targets = []
-            for proc in self.JOBS_CYCLE_TARGETS:
-                jobs_targets.append({
-                    "proc": proc,
-                    "placeholders": job_id_list,
-                    "replace": job_where_in_clause
-                })
-
-            # remove data from specified jobs tables that is older than max_timestamp
-            self._execute_table_deletes(jobs_targets, 'jobs', sleep_time)
-
-            # Remove ORM entries for these jobs (objects referring to Job, like
-            # JobDetail and JobLog, are cycled automatically via ON DELETE
-            # CASCADE)
-            failure_line_query = FailureLine.objects.filter(job_guid__in=job_guid_list)
-
+            # Remove ORM entries for these jobs that don't currently have a foreign key
+            # relation
+            failure_lines_to_delete = FailureLine.objects.filter(
+                job_guid__in=jobs_chunk)
             if settings.ELASTIC_SEARCH["url"]:
                 # To delete the data from elasticsearch we need both the document id and the
                 # test, since this is used to determine the shard on which the document is indexed.
                 # However selecting all this data can be rather slow, so split the job into multiple
                 # smaller chunks.
-                failure_line_max_id = failure_line_query.order_by("-id").values_list("id", flat=True).first()
+                failure_line_max_id = failure_lines_to_delete.order_by("-id").values_list("id", flat=True).first()
                 while failure_line_max_id:
-                    es_delete_data = list(failure_line_query
+                    es_delete_data = list(failure_lines_to_delete
                                           .order_by("-id")
                                           .filter(id__lte=failure_line_max_id)
                                           .values_list("id", "test")[:chunk_size])
@@ -383,41 +261,13 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                         failure_line_max_id = min_id_in_chunk - 1
                     else:
                         failure_line_max_id = None
-            orm_delete(FailureLine, failure_line_query,
-                       chunk_size, sleep_time)
-            orm_delete(Job, Job.objects.filter(guid__in=job_guid_list),
-                       chunk_size, sleep_time)
-
-        return len(jobs_to_cycle)
-
-    def _get_max_timestamp(self, cycle_interval):
-        max_date = datetime.now() - cycle_interval
-        return int(time.mktime(max_date.timetuple()))
-
-    def _execute_table_deletes(self, sql_to_execute, data_type, sleep_time):
-
-        for sql_obj in sql_to_execute:
-
-            if not sql_obj['placeholders']:
-                continue
-            sql_obj['debug_show'] = self.DEBUG
-
-            # Disable foreign key checks to improve performance
-            self.execute(
-                proc='generic.db_control.disable_foreign_key_checks',
-                debug_show=self.DEBUG)
-
-            self.execute(**sql_obj)
-            self.get_dhub().commit('master_host')
-
-            # Re-enable foreign key checks to improve performance
-            self.execute(
-                proc='generic.db_control.enable_foreign_key_checks',
-                debug_show=self.DEBUG)
+            failure_lines_to_delete.delete()
 
             if sleep_time:
                 # Allow some time for other queries to get through
                 time.sleep(sleep_time)
+
+        return len(job_guids_to_cycle)
 
     def _get_lower_tier_signatures(self):
         # get the lower tier data signatures for this project.
@@ -571,14 +421,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # set the job_coalesced_to_guid column for any coalesced
         # job found
         if coalesced_job_guid_placeholders:
-            self.execute(
-                proc='jobs.updates.update_coalesced_guids',
-                debug_show=self.DEBUG,
-                placeholders=coalesced_job_guid_placeholders,
-                executemany=True)
-            for (coalesced_to_guid, job_guid) in coalesced_job_guid_placeholders:
-                Job.objects.filter(guid=job_guid).update(
-                    coalesced_to_guid=coalesced_to_guid)
+            for (job_guid, coalesced_to_guid) in coalesced_job_guid_placeholders:
+                Job.objects.filter(guid=coalesced_to_guid).update(
+                    coalesced_to_guid=job_guid)
 
     def _remove_existing_jobs(self, data):
         """
@@ -757,105 +602,77 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         except JobDuration.DoesNotExist:
             duration = 0
 
-        # try to insert the job unconditionally (if it already exists, this
-        # will be a no-op)
-        self.execute(
-            proc='jobs.inserts.create_job_data',
-            debug_show=self.DEBUG,
-            placeholders=[
-                [
-                    job_guid,
-                    signature_hash,
-                    None,                   # idx:2, job_coalesced_to_guid,
-                    None,
-                    push_id,
-                    build_platform.id,
-                    machine_platform.id,
-                    machine.id,
-                    option_collection_hash,
-                    job_type.id,
-                    product.id,
-                    who,
-                    reason,
-                    result,
-                    state,
-                    self.get_number(job_datum.get('submit_timestamp')),
-                    self.get_number(job_datum.get('start_timestamp')),
-                    self.get_number(job_datum.get('end_timestamp')),
-                    duration,
-                    tier,
-                    job_guid,
-                    get_guid_root(job_guid)  # will be the same except for ``retry`` jobs
-                ]
-            ],
-            executemany=True)
+        repository = Repository.objects.get(name=self.project)
+        submit_time = datetime.fromtimestamp(
+            self.get_number(job_datum.get('submit_timestamp')))
+        start_time = datetime.fromtimestamp(
+            self.get_number(job_datum.get('start_timestamp')))
+        end_time = datetime.fromtimestamp(
+            self.get_number(job_datum.get('end_timestamp')))
 
-        # by default we should try to update the "root" object
-        guid_root = get_guid_root(job_guid)
-        ds_job_ids = self.get_job_ids_by_guid([guid_root])
-        if ds_job_ids:
-            ds_job_id = ds_job_ids[guid_root]['id']
-        else:
-            ds_job_id = self.get_job_ids_by_guid([job_guid])[job_guid]['id']
+        # first, try to create the job with the given guid (if it doesn't
+        # exist yet)
+        job_guid_root = get_guid_root(job_guid)
+        if not Job.objects.filter(guid__in=[job_guid, job_guid_root]).exists():
+            # this could theoretically throw an exception if we were processing
+            # several updates simultaneously, but that should never happen --
+            # and if it does it's better just to error out
+            Job.objects.create(
+                guid=job_guid,
+                repository=repository,
+                signature=signature,
+                build_platform=build_platform,
+                machine_platform=machine_platform,
+                machine=machine,
+                option_collection_hash=option_collection_hash,
+                job_type=job_type,
+                product=product,
+                failure_classification=default_failure_classification,
+                who=who,
+                reason=reason,
+                result=result,
+                state=state,
+                tier=tier,
+                submit_time=submit_time,
+                start_time=start_time,
+                end_time=end_time,
+                last_modified=datetime.now(),
+                running_eta=duration,
+                push_id=push_id)
 
-        job, _ = Job.objects.update_or_create(
-            repository=Repository.objects.get(name=self.project),
-            project_specific_id=ds_job_id,
-            defaults={
-                'signature': signature,
-                'build_platform': build_platform,
-                'machine_platform': machine_platform,
-                'machine': machine,
-                'option_collection_hash': option_collection_hash,
-                'job_type': job_type,
-                'product': product,
-                'failure_classification': default_failure_classification,
-                'who': who,
-                'reason': reason,
-                'result': result,
-                'state': state,
-                'tier': tier,
-                'submit_time': datetime.fromtimestamp(
-                    self.get_number(job_datum.get('submit_timestamp'))),
-                'start_time': datetime.fromtimestamp(
-                    self.get_number(job_datum.get('start_timestamp'))),
-                'end_time': datetime.fromtimestamp(
-                    self.get_number(job_datum.get('end_timestamp'))),
-                'last_modified': datetime.now(),
-                'running_eta': duration,
-                'guid': job_guid,
-                'push_id': push_id
-            })
+        # if the job was pending, there's nothing more to do here
+        # (pending jobs have no artifacts, and we would have just created
+        # it)
+        if state == 'pending':
+            return (job_guid, signature_hash)
 
-        # update the datasource job information if appropriate
-        # we might both insert *and* update a job if it comes in with a status
-        # that isn't pending, but we're ok with this I think (since this code
-        # will be going away soon)
-        if state != 'pending':
-            self.execute(
-                proc="jobs.updates.update_job_data",
-                debug_show=self.DEBUG,
-                placeholders=[
-                    [
-                        job_guid,
-                        None,
-                        None,
-                        push_id,
-                        machine.id,
-                        option_collection_hash,
-                        job_type.id,
-                        product.id,
-                        who,
-                        reason,
-                        result,
-                        state,
-                        self.get_number(job_datum.get('start_timestamp')),
-                        self.get_number(job_datum.get('end_timestamp')),
-                        state,
-                        ds_job_id
-                    ]
-                ],
-                executemany=True)
+        # update job (in the case of a buildbot retrigger, we will
+        # get the root object and update that to a retry)
+        try:
+            job = Job.objects.get(guid=job_guid_root)
+        except ObjectDoesNotExist:
+            job = Job.objects.get(guid=job_guid)
+        Job.objects.filter(id=job.id).update(
+            guid=job_guid,
+            signature=signature,
+            build_platform=build_platform,
+            machine_platform=machine_platform,
+            machine=machine,
+            option_collection_hash=option_collection_hash,
+            job_type=job_type,
+            product=product,
+            failure_classification=default_failure_classification,
+            who=who,
+            reason=reason,
+            result=result,
+            state=state,
+            tier=tier,
+            submit_time=submit_time,
+            start_time=start_time,
+            end_time=end_time,
+            last_modified=datetime.now(),
+            running_eta=duration,
+            push_id=push_id)
 
         artifacts = job_datum.get('artifacts', [])
 
@@ -881,6 +698,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         log_refs = job_datum.get('log_references', [])
         if log_refs:
+
             for log in log_refs:
                 name = log.get('name') or 'unknown'
                 name = name[0:50]
@@ -919,20 +737,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         except (ValueError, TypeError):
             return 0
 
-    def get_job_ids_by_guid(self, job_guid_list):
-
-        job_guid_where_in_clause = ",".join(["%s"] * len(job_guid_list))
-
-        job_id_lookup = self.execute(
-            proc='jobs.selects.get_job_ids_by_guids',
-            debug_show=self.DEBUG,
-            replace=[job_guid_where_in_clause],
-            placeholders=job_guid_list,
-            key_column='job_guid',
-            return_type='dict')
-
-        return job_id_lookup
-
     def _schedule_log_parsing(self, job_log, result):
         """Kick off the initial task that parses the log data.
 
@@ -967,14 +771,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             routing_key += ".normal"
 
         parse_job_log(func_name, routing_key, job_log)
-
-    def _get_last_insert_id(self):
-        """Return last-inserted ID."""
-        return self.get_dhub().execute(
-            proc='generic.selects.get_last_insert_id',
-            debug_show=self.DEBUG,
-            return_type='iter',
-        ).get_column_data('id')
 
     def store_result_set_data(self, result_sets):
         """

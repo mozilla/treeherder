@@ -80,13 +80,6 @@ def jm(request, test_repository, jobs_ds):
     """ Give a test access to a JobsModel instance. """
     model = JobsModel(jobs_ds.project)
 
-    # patch in additional test-only procs on the datasources
-    add_test_procs_file(
-        model.get_dhub(),
-        model.get_datasource().key,
-        "jobs_test.json",
-    )
-
     def fin():
         model.disconnect()
     request.addfinalizer(fin)

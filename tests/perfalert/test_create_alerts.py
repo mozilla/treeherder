@@ -1,9 +1,7 @@
 import datetime
 import time
 
-from tests.test_utils import create_generic_job
-from treeherder.model.models import (Job,
-                                     Push)
+from treeherder.model.models import Push
 from treeherder.perf.alerts import generate_new_alerts_in_series
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
@@ -41,14 +39,10 @@ def _generate_performance_data(test_repository, test_perf_signature,
                 'author': 'foo@bar.com',
                 'time': datetime.datetime.fromtimestamp(base_timestamp + t)
             })
-        job = create_generic_job('abcd%s' % Job.objects.count(),
-                                 test_repository, push.id, Job.objects.count(),
-                                 generic_reference_data)
         PerformanceDatum.objects.create(
             repository=test_repository,
             result_set_id=t,
             push=push,
-            ds_job_id=job.id,
             signature=test_perf_signature,
             push_timestamp=datetime.datetime.utcfromtimestamp(
                 base_timestamp + t),

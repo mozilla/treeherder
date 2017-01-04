@@ -76,19 +76,6 @@ def test_parse_log(jm, failure_classifications, jobs_with_local_log, sample_resu
 
     jm.store_job_data(jobs)
 
-    job_id = jm.get_dhub().execute(
-        proc="jobs_test.selects.row_by_guid",
-        placeholders=[jobs[0]['job']['job_guid']]
-    )[0]['id']
-
-    job_artifacts = jm.get_dhub().execute(
-        proc="jobs_test.selects.job_artifact",
-        placeholders=[job_id]
-    )
-
-    # should no longer be generating any job artifacts
-    assert len(job_artifacts) == 0
-
     # this log generates 4 job detail objects at present
     print JobDetail.objects.count() == 4
 
@@ -110,20 +97,7 @@ def test_create_error_summary(jm, failure_classifications,
 
     jm.store_job_data(jobs)
 
-    job_id = jm.get_dhub().execute(
-        proc="jobs_test.selects.row_by_guid",
-        placeholders=[jobs[0]['job']['job_guid']]
-    )[0]['id']
-
-    job_artifacts = jm.get_dhub().execute(
-        proc="jobs_test.selects.job_artifact",
-        placeholders=[job_id]
-    )
-
     bug_suggestions = get_error_summary(Job.objects.get(id=1))
-
-    # should no longer have any bug suggestions artifacts
-    assert len(job_artifacts) == 0
 
     # we must have one bugs item per error in bug_suggestions.
     # errors with no bug suggestions will just have an empty

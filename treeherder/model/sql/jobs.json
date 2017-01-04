@@ -118,21 +118,6 @@
         "get_jobs_to_cycle":{
             "sql":"SELECT id, job_guid FROM job WHERE submit_timestamp < ?",
             "host_type":"master_host"
-        },
-        "get_job_ids_by_guids":{
-            "sql":"SELECT `id`, `job_guid`, `push_id`, `state`, `result`
-                   FROM `job`
-                   WHERE `active_status` = 'active' AND `job_guid` IN (REP0)",
-            "host_type": "master_host"
-        },
-        "get_jobs_by_coalesced_guids":{
-
-            "sql":"SELECT `id`, `job_guid`, `job_coalesced_to_guid`
-                   FROM `job`
-                   WHERE `job_coalesced_to_guid` IN (REP0)",
-
-            "host_type": "read_host"
-
         }
     }
 }

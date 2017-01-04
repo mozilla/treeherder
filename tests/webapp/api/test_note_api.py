@@ -23,7 +23,7 @@ def test_note_list(webapp, test_job_with_notes):
     assert isinstance(resp.json, list)
     assert resp.json == [{
         "id": note.id,
-        "job_id": note.job.project_specific_id,
+        "job_id": note.job.id,
         "failure_classification_id": note.failure_classification.id,
         "who": note.user.email,
         "created": note.created.isoformat(),

@@ -1,4 +1,5 @@
 import os
+import time
 
 import pytest
 import responses
@@ -9,6 +10,7 @@ from treeherder.etl.buildapi import (CACHE_KEYS,
                                      Builds4hJobsProcess,
                                      PendingJobsProcess,
                                      RunningJobsProcess)
+from treeherder.model.models import Job
 
 
 @pytest.fixture
@@ -86,8 +88,7 @@ def mock_buildapi_builds4h_missing_branch_url(activate_responses):
                   content_type='application/json')
 
 
-def test_ingest_pending_jobs(jm,
-                             result_set_stored,
+def test_ingest_pending_jobs(result_set_stored,
                              failure_classifications,
                              mock_buildapi_pending_url,
                              mock_log_parser):
@@ -103,12 +104,10 @@ def test_ingest_pending_jobs(jm,
     new_jobs_were_added = etl_process.run()
     assert new_jobs_were_added is False
 
-    stored_obj = jm.get_dhub().execute(proc="jobs_test.selects.jobs")
-    assert len(stored_obj) == 1
+    assert Job.objects.count() == 1
 
 
-def test_ingest_running_jobs(jm,
-                             result_set_stored,
+def test_ingest_running_jobs(result_set_stored,
                              failure_classifications,
                              mock_buildapi_running_url,
                              mock_log_parser):
@@ -124,12 +123,10 @@ def test_ingest_running_jobs(jm,
     new_jobs_were_added = etl_process.run()
     assert new_jobs_were_added is False
 
-    stored_obj = jm.get_dhub().execute(proc="jobs_test.selects.jobs")
-    assert len(stored_obj) == 1
+    assert Job.objects.count() == 1
 
 
-def test_ingest_builds4h_jobs(jm,
-                              result_set_stored,
+def test_ingest_builds4h_jobs(result_set_stored,
                               failure_classifications,
                               mock_buildapi_builds4h_url,
                               mock_log_parser):
@@ -145,12 +142,10 @@ def test_ingest_builds4h_jobs(jm,
     new_jobs_were_added = etl_process.run()
     assert new_jobs_were_added is False
 
-    stored_obj = jm.get_dhub().execute(proc="jobs_test.selects.jobs")
-    assert len(stored_obj) == 32
+    assert Job.objects.count() == 32
 
 
-def test_ingest_running_to_complete_job(jm,
-                                        result_set_stored,
+def test_ingest_running_to_complete_job(result_set_stored,
                                         failure_classifications,
                                         mock_buildapi_running_url,
                                         mock_buildapi_builds4h_url,
@@ -162,27 +157,22 @@ def test_ingest_running_to_complete_job(jm,
     etl_process = RunningJobsProcess()
     etl_process.run()
 
-    stored_running = jm.get_dhub().execute(proc="jobs_test.selects.jobs")
-
-    assert len(stored_running) == 1
+    assert Job.objects.count() == 1
 
     # the first job in the sample data should overwrite the running job
     # we just ingested.  Leaving us with only 32 jobs, not 33.
     etl_process = Builds4hJobsProcess()
     etl_process.run()
 
-    stored_obj = jm.get_dhub().execute(proc="jobs_test.selects.jobs")
-
-    assert len(stored_obj) == 32
+    assert Job.objects.count() == 32
 
     # all jobs should be completed, including the original one which
     # transitioned from running.
-    for job in stored_obj:
-        assert job['state'] == 'completed'
+    for job in Job.objects.all():
+        assert job.state == 'completed'
 
 
-def test_ingest_running_job_fields(jm,
-                                   result_set_stored,
+def test_ingest_running_job_fields(result_set_stored,
                                    failure_classifications,
                                    mock_buildapi_running_url,
                                    mock_log_parser):
@@ -192,14 +182,11 @@ def test_ingest_running_job_fields(jm,
     etl_process = RunningJobsProcess()
     etl_process.run()
 
-    stored_obj = jm.get_dhub().execute(proc="jobs_test.selects.jobs")
-
-    assert len(stored_obj) == 1
-    assert stored_obj[0]["start_timestamp"] is not 0
+    assert Job.objects.count() == 1
+    assert time.mktime(Job.objects.all()[0].start_time.timetuple()) > 0
 
 
-def test_ingest_builds4h_jobs_1_missing_resultset(jm,
-                                                  result_set_stored,
+def test_ingest_builds4h_jobs_1_missing_resultset(result_set_stored,
                                                   failure_classifications,
                                                   mock_buildapi_builds4h_missing1_url,
                                                   mock_log_parser):
@@ -209,12 +196,10 @@ def test_ingest_builds4h_jobs_1_missing_resultset(jm,
     etl_process = Builds4hJobsProcess()
     etl_process.run()
 
-    stored_obj = jm.get_dhub().execute(proc="jobs_test.selects.jobs")
-    assert len(stored_obj) == 1
+    assert Job.objects.count() == 1
 
 
-def test_ingest_builds4h_jobs_missing_branch(jm,
-                                             result_set_stored,
+def test_ingest_builds4h_jobs_missing_branch(result_set_stored,
                                              failure_classifications,
                                              mock_buildapi_builds4h_missing_branch_url,
                                              mock_log_parser):
@@ -224,5 +209,4 @@ def test_ingest_builds4h_jobs_missing_branch(jm,
     etl_process = Builds4hJobsProcess()
     etl_process.run()
 
-    stored_obj = jm.get_dhub().execute(proc="jobs_test.selects.jobs")
-    assert len(stored_obj) == 0
+    assert Job.objects.count() == 0

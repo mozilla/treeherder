@@ -719,7 +719,7 @@ class Job(models.Model):
     # indexing this column to make eventual migration of performance artifacts
     # faster (since we'll need to cross-reference those row-by-row), see
     # https://bugzilla.mozilla.org/show_bug.cgi?id=1265503
-    project_specific_id = models.PositiveIntegerField(db_index=True)
+    project_specific_id = models.PositiveIntegerField(db_index=True, null=True)
 
     coalesced_to_guid = models.CharField(max_length=50, null=True,
                                          default=None)
