@@ -599,8 +599,7 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
     Endpoint for retrieving metadata (e.g. links to artifacts, file sizes)
     associated with a particular job
     '''
-    queryset = JobDetail.objects.all().select_related('job__guid',
-                                                      'job__repository__name')
+    queryset = JobDetail.objects.all().select_related('job', 'job__repository')
     serializer_class = serializers.JobDetailSerializer
 
     class JobDetailFilter(filters.FilterSet):
