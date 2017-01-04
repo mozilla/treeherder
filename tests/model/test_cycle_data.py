@@ -213,7 +213,7 @@ def test_cycle_job_model_reference_data(jm, failure_classifications,
 
 def test_cycle_job_with_performance_data(test_repository, failure_classifications,
                                          jm, sample_data, sample_resultset,
-                                         test_perf_signature):
+                                         mock_log_parser, test_perf_signature):
     # build a date that will cause the data to be cycled
     time_now = time.time()
     cycle_date_ts = int(time_now - 7 * 24 * 3600)
