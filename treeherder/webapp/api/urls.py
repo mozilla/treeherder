@@ -12,7 +12,6 @@ from treeherder.webapp.api import (artifact,
                                    failureline,
                                    job_log_url,
                                    jobs,
-                                   logslice,
                                    note,
                                    performance_data,
                                    refdata,
@@ -72,12 +71,6 @@ project_bound_router.register(
     r'bug-job-map',
     bug.BugJobMapViewSet,
     base_name='bug-job-map',
-)
-
-project_bound_router.register(
-    r'logslice',
-    logslice.LogSliceView,
-    base_name='logslice',
 )
 
 project_bound_router.register(

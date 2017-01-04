@@ -23,7 +23,6 @@ dist/
 docs/_build/
 treeherder/media/
 treeherder/static/
-treeherder/webapp/log_cache/
 ui/js/config/local.conf.js
 
 # Celery
