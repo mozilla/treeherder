@@ -15,31 +15,26 @@ from treeherder.seta.update_job_priority import _sanitize_data
 
 @pytest.fixture
 def runnable_jobs_data():
-    return {
-        "meta": {
-            "count": 5,
-            "offset": 0,
-            "repository": "mozilla-inbound"
-        },
-        "results": [
+    repository_name = 'test_treeherder_jobs'
+    runnable_jobs = [
             {
                 "build_system_type": "buildbot",
                 "job_type_name": "W3C Web Platform Tests",
                 "platform": "windows8-64",
                 "platform_option": "debug",
-                "ref_data_name": "Windows 8 64-bit mozilla-inbound debug test web-platform-tests-1",
+                "ref_data_name": "Windows 8 64-bit {} debug test web-platform-tests-1".format(repository_name),
             }, {
                 "build_system_type": "buildbot",
                 "job_type_name": "Reftest e10s",
                 "platform": "linux32",
                 "platform_option": "opt",
-                "ref_data_name": "Ubuntu VM 12.04 mozilla-inbound opt test reftest-e10s-1",
+                "ref_data_name": "Ubuntu VM 12.04 {} opt test reftest-e10s-1".format(repository_name),
             }, {
                 "build_system_type": "buildbot",
                 "job_type_name": "Build",
                 "platform": "osx-10-7",
                 "platform_option": "opt",
-                "ref_data_name": "OS X 10.7 mozilla-inbound build",
+                "ref_data_name": "OS X 10.7 {} build".format(repository_name),
             }, {
                 "build_system_type": "taskcluster",
                 "job_type_name": "desktop-test-linux32/opt-reftest-e10s-1",
@@ -54,6 +49,25 @@ def runnable_jobs_data():
                 "ref_data_name": "desktop-test-linux64/opt-reftest-e10s-2",
             }
         ]
+
+    return {
+        "meta": {
+            "count": len(runnable_jobs),
+            "offset": 0,
+            "repository": repository_name
+        },
+        "results": runnable_jobs
+    }
+
+
+@pytest.fixture
+def tc_latest_gecko_decision_index(test_repository):
+    return {
+        "namespace": "gecko.v2.{}.latest.firefox.decision".format(test_repository),
+        "taskId": "XVDNiP07RNaaEghhvkZJWg",
+        "rank": 0,
+        "data": {},
+        "expires": "2018-01-04T20:36:11.375Z"
     }
 
 

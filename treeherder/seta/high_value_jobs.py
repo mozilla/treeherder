@@ -1,6 +1,6 @@
 import logging
 
-from treeherder.etl.seta import Treecodes
+from treeherder.etl.seta import job_priorities_to_jobtypes
 
 logger = logging.getLogger(__name__)
 
@@ -105,12 +105,7 @@ def get_high_value_jobs(fixed_by_commit_jobs, target=100):
     """
     total = len(fixed_by_commit_jobs)
     logger.info("Processing %s failures" % total)
-    # This fetches the jobtypes' endpoint
-    # List of jobs (platform, platform_opt, testtype)
-    # It reads the runnable API, it calculates the testtype for each build system type
-    # It also skips PGO jobs
-    # XXX: We could query the job priorities table and skip the PGO jobs here
-    active_jobs = Treecodes().query_jobtypes()
+    active_jobs = job_priorities_to_jobtypes()
 
     low_value_jobs, failures_root_cause = build_removals(
         active_jobs=active_jobs,

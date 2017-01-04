@@ -1,6 +1,7 @@
 import logging
 
 from treeherder.seta.common import unique_key
+from treeherder.seta.models import JobPriority
 from treeherder.seta.runnable_jobs import RunnableJobsClient
 
 LOG = logging.getLogger(__name__)
@@ -153,3 +154,11 @@ def valid_platform(platform):
         'windows8-32',  # We don't test 32-bit builds on Windows 8 test infra
         'Win 6.3.9600 x86_64',
     ]
+
+
+def job_priorities_to_jobtypes():
+    jobtypes = []
+    for jp in JobPriority.objects.all():
+        jobtypes.append(jp.unique_identifier())
+
+    return jobtypes
