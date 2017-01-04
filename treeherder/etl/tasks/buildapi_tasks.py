@@ -4,11 +4,11 @@ This module contains
 import newrelic.agent
 from celery import task
 
-from treeherder.etl.allthethings import RunnableJobsProcess
 from treeherder.etl.buildapi import (Builds4hJobsProcess,
                                      PendingJobsProcess,
                                      RunningJobsProcess)
 from treeherder.etl.pushlog import HgPushlogProcess
+from treeherder.etl.runnable_jobs import RunnableJobsProcess
 from treeherder.model.models import Repository
 
 

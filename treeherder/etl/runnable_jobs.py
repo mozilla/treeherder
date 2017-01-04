@@ -4,6 +4,8 @@ import logging
 from hashlib import sha1
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 
 from treeherder.etl.buildbot import get_symbols_and_platforms
 from treeherder.etl.common import fetch_json
@@ -108,6 +110,99 @@ class RunnableJobsProcess(AllthethingsTransformerMixin):
         RunnableJob.objects.filter(last_touched__lt=now).delete()
 
     def run(self):
+        logger.info('Fetching allthethings.json')
         all_the_things = fetch_json(settings.ALLTHETHINGS_URL)
         jobs_per_branch = self.transform(all_the_things)
-        self.load(jobs_per_branch)
+        logger.info('Updating runnable jobs table with transformed allthethings.json data.')
+        self.update_runnable_jobs_table(jobs_per_branch)
+
+
+def _taskcluster_runnable_jobs(decision_task_id):
+    if not decision_task_id:
+        return []
+    else:
+        ret = []
+        tc_graph = {}
+        tc_graph_url = settings.TASKCLUSTER_TASKGRAPH_URL.format(task_id=decision_task_id)
+        validate = URLValidator()
+        try:
+            validate(tc_graph_url)
+            tc_graph = fetch_json(tc_graph_url)
+        except ValidationError:
+            logger.warning('Failed to validate {}'.format(tc_graph_url))
+            return []
+
+        for label, node in tc_graph.iteritems():
+            if not ('extra' in node['task'] and 'treeherder' in node['task']['extra']):
+                # some tasks don't have the treeherder information we need
+                # to be able to display them (and are not intended to be
+                # displayed). skip.
+                continue
+
+            treeherder_options = node['task']['extra']['treeherder']
+            task_metadata = node['task']['metadata']
+            platform_option = ' '.join(treeherder_options.get('collection', {}).keys())
+
+            ret.append({
+                'build_platform': treeherder_options.get('machine', {}).get('platform', ''),
+                'build_system_type': 'taskcluster',
+                'job_group_name': treeherder_options.get('groupName', ''),
+                'job_group_symbol': treeherder_options.get('groupSymbol', ''),
+                'job_type_description': task_metadata['description'],
+                'job_type_name': task_metadata['name'],
+                'job_type_symbol': treeherder_options['symbol'],
+                'platform': treeherder_options.get('machine', {}).get('platform', ''),
+                'platform_option': platform_option,
+                'ref_data_name': label
+                })
+
+        return ret
+
+
+def _buildbot_runnable_jobs(project):
+    ret = []
+    repository = Repository.objects.get(name=project)
+    options_by_hash = OptionCollection.objects.all().select_related(
+        'option').values_list('option__name', 'option_collection_hash')
+
+    runnable_jobs = RunnableJob.objects.filter(
+        repository=repository
+    ).select_related('build_platform', 'machine_platform',
+                     'job_type', 'job_type__job_group')
+
+    # Adding buildbot jobs
+    for datum in runnable_jobs:
+        options = ' '.join(option_name for (option_name, col_hash) in options_by_hash
+                           if col_hash == datum.option_collection_hash)
+
+        ret.append({
+            'build_platform_id': datum.build_platform.id,
+            'build_platform': datum.build_platform.platform,
+            'build_os': datum.build_platform.os_name,
+            'build_architecture': datum.build_platform.architecture,
+            'machine_platform_id': datum.machine_platform.id,
+            'platform': datum.machine_platform.platform,
+            'machine_platform_os': datum.machine_platform.os_name,
+            'machine_platform_architecture': datum.machine_platform.architecture,
+            'job_group_id': datum.job_type.job_group.id,
+            'job_group_name': datum.job_type.job_group.name,
+            'job_group_symbol': datum.job_type.job_group.symbol,
+            'job_group_description': datum.job_type.job_group.description,
+            'job_type_id': datum.job_type.id,
+            'job_type_name': datum.job_type.name,
+            'job_type_symbol': datum.job_type.symbol,
+            'job_type_description': datum.job_type.description,
+            'option_collection_hash': datum.option_collection_hash,
+            'ref_data_name': datum.ref_data_name,
+            'build_system_type': datum.build_system_type,
+            'platform_option': options,
+            })
+
+    return ret
+
+
+def list_runnable_jobs(project, decision_task_id=None):
+    ret = _buildbot_runnable_jobs(project)
+    ret = ret + _taskcluster_runnable_jobs(decision_task_id)
+
+    return dict(meta={"repository": project, "offset": 0, "count": len(ret)}, results=ret)
