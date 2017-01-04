@@ -87,11 +87,7 @@ matrix:
         # Several security features in settings.py (eg setting HSTS headers) are conditional on
         # 'https://' being in the site URL. In addition, we override the test environment's debug
         # value so the tests pass. The real environment variable will be checked during deployment.
-        # Replace grep with `--fail-level WARNING` once we're using Django 1.10, since in
-        # previous versions an exit code of 1 is hard-coded to only ERROR and above:
-        # https://github.com/django/django/commit/287532588941d2941e19c4cd069bcbd8af889203
-        # The pipefail ensures exceptions during the command still cause the step to fail.
-        - set -o pipefail; SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' ./manage.py check --deploy 2>&1 | awk '/^WARNINGS/{err=1} {print} END{exit err}'
+        - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' ./manage.py check --deploy --fail-level WARNING
         - py.test tests/ --runslow --ignore=tests/e2e/ --ignore=tests/etl/ --ignore=tests/log_parser/ --ignore=tests/webapp/
 
     # Job 4: Python Tests Chunk B
