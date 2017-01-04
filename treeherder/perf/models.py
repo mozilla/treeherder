@@ -96,16 +96,16 @@ class PerformanceDatum(models.Model):
                              on_delete=models.SET_NULL)
     push = models.ForeignKey(Push)
 
-    ds_job_id = models.PositiveIntegerField(db_column="ds_job_id")
+    # the following properties are obsolete and should be removed at some
+    # point
+    ds_job_id = models.PositiveIntegerField(db_column="ds_job_id", null=True)
     result_set_id = models.PositiveIntegerField(null=True)
 
     class Meta:
         db_table = 'performance_datum'
         index_together = [('repository', 'signature', 'push_timestamp'),
-                          ('repository', 'ds_job_id')]
-        unique_together = [('repository', 'ds_job_id', 'result_set_id',
-                            'signature', 'push_timestamp'),
-                           ('repository', 'ds_job_id', 'push', 'signature')]
+                          ('repository', 'job')]
+        unique_together = ('repository', 'job', 'push', 'signature')
 
     def save(self, *args, **kwargs):
         super(PerformanceDatum, self).save(*args, **kwargs)  # Call the "real" save() method.

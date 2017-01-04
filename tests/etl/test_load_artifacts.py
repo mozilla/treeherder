@@ -5,8 +5,7 @@ import json
 import pytest
 
 from treeherder.etl.artifact import store_job_artifacts
-from treeherder.model.models import (Job,
-                                     JobDetail,
+from treeherder.model.models import (JobDetail,
                                      TextLogError,
                                      TextLogStep)
 
