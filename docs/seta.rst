@@ -59,7 +59,8 @@ NOTE: This will only import Buildbot jobs
   .. code-block:: bash
 
      ./manage.py analyze_failures
-     ./manage.py load_preseed
+
+NOTE: preseed.json gets loaded automatically on start up.
 
 * Test the different APIs:
 
