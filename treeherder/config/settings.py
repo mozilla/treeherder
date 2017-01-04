@@ -258,7 +258,6 @@ CELERY_QUEUES = [
     Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs'),
     Queue('store_pulse_resultsets', Exchange('default'), routing_key='store_pulse_resultsets'),
     Queue('seta_analyze_failures', Exchange('default'), routing_key='seta_analyze_failures'),
-    Queue('seta_load_preseed', Exchange('default'), routing_key='seta_load_preseed'),
 ]
 
 CELERY_ACCEPT_CONTENT = ['json']
@@ -341,14 +340,6 @@ CELERYBEAT_SCHEDULE = {
         'relative': True,
         'options': {
             'queue': "seta_analyze_failures"
-        }
-    },
-    'seta-load-preseed': {
-        'task': 'seta-load-preseed',
-        'schedule': timedelta(days=1),
-        'relative': True,
-        'options': {
-            'queue': "seta_load_preseed"
         }
     },
 }
