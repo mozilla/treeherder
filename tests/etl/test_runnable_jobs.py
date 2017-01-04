@@ -1,5 +1,5 @@
-from treeherder.etl.allthethings import RunnableJobsProcess
 from treeherder.etl.buildbot import get_symbols_and_platforms
+from treeherder.etl.runnable_jobs import RunnableJobsProcess
 from treeherder.model.models import (BuildPlatform,
                                      JobType,
                                      MachinePlatform,
