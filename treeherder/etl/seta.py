@@ -19,7 +19,7 @@ class Treecodes:
         for job in RunnableJobsClient().query_runnable_jobs(repo_name)['results']:
             # e.g. web-platform-tests-4
             # e.g. Ubuntu VM 12.04 x64 mozilla-inbound opt test web-platform-tests-4 OR
-            #      desktop-test-linux64/opt-web-platform-tests-4
+            #      test-linux64/opt-web-platform-tests-4
             testtype = job_testtype(job)
             if self._ignore(testtype):
                 ignored_jobs.append(job['ref_data_name'])
@@ -83,18 +83,14 @@ def parse_testtype(build_system_type, job_type_name, platform_option, ref_data_n
         # opt test web-platform-tests-4"
         return ref_data_name.split(' ')[-1]
     else:
-        # The test name on TaskCluster comes to a sort of combination
-        # (e.g desktop-test-linux64/debug-jittests-3)
-
         # NOTE: Buildbot bridge tasks always have a Buildbot job associated to it. We will
         #       ignore any BBB task since we will be analyzing instead the Buildbot job associated
         #       to it. If BBB tasks were a production system and there was a technical advantage
         #       we could look into analyzing that instead of the BB job.
-        if ref_data_name.startswith('desktop-test') or \
-           ref_data_name.startswith('android-test'):
-            # we should get "jittests-3" as testtype for a job_type_name like
-            # desktop-test-linux64/debug-jittests-3
-            return transform(job_type_name.split('{buildtype}-'.format(buildtype=platform_option))[-1])
+        if ref_data_name.startswith('test-'):
+            # we should get "jittest-3" as testtype for a job_type_name like
+            # test-linux64/debug-jittest-3
+            return transform(job_type_name.split('-{buildtype}'.format(buildtype=platform_option))[-1])
 
 
 def transform(testtype):
@@ -130,6 +126,8 @@ def transform(testtype):
     testtype = testtype.replace('devtools-chrome-e10s', 'e10s-devtools-chrome')
     testtype = testtype.replace('[TC] Android 4.3 API15+ ', '')
 
+    # mochitest-gl-1 <-- Android 4.3 armv7 API 15+ mozilla-inbound opt test mochitest-gl-1
+    # mochitest-webgl-9  <-- test-android-4.3-arm7-api-15/opt-mochitest-webgl-9
     testtype = testtype.replace('webgl-', 'gl-')
 
     return testtype
