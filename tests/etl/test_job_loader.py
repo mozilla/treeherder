@@ -12,26 +12,26 @@ from treeherder.model.models import (Job,
 
 
 @pytest.fixture
-def first_job(sample_data, test_project, result_set_stored):
+def first_job(sample_data, test_repository, result_set_stored):
     revision = result_set_stored[0]["revisions"][0]["revision"]
     job = copy.deepcopy(sample_data.pulse_jobs[0])
-    job["origin"]["project"] = test_project
+    job["origin"]["project"] = test_repository.name
     job["origin"]["revision"] = revision
     return job
 
 
 @pytest.fixture
-def pulse_jobs(sample_data, test_project, result_set_stored):
+def pulse_jobs(sample_data, test_repository, result_set_stored):
     revision = result_set_stored[0]["revisions"][0]["revision"]
     jobs = copy.deepcopy(sample_data.pulse_jobs)
     for job in jobs:
-        job["origin"]["project"] = test_project
+        job["origin"]["project"] = test_repository.name
         job["origin"]["revision"] = revision
     return jobs
 
 
 @pytest.fixture
-def transformed_pulse_jobs(sample_data, test_project):
+def transformed_pulse_jobs(sample_data, test_repository):
     jobs = copy.deepcopy(sample_data.transformed_pulse_jobs)
     return jobs
 
@@ -44,7 +44,7 @@ def test_job_transformation(pulse_jobs, transformed_pulse_jobs):
         assert transformed_pulse_jobs[idx] == json.loads(json.dumps(jl.transform(job)))
 
 
-def test_ingest_pulse_jobs(pulse_jobs, test_project, result_set_stored,
+def test_ingest_pulse_jobs(pulse_jobs, test_repository, result_set_stored,
                            failure_classifications, mock_log_parser):
     """
     Ingest a job through the JSON Schema validated JobLoader used by Pulse
@@ -76,7 +76,7 @@ def test_ingest_pulse_jobs(pulse_jobs, test_project, result_set_stored,
     assert JobDetail.objects.count() == 2
 
 
-def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_project, result_set_stored,
+def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_repository, result_set_stored,
                                        failure_classifications, mock_log_parser):
     """
     Ingest a job through the JSON Schema validated JobLoader used by Pulse
@@ -92,7 +92,7 @@ def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_project, result_set_stor
         jl.process_job_list(pulse_jobs)
 
 
-def test_ingest_pulse_jobs_with_revision_hash(pulse_jobs, test_project,
+def test_ingest_pulse_jobs_with_revision_hash(pulse_jobs, test_repository,
                                               result_set_stored,
                                               failure_classifications,
                                               mock_log_parser):

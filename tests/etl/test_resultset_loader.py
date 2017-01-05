@@ -67,15 +67,15 @@ def test_get_transformer_class(exchange, transformer_class):
     assert rsl.get_transformer_class(exchange) == transformer_class
 
 
-def test_ingest_github_pull_request(jm, github_pr, transformed_github_pr,
+def test_ingest_github_pull_request(test_repository, github_pr, transformed_github_pr,
                                     mock_github_pr_commits):
     xformer = GithubPullRequestTransformer(github_pr)
-    resultset = xformer.transform(jm.project)
+    resultset = xformer.transform(test_repository.name)
     assert transformed_github_pr == resultset
 
 
-def test_ingest_github_push(jm, github_push, transformed_github_push,
+def test_ingest_github_push(test_repository, github_push, transformed_github_push,
                             mock_github_push_commits):
     xformer = GithubPushTransformer(github_push)
-    resultset = xformer.transform(jm.project)
+    resultset = xformer.transform(test_repository.name)
     assert transformed_github_push == resultset

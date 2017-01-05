@@ -1,6 +1,10 @@
 from decimal import Decimal
 
+from tests.autoclassify.utils import (create_failure_lines,
+                                      create_text_log_errors,
+                                      test_line)
 from treeherder.model.models import (ClassifiedFailure,
+                                     FailureLine,
                                      FailureMatch)
 
 
@@ -41,3 +45,21 @@ def test_set_bug_duplicate(failure_lines, classified_failures, test_matcher):
     assert matches[0].score == Decimal("0.8")
     # Ensure we deleted the ClassifiedFailure on which we tried to set the bug
     assert len(ClassifiedFailure.objects.filter(id=classified_failures[1].id)) == 0
+
+
+def test_update_autoclassification_bug(test_job, test_job_2,
+                                       classified_failures):
+    # Job 1 has two failure lines so nothing should be updated
+    assert test_job.update_autoclassification_bug(1234) is None
+
+    failure_lines = create_failure_lines(test_job_2,
+                                         [(test_line, {})])
+    failure_lines[0].best_classification = classified_failures[0]
+    failure_lines[0].save()
+    classified_failures[0].bug_number = None
+    lines = [(item, {}) for item in FailureLine.objects.filter(job_guid=test_job_2.guid).values()]
+    create_text_log_errors(test_job_2, lines)
+
+    assert test_job_2.update_autoclassification_bug(1234) == classified_failures[0]
+    classified_failures[0].refresh_from_db()
+    assert classified_failures[0].bug_number == 1234

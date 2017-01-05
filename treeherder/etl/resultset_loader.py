@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from treeherder.etl.common import (fetch_json,
                                    to_timestamp)
-from treeherder.model.derived.jobs import JobsModel
+from treeherder.etl.resultset import store_result_set_data
 from treeherder.model.models import Repository
 
 logger = logging.getLogger(__name__)
@@ -23,12 +23,11 @@ class ResultsetLoader:
                                           active_status="active")
             transformed_data = transformer.transform(repo.name)
 
-            with JobsModel(repo.name) as jobs_model:
-                logger.info("Storing resultset for {} {} {}".format(
-                    repo.name,
-                    transformer.repo_url,
-                    transformer.branch))
-                jobs_model.store_result_set_data([transformed_data])
+            logger.info("Storing resultset for {} {} {}".format(
+                repo.name,
+                transformer.repo_url,
+                transformer.branch))
+            store_result_set_data(repo, [transformed_data])
 
         except ObjectDoesNotExist:
             newrelic.agent.record_custom_event("skip_unknown_repository",
