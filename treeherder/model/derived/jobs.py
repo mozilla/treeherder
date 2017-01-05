@@ -1,7 +1,6 @@
 import logging
 import time
-from datetime import (datetime,
-                      timedelta)
+from datetime import datetime
 from hashlib import sha1
 
 import newrelic.agent
@@ -61,39 +60,6 @@ class JobsModel(TreeherderModelBase):
     # Job schema data methods
     #
     ##################
-
-    def calculate_durations(self, sample_window_seconds, debug):
-        # Get the most recent timestamp from jobs
-        max_start_time = Job.objects.values_list(
-            'start_time', flat=True).latest('start_time')
-        if not max_start_time:
-            return
-        latest_start_time = max_start_time - timedelta(
-            seconds=sample_window_seconds)
-
-        repository = Repository.objects.get(name=self.project)
-        jobs = Job.objects.filter(
-            repository__name=self.project,
-            start_time__gt=latest_start_time)
-
-        for signature_hash in jobs.values_list(
-                'signature__signature', flat=True).distinct():
-            # in theory we should be able to use a Django aggregation here,
-            # but it doesn't seem to work:
-            # http://stackoverflow.com/questions/3131107/annotate-a-queryset-with-the-average-date-difference-django#comment66231763_32856190
-            num_jobs = 0
-            total_time = 0.0
-            for (start_time, end_time) in jobs.filter(
-                    signature__signature=signature_hash).values_list(
-                        'start_time', 'end_time'):
-                total_time += (end_time - start_time).total_seconds()
-                num_jobs += 1
-            if not num_jobs:
-                continue
-            JobDuration.objects.update_or_create(
-                signature=signature_hash,
-                repository=repository,
-                defaults={'average_duration': int(total_time / num_jobs)})
 
     def _get_lower_tier_signatures(self):
         # get the lower tier data signatures for this project.

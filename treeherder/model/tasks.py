@@ -50,14 +50,9 @@ def cycle_data():
 
 @task(name='calculate-durations', rate_limit='1/h')
 def calculate_durations(sample_window_seconds=21600, debug=False):
-    from treeherder.model.derived.jobs import JobsModel
-
-    projects = Repository.objects.filter(active_status='active').values_list('name', flat=True)
-
-    for project in projects:
-
-        with JobsModel(project) as jm:
-            jm.calculate_durations(sample_window_seconds, debug)
+    for repository in Repository.objects.filter(active_status='active'):
+        Job.objects.calculate_durations(repository, sample_window_seconds,
+                                        debug)
 
 
 @task(name='publish-job-action')
