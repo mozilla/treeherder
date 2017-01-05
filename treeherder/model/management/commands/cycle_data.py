@@ -1,52 +1,53 @@
 import datetime
+from optparse import make_option
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from treeherder.model.derived import JobsModel
-from treeherder.model.models import (Datasource,
-                                     Job,
+from treeherder.model.models import (Job,
                                      JobGroup,
                                      JobType,
-                                     Machine)
+                                     Machine,
+                                     Repository)
 
 
 class Command(BaseCommand):
     help = """Cycle data that exceeds the time constraint limit"""
 
-    def add_arguments(self, parser):
-        parser.add_argument(
+    option_list = BaseCommand.option_list + (
+
+        make_option(
             '--debug',
             action='store_true',
             dest='debug',
             default=False,
-            help='Write debug messages to stdout'
-        )
-        parser.add_argument(
+            help='Write debug messages to stdout'),
+
+        make_option(
             '--days',
             action='store',
             dest='days',
             default=settings.DATA_CYCLE_DAYS,
-            type=int,
-            help='Data cycle interval expressed in days'
-        )
-        parser.add_argument(
+            type='int',
+            help='Data cycle interval expressed in days'),
+
+        make_option(
             '--chunk-size',
             action='store',
             dest='chunk_size',
             default=5000,
-            type=int,
+            type='int',
             help=('Define the size of the chunks '
-                  'Split the job deletes into chunks of this size [default: %default]')
-        )
-        parser.add_argument(
+                  'Split the job deletes into chunks of this size [default: %default]')),
+
+        make_option(
             '--sleep-time',
             action='store',
             dest='sleep_time',
             default=2,
-            type=int,
-            help='How many seconds to pause between each query'
-        )
+            type='int',
+            help='How many seconds to pause between each query'),
+    )
 
     def handle(self, *args, **options):
         self.is_debug = options['debug']
@@ -55,14 +56,14 @@ class Command(BaseCommand):
 
         self.debug("cycle interval... {}".format(cycle_interval))
 
-        projects = Datasource.objects.values_list('project', flat=True)
-        for project in projects:
-            self.debug("Cycling Database: {0}".format(project))
-            with JobsModel(project) as jm:
-                rs_deleted = jm.cycle_data(cycle_interval,
-                                           options['chunk_size'],
-                                           options['sleep_time'])
-                self.debug("Deleted {} jobs from {}".format(rs_deleted, project))
+        for repository in Repository.objects.all():
+            self.debug("Cycling repository: {0}".format(repository.name))
+            rs_deleted = Job.objects.cycle_data(repository,
+                                                cycle_interval,
+                                                options['chunk_size'],
+                                                options['sleep_time'])
+            self.debug("Deleted {} jobs from {}".format(rs_deleted,
+                                                        repository.name))
 
         self.cycle_non_job_data(options['chunk_size'], options['sleep_time'])
 

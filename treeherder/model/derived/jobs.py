@@ -17,7 +17,6 @@ from treeherder.model.models import (BuildPlatform,
                                      Datasource,
                                      ExclusionProfile,
                                      FailureClassification,
-                                     FailureLine,
                                      Job,
                                      JobDuration,
                                      JobGroup,
@@ -31,8 +30,6 @@ from treeherder.model.models import (BuildPlatform,
                                      Push,
                                      ReferenceDataSignatures,
                                      Repository)
-from treeherder.model.search import bulk_delete as es_delete
-from treeherder.model.search import TestFailureLine
 
 from .base import TreeherderModelBase
 
@@ -97,60 +94,6 @@ class JobsModel(TreeherderModelBase):
                 signature=signature_hash,
                 repository=repository,
                 defaults={'average_duration': int(total_time / num_jobs)})
-
-    def cycle_data(self, cycle_interval, chunk_size, sleep_time):
-        """Delete data older than cycle_interval, splitting the target data
-into chunks of chunk_size size. Returns the number of result sets deleted"""
-
-        # Retrieve list of jobs to delete
-        jobs_max_timestamp = datetime.now() - cycle_interval
-        job_guids_to_cycle = list(Job.objects.filter(
-            repository__name=self.project,
-            submit_time__lt=jobs_max_timestamp).values_list('guid',
-                                                            flat=True))
-
-        if not job_guids_to_cycle:
-            return 0
-
-        # group the job in chunks
-        jobs_chunk_list = zip(*[iter(job_guids_to_cycle)] * chunk_size)
-        # append the remaining job data not fitting in a complete chunk
-        jobs_chunk_list.append(
-            job_guids_to_cycle[-(len(job_guids_to_cycle) % chunk_size):])
-
-        for jobs_chunk in jobs_chunk_list:
-            Job.objects.filter(guid__in=jobs_chunk).delete()
-
-            # Remove ORM entries for these jobs that don't currently have a foreign key
-            # relation
-            failure_lines_to_delete = FailureLine.objects.filter(
-                job_guid__in=jobs_chunk)
-            if settings.ELASTIC_SEARCH["url"]:
-                # To delete the data from elasticsearch we need both the document id and the
-                # test, since this is used to determine the shard on which the document is indexed.
-                # However selecting all this data can be rather slow, so split the job into multiple
-                # smaller chunks.
-                failure_line_max_id = failure_lines_to_delete.order_by("-id").values_list("id", flat=True).first()
-                while failure_line_max_id:
-                    es_delete_data = list(failure_lines_to_delete
-                                          .order_by("-id")
-                                          .filter(id__lte=failure_line_max_id)
-                                          .values_list("id", "test")[:chunk_size])
-                    if es_delete_data:
-                        es_delete(TestFailureLine, es_delete_data)
-                        # Compute the first possible id of a failure line not selected in the
-                        # previous query
-                        min_id_in_chunk, _ = es_delete_data[-1]
-                        failure_line_max_id = min_id_in_chunk - 1
-                    else:
-                        failure_line_max_id = None
-            failure_lines_to_delete.delete()
-
-            if sleep_time:
-                # Allow some time for other queries to get through
-                time.sleep(sleep_time)
-
-        return len(job_guids_to_cycle)
 
     def _get_lower_tier_signatures(self):
         # get the lower tier data signatures for this project.
