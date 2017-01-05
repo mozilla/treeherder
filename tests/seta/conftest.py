@@ -37,16 +37,16 @@ def runnable_jobs_data():
                 "ref_data_name": "OS X 10.7 {} build".format(repository_name),
             }, {
                 "build_system_type": "taskcluster",
-                "job_type_name": "desktop-test-linux32/opt-reftest-e10s-1",
+                "job_type_name": "test-linux32/opt-reftest-e10s-1",
                 "platform": "linux32",
                 "platform_option": "opt",
-                "ref_data_name": "desktop-test-linux32/opt-reftest-e10s-1",
+                "ref_data_name": "test-linux32/opt-reftest-e10s-1",
             }, {
                 "build_system_type": "taskcluster",
-                "job_type_name": "desktop-test-linux64/opt-reftest-e10s-2",
+                "job_type_name": "test-linux64/opt-reftest-e10s-2",
                 "platform": "linux64",
                 "platform_option": "opt",
-                "ref_data_name": "desktop-test-linux64/opt-reftest-e10s-2",
+                "ref_data_name": "test-linux64/opt-reftest-e10s-2",
             }
         ]
 
