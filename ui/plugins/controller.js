@@ -5,7 +5,7 @@ treeherder.controller('PluginCtrl', [
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter', 'thDateFormat',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard',
-    'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors',
+    'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'ThTaskclusterErrors',
     'thTabs', '$timeout', 'thReftestStatus', 'ThResultSetStore',
     'PhSeries', 'thServiceDomain', 'thTaskcluster',
     function PluginCtrl(
@@ -13,7 +13,7 @@ treeherder.controller('PluginCtrl', [
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
         numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
         ThResultSetModel, ThLog, $q, thPinboard,
-        ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs,
+        ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, ThTaskclusterErrors, thTabs,
         $timeout, thReftestStatus, ThResultSetStore, PhSeries,
         thServiceDomain, thTaskcluster) {
 
@@ -395,11 +395,18 @@ treeherder.controller('PluginCtrl', [
                     if ($scope.job.id) {
                         if ($scope.job.build_system_type === 'taskcluster') {
                             let queue = new thTaskcluster.Queue();
-                            let url = queue.buildSignedUrl(
-                                queue.getLatestArtifact,
-                                $scope.jobDecisionTaskID,
-                                'public/action.yml'
-                            );
+                            let url = "";
+                            try {
+                                url = queue.buildSignedUrl(
+                                    queue.getLatestArtifact,
+                                    $scope.jobDecisionTaskID,
+                                    'public/action.yml'
+                                );
+                            } catch (e) {
+                                let errorMsg = 'Missing Taskcluster credentials! Please log out and back in again.';
+                                thNotify.send(errorMsg, 'danger');
+                                return;
+                            }
                             $http.get(url).then(function(resp) {
                                 let action = resp.data;
                                 let template = $interpolate(action);
@@ -410,12 +417,11 @@ treeherder.controller('PluginCtrl', [
                                 let task = refreshTimestamps(jsyaml.safeLoad(action));
                                 let taskId = thTaskcluster.slugid();
                                 queue.createTask(taskId, task).then(function() {
-                                    thNotify.send("Request sent to backfill jobs", 'success');
+                                    $scope.$apply(thNotify.send("Request sent to backfill jobs", 'success'));
                                 }, function(e) {
-                                    thNotify.send(
-                                        ThModelErrors.format(e, "Unable to send backfill"),
-                                        'danger'
-                                    );
+                                    // The full message is too large to fit in a Treeherder
+                                    // notification box.
+                                    $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', true));
                                 });
                             });
                         } else {

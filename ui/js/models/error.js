@@ -30,3 +30,30 @@ treeherder.factory('ThModelErrors', [function() {
     };
 }]);
 
+/**
+ * This is useful to display Taskcluster errors nicely.
+*/
+treeherder.factory('ThTaskclusterErrors', ['localStorageService', function(localStorageService) {
+    let TC_ERROR_PREFIX = 'Taskcluster: ';
+    return {
+        /**
+        Helper method for constructing an error message from Taskcluster.
+
+        @param {Error} e error object from taskcluster client.
+        */
+        format: function(e) {
+            if (e.code === 'InsufficientScopes') {
+                let expires = new Date(localStorageService.get('taskcluster.credentials').certificate.expiry);
+                if (expires < new Date()) {
+                    return TC_ERROR_PREFIX + 'Your credentials are expired. ' +
+                        'They must expire every 3 days (Bug 1328434). Log out and back in again to ' +
+                        'refresh your credentials.';
+                }
+            }
+            if (e.message.indexOf('----') !== -1) {
+                return TC_ERROR_PREFIX + e.message.split('----')[0];
+            }
+            return TC_ERROR_PREFIX + e.message;
+        }
+    };
+}]);
