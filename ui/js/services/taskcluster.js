@@ -5,7 +5,7 @@ treeherder.factory('thTaskcluster', ['$window', '$rootScope', 'localStorageServi
         let client = $window.taskcluster;
         $rootScope.$on("LocalStorageModule.notification.setitem", function() {
             client.config({
-                credentials: localStorageService.get('taskcluster.credentials'),
+                credentials: localStorageService.get('taskcluster.credentials') || {},
             });
         });
         return client;
