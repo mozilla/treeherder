@@ -49,7 +49,7 @@ def _generate_performance_data(test_repository, test_perf_signature,
             value=v)
 
 
-def test_detect_alerts_in_series(test_project, test_repository,
+def test_detect_alerts_in_series(test_repository,
                                  failure_classifications,
                                  generic_reference_data,
                                  test_perf_signature):
@@ -93,7 +93,7 @@ def test_detect_alerts_in_series(test_project, test_repository,
 
 
 def test_detect_alerts_in_series_with_retriggers(
-        test_project, test_repository, failure_classifications,
+        test_repository, failure_classifications,
         generic_reference_data, test_perf_signature):
 
     # sometimes we detect an alert in the middle of a series
@@ -122,7 +122,7 @@ def test_detect_alerts_in_series_with_retriggers(
 
 
 def test_no_alerts_with_old_data(
-        test_project, test_repository, failure_classifications,
+        test_repository, failure_classifications,
         generic_reference_data, test_perf_signature):
     base_time = 0  # 1970, too old!
     INTERVAL = 30
@@ -140,8 +140,8 @@ def test_no_alerts_with_old_data(
 
 
 def test_custom_alert_threshold(
-        test_project, test_repository, failure_classifications,
-        generic_reference_data, test_perf_signature, jm):
+        test_repository, failure_classifications,
+        generic_reference_data, test_perf_signature):
 
     test_perf_signature.alert_threshold = 200.0
     test_perf_signature.save()

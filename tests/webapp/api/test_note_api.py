@@ -58,20 +58,20 @@ def test_note_detail(webapp, test_job_with_notes):
     }
 
 
-def test_note_detail_not_found(webapp, jm):
+def test_note_detail_not_found(webapp, test_repository):
     """
     test retrieving a HTTP 404 from the note-detail
     endpoint.
     """
     resp = webapp.get(
         reverse("note-detail",
-                kwargs={"project": jm.project, "pk": -32767}),
+                kwargs={"project": test_repository.name, "pk": -32767}),
         expect_errors=True
     )
     assert resp.status_int == 404
 
 
-def test_note_detail_bad_project(webapp, jm):
+def test_note_detail_bad_project(webapp, test_repository):
     """
     test retrieving a HTTP 404 from the note-detail
     endpoint.
@@ -127,7 +127,7 @@ def test_create_note(webapp, test_job, mock_message_broker,
 
 
 @pytest.mark.parametrize('test_no_auth', [True, False])
-def test_delete_note(webapp, test_job_with_notes, mock_message_broker, jm,
+def test_delete_note(webapp, test_job_with_notes, mock_message_broker, test_repository,
                      test_sheriff, test_no_auth):
     """
     test deleting a single note via endpoint
@@ -139,7 +139,7 @@ def test_delete_note(webapp, test_job_with_notes, mock_message_broker, jm,
     notes_count = JobNote.objects.count()
 
     resp = client.delete(
-        reverse("note-detail", kwargs={"project": jm.project,
+        reverse("note-detail", kwargs={"project": test_repository.name,
                                        "pk": test_job_with_notes.id}),
         expect_errors=test_no_auth
     )

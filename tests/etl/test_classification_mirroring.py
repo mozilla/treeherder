@@ -5,7 +5,7 @@ from datadiff import diff
 from treeherder.etl.classification_mirroring import ElasticsearchDocRequest
 
 
-def test_elasticsearch_doc_request_body(test_project, eleven_jobs_stored):
+def test_elasticsearch_doc_request_body(test_repository, eleven_jobs_stored):
     """
     Test the request body is created correctly
     """
@@ -15,7 +15,7 @@ def test_elasticsearch_doc_request_body(test_project, eleven_jobs_stored):
     classification_timestamp = int(time())
     who = "user@mozilla.com"
 
-    req = ElasticsearchDocRequest(test_project, job_id, bug_id, classification_timestamp, who)
+    req = ElasticsearchDocRequest(test_repository.name, job_id, bug_id, classification_timestamp, who)
     req.generate_request_body()
 
     expected = {
@@ -28,7 +28,7 @@ def test_elasticsearch_doc_request_body(test_project, eleven_jobs_stored):
         "type": "B2G Emulator Image Build",
         "buildtype": "debug",
         "starttime": "1384353553",
-        "tree": test_project,
+        "tree": test_repository.name,
         "rev": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
         "bug": str(bug_id),
         "who": who,

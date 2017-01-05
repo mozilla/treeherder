@@ -9,7 +9,8 @@ from treeherder.client import TreeherderResultSetCollection
 from treeherder.etl.common import (CollectionNotStoredException,
                                    fetch_json,
                                    generate_revision_hash)
-from treeherder.model.derived.jobs import JobsModel
+from treeherder.etl.resultset import store_result_set_data
+from treeherder.model.models import Repository
 
 logger = logging.getLogger(__name__)
 
@@ -90,17 +91,18 @@ class HgPushlogProcess(HgPushlogTransformerMixin):
             logger.warning("HTTPError %s fetching: %s", e.response.status_code, url)
             raise
 
-    def run(self, source_url, repository, changeset=None, last_push_id=None):
+    def run(self, source_url, repository_name, changeset=None, last_push_id=None):
+        print repository_name
         if not last_push_id:
             # get the last object seen from cache. this will
             # reduce the number of pushes processed every time
-            last_push_id = cache.get("{0}:last_push_id".format(repository))
+            last_push_id = cache.get("{0}:last_push_id".format(repository_name))
 
         if not changeset and last_push_id:
             startid_url = "{}&startID={}".format(source_url, last_push_id)
             logger.info("Extracted last push for '%s', '%s', from cache, "
                         "attempting to get changes only from that point at: %s" %
-                        (repository, last_push_id, startid_url))
+                        (repository_name, last_push_id, startid_url))
             # Use the cached ``last_push_id`` value (saved from the last time
             # this API was called) for this repo.  Use that value as the
             # ``startID`` to get all new pushes from that point forward.
@@ -118,20 +120,20 @@ class HgPushlogProcess(HgPushlogTransformerMixin):
                                 "Getting latest changes for '{}' instead").format(
                                     extracted_content['lastpushid'],
                                     last_push_id,
-                                    repository
+                                    repository_name
                                     )
                                )
-                cache.delete("{0}:last_push_id".format(repository))
+                cache.delete("{0}:last_push_id".format(repository_name))
                 extracted_content = self.extract(source_url)
         else:
             if changeset:
                 logger.info("Getting all pushes for '%s' corresponding to "
-                            "changeset '%s'" % (repository, changeset))
+                            "changeset '%s'" % (repository_name, changeset))
                 extracted_content = self.extract(source_url + "&changeset=" +
                                                  changeset)
             else:
                 logger.warning("Unable to get last push from cache for '%s', "
-                               "getting all pushes" % repository)
+                               "getting all pushes" % repository_name)
                 extracted_content = self.extract(source_url)
 
         # ``pushes`` could be empty if there are no new ones since we last
@@ -145,21 +147,21 @@ class HgPushlogProcess(HgPushlogTransformerMixin):
         last_push = pushes[str(last_push_id)]
         top_revision = last_push["changesets"][-1]["node"]
         # TODO: further remove the use of client types here
-        transformed = self.transform(pushes, repository)
+        transformed = self.transform(pushes, repository_name)
 
         errors = []
-        with JobsModel(repository) as jm:
-            for collection in transformed[repository].get_chunks(chunk_size=1):
-                try:
-                    collection.validate()
-                    jm.store_result_set_data(collection.get_collection_data())
-                except Exception:
-                    newrelic.agent.record_exception()
-                    errors.append({
-                        "project": repository,
-                        "collection": "result_set",
-                        "message": traceback.format_exc()
-                    })
+        repository = Repository.objects.get(name=repository_name)
+        for collection in transformed[repository_name].get_chunks(chunk_size=1):
+            try:
+                collection.validate()
+                store_result_set_data(repository, collection.get_collection_data())
+            except Exception:
+                newrelic.agent.record_exception()
+                errors.append({
+                    "project": repository,
+                    "collection": "result_set",
+                    "message": traceback.format_exc()
+                })
 
         if errors:
             raise CollectionNotStoredException(errors)
@@ -167,6 +169,6 @@ class HgPushlogProcess(HgPushlogTransformerMixin):
         if not changeset:
             # only cache the last push if we're not fetching a specific
             # changeset
-            cache.set("{0}:last_push_id".format(repository), last_push_id)
+            cache.set("{0}:last_push_id".format(repository_name), last_push_id)
 
         return top_revision

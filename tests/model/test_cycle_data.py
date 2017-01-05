@@ -17,14 +17,13 @@ from treeherder.model.search import (TestFailureLine,
 from treeherder.perf.models import PerformanceDatum
 
 
-def test_cycle_all_data(jm, failure_classifications, sample_data,
-                        sample_resultset, test_repository, mock_log_parser,
-                        failure_lines):
+def test_cycle_all_data(test_repository, failure_classifications, sample_data,
+                        sample_resultset, mock_log_parser, failure_lines):
     """
     Test cycling the sample data
     """
     job_data = sample_data.job_data[:20]
-    test_utils.do_job_ingestion(jm, job_data, sample_resultset, False)
+    test_utils.do_job_ingestion(test_repository, job_data, sample_resultset, False)
 
     # set the submit time to be a week before today
     cycle_date_ts = datetime.datetime.now() - datetime.timedelta(weeks=1)
@@ -46,16 +45,16 @@ def test_cycle_all_data(jm, failure_classifications, sample_data,
     assert TestFailureLine.search().params(search_type="count").execute().hits.total == 0
 
 
-def test_cycle_all_but_one_job(jm, failure_classifications, sample_data,
-                               sample_resultset, test_repository, mock_log_parser,
-                               elasticsearch, failure_lines):
+def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_data,
+                               sample_resultset, mock_log_parser, elasticsearch,
+                               failure_lines):
     """
     Test cycling all but one job in a group of jobs to confirm there are no
     unexpected deletions
     """
 
     job_data = sample_data.job_data[:20]
-    test_utils.do_job_ingestion(jm, job_data, sample_resultset, False)
+    test_utils.do_job_ingestion(test_repository, job_data, sample_resultset, False)
 
     # one job should not be deleted, set its submit time to now
     job_not_deleted = Job.objects.get(id=2)
@@ -97,13 +96,13 @@ def test_cycle_all_but_one_job(jm, failure_classifications, sample_data,
     assert set(int(item.meta.id) for item in TestFailureLine.search().execute()) == set(item.id for item in extra_objects["failure_lines"][1])
 
 
-def test_cycle_all_data_in_chunks(jm, failure_classifications, sample_data,
-                                  sample_resultset, test_repository, mock_log_parser):
+def test_cycle_all_data_in_chunks(test_repository, failure_classifications, sample_data,
+                                  sample_resultset, mock_log_parser):
     """
     Test cycling the sample data in chunks.
     """
     job_data = sample_data.job_data[:20]
-    test_utils.do_job_ingestion(jm, job_data, sample_resultset, False)
+    test_utils.do_job_ingestion(test_repository, job_data, sample_resultset, False)
 
     # build a date that will cause the data to be cycled
     cycle_date_ts = datetime.datetime.now() - datetime.timedelta(weeks=1)
@@ -126,11 +125,11 @@ def test_cycle_all_data_in_chunks(jm, failure_classifications, sample_data,
     assert TestFailureLine.search().params(search_type="count").execute().hits.total == 0
 
 
-def test_cycle_job_model_reference_data(jm, failure_classifications,
+def test_cycle_job_model_reference_data(test_repository, failure_classifications,
                                         sample_data, sample_resultset,
                                         mock_log_parser):
     job_data = sample_data.job_data[:20]
-    test_utils.do_job_ingestion(jm, job_data, sample_resultset, False)
+    test_utils.do_job_ingestion(test_repository, job_data, sample_resultset, False)
 
     # get a list of ids of original reference data
     original_job_type_ids = JobType.objects.values_list('id', flat=True)

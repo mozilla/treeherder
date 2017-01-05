@@ -11,6 +11,7 @@ from rest_framework.status import (HTTP_400_BAD_REQUEST,
 
 from serializers import (CommitSerializer,
                          PushSerializer)
+from treeherder.etl.resultset import store_result_set_data
 from treeherder.model.models import (Commit,
                                      Job,
                                      Push,
@@ -20,8 +21,7 @@ from treeherder.model.tasks import (publish_job_action,
                                     publish_resultset_runnable_job_action)
 from treeherder.webapp.api import permissions
 from treeherder.webapp.api.utils import (to_datetime,
-                                         to_timestamp,
-                                         with_jobs)
+                                         to_timestamp)
 
 
 class ResultSetViewSet(viewsets.ViewSet):
@@ -283,11 +283,17 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         return Response({"message": "New jobs added for push '{0}'".format(pk)})
 
-    @with_jobs
-    def create(self, request, project, jm):
+    def create(self, request, project):
         """
         POST method implementation
         """
+        try:
+            repository = Repository.objects.get(name=project)
+        except Repository.DoesNotExist:
+            return Response({
+                "detail": "No project with name {}".format(project)
+            }, status=HTTP_404_NOT_FOUND)
+
         # check if any revisions are shorter than the expected 40 characters
         # The volume of resultsets is fairly low, so this loop won't be
         # onerous.
@@ -304,7 +310,7 @@ class ResultSetViewSet(viewsets.ViewSet):
                     }
                     newrelic.agent.record_exception(params=params)
 
-        jm.store_result_set_data(request.data)
+        store_result_set_data(repository, request.data)
 
         return Response({"message": "well-formed JSON stored"})
 

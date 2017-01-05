@@ -10,9 +10,9 @@ from django.core.cache import cache
 from treeherder.client import TreeherderJobCollection
 from treeherder.etl import (buildbot,
                             common)
-from treeherder.model.derived.jobs import JobsModel
-from treeherder.model.models import (Datasource,
-                                     Push)
+from treeherder.etl.jobs import store_job_data
+from treeherder.model.models import (Push,
+                                     Repository)
 
 logger = logging.getLogger(__name__)
 CACHE_KEYS = {
@@ -84,7 +84,7 @@ class Builds4hTransformerMixin(object):
         transform the builds4h structure into something we can ingest via
         our restful api
         """
-        valid_projects = set(x.project for x in Datasource.objects.cached())
+        valid_projects = set(Repository.objects.values_list('name', flat=True))
 
         for build in data['builds']:
             try:
@@ -260,7 +260,7 @@ class PendingRunningTransformerMixin(object):
         transform the buildapi structure into something we can ingest via
         our restful api
         """
-        valid_projects = set(x.project for x in Datasource.objects.cached())
+        valid_projects = set(Repository.objects.values_list('name', flat=True))
         revision_dict = defaultdict(list)
 
         # loop to catch all the revisions
@@ -303,8 +303,8 @@ class PendingRunningTransformerMixin(object):
                 for job in jobs:
                     job_ids_seen_now.add(job['id'])
 
-                    # Don't process jobs that were already present in this datasource
-                    # the last time this task completed successfully.
+                    # Don't process jobs that we saw the last time this task
+                    # completed successfully.
                     if job['id'] in job_ids_seen_last_time:
                         continue
 
@@ -442,19 +442,20 @@ class RunningJobsProcess(PendingRunningTransformerMixin):
 
 def store_jobs(job_collections, chunk_size):
     errors = []
-    for repository, jobs in job_collections.iteritems():
-        with JobsModel(repository) as jm:
-            for collection in jobs.get_chunks(chunk_size=chunk_size):
-                try:
-                    collection.validate()
-                    jm.store_job_data(collection.get_collection_data())
-                except Exception:
-                    newrelic.agent.record_exception()
-                    errors.append({
-                        "project": repository,
-                        "collection": "job",
-                        "message": traceback.format_exc()
-                    })
+    for repository_name, jobs in job_collections.iteritems():
+        for collection in jobs.get_chunks(chunk_size=chunk_size):
+            try:
+                repository = Repository.objects.get(
+                    name=repository_name)
+                collection.validate()
+                store_job_data(repository, collection.get_collection_data())
+            except Exception:
+                newrelic.agent.record_exception()
+                errors.append({
+                    "project": repository_name,
+                    "collection": "job",
+                    "message": traceback.format_exc()
+                })
 
     if errors:
         raise common.CollectionNotStoredException(errors)

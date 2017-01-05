@@ -15,6 +15,7 @@ from rest_framework.reverse import reverse
 from rest_framework.status import (HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
 
+from treeherder.etl.jobs import store_job_data
 from treeherder.model.error_summary import get_error_summary
 from treeherder.model.models import (ExclusionProfile,
                                      FailureLine,
@@ -32,8 +33,7 @@ from treeherder.webapp.api import (pagination,
                                    serializers)
 from treeherder.webapp.api.utils import (CharInFilter,
                                          NumberInFilter,
-                                         to_timestamp,
-                                         with_jobs)
+                                         to_timestamp)
 
 
 class JobFilter(django_filters.FilterSet):
@@ -391,7 +391,7 @@ class JobsViewSet(viewsets.ViewSet):
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     def cancel(self, request, project, pk=None):
         """
-        Cancels a jobChange the state of a job.
+        Cancels a job
         """
         try:
             job = Job.objects.get(repository__name=project,
@@ -594,12 +594,17 @@ class JobsViewSet(viewsets.ViewSet):
 
         return Response(response_body)
 
-    @with_jobs
-    def create(self, request, project, jm):
+    def create(self, request, project):
         """
         This method adds a job to a given resultset.
         """
-        jm.store_job_data(request.data)
+        try:
+            repository = Repository.objects.get(name=project)
+        except ObjectDoesNotExist:
+            return Response("No repository with name: {0}".format(project),
+                            status=HTTP_404_NOT_FOUND)
+
+        store_job_data(repository, request.data)
 
         return Response({'message': 'Job successfully updated'})
 

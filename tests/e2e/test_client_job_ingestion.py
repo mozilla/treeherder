@@ -45,13 +45,13 @@ def text_log_summary_dict():
     }
 
 
-def check_job_log(test_project, job_guid, parse_status):
+def check_job_log(test_repository, job_guid, parse_status):
     job_logs = JobLog.objects.filter(job__guid=job_guid)
     assert len(job_logs) == 1
     assert job_logs[0].status == parse_status
 
 
-def test_post_job_with_unparsed_log(test_project, failure_classifications,
+def test_post_job_with_unparsed_log(test_repository, failure_classifications,
                                     result_set_stored, mock_post_json,
                                     monkeypatch):
     """
@@ -73,7 +73,7 @@ def test_post_job_with_unparsed_log(test_project, failure_classifications,
     tjc = client.TreeherderJobCollection()
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tj = client.TreeherderJob({
-        'project': test_project,
+        'project': test_repository.name,
         'revision': result_set_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
@@ -86,7 +86,7 @@ def test_post_job_with_unparsed_log(test_project, failure_classifications,
         }
     })
     tjc.add(tj)
-    post_collection(test_project, tjc)
+    post_collection(test_repository.name, tjc)
 
     # should have 2 errors
     assert TextLogError.objects.count() == 2
@@ -97,7 +97,7 @@ def test_post_job_with_unparsed_log(test_project, failure_classifications,
     assert len(get_error_summary(Job.objects.get(id=1))) == 2
 
 
-def test_post_job_pending_to_completed_with_unparsed_log(test_project,
+def test_post_job_pending_to_completed_with_unparsed_log(test_repository,
                                                          result_set_stored,
                                                          failure_classifications,
                                                          mock_post_json):
@@ -107,7 +107,7 @@ def test_post_job_pending_to_completed_with_unparsed_log(test_project,
     # the first time, submit it as running (with no logs)
     tjc = client.TreeherderJobCollection()
     tj = client.TreeherderJob({
-        'project': test_project,
+        'project': test_repository.name,
         'revision': result_set_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
@@ -115,7 +115,7 @@ def test_post_job_pending_to_completed_with_unparsed_log(test_project,
         }
     })
     tjc.add(tj)
-    post_collection(test_project, tjc)
+    post_collection(test_repository.name, tjc)
     # should have no text log errors or bug suggestions
     assert TextLogError.objects.count() == 0
     assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 0
@@ -125,7 +125,7 @@ def test_post_job_pending_to_completed_with_unparsed_log(test_project,
         SampleData().get_log_path("mozilla-central-macosx64-debug-bm65-build1-build15.txt.gz"))
     tjc = client.TreeherderJobCollection()
     tj = client.TreeherderJob({
-        'project': test_project,
+        'project': test_repository.name,
         'revision': result_set_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
@@ -138,14 +138,14 @@ def test_post_job_pending_to_completed_with_unparsed_log(test_project,
         }
     })
     tjc.add(tj)
-    post_collection(test_project, tjc)
+    post_collection(test_repository.name, tjc)
 
     # should have a full set of text log errors
     assert TextLogError.objects.count() == 2
     assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 2
 
 
-def test_post_job_with_parsed_log(test_project, result_set_stored,
+def test_post_job_with_parsed_log(test_repository, result_set_stored,
                                   failure_classifications,
                                   mock_post_json,
                                   monkeypatch,
@@ -164,7 +164,7 @@ def test_post_job_with_parsed_log(test_project, result_set_stored,
     tjc = client.TreeherderJobCollection()
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tj = client.TreeherderJob({
-        'project': test_project,
+        'project': test_repository.name,
         'revision': result_set_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
@@ -178,14 +178,14 @@ def test_post_job_with_parsed_log(test_project, result_set_stored,
     })
     tjc.add(tj)
 
-    post_collection(test_project, tjc)
+    post_collection(test_repository.name, tjc)
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False
 
 
 def test_post_job_with_text_log_summary_artifact_parsed(
-        test_project,
+        test_repository,
         failure_classifications,
         result_set_stored,
         monkeypatch,
@@ -204,7 +204,7 @@ def test_post_job_with_text_log_summary_artifact_parsed(
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tjc = client.TreeherderJobCollection()
     tj = client.TreeherderJob({
-        'project': test_project,
+        'project': test_repository.name,
         'revision': result_set_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
@@ -224,7 +224,7 @@ def test_post_job_with_text_log_summary_artifact_parsed(
     })
     tjc.add(tj)
 
-    post_collection(test_project, tjc)
+    post_collection(test_repository.name, tjc)
 
     # should have 4 error summary lines (aka bug suggestions)
     assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 4
@@ -234,7 +234,7 @@ def test_post_job_with_text_log_summary_artifact_parsed(
 
 
 def test_post_job_with_text_log_summary_artifact_pending(
-        test_project,
+        test_repository,
         failure_classifications,
         result_set_stored,
         monkeypatch,
@@ -254,7 +254,7 @@ def test_post_job_with_text_log_summary_artifact_pending(
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tjc = client.TreeherderJobCollection()
     tj = client.TreeherderJob({
-        'project': test_project,
+        'project': test_repository.name,
         'revision': result_set_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
@@ -275,7 +275,7 @@ def test_post_job_with_text_log_summary_artifact_pending(
 
     tjc.add(tj)
 
-    post_collection(test_project, tjc)
+    post_collection(test_repository.name, tjc)
 
     # should have 4 error summary lines (aka bug suggestions)
     assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 4
@@ -285,7 +285,7 @@ def test_post_job_with_text_log_summary_artifact_pending(
 
 
 def test_post_job_artifacts_by_add_artifact(
-        test_project,
+        test_repository,
         failure_classifications,
         result_set_stored,
         monkeypatch,
@@ -307,7 +307,7 @@ def test_post_job_artifacts_by_add_artifact(
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tjc = client.TreeherderJobCollection()
     tj = client.TreeherderJob({
-        'project': test_project,
+        'project': test_repository.name,
         'revision': result_set_stored[0]['revision'],
         "job": {
             "artifacts": [],
@@ -352,7 +352,7 @@ def test_post_job_artifacts_by_add_artifact(
 
     tjc.add(tj)
 
-    post_collection(test_project, tjc)
+    post_collection(test_repository.name, tjc)
 
     assert JobDetail.objects.count() == 1
     assert model_to_dict(JobDetail.objects.get(job__guid=job_guid)) == {
@@ -386,13 +386,13 @@ def test_post_job_artifacts_by_add_artifact(
     # assert that some bug suggestions got generated
     assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 1
 
-    check_job_log(test_project, job_guid, JobLog.PARSED)
+    check_job_log(test_repository, job_guid, JobLog.PARSED)
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False
 
 
-def test_post_job_with_tier(test_project, failure_classifications,
+def test_post_job_with_tier(test_repository, failure_classifications,
                             result_set_stored,
                             mock_post_json):
     """test submitting a job with tier specified"""
@@ -400,7 +400,7 @@ def test_post_job_with_tier(test_project, failure_classifications,
     tjc = client.TreeherderJobCollection()
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tj = client.TreeherderJob({
-        'project': test_project,
+        'project': test_repository.name,
         'revision': result_set_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
@@ -410,13 +410,13 @@ def test_post_job_with_tier(test_project, failure_classifications,
     tj.add_tier(3)
     tjc.add(tj)
 
-    post_collection(test_project, tjc)
+    post_collection(test_repository.name, tjc)
 
     job = Job.objects.get(guid=job_guid)
     assert job.tier == 3
 
 
-def test_post_job_with_default_tier(test_project, failure_classifications,
+def test_post_job_with_default_tier(test_repository, failure_classifications,
                                     result_set_stored,
                                     mock_post_json):
     """test submitting a job with no tier specified gets default"""
@@ -424,7 +424,7 @@ def test_post_job_with_default_tier(test_project, failure_classifications,
     tjc = client.TreeherderJobCollection()
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tj = client.TreeherderJob({
-        'project': test_project,
+        'project': test_repository.name,
         'revision': result_set_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
@@ -433,13 +433,13 @@ def test_post_job_with_default_tier(test_project, failure_classifications,
     })
     tjc.add(tj)
 
-    post_collection(test_project, tjc)
+    post_collection(test_repository.name, tjc)
 
     job = Job.objects.get(guid=job_guid)
     assert job.tier == 1
 
 
-def test_post_job_with_buildapi_artifact(test_project, failure_classifications,
+def test_post_job_with_buildapi_artifact(test_repository, failure_classifications,
                                          result_set_stored,
                                          mock_post_json):
     """
@@ -449,7 +449,7 @@ def test_post_job_with_buildapi_artifact(test_project, failure_classifications,
     tjc = client.TreeherderJobCollection()
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tj = client.TreeherderJob({
-        'project': test_project,
+        'project': test_repository.name,
         'revision': result_set_stored[0]['revision'],
         'job': {
             'artifacts': [],
@@ -461,7 +461,7 @@ def test_post_job_with_buildapi_artifact(test_project, failure_classifications,
                     json.dumps({"buildername": "Windows 8 64-bit cheezburger",
                                 "request_id": 1234}))
     tjc.add(tj)
-    post_collection(test_project, tjc)
+    post_collection(test_repository.name, tjc)
 
     assert Job.objects.count() == 1
     assert JobDetail.objects.count() == 1

@@ -3,6 +3,8 @@ import json
 
 from tests.sampledata import SampleData
 from treeherder.client import TreeherderClient
+from treeherder.etl.jobs import store_job_data
+from treeherder.etl.resultset import store_result_set_data
 from treeherder.model import models
 
 
@@ -12,14 +14,15 @@ def post_collection(project, th_collection):
     return client.post_collection(project, th_collection)
 
 
-def do_job_ingestion(jm, job_data, sample_resultset, verify_data=True):
+def do_job_ingestion(test_repository, job_data, sample_resultset,
+                     verify_data=True):
     """
     Ingest ``job_data`` which will be JSON job blobs.
 
     ``verify_data`` - whether or not to run the ingested jobs
                       through the verifier.
     """
-    jm.store_result_set_data(sample_resultset)
+    store_result_set_data(test_repository, sample_resultset)
 
     max_index = len(sample_resultset) - 1
     resultset_index = 0
@@ -96,7 +99,7 @@ def do_job_ingestion(jm, job_data, sample_resultset, verify_data=True):
                 coalesced_job_guids[job_guid] = coalesced
 
     # Store the modified json blobs
-    jm.store_job_data(blobs)
+    store_job_data(test_repository, blobs)
 
     if verify_data:
         # Confirms stored data matches whats in the reference data structs
@@ -106,8 +109,8 @@ def do_job_ingestion(jm, job_data, sample_resultset, verify_data=True):
         verify_options(options_ref)
         verify_job_types(job_types_ref)
         verify_products(products_ref)
-        verify_result_sets(jm, result_sets_ref)
-        verify_log_urls(jm, log_urls_ref)
+        verify_result_sets(test_repository, result_sets_ref)
+        verify_log_urls(test_repository, log_urls_ref)
         verify_coalesced(coalesced_job_guids)
 
 
@@ -165,13 +168,13 @@ def verify_products(products_ref):
     assert products_ref.issubset(products)
 
 
-def verify_result_sets(jm, result_sets_ref):
+def verify_result_sets(test_repository, result_sets_ref):
 
     return result_sets_ref.issubset(models.Push.objects.values_list(
         'revision', flat=True))
 
 
-def verify_log_urls(jm, log_urls_ref):
+def verify_log_urls(test_repository, log_urls_ref):
 
     log_urls = set(models.JobLog.objects.values_list('url', flat=True))
 

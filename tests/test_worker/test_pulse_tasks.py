@@ -3,13 +3,14 @@ from threading import local
 import pytest
 
 from treeherder.etl.job_loader import MissingPushException
+from treeherder.etl.resultset import store_result_set_data
 from treeherder.etl.tasks.pulse_tasks import store_pulse_jobs
 from treeherder.model.models import Job
 
 
 @pytest.mark.skip("Test needs fixing in bug: 1307289")
 def test_retry_missing_revision_succeeds(sample_data, sample_resultset,
-                                         test_project, jm, mock_log_parser,
+                                         test_repository, mock_log_parser,
                                          monkeypatch):
     """
     Ensure that when the missing resultset exists after a retry, that the job
@@ -20,14 +21,14 @@ def test_retry_missing_revision_succeeds(sample_data, sample_resultset,
     rs = sample_resultset[0]
     job = sample_data.pulse_jobs[0]
     job["origin"]["revision"] = rs["revision"]
-    job["origin"]["project"] = test_project
+    job["origin"]["project"] = test_repository.name
 
     orig_retry = store_pulse_jobs.retry
 
     def retry_mock(exc=None, countdown=None):
         assert isinstance(exc, MissingPushException)
         thread_data.retries += 1
-        jm.store_result_set_data([rs])
+        store_result_set_data(test_repository, [rs])
         return orig_retry(exc=exc, countdown=countdown)
 
     monkeypatch.setattr(store_pulse_jobs, "retry", retry_mock)
@@ -38,14 +39,14 @@ def test_retry_missing_revision_succeeds(sample_data, sample_resultset,
     assert thread_data.retries == 1
 
 
-def test_retry_missing_revision_never_succeeds(sample_data, test_project,
-                                               jm, mock_log_parser, monkeypatch):
+def test_retry_missing_revision_never_succeeds(sample_data, test_repository,
+                                               mock_log_parser, monkeypatch):
     """
     Ensure that when the missing resultset exists after a retry, that the job
     is then ingested.
     """
     job = sample_data.pulse_jobs[0]
-    job["origin"]["project"] = test_project
+    job["origin"]["project"] = test_repository.name
 
     with pytest.raises(MissingPushException):
         store_pulse_jobs.delay(job, "foo", "bar")

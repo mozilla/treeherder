@@ -5,6 +5,8 @@ import pytest
 from django.conf import settings
 from django.utils.six import BytesIO
 
+from treeherder.etl.jobs import store_job_data
+from treeherder.etl.resultset import store_result_set_data
 from treeherder.model.error_summary import get_error_summary
 from treeherder.model.models import (Job,
                                      JobDetail,
@@ -60,13 +62,13 @@ def mock_mozlog_get_log_handler(monkeypatch):
                         'get_log_handle', _get_log_handle)
 
 
-def test_parse_log(jm, failure_classifications, jobs_with_local_log, sample_resultset):
+def test_parse_log(test_repository, failure_classifications, jobs_with_local_log, sample_resultset):
     """
     check that 2 job_artifacts get inserted when running a parse_log task for
     a successful job and that JobDetail objects get created
     """
 
-    jm.store_result_set_data(sample_resultset)
+    store_result_set_data(test_repository, sample_resultset)
 
     jobs = jobs_with_local_log
     for job in jobs:
@@ -74,13 +76,13 @@ def test_parse_log(jm, failure_classifications, jobs_with_local_log, sample_resu
         job['job']['result'] = "success"
         job['revision'] = sample_resultset[0]['revision']
 
-    jm.store_job_data(jobs)
+    store_job_data(test_repository, jobs)
 
     # this log generates 4 job detail objects at present
     print JobDetail.objects.count() == 4
 
 
-def test_create_error_summary(jm, failure_classifications,
+def test_create_error_summary(failure_classifications,
                               jobs_with_local_log, sample_resultset,
                               test_repository):
     """
@@ -88,14 +90,14 @@ def test_create_error_summary(jm, failure_classifications,
     a parse_log task for a failed job, and that the number of
     bug search terms/suggestions matches the number of error lines.
     """
-    jm.store_result_set_data(sample_resultset)
+    store_result_set_data(test_repository, sample_resultset)
 
     jobs = jobs_with_local_log
     for job in jobs:
         job['job']['result'] = "testfailed"
         job['revision'] = sample_resultset[0]['revision']
 
-    jm.store_job_data(jobs)
+    store_job_data(test_repository, jobs)
 
     bug_suggestions = get_error_summary(Job.objects.get(id=1))
 

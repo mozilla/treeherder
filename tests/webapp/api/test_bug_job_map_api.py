@@ -52,7 +52,7 @@ def test_create_bug_job_map(test_job, mock_message_broker,
         assert bug_job_map.user == test_user
 
 
-def test_bug_job_map_list(webapp, jm, eleven_jobs_stored, test_user):
+def test_bug_job_map_list(webapp, test_repository, eleven_jobs_stored, test_user):
     """
     test retrieving a list of bug_job_map
     """
@@ -74,7 +74,7 @@ def test_bug_job_map_list(webapp, jm, eleven_jobs_stored, test_user):
     # verify that API works with different combinations of job_id= parameters
     for job_range in [(0, 1), (0, 2), (0, 9)]:
         resp = webapp.get(
-            reverse("bug-job-map-list", kwargs={"project": jm.project}),
+            reverse("bug-job-map-list", kwargs={"project": test_repository.name}),
             params={'job_id': [job.id for job in
                                jobs[job_range[0]:job_range[1]]]})
 

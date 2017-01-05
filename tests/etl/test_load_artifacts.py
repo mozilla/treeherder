@@ -42,7 +42,7 @@ def test_load_long_job_details(test_job):
     assert jd.url == long_url[:max_length("url")]
 
 
-def test_load_textlog_summary_twice(test_project, test_job):
+def test_load_textlog_summary_twice(test_repository, test_job):
     text_log_summary_artifact = {
         'type': 'json',
         'name': 'text_log_summary',

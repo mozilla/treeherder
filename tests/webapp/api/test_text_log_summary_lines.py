@@ -131,7 +131,7 @@ def test_put_multiple_duplicate(webapp, text_summary_lines, test_user):
     assert resp.status_code == 400
 
 
-def test_put_verify_job(webapp, jm, test_job, text_summary_lines, test_user,
+def test_put_verify_job(webapp, test_repository, test_job, text_summary_lines, test_user,
                         failure_classifications):
     client = APIClient()
     client.force_authenticate(user=test_user)
