@@ -30,7 +30,7 @@ def _ref_data_names(build_system):
         "buildplatform": "taskcluster",
         "buildtype": "opt",
         "platform": "linux64",
-        "ref_data_name": "desktop-test-linux64/opt-mochitest-webgl-e10s-1",
+        "ref_data_name": "test-linux64/opt-mochitest-webgl-e10s-1",
         "testtype": "mochitest-webgl-e10s-1",
     }
     '''
