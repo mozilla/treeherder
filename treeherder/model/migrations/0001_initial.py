@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 import jsonfield.fields
 from django.conf import settings
-import treeherder.model.fields
 
 
 class Migration(migrations.Migration):
@@ -46,7 +45,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ClassifiedFailure',
             fields=[
-                ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
+                ('id', models.BigAutoField(serialize=False, primary_key=True)),
                 ('bug_number', models.PositiveIntegerField(null=True, blank=True)),
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('modified', models.DateTimeField(auto_now=True)),
@@ -97,7 +96,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='FailureLine',
             fields=[
-                ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
+                ('id', models.BigAutoField(serialize=False, primary_key=True)),
                 ('job_guid', models.CharField(max_length=50)),
                 ('action', models.CharField(max_length=11, choices=[('test_result', 'test_result'), ('log', 'log'), ('crash', 'crash'), ('truncated', 'truncated')])),
                 ('line', models.PositiveIntegerField()),
@@ -121,11 +120,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='FailureMatch',
             fields=[
-                ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
+                ('id', models.BigAutoField(serialize=False, primary_key=True)),
                 ('score', models.DecimalField(null=True, max_digits=3, decimal_places=2, blank=True)),
                 ('is_best', models.BooleanField(default=False)),
-                ('classified_failure', treeherder.model.fields.FlexibleForeignKey(to='model.ClassifiedFailure')),
-                ('failure_line', treeherder.model.fields.FlexibleForeignKey(to='model.FailureLine')),
+                ('classified_failure', models.ForeignKey(to='model.ClassifiedFailure')),
+                ('failure_line', models.ForeignKey(to='model.FailureLine')),
             ],
             options={
                 'db_table': 'failure_match',

@@ -5,7 +5,6 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
-from treeherder.model.fields import FlexibleForeignKey
 from treeherder.model.models import (Job,
                                      MachinePlatform,
                                      OptionCollection,
@@ -94,8 +93,8 @@ class PerformanceDatum(models.Model):
     push_timestamp = models.DateTimeField()
 
     # job information can expire before the performance datum
-    job = FlexibleForeignKey(Job, null=True, default=None,
-                             on_delete=models.SET_NULL)
+    job = models.ForeignKey(Job, null=True, default=None,
+                            on_delete=models.SET_NULL)
     push = models.ForeignKey(Push)
 
     # the following properties are obsolete and should be removed at some

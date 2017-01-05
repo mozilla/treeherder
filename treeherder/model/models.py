@@ -23,8 +23,6 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
-from .fields import (BigAutoField,
-                     FlexibleForeignKey)
 from .search import (TestFailureLine,
                      es_connected)
 
@@ -650,7 +648,7 @@ class Job(models.Model):
 
     objects = JobManager()
 
-    id = BigAutoField(primary_key=True)
+    id = models.BigAutoField(primary_key=True)
     repository = models.ForeignKey(Repository)
     guid = models.CharField(max_length=50, unique=True, db_index=True)
     # indexing this column to make eventual migration of performance artifacts
@@ -826,8 +824,8 @@ class JobDetail(models.Model):
     each job
     '''
 
-    id = BigAutoField(primary_key=True)
-    job = FlexibleForeignKey(Job)
+    id = models.BigAutoField(primary_key=True)
+    job = models.ForeignKey(Job)
     title = models.CharField(max_length=70, null=True)
     value = models.CharField(max_length=125)
     url = models.URLField(null=True, max_length=512)
@@ -858,7 +856,7 @@ class JobLog(models.Model):
                 (PARSED, 'parsed'),
                 (FAILED, 'failed'))
 
-    job = FlexibleForeignKey(Job)
+    job = models.ForeignKey(Job)
     name = models.CharField(max_length=50)
     url = models.URLField(max_length=255)
     status = models.IntegerField(choices=STATUSES, default=PENDING)
@@ -885,9 +883,9 @@ class BugJobMap(models.Model):
     Mappings can be made manually through a UI or from doing lookups in the
     BugsCache
     '''
-    id = BigAutoField(primary_key=True)
+    id = models.BigAutoField(primary_key=True)
 
-    job = FlexibleForeignKey(Job)
+    job = models.ForeignKey(Job)
     bug_id = models.PositiveIntegerField(db_index=True)
     created = models.DateTimeField(default=timezone.now)
     user = models.ForeignKey(User, null=True)  # null if autoclassified
@@ -982,9 +980,9 @@ class JobNote(models.Model):
 
     Generally these are generated manually in the UI.
     '''
-    id = BigAutoField(primary_key=True)
+    id = models.BigAutoField(primary_key=True)
 
-    job = FlexibleForeignKey(Job)
+    job = models.ForeignKey(Job)
     failure_classification = models.ForeignKey(FailureClassification)
     user = models.ForeignKey(User, null=True)  # null if autoclassified
     text = models.TextField()
@@ -1065,10 +1063,10 @@ class FailureLine(models.Model):
     STATUS_CHOICES = zip(STATUS_LIST, STATUS_LIST)
     LEVEL_CHOICES = zip(LEVEL_LIST, LEVEL_LIST)
 
-    id = BigAutoField(primary_key=True)
+    id = models.BigAutoField(primary_key=True)
     job_guid = models.CharField(max_length=50)
     repository = models.ForeignKey(Repository)
-    job_log = FlexibleForeignKey(JobLog, null=True)
+    job_log = models.ForeignKey(JobLog, null=True)
     action = models.CharField(max_length=11, choices=ACTION_CHOICES)
     line = models.PositiveIntegerField()
     test = models.TextField(blank=True, null=True)
@@ -1085,11 +1083,11 @@ class FailureLine(models.Model):
     # Note that the case of best_classification = None and best_is_verified = True
     # has the special semantic that the line is ignored and should not be considered
     # for future autoclassifications.
-    best_classification = FlexibleForeignKey("ClassifiedFailure",
-                                             related_name="best_for_lines",
-                                             null=True,
-                                             db_index=True,
-                                             on_delete=models.SET_NULL)
+    best_classification = models.ForeignKey("ClassifiedFailure",
+                                            related_name="best_for_lines",
+                                            null=True,
+                                            db_index=True,
+                                            on_delete=models.SET_NULL)
 
     best_is_verified = models.BooleanField(default=False)
 
@@ -1203,7 +1201,7 @@ class FailureLine(models.Model):
 
 
 class ClassifiedFailure(models.Model):
-    id = BigAutoField(primary_key=True)
+    id = models.BigAutoField(primary_key=True)
     failure_lines = models.ManyToManyField(FailureLine, through='FailureMatch',
                                            related_name='classified_failures')
     # Note that we use a bug number of 0 as a sentinel value to indicate lines that
@@ -1355,13 +1353,13 @@ class Matcher(models.Model):
 
 
 class FailureMatch(models.Model):
-    id = BigAutoField(primary_key=True)
-    failure_line = FlexibleForeignKey(FailureLine,
-                                      related_name="matches",
-                                      on_delete=models.CASCADE)
-    classified_failure = FlexibleForeignKey(ClassifiedFailure,
-                                            related_name="matches",
-                                            on_delete=models.CASCADE)
+    id = models.BigAutoField(primary_key=True)
+    failure_line = models.ForeignKey(FailureLine,
+                                     related_name="matches",
+                                     on_delete=models.CASCADE)
+    classified_failure = models.ForeignKey(ClassifiedFailure,
+                                           related_name="matches",
+                                           on_delete=models.CASCADE)
 
     matcher = models.ForeignKey(Matcher)
     score = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
@@ -1404,9 +1402,9 @@ class TextLogStep(models.Model):
     """
     An individual step in the textual (unstructured) log
     """
-    id = BigAutoField(primary_key=True)
+    id = models.BigAutoField(primary_key=True)
 
-    job = FlexibleForeignKey(Job)
+    job = models.ForeignKey(Job)
 
     # these are presently based off of buildbot results
     # (and duplicated in treeherder/etl/buildbot.py)
@@ -1445,9 +1443,9 @@ class TextLogError(models.Model):
     """
     A detected error line in the textual (unstructured) log
     """
-    id = BigAutoField(primary_key=True)
+    id = models.BigAutoField(primary_key=True)
 
-    step = FlexibleForeignKey(TextLogStep, related_name='errors')
+    step = models.ForeignKey(TextLogStep, related_name='errors')
     line = models.TextField()
     line_number = models.PositiveIntegerField()
 
@@ -1468,7 +1466,7 @@ class TextLogSummary(models.Model):
     This is a legacy model that doesn't serve much useful purpose.
     Should probably be removed at some point.
     """
-    id = BigAutoField(primary_key=True)
+    id = models.BigAutoField(primary_key=True)
     job_guid = models.CharField(max_length=50)
     repository = models.ForeignKey(Repository)
     text_log_summary_artifact_id = models.PositiveIntegerField(blank=True, null=True)
@@ -1486,10 +1484,10 @@ class TextLogSummaryLine(models.Model):
     This probably should be merged with TextLogError above (but isn't yet for
     legacy reasons)
     """
-    id = BigAutoField(primary_key=True)
-    summary = FlexibleForeignKey(TextLogSummary, related_name="lines")
+    id = models.BigAutoField(primary_key=True)
+    summary = models.ForeignKey(TextLogSummary, related_name="lines")
     line_number = models.PositiveIntegerField(blank=True, null=True)
-    failure_line = FlexibleForeignKey(FailureLine, related_name="text_log_line", null=True)
+    failure_line = models.ForeignKey(FailureLine, related_name="text_log_line", null=True)
     bug_number = models.PositiveIntegerField(blank=True, null=True)
     verified = models.BooleanField(default=False)
 

@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import treeherder.model.fields
 
 
 class Migration(migrations.Migration):
@@ -15,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='failureline',
             name='job_log',
-            field=treeherder.model.fields.FlexibleForeignKey(to='model.JobLog', null=True),
+            field=models.ForeignKey(to='model.JobLog', null=True),
         ),
         migrations.AlterUniqueTogether(
             name='failureline',

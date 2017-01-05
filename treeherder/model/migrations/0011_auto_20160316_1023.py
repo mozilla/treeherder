@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import migrations
+from django.db import (migrations,
+                       models)
 import django.db.models.deletion
-import treeherder.model.fields
 
 
 class Migration(migrations.Migration):
@@ -16,6 +16,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='failureline',
             name='best_classification',
-            field=treeherder.model.fields.FlexibleForeignKey(related_name='best_for_lines', on_delete=django.db.models.deletion.SET_NULL, to='model.ClassifiedFailure', null=True),
+            field=models.ForeignKey(related_name='best_for_lines', on_delete=django.db.models.deletion.SET_NULL, to='model.ClassifiedFailure', null=True),
         ),
     ]

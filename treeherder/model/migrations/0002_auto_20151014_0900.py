@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import treeherder.model.fields
 
 
 class Migration(migrations.Migration):
@@ -36,6 +35,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='failurematch',
             name='failure_line',
-            field=treeherder.model.fields.FlexibleForeignKey(related_name='matches', to='model.FailureLine'),
+            field=models.ForeignKey(related_name='matches', to='model.FailureLine'),
         ),
     ]

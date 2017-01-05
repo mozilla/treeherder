@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import treeherder.model.fields
 
 
 class Migration(migrations.Migration):
@@ -19,7 +18,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='failureline',
             name='best_classification',
-            field=treeherder.model.fields.FlexibleForeignKey(related_name='best_for_lines', to='model.ClassifiedFailure', null=True),
+            field=models.ForeignKey(related_name='best_for_lines', to='model.ClassifiedFailure', null=True),
         ),
         migrations.AddField(
             model_name='failureline',
@@ -29,7 +28,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='failurematch',
             name='classified_failure',
-            field=treeherder.model.fields.FlexibleForeignKey(related_name='matches', to='model.ClassifiedFailure'),
+            field=models.ForeignKey(related_name='matches', to='model.ClassifiedFailure'),
         ),
         migrations.AlterIndexTogether(
             name='failureline',

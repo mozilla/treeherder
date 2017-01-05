@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import treeherder.model.fields
 
 
 class Migration(migrations.Migration):
@@ -15,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TextLogSummary',
             fields=[
-                ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
+                ('id', models.BigAutoField(serialize=False, primary_key=True)),
                 ('job_guid', models.CharField(max_length=50)),
                 ('text_log_summary_artifact_id', models.PositiveIntegerField(null=True, blank=True)),
                 ('bug_suggestions_artifact_id', models.PositiveIntegerField(null=True, blank=True)),
@@ -28,12 +27,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TextLogSummaryLine',
             fields=[
-                ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
+                ('id', models.BigAutoField(serialize=False, primary_key=True)),
                 ('line_number', models.PositiveIntegerField(null=True, blank=True)),
                 ('bug_number', models.PositiveIntegerField(null=True, blank=True)),
                 ('verified', models.BooleanField(default=False)),
-                ('failure_line', treeherder.model.fields.FlexibleForeignKey(related_name='text_log_line', to='model.FailureLine', null=True)),
-                ('summary', treeherder.model.fields.FlexibleForeignKey(related_name='lines', to='model.TextLogSummary')),
+                ('failure_line', models.ForeignKey(related_name='text_log_line', to='model.FailureLine', null=True)),
+                ('summary', models.ForeignKey(related_name='lines', to='model.TextLogSummary')),
             ],
             options={
                 'db_table': 'text_log_summary_line',

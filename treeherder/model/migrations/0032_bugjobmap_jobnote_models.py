@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 from django.conf import settings
 import django.utils.timezone
-import treeherder.model.fields
 
 
 class Migration(migrations.Migration):
@@ -18,10 +17,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='BugJobMap',
             fields=[
-                ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
+                ('id', models.BigAutoField(serialize=False, primary_key=True)),
                 ('bug_id', models.PositiveIntegerField(db_index=True)),
                 ('created', models.DateTimeField(default=django.utils.timezone.now)),
-                ('job', treeherder.model.fields.FlexibleForeignKey(to='model.Job')),
+                ('job', models.ForeignKey(to='model.Job')),
                 ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
             ],
             options={
@@ -31,11 +30,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='JobNote',
             fields=[
-                ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
+                ('id', models.BigAutoField(serialize=False, primary_key=True)),
                 ('text', models.TextField()),
                 ('created', models.DateTimeField(default=django.utils.timezone.now)),
                 ('failure_classification', models.ForeignKey(to='model.FailureClassification')),
-                ('job', treeherder.model.fields.FlexibleForeignKey(to='model.Job')),
+                ('job', models.ForeignKey(to='model.Job')),
                 ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
             ],
             options={

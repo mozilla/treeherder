@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import treeherder.model.fields
 
 
 class Migration(migrations.Migration):
@@ -15,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TaskSetMeta',
             fields=[
-                ('id', treeherder.model.fields.BigAutoField(serialize=False, primary_key=True)),
+                ('id', models.BigAutoField(serialize=False, primary_key=True)),
                 ('count', models.IntegerField()),
                 ('created', models.DateTimeField(auto_now_add=True)),
             ],
