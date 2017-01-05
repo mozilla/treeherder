@@ -13,7 +13,6 @@ logViewerApp.controller('LogviewerCtrl', [
 
         const query_string = $location.search();
         $scope.css = '';
-        $rootScope.logBasePath = 'https://taskcluster.github.io/unified-logviewer/';
         $rootScope.urlBasePath = $location.absUrl().split('logviewer')[0];
 
         if (query_string.repo !== "") {
@@ -45,7 +44,7 @@ logViewerApp.controller('LogviewerCtrl', [
             }
 
             updateQuery(values);
-            $document[0].getElementById('logview').contentWindow.postMessage(values, $rootScope.logBasePath);
+            $document[0].getElementById('logview').contentWindow.postMessage(values, "*");
         };
 
         $scope.hasFailedSteps = () => {

@@ -3,6 +3,7 @@
 treeherder.component('thLogViewer', {
     templateUrl: 'partials/logviewer/logviewer.html',
     controller: ($sce, $location, $element, $scope) => {
+        const unifiedLogviewerUrl = 'https://taskcluster.github.io/unified-logviewer/';
         const logParams = () => {
             const q = $location.search();
             let params = { lineHeight: 13 };
@@ -25,7 +26,7 @@ treeherder.component('thLogViewer', {
             const parent = $scope.$parent;
 
             if ($scope.$parent.rawLogURL) {
-                $element[0].childNodes[0].src = $sce.trustAsResourceUrl(`${parent.logBasePath}?url=${parent.rawLogURL}${logParams()}`);
+                $element[0].childNodes[0].src = $sce.trustAsResourceUrl(`${unifiedLogviewerUrl}?url=${parent.rawLogURL}${logParams()}`);
             }
         });
     }
