@@ -131,15 +131,11 @@ def jp_index_fixture(job_priority_list):
 
 
 @pytest.fixture
-def eleven_jobs_with_notes(jm, sample_data, eleven_jobs_stored, test_user,
-                           failure_classifications, test_repository):
+def eleven_jobs_with_notes(eleven_jobs_stored, test_user,
+                           failure_classifications):
     """provide 11 jobs with job notes."""
-    jobs = jm.get_job_list(0, 10)
-
-    for ds_job in jobs:
+    for job in Job.objects.all():
         for failure_classification_id in [2, 3]:
-            job = Job.objects.get(project_specific_id=ds_job['id'],
-                                  repository=test_repository)
             JobNote.objects.create(job=job,
                                    failure_classification_id=failure_classification_id,
                                    user=test_user, text="you look like a man-o-lantern")
@@ -158,4 +154,6 @@ def failures_fixed_by_commit():
             (u'mochitest-browser-chrome', u'debug', u'windowsxp'),
             (u'b2g_mozilla-release_inari_dep', u'opt', u'b2g-device-image'),
             (u'b2g_mozilla-release_emulator-jb-debug_dep', u'debug', u'b2g-emu-jb'),
-            (u'b2g_mozilla-release_nexus-4_dep', u'opt', u'b2g-device-image')]}
+            (u'b2g_mozilla-release_nexus-4_dep', u'opt', u'b2g-device-image'),
+            (u'b2g_mozilla-release_emulator-debug_dep', u'debug', u'b2g-emu-ics')
+        ]}
