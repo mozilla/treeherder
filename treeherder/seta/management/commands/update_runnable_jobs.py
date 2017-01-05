@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from treeherder.etl.allthethings import RunnableJobsProcess
+from treeherder.etl.runnable_jobs import RunnableJobsProcess
 
 
 class Command(BaseCommand):
