@@ -3,12 +3,11 @@ import datetime
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from treeherder.model.derived import JobsModel
-from treeherder.model.models import (Datasource,
-                                     Job,
+from treeherder.model.models import (Job,
                                      JobGroup,
                                      JobType,
-                                     Machine)
+                                     Machine,
+                                     Repository)
 
 
 class Command(BaseCommand):
@@ -55,14 +54,14 @@ class Command(BaseCommand):
 
         self.debug("cycle interval... {}".format(cycle_interval))
 
-        projects = Datasource.objects.values_list('project', flat=True)
-        for project in projects:
-            self.debug("Cycling Database: {0}".format(project))
-            with JobsModel(project) as jm:
-                rs_deleted = jm.cycle_data(cycle_interval,
-                                           options['chunk_size'],
-                                           options['sleep_time'])
-                self.debug("Deleted {} jobs from {}".format(rs_deleted, project))
+        for repository in Repository.objects.all():
+            self.debug("Cycling repository: {0}".format(repository.name))
+            rs_deleted = Job.objects.cycle_data(repository,
+                                                cycle_interval,
+                                                options['chunk_size'],
+                                                options['sleep_time'])
+            self.debug("Deleted {} jobs from {}".format(rs_deleted,
+                                                        repository.name))
 
         self.cycle_non_job_data(options['chunk_size'], options['sleep_time'])
 
