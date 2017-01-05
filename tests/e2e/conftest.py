@@ -37,52 +37,52 @@ def completed_jobs(sample_data):
 
 @pytest.fixture
 def pending_jobs_stored(
-        jm, failure_classifications, pending_jobs, result_set_stored,
-        mock_post_json):
+        test_repository, failure_classifications, pending_jobs,
+        result_set_stored, mock_post_json):
     """
     stores a list of buildapi pending jobs into the jobs store
     using BuildApiTreeHerderAdapter
     """
 
     pending_jobs.update(result_set_stored[0])
-    pending_jobs.update({'project': jm.project})
+    pending_jobs.update({'project': test_repository.name})
 
     tjc = TreeherderJobCollection()
     tj = tjc.get_job(pending_jobs)
     tjc.add(tj)
 
-    test_utils.post_collection(jm.project, tjc)
+    test_utils.post_collection(test_repository.name, tjc)
 
 
 @pytest.fixture
 def running_jobs_stored(
-        jm, failure_classifications, running_jobs, result_set_stored,
-        mock_post_json):
+        test_repository, failure_classifications, running_jobs,
+        result_set_stored, mock_post_json):
     """
     stores a list of buildapi running jobs
     """
     running_jobs.update(result_set_stored[0])
-    running_jobs.update({'project': jm.project})
+    running_jobs.update({'project': test_repository.name})
 
     tjc = TreeherderJobCollection()
     tj = tjc.get_job(running_jobs)
     tjc.add(tj)
 
-    test_utils.post_collection(jm.project, tjc)
+    test_utils.post_collection(test_repository.name, tjc)
 
 
 @pytest.fixture
 def completed_jobs_stored(
-        jm, failure_classifications, completed_jobs, result_set_stored,
-        mock_post_json):
+        test_repository, failure_classifications, completed_jobs,
+        result_set_stored, mock_post_json):
     """
     stores a list of buildapi completed jobs
     """
     completed_jobs['revision'] = result_set_stored[0]['revision']
-    completed_jobs.update({'project': jm.project})
+    completed_jobs.update({'project': test_repository.name})
 
     tjc = TreeherderJobCollection()
     tj = tjc.get_job(completed_jobs)
     tjc.add(tj)
 
-    test_utils.post_collection(jm.project, tjc)
+    test_utils.post_collection(test_repository.name, tjc)

@@ -7,6 +7,7 @@ from rest_framework.test import APIClient
 
 from tests import test_utils
 from treeherder.client import TreeherderResultSetCollection
+from treeherder.etl.resultset import store_result_set_data
 from treeherder.model.models import (FailureClassification,
                                      Job,
                                      JobNote,
@@ -14,13 +15,13 @@ from treeherder.model.models import (FailureClassification,
 from treeherder.webapp.api import utils
 
 
-def test_resultset_list_basic(webapp, eleven_jobs_stored, test_project):
+def test_resultset_list_basic(webapp, eleven_jobs_stored, test_repository):
     """
     test retrieving a list of ten json blobs from the jobs-list
     endpoint.
     """
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": test_project}))
+        reverse("resultset-list", kwargs={"project": test_repository.name}))
 
     results = resp.json['results']
     meta = resp.json['meta']
@@ -46,8 +47,7 @@ def test_resultset_list_basic(webapp, eleven_jobs_stored, test_project):
     assert(meta == {
         u'count': 10,
         u'filter_params': {},
-        u'repository':
-        test_project
+        u'repository': test_repository.name
     })
 
 
@@ -64,27 +64,27 @@ def test_resultset_list_bad_project(webapp, transactional_db):
     assert resp.json == {"detail": "No project with name foo"}
 
 
-def test_resultset_list_empty_rs_still_show(webapp, sample_resultset, jm):
+def test_resultset_list_empty_rs_still_show(webapp, sample_resultset, test_repository):
     """
     test retrieving a resultset list, when the resultset has no jobs.
     should show.
     """
-    jm.store_result_set_data(sample_resultset)
+    store_result_set_data(test_repository, sample_resultset)
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": jm.project}),
+        reverse("resultset-list", kwargs={"project": test_repository.name}),
     )
     assert resp.status_int == 200
     assert len(resp.json['results']) == 10
 
 
-def test_resultset_list_single_short_revision(webapp, eleven_jobs_stored, test_project):
+def test_resultset_list_single_short_revision(webapp, eleven_jobs_stored, test_repository):
     """
     test retrieving a resultset list, filtered by single short revision
     """
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": test_project}),
+        reverse("resultset-list", kwargs={"project": test_repository.name}),
         {"revision": "45f8637cb9f7"}
     )
     assert resp.status_int == 200
@@ -98,17 +98,17 @@ def test_resultset_list_single_short_revision(webapp, eleven_jobs_stored, test_p
         u'filter_params': {
             u'revisions_short_revision': "45f8637cb9f7"
         },
-        u'repository': test_project}
+        u'repository': test_repository.name}
     )
 
 
-def test_resultset_list_single_long_revision(webapp, eleven_jobs_stored, test_project):
+def test_resultset_list_single_long_revision(webapp, eleven_jobs_stored, test_repository):
     """
     test retrieving a resultset list, filtered by a single long revision
     """
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": test_project}),
+        reverse("resultset-list", kwargs={"project": test_repository.name}),
         {"revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf"}
     )
     assert resp.status_int == 200
@@ -122,12 +122,11 @@ def test_resultset_list_single_long_revision(webapp, eleven_jobs_stored, test_pr
         u'filter_params': {
             u'revisions_long_revision': u'45f8637cb9f78f19cb8463ff174e81756805d8cf'
         },
-        u'repository': test_project}
+        u'repository': test_repository.name}
     )
 
 
-def test_resultset_list_single_long_revision_stored_long(webapp, sample_resultset, jm,
-                                                         test_project):
+def test_resultset_list_single_long_revision_stored_long(webapp, sample_resultset, test_repository):
     """
     test retrieving a resultset list with store long revision, filtered by a single long revision
     """
@@ -136,10 +135,10 @@ def test_resultset_list_single_long_revision_stored_long(webapp, sample_resultse
     # store a resultset with long revision
     resultset = copy.deepcopy(sample_resultset[0])
     resultset["revisions"][0]["revision"] = long_revision
-    jm.store_result_set_data([resultset])
+    store_result_set_data(test_repository, [resultset])
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": test_project}),
+        reverse("resultset-list", kwargs={"project": test_repository.name}),
         {"revision": long_revision}
     )
     assert resp.status_int == 200
@@ -153,17 +152,17 @@ def test_resultset_list_single_long_revision_stored_long(webapp, sample_resultse
         'filter_params': {
             'revisions_long_revision': long_revision
         },
-        'repository': test_project}
+        'repository': test_repository.name}
     )
 
 
-def test_resultset_list_filter_by_revision(webapp, eleven_jobs_stored, test_project):
+def test_resultset_list_filter_by_revision(webapp, eleven_jobs_stored, test_repository):
     """
     test retrieving a resultset list, filtered by a revision range
     """
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": test_project}),
+        reverse("resultset-list", kwargs={"project": test_repository.name}),
         {"fromchange": "130965d3df6c", "tochange": "f361dcb60bbe"}
     )
     assert resp.status_int == 200
@@ -183,13 +182,13 @@ def test_resultset_list_filter_by_revision(webapp, eleven_jobs_stored, test_proj
             u'push_timestamp__gte': 1384363842,
             u'push_timestamp__lte': 1384365942
         },
-        u'repository': test_project,
+        u'repository': test_repository.name,
         u'tochange': u'f361dcb60bbe'}
     )
 
 
 def test_resultset_list_filter_by_date(webapp, test_repository,
-                                       sample_resultset, jm, test_project):
+                                       sample_resultset):
     """
     test retrieving a resultset list, filtered by a date range
     """
@@ -199,10 +198,10 @@ def test_resultset_list_filter_by_date(webapp, test_repository,
         sample_resultset[i]['push_timestamp'] = utils.to_timestamp(
             utils.to_datetime(datestr))
 
-    jm.store_result_set_data(sample_resultset)
+    store_result_set_data(test_repository, sample_resultset)
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": jm.project}),
+        reverse("resultset-list", kwargs={"project": test_repository.name}),
         {"startdate": "2013-08-10", "enddate": "2013-08-13"}
     )
     assert resp.status_int == 200
@@ -222,7 +221,7 @@ def test_resultset_list_filter_by_date(webapp, test_repository,
             u'push_timestamp__gte': 1376092800.0,
             u'push_timestamp__lt': 1376438400.0
         },
-        u'repository': test_project,
+        u'repository': test_repository.name,
         u'startdate': u'2013-08-10'}
     )
 
@@ -319,14 +318,14 @@ def test_resultset_author(webapp, test_repository):
 
 
 def test_resultset_list_without_jobs(webapp, test_repository,
-                                     sample_resultset, jm):
+                                     sample_resultset):
     """
     test retrieving a resultset list without jobs
     """
-    jm.store_result_set_data(sample_resultset)
+    store_result_set_data(test_repository, sample_resultset)
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": jm.project})
+        reverse("resultset-list", kwargs={"project": test_repository.name})
     )
     assert resp.status_int == 200
 
@@ -343,7 +342,7 @@ def test_resultset_list_without_jobs(webapp, test_repository,
     }
 
 
-def test_resultset_detail(webapp, eleven_jobs_stored, jm):
+def test_resultset_detail(webapp, eleven_jobs_stored, test_repository):
     """
     test retrieving a resultset from the resultset-detail
     endpoint.
@@ -353,27 +352,27 @@ def test_resultset_detail(webapp, eleven_jobs_stored, jm):
 
     resp = webapp.get(
         reverse("resultset-detail",
-                kwargs={"project": jm.project, "pk": 1})
+                kwargs={"project": test_repository.name, "pk": 1})
     )
     assert resp.status_int == 200
     assert isinstance(resp.json, dict)
     assert resp.json["id"] == push.id
 
 
-def test_resultset_detail_not_found(webapp, jm):
+def test_resultset_detail_not_found(webapp, test_repository):
     """
     test retrieving a HTTP 404 from the resultset-detail
     endpoint.
     """
     resp = webapp.get(
         reverse("resultset-detail",
-                kwargs={"project": jm.project, "pk": -32767}),
+                kwargs={"project": test_repository.name, "pk": -32767}),
         expect_errors=True
     )
     assert resp.status_int == 404
 
 
-def test_resultset_detail_bad_project(webapp, jm):
+def test_resultset_detail_bad_project(webapp, test_repository):
     """
     test retrieving a HTTP 404 from the resultset-detail
     endpoint.
@@ -387,7 +386,7 @@ def test_resultset_detail_bad_project(webapp, jm):
     assert resp.status_int == 404
 
 
-def test_resultset_create(jm, test_repository, sample_resultset,
+def test_resultset_create(test_repository, sample_resultset,
                           mock_post_json):
     """
     test posting data to the resultset endpoint via webtest.
@@ -401,7 +400,7 @@ def test_resultset_create(jm, test_repository, sample_resultset,
 
     # store the first two, so we submit all, but should properly not re-
     # add the others.
-    jm.store_result_set_data(sample_resultset[:2])
+    store_result_set_data(test_repository, sample_resultset[:2])
     assert Push.objects.count() == 2
 
     trsc = TreeherderResultSetCollection()
@@ -412,7 +411,7 @@ def test_resultset_create(jm, test_repository, sample_resultset,
         trsc.add(result_set)
         exp_revision_hashes.add(rs["revision"])
 
-    test_utils.post_collection(jm.project, trsc)
+    test_utils.post_collection(test_repository.name, trsc)
 
     assert Push.objects.count() == len(sample_resultset)
     assert set(Push.objects.values_list('revision', flat=True)) == set(
@@ -421,7 +420,7 @@ def test_resultset_create(jm, test_repository, sample_resultset,
 
 def test_resultset_cancel_all(failure_classifications,
                               push_with_three_jobs, pulse_action_consumer,
-                              test_project, test_user):
+                              test_repository, test_user):
     """
     Issue cancellation of a resultset with three unfinished jobs.
     """
@@ -433,7 +432,7 @@ def test_resultset_cancel_all(failure_classifications,
         assert job.state == 'pending'
 
     url = reverse("resultset-cancel-all",
-                  kwargs={"project": test_project, "pk": push_with_three_jobs.id})
+                  kwargs={"project": test_repository.name, "pk": push_with_three_jobs.id})
     client.post(url)
 
     # Ensure all jobs are cancelled..
@@ -446,7 +445,7 @@ def test_resultset_cancel_all(failure_classifications,
         content = message.payload
 
         assert content['action'] == 'cancel'
-        assert content['project'] == test_project
+        assert content['project'] == test_repository.name
 
 
 def test_resultset_status(webapp, test_job, test_user):

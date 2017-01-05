@@ -9,7 +9,7 @@ from treeherder.model.models import (TextLogError,
 xfail = pytest.mark.xfail
 
 
-def test_artifact_create_text_log_summary(webapp, test_project, test_job,
+def test_artifact_create_text_log_summary(webapp, test_repository, test_job,
                                           mock_post_json, sample_data):
     """
     test submitting a text_log_summary artifact creates some text log summary objects
@@ -29,7 +29,7 @@ def test_artifact_create_text_log_summary(webapp, test_project, test_job,
     tac.add(ta)
 
     cli = client.TreeherderClient(server_url='http://localhost')
-    cli.post_collection(test_project, tac)
+    cli.post_collection(test_repository.name, tac)
 
     # assert we generated some objects
     assert TextLogStep.objects.filter(job=test_job).count() > 0

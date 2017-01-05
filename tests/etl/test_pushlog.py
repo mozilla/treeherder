@@ -10,8 +10,7 @@ from treeherder.model.models import (Commit,
                                      Push)
 
 
-def test_ingest_hg_pushlog(jm, test_base_dir,
-                           test_repository,
+def test_ingest_hg_pushlog(test_repository, test_base_dir,
                            activate_responses):
     """ingesting a number of pushes should populate result set and revisions"""
 
@@ -25,15 +24,15 @@ def test_ingest_hg_pushlog(jm, test_base_dir,
 
     process = HgPushlogProcess()
 
-    process.run(pushlog_fake_url, jm.project)
+    process.run(pushlog_fake_url, test_repository.name)
 
     # should be 10 pushes, 15 revisions
     assert Push.objects.count() == 10
     assert Commit.objects.count() == 15
 
 
-def test_ingest_hg_pushlog_already_stored(jm, test_base_dir,
-                                          test_repository, activate_responses):
+def test_ingest_hg_pushlog_already_stored(test_repository, test_base_dir,
+                                          activate_responses):
     """test that trying to ingest a push already stored doesn't doesn't affect
     all the pushes in the request,
     e.g. trying to store [A,B] with A already stored, B will be stored"""
@@ -55,7 +54,7 @@ def test_ingest_hg_pushlog_already_stored(jm, test_base_dir,
                   )
 
     process = HgPushlogProcess()
-    process.run(pushlog_fake_url, jm.project)
+    process.run(pushlog_fake_url, test_repository.name)
 
     assert Push.objects.count() == 1
 
@@ -73,12 +72,12 @@ def test_ingest_hg_pushlog_already_stored(jm, test_base_dir,
 
     process = HgPushlogProcess()
 
-    process.run(pushlog_fake_url, jm.project)
+    process.run(pushlog_fake_url, test_repository.name)
 
     assert Push.objects.count() == 2
 
 
-def test_ingest_hg_pushlog_cache_last_push(jm, test_repository,
+def test_ingest_hg_pushlog_cache_last_push(test_repository,
                                            test_base_dir,
                                            activate_responses):
     """
@@ -94,7 +93,7 @@ def test_ingest_hg_pushlog_cache_last_push(jm, test_repository,
                   status=200, content_type='application/json')
 
     process = HgPushlogProcess()
-    process.run(pushlog_fake_url, jm.project)
+    process.run(pushlog_fake_url, test_repository.name)
 
     pushlog_dict = json.loads(pushlog_content)
     pushes = pushlog_dict['pushes']
@@ -104,8 +103,7 @@ def test_ingest_hg_pushlog_cache_last_push(jm, test_repository,
     assert cache.get(cache_key) == max_push_id
 
 
-def test_empty_json_pushes(jm, test_base_dir,
-                           test_repository,
+def test_empty_json_pushes(test_repository, test_base_dir,
                            activate_responses):
     """
     Gracefully handle getting an empty list of pushes from json-pushes
@@ -123,6 +121,6 @@ def test_empty_json_pushes(jm, test_base_dir,
                   )
 
     process = HgPushlogProcess()
-    process.run(pushlog_fake_url, jm.project)
+    process.run(pushlog_fake_url, test_repository.name)
 
     assert Push.objects.count() == 0

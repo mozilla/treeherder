@@ -31,7 +31,7 @@ def perf_job(perf_push, failure_classifications, generic_reference_data):
                               perf_push.id, 1, generic_reference_data)
 
 
-def _generate_perf_data_range(test_project, test_repository,
+def _generate_perf_data_range(test_repository,
                               generic_reference_data,
                               create_perf_framework=True,
                               enable_framework=True,
@@ -124,7 +124,7 @@ def _verify_datum(suitename, testname, value, push_timestamp):
     assert datum.push_timestamp == push_timestamp
 
 
-def test_load_generic_data(test_project, test_repository,
+def test_load_generic_data(test_repository,
                            perf_push, perf_job, generic_reference_data):
     framework_name = 'cheezburger'
     PerformanceFramework.objects.get_or_create(name=framework_name, enabled=True)
@@ -245,10 +245,10 @@ def test_load_generic_data(test_project, test_repository,
     assert signature.last_updated == later_timestamp
 
 
-def test_no_performance_framework(test_project, test_repository,
+def test_no_performance_framework(test_repository,
                                   failure_classifications,
                                   generic_reference_data):
-    _generate_perf_data_range(test_project, test_repository,
+    _generate_perf_data_range(test_repository,
                               generic_reference_data,
                               create_perf_framework=False
                               )
@@ -257,8 +257,7 @@ def test_no_performance_framework(test_project, test_repository,
     assert 0 == PerformanceDatum.objects.all().count()
 
 
-def test_same_signature_multiple_performance_frameworks(test_project,
-                                                        test_repository,
+def test_same_signature_multiple_performance_frameworks(test_repository,
                                                         perf_job):
     framework_names = ['cheezburger1', 'cheezburger2']
     for framework_name in framework_names:
@@ -342,12 +341,12 @@ def test_same_signature_multiple_performance_frameworks(test_project,
                               (True, {'shouldAlert': True},
                                {'shouldAlert': True}, True, True),
                         ])
-def test_alert_generation(test_project, test_repository,
+def test_alert_generation(test_repository,
                           failure_classifications, generic_reference_data,
                           add_suite_value, extra_suite_metadata,
                           extra_subtest_metadata, expected_subtest_alert,
                           expected_suite_alert):
-    _generate_perf_data_range(test_project, test_repository,
+    _generate_perf_data_range(test_repository,
                               generic_reference_data,
                               add_suite_value=add_suite_value,
                               extra_suite_metadata=extra_suite_metadata,
@@ -414,25 +413,25 @@ def test_alert_generation(test_project, test_repository,
         assert alert.amount_pct == 100
 
 
-def test_alert_generation_repo_no_alerts(test_project, test_repository,
+def test_alert_generation_repo_no_alerts(test_repository,
                                          failure_classifications,
                                          generic_reference_data):
     # validates that no alerts generated on "try" repos
     test_repository.performance_alerts_enabled = False
     test_repository.save()
 
-    _generate_perf_data_range(test_project, test_repository,
+    _generate_perf_data_range(test_repository,
                               generic_reference_data)
 
     assert 0 == PerformanceAlert.objects.all().count()
     assert 0 == PerformanceAlertSummary.objects.all().count()
 
 
-def test_framework_not_enabled(test_project, test_repository,
+def test_framework_not_enabled(test_repository,
                                failure_classifications,
                                generic_reference_data):
     # The field enabled has been defaulted to 'False'
-    _generate_perf_data_range(test_project, test_repository,
+    _generate_perf_data_range(test_repository,
                               generic_reference_data,
                               create_perf_framework=True,
                               enable_framework=False)

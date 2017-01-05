@@ -13,7 +13,8 @@ from webtest.app import TestApp
 
 from treeherder.client import TreeherderClient
 from treeherder.config.wsgi import application
-from treeherder.model.derived.jobs import JobsModel
+from treeherder.etl.jobs import store_job_data
+from treeherder.etl.resultset import store_result_set_data
 from treeherder.model.models import (JobNote,
                                      Push)
 
@@ -31,7 +32,6 @@ def pytest_runtest_setup(item):
     Per-test setup.
     - Add an option to run those tests marked as 'slow'
     - Provide cache isolation incrementing the cache key prefix
-    - Drop and recreate tables in the master db
     """
 
     if 'slow' in item.keywords and not item.config.getoption("--runslow"):
@@ -63,44 +63,6 @@ def elasticsearch(request):
         item.init()
 
 
-@pytest.fixture
-def jobs_ds(request, transactional_db):
-    from treeherder.model.models import Datasource
-    ds = Datasource.objects.create(project=settings.TREEHERDER_TEST_PROJECT)
-
-    def fin():
-        ds.delete()
-    request.addfinalizer(fin)
-
-    return ds
-
-
-@pytest.fixture
-def jm(request, test_repository, jobs_ds):
-    """ Give a test access to a JobsModel instance. """
-    model = JobsModel(jobs_ds.project)
-
-    def fin():
-        model.disconnect()
-    request.addfinalizer(fin)
-
-    return model
-
-
-def add_test_procs_file(dhub, key, filename):
-    """Add an extra procs file in for testing purposes."""
-    test_proc_file = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)),
-        filename,
-    )
-    del dhub.procs[key]
-    proclist = dhub.data_sources[key]["procs"]
-    if test_proc_file not in proclist:
-        proclist.append(test_proc_file)
-    dhub.data_sources[key]["procs"] = proclist
-    dhub.load_procs(key)
-
-
 @pytest.fixture(scope='session')
 def sample_data():
     """Returns a SampleData() object"""
@@ -116,11 +78,6 @@ def test_base_dir():
 @pytest.fixture
 def sample_resultset(sample_data):
     return copy.deepcopy(sample_data.resultset_data)
-
-
-@pytest.fixture
-def test_project(jm):
-    return jm.project
 
 
 @pytest.fixture
@@ -158,19 +115,19 @@ def test_repository_2(test_repository):
 
 
 @pytest.fixture
-def test_job(failure_classifications, eleven_job_blobs, jm):
+def test_job(test_repository, failure_classifications, eleven_job_blobs):
     from treeherder.model.models import Job
 
-    jm.store_job_data(eleven_job_blobs[0:1])
+    store_job_data(test_repository, eleven_job_blobs[0:1])
 
     return Job.objects.get(id=1)
 
 
 @pytest.fixture
-def test_job_2(eleven_job_blobs, test_job, jm):
+def test_job_2(eleven_job_blobs, test_job):
     from treeherder.model.models import Job
 
-    jm.store_job_data(eleven_job_blobs[1:2])
+    store_job_data(test_job.repository, eleven_job_blobs[1:2])
 
     return Job.objects.get(id=2)
 
@@ -190,8 +147,8 @@ def mock_log_parser(monkeypatch):
 
 
 @pytest.fixture
-def result_set_stored(jm, sample_resultset):
-    jm.store_result_set_data(sample_resultset)
+def result_set_stored(test_repository, sample_resultset):
+    store_result_set_data(test_repository, sample_resultset)
 
     return sample_resultset
 
@@ -203,7 +160,7 @@ def mock_message_broker(monkeypatch):
 
 
 @pytest.fixture
-def push_with_three_jobs(jm, sample_data, sample_resultset, test_repository):
+def push_with_three_jobs(sample_data, sample_resultset, test_repository):
     """
     Stores a number of jobs in the same resultset.
     """
@@ -212,7 +169,7 @@ def push_with_three_jobs(jm, sample_data, sample_resultset, test_repository):
     jobs = copy.deepcopy(sample_data.job_data[0:num_jobs])
 
     # Only store data for the first resultset....
-    jm.store_result_set_data([resultset])
+    store_result_set_data(test_repository, [resultset])
 
     blobs = []
     for index, blob in enumerate(jobs):
@@ -229,14 +186,14 @@ def push_with_three_jobs(jm, sample_data, sample_resultset, test_repository):
         blobs.append(blob)
 
     # Store and process the jobs so they are present in the tables.
-    jm.store_job_data(blobs)
+    store_job_data(test_repository, blobs)
     return Push.objects.get(repository=test_repository,
                             revision=resultset['revision'])
 
 
 @pytest.fixture
-def eleven_job_blobs(jm, sample_data, sample_resultset, test_repository, mock_log_parser):
-    jm.store_result_set_data(sample_resultset)
+def eleven_job_blobs(sample_data, sample_resultset, test_repository, mock_log_parser):
+    store_result_set_data(test_repository, sample_resultset)
 
     num_jobs = 11
     jobs = sample_data.job_data[0:num_jobs]
@@ -263,9 +220,9 @@ def eleven_job_blobs(jm, sample_data, sample_resultset, test_repository, mock_lo
 
 
 @pytest.fixture
-def eleven_jobs_stored(jm, failure_classifications, eleven_job_blobs):
+def eleven_jobs_stored(test_repository, failure_classifications, eleven_job_blobs):
     """stores a list of 11 job samples"""
-    jm.store_job_data(eleven_job_blobs)
+    store_job_data(test_repository, eleven_job_blobs)
 
 
 @pytest.fixture
@@ -417,14 +374,14 @@ def classified_failures(test_job, failure_lines, test_matcher,
 
 
 @pytest.fixture
-def retriggered_job(test_job, jm, eleven_job_blobs):
+def retriggered_job(test_job, eleven_job_blobs):
     # a copy of test_job with a different guid, representing a "retrigger"
     from treeherder.model.models import Job
     original = eleven_job_blobs[0]
     retrigger = copy.deepcopy(original)
     retrigger['job']['job_guid'] = "f1c75261017c7c5ce3000931dce4c442fe0a129a"
 
-    jm.store_job_data([retrigger])
+    store_job_data(test_job.repository, [retrigger])
 
     return Job.objects.get(guid=retrigger['job']['job_guid'])
 

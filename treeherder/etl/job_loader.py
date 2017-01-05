@@ -5,8 +5,8 @@ import jsonschema
 import newrelic.agent
 
 from treeherder.etl.common import to_timestamp
+from treeherder.etl.jobs import store_job_data
 from treeherder.etl.schema import job_json_schema
-from treeherder.model.derived.jobs import JobsModel
 from treeherder.model.models import (Push,
                                      Repository)
 
@@ -48,27 +48,23 @@ class JobLoader:
 
         for project, job_list in validated_jobs.items():
             newrelic.agent.add_custom_parameter("project", project)
-            with JobsModel(project) as jobs_model:
-                storeable_job_list = []
-                for pulse_job in job_list:
-                    if pulse_job["state"] != "unscheduled":
-                        try:
-                            self.clean_revision(pulse_job, jobs_model)
-                            storeable_job_list.append(
-                                self.transform(pulse_job)
-                            )
-                        except AttributeError:
-                            logger.warn("Skipping job due to bad attribute",
-                                        exc_info=1)
+            repository = Repository.objects.get(name=project)
 
-                jobs_model.store_job_data(storeable_job_list)
+            storeable_job_list = []
+            for pulse_job in job_list:
+                if pulse_job["state"] != "unscheduled":
+                    try:
+                        self.clean_revision(repository, pulse_job)
+                        storeable_job_list.append(
+                            self.transform(pulse_job)
+                        )
+                    except AttributeError:
+                        logger.warn("Skipping job due to bad attribute",
+                                    exc_info=1)
 
-    def clean_revision(self, pulse_job, jobs_model):
-        # get the repository first (we'll throw an exception if it doesn't
-        # exist)
-        repository = Repository.objects.get(
-            name=pulse_job["origin"]["project"])
+            store_job_data(repository, storeable_job_list)
 
+    def clean_revision(self, repository, pulse_job):
         # It is possible there will be either a revision or a revision_hash
         # At some point we will ONLY get revisions and no longer receive
         # revision_hashes and then this check can be removed.

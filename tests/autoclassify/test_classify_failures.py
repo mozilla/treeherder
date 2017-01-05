@@ -244,7 +244,7 @@ def test_classify_multiple(test_job_2, failure_lines, classified_failures):
         assert [item.matcher.id == 2 for item in item.matches.all()]
 
 
-def test_classify_crash(test_project, test_job, test_job_2, test_matcher):
+def test_classify_crash(test_repository, test_job, test_job_2, test_matcher):
     failure_lines_ref = create_failure_lines(test_job,
                                              [(crash_line, {})])
 

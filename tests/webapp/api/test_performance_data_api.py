@@ -56,10 +56,10 @@ def test_perf_signature_same_hash_different_framework(test_perf_signature):
 
 
 def test_no_summary_performance_data(webapp, test_perf_signature,
-                                     jm):
+                                     test_repository):
 
     resp = webapp.get(reverse('performance-signatures-list',
-                              kwargs={"project": jm.project}))
+                              kwargs={"project": test_repository.name}))
     assert resp.status_int == 200
 
     assert resp.json.get('subtests', None) is None
@@ -135,15 +135,15 @@ def test_performance_platforms_framework_filtering(webapp, test_perf_signature):
 
 def test_summary_performance_data(webapp, test_repository,
                                   summary_perf_signature,
-                                  test_perf_signature, jm):
+                                  test_perf_signature):
     summary_signature_hash = summary_perf_signature.signature_hash
     resp = webapp.get(reverse('performance-signatures-list',
-                              kwargs={"project": jm.project}))
+                              kwargs={"project": test_repository.name}))
     assert resp.status_int == 200
 
     client = APIClient()
     resp = client.get(reverse('performance-signatures-list',
-                              kwargs={"project": jm.project}), fromat='json')
+                              kwargs={"project": test_repository.name}), fromat='json')
     assert resp.status_code == 200
 
     assert len(resp.data.keys()) == 2

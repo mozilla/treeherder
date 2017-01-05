@@ -94,7 +94,7 @@ def test_update_failure_line_replace(test_repository, failure_lines,
     assert failure_line.matches.get(classified_failure_id=classified_failures[1].id).matcher == expected_matcher
 
 
-def test_update_failure_line_mark_job(jm, test_job,
+def test_update_failure_line_mark_job(test_repository, test_job,
                                       failure_lines,
                                       classified_failures,
                                       test_user):
@@ -166,7 +166,7 @@ def test_update_failure_line_mark_job_with_human_note(test_job,
 
 
 def test_update_failure_line_mark_job_with_auto_note(test_job,
-                                                     mock_autoclassify_jobs_true, jm,
+                                                     mock_autoclassify_jobs_true, test_repository,
                                                      failure_lines,
                                                      classified_failures,
                                                      test_user):
@@ -246,7 +246,7 @@ def test_update_failure_lines(mock_autoclassify_jobs_true,
         assert note.user == test_user
 
 
-def test_update_failure_line_ignore(test_job, jm, failure_lines,
+def test_update_failure_line_ignore(test_job, test_repository, failure_lines,
                                     classified_failures, test_user):
 
     client = APIClient()
