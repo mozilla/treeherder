@@ -50,12 +50,7 @@ def test_mysqlclient_tls_enforced():
 @pytest.mark.django_db
 def test_no_missing_migrations():
     """Check no model changes have been made since the last `./manage.py makemigrations`."""
-    with pytest.raises(SystemExit) as e:
-        # Replace with `check_changes=True` once we're using Django 1.10:
-        # https://code.djangoproject.com/ticket/25604
-        # https://github.com/django/django/pull/5453
-        call_command('makemigrations', interactive=False, dry_run=True, exit_code=True)
-    assert str(e.value) == '1'
+    call_command('makemigrations', interactive=False, dry_run=True, check_changes=True)
 
 
 def test_datasource_db_created(jobs_ds, db_conn):
