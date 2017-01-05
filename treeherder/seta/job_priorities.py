@@ -7,7 +7,6 @@ from treeherder.seta.common import unique_key
 from treeherder.seta.models import (JobPriority,
                                     TaskRequest)
 
-GECKO_DECISION_TASK_USER_AGENT = 'TaskCluster'
 RESET_DELTA = 5400
 
 logger = logging.getLogger(__name__)
@@ -125,10 +124,10 @@ def _validate_request(build_system_type, project):
         raise SetaError('Valid build_system_type values are buildbot or taskcluster.')
 
 
-def seta_job_scheduling(project, build_system_type, priority=5, user_agent=None):
+def seta_job_scheduling(project, build_system_type, priority=5, increase_counter=False):
     _validate_request(build_system_type, project)
 
-    if user_agent == GECKO_DECISION_TASK_USER_AGENT:
+    if increase_counter:
         ref_data_names = _gecko_decision_task_request(project)
     else:
         excluded_build_system_type = 'taskcluster' if build_system_type == 'buildbot' else 'buildbot'

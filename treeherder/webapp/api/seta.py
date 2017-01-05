@@ -27,14 +27,14 @@ class SetaJobPriorityViewSet(viewsets.ViewSet):
             * TaskCluster (Gecko decision task)
               * build_system_type=taskcluster
               * format=json
-              * user agent == 'TaskCluster'
+              * increase_counter
         '''
         build_system_type = request.query_params.get('build_system_type', '*')
         priority = request.query_params.get('priority', 5)
-        user_agent = request.META.get('HTTP_USER_AGENT')
+        increase_counter = request.query.params.get('increase_counter', False)
 
         try:
-            return Response(seta_job_scheduling(project, build_system_type, priority, user_agent))
+            return Response(seta_job_scheduling(project, build_system_type, priority, increase_counter))
         except SetaError as e:
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 
