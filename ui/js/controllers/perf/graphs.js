@@ -1001,12 +1001,32 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
             loadingExtraDataPromise.resolve($scope.testsToAdd.length);
         });
     };
+
+    var addRelatedConfigs = function(originalSeries) {
+        PhSeries.getSeriesList(
+            originalSeries.projectName, {
+                interval: $scope.timeRange,
+                framework: originalSeries.frameworkId
+            }).then(function(seriesList) {
+                $scope.testsToAdd = _.clone(_.filter(seriesList, function(series) {
+                    return series.platform === originalSeries.platform &&
+                        series.testName === originalSeries.testName &&
+                        series.name !== originalSeries.name;
+                }));
+            }).then(function() {
+                // resolve the testsToAdd's length after every thing was done
+                // so we don't need timeout here
+                loadingExtraDataPromise.resolve($scope.testsToAdd.length);
+            });
+    };
     if (options.option !== undefined) {
         $scope.loadingRelatedSignatures = false;
         if (options.option === "addRelatedPlatform") {
             addRelatedPlatforms(options.relatedSeries);
         } else if (options.option === "addRelatedBranches") {
             addRelatedBranches(options.relatedSeries);
+        } else if (options.option === "addRelatedConfigs") {
+            addRelatedConfigs(options.relatedSeries);
         }
         loadingExtraDataPromise.promise.then(function(length){
             if (length > 0) {

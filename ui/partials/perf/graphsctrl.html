@@ -12,7 +12,7 @@
               <span class="sr-only">Remove series</span>
             </button>
               <div class="graph-legend" style="border-left-color: {{series.blockColor}}" ng-class="{'series-inactive':!series.visible}">
-                <b>{{series.name}}</b><br/>
+                <a href="" ng-click="addTestData('addRelatedConfigs', series.signature)" title="Add related configurations">{{series.name}}</a><br/>
                 <a href="" ng-click="addTestData('addRelatedBranches', series.signature)" title="Add related branches">{{series.projectName}}</a><br/>
                 <a href="" ng-click="addTestData('addRelatedPlatform', series.signature)" title="Add related platforms">{{series.platform}}</a><br/>
                 <div class="signature"><small>{{series.signature}}</small></div>
