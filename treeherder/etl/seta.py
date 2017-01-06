@@ -70,10 +70,12 @@ def job_testtype(job):
 
 def parse_testtype(build_system_type, job_type_name, platform_option, ref_data_name):
     '''
-    build_system_type - buildbot or taskcluster
-    job_type_name - e.g. Mochitest (JobType.name)
-    platform_option - e.g. opt
-    ref_data_name - buildername or task label
+                       Buildbot       Taskcluster
+                       -----------    -----------
+    build_system_type  buildbot       taskcluster
+    job_type_name      Mochitest      task label
+    platform_option    debug,opt,pgo  debug,opt,pgo
+    ref_data_name      buildername    task label OR signature hash
     '''
     # XXX: Figure out how to ignore build, lint, etc. jobs
     # https://bugzilla.mozilla.org/show_bug.cgi?id=1318659
@@ -87,7 +89,7 @@ def parse_testtype(build_system_type, job_type_name, platform_option, ref_data_n
         #       ignore any BBB task since we will be analyzing instead the Buildbot job associated
         #       to it. If BBB tasks were a production system and there was a technical advantage
         #       we could look into analyzing that instead of the BB job.
-        if ref_data_name.startswith('test-'):
+        if job_type_name.startswith('test-'):
             # we should get "jittest-3" as testtype for a job_type_name like
             # test-linux64/debug-jittest-3
             return transform(job_type_name.split('-{buildtype}'.format(buildtype=platform_option))[-1])
