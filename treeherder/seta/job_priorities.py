@@ -116,7 +116,9 @@ def _query_job_priorities(priority, excluded_build_system_type):
     job_priorities = JobPriority.objects.all()
     if priority:
         job_priorities = job_priorities.filter(priority=priority)
-    return job_priorities.exclude(buildsystem=excluded_build_system_type)
+    if excluded_build_system_type:
+        job_priorities = job_priorities.exclude(buildsystem=excluded_build_system_type)
+    return job_priorities
 
 
 def _validate_request(build_system_type, project):
@@ -130,7 +132,9 @@ def seta_job_scheduling(project, build_system_type, priority=None, increase_coun
     if increase_counter:
         ref_data_names = _gecko_decision_task_request(project)
     else:
-        excluded_build_system_type = 'taskcluster' if build_system_type == 'buildbot' else 'buildbot'
+        excluded_build_system_type = None
+        if build_system_type != '*':
+            excluded_build_system_type = 'taskcluster' if build_system_type == 'buildbot' else 'buildbot'
         job_priorities = _query_job_priorities(priority, excluded_build_system_type)
         ref_data_names = _process(build_system_type, job_priorities)
 
