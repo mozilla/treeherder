@@ -2,7 +2,6 @@ import json
 import os
 
 import responses
-from django.conf import settings
 from django.core.cache import cache
 
 from treeherder.etl.pushlog import HgPushlogProcess
@@ -99,7 +98,7 @@ def test_ingest_hg_pushlog_cache_last_push(test_repository,
     pushes = pushlog_dict['pushes']
     max_push_id = max([int(k) for k in pushes.keys()])
 
-    cache_key = "%s:last_push_id" % settings.TREEHERDER_TEST_PROJECT
+    cache_key = "{}:last_push_id".format(test_repository.name)
     assert cache.get(cache_key) == max_push_id
 
 

@@ -2,12 +2,8 @@
 Functions for flexible generation of sample input job JSON.
 
 """
-import json
-import os
 import time
 from datetime import timedelta
-
-from django.conf import settings
 
 
 def job_data(**kwargs):
@@ -137,28 +133,5 @@ def machine_platform(**kwargs):
     }
 
     defaults.update(kwargs)
-
-    return defaults
-
-
-def result_set(**kwargs):
-    """
-    Return a sample result set, with default values.
-    """
-    source_file = os.path.join(
-        os.path.dirname(__file__),
-        "sample_data",
-        "resultset_data.json"
-    )
-
-    with open(source_file) as f:
-        defaults = json.load(f)[0]
-    defaults.update(kwargs)
-
-    # ensure that the repository values for all the revisions have the
-    # same name as the db test name in settings.  If this is not
-    # the same, the tests will not pass.
-    for rev in defaults["revisions"]:
-        rev["repository"] = settings.TREEHERDER_TEST_PROJECT
 
     return defaults
