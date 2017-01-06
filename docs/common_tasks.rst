@@ -72,38 +72,14 @@ Add a new repository
 
 To add a new repository, the following steps are needed:
 
-* Append a new datasource to the datasource fixtures file located at treeherder/model/fixtures/repository.json
+* Append new repository information to the fixtures file located at treeherder/model/fixtures/repository.json
 * Load the file you edited with the loaddata command:
 
   .. code-block:: bash
 
      vagrant ~/treeherder$ ./manage.py loaddata repository
 
-* Create a new datasource for the given repository:
-
-  .. code-block:: bash
-
-     vagrant ~/treeherder$ ./manage.py init_datasources
-
 * Restart any running gunicorn/celery processes.
-
-
-Executing arbitrary SQL
------------------------
-
-As part of a larger change, you may want to execute some arbitrary SQL
-on the server. You can do this with the `run_sql` management command.
-
-Examples:
-
-  .. code-block:: bash
-
-     > ./manage.py run_sql -s <sql-statement>
-     > ./manage.py run_sql -f <path-to-sql-file>
-
-This will run the sql against the database of every project. If you want to run
-against a specific project, you can do that with the `--datasources` option.
-Run `./manage.py run_sql --help` for more details.
 
 
 Building the docs locally
