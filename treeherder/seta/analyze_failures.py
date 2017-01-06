@@ -44,18 +44,16 @@ def get_failures_fixed_by_commit():
         Notice that the data does not tell you on which repository a root failure was fixed.
 
         For instance, in the raw data you might see a reference to 9fa614d8310d which is a back out
-        and it is reference by 12 starred jobs:
+        and it is referenced by 12 starred jobs:
             https://treeherder.mozilla.org/#/jobs?repo=autoland&filter-searchStr=android%20debug%20cpp&tochange=9fa614d8310db9aabe85cc3c3cff6281fe1edb0c
         The raw data will show those 12 jobs.
 
         The returned data will look like this:
         {
-          "failures": {
-            "44d29bac3654": [
+           "44d29bac3654": [
               ["android-4-0-armv7-api15", "opt", "android-lint"],
               ["android-4-0-armv7-api15", "opt", "android-api-15-gradle-dependencies"],
             ]
-          }
         }
     """
     failures = {}
@@ -91,6 +89,11 @@ def get_failures_fixed_by_commit():
                 platform_option=job_note.job.get_platform_option(),  # e.g. 'opt'
                 ref_data_name=job_note.job.signature.name,  # buildername or task label
             )
+            # This prevents any jobs that we cannot parse properly
+            if not testtype:
+                logger.warning('We were unable to parse {}'.format(job_note.job.signature.name))
+                continue
+
             failures[job_note.text].append(unique_key(
                 testtype=testtype,
                 buildtype=job_note.job.get_platform_option(),  # e.g. 'opt'
