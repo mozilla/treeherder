@@ -40,6 +40,7 @@ def build_removals(active_jobs, failures, target):
     Return list of jobs to remove and list of revisions that are regressed
     """
     # Determine the number of failures we're going to process
+    # A failure is a revision + all of the jobs that were fixed by it
     number_of_failures = int((target / 100) * len(failures))
     low_value_jobs = []
     failures_root_cause = []
@@ -104,7 +105,7 @@ def get_high_value_jobs(fixed_by_commit_jobs, target=100):
         Percentage of failures to analyze
     """
     total = len(fixed_by_commit_jobs)
-    logger.info("Processing %s failures" % total)
+    logger.info("Processing %s revision(s)" % total)
     active_jobs = job_priorities_to_jobtypes()
 
     low_value_jobs, failures_root_cause = build_removals(
