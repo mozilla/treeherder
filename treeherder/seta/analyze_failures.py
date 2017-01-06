@@ -91,7 +91,8 @@ def get_failures_fixed_by_commit():
             )
             # This prevents any jobs that we cannot parse properly
             if not testtype:
-                logger.warning('We were unable to parse {}'.format(job_note.job.signature.name))
+                logger.warning('We were unable to parse {}/{}'.format(
+                               job_note.job.job_type.name, job_note.job.signature.name))
                 continue
 
             failures[job_note.text].append(unique_key(
