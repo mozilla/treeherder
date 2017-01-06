@@ -1,7 +1,8 @@
 from treeherder.config.settings import *
 
 DATABASES["default"]["TEST"] = {"NAME": "test_treeherder"}
-TREEHERDER_TEST_PROJECT = "%s_jobs" % DATABASES["default"]["TEST"]["NAME"]
+
+TREEHERDER_TEST_REPOSITORY_NAME = 'test_treeherder_jobs'
 
 # this makes celery calls synchronous, useful for unit testing
 CELERY_ALWAYS_EAGER = True

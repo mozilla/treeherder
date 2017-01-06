@@ -91,7 +91,7 @@ def test_repository(transactional_db):
 
     r = Repository.objects.create(
         dvcs_type="hg",
-        name=settings.TREEHERDER_TEST_PROJECT,
+        name=settings.TREEHERDER_TEST_REPOSITORY_NAME,
         url="https://hg.mozilla.org/mozilla-central",
         active_status="active",
         codebase="gecko",

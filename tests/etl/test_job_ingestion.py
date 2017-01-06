@@ -3,8 +3,7 @@ import copy
 import pytest
 
 from tests import test_utils
-from tests.sample_data_generator import (job_data,
-                                         result_set)
+from tests.sample_data_generator import job_data
 from treeherder.etl.jobs import (_get_lower_tier_signatures,
                                  _remove_existing_jobs,
                                  store_job_data)
@@ -211,16 +210,15 @@ def test_ingest_retry_sample_job_no_running(test_repository,
 
 
 def test_bad_date_value_ingestion(test_repository, failure_classifications,
-                                  mock_log_parser):
+                                  sample_resultset, mock_log_parser):
     """
     Test ingesting a job blob with bad date value
 
     """
-    rs = result_set()
     blob = job_data(start_timestamp="foo",
-                    revision=rs['revision'])
+                    revision=sample_resultset[0]['revision'])
 
-    store_result_set_data(test_repository, [rs])
+    store_result_set_data(test_repository, sample_resultset[:1])
     store_job_data(test_repository, [blob])
     # if no exception, we are good.
 

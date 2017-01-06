@@ -1,7 +1,6 @@
 import datetime
 
 import pytest
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
@@ -16,7 +15,7 @@ def test_repository_onhold(transactional_db):
 
     r = Repository.objects.create(
         dvcs_type="hg",
-        name=settings.TREEHERDER_TEST_PROJECT + "_test_onhold",
+        name="treeherder_test_onhold",
         url="https://hg.mozilla.org/mozilla-central",
         active_status="onhold",
         codebase="gecko",
