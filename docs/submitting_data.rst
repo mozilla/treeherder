@@ -657,7 +657,7 @@ log name.  You must specify the name in two places for this to work.
         "job_id": 1774360
     }
 
-.. _Pulse Guardian: https://pulse.mozilla.org/whats_pulse
+.. _Pulse Guardian: https://pulseguardian.mozilla.org/whats_pulse
 .. _Pulse: https://wiki.mozilla.org/Auto-tools/Projects/Pulse
 .. _Pulse Inspector: https://tools.taskcluster.net/pulse-inspector/
 .. _Pulse Job Schema: https://github.com/mozilla/treeherder/blob/master/schemas/pulse-job.yml
