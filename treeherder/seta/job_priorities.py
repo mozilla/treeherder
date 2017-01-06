@@ -114,7 +114,7 @@ def _update_task_request(project):
 
 def _query_job_priorities(priority, excluded_build_system_type):
     job_priorities = JobPriority.objects.all()
-    if priority != 0:
+    if priority:
         job_priorities = job_priorities.filter(priority=priority)
     return job_priorities.exclude(buildsystem=excluded_build_system_type)
 
@@ -124,7 +124,7 @@ def _validate_request(build_system_type, project):
         raise SetaError('Valid build_system_type values are buildbot or taskcluster.')
 
 
-def seta_job_scheduling(project, build_system_type, priority=5, increase_counter=False):
+def seta_job_scheduling(project, build_system_type, priority=None, increase_counter=False):
     _validate_request(build_system_type, project)
 
     if increase_counter:

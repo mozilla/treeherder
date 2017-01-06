@@ -30,7 +30,7 @@ class SetaJobPriorityViewSet(viewsets.ViewSet):
               * increase_counter
         '''
         build_system_type = request.query_params.get('build_system_type', '*')
-        priority = request.query_params.get('priority', 5)
+        priority = request.query_params.get('priority')
         increase_counter = request.query_params.get('increase_counter', False)
 
         try:
