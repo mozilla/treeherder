@@ -11,7 +11,7 @@
 
     "display": {
       "jobSymbol": "P",
-      "jobName": "Pulse Ingestion Test",
+      "jobName": "test-linux64/opt-mochitest-devtools-chrome-3",
       "groupSymbol": "PI",
       "groupName": "PulseIngestion"
     },
@@ -78,7 +78,7 @@
     "display": {
       "jobSymbol": "P",
       "chunkId": 2,
-      "jobName": "Pulse Ingestion Test",
+      "jobName": "test-android-4.3-arm7-api-15/debug-mochitest-media-1",
       "groupSymbol": "?",
       "groupName": "unknown"
     },
@@ -103,8 +103,7 @@
     "timeStarted": "2014-12-19T17:39:57-08:00",
     "timeCompleted": "2014-12-19T18:39:57-08:00",
     "labels": [
-      "debug",
-      "opt"
+      "debug"
     ],
     "version": 1
   },
@@ -124,7 +123,7 @@
     "display": {
       "jobSymbol": "",
       "chunkId": 3,
-      "jobName": "Pulse Ingestion Test",
+      "jobName": "static-analysis-win32-st-an/debug",
       "groupSymbol": "PI",
       "groupName": "PulseIngestion"
     },
@@ -219,7 +218,7 @@
     "display": {
       "jobSymbol": "",
       "chunkId": 3,
-      "jobName": "Pulse Ingestion Test",
+      "jobName": "test-windows10-64-vm/opt-jsreftest",
       "groupSymbol": "PI",
       "groupName": "PulseIngestion"
     },

@@ -8,7 +8,7 @@
       },
       "submit_timestamp": 1419035997.0,
       "start_timestamp": 1419039597.0,
-      "name": "Pulse Ingestion Test",
+      "name": "test-linux64/opt-mochitest-devtools-chrome-3",
       "option_collection": {
         "debug": true
       },
@@ -78,10 +78,9 @@
       },
       "submit_timestamp": 1419035997.0,
       "start_timestamp": 1419039597.0,
-      "name": "Pulse Ingestion Test",
+      "name": "test-android-4.3-arm7-api-15/debug-mochitest-media-1",
       "option_collection": {
-        "debug": true,
-        "opt": true
+        "debug": true
       },
       "artifacts": [],
       "machine_platform": {
@@ -116,7 +115,7 @@
       },
       "submit_timestamp": 1419035997.0,
       "start_timestamp": 1419039597.0,
-      "name": "Pulse Ingestion Test",
+      "name": "static-analysis-win32-st-an/debug",
       "option_collection": {
         "opt": true
       },
@@ -212,7 +211,7 @@
       },
       "submit_timestamp": 1419035997.0,
       "start_timestamp": 1419039597.0,
-      "name": "Pulse Ingestion Test",
+      "name": "test-windows10-64-vm/opt-jsreftest",
       "option_collection": {
         "opt": true
       },

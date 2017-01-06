@@ -131,9 +131,9 @@ def jp_index_fixture(job_priority_list):
 
 
 @pytest.fixture
-def eleven_jobs_with_notes(eleven_jobs_stored, test_user,
-                           failure_classifications):
-    """provide 11 jobs with job notes."""
+def fifteen_jobs_with_notes(eleven_jobs_stored, taskcluster_jobs_stored, test_user,
+                            failure_classifications):
+    """provide 15 jobs with job notes."""
     for job in Job.objects.all():
         for failure_classification_id in [2, 3]:
             JobNote.objects.create(job=job,
@@ -155,5 +155,8 @@ def failures_fixed_by_commit():
             (u'b2g_mozilla-release_inari_dep', u'opt', u'b2g-device-image'),
             (u'b2g_mozilla-release_emulator-jb-debug_dep', u'debug', u'b2g-emu-jb'),
             (u'b2g_mozilla-release_nexus-4_dep', u'opt', u'b2g-device-image'),
-            (u'b2g_mozilla-release_emulator-debug_dep', u'debug', u'b2g-emu-ics')
+            (u'b2g_mozilla-release_emulator-debug_dep', u'debug', u'b2g-emu-ics'),
+            (u'mochitest-devtools-chrome-3', u'debug', u'linux64'),
+            (u'mochitest-media-1', u'debug', u'linux64'),
+            (u'jsreftest', u'opt', u'linux64'),
         ]}

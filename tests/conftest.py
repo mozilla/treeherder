@@ -226,6 +226,12 @@ def eleven_jobs_stored(test_repository, failure_classifications, eleven_job_blob
 
 
 @pytest.fixture
+def taskcluster_jobs_stored(test_repository, sample_data):
+    """stores a list of TaskCluster job samples"""
+    store_job_data(test_repository, sample_data.transformed_pulse_jobs)
+
+
+@pytest.fixture
 def test_job_with_notes(test_job, test_user):
     """test job with job notes."""
 
