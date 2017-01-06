@@ -3,22 +3,16 @@ from __future__ import unicode_literals
 import datetime
 import itertools
 import logging
-import os
 import time
 from collections import (OrderedDict,
                          defaultdict)
 from hashlib import sha1
 from itertools import chain
-from warnings import (filterwarnings,
-                      resetwarnings)
 
-from datasource.bases.BaseHub import BaseHub
-from datasource.hubs.MySQL import MySQL
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.db import (connection,
-                       models,
+from django.db import (models,
                        transaction)
 from django.db.models import (Q,
                               Case,
@@ -29,20 +23,10 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
-from treeherder import path
-
 from .fields import (BigAutoField,
                      FlexibleForeignKey)
 from .search import (TestFailureLine,
                      es_connected)
-
-logger = logging.getLogger(__name__)
-
-
-# the cache key is specific to the database name we're pulling the data from
-SOURCES_CACHE_KEY = "treeherder-datasources"
-
-SQL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sql')
 
 logger = logging.getLogger(__name__)
 
@@ -271,151 +255,6 @@ class Machine(NamedModel):
 
     class Meta:
         db_table = 'machine'
-
-
-class DatasourceManager(models.Manager):
-
-    def cached(self):
-        """
-        Return all datasources, caching the results.
-
-        """
-        sources = cache.get(SOURCES_CACHE_KEY)
-        if not sources:
-            sources = list(self.all())
-            cache.set(SOURCES_CACHE_KEY, sources)
-        return sources
-
-
-@python_2_unicode_compatible
-class Datasource(models.Model):
-    id = models.AutoField(primary_key=True)
-    project = models.CharField(max_length=50, unique=True)
-    name = models.CharField(max_length=128, unique=True)
-
-    objects = DatasourceManager()
-
-    class Meta:
-        db_table = 'datasource'
-
-    @classmethod
-    def reset_cache(cls):
-        cache.delete(SOURCES_CACHE_KEY)
-        cls.objects.cached()
-
-    @property
-    def key(self):
-        """Unique key for a data source is the project."""
-        return self.project
-
-    def __str__(self):
-        """Unicode representation is the project's unique key."""
-        return unicode(self.key)
-
-    def save(self, *args, **kwargs):
-        inserting = not self.pk
-        # in case you want to add a new datasource and provide
-        # a pk, set force_insert=True when you save
-        if inserting or kwargs.get('force_insert', False):
-            if not self.name:
-                self.name = self.project
-
-            # a database name cannot contain the dash character
-            if '-' in self.name:
-                self.name = self.name.replace('-', '_')
-
-        # validate the model before saving
-        self.full_clean()
-
-        super(Datasource, self).save(*args, **kwargs)
-        if inserting:
-            self.create_db()
-
-    def dhub(self, procs_file_name):
-        """
-        Return a configured ``DataHub`` using the given SQL procs file.
-
-        """
-        master_host_config = {
-            "host": settings.DATABASES['default']['HOST'],
-            "user": settings.DATABASES['default']['USER'],
-            "passwd": settings.DATABASES['default'].get('PASSWORD') or '',
-        }
-        if 'OPTIONS' in settings.DATABASES['default']:
-            master_host_config.update(settings.DATABASES['default']['OPTIONS'])
-
-        data_source = {
-            self.key: {
-                "hub": "MySQL",
-                "master_host": master_host_config,
-                "read_host": master_host_config,
-                "require_host_type": True,
-                "default_db": self.name,
-                "procs": [
-                    os.path.join(SQL_PATH, procs_file_name),
-                    os.path.join(SQL_PATH, "generic.json"),
-                ],
-            }
-        }
-
-        BaseHub.add_data_source(data_source)
-        return MySQL(self.key)
-
-    def create_db(self, schema_file=None):
-        """
-        Create the database for this source, using given SQL schema file.
-
-        If schema file is not given, defaults to
-        "template_schema/project.sql.tmpl".
-        """
-        import MySQLdb
-
-        if schema_file is None:
-            schema_file = path("model", "sql", "template_schema", "project.sql.tmpl")
-
-        filterwarnings('ignore', category=MySQLdb.Warning)
-        with connection.cursor() as cursor:
-            cursor.execute("CREATE DATABASE IF NOT EXISTS {0}".format(self.name))
-            cursor.execute("USE {0}".format(self.name))
-            try:
-                with open(schema_file) as f:
-                    # set the engine to use
-                    sql = f.read()
-                    statement_list = sql.split(";")
-                    for statement in statement_list:
-                        cursor.execute(statement)
-            finally:
-                cursor.execute("USE {0}".format(
-                    settings.DATABASES['default']['NAME']
-                ))
-
-        resetwarnings()
-
-    def delete_db(self):
-        with connection.cursor() as cursor:
-            cursor.execute("DROP DATABASE {0}".format(self.name))
-
-    def delete(self, *args, **kwargs):
-        self.delete_db()
-        super(Datasource, self).delete(*args, **kwargs)
-
-    def truncate(self, skip_list=None):
-        """
-        Truncate all tables in the db self refers to.
-        Skip_list is a list of table names to skip truncation.
-        """
-        skip_list = set(skip_list or [])
-
-        with connection.cursor() as cursor:
-            cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
-            cursor.execute("SHOW TABLES")
-            for table, in cursor.fetchall():
-                # if there is a skip_list, then skip any table with matching name
-                if table.lower() not in skip_list:
-                    # needed to use backticks around table name, because if the
-                    # table name is a keyword (like "option") then this will fail
-                    cursor.execute("TRUNCATE TABLE `{0}`".format(table))
-            cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
 
 
 @python_2_unicode_compatible

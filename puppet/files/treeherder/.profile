@@ -63,7 +63,6 @@ function thresetall {
 }
 
 function thpurge {
-    ~/treeherder/manage.py init_datasources --reset
     ~/treeherder/manage.py flush
     thresetall
     echo
