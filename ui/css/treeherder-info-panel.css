@@ -118,11 +118,6 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
   color: #EEF0F2;
 }
 
-#retriggerLabel + ul.dropdown-menu > li > a:hover {
-  background-color: #f5f5f5 !important;
-  color: black !important;
-}
-
 #info-panel-content {
   position: relative; /* So we can absolutely position the loading overlay */
   height: 60%;
