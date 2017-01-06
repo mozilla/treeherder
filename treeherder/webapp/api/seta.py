@@ -31,7 +31,7 @@ class SetaJobPriorityViewSet(viewsets.ViewSet):
         '''
         build_system_type = request.query_params.get('build_system_type', '*')
         priority = request.query_params.get('priority', 5)
-        increase_counter = request.query.params.get('increase_counter', False)
+        increase_counter = request.query_params.get('increase_counter', False)
 
         try:
             return Response(seta_job_scheduling(project, build_system_type, priority, increase_counter))
