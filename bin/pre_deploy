@@ -26,9 +26,6 @@ newrelic-admin run-program ./manage.py migrate --noinput
 echo "-----> PRE-DEPLOY: Loading initial data..."
 newrelic-admin run-program ./manage.py load_initial_data
 
-echo "-----> PRE-DEPLOY: Initialising datasources..."
-newrelic-admin run-program ./manage.py init_datasources
-
 echo "-----> PRE-DEPLOY: Reporting deployment to New Relic..."
 # eg: "v750: Deploy 5d6b1f0"
 DESCRIPTION="$HEROKU_RELEASE_VERSION: $HEROKU_SLUG_DESCRIPTION"

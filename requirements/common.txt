@@ -17,7 +17,7 @@ simplejson==3.9.0 --hash=sha256:e9abeee37424f4bfcd27d001d943582fb8c729ffc0b74b72
 
 newrelic==2.72.1.53 --hash=sha256:3f601b32d850d8d56c24756706033ca5e3e3c83520151f5cab37d8a07acaaba2
 
-# Required by Django and datasource
+# Required by Django
 mysqlclient==1.3.9 --hash=sha256:990ccf1e1f15b9a291b811c993dc1c216566714bc14e6581b38665bd61c28c99
 
 # Required by celery
@@ -44,9 +44,6 @@ jsonfield==1.0.3 --hash=sha256:7e7f73a675c518712badd783279e26d164140f3fc2ed7a321
 mozlog==3.3 --hash=sha256:f694b2ae55543080560083d133bbca35cc06e9a6ee1d02e048598936fee18d04
 
 futures==3.0.5 --hash=sha256:f7f16b6bf9653a918a03f1f2c2d62aac0cd64b1bc088e93ea279517f6b61120b
-
-https://github.com/jeads/datasource/archive/v0.11.0.tar.gz#egg=datasource==0.11.0 \
-    --hash=sha256:5eec16d31124fecdb3590ac7326e7af28aac26de467c17fb6f6a806d950e392f
 
 # Required by jsonschema
 functools32==3.2.3-2 --hash=sha256:89d824aa6c358c421a234d7f9ee0bd75933a67c29588ce50aaa3acdf4d403fa0

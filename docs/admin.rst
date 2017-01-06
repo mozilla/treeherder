@@ -24,7 +24,6 @@ as of November 2016 (obviously you should replace `myuser` and
     GRANT SELECT ON treeherder.build_platform to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.classified_failure to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.commit to 'myuser' REQUIRE SSL;
-    GRANT SELECT ON treeherder.datasource to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.exclusion_profile to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.exclusion_profile_exclusions to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.failure_classification to 'myuser' REQUIRE SSL;
