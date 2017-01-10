@@ -5,6 +5,7 @@
        title="{{lineStatuses.has(errorLine.id) ? titles[lineStatuses.get(errorLine.id)] : ''}}"
        ng-click="toggleSelect($event, errorLine.id)"
        ng-class="{selected: $ctrl.selectedLineIds.has(errorLine.id)}"
+       th-job="$ctrl.thJob"
        error-matchers="$ctrl.errorMatchers"
        error-line="errorLine"
        prev-error-line="$ctrl.errorLines[$index - 1]"
