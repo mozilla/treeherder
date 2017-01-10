@@ -70,6 +70,7 @@
       <li ng-repeat="option in options"
           ng-if="showHidden || !option.hidden">
         <th-classification-option
+           th-job="$ctrl.thJob"
            error-line="line"
            option-data="option"
            selected-option="selectedOption"
@@ -97,6 +98,7 @@
       <!--classification options for line-->
       <li ng-repeat="option in extraOptions">
         <th-classification-option
+           th-job="$ctrl.thJob"
            error-line="line"
            option-data="option"
            selected-option="selectedOption"
@@ -109,6 +111,7 @@
 
   <div ng-if="!line.verified && !$ctrl.isEditable && $ctrl.canClassify">
     <th-static-classification-option
+       th-job="$ctrl.thJob"
        error-line="line"
        option-data="currentOption"
        selected-option="selectedOption"
