@@ -18,7 +18,7 @@ class Command(BaseCommand):
         )
 
     def _migrate_signature(self, signature, sleep_interval):
-        extra_options = ' '.join(sorted(signature.extra_properties['test_options']))
+        extra_options = ' '.join(sorted(signature.extra_properties.get('test_options', [])))
         signature.extra_options = extra_options
         signature.save()
         time.sleep(sleep_interval)
