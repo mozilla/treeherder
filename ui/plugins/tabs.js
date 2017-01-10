@@ -5,19 +5,19 @@ treeherder.factory('thTabs', [
         var thTabs = {
             "tabs": {
                 "jobDetails": {
-                    title: "Job details",
+                    title: "Job Details",
                     description: "additional job information",
                     content: "plugins/job_details/main.html",
                     enabled: true
                 },
                 "failureSummary": {
-                    title: "Failure summary",
+                    title: "Failure Summary",
                     description: "failure summary",
                     content: "plugins/failure_summary/main.html",
                     enabled: true
                 },
                 "autoClassification": {
-                    title: "Autoclassification",
+                    title: "Failure Classification",
                     description: "Auto classification list",
                     content: "plugins/auto_classification/main.html",
                     enabled: false
@@ -29,7 +29,7 @@ treeherder.factory('thTabs', [
                     enabled: true
                 },
                 "similarJobs": {
-                    title: "Similar jobs",
+                    title: "Similar Jobs",
                     description: "similar jobs",
                     content: "plugins/similar_jobs/main.html",
                     enabled: true
