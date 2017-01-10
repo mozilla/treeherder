@@ -38,6 +38,13 @@
                      placeholder="Number"
                      ng-change="onChange()"
                      ng-model="$ctrl.selectedOption.manualBugNumber"/>
+                <a class="btn btn-xs btn-default"
+                   prevent-default-on-left-click
+                   ng-click="fileBug()"
+                   title="File a bug for this failure">
+                  <i class="fa fa-bug"></i>
+                </a>
+
     <a ng-if="$ctrl.selectedOption.id == 'manual' && $ctrl.selectedOption.manualBugNumber"
        href="{{ ::getBugUrl(selectedOption.manualBugNumber) }}"
        target="_blank">

@@ -2,12 +2,14 @@
 
 treeherder.controller('BugFilerCtrl', [
     '$scope', '$rootScope', '$uibModalInstance', '$http', 'summary', 'thBugzillaProductObject',
-    'thPinboard', 'thEvents', 'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures',
-    'thNotify',
+    'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures',
+    'successCallback', 'thNotify',
     function BugFilerCtrl(
         $scope, $rootScope, $uibModalInstance, $http, summary, thBugzillaProductObject,
-        thPinboard, thEvents, fullLog, parsedLog, reftest, selectedJob, allFailures,
-        thNotify) {
+        fullLog, parsedLog, reftest, selectedJob, allFailures,
+        successCallback, thNotify) {
+
+        var bzBaseUrl = "https://bugzilla.mozilla.org/";
 
         $scope.omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR"];
 
@@ -37,7 +39,6 @@ treeherder.controller('BugFilerCtrl', [
          *  Pre-fill the form with information/metadata from the failure
          */
         $scope.initiate = function() {
-            thPinboard.pinJob($rootScope.selectedJob);
             var thisFailure = "";
             for (var i = 0; i < allFailures.length; i++) {
                 for (var j=0; j < $scope.omittedLeads.length; j++) {
@@ -113,7 +114,7 @@ treeherder.controller('BugFilerCtrl', [
             var productSearch = $scope.productSearch;
 
             if (productSearch) {
-                $http.get("https://bugzilla.mozilla.org/rest/prod_comp_search/" + productSearch + "?limit=5").then(function(request) {
+                $http.get(bzBaseUrl + "rest/prod_comp_search/" + productSearch + "?limit=5").then(function(request) {
                     var data = request.data;
                     // We can't file unless product and component are provided, this api can return just product. Cut those out.
                     for (var i = data.products.length - 1; i >= 0; i--) {
@@ -194,48 +195,49 @@ treeherder.controller('BugFilerCtrl', [
 
             // Fetch product information from bugzilla to get version numbers, then submit the new bug
             // Only request the versions because some products take quite a long time to fetch the full object
-            $.ajax("https://bugzilla.mozilla.org/rest/product/" + productString + "?include_fields=versions").done(function(productJSON) {
-                var productObject = productJSON.products[0];
+            $http.get(bzBaseUrl + "rest/product/" + productString + "?include_fields=versions")
+                .then(function(response) {
+                    var productJSON = response.data;
+                    var productObject = productJSON.products[0];
 
-                // Find the newest version for the product that is_active
-                var version = _.findLast(productObject.versions, function(version) {
-                    return version.is_active === true;
-                });
+                    // Find the newest version for the product that is_active
+                    var version = _.findLast(productObject.versions, function(version) {
+                        return version.is_active === true;
+                    });
 
-                $http({
-                    url: "api/bugzilla/create_bug/",
-                    method: "POST",
-                    data: {
-                        "product": productString,
-                        "component": componentString,
-                        "summary": summarystring,
-                        "keywords": keywords,
-                        "version": version.name,
-                        "blocks": blocks,
-                        "depends_on": dependsOn,
-                        "see_also": seeAlso,
-                        "comment": descriptionStrings,
-                        "comment_tags": "treeherder"
-                    }
-                }).then(function successCallback(json) {
-                    if (json.data.failure) {
+                    return $http({
+                        url: "api/bugzilla/create_bug/",
+                        method: "POST",
+                        data: {
+                            "product": productString,
+                            "component": componentString,
+                            "summary": summarystring,
+                            "keywords": keywords,
+                            "version": version.name,
+                            "blocks": blocks,
+                            "depends_on": dependsOn,
+                            "see_also": seeAlso,
+                            "comment": descriptionStrings,
+                            "comment_tags": "treeherder"
+                        }
+                    });
+                })
+                .then((response) => {
+                    var data = response.data;
+                    if (data.failure) {
                         var errorString = "";
-                        for (var i = 0; i < json.data.failure.length; i++) {
-                            errorString += json.data.failure[i];
+                        for (var i = 0; i < data.failure.length; i++) {
+                            errorString += data.failure[i];
                         }
                         errorString = JSON.parse(errorString);
                         thNotify.send("Bugzilla error: " + errorString.message, "danger", true);
                         $scope.toggleForm(false);
                     } else {
-                        // Auto-classify this failure now that the bug has been filed and we have a bug number
-                        thPinboard.addBug({id:json.data.success});
-                        $rootScope.$evalAsync($rootScope.$emit(thEvents.saveClassification));
-
-                        // Open the newly filed bug in a new tab or window for further editing
-                        window.open("https://bugzilla.mozilla.org/show_bug.cgi?id=" + json.data.success);
+                        successCallback(data);
                         $scope.cancelFiler();
                     }
-                }, function errorCallback(response) {
+                })
+                .catch((response) => {
                     var failureString = "Bug Filer API returned status " + response.status + " (" + response.statusText + ")";
                     if (response.data && response.data.failure) {
                         failureString += "\n\n" + response.data.failure;
@@ -243,7 +245,6 @@ treeherder.controller('BugFilerCtrl', [
                     thNotify.send(failureString, "danger");
                     $scope.toggleForm(false);
                 });
-            });
         };
 
         /*
