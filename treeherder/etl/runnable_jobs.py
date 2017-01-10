@@ -153,7 +153,9 @@ def _taskcluster_runnable_jobs(decision_task_id):
                 'job_type_symbol': treeherder_options['symbol'],
                 'platform': treeherder_options.get('machine', {}).get('platform', ''),
                 'platform_option': platform_option,
-                'ref_data_name': label
+                'ref_data_name': label,
+                'state': 'runnable',
+                'result': 'runnable'
                 })
 
         return ret
@@ -196,6 +198,9 @@ def _buildbot_runnable_jobs(project):
             'ref_data_name': datum.ref_data_name,
             'build_system_type': datum.build_system_type,
             'platform_option': options,
+            'result': 'runnable',
+            'state': 'runnable',
+            'job_coalesced_to_guid': None
             })
 
     return ret
