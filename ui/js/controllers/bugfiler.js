@@ -2,12 +2,12 @@
 
 treeherder.controller('BugFilerCtrl', [
     '$scope', '$rootScope', '$uibModalInstance', '$http', 'summary', 'thBugzillaProductObject',
-    'thPinboard', 'thEvents', 'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures',
-    'thNotify',
+    'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures',
+    'successCallback', 'thNotify',
     function BugFilerCtrl(
         $scope, $rootScope, $uibModalInstance, $http, summary, thBugzillaProductObject,
-        thPinboard, thEvents, fullLog, parsedLog, reftest, selectedJob, allFailures,
-        thNotify) {
+        fullLog, parsedLog, reftest, selectedJob, allFailures,
+        successCallback, thNotify) {
 
         var bzBaseUrl = "https://bugzilla.mozilla.org/";
 
@@ -39,7 +39,6 @@ treeherder.controller('BugFilerCtrl', [
          *  Pre-fill the form with information/metadata from the failure
          */
         $scope.initiate = function() {
-            thPinboard.pinJob($rootScope.selectedJob);
             var thisFailure = "";
             for (var i = 0; i < allFailures.length; i++) {
                 for (var j=0; j < $scope.omittedLeads.length; j++) {
@@ -230,12 +229,7 @@ treeherder.controller('BugFilerCtrl', [
                         thNotify.send("Bugzilla error: " + error.message, "danger", true);
                         $scope.toggleForm(false);
                     } else {
-                        // Auto-classify this failure now that the bug has been filed and we have a bug number
-                        thPinboard.addBug({id: data.success});
-                        $rootScope.$evalAsync($rootScope.$emit(thEvents.saveClassification));
-
-                        // Open the newly filed bug in a new tab or window for further editing
-                        window.open(bzBaseUrl + "show_bug.cgi?id=" + data.success);
+                        successCallback(data);
                         $scope.cancelFiler();
                     }
                 })

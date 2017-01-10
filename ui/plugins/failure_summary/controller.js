@@ -2,11 +2,11 @@
 
 treeherder.controller('BugsPluginCtrl', [
     '$scope', '$rootScope', 'ThLog', 'ThTextLogStepModel',
-    'ThBugSuggestionsModel', '$q', 'thTabs', '$timeout', 'thUrl', '$uibModal',
-    '$location',
+    'ThBugSuggestionsModel', 'thPinboard', 'thEvents','$q',
+    'thTabs', '$timeout', 'thUrl', '$uibModal', '$location',
     function BugsPluginCtrl(
         $scope, $rootScope, ThLog, ThTextLogStepModel, ThBugSuggestionsModel,
-        $q, thTabs, $timeout, thUrl, $uibModal, $location) {
+        thPinboard, thEvents, $q, thTabs, $timeout, thUrl, $uibModal, $location) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -124,12 +124,25 @@ treeherder.controller('BugsPluginCtrl', [
                     },
                     allFailures: function() {
                         return allFailures;
+                    },
+                    successCallback: function() {
+                        return function(data) {
+                            // Auto-classify this failure now that the bug has been filed
+                            // and we have a bug number
+                            thPinboard.addBug({id: data.success});
+                            $rootScope.$evalAsync(
+                                $rootScope.$emit(
+                                    thEvents.saveClassification));
+                            // Open the newly filed bug in a new tab or window for further editing
+                            window.open("https://bugzilla.mozilla.org/show_bug.cgi?id=" + data.success);
+                        };
                     }
                 }
             });
+            thPinboard.pinJob($scope.selectedJob);
 
             modalInstance.opened.then(function () {
-                window.setTimeout(function () { modalInstance.initiate(); }, 0);
+                window.setTimeout(() => modalInstance.initiate(), 0);
             });
         };
     }
