@@ -318,7 +318,7 @@ perf.controller('CompareResultsCtrl', [
             $scope.errors = PhCompare.validateInput($stateParams.originalProject,
                                                     $stateParams.newProject,
                                                     $stateParams.originalRevision,
-                                                    $stateParams.originalProject);
+                                                    $stateParams.newRevision);
 
             if ($scope.errors.length > 0) {
                 $scope.dataLoading = false;
