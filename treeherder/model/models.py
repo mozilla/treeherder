@@ -141,9 +141,9 @@ class Push(models.Model):
         total_num_coalesced = 0
         for (state, result, total, num_coalesced) in jobs.values_list(
                 'state', 'result').annotate(
-                    total=Count('result'),
-                    num_coalesced=Count(Case(When(
-                        coalesced_to_guid__isnull=False, then=1)))):
+                    total=Count('result')).annotate(
+                        num_coalesced=Count(Case(When(
+                            coalesced_to_guid__isnull=False, then=1)))):
             total_num_coalesced += num_coalesced
             if state == 'completed':
                 status_dict[result] = total - num_coalesced
