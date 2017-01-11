@@ -84,7 +84,8 @@
     <ul class="list-unstyled">
       <li>
         <a ng-if="hasHidden(options)"
-           ng-click="$parent.showHidden = !$parent.showHidden">
+           ng-click="$parent.showHidden = !$parent.showHidden"
+           role="button">
           <!-- note we have to use ng-hide rather than ng-if here otherwise the
                node gets taken out of the dom which interfers with the did-we-click-a-link
                code -->
@@ -115,7 +116,8 @@
        error-line="line"
        option-data="currentOption"
        selected-option="selectedOption"
-       num-options="options.length">
+       num-options="options.length"
+       on-expand-options="editableChanged(true)">
     </th-static-classification-option>
   </div>
 </div>

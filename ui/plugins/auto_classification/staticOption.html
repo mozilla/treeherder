@@ -35,7 +35,12 @@
       class="line-option-text">Ignore
 </span>
 
-<span ng-if="$ctrl.numOptions > 1">[{{ $ctrl.numOptions - 1 }} other
-  <ng-pluralize count="$ctrl.numOptions - 1" when="{1: 'option', 'other': 'options'}">
-  </ng-pluralize>]</span>
-
+<span ng-if="$ctrl.numOptions > 1">{{ $ctrl.numOptions - 1 }} other
+    <ng-pluralize count="$ctrl.numOptions - 1" when="{1: 'option', 'other': 'options'}"></ng-pluralize>
+</span>
+<div>
+  <a ng-click="$ctrl.onExpandOptions()"
+     role="button">
+    Edit…
+  </a>
+</div>
