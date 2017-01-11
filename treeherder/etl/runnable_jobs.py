@@ -155,7 +155,8 @@ def _taskcluster_runnable_jobs(decision_task_id):
                 'platform_option': platform_option,
                 'ref_data_name': label,
                 'state': 'runnable',
-                'result': 'runnable'
+                'result': 'runnable',
+                'job_coalesced_to_guid': None
                 })
 
         return ret
