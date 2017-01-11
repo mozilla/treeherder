@@ -322,7 +322,7 @@ treeherderApp.controller('MainCtrl', [
 
         var keyShortcuts = [
             // Shortcut: toggle display in-progress jobs (pending/running)
-            ['h i', function() {
+            ['i', function() {
                 $scope.$evalAsync($scope.toggleInProgress());
             }],
 
@@ -388,7 +388,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: display only unclassified failures
-            ['h u', function() {
+            ['u', function() {
                 $scope.$evalAsync($scope.toggleUnclassifiedFailures);
             }],
 
@@ -494,7 +494,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: ignore selected in the autoclasify panel
-            ['i', function() {
+            ['-', function() {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyIgnore));
                 }
