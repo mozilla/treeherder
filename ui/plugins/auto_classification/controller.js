@@ -115,7 +115,8 @@ treeherder.component('thStaticClassificationOption', {
         errorLine: '<',
         optionData: '<',
         selectedOption: '<',
-        numOptions: '<'
+        numOptions: '<',
+        onExpandOptions: '&'
     }
 });
 
@@ -250,7 +251,7 @@ treeherder.controller('ThErrorLineController', [
                                          manualBugNumber: "",
                                          ignoreAlways: false};
                 log.debug("options", $scope.options);
-                editableChanged(defaultEditable());
+                $scope.editableChanged(defaultEditable());
                 $scope.optionChanged();
             } else {
                 $scope.options = [];
@@ -307,10 +308,10 @@ treeherder.controller('ThErrorLineController', [
             ctrl.onChange(data);
         };
 
-        function editableChanged(editable) {
+        $scope.editableChanged = function(editable) {
             ctrl.onEditableChange({lineId: line.id,
                                    editable: editable});
-        }
+        };
 
         /**
          * Build a list of options applicable to the current line.
