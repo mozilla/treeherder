@@ -101,8 +101,7 @@ class PerformanceDatum(models.Model):
 
     class Meta:
         db_table = 'performance_datum'
-        index_together = [('repository', 'signature', 'push_timestamp'),
-                          ('repository', 'job')]
+        index_together = ('repository', 'signature', 'push_timestamp')
         unique_together = ('repository', 'job', 'push', 'signature')
 
     def save(self, *args, **kwargs):
