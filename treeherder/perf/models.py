@@ -3,7 +3,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
-from jsonfield import JSONField
 
 from treeherder.model.models import (Job,
                                      MachinePlatform,
@@ -48,10 +47,8 @@ class PerformanceSignature(models.Model):
                                          null=True, blank=True)
     has_subtests = models.BooleanField()
 
-    # extra properties to distinguish the test (that don't fit into
+    # extra options to distinguish the test (that don't fit into
     # option collection for whatever reason)
-    extra_properties = JSONField(max_length=1024)
-    # extra_properties to be deprecated in favour of extra_options
     extra_options = models.CharField(max_length=60, blank=True)
 
     # these properties override the default settings for how alert
@@ -68,7 +65,7 @@ class PerformanceSignature(models.Model):
         # particular set of properties
         unique_together = ('repository', 'framework', 'platform',
                            'option_collection', 'suite', 'test',
-                           'last_updated')
+                           'last_updated', 'extra_options')
         # make sure there is only one signature of any hash per
         # repository (same hash in different repositories is allowed)
         unique_together = ('repository', 'framework', 'signature_hash')

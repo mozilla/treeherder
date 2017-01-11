@@ -93,8 +93,6 @@ def _load_perf_datum(job, perf_datum):
                     'suite': suite['name'],
                     'option_collection': option_collection,
                     'platform': job.machine_platform,
-                    'extra_properties': suite_extra_properties,
-                    # extra_properties to be deprecated in favour of extra_options
                     'extra_options': suite_extra_options,
                     'lower_is_better': suite.get('lowerIsBetter', True),
                     'has_subtests': True,
@@ -146,8 +144,6 @@ def _load_perf_datum(job, perf_datum):
                     'suite': suite['name'],
                     'option_collection': option_collection,
                     'platform': job.machine_platform,
-                    'extra_properties': suite_extra_properties,
-                    # extra_properties to be deprecated in favour of extra_options
                     'extra_options': suite_extra_options,
                     'lower_is_better': subtest.get('lowerIsBetter', True),
                     'has_subtests': False,
