@@ -1,10 +1,10 @@
 import responses
 
-from treeherder.config.settings import TASKCLUSTER_TASKGRAPH_URL
-from treeherder.config.settings import TASKCLUSTER_INDEX_URL
+from treeherder.config.settings import (TASKCLUSTER_INDEX_URL,
+                                        TASKCLUSTER_TASKGRAPH_URL)
 from treeherder.etl.buildbot import get_symbols_and_platforms
-from treeherder.etl.runnable_jobs import RunnableJobsProcess
-from treeherder.etl.runnable_jobs import _taskcluster_runnable_jobs
+from treeherder.etl.runnable_jobs import (RunnableJobsProcess,
+                                          _taskcluster_runnable_jobs)
 from treeherder.model.models import (BuildPlatform,
                                      JobType,
                                      MachinePlatform,
@@ -50,7 +50,7 @@ def test_taskcluster_runnable_jobs(test_repository):
     grp_symbol = 'GRP'
     grp_name = 'Group Name'
     symbol = 'sym'
-    collection = { 'opt': True }
+    collection = {'opt': True}
     name = 'job name'
     description = 'job description'
 

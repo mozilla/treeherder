@@ -216,7 +216,7 @@ def list_runnable_jobs(project, decision_task_id=None):
 
 
 def _query_latest_gecko_decision_task_id(project):
-    url = TASKCLUSTER_INDEX_URL + 'gecko.v2.%s.latest.firefox.decision' % project
+    url = TASKCLUSTER_INDEX_URL % project
     logger.info('Fetching {}'.format(url))
     latest_task = fetch_json(url)
     task_id = latest_task['taskId']
