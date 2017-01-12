@@ -207,7 +207,15 @@ def _buildbot_runnable_jobs(project):
     return ret
 
 
+def _ensure_buildbot_data_is_loaded():
+    if not RunnableJob.objects.all():
+        RunnableJobsProcess().run()
+
+
 def list_runnable_jobs(project, decision_task_id=None):
+    # Bug 1329685 - This guarantees that calling list_runnable_jobs always returns the correct data
+    # even when running Treeherder for the first time
+    _ensure_buildbot_data_is_loaded()
     ret = _buildbot_runnable_jobs(project)
     ret = ret + _taskcluster_runnable_jobs(decision_task_id)
 
