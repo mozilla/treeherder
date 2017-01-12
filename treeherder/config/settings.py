@@ -396,6 +396,7 @@ BUILDAPI_RUNNING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson
 BUILDAPI_BUILDS4H_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-4hr.js.gz"
 ALLTHETHINGS_URL = "https://secure.pub.build.mozilla.org/builddata/reports/allthethings.json"
 TASKCLUSTER_TASKGRAPH_URL = 'https://queue.taskcluster.net/v1/task/{task_id}/artifacts/public/full-task-graph.json'
+TASKCLUSTER_INDEX_URL = 'https://index.taskcluster.net/v1/task/'
 
 # the amount of time we cache bug suggestion lookups (to speed up loading the bug
 # suggestions or autoclassify panels for recently finished jobs)
