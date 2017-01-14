@@ -9,7 +9,7 @@ treeherder.component('thLogViewer', {
             let params = { lineHeight: 13 };
 
             if (q.lineNumber) {
-                const lines = q.lineNumber.split('-');
+                const lines = q.lineNumber.toString().split('-');
 
                 params.lineNumber = lines[0];
                 params.highlightStart = lines[0];
