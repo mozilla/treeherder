@@ -49,7 +49,7 @@ class Product(NamedModel):
 @python_2_unicode_compatible
 class BuildPlatform(models.Model):
     id = models.AutoField(primary_key=True)
-    os_name = models.CharField(max_length=25, db_index=True)
+    os_name = models.CharField(max_length=25)
     platform = models.CharField(max_length=100, db_index=True)
     architecture = models.CharField(max_length=25, blank=True, db_index=True)
 
@@ -141,9 +141,9 @@ class Push(models.Model):
         total_num_coalesced = 0
         for (state, result, total, num_coalesced) in jobs.values_list(
                 'state', 'result').annotate(
-                    total=Count('result'),
-                    num_coalesced=Count(Case(When(
-                        coalesced_to_guid__isnull=False, then=1)))):
+                    total=Count('result')).annotate(
+                        num_coalesced=Count(Case(When(
+                            coalesced_to_guid__isnull=False, then=1)))):
             total_num_coalesced += num_coalesced
             if state == 'completed':
                 status_dict[result] = total - num_coalesced
@@ -177,7 +177,7 @@ class Commit(models.Model):
 @python_2_unicode_compatible
 class MachinePlatform(models.Model):
     id = models.AutoField(primary_key=True)
-    os_name = models.CharField(max_length=25, db_index=True)
+    os_name = models.CharField(max_length=25)
     platform = models.CharField(max_length=100, db_index=True)
     architecture = models.CharField(max_length=25, blank=True, db_index=True)
 
@@ -259,7 +259,7 @@ class Machine(NamedModel):
 class JobGroup(models.Model):
     id = models.AutoField(primary_key=True)
     symbol = models.CharField(max_length=25, default='?', db_index=True)
-    name = models.CharField(max_length=100, db_index=True)
+    name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
 
     class Meta:
@@ -296,7 +296,7 @@ class OptionCollectionManager(models.Manager):
 @python_2_unicode_compatible
 class OptionCollection(models.Model):
     id = models.AutoField(primary_key=True)
-    option_collection_hash = models.CharField(max_length=40, db_index=True)
+    option_collection_hash = models.CharField(max_length=40)
     option = models.ForeignKey(Option, db_index=True)
 
     objects = OptionCollectionManager()
@@ -323,7 +323,7 @@ class JobType(models.Model):
     id = models.AutoField(primary_key=True)
     job_group = models.ForeignKey(JobGroup, null=True, blank=True)
     symbol = models.CharField(max_length=25, default='?', db_index=True)
-    name = models.CharField(max_length=100, db_index=True)
+    name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
 
     class Meta:
