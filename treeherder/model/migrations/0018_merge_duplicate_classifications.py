@@ -44,5 +44,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(combine_classified_failures, noop)
+        # Marked as elidable since this migration is only required to fix existing
+        # bad data (which has already occurred on stage/prod) and so can be omitted
+        # when this migration is squashed in the future.
+        migrations.RunPython(combine_classified_failures, noop, elidable=True)
     ]

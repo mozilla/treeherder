@@ -31,13 +31,19 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             sql='ALTER TABLE bugscache DROP INDEX idx_crash_signature',
             reverse_sql='CREATE FULLTEXT INDEX `idx_crash_signature` on bugscache (`crash_signature`);',
+            # Since this cancels out the RunSQL command marked as elidable in 0001_initial.py.
+            elidable=True,
         ),
         migrations.RunSQL(
             sql='ALTER TABLE bugscache DROP INDEX idx_keywords',
             reverse_sql='CREATE FULLTEXT INDEX `idx_keywords` on bugscache (`keywords`);',
+            # Since this cancels out the RunSQL command marked as elidable in 0001_initial.py.
+            elidable=True,
         ),
         migrations.RunSQL(
             sql='ALTER TABLE bugscache DROP INDEX idx_all_full_text',
             reverse_sql='CREATE FULLTEXT INDEX `idx_all_full_text` on bugscache (`summary`, `crash_signature`, `keywords`);',
+            # Since this cancels out the RunSQL command marked as elidable in 0001_initial.py.
+            elidable=True,
         ),
     ]
