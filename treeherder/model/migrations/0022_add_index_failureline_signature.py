@@ -11,10 +11,16 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # This has to be RawSQL because django doesn't have a syntax for creating
-        # prefix indicies
+        # Since Django doesn't natively support creating prefix indicies.
         migrations.RunSQL(
-            """CREATE INDEX failure_line_signature_idx ON failure_line
-            (signature(50));""",
-            """DROP INDEX failure_line_signature_idx ON failure_line;"""),
+            ['CREATE INDEX failure_line_signature_idx ON failure_line (signature(50));'],
+            reverse_sql=['DROP INDEX failure_line_signature_idx ON failure_line;'],
+            state_operations=[
+                migrations.AlterField(
+                    model_name='failureline',
+                    name='signature',
+                    field=models.TextField(blank=True, db_index=True, null=True),
+                ),
+            ],
+        ),
     ]

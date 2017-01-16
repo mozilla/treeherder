@@ -1074,7 +1074,8 @@ class FailureLine(models.Model):
     status = models.CharField(max_length=7, choices=STATUS_CHOICES)
     expected = models.CharField(max_length=7, choices=STATUS_CHOICES, blank=True, null=True)
     message = models.TextField(blank=True, null=True)
-    signature = models.TextField(blank=True, null=True)  # Prefix index length 50
+    # Prefix index: signature(50)
+    signature = models.TextField(blank=True, null=True, db_index=True)
     level = models.CharField(max_length=8, choices=STATUS_CHOICES, blank=True, null=True)
     stack = models.TextField(blank=True, null=True)
     stackwalk_stdout = models.TextField(blank=True, null=True)
