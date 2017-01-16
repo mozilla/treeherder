@@ -11,16 +11,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL(
-            # Using ALTER IGNORE so that it will automatically delete duplicates
-            ("ALTER IGNORE TABLE `job_detail` ADD CONSTRAINT "
-             "`job_detail_title_11a9e7f847f5214c_uniq` "
-             "UNIQUE (`title`, `value`, `job_id`);"),
-            state_operations=[
-                migrations.AlterUniqueTogether(
-                    name='jobdetail',
-                    unique_together=set([('title', 'value', 'job')]),
-                ),
-            ],
+        migrations.AlterUniqueTogether(
+            name='jobdetail',
+            unique_together=set([('title', 'value', 'job')]),
         ),
     ]
