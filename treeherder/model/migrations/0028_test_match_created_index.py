@@ -11,19 +11,16 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Since Django doesn't natively support creating prefix indicies.
         migrations.RunSQL(
-            """
-            DROP INDEX failure_line_test_idx ON failure_line;
-            CREATE INDEX failure_line_test_idx ON failure_line (test(50), subtest(25), status, expected, created);
-            DROP INDEX failure_line_signature_test_idx ON failure_line;
-            CREATE INDEX failure_line_signature_test_idx ON failure_line (signature(25), test(50), created);
-            """,
-            """
-            DROP INDEX failure_line_test_idx ON failure_line;
-            CREATE INDEX failure_line_test_idx ON failure_line (test(50), subtest(25), status, expected);
-            DROP INDEX failure_line_signature_idx ON failure_line;
-            CREATE INDEX failure_line_signature_test_idx ON failure_line (signature(50), test);
-            """,
+            [
+                'CREATE INDEX failure_line_test_idx ON failure_line (test(50), subtest(25), status, expected, created);',
+                'CREATE INDEX failure_line_signature_test_idx ON failure_line (signature(25), test(50), created);',
+            ],
+            reverse_sql=[
+                'DROP INDEX failure_line_test_idx ON failure_line;',
+                'DROP INDEX failure_line_signature_test_idx ON failure_line;',
+            ],
             state_operations=[migrations.AlterIndexTogether(
                 name='failureline',
                 index_together=set([('test', 'subtest', 'status', 'expected', 'created'),
