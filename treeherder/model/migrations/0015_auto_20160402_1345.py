@@ -10,15 +10,5 @@ class Migration(migrations.Migration):
         ('model', '0014_auto_20160322_1130'),
     ]
 
-    operations = [
-        migrations.RunSQL(
-            """CREATE INDEX failure_line_test_idx ON failure_line
-            (test(50), subtest(25), status, expected);""",
-            """DROP INDEX failure_line_test_idx ON failure_line;""",
-            state_operations=[migrations.AlterIndexTogether(
-                name='failureline',
-                index_together=set([('job_guid', 'repository'),
-                                    ('test', 'subtest', 'status', 'expected')]),
-            )],
-        )
-    ]
+    # RunSQL command merged into the one in 0028_test_match_created_index.py.
+    operations = []
