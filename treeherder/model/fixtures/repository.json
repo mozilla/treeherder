@@ -9,7 +9,8 @@
         "active_status": "active",
         "codebase": "gecko",
         "repository_group": 1,
-        "description": ""
+        "description": "",
+        "expire_performance_data": false
     }
 },
 {
@@ -23,7 +24,8 @@
         "codebase": "gecko",
         "repository_group": 1,
         "description": "",
-        "performance_alerts_enabled": true
+        "performance_alerts_enabled": true,
+        "expire_performance_data": false
     }
 },
 {
@@ -63,7 +65,8 @@
         "codebase": "gecko",
         "repository_group": 2,
         "description": "",
-        "performance_alerts_enabled": true
+        "performance_alerts_enabled": true,
+        "expire_performance_data": false
     }
 },
 {
@@ -77,7 +80,8 @@
         "codebase": "gecko",
         "repository_group": 2,
         "description": "",
-        "performance_alerts_enabled": true
+        "performance_alerts_enabled": true,
+        "expire_performance_data": false
     }
 },
 {
@@ -91,7 +95,8 @@
         "codebase": "gecko",
         "repository_group": 2,
         "description": "",
-        "performance_alerts_enabled": true
+        "performance_alerts_enabled": true,
+        "expire_performance_data": false
     }
 },
 {
@@ -183,7 +188,8 @@
         "codebase": "gecko",
         "repository_group": 1,
         "description": "",
-        "performance_alerts_enabled": false
+        "performance_alerts_enabled": false,
+        "expire_performance_data": false
     }
 },
 {
@@ -974,7 +980,8 @@
         "codebase": "gecko",
         "repository_group": 1,
         "description": "The destination for automatically landed Firefox commits.",
-        "performance_alerts_enabled": true
+        "performance_alerts_enabled": true,
+        "expire_performance_data": false
     }
 },
 {

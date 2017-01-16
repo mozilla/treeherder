@@ -97,7 +97,8 @@ def test_repository(transactional_db):
         codebase="gecko",
         repository_group_id=1,
         description="",
-        performance_alerts_enabled=True
+        performance_alerts_enabled=True,
+        expire_performance_data=False
     )
     return r
 
