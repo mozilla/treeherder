@@ -674,7 +674,7 @@ class Job(models.Model):
     submit_time = models.DateTimeField()
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
-    last_modified = models.DateTimeField(auto_now=True)
+    last_modified = models.DateTimeField(auto_now=True, db_index=True)
     running_eta = models.PositiveIntegerField(null=True, default=None)
     tier = models.PositiveIntegerField()
 
