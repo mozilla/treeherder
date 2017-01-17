@@ -14,6 +14,7 @@ logViewerApp.controller('LogviewerCtrl', [
         const query_string = $location.search();
         $scope.css = '';
         $rootScope.urlBasePath = $location.absUrl().split('logviewer')[0];
+        $rootScope.logOffset = 7;
 
         if (query_string.repo !== "") {
             $rootScope.repoName = query_string.repo;
@@ -44,6 +45,12 @@ logViewerApp.controller('LogviewerCtrl', [
             }
 
             updateQuery(values);
+
+            // Add offset to lineNumber to see above the failure line
+            if (lineNumber) {
+                values.lineNumber -= $rootScope.logOffset;
+            }
+
             $document[0].getElementById('logview').contentWindow.postMessage(values, "*");
         };
 
