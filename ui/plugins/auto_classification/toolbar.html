@@ -7,20 +7,24 @@
     <button class="btn btn-view-nav btn-sm nav-menu-btn"
             title="{{ buttonTitle($ctrl.hasSelection, 'Edit selected lines', 'Nothing selected') }}"
             ng-disabled="!($ctrl.hasSelection && $ctrl.canClassify)"
-            ng-click="$ctrl.onEdit()">Edit</button>
+            ng-click="$ctrl.onEdit()"
+            prevent-default-on-left-click>Edit</button>
 
     <button class="btn btn-view-nav btn-sm nav-menu-btn"
             title="{{ buttonTitle($ctrl.hasSelection, 'Ignore selected lines', 'Nothing selected') }}"
             ng-disabled="!($ctrl.hasSelection && $ctrl.canClassify)"
-            ng-click="$ctrl.onIgnore()">Ignore</button>
+            ng-click="$ctrl.onIgnore()"
+            prevent-default-on-left-click>Ignore</button>
 
     <button class="btn btn-view-nav btn-sm nav-menu-btn"
             title="{{ buttonTitle($ctrl.canSave, 'Save', 'Nothing selected') }}"
             ng-disabled="!$ctrl.canSave"
-            ng-click="$ctrl.onSave()">Save</button>
+            ng-click="$ctrl.onSave()"
+            prevent-default-on-left-click>Save</button>
 
     <button class="btn btn-view-nav btn-sm nav-menu-btn"
             title="{{ buttonTitle($ctrl.canSaveAll, 'Save All', 'Lines not classified') }}"
             ng-disabled="!$ctrl.canSaveAll"
-            ng-click="$ctrl.onSaveAll()">Save All</button>
+            ng-click="$ctrl.onSaveAll()"
+            prevent-default-on-left-click>Save All</button>
 </div>
