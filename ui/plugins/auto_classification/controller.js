@@ -742,7 +742,7 @@ treeherder.controller('ThAutoclassifyToolbarController', [
         };
 
         $scope.buttonTitle = function(condition, activeTitle, inactiveTitle) {
-            if (!ctrl.thUser || !ctrl.thUser.loggedIn) {
+            if (!ctrl.thUser || !ctrl.thUser.loggedin) {
                 return "Must be logged in";
             }
             if (!ctrl.thUser.is_staff) {
