@@ -34,7 +34,6 @@ module.exports = function (config) {
             'ui/js/models/**/*.js',
             'ui/js/services/**/*.js',
             'ui/js/reactrevisions.js',
-            'ui/js/reactjobs.js',
             'ui/plugins/**/*.js',
             'tests/ui/vendor/jasmine-jquery.js',
             'tests/ui/unit/**/*.js',

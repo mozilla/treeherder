@@ -39,6 +39,9 @@ treeherder.directive('thCloneJobs', [
 
         var tableInterpolator = thCloneHtml.get('resultsetClone').interpolator;
 
+        //Retrieve platform interpolator
+        var platformInterpolator = thCloneHtml.get('platformClone').interpolator;
+
         //Instantiate job group interpolator
         var jobGroupInterpolator = thCloneHtml.get('jobGroupClone').interpolator;
 
@@ -454,7 +457,7 @@ treeherder.directive('thCloneJobs', [
                 var ulEl = element.find('.revision-list');
 
                 _.extend(scope, { repo: $rootScope.currentRepo });
-                var revisionList = $compile('<revisions watch-depth="reference" resultset="resultset" repo="repo" />')(scope);
+                var revisionList = $compile('<revisions watch-depth="reference" resultset="resultset" repo="repo"></revisions>')(scope);
                 $(ulEl).replaceWith(revisionList);
 
             }
@@ -599,7 +602,7 @@ treeherder.directive('thCloneJobs', [
 
             // hide platforms and groups where all jobs are hidden
             element.find(".platform").each(function internalFilterPlatform() {
-                var platform = $(this).closest('tr');
+                var platform = $(this.parentNode);
                 filterPlatform(platform);
             });
 
@@ -749,7 +752,7 @@ treeherder.directive('thCloneJobs', [
                 }
 
                 var tdEls, rowEl, platformTdEl, jobTdEl,
-                    platformName;
+                    platformName, option;
 
                 platformName = thPlatformName(value.platformName);
 
@@ -758,7 +761,7 @@ treeherder.directive('thCloneJobs', [
                     //First job for this platform found, which means we need
                     //to create the platform and job td elements and the
                     //row
-                    rowEl = $('<tr />');
+                    rowEl = $('<tr></tr>');
 
                     var tableEl = document.getElementById(
                         value.resultsetAggregateId
@@ -766,12 +769,12 @@ treeherder.directive('thCloneJobs', [
 
                     rowEl.prop('id', platformId);
 
-                    var scope = _.extend($rootScope.$new(), {
-                        name: platformName,
-                        option: value.platformOption,
-                        id: platformId
-                    });
-                    platformTdEl = $compile('<jobplatformtd watch-depth="reference" id="id" name="name" option="option" />')(scope);
+                    option = value.platformOption;
+
+                    //Add platforms
+                    platformTdEl = $(platformInterpolator(
+                        {'name':platformName, 'option':option, 'id':platformId}
+                    ));
 
                     rowEl.append(platformTdEl);
 
@@ -913,7 +916,7 @@ treeherder.directive('thCloneJobs', [
                         rsMap[resultSetId].rs_obj.platforms.forEach(function(platform) {
                             addAdditionalJobParameters(platform.groups);
                         });
-                        $timeout(generateJobTable(
+                        $timeout(generateJobElements(
                           resultsetAggregateId,
                           rsMap[resultSetId].rs_obj
                         )).then(function() {
@@ -953,11 +956,11 @@ treeherder.directive('thCloneJobs', [
                 });
             });
         };
-        var generateJobTable = function(resultsetAggregateId, resultset) {
+        var generateJobElements = function(resultsetAggregateId, resultset) {
             var tableEl = $('#' + resultsetAggregateId);
-            var waitSpanEl = tableEl.prev();
+            var waitSpanEl = $(tableEl).prev();
             $(waitSpanEl).css('display', 'none');
-            var tableContent = $(`<table id="${resultsetAggregateId}" />`);
+            var tableHtml = "";
             resultset.platforms.forEach(function(platform) {
                 var platformId = thAggregateIds.getPlatformRowId(
                     $rootScope.repoName,
@@ -971,20 +974,22 @@ treeherder.directive('thCloneJobs', [
                     return _.some(jobGroup.jobs, {visible: true});
                 });
                 var display_style = anyVisible ? "table-row" : "none";
-                var rowContent = $(`<tr id="${platformId}" style="display: ${display_style};" />`);
+                var rowHtml = '<tr id="' + platformId + '" style="display: ' + display_style + ';">';
                 //Add platforms
-                var scope = _.extend($rootScope.$new(), {
-                    'name': thPlatformName(platform.name),
-                    'option': platform.option,
-                    'id': platformId
-                });
-                var platformTdEl = $compile('<jobplatformtd watch-depth="reference" id="id" name="name" option="option" />')(scope);
-                rowContent.append(platformTdEl);
-                var jobsTd = $('<td class="job-row">' + getJobTableRowHTML(platform.groups) + '</td>');
-                rowContent.append(jobsTd);
-                tableContent.append(rowContent);
+                rowHtml += platformInterpolator(
+                    {
+                        'name':thPlatformName(platform.name), 'option':platform.option,
+                        'id':thAggregateIds.getPlatformRowId(
+                            resultset.id,
+                            platform.name,
+                            platform.option
+                        )
+                    }
+                );
+                rowHtml += '<td class="job-row">' + getJobTableRowHTML(platform.groups) + '</td></tr>';
+                tableHtml += rowHtml;
             });
-            tableEl.replaceWith(tableContent);
+            tableEl.html(tableHtml);
         };
 
         var $scope = null;
@@ -1017,7 +1022,7 @@ treeherder.directive('thCloneJobs', [
                 scope.resultset.platforms.forEach(function(platform) {
                     addAdditionalJobParameters(platform.groups);
                 });
-                generateJobTable(
+                generateJobElements(
                     resultsetAggregateId, scope.resultset);
             } else {
                 // Hide the job wait span, resultset has no jobs

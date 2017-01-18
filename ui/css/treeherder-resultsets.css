@@ -166,7 +166,6 @@ fieldset[disabled] .btn-resultset:hover {
   display: table-cell;
   white-space: normal;
   word-break: normal;
-  width: 100%;
 }
 
 .job-list table {
@@ -175,10 +174,6 @@ fieldset[disabled] .btn-resultset:hover {
 
 .job-list table tr {
   border-bottom: 1px dotted lightgrey;
-}
-
-.job-list table tr > * {
-  display: table-cell;
 }
 
 .job-list table tr:nth-child(even) {

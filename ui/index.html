@@ -90,7 +90,6 @@
         <script src="js/directives/treeherder/top_nav_bar.js"></script>
         <script src="js/directives/treeherder/bottom_nav_panel.js"></script>
         <script src="js/reactrevisions.js"></script>
-        <script src="js/reactjobs.js"></script>
         <!-- Main services -->
         <script src="js/services/main.js"></script>
         <script src="js/services/buildapi.js"></script>
@@ -163,6 +162,12 @@
                     <table id="{{ aggregateId }}" class="table-hover"></table>
                 </span>
             </div>
+        </script>
+        <!-- Clone target for each platform -->
+        <script type="'text/ng-template'" id="platformClone.html">
+            <td class="platform">
+                <span title="{{ name }} {{ option }}">{{ name }} {{ option }}</span>
+            </td>
         </script>
 
         <!-- Table column for jobs -->
