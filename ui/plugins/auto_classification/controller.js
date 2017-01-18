@@ -1180,6 +1180,8 @@ treeherder.controller('ThAutoclassifyPanelController', [
                        () => {
                            if ($scope.canSave($scope.pendingLines())) {
                                ctrl.onSaveAll();
+                           } else {
+                               thNotify.send("Can't save; not logged in", "danger");
                            }
                        });
 
@@ -1187,6 +1189,8 @@ treeherder.controller('ThAutoclassifyPanelController', [
                        () => {
                            if ($scope.canSave($scope.selectedLines())) {
                                ctrl.onSave();
+                           } else {
+                               thNotify.send("Can't save; not logged in", "danger");
                            }
                        });
 
