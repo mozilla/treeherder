@@ -173,7 +173,6 @@ treeherder.component("loginCallback", {
                 results.certificate = JSON.parse(results.certificate);
                 payload.ext = hawk.utils.base64urlEncode(JSON.stringify({"certificate": results.certificate}));
             }
-            localStorageService.set('taskcluster.credentials', results);
 
             const header = hawk.client.header(loginUrl, 'GET', payload);
 
@@ -185,6 +184,7 @@ treeherder.component("loginCallback", {
                     var user = resp.data;
                     user.loggedin = true;
                     localStorageService.set("user", user);
+                    localStorageService.set('taskcluster.credentials', results);
                     $window.close();
                 }, function(data) {
                     $scope.loginError = data.data.detail;
