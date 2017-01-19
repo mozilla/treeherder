@@ -240,12 +240,12 @@ logViewerApp.controller('LogviewerCtrl', [
             const { lineNumber, highlightStart, highlightEnd } = data;
 
             if (highlightStart !== highlightEnd) {
-                $location.search('lineNumber', `${highlightStart}-${highlightEnd}`);
+                $location.search('lineNumber', `${highlightStart}-${highlightEnd}`).replace();
             }
             else if (highlightStart) {
-                $location.search('lineNumber', highlightStart);
+                $location.search('lineNumber', highlightStart).replace();
             } else {
-                $location.search('lineNumber', lineNumber);
+                $location.search('lineNumber', lineNumber).replace();
             }
         }
 
