@@ -244,14 +244,15 @@ treeherderApp.controller('ResultSetCtrl', [
             }
             if ($scope.user.loggedin) {
                 var buildernames = ThResultSetStore.getSelectedRunnableJobs($rootScope.repoName, $scope.resultset.id);
-                var decisionTaskID = ThResultSetStore.getGeckoDecisionTaskID($rootScope.repoName, $scope.resultset.id);
-                ThResultSetModel.triggerNewJobs($scope.repoName, $scope.resultset.id, buildernames, decisionTaskID).then(function() {
-                    thNotify.send("Trigger request sent", "success");
-                    ThResultSetStore.deleteRunnableJobs($scope.repoName, $scope.resultset);
-                }, function(e) {
-                    // Generic error eg. the user doesn't have permission
-                    thNotify.send(
-                        ThModelErrors.format(e, "Unable to send trigger"), 'danger');
+                ThResultSetStore.getGeckoDecisionTaskID($rootScope.repoName, $scope.resultset.id).then(function(decisionTaskID) {
+                    ThResultSetModel.triggerNewJobs($scope.repoName, $scope.resultset.id, buildernames, decisionTaskID).then(function() {
+                        thNotify.send("Trigger request sent", "success");
+                        ThResultSetStore.deleteRunnableJobs($scope.repoName, $scope.resultset);
+                    }, function(e) {
+                        // Generic error eg. the user doesn't have permission
+                        thNotify.send(
+                            ThModelErrors.format(e, "Unable to send trigger"), 'danger');
+                    });
                 });
             } else {
                 thNotify.send("Must be logged in to trigger a job", 'danger');

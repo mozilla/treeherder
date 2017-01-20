@@ -49,6 +49,11 @@ treeherder.controller('PluginCtrl', [
         // Take a taskcluster task and make all of the timestamps
         // new again. This is pretty much lifted verbatim from
         // mozilla_ci_tools which is used by pulse_actions.
+        // We need to do this because action tasks are created with
+        // timestamps for expires/created/deadline that are based
+        // on the time of the original decision task creation. We must
+        // update to the current time, or Taskcluster will reject the
+        // task upon creation.
         var refreshTimestamps = function(task) {
             task.expires = thTaskcluster.fromNow('366 days');
             task.created = thTaskcluster.fromNow(0);
@@ -165,12 +170,8 @@ treeherder.controller('PluginCtrl', [
                         $scope.eta_abs = Math.abs($scope.eta);
                     }
                     $scope.average_duration = $scope.job.get_average_duration();
-                    var resultsetId = ThResultSetStore.getSelectedJob($scope.repoName).job.result_set_id;
-                    $scope.jobRevision = ThResultSetStore.getResultSet($scope.repoName, resultsetId).revision;
-                    $scope.jobDecisionTaskID = ThResultSetStore.getGeckoDecisionTaskID(
-                        $scope.repoName,
-                        resultsetId
-                    );
+                    $scope.resultsetId = ThResultSetStore.getSelectedJob($scope.repoName).job.result_set_id;
+                    $scope.jobRevision = ThResultSetStore.getResultSet($scope.repoName, $scope.resultsetId).revision;
 
                     // set the tab options and selections based on the selected job
                     initializeTabs($scope.job);
@@ -394,36 +395,46 @@ treeherder.controller('PluginCtrl', [
                 if ($scope.user.loggedin) {
                     if ($scope.job.id) {
                         if ($scope.job.build_system_type === 'taskcluster') {
-                            let queue = new thTaskcluster.Queue();
-                            let url = "";
-                            try {
-                                url = queue.buildSignedUrl(
-                                    queue.getLatestArtifact,
-                                    $scope.jobDecisionTaskID,
-                                    'public/action.yml'
-                                );
-                            } catch (e) {
-                                let errorMsg = 'Missing Taskcluster credentials! Please log out and back in again.';
-                                thNotify.send(errorMsg, 'danger');
-                                return;
-                            }
-                            $http.get(url).then(function(resp) {
-                                let action = resp.data;
-                                let template = $interpolate(action);
-                                action = template({
-                                    action: 'backfill',
-                                    action_args: '--project ' + $scope.repoName + ' --job ' + $scope.job.id,
+                            ThResultSetStore.getGeckoDecisionTaskID(
+                                $scope.repoName,
+                                $scope.resultsetId).then(function(decisionTaskId) {
+                                    let queue = new thTaskcluster.Queue();
+                                    let url = "";
+                                    try {
+                                        // buildSignedUrl is documented at
+                                        // https://github.com/taskcluster/taskcluster-client#construct-signed-urls
+                                        // It is necessary here because getLatestArtifact assumes it is getting back
+                                        // JSON as a reponse due to how the client library is constructed. Since this
+                                        // result is yml, we'll fetch it manually using $http and can use the url
+                                        // returned by this method.
+                                        url = queue.buildSignedUrl(
+                                            queue.getLatestArtifact,
+                                            decisionTaskId,
+                                            'public/action.yml'
+                                        );
+                                    } catch (e) {
+                                        let errorMsg = 'Missing Taskcluster credentials! Please log out and back in again.';
+                                        thNotify.send(errorMsg, 'danger', true);
+                                        return;
+                                    }
+                                    $http.get(url).then(function(resp) {
+                                        let action = resp.data;
+                                        let template = $interpolate(action);
+                                        action = template({
+                                            action: 'backfill',
+                                            action_args: '--project ' + $scope.repoName + ' --job ' + $scope.job.id,
+                                        });
+                                        let task = refreshTimestamps(jsyaml.safeLoad(action));
+                                        let taskId = thTaskcluster.slugid();
+                                        queue.createTask(taskId, task).then(function() {
+                                            $scope.$apply(thNotify.send("Request sent to backfill jobs", 'success'));
+                                        }, function(e) {
+                                            // The full message is too large to fit in a Treeherder
+                                            // notification box.
+                                            $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', true));
+                                        });
+                                    });
                                 });
-                                let task = refreshTimestamps(jsyaml.safeLoad(action));
-                                let taskId = thTaskcluster.slugid();
-                                queue.createTask(taskId, task).then(function() {
-                                    $scope.$apply(thNotify.send("Request sent to backfill jobs", 'success'));
-                                }, function(e) {
-                                    // The full message is too large to fit in a Treeherder
-                                    // notification box.
-                                    $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', true));
-                                });
-                            });
                         } else {
                             ThJobModel.backfill(
                                 $scope.repoName,
