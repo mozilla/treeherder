@@ -230,3 +230,16 @@ def test_alerts_post_insufficient_data(test_repository,
                            new_post_blob)
         assert resp.status_code == 400
         assert PerformanceAlert.objects.count() == 0
+
+
+def test_job_ids_validity(test_repository,
+                          test_perf_alert_summary,
+                          test_perf_signature, test_sheriff,
+                          alert_create_post_blob):
+    client = APIClient()
+    client.force_authenticate(user=test_sheriff)
+    new_post_blob = copy.copy(alert_create_post_blob)
+    new_post_blob['job_ids'] = "foo bar"
+    resp = client.post(reverse('performance-alerts-list'),
+                       new_post_blob)
+    assert resp.status_code == 400
