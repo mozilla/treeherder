@@ -63,7 +63,7 @@ def elasticsearch(request):
         item.init()
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def sample_data():
     """Returns a SampleData() object"""
     from .sampledata import SampleData
