@@ -334,6 +334,13 @@ def test_ingest_job_with_updated_job_group(test_repository, failure_classificati
     job_type but different job_group
     """
     first_job_datum = sample_data.job_data[0]
+
+    # store original test job data so we can restore it after
+    original_group_name = first_job_datum["job"]["group_name"]
+    original_symbol = first_job_datum["job"]["group_symbol"]
+    original_revision = first_job_datum["revision"]
+
+    # modify first job test data
     first_job_datum["job"]["group_name"] = "first group name"
     first_job_datum["job"]["group_symbol"] = "1"
     first_job_datum["revision"] = result_set_stored[0]["revision"]
@@ -359,6 +366,12 @@ def test_ingest_job_with_updated_job_group(test_repository, failure_classificati
     # make sure also we didn't create a new job group
     with pytest.raises(JobGroup.DoesNotExist):
         JobGroup.objects.get(name="second group name")
+
+    # reset the original first_job_datum values
+    first_job_datum["job"]["group_name"] = original_group_name
+    first_job_datum["job"]["group_symbol"] = original_symbol
+    first_job_datum["revision"] = original_revision
+    store_job_data(test_repository, [first_job_datum])
 
 
 def test_ingest_job_with_revision_hash(test_repository,
