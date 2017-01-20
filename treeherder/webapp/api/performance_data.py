@@ -171,6 +171,10 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
                                              'signatures, push_id, or '
                                              'job_id')
 
+        if not all([type(id) == int for id in job_ids]):
+            return Response({"message": "Job id(s) ,must be specified as integers"},
+                            status=HTTP_400_BAD_REQUEST)
+
         datums = PerformanceDatum.objects.filter(
             repository=repository).select_related(
                 'signature__signature_hash').order_by('push_timestamp')
