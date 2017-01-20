@@ -43,11 +43,14 @@ treeherder.factory('ThTaskclusterErrors', ['localStorageService', function(local
         */
         format: function(e) {
             if (e.code === 'InsufficientScopes') {
-                let expires = new Date(localStorageService.get('taskcluster.credentials').certificate.expiry);
-                if (expires < new Date()) {
-                    return TC_ERROR_PREFIX + 'Your credentials are expired. ' +
-                        'They must expire every 3 days (Bug 1328434). Log out and back in again to ' +
-                        'refresh your credentials.';
+                let creds = localStorageService.get('taskcluster.credentials');
+                if (creds && creds.certificate && creds.certificate.expiry) {
+                    let expires = new Date(creds.certificate.expiry);
+                    if (expires < new Date()) {
+                        return TC_ERROR_PREFIX + 'Your credentials are expired. ' +
+                            'They must expire every 3 days (Bug 1328434). Log out and back in again to ' +
+                            'refresh your credentials.';
+                    }
                 }
             }
             if (e.message.indexOf('----') !== -1) {
