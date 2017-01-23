@@ -35,7 +35,7 @@ jsonschema==2.5.1 --hash=sha256:71e7b3bcf9fca408bcb65bb60892f375d3abdd2e4f296eee
 
 djangorestframework==3.5.3 --hash=sha256:f446041a944723e14502a0a5880d0bc74a499ac1075781177f2fa6d7fe7b415d
 
-django-rest-swagger==2.1.0 --hash=sha256:70f681bcccc75f5095104973e7ab47af3a979110202593c28c937f6dd6a04100
+django-rest-swagger==2.1.1 --hash=sha256:6ef17b12456dac9434e44357480e323812bee3087579d14e046f6091de6a15d0
 
 django-cors-headers==2.0.0 --hash=sha256:a810d81dbdff01824e23cb9e60c7371112f282bc35dde292187eec07b9332275
 
