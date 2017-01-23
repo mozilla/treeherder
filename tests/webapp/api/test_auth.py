@@ -20,6 +20,7 @@ class AuthenticatedView(APIView):
     def post(self, request, *args, **kwargs):
         return Response({'foo': 'bar'})
 
+
 factory = APIRequestFactory()
 url = 'http://testserver/'
 

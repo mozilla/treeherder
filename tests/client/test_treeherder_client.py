@@ -511,5 +511,6 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
         self.assertEqual(len(resultsets), 3)
         self.assertEqual(resultsets, self.RESULTSETS)
 
+
 if __name__ == '__main__':
     unittest.main()

@@ -9,6 +9,7 @@ class RequestVersionView(APIView):
     def get(self, request, *args, **kwargs):
         return Response({'version': request.version})
 
+
 factory = APIRequestFactory()
 
 

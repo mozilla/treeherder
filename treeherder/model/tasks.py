@@ -39,6 +39,7 @@ class LazyPublisher():
 
         return self.publisher
 
+
 pulse_connection = LazyPublisher()
 
 

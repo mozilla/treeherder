@@ -91,5 +91,6 @@ class TestAnalyzer(unittest.TestCase):
                                  d.state == 'regression']
         self.assertEqual(regression_timestamps, expected_timestamps)
 
+
 if __name__ == '__main__':
     unittest.main()

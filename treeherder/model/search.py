@@ -53,6 +53,7 @@ def index(name):
         name = "%s-%s" % (settings.ELASTIC_SEARCH["index_prefix"], name)
     return Index(name)
 
+
 test_failure_line = index("test-failure-line")
 
 test_failure_line.settings(number_of_shards=10)

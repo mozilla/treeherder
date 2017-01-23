@@ -18,6 +18,7 @@ def server_supports_tls(url):
     # but until Travis has support it's not overly useful.
     return hostname != 'localhost'
 
+
 TREEHERDER_MEMCACHED = env("TREEHERDER_MEMCACHED", default="127.0.0.1:11211")
 TREEHERDER_MEMCACHED_KEY_PREFIX = env("TREEHERDER_MEMCACHED_KEY_PREFIX", default="treeherder")
 

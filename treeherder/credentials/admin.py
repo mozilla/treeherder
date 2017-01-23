@@ -7,6 +7,8 @@ from .models import Credentials
 
 def get_owner_email(credentials):
     return credentials.owner.email
+
+
 get_owner_email.short_description = 'owner'
 
 

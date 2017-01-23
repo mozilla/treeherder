@@ -13,4 +13,5 @@ def get_json_schema(filename):
         schema = yaml.load(f)
     return schema
 
+
 job_json_schema = get_json_schema("pulse-job.yml")
