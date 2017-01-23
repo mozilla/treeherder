@@ -75,3 +75,11 @@
   padding-right:10.5%;
   float: right;
 }
+
+#dxrbuttons {
+  padding-bottom: 5px;
+}
+
+#dxrbuttons > a {
+  padding-right: 5px;
+}

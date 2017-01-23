@@ -3,13 +3,14 @@
 treeherder.controller('BugFilerCtrl', [
     '$scope', '$rootScope', '$uibModalInstance', '$http', 'summary', 'thBugzillaProductObject',
     'thPinboard', 'thEvents', 'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures',
-    'thNotify',
+    'thNotify', 'thDXRUrl', 'thDXRTrees',
     function BugFilerCtrl(
         $scope, $rootScope, $uibModalInstance, $http, summary, thBugzillaProductObject,
         thPinboard, thEvents, fullLog, parsedLog, reftest, selectedJob, allFailures,
-        thNotify) {
+        thNotify, thDXRUrl, thDXRTrees) {
 
         $scope.omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR"];
+        $scope.thDXRUrl = thDXRUrl;
 
         /**
          *  'enter' from the product search input should initiate the search
@@ -33,6 +34,21 @@ treeherder.controller('BugFilerCtrl', [
             $scope.reftest = reftest;
         }
 
+        $scope.hasPossibleFileName = function() {
+            return $scope.possibleFilename.length > 0;
+        };
+
+        $scope.dxrtrees = function() {
+            var trees = [];
+            if (thDXRTrees.indexOf($scope.repoName) >= 0) {
+                for (var i=0; i< thDXRTrees.indexOf($scope.repoName) + 1; i++) {
+                    trees.push(thDXRTrees[i]);
+                }
+            } else {
+                trees.push("mozilla-central");
+            }
+            return trees;
+        };
         /**
          *  Pre-fill the form with information/metadata from the failure
          */
@@ -60,6 +76,23 @@ treeherder.controller('BugFilerCtrl', [
         $uibModalInstance.possibleFilename = "";
 
         /*
+         *  Given what we hope is the file path, attempt to find the file name
+         */
+        function findFileName(path) {
+            // Try unix paths first, then Windows, then bail
+            var splitFilePath;
+            if (path.split("/").length > 1) {
+                splitFilePath = path.split("/");
+            } else if (summary[0].split("\\").length > 1) {
+                splitFilePath = path.split("\\");
+            }
+            var file = splitFilePath ? splitFilePath.pop() : "";
+            // (Arbitrarily) Ignore potential filenames that are longer than 128 charcters
+            file = file.length < 128 ? file : "";
+            return file;
+        }
+
+        /*
          *  Remove extraneous junk from the start of the summary line
          *  and try to find the failing test name from what's left
          */
@@ -72,13 +105,13 @@ treeherder.controller('BugFilerCtrl', [
                 }
             }
 
-            $uibModalInstance.possibleFilename = summary[0].split("/").pop();
-
+            $uibModalInstance.possibleFilename = findFileName(summary[0]);
             return [summary, $uibModalInstance.possibleFilename];
         };
 
         $uibModalInstance.parsedSummary = $uibModalInstance.parseSummary(summary);
         $scope.modalSummary = "Intermittent " + $uibModalInstance.parsedSummary[0].join(" | ");
+        $scope.possibleFilename = $uibModalInstance.parsedSummary[1];
 
         $scope.toggleFilerSummaryVisibility = function() {
             $scope.isFilerSummaryVisible = !$scope.isFilerSummaryVisible;

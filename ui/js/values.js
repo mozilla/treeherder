@@ -379,3 +379,13 @@ treeherder.value("phDashboardValues",
         }
     }
 );
+
+treeherder.value("thDXRUrl", "https://dxr.mozilla.org/");
+
+treeherder.value("thDXRTrees", [
+    "mozilla-central",
+    "mozilla-aurora",
+    "mozilla-beta",
+    "mozilla-release",
+    "mozilla-esr45"
+]);
