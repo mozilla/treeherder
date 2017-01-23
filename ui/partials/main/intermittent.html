@@ -1,83 +1,85 @@
-<form id="modalForm">
-  <h2> Intermittent Bug Filer </h2>
-
-  <input name="modalProductFinderSearch" id="modalProductFinderSearch" ng-keydown="productSearchEnter($event)"
-         ng-model="productSearch" type="text" placeholder="Firefox" uib-tooltip="Manually search for a product" />
-  <button name="modalProductFinderButton" id="modalProductFinderButton"
-          type="button" ng-click="findProduct()" prevent-default-on-left-click>Find Product</button>
-  <div>
-    <fieldset id="suggestedProducts" ng-init="selection={}">
-      <div ng-repeat="product in suggestedProducts">
-        <input type="radio" value="{{product}}"
-               ng-model="selection.selectedProduct"
-               name="productGroup" id="modalProductSuggestion{{$id}}"/>
-        <label for="modalProductSuggestion{{$id}}">{{product}}</label>
-      </div>
-    </fieldset>
-  </div>
-
-  <br/><br/>
-
-  <div id="failureSummaryGroup" class="collapsed">
-    <label id="modalSummarylabel" for="modalSummary">Summary:</label>
-    <input id="modalSummary" type="text" placeholder="Intermittent..." pattern=".{0,255}" 
-           ng-model="modalSummary" ng-model-options="{allowInvalid:true}" />
-    <span id="modalSummaryLength" ng-bind="modalSummary.length" />
-    <a ng-class="{'filersummary-open-btn': isFilerSummaryVisible}" prevent-default-on-left-click>
-      <i ng-click="toggleFilerSummaryVisibility()" ng-hide="isFilerSummaryVisible" 
-         class="fa fa-chevron-right" uib-tooltip="Show all failure lines for this job">
-      </i>
-      <span ng-show="isFilerSummaryVisible">
-        <i ng-click="toggleFilerSummaryVisibility()" class="fa fa-chevron-down" uib-tooltip="Hide all failure lines for this job"></i>
-        <textarea id="modalFailureList">{{thisFailure}}</textarea>
-      </span>
-    </a>
-  </div>
-
-  <div id="modalLogLinkCheckboxes">
-    <label>
-      <input id="modalParsedLog" type="checkbox"
-             ng-model="checkedLogLinks.parsedLog"
-             ng-true-value="'{{parsedLog}}'"/>
-      <a target="_blank" href="{{ parsedLog }}">Include Parsed Log Link</a>
-    </label><br/>
-    <label>
-      <input id="modalFullLog" type="checkbox"
-             ng-model="checkedLogLinks.fullLog"
-             ng-true-value="'{{fullLog}}'"/>
-      <a target="_blank"  href="{{ fullLog }}">Include Full Log Link</a>
-    </label><br/>
-    <label id="modalReftestLogLabel" ng-if="isReftest()">
-      <input id="modalReftestLog" type="checkbox"
-             ng-model="checkedLogLinks.reftest"
-             ng-true-value="'{{reftest}}'"/>
-      <a target="_blank" href="{{ reftest }}">Include Reftest Viewer Link</a>
-    </label>
-  </div>
-
-  <div id="modalCommentDiv">
-    <label id="modalCommentlabel" for="modalComment">Comment:</label>
-    <textarea ng-model="modalComment" id="modalComment" type="textarea" placeholder=""></textarea>
-  </div>
-
-  <div id="modalExtras">
-    <label>
-      <input id="modalIsIntermittent"
-             ng-model="isIntermittent" type="checkbox"
-             ng-checked="true" />
-      This is an intermittent failure
-    </label>
-
-    <div id="modalRelatedBugs">
-      <input type="text" ng-model="modalBlocks" placeholder="Blocks" uib-tooltip="Comma-separated list of bugs" tooltip-placement="bottom" />
-      <input type="text" ng-model="modalDependsOn" placeholder="Depends on" uib-tooltip="Comma-separated list of bugs" tooltip-placement="bottom" />
-      <input type="text" ng-model="modalSeeAlso" placeholder="See also" uib-tooltip="Comma-separated list of bugs" tooltip-placement="bottom" />
+<div class="modal-header">
+  <button type="button" class="close" ng-click="cancelFiler()"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+  <h4>Intermittent Bug Filer</h4>
+</div>
+<div class="modal-body">
+  <form id="modalForm">
+    <input name="modalProductFinderSearch" id="modalProductFinderSearch" ng-keydown="productSearchEnter($event)"
+           ng-model="productSearch" type="text" placeholder="Firefox" uib-tooltip="Manually search for a product" />
+    <button name="modalProductFinderButton" id="modalProductFinderButton"
+            type="button" ng-click="findProduct()" prevent-default-on-left-click>Find Product</button>
+    <div>
+      <fieldset id="suggestedProducts" ng-init="selection={}">
+        <div ng-repeat="product in suggestedProducts">
+          <input type="radio" value="{{product}}"
+                 ng-model="selection.selectedProduct"
+                 name="productGroup" id="modalProductSuggestion{{$id}}"/>
+          <label for="modalProductSuggestion{{$id}}">{{product}}</label>
+        </div>
+      </fieldset>
     </div>
-  </div>
 
-  <div id="modalBottomDiv">
-    <button name="modalCancelButton" id="modalCancelButton" type="button" ng-click="cancelFiler()"> Cancel </button>
-    <button name="modalSubmitButton" id="modalSubmitButton" type="button" ng-click="submitFiler()"> Submit Bug </button>
-  </div>
-</form>
+    <br/><br/>
 
+    <div id="failureSummaryGroup" class="collapsed">
+      <label id="modalSummarylabel" for="modalSummary">Summary:</label>
+      <input id="modalSummary" type="text" placeholder="Intermittent..." pattern=".{0,255}" 
+             ng-model="modalSummary" ng-model-options="{allowInvalid:true}" />
+      <span id="modalSummaryLength" ng-bind="modalSummary.length" />
+      <a ng-class="{'filersummary-open-btn': isFilerSummaryVisible}" prevent-default-on-left-click>
+        <i ng-click="toggleFilerSummaryVisibility()" ng-hide="isFilerSummaryVisible" 
+           class="fa fa-chevron-right" uib-tooltip="Show all failure lines for this job">
+        </i>
+        <span ng-show="isFilerSummaryVisible">
+          <i ng-click="toggleFilerSummaryVisibility()" class="fa fa-chevron-down" uib-tooltip="Hide all failure lines for this job"></i>
+          <textarea id="modalFailureList">{{thisFailure}}</textarea>
+        </span>
+      </a>
+    </div>
+
+    <div id="modalLogLinkCheckboxes">
+      <label>
+        <input id="modalParsedLog" type="checkbox"
+               ng-model="checkedLogLinks.parsedLog"
+               ng-true-value="'{{parsedLog}}'"/>
+        <a target="_blank" href="{{ parsedLog }}">Include Parsed Log Link</a>
+      </label><br/>
+      <label>
+        <input id="modalFullLog" type="checkbox"
+               ng-model="checkedLogLinks.fullLog"
+               ng-true-value="'{{fullLog}}'"/>
+        <a target="_blank"  href="{{ fullLog }}">Include Full Log Link</a>
+      </label><br/>
+      <label id="modalReftestLogLabel" ng-if="isReftest()">
+        <input id="modalReftestLog" type="checkbox"
+               ng-model="checkedLogLinks.reftest"
+               ng-true-value="'{{reftest}}'"/>
+        <a target="_blank" href="{{ reftest }}">Include Reftest Viewer Link</a>
+      </label>
+    </div>
+
+    <div id="modalCommentDiv">
+      <label id="modalCommentlabel" for="modalComment">Comment:</label>
+      <textarea ng-model="modalComment" id="modalComment" type="textarea" placeholder=""></textarea>
+    </div>
+
+    <div id="modalExtras">
+      <label>
+        <input id="modalIsIntermittent"
+               ng-model="isIntermittent" type="checkbox"
+               ng-checked="true" />
+        This is an intermittent failure
+      </label>
+
+      <div id="modalRelatedBugs">
+        <input type="text" ng-model="modalBlocks" placeholder="Blocks" uib-tooltip="Comma-separated list of bugs" tooltip-placement="bottom" />
+        <input type="text" ng-model="modalDependsOn" placeholder="Depends on" uib-tooltip="Comma-separated list of bugs" tooltip-placement="bottom" />
+        <input type="text" ng-model="modalSeeAlso" placeholder="See also" uib-tooltip="Comma-separated list of bugs" tooltip-placement="bottom" />
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button name="modalCancelButton" id="modalCancelButton" type="button" ng-click="cancelFiler()"> Cancel </button>
+  <button name="modalSubmitButton" id="modalSubmitButton" type="button" ng-click="submitFiler()"> Submit Bug </button>
+</div>
