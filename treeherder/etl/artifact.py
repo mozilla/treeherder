@@ -160,8 +160,8 @@ def serialize_artifact_json_blobs(artifacts):
     for artifact in artifacts:
         blob = artifact['blob']
         if (artifact['type'].lower() == 'json' and
-            not isinstance(blob, str) and
-            not isinstance(blob, unicode)):
+                not isinstance(blob, str) and
+                not isinstance(blob, unicode)):
             artifact['blob'] = json.dumps(blob)
 
     return artifacts

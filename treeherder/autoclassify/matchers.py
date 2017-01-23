@@ -171,7 +171,7 @@ class CrashSignatureMatcher(Matcher):
 
         for failure_line in failure_lines:
             if (failure_line.action != "crash" or failure_line.signature is None
-                or failure_line.signature == "None"):
+                    or failure_line.signature == "None"):
                 continue
             matching_failures = FailureMatch.objects.filter(
                 failure_line__action="crash",

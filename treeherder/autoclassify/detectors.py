@@ -29,7 +29,7 @@ class TestFailureDetector(Detector):
         rv = []
         for i, failure in enumerate(failure_lines):
             if (failure.action == "test_result" and failure.test and failure.status
-                and failure.expected):
+                    and failure.expected):
                 rv.append(i)
         return rv
 
