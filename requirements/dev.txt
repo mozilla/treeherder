@@ -22,7 +22,7 @@ flake8==3.2.1 --hash=sha256:dc9eed7667489b73b56b1714aa51f580601db364b61e1833908e
 isort==4.2.2 --hash=sha256:3ad243ad738b2f9a58005ac44b13a3c297b0201327edaec32c245b5bc66d27ee
 
 # Required by pytest
-py==1.4.31 --hash=sha256:4a3e4f3000c123835ac39cab5ccc510642153bc47bc1f13e2bbb53039540ae69
+py==1.4.32 --hash=sha256:2d4bba2e25fff58140e6bdce1e485e89bb59776adbe01d490baa6b1f37a3dd6b
 
 # Required by WebTest
 beautifulsoup4==4.5.1 --hash=sha256:bb3dba571c2f7ddcaf3e70ad8b67878a85ac41889dcba75a30b8f7b0b5960b6d
