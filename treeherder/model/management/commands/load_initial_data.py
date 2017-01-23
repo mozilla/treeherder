@@ -12,5 +12,4 @@ class Command(BaseCommand):
                      'failure_classification',
                      'performance_framework',
                      'performance_bug_templates')
-        call_command('update_runnable_jobs')
         call_command('load_preseed')
