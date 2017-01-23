@@ -94,7 +94,6 @@ class JobFilter(django_filters.FilterSet):
             'result': ['exact'],
             'who': ['exact'],
             'tier': ['lt', 'lte', 'exact', 'gt', 'gte'],
-            'build_platform_id': ['exact'],
             'id': ['lt', 'lte', 'exact', 'gt', 'gte'],
             'push_id': ['lt', 'lte', 'exact', 'gt', 'gte'],
             'last_modified': ['lt', 'lte', 'exact', 'gt', 'gte'],
