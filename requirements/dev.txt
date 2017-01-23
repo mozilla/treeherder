@@ -15,7 +15,7 @@ responses==0.5.1 --hash=sha256:3a907f7aae2fd2286d06cfdf238957786c38bbcadc451adce
 django-extensions==1.7.5 --hash=sha256:9e0ee15e6e8f88888898092c814f547fb2fb72332dd7982d6605e740cc5a7bd5
 
 # Required by django-extension's runserver_plus command.
-Werkzeug==0.11.11 --hash=sha256:eb3108af06aed08fb2f4fc883f2adf04c8f4997f6368517591b2becf15ae0da2
+Werkzeug==0.11.15 --hash=sha256:c6f6f89124df0514d886782c658c3e12f2caaa94da34cee3fd82eebf4ebf052b
 
 flake8==3.2.1 --hash=sha256:dc9eed7667489b73b56b1714aa51f580601db364b61e1833908e931c6de47a65
 
