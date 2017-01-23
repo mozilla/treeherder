@@ -55,6 +55,11 @@
     </label>
   </div>
 
+  <div ng-hide="crashSignatures.length === 0" id="modalCrashSignatureDiv">
+    <label id="modalCrashSignatureLabel" for="modalCrashSignature">Signature:</label>
+    <textarea id="modalCrashSignature" ng-model="crashSignatures"></textarea>
+  </div>
+
   <div id="modalCommentDiv">
     <label id="modalCommentlabel" for="modalComment">Comment:</label>
     <textarea ng-model="modalComment" id="modalComment" type="textarea" placeholder=""></textarea>

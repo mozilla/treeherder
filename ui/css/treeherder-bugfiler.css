@@ -6,7 +6,7 @@
 }
 
 #modalSummarylabel {
-  margin-top: -5px;
+    margin-top: -5px;
 }
 
 #modalSummary {
@@ -63,15 +63,22 @@
 }
 
 #modalFailureList {
-  width: 80%;
-  padding: 5px;
-  max-height: 250px;
-  overflow: auto;
-  clear:both;
+    width: 80%;
+    padding: 5px;
+    max-height: 250px;
+    overflow: auto;
+    clear: both;
+}
+#modalCrashSignatureDiv {
+    padding-bottom: 15px;
+}
+
+#modalCrashSignature {
+    width: 80%;
 }
 
 #modalRelatedBugs {
-  padding-top: 10px;
-  padding-right:10.5%;
-  float: right;
+    padding-top: 10px;
+    padding-right:10.5%;
+    float: right;
 }

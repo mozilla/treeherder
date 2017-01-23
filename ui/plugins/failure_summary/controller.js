@@ -96,9 +96,19 @@ treeherder.controller('BugsPluginCtrl', [
         $scope.fileBug = function(index) {
             var summary = $scope.suggestions[index].search;
             var allFailures = [];
+            var crashSignatures = [];
+            var crashRegex = /application crashed \[@ (.+)\]$/g;
 
             for (var i=0; i<$scope.suggestions.length; i++) {
                 allFailures.push($scope.suggestions[i].search.split(" | "));
+                var crash = $scope.suggestions[i].search.match(crashRegex);
+
+                if (crash) {
+                    var signature = crash[0].split("application crashed")[1];
+                    if (!crashSignatures.includes(signature)) {
+                        crashSignatures.push(crash[0].split("application crashed")[1]);
+                    }
+                }
             }
 
             var modalInstance = $uibModal.open({
@@ -124,6 +134,9 @@ treeherder.controller('BugsPluginCtrl', [
                     },
                     allFailures: function() {
                         return allFailures;
+                    },
+                    crashSignatures: function() {
+                        return crashSignatures;
                     }
                 }
             });

@@ -3,11 +3,11 @@
 treeherder.controller('BugFilerCtrl', [
     '$scope', '$rootScope', '$uibModalInstance', '$http', 'summary', 'thBugzillaProductObject',
     'thPinboard', 'thEvents', 'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures',
-    'thNotify',
+    'crashSignatures', 'thNotify',
     function BugFilerCtrl(
         $scope, $rootScope, $uibModalInstance, $http, summary, thBugzillaProductObject,
         thPinboard, thEvents, fullLog, parsedLog, reftest, selectedJob, allFailures,
-        thNotify) {
+        crashSignatures, thNotify) {
 
         $scope.omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR"];
 
@@ -29,6 +29,8 @@ treeherder.controller('BugFilerCtrl', [
 
         $scope.parsedLog = parsedLog;
         $scope.fullLog = fullLog;
+        $scope.crashSignatures = crashSignatures.join("\n");
+
         if ($scope.isReftest()) {
             $scope.reftest = reftest;
         }
@@ -154,6 +156,8 @@ treeherder.controller('BugFilerCtrl', [
          *  Actually send the gathered information to bugzilla.
          */
         $scope.submitFiler = function() {
+console.log($scope.crashSignatures);
+return;
             var summarystring = $scope.modalSummary;
             var productString = "";
             var componentString = "";
