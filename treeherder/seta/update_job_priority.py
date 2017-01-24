@@ -17,9 +17,7 @@ import os
 import time
 
 from treeherder.config.settings import (SETA_HIGH_VALUE_PRIORITY,
-                                        SETA_HIGH_VALUE_TIMEOUT,
-                                        SETA_LOW_VALUE_PRIORITY,
-                                        SETA_LOW_VALUE_TIMEOUT)
+                                        SETA_LOW_VALUE_PRIORITY)
 from treeherder.etl.seta import (parse_testtype,
                                  valid_platform)
 from treeherder.seta.common import (job_priority_index,
@@ -134,14 +132,14 @@ def _initialize_values():
     jp_index = job_priority_index(JobPriority.objects.all())
     if jp_index:
         # For 2 weeks the job will be considered high value (priority=1)
-        return jp_index, SETA_HIGH_VALUE_PRIORITY, SETA_HIGH_VALUE_TIMEOUT, _two_weeks_from_now()
+        return jp_index, SETA_HIGH_VALUE_PRIORITY, _two_weeks_from_now()
     else:
         # When the table is empty it means that we're starting the system for the first time
         # and we're going to use a different set of default values
         # All job priorities will be marked as low value jobs
         # If information to determine job failures is available, the jobs will quickly be turned
         # into high value jobs.
-        return jp_index, SETA_LOW_VALUE_PRIORITY, SETA_LOW_VALUE_TIMEOUT, None
+        return jp_index, SETA_LOW_VALUE_PRIORITY, None
 
 def _update_table(data):
     """Add new jobs to the priority table and update the build system if required.
@@ -149,7 +147,7 @@ def _update_table(data):
 
     returns the number of new, failed and updated jobs
     """
-    jp_index, priority, timeout, expiration_date = _initialize_values()
+    jp_index, priority, expiration_date = _initialize_values()
 
     total_jobs = len(data)
     new_jobs, failed_changes, updated_jobs = 0, 0, 0
@@ -178,7 +176,6 @@ def _update_table(data):
                     buildtype=str(job["platform_option"]),
                     platform=str(job["platform"]),
                     priority=priority,
-                    timeout=timeout,
                     expiration_date=expiration_date,
                     buildsystem=job["build_system_type"]
                 )

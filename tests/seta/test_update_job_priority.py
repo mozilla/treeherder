@@ -50,7 +50,7 @@ def test_query_sanitized_data(query_runnable_jobs, query_task_id,
 @pytest.mark.django_db()
 def test_initialize_values_no_data():
     results = _initialize_values()
-    assert results == ({}, 5, 5400, None)
+    assert results == ({}, 5, None)
 
 
 @pytest.mark.django_db()
@@ -61,7 +61,7 @@ def test_initialize_values(two_weeks, jp_all,
     fourteen_days = datetime.datetime.now() + datetime.timedelta(days=14)
     two_weeks.return_value = fourteen_days
     jp_all.return_value = job_priority_list
-    assert _initialize_values() == (jp_index_fixture, 1, 0, fourteen_days)
+    assert _initialize_values() == (jp_index_fixture, 1, fourteen_days)
 
 
 @patch('treeherder.seta.update_job_priority._two_weeks_from_now')
@@ -72,7 +72,7 @@ def test_update_table_no_new_jobs(initial_values, two_weeks,
     We test that once a table has information about job priorities future calls with the same data will not change the table
     '''
     # By doing this we won't need DB access
-    initial_values.return_value = jp_index_fixture, 1, 0, two_weeks
+    initial_values.return_value = jp_index_fixture, 1, two_weeks
     assert _update_table(sanitized_data) == (0, 0, 0)
 
 
@@ -84,7 +84,7 @@ def test_update_table_empty_table(initial_values, jp_save,
     We test that starting from an empty table
     '''
     # This set of values is when we're bootstrapping the service (aka empty table)
-    initial_values.return_value = {}, 5, 5400, None
+    initial_values.return_value = {}, 5, None
     jp_save.return_value = None  # Since we don't want to write to the DB
     assert _update_table(sanitized_data) == (3, 0, 0)
 

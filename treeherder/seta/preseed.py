@@ -15,7 +15,7 @@ def load_preseed():
 
     We currently call this method on a schedule. See treeherder/seta/tasks.py for details.
 
-    The preseed data has these fields: buildtype, testtype, platform, priority, timeout, expiration_date
+    The preseed data has these fields: buildtype, testtype, platform, priority, expiration_date
     The expiration_date field defaults to 2 weeks when inserted in the table
     The expiration_date field has the format "YYYY-MM-DD", however, it can have "*" to indicate to never expire
     The default priority is 1, however, if we want to force coalescing we can do that
@@ -56,7 +56,6 @@ def create_new_entry(job):
             buildtype=job['buildtype'],
             platform=job['platform'],
             priority=job['priority'],
-            timeout=job['timeout'],
             expiration_date=job['expiration_date'],
             buildsystem=job['buildsystem']
     )
@@ -67,10 +66,9 @@ def process_job_priority(jp, job):
     # Updating the buildtype can be dangerous as analyze_failures can set it to '*' while in here
     # we can change it back to 'taskcluster'. For now, we will assume that creating a new entry
     # will add the right value at the beginning
-    for field in ('priority', 'timeout'):
-        if jp.__getattribute__(field) != job[field]:
-            jp.__setattr__(field, job[field])
-            update_fields.append(field)
+    if jp.__getattribute__('priority') != job['priority']:
+        jp.__setattr__('priority', job['priority'])
+        update_fields.append('priority')
 
     if job['expiration_date'] == '*' and jp.expiration_date != THE_FUTURE:
         jp.expiration_date = THE_FUTURE
