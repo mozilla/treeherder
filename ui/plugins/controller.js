@@ -433,11 +433,12 @@ treeherder.controller('PluginCtrl', [
             if ($scope.user.loggedin) {
                 // See note in retrigger logic.
                 ThJobModel.cancel($scope.repoName, $scope.job.id).then(function() {
-                  // XXX: Remove this after 1134929 is resolved.
+                    // XXX: Remove this after 1134929 is resolved.
                     var requestId = $scope.job.buildbot_request_id;
                     if (requestId) {
-                        return thBuildApi.cancelJob($scope.repoName, requestId);
+                        thBuildApi.cancelJob($scope.repoName, requestId);
                     }
+                    thNotify.send("Cancel request sent", "success");
                 }).catch(function(e) {
                     thNotify.send(
                         ThModelErrors.format(e, "Unable to cancel job"),
