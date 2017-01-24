@@ -351,6 +351,11 @@ def test_filter_data_by_range(webapp, test_repository, test_perf_signature,
 def test_job_ids_validity(webapp, test_repository):
     resp = webapp.get(reverse('performance-data-list',
                               kwargs={"project": test_repository.name}) +
+                      '?job_id=1')
+    assert resp.status_code == 200
+
+    resp = webapp.get(reverse('performance-data-list',
+                              kwargs={"project": test_repository.name}) +
                       '?job_id=foo',
                       expect_errors=True)
     assert resp.status_code == 400

@@ -164,16 +164,17 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
 
         signature_hashes = request.query_params.getlist("signatures")
         push_ids = request.query_params.getlist("push_id")
-        job_ids = request.query_params.getlist("job_id")
+        try:
+            job_ids = [int(job_id) for job_id in
+                       request.query_params.getlist("job_id")]
+        except ValueError:
+            return Response({"message": "Job id(s) must be specified as integers"},
+                            status=HTTP_400_BAD_REQUEST)
 
         if not (signature_hashes or push_ids or job_ids):
             raise exceptions.ValidationError('Need to specify either '
                                              'signatures, push_id, or '
                                              'job_id')
-
-        if not all([type(id) == int for id in job_ids]):
-            return Response({"message": "Job id(s) must be specified as integers"},
-                            status=HTTP_400_BAD_REQUEST)
 
         datums = PerformanceDatum.objects.filter(
             repository=repository).select_related(
