@@ -165,17 +165,6 @@ treeherderApp.controller('MainCtrl', [
 
         $scope.repoModel = ThRepositoryModel;
 
-        $scope.getTopNavBarHeight = function() {
-            return $("#th-global-top-nav-panel").find("#top-nav-main-panel").height();
-        };
-
-        // adjust the body padding so we can see all the job/resultset data
-        // if the top navbar height has changed due to window width changes
-        // or adding enough watched repos to wrap.
-        $rootScope.$watch($scope.getTopNavBarHeight, function(newValue) {
-            $("body").css("padding-top", newValue);
-        });
-
         /**
          * The watched repos in the nav bar can be either on the left or the
          * right side of the screen and the drop-down menu may get cut off
