@@ -6,13 +6,12 @@ from mock import patch
 from treeherder.config.settings import SETA_LOW_VALUE_PRIORITY
 from treeherder.seta.job_priorities import seta_job_scheduling
 from treeherder.seta.models import TaskRequest
-from treeherder.seta.runnable_jobs import RunnableJobsClient
 
 
 @pytest.mark.django_db()
 @patch('treeherder.seta.job_priorities._validate_request', return_value=None)  # Prevent checking the repository name
-@patch.object(RunnableJobsClient, 'query_runnable_jobs')
-def test_gecko_decision_task(query_runnable_jobs, validate_request,
+@patch('treeherder.etl.seta.list_runnable_jobs')
+def test_gecko_decision_task(runnable_jobs_list, validate_request,
                              test_repository, runnable_jobs_data, all_job_priorities_stored):
     '''
     When the Gecko decision task calls SETA it will do so with the parameter increase_counter.
@@ -23,7 +22,7 @@ def test_gecko_decision_task(query_runnable_jobs, validate_request,
     However, once the Gecko decision task has called the API API SETA_LOW_VALUE_PRIORITY times we will return no jobs.
     This is interpreted by the Gecko decision task that it should run everything.
     '''
-    query_runnable_jobs.return_value = runnable_jobs_data
+    runnable_jobs_list.return_value = runnable_jobs_data
     for i in range(1, SETA_LOW_VALUE_PRIORITY):
         jobs = seta_job_scheduling(project=test_repository.name,
                                    build_system_type='taskcluster',
