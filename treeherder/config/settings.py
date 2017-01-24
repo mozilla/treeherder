@@ -63,9 +63,7 @@ PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)
 
 # SETA configuration
 SETA_HIGH_VALUE_PRIORITY = 1
-SETA_HIGH_VALUE_TIMEOUT = 0
 SETA_LOW_VALUE_PRIORITY = 5
-SETA_LOW_VALUE_TIMEOUT = 5400
 
 
 # Create hashed+gzipped versions of assets during collectstatic,
