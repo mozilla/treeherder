@@ -13,7 +13,7 @@ treeherder.component("login", {
         <span class="dropdown"
               ng-if="$ctrl.user.loggedin">
           <button id="logoutLabel" title="Logged in as: {{$ctrl.user.email}}" role="button"
-                  data-toggle="dropdown" data-target="#"
+                  data-toggle="dropdown"
                   class="btn btn-view-nav btn-right-navbar">
             <div class="nav-user-icon">
               <span class="fa fa-user pull-left"></span>
