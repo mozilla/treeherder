@@ -689,6 +689,9 @@ class Job(models.Model):
             ('repository', 'option_collection_hash', 'job_type', 'start_time'),
             ('repository', 'build_platform', 'option_collection_hash',
              'job_type', 'start_time'),
+            # this is intended to speed up queries for specific platform /
+            # option collections on a push
+            ('machine_platform', 'option_collection_hash', 'push'),
         ]
 
     def __str__(self):
