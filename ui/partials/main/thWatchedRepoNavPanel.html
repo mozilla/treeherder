@@ -1,10 +1,14 @@
 <div id="watched-repo-navbar" class="th-context-navbar watched-repo-navbar clearfix">
-  <th-watched-repo ng-repeat="(name, repoData) in repoModel.watchedRepos"></th-watched-repo>
+
+  <div style="display: flex; flex-direction: row-reverse; float: left;">
+    <th-watched-repo ng-repeat="(name, repoData) in repoModel.watchedRepos"></th-watched-repo>
+  </div>
+
   <div class="navbar-right">
     <span>
       <form role="search" class="form-inline">
 
-        <span class="btn btn-sm btn-view-nav nav-menu-btn" 
+        <span class="btn btn-sm btn-view-nav nav-menu-btn"
               ng-show="serverChanged" ng-cloak
               ng-click="updateButtonClick()"
               id="revisionChangedLabel"
@@ -71,7 +75,7 @@
 
         <!-- Toggle Duplicate Jobs -->
         <span class="btn btn-view-nav btn-sm btn-toggle-duplicate-jobs"
-              tabindex="1" role="button" 
+              tabindex="1" role="button"
               title="{{ showDuplicateJobs ? 'Hide Duplicate Jobs' : 'Show Duplicate Jobs' }}"
               ng-click="groupState !== 'expanded' && toggleShowDuplicateJobs()"
               ng-disabled="groupState === 'expanded'"

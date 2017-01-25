@@ -154,12 +154,15 @@ treeherder.factory('ThRepositoryModel', [
                         }
                         if (options.watchRepos) {
                             if (_.isArray(storedWatched)) {
-                                // If the desired repo isn't in the list, add it first
-                                // This ensures the default repo is always in the list,
-                                // even if it is removed from another screen
-                                if (!_.contains(storedWatched, options.name)) {
-                                    storedWatched.splice(0, 0, options.name);
+
+                                // To get the current repo to display first, we must
+                                // ensure it's added to the object last
+                                if (_.contains(storedWatched, options.name)) {
+                                    storedWatched = _.without(storedWatched, _.findWhere(storedWatched, options.name));
                                 }
+                                unwatchRepo(options.name);
+                                storedWatched.push(options.name);
+
                                 _.each(storedWatched, function (repo) {
                                     watchRepo(repo);
                                 });
