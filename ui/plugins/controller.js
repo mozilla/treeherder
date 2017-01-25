@@ -21,7 +21,7 @@ treeherder.controller('PluginCtrl', [
 
         $scope.job = {};
 
-        var reftestUrlRoot = "https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=";
+        var reftestUrlRoot = "reftest-analyzer.xhtml#logurl=";
 
         var getJobSearchStrHref = function(jobSearchStr){
             var absUrl = $location.absUrl();
