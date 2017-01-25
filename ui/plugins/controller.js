@@ -419,10 +419,15 @@ treeherder.controller('PluginCtrl', [
                                     }
                                     $http.get(url).then(function(resp) {
                                         let action = resp.data;
+                                        let action_args = $interpolate('--project "{{project}}" --job "{{job}}" --treeherder-url "{{th}}"')({
+                                            project: $scope.repoName,
+                                            job: $scope.job.id,
+                                            th: (thServiceDomain || 'https://treeherder.mozilla.org') + '/api'
+                                        });
                                         let template = $interpolate(action);
                                         action = template({
                                             action: 'backfill',
-                                            action_args: '--project ' + $scope.repoName + ' --job ' + $scope.job.id,
+                                            action_args: action_args
                                         });
                                         let task = refreshTimestamps(jsyaml.safeLoad(action));
                                         let taskId = thTaskcluster.slugid();
