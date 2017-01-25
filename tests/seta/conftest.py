@@ -2,14 +2,11 @@ import pytest
 from django.utils import timezone
 
 from treeherder.config.settings import (SETA_HIGH_VALUE_PRIORITY,
-                                        SETA_HIGH_VALUE_TIMEOUT,
-                                        SETA_LOW_VALUE_PRIORITY,
-                                        SETA_LOW_VALUE_TIMEOUT)
+                                        SETA_LOW_VALUE_PRIORITY)
 from treeherder.model.models import (Job,
                                      JobNote)
 from treeherder.seta.common import job_priority_index
-from treeherder.seta.models import (JobPriority,
-                                    TaskRequest)
+from treeherder.seta.models import JobPriority
 from treeherder.seta.update_job_priority import _sanitize_data
 
 
@@ -72,18 +69,6 @@ def tc_latest_gecko_decision_index(test_repository):
 
 
 @pytest.fixture
-def task_request_stored(test_repository):
-    # test_repository reprents the repository test_treeherder_jobs
-    tr = TaskRequest.objects.create(
-        repository=test_repository,
-        counter=1,
-        last_reset=timezone.now(),
-        reset_delta=SETA_LOW_VALUE_TIMEOUT,
-    )
-    return tr
-
-
-@pytest.fixture
 def sanitized_data(runnable_jobs_data):
     return _sanitize_data(runnable_jobs_data)
 
@@ -111,16 +96,13 @@ def job_priority_list(sanitized_data):
             platform=datum['platform'],
             buildsystem=datum['build_system_type'],
             priority=SETA_HIGH_VALUE_PRIORITY,
-            timeout=SETA_HIGH_VALUE_TIMEOUT,
         ))
         # Mark the reftest-e10s-2 TC job as low priority (unique to TC)
         if datum['testtype'] == 'reftest-e10s-2':
             jp_list[-1].priority = SETA_LOW_VALUE_PRIORITY
-            jp_list[-1].timeout = SETA_LOW_VALUE_TIMEOUT
         # Mark the web-platform-tests-1 BB job as low priority (unique to BB)
         if datum['testtype'] == 'web-platform-tests-1':
             jp_list[-1].priority = SETA_LOW_VALUE_PRIORITY
-            jp_list[-1].timeout = SETA_LOW_VALUE_TIMEOUT
 
     return jp_list
 

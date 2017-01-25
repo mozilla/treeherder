@@ -11,31 +11,6 @@ from treeherder.seta.common import unique_key
 logger = logging.getLogger(__name__)
 
 
-@python_2_unicode_compatible
-class TaskRequest(models.Model):
-    ''' Track TaskCluster requests for SETA information.
-
-    The Gecko decision task executes on every push and it queries SETA for information.
-    This information is used the graph generation code to determine which jobs
-    to exclude on that run or not.
-    '''
-    repository = models.ForeignKey(Repository)
-    counter = models.IntegerField()  # Number of times TC has reached the API
-    last_reset = models.DateTimeField()  # Last time we expired
-    reset_delta = models.IntegerField()  # Number of seconds
-
-    def has_expired(self):
-        now = timezone.now()
-        return (now - self.last_reset).total_seconds() >= self.reset_delta
-
-    def seconds_since_last_reset(self):
-        now = timezone.now()
-        return int((now - self.last_reset).total_seconds())
-
-    def __str__(self):
-        return ','.join((self.repository.name, self.counter, self.last_reset))
-
-
 class JobPriorityManager(models.Manager):
     def clear_expiration_field_for_expired_jobs(self):
         '''Set the expiration date of every job that has expired.'''
@@ -45,7 +20,7 @@ class JobPriorityManager(models.Manager):
                 job.expiration_date = None
                 job.save()
 
-    def adjust_jobs_priority(self, high_value_jobs, priority=1, timeout=0):
+    def adjust_jobs_priority(self, high_value_jobs, priority=1):
         """For every job priority determine if we need to increase or decrease the job priority
 
         Currently, high value jobs have a priority of 1 and a timeout of 0.
@@ -61,8 +36,7 @@ class JobPriorityManager(models.Manager):
             elif jp.priority != priority:
                 logger.info('Increasing priority of {}'.format(jp.unique_identifier()))
                 jp.priority = priority
-                jp.timeout = timeout
-                jp.save(update_fields=['priority', 'timeout'])
+                jp.save(update_fields=['priority'])
 
 
 @python_2_unicode_compatible
@@ -76,7 +50,6 @@ class JobPriority(models.Model):
     buildtype = models.CharField(max_length=64)  # e.g. {opt,pgo,debug}
     platform = models.CharField(max_length=64)  # e.g. windows8-64
     priority = models.IntegerField()  # 1 or 5
-    timeout = models.IntegerField()  # e.g. 5400
     expiration_date = models.DateTimeField(null=True)
 
     # Q: Do we need indexing?
@@ -84,7 +57,10 @@ class JobPriority(models.Model):
 
     def has_expired(self):
         now = timezone.now()
-        return self.expiration_date < now
+        if self.expiration_date:
+            return self.expiration_date < now
+        else:
+            return True
 
     def unique_identifier(self):
         return unique_key(testtype=self.testtype,
