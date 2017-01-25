@@ -14,8 +14,8 @@ treeherder.directive('thFilterCheckbox', [
     }]);
 
 treeherder.directive('thWatchedRepo', [
-    'ThLog',
-    function (ThLog) {
+    'ThLog', 'ThRepositoryModel',
+    function (ThLog, ThRepositoryModel) {
 
         var $log = new ThLog("thWatchedRepo");
 
@@ -56,6 +56,8 @@ treeherder.directive('thWatchedRepo', [
         return {
             restrict: "E",
             link: function(scope) {
+
+                scope.repoData = ThRepositoryModel.repos[scope.watchedRepo];
 
                 scope.updateTitleText = function() {
                     if (scope.repoData.treeStatus) {
