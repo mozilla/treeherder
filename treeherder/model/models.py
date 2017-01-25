@@ -651,11 +651,8 @@ class Job(models.Model):
 
     id = models.BigAutoField(primary_key=True)
     repository = models.ForeignKey(Repository)
-    guid = models.CharField(max_length=50, unique=True, db_index=True)
-    # indexing this column to make eventual migration of performance artifacts
-    # faster (since we'll need to cross-reference those row-by-row), see
-    # https://bugzilla.mozilla.org/show_bug.cgi?id=1265503
-    project_specific_id = models.PositiveIntegerField(db_index=True, null=True)
+    guid = models.CharField(max_length=50, unique=True)
+    project_specific_id = models.PositiveIntegerField(null=True)
 
     coalesced_to_guid = models.CharField(max_length=50, null=True,
                                          default=None)
