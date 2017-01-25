@@ -141,13 +141,25 @@ treeherder.factory('ThRepositoryModel', [
                         });
 
                         _.each(data, addRepoAsUnwatched);
+
+                        // This needs to be done before `setCurrent` because
+                        // `setCurrent` overwrites the entire listing
+                        // with only the default repo
+                        if (options.watchRepos) {
+                            var storedWatched = loadWatchedRepos();
+                        }
+
                         if (options.name) {
                             setCurrent(options.name);
                         }
                         if (options.watchRepos) {
-                            var storedWatched = loadWatchedRepos();
-                            if (_.isArray(storedWatched) &&
-                                _.contains(storedWatched, options.name)) {
+                            if (_.isArray(storedWatched)) {
+                                // If the desired repo isn't in the list, add it first
+                                // This ensures the default repo is always in the list,
+                                // even if it is removed from another screen
+                                if (!_.contains(storedWatched, options.name)) {
+                                    storedWatched.splice(0, 0, options.name);
+                                }
                                 _.each(storedWatched, function (repo) {
                                     watchRepo(repo);
                                 });
@@ -204,18 +216,18 @@ treeherder.factory('ThRepositoryModel', [
 
         var loadWatchedRepos = function() {
             try {
-                return JSON.parse(sessionStorage.getItem("thWatchedRepos"));
+                return JSON.parse(localStorage.getItem("thWatchedRepos"));
             } catch (e) {
-                // sessionStorage is disabled/not supported.
+                // localStorage is disabled/not supported.
                 return {};
             }
         };
 
         var saveWatchedRepos = function() {
             try {
-                sessionStorage.setItem("thWatchedRepos", JSON.stringify(_.keys(watchedRepos)));
+                localStorage.setItem("thWatchedRepos", JSON.stringify(_.keys(watchedRepos)));
             } catch (e) {
-                // sessionStorage is disabled/not supported.
+                // localStorage is disabled/not supported.
             }
         };
 
