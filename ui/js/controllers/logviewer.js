@@ -223,11 +223,11 @@ logViewerApp.controller('LogviewerCtrl', [
         function logCss() {
             const hideToolbar = '#toolbar{display:none}';
             const body = 'html,body{background:#f8f8f8;color:#333;font-size:12px}';
-            const highlight = '#log p.highlight a,#log p.highlight span{background:#f8eec7!important}';
-            const hover = '#log p:hover{background:transparent}#log p a:hover,#log p.highlight a:hover{background:#f8eec7;color:#000}';
-            const stripe = '.lazy-list p:nth-child(2n){background:#fff!important}.lazy-list p:nth-child(2n+1){background:#f8f8f8!important}';
-            const linePadding = '#log p{padding:0 15px 0 35px}';
-            const lineNumber = '#log p a,#log p.highlight a{color:rgba(0,0,0,.3)}';
+            const highlight = '#log .highlight a,#log .highlight span{background:#f8eec7!important}';
+            const hover = '#log .line:hover{background:transparent}#log .line a:hover,#log .highlight a:hover{background:#f8eec7;color:#000}';
+            const stripe = '.lazy-list .line:nth-child(2n){background:#fff!important}.lazy-list .line:nth-child(2n+1){background:#f8f8f8!important}';
+            const linePadding = '#log .line{padding:0 15px 0 35px}';
+            const lineNumber = '#log .line a,#log .highlight a{color:rgba(0,0,0,.3)}';
             const font = '#log{font-family:monospace}';
 
             return hideToolbar + body + highlight + hover + stripe + lineNumber + linePadding + font;
