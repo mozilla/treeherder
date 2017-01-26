@@ -156,7 +156,7 @@ def result_set_stored(test_repository, sample_resultset):
 @pytest.fixture
 def mock_message_broker(monkeypatch):
     from django.conf import settings
-    monkeypatch.setattr(settings, 'BROKER_URL', 'memory://')
+    monkeypatch.setattr(settings, 'CELERY_BROKER_URL', 'memory://')
 
 
 @pytest.fixture

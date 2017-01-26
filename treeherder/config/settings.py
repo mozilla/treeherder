@@ -223,7 +223,7 @@ if DEBUG:
         }
     }
 
-CELERY_QUEUES = [
+CELERY_TASK_QUEUES = [
     Queue('default', Exchange('default'), routing_key='default'),
     # queue for failed jobs/logs
     Queue('log_parser', Exchange('default'), routing_key='log_parser.normal'),
@@ -259,11 +259,11 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
 # default value when no task routing info is specified
-CELERY_DEFAULT_QUEUE = 'default'
-CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
-CELERY_DEFAULT_ROUTING_KEY = 'default'
+CELERY_TASK_DEFAULT_QUEUE = 'default'
+CELERY_TASK_DEFAULT_EXCHANGE_TYPE = 'direct'
+CELERY_TASK_DEFAULT_ROUTING_KEY = 'default'
 
-CELERYBEAT_SCHEDULE = {
+CELERY_BEAT_SCHEDULE = {
     'fetch-push-logs-every-minute': {
         'task': 'fetch-push-logs',
         'schedule': timedelta(minutes=1),
@@ -578,13 +578,13 @@ CACHES = {
 KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX
 
 # Celery broker setup
-BROKER_URL = env('BROKER_URL')
+CELERY_BROKER_URL = env('BROKER_URL')
 
 # Force Celery to use TLS when appropriate (ie if not localhost),
-# rather than relying on `BROKER_URL` having `amqps://` or `?ssl=` set.
+# rather than relying on the broker URL string using `amqps://` or `?ssl=`.
 # This is required since CloudAMQP's automatically defined URL uses neither.
-if server_supports_tls(BROKER_URL):
-    BROKER_USE_SSL = True
+if server_supports_tls(CELERY_BROKER_URL):
+    CELERY_BROKER_USE_SSL = True
 
 # This code handles the memcachier service on heroku.
 # TODO: Stop special-casing Heroku and use newer best practices from:
@@ -602,7 +602,7 @@ if env.bool('IS_HEROKU', default=False):
         },
     })
 
-CELERY_IGNORE_RESULT = True
+CELERY_TASK_IGNORE_RESULT = True
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {},

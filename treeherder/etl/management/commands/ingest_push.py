@@ -63,7 +63,7 @@ class Command(BaseCommand):
             fetch_push_id = None
 
         # make sure all tasks are run synchronously / immediately
-        settings.CELERY_ALWAYS_EAGER = True
+        settings.CELERY_TASK_ALWAYS_EAGER = True
 
         # get hg pushlog
         pushlog_url = '%s/json-pushes/?full=1&version=2' % repo.url
