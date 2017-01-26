@@ -86,6 +86,10 @@
       <li class="{{ !user.loggedin ? 'disabled' : '' }}"
           title="{{ !user.loggedin ? 'Not logged in' : 'Repeat the pinned jobs'}}">
         <a ng-click="!user.loggedin || retriggerAllPinnedJobs()">Retrigger all</a></li>
+        <li class="{{ canCancelAllPinnedJobs() ? '' : 'disabled' }}"
+            title="{{ cancelAllPinnedJobsTitle() }}">
+          <a ng-click="canCancelAllPinnedJobs() && cancelAllPinnedJobs()">Cancel all</a>
+        </li>
       <li><a ng-click="unPinAll()">Clear all</a></li>
     </ul>
   </div>

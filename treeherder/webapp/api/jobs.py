@@ -387,28 +387,34 @@ class JobsViewSet(viewsets.ViewSet):
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
         return Response({"message": "state updated to '{0}'".format(state)})
 
-    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
-    def cancel(self, request, project, pk=None):
-        """
-        Cancels a job
-        """
+    @list_route(methods=['post'], permission_classes=[IsAuthenticated])
+    def cancel(self, request, project):
         try:
-            job = Job.objects.get(repository__name=project,
-                                  id=pk)
-        except ObjectDoesNotExist:
-            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+            job_ids = [int(job_id) for job_id in request.data["job_id_list"]]
+        except ValueError:
+            return Response(
+                {"message": "Job id(s) must be specified as integers"},
+                status=HTTP_400_BAD_REQUEST)
 
-        self._job_action_event(job, 'cancel', request.user.email)
+        for job_id in job_ids:
+            try:
+                job = Job.objects.get(repository__name=project,
+                                      id=job_id)
+            except ObjectDoesNotExist:
+                return Response("No job with id: {0}".format(job_id),
+                                status=HTTP_404_NOT_FOUND)
 
-        # Mark pending jobs as cancelled to work around buildbot not including
-        # cancelled jobs in builds-4hr if they never started running.
-        # TODO: Remove when we stop using buildbot.
-        if job.state == 'pending':
-            job.state = 'completed'
-            job.result = 'usercancel'
-            job.save()
+            self._job_action_event(job, 'cancel', request.user.email)
 
-        return Response({"message": "canceled job '{0}'".format(job.guid)})
+            # Mark pending jobs as cancelled to work around buildbot not including
+            # cancelled jobs in builds-4hr if they never started running.
+            # TODO: Remove when we stop using buildbot.
+            if job.state == 'pending':
+                job.state = 'completed'
+                job.result = 'usercancel'
+                job.save()
+
+        return Response({"message": "canceled jobs '{0}'".format(job_ids)})
 
     @list_route(methods=['post'], permission_classes=[IsAuthenticated])
     def retrigger(self, request, project):

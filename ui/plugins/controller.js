@@ -208,7 +208,6 @@ treeherder.controller('PluginCtrl', [
                             value: $scope.job.ref_data_name
                         });
                         $scope.buildernameIndex = _.findIndex($scope.job_details, {title: "Buildername"});
-                        $scope.job.buildbot_request_id = parseInt(buildbotRequestIdDetail.value);
                     }
 
                     // the third result comes from the jobLogUrl promise
@@ -493,25 +492,36 @@ treeherder.controller('PluginCtrl', [
             return title;
         };
 
+        $scope.cancelJobs = function(jobs) {
+            var jobIdsToCancel = jobs.filter(job => (job.state === "pending" ||
+                                                     job.state === "running")).map(
+                                                         job => job.id);
+            // get buildbot ids of any buildbot jobs we want to cancel
+            // first
+            ThJobDetailModel.getJobDetails({
+                job_id__in: jobIdsToCancel,
+                title: 'buildbot_request_id'
+            }).then(function(buildbotRequestIdDetails) {
+                return ThJobModel.cancel($scope.repoName, jobIdsToCancel).then(
+                    function() {
+                        buildbotRequestIdDetails.forEach(
+                            function(buildbotRequestIdDetail) {
+                                var requestId = parseInt(buildbotRequestIdDetail.value);
+                                thBuildApi.cancelJob($scope.repoName, requestId);
+                            });
+                    });
+            }).then(function() {
+                thNotify.send("Cancel request sent", "success");
+            }).catch(function(e) {
+                thNotify.send(
+                    ThModelErrors.format(e, "Unable to cancel job"),
+                    "danger", true
+                );
+            });
+        };
+
         $scope.cancelJob = function() {
-            if ($scope.user.loggedin) {
-                // See note in retrigger logic.
-                ThJobModel.cancel($scope.repoName, $scope.job.id).then(function() {
-                    // XXX: Remove this after 1134929 is resolved.
-                    var requestId = $scope.job.buildbot_request_id;
-                    if (requestId) {
-                        thBuildApi.cancelJob($scope.repoName, requestId);
-                    }
-                    thNotify.send("Cancel request sent", "success");
-                }).catch(function(e) {
-                    thNotify.send(
-                        ThModelErrors.format(e, "Unable to cancel job"),
-                        "danger", true
-                    );
-                });
-            } else {
-                thNotify.send("Must be logged in to cancel a job", 'danger');
-            }
+            $scope.cancelJobs([$scope.job]);
         };
 
         // Test to expose the reftest button in the job details navbar

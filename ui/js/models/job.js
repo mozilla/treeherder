@@ -135,12 +135,12 @@ treeherder.factory('ThJobModel', [
                               {timeout:timeout});
         };
 
-        ThJobModel.cancel = function(repoName, pk, config) {
+        ThJobModel.cancel = function(repoName, jobIds, config) {
             config = config || {};
             var timeout = config.timeout || null;
 
-            return $http.post(ThJobModel.get_uri(repoName)+pk+"/cancel/",
-                              {timeout:timeout})
+            return $http.post(ThJobModel.get_uri(repoName) + "cancel/",
+                              {job_id_list: jobIds, timeout:timeout})
                 .then(function(response) {
                     return new ThJobModel(response.data);
                 });
