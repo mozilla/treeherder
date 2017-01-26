@@ -288,11 +288,8 @@ def test_job_cancel_authorized(webapp, test_repository, eleven_jobs_stored,
     job.save()
 
     url = reverse("jobs-cancel",
-                  kwargs={
-                      "project": test_repository.name,
-                      "pk": job.id
-                  })
-    client.post(url)
+                  kwargs={"project": test_repository.name})
+    client.post(url, {"job_id_list": [job.id]}, format='json')
 
     message = pulse_action_consumer.get(block=True, timeout=2)
     content = message.payload
@@ -302,10 +299,11 @@ def test_job_cancel_authorized(webapp, test_repository, eleven_jobs_stored,
     assert content['job_guid'] == job.guid
     assert content['requester'] == test_user.email
 
-    # validate that we modified the job structures appropriately
+    # validate that we modified the job structure appropriately
     old_last_modified = job.last_modified
-    assert old_last_modified < Job.objects.values_list(
-        'last_modified', flat=True).get(id=job.id)
+    job.refresh_from_db()
+    assert old_last_modified < job.last_modified
+    assert job.result == 'usercancel'
 
 
 def test_job_detail_bad_project(webapp, transactional_db):

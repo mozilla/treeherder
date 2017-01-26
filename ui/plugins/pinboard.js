@@ -134,6 +134,26 @@ treeherder.controller('PinboardCtrl', [
             $scope.retriggerJob(_.values($scope.pinnedJobs));
         };
 
+        $scope.cancelAllPinnedJobsTitle = function() {
+            if (!$scope.user.loggedin) {
+                return "Not logged in";
+            } else if ($scope.canCancelAllPinnedJobs()) {
+                return "No pending / running jobs in pinboard";
+            }
+
+            return "Cancel all the pinned jobs";
+        };
+
+        $scope.canCancelAllPinnedJobs = function() {
+            var cancellableJobs = _.values($scope.pinnedJobs).filter(
+                job => (job.state === 'pending' || job.state === 'running'));
+            return $scope.user.loggedin && cancellableJobs.length > 0;
+        };
+
+        $scope.cancelAllPinnedJobs = function() {
+            $scope.cancelJobs(_.values($scope.pinnedJobs));
+        };
+
         $scope.canSaveClassifications = function() {
             var thisClass = $scope.classification;
             return $scope.hasPinnedJobs() && (thPinboard.hasRelatedBugs() && $scope.user.loggedin ||
