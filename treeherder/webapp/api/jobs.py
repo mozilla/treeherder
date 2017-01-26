@@ -656,11 +656,5 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
         if set(self.required_filters).isdisjoint(set(query_param_keys)):
             raise ParseError("Must filter on one of: {}".format(
                 ", ".join(self.required_filters)))
-        # passing a job id without repository doesn't currently make sense
-        # (it will once we only have one jobs table and job ids are unique)
-        if set(['job_id', 'job_id__in']).intersection(query_param_keys) and \
-           'repository' not in query_param_keys:
-            raise ParseError("Must also filter on repository if filtering "
-                             "on job id")
 
         return viewsets.ReadOnlyModelViewSet.list(self, request)

@@ -54,11 +54,6 @@ def test_job_details(test_repository, failure_classifications,
     resp = webapp.get(reverse('jobdetail-list'), expect_errors=True)
     assert resp.status_int == 400
 
-    # likewise so should trying to filter by job id but not repository
-    resp = webapp.get(reverse('jobdetail-list') + '?job_id=1',
-                      expect_errors=True)
-    assert resp.status_int == 400
-
     # filter to just get one guid at a time
     for guid_identifier in ['job_guid', 'job__guid']:
         for (guid, detail) in details.iteritems():
@@ -71,10 +66,9 @@ def test_job_details(test_repository, failure_classifications,
             del result['job_id']
             assert result == details[guid]
 
-    # filter to get first with job_id and repository
+    # filter to get first with (just) job_id
     resp = webapp.get(reverse('jobdetail-list') +
-                      '?repository={}&job_id=1'.format(
-                          test_repository.name))
+                      '?job_id=1')
     assert resp.status_int == 200
     assert len(resp.json['results']) == 1
     assert set([v['job_guid'] for v in resp.json['results']]) == set(
@@ -97,6 +91,14 @@ def test_job_details(test_repository, failure_classifications,
     assert len(resp.json['results']) == 1
     assert set([v['job_guid'] for v in resp.json['results']]) == set(
         ['ijkl'])
+
+    # make sure that filtering by repository with a job id in
+    # a different repository returns no results
+    resp = webapp.get(reverse('jobdetail-list') +
+                      '?repository={}&job_id__in=3'.format(
+                          test_repository.name))
+    assert resp.status_int == 200
+    assert len(resp.json['results']) == 0
 
     # add an extra one, but filter to just get those with a specific title.
     # we should only have one
