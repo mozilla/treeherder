@@ -170,12 +170,6 @@ class JobLoader:
         if "jobInfo" in job:
             ji = job["jobInfo"]
             job_details = []
-            if "summary" in ji:
-                job_details.append({
-                    "content_type": "raw_html",
-                    "value": ji["summary"],
-                    "title": "Summary"
-                })
             if "links" in ji:
                 for link in ji["links"]:
                     job_details.append({
