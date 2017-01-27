@@ -262,7 +262,7 @@ treeherder.controller('PluginCtrl', [
                                           $scope.job['result_set_id'], $scope.job['id'] ] +
                                         ']',
                                     value: performanceData[series.signature][0].value,
-                                    title: series.suite
+                                    title: series.name
                                 };
                                 if (series.test && series.test.toLowerCase() !== series.suite) {
                                     detail['title'] += '_' + series.test.toLowerCase();
