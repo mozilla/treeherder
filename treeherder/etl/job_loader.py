@@ -107,7 +107,7 @@ class JobLoader:
         We can rely on the structure of ``pulse_job`` because it will
         already have been validated against the JSON Schema at this point.
         """
-        job_guid = pulse_job["taskId"]
+        job_guid = '{}/{}'.format(pulse_job["taskId"], pulse_job["retryId"])
         x = {
             "job": {
                 "job_guid": job_guid,
