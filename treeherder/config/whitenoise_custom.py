@@ -8,12 +8,12 @@ class CustomWhiteNoise(WhiteNoiseMiddleware):
     Adds two additional features to WhiteNoise:
 
     1) Serving index pages for directory paths (such as the site root).
-    2) Setting long max-age headers for files created by grunt-cache-busting.
+    2) Setting long max-age headers for files created by grunt-cache-bust.
     """
 
-    # Matches grunt-cache-busting's style of hash filenames. eg:
-    #   index.min-feae259e2c205af67b0e91306f9363fa.js
-    IMMUTABLE_FILE_RE = re.compile(r'\.min-[a-f0-9]{32}\.(js|css)$')
+    # Matches grunt-cache-bust's style of hash filenames. eg:
+    #   index.min-e10ba468ffc8816a.js
+    IMMUTABLE_FILE_RE = re.compile(r'\.min-[a-f0-9]{16,}\.(js|css)$')
     INDEX_NAME = 'index.html'
 
     def update_files_dictionary(self, *args):
