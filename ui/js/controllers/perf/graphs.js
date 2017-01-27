@@ -90,19 +90,22 @@ perf.controller('GraphsCtrl', [
 
                 // we need the flot data for calculating values/deltas and to know where
                 // on the graph to position the tooltip
-                var index = phSeries.flotSeries.resultSetData.indexOf(
-                    dataPoint.resultSetId);
+                var flotIndex = phSeries.flotSeries.jobIdData.indexOf(
+                    dataPoint.jobId);
                 var flotData = {
                     series: _.find($scope.plot.getData(), function(fs) {
                         return fs.thSeries.projectName === dataPoint.projectName &&
                             fs.thSeries.signature === dataPoint.signature;
                     }),
-                    pointIndex: index
+                    pointIndex: flotIndex
                 };
-                var prevResultSetId = null;
-                if (index > 0) {
-                    prevResultSetId = phSeries.flotSeries.resultSetData[index- 1];
-                }
+                // check if there are any points belonging to earlier pushes in this
+                // graph -- if so, get the previous push so we can link to a pushlog
+                var firstResultSetIndex = phSeries.flotSeries.resultSetData.indexOf(
+                    dataPoint.resultSetId);
+                var prevResultSetId = (firstResultSetIndex > 0) ?
+                    phSeries.flotSeries.resultSetData[firstResultSetIndex- 1] : null;
+
                 var retriggerNum = _.countBy(phSeries.flotSeries.resultSetData,
                                              function(resultSetId) {
                                                  return resultSetId === dataPoint.resultSetId ? 'retrigger':'original';
@@ -132,7 +135,7 @@ perf.controller('GraphsCtrl', [
                     revisionUrl: thServiceDomain + '#/jobs?repo=' + phSeries.projectName,
                     prevResultSetId: prevResultSetId,
                     resultSetId: dataPoint.resultSetId,
-                    jobId: phSeries.flotSeries.jobIdData[index],
+                    jobId: dataPoint.jobId,
                     series: phSeries,
                     value: Math.round(v*1000)/1000,
                     deltaValue: dv.toFixed(1),
@@ -476,7 +479,6 @@ perf.controller('GraphsCtrl', [
                         if (item.seriesIndex !== $scope.prevSeriesIndex ||
                             item.dataIndex !== $scope.prevDataIndex) {
                             var seriesDataPoint = getSeriesDataPoint(item);
-
                             showTooltip(seriesDataPoint);
                             $scope.prevSeriesIndex = item.seriesIndex;
                             $scope.prevDataIndex = item.dataIndex;
