@@ -48,12 +48,13 @@ as of November 2016 (obviously you should replace `myuser` and
     GRANT SELECT ON treeherder.performance_datum to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.performance_framework to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.performance_signature to 'myuser' REQUIRE SSL;
-    GRANT SELECT ON treeherder.push to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.product to 'myuser' REQUIRE SSL;
+    GRANT SELECT ON treeherder.push to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.reference_data_signatures to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.repository to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.repository_group to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.runnable_job to 'myuser' REQUIRE SSL;
+    GRANT SELECT ON treeherder.seta_jobpriority to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.text_log_error to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.text_log_step to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.text_log_summary to 'myuser' REQUIRE SSL;
@@ -65,7 +66,7 @@ statements using the following SQL:
 
 .. code-block:: sql
 
-    SELECT CONCAT('GRANT SELECT ON ', table_schema, '.', table_name, ' to ''user'' REQUIRE SSL;') AS grant_stmt
+    SELECT CONCAT('GRANT SELECT ON ', table_schema, '.', table_name, ' to ''myuser'' REQUIRE SSL;') AS grant_stmt
     FROM information_schema.TABLES
     WHERE table_schema = 'treeherder'
-    AND table_name NOT REGEXP 'django_|auth_|credentials|corsheaders_|task_set_meta';
+    AND table_name NOT REGEXP 'django_|auth_|credentials|corsheaders_';
