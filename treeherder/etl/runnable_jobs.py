@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 
+from treeherder.config.settings import TASKCLUSTER_INDEX_URL
 from treeherder.etl.buildbot import get_symbols_and_platforms
 from treeherder.etl.common import fetch_json
 from treeherder.model.models import (BuildPlatform,
@@ -117,49 +118,49 @@ class RunnableJobsProcess(AllthethingsTransformerMixin):
         self.update_runnable_jobs_table(jobs_per_branch)
 
 
-def _taskcluster_runnable_jobs(decision_task_id):
+def _taskcluster_runnable_jobs(project, decision_task_id):
+    ret = []
+    tc_graph = {}
     if not decision_task_id:
+        decision_task_id = _query_latest_gecko_decision_task_id(project)
+
+    tc_graph_url = settings.TASKCLUSTER_TASKGRAPH_URL.format(task_id=decision_task_id)
+    validate = URLValidator()
+    try:
+        validate(tc_graph_url)
+        tc_graph = fetch_json(tc_graph_url)
+    except ValidationError:
+        logger.warning('Failed to validate {}'.format(tc_graph_url))
         return []
-    else:
-        ret = []
-        tc_graph = {}
-        tc_graph_url = settings.TASKCLUSTER_TASKGRAPH_URL.format(task_id=decision_task_id)
-        validate = URLValidator()
-        try:
-            validate(tc_graph_url)
-            tc_graph = fetch_json(tc_graph_url)
-        except ValidationError:
-            logger.warning('Failed to validate {}'.format(tc_graph_url))
-            return []
 
-        for label, node in tc_graph.iteritems():
-            if not ('extra' in node['task'] and 'treeherder' in node['task']['extra']):
-                # some tasks don't have the treeherder information we need
-                # to be able to display them (and are not intended to be
-                # displayed). skip.
-                continue
+    for label, node in tc_graph.iteritems():
+        if not ('extra' in node['task'] and 'treeherder' in node['task']['extra']):
+            # some tasks don't have the treeherder information we need
+            # to be able to display them (and are not intended to be
+            # displayed). skip.
+            continue
 
-            treeherder_options = node['task']['extra']['treeherder']
-            task_metadata = node['task']['metadata']
-            platform_option = ' '.join(treeherder_options.get('collection', {}).keys())
+        treeherder_options = node['task']['extra']['treeherder']
+        task_metadata = node['task']['metadata']
+        platform_option = ' '.join(treeherder_options.get('collection', {}).keys())
 
-            ret.append({
-                'build_platform': treeherder_options.get('machine', {}).get('platform', ''),
-                'build_system_type': 'taskcluster',
-                'job_group_name': treeherder_options.get('groupName', ''),
-                'job_group_symbol': treeherder_options.get('groupSymbol', ''),
-                'job_type_description': task_metadata['description'],
-                'job_type_name': task_metadata['name'],
-                'job_type_symbol': treeherder_options['symbol'],
-                'platform': treeherder_options.get('machine', {}).get('platform', ''),
-                'platform_option': platform_option,
-                'ref_data_name': label,
-                'state': 'runnable',
-                'result': 'runnable',
-                'job_coalesced_to_guid': None
-                })
+        ret.append({
+            'build_platform': treeherder_options.get('machine', {}).get('platform', ''),
+            'build_system_type': 'taskcluster',
+            'job_group_name': treeherder_options.get('groupName', ''),
+            'job_group_symbol': treeherder_options.get('groupSymbol', ''),
+            'job_type_description': task_metadata['description'],
+            'job_type_name': task_metadata['name'],
+            'job_type_symbol': treeherder_options['symbol'],
+            'platform': treeherder_options.get('machine', {}).get('platform', ''),
+            'platform_option': platform_option,
+            'ref_data_name': label,
+            'state': 'runnable',
+            'result': 'runnable',
+            'job_coalesced_to_guid': None
+            })
 
-        return ret
+    return ret
 
 
 def _buildbot_runnable_jobs(project):
@@ -209,6 +210,15 @@ def _buildbot_runnable_jobs(project):
 
 def list_runnable_jobs(project, decision_task_id=None):
     ret = _buildbot_runnable_jobs(project)
-    ret = ret + _taskcluster_runnable_jobs(decision_task_id)
+    ret = ret + _taskcluster_runnable_jobs(project, decision_task_id)
 
     return dict(meta={"repository": project, "offset": 0, "count": len(ret)}, results=ret)
+
+
+def _query_latest_gecko_decision_task_id(project):
+    url = TASKCLUSTER_INDEX_URL + 'gecko.v2.%s.latest.firefox.decision' % project
+    logger.info('Fetching {}'.format(url))
+    latest_task = fetch_json(url)
+    task_id = latest_task['taskId']
+    logger.info('For {} we found the task id: {}'.format(project, task_id))
+    return task_id
