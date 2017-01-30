@@ -57,45 +57,6 @@ treeherder.factory('thUrl', [
 
     }]);
 
-treeherder.factory('thCloneHtml', [
-    '$interpolate',
-    function ($interpolate) {
-
-        var cloneTemplateIds = [
-            'platformClone.html',
-            'jobTdClone.html',
-            'jobGroupClone.html',
-            'jobGroupCountClone.html',
-            'jobBtnClone.html',
-            'resultsetClone.html',
-            'runnableJobBtnClone.html'
-        ];
-
-        var templateId, templateName, templateTxt, i;
-
-        var cloneHtmlObjs = {};
-        for (i=0; i<cloneTemplateIds.length; i++) {
-
-            templateId = cloneTemplateIds[i];
-            templateName = templateId.replace('.html', '');
-
-            templateTxt = document.getElementById(templateId);
-            cloneHtmlObjs[templateName] = {
-                interpolator: $interpolate(templateTxt.text),
-                text: templateTxt.text
-            };
-        }
-
-        var getClone = function (templateName) {
-            return cloneHtmlObjs[templateName];
-        };
-
-        return {
-            get: getClone
-        };
-
-    }]);
-
 treeherder.factory('ThPaginator', function () {
     //dead-simple implementation of an in-memory paginator
 

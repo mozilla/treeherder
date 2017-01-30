@@ -73,12 +73,6 @@ treeherderApp.controller('JobsCtrl', [
                 ThResultSetStore.defaultResultSetCount,
                 true);
         }
-
-        $rootScope.$on(thEvents.toggleAllRevisions, function (ev, expand) {
-            $scope.result_sets.forEach(function (rs) {
-                $rootScope.$emit(thEvents.toggleRevisions, rs, expand);
-            });
-        });
     }
 ]);
 
@@ -105,18 +99,6 @@ treeherderApp.controller('ResultSetCtrl', [
         $scope.viewJob = function (job) {
             // set the selected job
             $rootScope.selectedJob = job;
-        };
-
-        $scope.toggleRevisions = function () {
-
-            ThResultSetStore.loadRevisions(
-                $rootScope.repoName, $scope.resultset.id
-            );
-
-            $rootScope.$emit(
-                thEvents.toggleRevisions, $scope.resultset
-            );
-
         };
 
         /**

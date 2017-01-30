@@ -1,3 +1,5 @@
+import * as aggregateIds from '../job-view/aggregateIds';
+
 treeherder.provider('thServiceDomain', function () {
     this.$get = function () {
         // The SERVICE_DOMAIN global is set by webpack's DefinePlugin.
@@ -148,9 +150,6 @@ treeherder.provider('thEvents', function () {
     this.$get = function () {
         return {
 
-            // fired when a list of revisions has been loaded by button-click
-            revisionsLoaded: "revisions-loaded-EVT",
-
             // fired (surprisingly) when a job is clicked
             jobClick: "job-click-EVT",
 
@@ -198,13 +197,9 @@ treeherder.provider('thEvents', function () {
 
             duplicateJobsVisibilityChanged: "duplicate-jobs-visibility-changed-EVT",
 
-            toggleRevisions: "toggle-revisions-EVT",
-
             showRunnableJobs: "show-runnable-jobs-EVT",
 
             deleteRunnableJobs: "delete-runnable-jobs-EVT",
-
-            toggleAllRevisions: "toggle-all-revisions-EVT",
 
             toggleUnclassifiedFailures: "toggle-unclassified-failures-EVT",
 
@@ -251,41 +246,12 @@ treeherder.provider('thEvents', function () {
 });
 
 treeherder.provider('thAggregateIds', function () {
-
-    var escape = function (id) {
-        return id.replace(/(:|\[|\]|\?|,|\.|\s+)/g, '-');
-    };
-
-    var getPlatformRowId = function (
-        repoName, resultsetId, platformName, platformOptions) {
-        // ensure there are no invalid characters in the id (like spaces, etc)
-        return escape(repoName +
-                      resultsetId +
-                      platformName +
-                      platformOptions);
-    };
-
-    var getResultsetTableId = function (repoName, resultsetId, revision) {
-        return escape(repoName + resultsetId + revision);
-    };
-
-    var getGroupMapKey = function (result_set_id, grSymbol, grTier, plName, plOpt) {
-        //Build string key for groupMap entries
-        return escape(result_set_id + grSymbol + grTier + plName + plOpt);
-    };
-
-    var getJobMapKey = function (job) {
-        //Build string key for jobMap entries
-        return 'key' + job.id;
-    };
-
     this.$get = function () {
         return {
-            getPlatformRowId: getPlatformRowId,
-            getResultsetTableId: getResultsetTableId,
-            getJobMapKey: getJobMapKey,
-            getGroupMapKey: getGroupMapKey,
-            escape: escape
+            getPlatformRowId: aggregateIds.getPlatformRowId,
+            getResultsetTableId: aggregateIds.getResultsetTableId,
+            getGroupMapKey: aggregateIds.getGroupMapKey,
+            escape: aggregateIds.escape
         };
     };
 });
