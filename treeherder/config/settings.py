@@ -31,7 +31,6 @@ DATA_CYCLE_DAYS = env.int("DATA_CYCLE_DAYS", default=120)
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY")
 
-SITE_ID = 1
 ROOT_URLCONF = "treeherder.config.urls"
 WSGI_APPLICATION = 'treeherder.config.wsgi.application'
 
@@ -80,7 +79,6 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
             ],
         },
     },
@@ -99,7 +97,6 @@ MIDDLEWARE_CLASSES = [middleware for middleware in [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
     'hawkrest.middleware.HawkResponseMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ] if middleware]
@@ -126,8 +123,6 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.messages',
     # Disable Django's own staticfiles handling in favour of WhiteNoise, for
     # greater consistency between gunicorn and `./manage.py runserver`.
     'whitenoise.runserver_nostatic',
