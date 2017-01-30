@@ -6,14 +6,14 @@
 
 module.exports = function (config) {
     config.set({
-        frameworks: ['jasmine', 'browserify'],
+        frameworks: ['jasmine'],
 
         basePath: '../../../',
 
         files: [
             'ui/vendor/angular/angular.js',
             'ui/vendor/angular/angular-*.js',
-            'tests/ui/vendor/react-with-addons.min.js',
+            'tests/ui/vendor/react-with-addons.js',
             'ui/vendor/react/react-dom.min.js',
             'ui/vendor/ngReact/ngReact.min.js',
             'ui/vendor/ui-bootstrap-*.js',
@@ -33,7 +33,7 @@ module.exports = function (config) {
             'ui/js/directives/treeherder/**/*.js',
             'ui/js/models/**/*.js',
             'ui/js/services/**/*.js',
-            'ui/js/reactrevisions.js',
+            'ui/js/react/**/*.js',
             'ui/plugins/**/*.js',
             'tests/ui/vendor/jasmine-jquery.js',
             'tests/ui/unit/**/*.js',
@@ -57,12 +57,8 @@ module.exports = function (config) {
 
         reporters: ['progress', 'coverage'],
         preprocessors: {
-            'ui/js/**/*.js': ['coverage'],
-            'tests/ui/unit/react/**/*.js': ['browserify']
+            'ui/js/**/*.js': ['coverage']
         },
 
-        browserify: {
-          debug: true
-        }
     });
 };
