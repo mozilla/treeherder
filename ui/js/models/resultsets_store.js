@@ -427,7 +427,7 @@ treeherder.factory('ThResultSetStore', [
                     // jobs
                     for (var j_i = 0; j_i < gr_obj.jobs.length; j_i++) {
                         var job_obj = gr_obj.jobs[j_i];
-                        var key = thAggregateIds.getJobMapKey(job_obj);
+                        var key = `${job_obj.id}`;
 
                         var jobMapElement = {
                             job_obj: job_obj,
@@ -754,7 +754,7 @@ treeherder.factory('ThResultSetStore', [
          */
         var updateJob = function (repoName, newJob) {
 
-            var key = thAggregateIds.getJobMapKey(newJob);
+            var key = `${newJob.id}`;
             var loadedJobMap = repositories[repoName].jobMap[key];
             var loadedJob = loadedJobMap? loadedJobMap.job_obj: null;
             var rsMapElement = repositories[repoName].rsMap[newJob.result_set_id];
@@ -853,28 +853,6 @@ treeherder.factory('ThResultSetStore', [
         };
 
         /**
-         * Ensure the revisions for this resultset have been loaded.  If this resultset
-         * already has revisions loaded, then this is a no-op.
-         */
-        var loadRevisions = function (repoName, resultsetId) {
-            $log.debug("loadRevisions", repoName, resultsetId);
-            var rs = repositories[repoName].rsMap[resultsetId].rs_obj;
-            if (rs && rs.revisions.length === 0) {
-                $log.debug("loadRevisions: check out to load revisions", rs, repoName);
-                // these revisions have never been loaded; do so now.
-                return ThResultSetModel.get(rs.revisions_uri)
-                    .then(({ data }) => {
-
-                        if (rs.revisions.length === 0) {
-                            Array.prototype.push.apply(rs.revisions, data);
-                            $timeout($rootScope.$emit(thEvents.revisionsLoaded, rs));
-                        }
-
-                    });
-            }
-        };
-
-        /**
          * Check if ``repoName`` had a range specified in its ``meta`` data
          * and whether or not ``push_timestamp`` falls within that range.
          */
@@ -970,6 +948,7 @@ treeherder.factory('ThResultSetStore', [
             } else {
                 selectedRunnableJobs.splice(jobIndex, 1);
             }
+            return selectedRunnableJobs;
         };
 
         var isRunnableJobSelected = function (repoName, resultsetId, buildername) {
@@ -1057,59 +1036,12 @@ treeherder.factory('ThResultSetStore', [
                                 .then(jobs => mapResultSetJobs(repoName, jobs)));
                     $q.all(mapResultSetJobsPromiseList)
                         .then(() => {
-                            setSelectedJobFromQueryString(repoName);
+                            $rootScope.$emit(thEvents.jobsLoaded);
                             if (!isAppend) {
                                 registerJobsPoller();
                             }
                         });
                 });
-        };
-
-        /**
-         * If the URL has a query string param of ``selectedJob`` then select
-         * that job on load.
-         *
-         * If that job isn't in any of the loaded resultsets, then throw
-         * an error and provide a link to load it with the right resultset.
-         */
-        var setSelectedJobFromQueryString = function (repoName) {
-            var selectedJobId = parseInt($location.search().selectedJob);
-            var selectedJobEl, key;
-
-            if (selectedJobId) {
-                key = thAggregateIds.getJobMapKey({ id: selectedJobId });
-                selectedJobEl = repositories[repoName].jobMap[key];
-
-                // select the job in question
-                if (selectedJobEl) {
-                    $timeout(function () {
-                        $rootScope.$emit(thEvents.selectJob, selectedJobEl.job_obj);
-                    }, 200);
-
-                } else {
-                    // If the ``selectedJob`` was not mapped, then we need to notify
-                    // the user it's not in the range of the current result set list.
-                    ThJobModel.get(repoName, selectedJobId).then(function (job) {
-                        ThResultSetModel.getResultSet(repoName, job.result_set_id).then(function (resultset) {
-                            var url = $rootScope.urlBasePath +
-                                      "?repo=" + repoName +
-                                      "&revision=" + resultset.data.revision +
-                                      "&selectedJob=" + selectedJobId;
-
-                            // the job exists, but isn't in any loaded resultset.
-                            // provide a message and link to load the right resultset
-                            thNotify.send("Selected job id: " + selectedJobId + " not within current push range.",
-                                          "danger",
-                                          { sticky: true, linkText: "Load push", url });
-
-                        });
-                    }, function () {
-                        // the job wasn't found in the db.  Either never existed,
-                        // or was expired and deleted.
-                        thNotify.send("Unable to find job with id " + selectedJobId, "danger", { sticky: true });
-                    });
-                }
-            }
         };
 
         var getLastModifiedJobTime = function (jobList) {
@@ -1268,7 +1200,6 @@ treeherder.factory('ThResultSetStore', [
             getFilteredUnclassifiedFailureCount: getFilteredUnclassifiedFailureCount,
             getAllUnclassifiedFailureCount: getAllUnclassifiedFailureCount,
             isNotLoaded: isNotLoaded,
-            loadRevisions: loadRevisions,
             setSelectedJob: setSelectedJob,
             updateUnclassifiedFailureMap: updateUnclassifiedFailureMap,
             defaultResultSetCount: defaultResultSetCount,

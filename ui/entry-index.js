@@ -32,6 +32,10 @@ require('ngreact');
 require('jquery.scrollto');
 require('./vendor/resizer.js');
 
+// Treeherder React UI
+require('./job-view/Repo');
+require('./job-view/Push');
+
 // Treeherder JS
 require('./js/services/log.js');
 require('./js/providers.js');
@@ -42,7 +46,6 @@ require('./js/directives/treeherder/clonejobs.js');
 require('./js/directives/treeherder/resultsets.js');
 require('./js/directives/treeherder/top_nav_bar.js');
 require('./js/directives/treeherder/bottom_nav_panel.js');
-require('./js/reactrevisions.jsx');
 require('./js/services/main.js');
 require('./js/services/buildapi.js');
 require('./js/services/taskcluster.js');

@@ -1,4 +1,4 @@
-const PropTypes = require('prop-types');
+import PropTypes from 'prop-types';
 
 class SuggestionsListItem extends React.Component {
     constructor(props) {
@@ -211,14 +211,6 @@ FailureSummaryPanel.propTypes = {
     jobLogsAllParsed: PropTypes.bool,
     jobLogUrls: PropTypes.array,
     logParseStatus: PropTypes.string
-};
-
-module.exports = {
-    FailureSummaryPanel,
-    SuggestionsListItem,
-    BugListItem,
-    ErrorsList,
-    ListItem
 };
 
 treeherder.directive('failureSummaryPanel', ['reactDirective', '$injector', (reactDirective, $injector) =>

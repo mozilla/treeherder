@@ -14,9 +14,6 @@ treeherderApp.controller('MainCtrl', [
         $httpParamSerializer) {
         var $log = new ThLog("MainCtrl");
 
-        // Query String param for selected job
-        var QS_SELECTED_JOB = "selectedJob";
-
         /*
          *  revisionPollInterval: How often we check revision.txt for changes
          *  revisionPollDelayedInterval: Aggressively notify about revision changes after this delay
@@ -136,14 +133,6 @@ treeherderApp.controller('MainCtrl', [
             return [title, percentComplete];
         };
 
-        $rootScope.$on(thEvents.jobClick, function (ev, job) {
-            $location.search(QS_SELECTED_JOB, job.id);
-        });
-
-        $rootScope.$on(thEvents.clearSelectedJob, function () {
-            $location.search(QS_SELECTED_JOB, null);
-        });
-
         $rootScope.closeJob = function () {
             // Setting the selectedJob to null closes the bottom panel
             $rootScope.selectedJob = null;
@@ -193,19 +182,6 @@ treeherderApp.controller('MainCtrl', [
 
         $scope.toggleInProgress = function () {
             thJobFilters.toggleInProgress();
-        };
-
-        $scope.allCollapsed = function (cls) {
-            var visibleList = $("." + cls + ":visible");
-            return visibleList.length === 0;
-        };
-
-        $scope.toggleAllRevisions = function (collapse) {
-            collapse = collapse || $scope.allCollapsed("revision-list");
-            $rootScope.$emit(
-                thEvents.toggleAllRevisions, collapse
-            );
-
         };
 
         $scope.getGroupState = function () {
@@ -682,7 +658,7 @@ treeherderApp.controller('MainCtrl', [
             var newGroupState = $scope.getGroupState();
             if (newGroupState !== $scope.groupState) {
                 $scope.groupState = newGroupState;
-                $rootScope.$emit(thEvents.groupStateChanged);
+                $rootScope.$emit(thEvents.groupStateChanged, newGroupState);
             }
 
             // handle a change in the show duplicate jobs variable

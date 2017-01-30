@@ -38,7 +38,7 @@
 
 .group-symbol {
   background: transparent;
-  padding: 0 0 0 2px;
+  padding: 0 2px 0 2px;
   border: 0;
   vertical-align: 0;
   line-height: 1.32;
@@ -58,12 +58,14 @@
 
 .group-content::before {
   content: "(";
-  padding-left: 1px;
+  padding-left: 2px;
+  padding-right: 2px;
 }
 
 .group-content::after {
   content: ")";
-  margin-left: -1px;
+  margin-right: 2px;
+  padding-left: 2px;
 }
 
 .group-job-list {
@@ -74,7 +76,7 @@
 .runnable-job-btn {
     display: none;
     color: rgba(128, 128, 0, 0.5);
-    margin: 0 -5px 0 -1px;
+    margin: 0 -2px 0 -1px;
     background: transparent;
     padding: 0 2px;
     vertical-align: 0;
@@ -89,7 +91,7 @@
     border: 1px solid;
     padding: 0 -1px;
     border-radius: 3px;
-    margin: 0 -3px 1px 0;
+    margin: 0 -2px 1px 0;
     overflow: visible;
 }
 
@@ -143,14 +145,14 @@
 .group-btn.btn-ltblue-count,
 .group-btn.btn-yellow-count,
 .group-btn.btn-pink-count {
-  margin: 0 -4px 0 -1px;
+  margin: 0 -2px 0 0;
 }
 
 .job-btn.btn-red,
 .job-btn.btn-orange,
 .job-btn.btn-yellow,
 .job-btn.btn-purple {
-  margin: 0 -3px 1px 0;
+  margin: 0 -1px 1px 1px;
 }
 
 .btn-orange-classified::after,

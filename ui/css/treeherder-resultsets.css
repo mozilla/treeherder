@@ -109,7 +109,7 @@ th-action-button .btn-resultset {
 }
 
 .result-set .revision-list {
-  padding-left: 0;
+  padding-left: 15px;
 }
 
 .result-set .cancel-all-jobs-confirm {
@@ -120,11 +120,8 @@ th-action-button .btn-resultset {
  * Revision list
  */
 
-revisions {
-  overflow: hidden;
-}
-
 .revision-list {
+  overflow: hidden;
   white-space: nowrap;
 }
 
