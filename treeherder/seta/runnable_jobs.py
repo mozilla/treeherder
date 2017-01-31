@@ -1,4 +1,4 @@
-'''Bug 1330649 - Get rid of this module'''
+# TODO: Get rid of this module (bug 1330649)
 import logging
 
 from treeherder.config.settings import TASKCLUSTER_INDEX_URL
@@ -9,8 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class RunnableJobsClient():
-    def __init__(self, treeherder_host='https://treeherder.mozilla.org',
-                 tc_index_url=TASKCLUSTER_INDEX_URL + 'gecko.v2.%s.latest.firefox.decision'):
+    def __init__(self, tc_index_url=TASKCLUSTER_INDEX_URL):
         self.tc_index_url = tc_index_url
         self.cache = {}
 

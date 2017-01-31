@@ -2,12 +2,14 @@ import datetime
 import logging
 
 from treeherder.config.settings import SETA_LOW_VALUE_PRIORITY
-from treeherder.etl.seta import Treecodes
+from treeherder.etl.seta import ref_data_names
 from treeherder.model.models import Repository
-from treeherder.seta.common import unique_key
 from treeherder.seta.models import JobPriority
 
 logger = logging.getLogger(__name__)
+
+
+SETA_PROJECTS = ['mozilla-inbound', 'autoland']
 
 
 class SetaError(Exception):
@@ -29,6 +31,7 @@ def _process(project, build_system, job_priorities):
             jp.testtype = jp.testtype.replace('gl-', 'webgl-')
 
         key = jp.unique_identifier()
+
         if key in ref_data_names_map:
             # e.g. desktop-test-linux64-pgo/opt-reftest-13 or builder name
             jobs.append(ref_data_names_map[key])
@@ -60,6 +63,8 @@ def _query_job_priorities(priority, excluded_build_system_type):
 def _validate_request(build_system_type, project):
     if build_system_type not in ('buildbot', 'taskcluster', '*'):
         raise SetaError('Valid build_system_type values are buildbot or taskcluster.')
+    if project not in SETA_PROJECTS:
+        raise SetaError("The specified project repo '%s' is not supported by SETA." % project)
 
 
 def seta_job_scheduling(project, build_system_type, priority=None):
