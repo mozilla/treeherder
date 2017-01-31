@@ -20,7 +20,7 @@ describe('ThResultSetStore', function(){
 
 
 
-        $httpBackend.whenGET('https://api.pub.build.mozilla.org/treestatus/trees/mozilla-central').respond(
+        $httpBackend.whenGET('https://treestatus.mozilla-releng.net/trees/mozilla-central').respond(
             {
                 "result": {
                     "status": "approval required",
