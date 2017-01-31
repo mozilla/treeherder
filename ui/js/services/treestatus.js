@@ -3,7 +3,7 @@
 treeherder.factory('treeStatus', [
     '$http',
     function($http) {
-        var urlBase = "https://api.pub.build.mozilla.org/treestatus/trees/";
+        var urlBase = "http://treestatus.mozilla-releng.net/trees/";
 
         var getTreeStatusName = function(name) {
             // the thunderbird names in api.pub.build.mozilla.org/treestatus don't match what
