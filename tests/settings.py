@@ -5,11 +5,11 @@ DATABASES["default"]["TEST"] = {"NAME": "test_treeherder"}
 TREEHERDER_TEST_REPOSITORY_NAME = 'test_treeherder_jobs'
 
 # this makes celery calls synchronous, useful for unit testing
-CELERY_TASK_ALWAYS_EAGER = True
-CELERY_TASK_EAGER_PROPAGATES = True
+CELERY_ALWAYS_EAGER = True
+CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
 # Reconfigure pulse to operate on default vhost of rabbitmq
-PULSE_URI = CELERY_BROKER_URL
+PULSE_URI = BROKER_URL
 PULSE_EXCHANGE_NAMESPACE = 'test'
 
 # Set a fake api key for testing bug filing

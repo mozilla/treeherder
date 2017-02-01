@@ -2,12 +2,12 @@ Loading buildbot data
 =====================
 
 In order to start ingesting data, you need to turn on a celery worker with a '-B' option.
-In this way the worker can run some scheduled tasks that are defined in treeherder.config.settings.CELERY_BEAT_SCHEDULE.
+In this way the worker can run some scheduled tasks that are defined in treeherder.config.settings.CELERYBEAT_SCHEDULE.
 Here is a brief description of what each periodic task will do for you:
 
 *fetch-push-logs*
   Retrieves and store all the latest pushes (a.k.a. resultsets) from the available repositories.
-  You need to have this running before you can start ingesting job data. No pushes, no jobs.
+  You need to have this running before you can start ingestiong job data. No pushes, no jobs.
 
 *fetch-buildapi-pending*
   Retrieves and store buildbot pending jobs using `RelEng buildapi`_ service

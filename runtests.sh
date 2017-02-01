@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "Checking CELERY_TASK_QUEUES matches Procfile"
+echo "Checking CELERY_QUEUES matches Procfile"
 ./lints/queuelint.py || { exit 1; }
 
 echo "Running flake8"
