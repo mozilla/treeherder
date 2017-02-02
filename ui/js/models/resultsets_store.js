@@ -351,7 +351,11 @@ treeherder.factory('ThResultSetStore', [
                     }
 
                     mapResultSetJobs(repoName, jobList);
+                }, function() {
+                    thNotify.send("Error fetching runnable jobs", "danger");
                 });
+            }, function() {
+                thNotify.send("Error fetching runnable jobs: Failed to fetch task ID", "danger");
             });
         };
 
