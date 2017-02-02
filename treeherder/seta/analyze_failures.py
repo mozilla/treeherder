@@ -28,7 +28,7 @@ class AnalyzeFailures:
             high_value_jobs = get_high_value_jobs(fixed_by_commit_jobs)
 
             if not self.dry_run:
-                logger.info("Let's see if we need to increase the priority of any job")
+                logger.warn("Let's see if we need to increase the priority of any job")
                 JobPriority.objects.clear_expiration_field_for_expired_jobs()
                 JobPriority.objects.adjust_jobs_priority(high_value_jobs)
 
@@ -104,5 +104,5 @@ def get_failures_fixed_by_commit():
             logger.warning('job_note {} has no job associated to it'.format(job_note.id))
             continue
 
-    logger.info("failures: {}".format(len(failures)))
+    logger.warn("failures: {}".format(len(failures)))
     return failures
