@@ -720,11 +720,6 @@ class Migration(migrations.Migration):
             ['CREATE FULLTEXT INDEX idx_summary ON bugscache (summary);'],
             reverse_sql=['ALTER TABLE bugscache DROP INDEX idx_summary;'],
         ),
-        # Since Django doesn't natively support creating prefix indicies.
-        migrations.RunSQL(
-            ['CREATE INDEX failure_line_signature_idx ON failure_line (signature(50));'],
-            reverse_sql=['DROP INDEX failure_line_signature_idx ON failure_line;'],
-        ),
         # Since Django doesn't natively support creating composite prefix indicies.
         migrations.RunSQL(
             [
