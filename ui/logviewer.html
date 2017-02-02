@@ -89,7 +89,7 @@
               <th ng-cloak>{{property.label}}</th>
               <td ng-if="property.label == 'Revision'" class="break-word">
                 <a href="{{::property.value | getRevisionUrl:repoName}}&selectedJob={{job_id}}"
-                   title="Open resultset"
+                   title="Open push"
                    ng-cloak>{{property.value}}</a>
               </td>
               <td ng-if="property.label != 'Revision'"
