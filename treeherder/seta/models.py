@@ -30,11 +30,11 @@ class JobPriorityManager(models.Manager):
         for jp in JobPriority.objects.filter(expiration_date__isnull=True):
             if jp.unique_identifier() not in high_value_jobs:
                 if jp.priority != SETA_LOW_VALUE_PRIORITY:
-                    logger.info('Decreasing priority of {}'.format(jp.unique_identifier()))
+                    logger.warn('Decreasing priority of {}'.format(jp.unique_identifier()))
                     jp.priority = SETA_LOW_VALUE_PRIORITY
                     jp.save(update_fields=['priority'])
             elif jp.priority != priority:
-                logger.info('Increasing priority of {}'.format(jp.unique_identifier()))
+                logger.warn('Increasing priority of {}'.format(jp.unique_identifier()))
                 jp.priority = priority
                 jp.save(update_fields=['priority'])
 
