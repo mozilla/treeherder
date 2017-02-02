@@ -138,7 +138,7 @@
              href="{{ getBugUrl(bug.bug_id) }}"
              title="View bug {{bug.bug_id}}"><em> {{bug.bug_id}}</em></a>
         </li>
-        <li ng-if="classifications[0].text.length > 0"><em ng-bind-html="classifications[0].text|linkifyClassifications:repoName|linkifyURLs"></em></li>
+        <li ng-if="classifications[0].text.length > 0"><em ng-bind-html="classifications[0].text|linkifyURLs|linkifyClassifications:repoName"></em></li>
         <li class="revision-comment">
           {{classifications[0].created|date:'EEE MMM d, H:mm:ss'}}</li>
         <li class="revision-comment">
