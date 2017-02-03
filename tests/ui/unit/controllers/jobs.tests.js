@@ -30,7 +30,7 @@ describe('JobsCtrl', function(){
             getJSONFixture('job_list/job_2.json')
         );
 
-        $httpBackend.whenGET('https://api.pub.build.mozilla.org/treestatus/trees/mozilla-central').respond(
+        $httpBackend.whenGET('https://treestatus.mozilla-releng.net/trees/mozilla-central').respond(
             {
                 "result": {
                     "status": "closed",
