@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class AnalyzeFailures:
     def __init__(self, **options):
-        self.dry_run = options['dry_run']
+        self.dry_run = options.get('dry_run', False)
 
     def run(self):
         fixed_by_commit_jobs = get_failures_fixed_by_commit()
