@@ -17,7 +17,7 @@
       <span class="result-set-title-left">
         <span>
           <a href="{{::revisionResultsetFilterUrl}}"
-             title="View only this resultset"
+             title="View only this push"
              data-ignore-job-clear-on-click>{{::resultsetDateStr}}
             <span class="fa fa-external-link icon-superscript"></span></a> - </span>
         <th-author author="{{::resultset.author}}"></th-author>
@@ -35,7 +35,7 @@
               data-ignore-job-clear-on-click></span>
       </button>
       <button class="btn btn-sm btn-resultset pin-all-jobs-btn"
-            title="Pin all available jobs in this resultset"
+            title="Pin all available jobs in this push"
             data-ignore-job-clear-on-click
             ng-click="pinAllShownJobs()">
         <span class="glyphicon glyphicon-pushpin"
@@ -91,7 +91,7 @@
               !locationHasSearchParam('repo') && currentRepo.url"
               class="result-set-body unknown-message-body">
   <span>
-    <div><b>No resultsets found.</b></div>
+    <div><b>No pushes found.</b></div>
     <span>No commit information could be loaded for this repository.
       More information about this repository can be found <a href="{{::currentRepo.url}}">here</a>.</span>
   </span>
