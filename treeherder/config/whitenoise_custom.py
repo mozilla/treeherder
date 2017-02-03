@@ -13,7 +13,7 @@ class CustomWhiteNoise(WhiteNoiseMiddleware):
 
     # Matches grunt-cache-bust's style of hash filenames. eg:
     #   index.min-e10ba468ffc8816a.js
-    IMMUTABLE_FILE_RE = re.compile(r'\.min-[a-f0-9]{16,}\.(js|css)$')
+    IMMUTABLE_FILE_RE = re.compile(r'\.min\.[a-f0-9]{16,}\.(js|css)$')
     INDEX_NAME = 'index.html'
 
     def update_files_dictionary(self, *args):
