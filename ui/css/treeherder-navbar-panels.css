@@ -87,3 +87,10 @@
     border-radius: 0px;
     margin-bottom: 0px;
 }
+
+/*
+ *  Active Filters panel
+ */
+.active-filters-bar {
+    padding: 0px 15px 0px 15px;
+}

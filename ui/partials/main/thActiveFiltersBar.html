@@ -1,0 +1,20 @@
+<!-- Show this certain filters are active in Treeherder -->
+<div class="alert alert-info active-filters-bar" ng-show="showActiveFiltersBar()" ng-cloak>
+  <i class="fa fa-info-circle" aria-hidden="true"></i>
+  <span><b>Active Filters</b></span>
+
+  <span class="btn btn-sm"
+        ng-show="fromChange().length > 0"
+        title="Click to clear the fromchange filter"
+        ng-click="dropLocationSearchParam('fromchange')">
+      fromChange: {{fromChange() | limitTo: 12}}
+      <i class="fa fa-times-circle"/>
+  </span>
+  <span class="btn btn-sm"
+        ng-show="toChange().length > 0"
+        title="Click to clear the tochange filter"
+        ng-click="dropLocationSearchParam('tochange')">
+      toChange: {{toChange() | limitTo: 12}}
+      <i class="fa fa-times-circle"/>
+  </span>
+</div>
