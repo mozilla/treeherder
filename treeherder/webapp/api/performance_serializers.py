@@ -15,11 +15,11 @@ class PerformanceFrameworkSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
-class TestOptionsSerializer(serializers.JSONField):
+class TestOptionsSerializer(serializers.CharField):
     def to_representation(self, obj):
-        # if extra_propeties is blank, just return nothing
-        if type(obj) == dict:
-            return obj.get('test_options', [])
+        # if extra_propeties str is blank, just return nothing
+        if type(obj) == str:
+            return obj.split(' ')
         return []
 
 
@@ -34,7 +34,7 @@ class PerformanceSignatureSerializer(serializers.ModelSerializer):
                                                     slug_field="platform",
                                                     source="platform")
     test_options = TestOptionsSerializer(read_only=True,
-                                         source="extra_properties")
+                                         source="extra_options")
 
     class Meta:
         model = PerformanceSignature

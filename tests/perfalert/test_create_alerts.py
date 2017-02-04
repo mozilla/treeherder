@@ -17,6 +17,7 @@ def _verify_alert(alertid, expected_push_id, expected_prev_push_id,
     assert alert.prev_value == expected_prev_value
     assert alert.new_value == expected_new_value
     assert alert.series_signature == expected_signature
+    assert alert.series_signature.extra_options == expected_signature.extra_options
     assert alert.is_regression == expected_is_regression
     assert alert.status == expected_status
     assert alert.classifier == expected_classifier
