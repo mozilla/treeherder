@@ -27,7 +27,7 @@
            href="https://secure.pub.build.mozilla.org/buildapi/self-serve/{{::repoName}}/rev/{{::resultset.revision}}">BuildAPI</a></li>
     <li><a target="_blank" data-ignore-job-clear-on-click
            href=""
-           ng-show="user.is_staff && false" <!-- Bug 1335310 tracks fixing the feature -->
+           ng-show="user.is_staff"
            ng-click="triggerMissingJobs(resultset.revision)">Trigger missing jobs</a></li>
     <li><a target="_blank" data-ignore-job-clear-on-click
            href=""
