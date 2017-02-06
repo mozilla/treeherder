@@ -471,6 +471,7 @@ def test_perf_signature(test_repository, test_perf_framework):
         suite='mysuite',
         test='mytest',
         has_subtests=False,
+        extra_options='e10s opt',
         last_updated=datetime.datetime.now()
     )
     return signature

@@ -73,7 +73,8 @@ def test_no_summary_performance_data(webapp, test_perf_signature,
             'suite': test_perf_signature.suite,
             'option_collection_hash': test_perf_signature.option_collection.option_collection_hash,
             'framework_id': test_perf_signature.framework.id,
-            'machine_platform': test_perf_signature.platform.platform
+            'machine_platform': test_perf_signature.platform.platform,
+            'extra_options': test_perf_signature.extra_options.split(' ')
         }
     }
 
