@@ -1056,5 +1056,31 @@
         "repository_group": 3,
         "description": "Try repo for Servo integration"
     }
+},
+{
+    "pk": 84,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "mozilla-esr52",
+        "url": "https://hg.mozilla.org/releases/mozilla-esr52",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 2,
+        "description": ""
+    }
+},
+{
+    "pk": 85,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "comm-esr52",
+        "url": "https://hg.mozilla.org/releases/comm-esr52",
+        "active_status": "active",
+        "codebase": "comm",
+        "repository_group": 2,
+        "description": ""
+    }
 }
 ]
