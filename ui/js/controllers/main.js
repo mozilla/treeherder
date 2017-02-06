@@ -6,12 +6,14 @@ treeherderApp.controller('MainCtrl', [
     'thClassificationTypes', 'thEvents', '$interval', '$window', 'thNotify',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
     'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit', '$http',
+    '$httpParamSerializer',
     function MainController(
         $scope, $rootScope, $routeParams, $location, $timeout, $q,
         ThLog, ThRepositoryModel, thPinboard, thTabs, $document,
         thClassificationTypes, thEvents, $interval, $window, thNotify,
         ThExclusionProfileModel, thJobFilters, ThResultSetStore,
-        thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit, $http) {
+        thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit, $http,
+        $httpParamSerializer) {
         var $log = new ThLog("MainCtrl");
 
         // Query String param for selected job
@@ -584,7 +586,6 @@ treeherderApp.controller('MainCtrl', [
             if (!defaulting && $scope.cachedReloadTriggerParams &&
                 !_.isEqual(newReloadTriggerParams, $scope.cachedReloadTriggerParams) &&
                 !$rootScope.skipNextPageReload) {
-
                 $window.location.reload();
             } else {
                 $scope.cachedReloadTriggerParams = newReloadTriggerParams;
@@ -612,8 +613,18 @@ treeherderApp.controller('MainCtrl', [
         });
 
         $scope.changeRepo = function(repo_name) {
-            //clear all filter params and revisions...
-            $location.search({"repo": repo_name});
+            // preserves filter params as the user changes repos and revisions
+            $location.search(_.extend({
+                "repo": repo_name
+            }, thJobFilters.getActiveFilters()));
+        };
+
+        $scope.filterParams = function() {
+            var filters = $httpParamSerializer(thJobFilters.getActiveFilters());
+            if (filters) {
+                filters = "&" + filters;
+            }
+            return filters;
         };
 
         $scope.clearFilterBox = function() {
@@ -655,4 +666,3 @@ treeherderApp.controller('MainCtrl', [
         };
     }
 ]);
-

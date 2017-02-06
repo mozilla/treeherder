@@ -553,6 +553,17 @@ treeherder.factory('thJobFilters', [
         cachedFilterParams = getNewFilterParams();
         _refreshFilterCaches();
 
+        // returns active filters starting with the prefix
+        var getActiveFilters = function() {
+            var filters = {};
+            Object.keys($location.search()).forEach(function(key) {
+                if (_startsWith(key, PREFIX)) {
+                    filters[key] = $location.search()[key];
+                }
+            });
+            return filters;
+        };
+
         /*********************************
          * Externally available API fields
          */
@@ -572,6 +583,7 @@ treeherder.factory('thJobFilters', [
             toggleInProgress: toggleInProgress,
             toggleUnclassifiedFailures: toggleUnclassifiedFailures,
             setOnlyCoalesced: setOnlyCoalesced,
+            getActiveFilters: getActiveFilters,
 
             // filter data read-only accessors
             getClassifiedStateArray: getClassifiedStateArray,
