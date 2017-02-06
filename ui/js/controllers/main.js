@@ -584,7 +584,6 @@ treeherderApp.controller('MainCtrl', [
             if (!defaulting && $scope.cachedReloadTriggerParams &&
                 !_.isEqual(newReloadTriggerParams, $scope.cachedReloadTriggerParams) &&
                 !$rootScope.skipNextPageReload) {
-
                 $window.location.reload();
             } else {
                 $scope.cachedReloadTriggerParams = newReloadTriggerParams;
@@ -613,7 +612,16 @@ treeherderApp.controller('MainCtrl', [
 
         $scope.changeRepo = function(repo_name) {
             //clear all filter params and revisions...
-            $location.search({"repo": repo_name});
+            $location.search(_.extend({
+                "repo": repo_name
+            }, thJobFilters.getActiveFilters()));
+        };
+
+        $scope.changeResultSet = function(repo_name, revision) {
+            $location.search(_.extend({
+                "repo": repo_name,
+                "revision": revision
+            }, thJobFilters.getActiveFilters()));
         };
 
         $scope.clearFilterBox = function() {
@@ -655,4 +663,3 @@ treeherderApp.controller('MainCtrl', [
         };
     }
 ]);
-
