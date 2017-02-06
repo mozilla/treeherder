@@ -6,12 +6,14 @@ treeherderApp.controller('MainCtrl', [
     'thClassificationTypes', 'thEvents', '$interval', '$window', 'thNotify',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
     'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit', '$http',
+    '$httpParamSerializer',
     function MainController(
         $scope, $rootScope, $routeParams, $location, $timeout, $q,
         ThLog, ThRepositoryModel, thPinboard, thTabs, $document,
         thClassificationTypes, thEvents, $interval, $window, thNotify,
         ThExclusionProfileModel, thJobFilters, ThResultSetStore,
-        thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit, $http) {
+        thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit, $http,
+        $httpParamSerializer) {
         var $log = new ThLog("MainCtrl");
 
         // Query String param for selected job
@@ -617,11 +619,12 @@ treeherderApp.controller('MainCtrl', [
             }, thJobFilters.getActiveFilters()));
         };
 
-        $scope.changeResultSet = function(repo_name, revision) {
-            $location.search(_.extend({
-                "repo": repo_name,
-                "revision": revision
-            }, thJobFilters.getActiveFilters()));
+        $scope.filterParams = function() {
+            var filters = $httpParamSerializer(thJobFilters.getActiveFilters());
+            if (filters) {
+                filters = '&' + filters;
+            }
+            return filters;
         };
 
         $scope.clearFilterBox = function() {
