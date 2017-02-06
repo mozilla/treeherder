@@ -89,10 +89,12 @@ def parse_testtype(build_system_type, job_type_name, platform_option, ref_data_n
         #       ignore any BBB task since we will be analyzing instead the Buildbot job associated
         #       to it. If BBB tasks were a production system and there was a technical advantage
         #       we could look into analyzing that instead of the BB job.
-        if job_type_name.startswith('test-'):
+        if (job_type_name.startswith('test-') or job_type_name.startswith('desktop-test') or
+                job_type_name.startswith('android-test')):
             # we should get "jittest-3" as testtype for a job_type_name like
             # test-linux64/debug-jittest-3
-            return transform(job_type_name.split('-{buildtype}'.format(buildtype=platform_option))[-1])
+            return transform(job_type_name.split('-{buildtype}'.
+                             format(buildtype=platform_option))[-1])
 
 
 def transform(testtype):

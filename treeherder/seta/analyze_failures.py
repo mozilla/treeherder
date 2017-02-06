@@ -83,6 +83,12 @@ def get_failures_fixed_by_commit():
             failures[job_note.text] = []
 
         try:
+            if (job_note.job.job_type.name.startswith('source-check') or
+                    job_note.job.job_type.name.startswith('build') or
+                    job_note.job.job_type.name.startswith('static-analysis')):
+                # expect no transform and don't log a message
+                continue
+
             testtype = parse_testtype(
                 build_system_type=job_note.job.signature.build_system_type,  # e.g. taskcluster
                 job_type_name=job_note.job.job_type.name,  # e.g. Mochitest
