@@ -32,9 +32,13 @@ class TextLogErrorViewSet(viewsets.ModelViewSet):
         bug_number_classifications = {}
 
         for item in data:
-            line_id = int(item.get("id"))
+            line_id = item.get("id")
             if line_id is None:
                 return "No text log error id provided", HTTP_400_BAD_REQUEST
+            try:
+                line_id = int(line_id)
+            except ValueError:
+                return "Text log error id was not an integer", HTTP_400_BAD_REQUEST
 
             error_line_ids.add(line_id)
 
