@@ -137,7 +137,7 @@ treeherder.controller('PinboardCtrl', [
         $scope.cancelAllPinnedJobsTitle = function() {
             if (!$scope.user.loggedin) {
                 return "Not logged in";
-            } else if ($scope.canCancelAllPinnedJobs()) {
+            } else if (!$scope.canCancelAllPinnedJobs()) {
                 return "No pending / running jobs in pinboard";
             }
 
