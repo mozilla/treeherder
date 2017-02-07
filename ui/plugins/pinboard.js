@@ -151,7 +151,9 @@ treeherder.controller('PinboardCtrl', [
         };
 
         $scope.cancelAllPinnedJobs = function() {
-            $scope.cancelJobs(_.values($scope.pinnedJobs));
+            if (window.confirm('This will cancel all the selected jobs. Are you sure?')) {
+                $scope.cancelJobs(_.values($scope.pinnedJobs));
+            }
         };
 
         $scope.canSaveClassifications = function() {
