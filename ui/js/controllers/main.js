@@ -513,6 +513,7 @@ treeherderApp.controller('MainCtrl', [
                 }
             }],
 
+            // Shortcut: select next unverified log line
             [['j', 'shift+j'], function(ev) {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,
@@ -525,6 +526,7 @@ treeherderApp.controller('MainCtrl', [
                 }
             }],
 
+            // Shortcut: select previous unverified log line
             [['k', 'shift+k'], function(ev) {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,
@@ -537,6 +539,7 @@ treeherderApp.controller('MainCtrl', [
                 }
             }],
 
+            // Shortcut: select all remaining unverified lines on the current job
             [['a'], function() {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,

@@ -5,6 +5,9 @@ treeherder.factory('ThTextLogErrorsModel', [
     function($http, $q, ThLog, thUrl) {
 
         var ThTextLogErrorsModel = function(data) {
+            if (data.metadata === null) {
+                data.metadata = {};
+            }
             angular.extend(this, data);
         };
 
@@ -23,11 +26,8 @@ treeherder.factory('ThTextLogErrorsModel', [
                 cache: false
             })
             .then(function(response) {
-                var item_list = [];
-                angular.forEach(response.data, function(elem){
-                    item_list.push(new ThTextLogErrorsModel(elem));
-                });
-                return item_list;
+                return response.data
+                    .map(elem => new ThTextLogErrorsModel(elem));
             });
         };
 
