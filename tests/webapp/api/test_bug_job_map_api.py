@@ -148,3 +148,17 @@ def test_bug_job_map_delete(webapp, eleven_jobs_stored, test_repository,
         content = json.loads(resp.content)
         assert content == {"message": "Bug job map deleted"}
         assert BugJobMap.objects.count() == 0
+
+
+def test_bug_job_bad_job_id(webapp, test_repository):
+    """
+    test we have graceful error when we pass an invalid job_id
+    """
+    bad_job_id = "aaaa"
+
+    resp = webapp.get(
+            reverse("bug-job-map-list", kwargs={"project": test_repository.name}),
+            params={'job_id': bad_job_id}, expect_errors=True)
+
+    assert resp.status_code == 400
+    assert resp.json == {'message': 'Valid job_id required'}
