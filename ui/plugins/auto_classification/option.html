@@ -21,7 +21,7 @@
        target="_blank">{{::option.bugNumber}} -
       <span ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:line.data.bug_suggestions.search"></span>
     </a>
-    <span>[ {{ option.score }} ]</span>
+    <span>[ {{ option.score | number: 2 }} ]</span>
   </span>
 
   <span ng-if="option.type == 'classifiedFailure' && !option.bugNumber">

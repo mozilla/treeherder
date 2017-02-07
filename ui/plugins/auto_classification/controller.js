@@ -68,8 +68,8 @@ treeherder.factory('ThErrorLineData', [
  */
 treeherder.factory('ThClassificationOption', ['thExtendProperties',
     function(thExtendProperties) {
-        var ThClassificationOption = function(type, id, classifiedFailureId, bugNumber,
-                                              bugSummary, bugResolution, matches) {
+        return function(type, id, classifiedFailureId, bugNumber,
+                        bugSummary, bugResolution, matches) {
             thExtendProperties(this, {
                 type: type,
                 id: id,
@@ -84,7 +84,6 @@ treeherder.factory('ThClassificationOption', ['thExtendProperties',
                 selectable: !(type === "classifiedFailure" && !bugNumber)
             });
         };
-        return ThClassificationOption;
     }
 ]);
 
@@ -439,7 +438,7 @@ treeherder.controller('ThErrorLineController', [
         function markHidden(options) {
             // Mark some options as hidden by default
             // We do this if the score is too low compared to the best option
-            // of if the score is below some threshold or if there are too many
+            // or if the score is below some threshold or if there are too many
             // options
             if (!options.length) {
                 return;
@@ -494,61 +493,82 @@ treeherder.controller('ThErrorLineController', [
          * @param {Object[]} prevLine - Line before the current one in the log
          */
         function getDefaultOption(options, extraOptions, prevLine) {
+            // If we have a best option from the autoclassifier use that
             if (bestOption && bestOption.selectable) {
                 return bestOption;
             }
+
+            // Otherwise we need to decide whether to use a bug suggestion
+            // or to ignore the line
             var failureLine = line.data.failure_line;
 
             function parseTest(line) {
                 var parts = line.split(" | ", 3);
-                if (parts.length === 3) {
-                    return parts[1];
-                }
-                return null;
+                return parts.length === 3 ? parts[1] : null;
             }
 
+            // Search for the best selectable bug suggestion, using the fact that
+            // these are already sorted by string overlap
+            var bestOption = options.find(option => option.selectable);
+
+            // If that suggestion is good enough just use it
+            if (bestOption && bestOption.score >= goodMatchScore) {
+                return bestOption;
+            }
+
+            /* If there was no autoclassification and no good
+             * suggestions, we need to guess whether this is an
+             * ignorable line or one which must be classified. The
+             * general approach is to assume a pure log line
+             * without any keywords that indicate importance is
+             * ignorable, as is a test line from the same test as
+             * the previous line. Otherwise we assume that the
+             * line pertains to a new bug
+             */
+
+            // Get the test id for this line and the last line, if any
             var thisTest = failureLine ? failureLine.test :
                     parseTest(line.data.bug_suggestions.search);
             var prevTest = prevLine ? (prevLine.data.failure_line ?
                                        prevLine.data.failure_line.test :
                                        parseTest(prevLine.data.bug_suggestions.search)) :
                 null;
-            if (!options.length || options[0].score < goodMatchScore) {
-                /* If there was no autoclassification and no
-                 * suggestions, we need to guess whether this is an
-                 * ignorable line or one which must be classified. The
-                 * general approach is to assume a pure log line
-                 * without any keywords that indicate importance is
-                 * ignorable, as is a test line from the same test as
-                 * the previous line. Otherwise we assume that the
-                 * line pertains to a new bug
-                 */
-                var ignore;
 
-                var importantLines = [/\d+ bytes leaked/,
-                                      /application crashed/,
-                                      /TEST-UNEXPECTED-/];
+            var ignore;
 
-                if (prevTest && thisTest && prevTest === thisTest) {
-                    ignore = true;
-                } else if (failureLine &&
-                           (failureLine.action === "crash" ||
-                            failureLine.action === "test_result")) {
-                    ignore = false;
-                } else {
-                    var message = failureLine ?
-                            (failureLine.signature ? failureLine.signature :
-                             failureLine.message) :
-                        line.data.bug_suggestions.search;
-                    ignore = !importantLines.some(x => x.test(message));
-                }
-                if (!ignore && options.length && options[0].score > badMatchScore) {
-                    return options[0];
-                }
-                var offset = ignore ? -1 : -2;
-                return extraOptions[extraOptions.length + offset];
+            // Strings indicating lines that should not be ignored
+            var importantLines = [/\d+ bytes leaked/,
+                                  /application crashed/,
+                                  /TEST-UNEXPECTED-/];
+
+            if (prevTest && thisTest && prevTest === thisTest) {
+                // If the previous line was about the same test as
+                // this one and this doesn't have any good bug
+                // suggestions, we assume that is the signature line
+                // and this is ignorable
+                ignore = true;
+            } else if (failureLine &&
+                       (failureLine.action === "crash" ||
+                        failureLine.action === "test_result")) {
+                // Don't ignore crashes or test results
+                ignore = false;
+            } else {
+                // Don't ignore lines containing a well-known string
+                var message = failureLine ?
+                        (failureLine.signature ? failureLine.signature :
+                         failureLine.message) :
+                    line.data.bug_suggestions.search;
+                ignore = !importantLines.some(x => x.test(message));
             }
-            return options.find((option) => option.selectable);
+            // If we didn't choose to ignore the line and there is a bug suggestion
+            // that isn't terrible, use that
+            if (!ignore && bestOption && bestOption.score > badMatchScore) {
+                return bestOption;
+            }
+            //Otherwise select either the ignore option or the manual bug option
+            var offset = ignore ? -1 : -2;
+
+            return extraOptions[extraOptions.length + offset];
         }
 
         /**
@@ -611,7 +631,6 @@ treeherder.controller('ThErrorLineController', [
          * Expand or collapse hidden options
          */
         ctrl.onEventToggleExpandOptions = function() {
-            log.debug("onToggleExpandOptions", ctrl.isSelected);
             if (!ctrl.isSelected || !ctrl.isEditable) {
                 return;
             }
@@ -674,10 +693,9 @@ treeherder.component('thErrorLine', {
 /**
  * Error lines component controller
  */
-treeherder.controller('ThAutoclassifyErrorsController', ['$scope', '$element', 'ThLog',
-    function ($scope, $element, ThLog) {
+treeherder.controller('ThAutoclassifyErrorsController', ['$scope', '$element',
+    function ($scope, $element) {
         var ctrl = this;
-        var log = new ThLog('ThAutoclassifyErrorsController');
         $scope.lineStatuses = new Map();
 
         $scope.titles = {
@@ -686,10 +704,6 @@ treeherder.controller('ThAutoclassifyErrorsController', ['$scope', '$element', '
             'unverified-no-bug': "Unverified line missing a bug number",
             'unverified': "Unverified line",
             'classification-disabled': ""
-        };
-
-        ctrl.$onChanges = function(changes) {
-            log.debug("$onChanges", ctrl, changes);
         };
 
         /**
@@ -732,14 +746,9 @@ treeherder.component('thAutoclassifyErrors', {
  * Toolbar controller
  */
 treeherder.controller('ThAutoclassifyToolbarController', [
-    '$scope', 'ThLog',
-    function($scope, ThLog) {
+    '$scope',
+    function($scope) {
         var ctrl = this;
-        var log = new ThLog('ThAutoclassifyToolbarController');
-
-        ctrl.$onChanges = function(changes) {
-            log.debug("$onChanges", ctrl, changes);
-        };
 
         $scope.buttonTitle = function(condition, activeTitle, inactiveTitle) {
             if (!ctrl.thUser || !ctrl.thUser.loggedin) {
@@ -802,7 +811,6 @@ treeherder.controller('ThAutoclassifyPanelController', [
 
         ctrl.$onChanges = (changes) => {
             var changed = x => changes.hasOwnProperty(x);
-            log.debug("$onChanges", ctrl, changes);
 
             $scope.canClassify = (ctrl.thUser &&
                                   ctrl.thUser.loggedin &&
@@ -833,8 +841,6 @@ treeherder.controller('ThAutoclassifyPanelController', [
          * (Re)build all the panel contents with fresh data
          */
         function build() {
-            log.debug("build", ctrl);
-            log.debug("Status", ctrl.loadStatus);
             if (!ctrl.logsParsed || ctrl.autoclassifyStatus === "pending") {
                 ctrl.loadStatus = "pending";
             } else if (ctrl.logParsingFailed) {
@@ -902,12 +908,11 @@ treeherder.controller('ThAutoclassifyPanelController', [
 
             requestPromise = $q.defer();
 
-            var resources = {
+            return $q.all({
                 "matchers": ThMatcherModel.by_id(),
                 "error_lines": ThTextLogErrorsModel.getList(ctrl.thJob.id,
                                                             {timeout: requestPromise})
-            };
-            return $q.all(resources);
+            });
         }
 
         /**
@@ -916,7 +921,6 @@ treeherder.controller('ThAutoclassifyPanelController', [
          * @param {Object[]} lines - Array of TextLogError objects representing log lines
          */
         function loadData(lines) {
-            log.debug("loadData", lines);
             linesById = lines
                 .reduce((byId, line) => {
                     byId.set(line.id, new ThErrorLineData(line));
@@ -962,7 +966,6 @@ treeherder.controller('ThAutoclassifyPanelController', [
          * @param {?bugNumber} bugNumber - id of bug
          */
         ctrl.onUpdateLine = function(lineId, type, classifiedFailureId, bugNumber) {
-            log.debug("onUpdateLine");
             var state = stateByLine.get(lineId);
             state.type = type;
             state.classifiedFailureId = classifiedFailureId;
@@ -975,7 +978,6 @@ treeherder.controller('ThAutoclassifyPanelController', [
          * @param {boolean} clear - Clear the current selection before selecting new elements
          */
         ctrl.onToggleSelect = function(lineIds, clear) {
-            log.debug("onSelectLine", lineIds);
             var isSelected = lineIds
                     .reduce((map, lineId) => map.set(lineId, ctrl.selectedLineIds.has(lineId)),
                             new Map());
@@ -990,7 +992,6 @@ treeherder.controller('ThAutoclassifyPanelController', [
                     ctrl.selectedLineIds.add(lineId);
                 }
             });
-            log.debug(ctrl.selectedLineIds);
         };
 
         ctrl.onToggleEditable = function() {
@@ -1023,8 +1024,6 @@ treeherder.controller('ThAutoclassifyPanelController', [
          * @param {boolean} clear - Clear the current selection before selecting new elements
          */
         ctrl.onChangeSelection = function(direction, clear) {
-            log.debug("onChangeSelection", direction, clear);
-
             var selectable = selectableLines();
 
             var optionIndexes = selectable
@@ -1037,7 +1036,6 @@ treeherder.controller('ThAutoclassifyPanelController', [
                 null;
 
             var selected = $scope.selectedLines();
-            log.debug("onChangeSelection", optionIndexes, selected);
             var indexes = [];
             if (direction === "next") {
                 if (selected.length) {
@@ -1060,7 +1058,6 @@ treeherder.controller('ThAutoclassifyPanelController', [
                     .filter(x => x > optionIndexes.get(selected[selected.length - 1].id));
             }
 
-            log.debug("onChangeSelection", indexes);
             if (clear) {
                 // Move to the next or previous panels if we moved out of bounds
                 if (indexes.some(x => x === "nextJob")) {
@@ -1130,7 +1127,6 @@ treeherder.controller('ThAutoclassifyPanelController', [
                         best_classification: bestClassification,
                         bug_number: bugNumber};
             });
-            log.debug("save", data);
             ctrl.loadStatus = "loading";
             return ThTextLogErrorsModel
                 .verifyMany(data)
