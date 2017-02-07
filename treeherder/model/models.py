@@ -1474,12 +1474,21 @@ class TextLogStep(models.Model):
 
 class TextLogErrorManager(models.Manager):
     def unmatched_for_job(self, job):
+        """Return a the text log errors for a specific job that have
+        no associated ClassifiedFailure.
+
+        :param job: Job associated with the text log errors"""
         return TextLogError.objects.filter(
             step__job=job,
             classified_failures=None,
         ).prefetch_related('step', 'failure_line')
 
     def for_jobs(self, *jobs, **filters):
+        """Return a dict of {job: [text log errors]} for a set of jobs, filtered by
+        caller-provided django filters.
+
+        :param jobs: Jobs associated with the text log errors
+        :param filters: filters to apply to text log errors"""
         error_lines = TextLogError.objects.filter(
             step__job__in=jobs,
             **filters)
@@ -1507,7 +1516,6 @@ class TextLogError(models.Model):
     best_classification = models.ForeignKey("ClassifiedFailure",
                                             related_name="best_for_errors",
                                             null=True,
-                                            db_index=True,
                                             on_delete=models.SET_NULL)
     best_is_verified = models.BooleanField(default=False)
 

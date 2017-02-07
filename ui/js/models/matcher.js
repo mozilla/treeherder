@@ -31,9 +31,11 @@ treeherder.factory('ThMatcherModel', [
             ThMatcherModel.by_id.then((map) => map[pk]);
         };
 
-        var matchers = $http.get(ThMatcherModel.get_uri(), {
-            cache: true
-        }).then((response) => response.data.map((elem) => new ThMatcherModel(elem)));
+        var matchers = $http
+                .get(ThMatcherModel.get_uri(), {
+                    cache: true
+                })
+                .then(response => response.data.map(elem => new ThMatcherModel(elem)));
 
         return ThMatcherModel;
     }]);
