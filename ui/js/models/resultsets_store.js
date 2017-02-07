@@ -1108,10 +1108,10 @@ treeherder.factory('ThResultSetStore', [
 
                             // the job exists, but isn't in any loaded resultset.
                             // provide a message and link to load the right resultset
-                            thNotify.send("Selected job id: " + selectedJobId + " not within current result set range.",
+                            thNotify.send("Selected job id: " + selectedJobId + " not within current push range.",
                                           "danger",
                                           true,
-                                          "Load result set",
+                                          "Load push",
                                           url);
 
                         });

@@ -63,7 +63,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                                 thTabs.tabs.similarJobs.is_loading = false;
                             },
                             function(){
-                                thNotify.send("Error fetching result sets for similar jobs","danger");
+                                thNotify.send("Error fetching pushes for similar jobs","danger");
                             });
                     }
                 });
