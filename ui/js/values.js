@@ -2,6 +2,7 @@
 
 treeherder.value("thPlatformMap", {
     "linux32": "Linux",
+    "linux32-qr": "Linux QuantumRender",
     "linux64": "Linux x64",
     "linux64-qr": "Linux x64 QuantumRender",
     "osx-10-6": "OS X 10.6",
@@ -21,6 +22,7 @@ treeherder.value("thPlatformMap", {
     "windows10-64": "Windows 10 x64",
     "windows10-64-vm": "Windows 10 x64 VM",
     "windows2012-32": "Windows 2012",
+    "windows2012-32-qr": "Windows 2012 QuantumRender",
     "windows2012-64": "Windows 2012 x64",
     "windows2012-64-qr": "Windows 2012 x64 QuantumRender",
 
