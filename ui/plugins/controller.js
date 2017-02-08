@@ -263,9 +263,6 @@ treeherder.controller('PluginCtrl', [
                                     value: performanceData[series.signature][0].value,
                                     title: series.name
                                 };
-                                if (series.test && series.test.toLowerCase() !== series.suite) {
-                                    detail['title'] += '_' + series.test.toLowerCase();
-                                }
 
                                 $scope.perfJobDetail.push(detail);
                             });
