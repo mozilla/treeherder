@@ -101,3 +101,10 @@ slugid==1.0.7 --hash=sha256:6dab3c7eef0bb423fb54cb7752e0f466ddd0ee495b78b763be60
 
 # Used for Taskcluster auth
 taskcluster==0.3.4 --hash sha256:d4fe5e2a44fe27e195b92830ece0a6eb9eb7ad9dc556a0cb16f6f2a6429f1b65
+
+# Used for GraphQL endpoints
+graphene==1.1.3 --hash=sha256:7c0d6ece39a38347bf3c54e5becd468e838c8236727e0867c5a235aa36be4caf
+graphql-core==1.0.1 --hash=sha256:1f5c43afb55c096572854116d7d86cb84a97c7ac30b173018879ea21c591de4a
+graphql-relay==0.4.5 --hash=sha256:2716b7245d97091af21abf096fabafac576905096d21ba7118fba722596f65db
+graphene-django==1.2.1 --hash=sha256:c221ede0bd80513a8afe5dfd407a24de4446bf0c8d00a64207b7fc9e84fc140d
+django-graphiql==0.4.4 --hash=sha256:693d1b0c82cb9515f27a24f213d7b5c3aa4f5b8d6b8123a293981ee8d072c78c

@@ -8,6 +8,8 @@ from treeherder.credentials.urls import urlpatterns as credentials_patterns
 from treeherder.embed import urls as embed_urls
 from treeherder.webapp.api import urls as api_urls
 
+from graphene_django.views import GraphQLView
+
 admin.site.login_template = 'webapp/admin_login.html'
 
 urlpatterns = [
@@ -16,6 +18,8 @@ urlpatterns = [
    url(r'^admin/', include(admin.site.urls)),
    url(r'^docs/', get_swagger_view(title='Treeherder API')),
    url(r'^credentials/', include(credentials_patterns)),
+   url(r'^graphql', GraphQLView.as_view(graphiql=True)),
+   url(r'^graphiql', include('django_graphiql.urls')),
 ]
 
 if settings.DEBUG:
