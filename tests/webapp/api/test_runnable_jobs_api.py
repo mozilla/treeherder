@@ -1,9 +1,11 @@
 from django.core.urlresolvers import reverse
+from mock import patch
 
 from treeherder.model.models import RunnableJob
 
 
-def test_runnable_jobs_api(webapp, test_job):
+@patch('treeherder.etl.runnable_jobs._taskcluster_runnable_jobs', return_value=[])
+def test_runnable_jobs_api(taskcluster_runnable_jobs, webapp, test_job):
     RunnableJob.objects.create(
         build_platform=test_job.build_platform,
         machine_platform=test_job.machine_platform,

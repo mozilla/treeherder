@@ -1,5 +1,6 @@
 import logging
 
+from treeherder.etl.runnable_jobs import list_runnable_jobs
 from treeherder.seta.common import unique_key
 from treeherder.seta.models import JobPriority
 from treeherder.seta.runnable_jobs import RunnableJobsClient
@@ -21,7 +22,7 @@ class Treecodes:
             # e.g. Ubuntu VM 12.04 x64 mozilla-inbound opt test web-platform-tests-4 OR
             #      test-linux64/opt-web-platform-tests-4
             testtype = job_testtype(job)
-            if self._ignore(testtype):
+            if _ignore(testtype):
                 ignored_jobs.append(job['ref_data_name'])
                 continue
 
@@ -40,16 +41,6 @@ class Treecodes:
         for ref_data_name in sorted(ignored_jobs):
             LOG.info('Ignoring {}'.format(ref_data_name))
 
-    def _ignore(self, testtype):
-        if not testtype:
-            return True
-
-        # XXX: This has the danger of falling out of date
-        # https://bugzilla.mozilla.org/show_bug.cgi?id=1325369
-        for i in ('dep', 'nightly', 'non-unified', 'valgrind', 'build'):
-            if testtype.find(i) != -1:
-                return True
-
     def query_jobtypes(self):
         """Query all available jobtypes and return it as list"""
         return self.jobtypes
@@ -57,6 +48,17 @@ class Treecodes:
     def query_jobnames(self):
         """Query all jobnames including buildtype and groupcode, then return them as list"""
         return self.jobnames
+
+
+def _ignore(testtype):
+    if not testtype:
+        return True
+
+    # XXX: This has the danger of falling out of date
+    # https://bugzilla.mozilla.org/show_bug.cgi?id=1325369
+    for i in ('dep', 'nightly', 'non-unified', 'valgrind', 'build'):
+        if testtype.find(i) != -1:
+            return True
 
 
 def job_testtype(job):
@@ -164,3 +166,36 @@ def job_priorities_to_jobtypes():
         jobtypes.append(jp.unique_identifier())
 
     return jobtypes
+
+
+def ref_data_names(project, build_system):
+    '''
+    We want all reference data names for every task that runs on a specific project.
+
+    For example:
+        * Buildbot - "Windows 8 64-bit mozilla-inbound debug test web-platform-tests-1"
+        * TaskCluster = "test-linux64/opt-mochitest-webgl-e10s-1"
+    '''
+    ignored_jobs = []
+    ref_data_names = {}
+    runnable_jobs = list_runnable_jobs(project)['results']
+
+    for job in runnable_jobs:
+        testtype = job_testtype(job)  # e.g. web-platform-tests-4
+        if _ignore(testtype):
+            ignored_jobs.append(job['ref_data_name'])
+            continue
+
+        key = unique_key(testtype=testtype,
+                         buildtype=job['platform_option'],
+                         platform=job['platform'])
+
+        if build_system == '*':
+            ref_data_names[key] = job['ref_data_name']
+        elif job['build_system_type'] == build_system:
+            ref_data_names[key] = job['ref_data_name']
+
+    for ref_data_name in sorted(ignored_jobs):
+        LOG.info('Ignoring {}'.format(ref_data_name))
+
+    return ref_data_names

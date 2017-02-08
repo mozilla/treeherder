@@ -2,54 +2,24 @@ import datetime
 import logging
 
 from treeherder.config.settings import SETA_LOW_VALUE_PRIORITY
-from treeherder.etl.seta import Treecodes
+from treeherder.etl.seta import ref_data_names
 from treeherder.model.models import Repository
-from treeherder.seta.common import unique_key
 from treeherder.seta.models import JobPriority
 
 logger = logging.getLogger(__name__)
+
+SETA_PROJECTS = ['mozilla-inbound', 'autoland']
 
 
 class SetaError(Exception):
     pass
 
 
-# XXX: We can get rid of this function if Treecodes took care of it
-def _ref_data_names(build_system):
-    '''
-    Sample data from Treecodes().query_jobnames() (skipping irrelevant fields)
-    {
-        "buildplatform": "buildbot",
-        "buildtype": "debug",
-        "platform": "windows8-64",
-        "ref_data_name": "Windows 8 64-bit mozilla-inbound debug test web-platform-tests-1",
-        "testtype": "web-platform-tests-1",
-    },{
-        "buildplatform": "taskcluster",
-        "buildtype": "opt",
-        "platform": "linux64",
-        "ref_data_name": "test-linux64/opt-mochitest-webgl-e10s-1",
-        "testtype": "mochitest-webgl-e10s-1",
-    }
-    '''
-    ref_data_names = {}
-    for job in Treecodes().query_jobnames():
-        key = unique_key(testtype=job['testtype'],
-                         buildtype=job['buildtype'],
-                         platform=job['platform'])
-        if build_system == '*':
-            ref_data_names[key] = job['ref_data_name']
-        elif job['buildplatform'] == build_system:
-            ref_data_names[key] = job['ref_data_name']
-
-    return ref_data_names
-
-
-def _process(build_system, job_priorities):
+def _process(project, build_system, job_priorities):
     '''Return list of ref_data_name for job_priorities'''
     jobs = []
-    # This map contains the ref_data_name of every Treeherder job
-    ref_data_names = _ref_data_names(build_system)
+    # This map contains the ref_data_name of every Treeherder *test* job for this project
+    ref_data_names_map = ref_data_names(project, build_system)
 
     for jp in job_priorities:
         if build_system == 'taskcluster':
@@ -60,9 +30,9 @@ def _process(build_system, job_priorities):
             jp.testtype = jp.testtype.replace('gl-', 'webgl-')
 
         key = jp.unique_identifier()
-        if key in ref_data_names:
+        if key in ref_data_names_map:
             # e.g. desktop-test-linux64-pgo/opt-reftest-13 or builder name
-            jobs.append(ref_data_names[key])
+            jobs.append(ref_data_names_map[key])
         else:
             logger.warning('We did not find job priority ({}) in the list of accepted jobs'.format(jp))
 
@@ -76,7 +46,7 @@ def _gecko_decision_task_request(project):
         if jp.has_expired():
             job_priorities.append(jp)
 
-    return _process(build_system='taskcluster', job_priorities=job_priorities)
+    return _process(project, build_system='taskcluster', job_priorities=job_priorities)
 
 
 def _query_job_priorities(priority, excluded_build_system_type):
@@ -91,6 +61,8 @@ def _query_job_priorities(priority, excluded_build_system_type):
 def _validate_request(build_system_type, project):
     if build_system_type not in ('buildbot', 'taskcluster', '*'):
         raise SetaError('Valid build_system_type values are buildbot or taskcluster.')
+    if project not in SETA_PROJECTS:
+        raise SetaError("The specified project repo '%s' is not supported by SETA." % project)
 
 
 def seta_job_scheduling(project, build_system_type, priority=None):
@@ -102,7 +74,7 @@ def seta_job_scheduling(project, build_system_type, priority=None):
         if build_system_type != '*':
             excluded_build_system_type = 'taskcluster' if build_system_type == 'buildbot' else 'buildbot'
         job_priorities = _query_job_priorities(priority, excluded_build_system_type)
-        ref_data_names = _process(build_system_type, job_priorities)
+        ref_data_names = _process(project, build_system_type, job_priorities)
 
     # We don't really need 'jobtypes' and today's date in the returning data
     # Getting rid of it will require the consumers to not expect it.

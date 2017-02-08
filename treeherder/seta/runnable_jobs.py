@@ -1,5 +1,7 @@
+# TODO: Get rid of this module (bug 1330649)
 import logging
 
+from treeherder.config.settings import TASKCLUSTER_INDEX_URL
 from treeherder.etl.common import fetch_json
 from treeherder.etl.runnable_jobs import list_runnable_jobs
 
@@ -7,8 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class RunnableJobsClient():
-    def __init__(self, treeherder_host='https://treeherder.mozilla.org',
-                 tc_index_url='https://index.taskcluster.net/v1/task/gecko.v2.%s.latest.firefox.decision'):
+    def __init__(self, tc_index_url=TASKCLUSTER_INDEX_URL):
         self.tc_index_url = tc_index_url
         self.cache = {}
 
