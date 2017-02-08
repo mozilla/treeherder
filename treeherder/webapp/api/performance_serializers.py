@@ -17,8 +17,8 @@ class PerformanceFrameworkSerializer(serializers.ModelSerializer):
 
 class TestOptionsSerializer(serializers.CharField):
     def to_representation(self, obj):
-        # if extra_propeties str is blank, just return nothing
-        if type(obj) == str:
+        # if extra_options str is blank, just return nothing
+        if type(obj) == unicode:
             return obj.split(' ')
         return []
 
@@ -34,6 +34,7 @@ class PerformanceSignatureSerializer(serializers.ModelSerializer):
                                                     slug_field="platform",
                                                     source="platform")
     test_options = TestOptionsSerializer(read_only=True,
+                                         allow_blank=True,
                                          source="extra_options")
 
     class Meta:
