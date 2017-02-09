@@ -235,7 +235,7 @@ class JobsViewSet(viewsets.ViewSet):
         """
         try:
             job = Job.objects.select_related(
-                *self._default_select_related).get(
+                *self._default_select_related + ['taskcluster_metadata']).get(
                     repository__name=project, id=pk)
         except Job.DoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
@@ -252,6 +252,14 @@ class JobsViewSet(viewsets.ViewSet):
         platform_option = job.get_platform_option()
         if platform_option:
             resp["platform_option"] = platform_option
+
+        try:
+            resp['taskcluster_metadata'] = {
+                'task_id': job.taskcluster_metadata.task_id,
+                'retry_id': job.taskcluster_metadata.retry_id
+            }
+        except ObjectDoesNotExist:
+            pass
 
         return Response(resp)
 

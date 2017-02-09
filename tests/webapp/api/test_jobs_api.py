@@ -9,6 +9,7 @@ from rest_framework.test import APIClient
 from treeherder.model.models import (ExclusionProfile,
                                      Job,
                                      JobExclusion,
+                                     TaskclusterMetadata,
                                      TextLogError,
                                      TextLogStep)
 from treeherder.webapp.api.jobs import JobsViewSet
@@ -241,6 +242,21 @@ def test_job_detail(webapp, test_job):
     assert resp.status_int == 200
     assert isinstance(resp.json, dict)
     assert resp.json["id"] == test_job.id
+    assert not resp.json.get("taskcluster_metadata")
+
+    # add some taskcluster metadata to the test job so we can test that too
+    tm = TaskclusterMetadata.objects.create(job=test_job,
+                                            task_id='IYyscnNMTLuxzna7PNqUJQ',
+                                            retry_id=0)
+    resp = webapp.get(
+        reverse("jobs-detail",
+                kwargs={"project": test_job.repository.name,
+                        "pk": test_job.id})
+    )
+    assert resp.json["taskcluster_metadata"] == {
+        "task_id": tm.task_id,
+        "retry_id": tm.retry_id
+    }
 
 
 def test_job_retrigger_unauthorized(webapp, test_repository):
