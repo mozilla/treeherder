@@ -116,7 +116,7 @@ class TaskclusterAuthBackend(object):
         except ObjectDoesNotExist:
             try:
                 # TODO: remove this once all users are converted to clientId
-                # as username.
+                # as username.  Bug 1337987.
                 return self._find_user_by_email(email, client_id, result["scopes"])
 
             except ObjectDoesNotExist:
