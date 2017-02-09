@@ -79,8 +79,12 @@ def get_failures_fixed_by_commit():
         # 40char revision we will have two disjunct set of failures
         #
         # Some of this will be improved in https://bugzilla.mozilla.org/show_bug.cgi?id=1323536
-        if job_note.text not in failures:
-            failures[job_note.text] = []
+
+        # if we have http://hg.mozilla.org/rev/<rev> and <rev>, we will only use <rev>
+        revision_id = job_note.text.strip('/')
+        revision_id = revision_id.split('/')[-1]
+        if revision_id not in failures:
+            failures[revision_id] = []
 
         try:
             if (job_note.job.job_type.name.startswith('source-check') or
@@ -101,7 +105,7 @@ def get_failures_fixed_by_commit():
                                job_note.job.job_type.name, job_note.job.signature.name))
                 continue
 
-            failures[job_note.text].append(unique_key(
+            failures[revision_id].append(unique_key(
                 testtype=testtype,
                 buildtype=job_note.job.get_platform_option(),  # e.g. 'opt'
                 platform=job_note.job.signature.build_platform
@@ -110,5 +114,12 @@ def get_failures_fixed_by_commit():
             logger.warning('job_note {} has no job associated to it'.format(job_note.id))
             continue
 
-    logger.warn("failures: {}".format(len(failures)))
-    return failures
+    # Remove failure rows that have no jobs associated with them
+    clean_failures = {}
+    for failure in failures:
+        if len(failures[failure]) == 0:
+            continue
+        clean_failures[failure] = failures[failure]
+
+    logger.warn("number of fixed_by_commit revisions: {}".format(len(clean_failures)))
+    return clean_failures
