@@ -266,6 +266,12 @@ CELERY_DEFAULT_QUEUE = 'default'
 CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
 CELERY_DEFAULT_ROUTING_KEY = 'default'
 
+# Default celery time limits in seconds. The gap between the soft and hard time limit
+# is to give the New Relic agent time to report the `SoftTimeLimitExceeded` exception.
+# NB: The per-task `soft_time_limit` must always be lower than `CELERYD_TASK_TIME_LIMIT`.
+CELERYD_TASK_SOFT_TIME_LIMIT = 15 * 60
+CELERYD_TASK_TIME_LIMIT = CELERYD_TASK_SOFT_TIME_LIMIT + 30
+
 CELERYBEAT_SCHEDULE = {
     'fetch-push-logs-every-minute': {
         'task': 'fetch-push-logs',
