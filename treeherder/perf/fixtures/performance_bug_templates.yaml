@@ -29,7 +29,7 @@
     keywords: regression
     default_component: Untriaged
     default_product: Firefox
-    cc_list: jmaher@mozilla.com, wlachance@mozilla.com, rwood@mozilla.com
+    cc_list: jmaher@mozilla.com, wlachance@mozilla.com, rwood@mozilla.com, nfroyd@mozilla.com
     text: |
       We have detected a build metrics regression from push {{ revision }}. As author of one of the patches included in that push, we need your help to address this regression.
 
