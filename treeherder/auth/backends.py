@@ -122,8 +122,7 @@ class TaskclusterAuthBackend(object):
             except ObjectDoesNotExist:
                 # the user doesn't already exist, create it.
                 logger.warning("Creating new user: {}".format(client_id))
-                return User.objects.create(email=email,
-                                           username=client_id)
+                return User.objects.create_user(client_id, email=email)
 
     def get_user(self, user_id):
         try:
