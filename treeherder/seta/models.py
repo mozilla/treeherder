@@ -68,4 +68,4 @@ class JobPriority(models.Model):
                           platform=self.platform)
 
     def __str__(self):
-        return ','.join((self.buildsystem, self.platform, self.buildtype, self.testtype))
+        return ','.join((self.buildsystem, self.testtype, self.buildtype, self.platform))
