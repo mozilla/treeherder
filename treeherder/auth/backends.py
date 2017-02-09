@@ -15,6 +15,11 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+CLIENT_ID_RE = re.compile(
+    r"^(?:email|mozilla-ldap)/([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.["
+    r"a-zA-Z0-9-.]+)$")
+
+
 class TaskclusterAuthBackend(object):
     """
         result of tc_auth.authenticateHawk has the form:
@@ -39,23 +44,18 @@ class TaskclusterAuthBackend(object):
     def _extract_email_from_clientid(self, client_id):
         """
         Extract the user's email from the client_id
-
-        The client_id MUST be in the form:
-            "email/<username>@<domain>"
-              or
-            "mozilla-ldap/<username>@<domain>"
         """
 
-        if client_id.startswith("email/") or client_id.startswith("mozilla-ldap/"):
-            email = client_id.split("/", 1)[1]
-            # ensure what we find after the split is a valid email and ONLY
-            # a valid email
-            match = re.search(
-                r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)",
-                email)
-            if match:
-                return match.group(0)
-        raise NoEmailException("No email found in clientId: '{}'".format(client_id))
+        # Client IDs must be in one of these forms:
+        # - email/foo@bar.com
+        # - mozilla-ldap/foo@bar.com
+        # Email regex taken from http://emailregex.com
+        match = CLIENT_ID_RE.match(client_id)
+        if match:
+            return match.group(1)
+
+        raise NoEmailException(
+            "No email found in clientId: '{}'".format(client_id))
 
     def _find_user_by_email(self, email, username, scopes):
         """
