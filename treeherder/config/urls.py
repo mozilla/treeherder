@@ -2,13 +2,12 @@ from django.conf import settings
 from django.conf.urls import (include,
                               url)
 from django.contrib import admin
+from graphene_django.views import GraphQLView
 from rest_framework_swagger.views import get_swagger_view
 
 from treeherder.credentials.urls import urlpatterns as credentials_patterns
 from treeherder.embed import urls as embed_urls
 from treeherder.webapp.api import urls as api_urls
-
-from graphene_django.views import GraphQLView
 
 admin.site.login_template = 'webapp/admin_login.html'
 
