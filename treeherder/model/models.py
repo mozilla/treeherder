@@ -12,6 +12,7 @@ from itertools import chain
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.core.validators import MinLengthValidator
 from django.db import (models,
                        transaction)
 from django.db.models import (Q,
@@ -815,6 +816,26 @@ class Job(models.Model):
         classification = failure_line.best_classification
         if classification and classification.bug_number is None:
             return classification.set_bug(bug_number)
+
+
+class TaskclusterMetadata(models.Model):
+    '''
+    Taskcluster-specific metadata associated with a taskcluster job
+    '''
+    job = models.OneToOneField(
+        Job,
+        on_delete=models.CASCADE,
+        primary_key=True,
+        related_name='taskcluster_metadata'
+    )
+
+    task_id = models.CharField(unique=True,
+                               max_length=22,
+                               validators=[MinLengthValidator(22)])
+    retry_id = models.PositiveIntegerField()
+
+    class Meta:
+        db_table = "taskcluster_metadata"
 
 
 class JobDetail(models.Model):
