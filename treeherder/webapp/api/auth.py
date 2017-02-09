@@ -11,7 +11,8 @@ from rest_framework.response import Response
 from taskcluster.exceptions import (TaskclusterConnectionError,
                                     TaskclusterRestFailure)
 
-from treeherder.auth.backends import TaskclusterAuthenticationFailed
+from treeherder.auth.backends import (NoEmailException,
+                                      TaskclusterAuthException)
 from treeherder.credentials.models import Credentials
 from treeherder.webapp.api.serializers import UserSerializer
 
@@ -56,7 +57,11 @@ class TaskclusterAuthViewSet(viewsets.ViewSet):
             login(request, user)
 
             return Response(UserSerializer(user).data)
-        except TaskclusterAuthenticationFailed as ex:
+        except NoEmailException as ex:
+            # The user's clientId didn't have an email
+            logger.warning("Email required for login.", exc_info=ex)
+            raise AuthenticationFailed(ex.message)
+        except TaskclusterAuthException as ex:
             # This is an error where the user wasn't able to log in
             # for some reason.
             logger.warning("Error authenticating with Taskcluster", exc_info=ex)
