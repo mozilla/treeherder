@@ -2,7 +2,7 @@ import datetime
 import logging
 
 from treeherder.config.settings import SETA_LOW_VALUE_PRIORITY
-from treeherder.etl.seta import ref_data_names
+from treeherder.etl.seta import build_ref_data_names
 from treeherder.model.models import Repository
 from treeherder.seta.models import JobPriority
 
@@ -19,7 +19,7 @@ def _process(project, build_system, job_priorities):
     '''Return list of ref_data_name for job_priorities'''
     jobs = []
     # This map contains the ref_data_name of every Treeherder *test* job for this project
-    ref_data_names_map = ref_data_names(project, build_system)
+    ref_data_names_map = build_ref_data_names(project, build_system)
 
     for jp in job_priorities:
         if build_system == 'taskcluster':
