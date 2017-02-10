@@ -168,7 +168,7 @@ def job_priorities_to_jobtypes():
     return jobtypes
 
 
-def ref_data_names(project, build_system):
+def build_ref_data_names(project, build_system):
     '''
     We want all reference data names for every task that runs on a specific project.
 
