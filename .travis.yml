@@ -51,9 +51,8 @@ matrix:
         - export DISPLAY=:99.0
         - sh -e /etc/init.d/xvfb start
       script:
-        - grunt checkjs
         - npm test
-        - ./node_modules/.bin/grunt build --production
+        - npm run build
 
     # Job 3: Python Tests Chunk A
     - env: python-tests-main

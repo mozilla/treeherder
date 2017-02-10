@@ -1,6 +1,5 @@
 'use strict';
 
-/*exported treeherder*/
-var treeherder = angular.module('treeherder',
+module.exports = angular.module('treeherder',
                                 ['ngResource', 'ngSanitize', 'ngCookies',
                                  'LocalStorageModule']);

@@ -193,12 +193,12 @@ perf.controller('e10sTrendCtrl', [
         // set filter options
         $scope.filterOptions = {
             filter: $stateParams.filter || "",
-            showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
-                                       parseInt($stateParams.showOnlyImportant)),
-            showOnlyConfident: Boolean($stateParams.showOnlyConfident !== undefined &&
-                                       parseInt($stateParams.showOnlyConfident)),
-            showOnlyBlockers: Boolean($stateParams.showOnlyBlockers !== undefined &&
-                                      parseInt($stateParams.showOnlyBlockers))
+            showOnlyImportant: $stateParams.showOnlyImportant !== undefined &&
+                                       parseInt($stateParams.showOnlyImportant),
+            showOnlyConfident: $stateParams.showOnlyConfident !== undefined &&
+                                       parseInt($stateParams.showOnlyConfident),
+            showOnlyBlockers: $stateParams.showOnlyBlockers !== undefined &&
+                                      parseInt($stateParams.showOnlyBlockers)
         };
 
         function updateURL() {
@@ -423,12 +423,12 @@ perf.controller('e10sTrendSubtestCtrl', [
         // set filter options
         $scope.filterOptions = {
             filter: $stateParams.filter || "",
-            showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
-                                       parseInt($stateParams.showOnlyImportant)),
-            showOnlyConfident: Boolean($stateParams.showOnlyConfident !== undefined &&
-                                       parseInt($stateParams.showOnlyConfident)),
-            showOnlyBlockers: Boolean($stateParams.showOnlyBlockers !== undefined &&
-                                      parseInt($stateParams.showOnlyBlockers))
+            showOnlyImportant: $stateParams.showOnlyImportant !== undefined &&
+                                       parseInt($stateParams.showOnlyImportant),
+            showOnlyConfident: $stateParams.showOnlyConfident !== undefined &&
+                                       parseInt($stateParams.showOnlyConfident),
+            showOnlyBlockers: $stateParams.showOnlyBlockers !== undefined &&
+                                      parseInt($stateParams.showOnlyBlockers)
         };
 
         function updateURL() {
