@@ -11,6 +11,15 @@ div#info-panel {
   flex-flow: column;
 }
 
+.info-panel-slide {
+  animation: info-panel-slide 0.4s;
+}
+
+@keyframes info-panel-slide {
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(0%); }
+}
+
 div#info-panel .navbar {
   border-radius: 0px;
   border-style: solid;
