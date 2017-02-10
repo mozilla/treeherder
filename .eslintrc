@@ -2,7 +2,9 @@
     "root": true,
     "env": {
         "browser": true,
-        "es6": true
+        "es6": true,
+        "node": true,
+        "jasmine": true
     },
     "extends": "eslint:recommended",
     "rules": {
@@ -74,6 +76,8 @@
         "Mousetrap": true,
         "jQuery": true,
         "React": true,
-        "hawk": true
+        "hawk": true,
+        "inject": true,
+        "getJSONFixture": true
     }
 }

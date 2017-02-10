@@ -1,15 +1,8 @@
 <!DOCTYPE html>
-<html ng-controller="FailureViewerCtrl" ng-init="init()" ng-app="failureviewer">
+<html ng-controller="FailureViewerCtrl" ng-init="init()" ng-app="failureviewer" ng-strict-di>
   <head>
     <meta charset="utf-8">
     <title>Failure Viewer</title>
-    <!-- build:css css/failureviewer.min.css -->
-    <link href="vendor/css/bootstrap.css" rel="stylesheet" media="screen">
-    <link href="vendor/css/font-awesome.css" rel="stylesheet" media="screen">
-    <link href="css/treeherder-global.css" rel="stylesheet" type="text/css">
-    <link href="css/treeherder-notifications.css" rel="stylesheet" type="text/css">
-    <link href="css/failureviewer.css" rel="stylesheet" type="text/css">
-    <!-- endbuild -->
     <link id="favicon" type="image/png" rel="shortcut icon" href="img/tree_open.png">
   </head>
   <body>
@@ -76,43 +69,5 @@
 
     <th-notification-box></th-notification-box>
 
-    <!-- build:js js/failureviewer.min.js -->
-    <script src="vendor/jquery-2.1.3.js"></script>
-    <script src="vendor/angular/angular.js"></script>
-    <script src="vendor/angular/angular-route.js"></script>
-    <script src="vendor/angular/angular-resource.js"></script>
-    <script src="vendor/angular/angular-cookies.js"></script>
-    <script src="vendor/angular/angular-sanitize.js"></script>
-    <script src="vendor/angular-local-storage.min.js"></script>
-    <script src="vendor/ui-bootstrap-tpls-0.13.0.js"></script>
-    <script src="vendor/bootstrap.js"></script>
-    <script src="vendor/lodash.min.js"></script>
-    <script src="vendor/resizer.js"></script>
-
-    <script src="js/treeherder.js"></script>
-    <script src="js/failureviewer.js"></script>
-    <script src="js/providers.js"></script>
-
-    <!-- Directives -->
-    <script src="js/directives/treeherder/main.js"></script>
-
-    <!-- Main services -->
-    <script src="js/services/main.js"></script>
-    <script src="js/services/log.js"></script>
-
-    <!-- Model services -->
-    <script src="js/models/classified_failure.js"></script>
-    <script src="js/models/failure_lines.js"></script>
-
-    <!-- Filter -->
-    <script src="js/filters.js"></script>
-
-    <!-- Controllers -->
-    <script src="js/controllers/failureviewer.js"></script>
-    <!-- endbuild -->
-
-    <!-- build:dontbuild -->
-    <script src="js/config/local.conf.js"></script>
-    <!-- endbuild -->
   </body>
 </html>

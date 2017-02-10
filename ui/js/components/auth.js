@@ -56,7 +56,7 @@ treeherder.component("login", {
             } else {
                 var a = document.createElement('a');
                 a.href = thServiceDomain;
-                this.userCanLogin = a.hostname === $location.host();
+                this.userCanLogin = (a.hostname === $location.host() && a.port === $location.port);
             }
 
             /**
@@ -153,6 +153,7 @@ treeherder.component("loginCallback", {
     `,
     controller: ['localStorageService', '$location', '$window', '$http', '$scope',
         function(localStorageService, $location, $window, $http, $scope) {
+            const hawk = require('hawk');
             const host = $location.host();
             const port = $location.port();
             const loginUrl = `${$location.protocol()}://${host}:${port}/api/auth/login/`;

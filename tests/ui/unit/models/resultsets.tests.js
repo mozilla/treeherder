@@ -10,7 +10,7 @@ describe('ThResultSetStore', function(){
         projectPrefix = '/api/project/',
         foregroundPrefix = projectPrefix + foregroundRepo;
 
-    beforeEach(module('treeherder'));
+    beforeEach(angular.mock.module('treeherder'));
 
     beforeEach(inject(function ($injector, $rootScope, $controller,
                                 ThResultSetStore, ThRepositoryModel) {
@@ -43,7 +43,6 @@ describe('ThResultSetStore', function(){
             getJSONFixture('resultset_list.json')
         );
 
-        
         $httpBackend.whenGET(foregroundPrefix + '/jobs/?count=2000&result_set_id=1&return_type=list').respond(
             getJSONFixture('job_list/job_1.json')
         );

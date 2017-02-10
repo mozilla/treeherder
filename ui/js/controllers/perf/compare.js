@@ -329,10 +329,10 @@ perf.controller('CompareResultsCtrl', [
                     id: parseInt($stateParams.framework)
                 }) || $scope.frameworks[0],
                 filter: $stateParams.filter || "",
-                showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
-                                           parseInt($stateParams.showOnlyImportant)),
-                showOnlyConfident: Boolean($stateParams.showOnlyConfident !== undefined &&
-                                           parseInt($stateParams.showOnlyConfident))
+                showOnlyImportant: $stateParams.showOnlyImportant !== undefined &&
+                                           parseInt($stateParams.showOnlyImportant),
+                showOnlyConfident: $stateParams.showOnlyConfident !== undefined &&
+                                           parseInt($stateParams.showOnlyConfident)
             };
 
             function updateURL() {
@@ -504,10 +504,10 @@ perf.controller('CompareSubtestResultsCtrl', [
                     $scope.filterOptions = {
                         framework: $stateParams.framework || 1, // 1 == talos
                         filter: $stateParams.filter || "",
-                        showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
-                                                   parseInt($stateParams.showOnlyImportant)),
-                        showOnlyConfident: Boolean($stateParams.showOnlyConfident !== undefined &&
-                                                   parseInt($stateParams.showOnlyConfident))
+                        showOnlyImportant: $stateParams.showOnlyImportant !== undefined &&
+                                                   parseInt($stateParams.showOnlyImportant),
+                        showOnlyConfident: $stateParams.showOnlyConfident !== undefined &&
+                                                   parseInt($stateParams.showOnlyConfident)
                     };
 
                     $scope.$watchGroup(['filterOptions.filter',

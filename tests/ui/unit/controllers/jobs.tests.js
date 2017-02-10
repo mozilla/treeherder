@@ -3,9 +3,9 @@
 /* jasmine specs for controllers go here */
 
 describe('JobsCtrl', function(){
-    var $httpBackend, controller, jobsScope;
+    var $httpBackend, jobsScope;
 
-    beforeEach(module('treeherder.app'));
+    beforeEach(angular.mock.module('treeherder.app'));
 
     beforeEach(inject(function ($injector, $rootScope, $controller) {
         var activeRepo = 'mozilla-central';
@@ -58,7 +58,7 @@ describe('JobsCtrl', function(){
 
         jobsScope = $rootScope.$new();
         jobsScope.repoName = activeRepo;
-        jobsScope.setRepoPanelShowing = function(tf) {
+        jobsScope.setRepoPanelShowing = function() {
                 // no op in the tests.
         };
         $controller('JobsCtrl', {'$scope': jobsScope});
@@ -112,7 +112,7 @@ describe('JobsCtrl', function(){
             $httpBackend.flush();
             $httpBackend.flush();
             resultSetScopeList = [];
-            for(var i=0; i<jobsScope.result_sets.length; i++){
+            for (var i=0; i<jobsScope.result_sets.length; i++){
                 var resultSetScope = jobsScope.$new();
                 resultSetScope.resultset = jobsScope.result_sets[i];
                 $controller('ResultSetCtrl', {'$scope': resultSetScope});

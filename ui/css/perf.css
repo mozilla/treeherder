@@ -455,3 +455,6 @@ td.alert-confidence {
 .alert-strike {
     text-decoration: line-through;
 }
+.midgray, .midgray a {
+    color: gray;
+}

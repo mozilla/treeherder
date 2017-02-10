@@ -9,7 +9,7 @@
               ng-click="updateButtonClick()"
               id="revisionChangedLabel"
               title="New version of Treeherder has been deployed. Reload to pick up changes.">
-          <span class="fa fa-exclamation-circle" />&nbsp;Treeherder update available
+            <span class="fa fa-exclamation-circle"></span>&nbsp;Treeherder update available
         </span>
 
         <!--Unclassified Failures Button-->
@@ -39,8 +39,7 @@
                   class="btn btn-view-nav btn-sm nav-menu-btn">Tiers
             <span class="fa fa-angle-down lightgray"></span>
           </span>
-          <ul class="dropdown-menu checkbox-dropdown-menu"
-              role="menu">
+          <ul class="dropdown-menu checkbox-dropdown-menu" role="menu">
             <li ng-repeat="tier in jobFilters.tiers">
               <div class="checkbox dropdown-link">
                 <label title="{{(isSingleTierSelected() && tiers[tier] == true) ? 'Must have at least one tier selected at all times' : ''}}">
@@ -64,9 +63,7 @@
               ng-click="toggleExcludedJobs()">
           <span class="btn-toggle-excluded"
              ng-class="{ 'btn-excluded': !isSkippingExclusionProfiles }">
-            <i class="fa"
-               ng-class="{ 'fa-eye-slash': !isSkippingExclusionProfiles,
-                           'fa-eye': isSkippingExclusionProfiles }"></i>
+            <i class="fa" ng-class="{ 'fa-eye-slash': !isSkippingExclusionProfiles, 'fa-eye': isSkippingExclusionProfiles }"></i>
           </span>
         </span>
 
@@ -85,8 +82,7 @@
                 title="{{ allCollapsed('revision-list') ? 'Show revision list': 'Hide revision list'}}"
                 tabindex="0" role="button"
                 ng-click="toggleAllRevisions()">
-                <i class="fa fa-code-fork"
-                    ng-class="{'revision-collapsed': allCollapsed('revision-list')}"></i>
+                <i class="fa fa-code-fork" ng-class="{'revision-collapsed': allCollapsed('revision-list')}"></i>
           </span>
         </span>
 

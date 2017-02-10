@@ -1,26 +1,24 @@
 'use strict';
 
+require('../../../../ui/js/models/job.js');
 describe('ThJobModel', function(){
-
     var $httpBackend,
-        $timeout,
         foregroundRepo = "mozilla-central",
         projectPrefix = '/api/project/',
         foregroundPrefix = projectPrefix + foregroundRepo,
         ThJobModel;
 
-    beforeEach(module('treeherder'));
+    beforeEach(angular.mock.module('treeherder'));
 
     beforeEach(inject(function ($injector) {
         $httpBackend = $injector.get('$httpBackend');
-        $timeout = $injector.get('$timeout');
         jasmine.getJSONFixtures().fixturesPath='base/tests/ui/mock';
         ThJobModel = $injector.get('ThJobModel');
         ThJobModel.get_uri = function(){
             return foregroundPrefix+"/jobs/";
-        }
+        };
     }));
-    
+
     describe("get_list", function(){
         beforeEach(inject(function () {
             $httpBackend.whenGET(foregroundPrefix + '/jobs/').respond(
@@ -46,7 +44,7 @@ describe('ThJobModel', function(){
             }));
 
             it("should return a page of results by default", function(){
-                var result = ThJobModel.get_list(
+                ThJobModel.get_list(
                     foregroundRepo,
                     {count: 2}
                 ).
@@ -58,7 +56,7 @@ describe('ThJobModel', function(){
             });
 
             it("should return all the pages when fetch_all==true", function(){
-                var result = ThJobModel.get_list(
+                ThJobModel.get_list(
                     foregroundRepo,
                     {count: 2},
                     {fetch_all: true}

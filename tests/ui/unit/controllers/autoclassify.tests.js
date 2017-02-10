@@ -2,7 +2,7 @@
 
 describe('AutoClassify panel', function() {
 
-    beforeEach(module('treeherder.app'));
+    beforeEach(angular.mock.module('treeherder.app'));
 
     it('thStringOverlap', inject(function(thStringOverlap) {
         expect(thStringOverlap("foo bar", "foo baz")).toEqual(1/2);

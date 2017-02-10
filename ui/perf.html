@@ -1,48 +1,41 @@
 <!DOCTYPE html>
-<html ng-app="perf">
+<html ng-app="perf" ng-strict-di>
 <head>
     <meta charset="utf-8">
     <title>Perfherder</title>
-    <!-- build:css css/perf.min.css -->
-    <link href="vendor/css/bootstrap.css" rel="stylesheet" media="screen">
-    <link href="vendor/css/font-awesome.css" rel="stylesheet" media="screen">
-    <link href="css/treeherder-navbar.css" rel="stylesheet" media="screen">
-    <link href="css/perf.css" rel="stylesheet" media="screen">
-    <link href="css/treeherder-loading-overlay.css" rel="stylesheet" media="screen">
-    <!-- endbuild -->
     <link id="favicon" type="image/png" rel="shortcut icon" href="img/line_chart.png">
-    <style>
-    </style>
 </head>
 <body>
   <nav id="th-global-navbar" class="navbar navbar-inverse" role="navigation">
     <div id="th-global-navbar-top" class="navbar navbar-collapse">
-      <span class="dropdown">
-        <button id="th-logo"
-                title="Treeherder services" role="button"
-                class="btn btn-view-nav"
-                data-toggle="dropdown">Perfherder
-          <span class="fa fa-angle-down lightgray"></span>
-        </button>
-        <ul class="dropdown-menu" role="menu" aria-labelledby="perf-logo">
-          <li><a href="/">Treeherder</a></li>
-        </ul>
-      </span>
-      <a ng-class="{active: $state.includes('graphs')}" class="btn btn-view-nav" ui-sref="graphs">Graphs</a>
-      <a ng-class="{active: $state.current.name.startsWith('compare')}" class="btn btn-view-nav" ui-sref="comparechooser">Compare</a>
-      <a ng-class="{active: $state.current.name.indexOf('alerts') >= 0}" class="btn btn-view-nav" ui-sref="alerts({id: null, status: null, framework: null, filter: null, hideImprovements: null, hideTo: 1})">Alerts</a>
-      <!-- Dashboard Menu -->
-      <span class="dropdown">
-        <button id="dashboardLabel" title="Dashboard" role="button"
-                data-toggle="dropdown"
-                class="btn btn-view-nav">Dashboard
-          <span class="fa fa-angle-down lightgray"></span>
-        </button>
-        <ul class="dropdown-menu icon-menu" role="menu">
-          <li><a ui-sref="dashboard({topic: 'e10s'})"><span class="fa fa-bar-chart midgray"></span> e10s</a></li>
-          <li><a ui-sref="e10s_trend"><span class="fa fa-line-chart midgray"></span> e10s-trend</a></li>
-          <li><a ui-sref="dashboard({topic: 'hasal', repo: 'mozilla-central'})"><span class="fa fa-bar-chart midgray"></span> hasal</a></li>
-        </ul>
+      <span class="navbar-left">
+        <span class="dropdown">
+          <button id="th-logo"
+                  title="Treeherder services" role="button"
+                  class="btn btn-view-nav"
+                  data-toggle="dropdown">Perfherder
+            <span class="fa fa-angle-down lightgray"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="perf-logo">
+            <li><a class="dropdown-item" href="/">Treeherder</a></li>
+          </ul>
+        </span>
+        <a ng-class="{active: $state.includes('graphs')}" class="btn btn-view-nav" ui-sref="graphs">Graphs</a>
+        <a ng-class="{active: $state.current.name.startsWith('compare')}" class="btn btn-view-nav" ui-sref="comparechooser">Compare</a>
+        <a ng-class="{active: $state.current.name.indexOf('alerts') >= 0}" class="btn btn-view-nav" ui-sref="alerts({id: null, status: null, framework: null, filter: null, hideImprovements: null, hideTo: 1})">Alerts</a>
+        <!-- Dashboard Menu -->
+        <span class="dropdown">
+          <button id="dashboardLabel" title="Dashboard" role="button"
+                  data-toggle="dropdown"
+                  class="btn btn-view-nav">Dashboard
+            <span class="fa fa-angle-down lightgray"></span>
+          </button>
+          <ul class="dropdown-menu icon-menu" role="menu">
+            <li><a ui-sref="dashboard({topic: 'e10s'})"><span class="fa fa-bar-chart midgray"></span> e10s</a></li>
+            <li><a ui-sref="e10s_trend"><span class="fa fa-line-chart midgray"></span> e10s-trend</a></li>
+            <li><a ui-sref="dashboard({topic: 'hasal', repo: 'mozilla-central'})"><span class="fa fa-bar-chart midgray"></span> hasal</a></li>
+          </ul>
+        </span>
       </span>
       <div class="nav navbar-nav navbar-right">
         <!-- Help Menu -->
@@ -63,64 +56,7 @@
     </div>
   </nav>
   <div style="padding-top: 20px;"></div>
-  <section ui-view>
-  </section>
-
-  <!-- build:dontbuild -->
-  <script src="js/config/local.conf.js"></script>
-  <!-- endbuild -->
-
-  <!-- build:js js/perf.min.js -->
-  <script src="vendor/jquery-2.1.3.js"></script>
-  <script src="vendor/lodash.min.js"></script>
-  <script src="vendor/angular/angular.js"></script>
-  <script src="vendor/angular-clipboard.js"></script>
-  <script src="vendor/angular/angular-resource.js"></script>
-  <script src="vendor/angular/angular-cookies.js"></script>
-  <script src="vendor/angular/angular-ui-router.js"></script>
-  <script src="vendor/angular/angular-sanitize.js"></script>
-  <script src="vendor/angular-local-storage.min.js"></script>
-  <script src="vendor/ui-bootstrap-tpls-1.3.3.js"></script>
-  <script src="vendor/bootstrap.js"></script>
-  <script src="vendor/jquery.flot.js"></script>
-  <script src="vendor/jquery.flot.time.js"></script>
-  <script src="vendor/jquery.flot.selection.min.js"></script>
-  <script src="vendor/mousetrap.min.js"></script>
-  <script src="vendor/hawk/browser-6.6.0.js"></script>
-  <script src="vendor/taskcluster-1.6.0.js"></script>
-  <script src="js/treeherder.js"></script>
-  <script src="js/services/taskcluster.js"></script>
-  <script src="js/services/treestatus.js"></script>
-  <script src="js/providers.js"></script>
-  <script src="js/values.js"></script>
-  <script src="js/filters.js"></script>
-  <script src="js/models/option_collection.js"></script>
-  <script src="js/services/main.js"></script>
-  <script src="js/services/log.js"></script>
-  <script src="js/services/jsonpushes.js"></script>
-  <script src="js/models/repository.js"></script>
-  <script src="js/models/job.js"></script>
-  <script src="js/models/runnable_job.js"></script>
-  <script src="js/models/resultset.js"></script>
-  <script src="js/models/user.js"></script>
-  <script src="js/models/error.js"></script>
-  <script src="js/perf.js"></script>
-  <script src="js/models/perf/series.js"></script>
-  <script src="js/models/perf/performance_framework.js"></script>
-  <script src="js/models/perf/alerts.js"></script>
-  <script src="js/services/perf/math.js"></script>
-  <script src="js/services/perf/compare.js"></script>
-  <script src="js/controllers/perf/compare.js"></script>
-  <script src="js/controllers/perf/graphs.js"></script>
-  <script src="js/controllers/perf/alerts.js"></script>
-  <script src="js/controllers/perf/dashboard.js"></script>
-  <script src="js/controllers/perf/e10s-trend.js"></script>
-  <script src="js/components/perf/compare.js"></script>
-  <script src="js/components/auth.js"></script>
-  <script src="js/components/loading.js"></script>
-  <script src="js/perfapp.js"></script>
-  <script src="js/filters.js"></script>
-  <!-- endbuild -->
+  <section ui-view> </section>
 
 </body>
 </html>
