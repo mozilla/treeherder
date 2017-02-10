@@ -59,8 +59,16 @@ def get_failures_fixed_by_commit():
     failures = {}
     # We're assuming that sheriffs always anotate failed jobs correctly using "fixed by commit"
     for job_note in models.JobNote.objects.filter(failure_classification=2):
+        # prevent an empty string
+        if not job_note.text:
+            continue
+
+        # if we have http://hg.mozilla.org/rev/<rev> and <rev>, we will only use <rev>
+        revision_id = job_note.text.strip('/')
+        revision_id = revision_id.split('/')[-1]
+
         # This prevents the empty string case and ignores bug ids
-        if not job_note.text or len(job_note.text) < 12:
+        if not revision_id or len(revision_id) < 12:
             continue
 
         # We currently don't guarantee that text is actually a revision
@@ -79,10 +87,6 @@ def get_failures_fixed_by_commit():
         # 40char revision we will have two disjunct set of failures
         #
         # Some of this will be improved in https://bugzilla.mozilla.org/show_bug.cgi?id=1323536
-
-        # if we have http://hg.mozilla.org/rev/<rev> and <rev>, we will only use <rev>
-        revision_id = job_note.text.strip('/')
-        revision_id = revision_id.split('/')[-1]
         if revision_id not in failures:
             failures[revision_id] = []
 

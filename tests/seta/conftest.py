@@ -116,15 +116,66 @@ def jp_index_fixture(job_priority_list):
 def fifteen_jobs_with_notes(eleven_jobs_stored, taskcluster_jobs_stored, test_user,
                             failure_classifications):
     """provide 15 jobs with job notes."""
+    counter = 0
     for job in Job.objects.all():
-        for failure_classification_id in [2, 3]:
+        counter += 1
+
+        # add 5 jobs related to the man-o-lantern
+        if counter < 6:
             JobNote.objects.create(job=job,
-                                   failure_classification_id=failure_classification_id,
+                                   failure_classification_id=2,
                                    user=test_user, text="you look like a man-o-lantern")
+            continue
+
+        # add 4 jobs with raw revision, expected: 31415926535
+        if counter < 10:
+            JobNote.objects.create(job=job,
+                                   failure_classification_id=2,
+                                   user=test_user, text="314159265358")
+            continue
+
+        # Add 4 jobs with full url to revision, expected to map to 31415926535
+        if counter < 14:
+            JobNote.objects.create(job=job,
+                                   failure_classification_id=2,
+                                   user=test_user, text="http://hg.mozilla.org/mozilla-central/314159265358")
+            continue
+
+        # Add job with name which do not get added to SETA data
+        # This will create a jobNote "call me empty" with no jobs
+        # in the fixed_by_commit structure
+        if counter < 15:
+            JobNote.objects.create(job=job,
+                                   failure_classification_id=2,
+                                   user=test_user, text="call me empty")
+            continue
+
+        # Add one job with trailing slash, expected to map to 31415926535
+        # Add 3 extra jobs with invalid fixed_by_commit notes, we will ignore them
+        if counter < 16:
+            JobNote.objects.create(job=job,
+                                   failure_classification_id=2,
+                                   user=test_user, text="http://hg.mozilla.org/mozilla-central/314159265358/")
+            # We will ignore this based on text length
+            JobNote.objects.create(job=job,
+                                   failure_classification_id=2,
+                                   user=test_user, text="too short")
+            # We will ignore this based on blank note
+            JobNote.objects.create(job=job,
+                                   failure_classification_id=2,
+                                   user=test_user, text="")
+            # We will ignore this based on effectively blank note
+            JobNote.objects.create(job=job,
+                                   failure_classification_id=2,
+                                   user=test_user, text="/")
+
+        # if we have any more jobs defined it will break this test, ignore
+        continue
 
 
 @pytest.fixture
 def failures_fixed_by_commit():
+    # NOTE: we do not have a note: "call me empty", this should be excluded by analyze_failures.py
     return {
         u'you look like a man-o-lantern': [
             (u'b2g_mozilla-release_emulator-jb-debug_dep', u'debug', u'b2g-emu-jb'),
@@ -132,6 +183,8 @@ def failures_fixed_by_commit():
             (u'mochitest-browser-chrome', u'debug', u'osx-10-6'),
             (u'mochitest-browser-chrome', u'debug', u'osx-10-7'),
             (u'mochitest-browser-chrome', u'debug', u'windows7-32'),
+        ],
+        u'314159265358': [
             (u'mochitest-browser-chrome', u'debug', u'windows8-32'),
             (u'mochitest-browser-chrome', u'debug', u'windowsxp'),
             (u'b2g_mozilla-release_inari_dep', u'opt', u'b2g-device-image'),
