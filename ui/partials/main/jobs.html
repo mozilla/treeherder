@@ -61,8 +61,7 @@
       <button ng-click="cancelAllJobs(resultset.revision)" class="btn btn-xs btn-danger">Confirm</button>
     </div>
   </div>
-  <!-- Job table -->
-  <div class="result-set-body" th-clone-jobs ></div>
+  <result-set resultset="resultset" watch-depth="reference"></result-set>
 </div>
 
 <!-- Resultset load errors -->

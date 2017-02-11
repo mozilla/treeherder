@@ -1,13 +1,14 @@
 'use strict';
-var compile = require('ngreact-test-utils').compile;
+/* global ReactDOM, revisionListComponent, revisionItemComponent */
+var TestUtils = React.addons.TestUtils;
 
-describe('Revision list react component', () => {
-    var $filter;
-    var mockData;
+describe('Revision', () => {
+    var $filter, $injector, mockData, component, rendered;
     beforeEach(angular.mock.module('treeherder'));
     beforeEach(angular.mock.module('react'));
-    beforeEach(inject((_$filter_) => {
+    beforeEach(inject((_$filter_, _$injector_) => {
         $filter = _$filter_;
+        $injector = _$injector_;
     }));
     beforeEach(() => {
         var resultset = {
@@ -64,74 +65,105 @@ describe('Revision list react component', () => {
         };
     });
 
-    it('renders the correct number of revisions in a list', () => {
-        var component = compile('<revisions repo="repo" resultset="resultset" />', mockData);
-        var revisionItems = component.el[0].querySelectorAll('li');
-        expect(revisionItems.length).toEqual(mockData['resultset']['revision_count']);
+    describe('list component', () => {
+        beforeEach(() => {
+            component = TestUtils.renderIntoDocument(revisionListComponent({
+                resultset: mockData.resultset,
+                repo: mockData.repo,
+                $injector
+            }));
+            rendered = ReactDOM.findDOMNode(component);
+        });
+
+        it('renders the correct number of revisions in a list', () => {
+            var listEl = rendered.querySelector('ul');
+            expect(listEl.children.length).toEqual(mockData['resultset']['revision_count']);
+        });
     });
 
-    it('renders the linked revision hashes', () => {
-        var component = compile('<revisions repo="repo" resultset="resultset" />', mockData);
-        var links = component.el[0].querySelectorAll('.revision-holder a');
-        expect(links.length).toEqual(mockData['resultset']['revision_count']);
-        Array.prototype.forEach.call(links, (link, i) => {
+    describe('list component with greater than the maximum display count of 20 revisions', () => {
+        beforeEach(() => {
+            mockData.resultset.revision_count = 21;
+            component = TestUtils.renderIntoDocument(revisionListComponent({
+                resultset: mockData.resultset,
+                repo: mockData.repo,
+                $injector
+            }));
+            rendered = ReactDOM.findDOMNode(component);
+        });
+
+        it('renders an "...and more" link', () => {
+            var revisionItems = rendered.querySelectorAll('li');
+            expect(revisionItems.length).toEqual(mockData.resultset.revisions.length + 1);
+
+            var lastItem = revisionItems[revisionItems.length - 1];
+            expect(lastItem.textContent).toEqual('\u2026and more');
+            expect(lastItem.querySelector('a i.fa.fa-external-link-square')).toBeDefined();
+        });
+    });
+
+    describe('item component', () => {
+        beforeEach(() => {
+            component = TestUtils.renderIntoDocument(revisionItemComponent({
+                revision: mockData.resultset.revisions[0],
+                repo: mockData.repo,
+                $injector
+            }));
+            rendered = ReactDOM.findDOMNode(component);
+        });
+
+        it('renders a linked revision hash', () => {
+            var link = rendered.querySelector('.revision-holder a');
             expect(link.href).toEqual(mockData.repo.getRevisionHref());
-            expect(link.title).toEqual(`Open revision ${mockData.resultset.revisions[i].revision} on ${mockData.repo.url}`);
+            expect(link.title).toEqual(`Open revision ${mockData.resultset.revisions[0].revision} on ${mockData.repo.url}`);
+        });
+
+        it('renders the contributor\'s initials', () => {
+            var initials = rendered.querySelector('.label.label-initials');
+            expect(initials.textContent).toEqual('AB');
+            expect(initials.parentNode.title).toEqual('André Bargull: andre.bargull@gmail.com');
+        });
+
+        it('linkifies bugs IDs in the comment', () => {
+            var escapedComment = _.escape(mockData.resultset.revisions[0].comments.split('\n')[0]);
+            var linkifiedCommentText = $filter('linkifyBugs')(escapedComment);
+            var commentEm = rendered.querySelector('.revision-comment em');
+            expect(commentEm.innerHTML).toEqual(linkifiedCommentText);
         });
     });
 
-    it('renders the contributors\' initials', () => {
-        var component = compile('<revisions repo="repo" resultset="resultset" />', mockData);
-        var initials = component.el[0].querySelectorAll('.label.label-initials');
-        expect(initials.length).toEqual(mockData.resultset.revision_count);
-        Array.prototype.forEach.call(initials, (initial, i) => {
-            var revisionData = mockData.resultset.revisions[i];
-            var userTokens = revisionData.author.split(/[<>]+/);
-            var name = userTokens[0];
-            var email = null;
-            if (userTokens.length > 1) email = userTokens[1];
-            var nameString = name;
-            if (email !== null) nameString += `: ${email}`;
+    describe('item component with "back out" in comments', () => {
+        beforeEach(() => {
+            mockData.resultset.revisions[0].comments = "Back out changeset a6e2d96c1274 (bug 1322565) for eslint failure";
+            component = TestUtils.renderIntoDocument(revisionItemComponent({
+                revision: mockData.resultset.revisions[0],
+                repo: mockData.repo,
+                $injector
+            }));
+            rendered = ReactDOM.findDOMNode(component);
+        });
 
-            expect(initial.outerHTML).toEqual($filter('initials')(name));
-            expect(initial.parentNode.title).toEqual(nameString);
+        it('marks the revision as backed out', () => {
+            var revisionEl = rendered.querySelector('.revision');
+            expect(revisionEl.dataset.tags.indexOf('backout')).not.toEqual(-1);
         });
     });
 
-    it('renders an "...and more" link if the revision count is higher than the max display count of 20', () => {
-        mockData.resultset.revision_count = 21;
+    describe('item component with "backed out" in comments', () => {
+        beforeEach(() => {
+            mockData.resultset.revisions[0].comments = "Backed out changeset a6e2d96c1274 (bug 1322565) for eslint failure";
+            component = TestUtils.renderIntoDocument(revisionItemComponent({
+                revision: mockData.resultset.revisions[0],
+                repo: mockData.repo,
+                $injector
+            }));
+            rendered = ReactDOM.findDOMNode(component);
+        });
 
-        var component = compile('<revisions repo="repo" resultset="resultset" />', mockData);
-        var revisionItems = component.el[0].querySelectorAll('li');
-        expect(revisionItems.length).toEqual(mockData.resultset.revisions.length + 1);
-
-        var lastItem = revisionItems[revisionItems.length - 1];
-        expect(lastItem.textContent).toEqual('\u2026and more');
-        expect(lastItem.querySelector('a i.fa.fa-external-link-square')).toBeDefined();
-    });
-
-    it('linkifies bugs IDs in the comments', () => {
-        var escapedComment = _.escape(mockData.resultset.revisions[0].comments.split('\n')[0]);
-        var linkifiedCommentText = $filter('linkifyBugs')(escapedComment);
-
-        var component = compile('<revisions repo="repo" resultset="resultset" />', mockData);
-        var commentEm = component.el[0].querySelector('.revision-comment em');
-        expect(commentEm.innerHTML).toEqual(linkifiedCommentText);
-
-    });
-
-    it('marks the revision as backed out if the words "Back/Backed out" appear in the comments', () => {
-        var component, firstRevision;
-        mockData.resultset.revisions[0].comments = "Backed out changeset a6e2d96c1274 (bug 1322565) for eslint failure";
-
-        component = compile('<revisions repo="repo" resultset="resultset" />', mockData);
-        firstRevision = component.el[0].querySelector('li .revision');
-        expect(firstRevision.getAttribute('data-tags').indexOf('backout')).not.toEqual(-1);
-
-        mockData.resultset.revisions[0].comments = "Back out changeset a6e2d96c1274 (bug 1322565) for eslint failure";
-        component = compile('<revisions repo="repo" resultset="resultset" />', mockData);
-        firstRevision = component.el[0].querySelector('li .revision');
-        expect(firstRevision.getAttribute('data-tags').indexOf('backout')).not.toEqual(-1);
+        it('marks the revision as backed out', () => {
+            var revisionEl = rendered.querySelector('.revision');
+            expect(revisionEl.dataset.tags.indexOf('backout')).not.toEqual(-1);
+        });
     });
 
 });

@@ -1093,7 +1093,8 @@ treeherder.factory('ThResultSetStore', [
                 // select the job in question
                 if (selectedJobEl) {
                     $timeout(function() {
-                        $rootScope.$emit(thEvents.selectJob, selectedJobEl.job_obj);
+                        setSelectedJob(repoName, selectedJobEl.job_obj);
+                        $rootScope.$emit(thEvents.jobClick, selectedJobEl.job_obj);
                     }, 200);
 
                 } else {

@@ -87,11 +87,13 @@
         <script src="js/components/auth.js"></script>
         <!-- Directives -->
         <script src="js/directives/treeherder/main.js"></script>
-        <script src="js/directives/treeherder/clonejobs.js"></script>
         <script src="js/directives/treeherder/resultsets.js"></script>
         <script src="js/directives/treeherder/top_nav_bar.js"></script>
         <script src="js/directives/treeherder/bottom_nav_panel.js"></script>
-        <script src="js/reactrevisions.js"></script>
+        <script src="js/react/revisions.js"></script>
+        <script src="js/react/buttons.js"></script>
+        <script src="js/react/groups.js"></script>
+        <script src="js/react/table.js"></script>
         <!-- Main services -->
         <script src="js/services/main.js"></script>
         <script src="js/services/buildapi.js"></script>
@@ -150,77 +152,6 @@
         <!-- build:dontbuild -->
         <script src="js/config/local.conf.js"></script>
         <!-- endbuild -->
-
-        <!-- Clone targets -->
-
-        <!-- Clone target for each result set -->
-        <script type="'text/ng-template'" id="resultsetClone.html">
-            <div class="clearfix"></div>
-            <div class="row result-set">
-                <span style="display:block;" class="revision-list col-xs-5">
-                    <ul class="list-unstyled"></ul>
-                </span>
-                <span class="job-list col-xs-7 job-list-pad">
-                    <span class="fa fa-spinner fa-pulse th-spinner"></span>
-                    <table id="{{ aggregateId }}" class="table-hover"></table>
-                </span>
-            </div>
-        </script>
-        <!-- Clone target for each platform -->
-        <script type="'text/ng-template'" id="platformClone.html">
-            <td class="platform">
-                <span title="{{ name }} {{ option }}">{{ name }} {{ option }}</span>
-            </td>
-        </script>
-
-        <!-- Table column for jobs -->
-        <script type="'text/ng-template'" id="jobTdClone.html">
-            <td class="job-row"></td>
-        </script>
-
-        <!-- Start span for job groups -->
-        <script type="'text/ng-template'" id="jobGroupClone.html">
-            <span class="platform-group" style="display: {{ display }};">
-                <span class="disabled job-group" title="{{ name }}"
-                      data-grkey="{{ grkey }}">
-                    <button class="btn group-symbol"
-                          data-ignore-job-clear-on-click>{{ symbol }}{{(tier) ?
-                      '<span class="small text-muted">[tier ' + tier + ']</span>': ""}}
-                    </button>
-                    <span class="group-content">
-                        <span class="group-job-list">
-                            {{ btnHTML }}
-                        </span>
-                        <span class="group-count-list">
-                            {{ countBtnHTML }}
-                        </span>
-                    </span>
-                </span>
-            </span>
-        </script>
-
-        <!-- Job group count span for each count item -->
-        <script type="'text/ng-template'" id="jobGroupCountClone.html">
-            <button class="btn {{ selectedClasses }} group-btn btn-xs job-group-count {{ btnClass }} {{ visibleClass }}"
-                    title="{{ title }}">{{ value }}</button>
-        </script>
-
-        <!-- Job Btn span -->
-        <script type="'text/ng-template'" id="jobBtnClone.html">
-            <button class="btn job-btn {{ btnClass }} {{ key }} {{ extraClasses }}"
-                  data-jmkey="{{ key }}"
-                  data-ignore-job-clear-on-click
-                  title="{{ title }}">{{ value }}</button>
-        </script>
-
-        <!-- Runnable Job Btn span -->
-        <script type="'text/ng-template'" id="runnableJobBtnClone.html">
-            <button class="btn runnable-job-btn {{ key }}  {{ extraClasses }}"
-                  data-jmkey="{{ key }}"
-                  data-buildername="{{ buildername }}"
-                  data-ignore-job-clear-on-click
-                  title="{{ title }}">{{ value }}</button>
-        </script>
 
         <!-- Tooltip for job info-->
         <script type="'text/ng-template'" id="jobInfoTooltip.html">
