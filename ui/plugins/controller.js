@@ -333,8 +333,22 @@ treeherder.controller('PluginCtrl', [
         $scope.$watch('getCountPinnedJobs()', function(newVal, oldVal) {
             if (oldVal === 0 && newVal > 0) {
                 $scope.isPinboardVisible = true;
+                getRevisionTips($scope.repoName, $scope.originalTipList);
             }
         });
+
+        $scope.originalTipList = [];
+
+        var getRevisionTips = function(projectName, list) {
+            list.splice(0, list.length);
+            var rsArr = ThResultSetStore.getResultSetsArray(projectName);
+            _.forEach(rsArr, rs => {
+                list.push({
+                    revision: rs.revision,
+                    author: rs.author
+                });
+            });
+        };
 
         $scope.canCancel = function() {
             return $scope.job &&

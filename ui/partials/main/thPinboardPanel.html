@@ -57,14 +57,14 @@
                placeholder="click to add comment"
                blur-this></input>
         <div ng-if="classification.failure_classification_id === 2">
-          <div class="input-group-btn">
-              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="padding: 2px 12px;">
-              Recent <span class="caret"></span></button>
-              <ul class="dropdown-menu dropdown-menu-right" ng-model="tipRevision">
-                <li ng-repeat="tip in originalTipList | limitTo:20"><a ng-click="getOriginalTipRevision(tip.revision)">{{tip.revision | limitTo: 12}} {{tip.author}}</a></li>
-              </ul>
-          </div> 
-        </div>       
+          <select id="recent-choice">
+            <option value="0" selected disabled>Choose a recent commit</option>
+            <option ng-repeat="tip in originalTipList | limitTo:20"
+              ng-click="classification.text=tip.revision">
+              {{tip.revision | limitTo: 12}} {{tip.author}}
+            </option>
+          </select>
+        </div>
       </div>
     </form>
   </div>

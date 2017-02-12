@@ -1,15 +1,11 @@
 "use strict";
 
 treeherder.controller('PinboardCtrl', [
-    '$scope', '$rootScope', '$location', '$document', '$timeout','thEvents', 'thPinboard', 'thNotify', 'ThLog', 'ThResultSetModel',
+    '$scope', '$rootScope', '$location', '$document', '$timeout','thEvents', 'thPinboard', 'thNotify', 'ThLog',
     function PinboardCtrl(
-        $scope, $rootScope, $location, $document, $timeout, thEvents, thPinboard, thNotify, ThLog, ThResultSetModel) {
+        $scope, $rootScope, $location, $document, $timeout, thEvents, thPinboard, thNotify, ThLog) {
 
         var $log = new ThLog(this.constructor.name);
-        var repoName = $location.search().repo;
-
-        $scope.originalTipList = [];
-        $scope.newTipList = [];
 
         $rootScope.$on(thEvents.toggleJobPin, function(event, job) {
             $scope.toggleJobPin(job);
@@ -248,37 +244,5 @@ treeherder.controller('PinboardCtrl', [
         $scope.classification = thPinboard.createNewClassification();
         $scope.pinnedJobs = thPinboard.pinnedJobs;
         $scope.relatedBugs = thPinboard.relatedBugs;
-
-        var getRevisionTips = function(projectName, list) {
-            list.splice(0, list.length);
-            ThResultSetModel.getResultSets(projectName).then(function(response) {
-                var resultsets = response.data.results;
-                resultsets.forEach(function(revisionSet) {
-                    list.push({
-                        revision: revisionSet.revision,
-                        author: revisionSet.author
-                    });
-                });
-            });
-        };
-
-        $scope.updateOriginalgRevisionTips = function() {
-            getRevisionTips(repoName, $scope.originalTipList);
-        };
-
-        $scope.updateNewRevisionTips = function() {
-            getRevisionTips(repoName, $scope.newTipList);
-        };
-
-        $scope.updateOriginalgRevisionTips();
-        $scope.updateNewRevisionTips();
-
-        $scope.getOriginalTipRevision = function(tip) {
-            $scope.originalRevision = tip;
-            $scope.classification.text = $scope.originalRevision;
-        };
     }
 ]);
-
-
-
