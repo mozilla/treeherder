@@ -32,8 +32,7 @@ class PerformanceSignature(models.Model):
     signature_hash = models.CharField(max_length=SIGNATURE_HASH_LENGTH,
                                       validators=[
                                           MinLengthValidator(SIGNATURE_HASH_LENGTH)
-                                      ],
-                                      db_index=True)
+                                      ])
 
     repository = models.ForeignKey(Repository)
     framework = models.ForeignKey(PerformanceFramework)
