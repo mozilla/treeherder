@@ -53,7 +53,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Treeherder'
-copyright = u'2016, Mozilla and other contributors'
+copyright = u'2017, Mozilla and other contributors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
