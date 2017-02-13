@@ -266,6 +266,14 @@ BROKER_URL = env('BROKER_URL')
 if server_supports_tls(BROKER_URL):
     BROKER_USE_SSL = True
 
+# Recommended by CloudAMQP:
+# https://www.cloudamqp.com/docs/celery.html
+BROKER_HEARTBEAT = None
+BROKER_CONNECTION_TIMEOUT = 30
+CELERY_RESULT_BACKEND = None
+CELERY_SEND_EVENTS = False
+CELERY_EVENT_QUEUE_EXPIRES = 60
+
 CELERY_IGNORE_RESULT = True
 
 CELERY_ACCEPT_CONTENT = ['json']
