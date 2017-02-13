@@ -42,7 +42,7 @@ treeherder.factory('ThTaskclusterErrors', ['localStorageService', function(local
         @param {Error} e error object from taskcluster client.
         */
         format: function(e) {
-            if (e.code === 'InsufficientScopes') {
+            if (e.code === 'AuthenticationFailed') {
                 let creds = localStorageService.get('taskcluster.credentials');
                 if (creds && creds.certificate && creds.certificate.expiry) {
                     let expires = new Date(creds.certificate.expiry);
