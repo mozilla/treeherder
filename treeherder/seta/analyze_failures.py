@@ -58,7 +58,8 @@ def get_failures_fixed_by_commit():
     """
     failures = {}
     # We're assuming that sheriffs always anotate failed jobs correctly using "fixed by commit"
-    for job_note in models.JobNote.objects.filter(failure_classification=2):
+    for job_note in models.JobNote.objects.filter(failure_classification=2).select_related(
+            'job', 'job__signature', 'job__job_type'):
         # prevent an empty string
         if not job_note.text:
             continue
