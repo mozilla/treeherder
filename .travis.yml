@@ -88,7 +88,7 @@ matrix:
         # 'https://' being in the site URL. In addition, we override the test environment's debug
         # value so the tests pass. The real environment variable will be checked during deployment.
         - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' ./manage.py check --deploy --fail-level WARNING
-        - py.test tests/ --runslow --ignore=tests/e2e/ --ignore=tests/etl/ --ignore=tests/log_parser/ --ignore=tests/webapp/
+        - py.test tests/ --runslow --ignore=tests/e2e/ --ignore=tests/etl/ --ignore=tests/log_parser/ --ignore=tests/webapp/ --ignore=tests/selenium/
 
     # Job 4: Python Tests Chunk B
     - env: python-tests-e2e-etl-logparser
@@ -147,6 +147,44 @@ matrix:
         - while ! curl localhost:9200 &>/dev/null; do sleep 1; done
       script:
         - py.test tests/webapp/ --runslow
+
+    # Job 6: Python Tests - Selenium integration
+    - env: python-tests-selenium
+      # TODO: Investigate switching back to the container infra, by setting `sudo: false`.
+      sudo: required
+      language: python
+      python: "2.7.13"
+      cache:
+        directories:
+          - ~/venv
+      addons:
+        firefox: latest
+      services:
+        - rabbitmq
+      before_install:
+        - curl -sSo ~/elasticsearch.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.5/elasticsearch-2.3.5.deb && sudo dpkg -i ~/elasticsearch.deb
+        - sudo service elasticsearch start
+        - sudo cp puppet/files/mysql/my.cnf /etc/mysql/conf.d/treeherder.cnf
+        - sudo service mysql restart
+        # Create a clean virtualenv rather than using the one given to us,
+        # to work around: https://github.com/travis-ci/travis-ci/issues/4873
+        - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
+        - source ~/venv/bin/activate
+        - pip install --disable-pip-version-check --upgrade pip==8.1.1
+        - ./bin/vendor-libmysqlclient.sh ~/venv
+        - wget https://github.com/mozilla/geckodriver/releases/download/v0.14.0/geckodriver-v0.14.0-linux64.tar.gz
+        - mkdir geckodriver
+        - tar -xzf geckodriver-v0.14.0-linux64.tar.gz -C geckodriver
+        - export PATH=$PATH:$PWD/geckodriver
+      install:
+        - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
+      before_script:
+        - while ! curl localhost:9200 &>/dev/null; do sleep 1; done
+        - "export DISPLAY=:99.0"
+        - "sh -e /etc/init.d/xvfb start"
+        - sleep 3 # give xvfb some time to start
+      script:
+        - py.test tests/selenium/ --runselenium --driver Firefox
 
 notifications:
   email:
