@@ -64,6 +64,7 @@ def parse_log(job_log, priority):
     Call ArtifactBuilderCollection on the given job.
     """
     post_log_artifacts(job_log)
+    logger.debug("Scheduling crossreference for job %i from parse_log" % job_log.job.id)
     crossreference_error_lines.apply_async(
         args=[job_log.job.id, priority],
         routing_key="crossreference_error_lines.%s" % priority)
@@ -76,6 +77,7 @@ def store_failure_lines(job_log, priority):
     errorsummary file."""
     logger.debug('Running store_failure_lines for job %s' % job_log.job.id)
     failureline.store_failure_lines(job_log)
+    logger.debug("Scheduling crossreference for job %i from store_failure_lines" % job_log.job.id)
     crossreference_error_lines.apply_async(
         args=[job_log.job.id, priority],
         routing_key="crossreference_error_lines.%s" % priority)
@@ -88,8 +90,16 @@ def crossreference_error_lines(job_id, priority):
     newrelic.agent.add_custom_parameter("job_id", job_id)
     logger.debug("Running crossreference-error-lines for job %s" % job_id)
     job = Job.objects.get(id=job_id)
-    has_lines = crossreference_job(job)
+    try:
+        has_lines = crossreference_job(job)
+    except Exception as e:
+        import traceback
+        logger.error(traceback.format_exception(e))
+        raise
     if has_lines and settings.AUTOCLASSIFY_JOBS:
+        logger.debug("Scheduling autoclassify for job %i" % job_id)
         autoclassify.apply_async(
             args=[job_id],
             routing_key="autoclassify.%s" % priority)
+    else:
+        logger.debug("Job %i didn't have any crossreferenced lines, skipping autoclassify " % job_id)
