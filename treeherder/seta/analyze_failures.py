@@ -57,6 +57,9 @@ def get_failures_fixed_by_commit():
         }
     """
     failures = {}
+
+    option_collection_map = models.OptionCollection.objects.get_option_collection_map()
+
     # We're assuming that sheriffs always anotate failed jobs correctly using "fixed by commit"
     for job_note in models.JobNote.objects.filter(failure_classification=2).select_related(
             'job', 'job__signature', 'job__job_type'):
@@ -101,7 +104,7 @@ def get_failures_fixed_by_commit():
             testtype = parse_testtype(
                 build_system_type=job_note.job.signature.build_system_type,  # e.g. taskcluster
                 job_type_name=job_note.job.job_type.name,  # e.g. Mochitest
-                platform_option=job_note.job.get_platform_option(),  # e.g. 'opt'
+                platform_option=job_note.job.get_platform_option(option_collection_map),  # e.g. 'opt'
                 ref_data_name=job_note.job.signature.name,  # buildername or task label
             )
             # This prevents any jobs that we cannot parse properly
@@ -112,7 +115,7 @@ def get_failures_fixed_by_commit():
 
             failures[revision_id].append(unique_key(
                 testtype=testtype,
-                buildtype=job_note.job.get_platform_option(),  # e.g. 'opt'
+                buildtype=job_note.job.get_platform_option(option_collection_map),  # e.g. 'opt'
                 platform=job_note.job.signature.build_platform
             ))
         except models.Job.DoesNotExist:
