@@ -256,6 +256,25 @@ CELERY_QUEUES = [
     Queue('seta_analyze_failures', Exchange('default'), routing_key='seta_analyze_failures'),
 ]
 
+# Celery broker setup
+BROKER_URL = env('BROKER_URL')
+
+# Force Celery to use TLS when appropriate (ie if not localhost),
+# rather than relying on `BROKER_URL` having `amqps://` or `?ssl=` set.
+# This is required since CloudAMQP's automatically defined URL uses neither.
+if server_supports_tls(BROKER_URL):
+    BROKER_USE_SSL = True
+
+# Recommended by CloudAMQP:
+# https://www.cloudamqp.com/docs/celery.html
+BROKER_HEARTBEAT = None
+BROKER_CONNECTION_TIMEOUT = 30
+CELERY_RESULT_BACKEND = None
+CELERY_SEND_EVENTS = False
+CELERY_EVENT_QUEUE_EXPIRES = 60
+
+CELERY_IGNORE_RESULT = True
+
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -585,15 +604,6 @@ CACHES = {
 
 KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX
 
-# Celery broker setup
-BROKER_URL = env('BROKER_URL')
-
-# Force Celery to use TLS when appropriate (ie if not localhost),
-# rather than relying on `BROKER_URL` having `amqps://` or `?ssl=` set.
-# This is required since CloudAMQP's automatically defined URL uses neither.
-if server_supports_tls(BROKER_URL):
-    BROKER_USE_SSL = True
-
 # This code handles the memcachier service on heroku.
 # TODO: Stop special-casing Heroku and use newer best practices from:
 # https://www.memcachier.com/documentation#django.
@@ -609,8 +619,6 @@ if env.bool('IS_HEROKU', default=False):
             "tcp_nodelay": True,
         },
     })
-
-CELERY_IGNORE_RESULT = True
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {},

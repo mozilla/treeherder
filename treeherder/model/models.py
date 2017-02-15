@@ -698,12 +698,13 @@ class Job(models.Model):
         return "{0} {1} {2} {3}".format(self.id, self.repository, self.guid,
                                         self.project_specific_id)
 
-    def get_platform_option(self):
+    def get_platform_option(self, option_collection_map=None):
         if not hasattr(self, 'platform_option'):
             self.platform_option = ''
             option_hash = self.option_collection_hash
             if option_hash:
-                option_collection_map = OptionCollection.objects.get_option_collection_map()
+                if not option_collection_map:
+                    option_collection_map = OptionCollection.objects.get_option_collection_map()
                 self.platform_option = option_collection_map.get(option_hash)
 
         return self.platform_option
