@@ -57,17 +57,16 @@ class BugJobMapViewSet(viewsets.ViewSet):
     def list(self, request, project):
         try:
             job_ids = map(int, request.query_params.getlist('job_id'))
-            if not job_ids:
-                return Response({"message": "At least one job_id is required"},
-                                status=400)
-
-            jobs = Job.objects.filter(repository__name=project, id__in=job_ids)
-            bug_job_maps = BugJobMap.objects.filter(job__in=jobs).select_related(
-                'user')
-            serializer = BugJobMapSerializer(bug_job_maps, many=True)
-
-            return Response(serializer.data)
-
         except ValueError:
             return Response({"message": "Valid job_id required"},
                             status=400)
+        if not job_ids:
+            return Response({"message": "At least one job_id is required"},
+                            status=400)
+
+        jobs = Job.objects.filter(repository__name=project, id__in=job_ids)
+        bug_job_maps = BugJobMap.objects.filter(job__in=jobs).select_related(
+            'user')
+        serializer = BugJobMapSerializer(bug_job_maps, many=True)
+
+        return Response(serializer.data)
