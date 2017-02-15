@@ -184,7 +184,7 @@ PLATFORMS_BUILDERNAME = [
         'regex': re.compile(r'WINNT 5|-xp-|Windows XP 32-bit', re.IGNORECASE),
         'attributes': {
             'os': 'win',
-            'os_platform': 'windowsxp',
+            'os_platform': 'windows7-32',
             'arch': 'x86',
         }
     },
