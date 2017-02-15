@@ -239,7 +239,6 @@ CELERY_QUEUES = [
           routing_key='crossreference_error_lines.failures'),
     Queue('log_autoclassify', Exchange('default'), routing_key='autoclassify.normal'),
     Queue('log_autoclassify_fail', Exchange('default'), routing_key='autoclassify.failures'),
-    Queue('detect_intermittents', Exchange('default'), routing_key='detect_intermittents'),
     # Queue for mirroring the failure classification activity to Elasticsearch.
     Queue('classification_mirroring', Exchange('default'), routing_key='classification_mirroring'),
     Queue('publish_to_pulse', Exchange('default'), routing_key='publish_to_pulse'),
@@ -478,7 +477,6 @@ AUTOCLASSIFY_JOBS = env.bool("AUTOCLASSIFY_JOBS", default=True)
 # Ordered list of matcher classes to use during autoclassification
 AUTOCLASSIFY_MATCHERS = ["PreciseTestMatcher", "CrashSignatureMatcher",
                          "ElasticSearchTestMatcher"]
-DETECT_INTERMITTENTS = env.bool("DETECT_INTERMITTENTS", default=False)
 
 # timeout for requests to external sources
 # like ftp.mozilla.org or hg.mozilla.org
