@@ -149,7 +149,7 @@ PLATFORMS_BUILDERNAME = [
         'regex': re.compile(r'OS X 10\.7|lion', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
-            'os_platform': 'osx-10-7',
+            'os_platform': 'osx-10-10',
             'arch': 'x86_64',
         }
     },
