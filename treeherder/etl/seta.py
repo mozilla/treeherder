@@ -4,6 +4,9 @@ from treeherder.etl.runnable_jobs import list_runnable_jobs
 from treeherder.seta.common import unique_key
 from treeherder.seta.models import JobPriority
 from treeherder.seta.runnable_jobs import RunnableJobsClient
+from treeherder.seta.settings import (SETA_SUPPORTED_TC_JOBTYPES,
+                                      SETA_UNSUPPORTED_PLATFORMS,
+                                      SETA_UNSUPPORTED_TESTTYPES)
 
 LOG = logging.getLogger(__name__)
 
@@ -21,8 +24,14 @@ class Treecodes:
             # e.g. web-platform-tests-4
             # e.g. Ubuntu VM 12.04 x64 mozilla-inbound opt test web-platform-tests-4 OR
             #      test-linux64/opt-web-platform-tests-4
-            testtype = job_testtype(job)
-            if _ignore(testtype):
+            testtype = parse_testtype(
+                build_system_type=job['build_system_type'],
+                job_type_name=job['job_type_name'],
+                platform_option=job['platform_option'],
+                ref_data_name=job['ref_data_name']
+            )
+
+            if is_job_blacklisted(testtype):
                 ignored_jobs.append(job['ref_data_name'])
                 continue
 
@@ -50,24 +59,10 @@ class Treecodes:
         return self.jobnames
 
 
-def _ignore(testtype):
+def is_job_blacklisted(testtype):
     if not testtype:
         return True
-
-    # XXX: This has the danger of falling out of date
-    # https://bugzilla.mozilla.org/show_bug.cgi?id=1325369
-    for i in ('dep', 'nightly', 'non-unified', 'valgrind', 'build'):
-        if testtype.find(i) != -1:
-            return True
-
-
-def job_testtype(job):
-    return parse_testtype(
-        build_system_type=job['build_system_type'],
-        job_type_name=job['job_type_name'],
-        platform_option=job['platform_option'],
-        ref_data_name=job['ref_data_name']
-    )
+    return testtype in SETA_UNSUPPORTED_TESTTYPES
 
 
 def parse_testtype(build_system_type, job_type_name, platform_option, ref_data_name):
@@ -91,8 +86,7 @@ def parse_testtype(build_system_type, job_type_name, platform_option, ref_data_n
         #       ignore any BBB task since we will be analyzing instead the Buildbot job associated
         #       to it. If BBB tasks were a production system and there was a technical advantage
         #       we could look into analyzing that instead of the BB job.
-        if (job_type_name.startswith('test-') or job_type_name.startswith('desktop-test') or
-                job_type_name.startswith('android-test')):
+        if job_type_name.startswith(tuple(SETA_SUPPORTED_TC_JOBTYPES)):
             # we should get "jittest-3" as testtype for a job_type_name like
             # test-linux64/debug-jittest-3
             return transform(job_type_name.split('-{buildtype}'.
@@ -114,17 +108,6 @@ def transform(testtype):
     # this is plain-reftests for android
     testtype = testtype.replace('plain-', '')
 
-    # For testtype to 'build' since that will ensure we ignore these jobs
-    # Bug 1318659 - for how mozci could help here
-    testtype = testtype.replace(' Opt', 'build')
-    testtype = testtype.replace(' Debug', 'build')
-    testtype = testtype.replace(' Dbg', 'build')
-    testtype = testtype.replace(' (opt)', 'build')
-    testtype = testtype.replace(' PGO Opt', 'build')
-    testtype = testtype.replace(' Valgrind Opt', 'build')
-    testtype = testtype.replace(' Artifact Opt', 'build')
-    testtype = testtype.replace(' (debug)', 'build')
-
     testtype = testtype.strip()
 
     # https://bugzilla.mozilla.org/show_bug.cgi?id=1313844
@@ -141,23 +124,7 @@ def transform(testtype):
 
 def valid_platform(platform):
     # We only care about in-tree scheduled tests and ignore out of band system like autophone.
-    # XXX: This can fall out of date
-    # https://bugzilla.mozilla.org/show_bug.cgi?id=1325369
-    return platform not in [
-        'android-4-2-armv7-api15',
-        'android-4-4-armv7-api15',
-        'android-5-0-armv8-api15',
-        'android-5-1-armv7-api15',
-        'android-6-0-armv8-api15',
-        'osx-10-7',  # Build
-        'osx-10-9',
-        'osx-10-11',
-        'other',
-        'taskcluster-images',
-        'windows7-64',   # We don't test 64-bit builds on Windows 7 test infra
-        'windows8-32',  # We don't test 32-bit builds on Windows 8 test infra
-        'Win 6.3.9600 x86_64',
-    ]
+    return platform not in SETA_UNSUPPORTED_PLATFORMS
 
 
 def job_priorities_to_jobtypes():
@@ -181,8 +148,18 @@ def build_ref_data_names(project, build_system):
     runnable_jobs = list_runnable_jobs(project)['results']
 
     for job in runnable_jobs:
-        testtype = job_testtype(job)  # e.g. web-platform-tests-4
-        if _ignore(testtype):
+        # get testtype e.g. web-platform-tests-4
+        testtype = parse_testtype(
+            build_system_type=job['build_system_type'],
+            job_type_name=job['job_type_name'],
+            platform_option=job['platform_option'],
+            ref_data_name=job['ref_data_name']
+        )
+
+        if not valid_platform(job['platform']):
+            continue
+
+        if is_job_blacklisted(testtype):
             ignored_jobs.append(job['ref_data_name'])
             continue
 

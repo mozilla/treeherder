@@ -176,17 +176,16 @@ def fifteen_jobs_with_notes(eleven_jobs_stored, taskcluster_jobs_stored, test_us
 @pytest.fixture
 def failures_fixed_by_commit():
     # NOTE: we do not have a note: "call me empty", this should be excluded by analyze_failures.py
+    # We expect 'windows8-32', 'windowsxp' and 'osx-10-7' jobs to be excluded because those
+    # platforms are currently unsupported SETA platforms (see treeherder/seta/settings.py)
     return {
         u'you look like a man-o-lantern': [
             (u'b2g_mozilla-release_emulator-jb-debug_dep', u'debug', u'b2g-emu-jb'),
             (u'b2g_mozilla-release_emulator-jb_dep', u'opt', u'b2g-emu-jb'),
             (u'mochitest-browser-chrome', u'debug', u'osx-10-6'),
-            (u'mochitest-browser-chrome', u'debug', u'osx-10-7'),
             (u'mochitest-browser-chrome', u'debug', u'windows7-32'),
         ],
         u'314159265358': [
-            (u'mochitest-browser-chrome', u'debug', u'windows8-32'),
-            (u'mochitest-browser-chrome', u'debug', u'windowsxp'),
             (u'b2g_mozilla-release_inari_dep', u'opt', u'b2g-device-image'),
             (u'b2g_mozilla-release_emulator-jb-debug_dep', u'debug', u'b2g-emu-jb'),
             (u'b2g_mozilla-release_nexus-4_dep', u'opt', u'b2g-device-image'),

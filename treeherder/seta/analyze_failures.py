@@ -1,10 +1,13 @@
 import logging
 
-from treeherder.etl.seta import parse_testtype
+from treeherder.etl.seta import (is_job_blacklisted,
+                                 parse_testtype,
+                                 valid_platform)
 from treeherder.model import models
 from treeherder.seta.common import unique_key
 from treeherder.seta.high_value_jobs import get_high_value_jobs
 from treeherder.seta.models import JobPriority
+from treeherder.seta.settings import SETA_SUPPORTED_TC_JOBTYPES
 from treeherder.seta.update_job_priority import update_job_priority_table
 
 HEADERS = {
@@ -95,11 +98,14 @@ def get_failures_fixed_by_commit():
             failures[revision_id] = []
 
         try:
-            if (job_note.job.job_type.name.startswith('source-check') or
-                    job_note.job.job_type.name.startswith('build') or
-                    job_note.job.job_type.name.startswith('static-analysis')):
-                # expect no transform and don't log a message
+            # check if platform is supported by SETA (see treeherder/seta/settings.py)
+            if not valid_platform(job_note.job.signature.build_platform):
                 continue
+
+            # check if jobtype is supported by SETA (see treeherder/seta/settings.py)
+            if job_note.job.signature.build_system_type != 'buildbot':
+                if not job_note.job.job_type.name.startswith(tuple(SETA_SUPPORTED_TC_JOBTYPES)):
+                    continue
 
             testtype = parse_testtype(
                 build_system_type=job_note.job.signature.build_system_type,  # e.g. taskcluster
@@ -107,8 +113,11 @@ def get_failures_fixed_by_commit():
                 platform_option=job_note.job.get_platform_option(option_collection_map),  # e.g. 'opt'
                 ref_data_name=job_note.job.signature.name,  # buildername or task label
             )
-            # This prevents any jobs that we cannot parse properly
-            if not testtype:
+
+            if testtype:
+                if is_job_blacklisted(testtype):
+                    continue
+            else:
                 logger.warning('We were unable to parse {}/{}'.format(
                                job_note.job.job_type.name, job_note.job.signature.name))
                 continue
