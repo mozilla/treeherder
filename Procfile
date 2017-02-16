@@ -1,4 +1,4 @@
-web: newrelic-admin run-program gunicorn treeherder.config.wsgi:application --timeout 29 --max-requests 150
+web: newrelic-admin run-program gunicorn treeherder.config.wsgi:application --timeout 29
 worker_beat: newrelic-admin run-program celery beat -A treeherder
 worker_pushlog: newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q pushlog --maxtasksperchild=500 --concurrency=5
 worker_buildapi_pending: newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q buildapi_pending --maxtasksperchild=20 --concurrency=5

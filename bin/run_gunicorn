@@ -13,7 +13,6 @@ source /etc/profile.d/treeherder.sh
 NUM_WORKERS=5
 
 exec newrelic-admin run-program gunicorn -w $NUM_WORKERS \
-    --max-requests=150 \
     treeherder.config.wsgi:application \
     --keep-alive=3 \
     --log-level error \
