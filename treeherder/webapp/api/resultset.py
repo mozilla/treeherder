@@ -142,7 +142,7 @@ class ResultSetViewSet(viewsets.ViewSet):
             count = int(filter_params.get("count", 10))
         except ValueError:
             return Response({"error": "Valid count value required"},
-                                status=HTTP_400_BAD_REQUEST)
+                            status=HTTP_400_BAD_REQUEST)
 
         if count > MAX_RESULTS_COUNT:
             msg = "Specified count exceeds api limit: {}".format(MAX_RESULTS_COUNT)
