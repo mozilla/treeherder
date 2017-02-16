@@ -18,15 +18,9 @@
 
 .pin-count-pulse {
   animation: pin-count-pulse 0.4s;
-  -webkit-animation: pin-count-pulse 0.4s;
 }
 
 @keyframes pin-count-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(3); }
-}
-
-@-webkit-keyframes pin-count-pulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(3); }
 }
@@ -53,11 +47,8 @@
   background-color: #e6eef5;
   color: #252c33;
   flex: auto;
-  -webkit-flex: auto;
   display: flex;
-  display: -webkit-flex;
   flex-flow: row;
-  -webkit-flex-flow: row;
 }
 
 #pinboard-panel .header {
@@ -72,7 +63,6 @@
 #pinned-job-list {
   position: relative;
   flex: auto;
-  -webkit-flex: auto;
   margin: 7px 7px 10px;
 }
 
@@ -108,7 +98,6 @@
   position: relative;
   width: 200px;
   flex: none;
-  -webkit-flex: none;
   margin: 7px 7px 10px;
 }
 
@@ -151,24 +140,12 @@
   text-decoration: underline;
 }
 
-/* Spin button suppression on chrome (bug 1045611) */
-#pinboard-related-bugs form input[type=number]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* Spin button suppression on firefox (bug 1045611) */
-#pinboard-related-bugs form input[type=number] {
-  -moz-appearance: textfield;
-}
-
 /*
  * Classification container
  */
 
 #pinboard-classification {
   flex: none;
-  -webkit-flex: none;
   width: 185px;
   padding: 5px;
 }
@@ -199,7 +176,6 @@
 
 #pinboard-controls {
   flex: none;
-  -webkit-flex: none;
   height: 43px;
   margin: 20px;
 }
