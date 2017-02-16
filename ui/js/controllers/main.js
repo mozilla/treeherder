@@ -234,6 +234,15 @@ treeherderApp.controller('MainCtrl', [
             $location.search("group_state", newGroupState);
         };
 
+        $scope.inGamerMode = false;
+        var updateGamerMode = function() {
+            $scope.inGamerMode = $location.search().gamermode === true;
+        };
+        updateGamerMode();
+        $rootScope.$on('$locationChangeSuccess', function() {
+            updateGamerMode();
+        });
+
         /*
          * This updates which tier checkboxes are set according to the filters.
          * It's made slightly tricky due to the fact that, if you remove all
@@ -313,40 +322,46 @@ treeherderApp.controller('MainCtrl', [
 
         var keyShortcuts = [
             // Shortcut: toggle display in-progress jobs (pending/running)
-            ['i', function() {
-                $scope.$evalAsync($scope.toggleInProgress());
+            [['i', 'v'], function(ev) {
+                if (($scope.inGamerMode && ev.key === 'v') || ev.key === 'i') {
+                    $scope.$evalAsync($scope.toggleInProgress());
+                }
             }],
 
             // Shortcut: select previous job
-            ['left', function() {
-                $rootScope.$emit(thEvents.changeSelection,
-                                 'previous',
-                                 thJobNavSelectors.ALL_JOBS);
+            [['left', 'w'], function(ev) {
+                if ((ev.key === 'w' && $scope.inGamerMode) || ev.key !== 'w') {
+                    $rootScope.$emit(thEvents.changeSelection,
+                                     'previous',
+                                     thJobNavSelectors.ALL_JOBS);
+                }
             }],
 
             // Shortcut: select next job
-            ['right', function() {
+            ['right', function(ev) {
                 $rootScope.$emit(thEvents.changeSelection,
                                  'next',
                                  thJobNavSelectors.ALL_JOBS);
             }],
 
             // Shortcut: select next unclassified failure
-            [['j', 'n'], function() {
-                $rootScope.$emit(thEvents.changeSelection,
-                                 'next',
-                                 thJobNavSelectors.UNCLASSIFIED_FAILURES);
+            [['j', 'n', 'd'], function(ev) {
+                if ((ev.key === 'd' && $scope.inGamerMode) || ev.key !== 'd') {
+                    $rootScope.$emit(thEvents.changeSelection,
+                                     'next',
+                                     thJobNavSelectors.UNCLASSIFIED_FAILURES);
+                }
             }],
 
             // Shortcut: select previous unclassified failure
-            [['k', 'p'], function() {
+            [['k', 'p'], function(ev) {
                 $rootScope.$emit(thEvents.changeSelection,
                                  'previous',
                                  thJobNavSelectors.UNCLASSIFIED_FAILURES);
             }],
 
             // Shortcut: select next job tab
-            [['t'], function() {
+            [['t'], function(ev) {
                 if ($scope.selectedJob) {
                     $scope.$evalAsync(
                         $rootScope.$emit(thEvents.selectNextTab)
@@ -355,7 +370,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: retrigger selected job
-            ['r', function() {
+            ['r', function(ev) {
                 if ($scope.selectedJob) {
                     $scope.$evalAsync(
                         $rootScope.$emit(thEvents.jobRetrigger,
@@ -379,8 +394,10 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: display only unclassified failures
-            ['u', function() {
-                $scope.$evalAsync($scope.toggleUnclassifiedFailures);
+            [['u', 'e'], function(ev) {
+                if (($scope.inGamerMode && ev.key === 'e') || ev.key === 'u') {
+                    $scope.$evalAsync($scope.toggleUnclassifiedFailures);
+                }
             }],
 
             // Shortcut: pin selected job to pinboard and add a related bug
@@ -443,7 +460,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: escape closes any open panels and clears selected job
-            ['escape', function() {
+            ['escape', function(ev) {
                 $scope.$evalAsync($scope.setFilterPanelShowing(false));
                 $scope.$evalAsync($scope.setSettingsPanelShowing(false));
                 $scope.$evalAsync($scope.closeJob());
@@ -451,48 +468,67 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: clear the pinboard
-            ['ctrl+shift+u', function() {
+            ['ctrl+shift+u', function(ev) {
                 $scope.$evalAsync($rootScope.$emit(thEvents.clearPinboard));
             }],
 
             // Shortcut: save pinboard classification and related bugs
-            ['ctrl+enter', function() {
+            [['ctrl+enter', 'ctrl+space'], function(ev) {
                 $scope.$evalAsync($rootScope.$emit(thEvents.saveClassification));
+                if (ev.key === ' ') {
+                    // Prevent page down propagating to the jobs panel
+                    ev.preventDefault();
+                }
             }, function() {
                 // Make this work regardless of form controls etc.
                 return false;
             }],
 
             // Shortcut: open the logviewer for the selected job
-            ['l', function() {
-                if ($scope.selectedJob) {
-                    $scope.$evalAsync($rootScope.$emit(thEvents.openLogviewer));
+            [['l', 'q'], function(ev) {
+                if (($scope.inGamerMode && ev.key === 'q') || ev.key === 'l') {
+                    if ($scope.selectedJob) {
+                        $scope.$evalAsync($rootScope.$emit(thEvents.openLogviewer));
+                    }
                 }
             }],
 
             // Shortcut: delete classification and related bugs
-            ['ctrl+backspace', function() {
+            ['ctrl+backspace', function(ev) {
                 if ($scope.selectedJob) {
                     $scope.$evalAsync($rootScope.$emit(thEvents.deleteClassification));
                 }
             }],
 
             // Shortcut: delete classification and related bugs
-            ['s', function() {
-                if (thTabs.selectedTab === "autoClassification") {
+            [['s', 'x'], function(ev) {
+                if ($scope.inGamerMode && ev.key === 's') {
+                    // Override 's' in gamermode to select next job
+                    $rootScope.$emit(thEvents.changeSelection,
+                                     'next',
+                                     thJobNavSelectors.ALL_JOBS);
+                } else if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.saveAllAutoclassifications));
                 }
             }],
 
             // Shortcut: delete classification and related bugs
-            ['a', function() {
-                if (thTabs.selectedTab === "autoClassification") {
-                    $scope.$evalAsync($rootScope.$emit(thEvents.ignoreOthersAutoclassifications));
+            [['a', 'z'], function(ev) {
+                if (($scope.inGamerMode && ev.key === 'z') || $scope.inGamerMode === false && ev.key === 'a') {
+                    if (thTabs.selectedTab === "autoClassification") {
+                        $scope.$evalAsync($rootScope.$emit(thEvents.ignoreOthersAutoclassifications));
+                    }
+                }
+                // Gamermode overrides 'a' to select previous unclassified failure
+                if ($scope.inGamerMode && ev.key === 'a') {
+                    $rootScope.$emit(thEvents.changeSelection,
+                                     'previous',
+                                     thJobNavSelectors.UNCLASSIFIED_FAILURES);
                 }
             }],
 
             // Shortcut: display onscreen keyboard shortcuts
-            ['?', function() {
+            ['?', function(ev) {
                 $scope.$evalAsync($scope.setOnscreenShortcutsShowing(true));
             }]
         ];
