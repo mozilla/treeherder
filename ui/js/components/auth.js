@@ -32,7 +32,7 @@ treeherder.component("login", {
            ng-click="$ctrl.login()">Login/Register</a>
         <span ng-if="!$ctrl.userCanLogin"
               class="midgray"
-              title="thServiceDomain does not match host domain">Login not available</span>
+              title="thServiceDomain does not match host domain or already logging in">Login not available</span>
     `,
     bindings: {
         // calls to the HTML which sets the user value in the $rootScope.
@@ -50,13 +50,13 @@ treeherder.component("login", {
             // check if the user can login.  thServiceDomain must match
             // host domain.  Remove this if we fix
             // Bug 1317752 - Enable logging in with Taskcluster Auth cross-domain
-            if (!thServiceDomain) {
+            if (!thServiceDomain && $location.path() !== '/login') {
                 // thServiceDomain isn't being used, so no mismatch possible.
                 this.userCanLogin = true;
             } else {
                 var a = document.createElement('a');
                 a.href = thServiceDomain;
-                this.userCanLogin = a.hostname === $location.host();
+                this.userCanLogin = a.hostname === $location.host() && $location.path() !== '/login';
             }
 
             /**
@@ -70,32 +70,21 @@ treeherder.component("login", {
                         if (newUser && newUser.email) {
                             // User was saved to local storage. Use it.
                             ctrl.setLoggedIn(newUser);
-                        } else {
-                            // This is a tiny hack.  :)
-                            // Right after login, sometimes we get another
-                            // event come in here with a null value for
-                            // ``newValue``.  This happens once every 10 or so
-                            // logins, in my experience.  But localStorage
-                            // is still set to the logged in user.  So we just
-                            // double-check the localStorage value and possibly
-                            // skip the logout.
-                            var storedUser = localStorageService.get("user");
-                            if (!storedUser || !storedUser.loggedin) {
-                                ctrl.setLoggedOut();
-                            }
                         }
                     }, 0);
                 }
             });
 
             // Ask the back-end if a user is logged in on page load
-            ThUserModel.get().then(function (currentUser) {
-                if (currentUser.email) {
-                    ctrl.setLoggedIn(currentUser);
-                } else {
-                    ctrl.setLoggedOut();
-                }
-            });
+            if (this.userCanLogin) {
+                ThUserModel.get().then(function (currentUser) {
+                    if (currentUser.email) {
+                        ctrl.setLoggedIn(currentUser);
+                    } else {
+                        ctrl.setLoggedOut();
+                    }
+                });
+            }
 
             /**
              * Contact login.taskcluster to log the user in.  Opens a new tab
