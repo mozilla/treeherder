@@ -338,7 +338,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: select next job
-            ['right', function(ev) {
+            ['right', function() {
                 $rootScope.$emit(thEvents.changeSelection,
                                  'next',
                                  thJobNavSelectors.ALL_JOBS);
@@ -354,14 +354,14 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: select previous unclassified failure
-            [['k', 'p'], function(ev) {
+            [['k', 'p'], function() {
                 $rootScope.$emit(thEvents.changeSelection,
                                  'previous',
                                  thJobNavSelectors.UNCLASSIFIED_FAILURES);
             }],
 
             // Shortcut: select next job tab
-            [['t'], function(ev) {
+            [['t'], function() {
                 if ($scope.selectedJob) {
                     $scope.$evalAsync(
                         $rootScope.$emit(thEvents.selectNextTab)
@@ -370,7 +370,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: retrigger selected job
-            ['r', function(ev) {
+            ['r', function() {
                 if ($scope.selectedJob) {
                     $scope.$evalAsync(
                         $rootScope.$emit(thEvents.jobRetrigger,
@@ -460,7 +460,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: escape closes any open panels and clears selected job
-            ['escape', function(ev) {
+            ['escape', function() {
                 $scope.$evalAsync($scope.setFilterPanelShowing(false));
                 $scope.$evalAsync($scope.setSettingsPanelShowing(false));
                 $scope.$evalAsync($scope.closeJob());
@@ -468,7 +468,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: clear the pinboard
-            ['ctrl+shift+u', function(ev) {
+            ['ctrl+shift+u', function() {
                 $scope.$evalAsync($rootScope.$emit(thEvents.clearPinboard));
             }],
 
@@ -494,7 +494,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: delete classification and related bugs
-            ['ctrl+backspace', function(ev) {
+            ['ctrl+backspace', function() {
                 if ($scope.selectedJob) {
                     $scope.$evalAsync($rootScope.$emit(thEvents.deleteClassification));
                 }
@@ -528,7 +528,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: display onscreen keyboard shortcuts
-            ['?', function(ev) {
+            ['?', function() {
                 $scope.$evalAsync($scope.setOnscreenShortcutsShowing(true));
             }]
         ];
