@@ -284,6 +284,20 @@ def test_resultset_list_id_in(webapp, test_repository):
     assert resp.status_int == 400
 
 
+def test_resultset_list_bad_count(webapp, test_repository):
+    """
+    test for graceful error when passed an invalid count value
+    """
+    bad_count = "ZAP%n%s%n%s"
+
+    resp = webapp.get(
+            reverse("resultset-list", kwargs={"project": test_repository.name}),
+            params={'count': bad_count}, expect_errors=True)
+
+    assert resp.status_code == 400
+    assert resp.json == {'error': 'Valid count value required'}
+
+
 def test_resultset_author(webapp, test_repository):
     """
     test the author parameter
