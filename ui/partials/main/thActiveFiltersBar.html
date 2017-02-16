@@ -4,17 +4,45 @@
   <span><b>Active Filters</b></span>
 
   <span class="btn btn-sm"
-        ng-show="fromChange().length > 0"
+        ng-show="search()['fromchange'].length > 0"
         title="Click to clear the fromchange filter"
         ng-click="dropLocationSearchParam('fromchange')">
-      fromChange: {{fromChange() | limitTo: 12}}
+      fromchange: {{search()['fromchange'] | limitTo: 12}}
       <i class="fa fa-times-circle"/>
   </span>
   <span class="btn btn-sm"
-        ng-show="toChange().length > 0"
+        ng-show="search()['tochange'].length > 0"
         title="Click to clear the tochange filter"
         ng-click="dropLocationSearchParam('tochange')">
-      toChange: {{toChange() | limitTo: 12}}
+      tochange: {{search()['tochange'] | limitTo: 12}}
+      <i class="fa fa-times-circle"/>
+  </span>
+  <span class="btn btn-sm"
+        ng-show="search()['author'].length > 0"
+        title="Click to clear the author filter"
+        ng-click="dropLocationSearchParam('author')">
+      author: {{search()['author'].split("@")[0]}}
+      <i class="fa fa-times-circle"/>
+  </span>
+  <span class="btn btn-sm"
+        ng-show="search()['startdate'].length > 0"
+        title="Click to clear the startdate filter"
+        ng-click="dropLocationSearchParam('startdate')">
+      startdate: {{search()['startdate'] | limitTo: 12}}
+      <i class="fa fa-times-circle"/>
+  </span>
+  <span class="btn btn-sm"
+        ng-show="search()['enddate'].length > 0"
+        title="Click to clear the enddate filter"
+        ng-click="dropLocationSearchParam('enddate')">
+      enddate: {{search()['enddate'] | limitTo: 12}}
+      <i class="fa fa-times-circle"/>
+  </span>
+  <span class="btn btn-sm"
+        ng-show="search()['nojobs']"
+        title="Click to clear the nojobs filter"
+        ng-click="dropLocationSearchParam('nojobs')">
+      nojobs
       <i class="fa fa-times-circle"/>
   </span>
 </div>
