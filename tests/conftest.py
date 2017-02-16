@@ -25,6 +25,11 @@ def pytest_addoption(parser):
         action="store_true",
         help="run slow tests",
     )
+    parser.addoption(
+        "--runselenium",
+        action="store_true",
+        help="run selenium tests",
+    )
 
 
 def pytest_runtest_setup(item):
@@ -36,6 +41,9 @@ def pytest_runtest_setup(item):
 
     if 'slow' in item.keywords and not item.config.getoption("--runslow"):
         pytest.skip("need --runslow option to run")
+
+    if 'selenium' in item.keywords and not item.config.getoption("--runselenium"):
+        pytest.skip("need --runselenium option to run selenium tests")
 
     increment_cache_key_prefix()
 
