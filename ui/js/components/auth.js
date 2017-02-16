@@ -32,7 +32,7 @@ treeherder.component("login", {
            ng-click="$ctrl.login()">Login/Register</a>
         <span ng-if="!$ctrl.userCanLogin"
               class="midgray"
-              title="thServiceDomain does not match host domain">Login not available</span>
+              title="thServiceDomain does not match host domain or already logging in">Login not available</span>
     `,
     bindings: {
         // calls to the HTML which sets the user value in the $rootScope.
@@ -50,13 +50,13 @@ treeherder.component("login", {
             // check if the user can login.  thServiceDomain must match
             // host domain.  Remove this if we fix
             // Bug 1317752 - Enable logging in with Taskcluster Auth cross-domain
-            if (!thServiceDomain) {
+            if (!thServiceDomain && $location.path() !== '/login') {
                 // thServiceDomain isn't being used, so no mismatch possible.
                 this.userCanLogin = true;
             } else {
                 var a = document.createElement('a');
                 a.href = thServiceDomain;
-                this.userCanLogin = a.hostname === $location.host();
+                this.userCanLogin = a.hostname === $location.host() && $location.path() !== '/login';
             }
 
             /**
@@ -79,6 +79,10 @@ treeherder.component("login", {
                             // is still set to the logged in user.  So we just
                             // double-check the localStorage value and possibly
                             // skip the logout.
+                            //
+                            // This is probably not needed now due to
+                            // fix for bug 1339659, but no harm in leaving it
+                            // for now.
                             var storedUser = localStorageService.get("user");
                             if (!storedUser || !storedUser.loggedin) {
                                 ctrl.setLoggedOut();
@@ -89,13 +93,15 @@ treeherder.component("login", {
             });
 
             // Ask the back-end if a user is logged in on page load
-            ThUserModel.get().then(function (currentUser) {
-                if (currentUser.email) {
-                    ctrl.setLoggedIn(currentUser);
-                } else {
-                    ctrl.setLoggedOut();
-                }
-            });
+            if (this.userCanLogin) {
+                ThUserModel.get().then(function (currentUser) {
+                    if (currentUser.email) {
+                        ctrl.setLoggedIn(currentUser);
+                    } else {
+                        ctrl.setLoggedOut();
+                    }
+                });
+            }
 
             /**
              * Contact login.taskcluster to log the user in.  Opens a new tab
