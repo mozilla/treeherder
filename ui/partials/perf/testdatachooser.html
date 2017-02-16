@@ -6,7 +6,7 @@
     <p class="blink" >Getting related test information ...</p>
 </div>
 <div class="modal-body" ng-show="loadingRelatedSignatures">
-  <div class="test-chooser">
+  <div id="performance-test-chooser" class="test-chooser">
     <div class="form-group">
       <label>Framework</label>
       <select class="form-control" ng-change="updateTestInput()" ng-model="selectedFramework" ng-options="framework.name for framework in frameworkList">

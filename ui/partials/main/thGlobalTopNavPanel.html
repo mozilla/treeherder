@@ -41,7 +41,7 @@
                   class="btn btn-view-nav btn-right-navbar nav-menu-btn">Repos
             <span class="fa fa-angle-down lightgray"></span>
           </button>
-          <ul class="dropdown-menu checkbox-dropdown-menu"
+          <ul id="repo-dropdown" class="dropdown-menu checkbox-dropdown-menu"
               role="menu" aria-labelledby="repoLabel">
             <span ng-repeat="(group_order, group) in groupedRepos()">
               <li role="presentation" class="divider" ng-hide="$first"></li>
