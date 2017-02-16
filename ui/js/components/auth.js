@@ -28,8 +28,11 @@ treeherder.component("login", {
         </span>
 
         <a class="btn btn-view-nav btn-right-navbar nav-login-btn"
-           ng-if="!$ctrl.user.loggedin && $ctrl.userCanLogin"
+           ng-if="!$ctrl.user.loggedin && $ctrl.userCanLogin && !ctrl.userLoggingIn"
            ng-click="$ctrl.login()">Login/Register</a>
+        <span ng-if="$ctrl.userLoggingIn"
+              class="midgray"
+              title="User is already logging in">Logging In...</span>
         <span ng-if="!$ctrl.userCanLogin"
               class="midgray"
               title="thServiceDomain does not match host domain">Login not available</span>
@@ -46,6 +49,8 @@ treeherder.component("login", {
             ctrl.user = {};
             // "clears out" the user when it is detected to be logged out.
             var loggedOutUser = {is_staff: false, username: "", email: "", loggedin: false};
+
+            ctrl.userLoggingIn = $location.path() === '/login';
 
             // check if the user can login.  thServiceDomain must match
             // host domain.  Remove this if we fix
@@ -70,32 +75,21 @@ treeherder.component("login", {
                         if (newUser && newUser.email) {
                             // User was saved to local storage. Use it.
                             ctrl.setLoggedIn(newUser);
-                        } else {
-                            // This is a tiny hack.  :)
-                            // Right after login, sometimes we get another
-                            // event come in here with a null value for
-                            // ``newValue``.  This happens once every 10 or so
-                            // logins, in my experience.  But localStorage
-                            // is still set to the logged in user.  So we just
-                            // double-check the localStorage value and possibly
-                            // skip the logout.
-                            var storedUser = localStorageService.get("user");
-                            if (!storedUser || !storedUser.loggedin) {
-                                ctrl.setLoggedOut();
-                            }
                         }
                     }, 0);
                 }
             });
 
             // Ask the back-end if a user is logged in on page load
-            ThUserModel.get().then(function (currentUser) {
-                if (currentUser.email) {
-                    ctrl.setLoggedIn(currentUser);
-                } else {
-                    ctrl.setLoggedOut();
-                }
-            });
+            if (ctrl.userCanLogin && !ctrl.userLoggingIn) {
+                ThUserModel.get().then(function (currentUser) {
+                    if (currentUser.email) {
+                        ctrl.setLoggedIn(currentUser);
+                    } else {
+                        ctrl.setLoggedOut();
+                    }
+                });
+            }
 
             /**
              * Contact login.taskcluster to log the user in.  Opens a new tab
