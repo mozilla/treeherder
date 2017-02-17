@@ -363,6 +363,7 @@ class ErrorParser(ParserBase):
         "command timed out:",
         "wget: unable ",
         "TEST-VALGRIND-ERROR",
+        "[  FAILED  ] ",
     )
 
     RE_ERR_MATCH = re.compile((
