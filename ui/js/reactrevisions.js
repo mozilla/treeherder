@@ -67,7 +67,7 @@ var revisionItemComponent = React.createClass({
                     dangerouslySetInnerHTML: initialsHTML
                 }),
                 React.DOM.span(
-                    { title: escapedComment },
+                    { title: _.unescape(escapedComment) },
                     React.DOM.span(
                         { className: 'revision-comment' },
                         React.DOM.em({ dangerouslySetInnerHTML: escapedCommentHTML })
