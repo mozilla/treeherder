@@ -69,6 +69,5 @@
  {"platform": "osx-10-10", "buildtype": "opt", "testtype": "g2", "buildsystem": "buildbot", "expiration_date": "*", "priority": 1},
  {"platform": "osx-10-10", "buildtype": "opt", "testtype": "g2-e10s", "buildsystem": "buildbot", "expiration_date": "*", "priority": 5},
  {"platform": "osx-10-10", "buildtype": "opt", "testtype": "dromaeojs", "buildsystem": "buildbot", "expiration_date": "*", "priority": 1},
- {"platform": "osx-10-10", "buildtype": "opt", "testtype": "dromaeojs-e10s", "buildsystem": "buildbot", "expiration_date": "*", "priority": 5},
- {"platform": "linux64", "buildtype": "pgo", "testtype": "*", "buildsystem": "taskcluster", "expiration_date": "*", "priority": 5}
+ {"platform": "osx-10-10", "buildtype": "opt", "testtype": "dromaeojs-e10s", "buildsystem": "buildbot", "expiration_date": "*", "priority": 5}
 ]
