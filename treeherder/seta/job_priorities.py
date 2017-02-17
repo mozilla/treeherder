@@ -2,7 +2,9 @@ import datetime
 import logging
 
 from treeherder.config.settings import SETA_LOW_VALUE_PRIORITY
-from treeherder.etl.seta import build_ref_data_names
+from treeherder.etl.seta import (build_ref_data_names,
+                                 is_job_blacklisted,
+                                 valid_platform)
 from treeherder.model.models import Repository
 from treeherder.seta.models import JobPriority
 
@@ -22,12 +24,11 @@ def _process(project, build_system, job_priorities):
     ref_data_names_map = build_ref_data_names(project, build_system)
 
     for jp in job_priorities:
-        if build_system == 'taskcluster':
-            # We need to retranslate the jobtype back to the proper data form after all.
-            # Bug 1313844 - Name inconsistencies between Buildbot and TaskCluster
-            jp.testtype = jp.testtype.replace('e10s-browser-chrome', 'browser-chrome-e10s')
-            jp.testtype = jp.testtype.replace('e10s-devtools-chrome', 'devtools-chrome-e10s')
-            jp.testtype = jp.testtype.replace('gl-', 'webgl-')
+        # if this JobPriority entry is no longer supported in SETA then ignore it
+        if not valid_platform(jp.platform):
+            continue
+        if is_job_blacklisted(jp.testtype):
+            continue
 
         key = jp.unique_identifier()
         if key in ref_data_names_map:
