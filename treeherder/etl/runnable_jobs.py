@@ -221,7 +221,10 @@ def list_runnable_jobs(project, decision_task_id=None):
 def _query_latest_gecko_decision_task_id(project):
     url = TASKCLUSTER_INDEX_URL % project
     logger.info('Fetching {}'.format(url))
-    latest_task = fetch_json(url)
-    task_id = latest_task['taskId']
-    logger.info('For {} we found the task id: {}'.format(project, task_id))
+    try:
+        latest_task = fetch_json(url)
+        task_id = latest_task['taskId']
+        logger.info('For {} we found the task id: {}'.format(project, task_id))
+    except:
+        task_id = ''
     return task_id
