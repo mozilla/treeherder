@@ -123,6 +123,9 @@ def _taskcluster_runnable_jobs(project, decision_task_id):
     tc_graph = {}
     if not decision_task_id:
         decision_task_id = _query_latest_gecko_decision_task_id(project)
+    # If we still don't have task id, lets just bail out now
+    if not decision_task_id:
+        return ret
 
     tc_graph_url = settings.TASKCLUSTER_TASKGRAPH_URL.format(task_id=decision_task_id)
     validate = URLValidator()
