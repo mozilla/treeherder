@@ -60,7 +60,7 @@ var revisionItemComponent = React.createClass({
                     href: this.props.repo.getRevisionHref(this.props.revision.revision),
                     'data-ignore-job-clear-on-click': true
                 },
-                    this.props.revision.revision.substring(0, 12)
+                    this.props.revision.revision
                 )),
                 React.DOM.span({
                     title: `${name}: ${email}`,

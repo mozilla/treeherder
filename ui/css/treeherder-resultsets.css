@@ -142,6 +142,10 @@ fieldset[disabled] .btn-resultset:hover {
   padding-left: 20px;
   padding-right: 11px;
   display: inline-block;
+  width: 100px;
+  text-overflow: clip;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .revision-comment {
