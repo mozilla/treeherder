@@ -1,8 +1,10 @@
 import logging
+import uuid
 from collections import defaultdict
 
 import jsonschema
 import newrelic.agent
+import slugid
 
 from treeherder.etl.common import to_timestamp
 from treeherder.etl.jobs import store_job_data
@@ -108,6 +110,7 @@ class JobLoader:
         already have been validated against the JSON Schema at this point.
         """
         job_guid = pulse_job["taskId"]
+
         x = {
             "job": {
                 "job_guid": job_guid,
@@ -144,6 +147,23 @@ class JobLoader:
         for k, v in self.PLATFORM_FIELD_MAP.items():
             platform_src = pulse_job[v] if v in pulse_job else default_platform
             x["job"][k] = self._get_platform(platform_src)
+
+        # add some taskcluster metadata if it's available
+        # currently taskcluster doesn't pass the taskId directly, so we'll
+        # to derive it from the guid, where it is stored in uncompressed
+        # guid form of a slug (see: https://github.com/taskcluster/slugid)
+        # FIXME: add support for processing the taskcluster information
+        # properly, when it's available:
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=1323110#c7
+        try:
+            (decoded_task_id, retry_id) = job_guid.split('/')
+            real_task_id = slugid.encode(uuid.UUID(decoded_task_id))
+            x["job"].update({
+                "taskcluster_task_id": real_task_id,
+                "taskcluster_retry_id": int(retry_id)
+            })
+        except:
+            pass
 
         return x
 
