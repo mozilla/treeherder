@@ -4,10 +4,7 @@ div#info-panel {
   height: 35%;
   max-height: 75%;
   flex: none;
-  -webkit-flex: none;
-  display: -webkit-flex;
   display: flex;
-  -webkit-flex-flow: column;
   flex-flow: column;
 }
 
@@ -36,7 +33,6 @@ div#info-panel .navbar {
 div#info-panel-resizer {
   display: flex;
   flex: none;
-  -webkit-flex: none;
   background-color: #919dad;
   cursor: ns-resize;
   height: 2px;
@@ -131,18 +127,13 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
   position: relative; /* So we can absolutely position the loading overlay */
   height: 60%;
   flex: auto;
-  -webkit-flex: auto;
-  display: -webkit-flex;
   display: flex;
-  -webkit-flex-flow: row;
   flex-flow: row;
 }
 
 #job-details-panel, #job-tabs-panel {
   background-color: #fff;
-  display: -webkit-flex;
   display: flex;
-  -webkit-flex-flow: column;
   flex-flow: column;
 }
 
@@ -271,7 +262,6 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
 }
 
 #job-tabs-panel {
-  -webkit-flex: 1 6;
   flex: 1 6;
   padding: 0px;
   min-width: 565px;
@@ -279,31 +269,23 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
 
 #job-tabs-pane {
   max-height: calc(100% - 33px);
-  -webkit-flex: 1;
   flex: 1;
-  display: -webkit-flex;
   display: flex;
   overflow: auto;
 }
 
 #job-tabs-pane > * {
-  -webkit-flex: 1;
   flex: 1;
-  display: -webkit-flex;
   display: flex;
 }
 
 #job-tabs-pane > * > * {
-  -webkit-flex: 1;
   flex: 1;
-  display: -webkit-flex;
   display: flex;
 }
 
 #job-tabs-pane > * > * > * {
-  -webkit-flex: 1;
   flex: 1;
-  display: -webkit-flex;
   display: flex;
 }
 
@@ -422,9 +404,7 @@ ul.failure-summary-list li .btn-xs {
 }
 
 .similar_jobs {
-  display: -webkit-flex;
   display: flex;
-  -webkit-flex-flow: row;
   flex-flow: row;
 }
 
@@ -433,7 +413,6 @@ div.similar_jobs .right_panel {
   margin-right: 1px;
   overflow-y: auto;
   flex: 1 1;
-  -webkit-flex: 1 1;
 }
 
 div.similar_jobs .right_panel form {
@@ -458,7 +437,6 @@ div.similar_jobs .right_panel .similar_job_detail table {
 div.similar_jobs .left_panel {
   overflow: auto;
   flex: 1 1;
-  -webkit-flex: 1 1;
 }
 
 div.similar_jobs .left_panel table {
