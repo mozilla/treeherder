@@ -8,7 +8,8 @@ from treeherder.model.models import (Job,
                                      JobDetail,
                                      JobLog,
                                      Push,
-                                     Repository)
+                                     Repository,
+                                     TaskclusterMetadata)
 
 
 @pytest.fixture
@@ -59,6 +60,13 @@ def test_ingest_pulse_jobs(pulse_jobs, test_repository, result_set_stored,
 
     jobs = Job.objects.all()
     assert len(jobs) == 4
+
+    assert [job.taskcluster_metadata for job in jobs]
+    assert set(TaskclusterMetadata.objects.values_list(
+        'task_id', flat=True)) == set(['IYyscnNMTLuxzna7PNqUJQ',
+                                       'XJCbbRQ6Sp-UL1lL-tw5ng',
+                                       'ZsSzJQu3Q7q2MfehIBAzKQ',
+                                       'bIzVZt9jQQKgvQYD3a2HQw'])
 
     job_logs = JobLog.objects.filter(job_id=1)
     assert job_logs.count() == 2
