@@ -3,6 +3,7 @@ import datetime
 import logging
 from hashlib import sha1
 
+import requests
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
@@ -123,6 +124,9 @@ def _taskcluster_runnable_jobs(project, decision_task_id):
     tc_graph = {}
     if not decision_task_id:
         decision_task_id = _query_latest_gecko_decision_task_id(project)
+    # Some trees (e.g. comm-central) don't have a decision task, which means there are no taskcluster runnable jobs
+    if not decision_task_id:
+        return ret
 
     tc_graph_url = settings.TASKCLUSTER_TASKGRAPH_URL.format(task_id=decision_task_id)
     validate = URLValidator()
@@ -218,7 +222,15 @@ def list_runnable_jobs(project, decision_task_id=None):
 def _query_latest_gecko_decision_task_id(project):
     url = TASKCLUSTER_INDEX_URL % project
     logger.info('Fetching {}'.format(url))
-    latest_task = fetch_json(url)
-    task_id = latest_task['taskId']
-    logger.info('For {} we found the task id: {}'.format(project, task_id))
+    try:
+        latest_task = fetch_json(url)
+        task_id = latest_task['taskId']
+        logger.info('For {} we found the task id: {}'.format(project, task_id))
+    except requests.exceptions.HTTPError as e:
+        # Specifically handle 404 errors, as it means there's no decision task on this push
+        if e.response.status_code == 404:
+            logger.info('For {} we did not find a task id'.format(project))
+            task_id = None
+        else:
+            raise
     return task_id
