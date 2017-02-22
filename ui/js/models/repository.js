@@ -10,8 +10,9 @@ treeherder.factory('ThRepositoryModel', [
         var $log = new ThLog("ThRepositoryModel");
 
         var repos = {};
-        var watchedRepos = {};
+        var watchedRepos = [];
         var orderedRepoGroups = {};
+        var maxWatchedRepos = 3;
 
         // get the repositories (aka trees)
         // sample: 'resources/menu.json'
@@ -53,22 +54,33 @@ treeherder.factory('ThRepositoryModel', [
          * We want to add this repo as watched, but we also
          * want to get the treestatus for it
          */
-        var watchRepo = function(repoName) {
-            _.extend(repos[repoName], {
+        var watchRepo = function(name) {
+            // Safeguard: Don't allow duplicates in the watch list
+            // Also, only add items for which we have data for
+            if (_.contains(watchedRepos, name) || !repos[name]) {
+                return;
+            }
+            _.extend(repos[name], {
                 treeStatus: {status: "not retrieved yet", message_of_the_day: ""},
                 unclassifiedFailureCount: 0,
-                groupName: repos[repoName].groupName
+                groupName: repos[name].groupName
             });
-            watchedRepos[repoName] = repos[repoName];
-            updateTreeStatus(repoName);
+            watchedRepos.unshift(name);
+            updateTreeStatus(name);
+            // Limit to maxiumum saved repos at a time
+            if (watchedRepos.length > maxWatchedRepos) {
+                watchedRepos.length = maxWatchedRepos;
+            }
             saveWatchedRepos();
-
-            $log.debug("watchedRepo", repoName, repos[repoName]);
+            $log.debug("watchedRepo", name, repos[name]);
         };
 
         var unwatchRepo = function(name) {
             $log.debug("unwatchRepo", name, watchedRepos);
-            delete watchedRepos[name];
+            var pos = watchedRepos.indexOf(name);
+            if (pos > -1) {
+                watchedRepos.splice(pos, 1);
+            }
             saveWatchedRepos();
         };
 
@@ -141,13 +153,31 @@ treeherder.factory('ThRepositoryModel', [
                         });
 
                         _.each(data, addRepoAsUnwatched);
+
+                        // This needs to be done before `setCurrent` because
+                        // `setCurrent` overwrites the entire listing
+                        // with only the default repo
+                        if (options.watchRepos) {
+                            var storedWatched = loadWatchedRepos();
+                        }
+
                         if (options.name) {
                             setCurrent(options.name);
                         }
                         if (options.watchRepos) {
-                            var storedWatched = loadWatchedRepos();
-                            if (_.isArray(storedWatched) &&
-                                _.contains(storedWatched, options.name)) {
+                            if (_.isArray(storedWatched)) {
+
+                                // To get the current repo to display first, we must
+                                // ensure it's added to the array last, as per normal user interaction
+                                if (_.contains(storedWatched, options.name)) {
+                                    storedWatched = _.without(storedWatched, _.findWhere(storedWatched, options.name));
+                                }
+                                unwatchRepo(options.name);
+
+                                // Add the repos in reverse order, like the user would (oldest to newest)
+                                storedWatched.reverse();
+                                storedWatched.push(options.name);
+
                                 _.each(storedWatched, function (repo) {
                                     watchRepo(repo);
                                 });
@@ -204,18 +234,18 @@ treeherder.factory('ThRepositoryModel', [
 
         var loadWatchedRepos = function() {
             try {
-                return JSON.parse(sessionStorage.getItem("thWatchedRepos"));
+                return JSON.parse(localStorage.getItem("thWatchedRepos"));
             } catch (e) {
-                // sessionStorage is disabled/not supported.
-                return {};
+                // localStorage is disabled/not supported.
+                return [];
             }
         };
 
         var saveWatchedRepos = function() {
             try {
-                sessionStorage.setItem("thWatchedRepos", JSON.stringify(_.keys(watchedRepos)));
+                localStorage.setItem("thWatchedRepos", JSON.stringify(watchedRepos));
             } catch (e) {
-                // sessionStorage is disabled/not supported.
+                // localStorage is disabled/not supported.
             }
         };
 
@@ -266,12 +296,12 @@ treeherder.factory('ThRepositoryModel', [
             // The $interval will pass in the number of times it was called,
             // rather than a ``repoName``.  So repoName would equal 1, 2, 3.  So
             // if repoName isn't a valid watched repo, we update all.
-            var repoNames = watchedRepos[repoName]? [repoName]: _.keys(watchedRepos);
+            var repoNames = _.contains(watchedRepos, repoName) ? [repoName] : watchedRepos;
 
             // filter out non-watched and unsupported repos to prevent repeatedly
             // hitting an endpoint we know will never work.
             repoNames = _.filter(repoNames, function(repo) {
-                if (watchedRepos[repo] && watchedRepos[repo].treeStatus.status !== 'unsupported') {
+                if (_.contains(watchedRepos, repo) && repos[repo].treeStatus.status !== 'unsupported') {
                     return repo;
                 }
             });
@@ -302,7 +332,7 @@ treeherder.factory('ThRepositoryModel', [
                     _.defer(function() {
                         _.each(newStatuses, function(status) {
                             $log.debug("updateTreeStatus", "updateStatusesIfDone", status.tree, status.status);
-                            watchedRepos[treeStatus.getRepoName(status.tree)].treeStatus = status;
+                            repos[treeStatus.getRepoName(status.tree)].treeStatus = status;
                         });
                     });
                 }
