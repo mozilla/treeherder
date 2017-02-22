@@ -3,18 +3,12 @@
   <i class="fa fa-info-circle" aria-hidden="true"></i>
   <span><b>Active Filters</b></span>
 
-  <span class="btn btn-sm"
-        ng-show="fromChange().length > 0"
-        title="Click to clear the fromchange filter"
-        ng-click="dropLocationSearchParam('fromchange')">
-      fromChange: {{fromChange() | limitTo: 12}}
-      <i class="fa fa-times-circle"/>
-  </span>
-  <span class="btn btn-sm"
-        ng-show="toChange().length > 0"
-        title="Click to clear the tochange filter"
-        ng-click="dropLocationSearchParam('tochange')">
-      toChange: {{toChange() | limitTo: 12}}
+  <span ng-repeat="filter in activeFiltersBarProperties" class="btn btn-sm"
+        ng-show="search()[filter]"
+        title="Click to clear the {{ filter }} filter"
+        ng-click="dropLocationSearchParam(filter)">
+      <span ng-if="filter == 'author'">{{ filter }}: {{search()[filter].split('@')[0] | limitTo: 20}}</span>
+      <span ng-if="filter !== 'author'">{{ filter }}: {{search()[filter] | limitTo: 12}}</span>
       <i class="fa fa-times-circle"/>
   </span>
 </div>

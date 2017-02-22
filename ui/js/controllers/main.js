@@ -525,16 +525,18 @@ treeherderApp.controller('MainCtrl', [
             );
         };
 
-        $scope.fromChange = function() {
-            return $location.search()["fromchange"];
+        $scope.search = function() {
+            return $location.search();
         };
 
-        $scope.toChange = function() {
-            return $location.search()["tochange"];
-        };
+        // query parameters that will be shown in activefiltersbar when set
+        $scope.activeFiltersBarProperties = ['fromchange', 'tochange', 'author',
+                                             'nojobs', 'startdate', 'enddate'];
 
         $scope.showActiveFiltersBar = function() {
-            return $scope.fromChange() || $scope.toChange();
+            return $scope.search().fromchange || $scope.search().tochange ||
+                   $scope.search().author || $scope.search().nojobs ||
+                   $scope.search().startdate || $scope.search().enddate;
         };
 
         $scope.fromChangeValue = function() {
@@ -552,6 +554,7 @@ treeherderApp.controller('MainCtrl', [
         $scope.dropLocationSearchParam = function(param) {
             var url = $location.url();
             url = url.replace("&" + param + "=" + $location.search()[param], "");
+            url = url.replace("&" + param, "");
             $location.url(url);
         };
 
