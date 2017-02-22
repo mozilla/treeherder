@@ -959,7 +959,7 @@ SYMBOLS = {
     "Mochitest WebGL": "gl",
     "Mochitest Jetpack": "JP",
     "Mochitest Metro Browser Chrome": "mc",
-    "Mochitest a11y": "a",
+    "Mochitest a11y": "a11y",
     "Mochitest Other": "oth",
     "Mochitest e10s": "M-e10s",
     "Mochitest e10s Browser Chrome": "bc",
