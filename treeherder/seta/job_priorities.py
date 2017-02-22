@@ -7,10 +7,9 @@ from treeherder.etl.seta import (build_ref_data_names,
                                  valid_platform)
 from treeherder.model.models import Repository
 from treeherder.seta.models import JobPriority
+from treeherder.seta.settings import SETA_PROJECTS
 
 logger = logging.getLogger(__name__)
-
-SETA_PROJECTS = ['mozilla-inbound', 'autoland']
 
 
 class SetaError(Exception):

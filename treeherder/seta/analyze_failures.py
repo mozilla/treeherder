@@ -1,4 +1,8 @@
 import logging
+from collections import defaultdict
+from datetime import timedelta
+
+from django.utils import timezone
 
 from treeherder.etl.seta import (is_job_blacklisted,
                                  parse_testtype,
@@ -7,7 +11,10 @@ from treeherder.model import models
 from treeherder.seta.common import unique_key
 from treeherder.seta.high_value_jobs import get_high_value_jobs
 from treeherder.seta.models import JobPriority
-from treeherder.seta.settings import SETA_SUPPORTED_TC_JOBTYPES
+from treeherder.seta.settings import (SETA_FIXED_BY_COMMIT_DAYS,
+                                      SETA_FIXED_BY_COMMIT_REPOS,
+                                      SETA_SUPPORTED_TC_JOBTYPES,
+                                      SETA_UNSUPPORTED_PLATFORMS)
 from treeherder.seta.update_job_priority import update_job_priority_table
 
 HEADERS = {
@@ -26,7 +33,6 @@ class AnalyzeFailures:
         fixed_by_commit_jobs = get_failures_fixed_by_commit()
         if fixed_by_commit_jobs:
             # We need to update the job priority table before we can call get_high_value_jobs()
-            # See increase_job_priority() to understand the root issue
             update_job_priority_table()
             high_value_jobs = get_high_value_jobs(fixed_by_commit_jobs)
 
@@ -59,17 +65,27 @@ def get_failures_fixed_by_commit():
             ]
         }
     """
-    failures = {}
-
+    failures = defaultdict(list)
     option_collection_map = models.OptionCollection.objects.get_option_collection_map()
 
-    # We're assuming that sheriffs always anotate failed jobs correctly using "fixed by commit"
-    for job_note in models.JobNote.objects.filter(failure_classification=2).select_related(
-            'job', 'job__signature', 'job__job_type'):
-        # prevent an empty string
-        if not job_note.text:
-            continue
+    fixed_by_commit_data_set = models.JobNote.objects.filter(
+                failure_classification=2,
+                created__gt=timezone.now() - timedelta(days=SETA_FIXED_BY_COMMIT_DAYS),
+                text__isnull=False,
+                job__repository__name__in=SETA_FIXED_BY_COMMIT_REPOS
+            ).exclude(
+                job__signature__build_platform__in=SETA_UNSUPPORTED_PLATFORMS
+            ).exclude(
+                text=""
+            ).select_related('job', 'job__signature', 'job__job_type')
 
+    # check if at least one fixed by commit job meets our requirements without populating queryset
+    if not fixed_by_commit_data_set.exists():
+        logger.warn("We couldn't find any fixed-by-commit jobs")
+        return failures
+
+    # now process the fixed by commit jobs in batches using django's queryset iterator
+    for job_note in fixed_by_commit_data_set.iterator():
         # if we have http://hg.mozilla.org/rev/<rev> and <rev>, we will only use <rev>
         revision_id = job_note.text.strip('/')
         revision_id = revision_id.split('/')[-1]
@@ -94,14 +110,8 @@ def get_failures_fixed_by_commit():
         # 40char revision we will have two disjunct set of failures
         #
         # Some of this will be improved in https://bugzilla.mozilla.org/show_bug.cgi?id=1323536
-        if revision_id not in failures:
-            failures[revision_id] = []
 
         try:
-            # check if platform is supported by SETA (see treeherder/seta/settings.py)
-            if not valid_platform(job_note.job.signature.build_platform):
-                continue
-
             # check if jobtype is supported by SETA (see treeherder/seta/settings.py)
             if job_note.job.signature.build_system_type != 'buildbot':
                 if not job_note.job.job_type.name.startswith(tuple(SETA_SUPPORTED_TC_JOBTYPES)):
@@ -122,6 +132,7 @@ def get_failures_fixed_by_commit():
                                job_note.job.job_type.name, job_note.job.signature.name))
                 continue
 
+            # we now have a legit fixed-by-commit job failure
             failures[revision_id].append(unique_key(
                 testtype=testtype,
                 buildtype=job_note.job.get_platform_option(option_collection_map),  # e.g. 'opt'
@@ -131,12 +142,5 @@ def get_failures_fixed_by_commit():
             logger.warning('job_note {} has no job associated to it'.format(job_note.id))
             continue
 
-    # Remove failure rows that have no jobs associated with them
-    clean_failures = {}
-    for failure in failures:
-        if len(failures[failure]) == 0:
-            continue
-        clean_failures[failure] = failures[failure]
-
-    logger.warn("number of fixed_by_commit revisions: {}".format(len(clean_failures)))
-    return clean_failures
+    logger.warn("Number of fixed_by_commit revisions: {}".format(len(failures)))
+    return failures
