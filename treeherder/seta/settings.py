@@ -1,3 +1,9 @@
+# repos that SETA supports
+SETA_PROJECTS = [
+    'mozilla-inbound',
+    'autoland'
+]
+
 # for taskcluster, only jobs that start with any of these names
 # will be supported i.e. may be optimized out by SETA
 SETA_SUPPORTED_TC_JOBTYPES = [

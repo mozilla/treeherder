@@ -1,5 +1,7 @@
 import logging
 
+from datetime import timedelta
+from django.utils import timezone
 from treeherder.etl.seta import (is_job_blacklisted,
                                  parse_testtype,
                                  valid_platform)
@@ -7,7 +9,9 @@ from treeherder.model import models
 from treeherder.seta.common import unique_key
 from treeherder.seta.high_value_jobs import get_high_value_jobs
 from treeherder.seta.models import JobPriority
-from treeherder.seta.settings import SETA_SUPPORTED_TC_JOBTYPES
+from treeherder.seta.settings import (SETA_PROJECTS,
+                                      SETA_SUPPORTED_TC_JOBTYPES,
+                                      SETA_UNSUPPORTED_PLATFORMS)
 from treeherder.seta.update_job_priority import update_job_priority_table
 
 HEADERS = {
@@ -60,15 +64,18 @@ def get_failures_fixed_by_commit():
         }
     """
     failures = {}
-
     option_collection_map = models.OptionCollection.objects.get_option_collection_map()
 
     # We're assuming that sheriffs always anotate failed jobs correctly using "fixed by commit"
-    for job_note in models.JobNote.objects.filter(failure_classification=2).select_related(
-            'job', 'job__signature', 'job__job_type'):
-        # prevent an empty string
-        if not job_note.text:
-            continue
+    for job_note in models.JobNote.objects.filter(
+                failure_classification=2,
+                created__gt=timezone.now() - timedelta(days=90),
+                text__isnull=False,
+                job__repository__name__in=SETA_PROJECTS
+            ).exclude(
+                text="",
+                job__signature__build_platform__in=SETA_UNSUPPORTED_PLATFORMS
+            ).select_related('job', 'job__signature', 'job__job_type'):
 
         # if we have http://hg.mozilla.org/rev/<rev> and <rev>, we will only use <rev>
         revision_id = job_note.text.strip('/')
@@ -98,10 +105,6 @@ def get_failures_fixed_by_commit():
             failures[revision_id] = []
 
         try:
-            # check if platform is supported by SETA (see treeherder/seta/settings.py)
-            if not valid_platform(job_note.job.signature.build_platform):
-                continue
-
             # check if jobtype is supported by SETA (see treeherder/seta/settings.py)
             if job_note.job.signature.build_system_type != 'buildbot':
                 if not job_note.job.job_type.name.startswith(tuple(SETA_SUPPORTED_TC_JOBTYPES)):
