@@ -82,7 +82,7 @@ buildernames = [
       'name': {'group_name': 'Mochitest',
                'group_symbol': 'M',
                'name': 'Mochitest a11y',
-               'job_symbol': 'a'},
+               'job_symbol': 'a11y'},
       'platform': {'arch': 'x86',
                    'os': 'win',
                    'os_platform': 'windowsxp'}}),
