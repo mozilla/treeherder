@@ -12,6 +12,21 @@
      class="result-set"
      data-id="{{::resultset.id}}">
 
+  <div class="result-set-mobile-bar">
+    <th-author author="{{::resultset.author}}"></th-author>
+    <span style="float:right;"><th-action-button></th-action-button></span>
+    <div>
+      <a href="{{::revisionResultsetFilterUrl}}"
+       title="View only this resultset"
+       ignore-job-clear-on-click>{{resultset.revision | limitTo : 12}}
+      <span class="fa fa-external-link icon-superscript"></span></a> - {{::resultsetDateStr}}
+    </div>
+    <th-result-counts class="result-counts"></th-result-counts>
+    
+    <button ng-click="toggleMobileVisibility($event,resultset.id,'revisions')" class="revisions-btn btn">Revisions</button>
+    <button ng-click="toggleMobileVisibility($event,resultset.id,'jobs')" class="jobs-btn btn">Jobs</button>
+  </div>
+
   <div class="result-set-bar">
     <span class="result-set-left">
       <span class="result-set-title-left">

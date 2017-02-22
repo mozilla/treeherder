@@ -34,7 +34,7 @@
       </span>
 
       <!-- Repos Menu -->
-      <span ng-controller="RepositoryMenuCtrl" >
+      <span id="repoMenu" ng-controller="RepositoryMenuCtrl" >
         <span th-checkbox-dropdown-container class="dropdown">
           <button id="repoLabel" title="Watch a repo" role="button"
                   data-toggle="dropdown"
@@ -80,6 +80,7 @@
 
       <!-- Settings Button - currently suppressed -->
       <span ng-show="false"
+            id="settingsButton"
             class="btn btn-view-nav btn-right-navbar nav-menu-btn"
             ng-class="{'active': (isSettingsPanelShowing)}"
             ng-click="setSettingsPanelShowing(!isSettingsPanelShowing)"
