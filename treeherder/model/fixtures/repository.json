@@ -1082,5 +1082,19 @@
         "repository_group": 2,
         "description": ""
     }
+},
+{
+    "pk": 86,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "webrender",
+        "url": "https://github.com/servo/webrender",
+        "branch": "master",
+        "active_status": "active",
+        "codebase": "servo",
+        "repository_group": 7,
+        "description": "GPU renderer for Servo"
+    }
 }
 ]
