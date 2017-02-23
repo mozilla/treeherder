@@ -29,6 +29,7 @@ a:visited {
 }
 
 .th-global-content {
+  flex: 1; /* Not using auto because it causes unnecessary reflows, see bug 162725 */
   position: relative; /* Required to position inner content */
   overflow-y: auto;
 }
