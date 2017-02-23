@@ -7,8 +7,6 @@
   padding: 2px 0px 0px 34px;
   white-space: nowrap;
   display: flex;
-  display: -webkit-flex;
-  -webkit-flex-flow: row wrap;
   flex-flow: row nowrap;
   align-items: center;
   justify-content: space-between;
@@ -16,8 +14,6 @@
 
 .result-set-left {
   display: flex;
-  display: -webkit-flex;
-  -webkit-flex-flow: row wrap;
   flex-flow: row wrap;
   flex: auto;
   align-items: center;
@@ -51,7 +47,6 @@
 
 .result-counts {
   flex: none;
-  -webkit-flex: none;
   padding-right: 10px;
 }
 
