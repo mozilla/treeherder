@@ -1,5 +1,13 @@
 'use strict';
 
+var copyToClipboard = function(rv) {
+    var textField = document.createElement('textarea');
+    textField.innerText = rv;
+    document.body.appendChild(textField);
+    textField.select();
+    document.execCommand('copy');
+    textField.remove();
+};
 var moreRevisionsLinkComponent = React.createClass({
     displayName: 'pushlogRevisionComponent',
     propTypes: {
@@ -30,9 +38,10 @@ var revisionItemComponent = React.createClass({
         initialsFilter: React.PropTypes.func.isRequired
     },
     render() {
-        var email, name, userTokens, escapedComment, escapedCommentHTML, initialsHTML, tags;
+        var email, name, userTokens, escapedComment, escapedCommentHTML, initialsHTML, tags, revision;
 
         userTokens = this.props.revision.author.split(/[<>]+/);
+        revision = this.props.revision.revision;
         name = userTokens[0];
         if (userTokens.length > 1) email = userTokens[1];
         initialsHTML = { __html: this.props.initialsFilter(name) };
@@ -55,6 +64,14 @@ var revisionItemComponent = React.createClass({
             },
             React.DOM.span(
                 { className: 'revision-holder' },
+                React.DOM.span(
+                    { className: 'copy-revision-button-holder' },
+                    React.DOM.span({
+                        className: 'copy-revision-button fa fa-clipboard',
+                        title: 'Copy revision hash to clipboard',
+                        onClick: function(){ copyToClipboard(revision); }
+                    }
+                )),
                 React.DOM.a({
                     title: `Open revision ${this.props.revision.revision} on ${this.props.repo.url}`,
                     href: this.props.repo.getRevisionHref(this.props.revision.revision),

@@ -133,13 +133,21 @@ fieldset[disabled] .btn-resultset:hover {
   color: red;
 }
 
+.revision-holder > .copy-revision-button-holder {
+  padding-right: 5px;
+  cursor: pointer;
+}
+
+.revision-holder:not(:hover) > .copy-revision-button-holder {
+  visibility: hidden;
+}
+
 .revision-holder > a {
   padding-top: 2px;
   font: 11px "Lucida Console",Monaco,monospace;
 }
 
 .revision-holder {
-  padding-left: 20px;
   padding-right: 11px;
   display: inline-block;
 }
