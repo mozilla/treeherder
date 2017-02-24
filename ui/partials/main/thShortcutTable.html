@@ -1,6 +1,7 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     <h3>Keyboard shortcuts
+      <span ng-show="inGamerMode">GAMERMODE ACTIVE</span>
       <a ng-show="onscreenShortcutsShowing"
          ng-click="setOnscreenShortcutsShowing(false)"
          class="pull-right" href="" title="Close this help">
@@ -26,23 +27,25 @@
           <td><kbd>ctrl</kbd><kbd>shift</kbd><kbd>f</kbd></td>
           <td>Clear the quick filter</td>
         </tr>
-        <tr><td><kbd>&larr;</kbd></td>
+        <tr><td><kbd>&larr;</kbd><span ng-show="inGamerMode"> or <kbd>w</kbd></span></td>
           <td>Select previous job</td></tr>
-        <tr><td><kbd>&rarr;</kbd></td>
+        <tr><td><kbd>&rarr;</kbd><span ng-show="inGamerMode"> or <kbd>s</kbd></span></td>
           <td>Select next job</td></tr>
-        <tr><td<kbd>k</kbd> or <kbd>p</kbd></td>
+        <tr><td ng-hide="inGamerMode"><kbd>k</kbd> or <kbd>p</kbd></td>
+            <td ng-show="inGamerMode"><kbd>a</kbd></td>
           <td>Select previous unclassified failure</td></tr>
-        <tr><td><kbd>j</kbd> or <kbd>n</kbd></td>
+        <tr><td ng-hide="inGamerMode"><kbd>j</kbd> or <kbd>n</kbd></td>
+            <td ng-show="inGamerMode"><kbd>d</kbd></td>
           <td>Select next unclassified failure</td></tr>
         <tr><td><kbd>t</kbd></td>
           <td>Select next info tab</td></tr>
-        <tr><td><kbd>l</kbd></td>
+        <tr><td><kbd>l</kbd><span ng-show="inGamerMode"> or <kbd>q</kbd></span></td>
           <td>Open the logviewer for the selected job</td></tr>
         <tr><td><kbd>r</kbd></td>
           <td>Retrigger selected job</td></tr>
-        <tr><td><kbd>u</kbd></td>
+        <tr><td><kbd>u</kbd><span ng-show="inGamerMode"> or <kbd>e</kbd></span></td>
           <td>Show only unclassified failures</td></tr>
-        <tr><td><kbd>i</kbd></td>
+        <tr><td><kbd>i</kbd><span ng-show="inGamerMode"> or <kbd>v</kbd></span></td>
           <td>Toggle pending and running jobs</td></tr>
         <tr><td><kbd>ctrl</kbd> or <kbd>cmd</kbd></td>
           <td>Toggle pinning a job during click selection</td></tr>
@@ -57,7 +60,7 @@
           <td>Add a selected job to the pinboard + enter related bug</td></tr>
         <tr><td><kbd>c</kbd></td>
           <td>Add a selected job to the pinboard + enter classification</td></tr>
-        <tr><td><kbd>ctrl</kbd><kbd>enter</kbd></td>
+        <tr><td><kbd>ctrl</kbd><kbd>enter</kbd> or <kbd>ctrl</kbd><kbd>space</kbd></td>
           <td>Save pinboard classification and related bugs</td></tr>
         <tr>
           <td><kbd>ctrl</kbd><kbd>shift</kbd><kbd>u</kbd></td>
@@ -68,9 +71,11 @@
         <tr>
           <th colspan=2>Autoclassify Panel</th>
         </tr>
-      <tr><td><kbd>a</kbd></td>
+      <tr><td ng-hide="inGamerMode"><kbd>a</kbd></td>
+            <td ng-show="inGamerMode"><kbd>z</kbd></td>
         <td>Ignore unclassified failure lines</td></tr>
-      <tr><td><kbd>s</kbd></td>
+      <tr><td ng-hide="inGamerMode"><kbd>s</kbd></td>
+            <td ng-show="inGamerMode"><kbd>x</kbd></td>
         <td>Save all autoclassifications</td></tr>
       </tbody>
       <tr>
