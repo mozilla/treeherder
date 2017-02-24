@@ -24,8 +24,7 @@ from treeherder.model.models import (BuildPlatform,
                                      OptionCollection,
                                      Product,
                                      Push,
-                                     ReferenceDataSignatures,
-                                     TaskclusterMetadata)
+                                     ReferenceDataSignatures)
 
 LOWER_TIERS = [2, 3]
 
@@ -309,12 +308,6 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
         last_modified=datetime.now(),
         running_eta=duration,
         push_id=push_id)
-
-    if all([k in job_datum for k in ['taskcluster_task_id', 'taskcluster_retry_id']]):
-        TaskclusterMetadata.objects.get_or_create(
-            job=job,
-            task_id=job_datum['taskcluster_task_id'],
-            retry_id=job_datum['taskcluster_retry_id'])
 
     artifacts = job_datum.get('artifacts', [])
 

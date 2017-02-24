@@ -1,8 +1,6 @@
 [
   {
     "job": {
-      "taskcluster_task_id": "IYyscnNMTLuxzna7PNqUJQ",
-      "taskcluster_retry_id": 0,
       "build_platform": {
         "platform": "linux64",
         "os_name": "linux",
@@ -16,7 +14,7 @@
       },
       "artifacts": [
         {
-          "job_guid": "218cac72-734c-4cbb-b1ce-76bb3cda9425/0",
+          "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33/0",
           "type": "json",
           "blob": {
             "job_details": [
@@ -64,7 +62,7 @@
       ],
       "tier": 1,
       "job_symbol": "P",
-      "job_guid": "218cac72-734c-4cbb-b1ce-76bb3cda9425/0",
+      "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33/0",
       "product_name": "Oscillation Overthruster",
       "end_timestamp": 1419043197.0
     },
@@ -73,8 +71,6 @@
   },
   {
     "job": {
-      "taskcluster_task_id": "XJCbbRQ6Sp-UL1lL-tw5ng",
-      "taskcluster_retry_id": 0,
       "build_platform": {
         "platform": "linux64",
         "os_name": "linux",
@@ -103,7 +99,7 @@
       "log_references": [],
       "tier": 1,
       "job_symbol": "P2",
-      "job_guid": "5c909b6d-143a-4a9f-942f-594bfadc399e/0",
+      "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf34/0",
       "product_name": "Oscillation Overthruster",
       "end_timestamp": 1419043197.0
     },
@@ -112,8 +108,6 @@
   },
   {
     "job": {
-      "taskcluster_task_id": "ZsSzJQu3Q7q2MfehIBAzKQ",
-      "taskcluster_retry_id": 0,
       "build_platform": {
         "platform": "linux64",
         "os_name": "linux",
@@ -127,7 +121,7 @@
       },
       "artifacts": [
         {
-          "job_guid": "66c4b325-0bb7-43ba-b631-f7a120103329/0",
+          "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35/0",
           "type": "json",
           "blob": {
             "step_data": {
@@ -175,7 +169,7 @@
         {
           "type": "json",
           "blob": {"fee": "foo"},
-          "job_guid": "66c4b325-0bb7-43ba-b631-f7a120103329/0",
+          "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35/0",
           "name": "Bug suggestions"
         }
       ],
@@ -201,7 +195,7 @@
       ],
       "tier": 1,
       "job_symbol": "3",
-      "job_guid": "66c4b325-0bb7-43ba-b631-f7a120103329/0",
+      "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35/0",
       "product_name": "unknown",
       "end_timestamp": 1419043197.0
     },
@@ -210,8 +204,6 @@
   },
   {
     "job": {
-      "taskcluster_task_id": "bIzVZt9jQQKgvQYD3a2HQw",
-      "taskcluster_retry_id": 3,
       "build_platform": {
         "platform": "linux64",
         "os_name": "linux",
@@ -226,7 +218,7 @@
       "artifacts": [
         {
           "blob": {"fee": "foo"},
-          "job_guid": "6c8cd566-df63-4102-a0bd-0603ddad8743/3",
+          "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35/3",
           "name": "quagmire",
           "type": "json"
         }
@@ -253,7 +245,7 @@
       ],
       "tier": 1,
       "job_symbol": "3",
-      "job_guid": "6c8cd566-df63-4102-a0bd-0603ddad8743/3",
+      "job_guid": "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf35/3",
       "product_name": "unknown",
       "end_timestamp": 1419043197.0
     },
