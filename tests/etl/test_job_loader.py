@@ -59,7 +59,7 @@ def test_ingest_pulse_jobs(pulse_jobs, test_repository, result_set_stored,
     jl.process_job_list(pulse_jobs)
 
     jobs = Job.objects.all()
-    assert len(jobs) == 4
+    assert len(jobs) == 5
 
     assert [job.taskcluster_metadata for job in jobs]
     assert set(TaskclusterMetadata.objects.values_list(
@@ -118,7 +118,7 @@ def test_ingest_pulse_jobs_with_revision_hash(pulse_jobs, test_repository,
 
     jl.process_job_list(pulse_jobs)
 
-    assert Job.objects.count() == 4
+    assert Job.objects.count() == 5
 
 
 def test_ingest_pulse_jobs_with_missing_resultset(pulse_jobs):

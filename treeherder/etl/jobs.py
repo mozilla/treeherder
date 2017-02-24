@@ -6,6 +6,7 @@ from hashlib import sha1
 import newrelic.agent
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.utils import IntegrityError
 
 from treeherder.etl.artifact import (serialize_artifact_json_blobs,
                                      store_job_artifacts)
@@ -311,11 +312,13 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
         push_id=push_id)
 
     if all([k in job_datum for k in ['taskcluster_task_id', 'taskcluster_retry_id']]):
-        TaskclusterMetadata.objects.get_or_create(
-            job=job,
-            task_id=job_datum['taskcluster_task_id'],
-            retry_id=job_datum['taskcluster_retry_id'])
-
+        try:
+            TaskclusterMetadata.objects.create(
+                job=job,
+                task_id=job_datum['taskcluster_task_id'],
+                retry_id=job_datum['taskcluster_retry_id'])
+        except IntegrityError:
+            pass
     artifacts = job_datum.get('artifacts', [])
 
     has_text_log_summary = any(x for x in artifacts

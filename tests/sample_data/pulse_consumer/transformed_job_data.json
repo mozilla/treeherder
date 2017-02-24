@@ -112,6 +112,45 @@
   },
   {
     "job": {
+      "taskcluster_task_id": "XJCbbRQ6Sp-UL1lL-tw5ng",
+      "taskcluster_retry_id": 1,
+      "build_platform": {
+        "platform": "linux64",
+        "os_name": "linux",
+        "architecture": "x86_64"
+      },
+      "submit_timestamp": 1419035997.0,
+      "start_timestamp": 1419039597.0,
+      "name": "test-android-4.3-arm7-api-15/debug-mochitest-media-1",
+      "option_collection": {
+        "debug": true
+      },
+      "artifacts": [],
+      "machine_platform": {
+        "platform": "linux64",
+        "os_name": "linux",
+        "architecture": "x86_64"
+      },
+      "build_system_type": "taskcluster",
+      "who": "thedude@lebowski.com",
+      "group_symbol": "?",
+      "reason": "scheduler",
+      "group_name": "unknown",
+      "machine": "bld-linux64-ec2-104",
+      "state": "running",
+      "result": "unknown",
+      "log_references": [],
+      "tier": 1,
+      "job_symbol": "P2",
+      "job_guid": "5c909b6d-143a-4a9f-942f-594bfadc399e/1",
+      "product_name": "Oscillation Overthruster",
+      "end_timestamp": 1419043197.0
+    },
+    "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
+    "coalesced": []
+  },
+  {
+    "job": {
       "taskcluster_task_id": "ZsSzJQu3Q7q2MfehIBAzKQ",
       "taskcluster_retry_id": 0,
       "build_platform": {
