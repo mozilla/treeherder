@@ -106,7 +106,18 @@ def test_job_details(test_repository, failure_classifications,
                              value='foo')
     resp = webapp.get(reverse('jobdetail-list') +
                       '?title=title&job_guid=abcd')
-    print resp.json
     assert resp.status_int == 200
     assert len(resp.json['results']) == 1
     assert set([v['job_guid'] for v in resp.json['results']]) == set(['abcd'])
+
+    # should also be able to filter by value
+    resp = webapp.get(reverse('jobdetail-list') +
+                      '?value=value1&job_guid=abcd')
+    assert resp.status_int == 200
+    assert resp.json['results'] == [{
+        'job_guid': 'abcd',
+        'job_id': 1,
+        'title': 'title',
+        'url': None,
+        'value': 'value1'
+    }]
