@@ -81,12 +81,22 @@ def write_failure_lines(job_log, log_iter):
     create_es(failure_lines)
 
 
+_failure_line_keys = ["action", "line", "test", "subtest", "status",
+                      "expected", "message", "signature", "level",
+                      "stack", "stackwalk_stdout", "stackwalk_stderr"]
+
+
+def get_kwargs(failure_line):
+    return {key: failure_line[key] for key in _failure_line_keys
+            if key in failure_line}
+
+
 def create(job_log, log_list):
     failure_lines = [
         FailureLine.objects.create(repository=job_log.job.repository,
                                    job_guid=job_log.job.guid,
                                    job_log=job_log,
-                                   **failure_line)
+                                   **get_kwargs(failure_line))
         for failure_line in log_list]
     job_log.update_status(JobLog.PARSED)
     return failure_lines
