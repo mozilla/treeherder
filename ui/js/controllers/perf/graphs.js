@@ -963,7 +963,11 @@ perf.controller('TestChooserCtrl', function($scope, $uibModalInstance, $http,
             }).then(function(seriesList) {
                 $scope.testsToAdd = _.clone(_.filter(seriesList, function(series) {
                     return series.platform !== originalSeries.platform &&
-                        series.name === originalSeries.name;
+                        series.name === originalSeries.name &&
+                        !_.any(testsDisplayed, {
+                            projectName: series.projectName,
+                            signature: series.signature
+                        });
                 }));
             }).then(function() {
                 // resolve the testsToAdd's length after every thing was done
