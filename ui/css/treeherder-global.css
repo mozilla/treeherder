@@ -22,25 +22,13 @@ a:visited {
   color: purple;
 }
 
-input:focus::-webkit-input-placeholder {
-  color: transparent;
-}
-
-input:focus::-moz-placeholder {
-  color: transparent;
-}
-
 #global-container {
-  display: -webkit-flex;
   display: flex;
-  -webkit-flex-direction: column;
   flex-direction: column;
   height: 100%;
 }
 
 .th-global-content {
-  flex: 1; /* Not using auto because it causes unnecessary reflows, see bug 162725 */
-  -webkit-flex: auto;
   position: relative; /* Required to position inner content */
   overflow-y: auto;
 }
