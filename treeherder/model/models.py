@@ -830,8 +830,7 @@ class TaskclusterMetadata(models.Model):
         related_name='taskcluster_metadata'
     )
 
-    task_id = models.CharField(unique=True,
-                               max_length=22,
+    task_id = models.CharField(max_length=22,
                                validators=[MinLengthValidator(22)])
     retry_id = models.PositiveIntegerField()
 

@@ -109,6 +109,48 @@
   },
 
   {
+    "taskId": "5c909b6d-143a-4a9f-942f-594bfadc399e/1",
+    "retryId": 1,
+    "origin": {
+      "kind": "hg.mozilla.org",
+      "project": "set by test",
+      "revision": "1234567890123456789012345678901234567890"
+    },
+    "buildSystem": "taskcluster",
+    "display": {
+      "jobSymbol": "P",
+      "chunkId": 2,
+      "jobName": "test-android-4.3-arm7-api-15/debug-mochitest-media-1",
+      "groupSymbol": "?",
+      "groupName": "unknown"
+    },
+    "state": "running",
+    "jobKind": "test",
+    "runMachine": {
+      "name": "bld-linux64-ec2-104",
+      "platform": "linux64",
+      "os": "linux",
+      "architecture": "x86_64"
+    },
+    "buildMachine": {
+      "name": "bld-linux64-ec2-104",
+      "platform": "linux64",
+      "os": "linux",
+      "architecture": "x86_64"
+    },
+    "owner": "thedude@lebowski.com",
+    "reason": "scheduler",
+    "productName": "Oscillation Overthruster",
+    "timeScheduled": "2014-12-19T16:39:57-08:00",
+    "timeStarted": "2014-12-19T17:39:57-08:00",
+    "timeCompleted": "2014-12-19T18:39:57-08:00",
+    "labels": [
+      "debug"
+    ],
+    "version": 1
+  },
+
+  {
     "taskId": "66c4b325-0bb7-43ba-b631-f7a120103329/0",
     "retryId": 0,
     "isRetried": true,
