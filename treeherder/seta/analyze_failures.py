@@ -7,6 +7,7 @@ from treeherder.model import models
 from treeherder.seta.common import unique_key
 from treeherder.seta.high_value_jobs import get_high_value_jobs
 from treeherder.seta.models import JobPriority
+from treeherder.seta.preseed import load_preseed
 from treeherder.seta.settings import SETA_SUPPORTED_TC_JOBTYPES
 from treeherder.seta.update_job_priority import update_job_priority_table
 
@@ -24,6 +25,7 @@ class AnalyzeFailures:
 
     def run(self):
         fixed_by_commit_jobs = get_failures_fixed_by_commit()
+        load_preseed()
         if fixed_by_commit_jobs:
             # We need to update the job priority table before we can call get_high_value_jobs()
             # See increase_job_priority() to understand the root issue
