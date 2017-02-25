@@ -1,8 +1,14 @@
 'use strict';
 
-var copyToClipboard = function(rv) {
+var copyToClipboard = function(ev, rv) {
     var textField = document.createElement('textarea');
     textField.innerText = rv;
+    var el = ev.target.parentNode;
+    $(el).attr('data-original-title', "COPIED!").tooltip('show');
+    window.setTimeout(function() {
+        $(el).attr('data-original-title',
+            "Copy revision hash to clipboard").tooltip('show');
+    }, 2000);
     document.body.appendChild(textField);
     textField.select();
     document.execCommand('copy');
@@ -40,6 +46,11 @@ var revisionItemComponent = React.createClass({
     render() {
         var email, name, userTokens, escapedComment, escapedCommentHTML, initialsHTML, tags, revision;
 
+        // Activate bootstrap tooltips
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
         userTokens = this.props.revision.author.split(/[<>]+/);
         revision = this.props.revision.revision;
         name = userTokens[0];
@@ -65,11 +76,15 @@ var revisionItemComponent = React.createClass({
             React.DOM.span(
                 { className: 'revision-holder' },
                 React.DOM.span(
-                    { className: 'copy-revision-button-holder' },
+                    {
+                        className: 'copy-revision-button-holder',
+                        'data-original-title': 'Copy revision hash to clipboard',
+                        'data-toggle': "tooltip",
+                        'data-placement': "right",
+                        onClick: function(ev){ copyToClipboard(ev, revision); }
+                    },
                     React.DOM.span({
-                        className: 'copy-revision-button fa fa-clipboard',
-                        title: 'Copy revision hash to clipboard',
-                        onClick: function(){ copyToClipboard(revision); }
+                        className: 'copy-revision-button fa fa-clipboard'
                     }
                 )),
                 React.DOM.a({
