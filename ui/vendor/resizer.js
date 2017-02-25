@@ -1,5 +1,5 @@
 /* From: http://stackoverflow.com/a/22253161/295132 (author: Mario Campa) */
-angular.module('mc.resizer', []).directive('resizer', function($document) {
+angular.module('mc.resizer', []).directive('resizer', ['$document', function($document) {
     return function($scope, $element, $attrs) {
         $element.on('mousedown', function(event) {
             event.preventDefault();
@@ -41,4 +41,4 @@ angular.module('mc.resizer', []).directive('resizer', function($document) {
             $document.unbind('mouseup', mouseup);
         }
     };
-}); 
+}]);

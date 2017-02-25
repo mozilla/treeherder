@@ -2,7 +2,9 @@
     "root": true,
     "env": {
         "browser": true,
-        "es6": true
+        "es6": true,
+        "node": true,
+        "jasmine": true
     },
     "extends": "eslint:recommended",
     "rules": {
@@ -59,6 +61,13 @@
         "strict": [2, "global"],
         "yoda": 2
     },
+    "plugins": ["react"],
+    "parserOptions": {
+        "ecmaFeatures": {
+            "es6": true,
+            "jsx": true
+        }
+    },
     "globals":{
         "angular": true,
         "$": true,
@@ -74,6 +83,8 @@
         "Mousetrap": true,
         "jQuery": true,
         "React": true,
-        "hawk": true
+        "hawk": true,
+        "inject": true,
+        "getJSONFixture": true
     }
 }

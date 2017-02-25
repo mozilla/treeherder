@@ -1,11 +1,11 @@
 'use strict';
 
 treeherder.component('phCompareTable', {
-    templateUrl: function($element, $attrs) {
+    templateUrl: ['$element', '$attrs', function($element, $attrs) {
         if ($attrs.type === 'trend')
             return 'partials/perf/trendtable.html';
         return 'partials/perf/comparetable.html';
-    },
+    }],
     bindings: {
         baseTitle: '@',
         newTitle: '@',
@@ -17,7 +17,7 @@ treeherder.component('phCompareTable', {
         filterByFramework: '@',
         releaseBlockerCriteria: '@'
     },
-    controller: function($element, $attrs) {
+    controller: ['$element', '$attrs', function($element, $attrs) {
         var ctrl = this;
 
         if (!ctrl.baseTitle) {
@@ -72,7 +72,7 @@ treeherder.component('phCompareTable', {
         };
 
         ctrl.updateFilteredTestList();
-    }
+    }]
 });
 
 treeherder.component('phAverage', {
