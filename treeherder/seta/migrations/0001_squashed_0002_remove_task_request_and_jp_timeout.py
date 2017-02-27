@@ -7,15 +7,10 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    replaces = [
-        (b'seta', '0001_initial'),
-        (b'seta', '0002_remove_task_request_and_jp_timeout'),
-    ]
-
     initial = True
 
     dependencies = [
-        ('model', '0040_push_and_commit_orm_2'),
+        ('model', '0001_squashed_0053_add_job_platform_option_push_index'),
     ]
 
     operations = [

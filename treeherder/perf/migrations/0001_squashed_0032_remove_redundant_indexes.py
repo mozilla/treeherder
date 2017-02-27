@@ -10,53 +10,11 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    replaces = [
-        (b'perf', '0001_initial'),
-        (b'perf', '0002_auto_20151014_0922'),
-        (b'perf', '0003_performancesignature_lower_is_better'),
-        (b'perf', '0004_auto_20151116_1041'),
-        (b'perf', '0005_auto_20151124_1051'),
-        (b'perf', '0006_add_perfalerts_revised_summary'),
-        (b'perf', '0007_alert_status'),
-        (b'perf', '0008_delete_perfalerts'),
-        (b'perf', '0009_refactor_perfalerts'),
-        (b'perf', '0010_add_alertsummary_backed_out'),
-        (b'perf', '0011_remove_null_fields_after_migration'),
-        (b'perf', '0012_performancesignature_parent_signature'),
-        (b'perf', '0013_add_has_subtests_property'),
-        (b'perf', '0014_allow_same_signature_hash_different_frameworks'),
-        (b'perf', '0015_make_alerting_configurable_per_series'),
-        (b'perf', '0016_manually_created_alerts'),
-        (b'perf', '0017_performancebugtemplate'),
-        (b'perf', '0017_add_performanceframework_enabled'),
-        (b'perf', '0018_merge'),
-        (b'perf', '0019_performancealert_classifier'),
-        (b'perf', '0020_remove_useless_perf_indexes'),
-        (b'perf', '0021_push_and_commit_orm'),
-        (b'perf', '0022_alert_summary_push_uniqueness'),
-        (b'perf', '0023_push_and_commit_orm_2'),
-        (b'perf', '0024_rename_ds_job_id_column'),
-        (b'perf', '0025_rename_orm_property'),
-        (b'perf', '0026_drop_alertsummary_rsid'),
-        (b'perf', '0027_add_job_fk_reference_perfdatum'),
-        (b'perf', '0028_framework_mandatory_perf_alert_summary'),
-        (b'perf', '0029_remove_mandatory_ds_ids'),
-        (b'perf', '0030_performancesignature_extra_options'),
-        (b'perf', '0031_remove_performancesignature_extra_properties'),
-        (b'perf', '0032_remove_redundant_indexes'),
-    ]
-
     initial = True
 
     dependencies = [
-        ('model', '0046_remove_flat_exclusion_column'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('model', '0001_initial'),
-        ('model', '0003_auto_20151111_0942'),
-        ('model', '0039_push_and_commit_orm'),
-        ('model', '0002_auto_20151014_0900'),
-        ('model', '0050_remove_redundant_indexes'),
-        ('model', '0008__add_best_fields_to_failureline'),
+        ('model', '0001_squashed_0053_add_job_platform_option_push_index'),
     ]
 
     operations = [

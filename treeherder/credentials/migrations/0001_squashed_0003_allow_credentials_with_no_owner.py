@@ -11,12 +11,6 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    replaces = [
-        (b'credentials', '0001_initial'),
-        (b'credentials', '0002_auto_20151014_0900'),
-        (b'credentials', '0003_allow_credentials_with_no_owner'),
-    ]
-
     initial = True
 
     dependencies = [
