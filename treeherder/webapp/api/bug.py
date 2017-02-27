@@ -55,7 +55,11 @@ class BugJobMapViewSet(viewsets.ViewSet):
             return Response("Object not found", status=HTTP_404_NOT_FOUND)
 
     def list(self, request, project):
-        job_ids = map(int, request.query_params.getlist('job_id'))
+        try:
+            job_ids = map(int, request.query_params.getlist('job_id'))
+        except ValueError:
+            return Response({"message": "Valid job_id required"},
+                            status=400)
         if not job_ids:
             return Response({"message": "At least one job_id is required"},
                             status=400)
