@@ -74,6 +74,7 @@
         "Mousetrap": true,
         "jQuery": true,
         "React": true,
-        "hawk": true
+        "hawk": true,
+        "jsonSchemaDefaults": true
     }
 }
