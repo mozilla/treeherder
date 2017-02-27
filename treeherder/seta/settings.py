@@ -1,3 +1,9 @@
+# repos that SETA supports
+SETA_PROJECTS = [
+    'mozilla-inbound',
+    'autoland'
+]
+
 # for taskcluster, only jobs that start with any of these names
 # will be supported i.e. may be optimized out by SETA
 SETA_SUPPORTED_TC_JOBTYPES = [
@@ -43,3 +49,13 @@ SETA_UNSUPPORTED_TESTTYPES = [
     'Artifact Opt',
     '(debug)'
 ]
+
+# analyze_failures retrieves jobs marked 'fixed by commit' for these repos
+SETA_FIXED_BY_COMMIT_REPOS = [
+    'autoland',
+    'mozilla-central',
+    'mozilla-inbound'
+]
+
+# analyze_failures retrieves jobs marked 'fixed by commit' for the past N days
+SETA_FIXED_BY_COMMIT_DAYS = 90
