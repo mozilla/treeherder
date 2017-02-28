@@ -20,6 +20,7 @@ treeherder.controller('PluginCtrl', [
         var $log = new ThLog("PluginCtrl");
 
         $scope.job = {};
+        $scope.revisionList = [];
 
         var reftestUrlRoot = "https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=";
 
@@ -330,8 +331,20 @@ treeherder.controller('PluginCtrl', [
         $scope.$watch('getCountPinnedJobs()', function(newVal, oldVal) {
             if (oldVal === 0 && newVal > 0) {
                 $scope.isPinboardVisible = true;
+                getRevisionTips($scope.repoName, $scope.revisionList);
             }
         });
+
+        var getRevisionTips = function(projectName, list) {
+            list.splice(0, list.length);
+            var rsArr = ThResultSetStore.getResultSetsArray(projectName);
+            _.forEach(rsArr, rs => {
+                list.push({
+                    revision: rs.revision,
+                    author: rs.author
+                });
+            });
+        };
 
         $scope.canCancel = function() {
             return $scope.job &&

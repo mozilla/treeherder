@@ -266,6 +266,5 @@ treeherder.controller('PinboardCtrl', [
         $scope.classification = thPinboard.createNewClassification();
         $scope.pinnedJobs = thPinboard.pinnedJobs;
         $scope.relatedBugs = thPinboard.relatedBugs;
-
     }
 ]);
