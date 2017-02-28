@@ -1,4 +1,3 @@
-"use strict";
+'use strict';
 
-/*exported perf*/
-var perf = angular.module("perf", ['ui.router', 'ui.bootstrap', 'treeherder', 'angular-clipboard']);
+module.exports = angular.module("perf", ['ui.router', 'ui.bootstrap', 'treeherder', 'angular-clipboard']);

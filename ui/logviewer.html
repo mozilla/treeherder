@@ -1,14 +1,8 @@
 <!DOCTYPE html>
-<html ng-controller="LogviewerCtrl" ng-init="init()" ng-app="logviewer">
+<html ng-controller="LogviewerCtrl" ng-init="init()" ng-app="logviewer" ng-strict-di>
   <head>
     <meta charset="utf-8">
     <title ng-bind="::logViewerTitle">Log viewer</title>
-    <!-- build:css css/logviewer.min.css -->
-    <link href="vendor/css/bootstrap.css" rel="stylesheet" media="screen">
-    <link href="vendor/css/font-awesome.css" rel="stylesheet" media="screen">
-    <link href="css/treeherder-global.css" rel="stylesheet" type="text/css">
-    <link href="css/logviewer.css" rel="stylesheet" type="text/css">
-    <!-- endbuild -->
     <link id="favicon" type="image/png" rel="shortcut icon" href="img/logviewerIcon.png">
   </head>
   <body class="body-logviewer">
@@ -116,53 +110,5 @@
     <th-log-viewer class="logview-container"></th-log-viewer>
 
     <th-notification-box></th-notification-box>
-
-    <!-- build:js js/logviewer.min.js -->
-    <script src="vendor/jquery-2.1.3.js"></script>
-    <script src="vendor/angular/angular.js"></script>
-    <script src="vendor/angular/angular-route.js"></script>
-    <script src="vendor/angular/angular-resource.js"></script>
-    <script src="vendor/angular/angular-cookies.js"></script>
-    <script src="vendor/angular/angular-sanitize.js"></script>
-    <script src="vendor/angular-local-storage.min.js"></script>
-    <script src="vendor/bootstrap.js"></script>
-    <script src="vendor/lodash.min.js"></script>
-    <script src="vendor/resizer.js"></script>
-    <script src="vendor/taskcluster-1.6.0.js"></script>
-
-    <script src="js/treeherder.js"></script>
-    <script src="js/logviewer.js"></script>
-    <script src="js/providers.js"></script>
-    <script src="js/values.js"></script>
-
-    <!-- Directives -->
-    <script src="js/directives/treeherder/log_viewer_steps.js"></script>
-    <script src="js/directives/treeherder/main.js"></script>
-
-    <!-- Components -->
-    <script src="js/components/logviewer/logviewer.js"></script>
-
-    <!-- Main services -->
-    <script src="js/services/main.js"></script>
-    <script src="js/services/log.js"></script>
-    <script src="js/services/taskcluster.js"></script>
-
-    <!-- Model services -->
-    <script src="js/models/job_detail.js"></script>
-    <script src="js/models/job.js"></script>
-    <script src="js/models/runnable_job.js"></script>
-    <script src="js/models/resultset.js"></script>
-    <script src="js/models/text_log_step.js"></script>
-
-    <!-- Filter -->
-    <script src="js/filters.js"></script>
-
-    <!-- Controllers -->
-    <script src="js/controllers/logviewer.js"></script>
-    <!-- endbuild -->
-
-    <!-- build:dontbuild -->
-    <script src="js/config/local.conf.js"></script>
-    <!-- endbuild -->
   </body>
 </html>

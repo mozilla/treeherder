@@ -9,6 +9,6 @@
         ng-click="dropLocationSearchParam(filter)">
       <span ng-if="filter == 'author'">{{ filter }}: {{search()[filter].split('@')[0] | limitTo: 20}}</span>
       <span ng-if="filter !== 'author'">{{ filter }}: {{search()[filter] | limitTo: 12}}</span>
-      <i class="fa fa-times-circle"/>
+      <i class="fa fa-times-circle"></i>
   </span>
 </div>
