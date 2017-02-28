@@ -114,7 +114,12 @@ class ErrorSummaryReConvertor(object):
         else:
             action = failure_line.action
 
-        msg = getattr(self._formatter, action)(as_dict(failure_line)).split("\n", 1)[0]
+        try:
+            f = getattr(self._formatter, action)
+        except AttributeError:
+            return None
+
+        msg = f(as_dict(failure_line)).split("\n", 1)[0]
 
         return re.compile(r".*%s$" % (re.escape(msg.strip())))
 
