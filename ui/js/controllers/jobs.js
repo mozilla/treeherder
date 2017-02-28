@@ -155,17 +155,9 @@ treeherderApp.controller('ResultSetCtrl', [
             $rootScope.$emit(thEvents.deleteRunnableJobs, $scope.resultset);
         };
 
-        $scope.getCancelJobsTitle = function(revision) {
+        $scope.getCancelJobsTitle = function() {
             if (!$scope.user || !$scope.user.loggedin) {
                 return "Must be logged in to cancel jobs";
-            }
-            var job = ThResultSetStore.getSelectedJob($scope.repoName).job;
-            var singleJobSelected = job instanceof ThJobModel;
-            if (singleJobSelected && job.revision === revision) {
-                if ($scope.canCancelJobs()) {
-                    return "Cancel selected job";
-                }
-                return "Cannot cancel completed job";
             }
             return "Cancel all jobs";
         };

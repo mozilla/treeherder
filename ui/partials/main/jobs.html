@@ -26,7 +26,7 @@
     <th-result-counts class="result-counts"></th-result-counts>
     <span class="result-set-buttons">
       <button class="btn btn-sm btn-resultset cancel-all-jobs-btn"
-            ng-attr-title="{{getCancelJobsTitle(resultset.revision)}}"
+            ng-attr-title="{{getCancelJobsTitle()}}"
             ng-show="currentRepo.repository_group.name == 'try' || user.is_staff"
             data-ignore-job-clear-on-click
             ng-disabled="!canCancelJobs()"
