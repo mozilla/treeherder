@@ -155,7 +155,7 @@ treeherderApp.controller('ResultSetCtrl', [
             $rootScope.$emit(thEvents.deleteRunnableJobs, $scope.resultset);
         };
 
-        $scope.getCancelJobsTitle = function(revision) {
+        $scope.getCancelJobsTitle = function() {
             if (!$scope.user || !$scope.user.loggedin) {
                 return "Must be logged in to cancel jobs";
             }
