@@ -120,54 +120,57 @@ def fifteen_jobs_with_notes(eleven_jobs_stored, taskcluster_jobs_stored, test_us
     for job in Job.objects.all():
         counter += 1
 
-        # add 5 jobs related to the man-o-lantern
+        # add 5 valid job notes related to 'this is revision x'
         if counter < 6:
             JobNote.objects.create(job=job,
                                    failure_classification_id=2,
-                                   user=test_user, text="you look like a man-o-lantern")
+                                   user=test_user, text="this is revision x")
             continue
 
-        # add 4 jobs with raw revision, expected: 31415926535
-        if counter < 10:
+        # add 3 valid job notes with raw revision 31415926535
+        if counter < 9:
             JobNote.objects.create(job=job,
                                    failure_classification_id=2,
                                    user=test_user, text="314159265358")
             continue
 
-        # Add 4 jobs with full url to revision, expected to map to 31415926535
-        if counter < 14:
+        # Add 3 job notes with full url to revision, expected to map to 31415926535
+        if counter < 12:
             JobNote.objects.create(job=job,
                                    failure_classification_id=2,
                                    user=test_user, text="http://hg.mozilla.org/mozilla-central/314159265358")
             continue
 
-        # Add job with name which do not get added to SETA data
-        # This will create a jobNote "call me empty" with no jobs
-        # in the fixed_by_commit structure
-        if counter < 15:
-            JobNote.objects.create(job=job,
-                                   failure_classification_id=2,
-                                   user=test_user, text="call me empty")
-            continue
-
-        # Add one job with trailing slash, expected to map to 31415926535
-        # Add 3 extra jobs with invalid fixed_by_commit notes, we will ignore them
-        if counter < 16:
+        # Add 1 valid job with trailing slash, expected to map to 31415926535
+        if counter < 13:
             JobNote.objects.create(job=job,
                                    failure_classification_id=2,
                                    user=test_user, text="http://hg.mozilla.org/mozilla-central/314159265358/")
+            continue
+
+        # Add 1 job with invalid revision text, expect it to be ignored
+        if counter < 14:
             # We will ignore this based on text length
             JobNote.objects.create(job=job,
                                    failure_classification_id=2,
                                    user=test_user, text="too short")
+            continue
+
+        # Add 1 job with no revision text, expect it to be ignored
+        if counter < 15:
             # We will ignore this based on blank note
             JobNote.objects.create(job=job,
                                    failure_classification_id=2,
                                    user=test_user, text="")
+            continue
+
+        # Add 1 more job with invalid revision text, expect it to be ignored
+        if counter < 16:
             # We will ignore this based on effectively blank note
             JobNote.objects.create(job=job,
                                    failure_classification_id=2,
                                    user=test_user, text="/")
+            continue
 
         # if we have any more jobs defined it will break this test, ignore
         continue
@@ -175,22 +178,27 @@ def fifteen_jobs_with_notes(eleven_jobs_stored, taskcluster_jobs_stored, test_us
 
 @pytest.fixture
 def failures_fixed_by_commit():
-    # NOTE: we do not have a note: "call me empty", this should be excluded by analyze_failures.py
     # We expect 'windows8-32', 'windowsxp' and 'osx-10-7' jobs to be excluded because those
     # platforms are currently unsupported SETA platforms (see treeherder/seta/settings.py)
+    # Also we expect any jobs with invalid job notes to be excluded
     return {
-        u'you look like a man-o-lantern': [
+        u'this is revision x': [
             (u'b2g_mozilla-release_emulator-jb-debug_dep', u'debug', u'b2g-emu-jb'),
             (u'b2g_mozilla-release_emulator-jb_dep', u'opt', u'b2g-emu-jb'),
             (u'mochitest-browser-chrome', u'debug', u'osx-10-6'),
             (u'mochitest-browser-chrome', u'debug', u'windows7-32'),
         ],
         u'314159265358': [
-            (u'b2g_mozilla-release_inari_dep', u'opt', u'b2g-device-image'),
             (u'b2g_mozilla-release_emulator-jb-debug_dep', u'debug', u'b2g-emu-jb'),
-            (u'b2g_mozilla-release_nexus-4_dep', u'opt', u'b2g-device-image'),
             (u'b2g_mozilla-release_emulator-debug_dep', u'debug', u'b2g-emu-ics'),
+            (u'b2g_mozilla-release_inari_dep', u'opt', u'b2g-device-image'),
+            (u'b2g_mozilla-release_nexus-4_dep', u'opt', u'b2g-device-image'),
             (u'mochitest-devtools-chrome-3', u'debug', u'linux64'),
-            (u'mochitest-media-1', u'debug', u'linux64'),
-            (u'jsreftest', u'opt', u'linux64'),
         ]}
+
+
+@pytest.fixture
+def patched_seta_fixed_by_commit_repos(monkeypatch, test_repository):
+    patched = [test_repository.name]
+    monkeypatch.setattr("treeherder.seta.analyze_failures.SETA_FIXED_BY_COMMIT_REPOS", patched)
+    return patched
