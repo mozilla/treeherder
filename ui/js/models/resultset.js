@@ -227,12 +227,58 @@ treeherder.factory(
              },
 
              triggerNewJobs: function(repoName, resultset_id, buildernames, decisionTaskID) {
-                 var uri = resultset_id + '/trigger_runnable_jobs/';
-                 var data = {
-                     "requested_jobs": buildernames,
-                     "decision_task_id": decisionTaskID
-                 };
-                 return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri, data);
-             }
+                 let tc = thTaskcluster.client();
+                 let queue = new tc.Queue();
+                 let url;
+                 try {
+                     url = queue.buildSignedUrl(queue.getLatestArtifact,
+                                                decisionTaskID,
+                                                'public/full-task-graph.json');
+                 } catch (e) {
+                     let errorMsg = e.message;
+                     if (errorMsg === 'credentials must be given') {
+                         errorMsg = 'Missing Taskcluster credentials! Please log out and back in again.';
+                     }
+                     throw new Error(errorMsg);
+                 }
+                 return $http.get(url).then(function(resp) {
+                     let graph = resp.data;
+                     let tclabels = _.intersection(buildernames, _.keys(graph));
+                     let bbnames = _.difference(buildernames, tclabels);
+                     return $q.all([
+                         $q.resolve().then(function() {
+                             if (bbnames.length === 0) {
+                                 return;
+                             }
+                             let bbdata = {
+                                 "requested_jobs": bbnames,
+                                 "decision_task_id": decisionTaskID
+                             };
+                             return $http.post(
+                                 thUrl.getProjectUrl("/resultset/", repoName) + resultset_id + '/trigger_runnable_jobs/',
+                                 bbdata
+                             );
+                         }),
+                         $q.resolve().then(function() {
+                             if (tclabels.length === 0) {
+                                 return;
+                             }
+                             let url = queue.buildSignedUrl(queue.getLatestArtifact, decisionTaskID, 'public/action.yml');
+                             return $http.get(url).then(function(resp) {
+                                 let action = resp.data;
+                                 let template = $interpolate(action);
+                                 let taskLabels = tclabels.join(',');
+                                 action = template({
+                                     action: 'add-tasks',
+                                     action_args: `--decision-id ${decisionTaskID} --task-labels ${taskLabels}`,
+                                 });
+                                 let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
+                                 let taskId = tc.slugid();
+                                 return queue.createTask(taskId, task);
+                             });
+                         }),
+                     ]);
+                 });
+             },
          };
      }]);
