@@ -38,12 +38,14 @@ def test_job_details(test_repository, failure_classifications,
     for (job_guid, params) in details.iteritems():
         if i < 3:
             repository = test_repository
+            push_id = 1
         else:
             # renumber last
             repository = test_repository2
+            push_id = 2
             i = 1
         print (i, repository)
-        job = create_generic_job(job_guid, repository, 1, i,
+        job = create_generic_job(job_guid, repository, push_id, i,
                                  generic_reference_data)
         JobDetail.objects.create(
             job=job, **params)
@@ -120,4 +122,15 @@ def test_job_details(test_repository, failure_classifications,
         'title': 'title',
         'url': None,
         'value': 'value1'
+    }]
+
+    # Should be able to filter by push_id
+    resp = webapp.get(reverse('jobdetail-list') + '?push_id=2')
+    assert resp.status_int == 200
+    assert resp.json['results'] == [{
+        'job_guid': 'ijkl',
+        'job_id': 3,
+        'title': 'title3',
+        'url': 'https://localhost/foo',
+        'value': 'value3'
     }]

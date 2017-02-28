@@ -642,12 +642,13 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
         job__guid = django_filters.CharFilter(name='job__guid')  # for backwards compat
         title = django_filters.CharFilter(name='title')
         value = django_filters.CharFilter(name='value')
+        push_id = django_filters.NumberFilter(name='job__push')
         repository = django_filters.CharFilter(name='job__repository__name')
 
         class Meta:
             model = JobDetail
             fields = ['job_id', 'job_guid', 'job__guid', 'job_id__in', 'title',
-                      'value', 'repository']
+                      'value', 'push_id', 'repository']
 
     filter_backends = [filters.DjangoFilterBackend]
     filter_class = JobDetailFilter
@@ -661,7 +662,7 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = JobDetailPagination
 
     # one of these is required
-    required_filters = ['job_guid', 'job__guid', 'job_id', 'job_id__in']
+    required_filters = ['job_guid', 'job__guid', 'job_id', 'job_id__in', 'push_id']
 
     def list(self, request):
         query_param_keys = request.query_params.keys()
