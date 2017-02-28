@@ -34,6 +34,6 @@ def test_perfherder_main(initial_data, live_server, selenium):
         EC.presence_of_element_located((By.ID, 'add-test-data-button'))
     )
     add_test_button.click()
-    WebDriverWait(selenium, 10).until(
+    WebDriverWait(selenium, 20).until(
         EC.presence_of_element_located((By.ID, 'performance-test-chooser'))
     )

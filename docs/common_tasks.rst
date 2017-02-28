@@ -116,15 +116,13 @@ To do this:
      git checkout (your feature branch)
      git checkout -b gh-pages
      cp ui/js/config/sample.local.conf.js ui/js/config/local.conf.js
-     git add -f ui/js/config/local.conf.js
-     git commit -m "Add temp config file to make the UI use prod's API"
+     npm run build
+     git add -f ui/js/config/local.conf.js dist/
+     git commit -m "Add temp config file and dist directory to make the UI use prod's API"
 
 * Push the ``gh-pages`` branch to your Treeherder fork.
 
-* Tell people to visit: ``https://<your-username>.github.io/treeherder/ui/``
-
-There is no need to perform a ``grunt build`` prior. After switching away from the local gh-pages branch, you will need to recreate ``ui/js/config/local.conf.js`` if desired, due to the ``git add -f``.
-
+* Tell people to visit: ``https://<your-username>.github.io/treeherder/dist/``
 
 Updating packages in package.json
 ---------------------------------
