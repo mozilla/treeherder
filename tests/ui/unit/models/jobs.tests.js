@@ -9,7 +9,7 @@ describe('ThJobModel', function(){
         foregroundPrefix = projectPrefix + foregroundRepo,
         ThJobModel;
 
-    beforeEach(module('treeherder'));
+    beforeEach(angular.mock.module('treeherder'));
 
     beforeEach(inject(function ($injector) {
         $httpBackend = $injector.get('$httpBackend');

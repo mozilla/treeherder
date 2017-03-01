@@ -10,7 +10,7 @@ describe('ThResultSetStore', function(){
         projectPrefix = '/api/project/',
         foregroundPrefix = projectPrefix + foregroundRepo;
 
-    beforeEach(module('treeherder'));
+    beforeEach(angular.mock.module('treeherder'));
 
     beforeEach(inject(function ($injector, $rootScope, $controller,
                                 ThResultSetStore, ThRepositoryModel) {

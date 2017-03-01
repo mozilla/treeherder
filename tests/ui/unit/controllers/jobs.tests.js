@@ -5,7 +5,7 @@
 describe('JobsCtrl', function(){
     var $httpBackend, controller, jobsScope;
 
-    beforeEach(module('treeherder.app'));
+    beforeEach(angular.mock.module('treeherder.app'));
 
     beforeEach(inject(function ($injector, $rootScope, $controller) {
         var activeRepo = 'mozilla-central';
