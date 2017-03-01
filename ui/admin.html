@@ -17,20 +17,22 @@
 <body>
   <nav id="th-global-navbar" class="navbar navbar-inverse" role="navigation">
     <div id="th-global-navbar-top" class="navbar-collapse collapse">
-      <span class="dropdown">
-        <button id="th-logo"
-                title="Treeherder services" role="button"
-                class="btn btn-view-nav"
-                data-toggle="dropdown">Treeherder Admin
-          <span class="fa fa-angle-down lightgray"></span>
-        </button>
-        <ul class="dropdown-menu" role="menu">
-          <li><a href="/">Treeherder</a></li>
-          <li><a href="perf.html">Perfherder</a></li>
-        </ul>
+      <span class="navbar-left">
+        <span class="dropdown">
+          <button id="th-logo"
+                  title="Treeherder services" role="button"
+                  class="btn btn-view-nav"
+                  data-toggle="dropdown">Treeherder Admin
+            <span class="fa fa-angle-down lightgray"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="/">Treeherder</a></li>
+            <li><a href="perf.html">Perfherder</a></li>
+          </ul>
+        </span>
+        <a ng-class="{active: $state.includes('profiles')}" class="btn btn-view-nav" ui-sref="profiles">Profiles</a>
+        <a ng-class="{active: $state.includes('exclusions')}" class="btn btn-view-nav" ui-sref="exclusions">Exclusions</a>
       </span>
-      <a ng-class="{active: $state.includes('profiles')}" class="btn btn-view-nav" ui-sref="profiles">Profiles</a>
-      <a ng-class="{active: $state.includes('exclusions')}" class="btn btn-view-nav" ui-sref="exclusions">Exclusions</a>
       <div class="nav navbar-nav navbar-right">
         <!-- Help Menu -->
         <span class="dropdown">
