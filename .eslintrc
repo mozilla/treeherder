@@ -2,7 +2,15 @@
     "root": true,
     "env": {
         "browser": true,
-        "es6": true
+        "es6": true,
+        "node": true
+    },
+    "plugins": ["react"],
+    "parserOptions": {
+      "ecmaFeatures": {
+        "es6": true,
+        "jsx": true
+      }
     },
     "extends": "eslint:recommended",
     "rules": {

@@ -67,6 +67,15 @@ Starting a local Treeherder instance
 
   this is more convenient because it automatically refreshes every time there's a change in the code.
 
+* You must also build the UI. Outside of the Vagrant VM, make sure that node is installed, then run the following to install the dependencies and build:
+
+  .. code-block:: bash
+
+    $ npm install
+    $ npm run build
+
+  (See the :doc:`UI installation section <ui/installation>` for more on working with the UI code.)
+
 * Visit http://localhost:8000 in your browser. Note: There will be no data to display until the ingestion tasks are run.
 
 Running the ingestion tasks

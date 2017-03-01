@@ -6,7 +6,7 @@ echo $SOURCE_VERSION > ui/revision.txt
 
 # Create a `dist/` directory containing built/minified versions of the `ui/` assets.
 # Uses the node binaries/packages installed by the nodejs buildpack previously.
-./node_modules/.bin/grunt build --production
+npm run build
 
 # Generate gzipped versions of files that would benefit from compression, that
 # WhiteNoise can then serve in preference to the originals. This is required
@@ -32,7 +32,7 @@ set-env NEW_RELIC_PROCESS_HOST_DISPLAY_NAME '$DYNO'
 
 # Remove nodejs files to reduce slug size (and avoid environment variable
 # pollution from the nodejs profile script), since they are no longer
-# required once the grunt build has run. The buildpack cache will still
+# required once the webpack build has run. The buildpack cache will still
 # contain them, so this doesn't slow down the next slug compile.
 rm -r .heroku/node/
 rm -r .profile.d/nodejs.sh
