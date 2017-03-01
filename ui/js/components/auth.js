@@ -61,7 +61,7 @@ treeherder.component("login", {
             } else {
                 var a = document.createElement('a');
                 a.href = thServiceDomain;
-                this.userCanLogin = a.hostname === $location.host();
+                this.userCanLogin = (a.hostname === $location.host() && a.port === $location.port);
             }
 
             /**
