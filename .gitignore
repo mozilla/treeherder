@@ -24,6 +24,8 @@ docs/_build/
 treeherder/media/
 treeherder/static/
 ui/js/config/local.conf.js
+# frontend test coverage
+coverage/
 
 # Celery
 celerybeat-schedule
