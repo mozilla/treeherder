@@ -117,6 +117,6 @@ var revisionListComponent = React.createClass({
     }
 });
 
-treeherder.directive('revisions', function (reactDirective, $injector) {
+treeherder.directive('revisions', ['reactDirective', '$injector', function (reactDirective, $injector) {
     return reactDirective(revisionListComponent, undefined, {}, {$injector});
-});
+}]);
