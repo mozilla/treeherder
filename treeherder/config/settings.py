@@ -42,9 +42,8 @@ TIME_ZONE = "UTC"
 USE_I18N = False
 USE_L10N = True
 
-SERVE_MINIFIED_UI = env.bool("SERVE_MINIFIED_UI", default=False)
 # Files in this directory will be served by WhiteNoise at the site root.
-WHITENOISE_ROOT = path("..", "dist" if SERVE_MINIFIED_UI else "ui")
+WHITENOISE_ROOT = path("..", "dist")
 
 STATIC_ROOT = path("static")
 STATIC_URL = "/static/"

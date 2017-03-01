@@ -51,9 +51,7 @@ matrix:
         - export DISPLAY=:99.0
         - sh -e /etc/init.d/xvfb start
       script:
-        - grunt checkjs
         - npm test
-        - ./node_modules/.bin/grunt build --production
 
     # Job 3: Python Tests Chunk A
     - env: python-tests-main
@@ -177,12 +175,17 @@ matrix:
         - tar -xzf geckodriver-v0.14.0-linux64.tar.gz -C $HOME/bin
       install:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
+        # Install node in order to build the frontend in dist/
+        - nvm install 6.2.0
+        - nvm use 6.2.0
+        - npm install
       before_script:
         - while ! curl localhost:9200 &>/dev/null; do sleep 1; done
         - "export DISPLAY=:99.0"
         - "sh -e /etc/init.d/xvfb start"
         - sleep 3 # give xvfb some time to start
       script:
+        - npm run build
         - py.test tests/selenium/ --runselenium --driver Firefox
 
 notifications:
