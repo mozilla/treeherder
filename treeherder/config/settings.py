@@ -578,12 +578,15 @@ DATABASES = {
 for alias in DATABASES:
     # Persist database connections for 5 minutes, to avoid expensive reconnects.
     DATABASES[alias]['CONN_MAX_AGE'] = 300
+    DATABASES[alias]['OPTIONS'] = {
+        # Override Django's default connection charset of 'utf8', otherwise it's
+        # still not possible to insert non-BMP unicode into utf8mb4 tables.
+        'charset': 'utf8mb4',
+    }
     if DATABASES[alias]['HOST'] != 'localhost':
         # Use TLS when connecting to RDS.
-        DATABASES[alias]['OPTIONS'] = {
-            'ssl': {
-                'ca': 'deployment/aws/combined-ca-bundle.pem',
-            },
+        DATABASES[alias]['OPTIONS']['ssl'] = {
+            'ca': 'deployment/aws/combined-ca-bundle.pem',
         }
 
 # TREEHERDER_MEMCACHED is a string of comma-separated address:port pairs
