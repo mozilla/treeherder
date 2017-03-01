@@ -8,7 +8,8 @@ perf.controller('GraphsCtrl', [
         $uibModal, thServiceDomain, $http, $q, $timeout, PhSeries,
         PhAlerts, ThRepositoryModel, ThResultSetModel,
         phTimeRanges, phDefaultTimeRangeValue) {
-        var availableColors = [ 'red', 'green', 'blue', 'orange', 'purple' ];
+        var availableColors = [ 'maroon', 'navy', 'pink', 'turquoise', 'brown',
+                                'red', 'green', 'blue', 'orange', 'purple' ];
 
         $scope.highlightedRevisions = [ undefined, undefined ];
         $scope.highlightAlerts = true;
