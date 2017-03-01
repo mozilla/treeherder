@@ -2,7 +2,7 @@
 
 describe('linkifyURLs filter', function() {
     var $filter;
-    beforeEach(module('treeherder'));
+    beforeEach(angular.mock.module('treeherder'));
     beforeEach(inject(function(_$filter_) {
         $filter = _$filter_;
     }));
@@ -27,7 +27,7 @@ describe('linkifyURLs filter', function() {
 
 describe('linkifyBugs filter', function() {
     var $filter;
-    beforeEach(module('treeherder'));
+    beforeEach(angular.mock.module('treeherder'));
     beforeEach(inject(function(_$filter_) {
         $filter = _$filter_;
     }));
@@ -47,7 +47,7 @@ describe('linkifyBugs filter', function() {
 
 describe('initials filter', function() {
     var $filter;
-    beforeEach(module('treeherder'));
+    beforeEach(angular.mock.module('treeherder'));
     beforeEach(inject(function(_$filter_) {
         $filter = _$filter_;
     }));
@@ -70,7 +70,7 @@ describe('initials filter', function() {
 
 describe('highlightCommonTerms filter', function() {
     var $filter;
-    beforeEach(module('treeherder'));
+    beforeEach(angular.mock.module('treeherder'));
     beforeEach(inject(function(_$filter_) {
         $filter = _$filter_;
     }));
@@ -132,7 +132,7 @@ describe('highlightCommonTerms filter', function() {
 
 describe('escapeHTML filter', function() {
     var $filter;
-    beforeEach(module('treeherder'));
+    beforeEach(angular.mock.module('treeherder'));
     beforeEach(inject(function(_$filter_) {
         $filter = _$filter_;
     }));
@@ -145,7 +145,7 @@ describe('escapeHTML filter', function() {
 
 describe('getRevisionUrl filter', function() {
     var $filter;
-    beforeEach(module('treeherder'));
+    beforeEach(angular.mock.module('treeherder'));
     beforeEach(inject(function(_$filter_) {
         $filter = _$filter_;
     }));
@@ -159,7 +159,7 @@ describe('getRevisionUrl filter', function() {
 
 describe('showOrHide filter', function() {
     var $filter;
-    beforeEach(module('treeherder'));
+    beforeEach(angular.mock.module('treeherder'));
     beforeEach(inject(function(_$filter_) {
         $filter = _$filter_;
     }));
@@ -177,7 +177,7 @@ describe('showOrHide filter', function() {
 
 describe('stripHtml filter', function() {
     var $filter;
-    beforeEach(module('treeherder'));
+    beforeEach(angular.mock.module('treeherder'));
     beforeEach(inject(function(_$filter_) {
         $filter = _$filter_;
     }));
@@ -191,7 +191,7 @@ describe('stripHtml filter', function() {
 describe('linkifyClassifications filter', function() {
     var $filter;
     var $rootScope;
-    beforeEach(module('treeherder'));
+    beforeEach(angular.mock.module('treeherder'));
     beforeEach(inject(function(_$filter_) {
         $filter = _$filter_;
     }));
@@ -217,7 +217,7 @@ describe('linkifyClassifications filter', function() {
 
 describe('encodeURIComponent filter', function() {
     var $filter;
-    beforeEach(module('treeherder'));
+    beforeEach(angular.mock.module('treeherder'));
     beforeEach(inject(function(_$filter_) {
         $filter = _$filter_;
     }));
@@ -230,7 +230,7 @@ describe('encodeURIComponent filter', function() {
 
 describe('displayPrecision filter', function() {
     var $filter;
-    beforeEach(module('treeherder'));
+    beforeEach(angular.mock.module('treeherder'));
     beforeEach(inject(function(_$filter_) {
         $filter = _$filter_;
     }));
