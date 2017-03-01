@@ -45,6 +45,6 @@ var ReactSelectComponent = React.createClass({
     }
 });
 
-treeherder.directive('reactselect', function (reactDirective) {
+treeherder.directive('reactselect', ['reactDirective', function (reactDirective) {
     return reactDirective(ReactSelectComponent);
-});
+}]);
