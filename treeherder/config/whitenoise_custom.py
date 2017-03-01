@@ -8,12 +8,12 @@ class CustomWhiteNoise(WhiteNoiseMiddleware):
     Adds two additional features to WhiteNoise:
 
     1) Serving index pages for directory paths (such as the site root).
-    2) Setting long max-age headers for files created by grunt-cache-bust.
+    2) Setting long max-age headers for bundled js files
     """
 
-    # Matches grunt-cache-bust's style of hash filenames. eg:
-    #   index.min-e10ba468ffc8816a.js
-    IMMUTABLE_FILE_RE = re.compile(r'\.min\.[a-f0-9]{16,}\.(js|css)$')
+    # Matches webpack's style of chunk filenames. eg:
+    # index.f03882a6258f16fceb70.bundle.js
+    IMMUTABLE_FILE_RE = re.compile(r'\.[a-f0-9]{16,}\.bundle\.(js|css)$')
     INDEX_NAME = 'index.html'
 
     def update_files_dictionary(self, *args):
@@ -41,7 +41,7 @@ class CustomWhiteNoise(WhiteNoiseMiddleware):
         return super(CustomWhiteNoise, self).find_file(url)
 
     def is_immutable_file(self, path, url):
-        """Support grunt-cache-busting style filenames when setting long max-age headers."""
+        """Support webpack bundle filenames when setting long max-age headers."""
         if self.IMMUTABLE_FILE_RE.search(url):
             return True
         # Otherwise fall back to the default method, so we catch filenames in the

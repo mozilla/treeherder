@@ -1,5 +1,6 @@
 'use strict';
 
+require('../../../../ui/js/models/job.js');
 describe('ThJobModel', function(){
 
     var $httpBackend,

@@ -45,3 +45,5 @@ treeherderApp.config(['$compileProvider', '$routeProvider', '$httpProvider',
         }).
         otherwise({redirectTo: '/jobs'});
     }]);
+
+module.exports = treeherderApp;
