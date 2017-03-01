@@ -248,9 +248,7 @@ treeherderApp.controller('ResultSetCtrl', [
                         thNotify.send("Trigger request sent", "success");
                         ThResultSetStore.deleteRunnableJobs($scope.repoName, $scope.resultset);
                     }, function(e) {
-                        // Generic error eg. the user doesn't have permission
-                        thNotify.send(
-                            ThModelErrors.format(e, "Unable to send trigger"), 'danger');
+                        thNotify.send(ThTaskclusterErrors.format(e), 'danger');
                     });
                 });
             } else {
