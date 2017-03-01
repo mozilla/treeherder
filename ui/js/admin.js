@@ -38,3 +38,5 @@ admin.config(['$compileProvider', '$httpProvider', '$stateProvider', '$urlRouter
 
         $urlRouterProvider.otherwise('/profiles');
     }]);
+
+module.exports = admin;

@@ -68,3 +68,5 @@ perf.config(['$compileProvider', '$httpProvider', '$stateProvider', '$urlRouterP
             }
         });
     }]);
+
+module.exports = perf;
