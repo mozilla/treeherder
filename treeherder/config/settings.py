@@ -416,7 +416,7 @@ BUILDAPI_PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson
 BUILDAPI_RUNNING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-running.js"
 BUILDAPI_BUILDS4H_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-4hr.js.gz"
 ALLTHETHINGS_URL = "https://secure.pub.build.mozilla.org/builddata/reports/allthethings.json"
-TASKCLUSTER_TASKGRAPH_URL = 'https://queue.taskcluster.net/v1/task/{task_id}/artifacts/public/full-task-graph.json'
+TASKCLUSTER_TASKGRAPH_URL = 'https://public-artifacts.taskcluster.net/{task_id}/0/public/full-task-graph.json'
 TASKCLUSTER_INDEX_URL = 'https://index.taskcluster.net/v1/task/gecko.v2.%s.latest.firefox.decision'
 
 # the amount of time we cache bug suggestion lookups (to speed up loading the bug
