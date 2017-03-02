@@ -33,7 +33,7 @@ class Command(BaseCommand):
             '--chunk-size',
             action='store',
             dest='chunk_size',
-            default=5000,
+            default=settings.DATA_CYCLE_CHUNK_SIZE,
             type=int,
             help=('Define the size of the chunks '
                   'Split the job deletes into chunks of this size [default: %default]')
