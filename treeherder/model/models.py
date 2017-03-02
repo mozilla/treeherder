@@ -602,8 +602,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 # no more jobs to cycle, we're done!
                 return jobs_cycled
 
-            self.filter(guid__in=jobs_chunk).delete()
-
             # Remove ORM entries for these jobs that don't currently have a foreign key
             # relation
             failure_lines_to_delete = FailureLine.objects.filter(
@@ -628,6 +626,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     else:
                         failure_line_max_id = None
             failure_lines_to_delete.delete()
+
+            # cycle jobs *after* related data has been deleted, to be sure
+            # we don't have any orphan data
+            self.filter(guid__in=jobs_chunk).delete()
 
             jobs_cycled += len(jobs_chunk)
 
