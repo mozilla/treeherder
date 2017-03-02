@@ -592,21 +592,17 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         # Retrieve list of jobs to delete
         jobs_max_timestamp = datetime.datetime.now() - cycle_interval
-        job_guids_to_cycle = list(self.filter(
-            repository=repository,
-            submit_time__lt=jobs_max_timestamp).values_list('guid',
-                                                            flat=True))
 
-        if not job_guids_to_cycle:
-            return 0
+        jobs_cycled = 0
+        while True:
+            jobs_chunk = list(self.filter(
+                repository=repository,
+                submit_time__lt=jobs_max_timestamp).values_list(
+                    'guid', flat=True)[:chunk_size])
+            if not jobs_chunk:
+                # no more jobs to cycle, we're done!
+                return jobs_cycled
 
-        # group the job in chunks
-        jobs_chunk_list = zip(*[iter(job_guids_to_cycle)] * chunk_size)
-        # append the remaining job data not fitting in a complete chunk
-        jobs_chunk_list.append(
-            job_guids_to_cycle[-(len(job_guids_to_cycle) % chunk_size):])
-
-        for jobs_chunk in jobs_chunk_list:
             self.filter(guid__in=jobs_chunk).delete()
 
             # Remove ORM entries for these jobs that don't currently have a foreign key
@@ -634,11 +630,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                         failure_line_max_id = None
             failure_lines_to_delete.delete()
 
+            jobs_cycled += len(jobs_chunk)
+
             if sleep_time:
                 # Allow some time for other queries to get through
                 time.sleep(sleep_time)
-
-        return len(job_guids_to_cycle)
 
 
 class Job(models.Model):
