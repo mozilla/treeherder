@@ -60,11 +60,6 @@ PERFHERDER_ALERTS_FORE_WINDOW = 12
 # Only generate alerts for data newer than this time in seconds in perfherder
 PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)
 
-# SETA configuration
-SETA_HIGH_VALUE_PRIORITY = 1
-SETA_LOW_VALUE_PRIORITY = 5
-
-
 # Create hashed+gzipped versions of assets during collectstatic,
 # which will then be served by WhiteNoise with a suitable max-age.
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
