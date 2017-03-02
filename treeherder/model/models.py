@@ -706,6 +706,8 @@ class Job(models.Model):
             # this is intended to speed up queries for specific platform /
             # option collections on a push
             ('machine_platform', 'option_collection_hash', 'push'),
+            # speed up cycle data
+            ('repository', 'submit_time'),
         ]
 
     def __str__(self):
