@@ -136,6 +136,10 @@ def _taskcluster_runnable_jobs(project, decision_task_id):
     except ValidationError:
         logger.warning('Failed to validate {}'.format(tc_graph_url))
         return []
+    except requests.exceptions.HTTPError as e:
+        logger.info('HTTPError {} when getting taskgraph at {}'.format(
+            e.response.status_code, tc_graph_url))
+        return []
 
     for label, node in tc_graph.iteritems():
         if not ('extra' in node['task'] and 'treeherder' in node['task']['extra']):
