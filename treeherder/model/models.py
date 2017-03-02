@@ -575,6 +575,8 @@ class JobManager(models.Manager):
             for (start_time, end_time) in jobs.filter(
                     signature__signature=signature_hash).values_list(
                         'start_time', 'end_time'):
+                if (end_time - start_time).total_seconds() < 0:
+                    continue
                 total_time += (end_time - start_time).total_seconds()
                 num_jobs += 1
             if not num_jobs:
