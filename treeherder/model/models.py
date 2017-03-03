@@ -15,7 +15,8 @@ from django.core.cache import cache
 from django.core.validators import MinLengthValidator
 from django.db import (models,
                        transaction)
-from django.db.models import (Q,
+from django.db.models import (F,
+                              Q,
                               Case,
                               Count,
                               When)
@@ -573,7 +574,8 @@ class JobManager(models.Manager):
             num_jobs = 0
             total_time = 0.0
             for (start_time, end_time) in jobs.filter(
-                    signature__signature=signature_hash).values_list(
+                    signature__signature=signature_hash,
+                    end_time__gt=F('start_time')).values_list(
                         'start_time', 'end_time'):
                 total_time += (end_time - start_time).total_seconds()
                 num_jobs += 1

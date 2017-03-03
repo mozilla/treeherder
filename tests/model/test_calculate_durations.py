@@ -42,3 +42,15 @@ def test_calculate_durations(test_repository, failure_classifications,
     assert len(durations) == 1
     expected_duration = int(round((first_job_duration + second_job_duration) / 2))
     assert durations[0].average_duration == expected_duration
+
+    # Add a fake job with an end time > start time, verify that it is
+    # ignored and average duration remains the same
+    third_job = job_data(revision=result_set_stored[0]['revision'],
+                         start_timestamp=now,
+                         end_timestamp=now - second_job_duration,
+                         job_guid='another-unique-guid')
+    store_job_data(test_repository, [third_job])
+    call_command('calculate_durations')
+    durations = JobDuration.objects.all()
+    assert len(durations) == 1
+    assert durations[0].average_duration == expected_duration
