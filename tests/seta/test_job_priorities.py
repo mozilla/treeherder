@@ -3,14 +3,14 @@ import datetime
 import pytest
 from mock import patch
 
-from treeherder.config.settings import SETA_LOW_VALUE_PRIORITY
 from treeherder.seta.job_priorities import (SetaError,
                                             seta_job_scheduling)
+from treeherder.seta.settings import SETA_LOW_VALUE_PRIORITY
 
 
 @pytest.mark.django_db()
-@patch('treeherder.seta.job_priorities._validate_request', return_value=None)  # Prevent checking the repository name
-@patch('treeherder.etl.seta.list_runnable_jobs')
+@patch('treeherder.seta.job_priorities.SETAJobPriorities._validate_request', return_value=None)
+@patch('treeherder.seta.job_priorities.list_runnable_jobs')
 def test_gecko_decision_task(runnable_jobs_list, validate_request,
                              test_repository, runnable_jobs_data,
                              all_job_priorities_stored):

@@ -1,12 +1,12 @@
 import pytest
 from django.utils import timezone
 
-from treeherder.config.settings import (SETA_HIGH_VALUE_PRIORITY,
-                                        SETA_LOW_VALUE_PRIORITY)
 from treeherder.model.models import (Job,
                                      JobNote)
 from treeherder.seta.common import job_priority_index
 from treeherder.seta.models import JobPriority
+from treeherder.seta.settings import (SETA_HIGH_VALUE_PRIORITY,
+                                      SETA_LOW_VALUE_PRIORITY)
 from treeherder.seta.update_job_priority import _sanitize_data
 
 

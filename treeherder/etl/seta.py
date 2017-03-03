@@ -1,6 +1,5 @@
 import logging
 
-from treeherder.etl.runnable_jobs import list_runnable_jobs
 from treeherder.seta.common import unique_key
 from treeherder.seta.models import JobPriority
 from treeherder.seta.runnable_jobs import RunnableJobsClient
@@ -133,46 +132,3 @@ def job_priorities_to_jobtypes():
         jobtypes.append(jp.unique_identifier())
 
     return jobtypes
-
-
-def build_ref_data_names(project, build_system):
-    '''
-    We want all reference data names for every task that runs on a specific project.
-
-    For example:
-        * Buildbot - "Windows 8 64-bit mozilla-inbound debug test web-platform-tests-1"
-        * TaskCluster = "test-linux64/opt-mochitest-webgl-e10s-1"
-    '''
-    ignored_jobs = []
-    ref_data_names = {}
-    runnable_jobs = list_runnable_jobs(project)['results']
-
-    for job in runnable_jobs:
-        # get testtype e.g. web-platform-tests-4
-        testtype = parse_testtype(
-            build_system_type=job['build_system_type'],
-            job_type_name=job['job_type_name'],
-            platform_option=job['platform_option'],
-            ref_data_name=job['ref_data_name']
-        )
-
-        if not valid_platform(job['platform']):
-            continue
-
-        if is_job_blacklisted(testtype):
-            ignored_jobs.append(job['ref_data_name'])
-            continue
-
-        key = unique_key(testtype=testtype,
-                         buildtype=job['platform_option'],
-                         platform=job['platform'])
-
-        if build_system == '*':
-            ref_data_names[key] = job['ref_data_name']
-        elif job['build_system_type'] == build_system:
-            ref_data_names[key] = job['ref_data_name']
-
-    for ref_data_name in sorted(ignored_jobs):
-        LOG.info('Ignoring {}'.format(ref_data_name))
-
-    return ref_data_names

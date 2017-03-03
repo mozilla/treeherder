@@ -16,14 +16,14 @@ import logging
 import os
 import time
 
-from treeherder.config.settings import (SETA_HIGH_VALUE_PRIORITY,
-                                        SETA_LOW_VALUE_PRIORITY)
 from treeherder.etl.seta import (parse_testtype,
                                  valid_platform)
 from treeherder.seta.common import (job_priority_index,
                                     unique_key)
 from treeherder.seta.models import JobPriority
 from treeherder.seta.runnable_jobs import RunnableJobsClient
+from treeherder.seta.settings import (SETA_HIGH_VALUE_PRIORITY,
+                                      SETA_LOW_VALUE_PRIORITY)
 
 logger = logging.getLogger(__name__)
 
