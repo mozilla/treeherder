@@ -3,30 +3,30 @@
 perf.controller('CompareChooserCtrl', [
     '$state', '$stateParams', '$scope', 'ThRepositoryModel', 'ThResultSetModel',
     'phCompareDefaultNewRepo', 'phCompareDefaultOriginalRepo', 'JsonPushes',
-    'thPerformanceBranches',
+    'thPerformanceBranches','localStorageService',
     function CompareChooserCtrl($state, $stateParams, $scope,
                                 ThRepositoryModel, ThResultSetModel,
                                 phCompareDefaultNewRepo,
                                 phCompareDefaultOriginalRepo,
-                                JsonPushes, thPerformanceBranches) {
+                                JsonPushes, thPerformanceBranches,
+                                localStorageService) {
         ThRepositoryModel.get_list().success(function(projects) {
             $scope.projects = projects;
             $scope.originalTipList = [];
             $scope.newTipList = [];
-
             $scope.originalProject = _.findWhere(projects, {
-                name: ($stateParams.originalProject ?
-                       $stateParams.originalProject : phCompareDefaultOriginalRepo)
+                name: (localStorageService.get('originalProject') ?
+                       localStorageService.get('originalProject') : phCompareDefaultOriginalRepo)
             }) || projects[0];
             $scope.newProject = _.findWhere(projects, {
-                name: ($stateParams.newProject ?
-                       $stateParams.newProject : phCompareDefaultNewRepo)
+                name: (localStorageService.get('newProject') ?
+                       localStorageService.get('newProject') : phCompareDefaultNewRepo)
             }) || projects[0];
 
-            $scope.originalRevision = ($stateParams.originalRevision ?
-                                       $stateParams.originalRevision : '');
-            $scope.newRevision = ($stateParams.newRevision ?
-                                  $stateParams.newRevision : '');
+            $scope.originalRevision = (localStorageService.get('originalRevision') ?
+                                       localStorageService.get('originalRevision') : '');
+            $scope.newRevision = (localStorageService.get('newRevision') ?
+                                  localStorageService.get('newRevision') : '');
 
             var getRevisionTips = function(projectName, list) {
                 // due to we push the revision data into list,
@@ -127,6 +127,10 @@ perf.controller('CompareChooserCtrl', [
 
                 ThResultSetModel.getResultSetsFromRevision($scope.newProject.name, $scope.newRevision).then(
                     function () {
+                        localStorageService.set('originalProject', $scope.originalProject.name, "sessionStorage");
+                        localStorageService.set('originalRevision', $scope.originalRevision, "sessionStorage");
+                        localStorageService.set('newProject', $scope.newProject.name, "sessionStorage");
+                        localStorageService.set('newRevision', $scope.newRevision, "sessionStorage");
                         $scope.newRevisionError = undefined;
                         if ($scope.originalRevisionError === undefined && $scope.newRevisionError === undefined) {
                             $state.go('compare', {
