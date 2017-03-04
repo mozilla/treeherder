@@ -67,6 +67,6 @@ perf.config(['$compileProvider', '$httpProvider', '$stateProvider', '$urlRouterP
                 window.document.title = $state.current.title;
             }
         });
-    }]);
+    }]).run(require('./cache-templates'));
 
 module.exports = perf;
