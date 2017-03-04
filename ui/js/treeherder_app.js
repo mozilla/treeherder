@@ -48,6 +48,7 @@ treeherderApp.config(['$compileProvider', '$routeProvider', '$httpProvider',
             template: '<login-callback/>'
         }).
         otherwise({redirectTo: '/jobs'});
-    }]);
+    }]).run(require('./cache-templates'));
+
 
 module.exports = treeherderApp;
