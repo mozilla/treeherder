@@ -37,6 +37,6 @@ admin.config(['$compileProvider', '$httpProvider', '$stateProvider', '$urlRouter
             });
 
         $urlRouterProvider.otherwise('/profiles');
-    }]);
+    }]).run(require('./cache-templates'));
 
 module.exports = admin;
