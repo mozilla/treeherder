@@ -91,6 +91,20 @@ module.exports = neutrino => {
         .add([USERGUIDE_TEMPLATE, PERF_TEMPLATE, LOGVIEWER_TEMPLATE,
             INDEX_TEMPLATE, ADMIN_TEMPLATE, FAILUREVIEWER_TEMPLATE]);
 
+    // Don't use file loader for html...
+    neutrino.config
+        .module
+        .rule('html')
+        .loaders.delete('file');
+    // Instead, use the raw loader, which will allow us to get the contents
+    // of the templates and load them into the templateCache automatically;
+    // See ui/js/cache-templates.js.
+    neutrino.config
+        .module
+        .rule('html')
+        .test(/\.(html|tmpl)$/)
+        .loader('raw', require.resolve('raw-loader'));
+
     // Set up templates for each entry point:
     neutrino.config.plugins.delete('html');
     neutrino.config
