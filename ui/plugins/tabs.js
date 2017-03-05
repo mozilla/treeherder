@@ -18,7 +18,7 @@ treeherder.factory('thTabs', [
                 },
                 "autoClassification": {
                     title: "Failure Classification",
-                    description: "Auto classification list",
+                    description: "intermittent classification interface",
                     content: "plugins/auto_classification/main.html",
                     enabled: false
                 },
