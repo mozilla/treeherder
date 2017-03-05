@@ -51,15 +51,9 @@ treeherder.controller('PluginCtrl', [
             thJobFilters.replaceFilter('searchStr', jobSearchStr || null);
         };
 
-        // if the ``autoclassify`` param is set on the query sting, then
-        // show the ``autoClassification`` tab.  Otherwise, hide it.
-        // NOTE: This is a temporary param used during the evaluation/experimentation
-        // phase of this feature.
+        // Show the Failure Classification tab, except if there's a URL parameter to disable it.
         var showAutoClassifyTab = function() {
-            thTabs.tabs.autoClassification.enabled = ($location.search().autoclassify === true ||
-                                                      $location.host().indexOf('herokuapp.com') !== -1 ||
-                                                      $location.host().indexOf('localhost') !== -1) &&
-                                                      $location.search().noautoclassify !== true;
+            thTabs.tabs.autoClassification.enabled = $location.search().noautoclassify !== true;
         };
         showAutoClassifyTab();
         $rootScope.$on('$locationChangeSuccess', function() {
