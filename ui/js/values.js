@@ -5,6 +5,7 @@ treeherder.value("thPlatformMap", {
     "linux32-qr": "Linux QuantumRender",
     "linux64": "Linux x64",
     "linux64-qr": "Linux x64 QuantumRender",
+    "linux64-stylo": "Linux x64 Stylo",
     "osx-10-6": "OS X 10.6",
     "osx-10-7": "OS X 10.7",
     "osx-10-8": "OS X 10.8",
