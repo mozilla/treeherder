@@ -33,16 +33,16 @@ class Command(BaseCommand):
             '--chunk-size',
             action='store',
             dest='chunk_size',
-            default=5000,
+            default=settings.DATA_CYCLE_CHUNK_SIZE,
             type=int,
             help=('Define the size of the chunks '
-                  'Split the job deletes into chunks of this size [default: %default]')
+                  'Split the job deletes into chunks of this size')
         )
         parser.add_argument(
             '--sleep-time',
             action='store',
             dest='sleep_time',
-            default=2,
+            default=settings.DATA_CYCLE_SLEEP_TIME,
             type=int,
             help='How many seconds to pause between each query'
         )

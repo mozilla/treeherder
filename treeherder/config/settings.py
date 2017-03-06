@@ -27,6 +27,10 @@ ENABLE_DEBUG_TOOLBAR = env.bool("ENABLE_DEBUG_TOOLBAR", False)
 
 # Default to retaining data for ~4 months.
 DATA_CYCLE_DAYS = env.int("DATA_CYCLE_DAYS", default=120)
+# Determines the number of jobs we try to delete per iteration when
+# cycling data
+DATA_CYCLE_CHUNK_SIZE = env.int("DATA_CYCLE_CHUNK_SIZE", default=5000)
+DATA_CYCLE_SLEEP_TIME = env.int("DATA_CYCLE_SLEEP_TIME", default=2)
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY")
