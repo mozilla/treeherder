@@ -119,6 +119,10 @@ module.exports = function(grunt) {
             // Copy vendor files that don't work with grouped minification
             vendor:{
                 files: [
+                    { src: 'ui/vendor/defaults.js',
+                      dest: 'dist/vendor/defaults.js',
+                      nonull: true
+                    },
                     { src: 'ui/vendor/ngReact/ngReact.min.js',
                       dest: 'dist/vendor/ngReact/ngReact.min.js',
                       nonull: true
