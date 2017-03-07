@@ -27,7 +27,7 @@ Vagrant.configure("2") do |config|
   config.vm.provider "virtualbox" do |vb, override|
     override.vm.box = "ubuntu/trusty64"
     vb.name = "treeherder"
-    vb.memory = "2048"
+    vb.memory = "3072"
 
     puppet_provisioner(override)
   end
@@ -35,7 +35,7 @@ Vagrant.configure("2") do |config|
   config.vm.provider "hyperv" do |hv, override|
     override.vm.box = "ericmann/trusty64"
     hv.vmname = "treeherder"
-    hv.memory = "2048"
+    hv.memory = "3072"
 
     # Hyper-V box doesn't have Puppet installed. So install it manually.
     override.vm.provision "install-puppet", type: "shell" do |s|
