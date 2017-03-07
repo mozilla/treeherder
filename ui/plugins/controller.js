@@ -341,7 +341,8 @@ treeherder.controller('PluginCtrl', [
             _.forEach(rsArr, rs => {
                 list.push({
                     revision: rs.revision,
-                    author: rs.author
+                    author: rs.author,
+                    title: rs.revisions[0].comments.split('\n')[0]
                 });
             });
         };
