@@ -18,7 +18,9 @@ as of November 2016 (obviously you should replace `myuser` and
 .. code-block:: sql
 
     CREATE USER 'myuser' IDENTIFIED BY 'mysecurepassword';
+    # Whilst `password` is not used (and randomly generated), it's still safer to exclude it.
     GRANT SELECT (id, username, email) ON treeherder.auth_user to 'myuser' REQUIRE SSL;
+    # Tables containing no sensitive data.
     GRANT SELECT ON treeherder.bug_job_map to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.bugscache to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.build_platform to 'myuser' REQUIRE SSL;
@@ -55,7 +57,10 @@ as of November 2016 (obviously you should replace `myuser` and
     GRANT SELECT ON treeherder.repository_group to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.runnable_job to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.seta_jobpriority to 'myuser' REQUIRE SSL;
+    GRANT SELECT ON treeherder.taskcluster_metadata to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.text_log_error to 'myuser' REQUIRE SSL;
+    GRANT SELECT ON treeherder.text_log_error_match to 'myuser' REQUIRE SSL;
+    GRANT SELECT ON treeherder.text_log_error_metadata to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.text_log_step to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.text_log_summary to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.text_log_summary_line to 'myuser' REQUIRE SSL;
@@ -69,4 +74,4 @@ statements using the following SQL:
     SELECT CONCAT('GRANT SELECT ON ', table_schema, '.', table_name, ' to ''myuser'' REQUIRE SSL;') AS grant_stmt
     FROM information_schema.TABLES
     WHERE table_schema = 'treeherder'
-    AND table_name NOT REGEXP 'django_|auth_|credentials|corsheaders_';
+    AND table_name NOT REGEXP 'django_|auth_|credentials';
