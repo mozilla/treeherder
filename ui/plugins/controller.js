@@ -92,7 +92,9 @@ treeherder.controller('PluginCtrl', [
             // it if job was successful.
             $http.get(thServiceDomain + '/api/project/' + $scope.repoName +
                       '/performance/data/?job_id=' + job.id).then(function(response) {
-                          if (!_.isEmpty(response.data) && job.job_type_name !== "Build") {
+                          var jobType = job.job_type_name;
+                          if (!_.isEmpty(response.data) && jobType !== "Build" &&
+                              jobType !== "Nightly" && !jobType.startsWith('build-')) {
                               $scope.tabService.tabs.perfDetails.enabled = true;
                               if (thResultStatus(job) === 'success') {
                                   $scope.tabService.selectedTab = 'perfDetails';
