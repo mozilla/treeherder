@@ -21,24 +21,27 @@ perf.config(['$compileProvider', '$httpProvider', '$stateProvider', '$urlRouterP
             url: '/graphs?timerange&series&highlightedRevisions&highlightAlerts&zoom&selected',
             controller: 'GraphsCtrl'
         }).state('compare', {
+            title: 'Compare',
             templateUrl: 'partials/perf/comparectrl.html',
             url: '/compare?originalProject&originalRevision&newProject&newRevision&hideMinorChanges&framework&filter&showOnlyImportant&showOnlyConfident',
             controller: 'CompareResultsCtrl'
         }).state('comparesubtest', {
+            title: 'Compare - Subtests',
             templateUrl: 'partials/perf/comparesubtestctrl.html',
             url: '/comparesubtest?originalProject&originalRevision&newProject&newRevision&originalSignature&newSignature&filter&showOnlyImportant&showOnlyConfident&framework',
             controller: 'CompareSubtestResultsCtrl'
         }).state('comparechooser', {
-            title: 'Compare',
+            title: 'Compare Chooser',
             templateUrl: 'partials/perf/comparechooserctrl.html',
             url: '/comparechooser?originalProject&originalRevision&newProject&newRevision',
             controller: 'CompareChooserCtrl'
         }).state('e10s_trend', {
-            title: 'e10s trend dashboard',
+            title: 'e10s Trend Dashboard',
             templateUrl: 'partials/perf/e10s-trend.html',
             url: '/e10s-trend?filter&showOnlyImportant&showOnlyConfident&showOnlyBlockers&repo&basedate&newdate&timerange&revision',
             controller: 'e10sTrendCtrl'
         }).state('e10s_trendsubtest', {
+            title: 'e10s Trend Dashboard - subtests',
             templateUrl: 'partials/perf/e10s-trend-subtest.html',
             url: '/e10s_trendsubtest?filter&showOnlyImportant&showOnlyConfident&showOnlyBlockers&repo&basedate&newdate&timerange&revision&baseSignature&e10sSignature',
             controller: 'e10sTrendSubtestCtrl'
@@ -48,6 +51,7 @@ perf.config(['$compileProvider', '$httpProvider', '$stateProvider', '$urlRouterP
             url: '/dashboard?topic&filter&showOnlyImportant&showOnlyConfident&showOnlyBlockers&repo&timerange&revision',
             controller: 'dashCtrl'
         }).state('dashboardsubtest', {
+            title: 'Perfherder Dashboard - Subtests',
             templateUrl: 'partials/perf/dashboardsubtest.html',
             url: '/dashboardsubtest?topic&filter&showOnlyImportant&showOnlyConfident&baseSignature&variantSignature&repo&timerange&revision',
             controller: 'dashSubtestCtrl'
