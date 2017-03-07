@@ -44,7 +44,7 @@ pulse_connection = LazyPublisher()
 
 
 # Run a maximum of 1 per hour
-@task(name='cycle-data', rate_limit='1/h')
+@task(name='cycle-data', rate_limit='1/h', soft_time_limit=180*60, time_limit=181*60)
 def cycle_data():
     call_command('cycle_data')
 
