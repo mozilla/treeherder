@@ -135,6 +135,8 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'hawkrest',
     'corsheaders',
+    'graphene_django',
+    'django_graphiql',
     # treeherder apps
     'treeherder.model',
     'treeherder.webapp',
@@ -145,6 +147,7 @@ INSTALLED_APPS = [
     'treeherder.autoclassify',
     'treeherder.credentials',
     'treeherder.seta',
+    'treeherder.schema',
 ]
 
 if ENABLE_DEBUG_TOOLBAR:
@@ -634,4 +637,8 @@ HAWK_CREDENTIALS_LOOKUP = 'treeherder.webapp.api.auth.hawk_lookup'
 ELASTIC_SEARCH = {
     "url": env.str('ELASTICSEARCH_URL', default=""),
     "index_prefix": ""
+}
+
+GRAPHENE = {
+    'SCHEMA': 'treeherder.schema.schema.schema'
 }
