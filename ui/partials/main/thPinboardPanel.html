@@ -60,7 +60,7 @@
           <select id="recent-choice">
             <option value="0" selected disabled>Choose a recent commit</option>
             <option ng-repeat="tip in revisionList | limitTo:20"
-              ng-click="classification.text=tip.revision">
+              ng-click="classification.text=tip.revision" title="{{tip.title}}">
               {{tip.revision | limitTo: 12}} {{tip.author}}
             </option>
           </select>
