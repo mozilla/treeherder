@@ -139,8 +139,8 @@ treeherder.factory('thJobFilters', [
 
         var getNewFilterParams = function() {
             var filterParams = {};
-            _.each($location.search(), function (value, field) {
-                if (_startsWith(field, PREFIX)) {
+            _.each($location.search(), function(value, field) {
+                if (field.startsWith(PREFIX)) {
                     filterParams[field] = value;
                 }
             });
@@ -467,7 +467,7 @@ treeherder.factory('thJobFilters', [
         };
 
         var _isFieldFilter = function(field) {
-            return _startsWith(field, PREFIX) &&
+            return field.startsWith(PREFIX) &&
                 !_.includes(['resultStatus', 'classifiedState'], _withoutPrefix(field));
         };
 
@@ -506,11 +506,11 @@ treeherder.factory('thJobFilters', [
         };
 
         var _withPrefix = function(field) {
-            return (!_startsWith(field, PREFIX)) ? PREFIX+field : field;
+            return (!field.startsWith(PREFIX)) ? PREFIX+field : field;
         };
 
         var _withoutPrefix = function(field) {
-            return (_startsWith(field, PREFIX)) ? field.replace(PREFIX, '') : field;
+            return field.startsWith(PREFIX) ? field.replace(PREFIX, '') : field;
         };
 
         /**
@@ -545,10 +545,6 @@ treeherder.factory('thJobFilters', [
             return value;
         };
 
-        var _startsWith = function(str, val) {
-            return str.indexOf(val) === 0;
-        };
-
         // initialize caches on initial load
         cachedFilterParams = getNewFilterParams();
         _refreshFilterCaches();
@@ -557,7 +553,7 @@ treeherder.factory('thJobFilters', [
         var getActiveFilters = function() {
             var filters = {};
             Object.keys($location.search()).forEach(function(key) {
-                if (_startsWith(key, PREFIX)) {
+                if (key.startsWith(PREFIX)) {
                     filters[key] = $location.search()[key];
                 }
             });
