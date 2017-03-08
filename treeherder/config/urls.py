@@ -23,3 +23,10 @@ if settings.DEBUG:
     urlpatterns += [
         url(r'^__debug__/', include(debug_toolbar.urls)),
     ]
+
+if settings.GRAPHQL:
+    from graphene_django.views import GraphQLView
+    urlpatterns += [
+        url(r'^graphql', GraphQLView.as_view(graphiql=True)),
+        url(r'^graphiql', include('django_graphiql.urls')),
+    ]

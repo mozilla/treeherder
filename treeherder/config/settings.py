@@ -25,6 +25,8 @@ TREEHERDER_MEMCACHED_KEY_PREFIX = env("TREEHERDER_MEMCACHED_KEY_PREFIX", default
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 ENABLE_DEBUG_TOOLBAR = env.bool("ENABLE_DEBUG_TOOLBAR", False)
 
+GRAPHQL = env.bool("GRAPHQL", default=False)
+
 # Default to retaining data for ~4 months.
 DATA_CYCLE_DAYS = env.int("DATA_CYCLE_DAYS", default=120)
 # Determines the number of jobs we try to delete per iteration when
@@ -135,6 +137,8 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'hawkrest',
     'corsheaders',
+    'graphene_django',
+    'django_graphiql',
     # treeherder apps
     'treeherder.model',
     'treeherder.webapp',
@@ -634,4 +638,8 @@ HAWK_CREDENTIALS_LOOKUP = 'treeherder.webapp.api.auth.hawk_lookup'
 ELASTIC_SEARCH = {
     "url": env.str('ELASTICSEARCH_URL', default=""),
     "index_prefix": ""
+}
+
+GRAPHENE = {
+    'SCHEMA': 'treeherder.webapp.graphql.schema.schema'
 }
