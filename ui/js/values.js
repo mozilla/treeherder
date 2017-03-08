@@ -50,6 +50,7 @@ treeherder.value("thPlatformMap", {
     "android-5-0-armv7-api15": "Android 5.0 API15+",
     "android-5-1-armv7-api15": "Android 5.1 API15+",
     "android-6-0-armv8-api15": "Android 6.0 API15+",
+    "android-7-1-armv8-api15": "Android 7.1 API15+",
     "b2gdroid-4-0-armv7-api11": "B2GDroid 4.0 API11+",
     "b2gdroid-4-0-armv7-api15": "B2GDroid 4.0 API15+",
     "android-4-0-armv7-api11-partner1": "Android API11+ partner1",
