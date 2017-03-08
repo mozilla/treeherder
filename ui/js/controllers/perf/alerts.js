@@ -202,8 +202,8 @@ perf.controller('AlertsCtrl', [
                     // reset alert's selected status if it is no longer visible
                     alert.selected = alert.selected && alert.visible;
                 });
-                alertSummary.anyVisible = _.any(alertSummary.alerts,
-                                                'visible');
+                alertSummary.anyVisible = _.some(alertSummary.alerts,
+                                                 'visible');
 
                 // if all are selected with this alert summary, update which
                 // ones are selected
@@ -256,10 +256,10 @@ perf.controller('AlertsCtrl', [
         // these methods handle the business logic of alert selection and
         // unselection
         $scope.anySelected = function(alerts) {
-            return _.any(_.pluck(alerts, 'selected'));
+            return _.some(_.map(alerts, 'selected'));
         };
         $scope.anySelectedAndTriaged = function(alerts) {
-            return _.any(alerts, function(alert) {
+            return _.some(alerts, function(alert) {
                 return (!alert.isUntriaged() && alert.selected);
             });
         };
@@ -424,7 +424,7 @@ perf.controller('AlertsCtrl', [
                                     resultSet.push_timestamp*1000, thDateFormat);
                                 // want at least 14 days worth of results for relative comparisons
                                 resultSet.timeRange = Math.max(phDefaultTimeRangeValue, _.find(
-                                    _.pluck(phTimeRanges, 'value'),
+                                    _.map(phTimeRanges, 'value'),
                                     function(t) {
                                         return ((Date.now() / 1000.0) - resultSet.push_timestamp) < t;
                                     }));
@@ -443,8 +443,8 @@ perf.controller('AlertsCtrl', [
                 // for all complete summaries, fill in job and pushlog links
                 // and downstream summaries
                 _.forEach(alertSummaries, function(summary) {
-                    var repo = _.findWhere($rootScope.repos,
-                                           { name: summary.repository });
+                    var repo = _.find($rootScope.repos,
+                                      { name: summary.repository });
 
                     if (summary.prevResultSetMetadata &&
                         summary.resultSetMetadata) {

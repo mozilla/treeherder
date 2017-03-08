@@ -74,7 +74,7 @@ treeherderApp.controller('FilterPanelCtrl', [
         };
 
         $scope.isFilterOn = function(filter) {
-            if (_.contains(_.keys($scope.filterGroups), filter)) {
+            if (_.includes(_.keys($scope.filterGroups), filter)) {
                 // this is a filter grouping, so toggle all on/off
                 return _.some(
                     _.at($scope.resultStatusFilters,
@@ -90,7 +90,7 @@ treeherderApp.controller('FilterPanelCtrl', [
          */
         $scope.toggleResultStatusFilterChicklet = function(filter) {
             var filterValues;
-            if (_.contains(_.keys($scope.filterGroups), filter)) {
+            if (_.includes(_.keys($scope.filterGroups), filter)) {
                 // this is a filter grouping, so toggle all on/off
                 filterValues = $scope.filterGroups[filter].resultStatuses;
             } else {
@@ -204,7 +204,7 @@ treeherderApp.controller('FilterPanelCtrl', [
         var updateToggleFilters = function() {
             for (var i = 0; i < $scope.filterOptions.length; i++) {
                 var opt = $scope.filterOptions[i];
-                $scope.resultStatusFilters[opt] = _.contains(
+                $scope.resultStatusFilters[opt] = _.includes(
                     thJobFilters.getResultStatusArray(), opt);
             }
 
@@ -213,8 +213,8 @@ treeherderApp.controller('FilterPanelCtrl', [
             // for a value, just whether the job has any value set or not.
             // just a boolean check either way
             var classifiedState = thJobFilters.getClassifiedStateArray();
-            $scope.classifiedFilter = _.contains(classifiedState, 'classified');
-            $scope.unClassifiedFilter = _.contains(classifiedState, 'unclassified');
+            $scope.classifiedFilter = _.includes(classifiedState, 'classified');
+            $scope.unClassifiedFilter = _.includes(classifiedState, 'unclassified');
 
             // update "all checked" boxes for groups
             _.each($scope.filterGroups, function(group) {

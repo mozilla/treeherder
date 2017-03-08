@@ -39,7 +39,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                         data.pop();
                         // retrieve the list of result_set_ids
                         var result_set_ids = _.uniq(
-                            _.pluck(data, 'result_set_id')
+                            _.map(data, 'result_set_id')
                         );
 
                         // get resultsets and revisions for the given ids
@@ -47,7 +47,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                             $scope.repoName, result_set_ids, true
                             ).then(function(response){
                                 //decorate the list of jobs with their result sets
-                                var resultsets = _.indexBy(response.data.results, "id");
+                                var resultsets = _.keyBy(response.data.results, "id");
                                 angular.forEach(data, function(obj){
                                     obj.result_set = resultsets[obj.result_set_id];
                                     obj.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" +

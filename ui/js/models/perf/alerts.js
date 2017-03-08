@@ -175,13 +175,13 @@ treeherder.factory('PhAlerts', [
             // the summary should only incorporate those. if there
             // aren't, then use all of them (that aren't downstream,
             // see above)
-            if (_.any(_.pluck(alertsInSummary, 'is_regression'))) {
+            if (_.some(_.map(alertsInSummary, 'is_regression'))) {
                 alertsInSummary = _.filter(alertsInSummary, 'is_regression');
             }
 
             if (alertsInSummary.length > 1) {
-                title = _.min(_.pluck(alertsInSummary, 'amount_pct')) + " - " +
-                    _.max(_.pluck(alertsInSummary, 'amount_pct')) + "%";
+                title = _.min(_.map(alertsInSummary, 'amount_pct')) + " - " +
+                    _.max(_.map(alertsInSummary, 'amount_pct')) + "%";
             } else if (alertsInSummary.length === 1) {
                 title = alertsInSummary[0].amount_pct + "%";
             } else {

@@ -21,14 +21,14 @@ admin.controller('AdminCtrl', [
                                               profile.name + "&visibility=excluded";
                     return profile;
                 });
-                $scope.profilesMap = _.indexBy($scope.profiles, 'id');
+                $scope.profilesMap = _.keyBy($scope.profiles, 'id');
             });
         };
 
         $scope.populateExclusionsData = function() {
             return ThJobExclusionModel.get_list().then(function (data) {
                 $scope.exclusions = data;
-                $scope.exclusionsMap = _.indexBy($scope.exclusions, 'id');
+                $scope.exclusionsMap = _.keyBy($scope.exclusions, 'id');
             });
         };
 

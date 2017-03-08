@@ -192,13 +192,12 @@ treeherder.factory('ThResultSetStore', [
                 // jobList contains jobs belonging to the same resultset,
                 // so we can pick the result_set_id from the first job
                 var resultSetId = jobList[0].result_set_id;
-                var resultSet = _.findWhere(
-                    repositories[repoName].resultSets, {id: resultSetId}
-                );
+                var resultSet = _.find(repositories[repoName].resultSets,
+                                       {id: resultSetId});
                 if (_.isUndefined(resultSet)){ return $q.defer().resolve(); }
                 if (_.has(resultSet, 'jobList')) {
                     // get the new job ids
-                    var jobIds = _.pluck(jobList, 'id');
+                    var jobIds = _.map(jobList, 'id');
                     // remove the elements that need to be updated
                     resultSet.jobList = _.filter(resultSet.jobList, function(job){
                         return _.indexOf(jobIds, job.id) === -1;
@@ -207,7 +206,7 @@ treeherder.factory('ThResultSetStore', [
                 } else {
                     resultSet.jobList = jobList;
                 }
-                var sortAndGroupJobs = _.compose(
+                var sortAndGroupJobs = _.flowRight(
                     sortGroupedJobs,
                     groupJobByPlatform
                 );
@@ -843,7 +842,7 @@ treeherder.factory('ThResultSetStore', [
                 // get
                 var newResultsets = [];
                 _.each(data.results, function(rs) {
-                    if (!_.contains(rsIds, rs.id)) {
+                    if (!_.includes(rsIds, rs.id)) {
                         newResultsets.push(rs);
                     }
                 });

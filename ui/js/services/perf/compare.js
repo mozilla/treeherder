@@ -218,8 +218,8 @@ treeherder.factory('PhCompare', [
                 return $q.all(_.chunk(seriesList, 20).map(function(seriesChunk) {
                     return PhSeries.getSeriesData(
                         projectName, {
-                            signatures: _.pluck(seriesChunk, 'signature'),
-                            framework: _.uniq(_.pluck(seriesChunk, 'frameworkId')),
+                            signatures: _.map(seriesChunk, 'signature'),
+                            framework: _.uniq(_.map(seriesChunk, 'frameworkId')),
                             push_id: resultSetIds }
                     ).then(function(seriesData) {
                         resultSetIds.forEach(function(resultSetId) {
@@ -271,7 +271,7 @@ treeherder.factory('PhCompare', [
                         _.map(resultSets,
                               function(resultSet) {
                                   return _.find(
-                                      _.pluck(phTimeRanges, 'value'),
+                                      _.map(phTimeRanges, 'value'),
                                       function(t) {
                                           return ((Date.now() / 1000.0) -
                                                   resultSet.push_timestamp) < t;

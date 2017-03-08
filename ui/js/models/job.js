@@ -80,8 +80,8 @@ treeherder.factory('ThJobModel', [
                         // the results came as list of fields
                         //we need to convert them to objects
                         item_list = _.map(response.data.results, function(elem){
-                            var job_obj = _.object(response.data.job_property_names, elem);
-                            return new ThJobModel(job_obj);
+                            return new ThJobModel(
+                                _.zipObject(response.data.job_property_names, elem));
                         });
                     } else {
                         item_list = _.map(response.data.results, function(job_obj){
