@@ -138,13 +138,9 @@ treeherder.factory('thJobFilters', [
         });
 
         var getNewFilterParams = function() {
-            var filterParams = {};
-            _.each($location.search(), function(value, field) {
-                if (field.startsWith(PREFIX)) {
-                    filterParams[field] = value;
-                }
+            return _.pickBy($location.search(), function(value, field) {
+                return field.startsWith(PREFIX);
             });
-            return filterParams;
         };
 
         var _refreshFilterCaches = function() {
