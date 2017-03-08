@@ -94,6 +94,7 @@ function StaticServlet() {}
 StaticServlet.MimeMap = {
   'txt': 'text/plain',
   'html': 'text/html',
+  'xhtml': 'application/xhtml+xml',
   'css': 'text/css',
   'xml': 'application/xml',
   'json': 'application/json',
