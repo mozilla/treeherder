@@ -21,7 +21,8 @@ class vagrant {
         init: before => Class["mysql"];
         mysql: before  => Class["elasticsearch"];
         elasticsearch: before  => Class["python"];
-        python: before => Class["varnish"];
+        python: before => Class["nodejs"];
+        nodejs: before => Class["varnish"];
         varnish: before => Class["treeherder"];
         treeherder: before => Class["rabbitmq"];
         rabbitmq: before => Class["dev"];
