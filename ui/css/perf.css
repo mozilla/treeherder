@@ -1,12 +1,7 @@
 .blink {
 animation: blink 1s ease-in-out infinite alternate;
--webkit-animation: blink 1s ease-in-out infinite alternate;
 }
 @keyframes blink {
-from { opacity: 1; }
-to { opacity: 0; }
-}
-@-webkit-keyframes blink {
 from { opacity: 1; }
 to { opacity: 0; }
 }
@@ -74,8 +69,7 @@ to { opacity: 0; }
     display: block;
     background: rgba(0,0,0,.75);
     color: #fff;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
+    border-radius: 5px;
     padding: 10px 15px;
 }
 #graph-tooltip.locked .body {
