@@ -1,5 +1,6 @@
 import datetime
 
+import pytest
 from django.core.management import call_command
 
 from tests import test_utils
@@ -11,10 +12,12 @@ from treeherder.model.models import (FailureLine,
                                      JobGroup,
                                      JobLog,
                                      JobType,
-                                     Machine)
+                                     Machine,
+                                     Push)
 from treeherder.model.search import (TestFailureLine,
                                      refresh_all)
-from treeherder.perf.models import PerformanceDatum
+from treeherder.perf.models import (PerformanceDatum,
+                                    PerformanceSignature)
 
 
 def test_cycle_all_data(test_repository, failure_classifications, sample_data,
@@ -179,3 +182,64 @@ def test_cycle_job_with_performance_data(test_repository, failure_classification
     # assert that the perf object is still there, but the job reference is None
     p = PerformanceDatum.objects.get(id=1)
     assert p.job is None
+
+
+@pytest.mark.parametrize("test_repository_expire_data", [False, True])
+def test_cycle_performance_data(test_repository, result_set_stored,
+                                test_perf_signature,
+                                test_repository_expire_data):
+    test_repository.expire_performance_data = test_repository_expire_data
+    test_repository.save()
+
+    expired_timestamp = datetime.datetime.now() - datetime.timedelta(weeks=1)
+
+    test_perf_signature_2 = PerformanceSignature.objects.create(
+        signature_hash='b'*40,
+        repository=test_perf_signature.repository,
+        framework=test_perf_signature.framework,
+        platform=test_perf_signature.platform,
+        option_collection=test_perf_signature.option_collection,
+        suite=test_perf_signature.suite,
+        test='test 2',
+        last_updated=expired_timestamp,
+        has_subtests=False)
+
+    push1 = Push.objects.get(id=1)
+    push1.time = datetime.datetime.now()
+    push1.save()
+
+    push2 = Push.objects.get(id=2)
+    push2.time = expired_timestamp
+    push2.save()
+
+    # a performance datum that *should not* be deleted
+    PerformanceDatum.objects.create(
+        id=1,
+        repository=test_repository,
+        push=push1,
+        job=None,
+        signature=test_perf_signature,
+        push_timestamp=push1.time,
+        value=1.0)
+
+    # a performance datum that *should* be deleted (but only if the
+    # repository is marked as having expirable performance data)
+    PerformanceDatum.objects.create(
+        id=2,
+        repository=test_repository,
+        push=push2,
+        job=None,
+        signature=test_perf_signature_2,
+        push_timestamp=push2.time,
+        value=1.0)
+
+    call_command('cycle_data', sleep_time=0, days=1)
+
+    if test_repository_expire_data:
+        assert list(PerformanceDatum.objects.values_list('id', flat=True)) == [1]
+        assert list(PerformanceSignature.objects.values_list('id', flat=True)) == [
+            test_perf_signature.id]
+    else:
+        assert list(PerformanceDatum.objects.values_list('id', flat=True)) == [1, 2]
+        assert list(PerformanceSignature.objects.values_list('id', flat=True)) == [
+            test_perf_signature.id, test_perf_signature_2.id]
