@@ -131,8 +131,8 @@ perf.controller('GraphsCtrl', [
                         });
                 }
                 $scope.tooltipContent = {
-                    project: _.findWhere($rootScope.repos,
-                        { name: phSeries.projectName }),
+                    project: _.find($rootScope.repos,
+                                    { name: phSeries.projectName }),
                     revisionUrl: thServiceDomain + '#/jobs?repo=' + phSeries.projectName,
                     prevResultSetId: prevResultSetId,
                     resultSetId: dataPoint.resultSetId,
@@ -602,11 +602,11 @@ perf.controller('GraphsCtrl', [
                                     dataPoint.value
                                 ];
                             }),
-                        resultSetData: _.pluck(
+                        resultSetData: _.map(
                             seriesData[series.signature],
                             'push_id'),
                         thSeries: jQuery.extend({}, series),
-                        jobIdData: _.pluck(seriesData[series.signature],
+                        jobIdData: _.map(seriesData[series.signature],
                             'job_id')
                     };
                 }).then(function() {
@@ -810,7 +810,7 @@ perf.controller('GraphsCtrl', [
                 }
 
                 if (option !== undefined) {
-                    var series = _.findWhere($scope.seriesList, {"signature": seriesSignature});
+                    var series = _.find($scope.seriesList, {signature: seriesSignature});
                     options = { option: option, relatedSeries: series };
                 }
 
@@ -888,7 +888,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
         phDefaultFramework) {
         $scope.timeRange = timeRange;
         $scope.projects = projects;
-        $scope.selectedProject = _.findWhere(projects, {
+        $scope.selectedProject = _.find(projects, {
             name: defaultProjectName ? defaultProjectName : thDefaultRepo
         });
         $scope.includeSubtests = false;
@@ -928,7 +928,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
             $scope.selectedTestsToAdd.forEach(function(testValue) {
                 // selectedTestsToAdd is stored in JSON format, need to convert
                 // it back to an object and get the actual value
-                var test = _.findWhere($scope.testsToAdd, JSON.parse(testValue));
+                var test = _.find($scope.testsToAdd, JSON.parse(testValue));
 
                 // add test back to unselected test list if we're browsing for
                 // the current project/platform, otherwise just discard it
@@ -949,7 +949,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
             $scope.selectedTestSignatures.forEach(function(signature) {
                 // Add the selected tests to the selected test list
                 $scope.testsToAdd.push(_.clone(
-                    _.findWhere($scope.unselectedTestList, { signature: signature })));
+                    _.find($scope.unselectedTestList, { signature: signature })));
 
                 // Remove the added tests from the unselected test list
                 _.remove($scope.unselectedTestList, { signature: signature });
@@ -966,7 +966,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
                     $scope.testsToAdd = _.clone(_.filter(seriesList, function(series) {
                         return series.platform !== originalSeries.platform &&
                             series.name === originalSeries.name &&
-                            !_.any(testsDisplayed, {
+                            !_.some(testsDisplayed, {
                                 projectName: series.projectName,
                                 signature: series.signature
                             });
@@ -982,7 +982,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
             var branchList = [];
             thPerformanceBranches.forEach(function (branch) {
                 if (branch !== originalSeries.projectName) {
-                    branchList.push(_.findWhere($scope.projects, {name: branch}));
+                    branchList.push(_.find($scope.projects, {name: branch}));
                 }
             });
             // get each project's series data from remote and use promise to
@@ -1000,7 +1000,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
 
                 // filter out tests which are already displayed
                 $scope.testsToAdd = _.filter(seriesList, function(series) {
-                    return !_.any(testsDisplayed, {
+                    return !_.some(testsDisplayed, {
                         projectName: series.projectName,
                         signature: series.signature
                     });
@@ -1048,11 +1048,11 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
         PhFramework.getFrameworkList().then(function(frameworkList) {
             $scope.frameworkList = frameworkList;
             if (defaultFrameworkId) {
-                $scope.selectedFramework = _.findWhere($scope.frameworkList, {
+                $scope.selectedFramework = _.find($scope.frameworkList, {
                     id: defaultFrameworkId
                 });
             } else {
-                $scope.selectedFramework = _.findWhere($scope.frameworkList, {
+                $scope.selectedFramework = _.find($scope.frameworkList, {
                     name: phDefaultFramework
                 });
             }
@@ -1066,7 +1066,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
                     framework: $scope.selectedFramework.id }).then(function(platformList) {
                         $scope.platformList = platformList;
                         $scope.platformList.sort();
-                        if (_.contains($scope.platformList, defaultPlatform)) {
+                        if (_.includes($scope.platformList, defaultPlatform)) {
                             $scope.selectedPlatform = defaultPlatform;
                         } else {
                             $scope.selectedPlatform = $scope.platformList[0];

@@ -57,7 +57,7 @@ treeherder.factory('ThRepositoryModel', [
         var watchRepo = function(name) {
             // Safeguard: Don't allow duplicates in the watch list
             // Also, only add items for which we have data for
-            if (_.contains(watchedRepos, name) || !repos[name]) {
+            if (_.includes(watchedRepos, name) || !repos[name]) {
                 return;
             }
             _.extend(repos[name], {
@@ -169,9 +169,7 @@ treeherder.factory('ThRepositoryModel', [
 
                                 // To get the current repo to display first, we must
                                 // ensure it's added to the array last, as per normal user interaction
-                                if (_.contains(storedWatched, options.name)) {
-                                    storedWatched = _.without(storedWatched, _.findWhere(storedWatched, options.name));
-                                }
+                                storedWatched = _.without(storedWatched, options.name);
                                 unwatchRepo(options.name);
 
                                 // Add the repos in reverse order, like the user would (oldest to newest)
@@ -296,12 +294,12 @@ treeherder.factory('ThRepositoryModel', [
             // The $interval will pass in the number of times it was called,
             // rather than a ``repoName``.  So repoName would equal 1, 2, 3.  So
             // if repoName isn't a valid watched repo, we update all.
-            var repoNames = _.contains(watchedRepos, repoName) ? [repoName] : watchedRepos;
+            var repoNames = _.includes(watchedRepos, repoName) ? [repoName] : watchedRepos;
 
             // filter out non-watched and unsupported repos to prevent repeatedly
             // hitting an endpoint we know will never work.
             repoNames = _.filter(repoNames, function(repo) {
-                if (_.contains(watchedRepos, repo) && repos[repo].treeStatus.status !== 'unsupported') {
+                if (_.includes(watchedRepos, repo) && repos[repo].treeStatus.status !== 'unsupported') {
                     return repo;
                 }
             });

@@ -221,7 +221,7 @@ perf.controller('e10sTrendCtrl', [
 
         ThRepositoryModel.load().then(function() {
             $scope.projects = $rootScope.repos;
-            $scope.selectedRepo = _.findWhere($scope.projects, {
+            $scope.selectedRepo = _.find($scope.projects, {
                 name: $stateParams.repo ? $stateParams.repo : thDefaultRepo
             });
 
@@ -451,7 +451,7 @@ perf.controller('e10sTrendSubtestCtrl', [
 
         ThRepositoryModel.load().then(function() {
             $scope.projects = $rootScope.repos;
-            $scope.selectedRepo = _.findWhere($scope.projects, {
+            $scope.selectedRepo = _.find($scope.projects, {
                 name: $stateParams.repo ? $stateParams.repo : thDefaultRepo
             });
 

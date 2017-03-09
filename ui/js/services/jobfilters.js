@@ -197,7 +197,7 @@ treeherder.factory('thJobFilters', [
             // shown regardless of settings for classified or result state
             if (job.result !== "runnable") {
                 // test against resultStatus and classifiedState
-                if (!_.contains(cachedResultStatusFilters, thResultStatus(job))) {
+                if (!_.includes(cachedResultStatusFilters, thResultStatus(job))) {
                     return false;
                 }
                 if (!_checkClassifiedStateFilters(job)) {
@@ -211,10 +211,10 @@ treeherder.factory('thJobFilters', [
 
         var _checkClassifiedStateFilters = function(job) {
             var isClassified = _isJobClassified(job);
-            if (!_.contains(cachedClassifiedStateFilters, 'unclassified') && !isClassified) {
+            if (!_.includes(cachedClassifiedStateFilters, 'unclassified') && !isClassified) {
                 return false;
             }
-            if (!_.contains(cachedClassifiedStateFilters, 'classified') && isClassified) {
+            if (!_.includes(cachedClassifiedStateFilters, 'classified') && isClassified) {
                 return false;
             }
             return true;
@@ -248,13 +248,13 @@ treeherder.factory('thJobFilters', [
                                 break;
 
                             case MATCH_TYPE.exactstr:
-                                if (!_.contains(values, jobFieldValue)) {
+                                if (!_.includes(values, jobFieldValue)) {
                                     return false;
                                 }
                                 break;
 
                             case MATCH_TYPE.choice:
-                                if (!_.contains(values, jobFieldValue)) {
+                                if (!_.includes(values, jobFieldValue)) {
                                     return false;
                                 }
                                 break;
@@ -373,7 +373,7 @@ treeherder.factory('thJobFilters', [
         };
 
         var isFilterSetToShow = function(field, value) {
-            return _.contains(_getFiltersOrDefaults(field), String(value));
+            return _.includes(_getFiltersOrDefaults(field), String(value));
         };
 
         /**
@@ -437,12 +437,12 @@ treeherder.factory('thJobFilters', [
         };
 
         var isJobUnclassifiedFailure = function(job) {
-            return (_.contains(thFailureResults, job.result) &&
+            return (_.includes(thFailureResults, job.result) &&
                     !_isJobClassified(job));
         };
 
         var _isJobClassified = function(job) {
-            return !_.contains(UNCLASSIFIED_IDS, job.failure_classification_id);
+            return !_.includes(UNCLASSIFIED_IDS, job.failure_classification_id);
         };
 
         var stripFiltersFromQueryString = function(locationSearch) {
@@ -468,7 +468,7 @@ treeherder.factory('thJobFilters', [
 
         var _isFieldFilter = function(field) {
             return _startsWith(field, PREFIX) &&
-                !_.contains(['resultStatus', 'classifiedState'], _withoutPrefix(field));
+                !_.includes(['resultStatus', 'classifiedState'], _withoutPrefix(field));
         };
 
         /**

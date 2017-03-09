@@ -23,10 +23,10 @@ perf.controller('CompareChooserCtrl', [
                 return defaultValue;
             };
 
-            $scope.originalProject = _.findWhere(projects, {
+            $scope.originalProject = _.find(projects, {
                 name: getParameter('originalProject', phCompareDefaultOriginalRepo)
             }) || projects[0];
-            $scope.newProject = _.findWhere(projects, {
+            $scope.newProject = _.find(projects, {
                 name: getParameter('newProject', phCompareDefaultNewRepo)
             }) || projects[0];
 
@@ -564,7 +564,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                    // If there is no data for a given signature, handle it gracefully
                                    if (seriesMap) {
                                        Object.keys(seriesMap).forEach(function(series) {
-                                           if (!_.contains($scope.pageList, seriesMap[series].name)) {
+                                           if (!_.includes($scope.pageList, seriesMap[series].name)) {
                                                $scope.pageList.push(seriesMap[series].name);
                                            }
                                        });
@@ -598,7 +598,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                        // There is a chance that we haven't received data for the given signature/resultSet yet
                                        if (newSeriesMap) {
                                            Object.keys(newSeriesMap).forEach(function(series) {
-                                               if (!_.contains($scope.pageList, newSeriesMap[series].name)) {
+                                               if (!_.includes($scope.pageList, newSeriesMap[series].name)) {
                                                    $scope.pageList.push(newSeriesMap[series].name);
                                                }
                                            });

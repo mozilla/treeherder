@@ -356,7 +356,7 @@ treeherder.controller('PluginCtrl', [
 
         $scope.retriggerJob = function(jobs) {
             if ($scope.user.loggedin) {
-                var job_id_list = _.pluck(jobs, 'id');
+                var job_id_list = _.map(jobs, 'id');
                 // The logic here is somewhat complicated because we need to support
                 // two use cases the first is the case where we notify a system
                 // other then buildbot that a retrigger has been requested. The
@@ -368,7 +368,7 @@ treeherder.controller('PluginCtrl', [
                                                            "repository": $scope.repoName,
                                                            "job_id__in": job_id_list.join(',')})
                         .then(function(data) {
-                            var requestIdList = _.pluck(data, 'value');
+                            var requestIdList = _.map(data, 'value');
                             requestIdList.forEach(function(requestId) {
                                 thBuildApi.retriggerJob($scope.repoName, requestId);
                             });
