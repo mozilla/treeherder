@@ -123,6 +123,9 @@
               <li ng-repeat="taskclusterOption in taskclusterOptions">
                 <a target="_blank" href="{{taskclusterOption.url}}">{{taskclusterOption.title}}</a>
               </li>
+              <li ng-if="taskclusterOptions.length">
+                <a ng-click="customJobAction()">Custom Action...</a>
+              </li>
             </ul>
           </li>
         </ul>

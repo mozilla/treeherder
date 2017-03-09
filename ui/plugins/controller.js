@@ -1,7 +1,8 @@
 "use strict";
 
 treeherder.controller('PluginCtrl', [
-    '$scope', '$rootScope', '$location', '$http', '$interpolate', 'thUrl', 'ThJobClassificationModel',
+    '$scope', '$rootScope', '$location', '$http', '$interpolate', '$uibModal',
+    'thUrl', 'ThJobClassificationModel',
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter', 'thDateFormat',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard',
@@ -9,7 +10,8 @@ treeherder.controller('PluginCtrl', [
     'thTabs', '$timeout', 'thReftestStatus', 'ThResultSetStore',
     'PhSeries', 'thServiceDomain', 'thTaskcluster',
     function PluginCtrl(
-        $scope, $rootScope, $location, $http, $interpolate, thUrl, ThJobClassificationModel,
+        $scope, $rootScope, $location, $http, $interpolate, $uibModal,
+        thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
         numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
         ThResultSetModel, ThLog, $q, thPinboard,
@@ -519,6 +521,25 @@ treeherder.controller('PluginCtrl', [
 
         $scope.cancelJob = function() {
             $scope.cancelJobs([$scope.job]);
+        };
+
+        $scope.customJobAction = function() {
+            $uibModal.open({
+                templateUrl: 'partials/main/tcjobactions.html',
+                controller: 'TCJobActionsCtrl',
+                size: 'lg',
+                resolve: {
+                    job: function() {
+                        return $scope.job;
+                    },
+                    repoName: function() {
+                        return $scope.repoName;
+                    },
+                    resultsetId: function() {
+                        return $scope.resultsetId;
+                    }
+                }
+            });
         };
 
         // Test to expose the reftest button in the job details navbar
