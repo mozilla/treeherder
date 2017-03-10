@@ -53,8 +53,8 @@ We run our JavaScript code in the frontend through eslint_ to ensure
 that new code has a consistent style and doesn't suffer from common
 errors. Before submitting a patch, check that your code passes these tests.
 
-* If you haven't already done so, install local dependencies by running ``npm install`` from the project root. Then run ``npm install -g grunt-cli`` as root, so that grunt is added to the global path.
-* Run ``grunt checkjs``. You will see errors if your code has problems
+* If you haven't already done so, install local dependencies by running ``npm install`` from the project root.
+* Run ``npm run lint``.
 
 .. _eslint: http://eslint.org/
 

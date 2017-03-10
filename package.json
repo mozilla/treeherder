@@ -45,6 +45,7 @@
   },
   "scripts": {
     "build": "grunt build --production",
+    "lint": "grunt checkjs",
     "test": "karma start tests/ui/config/karma.conf.js --single-run --browsers Firefox"
   }
 }
