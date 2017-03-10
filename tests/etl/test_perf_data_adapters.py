@@ -92,6 +92,7 @@ def _verify_signature(repo_name, framework_name, suitename,
                       testname, option_collection_hash, platform,
                       lower_is_better, extra_opts,
                       last_updated=None, alert_threshold=None,
+                      alert_change_type=None,
                       min_back_window=None, max_back_window=None,
                       fore_window=None):
     if not extra_opts:
@@ -112,6 +113,11 @@ def _verify_signature(repo_name, framework_name, suitename,
     assert signature.min_back_window == min_back_window
     assert signature.max_back_window == max_back_window
     assert signature.fore_window == fore_window
+    if alert_change_type is not None:
+        assert signature.get_alert_change_type_display() == alert_change_type
+    else:
+        assert signature.alert_change_type is None
+
     # only verify last updated if explicitly specified
     if last_updated:
         assert signature.last_updated == last_updated
@@ -341,6 +347,13 @@ def test_same_signature_multiple_performance_frameworks(test_repository,
                               # summary
                               (True, {'shouldAlert': True},
                                {'shouldAlert': True}, True, True),
+                              # summary+subtest, alerting override on subtest +
+                              # summary, but using absolute change so shouldn't
+                              # alert
+                              (True,
+                               {'shouldAlert': True, 'alertChangeType': 'absolute'},
+                               {'shouldAlert': True, 'alertChangeType': 'absolute'},
+                               False, False),
                         ])
 def test_alert_generation(test_repository,
                           failure_classifications, generic_reference_data,
@@ -363,6 +376,7 @@ def test_alert_generation(test_repository,
                       True,
                       None,
                       alert_threshold=extra_subtest_metadata.get('alertThreshold'),
+                      alert_change_type=extra_subtest_metadata.get('alertChangeType'),
                       min_back_window=extra_subtest_metadata.get('minBackWindow'),
                       max_back_window=extra_subtest_metadata.get('maxBackWindow'),
                       fore_window=extra_subtest_metadata.get('foreWindow'))
@@ -376,6 +390,7 @@ def test_alert_generation(test_repository,
                           True,
                           None,
                           alert_threshold=extra_suite_metadata.get('alertThreshold'),
+                          alert_change_type=extra_suite_metadata.get('alertChangeType'),
                           min_back_window=extra_suite_metadata.get('minBackWindow'),
                           max_back_window=extra_suite_metadata.get('maxBackWindow'),
                           fore_window=extra_suite_metadata.get('foreWindow'))

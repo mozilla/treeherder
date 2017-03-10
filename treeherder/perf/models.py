@@ -52,11 +52,29 @@ class PerformanceSignature(models.Model):
 
     # these properties override the default settings for how alert
     # generation works
+    ALERT_PCT = 0
+    ALERT_ABS = 1
+    ALERT_CHANGE_TYPES = ((ALERT_PCT, 'percentage'),
+                          (ALERT_ABS, 'absolute'))
+
     should_alert = models.NullBooleanField()
+    alert_change_type = models.IntegerField(choices=ALERT_CHANGE_TYPES,
+                                            null=True)
     alert_threshold = models.FloatField(null=True)
     min_back_window = models.IntegerField(null=True)
     max_back_window = models.IntegerField(null=True)
     fore_window = models.IntegerField(null=True)
+
+    @staticmethod
+    def _get_alert_change_type(alert_change_type_input):
+        '''
+        Maps a schema-specified alert change type to the internal index
+        value
+        '''
+        for (idx, enum_val) in PerformanceSignature.ALERT_CHANGE_TYPES:
+            if enum_val == alert_change_type_input:
+                return idx
+        return None
 
     class Meta:
         db_table = 'performance_signature'
