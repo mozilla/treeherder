@@ -12,8 +12,8 @@ Cloning the Repo
 Running the web-server
 ----------------------
 
-* Install `Node.js`_ if not present.
-* `npm install` to install all dependencies.
+* Install `Node.js`_ and Yarn_ if not present.
+* ``yarn install --no-bin-links`` to install all dependencies.
 * Open a shell, cd into the root of the repository you just cloned and type:
 
   .. code-block:: bash
@@ -53,8 +53,8 @@ We run our JavaScript code in the frontend through eslint_ to ensure
 that new code has a consistent style and doesn't suffer from common
 errors. Before submitting a patch, check that your code passes these tests.
 
-* If you haven't already done so, install local dependencies by running ``npm install`` from the project root.
-* Run ``npm run lint``.
+* If you haven't already done so, install local dependencies by running ``yarn install --no-bin-links`` from the project root.
+* Run ``yarn run lint``.
 
 .. _eslint: http://eslint.org/
 
@@ -63,11 +63,12 @@ Running the unit tests
 
 The unit tests for the UI are run with Karma_. To do this:
 
-* If you haven't already done so, install local dependencies by running ``npm install`` from the project root.
-* Run ``npm test``.
+* If you haven't already done so, install local dependencies by running ``yarn install --no-bin-links`` from the project root.
+* Run ``yarn test``.
 
 
 .. _Karma: http://karma-runner.github.io/0.8/config/configuration-file.html
 .. _treeherder repo: https://github.com/mozilla/treeherder
-.. _Node.js: http://nodejs.org/download/
+.. _Node.js: https://nodejs.org/en/download/current/
+.. _Yarn: https://yarnpkg.com/en/docs/install
 

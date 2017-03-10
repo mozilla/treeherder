@@ -123,32 +123,20 @@ To do this:
 
 * Tell people to visit: ``https://<your-username>.github.io/treeherder/ui/``
 
-There is no need to perform a ``npm run build`` prior. After switching away from the local gh-pages branch, you will need to recreate ``ui/js/config/local.conf.js`` if desired, due to the ``git add -f``.
+There is no need to perform a ``yarn run build`` prior. After switching away from the local gh-pages branch, you will need to recreate ``ui/js/config/local.conf.js`` if desired, due to the ``git add -f``.
 
 
-Updating packages in package.json
----------------------------------
+Updating package.json
+---------------------
 
-If the package is required in production/during deployment (ie: will be listed under
-`dependencies` rather than `devDependencies`), the following update process must be
-followed:
+* Always use ``yarn`` to make changes, not ``npm``, so that ``yarn.lock`` remains in sync.
+* Add new packages using ``yarn add <PACKAGE> --no-bin-links`` (``yarn.lock`` will be automatically updated).
+* After changes to ``package.json`` use ``yarn install --no-bin-links`` to install them and automatically update ``yarn.lock``.
+* For more details see the `Yarn documentation`_.
 
-* Follow the instructions for installing ``nodejs`` and ``build-essential`` `here <https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions>`_, making sure to match the nodejs version specified in ``.travis.yml`` and ``package.json``.
+Note: To work around symlink issues for Windows hosts, use ``--no-bin-links`` with any command that adds/modifies packages. Whilst this is technically unnecessary with non-Windows hosts, it's still recommended since otherwise your local changes might inadvertently rely on ``node_modules/.bin/`` symlinks that won't exist in a newly created Vagrant environment. Unfortunately yarn doesn't yet support setting this option via the global yarn config, otherwise we could just enable it by default.
 
-* Update the package list in ``package.json``, making sure to specify an exact version, and not tilde or caret range notation.
-
-* From the root of the Treeherder repo, run:
-
-  .. code-block:: bash
-
-     > rm -rf node_modules npm-shrinkwrap.json
-     > npm install
-     # Adds the packages listed under ``dependencies`` to npm-shrinkwrap.json
-     > npm shrinkwrap
-
-* Now commit the changes to both ``package.json`` and ``npm-shrinkwrap.json``.
-
-Note: If the Vagrant host is Windows, the ``npm install`` will fail due to lack of symlink support on the host. You will need to temporarily move ``package.json`` outside of the shared folder and copy it and the resultant ``npm-shrinkwrap.json`` back when done.
+.. _Yarn documentation: https://yarnpkg.com/en/docs/usage
 
 
 Releasing a new version of the Python client

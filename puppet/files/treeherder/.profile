@@ -10,6 +10,8 @@ cd "$HOME/treeherder"
 
 # Helper aliases
 
+alias npm='echo "Please use yarn instead of npm to ensure yarn.lock stays in sync!"'
+
 function thelp {
     echo "
     Treeherder-specific helpful aliases:

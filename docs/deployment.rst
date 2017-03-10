@@ -9,8 +9,8 @@ production, a minified/built version of the UI (generated using grunt) is used i
 
 To build the UI locally:
 
-* Install local dependencies by running ``npm install`` from the project root.
-* Run ``npm run build`` to create the ``dist`` directory.
+* Install local dependencies by running ``yarn install --no-bin-links`` from the project root.
+* Run ``yarn run build`` to create the ``dist`` directory.
 
 Then to serve assets from this directory instead of ``ui/``, in the Vagrant environment
 set ``SERVE_MINIFIED_UI=True`` before starting gunicorn/runserver.
