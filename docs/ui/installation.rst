@@ -63,12 +63,9 @@ Running the unit tests
 
 The unit tests for the UI are run with Karma_. To do this:
 
-* If you haven't already done so, install local dependencies by running ``npm install`` from the project root. Then run ``npm install -g karma-cli`` as root, so that Karma is added to the global path.
-* Then run the following command to execute the tests:
+* If you haven't already done so, install local dependencies by running ``npm install`` from the project root.
+* Run ``npm test``.
 
-.. code-block:: bash
-
-    ./tests/ui/scripts/test.sh
 
 .. _Karma: http://karma-runner.github.io/0.8/config/configuration-file.html
 .. _treeherder repo: https://github.com/mozilla/treeherder
