@@ -1,3 +1,6 @@
+import datetime
+import time
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
@@ -80,8 +83,42 @@ class PerformanceSignature(models.Model):
                                     self.last_updated)
 
 
+class PerformanceDatumManager(models.Manager):
+    """
+    Convenience functions for operations on groups of performance datums
+    """
+
+    def cycle_data(self, repository, cycle_interval, chunk_size, sleep_time):
+        """Delete data older than cycle_interval, splitting the target data
+into chunks of chunk_size size."""
+
+        max_timestamp = datetime.datetime.now() - cycle_interval
+
+        # seperate datums into chunks
+        while True:
+            perf_datums_to_cycle = list(self.filter(
+                repository=repository,
+                push_timestamp__lt=max_timestamp).values_list('id', flat=True)[:chunk_size])
+            if not perf_datums_to_cycle:
+                # we're done!
+                break
+            self.filter(id__in=perf_datums_to_cycle).delete()
+            if sleep_time:
+                # Allow some time for other queries to get through
+                time.sleep(sleep_time)
+
+        # also remove any signatures which are (no longer) associated with
+        # a job
+        for signature in PerformanceSignature.objects.filter(
+                repository=repository):
+            if not self.filter(signature=signature).exists():
+                signature.delete()
+
+
 @python_2_unicode_compatible
 class PerformanceDatum(models.Model):
+
+    objects = PerformanceDatumManager()
 
     repository = models.ForeignKey(Repository)
     signature = models.ForeignKey(PerformanceSignature)
