@@ -25,7 +25,6 @@ class AnalyzeFailures:
 
     def run(self):
         fixed_by_commit_jobs = get_failures_fixed_by_commit()
-        load_preseed()
         if fixed_by_commit_jobs:
             # We need to update the job priority table before we can call get_high_value_jobs()
             # See increase_job_priority() to understand the root issue
