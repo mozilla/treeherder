@@ -44,6 +44,7 @@
     "watchify": "^3.8.0"
   },
   "scripts": {
+    "build": "grunt build --production",
     "test": "karma start tests/ui/config/karma.conf.js --single-run --browsers Firefox"
   }
 }

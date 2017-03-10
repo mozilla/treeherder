@@ -123,7 +123,7 @@ To do this:
 
 * Tell people to visit: ``https://<your-username>.github.io/treeherder/ui/``
 
-There is no need to perform a ``grunt build`` prior. After switching away from the local gh-pages branch, you will need to recreate ``ui/js/config/local.conf.js`` if desired, due to the ``git add -f``.
+There is no need to perform a ``npm run build`` prior. After switching away from the local gh-pages branch, you will need to recreate ``ui/js/config/local.conf.js`` if desired, due to the ``git add -f``.
 
 
 Updating packages in package.json

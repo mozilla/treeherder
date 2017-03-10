@@ -53,7 +53,7 @@ matrix:
       script:
         - grunt checkjs
         - npm test
-        - ./node_modules/.bin/grunt build --production
+        - npm run build
 
     # Job 3: Python Tests Chunk A
     - env: python-tests-main
