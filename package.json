@@ -44,8 +44,8 @@
     "watchify": "^3.8.0"
   },
   "scripts": {
-    "build": "grunt build --production",
-    "lint": "grunt checkjs",
-    "test": "karma start tests/ui/config/karma.conf.js --single-run --browsers Firefox"
+    "build": "./node_modules/grunt-cli/bin/grunt build --production",
+    "lint": "./node_modules/grunt-cli/bin/grunt checkjs",
+    "test": "./node_modules/karma/bin/karma start tests/ui/config/karma.conf.js --single-run --browsers Firefox"
   }
 }
