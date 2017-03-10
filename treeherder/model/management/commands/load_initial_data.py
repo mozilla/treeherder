@@ -12,4 +12,4 @@ class Command(BaseCommand):
                      'failure_classification',
                      'performance_framework',
                      'performance_bug_templates')
-        call_command('load_preseed')
+        call_command('reset_seta')
