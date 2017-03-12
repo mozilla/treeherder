@@ -72,18 +72,13 @@ class Command(BaseCommand):
         self.cycle_non_job_data(options['chunk_size'], options['sleep_time'])
 
     def cycle_non_job_data(self, chunk_size, sleep_time):
-        (used_job_type_ids, used_machine_ids) = (set(), set())
-        used_job_type_ids = set(Job.objects.values_list(
-            'job_type_id', flat=True).distinct())
-        used_machine_ids = set(Job.objects.values_list(
-            'machine_id', flat=True).distinct())
-
+        used_job_type_ids = Job.objects.values('job_type_id').distinct()
         JobType.objects.exclude(id__in=used_job_type_ids).delete()
 
-        used_job_group_ids = set(JobType.objects.values_list(
-            'job_group', flat=True).distinct())
+        used_job_group_ids = JobType.objects.values('job_group').distinct()
         JobGroup.objects.exclude(id__in=used_job_group_ids).delete()
 
+        used_machine_ids = Job.objects.values('machine_id').distinct()
         Machine.objects.exclude(id__in=used_machine_ids).delete()
 
     def debug(self, msg):
