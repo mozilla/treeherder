@@ -120,10 +120,13 @@
                 <a ng-attr-title="{{ backfillButtonTitle() }}"
                    ng-click="!canBackfill() || backfillJob()">Backfill</a>
               </li>
-              <li ng-repeat="taskclusterOption in taskclusterOptions">
-                <a target="_blank" href="{{taskclusterOption.url}}">{{taskclusterOption.title}}</a>
+              <li>
+                <a target="_blank" href="https://tools.taskcluster.net/task-inspector/#{{job.taskcluster_metadata.task_id}}">Inspect Task</a>
               </li>
-              <li ng-if="taskclusterOptions.length">
+              <li ng-if-start="job.taskcluster_metadata">
+                <a target="_blank" href="https://tools.taskcluster.net/one-click-loaner/#{{job.taskcluster_metadata.task_id}}">One Click Loaner</a>
+              </li>
+              <li ng-if-end>
                 <a ng-click="customJobAction()">Custom Action...</a>
               </li>
             </ul>
