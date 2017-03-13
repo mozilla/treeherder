@@ -277,18 +277,28 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
             running_eta=duration,
             push_id=push_id)
 
+    try:
+        job = Job.objects.get(guid=job_guid_root)
+    except ObjectDoesNotExist:
+        job = Job.objects.get(guid=job_guid)
+
+    # add taskcluster metadata if applicable
+    if all([k in job_datum for k in ['taskcluster_task_id', 'taskcluster_retry_id']]):
+        try:
+            TaskclusterMetadata.objects.create(
+                job=job,
+                task_id=job_datum['taskcluster_task_id'],
+                retry_id=job_datum['taskcluster_retry_id'])
+        except IntegrityError:
+            pass
+
     # if the job was pending, there's nothing more to do here
     # (pending jobs have no artifacts, and we would have just created
     # it)
     if state == 'pending':
         return (job_guid, signature_hash)
 
-    # update job (in the case of a buildbot retrigger, we will
-    # get the root object and update that to a retry)
-    try:
-        job = Job.objects.get(guid=job_guid_root)
-    except ObjectDoesNotExist:
-        job = Job.objects.get(guid=job_guid)
+    # Update job with any data that would have changed
     Job.objects.filter(id=job.id).update(
         guid=job_guid,
         signature=signature,
@@ -311,14 +321,6 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
         running_eta=duration,
         push_id=push_id)
 
-    if all([k in job_datum for k in ['taskcluster_task_id', 'taskcluster_retry_id']]):
-        try:
-            TaskclusterMetadata.objects.create(
-                job=job,
-                task_id=job_datum['taskcluster_task_id'],
-                retry_id=job_datum['taskcluster_retry_id'])
-        except IntegrityError:
-            pass
     artifacts = job_datum.get('artifacts', [])
 
     has_text_log_summary = any(x for x in artifacts
