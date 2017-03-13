@@ -84,6 +84,32 @@ def test_ingest_pulse_jobs(pulse_jobs, test_repository, result_set_stored,
     assert JobDetail.objects.count() == 2
 
 
+def test_ingest_pending_pulse_job(pulse_jobs, result_set_stored,
+                                  failure_classifications, mock_log_parser):
+    """
+    Test that ingesting a pending job (1) works and (2) ingests the
+    taskcluster metadata
+    """
+    jl = JobLoader()
+
+    pulse_job = pulse_jobs[0]
+    revision = result_set_stored[0]["revision"]
+    pulse_job["origin"]["revision"] = revision
+    pulse_job["state"] = "pending"
+    jl.process_job_list([pulse_job])
+
+    jobs = Job.objects.all()
+    assert len(jobs) == 1
+
+    job = jobs[0]
+    assert job.taskcluster_metadata
+    assert job.taskcluster_metadata.task_id == 'IYyscnNMTLuxzna7PNqUJQ'
+
+    # should not have processed any log or details for pending jobs
+    assert JobLog.objects.count() == 0
+    assert JobDetail.objects.count() == 0
+
+
 def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_repository, result_set_stored,
                                        failure_classifications, mock_log_parser):
     """
