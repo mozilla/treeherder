@@ -271,7 +271,7 @@ perf.controller('AlertsCtrl', [
             });
         };
         $scope.alertSelected = function(alertSummary) {
-            if (_.all(alertSummary.alerts, function(alert) {
+            if (_.every(alertSummary.alerts, function(alert) {
                 return !alert.visible || alert.selected;
             })) {
                 alertSummary.allSelected = true;
