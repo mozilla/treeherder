@@ -133,6 +133,9 @@ logViewerApp.controller('LogviewerCtrl', [
                         {label: 'End', value: dateFilter(job.end_timestamp * 1000, thDateFormat)}
                     ];
 
+                    // Test to disable successful steps checkbox on taskcluster jobs
+                    $scope.buildSystemType = job.build_system_type;
+
                     // Test to expose the reftest button in the logviewer actionbar
                     $scope.isReftest = () => {
                         if (job.job_group_name) {

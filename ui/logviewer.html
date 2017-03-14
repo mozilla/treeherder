@@ -72,7 +72,10 @@
             <div id="lv-successful-steps">
               <input type="checkbox"
                      ng-model="showSuccessful"
-                     ng-change="toggleSuccessfulSteps()" />
+                     ng-change="toggleSuccessfulSteps()"
+                     ng-disabled="buildSystemType == 'taskcluster'"
+                     ng-attr-title="{{buildSystemType == 'taskcluster' ?
+                                     'Not available on TaskCluster jobs' : ''}}"/>
               <span>show successful steps</span>
             </div>
           </li>
