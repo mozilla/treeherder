@@ -78,28 +78,6 @@ body {
     margin: 0em 0.6em 0em 0em;
 }
 
-.lv-line-text {
-    white-space: pre;
-}
-
-.lv-line-num {
-    white-space: pre;
-    float: left;
-    align-items: center;
-    border-right: solid thin #e6e6e6;
-    -moz-user-select: none;
-    -khtml-user-select: none;
-    -webkit-user-select: none;
-    -o-user-select: none;
-    color: rgba(0, 0, 0, 0.3);
-}
-
-.lv-line-num:hover {
-    color: black;
-    background-color: #F8EEC7;
-    cursor: pointer;
-}
-
 .lv-error-line {
     background-color: white;
     color: #333333;
@@ -135,16 +113,11 @@ body {
 }
 
 .run-data .break-word{
-    -ms-word-break: break-all;
     word-break: break-all;
-
-    /* Non standard for webkit */
-    word-break: break-word;
-
-    -webkit-hyphens: auto;
-    -moz-hyphens: auto;
+    word-break: break-word; /* Non standard for webkit */
     hyphens: auto;
 }
+
 .run-data .steps-data {
     margin-bottom: 10px;
     max-height: 210px;
@@ -162,7 +135,6 @@ div.lv-step {
 .lv-step {
     border-radius: 2px;
     overflow: hidden;
-    -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
     -o-user-select: text;
