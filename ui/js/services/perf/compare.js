@@ -231,10 +231,9 @@ treeherder.factory('PhCompare', [
                                 // will be compared later to another group. Ends up with an object
                                 // with description (name/platform) and values.
                                 // The values are later processed at getCounterMap as the data arguments.
-                                var values = [];
-                                _.where(data, { push_id: resultSetId }).forEach(function(pdata) {
-                                    values.push(pdata.value);
-                                });
+                                var values = data
+                                    .filter(datum => datum.push_id === resultSetId)
+                                    .map(datum => datum.value);
                                 var seriesData = _.find(seriesList, {'signature': signature});
                                 if (seriesData) {
                                     resultsMap[resultSetId][signature] = {

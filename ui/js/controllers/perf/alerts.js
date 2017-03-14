@@ -367,7 +367,7 @@ perf.controller('AlertsCtrl', [
             // We need to update not only the summary when resetting the alert,
             // but other summaries affected by the change
             var summariesToUpdate = [alertSummary].concat(_.flatten(_.map(
-                _.where(alertSummary.alerts, {'selected': true}),
+                _.filter(alertSummary.alerts, {'selected': true}),
                 function(alert) {
                     return _.find($scope.alertSummaries, function(alertSummary) {
                         return alertSummary.id === alert.related_summary_id;
