@@ -210,7 +210,7 @@ treeherder.factory('PhAlerts', [
         AlertSummary.prototype.modifySelectedAlerts = function(modification) {
             this.allSelected = false;
 
-            return $q.all(_.where(this.alerts, {'selected': true}).map(
+            return $q.all(_.filter(this.alerts, {'selected': true}).map(
                 function(selectedAlert) {
                     selectedAlert.selected = false;
                     return selectedAlert.modify(modification);
