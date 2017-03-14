@@ -1,9 +1,7 @@
 from django.core.management.base import BaseCommand
 
 from treeherder.seta.analyze_failures import AnalyzeFailures
-
 from treeherder.seta.models import JobPriority
-
 from treeherder.seta.preseed import load_preseed
 
 
