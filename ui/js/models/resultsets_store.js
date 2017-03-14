@@ -309,7 +309,7 @@ treeherder.factory('ThResultSetStore', [
                 }
                 return false;
             };
-            _.detect(getJobMap(repoName), addIfShown);
+            _.find(getJobMap(repoName), addIfShown);
 
             return shownJobs;
         };
