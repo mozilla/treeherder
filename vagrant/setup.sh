@@ -76,6 +76,11 @@ if [[ ! -f /usr/local/bin/pip ]]; then
     curl -sSf https://bootstrap.pypa.io/get-pip.py | sudo -H python -
 fi
 
+if [[ ! -f /usr/local/bin/virtualenv ]]; then
+    echo '-----> Installing virtualenv'
+    sudo -H pip install virtualenv==15.0.1
+fi
+
 echo '-----> Initialising MySQL database'
 # The default `root@localhost` grant only allows loopback interface connections.
 mysql -u root -e 'GRANT ALL PRIVILEGES ON *.* to root@"%"'

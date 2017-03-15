@@ -1,19 +1,11 @@
 class python {
 
-  exec { "install-virtualenv":
-    cwd => "/tmp",
-    user => "${APP_USER}",
-    command => "sudo pip install virtualenv==15.0.1",
-    creates => "/usr/local/bin/virtualenv",
-  }
-
   exec {
     "create-virtualenv":
     cwd => "${HOME_DIR}",
     user => "${APP_USER}",
     command => "virtualenv ${VENV_DIR}",
     creates => "${VENV_DIR}",
-    require => Exec["install-virtualenv"],
   }
 
   exec {"vendor-libmysqlclient":
