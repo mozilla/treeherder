@@ -44,4 +44,6 @@ Vagrant.configure("2") do |config|
 
     puppet_provisioner(override)
   end
+
+  config.vm.provision "shell", privileged: false, path: "vagrant/setup.sh"
 end
