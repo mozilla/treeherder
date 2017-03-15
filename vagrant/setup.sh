@@ -19,6 +19,7 @@ cd "$SRC_DIR"
 echo '-----> Configuring .profile and environment variables'
 ln -sf "$SRC_DIR/vagrant/.profile" "$HOME/.profile"
 sudo ln -sf "$SRC_DIR/vagrant/env.sh" /etc/profile.d/treeherder.sh
+. /etc/profile.d/treeherder.sh
 
 if [[ ! -f /etc/apt/sources.list.d/fkrull-deadsnakes-python2_7-trusty.list ]]; then
     echo '-----> Adding APT repository for Python 2.7'
@@ -108,3 +109,7 @@ echo '-----> Initialising MySQL database'
 # The default `root@localhost` grant only allows loopback interface connections.
 mysql -u root -e 'GRANT ALL PRIVILEGES ON *.* to root@"%"'
 mysql -u root -e 'CREATE DATABASE IF NOT EXISTS treeherder'
+
+echo '-----> Running Django migrations and loading reference data'
+./manage.py migrate --noinput
+./manage.py load_initial_data

@@ -10,11 +10,3 @@ $VENV_DIR = "${HOME_DIR}/venv"
 Exec {
     path => "${VENV_DIR}/bin:/usr/local/bin:/usr/bin:/usr/sbin:/sbin:/bin",
 }
-
-class vagrant {
-    class {
-        dev:;
-    }
-}
-
-include vagrant
