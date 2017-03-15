@@ -33,6 +33,7 @@ echo '-----> Installing/updating APT packages'
 sudo -E apt-get -yqq update
 # openjdk-7-jre-headless is required by Elasticsearch
 sudo -E apt-get -yqq install --no-install-recommends \
+    memcached \
     mysql-server-5.6 \
     openjdk-7-jre-headless \
 

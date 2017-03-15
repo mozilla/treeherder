@@ -1,15 +1,5 @@
 #any additional stuff goes here
 class treeherder {
-    package{"memcached":
-        ensure => "installed"
-    }
-
-    service{"memcached":
-        ensure => running,
-        enable => true,
-        require => Package['memcached'],
-    }
-
     # Restore the default .bashrc to undo any customisations made before we
     # moved them to .profile instead. This can be removed in a few weeks.
     file {"$HOME_DIR/.bashrc":
