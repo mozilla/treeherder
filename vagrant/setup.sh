@@ -16,6 +16,10 @@ export PIP_DISABLE_PIP_VERSION_CHECK='True'
 
 cd "$SRC_DIR"
 
+echo '-----> Configuring .profile and environment variables'
+ln -sf "$SRC_DIR/vagrant/.profile" "$HOME/.profile"
+sudo ln -sf "$SRC_DIR/vagrant/env.sh" /etc/profile.d/treeherder.sh
+
 if [[ ! -f /etc/apt/sources.list.d/fkrull-deadsnakes-python2_7-trusty.list ]]; then
     echo '-----> Adding APT repository for Python 2.7'
     sudo add-apt-repository -y ppa:fkrull/deadsnakes-python2.7 2>&1
