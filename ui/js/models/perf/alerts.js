@@ -88,8 +88,8 @@ treeherder.factory('PhAlerts', [
             'amount_pct').reverse();
 
             var formatAlert = function(alert, alertList){
-                return _.padLeft(alert.amount_pct.toFixed(0), 3) + "%  " +
-                _.padRight(alert.title, _.max(alertList, function(alert){ return alert.title.length; }).title.length +5) +
+                return _.padStart(alert.amount_pct.toFixed(0), 3) + "%  " +
+                _.padEnd(alert.title, _.max(alertList, function(alert){ return alert.title.length; }).title.length +5) +
                alert.prev_value + " -> " + alert.new_value ;
             };
 
