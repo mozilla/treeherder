@@ -1,28 +1,10 @@
 class python {
 
-  package{[# Python2.7 is already installed, but we need to update it to the
-           # latest version from the third party PPA.
-           "python2.7",
-           # Required by mysqlclient.
-           "python-dev",
-           # Required by pylibmc.
-           "libmemcached-dev",
-           "zlib1g-dev",
-           # Required by Brotli.
-           "g++",
-           # To improve the UX of the Vagrant environment.
-           "git"]:
-    ensure => "latest",
-  }
-
   exec { "install-pip":
     cwd => "/tmp",
     user => "${APP_USER}",
     command => "curl https://bootstrap.pypa.io/get-pip.py | sudo python -",
     creates => "/usr/local/bin/pip",
-    require => [
-      Package["python-dev"],
-    ],
   }
 
   exec { "install-virtualenv":

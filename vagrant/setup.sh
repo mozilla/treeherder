@@ -31,13 +31,24 @@ fi
 
 echo '-----> Installing/updating APT packages'
 sudo -E apt-get -yqq update
+# g++ is required by Brotli
+# libmemcached-dev and zlib1g-dev are required by pylibmc
 # openjdk-7-jre-headless is required by Elasticsearch
+# python-dev is required by mysqlclient
 sudo -E apt-get -yqq install --no-install-recommends \
+    g++ \
+    git \
+    libmemcached-dev \
     memcached \
     mysql-server-5.6 \
+    nodejs \
     openjdk-7-jre-headless \
+    python2.7 \
+    python2.7-dev \
     rabbitmq-server \
     varnish \
+    yarn \
+    zlib1g-dev
 
 if [[ "$(dpkg-query --show --showformat='${Version}' elasticsearch 2>&1)" != "$ELASTICSEARCH_VERSION" ]]; then
     echo '-----> Installing Elasticsearch'
