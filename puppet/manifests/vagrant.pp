@@ -21,8 +21,7 @@ class vagrant {
         python: before => Class["nodejs"];
         nodejs: before => Class["varnish"];
         varnish: before => Class["treeherder"];
-        treeherder: before => Class["rabbitmq"];
-        rabbitmq: before => Class["dev"];
+        treeherder: before => Class["dev"];
         dev:;
     }
 }
