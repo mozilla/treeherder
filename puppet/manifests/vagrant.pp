@@ -18,7 +18,6 @@ file {"/etc/profile.d/treeherder.sh":
 
 class vagrant {
     class {
-        mysql: before  => Class["elasticsearch"];
         elasticsearch: before  => Class["python"];
         python: before => Class["nodejs"];
         nodejs: before => Class["varnish"];
