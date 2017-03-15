@@ -11,6 +11,8 @@ ELASTICSEARCH_VERSION="2.3.5"
 export PATH="$VENV_DIR/bin:$PATH"
 # Suppress prompts during apt-get invocations.
 export DEBIAN_FRONTEND=noninteractive
+# Speeds up pip invocations and reduces output spam.
+export PIP_DISABLE_PIP_VERSION_CHECK='True'
 
 cd "$SRC_DIR"
 
@@ -89,6 +91,9 @@ if [[ ! -d "$VENV_DIR" ]]; then
 fi
 
 ./bin/vendor-libmysqlclient.sh "$VENV_DIR"
+
+echo '-----> Running pip install'
+pip install --require-hashes -r requirements/common.txt -r requirements/dev.txt | sed -e '/^Requirement already satisfied:/d'
 
 echo '-----> Initialising MySQL database'
 # The default `root@localhost` grant only allows loopback interface connections.
