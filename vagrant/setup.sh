@@ -5,6 +5,7 @@
 set -euo pipefail
 
 SRC_DIR="$HOME/treeherder"
+VENV_DIR="$HOME/venv"
 ELASTICSEARCH_VERSION="2.3.5"
 
 # Suppress prompts during apt-get invocations.
@@ -79,6 +80,11 @@ fi
 if [[ ! -f /usr/local/bin/virtualenv ]]; then
     echo '-----> Installing virtualenv'
     sudo -H pip install virtualenv==15.0.1
+fi
+
+if [[ ! -d "$VENV_DIR" ]]; then
+    echo '-----> Creating virtualenv'
+    virtualenv "$VENV_DIR"
 fi
 
 echo '-----> Initialising MySQL database'
