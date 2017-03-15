@@ -1,18 +1,10 @@
 class python {
 
-  exec { "install-pip":
-    cwd => "/tmp",
-    user => "${APP_USER}",
-    command => "curl https://bootstrap.pypa.io/get-pip.py | sudo python -",
-    creates => "/usr/local/bin/pip",
-  }
-
   exec { "install-virtualenv":
     cwd => "/tmp",
     user => "${APP_USER}",
     command => "sudo pip install virtualenv==15.0.1",
     creates => "/usr/local/bin/virtualenv",
-    require => Exec["install-pip"],
   }
 
   exec {

@@ -71,6 +71,11 @@ if ! (cmp -s vagrant/varnish.vcl /etc/varnish/default.vcl && grep -q 'DAEMON_OPT
     sudo service varnish restart
 fi
 
+if [[ ! -f /usr/local/bin/pip ]]; then
+    echo '-----> Installing pip'
+    curl -sSf https://bootstrap.pypa.io/get-pip.py | sudo -H python -
+fi
+
 echo '-----> Initialising MySQL database'
 # The default `root@localhost` grant only allows loopback interface connections.
 mysql -u root -e 'GRANT ALL PRIVILEGES ON *.* to root@"%"'
