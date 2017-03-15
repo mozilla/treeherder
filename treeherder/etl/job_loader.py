@@ -68,7 +68,7 @@ class JobLoader:
                 store_job_data(repository, storeable_job_list)
 
             except Repository.DoesNotExist:
-                logger.warn("Job with unsupported project: {}".format(project))
+                logger.info("Job with unsupported project: {}".format(project))
 
     def clean_revision(self, repository, pulse_job):
         # It is possible there will be either a revision or a revision_hash
