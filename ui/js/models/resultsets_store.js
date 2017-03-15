@@ -333,7 +333,7 @@ treeherder.factory('ThResultSetStore', [
         };
 
         var addRunnableJobs = function(repoName, resultSet) {
-            getGeckoDecisionTaskID(repoName, resultSet.id).then(function(decisionTaskId) {
+            getGeckoDecisionTaskId(repoName, resultSet.id).then(function(decisionTaskId) {
                 if (repoName !== "try") {
                     decisionTaskId = "";
                 }
@@ -353,8 +353,8 @@ treeherder.factory('ThResultSetStore', [
                 }, function() {
                     thNotify.send("Error fetching runnable jobs", "danger");
                 });
-            }, function() {
-                thNotify.send("Error fetching runnable jobs: Failed to fetch task ID", "danger");
+            }, function(reason) {
+                thNotify.send(`Error fetching runnable jobs: Failed to fetch task ID (${reason})`, "danger");
             });
         };
 
@@ -930,7 +930,7 @@ treeherder.factory('ThResultSetStore', [
             return repositories[repoName].rsMap[resultsetId].selected_runnable_jobs;
         };
 
-        var getGeckoDecisionTaskGUID = function(repoName, resultsetId) {
+        var getGeckoDecisionJob = function(repoName, resultsetId) {
             let resultSet = getResultSet(repoName, resultsetId);
             let platform = _.find(resultSet.platforms, {
                 "name": "gecko-decision",
@@ -939,45 +939,36 @@ treeherder.factory('ThResultSetStore', [
                 // Gecko Decision Task has been completed.
                 // Let's fetch the URL of full-tasks-graph.json
                 // This extra search is important to avoid confusion with Action Tasks
-                let decisionTask = _.find(platform.groups[0].jobs, {"job_type_symbol": "D"});
-
-                return decisionTask.job_guid;
+                return _.find(platform.groups[0].jobs, {"job_type_symbol": "D"});
             }
 
             return undefined;
         };
 
-        var getGeckoDecisionTaskID = function(repoName, resultsetId) {
+        var getGeckoDecisionTaskId = function(repoName, resultsetId) {
             let resultSet = getResultSet(repoName, resultsetId);
-            let dtid = resultSet.geckoDecisionTaskID;
+            let dtid = resultSet.geckoDecisionTaskId;
             // If we've retrieved it already, we can just return it again. Otherwise
             // try to find it. If it doesn't exist, we set it to an empty string.
             if (dtid || dtid === "") {
                 return $q.when(dtid);
             }
 
-            let tcURLPromise;
-            let decisionTaskGUID = getGeckoDecisionTaskGUID(repoName, resultsetId);
-            if (decisionTaskGUID) {
-                tcURLPromise = ThJobDetailModel.getJobDetails({job_guid: decisionTaskGUID},
-                                                              {timeout: null});
+            let decisionTask = getGeckoDecisionJob(repoName, resultsetId);
+            if (decisionTask) {
+                return ThJobModel.get(repoName, decisionTask.id).then(
+                    function(job) {
+                        // this failure case is unlikely, but I guess you
+                        // never know
+                        if (!job.taskcluster_metadata) {
+                            return $q.reject("Decision task missing taskcluster metadata");
+                        }
+                        return job.taskcluster_metadata.task_id;
+                    });
             }
-            if (!tcURLPromise) {
-                // Here we are passing false to the results instead of skipping the promise
-                tcURLPromise = $q.when(false);
-            }
-            return tcURLPromise.then(function(results) {
-                // Since we want to try this only on try first
-                var decisionTaskID = "";
-                if (results) {
-                    var inspectTask = _.filter(results, {"title": "Inspect Task"})[0];
-                    decisionTaskID = inspectTask.url.substring(inspectTask.url.indexOf("#") + 1);
-                    // Removing last two characters /0
-                    decisionTaskID = decisionTaskID.substring(0, decisionTaskID.lastIndexOf('/'));
-                }
-                resultSet.geckoDecisionTaskID = decisionTaskID;
-                return decisionTaskID;
-            });
+
+            // no decision task, we fail
+            return $q.reject("No decision task");
         };
 
         var toggleSelectedRunnableJob = function(repoName, resultsetId, buildername) {
@@ -1278,8 +1269,8 @@ treeherder.factory('ThResultSetStore', [
             addRunnableJobs: addRunnableJobs,
             isRunnableJobSelected: isRunnableJobSelected,
             getSelectedRunnableJobs: getSelectedRunnableJobs,
-            getGeckoDecisionTaskGUID: getGeckoDecisionTaskGUID,
-            getGeckoDecisionTaskID: getGeckoDecisionTaskID,
+            getGeckoDecisionJob: getGeckoDecisionJob,
+            getGeckoDecisionTaskId: getGeckoDecisionTaskId,
             toggleSelectedRunnableJob: toggleSelectedRunnableJob,
             getResultSet: getResultSet,
             getResultSetsArray: getResultSetsArray,

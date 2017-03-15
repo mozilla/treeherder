@@ -50,14 +50,14 @@ treeherder.controller('TCJobActionsCtrl', [
             }
         });
 
-        let decisionTaskId = ThResultSetStore.getGeckoDecisionTaskGUID(repoName, resultsetId);
-        if (decisionTaskId) {
+        let decisionTask = ThResultSetStore.getGeckoDecisionJob(repoName, resultsetId);
+        if (decisionTask) {
             let originalTaskId = job.taskcluster_metadata.task_id;
             $http.get('https://queue.taskcluster.net/v1/task/' + originalTaskId).then(
                 function(response) {
                     originalTask = response.data;
                     ThJobDetailModel.getJobDetails({
-                        job_guid: decisionTaskId,
+                        job_id: decisionTask.id,
                         title: 'artifact uploaded',
                         value: 'actions.json'}).then(function(details) {
                             if (!details.length) {
@@ -87,7 +87,7 @@ treeherder.controller('TCJobActionsCtrl', [
                         });
                 });
         } else {
-            alert("No decision task id, can't find taskcluster actions");
+            alert("No decision task, can't find taskcluster actions");
         }
 
     }]);
