@@ -113,17 +113,18 @@ def test_ingest_pending_pulse_job(pulse_jobs, result_set_stored,
 def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_repository, result_set_stored,
                                        failure_classifications, mock_log_parser):
     """
-    Ingest a job through the JSON Schema validated JobLoader used by Pulse
+    Test ingesting a pulse job with bad repo will skip, ingest others
     """
 
     jl = JobLoader()
     revision = result_set_stored[0]["revision"]
-    for job in pulse_jobs:
-        job["origin"]["revision"] = revision
-        job["origin"]["project"] = "ferd"
+    job = pulse_jobs[0]
+    job["origin"]["revision"] = revision
+    job["origin"]["project"] = "ferd"
 
-    with pytest.raises(Repository.DoesNotExist):
-        jl.process_job_list(pulse_jobs)
+    jl.process_job_list(pulse_jobs)
+    # length of pulse jobs is 5, so one will be skipped due to bad project
+    assert Job.objects.count() == 4
 
 
 def test_ingest_pulse_jobs_with_revision_hash(pulse_jobs, test_repository,

@@ -50,21 +50,25 @@ class JobLoader:
 
         for project, job_list in validated_jobs.items():
             newrelic.agent.add_custom_parameter("project", project)
-            repository = Repository.objects.get(name=project)
+            try:
+                repository = Repository.objects.get(name=project)
 
-            storeable_job_list = []
-            for pulse_job in job_list:
-                if pulse_job["state"] != "unscheduled":
-                    try:
-                        self.clean_revision(repository, pulse_job)
-                        storeable_job_list.append(
-                            self.transform(pulse_job)
-                        )
-                    except AttributeError:
-                        logger.warn("Skipping job due to bad attribute",
-                                    exc_info=1)
+                storeable_job_list = []
+                for pulse_job in job_list:
+                    if pulse_job["state"] != "unscheduled":
+                        try:
+                            self.clean_revision(repository, pulse_job)
+                            storeable_job_list.append(
+                                self.transform(pulse_job)
+                            )
+                        except AttributeError:
+                            logger.warn("Skipping job due to bad attribute",
+                                        exc_info=1)
 
-            store_job_data(repository, storeable_job_list)
+                store_job_data(repository, storeable_job_list)
+
+            except Repository.DoesNotExist:
+                logger.info("Job with unsupported project: {}".format(project))
 
     def clean_revision(self, repository, pulse_job):
         # It is possible there will be either a revision or a revision_hash
