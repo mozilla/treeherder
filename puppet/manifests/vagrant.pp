@@ -18,7 +18,6 @@ file {"/etc/profile.d/treeherder.sh":
 
 class vagrant {
     class {
-        nodejs: before => Class["treeherder"];
         treeherder: before => Class["dev"];
         dev:;
     }

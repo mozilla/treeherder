@@ -95,6 +95,11 @@ fi
 echo '-----> Running pip install'
 pip install --require-hashes -r requirements/common.txt -r requirements/dev.txt | sed -e '/^Requirement already satisfied:/d'
 
+echo '-----> Running yarn install'
+# We have to use `--no-bin-links` to work around symlink issues with Windows hosts.
+# TODO: Switch the flag to a global yarn pref once yarn adds support.
+yarn install --no-bin-links
+
 echo '-----> Initialising MySQL database'
 # The default `root@localhost` grant only allows loopback interface connections.
 mysql -u root -e 'GRANT ALL PRIVILEGES ON *.* to root@"%"'
