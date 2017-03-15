@@ -113,3 +113,5 @@ mysql -u root -e 'CREATE DATABASE IF NOT EXISTS treeherder'
 echo '-----> Running Django migrations and loading reference data'
 ./manage.py migrate --noinput
 ./manage.py load_initial_data
+
+echo '-----> Setup complete!'
