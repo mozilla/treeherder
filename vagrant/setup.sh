@@ -37,6 +37,7 @@ sudo -E apt-get -yqq install --no-install-recommends \
     mysql-server-5.6 \
     openjdk-7-jre-headless \
     rabbitmq-server \
+    varnish \
 
 if [[ "$(dpkg-query --show --showformat='${Version}' elasticsearch 2>&1)" != "$ELASTICSEARCH_VERSION" ]]; then
     echo '-----> Installing Elasticsearch'
@@ -50,6 +51,13 @@ if ! cmp -s vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf; then
     echo '-----> Configuring MySQL'
     sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
     sudo service mysql restart
+fi
+
+if ! (cmp -s vagrant/varnish.vcl /etc/varnish/default.vcl && grep -q 'DAEMON_OPTS=\"-a :80' /etc/default/varnish); then
+    echo '-----> Configuring Varnish'
+    sudo sed -i '/^DAEMON_OPTS=\"-a :6081* / s/6081/80/' /etc/default/varnish
+    sudo cp vagrant/varnish.vcl /etc/varnish/default.vcl
+    sudo service varnish restart
 fi
 
 echo '-----> Initialising MySQL database'
