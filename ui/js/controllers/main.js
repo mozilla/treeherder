@@ -517,11 +517,11 @@ treeherderApp.controller('MainCtrl', [
             [['j', 'shift+j'], function(ev) {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,
-                                                       'previous',
+                                                       'next',
                                                        !ev.shiftKey));
                 } else {
                     $rootScope.$emit(thEvents.changeSelection,
-                                     'previous',
+                                     'next',
                                      thJobNavSelectors.UNCLASSIFIED_FAILURES);
                 }
             }],
@@ -530,11 +530,11 @@ treeherderApp.controller('MainCtrl', [
             [['k', 'shift+k'], function(ev) {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,
-                                                       'next',
+                                                       'previous',
                                                        !ev.shiftKey));
                 } else {
                     $rootScope.$emit(thEvents.changeSelection,
-                                     'next',
+                                     'previous',
                                      thJobNavSelectors.UNCLASSIFIED_FAILURES);
                 }
             }],
