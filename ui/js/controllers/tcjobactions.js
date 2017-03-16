@@ -75,11 +75,12 @@ treeherder.controller('TCJobActionsCtrl', [
                                 // only display actions which should be displayed
                                 // in this task's context
                                 $scope.actions = response.data.actions.filter(function(action) {
-                                    return action.kind === 'task' && _.every((action.context || []).map(function(actionContext) {
-                                        return _.every(_.map(actionContext, function(v, k) {
-                                            return (originalTask.tags[k] === v);
-                                        }));
-                                    }));
+                                    return action.kind === 'task' && (
+                                        !action.context.length || _.some((action.context).map(function(actionContext) {
+                                            return !Object.keys(actionContext).length || _.every(_.map(actionContext, function(v, k) {
+                                                return (originalTask.tags[k] === v);
+                                            }));
+                                        })));
                                 });
                                 $scope.input.selectedAction = $scope.actions[0];
                                 $scope.updateSelectedAction();
