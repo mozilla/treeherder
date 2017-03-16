@@ -354,6 +354,12 @@ def test_same_signature_multiple_performance_frameworks(test_repository,
                                {'shouldAlert': True, 'alertChangeType': 'absolute'},
                                {'shouldAlert': True, 'alertChangeType': 'absolute'},
                                False, False),
+                              # summary + subtest, only subtest is absolute so
+                              # summary should alert
+                              (True,
+                               {'shouldAlert': True},
+                               {'shouldAlert': True, 'alertChangeType': 'absolute'},
+                               False, True),
                         ])
 def test_alert_generation(test_repository,
                           failure_classifications, generic_reference_data,

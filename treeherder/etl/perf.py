@@ -154,7 +154,7 @@ def _load_perf_datum(job, perf_datum):
                     # set.
                     'should_alert': subtest.get('shouldAlert'),
                     'alert_change_type': PerformanceSignature._get_alert_change_type(
-                        suite.get('alertChangeType')),
+                        subtest.get('alertChangeType')),
                     'alert_threshold': subtest.get('alertThreshold'),
                     'min_back_window': subtest.get('minBackWindow'),
                     'max_back_window': subtest.get('maxBackWindow'),

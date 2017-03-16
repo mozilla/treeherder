@@ -178,7 +178,7 @@ def test_alert_change_type_absolute(test_repository,
                                     generic_reference_data,
                                     test_perf_signature, new_value,
                                     expected_num_alerts):
-    # modify the test signature to say taht we alert on absolute value
+    # modify the test signature to say that we alert on absolute value
     # (as opposed to percentage change)
     test_perf_signature.alert_change_type = PerformanceSignature.ALERT_ABS
     test_perf_signature.alert_threshold = 0.3
