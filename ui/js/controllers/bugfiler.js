@@ -65,6 +65,20 @@ treeherder.controller('BugFilerCtrl', [
          *  and try to find the failing test name from what's left
          */
         $uibModalInstance.parseSummary = function(summary) {
+            // Strip out some extra stuff at the start of some failure paths
+            var re = /file:\/\/\/home\/worker\/workspace\/build\/tests\/reftest\/tests\//gi;
+            summary = summary.replace(re, "");
+            re = /file:\/\/\/builds\/slave\/test\/build\/tests\/reftest\/tests\//gi;
+            summary = summary.replace(re, "");
+            re = /file:\/\/\/c:\/slave\/test\/build\/tests\/reftest\/tests\//gi;
+            summary = summary.replace(re, "");
+            re = /http:\/\/([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):([0-9]+)\/tests\//gi;
+            summary = summary.replace(re, "");
+            re = /jetpack-package\//gi;
+            summary = summary.replace(re, "");
+            re = /xpcshell-child-process.ini:/gi;
+            summary = summary.replace(re, "");
+
             summary = summary.split(" | ");
 
             for (var i=0; i < $scope.omittedLeads.length; i++) {
@@ -92,23 +106,6 @@ treeherder.controller('BugFilerCtrl', [
          */
         $scope.findProduct = function() {
             $scope.suggestedProducts = [];
-            var failurePath = $uibModalInstance.parsedSummary[0][0];
-
-            // If the "TEST-UNEXPECTED-foo" isn't one of the omitted ones, use the next piece in the summary
-            if (failurePath.includes("TEST-UNEXPECTED-")) {
-                failurePath = $uibModalInstance.parsedSummary[0][1];
-            }
-            var failurePathRoot = failurePath.split("/")[0];
-
-            // Look up the product via the root of the failure's file path
-            if (thBugzillaProductObject[failurePathRoot]) {
-                $scope.suggestedProducts.push(thBugzillaProductObject[failurePathRoot][0]);
-            }
-
-            // Some job types are special, lets explicitly handle them.
-            if (selectedJob.job_group_name.includes("Web Platform")) {
-                $scope.suggestedProducts.push("Testing :: web-platform-tests");
-            }
 
             // Look up product suggestions via Bugzilla's api
             var productSearch = $scope.productSearch;
@@ -129,6 +126,58 @@ treeherder.controller('BugFilerCtrl', [
                         }
                         return prod.product;
                     });
+                    $scope.selection.selectedProduct = $scope.suggestedProducts[0];
+                });
+            } else {
+                var failurePath = $uibModalInstance.parsedSummary[0][0];
+
+                // If the "TEST-UNEXPECTED-foo" isn't one of the omitted ones, use the next piece in the summary
+                if (failurePath.includes("TEST-UNEXPECTED-")) {
+                    failurePath = $uibModalInstance.parsedSummary[0][1];
+                }
+
+                // Try to fix up file paths for some job types.
+                if (selectedJob.job_group_name.toLowerCase().includes("videopuppeteer ")) {
+                    failurePath = failurePath.replace("FAIL ", "");
+                    failurePath = "dom/media/test/external/external_media_tests/" + failurePath;
+                }
+                if (selectedJob.job_group_name.toLowerCase().includes("web platform")) {
+                    failurePath = "testing/web-platform/tests/" + failurePath;
+                }
+
+                // Search mercurial's moz.build metadata to find products/components
+                $http.get("https://hg.mozilla.org/mozilla-central/json-mozbuildinfo?p=" + failurePath).then(function(request) {
+                    if (request.data.aggregate && request.data.aggregate.recommended_bug_component) {
+                        var suggested = request.data.aggregate.recommended_bug_component;
+                        $scope.suggestedProducts.push(suggested[0] + " :: " + suggested[1]);
+                    }
+
+                    if ($scope.suggestedProducts.length === 0) {
+                        var jg = selectedJob.job_group_name.toLowerCase();
+                        // Some job types are special, lets explicitly handle them.
+                        if (jg.includes("web platform")) {
+                            $scope.suggestedProducts.push("Testing :: web-platform-tests");
+                        }
+                        if (jg.includes("talos")) {
+                            $scope.suggestedProducts.push("Testing :: Talos");
+                        }
+                        if (jg.includes("mochitest") && failurePath.includes("webextensions/")) {
+                            $scope.suggestedProducts.push("Toolkit :: WebExtensions: General");
+                        }
+                        if (jg.includes("mochitest") && failurePath.includes("webrtc/")) {
+                            $scope.suggestedProducts.push("Core :: WebRTC");
+                        }
+                    }
+
+                    if ($scope.suggestedProducts.length === 0) {
+                        var failurePathRoot = failurePath.split("/")[0];
+
+                        // Last ditch effort, Look up the product via the root of the failure's file path
+                        if (thBugzillaProductObject[failurePathRoot]) {
+                            $scope.suggestedProducts.push(thBugzillaProductObject[failurePathRoot][0]);
+                        }
+                    }
+
                     $scope.selection.selectedProduct = $scope.suggestedProducts[0];
                 });
             }
