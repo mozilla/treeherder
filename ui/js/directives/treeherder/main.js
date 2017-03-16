@@ -85,6 +85,7 @@ treeherder.directive('preventDefaultOnLeftClick', [
                     if (event.which === 1) {
                         event.preventDefault();
                     }
+                    element.blur();
                 });
             }
         };
