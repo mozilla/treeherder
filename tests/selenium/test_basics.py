@@ -57,11 +57,11 @@ def test_treeherder_single_commit_titles(initial_data, live_server, selenium):
                         revision="1234abcd",
                         author="foo@bar.com",
                         time=datetime.datetime.now())
-    ss = selenium.get_screenshot_as_base64()
-    assert "bananas" == ss
+    ss1 = selenium.get_screenshot_as_base64()
     repo_button = WebDriverWait(selenium, 30).until(
         EC.presence_of_element_located((By.ID, 'repoLabel'))
     )
-    ss = selenium.get_screenshot_as_base64()
-    assert "bananas" == ss
+    ss2 = selenium.get_screenshot_as_base64()
+    assert "bananas" == ss1
+    assert "bananas" == ss2
     assert selenium.title == "[0] mozilla-central"
