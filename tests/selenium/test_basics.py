@@ -57,6 +57,7 @@ def test_treeherder_single_commit_titles(initial_data, live_server, selenium):
                         revision="1234abcd",
                         author="foo@bar.com",
                         time=datetime.datetime.now())
+    selenium.get_screenshot_as_base64()
     repo_button = WebDriverWait(selenium, 30).until(
         EC.presence_of_element_located((By.CLASS_NAME, 'revision'))
     )
