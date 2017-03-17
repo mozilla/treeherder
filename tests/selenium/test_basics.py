@@ -63,7 +63,7 @@ def test_treeherder_single_commit_titles(initial_data, live_server, selenium):
 
     ss1 = selenium.get_screenshot_as_base64()
     repo_button = WebDriverWait(selenium, 30).until(
-        EC.presence_of_element_located((By.ID, 'repoLabel'))
+        EC.presence_of_element_located((By.CLASS_NAME, 'revision-comment'))
     )
     ss2 = selenium.get_screenshot_as_base64()
     assert "bananas" == ss2
