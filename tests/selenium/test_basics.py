@@ -53,11 +53,12 @@ def test_treeherder_single_commit_titles(initial_data, live_server, selenium):
     '''
     selenium.get(live_server.url + '/#/jobs?repo=mozilla-central')
 
-    Push.objects.create(repository=Repository.objects.get(name='mozilla-central'),
+    push = Push.objects.create(repository=Repository.objects.get(name='mozilla-central'),
                         revision="1234abcd",
                         author="foo@bar.com",
-                        comments="BANANAS",
                         time=datetime.datetime.now())
+
+    commit = Commit.objects.create(push=push, revision="1234abcd", author="foo@bar.com", comments="XXX")
     ss1 = selenium.get_screenshot_as_base64()
     repo_button = WebDriverWait(selenium, 30).until(
         EC.presence_of_element_located((By.ID, 'repoLabel'))
