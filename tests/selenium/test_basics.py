@@ -57,14 +57,15 @@ def test_treeherder_single_commit_titles(initial_data, live_server, selenium):
                         author="foo@bar.com",
                         time=datetime.datetime.now())
 
-    commit = Commit.objects.create(push=push, revision="1234abcd", author="foo@bar.com", comments="XXX")
+    commit = Commit.objects.create(push=push,
+                                   revision="1234abcd",
+                                   author="foo@bar.com",
+                                   comments="Bug 12345 - This is a message")
 
     selenium.get(live_server.url + '/#/jobs?repo=mozilla-central&revision=1234abcd')
 
-    ss1 = selenium.get_screenshot_as_base64()
-    repo_button = WebDriverWait(selenium, 30).until(
+    comment = WebDriverWait(selenium, 30).until(
         EC.presence_of_element_located((By.CLASS_NAME, 'revision-comment'))
     )
-    ss2 = selenium.get_screenshot_as_base64()
-    assert "bananas" == ss2
-    assert selenium.title == "[0] mozilla-central"
+    ss2= selenium.get_screenshot_as_base64()
+    print ss2    assert selenium.title == "[0] mozilla-central"
