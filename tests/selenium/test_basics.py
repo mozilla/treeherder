@@ -56,6 +56,7 @@ def test_treeherder_single_commit_titles(initial_data, live_server, selenium):
     Push.objects.create(repository=Repository.objects.get(name='mozilla-central'),
                         revision="1234abcd",
                         author="foo@bar.com",
+                        comment="bananas",
                         time=datetime.datetime.now())
     ss1 = selenium.get_screenshot_as_base64()
     repo_button = WebDriverWait(selenium, 30).until(
