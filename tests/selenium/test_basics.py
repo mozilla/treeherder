@@ -37,3 +37,16 @@ def test_perfherder_main(initial_data, live_server, selenium):
     WebDriverWait(selenium, 10).until(
         EC.presence_of_element_located((By.ID, 'performance-test-chooser'))
     )
+
+
+def test_treeherder_try_titles(initial_data, live_server, selenium):
+    '''
+    This tests that page titles are correct
+    '''
+    selenium.get(live_server.url + '/#/jobs?repo=try')
+    repo_button = WebDriverWait(selenium, 10).until(
+        EC.presence_of_element_located((By.ID, 'repoLabel'))
+    )
+    repo_button.click()
+    assert selenium.title == "[0] mozilla-inbound"
+    assert selenium.current_url == live_server.url
