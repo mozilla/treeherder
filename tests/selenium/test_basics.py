@@ -64,9 +64,7 @@ def test_treeherder_single_commit_titles(initial_data, live_server, selenium):
 
     selenium.get(live_server.url + '/#/jobs?repo=mozilla-central&revision=1234abcd')
 
-    comment = WebDriverWait(selenium, 30).until(
+    WebDriverWait(selenium, 30).until(
         EC.presence_of_element_located((By.CLASS_NAME, 'revision-comment'))
     )
-    ss2 = selenium.get_screenshot_as_base64()
-    print ss2
-    assert selenium.title == "[0] mozilla-central"
+    assert selenium.title == "[0] mozilla-central: Bug 12345 - This is a message"
