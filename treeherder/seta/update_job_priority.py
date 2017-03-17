@@ -116,7 +116,7 @@ def query_sanitized_data(repo_name='mozilla-inbound'):
         "data": {},
         "expires": "2017-10-06T18:30:18.428Z"
       }
-     [3] https://treeherder.mozilla.org/api/project/mozilla-inbound/runnable_jobs/?decision_task_id=Pp7ZxoH0SKyU6wnhX_Fp0g&format=json  # flake8: noqa
+     [3] https://treeherder.mozilla.org/api/project/mozilla-inbound/runnable_jobs/?decision_task_id=Pp7ZxoH0SKyU6wnhX_Fp0g&format=json
     """
     runnable_jobs = RunnableJobsClient().query_runnable_jobs(repo_name)
     return _sanitize_data(runnable_jobs)
