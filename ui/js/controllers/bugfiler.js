@@ -68,6 +68,8 @@ treeherder.controller('BugFilerCtrl', [
             // Strip out some extra stuff at the start of some failure paths
             var re = /file:\/\/\/home\/worker\/workspace\/build\/tests\/reftest\/tests\//gi;
             summary = summary.replace(re, "");
+            re = /\/home\/worker\/workspace\/build\/src\//gi;
+            summary = summary.replace(re, "");
             re = /file:\/\/\/builds\/slave\/test\/build\/tests\/reftest\/tests\//gi;
             summary = summary.replace(re, "");
             re = /file:\/\/\/c:\/slave\/test\/build\/tests\/reftest\/tests\//gi;
