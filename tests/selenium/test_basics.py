@@ -44,9 +44,8 @@ def test_treeherder_try_titles(initial_data, live_server, selenium):
     This tests that page titles are correct
     '''
     selenium.get(live_server.url + '/#/jobs?repo=try')
-    repo_button = WebDriverWait(selenium, 10).until(
-        EC.presence_of_element_located((By.ID, 'repoLabel'))
+    repo_button = WebDriverWait(selenium, 30).until(
+        EC.presence_of_element_located((By.CLASS_NAME, 'revision-comment'))
     )
     repo_button.click()
-    assert selenium.title == "[0] mozilla-inbound"
-    assert selenium.current_url == live_server.url
+    assert selenium.title == "[0] try"
