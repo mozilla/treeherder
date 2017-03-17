@@ -68,4 +68,5 @@ def test_treeherder_single_commit_titles(initial_data, live_server, selenium):
         EC.presence_of_element_located((By.CLASS_NAME, 'revision-comment'))
     )
     ss2= selenium.get_screenshot_as_base64()
-    print ss2    assert selenium.title == "[0] mozilla-central"
+    print ss2
+    assert selenium.title == "[0] mozilla-central"
