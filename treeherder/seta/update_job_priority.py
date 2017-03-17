@@ -9,12 +9,8 @@ Known bug:
    the same set of jobs. Unfortunately, this is less than ideal if we want to make this
    work for project repositories.
 '''
-import copy
 import datetime
-import json
 import logging
-import os
-import time
 
 from treeherder.etl.seta import (parse_testtype,
                                  valid_platform)
@@ -50,6 +46,7 @@ def _unique_key(job):
     return unique_key(testtype=str(job['testtype']),
                       buildtype=str(job['platform_option']),
                       platform=str(job['platform']))
+
 
 def _sanitize_data(runnable_jobs_data):
     """We receive data from runnable jobs api and return the sanitized data that meets our needs.
@@ -101,6 +98,7 @@ def _sanitize_data(runnable_jobs_data):
 
     return sanitized_list
 
+
 def query_sanitized_data(repo_name='mozilla-inbound'):
     """Return sanitized jobs data based on runnable api. None if failed to obtain or no new data.
 
@@ -123,8 +121,10 @@ def query_sanitized_data(repo_name='mozilla-inbound'):
     runnable_jobs = RunnableJobsClient().query_runnable_jobs(repo_name)
     return _sanitize_data(runnable_jobs)
 
+
 def _two_weeks_from_now():
     return datetime.datetime.now() + datetime.timedelta(days=14)
+
 
 def _initialize_values():
     logger.info('Fetch all rows from the job priority table.')
@@ -140,6 +140,7 @@ def _initialize_values():
         # If information to determine job failures is available, the jobs will quickly be turned
         # into high value jobs.
         return jp_index, SETA_LOW_VALUE_PRIORITY, None
+
 
 def _update_table(data):
     """Add new jobs to the priority table and update the build system if required.
@@ -189,7 +190,7 @@ def _update_table(data):
                 failed_changes += 1
 
     logger.info('We have {} new jobs and {} updated jobs out of {} total jobs '
-                      'processed.'.format(new_jobs, updated_jobs, total_jobs))
+                'processed.'.format(new_jobs, updated_jobs, total_jobs))
 
     if failed_changes != 0:
         logger.warning('We have failed {} changes out of {} total jobs processed.'.format(
