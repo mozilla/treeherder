@@ -104,7 +104,7 @@ treeherderApp.controller('MainCtrl', [
             }
 
             // Revisions (and comments) might not be loaded the first few times this function is called
-            if (revisions.length === 0 || !revisions[0].escaped_comment) {
+            if (revisions.length === 0 || !revisions[0].comments) {
                 return [false, false];
             }
 
@@ -114,7 +114,7 @@ treeherderApp.controller('MainCtrl', [
             }
 
             for (var i=0; i<revisions.length; i++) {
-                var title = _.unescape(revisions[i].escaped_comment);
+                var title = _.unescape(revisions[i].comments);
 
                 /*
                  *  Strip out unwanted things like additional lines, trychooser
