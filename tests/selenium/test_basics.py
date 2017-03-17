@@ -1,8 +1,17 @@
+import datetime
+
 import pytest
 from django.core.management import call_command
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+
+from treeherder.model.models import (Commit,
+                                     FailureClassification,
+                                     Job,
+                                     JobNote,
+                                     Push,
+                                     Repository)
 
 pytestmark = pytest.mark.selenium
 
@@ -37,3 +46,26 @@ def test_perfherder_main(initial_data, live_server, selenium):
     WebDriverWait(selenium, 10).until(
         EC.presence_of_element_located((By.ID, 'performance-test-chooser'))
     )
+
+
+def test_treeherder_single_commit_titles(initial_data, live_server, selenium):
+    '''
+    This tests that page titles are correct
+    '''
+    push = Push.objects.create(repository=Repository.objects.get(name='mozilla-central'),
+                        revision="1234abcd",
+                        author="foo@bar.com",
+                        time=datetime.datetime.now())
+
+    commit = Commit.objects.create(push=push,
+                                   revision="1234abcd",
+                                   author="foo@bar.com",
+                                   comments="Bug 12345 - This is a message")
+
+    selenium.get(live_server.url + '/#/jobs?repo=mozilla-central&revision=1234abcd')
+
+    comment = WebDriverWait(selenium, 30).until(
+        EC.presence_of_element_located((By.CLASS_NAME, 'revision-comment'))
+    )
+    ss2= selenium.get_screenshot_as_base64()
+    print ss2    assert selenium.title == "[0] mozilla-central"
