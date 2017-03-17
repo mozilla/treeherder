@@ -7,13 +7,7 @@ from rest_framework.reverse import reverse
 from taskcluster.sync import Auth
 from taskcluster.utils import scope_match
 
-try:
-    from django.utils.encoding import smart_bytes
-except ImportError:
-    from django.utils.encoding import smart_str as smart_bytes
-
 logger = logging.getLogger(__name__)
-
 
 CLIENT_ID_RE = re.compile(
     r"^(?:email|mozilla-ldap)/([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.["

@@ -7,7 +7,6 @@ from treeherder.etl.runnable_jobs import list_runnable_jobs
 from treeherder.etl.seta import (is_job_blacklisted,
                                  parse_testtype,
                                  valid_platform)
-from treeherder.model.models import Repository
 from treeherder.seta.common import unique_key
 from treeherder.seta.models import JobPriority
 from treeherder.seta.settings import (SETA_LOW_VALUE_PRIORITY,

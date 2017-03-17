@@ -1,9 +1,7 @@
 import logging
 
 import newrelic.agent
-from django.conf import settings
 
-from treeherder import celery_app
 from treeherder.autoclassify.autoclassify import match_errors
 from treeherder.model.models import Job
 from treeherder.workers.task import retryable_task

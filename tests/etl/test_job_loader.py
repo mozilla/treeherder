@@ -8,7 +8,6 @@ from treeherder.model.models import (Job,
                                      JobDetail,
                                      JobLog,
                                      Push,
-                                     Repository,
                                      TaskclusterMetadata)
 
 

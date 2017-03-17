@@ -4,7 +4,6 @@ from django.db import models
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
-from treeherder.model.models import Repository
 from treeherder.seta.common import unique_key
 from treeherder.seta.settings import SETA_LOW_VALUE_PRIORITY
 

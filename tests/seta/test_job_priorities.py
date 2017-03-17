@@ -5,7 +5,6 @@ from mock import patch
 
 from treeherder.seta.job_priorities import (SetaError,
                                             seta_job_scheduling)
-from treeherder.seta.settings import SETA_LOW_VALUE_PRIORITY
 
 
 @pytest.mark.django_db()

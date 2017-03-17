@@ -4,7 +4,6 @@ from tests.autoclassify.utils import (create_failure_lines,
                                       create_text_log_errors,
                                       test_line)
 from treeherder.model.models import (ClassifiedFailure,
-                                     FailureLine,
                                      FailureMatch)
 
 

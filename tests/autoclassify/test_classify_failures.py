@@ -9,8 +9,7 @@ from treeherder.model.models import (BugJobMap,
                                      FailureMatch,
                                      JobNote,
                                      TextLogError,
-                                     TextLogErrorMatch,
-                                     TextLogErrorMetadata)
+                                     TextLogErrorMatch)
 
 from .utils import (crash_line,
                     create_lines,

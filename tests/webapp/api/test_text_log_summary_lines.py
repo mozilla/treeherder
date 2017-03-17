@@ -4,7 +4,6 @@ from rest_framework.test import APIClient
 from treeherder.model.models import (BugJobMap,
                                      FailureLine,
                                      JobNote,
-                                     TextLogError,
                                      TextLogErrorMetadata,
                                      TextLogSummary)
 

@@ -10,7 +10,6 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('model', '0001_squashed_0053_add_job_platform_option_push_index'),
     ]
 
     operations = [

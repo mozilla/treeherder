@@ -5,8 +5,7 @@ from datetime import timedelta
 from django.utils import timezone
 
 from treeherder.etl.seta import (is_job_blacklisted,
-                                 parse_testtype,
-                                 valid_platform)
+                                 parse_testtype)
 from treeherder.model import models
 from treeherder.seta.common import unique_key
 from treeherder.seta.high_value_jobs import get_high_value_jobs
