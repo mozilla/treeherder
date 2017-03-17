@@ -99,6 +99,8 @@ def _load_perf_datum(job, perf_datum):
                     # these properties below can be either True, False, or null
                     # (None). Null indicates no preference has been set.
                     'should_alert': suite.get('shouldAlert'),
+                    'alert_change_type': PerformanceSignature._get_alert_change_type(
+                        suite.get('alertChangeType')),
                     'alert_threshold': suite.get('alertThreshold'),
                     'min_back_window': suite.get('minBackWindow'),
                     'max_back_window': suite.get('maxBackWindow'),
@@ -151,6 +153,8 @@ def _load_perf_datum(job, perf_datum):
                     # null (None). Null indicates no preference has been
                     # set.
                     'should_alert': subtest.get('shouldAlert'),
+                    'alert_change_type': PerformanceSignature._get_alert_change_type(
+                        subtest.get('alertChangeType')),
                     'alert_threshold': subtest.get('alertThreshold'),
                     'min_back_window': subtest.get('minBackWindow'),
                     'max_back_window': subtest.get('maxBackWindow'),

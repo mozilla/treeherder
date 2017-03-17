@@ -1,11 +1,14 @@
 import datetime
 import time
 
+import pytest
+
 from treeherder.model.models import Push
 from treeherder.perf.alerts import generate_new_alerts_in_series
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
-                                    PerformanceDatum)
+                                    PerformanceDatum,
+                                    PerformanceSignature)
 
 
 def _verify_alert(alertid, expected_push_id, expected_prev_push_id,
@@ -166,3 +169,32 @@ def test_custom_alert_threshold(
 
     assert PerformanceAlert.objects.count() == 1
     assert PerformanceAlertSummary.objects.count() == 1
+
+
+@pytest.mark.parametrize(('new_value', 'expected_num_alerts'),
+                         [(1.0, 1), (0.25, 0)])
+def test_alert_change_type_absolute(test_repository,
+                                    failure_classifications,
+                                    generic_reference_data,
+                                    test_perf_signature, new_value,
+                                    expected_num_alerts):
+    # modify the test signature to say that we alert on absolute value
+    # (as opposed to percentage change)
+    test_perf_signature.alert_change_type = PerformanceSignature.ALERT_ABS
+    test_perf_signature.alert_threshold = 0.3
+    test_perf_signature.save()
+
+    base_time = time.time()  # generate it based off current time
+    INTERVAL = 30
+    _generate_performance_data(test_repository, test_perf_signature,
+                               generic_reference_data,
+                               base_time, 1, 0.5, INTERVAL/2)
+    _generate_performance_data(test_repository, test_perf_signature,
+                               generic_reference_data,
+                               base_time, (INTERVAL/2) + 1, new_value,
+                               INTERVAL/2)
+
+    generate_new_alerts_in_series(test_perf_signature)
+
+    assert PerformanceAlert.objects.count() == expected_num_alerts
+    assert PerformanceAlertSummary.objects.count() == expected_num_alerts

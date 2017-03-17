@@ -7,7 +7,8 @@ from django.db import transaction
 
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
-                                    PerformanceDatum)
+                                    PerformanceDatum,
+                                    PerformanceSignature)
 from treeherder.perfalert import (Datum,
                                   detect_changes)
 
@@ -82,9 +83,13 @@ def generate_new_alerts_in_series(signature):
                 alert_properties = get_alert_properties(
                     prev_value, new_value, signature.lower_is_better)
 
-                if alert_properties.pct_change < alert_threshold:
-                    # ignore regressions below the configured regression
-                    # threshold
+                # ignore regressions below the configured regression
+                # threshold
+                if ((signature.alert_change_type is None or
+                     signature.alert_change_type == PerformanceSignature.ALERT_PCT) and
+                    alert_properties.pct_change < alert_threshold) or \
+                    (signature.alert_change_type == PerformanceSignature.ALERT_ABS and
+                     alert_properties.delta < alert_threshold):
                     continue
 
                 summary, _ = PerformanceAlertSummary.objects.get_or_create(
