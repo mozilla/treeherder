@@ -53,9 +53,9 @@ def test_treeherder_single_commit_titles(initial_data, live_server, selenium):
     This tests that page titles are correct
     '''
     push = Push.objects.create(repository=Repository.objects.get(name='mozilla-central'),
-                        revision="1234abcd",
-                        author="foo@bar.com",
-                        time=datetime.datetime.now())
+                               revision="1234abcd",
+                               author="foo@bar.com",
+                               time=datetime.datetime.now())
 
     commit = Commit.objects.create(push=push,
                                    revision="1234abcd",
@@ -67,6 +67,6 @@ def test_treeherder_single_commit_titles(initial_data, live_server, selenium):
     comment = WebDriverWait(selenium, 30).until(
         EC.presence_of_element_located((By.CLASS_NAME, 'revision-comment'))
     )
-    ss2= selenium.get_screenshot_as_base64()
+    ss2 = selenium.get_screenshot_as_base64()
     print ss2
     assert selenium.title == "[0] mozilla-central"
