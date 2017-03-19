@@ -3,10 +3,10 @@
 /* Services */
 treeherder.factory('thUrl', [
     '$rootScope', 'thServiceDomain',
-    function($rootScope, thServiceDomain) {
+    function ($rootScope, thServiceDomain) {
 
         var thUrl = {
-            getRootUrl: function(uri) {
+            getRootUrl: function (uri) {
                 return thServiceDomain + "/api" + uri;
             },
             getProjectUrl: function(uri, repoName) {
@@ -187,11 +187,12 @@ treeherder.factory('thExtendProperties', [
                     }
                     var descriptor = Object.getOwnPropertyDescriptor(src, key);
                     if (descriptor && descriptor.get) {
-                        Object.defineProperty(dest, key,
-                                              {get: descriptor.get,
-                                               set: descriptor.set,
-                                               enumerable: descriptor.enumerable,
-                                               configurable: descriptor.configurable});
+                        Object.defineProperty(dest, key, {
+                            get: descriptor.get,
+                            set: descriptor.set,
+                            enumerable: descriptor.enumerable,
+                            configurable: descriptor.configurable
+                        });
                     } else {
                         dest[key] = src[key];
                     }

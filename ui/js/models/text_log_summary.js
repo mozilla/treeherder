@@ -21,12 +21,12 @@ treeherder.factory('ThTextLogSummaryModel', [
             config = config || {};
             var timeout = config.timeout || null;
 
-            return $http.get(ThTextLogSummaryModel.get_url(job_id),
-                             {timeout: timeout,
-                              cache: false})
-                .then(function(response) {
-                    return new ThTextLogSummaryModel(response.data);
-                });
+            return $http.get(ThTextLogSummaryModel.get_url(job_id), {
+                timeout: timeout,
+                cache: false
+            }).then(function (response) {
+                return new ThTextLogSummaryModel(response.data);
+            });
         };
 
         return ThTextLogSummaryModel;

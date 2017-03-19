@@ -2,5 +2,4 @@
 
 /*exported treeherder*/
 var treeherder = angular.module('treeherder',
-                                ['ngResource', 'ngSanitize', 'ngCookies',
-                                 'LocalStorageModule']);
+    ['ngResource', 'ngSanitize', 'ngCookies', 'LocalStorageModule']);

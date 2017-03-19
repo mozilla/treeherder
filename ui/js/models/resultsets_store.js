@@ -165,9 +165,10 @@ treeherder.factory('ThResultSetStore', [
                         // clock, but it should hopefully prevent us from getting too
                         // far behind in cases where we've stopped receiving job updates
                         // due e.g. to looking at a completed push)
-                        lastJobUpdate = _.max([new Date(Date.now() -
-                                                        (5 * jobPollInterval)),
-                                               lastJobUpdate]);
+                        lastJobUpdate = _.max([
+                            new Date(Date.now() - (5 * jobPollInterval)),
+                            lastJobUpdate
+                        ]);
                     }
                     schedulePoll();
                 });
@@ -1009,8 +1010,10 @@ treeherder.factory('ThResultSetStore', [
             repositories[repoName].loadingStatus.appending = true;
             var isAppend = (repositories[repoName].resultSets.length > 0);
             var resultsets;
-            var loadRepositories = ThRepositoryModel.load({name: repoName,
-                                                           watchRepos: true});
+            var loadRepositories = ThRepositoryModel.load({
+                name: repoName,
+                watchRepos: true
+            });
             var loadResultsets = ThResultSetModel.getResultSets(repoName,
                                                                 repositories[repoName].rsMapOldestTimestamp,
                                                                 count,
