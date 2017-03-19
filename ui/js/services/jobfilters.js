@@ -411,8 +411,10 @@ treeherder.factory('thJobFilters', [
                     var valArr = _toArray(values);
                     _.each(valArr, function (val) {
                         if (fieldName !== QS_SEARCH_STR) {
-                            fieldFilters.push({field: _withoutPrefix(fieldName),
-                                               value: val});
+                            fieldFilters.push({
+                                field: _withoutPrefix(fieldName),
+                                value: val
+                            });
                         }
                     });
                 }

@@ -492,15 +492,16 @@ perf.controller('AlertsCtrl', [
         $scope.alertSummaryCurrentPage = 1;
         $scope.alertSummaryPageSize = 10;
         $scope.getAlertSummariesPage = function() {
-            PhAlerts.getAlertSummaries({ page: $scope.alertSummaryCurrentPage,
-                                         statusFilter: $scope.filterOptions.status.id,
-                                         frameworkFilter: $scope.filterOptions.framework.id }).then(
-                 function(data) {
-                     $scope.alertSummaries = undefined;
-                     addAlertSummaries(data.results, data.next);
-                     $scope.alertSummaryCount = data.count;
-                     $state.go('.', {page: $scope.alertSummaryCurrentPage}, {notify: false});
-                 });
+            PhAlerts.getAlertSummaries({
+                page: $scope.alertSummaryCurrentPage,
+                statusFilter: $scope.filterOptions.status.id,
+                frameworkFilter: $scope.filterOptions.framework.id
+            }).then(function (data) {
+                $scope.alertSummaries = undefined;
+                addAlertSummaries(data.results, data.next);
+                $scope.alertSummaryCount = data.count;
+                $state.go('.', { page: $scope.alertSummaryCurrentPage }, { notify: false });
+            });
         };
 
         $scope.summaryTitle = {
@@ -521,52 +522,48 @@ perf.controller('AlertsCtrl', [
             $scope.summaryTitle.html = '<i class="fa fa-spinner fa-pulse" aria-hidden="true"/>';
         };
 
-        ThRepositoryModel.load().then(function() {
-            $q.all([PhFramework.getFrameworkList().then(
-                function(frameworks) {
-                    $scope.frameworks = frameworks;
-                }),
-                    ThOptionCollectionModel.getMap().then(
-                        function(optionCollectionMap) {
-                            $scope.optionCollectionMap = optionCollectionMap;
-                        })]
-                  ).then(function() {
-                      $scope.filterOptions = {
-                          status: _.find($scope.statuses, {
-                              id: parseInt($stateParams.status)
-                          }) || $scope.statuses[0],
-                          framework: _.find($scope.frameworks, {
-                              id: parseInt($stateParams.framework)
-                          }) || $scope.frameworks[0],
-                          filter: $stateParams.filter || "",
-                          hideImprovements: $stateParams.hideImprovements !== undefined &&
-                              parseInt($stateParams.hideImprovements),
-                          hideTo: $stateParams.hideTo !== undefined &&
-                              parseInt($stateParams.hideTo),
-                          page: $stateParams.page || 1
-                      };
-                      if ($stateParams.hideTo) {
-                          $scope.filterOptions.hideTo = true;
-                      }
-                      if ($stateParams.id) {
-                          $scope.alertId = $stateParams.id;
-                          PhAlerts.getAlertSummary($stateParams.id).then(
-                              function(data) {
-                                  addAlertSummaries([data], null);
-                              });
-                      } else {
-                          PhAlerts.getAlertSummaries({
-                              statusFilter: $scope.filterOptions.status.id,
-                              frameworkFilter: $scope.filterOptions.framework.id,
-                              page: $scope.filterOptions.page
-                          }).then(
-                              function(data) {
-                                  addAlertSummaries(data.results, data.next);
-                                  $scope.alertSummaryCurrentPage = $scope.filterOptions.page;
-                                  $scope.alertSummaryCount = data.count;
-                              });
-                      }
-                  });
+        ThRepositoryModel.load().then(function () {
+            $q.all([PhFramework.getFrameworkList().then(function (frameworks) {
+                $scope.frameworks = frameworks;
+            }), ThOptionCollectionModel.getMap().then(function (optionCollectionMap) {
+                $scope.optionCollectionMap = optionCollectionMap;
+            })]).then(function () {
+                $scope.filterOptions = {
+                    status: _.find($scope.statuses, {
+                        id: parseInt($stateParams.status)
+                    }) || $scope.statuses[0],
+                    framework: _.find($scope.frameworks, {
+                        id: parseInt($stateParams.framework)
+                    }) || $scope.frameworks[0],
+                    filter: $stateParams.filter || "",
+                    hideImprovements: $stateParams.hideImprovements !== undefined &&
+                    parseInt($stateParams.hideImprovements),
+                    hideTo: $stateParams.hideTo !== undefined &&
+                    parseInt($stateParams.hideTo),
+                    page: $stateParams.page || 1
+                };
+                if ($stateParams.hideTo) {
+                    $scope.filterOptions.hideTo = true;
+                }
+                if ($stateParams.id) {
+                    $scope.alertId = $stateParams.id;
+                    PhAlerts.getAlertSummary($stateParams.id).then(
+                        function (data) {
+                            addAlertSummaries([data], null);
+                        });
+                } else {
+                    PhAlerts.getAlertSummaries({
+                        statusFilter: $scope.filterOptions.status.id,
+                        frameworkFilter: $scope.filterOptions.framework.id,
+                        page: $scope.filterOptions.page
+                    }).then(
+                        function (data) {
+                            addAlertSummaries(data.results, data.next);
+                            $scope.alertSummaryCurrentPage = $scope.filterOptions.page;
+                            $scope.alertSummaryCount = data.count;
+                        });
+                }
+            });
         });
     }
 ]);

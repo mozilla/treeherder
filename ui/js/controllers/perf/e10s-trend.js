@@ -87,10 +87,12 @@ perf.controller('e10sTrendCtrl', [
                 var testList = _.uniq(_.map(seriesToMeasure, 'testName'));
 
                 $q.all(_.chunk(seriesToMeasure, 20).map(function(seriesChunk) {
-                    var params = { signatures: _.map(seriesChunk, 'signature'),
-                                   framework: 1,
-                                   start_date: dateRange.start,
-                                   end_date: dateRange.end };
+                    var params = {
+                        signatures: _.map(seriesChunk, 'signature'),
+                        framework: 1,
+                        start_date: dateRange.start,
+                        end_date: dateRange.end
+                    };
                     return PhSeries.getSeriesData($scope.selectedRepo.name, params).then(function(seriesData) {
                         _.forIn(seriesData, function(data, signature) {
                             var series = _.find(seriesChunk, { signature: signature });
@@ -174,10 +176,10 @@ perf.controller('e10sTrendCtrl', [
 
             // get series list first
             PhSeries.getSeriesList(
-                $scope.selectedRepo.name,
-                { interval: seriesInterval,
-                  subtests: 0,
-                  framework: 1
+                $scope.selectedRepo.name, {
+                    interval: seriesInterval,
+                    subtests: 0,
+                    framework: 1
                 }).then(function(seriesList) {
                     // get test results for both data sets, and display
                     getResults(baseDateRange, seriesList).then(function(baseResults) {
@@ -225,11 +227,12 @@ perf.controller('e10sTrendCtrl', [
                 name: $stateParams.repo ? $stateParams.repo : thDefaultRepo
             });
 
-            $scope.$watchGroup(['filterOptions.filter',
-                                'filterOptions.showOnlyImportant',
-                                'filterOptions.showOnlyConfident',
-                                'filterOptions.showOnlyBlockers'],
-                               updateURL);
+            $scope.$watchGroup([
+                'filterOptions.filter',
+                'filterOptions.showOnlyImportant',
+                'filterOptions.showOnlyConfident',
+                'filterOptions.showOnlyBlockers'
+            ], updateURL);
 
             $scope.globalOptionsChanged = function(selectedRepo, selectedBaseDate,
                 selectedNewDate, selectedSampleSize) {
@@ -332,11 +335,13 @@ perf.controller('e10sTrendSubtestCtrl', [
                 });
 
                 $q.all(_.chunk(seriesToMeasure, 20).map(function(seriesChunk) {
-                    var params = { signatures: _.map(seriesChunk, 'signature'),
-                                   framework: 1,
-                                   start_date: dateRange.start,
-                                   end_date: dateRange.end };
-                    return PhSeries.getSeriesData($scope.selectedRepo.name, params).then(function(seriesData) {
+                    var params = {
+                        signatures: _.map(seriesChunk, 'signature'),
+                        framework: 1,
+                        start_date: dateRange.start,
+                        end_date: dateRange.end
+                    };
+                    return PhSeries.getSeriesData($scope.selectedRepo.name, params).then(function (seriesData) {
                         _.forIn(seriesData, function(data, signature) {
                             var series = _.find(seriesChunk, { signature: signature });
                             var type = (series.options.indexOf('e10s') >= 0) ? 'e10s' : 'base';
@@ -403,21 +408,20 @@ perf.controller('e10sTrendSubtestCtrl', [
             seriesInterval += $scope.selectedSampleSize.value;
 
             // get series list first
-            PhSeries.getSeriesList(
-                $scope.selectedRepo.name,
-                { interval: seriesInterval,
-                  parent_signature: [ baseSignature, e10sSignature ],
-                  framework: 1
-                }).then(function(seriesList) {
-                    // get test results for both data sets, and display
-                    getResults(baseDateRange, seriesList).then(function(baseResults) {
-                        getResults(newDateRange, seriesList).then(function(newResults) {
-                            displayResults(baseResults, newResults);
-                            $scope.dataLoading = false;
-                            $scope.$apply();
-                        });
+            PhSeries.getSeriesList($scope.selectedRepo.name, {
+                interval: seriesInterval,
+                parent_signature: [baseSignature, e10sSignature],
+                framework: 1
+            }).then(function (seriesList) {
+                // get test results for both data sets, and display
+                getResults(baseDateRange, seriesList).then(function (baseResults) {
+                    getResults(newDateRange, seriesList).then(function (newResults) {
+                        displayResults(baseResults, newResults);
+                        $scope.dataLoading = false;
+                        $scope.$apply();
                     });
                 });
+            });
         }
 
         // set filter options
@@ -456,11 +460,12 @@ perf.controller('e10sTrendSubtestCtrl', [
             });
 
 
-            $scope.$watchGroup(['filterOptions.filter',
-                                'filterOptions.showOnlyImportant',
-                                'filterOptions.showOnlyConfident',
-                                'filterOptions.showOnlyBlockers'],
-                               updateURL);
+            $scope.$watchGroup([
+                'filterOptions.filter',
+                'filterOptions.showOnlyImportant',
+                'filterOptions.showOnlyConfident',
+                'filterOptions.showOnlyBlockers'
+            ], updateURL);
 
             $scope.globalOptionsChanged = function(selectedRepo, selectedBaseDate,
                 selectedNewDate, selectedSampleSize) {

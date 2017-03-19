@@ -21,9 +21,9 @@ perf.controller('dashCtrl', [
 
         // dashboard customization values
         ['variantDataOpt', 'framework', 'header', 'descP1', 'descP2',
-         'linkUrl', 'linkDesc', 'baseTitle', 'variantTitle'].forEach(function(k) {
-             $scope[k] = phDashboardValues[$scope.topic][k];
-         });
+            'linkUrl', 'linkDesc', 'baseTitle', 'variantTitle'].forEach(function (k) {
+                $scope[k] = phDashboardValues[$scope.topic][k];
+            });
 
         // custom series filters based on dashboard topic
         function filterSeriesByTopic(series) {
@@ -74,9 +74,11 @@ perf.controller('dashCtrl', [
                 // (so we can mash together pgo and opt)
                 $scope.testList = _.uniq(_.map(seriesToMeasure, 'testName'));
 
-                $q.all(_.chunk(seriesToMeasure, 20).map(function(seriesChunk) {
-                    var params = { signatures: _.map(seriesChunk, 'signature'),
-                                   framework: $scope.framework };
+                $q.all(_.chunk(seriesToMeasure, 20).map(function (seriesChunk) {
+                    var params = {
+                        signatures: _.map(seriesChunk, 'signature'),
+                        framework: $scope.framework
+                    };
                     if ($scope.revision) {
                         params.push_id = resultSetId;
                     } else {
@@ -188,11 +190,12 @@ perf.controller('dashCtrl', [
                 name: $stateParams.repo ? $stateParams.repo : thDefaultRepo
             });
 
-            $scope.$watchGroup(['filterOptions.filter',
-                                'filterOptions.showOnlyImportant',
-                                'filterOptions.showOnlyConfident',
-                                'filterOptions.showOnlyBlockers'],
-                               updateURL);
+            $scope.$watchGroup([
+                'filterOptions.filter',
+                'filterOptions.showOnlyImportant',
+                'filterOptions.showOnlyConfident',
+                'filterOptions.showOnlyBlockers'
+            ], updateURL);
 
             $scope.globalOptionsChanged = function(selectedRepo, selectedTimeRange) {
                 // we pass `selectedRepo` and `selectedTimeRange` as
@@ -232,9 +235,9 @@ perf.controller('dashSubtestCtrl', [
 
         // dashboard customization values
         ['variantDataOpt', 'framework', 'header', 'descP1', 'baseTitle',
-         'variantTitle'].forEach(function(k) {
-             $scope[k] = phDashboardValues[$scope.topic][k];
-         });
+            'variantTitle'].forEach(function (k) {
+                $scope[k] = phDashboardValues[$scope.topic][k];
+            });
 
         function loadData() {
             var resultsMap = {
@@ -270,8 +273,10 @@ perf.controller('dashSubtestCtrl', [
                 $scope.titles[summaryTestName] = summaryTestName;
 
                 return $q.all(_.chunk(seriesList, 20).map(function(seriesChunk) {
-                    var params = { signatures: _.map(seriesChunk, 'signature'),
-                                   framework: $scope.framework };
+                    var params = {
+                        signatures: _.map(seriesChunk, 'signature'),
+                        framework: $scope.framework
+                    };
                     if ($scope.revision) {
                         params.push_id = resultSetId;
                     } else {
@@ -363,10 +368,11 @@ perf.controller('dashSubtestCtrl', [
                 name: $stateParams.repo ? $stateParams.repo : thDefaultRepo
             });
 
-            $scope.$watchGroup(['filterOptions.filter',
-                                'filterOptions.showOnlyImportant',
-                                'filterOptions.showOnlyConfident'],
-                               updateURL);
+            $scope.$watchGroup([
+                'filterOptions.filter',
+                'filterOptions.showOnlyImportant',
+                'filterOptions.showOnlyConfident'
+            ], updateURL);
 
             $scope.globalOptionsChanged = function(selectedRepo, selectedTimeRange) {
                 // we pass `selectedRepo` and `selectedTimeRange` as

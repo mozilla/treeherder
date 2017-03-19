@@ -218,17 +218,18 @@ treeherder.controller('PluginCtrl', [
                                 seriesList = seriesList.concat(newSeriesList);
                             });
                         })).then(function() {
-                            _.forEach(seriesList, function(series) {
+                            _.forEach(seriesList, function (series) {
                                 // skip series which are subtests of another series
                                 if (series.parentSignature)
                                     return;
                                 var detail = {
-                                    url: thServiceDomain + '/perf.html#/graphs?series=[' +
-                                        [ $scope.repoName, series.signature, 1,
-                                          series.frameworkId ] + ']&selected=[' +
-                                        [ $scope.repoName, series.signature,
-                                          $scope.job['result_set_id'], $scope.job['id'] ] +
-                                        ']',
+                                    url: thServiceDomain + '/perf.html#/graphs?series=[' + [
+                                        $scope.repoName, series.signature, 1,
+                                        series.frameworkId
+                                    ] + ']&selected=[' + [
+                                        $scope.repoName, series.signature,
+                                        $scope.job['result_set_id'], $scope.job['id']
+                                    ] + ']',
                                     value: performanceData[series.signature][0].value,
                                     title: series.name
                                 };
@@ -347,15 +348,16 @@ treeherder.controller('PluginCtrl', [
                 // to the self serve api (which does not listen over pulse!).
                 ThJobModel.retrigger($scope.repoName, job_id_list).then(function() {
                     // XXX: Remove this after 1134929 is resolved.
-                    return ThJobDetailModel.getJobDetails({"title": "buildbot_request_id",
-                                                           "repository": $scope.repoName,
-                                                           "job_id__in": job_id_list.join(',')})
-                        .then(function(data) {
-                            var requestIdList = _.map(data, 'value');
-                            requestIdList.forEach(function(requestId) {
-                                thBuildApi.retriggerJob($scope.repoName, requestId);
-                            });
+                    return ThJobDetailModel.getJobDetails({
+                        "title": "buildbot_request_id",
+                        "repository": $scope.repoName,
+                        "job_id__in": job_id_list.join(',')
+                    }).then(function (data) {
+                        var requestIdList = _.map(data, 'value');
+                        requestIdList.forEach(function (requestId) {
+                            thBuildApi.retriggerJob($scope.repoName, requestId);
                         });
+                    });
                 }).then(function() {
                     thNotify.send("Retrigger request sent", "success");
                 }, function(e) {
@@ -585,9 +587,9 @@ treeherder.controller('PluginCtrl', [
 
         // load the list of bug associations (including possibly new ones just
         // added).
-        $scope.updateBugs = function() {
+        $scope.updateBugs = function () {
             if (_.has($scope.job, "id")) {
-                ThBugJobMapModel.get_list({job_id: $scope.job.id}).then(function (response) {
+                ThBugJobMapModel.get_list({ job_id: $scope.job.id }).then(function (response) {
                     $scope.bugs = response;
                 });
             }

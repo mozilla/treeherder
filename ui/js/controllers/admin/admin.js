@@ -104,10 +104,12 @@ admin.controller('AdminCtrl', [
                 // us that we don't need to re-run this function.
                 $scope.masterListsInitialized = true;
 
-                promise = $q.all([platformPromise,
-                                  jobTypePromise,
-                                  repoPromise,
-                                  optPromise]);
+                promise = $q.all([
+                    platformPromise,
+                    jobTypePromise,
+                    repoPromise,
+                    optPromise
+                ]);
             }
             return promise;
         };

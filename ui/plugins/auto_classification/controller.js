@@ -253,18 +253,22 @@ treeherder.controller('ThErrorLineController', [
                                                      $scope.extraOptions,
                                                      ctrl.prevErrorLine);
                 log.debug("defaultOption", defaultOption);
-                $scope.selectedOption = {id: defaultOption.id,
-                                         manualBugNumber: "",
-                                         ignoreAlways: false};
+                $scope.selectedOption = {
+                    id: defaultOption.id,
+                    manualBugNumber: "",
+                    ignoreAlways: false
+                };
                 log.debug("options", $scope.options);
                 $scope.editableChanged(defaultEditable());
                 $scope.optionChanged();
             } else {
                 $scope.options = [];
                 $scope.extraOptions = [];
-                $scope.selectedOption = {id: null,
-                                         manualBugNumber: "",
-                                         ignoreAlways: false};
+                $scope.selectedOption = {
+                    id: null,
+                    manualBugNumber: "",
+                    ignoreAlways: false
+                };
             }
         }
 
@@ -307,16 +311,20 @@ treeherder.controller('ThErrorLineController', [
                        (option.type === "ignore" ?
                         ($scope.selectedOption.ignoreAlways ? 0 : null) :
                         option.bugNumber));
-            var data = {lineId: line.id,
-                        type: option.type,
-                        classifiedFailureId: classifiedFailureId,
-                        bugNumber: bug};
+            var data = {
+                lineId: line.id,
+                type: option.type,
+                classifiedFailureId: classifiedFailureId,
+                bugNumber: bug
+            };
             ctrl.onChange(data);
         };
 
         $scope.editableChanged = function(editable) {
-            ctrl.onEditableChange({lineId: line.id,
-                                   editable: editable});
+            ctrl.onEditableChange({
+                lineId: line.id,
+                editable: editable
+            });
         };
 
         /**
@@ -544,9 +552,11 @@ treeherder.controller('ThErrorLineController', [
             var ignore;
 
             // Strings indicating lines that should not be ignored
-            var importantLines = [/\d+ bytes leaked/,
-                                  /application crashed/,
-                                  /TEST-UNEXPECTED-/];
+            var importantLines = [
+                /\d+ bytes leaked/,
+                /application crashed/,
+                /TEST-UNEXPECTED-/
+            ];
 
             if (prevTest && thisTest && prevTest === thisTest) {
                 // If the previous line was about the same test as
@@ -883,10 +893,11 @@ treeherder.controller('ThAutoclassifyPanelController', [
             loadData(data.error_lines);
             $scope.errorLines
                 .forEach((line) => stateByLine.set(
-                    line.id,
-                    {classifiedFailureId: null,
-                     bugNumber: null,
-                     type: null}));
+                    line.id, {
+                        classifiedFailureId: null,
+                        bugNumber: null,
+                        type: null
+                    }));
             requestPromise = null;
             // Store the autoclassify status so that we only retry
             // the load when moving from 'cross_referenced' to 'autoclassified'
@@ -900,9 +911,10 @@ treeherder.controller('ThAutoclassifyPanelController', [
                     () => {
                         var elem = $("th-autoclassify-errors th-error-line")[0];
                         if (elem) {
-                            elem.scrollIntoView(
-                                {behavior: "smooth",
-                                 block: "start"});
+                            elem.scrollIntoView({
+                                behavior: "smooth",
+                                block: "start"
+                            });
                         }
                     });
             }
@@ -1111,8 +1123,10 @@ treeherder.controller('ThAutoclassifyPanelController', [
             ctrl.onToggleSelect(lineIds, clear);
             $scope.$evalAsync(
                 () => $("th-autoclassify-errors th-error-line")[indexes[0]]
-                    .scrollIntoView({behavior: "smooth",
-                                     block: "start"}));
+                    .scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    }));
         };
 
         /**
@@ -1156,9 +1170,11 @@ treeherder.controller('ThAutoclassifyPanelController', [
                 var state = stateByLine.get(line.id);
                 var bestClassification = state.classifiedFailureId || null;
                 var bugNumber = state.bugNumber;
-                return {id: line.id,
-                        best_classification: bestClassification,
-                        bug_number: bugNumber};
+                return {
+                    id: line.id,
+                    best_classification: bestClassification,
+                    bug_number: bugNumber
+                };
             });
             ctrl.loadStatus = "loading";
             return ThTextLogErrorsModel

@@ -8,8 +8,8 @@ perf.controller('GraphsCtrl', [
         $uibModal, thServiceDomain, $http, $q, $timeout, PhSeries,
         PhAlerts, ThRepositoryModel, ThResultSetModel,
         phTimeRanges, phDefaultTimeRangeValue) {
-        var availableColors = [ 'maroon', 'navy', 'pink', 'turquoise', 'brown',
-                                'red', 'green', 'blue', 'orange', 'purple' ];
+        var availableColors = ['maroon', 'navy', 'pink', 'turquoise', 'brown',
+            'red', 'green', 'blue', 'orange', 'purple'];
 
         $scope.highlightedRevisions = [ undefined, undefined ];
         $scope.highlightAlerts = true;
@@ -150,26 +150,27 @@ perf.controller('GraphsCtrl', [
 
                 // Get revision information for both this datapoint and the previous
                 // one
-                _.each([{ resultSetId: dataPoint.resultSetId,
-                    scopeKey: 'revision' },
-                    { resultSetId: prevResultSetId,
-                        scopeKey: 'prevRevision' }],
-                    function(resultRevision) {
-                        ThResultSetModel.getRevisions(
-                            phSeries.projectName, resultRevision.resultSetId).then(
-                            function(revisions) {
-                                $scope.tooltipContent[resultRevision.scopeKey] =
-                                    revisions[0];
-                                if ($scope.tooltipContent.prevRevision && $scope.tooltipContent.revision) {
-                                    $scope.tooltipContent.pushlogURL = $scope.tooltipContent.project.getPushLogHref({
-                                        from: $scope.tooltipContent.prevRevision,
-                                        to: $scope.tooltipContent.revision
-                                    });
-                                }
-                            }, function() {
-                                $scope.tooltipContent.revisionInfoAvailable = false;
+                _.each([{
+                    resultSetId: dataPoint.resultSetId,
+                    scopeKey: 'revision'
+                }, {
+                    resultSetId: prevResultSetId,
+                    scopeKey: 'prevRevision'
+                }], function(resultRevision) {
+                    ThResultSetModel.getRevisions(
+                        phSeries.projectName, resultRevision.resultSetId
+                    ).then(function (revisions) {
+                        $scope.tooltipContent[resultRevision.scopeKey] = revisions[0];
+                        if ($scope.tooltipContent.prevRevision && $scope.tooltipContent.revision) {
+                            $scope.tooltipContent.pushlogURL = $scope.tooltipContent.project.getPushLogHref({
+                                from: $scope.tooltipContent.prevRevision,
+                                to: $scope.tooltipContent.revision
                             });
+                        }
+                    }, function () {
+                        $scope.tooltipContent.revisionInfoAvailable = false;
                     });
+                });
 
                 // now position it
                 $timeout(function() {
