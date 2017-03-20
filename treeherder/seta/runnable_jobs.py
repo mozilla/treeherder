@@ -1,16 +1,14 @@
 # TODO: Get rid of this module (bug 1330649)
 import logging
 
-from treeherder.config.settings import TASKCLUSTER_INDEX_URL
-from treeherder.etl.common import fetch_json
-from treeherder.etl.runnable_jobs import list_runnable_jobs
+from treeherder.etl.runnable_jobs import (list_runnable_jobs,
+                                          query_latest_gecko_decision_task_id)
 
 logger = logging.getLogger(__name__)
 
 
 class RunnableJobsClient():
-    def __init__(self, tc_index_url=TASKCLUSTER_INDEX_URL):
-        self.tc_index_url = tc_index_url
+    def __init__(self):
         self.cache = {}
 
     def query_runnable_jobs(self, repo_name, task_id=None):
@@ -25,7 +23,7 @@ class RunnableJobsClient():
             self.cache[repo_name] = {}
 
         if not task_id:
-            task_id = self._query_latest_gecko_decision_task_id(repo_name)
+            task_id = query_latest_gecko_decision_task_id(repo_name)
             self.cache[repo_name]['latest'] = self._query_runnable_jobs(repo_name=repo_name, task_id=task_id)
             return self.cache[repo_name]['latest']
         else:
@@ -37,14 +35,6 @@ class RunnableJobsClient():
                 logger.info("We're going to fetch new runnable jobs data.")
                 self.cache[repo_name][task_id] = self._query_runnable_jobs(repo_name=repo_name, task_id=task_id)
                 return self.cache[repo_name][task_id]
-
-    def _query_latest_gecko_decision_task_id(self, repo_name):
-        url = self.tc_index_url % repo_name
-        logger.info('Fetching {}'.format(url))
-        latest_task = fetch_json(url)
-        task_id = latest_task['taskId']
-        logger.info('For {} we found the task id: {}'.format(repo_name, task_id))
-        return task_id
 
     def _query_runnable_jobs(self, repo_name, task_id):
         return list_runnable_jobs(repo_name, task_id)
