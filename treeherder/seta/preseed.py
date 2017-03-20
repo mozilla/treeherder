@@ -50,7 +50,7 @@ def create_new_entry(job):
     if job['expiration_date'] == '*':
         job['expiration_date'] = THE_FUTURE
 
-    logger.info("Adding a new job to the database: %s" % job)
+    logger.debug("Adding a new job to the database: %s" % job)
     JobPriority.objects.create(
             testtype=job['testtype'],
             buildtype=job['buildtype'],
