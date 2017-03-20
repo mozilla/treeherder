@@ -1,2 +1,2 @@
-from .client import *
-from .perfherder import *
+from .client import *  # noqa
+from .perfherder import *  # noqa
