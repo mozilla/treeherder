@@ -37,12 +37,9 @@ def test_sanitize_data(runnable_jobs_data):
     assert tc_jobs == 2
 
 
-@patch.object(RunnableJobsClient, '_query_latest_gecko_decision_task_id')
 @patch.object(RunnableJobsClient, 'query_runnable_jobs')
-def test_query_sanitized_data(query_runnable_jobs, query_task_id,
-                              runnable_jobs_data, sanitized_data):
+def test_query_sanitized_data(query_runnable_jobs, runnable_jobs_data, sanitized_data):
     query_runnable_jobs.return_value = runnable_jobs_data
-    query_task_id.return_value = 'MOCKED'
     data = query_sanitized_data()
     assert data == sanitized_data
 

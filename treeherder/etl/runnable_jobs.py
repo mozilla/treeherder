@@ -123,7 +123,7 @@ def _taskcluster_runnable_jobs(project, decision_task_id):
     ret = []
     tc_graph = {}
     if not decision_task_id:
-        decision_task_id = _query_latest_gecko_decision_task_id(project)
+        decision_task_id = query_latest_gecko_decision_task_id(project)
     # Some trees (e.g. comm-central) don't have a decision task, which means there are no taskcluster runnable jobs
     if not decision_task_id:
         return ret
@@ -223,7 +223,7 @@ def list_runnable_jobs(project, decision_task_id=None):
     return dict(meta={"repository": project, "offset": 0, "count": len(ret)}, results=ret)
 
 
-def _query_latest_gecko_decision_task_id(project):
+def query_latest_gecko_decision_task_id(project):
     url = TASKCLUSTER_INDEX_URL % project
     logger.info('Fetching {}'.format(url))
     try:
