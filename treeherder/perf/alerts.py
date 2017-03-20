@@ -9,8 +9,8 @@ from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceDatum,
                                     PerformanceSignature)
-from treeherder.perfalert import (Datum,
-                                  detect_changes)
+from treeherder.perfalert.perfalert import (Datum,
+                                            detect_changes)
 
 
 def get_alert_properties(prev_value, new_value, lower_is_better):

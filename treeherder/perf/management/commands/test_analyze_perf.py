@@ -4,8 +4,8 @@ from django.core.management.base import (BaseCommand,
 
 from treeherder.client.thclient import (PerfherderClient,
                                         PerformanceTimeInterval)
-from treeherder.perfalert import (Datum,
-                                  detect_changes)
+from treeherder.perfalert.perfalert import (Datum,
+                                            detect_changes)
 
 
 class Command(BaseCommand):

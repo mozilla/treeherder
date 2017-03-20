@@ -2,12 +2,12 @@ import os
 import unittest
 
 from tests.sampledata import SampleData
-from treeherder.perfalert import (Datum,
-                                  analyze,
-                                  calc_t,
-                                  default_weights,
-                                  detect_changes,
-                                  linear_weights)
+from treeherder.perfalert.perfalert import (Datum,
+                                            analyze,
+                                            calc_t,
+                                            default_weights,
+                                            detect_changes,
+                                            linear_weights)
 
 
 class TestAnalyze(unittest.TestCase):
