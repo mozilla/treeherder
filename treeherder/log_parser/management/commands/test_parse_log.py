@@ -39,7 +39,7 @@ class Command(BaseCommand):
 
             if not options['profile']:
                 for name, artifact in artifact_bc.artifacts.items():
-                    print("%s, %s" % (name, json.dumps(artifact)))
+                    print("%s, %s" % (name, json.dumps(artifact, indent=2)))
 
         if options['profile']:
             print("Timings: %s" % times)
