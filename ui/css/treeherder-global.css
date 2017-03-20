@@ -293,19 +293,25 @@ kbd {
   font-size: .9em;
 }
 
-.panel-spacing table {
+.panel-spacing table, .panel-spacing > div {
   width: 100%;
 }
 
-.panel-spacing tr th:first-child {
+.panel-spacing tr th:first-child, .panel-spacing > div {
   padding-right: 2em;
 }
 
-.panel-spacing tr:nth-child(even) {
+.panel-spacing > div {
+  padding-bottom: 1em;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.panel-spacing tr:nth-child(even), .panel-spacing > div > div:nth-child(even) {
   background-color: #f8f8f8;
 }
 
-.panel-spacing table tr {
+.panel-spacing table tr, .panel-spacing > div > div {
   border-bottom: 1px dotted lightgrey;
 }
 
@@ -324,9 +330,24 @@ kbd {
 #onscreen-shortcuts {
     position: fixed;
     top: 50%;
-    left: 16.5%;
+    left: 9%;
     transform: translateY(-50%);
     width:100%;
+    min-width: 600px;
+}
+
+.panel-spacing > div {
+    width: 450px;
+    float: left;
+}
+.panel-spacing > div > div > span:nth-child(2) {
+    text-align: right;
+    display: block;
+    float: right;
+}
+
+.panel-spacing > div > div.header {
+    font-weight: bold;
 }
 
 /*
