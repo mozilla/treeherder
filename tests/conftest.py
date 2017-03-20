@@ -11,7 +11,7 @@ from requests import Request
 from requests_hawk import HawkAuth
 from webtest.app import TestApp
 
-from treeherder.client import TreeherderClient
+from treeherder.client.thclient import TreeherderClient
 from treeherder.config.wsgi import application
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.resultset import store_result_set_data

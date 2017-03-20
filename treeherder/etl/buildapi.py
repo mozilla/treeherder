@@ -7,7 +7,7 @@ import simplejson as json
 from django.conf import settings
 from django.core.cache import cache
 
-from treeherder.client import TreeherderJobCollection
+from treeherder.client.thclient import TreeherderJobCollection
 from treeherder.etl import (buildbot,
                             common)
 from treeherder.etl.jobs import store_job_data

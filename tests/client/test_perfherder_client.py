@@ -2,7 +2,7 @@ import unittest
 
 import responses
 
-from treeherder.client import PerfherderClient
+from treeherder.client.thclient import PerfherderClient
 
 
 class PerfherderClientTest(unittest.TestCase):

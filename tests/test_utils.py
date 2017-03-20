@@ -2,7 +2,7 @@ import datetime
 import json
 
 from tests.sampledata import SampleData
-from treeherder.client import TreeherderClient
+from treeherder.client.thclient import TreeherderClient
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.resultset import store_result_set_data
 from treeherder.model import models

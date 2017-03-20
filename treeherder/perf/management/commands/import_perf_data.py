@@ -6,8 +6,8 @@ from django.core.management.base import (BaseCommand,
 from django.db import (IntegrityError,
                        transaction)
 
-from treeherder.client import (PerfherderClient,
-                               PerformanceTimeInterval)
+from treeherder.client.thclient import (PerfherderClient,
+                                        PerformanceTimeInterval)
 from treeherder.model.models import (MachinePlatform,
                                      OptionCollection,
                                      Repository)

@@ -7,15 +7,15 @@ import unittest
 import responses
 from requests_hawk import HawkAuth
 
-from treeherder.client import (TreeherderArtifact,
-                               TreeherderArtifactCollection,
-                               TreeherderClient,
-                               TreeherderClientError,
-                               TreeherderJob,
-                               TreeherderJobCollection,
-                               TreeherderResultSet,
-                               TreeherderResultSetCollection,
-                               TreeherderRevision)
+from treeherder.client.thclient import (TreeherderArtifact,
+                                        TreeherderArtifactCollection,
+                                        TreeherderClient,
+                                        TreeherderClientError,
+                                        TreeherderJob,
+                                        TreeherderJobCollection,
+                                        TreeherderResultSet,
+                                        TreeherderResultSetCollection,
+                                        TreeherderRevision)
 
 
 class DataSetup(unittest.TestCase):

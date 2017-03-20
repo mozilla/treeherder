@@ -6,7 +6,7 @@ from django.template import (Context,
                              Template)
 
 from tests import test_utils
-from treeherder.client import TreeherderJobCollection
+from treeherder.client.thclient import TreeherderJobCollection
 
 base_dir = os.path.dirname(__file__)
 

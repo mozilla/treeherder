@@ -5,7 +5,7 @@ import newrelic.agent
 import requests
 from django.core.cache import cache
 
-from treeherder.client import TreeherderResultSetCollection
+from treeherder.client.thclient import TreeherderResultSetCollection
 from treeherder.etl.common import (CollectionNotStoredException,
                                    fetch_json,
                                    generate_revision_hash)

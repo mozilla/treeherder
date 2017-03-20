@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
 from tests import test_utils
-from treeherder.client import TreeherderResultSetCollection
+from treeherder.client.thclient import TreeherderResultSetCollection
 from treeherder.etl.resultset import store_result_set_data
 from treeherder.model.models import (FailureClassification,
                                      Job,

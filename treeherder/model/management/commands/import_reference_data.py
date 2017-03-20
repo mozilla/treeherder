@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from treeherder.client import TreeherderClient
+from treeherder.client.thclient import TreeherderClient
 from treeherder.model.models import (BuildPlatform,
                                      FailureClassification,
                                      JobGroup,

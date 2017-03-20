@@ -23,8 +23,8 @@ In addition:
 
   .. code-block:: python
 
-     from treeherder.client import (HawkAuth,
-                                    TreeherderClient)
+     from django.db import (models,
+                            transaction)
 
 The quickest way to correct import style locally is to let isort make the changes for you - see :ref:`running the tests <running-tests>`.
 
