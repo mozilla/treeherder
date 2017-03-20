@@ -39,20 +39,15 @@ def post_log_artifacts(job_log):
     except Exception as e:
         job_log.update_status(JobLog.FAILED)
 
-        # unrecoverable http error (doesn't exist or permission denied)
-        # (apparently this can happen somewhat often with taskcluster if
-        # the job fails, so just warn about it -- see
-        # https://bugzilla.mozilla.org/show_bug.cgi?id=1154248)
+        # Unrecoverable http error (doesn't exist or permission denied).
+        # Apparently this can happen somewhat often with taskcluster if
+        # the job fails (bug 1154248), so just warn rather than raising,
+        # to prevent the noise/load from retrying.
         if isinstance(e, urllib2.HTTPError) and e.code in (403, 404):
             logger.warning("Unable to retrieve log for %s: %s", job_log.id, e)
             return
 
-        if isinstance(e, urllib2.URLError):
-            # possibly recoverable http error (e.g. problems on our end)
-            logger.error("Failed to download log for %s: %s", job_log.id, e)
-        else:
-            # parse error or other unrecoverable error
-            logger.error("Failed to download/parse log for %s: %s", job_log.id, e)
+        logger.error("Failed to download/parse log for %s: %s", job_log.id, e)
         raise
 
     try:
