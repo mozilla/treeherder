@@ -408,19 +408,6 @@ def classified_failures(test_job, text_log_errors_failure_lines, test_matcher,
 
 
 @pytest.fixture
-def retriggered_job(test_job, eleven_job_blobs):
-    # a copy of test_job with a different guid, representing a "retrigger"
-    from treeherder.model.models import Job
-    original = eleven_job_blobs[0]
-    retrigger = copy.deepcopy(original)
-    retrigger['job']['job_guid'] = "f1c75261017c7c5ce3000931dce4c442fe0a129a"
-
-    store_job_data(test_job.repository, [retrigger])
-
-    return Job.objects.get(guid=retrigger['job']['job_guid'])
-
-
-@pytest.fixture
 def test_user(request, transactional_db):
     # a user *without* sheriff/staff permissions
     from django.contrib.auth.models import User

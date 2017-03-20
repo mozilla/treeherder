@@ -1,9 +1,4 @@
-import gzip
-import urllib2
-
 import pytest
-from django.conf import settings
-from django.utils.six import BytesIO
 
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.resultset import store_result_set_data
@@ -28,38 +23,6 @@ def jobs_with_local_log():
     # substitute the log url with a local url
     job['job']['log_references'][0]['url'] = url
     return [job]
-
-
-@pytest.fixture
-def jobs_with_local_mozlog_log():
-    log = ("plain-chunked_raw.log")
-    sample_data = SampleData()
-    url = "file://{0}".format(
-        sample_data.get_log_path("{0}.gz".format(log)))
-
-    # sample url to test with a real log, during development
-    # url = "http://mozilla-releng-blobs.s3.amazonaws.com/blobs/try/sha512/6a690d565effa5a485a9385cc62eccd59feaa93fa6bb167073f012a105dc33aeaa02233daf081426b5363cd9affd007e42aea2265f47ddbc334a4493de1879b5"
-    job = sample_data.job_data[0]
-
-    # substitute the log url with a local url
-    job['job']['log_references'][0]['url'] = url
-    job['job']['log_references'][0]['name'] = 'mozlog_json'
-    return [job]
-
-
-@pytest.fixture
-def mock_mozlog_get_log_handler(monkeypatch):
-
-    def _get_log_handle(mockself, url):
-        response = urllib2.urlopen(
-               url,
-               timeout=settings.REQUESTS_TIMEOUT
-        )
-        return gzip.GzipFile(fileobj=BytesIO(response.read()))
-
-    import treeherder.etl.common
-    monkeypatch.setattr(treeherder.log_parser.artifactbuilders.MozlogArtifactBuilder,
-                        'get_log_handle', _get_log_handle)
 
 
 def test_parse_log(test_repository, failure_classifications, jobs_with_local_log, sample_resultset):

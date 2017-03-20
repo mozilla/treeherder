@@ -53,10 +53,6 @@ class Treecodes:
         """Query all available jobtypes and return it as list"""
         return self.jobtypes
 
-    def query_jobnames(self):
-        """Query all jobnames including buildtype and groupcode, then return them as list"""
-        return self.jobnames
-
 
 def is_job_blacklisted(testtype):
     if not testtype:

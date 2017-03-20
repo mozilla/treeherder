@@ -16,11 +16,6 @@ from treeherder.seta.settings import (SETA_FIXED_BY_COMMIT_DAYS,
                                       SETA_UNSUPPORTED_PLATFORMS)
 from treeherder.seta.update_job_priority import update_job_priority_table
 
-HEADERS = {
-    'Accept': 'application/json',
-    'User-Agent': 'treeherder-seta',
-}
-
 logger = logging.getLogger(__name__)
 
 
