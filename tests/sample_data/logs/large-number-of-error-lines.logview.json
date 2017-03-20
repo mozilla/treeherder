@@ -540,5 +540,5 @@
         ], 
         "errors_truncated": true
     }, 
-    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/large-number-of-error-lines.txt.gz"
+    "logurl": "http://my-log.mozilla.org/large-number-of-error-lines.txt.gz"
 }

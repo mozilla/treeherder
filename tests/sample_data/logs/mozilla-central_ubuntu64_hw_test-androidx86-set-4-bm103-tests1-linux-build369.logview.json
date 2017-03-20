@@ -139,5 +139,5 @@
         ], 
         "errors_truncated": false
     }, 
-    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/mozilla-central_ubuntu64_hw_test-androidx86-set-4-bm103-tests1-linux-build369.txt.gz"
+    "logurl": "http://my-log.mozilla.org/mozilla-central_ubuntu64_hw_test-androidx86-set-4-bm103-tests1-linux-build369.txt.gz"
 }

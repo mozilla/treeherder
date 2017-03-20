@@ -220,5 +220,5 @@
         ], 
         "errors_truncated": false
     }, 
-    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/mozilla-esr17_xp_test_pgo-mochitest-browser-chrome-bm74-tests1-windows-build12.txt.gz"
+    "logurl": "http://my-log.mozilla.org/mozilla-esr17_xp_test_pgo-mochitest-browser-chrome-bm74-tests1-windows-build12.txt.gz"
 }

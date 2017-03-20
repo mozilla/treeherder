@@ -12,5 +12,5 @@
       "title": "mochitest-plain2"
     }
   ],
-  "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/mozilla-central_mountainlion-debug_test-mochitest-2-bm80-tests1-macosx-build93.txt.gz"
+  "logurl": "http://my-log.mozilla.org/mozilla-central_mountainlion-debug_test-mochitest-2-bm80-tests1-macosx-build93.txt.gz"
 }

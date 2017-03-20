@@ -58,5 +58,5 @@
         ], 
         "errors_truncated": false
     }, 
-    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/xpcshell-crash.txt.gz"
+    "logurl": "http://my-log.mozilla.org/xpcshell-crash.txt.gz"
 }

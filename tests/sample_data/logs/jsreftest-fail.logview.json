@@ -254,5 +254,5 @@
         ], 
         "errors_truncated": false
     }, 
-    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/jsreftest-fail.txt.gz"
+    "logurl": "http://my-log.mozilla.org/jsreftest-fail.txt.gz"
 }

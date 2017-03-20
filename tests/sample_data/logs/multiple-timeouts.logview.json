@@ -94,5 +94,5 @@
         ], 
         "errors_truncated": false
     }, 
-    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/multiple-timeouts.txt.gz"
+    "logurl": "http://my-log.mozilla.org/multiple-timeouts.txt.gz"
 }

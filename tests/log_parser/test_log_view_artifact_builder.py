@@ -32,16 +32,6 @@ def do_test(log):
     # with open(SampleData().get_log_path("{0}.logview.json".format(log)), "w") as f:
     #     f.write(json.dumps(act, indent=4))
 
-    # we can't compare the "logurl" field, because it's a fully qualified url,
-    # so it will be different depending on the machine it's run on.
-    assert "logurl" in act
-    del(act["logurl"])
-
-    # log urls won't match in tests, since they're machine specific
-    # but leave it in the exp file as an example of what the real structure
-    # should look like.
-    del(exp["logurl"])
-
     assert act == exp  # , diff(exp, act)
 
     # :: Use this assert when creating new tests and you want to get the actual

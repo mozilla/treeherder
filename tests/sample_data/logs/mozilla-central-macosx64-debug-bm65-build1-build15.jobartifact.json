@@ -1,4 +1,4 @@
 {
     "job_details": [],
-    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/mozilla-central-macosx64-debug-bm65-build1-build15.txt.gz"
+    "logurl": "http://my-log.mozilla.org/mozilla-central-macosx64-debug-bm65-build1-build15.txt.gz"
 }

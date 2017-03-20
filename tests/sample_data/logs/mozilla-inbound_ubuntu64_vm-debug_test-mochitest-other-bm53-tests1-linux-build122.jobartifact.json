@@ -22,5 +22,5 @@
       "title": "mochitest-plugins"
     }
   ],
-  "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.txt.gz"
+  "logurl": "http://my-log.mozilla.org/mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.txt.gz"
 }

@@ -45,5 +45,5 @@
         ], 
         "errors_truncated": false
     }, 
-    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/taskcluster-missing-finish-step-marker.txt.gz"
+    "logurl": "http://my-log.mozilla.org/taskcluster-missing-finish-step-marker.txt.gz"
 }

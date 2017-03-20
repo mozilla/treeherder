@@ -78,5 +78,5 @@
         ], 
         "errors_truncated": false
     }, 
-    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/crash-2.txt.gz"
+    "logurl": "http://my-log.mozilla.org/crash-2.txt.gz"
 }

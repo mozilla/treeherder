@@ -74,5 +74,5 @@
         ], 
         "errors_truncated": false
     }, 
-    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/leaks-1.txt.gz"
+    "logurl": "http://my-log.mozilla.org/leaks-1.txt.gz"
 }

@@ -227,5 +227,5 @@
         ], 
         "errors_truncated": false
     }, 
-    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/ux_ubuntu32_vm_test-jetpack-bm67-tests1-linux-build16.txt.gz"
+    "logurl": "http://my-log.mozilla.org/ux_ubuntu32_vm_test-jetpack-bm67-tests1-linux-build16.txt.gz"
 }
