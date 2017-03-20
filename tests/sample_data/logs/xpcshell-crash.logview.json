@@ -23,17 +23,17 @@
                 "errors": [
                     {
                         "line": "TEST-UNEXPECTED-FAIL | c:\\talos-slave\\test\\build\\xpcshell\\tests\\services\\sync\\tests\\unit\\test_service_detect_upgrade.js | test failed (with xpcshell return code: -2147483645), see following log:", 
-                        "linenumber": 5124
+                        "linenumber": 5134
                     }, 
                     {
                         "line": "PROCESS-CRASH | c:\\talos-slave\\test\\build\\xpcshell\\tests\\services\\sync\\tests\\unit\\test_service_detect_upgrade.js | application crashed (minidump found)", 
-                        "linenumber": 5671
+                        "linenumber": 5682
                     }
                 ], 
                 "name": "'python mochitest/runtests.py ...' warnings", 
                 "started": "2013-06-05 12:54:55.232364", 
                 "started_linenumber": 16, 
-                "finished_linenumber": 7407, 
+                "finished_linenumber": 7420, 
                 "finished": "2013-06-05 13:15:39.235146", 
                 "result": "testfailed"
             }, 
@@ -41,8 +41,8 @@
                 "errors": [], 
                 "name": "'rm -rf ...'", 
                 "started": "2013-06-05 13:15:39.244545", 
-                "started_linenumber": 7409, 
-                "finished_linenumber": 7453, 
+                "started_linenumber": 7422, 
+                "finished_linenumber": 7466, 
                 "finished": "2013-06-05 13:16:04.014823", 
                 "result": "success"
             }, 
@@ -50,8 +50,8 @@
                 "errors": [], 
                 "name": "maybe rebooting slave lost", 
                 "started": "2013-06-05 13:16:04.015405", 
-                "started_linenumber": 7455, 
-                "finished_linenumber": 7457, 
+                "started_linenumber": 7468, 
+                "finished_linenumber": 7470, 
                 "finished": "2013-06-05 13:16:04.963614", 
                 "result": "success"
             }

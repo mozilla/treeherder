@@ -23,13 +23,13 @@
                 "errors": [
                     {
                         "line": "REFTEST TEST-UNEXPECTED-FAIL | | EXCEPTION: [Exception... \"Component returned failure code: 0x8000ffff (NS_ERROR_UNEXPECTED) [nsIPrefBranch2.getBoolPref]\"  nsresult: \"0x8000ffff (NS_ERROR_UNEXPECTED)\"  location: \"JS frame :: chrome://reftest/content/reftest.js :: anonymous :: line 461\"  data: no]", 
-                        "linenumber": 23521
+                        "linenumber": 23565
                     }
                 ], 
                 "name": "'python mochitest/runtests.py ...' warnings", 
                 "started": "2013-06-05 12:54:55.232364", 
                 "started_linenumber": 16, 
-                "finished_linenumber": 23576, 
+                "finished_linenumber": 23620, 
                 "finished": "2013-06-05 13:15:39.235146", 
                 "result": "testfailed"
             }, 
@@ -37,8 +37,8 @@
                 "errors": [], 
                 "name": "'rm -rf ...'", 
                 "started": "2013-06-05 13:15:39.244545", 
-                "started_linenumber": 23578, 
-                "finished_linenumber": 23622, 
+                "started_linenumber": 23622, 
+                "finished_linenumber": 23666, 
                 "finished": "2013-06-05 13:16:04.014823", 
                 "result": "success"
             }, 
@@ -46,8 +46,8 @@
                 "errors": [], 
                 "name": "maybe rebooting slave lost", 
                 "started": "2013-06-05 13:16:04.015405", 
-                "started_linenumber": 23624, 
-                "finished_linenumber": 23626, 
+                "started_linenumber": 23668, 
+                "finished_linenumber": 23670, 
                 "finished": "2013-06-05 13:16:04.963614", 
                 "result": "success"
             }

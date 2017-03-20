@@ -32,13 +32,13 @@
                 "errors": [
                     {
                         "line": "[taskcluster] Error: Task timeout after 3600 seconds. Force killing container.", 
-                        "linenumber": 1550
+                        "linenumber": 1553
                     }
                 ], 
                 "name": "Running tests", 
                 "started": "2015-08-12 16:42:31.730160", 
                 "started_linenumber": 26, 
-                "finished_linenumber": 1551, 
+                "finished_linenumber": 1554, 
                 "finished": null, 
                 "result": "unknown"
             }

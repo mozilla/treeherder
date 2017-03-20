@@ -1,5 +1,6 @@
 import pytest
 
+from tests.test_utils import add_log_response
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.resultset import store_result_set_data
 from treeherder.model.error_summary import get_error_summary
@@ -11,12 +12,11 @@ from ..sampledata import SampleData
 
 
 @pytest.fixture
-def jobs_with_local_log():
-    log = ("mozilla-inbound_ubuntu64_vm-debug_test-"
-           "mochitest-other-bm53-tests1-linux-build122")
+def jobs_with_local_log(activate_responses):
     sample_data = SampleData()
-    url = "file://{0}".format(
-        sample_data.get_log_path("{0}.txt.gz".format(log)))
+    url = add_log_response(
+        "mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.txt.gz"
+    )
 
     job = sample_data.job_data[0]
 

@@ -23,29 +23,29 @@
                 "errors": [
                     {
                         "line": "REFTEST TEST-UNEXPECTED-FAIL | file:///C:/talos-slave/test/build/reftest/tests/layout/reftests/svg/tspan-rotate-02.svg | image comparison (==)", 
-                        "linenumber": 77772
+                        "linenumber": 77933
                     }, 
                     {
                         "line": "PROCESS-CRASH | Main app process exited normally | application crashed (minidump found)", 
-                        "linenumber": 85070
+                        "linenumber": 85244
                     }, 
                     {
                         "line": "PROCESS-CRASH | Main app process exited normally | application crashed (minidump found)", 
-                        "linenumber": 85274
+                        "linenumber": 85448
                     }, 
                     {
                         "line": "PROCESS-CRASH | Main app process exited normally | application crashed (minidump found)", 
-                        "linenumber": 85478
+                        "linenumber": 85653
                     }, 
                     {
                         "line": "PROCESS-CRASH | Main app process exited normally | application crashed (minidump found)", 
-                        "linenumber": 85682
+                        "linenumber": 85857
                     }
                 ], 
                 "name": "'python mochitest/runtests.py ...' warnings", 
                 "started": "2013-06-05 12:54:55.232364", 
                 "started_linenumber": 16, 
-                "finished_linenumber": 85981, 
+                "finished_linenumber": 86156, 
                 "finished": "2013-06-05 13:15:39.235146", 
                 "result": "testfailed"
             }, 
@@ -53,8 +53,8 @@
                 "errors": [], 
                 "name": "'rm -rf ...'", 
                 "started": "2013-06-05 13:15:39.244545", 
-                "started_linenumber": 85983, 
-                "finished_linenumber": 86027, 
+                "started_linenumber": 86158, 
+                "finished_linenumber": 86202, 
                 "finished": "2013-06-05 13:16:04.014823", 
                 "result": "success"
             }, 
@@ -62,8 +62,8 @@
                 "errors": [], 
                 "name": "maybe rebooting slave lost", 
                 "started": "2013-06-05 13:16:04.015405", 
-                "started_linenumber": 86029, 
-                "finished_linenumber": 86031, 
+                "started_linenumber": 86204, 
+                "finished_linenumber": 86206, 
                 "finished": "2013-06-05 13:16:04.963614", 
                 "result": "success"
             }

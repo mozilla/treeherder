@@ -23,21 +23,21 @@
                 "errors": [
                     {
                         "line": "TypeError: invalid XML name <x/>[0]", 
-                        "linenumber": 26621
+                        "linenumber": 26659
                     }, 
                     {
                         "line": "TEST-UNEXPECTED-FAIL | file:///Users/cltbld/talos-slave/mozilla-central_leopard_test-jsreftest/build/jsreftest/tests/jsreftest.html?test=ecma_3/Array/15.4.4.3-1.js | application timed out after 330 seconds with no output", 
-                        "linenumber": 75757
+                        "linenumber": 75884
                     }, 
                     {
                         "line": "PROCESS-CRASH | file:///Users/cltbld/talos-slave/mozilla-central_leopard_test-jsreftest/build/jsreftest/tests/jsreftest.html?test=ecma_3/Array/15.4.4.3-1.js | application crashed (minidump found)", 
-                        "linenumber": 75761
+                        "linenumber": 75888
                     }
                 ], 
                 "name": "'python mochitest/runtests.py ...' warnings", 
                 "started": "2013-06-05 12:54:55.232364", 
                 "started_linenumber": 16, 
-                "finished_linenumber": 75808, 
+                "finished_linenumber": 75935, 
                 "finished": "2013-06-05 13:15:39.235146", 
                 "result": "testfailed"
             }, 
@@ -45,8 +45,8 @@
                 "errors": [], 
                 "name": "'rm -rf ...'", 
                 "started": "2013-06-05 13:15:39.244545", 
-                "started_linenumber": 75810, 
-                "finished_linenumber": 75854, 
+                "started_linenumber": 75937, 
+                "finished_linenumber": 75981, 
                 "finished": "2013-06-05 13:16:04.014823", 
                 "result": "success"
             }, 
@@ -54,8 +54,8 @@
                 "errors": [], 
                 "name": "maybe rebooting slave lost", 
                 "started": "2013-06-05 13:16:04.015405", 
-                "started_linenumber": 75856, 
-                "finished_linenumber": 75858, 
+                "started_linenumber": 75983, 
+                "finished_linenumber": 75985, 
                 "finished": "2013-06-05 13:16:04.963614", 
                 "result": "success"
             }

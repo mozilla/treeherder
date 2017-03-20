@@ -5,7 +5,8 @@ import pytest
 from django.forms import model_to_dict
 from mock import MagicMock
 
-from tests.test_utils import post_collection
+from tests.test_utils import (add_log_response,
+                              post_collection)
 from treeherder.client.thclient import client
 from treeherder.log_parser.parsers import StepParser
 from treeherder.model.error_summary import get_error_summary
@@ -14,8 +15,6 @@ from treeherder.model.models import (Job,
                                      JobLog,
                                      TextLogError,
                                      TextLogStep)
-
-from ..sampledata import SampleData
 
 
 @pytest.fixture
@@ -53,7 +52,7 @@ def check_job_log(test_repository, job_guid, parse_status):
 
 def test_post_job_with_unparsed_log(test_repository, failure_classifications,
                                     result_set_stored, mock_post_json,
-                                    monkeypatch):
+                                    monkeypatch, activate_responses):
     """
     test submitting a job with an unparsed log parses the log,
     generates an appropriate set of text log steps, and calls
@@ -67,8 +66,7 @@ def test_post_job_with_unparsed_log(test_repository, failure_classifications,
     import treeherder.model.error_summary
     monkeypatch.setattr(treeherder.model.error_summary, 'get_error_summary',
                         mock_get_error_summary)
-    log_url = "file://{0}".format(
-        SampleData().get_log_path("mozilla-central-macosx64-debug-bm65-build1-build15.txt.gz"))
+    log_url = add_log_response("mozilla-central-macosx64-debug-bm65-build1-build15.txt.gz")
 
     tjc = client.TreeherderJobCollection()
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
@@ -100,6 +98,7 @@ def test_post_job_with_unparsed_log(test_repository, failure_classifications,
 def test_post_job_pending_to_completed_with_unparsed_log(test_repository,
                                                          result_set_stored,
                                                          failure_classifications,
+                                                         activate_responses,
                                                          mock_post_json):
 
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
@@ -121,8 +120,7 @@ def test_post_job_pending_to_completed_with_unparsed_log(test_repository,
     assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 0
 
     # the second time, post a log that will get parsed
-    log_url = "file://{0}".format(
-        SampleData().get_log_path("mozilla-central-macosx64-debug-bm65-build1-build15.txt.gz"))
+    log_url = add_log_response("mozilla-central-macosx64-debug-bm65-build1-build15.txt.gz")
     tjc = client.TreeherderJobCollection()
     tj = client.TreeherderJob({
         'project': test_repository.name,

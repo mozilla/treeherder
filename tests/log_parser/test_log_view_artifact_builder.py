@@ -1,14 +1,15 @@
 import pytest
+import responses
 
 from tests import test_utils
+from tests.test_utils import add_log_response
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import BuildbotLogViewArtifactBuilder
-
-from ..sampledata import SampleData
 
 slow = pytest.mark.slow
 
 
+@responses.activate
 def do_test(log):
     """
     Test a single log.
@@ -17,8 +18,7 @@ def do_test(log):
               result file with the same prefix.
     """
 
-    url = "file://{0}".format(
-        SampleData().get_log_path("{0}.txt.gz".format(log)))
+    url = add_log_response("{}.txt.gz".format(log))
 
     builder = BuildbotLogViewArtifactBuilder(url)
     lpc = ArtifactBuilderCollection(url, builders=builder)
@@ -28,6 +28,7 @@ def do_test(log):
 
     # :: Uncomment to create the ``exp`` files, if you're making a lot of them
     # import json
+    # from tests.sampledata import SampleData
     # with open(SampleData().get_log_path("{0}.logview.json".format(log)), "w") as f:
     #     f.write(json.dumps(act, indent=4))
 

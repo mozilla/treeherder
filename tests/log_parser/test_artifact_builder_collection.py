@@ -1,9 +1,9 @@
+import responses
 from datadiff import diff
 
+from tests.test_utils import add_log_response
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import BuildbotLogViewArtifactBuilder
-
-from ..sampledata import SampleData
 
 
 def test_builders_as_list():
@@ -35,14 +35,13 @@ def test_default_builders():
     assert len(lpc.builders) == 3
 
 
+@responses.activate
 def test_all_builders_complete():
     """test when parse.complete is true creates correct structure"""
-    log = "mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50"
-    url = "file://{0}".format(
-        SampleData().get_log_path("{0}.txt.gz".format(log)))
-    lpc = ArtifactBuilderCollection(
-        url,
+    url = add_log_response(
+        "mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50.txt.gz"
     )
+    lpc = ArtifactBuilderCollection(url)
     for builder in lpc.builders:
         builder.parser.complete = True
 

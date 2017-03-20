@@ -23,17 +23,17 @@
                 "errors": [
                     {
                         "line": "command timed out: 1200 seconds without output", 
-                        "linenumber": 26902
+                        "linenumber": 26958
                     }, 
                     {
                         "line": "buildbot.slave.commands.TimeoutError: command timed out: 1200 seconds without output", 
-                        "linenumber": 26906
+                        "linenumber": 26962
                     }
                 ], 
                 "name": "'python mochitest/runtests.py ...' warnings", 
                 "started": "2013-06-05 12:54:55.232364", 
                 "started_linenumber": 16, 
-                "finished_linenumber": 27154, 
+                "finished_linenumber": 27210, 
                 "finished": "2013-06-05 13:15:39.235146", 
                 "result": "testfailed"
             }, 
@@ -41,8 +41,8 @@
                 "errors": [], 
                 "name": "'rm -rf ...'", 
                 "started": "2013-06-05 13:15:39.244545", 
-                "started_linenumber": 27156, 
-                "finished_linenumber": 27200, 
+                "started_linenumber": 27212, 
+                "finished_linenumber": 27257, 
                 "finished": "2013-06-05 13:16:04.014823", 
                 "result": "success"
             }, 
@@ -50,8 +50,8 @@
                 "errors": [], 
                 "name": "maybe rebooting slave lost", 
                 "started": "2013-06-05 13:16:04.015405", 
-                "started_linenumber": 27202, 
-                "finished_linenumber": 27204, 
+                "started_linenumber": 27259, 
+                "finished_linenumber": 27261, 
                 "finished": "2013-06-05 13:16:04.963614", 
                 "result": "success"
             }

@@ -185,17 +185,17 @@
                 "errors": [
                     {
                         "line": "TEST-UNEXPECTED-FAIL | chrome://mochitests/content/browser/dom/tests/browser/browser_ConsoleAPITests.js | Exception thrown in CO_observe: TypeError: Components.utils.isXrayWrapper is not a function", 
-                        "linenumber": 26698
+                        "linenumber": 26745
                     }, 
                     {
                         "line": "TEST-UNEXPECTED-FAIL | chrome://mochitests/content/browser/dom/tests/browser/browser_ConsoleAPITests.js | Test timed out", 
-                        "linenumber": 26705
+                        "linenumber": 26752
                     }
                 ], 
                 "name": "'python mochitest/runtests.py ...' warnings", 
                 "started": "2013-06-05 12:54:55.232364", 
                 "started_linenumber": 809, 
-                "finished_linenumber": 54423, 
+                "finished_linenumber": 54531, 
                 "finished": "2013-06-05 13:15:39.235146", 
                 "result": "testfailed"
             }, 
@@ -203,8 +203,8 @@
                 "errors": [], 
                 "name": "'rm -rf ...'", 
                 "started": "2013-06-05 13:15:39.244545", 
-                "started_linenumber": 54425, 
-                "finished_linenumber": 54469, 
+                "started_linenumber": 54533, 
+                "finished_linenumber": 54577, 
                 "finished": "2013-06-05 13:16:04.014823", 
                 "result": "success"
             }, 
@@ -212,8 +212,8 @@
                 "errors": [], 
                 "name": "maybe rebooting slave lost", 
                 "started": "2013-06-05 13:16:04.015405", 
-                "started_linenumber": 54471, 
-                "finished_linenumber": 54473, 
+                "started_linenumber": 54579, 
+                "finished_linenumber": 54581, 
                 "finished": "2013-06-05 13:16:04.963614", 
                 "result": "success"
             }

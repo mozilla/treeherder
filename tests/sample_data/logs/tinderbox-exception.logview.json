@@ -23,21 +23,21 @@
                 "errors": [
                     {
                         "line": "remoteFailed: [Failure instance: Traceback (failure with no frames): <class 'twisted.internet.error.ConnectionLost'>: Connection to the other side was lost in a non-clean fashion.", 
-                        "linenumber": 30331
+                        "linenumber": 30389
                     }, 
                     {
                         "line": "remoteFailed: [Failure instance: Traceback: <type 'exceptions.AttributeError'>: 'NoneType' object has no attribute 'callRemote'", 
-                        "linenumber": 30341
+                        "linenumber": 30400
                     }, 
                     {
                         "line": "exceptions.AttributeError: 'NoneType' object has no attribute 'callRemote'", 
-                        "linenumber": 30558
+                        "linenumber": 30617
                     }
                 ], 
                 "name": "'python mochitest/runtests.py ...' warnings", 
                 "started": "2013-06-05 12:54:55.232364", 
                 "started_linenumber": 16, 
-                "finished_linenumber": 30568, 
+                "finished_linenumber": 30627, 
                 "finished": "2013-06-05 13:15:39.235146", 
                 "result": "testfailed"
             }, 
@@ -45,8 +45,8 @@
                 "errors": [], 
                 "name": "'rm -rf ...'", 
                 "started": "2013-06-05 13:15:39.244545", 
-                "started_linenumber": 30570, 
-                "finished_linenumber": 30614, 
+                "started_linenumber": 30629, 
+                "finished_linenumber": 30673, 
                 "finished": "2013-06-05 13:16:04.014823", 
                 "result": "success"
             }, 
@@ -54,8 +54,8 @@
                 "errors": [], 
                 "name": "maybe rebooting slave lost", 
                 "started": "2013-06-05 13:16:04.015405", 
-                "started_linenumber": 30616, 
-                "finished_linenumber": 30618, 
+                "started_linenumber": 30675, 
+                "finished_linenumber": 30677, 
                 "finished": "2013-06-05 13:16:04.963614", 
                 "result": "success"
             }

@@ -23,13 +23,13 @@
                 "errors": [
                     {
                         "line": "REFTEST TEST-UNEXPECTED-FAIL | file:///Users/cltbld/talos-slave/mozilla-central_snowleopard_test-reftest/build/reftest/tests/layout/reftests/image/background-image-zoom-1.html |", 
-                        "linenumber": 34908
+                        "linenumber": 34965
                     }
                 ], 
                 "name": "'python mochitest/runtests.py ...' warnings", 
                 "started": "2013-06-05 12:54:55.232364", 
                 "started_linenumber": 16, 
-                "finished_linenumber": 42582, 
+                "finished_linenumber": 42659, 
                 "finished": "2013-06-05 13:15:39.235146", 
                 "result": "testfailed"
             }, 
@@ -37,8 +37,8 @@
                 "errors": [], 
                 "name": "'rm -rf ...'", 
                 "started": "2013-06-05 13:15:39.244545", 
-                "started_linenumber": 42584, 
-                "finished_linenumber": 42628, 
+                "started_linenumber": 42661, 
+                "finished_linenumber": 42705, 
                 "finished": "2013-06-05 13:16:04.014823", 
                 "result": "success"
             }, 
@@ -46,8 +46,8 @@
                 "errors": [], 
                 "name": "maybe rebooting slave lost", 
                 "started": "2013-06-05 13:16:04.015405", 
-                "started_linenumber": 42630, 
-                "finished_linenumber": 42632, 
+                "started_linenumber": 42707, 
+                "finished_linenumber": 42709, 
                 "finished": "2013-06-05 13:16:04.963614", 
                 "result": "success"
             }

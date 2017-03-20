@@ -23,21 +23,21 @@
                 "errors": [
                     {
                         "line": "TEST-UNEXPECTED-FAIL | automation.py | application timed out after 60 seconds with no output", 
-                        "linenumber": 24690
+                        "linenumber": 24728
                     }, 
                     {
                         "line": "command timed out: 1200 seconds without output", 
-                        "linenumber": 24692
+                        "linenumber": 24730
                     }, 
                     {
                         "line": "buildbot.slave.commands.TimeoutError: command timed out: 1200 seconds without output", 
-                        "linenumber": 24696
+                        "linenumber": 24734
                     }
                 ], 
                 "name": "'python mochitest/runtests.py ...' warnings", 
                 "started": "2013-06-05 12:54:55.232364", 
                 "started_linenumber": 16, 
-                "finished_linenumber": 24944, 
+                "finished_linenumber": 24982, 
                 "finished": "2013-06-05 13:15:39.235146", 
                 "result": "testfailed"
             }, 
@@ -45,8 +45,8 @@
                 "errors": [], 
                 "name": "'rm -rf ...'", 
                 "started": "2013-06-05 13:15:39.244545", 
-                "started_linenumber": 24946, 
-                "finished_linenumber": 24990, 
+                "started_linenumber": 24984, 
+                "finished_linenumber": 25028, 
                 "finished": "2013-06-05 13:16:04.014823", 
                 "result": "success"
             }, 
@@ -54,8 +54,8 @@
                 "errors": [], 
                 "name": "maybe rebooting slave lost", 
                 "started": "2013-06-05 13:16:04.015405", 
-                "started_linenumber": 24992, 
-                "finished_linenumber": 24994, 
+                "started_linenumber": 25030, 
+                "finished_linenumber": 25032, 
                 "finished": "2013-06-05 13:16:04.963614", 
                 "result": "success"
             }

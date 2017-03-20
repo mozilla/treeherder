@@ -1,7 +1,7 @@
 import logging
-import urllib2
 
 import simplejson as json
+from requests.exceptions import HTTPError
 
 from treeherder.etl.artifact import (serialize_artifact_json_blobs,
                                      store_job_artifacts)
@@ -43,7 +43,7 @@ def post_log_artifacts(job_log):
         # Apparently this can happen somewhat often with taskcluster if
         # the job fails (bug 1154248), so just warn rather than raising,
         # to prevent the noise/load from retrying.
-        if isinstance(e, urllib2.HTTPError) and e.code in (403, 404):
+        if isinstance(e, HTTPError) and e.response.status_code in (403, 404):
             logger.warning("Unable to retrieve log for %s: %s", job_log.id, e)
             return
 

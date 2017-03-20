@@ -23,25 +23,25 @@
                 "errors": [
                     {
                         "line": "Assertion failure: !(addr & GC_CELL_MASK), at e:/builds/moz2_slave/mozilla-central-win32-debug/build/js/src/jsgc.cpp:425", 
-                        "linenumber": 38365
+                        "linenumber": 38435
                     }, 
                     {
                         "line": "NEXT ERROR <#err1> TEST-UNEXPECTED-FAIL | /tests/dom/tests/mochitest/ajax/jquery/test_jQuery.html | Exited with code -1073741819 during test run", 
-                        "linenumber": 38373
+                        "linenumber": 38443
                     }, 
                     {
                         "line": "PROCESS-CRASH | /tests/dom/tests/mochitest/ajax/jquery/test_jQuery.html | application crashed (minidump found)", 
-                        "linenumber": 38376
+                        "linenumber": 38446
                     }, 
                     {
                         "line": "TEST-UNEXPECTED-FAIL | automationutils.processLeakLog() | missing output line for total leaks!", 
-                        "linenumber": 39521
+                        "linenumber": 39592
                     }
                 ], 
                 "name": "'python mochitest/runtests.py ...' warnings", 
                 "started": "2013-06-05 12:54:55.232364", 
                 "started_linenumber": 16, 
-                "finished_linenumber": 39766, 
+                "finished_linenumber": 39838, 
                 "finished": "2013-06-05 13:15:39.235146", 
                 "result": "testfailed"
             }, 
@@ -49,8 +49,8 @@
                 "errors": [], 
                 "name": "'rm -rf ...'", 
                 "started": "2013-06-05 13:15:39.244545", 
-                "started_linenumber": 39768, 
-                "finished_linenumber": 39812, 
+                "started_linenumber": 39840, 
+                "finished_linenumber": 39884, 
                 "finished": "2013-06-05 13:16:04.014823", 
                 "result": "success"
             }, 
@@ -58,8 +58,8 @@
                 "errors": [], 
                 "name": "maybe rebooting slave lost", 
                 "started": "2013-06-05 13:16:04.015405", 
-                "started_linenumber": 39814, 
-                "finished_linenumber": 39816, 
+                "started_linenumber": 39886, 
+                "finished_linenumber": 39888, 
                 "finished": "2013-06-05 13:16:04.963614", 
                 "result": "success"
             }

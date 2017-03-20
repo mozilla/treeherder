@@ -23,17 +23,17 @@
                 "errors": [
                     {
                         "line": "        SimpleTest._logResult(test, \"TEST-PASS\", \"TEST-UNEXPECTED-FAIL\");", 
-                        "linenumber": 24003
+                        "linenumber": 24056
                     }, 
                     {
                         "line": "      SimpleTest._logResult(test, \"TEST-UNEXPECTED-PASS\", \"TEST-KNOWN-FAIL\");", 
-                        "linenumber": 24031
+                        "linenumber": 24084
                     }
                 ], 
                 "name": "'python mochitest/runtests.py ...' warnings", 
                 "started": "2013-06-05 12:54:55.232364", 
                 "started_linenumber": 16, 
-                "finished_linenumber": 48681, 
+                "finished_linenumber": 48792, 
                 "finished": "2013-06-05 13:15:39.235146", 
                 "result": "testfailed"
             }, 
@@ -41,8 +41,8 @@
                 "errors": [], 
                 "name": "'rm -rf ...'", 
                 "started": "2013-06-05 13:15:39.244545", 
-                "started_linenumber": 48683, 
-                "finished_linenumber": 48727, 
+                "started_linenumber": 48794, 
+                "finished_linenumber": 48838, 
                 "finished": "2013-06-05 13:16:04.014823", 
                 "result": "success"
             }, 
@@ -50,8 +50,8 @@
                 "errors": [], 
                 "name": "maybe rebooting slave lost", 
                 "started": "2013-06-05 13:16:04.015405", 
-                "started_linenumber": 48729, 
-                "finished_linenumber": 48731, 
+                "started_linenumber": 48840, 
+                "finished_linenumber": 48842, 
                 "finished": "2013-06-05 13:16:04.963614", 
                 "result": "success"
             }

@@ -1,6 +1,8 @@
 import datetime
 import json
 
+import responses
+
 from tests.sampledata import SampleData
 from treeherder.client.thclient import TreeherderClient
 from treeherder.etl.jobs import store_job_data
@@ -241,3 +243,22 @@ def create_generic_job(guid, repository, push_id, project_specific_id,
         end_time=job_time,
         project_specific_id=project_specific_id,
         tier=1)
+
+
+def add_log_response(filename):
+    """
+    Set up responses for a local gzipped log and return the url for it.
+    """
+    log_path = SampleData().get_log_path(filename)
+    log_url = "http://my-log.mozilla.org/{}".format(filename)
+
+    with open(log_path, 'rb') as log_file:
+        responses.add(
+            responses.GET,
+            log_url,
+            body=log_file.read(),
+            adding_headers={
+                "Content-Encoding": "gzip",
+            }
+        )
+    return log_url
