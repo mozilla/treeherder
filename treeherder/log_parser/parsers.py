@@ -1,4 +1,3 @@
-import datetime
 import json
 import logging
 import re
@@ -230,14 +229,6 @@ class StepParser(ParserBase):
             # infra failures actually lists the error that occurs at the
             # end of the log.
             self.end_step(last_lineno_seen)
-
-    def parsetime(self, match):
-        """Convert a string date into a datetime."""
-        # DATE_FORMAT expects a decimal on the seconds.  If it's not
-        # present, we must add it so the date parsing does not fail.
-        if "." not in match:
-            match = "{0}.0".format(match)
-        return datetime.datetime.strptime(match, self.DATE_FORMAT)
 
     @property
     def steps(self):

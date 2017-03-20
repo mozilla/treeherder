@@ -1,5 +1,4 @@
-from rest_framework import (serializers,
-                            status,
+from rest_framework import (status,
                             viewsets)
 from rest_framework.response import Response
 
@@ -7,12 +6,6 @@ from treeherder.etl.seta import Treecodes
 from treeherder.seta.analyze_failures import get_failures_fixed_by_commit
 from treeherder.seta.job_priorities import (SetaError,
                                             seta_job_scheduling)
-from treeherder.seta.models import JobPriority
-
-
-class SetaJobPrioritySerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = JobPriority
 
 
 class SetaJobPriorityViewSet(viewsets.ViewSet):

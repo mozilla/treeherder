@@ -66,37 +66,6 @@ def build_removals(active_jobs, failures, target):
     return low_value_jobs, failures_root_cause
 
 
-def remove_root_cause_failures(failures, failures_root_cause):
-    for revision in failures_root_cause:
-        del failures[revision]
-    return failures
-
-
-def invert_index(failures, active_jobs):
-    inv_map = {}
-
-    for revision, jobtypes in failures.iteritems():
-        for job in active_jobs:
-            found = is_matched(job, jobtypes)
-            if found:
-                inv_map[str(job)] = inv_map.get(str(job), [])
-                inv_map[str(job)].append(revision)
-
-    maximum = 1
-    for jobtype in sorted(inv_map):
-        if len(inv_map[jobtype]) > maximum:
-            maximum = len(inv_map[jobtype])
-            max_job = jobtype
-
-    if maximum == 1:
-        return failures, None
-
-    for revision in inv_map[max_job]:
-        del failures[revision]
-
-    return failures, max_job
-
-
 def get_high_value_jobs(fixed_by_commit_jobs, target=100):
     """
     fixed_by_commit_jobs:
