@@ -929,7 +929,7 @@ class BugJobMap(models.Model):
     def save(self, *args, **kwargs):
         super(BugJobMap, self).save(*args, **kwargs)
 
-        from treeherder.etl.tasks import submit_elasticsearch_doc
+        from treeherder.etl.tasks.classification_mirroring_tasks import submit_elasticsearch_doc
 
         if settings.ORANGEFACTOR_HAWK_KEY:
             if self.job.state == "completed":
