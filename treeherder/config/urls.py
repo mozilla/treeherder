@@ -26,7 +26,7 @@ if settings.DEBUG:
 
 if settings.GRAPHQL:
     from graphene_django.views import GraphQLView
+    from treeherder.webapp.graphql.schema import schema
     urlpatterns += [
-        url(r'^graphql', GraphQLView.as_view(graphiql=True)),
-        url(r'^graphiql', include('django_graphiql.urls')),
+        url(r'^graphql', GraphQLView.as_view(graphiql=True, schema=schema)),
     ]
