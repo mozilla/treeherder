@@ -938,10 +938,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
         ctrl.onSaveAll = function() {
             save($scope.pendingLines())
                 .then(() => {
-                    var jobs = {};
-                    jobs[ctrl.thJob.id] = ctrl.thJob;
-                    // Emit this event to get the main UI to update
-                    $rootScope.$emit(thEvents.autoclassifyVerified, {jobs: jobs});
+                    signalFullyClassified();
                 });
             ctrl.selectedLineIds.clear();
         };
@@ -950,8 +947,23 @@ treeherder.controller('ThAutoclassifyPanelController', [
          * Save all selected lines
          */
         ctrl.onSave = function() {
-            save($scope.selectedLines());
+            save($scope.selectedLines())
+            .then(() => {
+                if ($scope.pendingLines().length === 0) {
+                    signalFullyClassified();
+                }
+            });
         };
+
+        /**
+         * Emit an event indicating that the job has been fully classified
+         */
+        function signalFullyClassified() {
+            var jobs = {};
+            jobs[ctrl.thJob.id] = ctrl.thJob;
+            // Emit this event to get the main UI to update
+            $rootScope.$emit(thEvents.autoclassifyVerified, {jobs: jobs});
+        }
 
         /**
          * Ignore selected lines
