@@ -147,6 +147,9 @@ treeherder.controller('BugFilerCtrl', [
                 }
 
                 // Try to fix up file paths for some job types.
+                if (selectedJob.job_group_name.toLowerCase().includes("spidermonkey")) {
+                    failurePath = "js/src/tests/" + failurePath;
+                }
                 if (selectedJob.job_group_name.toLowerCase().includes("videopuppeteer ")) {
                     failurePath = failurePath.replace("FAIL ", "");
                     failurePath = "dom/media/test/external/external_media_tests/" + failurePath;
