@@ -148,7 +148,8 @@ treeherder.controller('ThClassificationOptionController', [
         $scope.fileBug = function() {
             var reftestUrlRoot = "https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=";
 
-            var logUrl = ctrl.thJob.logs.filter(x => x.name.endsWith("_json"))[0].url;
+            var logUrl = ctrl.thJob.logs.filter(x => x.name.endsWith("_json"));
+            logUrl = logUrl[0] ? logUrl[0].url : ctrl.thJob.logs[0];
 
             var modalInstance = $uibModal.open({
                 templateUrl: 'partials/main/intermittent.html',
