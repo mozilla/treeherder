@@ -214,7 +214,7 @@ treeherderApp.controller('ResultSetCtrl', [
                 times = window.prompt("We only allow instances of each talos job to be between 1 to 6 times. Enter again", 6);
             }
 
-            ThResultSetStore.getGeckoDecisionTaskID(
+            ThResultSetStore.getGeckoDecisionTaskId(
                 $scope.repoName,
                 $scope.resultset.id
             ).then(function(decisionTaskID) {
@@ -243,7 +243,7 @@ treeherderApp.controller('ResultSetCtrl', [
             }
             if ($scope.user.loggedin) {
                 var buildernames = ThResultSetStore.getSelectedRunnableJobs($rootScope.repoName, $scope.resultset.id);
-                ThResultSetStore.getGeckoDecisionTaskID($rootScope.repoName, $scope.resultset.id).then(function(decisionTaskID) {
+                ThResultSetStore.getGeckoDecisionTaskId($rootScope.repoName, $scope.resultset.id).then(function(decisionTaskID) {
                     ThResultSetModel.triggerNewJobs($scope.repoName, $scope.resultset.id, buildernames, decisionTaskID).then(function() {
                         thNotify.send("Trigger request sent", "success");
                         ThResultSetStore.deleteRunnableJobs($scope.repoName, $scope.resultset);
