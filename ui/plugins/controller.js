@@ -373,7 +373,7 @@ treeherder.controller('PluginCtrl', [
                 if ($scope.user.loggedin) {
                     if ($scope.job.id) {
                         if ($scope.job.build_system_type === 'taskcluster') {
-                            ThResultSetStore.getGeckoDecisionTaskID(
+                            ThResultSetStore.getGeckoDecisionTaskId(
                                 $scope.repoName,
                                 $scope.resultsetId).then(function(decisionTaskId) {
                                     let tc = thTaskcluster.client();
