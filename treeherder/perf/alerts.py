@@ -9,7 +9,7 @@ from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceDatum,
                                     PerformanceSignature)
-from treeherder.perfalert.perfalert import (Datum,
+from treeherder.perfalert.perfalert import (RevisionDatum,
                                             detect_changes)
 
 
@@ -49,8 +49,13 @@ def generate_new_alerts_in_series(signature):
         series = series.filter(
             push_timestamp__gt=latest_alert_timestamp[0])
 
-    data = [Datum(int(time.mktime(d.push_timestamp.timetuple())), d.value, testrun_id=d.push_id) for d in series]
-    prev = None
+    revision_data = {}
+    for d in series:
+        if not revision_data.get(d.push_id):
+            revision_data[d.push_id] = RevisionDatum(
+                int(time.mktime(d.push_timestamp.timetuple())),
+                d.push_id, [])
+        revision_data[d.push_id].values.append(d.value)
 
     min_back_window = signature.min_back_window
     if min_back_window is None:
@@ -65,19 +70,16 @@ def generate_new_alerts_in_series(signature):
     if alert_threshold is None:
         alert_threshold = settings.PERFHERDER_REGRESSION_THRESHOLD
 
-    analyzed_series = detect_changes(data, min_back_window=min_back_window,
+    analyzed_series = detect_changes(revision_data.values(),
+                                     min_back_window=min_back_window,
                                      max_back_window=max_back_window,
                                      fore_window=fore_window)
-    prev_testrun_id = None
+
+    print analyzed_series
     with transaction.atomic():
         for (prev, cur) in zip(analyzed_series, analyzed_series[1:]):
-            # we can have the same testrun id in a sequence if there are
-            # retriggers, so only set the prev_testrun_id if that isn't
-            # the case
-            if prev.testrun_id != cur.testrun_id:
-                prev_testrun_id = prev.testrun_id
-
-            if cur.state == 'regression' and prev_testrun_id:
+            print (prev, cur)
+            if cur.state == 'regression':
                 prev_value = cur.historical_stats['avg']
                 new_value = cur.forward_stats['avg']
                 alert_properties = get_alert_properties(
@@ -95,8 +97,8 @@ def generate_new_alerts_in_series(signature):
                 summary, _ = PerformanceAlertSummary.objects.get_or_create(
                     repository=signature.repository,
                     framework=signature.framework,
-                    push_id=cur.testrun_id,
-                    prev_push_id=prev_testrun_id,
+                    push_id=cur.push_id,
+                    prev_push_id=prev.push_id,
                     defaults={
                         'manually_created': False,
                         'last_updated': datetime.datetime.utcfromtimestamp(
