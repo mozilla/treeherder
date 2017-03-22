@@ -538,7 +538,7 @@
         "name": "gaia",
         "url": "https://github.com/mozilla-b2g/gaia",
         "branch": "pull request",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gaia",
         "repository_group": 3,
         "description": ""
@@ -578,7 +578,7 @@
         "name": "gaia-master",
         "url": "https://github.com/mozilla-b2g/gaia",
         "branch": "master",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gaia",
         "repository_group": 4,
         "description": "Gaia master branch"
