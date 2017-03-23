@@ -16,6 +16,7 @@ MOZHARNESS_RE = re.compile(
     r'^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?'
 )
 REFTEST_RE = re.compile("\s+[=!]=\s+.*")
+OUTPUT_RE = re.compile("^\s*(?:GECKO\(\d+\)|PID \d+)\s*$")
 
 
 def get_error_summary(job):
@@ -96,10 +97,12 @@ def get_error_search_term(error_line):
     search_term = None
 
     if len(tokens) >= 3:
+        # If this is process output then discard the token with the PID
+        if len(tokens) > 3 and OUTPUT_RE.match(tokens[0]):
+            tokens = tokens[1:]
         # it's in the "FAILURE-TYPE | testNameOrFilePath | message" type format.
         test_name_or_path = tokens[1]
         message = tokens[2]
-
         # Leak failure messages are of the form:
         # leakcheck | .*\d+ bytes leaked (Object-1, Object-2, Object-3, ...)
         match = LEAK_RE.search(message)
