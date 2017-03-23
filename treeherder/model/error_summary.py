@@ -178,7 +178,18 @@ def is_helpful_search_term(search_term):
 
     ]
 
-    return len(search_term) > 4 and not (search_term in blacklist)
+    shortname_whitelist = [
+        'damp',
+        'tps'
+    ]
+
+    if search_term in blacklist:
+        return False
+
+    if search_term in shortname_whitelist:
+        return True
+
+    return len(search_term) > 4
 
 
 def get_filtered_error_lines(job):

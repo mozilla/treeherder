@@ -53,6 +53,20 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
             "| application crashed [@ jemalloc_crash]"
         ),
         'webgl-resize-test.html'
+    ),
+    (
+        (
+            "TEST-UNEXPECTED-ERROR "
+            "| damp | psutil.TimeoutExpired timeout after 3000 seconds (pid=3332, name=u'firefox.exe')"
+        ),
+        'damp'
+    ),
+    (
+        (
+            "TEST-UNEXPECTED-ERROR "
+            "| tps | psutil.TimeoutExpired timeout after 3000 seconds (pid=3332, name=u'firefox.exe')"
+        ),
+        'tps'
     )
 )
 
