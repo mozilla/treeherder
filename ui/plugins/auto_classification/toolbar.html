@@ -5,6 +5,11 @@
     </div>
 
     <button class="btn btn-view-nav btn-sm nav-menu-btn"
+            title="Pin job for bustage"
+            ng-click="$ctrl.onPin()"
+            prevent-default-on-left-click>Bustage</button>
+
+    <button class="btn btn-view-nav btn-sm nav-menu-btn"
             title="{{ buttonTitle($ctrl.hasSelection, 'Edit selected lines', 'Nothing selected') }}"
             ng-disabled="!($ctrl.hasSelection && $ctrl.canClassify)"
             ng-click="$ctrl.onEdit()"

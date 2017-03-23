@@ -659,6 +659,10 @@ th-classification-option input {
   vertical-align: middle;
 }
 
+th-classification-option button.btn-xs, th-static-classification-option button.btn-xs {
+  font-size: 8px;
+}
+
 th-error-actions {
   padding: 4px 4px 4px 4px;
   text-align: center;

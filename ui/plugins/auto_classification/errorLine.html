@@ -112,10 +112,12 @@
 
   <div ng-if="!line.verified && !$ctrl.isEditable && $ctrl.canClassify">
     <th-static-classification-option
+       th-job="$ctrl.thJob"
        error-line="line"
        option-data="currentOption"
        selected-option="selectedOption"
        num-options="options.length"
+       can-classify="$ctrl.canClassify"
        on-expand-options="editableChanged(true)">
     </th-static-classification-option>
   </div>
