@@ -105,22 +105,24 @@ def test_detect_alerts_in_series_with_retriggers(
     # gracefully by generating a sequence where the regression
     # "appears" in the middle of a series with the same push
     # to make sure things are calculated correctly
+    # (in this case, we're moving from consistent 0.5 to a 0.5/1.0
+    # mix)
     base_time = time.time()  # generate it based off current time
-    for i in range(30):
-        _generate_performance_data(test_repository, test_perf_signature,
-                                   generic_reference_data,
-                                   base_time, 1, 0.5, 1)
     for i in range(20):
         _generate_performance_data(test_repository, test_perf_signature,
                                    generic_reference_data,
+                                   base_time, 1, 0.5, 1)
+    for i in range(5):
+        _generate_performance_data(test_repository, test_perf_signature,
+                                   generic_reference_data,
                                    base_time, 2, 0.5, 1)
-    for i in range(40):
+    for i in range(15):
         _generate_performance_data(test_repository, test_perf_signature,
                                    generic_reference_data,
                                    base_time, 2, 1.0, 1)
 
     generate_new_alerts_in_series(test_perf_signature)
-    _verify_alert(1, 2, 1, test_perf_signature, 0.5, 1.0, True,
+    _verify_alert(1, 2, 1, test_perf_signature, 0.5, 0.875, True,
                   PerformanceAlert.UNTRIAGED,
                   PerformanceAlertSummary.UNTRIAGED, None)
 
