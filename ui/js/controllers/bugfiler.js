@@ -103,7 +103,12 @@ treeherder.controller('BugFilerCtrl', [
         };
 
         $uibModalInstance.parsedSummary = $uibModalInstance.parseSummary(summary);
-        $scope.modalSummary = "Intermittent " + $uibModalInstance.parsedSummary[0].join(" | ");
+        var summaryString = $uibModalInstance.parsedSummary[0].join(" | ");
+        if (selectedJob.job_group_name.toLowerCase().includes("reftest")) {
+            var re = /layout\/reftests\//gi;
+            summaryString = summaryString.replace(re, "");
+        }
+        $scope.modalSummary = "Intermittent " + summaryString;
 
         $scope.toggleFilerSummaryVisibility = function() {
             $scope.isFilerSummaryVisible = !$scope.isFilerSummaryVisible;
