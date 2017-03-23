@@ -832,6 +832,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
          * Update the panel for a new job selection
          */
         function jobChanged() {
+            ctrl.loadStatus = "loading";
             linesById = new Map();
             ctrl.selectedLineIds = new Set();
             ctrl.editableLineIds = new Set();
@@ -882,7 +883,6 @@ treeherder.controller('ThAutoclassifyPanelController', [
                      bugNumber: null,
                      type: null}));
             requestPromise = null;
-            ctrl.loadStatus = "ready";
             // Store the autoclassify status so that we only retry
             // the load when moving from 'cross_referenced' to 'autoclassified'
             autoclassifyStatusOnLoad = ctrl.autoclassifyStatus;
@@ -901,6 +901,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
                         }
                     });
             }
+            $scope.$evalAsync(() => {ctrl.loadStatus = "ready";});
         }
 
         /**
