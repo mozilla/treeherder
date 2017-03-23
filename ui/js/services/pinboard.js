@@ -166,6 +166,10 @@ treeherder.factory('thPinboard', [
                 return api.maxNumPinned - api.count.numPinnedJobs;
             },
 
+            isPinned: function(job) {
+                return pinnedJobs.hasOwnProperty(job.id);
+            },
+
             pinnedJobs: pinnedJobs,
             relatedBugs: relatedBugs,
             count: {

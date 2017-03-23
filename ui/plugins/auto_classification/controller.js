@@ -93,13 +93,14 @@ treeherder.factory('ThClassificationOption', ['thExtendProperties',
  * Non-editable best option controller
  */
 treeherder.controller('ThStaticClassificationOptionController', [
-    '$scope', 'highlightCommonTermsFilter', 'escapeHTMLFilter', 'thUrl', 'ThLog',
-    function ($scope, highlightCommonTerms, escapeHTML, thUrl, ThLog) {
+    '$scope', 'highlightCommonTermsFilter', 'escapeHTMLFilter', 'thPinboard', 'thUrl', 'ThLog',
+    function ($scope, highlightCommonTerms, escapeHTML, thPinboard, thUrl, ThLog) {
         var ctrl = this;
 
         var log = new ThLog('ThStaticClassificationOptionController');
 
         $scope.getBugUrl = thUrl.getBugUrl;
+        $scope.thPinboard = thPinboard;
 
         ctrl.$onChanges = (changes) => {
             log.debug('$onChanges', ctrl, changes);
@@ -113,10 +114,12 @@ treeherder.component('thStaticClassificationOption', {
     templateUrl: 'plugins/auto_classification/staticOption.html',
     controller: 'ThStaticClassificationOptionController',
     bindings: {
+        thJob: '<',
         errorLine: '<',
         optionData: '<',
         selectedOption: '<',
         numOptions: '<',
+        canClassify:  '<',
         onExpandOptions: '&'
     }
 });
@@ -125,15 +128,16 @@ treeherder.component('thStaticClassificationOption', {
  * Editable option component controller
  */
 treeherder.controller('ThClassificationOptionController', [
-    '$scope', '$uibModal', 'highlightCommonTermsFilter', 'escapeHTMLFilter', 'thUrl',
+    '$scope', '$uibModal', 'highlightCommonTermsFilter', 'escapeHTMLFilter', 'thPinboard', 'thUrl',
     'thReftestStatus', 'ThLog',
-    function ($scope, $uibModal, highlightCommonTerms, escapeHTML, thUrl, thReftestStatus,
+    function ($scope, $uibModal, highlightCommonTerms, escapeHTML, thPinboard, thUrl, thReftestStatus,
               ThLog) {
         var ctrl = this;
 
         var log = new ThLog('ThClassificationOptionController');
 
         $scope.getBugUrl = thUrl.getBugUrl;
+        $scope.thPinboard = thPinboard;
 
         ctrl.$onChanges = (changes) => {
             log.debug('$onChanges', ctrl, changes);
@@ -782,7 +786,8 @@ treeherder.component('thAutoclassifyToolbar', {
         onIgnore: '&',
         onSave: '&',
         onSaveAll: '&',
-        onEdit: '&'
+        onEdit: '&',
+        onPin: '&'
     }
 });
 
@@ -791,10 +796,10 @@ treeherder.component('thAutoclassifyToolbar', {
  */
 treeherder.controller('ThAutoclassifyPanelController', [
     '$scope', '$rootScope', '$q', '$timeout',
-    'ThLog', 'thEvents', 'thNotify', 'thJobNavSelectors',
+    'ThLog', 'thEvents', 'thNotify', 'thJobNavSelectors', 'thPinboard',
     'ThMatcherModel', 'ThTextLogErrorsModel', 'ThErrorLineData',
     function($scope, $rootScope, $q, $timeout,
-             ThLog, thEvents, thNotify, thJobNavSelectors,
+             ThLog, thEvents, thNotify, thJobNavSelectors, thPinboard,
              ThMatcherModel, ThTextLogErrorsModel, ThErrorLineData) {
 
         var ctrl = this;
@@ -975,6 +980,15 @@ treeherder.controller('ThAutoclassifyPanelController', [
          */
         ctrl.onIgnore = function() {
             $rootScope.$emit(thEvents.autoclassifyIgnore);
+        };
+
+        /**
+         * Pin selected job to the pinboard
+         */
+
+        ctrl.onPin = function() {
+            //TODO: consider whether this should add bugs or mark all lines as ignored
+            thPinboard.pinJob(ctrl.thJob);
         };
 
         /**
