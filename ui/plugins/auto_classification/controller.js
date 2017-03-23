@@ -844,7 +844,10 @@ treeherder.controller('ThAutoclassifyPanelController', [
          * (Re)build all the panel contents with fresh data
          */
         function build() {
-            if (!ctrl.logsParsed || ctrl.autoclassifyStatus === "pending") {
+            if (ctrl.thJob.state === "pending" || ctrl.thJob.state === "running") {
+                ctrl.loadStatus = "job_pending";
+            }
+            else if (!ctrl.logsParsed || ctrl.autoclassifyStatus === "pending") {
                 ctrl.loadStatus = "pending";
             } else if (ctrl.logParsingFailed) {
                 ctrl.loadStatus = "failed";

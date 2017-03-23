@@ -16,6 +16,7 @@
    ></th-autoclassify-toolbar>
 
 <div ng-switch="$ctrl.loadStatus">
+  <span ng-switch-when="job_pending">Job not complete, please wait</span>
   <span ng-switch-when="pending">Logs not fully parsed, please wait</span>
   <span ng-switch-when="failed">Log parsing failed</span>
   <span ng-switch-when="no_logs">No errors logged</span>
