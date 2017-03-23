@@ -24,12 +24,15 @@
       <span class="fa fa-spinner fa-pulse th-spinner-lg"></span>
     </div>
   </div>
-  <span ng-switch-when="ready"></span>
+  <span ng-switch-when="ready">
+    <span ng-if="pendingLines().length == 0">No error lines reported</span>
+  </span>
   <span ng-switch-when="error">Error showing autoclassification data</span>
   <span ng-switch-default>Unexpected status {{ $ctrl.status }}</span>
 </div>
 
 <th-autoclassify-errors
+   ng-hidden="$ctrl.loadStatus !== 'ready'"
    load-status="$ctrl.loadStatus"
    error-matchers="errorMatchers"
    th-job="$ctrl.thJob"
