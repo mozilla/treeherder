@@ -53,6 +53,24 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
             "| application crashed [@ jemalloc_crash]"
         ),
         'webgl-resize-test.html'
+    ),
+    (
+        (
+            "GECKO(1670) "
+            "| TEST-UNEXPECTED-FAIL "
+            "| /tests/dom/events/test/pointerevents/pointerevent_touch-action-table-test_touch-manual.html "
+            "| touch-action attribute test on the cell: assert_true: scroll received while shouldn't expected true got false"
+        ),
+        'pointerevent_touch-action-table-test_touch-manual.html'
+    ),
+    (
+        (
+            "PID 1670 "
+            "| TEST-UNEXPECTED-FAIL "
+            "| /tests/dom/events/test/pointerevents/pointerevent_touch-action-table-test_touch-manual.html "
+            "| touch-action attribute test on the cell: assert_true: scroll received while shouldn't expected true got false"
+        ),
+        'pointerevent_touch-action-table-test_touch-manual.html'
     )
 )
 
