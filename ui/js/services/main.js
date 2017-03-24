@@ -28,8 +28,12 @@ treeherder.factory('thUrl', [
                     return result + k + '=' + v;
                 }, "");
             },
-            getLogViewerUrl: function(job_id) {
-                return "logviewer.html#?job_id=" + job_id + "&repo=" + $rootScope.repoName;
+            getLogViewerUrl: function(job_id, line_number) {
+                var rv = "logviewer.html#?job_id=" + job_id + "&repo=" + $rootScope.repoName;
+                if (line_number) {
+                    rv += "&lineNumber=" + line_number;
+                }
+                return rv;
             },
             getBugUrl: function(bug_id) {
                 return "https://bugzilla.mozilla.org/show_bug.cgi?id=" + bug_id;

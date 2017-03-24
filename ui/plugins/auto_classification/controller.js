@@ -237,6 +237,7 @@ treeherder.controller('ThErrorLineController', [
          */
         function build() {
             line = $scope.line = ctrl.errorLine;
+            $scope.logUrl = thUrl.getLogViewerUrl(ctrl.thJob.id, line.data.line_number + 1);
             if (!line.verified) {
                 $scope.options = getOptions();
                 log.debug("options", $scope.options);
@@ -797,10 +798,10 @@ treeherder.component('thAutoclassifyToolbar', {
 treeherder.controller('ThAutoclassifyPanelController', [
     '$scope', '$rootScope', '$q', '$timeout',
     'ThLog', 'thEvents', 'thNotify', 'thJobNavSelectors', 'thPinboard',
-    'ThMatcherModel', 'ThTextLogErrorsModel', 'ThErrorLineData',
+    'thUrl', 'ThMatcherModel', 'ThTextLogErrorsModel', 'ThErrorLineData',
     function($scope, $rootScope, $q, $timeout,
              ThLog, thEvents, thNotify, thJobNavSelectors, thPinboard,
-             ThMatcherModel, ThTextLogErrorsModel, ThErrorLineData) {
+             thUrl, ThMatcherModel, ThTextLogErrorsModel, ThErrorLineData) {
 
         var ctrl = this;
 
@@ -1037,6 +1038,14 @@ treeherder.controller('ThAutoclassifyPanelController', [
             setEditable([lineId], editable);
         };
 
+        ctrl.onOpenLogViewer = function() {
+            var selected = $scope.selectedLines();
+            if (selected.length) {
+                var lineNumber = selected[0].data.line_number + 1;
+            }
+            window.open(thUrl.getLogViewerUrl(ctrl.thJob.id, lineNumber));
+        };
+
         function setEditable(lineIds, editable) {
             var f = editable ? (lineId) => ctrl.editableLineIds.add(lineId):
                     (lineId) => ctrl.editableLineIds.delete(lineId);
@@ -1229,6 +1238,9 @@ treeherder.controller('ThAutoclassifyPanelController', [
 
         $rootScope.$on(thEvents.autoclassifyToggleEdit,
                        () => ctrl.onToggleEditable());
+
+        $rootScope.$on(thEvents.autoclassifyOpenLogViewer,
+                       () => ctrl.onOpenLogViewer());
     }
 ]);
 
