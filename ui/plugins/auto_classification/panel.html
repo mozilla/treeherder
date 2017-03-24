@@ -27,7 +27,7 @@
     </div>
   </div>
   <span ng-switch-when="ready">
-    <span ng-if="pendingLines().length == 0">No error lines reported</span>
+    <span ng-if="!errorLines || errorLines.length == 0">No error lines reported</span>
   </span>
   <span ng-switch-when="error">Error showing autoclassification data</span>
   <span ng-switch-default>Unexpected status {{ $ctrl.status }}</span>
