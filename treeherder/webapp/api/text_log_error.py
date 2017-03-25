@@ -76,6 +76,7 @@ class TextLogErrorViewSet(viewsets.ModelViewSet):
             return ("No classification with id: {0}".format(", ".join(missing)),
                     HTTP_404_NOT_FOUND)
 
+        jobs = set()
         for line_id, classification_id, bug_number in ids:
             logger.debug("line_id: %s, classification_id: %s, bug_number: %s" %
                          (line_id, classification_id, bug_number))
@@ -93,8 +94,11 @@ class TextLogErrorViewSet(viewsets.ModelViewSet):
                 logger.debug("Using null classification")
                 classification = None
 
+            jobs.add(error_line.step.job)
             error_line.mark_best_classification_verified(classification)
-            error_line.step.job.update_after_verification(user)
+
+        for job in jobs:
+            job.update_after_verification(user)
 
         # Force failure line to be reloaded, including .classified_failures
         rv = (TextLogError.objects
