@@ -969,6 +969,7 @@ class JobNoteManager(models.Manager):
                           .filter(best_for_errors__text_log_error__step__job=job,
                                   best_for_errors__best_is_verified=True)
                           .exclude(bug_number=None)
+                          .exclude(bug_number=0)
                           .values_list('bug_number', flat=True))
 
         # Legacy
@@ -976,6 +977,7 @@ class JobNoteManager(models.Manager):
                            .filter(summary__job_guid=job.guid,
                                    verified=True)
                            .exclude(bug_number=None)
+                           .exclude(bug_number=0)
                            .values_list('bug_number', flat=True))
 
         for bug_number in bug_numbers:
