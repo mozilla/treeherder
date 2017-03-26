@@ -2,11 +2,11 @@
 
 treeherder.controller('BugFilerCtrl', [
     '$scope', '$rootScope', '$uibModalInstance', '$http', 'summary', 'thBugzillaProductObject',
-    'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures',
+    'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures', 'crashSignatures',
     'successCallback', 'thNotify',
     function BugFilerCtrl(
         $scope, $rootScope, $uibModalInstance, $http, summary, thBugzillaProductObject,
-        fullLog, parsedLog, reftest, selectedJob, allFailures,
+        fullLog, parsedLog, reftest, selectedJob, allFailures, crashSignatures,
         successCallback, thNotify) {
 
         var bzBaseUrl = "https://bugzilla.mozilla.org/";
@@ -31,6 +31,7 @@ treeherder.controller('BugFilerCtrl', [
 
         $scope.parsedLog = parsedLog;
         $scope.fullLog = fullLog;
+        $scope.crashSignatures = crashSignatures.join("\n");
         if ($scope.isReftest()) {
             $scope.reftest = reftest;
         }
@@ -256,9 +257,15 @@ treeherder.controller('BugFilerCtrl', [
 
             var keywords = $scope.isIntermittent ? "intermittent-failure" : "";
 
+            var severity = "";
             var blocks = $scope.modalBlocks;
             var dependsOn = $scope.modalDependsOn;
             var seeAlso = $scope.modalSeeAlso;
+            var crashSignature = $scope.crashSignatures;
+            if (crashSignature.length > 0) {
+                keywords = keywords.length > 0 ? keywords + ", crash" : "crash";
+                severity = "critical";
+            }
 
             // Fetch product information from bugzilla to get version numbers, then submit the new bug
             // Only request the versions because some products take quite a long time to fetch the full object
@@ -284,6 +291,8 @@ treeherder.controller('BugFilerCtrl', [
                             "blocks": blocks,
                             "depends_on": dependsOn,
                             "see_also": seeAlso,
+                            "crash_signature": crashSignature,
+                            "severity": severity,
                             "comment": descriptionStrings,
                             "comment_tags": "treeherder"
                         }

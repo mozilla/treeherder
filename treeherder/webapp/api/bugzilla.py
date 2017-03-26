@@ -38,6 +38,8 @@ class BugzillaViewSet(viewsets.ViewSet):
             'depends_on': params.get("depends_on"),
             'see_also': params.get("see_also"),
             'version': params.get("version"),
+            'cf_crash_signature': params.get("crash_signature"),
+            'severity': params.get("severity"),
             'description': description,
             'comment_tags': "treeherder",
         }
