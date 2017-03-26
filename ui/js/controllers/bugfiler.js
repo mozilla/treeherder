@@ -255,7 +255,10 @@ treeherder.controller('BugFilerCtrl', [
                 descriptionStrings += $scope.modalComment;
             }
 
-            var keywords = $scope.isIntermittent ? "intermittent-failure" : "";
+            var keywords = [];
+            if ($scope.isIntermittent) {
+                keywords.push("intermittent-failure");
+            }
 
             var severity = "";
             var blocks = $scope.modalBlocks;
@@ -263,7 +266,7 @@ treeherder.controller('BugFilerCtrl', [
             var seeAlso = $scope.modalSeeAlso;
             var crashSignature = $scope.crashSignatures;
             if (crashSignature.length > 0) {
-                keywords = keywords.length > 0 ? keywords + ", crash" : "crash";
+                keywords.push("crash");
                 severity = "critical";
             }
 
