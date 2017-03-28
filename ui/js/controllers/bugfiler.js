@@ -22,6 +22,8 @@ treeherder.controller('BugFilerCtrl', [
             }
         };
 
+        $scope.failurePath = "";
+
         /*
          **
          */
@@ -143,28 +145,28 @@ treeherder.controller('BugFilerCtrl', [
                     $scope.selection.selectedProduct = $scope.suggestedProducts[0];
                 });
             } else {
-                var failurePath = $uibModalInstance.parsedSummary[0][0];
+                $scope.failurePath = $uibModalInstance.parsedSummary[0][0];
 
                 // If the "TEST-UNEXPECTED-foo" isn't one of the omitted ones, use the next piece in the summary
-                if (failurePath.includes("TEST-UNEXPECTED-")) {
-                    failurePath = $uibModalInstance.parsedSummary[0][1];
+                if ($scope.failurePath.includes("TEST-UNEXPECTED-")) {
+                    $scope.failurePath = $uibModalInstance.parsedSummary[0][1];
                 }
 
                 // Try to fix up file paths for some job types.
                 if (selectedJob.job_group_name.toLowerCase().includes("spidermonkey")) {
-                    failurePath = "js/src/tests/" + failurePath;
+                    $scope.failurePath = "js/src/tests/" + $scope.failurePath;
                 }
                 if (selectedJob.job_group_name.toLowerCase().includes("videopuppeteer ")) {
-                    failurePath = failurePath.replace("FAIL ", "");
-                    failurePath = "dom/media/test/external/external_media_tests/" + failurePath;
+                    $scope.failurePath = $scope.failurePath.replace("FAIL ", "");
+                    $scope.failurePath = "dom/media/test/external/external_media_tests/" + $scope.failurePath;
                 }
                 if (selectedJob.job_group_name.toLowerCase().includes("web platform")) {
-                    failurePath = "testing/web-platform/tests/" + failurePath;
+                    $scope.failurePath = "testing/web-platform/tests/" + $scope.failurePath;
                 }
 
                 // Search mercurial's moz.build metadata to find products/components
                 $scope.searching = "Mercurial";
-                $http.get("https://hg.mozilla.org/mozilla-central/json-mozbuildinfo?p=" + failurePath).then(function(request) {
+                $http.get("https://hg.mozilla.org/mozilla-central/json-mozbuildinfo?p=" + $scope.failurePath).then(function(request) {
                     if (request.data.aggregate && request.data.aggregate.recommended_bug_component) {
                         var suggested = request.data.aggregate.recommended_bug_component;
                         $scope.suggestedProducts.push(suggested[0] + " :: " + suggested[1]);
@@ -181,10 +183,10 @@ treeherder.controller('BugFilerCtrl', [
                         if (jg.includes("talos")) {
                             $scope.suggestedProducts.push("Testing :: Talos");
                         }
-                        if (jg.includes("mochitest") && failurePath.includes("webextensions/")) {
+                        if (jg.includes("mochitest") && $scope.failurePath.includes("webextensions/")) {
                             $scope.suggestedProducts.push("Toolkit :: WebExtensions: General");
                         }
-                        if (jg.includes("mochitest") && failurePath.includes("webrtc/")) {
+                        if (jg.includes("mochitest") && $scope.failurePath.includes("webrtc/")) {
                             $scope.suggestedProducts.push("Core :: WebRTC");
                         }
                     }
@@ -223,6 +225,18 @@ treeherder.controller('BugFilerCtrl', [
                 thNotify.send("Please ensure the summary is no more than 255 characters", "danger");
                 $scope.toggleForm(false);
                 return;
+            }
+
+            // Hopefully cut back on the number of duplicates filed
+            if ($scope.failurePath.length < 5) {
+                if (!window.confirm("Test failures for terms shorter than five characters like `" +
+                                   $scope.failurePath + "` aren't suggested in Treeherder, so " +
+                                   "it's possible a bug is already filed for this failure.\n\n" +
+                                   "Are you sure you need to file a new bug for this failure:\n\n" +
+                                   $scope.modalSummary.replace("Intermittent ", ""))) {
+                    $scope.toggleForm(false);
+                    return;
+                }
             }
 
             if ($scope.selection.selectedProduct) {
