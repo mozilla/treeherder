@@ -11,7 +11,7 @@ treeherder.controller('BugFilerCtrl', [
 
         var bzBaseUrl = "https://bugzilla.mozilla.org/";
 
-        $scope.omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR"];
+        $scope.omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR", "REFTEST ERROR"];
 
         /**
          *  'enter' from the product search input should initiate the search
