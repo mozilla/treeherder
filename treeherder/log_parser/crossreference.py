@@ -107,7 +107,9 @@ def structured_iterator(failure_lines):
     """
     to_regexp = ErrorSummaryReConvertor()
     for failure_line in failure_lines:
-        yield failure_line, to_regexp(failure_line)
+        regexp = to_regexp(failure_line)
+        if regexp:
+            yield failure_line, regexp
     while True:
         yield None, None
 
