@@ -14,6 +14,7 @@ test_line = {"action": "test_result", "test": "test1", "subtest": "subtest1",
              "status": "FAIL", "expected": "PASS", "message": "message1"}
 log_line = {"action": "log", "level": "ERROR", "message": "message1"}
 crash_line = {"action": "crash", "signature": "signature", "test": "test1"}
+group_line = {"action": "test_groups"}
 
 
 def create_lines(test_job, lines):

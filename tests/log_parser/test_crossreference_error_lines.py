@@ -7,6 +7,7 @@ from treeherder.model.models import (FailureLine,
 
 from ..autoclassify.utils import (create_failure_lines,
                                   create_text_log_errors,
+                                  group_line,
                                   test_line)
 
 
@@ -96,6 +97,45 @@ def test_crossreference_error_lines_missing(test_job):
 
     for i, (failure_line, error_line, summary_line) in enumerate(
             zip(failure_lines, error_lines[1:], summary_lines[1:])):
+        assert summary_line.summary == summary
+        assert summary_line.line_number == i + 1
+        assert summary_line.failure_line == failure_line
+        assert summary_line.verified is False
+        assert summary_line.bug_number is None
+        assert error_line.metadata.failure_line == failure_line
+        assert error_line.metadata.best_is_verified is False
+        assert error_line.metadata.best_classification is None
+
+
+def test_crossreference_error_lines_leading_groups(test_job):
+    lines = [(group_line, {}),
+             (test_line, {}),
+             (test_line, {"subtest": "subtest2"}),
+             (test_line, {"status": "TIMEOUT"}),
+             (test_line, {"expected": "ERROR"}),
+             (test_line, {"message": "message2"})]
+
+    create_failure_lines(test_job, lines)
+    create_text_log_errors(test_job, lines)
+
+    call_command('crossreference_error_lines', str(test_job.id))
+
+    error_lines = TextLogError.objects.filter(step__job=test_job).all()
+    summary = TextLogSummary.objects.all()
+    assert len(summary) == 1
+    summary = summary[0]
+
+    assert summary.repository == test_job.repository
+    assert summary.job_guid == test_job.guid
+
+    summary_lines = TextLogSummaryLine.objects.all()
+    assert len(summary_lines) == len(lines) - 1
+
+    failure_lines = FailureLine.objects.all()
+    assert len(failure_lines) == len(lines)
+
+    for i, (failure_line, error_line, summary_line) in enumerate(
+            zip(failure_lines[1:], error_lines, summary_lines)):
         assert summary_line.summary == summary
         assert summary_line.line_number == i + 1
         assert summary_line.failure_line == failure_line
