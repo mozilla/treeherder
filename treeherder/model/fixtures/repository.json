@@ -1104,5 +1104,19 @@
         "repository_group": 7,
         "description": "GPU renderer for Servo"
     }
+},
+{
+    "pk": 87,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "addon-tests",
+        "url": "https://github.com/mozilla/Addon-Tests",
+        "branch": "master",
+        "active_status": "active",
+        "codebase": "addon-tests",
+        "repository_group": 5,
+        "description": "Tests for Add-ons"
+    }
 }
 ]
