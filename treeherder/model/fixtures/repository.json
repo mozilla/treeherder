@@ -1160,5 +1160,19 @@
         "repository_group": 5,
         "description": "Tests for Mozillians"
     }
+},
+{
+    "pk": 91,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "snippets-tests",
+        "url": "https://github.com/mozilla/snippets-tests",
+        "branch": "master",
+        "active_status": "active",
+        "codebase": "snippets-tests",
+        "repository_group": 5,
+        "description": "Tests for Snippets"
+    }
 }
 ]
