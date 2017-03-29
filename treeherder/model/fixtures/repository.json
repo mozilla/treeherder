@@ -1118,5 +1118,19 @@
         "repository_group": 5,
         "description": "Tests for Add-ons"
     }
+},
+{
+    "pk": 88,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "fxapom",
+        "url": "https://github.com/mozilla/fxapom",
+        "branch": "master",
+        "active_status": "active",
+        "codebase": "fxapom",
+        "repository_group": 5,
+        "description": "Firefox Account Page Object Model"
+    }
 }
 ]
