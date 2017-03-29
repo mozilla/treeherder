@@ -1202,5 +1202,19 @@
         "repository_group": 5,
         "description": "Tests for the stub attribution service"
     }
+},
+{
+    "pk": 94,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "treeherder-tests",
+        "url": "https://github.com/mozilla/treeherder-tests",
+        "branch": "master",
+        "active_status": "active",
+        "codebase": "treeherder-tests",
+        "repository_group": 5,
+        "description": "Tests for Treeherder"
+    }
 }
 ]
