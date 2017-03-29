@@ -1,0 +1,6 @@
+mozlog==3.4
+PyPOM==1.1.1
+pytest==3.0.7
+pytest-metadata==1.3.0
+pytest-selenium==1.9.1
+pytest-xdist==1.15.0
