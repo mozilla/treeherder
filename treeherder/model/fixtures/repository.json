@@ -1146,5 +1146,19 @@
         "repository_group": 5,
         "description": "Go version of the redirector portion of bouncer"
     }
+},
+{
+    "pk": 90,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "mozillians-tests",
+        "url": "https://github.com/mozilla/mozillians-tests",
+        "branch": "master",
+        "active_status": "active",
+        "codebase": "mozillians-tests",
+        "repository_group": 5,
+        "description": "Tests for Mozillians"
+    }
 }
 ]
