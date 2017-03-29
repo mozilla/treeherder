@@ -1104,5 +1104,117 @@
         "repository_group": 7,
         "description": "GPU renderer for Servo"
     }
+},
+{
+    "pk": 87,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "addon-tests",
+        "url": "https://github.com/mozilla/Addon-Tests",
+        "branch": "master",
+        "active_status": "active",
+        "codebase": "addon-tests",
+        "repository_group": 5,
+        "description": "Tests for Add-ons"
+    }
+},
+{
+    "pk": 88,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "fxapom",
+        "url": "https://github.com/mozilla/fxapom",
+        "branch": "master",
+        "active_status": "active",
+        "codebase": "fxapom",
+        "repository_group": 5,
+        "description": "Firefox Account Page Object Model"
+    }
+},
+{
+    "pk": 89,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "go-bouncer",
+        "url": "https://github.com/mozilla-services/go-bouncer",
+        "branch": "master",
+        "active_status": "active",
+        "codebase": "go-bouncer",
+        "repository_group": 5,
+        "description": "Go version of the redirector portion of bouncer"
+    }
+},
+{
+    "pk": 90,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "mozillians-tests",
+        "url": "https://github.com/mozilla/mozillians-tests",
+        "branch": "master",
+        "active_status": "active",
+        "codebase": "mozillians-tests",
+        "repository_group": 5,
+        "description": "Tests for Mozillians"
+    }
+},
+{
+    "pk": 91,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "snippets-tests",
+        "url": "https://github.com/mozilla/snippets-tests",
+        "branch": "master",
+        "active_status": "active",
+        "codebase": "snippets-tests",
+        "repository_group": 5,
+        "description": "Tests for Snippets"
+    }
+},
+{
+    "pk": 92,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "socorro",
+        "url": "https://github.com/mozilla/socorro",
+        "branch": "master",
+        "active_status": "active",
+        "codebase": "socorro",
+        "repository_group": 5,
+        "description": "Server for collecting, processing, and displaying crash reports from clients using the Breakpad libraries"
+    }
+},
+{
+    "pk": 93,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "stubattribution-tests",
+        "url": "https://github.com/mozilla/stubattribution-tests",
+        "branch": "master",
+        "active_status": "active",
+        "codebase": "stubattribution-tests",
+        "repository_group": 5,
+        "description": "Tests for the stub attribution service"
+    }
+},
+{
+    "pk": 94,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "treeherder-tests",
+        "url": "https://github.com/mozilla/treeherder-tests",
+        "branch": "master",
+        "active_status": "active",
+        "codebase": "treeherder-tests",
+        "repository_group": 5,
+        "description": "Tests for Treeherder"
+    }
 }
 ]
