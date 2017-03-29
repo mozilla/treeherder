@@ -1174,5 +1174,19 @@
         "repository_group": 5,
         "description": "Tests for Snippets"
     }
+},
+{
+    "pk": 92,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "socorro",
+        "url": "https://github.com/mozilla/socorro",
+        "branch": "master",
+        "active_status": "active",
+        "codebase": "socorro",
+        "repository_group": 5,
+        "description": "Server for collecting, processing, and displaying crash reports from clients using the Breakpad libraries"
+    }
 }
 ]
