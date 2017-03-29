@@ -1132,5 +1132,19 @@
         "repository_group": 5,
         "description": "Firefox Account Page Object Model"
     }
+},
+{
+    "pk": 89,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "go-bouncer",
+        "url": "https://github.com/mozilla-services/go-bouncer",
+        "branch": "master",
+        "active_status": "active",
+        "codebase": "go-bouncer",
+        "repository_group": 5,
+        "description": "Go version of the redirector portion of bouncer"
+    }
 }
 ]
