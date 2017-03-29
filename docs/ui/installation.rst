@@ -96,7 +96,13 @@ We run our JavaScript code in the frontend through eslint_ to ensure
 that new code has a consistent style and doesn't suffer from common
 errors. Eslint will run automatically when you build the JavaScript code
 or run the  development server. A production build will fail if your code
-does not match the style requirements in ``.eslintrc``.
+does not match the style requirements.
+
+To run eslint by itself, you may run the lint task:
+
+  .. code-block:: bash
+
+     $ yarn run lint
 
 Running the unit tests
 ======================
