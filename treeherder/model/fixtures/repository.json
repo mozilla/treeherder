@@ -1188,5 +1188,19 @@
         "repository_group": 5,
         "description": "Server for collecting, processing, and displaying crash reports from clients using the Breakpad libraries"
     }
+},
+{
+    "pk": 93,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "stubattribution-tests",
+        "url": "https://github.com/mozilla/stubattribution-tests",
+        "branch": "master",
+        "active_status": "active",
+        "codebase": "stubattribution-tests",
+        "repository_group": 5,
+        "description": "Tests for the stub attribution service"
+    }
 }
 ]
