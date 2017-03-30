@@ -26,6 +26,14 @@ To submit your test data to Treeherder, you have two options:
     the host you send it to.  Dev instances can not subscribe to this data.
 
 
+If you are establishing a new repository with Treeherder, then you will need to
+do one of the following:
+
+1. For Github repos: :ref:`add-github-repo`
+
+2. For Mercurial repos: :ref:`add-hg-repo`
+
+
 .. _submitting-using-pulse:
 
 Submitting using Pulse
@@ -656,6 +664,29 @@ log name.  You must specify the name in two places for this to work.
         "name": "text_log_summary",
         "job_id": 1774360
     }
+
+
+.. _add-github-repo:
+
+Adding a Github Repository
+--------------------------
+
+The pushes from Github repos come to Treeherder via Pulse.  The webhook to enable
+this exists in the Github group ``mozilla``. (For example, ``github.com/mozilla/treeherder``)
+
+The following steps are required:
+
+1. Create a PR with the new repository information added to the fixtures file:
+   ``treeherder/model/fixtures/repository.json``  (See other entries in that file
+   for examples of the data to fill.)
+2. Open a bug request to enable the webhook that will trigger pulse messages for
+   every push from your repo.  Use the following information:
+
+   a. Component: Github: Administration
+   b. Ask to install the https://github.com/integration/taskcluster integration on your repositories
+   c. List the repositories you want to have access to the integration
+   d. Answer: Are any of those repositories private?
+   e. State that this is only to get Pulse messages for integration into Treeherder
 
 .. _Pulse Guardian: https://pulseguardian.mozilla.org/whats_pulse
 .. _Pulse: https://wiki.mozilla.org/Auto-tools/Projects/Pulse
