@@ -61,22 +61,22 @@ class Query(graphene.ObjectType):
         return BuildPlatform.objects.all()
 
     def resolve_all_machine_platforms(self, args, context, info):
-        return BuildPlatform.objects.all()
+        return MachinePlatform.objects.all()
 
     def resolve_all_machines(self, args, context, info):
-        return BuildPlatform.objects.all()
+        return Machine.objects.all()
 
     def resolve_all_job_types(self, args, context, info):
-        return BuildPlatform.objects.all()
+        return JobType.objects.all()
 
     def resolve_all_products(self, args, context, info):
-        return BuildPlatform.objects.all()
+        return Product.objects.all()
 
     def resolve_all_failure_classifications(self, args, context, info):
-        return BuildPlatform.objects.all()
+        return FailureClassification.objects.all()
 
     def resolve_all_pushes(self, args, context, info):
-        return BuildPlatform.objects.all()
+        return Push.objects.all()
 
 
 schema = graphene.Schema(query=Query)
