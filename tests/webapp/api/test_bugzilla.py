@@ -23,7 +23,7 @@ def test_create_bug(webapp, eleven_jobs_stored, activate_responses, test_user):
         assert requestdata['summary'] == "Intermittent summary"
         assert requestdata['comment_tags'] == "treeherder"
         assert requestdata['version'] == "4.0.17"
-        assert requestdata['keywords'] == "intermittent-failure"
+        assert requestdata['keywords'] == ["intermittent-failure"]
         resp_body = {"id": 323}
         return(200, headers, json.dumps(resp_body))
 
@@ -45,7 +45,58 @@ def test_create_bug(webapp, eleven_jobs_stored, activate_responses, test_user):
             "version": "4.0.17",
             "comment": "Intermittent Description",
             "comment_tags": "treeherder",
-            "keywords": "intermittent-failure",
+            "keywords": ["intermittent-failure"],
+        }
+    )
+
+    content = json.loads(resp.content)
+
+    assert content['success'] == 323
+
+
+def test_create_crash_bug(webapp, eleven_jobs_stored, activate_responses, test_user):
+    """
+    test successfully creating a bug with a crash signature in bugzilla
+    """
+
+    def request_callback(request):
+        headers = {}
+        requestdata = json.loads(request.body)
+        requestheaders = request.headers
+        assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
+        assert requestdata['product'] == "Bugzilla"
+        assert requestdata['description'] == "Filed by: {}\n\nIntermittent Description".format(test_user.email.replace('@', " [at] "))
+        assert requestdata['component'] == "Administration"
+        assert requestdata['summary'] == "Intermittent summary"
+        assert requestdata['comment_tags'] == "treeherder"
+        assert requestdata['version'] == "4.0.17"
+        assert requestdata['keywords'] == ["intermittent-failure", "crash"]
+        assert requestdata['cf_crash_signature'] == "[@crashsig]"
+        assert requestdata['severity'] == 'critical'
+        resp_body = {"id": 323}
+        return(200, headers, json.dumps(resp_body))
+
+    responses.add_callback(
+        responses.POST, "https://thisisnotbugzilla.org/rest/bug",
+        callback=request_callback, match_querystring=False,
+        content_type="application/json",
+    )
+
+    client = APIClient()
+    client.force_authenticate(user=test_user)
+
+    resp = client.post(
+        reverse("bugzilla-create-bug"),
+        {
+            "product": "Bugzilla",
+            "component": "Administration",
+            "summary": "Intermittent summary",
+            "version": "4.0.17",
+            "comment": "Intermittent Description",
+            "comment_tags": "treeherder",
+            "crash_signature": "[@crashsig]",
+            "severity": "critical",
+            "keywords": ["intermittent-failure", "crash"],
         }
     )
 
@@ -73,7 +124,7 @@ def test_create_unauthenticated_bug(webapp, eleven_jobs_stored, activate_respons
         assert requestdata['summary'] == "Intermittent summary"
         assert requestdata['comment_tags'] == "treeherder"
         assert requestdata['version'] == "4.0.17"
-        assert requestdata['keywords'] == "intermittent-failure"
+        assert requestdata['keywords'] == ["intermittent-failure"]
         assert requestdata['depends_on'] == "123"
         assert requestdata['blocks'] == "1234"
         assert requestdata['see_also'] == "12345"
@@ -97,7 +148,7 @@ def test_create_unauthenticated_bug(webapp, eleven_jobs_stored, activate_respons
             "version": "4.0.17",
             "comment": "Intermittent Description",
             "comment_tags": "treeherder",
-            "keywords": "intermittent-failure",
+            "keywords": ["intermittent-failure"],
             "depends_on": "123",
             "blocks": "1234",
             "see_also": "12345",

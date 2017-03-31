@@ -76,6 +76,11 @@
         <input type="text" ng-model="modalDependsOn" placeholder="Depends on" uib-tooltip="Comma-separated list of bugs" tooltip-placement="bottom" />
         <input type="text" ng-model="modalSeeAlso" placeholder="See also" uib-tooltip="Comma-separated list of bugs" tooltip-placement="bottom" />
       </div>
+
+      <div ng-show="crashSignatures.length" id="modalCrashSignatureDiv">
+        <label id="modalCrashSignatureLabel" for="modalCrashSignature">Signature:</label>
+        <textarea id="modalCrashSignature" ng-model="crashSignatures"></textarea>
+      </div>
     </div>
   </form>
 </div>
