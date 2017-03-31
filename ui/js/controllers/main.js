@@ -467,7 +467,9 @@ treeherderApp.controller('MainCtrl', [
 
             // Shortcut: open the logviewer for the selected job
             ['l', function() {
-                if ($scope.selectedJob) {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyOpenLogViewer));
+                } else if ($scope.selectedJob) {
                     $scope.$evalAsync($rootScope.$emit(thEvents.openLogviewer));
                 }
             }],
