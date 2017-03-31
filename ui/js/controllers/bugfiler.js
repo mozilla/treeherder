@@ -1,13 +1,13 @@
 "use strict";
 
 treeherder.controller('BugFilerCtrl', [
-    '$scope', '$rootScope', '$uibModalInstance', '$http', 'summary', 'thBugzillaProductObject',
-    'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures', 'crashSignatures',
-    'successCallback', 'thNotify',
+    '$scope', '$rootScope', '$uibModalInstance', '$http', 'summary',
+    'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures',
+    'crashSignatures', 'successCallback', 'thNotify',
     function BugFilerCtrl(
-        $scope, $rootScope, $uibModalInstance, $http, summary, thBugzillaProductObject,
-        fullLog, parsedLog, reftest, selectedJob, allFailures, crashSignatures,
-        successCallback, thNotify) {
+        $scope, $rootScope, $uibModalInstance, $http, summary,
+        fullLog, parsedLog, reftest, selectedJob, allFailures,
+        crashSignatures, successCallback, thNotify) {
 
         var bzBaseUrl = "https://bugzilla.mozilla.org/";
 
@@ -185,15 +185,6 @@ treeherder.controller('BugFilerCtrl', [
                         }
                         if (jg.includes("mochitest") && failurePath.includes("webrtc/")) {
                             $scope.suggestedProducts.push("Core :: WebRTC");
-                        }
-                    }
-
-                    if ($scope.suggestedProducts.length === 0) {
-                        var failurePathRoot = failurePath.split("/")[0];
-
-                        // Last ditch effort, Look up the product via the root of the failure's file path
-                        if (thBugzillaProductObject[failurePathRoot]) {
-                            $scope.suggestedProducts.push(thBugzillaProductObject[failurePathRoot][0]);
                         }
                     }
 
