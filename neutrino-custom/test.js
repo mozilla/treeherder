@@ -1,22 +1,8 @@
 'use strict';
-const basePreset = require('./base');
-const karmaPreset = require('neutrino-preset-karma');
-const UI = require('./base').UI;
+const karma = require('neutrino-preset-karma');
 
 module.exports = neutrino => {
-    basePreset(neutrino);
-    karmaPreset(neutrino);
-
-    // Add an isntanbul loader to generate coverage for js(x) in ui/
-    neutrino.config.module
-        .rule('coverage')
-        .post()
-        .include(UI)
-        .test(/\.jsx?$/)
-        .loader('istanbul', require.resolve('istanbul-instrumenter-loader'));
-
-    // Normal karma config
-    neutrino.custom.karma = {
+    neutrino.use(karma, () => ({
         browsers: ['Firefox'],
         coverageIstanbulReporter: {
             reports: ['html'],
@@ -32,11 +18,29 @@ module.exports = neutrino => {
         frameworks: ['jasmine'],
         files: [
             'tests/ui/unit/init.js',
-            {pattern: 'tests/ui/mock/**/*.json', watched: true, served: true, included: false}
+            { pattern: 'tests/ui/mock/**/*.json', watched: true, served: true, included: false }
         ],
         preprocessors: {
             'tests/ui/unit/init.js': ['webpack'],
         },
         reporters: ['progress', 'coverage-istanbul'],
-    };
+    }));
+
+    // Add an istanbul loader to generate coverage for js(x) in ui/
+    neutrino.config
+        .resolve
+            .modules
+                // tests/ui/unit/init.js does its own module look-ups,
+                // so remove relative look-ups to avoid errors
+                .delete('node_modules')
+                .end()
+            .end()
+        .module
+            .rule('coverage')
+                .test(/\.jsx?$/)
+                .post()
+                .include
+                    .add(neutrino.options.source).end()
+                .use('istanbul')
+                    .loader(require.resolve('istanbul-instrumenter-loader'));
 };

@@ -1,5 +1,7 @@
-const path = require('path');
-const Neutrino = require('neutrino');
-const api = new Neutrino([path.resolve('./neutrino-custom/development.js')]);
+const { Neutrino } = require('neutrino');
+const { neutrino } = require('./package.json');
 
-module.exports = api.custom.eslintrc();
+const api = Neutrino(neutrino.options);
+
+neutrino.use.map(middleware => api.use(require(middleware)));
+module.exports = api.eslintrc();
