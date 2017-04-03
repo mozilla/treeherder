@@ -675,6 +675,8 @@ treeherderApp.controller('MainCtrl', [
 
             // update the tier drop-down menu if a tier setting was changed
             $scope.updateTiers();
+
+            $scope.testCentricInAddress = $location.search().testcentric === true;
         });
 
         $scope.changeRepo = function(repo_name) {
