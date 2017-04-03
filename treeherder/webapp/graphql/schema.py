@@ -1,11 +1,10 @@
 import graphene
-from graphene_django.types import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
+from graphene_django.types import DjangoObjectType
 
 from treeherder.model.models import *
 
-# I would like to be able to filter these values to
-# only entries that end with "errorsummary.log".
+
 class JobDetailGraph(DjangoObjectType):
     class Meta:
         model = JobDetail
@@ -18,9 +17,12 @@ class JobDetailGraph(DjangoObjectType):
 class JobGraph(DjangoObjectType):
     class Meta:
         model = Job
+        filter_fields = {
+            'result': ['exact']
+        }
         interfaces = (graphene.relay.Node, )
 
-    jobdetails = DjangoFilterConnectionField(JobDetailGraph)
+    filter_job_details = DjangoFilterConnectionField(JobDetailGraph)
 
 
 class BuildPlatformGraph(DjangoObjectType):
@@ -58,6 +60,8 @@ class PushGraph(DjangoObjectType):
         model = Push
         filter_fields = ['revision']
         interfaces = (graphene.relay.Node, )
+
+    filter_jobs = DjangoFilterConnectionField(JobGraph)
 
 
 class Query(graphene.ObjectType):
