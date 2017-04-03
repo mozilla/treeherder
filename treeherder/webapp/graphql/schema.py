@@ -20,6 +20,8 @@ class JobGraph(DjangoObjectType):
         model = Job
         interfaces = (graphene.relay.Node, )
 
+    jobdetails = DjangoFilterConnectionField(JobDetailGraph)
+
 
 class BuildPlatformGraph(DjangoObjectType):
     class Meta:
