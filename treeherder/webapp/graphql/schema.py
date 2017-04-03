@@ -1,12 +1,23 @@
 import graphene
 from graphene_django.types import DjangoObjectType
+from graphene_django.filter import DjangoFilterConnectionField
 
 from treeherder.model.models import *
+
+
+class JobDetailGraph(DjangoObjectType):
+    class Meta:
+        model = JobDetail
+        filter_fields = {
+            'url': ['exact', 'icontains', 'iendswith']
+        }
+        interfaces = (graphene.relay.Node, )
 
 
 class JobGraph(DjangoObjectType):
     class Meta:
         model = Job
+        interfaces = (graphene.relay.Node, )
 
 
 class BuildPlatformGraph(DjangoObjectType):
@@ -42,20 +53,30 @@ class FailureClassificationGraph(DjangoObjectType):
 class PushGraph(DjangoObjectType):
     class Meta:
         model = Push
+        filter_fields = ['revision']
+        interfaces = (graphene.relay.Node, )
 
 
 class Query(graphene.ObjectType):
-    all_jobs = graphene.List(JobGraph)
+    all_jobs = DjangoFilterConnectionField(JobGraph)
+    all_job_details = graphene.List(JobDetailGraph)
+
     all_build_platforms = graphene.List(BuildPlatformGraph)
     all_machine_platforms = graphene.List(MachinePlatformGraph)
     all_machines = graphene.List(MachineGraph)
     all_job_types = graphene.List(JobTypeGraph)
     all_products = graphene.List(ProductGraph)
     all_failure_classifications = graphene.List(FailureClassificationGraph)
-    all_pushes = graphene.List(PushGraph)
+    all_pushes = DjangoFilterConnectionField(PushGraph)
 
     def resolve_all_jobs(self, args, context, info):
-        return Job.objects.all()
+        return Job.objects.filter(**args)
+
+    def resolve_all_job_details(self, args, context, info):
+        print args
+        print context
+        print info
+        return JobDetail.objects.filter(**args)
 
     def resolve_all_build_platforms(self, args, context, info):
         return BuildPlatform.objects.all()
@@ -76,7 +97,7 @@ class Query(graphene.ObjectType):
         return FailureClassification.objects.all()
 
     def resolve_all_pushes(self, args, context, info):
-        return Push.objects.all()
+        return Push.objects.filter(**args)
 
 
 schema = graphene.Schema(query=Query)
