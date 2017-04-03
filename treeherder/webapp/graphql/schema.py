@@ -4,7 +4,8 @@ from graphene_django.filter import DjangoFilterConnectionField
 
 from treeherder.model.models import *
 
-
+# I would like to be able to filter these values to
+# only entries that end with "errorsummary.log".
 class JobDetailGraph(DjangoObjectType):
     class Meta:
         model = JobDetail
