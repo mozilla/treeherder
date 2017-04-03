@@ -257,7 +257,7 @@ treeherder.controller('BugFilerCtrl', [
 
             var keywords = $scope.isIntermittent ? ["intermittent-failure"] : [];
 
-            var severity = "";
+            var severity = "normal";
             var blocks = $scope.modalBlocks;
             var dependsOn = $scope.modalDependsOn;
             var seeAlso = $scope.modalSeeAlso;
