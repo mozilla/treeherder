@@ -90,3 +90,7 @@
     padding-right:10.5%;
     float: right;
 }
+
+#productSearchSpinner {
+    padding: 6px;
+}
