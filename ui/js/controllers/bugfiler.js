@@ -123,6 +123,7 @@ treeherder.controller('BugFilerCtrl', [
             var productSearch = $scope.productSearch;
 
             if (productSearch) {
+                $scope.searching = "Bugzilla";
                 $http.get(bzBaseUrl + "rest/prod_comp_search/" + productSearch + "?limit=5").then(function(request) {
                     var data = request.data;
                     // We can't file unless product and component are provided, this api can return just product. Cut those out.
@@ -131,6 +132,7 @@ treeherder.controller('BugFilerCtrl', [
                             data.products.splice(i, 1);
                         }
                     }
+                    $scope.searching = false;
                     $scope.suggestedProducts = [];
                     $scope.suggestedProducts = _.map(data.products, function(prod) {
                         if (prod.product && prod.component) {
@@ -161,11 +163,14 @@ treeherder.controller('BugFilerCtrl', [
                 }
 
                 // Search mercurial's moz.build metadata to find products/components
+                $scope.searching = "Mercurial";
                 $http.get("https://hg.mozilla.org/mozilla-central/json-mozbuildinfo?p=" + failurePath).then(function(request) {
                     if (request.data.aggregate && request.data.aggregate.recommended_bug_component) {
                         var suggested = request.data.aggregate.recommended_bug_component;
                         $scope.suggestedProducts.push(suggested[0] + " :: " + suggested[1]);
                     }
+
+                    $scope.searching = false;
 
                     if ($scope.suggestedProducts.length === 0) {
                         var jg = selectedJob.job_group_name.toLowerCase();
