@@ -67,8 +67,10 @@ endpoints. Just navigate to an endpoint
 you should see the toolbar to your right.
 
 
-Add a new repository
---------------------
+.. _add-hg-repo:
+
+Add a new Mercurial repository
+------------------------------
 
 To add a new repository, the following steps are needed:
 
@@ -80,6 +82,9 @@ To add a new repository, the following steps are needed:
      vagrant ~/treeherder$ ./manage.py loaddata repository
 
 * Restart any running gunicorn/celery processes.
+
+For more information on adding a new Github repository
+see :ref:`Add Github repository <add-github-repo>`.
 
 
 Building the docs locally
