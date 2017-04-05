@@ -841,6 +841,7 @@ class TaskclusterMetadata(models.Model):
         db_table = "taskcluster_metadata"
 
 
+@python_2_unicode_compatible
 class JobDetail(models.Model):
     '''
     Represents metadata associated with a job

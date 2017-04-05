@@ -1,88 +1,180 @@
-import graphene
+from graphene import relay, ObjectType, List, Schema, resolve_only_args
 from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django.types import DjangoObjectType
 
 from treeherder.model.models import *
 
+"""
+    query {
+      allPushes(revision: "1ef73669e8fccac35b650ff81df1b575a39a0fd5") {
+        edges {
+          node {
+            revision
+            author
+            jobs (result: "testfailed") {
+              edges {
+                node {
+                  result
+                  jobDetails (url_Iendswith: "errorsummary.log") {
+                    edges {
+                      node {
+                        url
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
 
-class JobDetailGraph(DjangoObjectType):
+    query {
+      allPushes(revision: "1ef73669e8fccac35b650ff81df1b575a39a0fd5") {
+        edges {
+          node {
+            revision
+            author
+            jobs {
+              edges {
+                node {
+                  result
+                  jobDetails {
+                    edges {
+                      node {
+                        url
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+query {
+  allPushes(revision: "1ef73669e8fccac35b650ff81df1b575a39a0fd5") {
+      edges {
+        node {
+          id
+          revision
+          author
+          jobs {
+            edges {
+              node {
+                result
+                tier
+                autoclassifyStatus
+                failureClassification {
+                  name
+                }
+                jobType {
+                  symbol
+                }
+                machinePlatform {
+                  osName
+                  platform
+                }
+                jobDetails {
+                  edges {
+                    node {
+                        url
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+	}
+}
+"""
+
+class JobDetailNode(DjangoObjectType):
     class Meta:
         model = JobDetail
         filter_fields = {
-            'url': ['exact', 'icontains', 'iendswith']
+            'url': ('exact', 'icontains', 'iendswith')
         }
-        interfaces = (graphene.relay.Node, )
+        interfaces = (relay.Node, )
 
 
-class JobGraph(DjangoObjectType):
+class JobNode(DjangoObjectType):
     class Meta:
         model = Job
-        filter_fields = {
-            'result': ['exact']
-        }
-        interfaces = (graphene.relay.Node, )
+        filter_fields = ('result', 'tier')
+        interfaces = (relay.Node, )
 
-    filter_job_details = DjangoFilterConnectionField(JobDetailGraph)
+    # job_details = DjangoFilterConnectionField(JobDetailNode)
 
 
-class BuildPlatformGraph(DjangoObjectType):
+class PushNode(DjangoObjectType):
+    class Meta:
+        model = Push
+        filter_fields = ('revision', )
+        interfaces = (relay.Node, )
+
+    # jobs = DjangoFilterConnectionField(JobNode)
+
+
+class BuildPlatformNode(DjangoObjectType):
     class Meta:
         model = BuildPlatform
 
 
-class MachinePlatformGraph(DjangoObjectType):
+class MachinePlatformNode(DjangoObjectType):
     class Meta:
         model = MachinePlatform
 
 
-class MachineGraph(DjangoObjectType):
+class MachineNode(DjangoObjectType):
     class Meta:
         model = Machine
 
 
-class JobTypeGraph(DjangoObjectType):
+class JobTypeNode(DjangoObjectType):
     class Meta:
         model = JobType
 
 
-class ProductGraph(DjangoObjectType):
+class ProductNode(DjangoObjectType):
     class Meta:
         model = Product
 
 
-class FailureClassificationGraph(DjangoObjectType):
+class FailureClassificationNode(DjangoObjectType):
     class Meta:
         model = FailureClassification
 
 
-class PushGraph(DjangoObjectType):
-    class Meta:
-        model = Push
-        filter_fields = ['revision']
-        interfaces = (graphene.relay.Node, )
+class Query(ObjectType):
+    push = relay.Node.Field(PushNode)
+    all_pushes = DjangoFilterConnectionField(PushNode)
 
-    filter_jobs = DjangoFilterConnectionField(JobGraph)
+    job = relay.Node.Field(JobNode)
+    all_jobs = DjangoFilterConnectionField(JobNode)
 
+    job_detail = relay.Node.Field(JobDetailNode)
+    all_job_details = DjangoFilterConnectionField(JobDetailNode)
 
-class Query(graphene.ObjectType):
-    all_jobs = DjangoFilterConnectionField(JobGraph)
-    all_job_details = graphene.List(JobDetailGraph)
+    all_build_platforms = List(BuildPlatformNode)
+    all_machine_platforms = List(MachinePlatformNode)
+    all_machines = List(MachineNode)
+    all_job_types = List(JobTypeNode)
+    all_products = List(ProductNode)
+    all_failure_classifications = List(FailureClassificationNode)
 
-    all_build_platforms = graphene.List(BuildPlatformGraph)
-    all_machine_platforms = graphene.List(MachinePlatformGraph)
-    all_machines = graphene.List(MachineGraph)
-    all_job_types = graphene.List(JobTypeGraph)
-    all_products = graphene.List(ProductGraph)
-    all_failure_classifications = graphene.List(FailureClassificationGraph)
-    all_pushes = DjangoFilterConnectionField(PushGraph)
+    def resolve_all_pushes(self, args, context, info):
+        return Push.objects.filter(**args)
 
     def resolve_all_jobs(self, args, context, info):
         return Job.objects.filter(**args)
 
     def resolve_all_job_details(self, args, context, info):
-        print args
-        print context
-        print info
         return JobDetail.objects.filter(**args)
 
     def resolve_all_build_platforms(self, args, context, info):
@@ -103,8 +195,5 @@ class Query(graphene.ObjectType):
     def resolve_all_failure_classifications(self, args, context, info):
         return FailureClassification.objects.all()
 
-    def resolve_all_pushes(self, args, context, info):
-        return Push.objects.filter(**args)
 
-
-schema = graphene.Schema(query=Query)
+schema = Schema(query=Query)
