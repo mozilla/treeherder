@@ -33,9 +33,6 @@ module.exports = neutrino => {
         .use(CopyPlugin, [{
             context: UI,
             from: '**'
-        }, {
-            from: './contribute.json',
-            to: 'contribute.json'
         }], {
             ignore: ['*.js', '*.jsx', '*.css', '*.html', '*.tmpl',
                 '*.eot', '*.otf', '*.ttf', '*.woff', '*.woff2']
