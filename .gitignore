@@ -3,6 +3,8 @@ node_modules/
 .DS_store
 *.pyc
 .vscode/
+yarn-error.log
+npm-error.log
 
 # vi
 *.swp
