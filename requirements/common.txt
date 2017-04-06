@@ -84,7 +84,8 @@ futures==3.0.5 --hash=sha256:f7f16b6bf9653a918a03f1f2c2d62aac0cd64b1bc088e93ea27
 functools32==3.2.3-2 --hash=sha256:89d824aa6c358c421a234d7f9ee0bd75933a67c29588ce50aaa3acdf4d403fa0
 
 # Required by django-rest-swagger
-coreapi==2.1.1 --hash=sha256:59acf691c93ee267e9f60e75a0118d29ad46f30e779eadd6780bd61a0185091b
+coreapi==2.3.0 \
+    --hash=sha256:95a24903c8f3b03e2a330a5228c4cc5705223855257a614f6f355327b8800d51
 openapi-codec==1.2.1 --hash=sha256:d8a04fe409ddf1bd58e27e247390dd3ac4090dbfd1eb63e7afa9c990feb86692
 
 # Required by coreapi
