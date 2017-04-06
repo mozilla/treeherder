@@ -96,7 +96,9 @@ uritemplate==3.0.0 --hash=sha256:1b9c467a940ce9fb9f50df819e8ddd14696f89b9a8cc87a
 requests==2.13.0 --hash=sha256:1a720e8862a41aa22e339373b526f508ef0c8988baf48b84d3fc891a8e237efb
 
 # Required by django.contrib.migrations
-sqlparse==0.2.2 --hash=sha256:9b61c319b3c7b64681e1b4d554a9c3fe81ed52da00a901ccf3fe72962734e444
+sqlparse==0.2.3 \
+    --hash=sha256:740a023ef38ce11bbb99a9d143856f56ef4ec5b0d7a853f58c02c65b035114c4 \
+    --hash=sha256:becd7cc7cebbdf311de8ceedfcf2bd2403297024418801947f8c953025beeff8
 
 # Used directly and also by Django's YAML serializer.
 PyYAML==3.12 --hash=sha256:592766c6303207a20efc445587778322d7f73b161bd994f227adaa341ba212ab
