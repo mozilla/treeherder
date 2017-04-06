@@ -22,7 +22,9 @@ django-extensions==1.7.8 \
     --hash=sha256:3fa317c8bac7136ccee41f7cb5af7a7c0d9cf96f00f7e1f2a081e50d64a7c099 \
     --hash=sha256:4b226e5cdb687ddcbdcb79a772c3f66a72c71c1b1697d282cda8cab193f442ad
 
-pytest-selenium==1.8.0 --hash=sha256:64ee80556502248d7cc4c827cae4b784a92843f1a2a39622d8205ab832365474
+pytest-selenium==1.9.1 \
+    --hash=sha256:0398df6c9f929a12ca8ac1535635ded2697641bb4933865208a769174736604a \
+    --hash=sha256:d3533b244beaf64308e81eb158285cf071f3fcafed70c4184cfabae936055093
 
 # Required by django-extension's runserver_plus command.
 Werkzeug==0.11.15 --hash=sha256:c6f6f89124df0514d886782c658c3e12f2caaa94da34cee3fd82eebf4ebf052b
