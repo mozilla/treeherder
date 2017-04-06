@@ -7,11 +7,11 @@ whitenoise==3.3.0 --hash=sha256:1d62a003a0ab747de96da45c831cbb512dcb7f69c1ef0bd2
 # Used by the Whitenoise CLI tool to provide Brotli-compressed versions of static files.
 Brotli==0.5.2 --hash=sha256:3411b9acd2a2056e55084acf7a6ab3e4a8540c2ef37a4435bca62644e8aaf50e
 
-Django==1.10.7 --hash=sha256:e68fd450154ad7ee2c88472bb812350490232462adc6e3c6bcb544abe5212134
+Django==1.10.7 --hash=sha256:e68fd450154ad7ee2c88472bb812350490232462adc6e3c6bcb544abe5212134  # pyup: <1.11 # Bug 1353561
 
-celery==3.1.24 --hash=sha256:25396191954521184cc15018f776a2a2278b04dd4213d94f795daef4b7961b4b
+celery==3.1.24 --hash=sha256:25396191954521184cc15018f776a2a2278b04dd4213d94f795daef4b7961b4b  # pyup: <4 # Bug 1337717
 
-kombu==3.0.37 --hash=sha256:7ceab743e3e974f3e5736082e8cc514c009e254e646d6167342e0e192aee81a6
+kombu==3.0.37 --hash=sha256:7ceab743e3e974f3e5736082e8cc514c009e254e646d6167342e0e192aee81a6  # pyup: <4 # Bug 1337717
 
 simplejson==3.10.0 --hash=sha256:953be622e88323c6f43fad61ffd05bebe73b9fd9863a46d68b052d2aa7d71ce2
 
@@ -21,11 +21,11 @@ newrelic==2.82.0.62 --hash=sha256:482bdb36a9858d4d2aaeec4e211bd5b318310b270aa021
 mysqlclient==1.3.9 --hash=sha256:990ccf1e1f15b9a291b811c993dc1c216566714bc14e6581b38665bd61c28c99
 
 # Required by celery
-billiard==3.3.0.23 --hash=sha256:692a2a5a55ee39a42bcb7557930e2541da85df9ea81c6e24827f63b80cd39d0b
+billiard==3.3.0.23 --hash=sha256:692a2a5a55ee39a42bcb7557930e2541da85df9ea81c6e24827f63b80cd39d0b  # pyup: <3.4 # Bug 1337717
 pytz==2016.10 --hash=sha256:a1ea35e87a63c7825846d5b5c81d23d668e8a102d3b1b465ce95afe1b3a2e065
 
 # Required by kombu
-amqp==1.4.9 --hash=sha256:e0ed0ce6b8ffe5690a2e856c7908dc557e0e605283d6885dd1361d79f2928908
+amqp==1.4.9 --hash=sha256:e0ed0ce6b8ffe5690a2e856c7908dc557e0e605283d6885dd1361d79f2928908  # pyup: <2 # Bug 1337717
 anyjson==0.3.3 --hash=sha256:37812d863c9ad3e35c0734c42e0bf0320ce8c3bed82cd20ad54cb34d158157ba
 
 # Required by mozlog
@@ -87,9 +87,9 @@ pylibmc==1.5.1 --hash=sha256:ecba261859c3e1ba3365389cb4f4dfffb7e02120a9f57a288ca
 
 django-pylibmc==0.6.1 --hash=sha256:9cffdee703aaf9ebc029d9dbdee8abdd0723564b95e4b2ac59e4a668b8e58f93
 
-elasticsearch==2.4.0 --hash=sha256:ede15c3573f46ea72c4d53ea7f11fe648c60d167d75d739e27f72d78a6d7f692
+elasticsearch==2.4.0 --hash=sha256:ede15c3573f46ea72c4d53ea7f11fe648c60d167d75d739e27f72d78a6d7f692  # pyup: >=2,<3 # Client has to match ES server version.
 
-elasticsearch-dsl==2.1.0 --hash=sha256:48f5869035e852f68bfaf1ba586becf4b109c661e7c054045395f554ac7566af
+elasticsearch-dsl==2.1.0 --hash=sha256:48f5869035e852f68bfaf1ba586becf4b109c661e7c054045395f554ac7566af  # pyup: >=2,<3 # Client has to match ES server version.
 
 # required by elasticsearch
 urllib3==1.20 --hash=sha256:b64c0faa183e9e9e76193146c4147e82a734982c6b6719dca851d6cc4ec90c01
