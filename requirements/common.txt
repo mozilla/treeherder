@@ -5,7 +5,7 @@ gunicorn==19.6.0 --hash=sha256:723234ea1fa8dff370ab69830ba8bc37469a7cba13fd66055
 whitenoise==3.3.0 --hash=sha256:1d62a003a0ab747de96da45c831cbb512dcb7f69c1ef0bd20b1cd4ae45d8a0c4
 
 # Used by the Whitenoise CLI tool to provide Brotli-compressed versions of static files.
-Brotli==0.5.2 --hash=sha256:ce84480beab2f9b2bcc575b03a4e5830a8e834535be01c0ebe50de3f19616ae4
+Brotli==0.5.2 --hash=sha256:3411b9acd2a2056e55084acf7a6ab3e4a8540c2ef37a4435bca62644e8aaf50e
 
 Django==1.10.5 --hash=sha256:4541a60834f28f308ee7b6e96400feca905fb0de473eb9dad6847e98a36d86d4
 
