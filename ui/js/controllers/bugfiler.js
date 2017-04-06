@@ -71,7 +71,7 @@ treeherder.controller('BugFilerCtrl', [
          *  Remove extraneous junk from the start of the summary line
          *  and try to find the failing test name from what's left
          */
-        $uibModalInstance.parseSummary = function(summary) {
+        $scope.parseSummary = function(summary) {
             // Strip out some extra stuff at the start of some failure paths
             var re = /file:\/\/\/.*?\/build\/tests\/reftest\/tests\//gi;
             summary = summary.replace(re, "");
@@ -94,12 +94,12 @@ treeherder.controller('BugFilerCtrl', [
                 }
             }
 
-            $uibModalInstance.possibleFilename = summary[0].split("/").pop();
+            $uibModalInstance.possibleFilename = summary[0].split("==")[0].split("/").pop().trim();
 
             return [summary, $uibModalInstance.possibleFilename];
         };
 
-        $uibModalInstance.parsedSummary = $uibModalInstance.parseSummary(summary);
+        $uibModalInstance.parsedSummary = $scope.parseSummary(summary);
         var summaryString = $uibModalInstance.parsedSummary[0].join(" | ");
         if (selectedJob.job_group_name.toLowerCase().includes("reftest")) {
             var re = /layout\/reftests\//gi;
@@ -192,8 +192,6 @@ treeherder.controller('BugFilerCtrl', [
                     $scope.selection.selectedProduct = $scope.suggestedProducts[0];
                 });
             }
-
-            $scope.selection.selectedProduct = $scope.suggestedProducts[0];
         };
 
         /*
