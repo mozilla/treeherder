@@ -691,7 +691,7 @@ class Job(models.Model):
     running_eta = models.PositiveIntegerField(null=True, default=None)
     tier = models.PositiveIntegerField()
 
-    push = models.ForeignKey(Push)
+    push = models.ForeignKey(Push, related_name='jobs')
 
     class Meta:
         db_table = 'job'
@@ -841,6 +841,7 @@ class TaskclusterMetadata(models.Model):
         db_table = "taskcluster_metadata"
 
 
+@python_2_unicode_compatible
 class JobDetail(models.Model):
     '''
     Represents metadata associated with a job
@@ -850,7 +851,7 @@ class JobDetail(models.Model):
     '''
 
     id = models.BigAutoField(primary_key=True)
-    job = models.ForeignKey(Job)
+    job = models.ForeignKey(Job, related_name="job_details")
     title = models.CharField(max_length=70, null=True)
     value = models.CharField(max_length=125)
     url = models.URLField(null=True, max_length=512)
