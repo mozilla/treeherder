@@ -1,104 +1,15 @@
-from graphene import relay, ObjectType, List, Schema, resolve_only_args
+from graphene import relay, ObjectType, List, Schema
 from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django.types import DjangoObjectType
 
 from treeherder.model.models import *
 
-"""
-    query {
-      allPushes(revision: "1ef73669e8fccac35b650ff81df1b575a39a0fd5") {
-        edges {
-          node {
-            revision
-            author
-            jobs (result: "testfailed") {
-              edges {
-                node {
-                  result
-                  jobDetails (url_Iendswith: "errorsummary.log") {
-                    edges {
-                      node {
-                        url
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    query {
-      allPushes(revision: "1ef73669e8fccac35b650ff81df1b575a39a0fd5") {
-        edges {
-          node {
-            revision
-            author
-            jobs {
-              edges {
-                node {
-                  result
-                  jobDetails {
-                    edges {
-                      node {
-                        url
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    
-query {
-  allPushes(revision: "1ef73669e8fccac35b650ff81df1b575a39a0fd5") {
-      edges {
-        node {
-          id
-          revision
-          author
-          jobs {
-            edges {
-              node {
-                result
-                tier
-                autoclassifyStatus
-                failureClassification {
-                  name
-                }
-                jobType {
-                  symbol
-                }
-                machinePlatform {
-                  osName
-                  platform
-                }
-                jobDetails {
-                  edges {
-                    node {
-                        url
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-	}
-}
-"""
 
 class JobDetailNode(DjangoObjectType):
     class Meta:
         model = JobDetail
         filter_fields = {
-            'url': ('exact', 'icontains', 'iendswith')
+            'url': ('exact', 'icontains', 'iendswith', 'endswith')
         }
         interfaces = (relay.Node, )
 
@@ -109,7 +20,10 @@ class JobNode(DjangoObjectType):
         filter_fields = ('result', 'tier')
         interfaces = (relay.Node, )
 
-    # job_details = DjangoFilterConnectionField(JobDetailNode)
+    job_details = DjangoFilterConnectionField(JobDetailNode)
+
+    def resolve_job_details(self, args, context, info):
+        return JobDetail.objects.filter(job=self, **args)
 
 
 class PushNode(DjangoObjectType):
@@ -118,7 +32,10 @@ class PushNode(DjangoObjectType):
         filter_fields = ('revision', )
         interfaces = (relay.Node, )
 
-    # jobs = DjangoFilterConnectionField(JobNode)
+    jobs = DjangoFilterConnectionField(JobNode)
+
+    def resolve_jobs(self, args, context, info):
+        return Job.objects.filter(push=self, **args)
 
 
 class BuildPlatformNode(DjangoObjectType):
@@ -152,15 +69,9 @@ class FailureClassificationNode(DjangoObjectType):
 
 
 class Query(ObjectType):
-    push = relay.Node.Field(PushNode)
     all_pushes = DjangoFilterConnectionField(PushNode)
-
-    job = relay.Node.Field(JobNode)
     all_jobs = DjangoFilterConnectionField(JobNode)
-
-    job_detail = relay.Node.Field(JobDetailNode)
     all_job_details = DjangoFilterConnectionField(JobDetailNode)
-
     all_build_platforms = List(BuildPlatformNode)
     all_machine_platforms = List(MachinePlatformNode)
     all_machines = List(MachineNode)
