@@ -87,4 +87,6 @@ pytest-html==1.14.2 \
 pytest-variables==1.5.1 \
     --hash=sha256:1365c5f2c3be70d1b165272c1ab76ba0692c901db9b98c0b09062cc70b55a36d \
     --hash=sha256:8f2b7c16c54bfe93561c7a36a5e9d8780bdcd36e6e37d9f7b3b51b656449e2ea
-pytest-base-url==1.2.0 --hash=sha256:248dae2e3e7bb2c69d10101724b68fe756853e4ece4d9feb8bf09b38c027f65b
+pytest-base-url==1.3.0 \
+    --hash=sha256:e3018b3739a19e66be19c6bfe77d7814acd79a5ca0cab2730fa2d2f483cc7397 \
+    --hash=sha256:3e1d40d2826c2d848b31355502815250ad4035e5bfb4e3ad0405b2d6fad874f4
