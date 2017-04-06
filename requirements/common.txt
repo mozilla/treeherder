@@ -142,7 +142,9 @@ elasticsearch-dsl==5.2.0 \
 # required by elasticsearch
 urllib3==1.20 --hash=sha256:b64c0faa183e9e9e76193146c4147e82a734982c6b6719dca851d6cc4ec90c01
 
-certifi==2016.9.26 --hash=sha256:a60073d7bb5cb01671877efda875e8dab755b98baedfbb9b8b3d9be2d52ad022
+certifi==2017.1.23 \
+    --hash=sha256:f74a224a9860fd5a2e9757230a7ea3eba82d6d46914780abc18e70c8b58d4bf8 \
+    --hash=sha256:81877fb7ac126e9215dfb15bfef7115fdc30e798e0013065158eed0707fd99ce
 
 # required for taskcluster
 slugid==1.0.7 --hash=sha256:6dab3c7eef0bb423fb54cb7752e0f466ddd0ee495b78b763be60e8a27f69e779
