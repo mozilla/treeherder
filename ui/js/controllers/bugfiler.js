@@ -3,13 +3,14 @@
 treeherder.controller('BugFilerCtrl', [
     '$scope', '$rootScope', '$uibModalInstance', '$http', 'summary',
     'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures',
-    'crashSignatures', 'successCallback', 'thNotify',
+    'crashSignatures', 'successCallback', 'thNotify', '$q',
     function BugFilerCtrl(
         $scope, $rootScope, $uibModalInstance, $http, summary,
         fullLog, parsedLog, reftest, selectedJob, allFailures,
-        crashSignatures, successCallback, thNotify) {
+        crashSignatures, successCallback, thNotify, $q) {
 
         var bzBaseUrl = "https://bugzilla.mozilla.org/";
+        $scope.selectedJob = selectedJob;
 
         $scope.omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR", "REFTEST ERROR"];
 
@@ -43,7 +44,7 @@ treeherder.controller('BugFilerCtrl', [
             var thisFailure = "";
 
             // Auto-block the stylo-bustage metabug if this is a stylo failure
-            if (selectedJob.build_platform.includes("stylo")) {
+            if ($scope.selectedJob.build_platform.includes("stylo")) {
                 $scope.modalBlocks = "stylo-bustage,";
             }
 
@@ -60,7 +61,7 @@ treeherder.controller('BugFilerCtrl', [
             }
             $scope.thisFailure = thisFailure;
 
-            $scope.findProduct();
+            return $scope.findProduct();
         };
 
         $uibModalInstance.parsedSummary = "";
@@ -71,7 +72,7 @@ treeherder.controller('BugFilerCtrl', [
          *  Remove extraneous junk from the start of the summary line
          *  and try to find the failing test name from what's left
          */
-        $uibModalInstance.parseSummary = function(summary) {
+        $scope.parseSummary = function(summary) {
             // Strip out some extra stuff at the start of some failure paths
             var re = /file:\/\/\/.*?\/build\/tests\/reftest\/tests\//gi;
             summary = summary.replace(re, "");
@@ -94,18 +95,19 @@ treeherder.controller('BugFilerCtrl', [
                 }
             }
 
-            $uibModalInstance.possibleFilename = summary[0].split("/").pop();
+            $uibModalInstance.possibleFilename = summary[0].split("==")[0].split("/").pop().trim();
 
             return [summary, $uibModalInstance.possibleFilename];
         };
 
-        $uibModalInstance.parsedSummary = $uibModalInstance.parseSummary(summary);
+        $uibModalInstance.parsedSummary = $scope.parseSummary(summary);
         var summaryString = $uibModalInstance.parsedSummary[0].join(" | ");
-        if (selectedJob.job_group_name.toLowerCase().includes("reftest")) {
+        if ($scope.selectedJob.job_group_name.toLowerCase().includes("reftest")) {
             var re = /layout\/reftests\//gi;
             summaryString = summaryString.replace(re, "");
         }
         $scope.modalSummary = "Intermittent " + summaryString;
+        $scope.parsedSummary = $uibModalInstance.parsedSummary;
 
         $scope.toggleFilerSummaryVisibility = function() {
             $scope.isFilerSummaryVisible = !$scope.isFilerSummaryVisible;
@@ -117,83 +119,85 @@ treeherder.controller('BugFilerCtrl', [
          *  Attempt to find a good product/component for this failure
          */
         $scope.findProduct = function() {
-            $scope.suggestedProducts = [];
+            return $q(function(resolve, reject) {
+                $scope.suggestedProducts = [];
 
-            // Look up product suggestions via Bugzilla's api
-            var productSearch = $scope.productSearch;
+                // Look up product suggestions via Bugzilla's api
+                var productSearch = $scope.productSearch;
 
-            if (productSearch) {
-                $scope.searching = "Bugzilla";
-                $http.get(bzBaseUrl + "rest/prod_comp_search/" + productSearch + "?limit=5").then(function(request) {
-                    var data = request.data;
-                    // We can't file unless product and component are provided, this api can return just product. Cut those out.
-                    for (var i = data.products.length - 1; i >= 0; i--) {
-                        if (!data.products[i].component) {
-                            data.products.splice(i, 1);
+                if (productSearch) {
+                    $scope.searching = "Bugzilla";
+                    $http.get(bzBaseUrl + "rest/prod_comp_search/" + productSearch + "?limit=5").then(function(request) {
+                        var data = request.data;
+                        // We can't file unless product and component are provided, this api can return just product. Cut those out.
+                        for (var i = data.products.length - 1; i >= 0; i--) {
+                            if (!data.products[i].component) {
+                                data.products.splice(i, 1);
+                            }
                         }
-                    }
-                    $scope.searching = false;
-                    $scope.suggestedProducts = [];
-                    $scope.suggestedProducts = _.map(data.products, function(prod) {
-                        if (prod.product && prod.component) {
-                            return prod.product + " :: " + prod.component;
-                        }
-                        return prod.product;
+                        $scope.searching = false;
+                        $scope.suggestedProducts = [];
+                        $scope.suggestedProducts = _.map(data.products, function(prod) {
+                            if (prod.product && prod.component) {
+                                return prod.product + " :: " + prod.component;
+                            }
+                            return prod.product;
+                        });
+                        $scope.selection.selectedProduct = $scope.suggestedProducts[0];
+                        resolve($scope.selection.selectedProduct);
                     });
-                    $scope.selection.selectedProduct = $scope.suggestedProducts[0];
-                });
-            } else {
-                var failurePath = $uibModalInstance.parsedSummary[0][0];
+                } else {
+                    var failurePath = $scope.parsedSummary[0][0];
 
-                // If the "TEST-UNEXPECTED-foo" isn't one of the omitted ones, use the next piece in the summary
-                if (failurePath.includes("TEST-UNEXPECTED-")) {
-                    failurePath = $uibModalInstance.parsedSummary[0][1];
-                }
-
-                // Try to fix up file paths for some job types.
-                if (selectedJob.job_group_name.toLowerCase().includes("spidermonkey")) {
-                    failurePath = "js/src/tests/" + failurePath;
-                }
-                if (selectedJob.job_group_name.toLowerCase().includes("videopuppeteer ")) {
-                    failurePath = failurePath.replace("FAIL ", "");
-                    failurePath = "dom/media/test/external/external_media_tests/" + failurePath;
-                }
-                if (selectedJob.job_group_name.toLowerCase().includes("web platform")) {
-                    failurePath = "testing/web-platform/tests/" + failurePath;
-                }
-
-                // Search mercurial's moz.build metadata to find products/components
-                $scope.searching = "Mercurial";
-                $http.get("https://hg.mozilla.org/mozilla-central/json-mozbuildinfo?p=" + failurePath).then(function(request) {
-                    if (request.data.aggregate && request.data.aggregate.recommended_bug_component) {
-                        var suggested = request.data.aggregate.recommended_bug_component;
-                        $scope.suggestedProducts.push(suggested[0] + " :: " + suggested[1]);
+                    // If the "TEST-UNEXPECTED-foo" isn't one of the omitted ones, use the next piece in the summary
+                    if (failurePath.includes("TEST-UNEXPECTED-")) {
+                        failurePath = $scope.parsedSummary[0][1];
                     }
 
-                    $scope.searching = false;
-
-                    if ($scope.suggestedProducts.length === 0) {
-                        var jg = selectedJob.job_group_name.toLowerCase();
-                        // Some job types are special, lets explicitly handle them.
-                        if (jg.includes("web platform")) {
-                            $scope.suggestedProducts.push("Testing :: web-platform-tests");
-                        }
-                        if (jg.includes("talos")) {
-                            $scope.suggestedProducts.push("Testing :: Talos");
-                        }
-                        if (jg.includes("mochitest") && failurePath.includes("webextensions/")) {
-                            $scope.suggestedProducts.push("Toolkit :: WebExtensions: General");
-                        }
-                        if (jg.includes("mochitest") && failurePath.includes("webrtc/")) {
-                            $scope.suggestedProducts.push("Core :: WebRTC");
-                        }
+                    // Try to fix up file paths for some job types.
+                    if ($scope.selectedJob.job_group_name.toLowerCase().includes("spidermonkey")) {
+                        failurePath = "js/src/tests/" + failurePath;
+                    }
+                    if ($scope.selectedJob.job_group_name.toLowerCase().includes("videopuppeteer ")) {
+                        failurePath = failurePath.replace("FAIL ", "");
+                        failurePath = "dom/media/test/external/external_media_tests/" + failurePath;
+                    }
+                    if ($scope.selectedJob.job_group_name.toLowerCase().includes("web platform")) {
+                        failurePath = "testing/web-platform/tests/" + failurePath;
                     }
 
-                    $scope.selection.selectedProduct = $scope.suggestedProducts[0];
-                });
-            }
+                    // Search mercurial's moz.build metadata to find products/components
+                    $scope.searching = "Mercurial";
+                    $http.get("https://hg.mozilla.org/mozilla-central/json-mozbuildinfo?p=" + failurePath).then(function(request) {
+                        if (request.data.aggregate && request.data.aggregate.recommended_bug_component) {
+                            var suggested = request.data.aggregate.recommended_bug_component;
+                            $scope.suggestedProducts.push(suggested[0] + " :: " + suggested[1]);
+                        }
 
-            $scope.selection.selectedProduct = $scope.suggestedProducts[0];
+                        $scope.searching = false;
+
+                        if ($scope.suggestedProducts.length === 0) {
+                            var jg = $scope.selectedJob.job_group_name.toLowerCase();
+                            // Some job types are special, lets explicitly handle them.
+                            if (jg.includes("web platform")) {
+                                $scope.suggestedProducts.push("Testing :: web-platform-tests");
+                            }
+                            if (jg.includes("talos")) {
+                                $scope.suggestedProducts.push("Testing :: Talos");
+                            }
+                            if (jg.includes("mochitest") && failurePath.includes("webextensions/")) {
+                                $scope.suggestedProducts.push("Toolkit :: WebExtensions: General");
+                            }
+                            if (jg.includes("mochitest") && failurePath.includes("webrtc/")) {
+                                $scope.suggestedProducts.push("Core :: WebRTC");
+                            }
+                        }
+
+                        $scope.selection.selectedProduct = $scope.suggestedProducts[0];
+                        resolve($scope.selection.selectedProduct);
+                    });
+                }
+            });
         };
 
         /*
