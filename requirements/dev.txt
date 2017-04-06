@@ -84,5 +84,7 @@ selenium==3.3.3 \
 pytest-html==1.14.2 \
     --hash=sha256:bf6672c2552b26059acf9cd678701c35de18bc1b20467940d830202e7fb1bc66 \
     --hash=sha256:899d59d3e70f141ebf93b25b31e9d7c0a18469259cec3edaa3686f1d85b06c13
-pytest-variables==1.4 --hash=sha256:bd2e152e64c8f670e7969c76219a7842cf8ede795703127981ed71af38cfe08a
+pytest-variables==1.5.1 \
+    --hash=sha256:1365c5f2c3be70d1b165272c1ab76ba0692c901db9b98c0b09062cc70b55a36d \
+    --hash=sha256:8f2b7c16c54bfe93561c7a36a5e9d8780bdcd36e6e37d9f7b3b51b656449e2ea
 pytest-base-url==1.2.0 --hash=sha256:248dae2e3e7bb2c69d10101724b68fe756853e4ece4d9feb8bf09b38c027f65b
