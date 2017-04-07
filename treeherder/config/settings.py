@@ -86,6 +86,8 @@ TEMPLATES = [
 ]
 
 MIDDLEWARE_CLASSES = [middleware for middleware in [
+    # Adds custom New Relic annotations. Must be first so all transactions are annotated.
+    'treeherder.middleware.NewRelicMiddleware',
     # Redirect to HTTPS/set HSTS and other security headers.
     'django.middleware.security.SecurityMiddleware',
     # Allows both Django static files and those specified via `WHITENOISE_ROOT`
