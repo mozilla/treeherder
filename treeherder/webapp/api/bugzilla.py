@@ -43,6 +43,9 @@ class BugzillaViewSet(viewsets.ViewSet):
             'description': description,
             'comment_tags': "treeherder",
         }
+        if len(params.get("crash_signature") > 2048):
+            return Response({"failure": "Crash signature can't be more than 2048 characters"},
+                            status=HTTP_400_BAD_REQUEST)
 
         try:
             response = make_request(url, method='POST', headers=headers, json=data)
