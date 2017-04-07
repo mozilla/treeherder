@@ -83,8 +83,8 @@ To add a new repository, the following steps are needed:
 
 * Restart any running gunicorn/celery processes.
 
-For more information on adding a new Github repository
-see :ref:`Add Github repository <add-github-repo>`.
+For more information on adding a new GitHub repository
+see :ref:`Add GitHub repository <add-github-repo>`.
 
 
 Building the docs locally
@@ -112,7 +112,7 @@ cross-domain).
 
 To do this:
 
-* Fork the Treeherder repository to your own Github account.
+* Fork the Treeherder repository to your own GitHub account.
 
 * Create a gh-pages branch locally based on the feature branch you wish to test, that is configured to point at production's API. eg:
 

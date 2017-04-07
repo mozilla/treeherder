@@ -29,7 +29,7 @@ To submit your test data to Treeherder, you have two options:
 If you are establishing a new repository with Treeherder, then you will need to
 do one of the following:
 
-1. For Github repos: :ref:`add-github-repo`
+1. For GitHub repos: :ref:`add-github-repo`
 
 2. For Mercurial repos: :ref:`add-hg-repo`
 
@@ -142,7 +142,7 @@ Authentication is covered :ref:`here <authentication>`.
 Resultset Collections
 ^^^^^^^^^^^^^^^^^^^^^
 
-Resultset collections contain meta data associated with a github pull request
+Resultset collections contain meta data associated with a GitHub pull request
 or a push to mercurial or any event that requires tests to be run on a
 repository.  The most critical part of each resultset is the `revision`.
 This is used as an identifier to associate test job data with. This is the
@@ -668,11 +668,11 @@ log name.  You must specify the name in two places for this to work.
 
 .. _add-github-repo:
 
-Adding a Github Repository
+Adding a GitHub Repository
 --------------------------
 
-The pushes from Github repos come to Treeherder via Pulse.  The webhook to enable
-this exists in the Github group ``mozilla``. (For example, ``github.com/mozilla/treeherder``)
+The pushes from GitHub repos come to Treeherder via Pulse.  The webhook to enable
+this exists in the GitHub group ``mozilla``. (For example, ``github.com/mozilla/treeherder``)
 
 The following steps are required:
 
@@ -682,7 +682,7 @@ The following steps are required:
 2. Open a bug request to enable the webhook that will trigger pulse messages for
    every push from your repo.  Use the following information:
 
-   a. Component: Github: Administration
+   a. Component: GitHub: Administration
    b. Ask to install the https://github.com/integration/taskcluster integration on your repositories
    c. List the repositories you want to have access to the integration
    d. Answer: Are any of those repositories private?
