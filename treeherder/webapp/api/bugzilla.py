@@ -22,7 +22,7 @@ class BugzillaViewSet(viewsets.ViewSet):
         params = request.data
 
         if params.get("crash_signature") != None:
-            if len(params.get("crash_signature") > 2048):
+            if len(params.get("crash_signature")) > 2048:
                 return Response({"failure": "Crash signature can't be more than 2048 characters"},
                                 status=HTTP_400_BAD_REQUEST)
 
