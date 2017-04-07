@@ -180,6 +180,11 @@ treeherder.factory('thPlatformName', [
         };
     }]);
 
+treeherder.factory('jsyaml', [
+    function() {
+        return require('js-yaml');
+    }]);
+
 treeherder.factory('thExtendProperties', [
     /* Version of _.extend that works with property descriptors */
     function() {

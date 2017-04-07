@@ -72,6 +72,7 @@ module.exports = neutrino => {
                     'no-spaced-func': 'error',
                     'no-trailing-spaces': 'error',
                     'no-undef-init': 'error',
+                    'no-undef': 'error',
                     'no-unexpected-multiline': 'error',
                     'no-unused-expressions': 'error',
                     'no-useless-call': 'error',
@@ -81,7 +82,7 @@ module.exports = neutrino => {
                     'strict': ['error', 'global'],
                     'yoda': 'error'
                 },
-                globals: ['angular', '$', '_', 'treeherder', 'jsyaml', 'perf',
+                globals: ['angular', '$', '_', 'treeherder', 'perf',
                     'treeherderApp', 'failureViewerApp', 'logViewerApp',
                     'userguideApp', 'admin', 'Mousetrap', 'jQuery', 'React',
                     'hawk', 'jsonSchemaDefaults'

@@ -2,10 +2,10 @@
 
 treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
     '$q', '$interpolate', 'thUrl', 'thResultStatusObject', 'thEvents',
-    'thServiceDomain', 'ThLog', 'thNotify', 'ThJobModel', 'thTaskcluster',
+    'thServiceDomain', 'ThLog', 'thNotify', 'ThJobModel', 'thTaskcluster', 'jsyaml',
     function ($rootScope, $http, $location, $q, $interpolate, thUrl,
         thResultStatusObject, thEvents, thServiceDomain, ThLog, thNotify,
-        ThJobModel, thTaskcluster) {
+        ThJobModel, thTaskcluster, jsyaml) {
 
         var $log = new ThLog("ThResultSetModel");
 

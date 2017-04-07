@@ -8,7 +8,7 @@ treeherder.controller('PluginCtrl', [
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard',
     'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'ThTaskclusterErrors',
     'thTabs', '$timeout', 'thReftestStatus', 'ThResultSetStore',
-    'PhSeries', 'thServiceDomain', 'thTaskcluster',
+    'PhSeries', 'thServiceDomain', 'thTaskcluster', 'jsyaml',
     function PluginCtrl(
         $scope, $rootScope, $location, $http, $interpolate, $uibModal,
         thUrl, ThJobClassificationModel,
@@ -17,7 +17,7 @@ treeherder.controller('PluginCtrl', [
         ThResultSetModel, ThLog, $q, thPinboard,
         ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, ThTaskclusterErrors, thTabs,
         $timeout, thReftestStatus, ThResultSetStore, PhSeries,
-        thServiceDomain, thTaskcluster) {
+        thServiceDomain, thTaskcluster, jsyaml) {
 
         var $log = new ThLog("PluginCtrl");
 
