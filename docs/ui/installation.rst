@@ -8,7 +8,7 @@ see the Vagrant instructions.
 
 To get started:
 
-* Clone the `treeherder repo`_ from Github.
+* Clone the `treeherder repo`_ from GitHub.
 * Install `Node.js`_ and Yarn_ if not present.
 * Run ``yarn install --no-bin-links`` to install all dependencies.
 
