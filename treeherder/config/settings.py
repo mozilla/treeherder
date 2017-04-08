@@ -438,8 +438,13 @@ PARSER_MAX_STEP_ERROR_LINES = 100
 PARSER_MAX_SUMMARY_LINES = 200
 FAILURE_LINES_CUTOFF = 35
 
+# BZ_API_URL is used to fetch bug suggestions from bugzilla
+# BUGFILER_API_URL is used when filing bugs
+# these are no longer necessarily the same so stage treeherder can submit
+# to stage bmo, while suggestions can still be fetched from prod bmo
 BZ_API_URL = "https://bugzilla.mozilla.org"
-BZ_API_KEY = env("BUGZILLA_API_KEY", default=None)
+BUGFILER_API_URL = env("BUGZILLA_API_URL", default="https://bugzilla.mozilla.org")
+BUGFILER_API_KEY = env("BUGZILLA_API_KEY", default=None)
 
 ORANGEFACTOR_SUBMISSION_URL = "https://brasstacks.mozilla.com/orangefactor/api/saveclassification"
 ORANGEFACTOR_HAWK_ID = "treeherder"
