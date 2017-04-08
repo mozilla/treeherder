@@ -85,6 +85,7 @@ treeherder.controller('BugFilerCtrl', [
             summary = summary.replace(re, "");
             re = /xpcshell-child-process.ini:/gi;
             summary = summary.replace(re, "");
+            summary = summary.replace("/_mozilla/", "mozilla/tests/");
 
             summary = summary.split(" | ");
 
@@ -94,7 +95,7 @@ treeherder.controller('BugFilerCtrl', [
                 }
             }
 
-            $uibModalInstance.possibleFilename = summary[0].split("==")[0].split("/").pop().trim();
+            $uibModalInstance.possibleFilename = summary[0].split("==")[0].split("/").pop().split("\\").pop().trim().split(" ")[0];
 
             return [summary, $uibModalInstance.possibleFilename];
         };
@@ -148,6 +149,7 @@ treeherder.controller('BugFilerCtrl', [
                 // If the "TEST-UNEXPECTED-foo" isn't one of the omitted ones, use the next piece in the summary
                 if (failurePath.includes("TEST-UNEXPECTED-")) {
                     failurePath = $uibModalInstance.parsedSummary[0][1];
+                    $uibModalInstance.possibleFilename = failurePath.split("/").pop().split("\\").pop();
                 }
 
                 // Try to fix up file paths for some job types.
@@ -159,39 +161,89 @@ treeherder.controller('BugFilerCtrl', [
                     failurePath = "dom/media/test/external/external_media_tests/" + failurePath;
                 }
                 if (selectedJob.job_group_name.toLowerCase().includes("web platform")) {
-                    failurePath = "testing/web-platform/tests/" + failurePath;
+                    if (failurePath.startsWith("mozilla/tests")) {
+                        failurePath = "testing/web-platform/" + failurePath;
+                    } else {
+                        failurePath = "testing/web-platform/tests/" + failurePath;
+                    }
                 }
 
                 // Search mercurial's moz.build metadata to find products/components
                 $scope.searching = "Mercurial";
-                $http.get("https://hg.mozilla.org/mozilla-central/json-mozbuildinfo?p=" + failurePath).then(function(request) {
-                    if (request.data.aggregate && request.data.aggregate.recommended_bug_component) {
-                        var suggested = request.data.aggregate.recommended_bug_component;
-                        $scope.suggestedProducts.push(suggested[0] + " :: " + suggested[1]);
+                $http.get("https://hg.mozilla.org/mozilla-central/json-mozbuildinfo?p=" + failurePath).then(function(firstRequest) {
+                    if (firstRequest.data.aggregate && firstRequest.data.aggregate.recommended_bug_component) {
+                        var suggested = firstRequest.data.aggregate.recommended_bug_component;
+                        addProduct(suggested[0] + " :: " + suggested[1]);
                     }
 
                     $scope.searching = false;
 
-                    if ($scope.suggestedProducts.length === 0) {
-                        var jg = selectedJob.job_group_name.toLowerCase();
-                        // Some job types are special, lets explicitly handle them.
-                        if (jg.includes("web platform")) {
-                            $scope.suggestedProducts.push("Testing :: web-platform-tests");
-                        }
-                        if (jg.includes("talos")) {
-                            $scope.suggestedProducts.push("Testing :: Talos");
-                        }
-                        if (jg.includes("mochitest") && failurePath.includes("webextensions/")) {
-                            $scope.suggestedProducts.push("Toolkit :: WebExtensions: General");
-                        }
-                        if (jg.includes("mochitest") && failurePath.includes("webrtc/")) {
-                            $scope.suggestedProducts.push("Core :: WebRTC");
-                        }
+                    // Make an attempt to find the file path via a dxr file search
+                    if ($scope.suggestedProducts.length === 0 && $uibModalInstance.possibleFilename.length > 4) {
+                        $scope.searching = "DXR & Mercurial";
+                        var dxrlink = "https://dxr.mozilla.org/mozilla-central/search?q=file:" + $uibModalInstance.possibleFilename + "&redirect=false&limit=5";
+                        $http.get(dxrlink, {"headers": {
+                            "Accept": "application/json"
+                        }}).then(function(secondRequest) {
+                            var results = secondRequest.data.results;
+                            var resultsCount = results.length;
+                            // If the search returns too many results, this probably isn't a good search term, so bail
+                            if (resultsCount === 0) {
+                                $scope.searching = false;
+                                injectProducts(failurePath);
+                            }
+                            for (var i = 0; i < results.length; i++) {
+                                $scope.searching = "DXR & Mercurial";
+                                $http.get("https://hg.mozilla.org/mozilla-central/json-mozbuildinfo?p=" + results[i].path).then(function(thirdRequest) {
+                                    if (thirdRequest.data.aggregate && thirdRequest.data.aggregate.recommended_bug_component) {
+                                        var suggested = thirdRequest.data.aggregate.recommended_bug_component;
+                                        addProduct(suggested[0] + " :: " + suggested[1]);
+                                    }
+                                    // Only get rid of the throbber when all of these searches have completed
+                                    resultsCount = resultsCount - 1;
+                                    if (resultsCount === 0) {
+                                        $scope.searching = false;
+                                        injectProducts(failurePath);
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        injectProducts(failurePath);
                     }
 
                     $scope.selection.selectedProduct = $scope.suggestedProducts[0];
                 });
             }
+        };
+
+        // Add a product/component pair to suggestedProducts
+        var addProduct = function(product) {
+            // Don't allow duplicates to be added to the list
+            if (!$scope.suggestedProducts.includes(product)) {
+                $scope.suggestedProducts.push(product);
+                $scope.selection.selectedProduct = $scope.suggestedProducts[0];
+            }
+        };
+
+        // Some job types are special, lets explicitly handle them.
+        var injectProducts = function(fp) {
+            if ($scope.suggestedProducts.length === 0) {
+                var jg = selectedJob.job_group_name.toLowerCase();
+                if (jg.includes("web platform")) {
+                    addProduct("Testing :: web-platform-tests");
+                }
+                if (jg.includes("talos")) {
+                    addProduct("Testing :: Talos");
+                }
+                if (jg.includes("mochitest") && (fp.includes("webextensions/") || fp.includes("components/extensions"))) {
+                    addProduct("Toolkit :: WebExtensions: General");
+                }
+                if (jg.includes("mochitest") && fp.includes("webrtc/")) {
+                    addProduct("Core :: WebRTC");
+                }
+            }
+            $scope.selection.selectedProduct = $scope.suggestedProducts[0];
         };
 
         /*
