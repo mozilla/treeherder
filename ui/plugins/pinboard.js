@@ -214,7 +214,11 @@ treeherder.controller('PinboardCtrl', [
         function handleRelatedBugDocumentClick(event) {
             if (!$(event.target).hasClass("add-related-bugs-input")) {
                 $scope.$apply(function() {
-                    $scope.toggleEnterBugNumber(false);
+                    if ($scope.newEnteredBugNumber) {
+                        $scope.saveEnteredBugNumber();
+                    } else {
+                        $scope.toggleEnterBugNumber(false);
+                    }
                 });
             }
         }
