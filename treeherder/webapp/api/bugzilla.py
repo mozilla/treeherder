@@ -16,7 +16,7 @@ class BugzillaViewSet(viewsets.ViewSet):
         Create a bugzilla bug with passed params
         """
         if settings.BUGFILER_API_KEY is None:
-            return Response({"failure": "Bugzilla API key not defined. This shouldn't happen."},
+            return Response({"failure": "Bugzilla API key not set!"},
                             status=HTTP_400_BAD_REQUEST)
 
         params = request.data
@@ -54,3 +54,4 @@ class BugzillaViewSet(viewsets.ViewSet):
             return Response({"failure": message}, status=HTTP_400_BAD_REQUEST)
 
         return Response({"success": response.json()["id"]})
+~
