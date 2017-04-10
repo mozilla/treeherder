@@ -382,3 +382,27 @@ fieldset[disabled] .btn-view-nav-closed.active {
   cursor: default;
 }
 
+#repo-dropdown {
+  width: 390px;
+}
+
+#repo-dropdown .repogroup {
+  float:left;
+  width: 180px;
+  max-width: 180px;
+  padding-left: 15px;
+  padding-top: 5px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+#repo-dropdown .repogroup:not(:last-child) {
+  min-height: 250px;
+}
+
+#repo-dropdown .repogroup:last-child {
+  padding-bottom: 15px;
+}
+
+.repogroup:nth-child(2n+1):not(:last-child) {
+  border-right: 1px solid #e5e5e5;
+}

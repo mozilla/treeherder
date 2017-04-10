@@ -43,8 +43,7 @@
           </button>
           <ul id="repo-dropdown" class="dropdown-menu checkbox-dropdown-menu"
               role="menu" aria-labelledby="repoLabel">
-            <span ng-repeat="(group_order, group) in groupedRepos()">
-              <li role="presentation" class="divider" ng-hide="$first"></li>
+            <span class="repogroup" ng-repeat="(group_order, group) in groupedRepos()">
               <li role="presentation" class="dropdown-header">{{::group.name}}</li>
               <th-repo-menu-item ng-repeat="repo in group.repos | orderBy : 'name'" ></th-repo-menu-item>
             </span>
