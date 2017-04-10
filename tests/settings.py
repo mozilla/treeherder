@@ -13,8 +13,8 @@ PULSE_URI = BROKER_URL
 PULSE_EXCHANGE_NAMESPACE = 'test'
 
 # Set a fake api key for testing bug filing
-BZ_API_KEY = "12345helloworld"
-BZ_API_URL = "https://thisisnotbugzilla.org"
+BUGFILER_API_KEY = "12345helloworld"
+BUGFILER_API_URL = "https://thisisnotbugzilla.org"
 
 # ELASTIC SEARCH
 # Prefix indices used in tests to avoid clobbering data
