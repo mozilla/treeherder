@@ -13,7 +13,7 @@ Prerequisites
 
 * If you are new to Mozilla or the A-Team, read the `A-Team Bootcamp`_.
 * Install Git_, Virtualbox_ and Vagrant_ (latest versions recommended).
-* Clone the `treeherder repo`_ from Github.
+* Clone the `treeherder repo`_ from GitHub.
 * Windows only: Ensure MSYS ssh (ships with Git for Windows) is on the PATH, so Vagrant can find it (using PuTTY is more hassle).
 * Linux only: An nfsd server is required. You can install this on Ubuntu by running `apt-get install nfs-common nfs-kernel-server`
 
@@ -66,6 +66,17 @@ Starting a local Treeherder instance
      vagrant ~/treeherder$ ./manage.py runserver
 
   this is more convenient because it automatically refreshes every time there's a change in the code.
+
+* You must also build the UI. Open a new terminal window and ``vagrant ssh`` to
+  the VM again, then run the following:
+
+  .. code-block:: bash
+
+    vagrant ~/treeherder$ yarn install --no-bin-links
+    vagrant ~/treeherder$ yarn run start:local
+
+  This will build the UI code in the ``dist/`` folder and keep watching for
+  new changes (See the :doc:`UI installation section <ui/installation>` for more ways to work with the UI code).
 
 * Visit http://localhost:8000 in your browser. Note: There will be no data to display until the ingestion tasks are run.
 

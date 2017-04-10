@@ -45,9 +45,17 @@
       </span>
       application crashed [{{ ::failureLine.signature }}]
     </span>
+    <span>[<a title="Open the log viewer in a new window"
+       target="_blank"
+       href="{{ logUrl }}"
+       class="">log…</a>]</span>
   </div>
-  <div ng-if="!failureLine"
-       ng-bind-html="::searchLine | escapeHTML | highlightLogLine">
+  <div ng-if="!failureLine">
+    <span ng-bind-html="::searchLine | escapeHTML | highlightLogLine"></span>
+    <span>[<a title="Open the log viewer in a new window"
+       target="_blank"
+       href="{{ logUrl }}"
+       class="">log…</a>]</span>
   </div>
 
   <div ng-if="line.verified && !line.verifiedIgnore">

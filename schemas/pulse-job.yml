@@ -296,7 +296,7 @@ properties:
           properties:
             url:
               type: string
-              format: url
+              format: uri
               maxLength: 512
             linkText:
               type: string

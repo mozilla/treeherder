@@ -44,9 +44,8 @@ TIME_ZONE = "UTC"
 USE_I18N = False
 USE_L10N = True
 
-SERVE_MINIFIED_UI = env.bool("SERVE_MINIFIED_UI", default=False)
 # Files in this directory will be served by WhiteNoise at the site root.
-WHITENOISE_ROOT = path("..", "dist" if SERVE_MINIFIED_UI else "ui")
+WHITENOISE_ROOT = path("..", "dist")
 
 STATIC_ROOT = path("static")
 STATIC_URL = "/static/"
@@ -87,11 +86,13 @@ TEMPLATES = [
 ]
 
 MIDDLEWARE_CLASSES = [middleware for middleware in [
+    # Adds custom New Relic annotations. Must be first so all transactions are annotated.
+    'treeherder.middleware.NewRelicMiddleware',
     # Redirect to HTTPS/set HSTS and other security headers.
     'django.middleware.security.SecurityMiddleware',
     # Allows both Django static files and those specified via `WHITENOISE_ROOT`
     # to be served by WhiteNoise, avoiding the need for Apache/nginx on Heroku.
-    'treeherder.config.whitenoise_custom.CustomWhiteNoise',
+    'treeherder.middleware.CustomWhiteNoise',
     'django.middleware.gzip.GZipMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware' if ENABLE_DEBUG_TOOLBAR else False,
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -138,7 +139,6 @@ INSTALLED_APPS = [
     'hawkrest',
     'corsheaders',
     'graphene_django',
-    'django_graphiql',
     # treeherder apps
     'treeherder.model',
     'treeherder.webapp',
@@ -638,8 +638,4 @@ HAWK_CREDENTIALS_LOOKUP = 'treeherder.webapp.api.auth.hawk_lookup'
 ELASTIC_SEARCH = {
     "url": env.str('ELASTICSEARCH_URL', default=""),
     "index_prefix": ""
-}
-
-GRAPHENE = {
-    'SCHEMA': 'treeherder.webapp.graphql.schema.schema'
 }

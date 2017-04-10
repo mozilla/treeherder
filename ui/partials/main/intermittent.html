@@ -9,6 +9,10 @@
     <button name="modalProductFinderButton" id="modalProductFinderButton"
             type="button" ng-click="findProduct()" prevent-default-on-left-click>Find Product</button>
     <div>
+      <div id="productSearchSpinner" ng-show="searching">
+        <span class="fa fa-spinner fa-pulse th-spinner-lg"></span>
+        Searching {{searching}}
+      </div>
       <fieldset id="suggestedProducts" ng-init="selection={}">
         <div ng-repeat="product in suggestedProducts">
           <input type="radio" value="{{product}}"
@@ -75,6 +79,11 @@
         <input type="text" ng-model="modalBlocks" placeholder="Blocks" uib-tooltip="Comma-separated list of bugs" tooltip-placement="bottom" />
         <input type="text" ng-model="modalDependsOn" placeholder="Depends on" uib-tooltip="Comma-separated list of bugs" tooltip-placement="bottom" />
         <input type="text" ng-model="modalSeeAlso" placeholder="See also" uib-tooltip="Comma-separated list of bugs" tooltip-placement="bottom" />
+      </div>
+
+      <div ng-show="crashSignatures.length" id="modalCrashSignatureDiv">
+        <label id="modalCrashSignatureLabel" for="modalCrashSignature">Signature:</label>
+        <textarea id="modalCrashSignature" ng-model="crashSignatures"></textarea>
       </div>
     </div>
   </form>

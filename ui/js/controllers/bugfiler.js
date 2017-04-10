@@ -1,17 +1,17 @@
 "use strict";
 
 treeherder.controller('BugFilerCtrl', [
-    '$scope', '$rootScope', '$uibModalInstance', '$http', 'summary', 'thBugzillaProductObject',
+    '$scope', '$rootScope', '$uibModalInstance', '$http', 'summary',
     'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures',
-    'successCallback', 'thNotify',
+    'crashSignatures', 'successCallback', 'thNotify',
     function BugFilerCtrl(
-        $scope, $rootScope, $uibModalInstance, $http, summary, thBugzillaProductObject,
+        $scope, $rootScope, $uibModalInstance, $http, summary,
         fullLog, parsedLog, reftest, selectedJob, allFailures,
-        successCallback, thNotify) {
+        crashSignatures, successCallback, thNotify) {
 
         var bzBaseUrl = "https://bugzilla.mozilla.org/";
 
-        $scope.omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR"];
+        $scope.omittedLeads = ["TEST-UNEXPECTED-FAIL", "PROCESS-CRASH", "TEST-UNEXPECTED-ERROR", "REFTEST ERROR"];
 
         /**
          *  'enter' from the product search input should initiate the search
@@ -33,6 +33,7 @@ treeherder.controller('BugFilerCtrl', [
 
         $scope.parsedLog = parsedLog;
         $scope.fullLog = fullLog;
+        $scope.crashSignatures = crashSignatures.join("\n");
         if ($scope.isReftest()) {
             $scope.reftest = reftest;
         }
@@ -72,17 +73,13 @@ treeherder.controller('BugFilerCtrl', [
          *  Remove extraneous junk from the start of the summary line
          *  and try to find the failing test name from what's left
          */
-        $uibModalInstance.parseSummary = function(summary) {
+        $scope.parseSummary = function(summary) {
             // Strip out some extra stuff at the start of some failure paths
-            var re = /file:\/\/\/home\/worker\/workspace\/build\/tests\/reftest\/tests\//gi;
+            var re = /file:\/\/\/.*?\/build\/tests\/reftest\/tests\//gi;
             summary = summary.replace(re, "");
             re = /\/home\/worker\/workspace\/build\/src\//gi;
             summary = summary.replace(re, "");
             re = /\/home\/worker\/checkouts\/gecko\//gi;
-            summary = summary.replace(re, "");
-            re = /file:\/\/\/builds\/slave\/test\/build\/tests\/reftest\/tests\//gi;
-            summary = summary.replace(re, "");
-            re = /file:\/\/\/c:\/slave\/test\/build\/tests\/reftest\/tests\//gi;
             summary = summary.replace(re, "");
             re = /http:\/\/([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):([0-9]+)\/tests\//gi;
             summary = summary.replace(re, "");
@@ -99,12 +96,12 @@ treeherder.controller('BugFilerCtrl', [
                 }
             }
 
-            $uibModalInstance.possibleFilename = summary[0].split("/").pop();
+            $uibModalInstance.possibleFilename = summary[0].split("==")[0].split("/").pop().trim();
 
             return [summary, $uibModalInstance.possibleFilename];
         };
 
-        $uibModalInstance.parsedSummary = $uibModalInstance.parseSummary(summary);
+        $uibModalInstance.parsedSummary = $scope.parseSummary(summary);
         var summaryString = $uibModalInstance.parsedSummary[0].join(" | ");
         if (selectedJob.job_group_name.toLowerCase().includes("reftest")) {
             var re = /layout\/reftests\//gi;
@@ -128,6 +125,7 @@ treeherder.controller('BugFilerCtrl', [
             var productSearch = $scope.productSearch;
 
             if (productSearch) {
+                $scope.searching = "Bugzilla";
                 $http.get(bzBaseUrl + "rest/prod_comp_search/" + productSearch + "?limit=5").then(function(request) {
                     var data = request.data;
                     // We can't file unless product and component are provided, this api can return just product. Cut those out.
@@ -136,6 +134,7 @@ treeherder.controller('BugFilerCtrl', [
                             data.products.splice(i, 1);
                         }
                     }
+                    $scope.searching = false;
                     $scope.suggestedProducts = [];
                     $scope.suggestedProducts = _.map(data.products, function(prod) {
                         if (prod.product && prod.component) {
@@ -166,11 +165,14 @@ treeherder.controller('BugFilerCtrl', [
                 }
 
                 // Search mercurial's moz.build metadata to find products/components
+                $scope.searching = "Mercurial";
                 $http.get("https://hg.mozilla.org/mozilla-central/json-mozbuildinfo?p=" + $scope.failurePath).then(function(request) {
                     if (request.data.aggregate && request.data.aggregate.recommended_bug_component) {
                         var suggested = request.data.aggregate.recommended_bug_component;
                         $scope.suggestedProducts.push(suggested[0] + " :: " + suggested[1]);
                     }
+
+                    $scope.searching = false;
 
                     if ($scope.suggestedProducts.length === 0) {
                         var jg = selectedJob.job_group_name.toLowerCase();
@@ -188,21 +190,9 @@ treeherder.controller('BugFilerCtrl', [
                             $scope.suggestedProducts.push("Core :: WebRTC");
                         }
                     }
-
-                    if ($scope.suggestedProducts.length === 0) {
-                        var failurePathRoot = $scope.failurePath.split("/")[0];
-
-                        // Last ditch effort, Look up the product via the root of the failure's file path
-                        if (thBugzillaProductObject[failurePathRoot]) {
-                            $scope.suggestedProducts.push(thBugzillaProductObject[failurePathRoot][0]);
-                        }
-                    }
-
                     $scope.selection.selectedProduct = $scope.suggestedProducts[0];
                 });
             }
-
-            $scope.selection.selectedProduct = $scope.suggestedProducts[0];
         };
 
         /*
@@ -268,11 +258,17 @@ treeherder.controller('BugFilerCtrl', [
                 descriptionStrings += $scope.modalComment;
             }
 
-            var keywords = $scope.isIntermittent ? "intermittent-failure" : "";
+            var keywords = $scope.isIntermittent ? ["intermittent-failure"] : [];
 
+            var severity = "normal";
             var blocks = $scope.modalBlocks;
             var dependsOn = $scope.modalDependsOn;
             var seeAlso = $scope.modalSeeAlso;
+            var crashSignature = $scope.crashSignatures;
+            if (crashSignature.length > 0) {
+                keywords.push("crash");
+                severity = "critical";
+            }
 
             // Fetch product information from bugzilla to get version numbers, then submit the new bug
             // Only request the versions because some products take quite a long time to fetch the full object
@@ -298,6 +294,8 @@ treeherder.controller('BugFilerCtrl', [
                             "blocks": blocks,
                             "depends_on": dependsOn,
                             "see_also": seeAlso,
+                            "crash_signature": crashSignature,
+                            "severity": severity,
                             "comment": descriptionStrings,
                             "comment_tags": "treeherder"
                         }

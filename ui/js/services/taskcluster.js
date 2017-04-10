@@ -1,8 +1,8 @@
 'use strict';
 
-treeherder.factory('thTaskcluster', ['$window', '$rootScope', 'localStorageService',
-    function($window, $rootScope, localStorageService) {
-        let client = $window.taskcluster;
+treeherder.factory('thTaskcluster', ['$rootScope', 'localStorageService',
+    function($rootScope, localStorageService) {
+        let client = require('taskcluster-client');
         $rootScope.$on("LocalStorageModule.notification.setitem", function() {
             client.config({
                 credentials: localStorageService.get('taskcluster.credentials') || {},

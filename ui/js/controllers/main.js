@@ -28,6 +28,8 @@ treeherderApp.controller('MainCtrl', [
         $rootScope.serverChanged = false;
         $rootScope.serverChangedDelayed = false;
 
+        $scope.testBasedUIHost = 'https://treeherder-manifest.herokuapp.com/';
+
         // Ensure user is available on initial page load
         $rootScope.user = {};
 
@@ -465,7 +467,9 @@ treeherderApp.controller('MainCtrl', [
 
             // Shortcut: open the logviewer for the selected job
             ['l', function() {
-                if ($scope.selectedJob) {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyOpenLogViewer));
+                } else if ($scope.selectedJob) {
                     $scope.$evalAsync($rootScope.$emit(thEvents.openLogviewer));
                 }
             }],
@@ -588,8 +592,7 @@ treeherderApp.controller('MainCtrl', [
 
         // query parameters that will be shown in activefiltersbar when set
         $scope.activeFiltersBarProperties = ['fromchange', 'tochange', 'author',
-                                             'nojobs', 'startdate', 'enddate',
-                                             'revision'];
+            'nojobs', 'startdate', 'enddate', 'revision'];
 
         $scope.showActiveFiltersBar = function() {
             return $scope.search().fromchange || $scope.search().tochange ||

@@ -3,10 +3,10 @@
 /* Services */
 treeherder.factory('thUrl', [
     '$rootScope', 'thServiceDomain',
-    function($rootScope, thServiceDomain) {
+    function ($rootScope, thServiceDomain) {
 
         var thUrl = {
-            getRootUrl: function(uri) {
+            getRootUrl: function (uri) {
                 return thServiceDomain + "/api" + uri;
             },
             getProjectUrl: function(uri, repoName) {
@@ -28,8 +28,12 @@ treeherder.factory('thUrl', [
                     return result + k + '=' + v;
                 }, "");
             },
-            getLogViewerUrl: function(job_id) {
-                return "logviewer.html#?job_id=" + job_id + "&repo=" + $rootScope.repoName;
+            getLogViewerUrl: function(job_id, line_number) {
+                var rv = "logviewer.html#?job_id=" + job_id + "&repo=" + $rootScope.repoName;
+                if (line_number) {
+                    rv += "&lineNumber=" + line_number;
+                }
+                return rv;
             },
             getBugUrl: function(bug_id) {
                 return "https://bugzilla.mozilla.org/show_bug.cgi?id=" + bug_id;
@@ -176,6 +180,11 @@ treeherder.factory('thPlatformName', [
         };
     }]);
 
+treeherder.factory('jsyaml', [
+    function() {
+        return require('js-yaml');
+    }]);
+
 treeherder.factory('thExtendProperties', [
     /* Version of _.extend that works with property descriptors */
     function() {
@@ -187,11 +196,12 @@ treeherder.factory('thExtendProperties', [
                     }
                     var descriptor = Object.getOwnPropertyDescriptor(src, key);
                     if (descriptor && descriptor.get) {
-                        Object.defineProperty(dest, key,
-                                              {get: descriptor.get,
-                                               set: descriptor.set,
-                                               enumerable: descriptor.enumerable,
-                                               configurable: descriptor.configurable});
+                        Object.defineProperty(dest, key, {
+                            get: descriptor.get,
+                            set: descriptor.set,
+                            enumerable: descriptor.enumerable,
+                            configurable: descriptor.configurable
+                        });
                     } else {
                         dest[key] = src[key];
                     }

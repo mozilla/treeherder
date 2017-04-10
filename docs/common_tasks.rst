@@ -67,8 +67,10 @@ endpoints. Just navigate to an endpoint
 you should see the toolbar to your right.
 
 
-Add a new repository
---------------------
+.. _add-hg-repo:
+
+Add a new Mercurial repository
+------------------------------
 
 To add a new repository, the following steps are needed:
 
@@ -80,6 +82,9 @@ To add a new repository, the following steps are needed:
      vagrant ~/treeherder$ ./manage.py loaddata repository
 
 * Restart any running gunicorn/celery processes.
+
+For more information on adding a new GitHub repository
+see :ref:`Add GitHub repository <add-github-repo>`.
 
 
 Building the docs locally
@@ -107,7 +112,7 @@ cross-domain).
 
 To do this:
 
-* Fork the Treeherder repository to your own Github account.
+* Fork the Treeherder repository to your own GitHub account.
 
 * Create a gh-pages branch locally based on the feature branch you wish to test, that is configured to point at production's API. eg:
 
@@ -116,15 +121,13 @@ To do this:
      git checkout (your feature branch)
      git checkout -b gh-pages
      cp ui/js/config/sample.local.conf.js ui/js/config/local.conf.js
-     git add -f ui/js/config/local.conf.js
-     git commit -m "Add temp config file to make the UI use prod's API"
+     yarn run build
+     git add -f ui/js/config/local.conf.js dist/
+     git commit -m "Add temp config file and dist directory to make the UI use prod's API"
 
 * Push the ``gh-pages`` branch to your Treeherder fork.
 
-* Tell people to visit: ``https://<your-username>.github.io/treeherder/ui/``
-
-There is no need to perform a ``yarn run build`` prior. After switching away from the local gh-pages branch, you will need to recreate ``ui/js/config/local.conf.js`` if desired, due to the ``git add -f``.
-
+* Tell people to visit: ``https://<your-username>.github.io/treeherder/dist/``
 
 Updating package.json
 ---------------------

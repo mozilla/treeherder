@@ -26,15 +26,23 @@ To submit your test data to Treeherder, you have two options:
     the host you send it to.  Dev instances can not subscribe to this data.
 
 
+If you are establishing a new repository with Treeherder, then you will need to
+do one of the following:
+
+1. For GitHub repos: :ref:`add-github-repo`
+
+2. For Mercurial repos: :ref:`add-hg-repo`
+
+
 .. _submitting-using-pulse:
 
-Submitting using Pulse
-======================
+Using Pulse
+-----------
 
 To submit via a Pulse exchange, these are the steps you will need to follow:
 
 1. Format your data
--------------------
+^^^^^^^^^^^^^^^^^^^
 
 You should format your job data according to the `Pulse Job Schema`_,
 which describes the various properties of a job: whether it passed or failed,
@@ -44,7 +52,7 @@ exchange, or Treeherder may reject it.
 
 
 2. Create your Exchange
------------------------
+^^^^^^^^^^^^^^^^^^^^^^^
 
 With `Pulse Guardian`_, you need to create your Pulse User in order to
 create your own Queues and Exchanges.  There is no mechanism to create an
@@ -63,7 +71,7 @@ publisher.
 
 
 3. Register with Treeherder
----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Once you have successfully tested a round-trip through your Pulse exchange to
 your development instance, you are ready to have Treeherder receive your data.
@@ -104,7 +112,7 @@ with different routing key settings, or two separate exchanges.  The choice is
 yours.
 
 4. Publish jobs to your Exchange
---------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Once the above config is set on Treeherder, you can begin publishing jobs
 to your Exchange and they will start showing in Treeherder.
@@ -115,8 +123,8 @@ Exchange YOU own.  Treeherder is now just listening to it.
 
 .. _submitting-using-python-client:
 
-Submitting using the Python Client
-==================================
+Using the Python Client
+-----------------------
 
 There are two types of data structures you can submit with the :ref:`Python client
 <python-client>`: job and resultset collections. The client provides methods
@@ -132,9 +140,9 @@ Authentication is covered :ref:`here <authentication>`.
 
 
 Resultset Collections
----------------------
+^^^^^^^^^^^^^^^^^^^^^
 
-Resultset collections contain meta data associated with a github pull request
+Resultset collections contain meta data associated with a GitHub pull request
 or a push to mercurial or any event that requires tests to be run on a
 repository.  The most critical part of each resultset is the `revision`.
 This is used as an identifier to associate test job data with. This is the
@@ -167,7 +175,7 @@ following data structure:
 
 
 Job Collections
----------------
+^^^^^^^^^^^^^^^
 
 Job collections can contain test results from any kind of test. The
 `revision` provided should match the associated `revision` in the
@@ -255,7 +263,7 @@ see :ref:`custom-log-name` for more info.
 
 
 Artifact Collections
---------------------
+^^^^^^^^^^^^^^^^^^^^
 
 Artifact collections contain arbitrary data associated with a job. This is
 usually a json blob of structured data produced by the build system during the
@@ -274,7 +282,7 @@ job execution.
     ]
 
 Usage
------
+^^^^^
 
 If you want to use `TreeherderResultSetCollection` to build up the resultset
 data structures to send, do something like this.
@@ -469,7 +477,7 @@ add them to the collection.
     client.post_collection('mozilla-central', tac)
 
 Job artifacts format
---------------------
+^^^^^^^^^^^^^^^^^^^^
 
 Artifacts can have name, type and blob. The blob property can contain any
 valid data structure accordingly to type attribute.  For example if you use
@@ -573,7 +581,7 @@ will be rendered. Here are the possible values:
 
 
 Some Specific Collection POSTing Rules
---------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Treeherder will detect what data is submitted in the ``TreeherderCollection``
 and generate the necessary artifacts accordingly.  The outline below describes
@@ -583,7 +591,7 @@ See :ref:`schema_validation` for more info on validating some specialized JSON
 data.
 
 JobCollections
-^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~
 Via the ``/jobs`` endpoint:
 
 1. Submit a Log URL with no ``parse_status`` or ``parse_status`` set to "pending"
@@ -599,7 +607,7 @@ Via the ``/jobs`` endpoint:
 
 
 ArtifactCollections
-^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~
 Via the ``/artifact`` endpoint:
 
 1. Submit a ``text_log_summary`` artifact
@@ -613,7 +621,7 @@ Via the ``/artifact`` endpoint:
 .. _custom-log-name:
 
 Specifying Custom Log Names
----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 By default, the Log Viewer expects logs to have the name of ``buildbot_text``
 at this time.  However, if you are supplying the ``text_log_summary`` artifact
@@ -657,6 +665,29 @@ log name.  You must specify the name in two places for this to work.
         "job_id": 1774360
     }
 
+
+.. _add-github-repo:
+
+Adding a GitHub Repository
+--------------------------
+
+The pushes from GitHub repos come to Treeherder via Pulse.  The webhook to enable
+this exists in the GitHub group ``mozilla``. (For example, ``github.com/mozilla/treeherder``)
+
+The following steps are required:
+
+1. Create a PR with the new repository information added to the fixtures file:
+   ``treeherder/model/fixtures/repository.json``  (See other entries in that file
+   for examples of the data to fill.)
+2. Open a bug request to enable the webhook that will trigger pulse messages for
+   every push from your repo.  Use the following information:
+
+   a. Component: GitHub: Administration
+   b. Ask to install the https://github.com/integration/taskcluster integration on your repositories
+   c. List the repositories you want to have access to the integration
+   d. Answer: Are any of those repositories private?
+   e. State that this is only to get Pulse messages for integration into Treeherder
+
 .. _Pulse Guardian: https://pulseguardian.mozilla.org/whats_pulse
 .. _Pulse: https://wiki.mozilla.org/Auto-tools/Projects/Pulse
 .. _Pulse Inspector: https://tools.taskcluster.net/pulse-inspector/
@@ -665,4 +696,3 @@ log name.  You must specify the name in two places for this to work.
 .. _MozillaPulse: https://pypi.python.org/pypi/MozillaPulse
 .. _Kombu: https://pypi.python.org/pypi/kombu
 .. _publish_to_pulse: https://github.com/mozilla/treeherder/blob/master/treeherder/etl/management/commands/publish_to_pulse.py#L12-L12
-

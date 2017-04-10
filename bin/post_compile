@@ -35,5 +35,6 @@ set-env NEW_RELIC_PROCESS_HOST_DISPLAY_NAME '$DYNO'
 # required once `yarn run build` has run. The buildpack cache will still
 # contain them, so this doesn't slow down the next slug compile.
 rm -r .heroku/node/
+rm -r .heroku/yarn/
 rm -r .profile.d/nodejs.sh
 rm -r node_modules/
