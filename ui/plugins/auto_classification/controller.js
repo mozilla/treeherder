@@ -155,6 +155,17 @@ treeherder.controller('ThClassificationOptionController', [
             var logUrl = ctrl.thJob.logs.filter(x => x.name.endsWith("_json"));
             logUrl = logUrl[0] ? logUrl[0].url : ctrl.thJob.logs[0];
 
+            var crashSignatures = [];
+            var crashRegex = /application crashed \[@ (.+)\]$/g;
+
+            var crash = ctrl.errorLine.data.bug_suggestions.search.match(crashRegex);
+            if (crash) {
+                var signature = crash[0].split("application crashed ")[1];
+                if (!crashSignatures.includes(signature)) {
+                    crashSignatures.push(signature);
+                }
+            }
+
             var modalInstance = $uibModal.open({
                 templateUrl: 'partials/main/intermittent.html',
                 controller: 'BugFilerCtrl',
@@ -167,6 +178,7 @@ treeherder.controller('ThClassificationOptionController', [
                     reftest: () => thReftestStatus(ctrl.thJob) ? reftestUrlRoot + logUrl + "&only_show_unexpected=1" : "",
                     selectedJob:() => ctrl.thJob,
                     allFailures: () => [ctrl.errorLine.data.bug_suggestions.search.split(" | ")],
+                    crashSignatures: () => crashSignatures,
                     successCallback: () => (data) => {
                         var bugId = data.success;
                         ctrl.selectedOption.manualBugNumber = bugId;
