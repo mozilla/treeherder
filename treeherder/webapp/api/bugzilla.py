@@ -54,4 +54,3 @@ class BugzillaViewSet(viewsets.ViewSet):
             return Response({"failure": message}, status=HTTP_400_BAD_REQUEST)
 
         return Response({"success": response.json()["id"]})
-
