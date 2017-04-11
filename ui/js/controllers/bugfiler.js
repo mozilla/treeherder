@@ -3,11 +3,11 @@
 treeherder.controller('BugFilerCtrl', [
     '$scope', '$rootScope', '$uibModalInstance', '$http', 'summary',
     'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures',
-    'crashSignatures', 'successCallback', 'thNotify',
+    'crashSignatures', 'successCallback', 'thNotify', 'thBlacklistedTerms',
     function BugFilerCtrl(
         $scope, $rootScope, $uibModalInstance, $http, summary,
         fullLog, parsedLog, reftest, selectedJob, allFailures,
-        crashSignatures, successCallback, thNotify) {
+        crashSignatures, successCallback, thNotify, thBlacklistedTerms) {
 
         var bzBaseUrl = "https://bugzilla.mozilla.org/";
 
@@ -31,10 +31,33 @@ treeherder.controller('BugFilerCtrl', [
 
         $scope.parsedLog = parsedLog;
         $scope.fullLog = fullLog;
+
+        // Some crash signatures are blacklisted because they're useless. Strip them out.
+        for (var i=crashSignatures.length -1; i>=0; i--) {
+            var spliceme = false;
+            for (var j=0; j<thBlacklistedTerms.length; j++) {
+                if (crashSignatures[i] && crashSignatures[i].includes(thBlacklistedTerms[j])) {
+                    spliceme = true;
+                }
+            }
+            if (spliceme) {
+                crashSignatures.splice(i, 1);
+            }
+        }
         $scope.crashSignatures = crashSignatures.join("\n");
         if ($scope.isReftest()) {
             $scope.reftest = reftest;
         }
+
+        $scope.isSummaryBlacklisted = function() {
+            var matching = false;
+            for (var i=0; i<thBlacklistedTerms.length; i++) {
+                if ($scope.modalSummary.includes(thBlacklistedTerms[i])) {
+                    matching = thBlacklistedTerms[i];
+                }
+            }
+            return matching;
+        };
 
         /**
          *  Pre-fill the form with information/metadata from the failure

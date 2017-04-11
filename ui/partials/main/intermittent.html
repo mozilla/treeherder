@@ -26,6 +26,11 @@
     <br/><br/>
 
     <div id="failureSummaryGroup" class="collapsed">
+      <div id="blacklistedSummary" ng-show="isSummaryBlacklisted()">
+        <div uib-tooltip="This can cause poor bug suggestions to be generated">
+          <span class="fa fa-info-circle"></span>
+          Warning: Summary contains a blacklisted string: `{{isSummaryBlacklisted()}}`</div>
+      </div>
       <label id="modalSummarylabel" for="modalSummary">Summary:</label>
       <input id="modalSummary" type="text" placeholder="Intermittent..." pattern=".{0,255}" 
              ng-model="modalSummary" ng-model-options="{allowInvalid:true}" />

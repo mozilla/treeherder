@@ -265,6 +265,29 @@ treeherder.value("strReloadTreeherder",
     "Reload Treeherder windows to see changes reflected."
 );
 
+treeherder.value("thBlacklistedTerms", [
+    'automation.py',
+    'remoteautomation.py',
+    'Shutdown',
+    'undefined',
+    'Main app process exited normally',
+    'Traceback (most recent call last):',
+    'Return code: 0',
+    'Return code: 1',
+    'Return code: 2',
+    'Return code: 9',
+    'Return code: 10',
+    'Exiting 1',
+    'Exiting 9',
+    'CrashingThread(void *)',
+    'libSystem.B.dylib + 0xd7a',
+    'linux-gate.so + 0x424',
+    'TypeError: content is null',
+    'leakcheck',
+    'ImportError: No module named pygtk',
+    '# TBPL FAILURE #'
+]);
+
 treeherder.value("phDashboardValues",
     {
         e10s: {

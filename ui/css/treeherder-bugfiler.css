@@ -91,6 +91,11 @@
     float: right;
 }
 
+#blacklistedSummary {
+    color: red;
+    font-weight: bolder;
+}
+
 #productSearchSpinner {
     padding: 6px;
 }
