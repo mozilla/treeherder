@@ -13,14 +13,26 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='job',
-            name='push',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='jobs', to='model.Push'),
+        migrations.RunSQL(
+            migrations.RunSQL.noop,
+            reverse_sql=migrations.RunSQL.noop,
+            state_operations=[
+                migrations.AlterField(
+                    model_name='job',
+                    name='push',
+                    field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='jobs', to='model.Push'),
+                ),
+            ],
         ),
-        migrations.AlterField(
-            model_name='jobdetail',
-            name='job',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='job_details', to='model.Job'),
+        migrations.RunSQL(
+            migrations.RunSQL.noop,
+            reverse_sql=migrations.RunSQL.noop,
+            state_operations=[
+                migrations.AlterField(
+                    model_name='jobdetail',
+                    name='job',
+                    field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='job_details', to='model.Job'),
+                ),
+            ],
         ),
     ]
