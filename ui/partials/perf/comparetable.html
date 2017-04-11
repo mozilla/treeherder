@@ -82,7 +82,10 @@
                     replicates="compareResult.newRuns"></ph-average>
       </td>
       <td ng-class="$ctrl.getCompareClasses(compareResult)">
-        <span ng-if="compareResult.delta" class="detail-hint" uib-tooltip="Mean difference: {{compareResult.delta|displayPrecision}} (= {{compareResult.deltaPercentage|displayPrecision}}%)">
+        <span ng-if="compareResult.delta  && compareResult.newIsBetter" class="detail-hint" uib-tooltip="Mean difference: {{compareResult.delta|displayPrecision}} (= {{compareResult.deltaPercentage|displayPrecision|absoluteValue}}% better)">
+          {{compareResult.deltaPercentage|displayPrecision}}%  
+        </span>
+        <span ng-if="compareResult.delta  && !compareResult.newIsBetter" class="detail-hint" uib-tooltip="Mean difference: {{compareResult.delta|displayPrecision}} (= {{compareResult.deltaPercentage|displayPrecision|absoluteValue}}% worse)">
           {{compareResult.deltaPercentage|displayPrecision}}%
         </span>
       </td>
