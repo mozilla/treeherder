@@ -171,6 +171,7 @@ treeherder.controller('ThClassificationOptionController', [
                         var bugId = data.success;
                         ctrl.selectedOption.manualBugNumber = bugId;
                         window.open("https://bugzilla.mozilla.org/show_bug.cgi?id=" + bugId);
+                        ctrl.onChange();
                     }
                 }
             });
