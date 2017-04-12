@@ -7,7 +7,11 @@
     default_product: Firefox
     cc_list: jmaher@mozilla.com, rwood@mozilla.com, ionut.goldan@softvision.ro
     text: |
-      Talos has detected a Firefox performance regression from push {{ revision }}. As author of one of the patches included in that push, we need your help to address this regression.
+      Talos has detected a Firefox performance regression from push:
+
+      {{ revisionHref }}
+
+      As author of one of the patches included in that push, we need your help to address this regression.
 
       {{ alertSummary }}
 
@@ -31,7 +35,11 @@
     default_product: Firefox
     cc_list: jmaher@mozilla.com, rwood@mozilla.com, nfroyd@mozilla.com, ionut.goldan@softvision.ro
     text: |
-      We have detected a build metrics regression from push {{ revision }}. As author of one of the patches included in that push, we need your help to address this regression.
+      We have detected a build metrics regression from push:
+
+      {{ revisionHref }}
+
+      As author of one of the patches included in that push, we need your help to address this regression.
 
       {{ alertSummary }}
 
@@ -49,7 +57,11 @@
     default_product: Firefox
     cc_list: jmaher@mozilla.com, rwood@mozilla.com, bc@mozilla.com, ionut.goldan@softvision.ro
     text: |
-      We have detected an autophone (Android) regression from push {{ revision }}. As author of one of the patches included in that push, we need your help to address this regression.
+      We have detected an autophone (Android) regression from push:
+
+      {{ revisionHref }}
+
+      As author of one of the patches included in that push, we need your help to address this regression.
 
       {{ alertSummary }}
 
