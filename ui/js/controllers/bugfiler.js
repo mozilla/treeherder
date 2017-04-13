@@ -85,6 +85,8 @@ treeherder.controller('BugFilerCtrl', [
             summary = summary.replace(re, "");
             re = /xpcshell-child-process.ini:/gi;
             summary = summary.replace(re, "");
+            re = /xpcshell-unpack.ini:/gi;
+            summary = summary.replace(re, "");
 
             summary = summary.split(" | ");
 
