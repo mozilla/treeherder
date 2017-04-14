@@ -53,6 +53,11 @@ treeherder.controller('BugFilerCtrl', [
                         allFailures[i].shift();
                     }
                 }
+
+                if (allFailures[i][0].search("REFTEST TEST-UNEXPECTED-PASS") >= 0) {
+                    allFailures[i][0] = allFailures[i][0].replace("REFTEST ", "");
+                }
+
                 if (i !== 0) {
                     thisFailure += "\n";
                 }
@@ -94,6 +99,11 @@ treeherder.controller('BugFilerCtrl', [
                 if (summary[0].search($scope.omittedLeads[i]) >= 0 && summary.length > 1) {
                     summary.shift();
                 }
+            }
+
+            // We don't want to include "REFTEST" when it's an unexpected pass
+            if (summary[0].search("REFTEST TEST-UNEXPECTED-PASS") >= 0) {
+                summary[0] = summary[0].replace("REFTEST ", "");
             }
 
             $uibModalInstance.possibleFilename = summary[0].split("==")[0].split("/").pop().trim();
