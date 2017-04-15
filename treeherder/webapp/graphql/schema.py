@@ -56,6 +56,11 @@ class FailureClassificationGraph(DjangoObjectType):
         model = FailureClassification
 
 
+class RepositoryGraph(DjangoObjectType):
+    class Meta:
+        model = Repository
+
+
 class PushGraph(DjangoObjectType):
     class Meta:
         model = Push
