@@ -160,6 +160,16 @@ describe('BugFilerCtrl', function(){
         expect(summary[0][1]).toBe("observe1: 1 window in data written to disk - Got 0, expected 1");
         expect(summary[1]).toBe("browser_625016.js");
 
+        // Test parsing accessibility failures
+        summary = "chrome://mochitests/content/a11y/accessible/tests/mochitest/states/test_expandable.xul" +
+                  " | uncaught exception - TypeError: this.textbox.popup.oneOffButtons is undefined at " +
+                  "searchbar_XBL_Constructor@chrome://browser/content/search/search.xml:95:9";
+        summary = bugFilerScope.parseSummary(summary);
+        expect(summary[0][0]).toBe("accessible/tests/mochitest/states/test_expandable.xul");
+        expect(summary[0][1]).toBe("uncaught exception - TypeError: this.textbox.popup.oneOffButtons is undefined at " +
+                                   "searchbar_XBL_Constructor@chrome://browser/content/search/search.xml:95:9");
+        expect(summary[1]).toBe("test_expandable.xul");
+
         // Test parsing xpcshell failures
         summary = "xpcshell-child-process.ini:dom/indexedDB/test/unit/test_rename_objectStore_errors.js | application crashed [@ mozalloc_abort(char const*)]";
         summary = bugFilerScope.parseSummary(summary);
