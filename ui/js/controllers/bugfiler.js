@@ -54,9 +54,7 @@ treeherder.controller('BugFilerCtrl', [
                     }
                 }
 
-                if (allFailures[i][0].search("REFTEST TEST-UNEXPECTED-PASS") >= 0) {
-                    allFailures[i][0] = allFailures[i][0].replace("REFTEST ", "");
-                }
+                allFailures[i][0] = allFailures[i][0].replace("REFTEST TEST-UNEXPECTED-PASS", "TEST-UNEXPECTED-PASS");
 
                 if (i !== 0) {
                     thisFailure += "\n";
@@ -102,9 +100,7 @@ treeherder.controller('BugFilerCtrl', [
             }
 
             // We don't want to include "REFTEST" when it's an unexpected pass
-            if (summary[0].search("REFTEST TEST-UNEXPECTED-PASS") >= 0) {
-                summary[0] = summary[0].replace("REFTEST ", "");
-            }
+            summary[0] = summary[0].replace("REFTEST TEST-UNEXPECTED-PASS", "TEST-UNEXPECTED-PASS");
 
             $uibModalInstance.possibleFilename = summary[0].split("==")[0].split("/").pop().trim();
 
