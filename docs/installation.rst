@@ -38,7 +38,7 @@ Setting up Vagrant
 
 * Once the virtual machine is set up, connect to it using:
 
-  .. code-block:: bash
+  .. code-block:: none
 
      > vagrant ssh
 
