@@ -21,9 +21,6 @@
            ng-show="resultset.isRunnableVisible"
            ng-click="deleteRunnableJobs()">Hide Runnable Jobs</a></li>
     <li><a target="_blank" data-ignore-job-clear-on-click
-           href="https://bugherder.mozilla.org/?cset={{::resultset.revision}}&amp;tree={{::repoName}}"
-           title="Use Bugherder to mark the bugs in this push">Mark with Bugherder</a></li>
-    <li><a target="_blank" data-ignore-job-clear-on-click
            href="https://secure.pub.build.mozilla.org/buildapi/self-serve/{{::repoName}}/rev/{{::resultset.revision}}">BuildAPI</a></li>
     <li><a target="_blank" data-ignore-job-clear-on-click
            href=""
@@ -33,13 +30,16 @@
            href=""
            ng-show="user.is_staff"
            ng-click="triggerAllTalosJobs(resultset.revision)">Trigger all Talos jobs</a></li>
+    <li><a target="_blank" data-ignore-job-clear-on-click
+           href="https://bugherder.mozilla.org/?cset={{::resultset.revision}}&amp;tree={{::repoName}}"
+           title="Use Bugherder to mark the bugs in this push">Mark with Bugherder</a></li>
+    <li><a target="_blank" title="Prototype of a Treeherder UI centered on tests, rather than jobs"
+           href="{{testBasedUIHost}}?repo={{repoName}}&revision={{resultset.revision}}"><strong>Experimental:</strong> Test-Centric UI</a></li>
     <li><a target="_blank"
            href="{{toChangeValue()}}&tochange={{resultset.revision}}" prevent-default-on-left-click
            ng-click="setLocationSearchParam('tochange', resultset.revision)">Set as top of range</a></li>
     <li><a target="_blank"
            href="{{fromChangeValue()}}&fromchange={{resultset.revision}}" prevent-default-on-left-click
            ng-click="setLocationSearchParam('fromchange', resultset.revision)">Set as bottom of range</a></li>
-    <li><a target="_blank" title="Prototype of a Treeherder UI centered on tests, rather than jobs"
-           href="{{testBasedUIHost}}?repo={{repoName}}&revision={{resultset.revision}}"><strong>Experimental:</strong> Test-Centric UI</a></li>
   </ul>
 </span>
