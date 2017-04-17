@@ -1,0 +1,11 @@
+[
+{
+    "pk": 1,
+    "model": "django_ci.repositorygroup",
+    "fields": {
+        "name": "development",
+        "active_status": 1,
+        "description": ""
+    }
+}
+]

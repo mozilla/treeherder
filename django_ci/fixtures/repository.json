@@ -1,0 +1,15 @@
+[
+{
+    "pk": 1,
+    "model": "django_ci.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "my_repo",
+        "url": "https://hg.mozilla.org/my-repo",
+        "active_status": 1,
+        "codebase": "gecko",
+        "repository_group": 1,
+        "description": ""
+    }
+}
+]
