@@ -15,18 +15,25 @@ class BugzillaViewSet(viewsets.ViewSet):
         """
         Create a bugzilla bug with passed params
         """
-        if settings.BZ_API_KEY is None:
-            return Response({"failure": "Bugzilla API key not defined. This shouldn't happen."},
+        if settings.BUGFILER_API_KEY is None:
+            return Response({"failure": "Bugzilla API key not set!"},
                             status=HTTP_400_BAD_REQUEST)
 
         params = request.data
+
+        # Arbitrarily cap crash signatures at 2048 characters to prevent perf issues on bmo
+        crash_signature = params.get("crash_signature")
+        if crash_signature and len(crash_signature) > 2048:
+            return Response({"failure": "Crash signature can't be more than 2048 characters."},
+                            status=HTTP_400_BAD_REQUEST)
+
         description = "Filed by: {}\n\n{}".format(
             request.user.email.replace('@', " [at] "),
             params.get("comment", "")
         )
-        url = settings.BZ_API_URL + "/rest/bug"
+        url = settings.BUGFILER_API_URL + "/rest/bug"
         headers = {
-            'x-bugzilla-api-key': settings.BZ_API_KEY,
+            'x-bugzilla-api-key': settings.BUGFILER_API_KEY,
             'Accept': 'application/json'
         }
         data = {

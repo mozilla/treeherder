@@ -183,3 +183,9 @@ treeherder.filter('displayPrecision', function() {
         return parseFloat(input).toFixed(2);
     };
 });
+
+treeherder.filter('absoluteValue', function() {
+    return function(input) {
+        return Math.abs(input);
+    };
+});

@@ -77,6 +77,8 @@ treeherder.controller('BugFilerCtrl', [
             summary = summary.replace(re, "");
             re = /\/home\/worker\/workspace\/build\/src\//gi;
             summary = summary.replace(re, "");
+            re = /chrome:\/\/mochitests\/content\/a11y\//gi;
+            summary = summary.replace(re, "");
             re = /\/home\/worker\/checkouts\/gecko\//gi;
             summary = summary.replace(re, "");
             re = /http:\/\/([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):([0-9]+)\/tests\//gi;
@@ -84,6 +86,8 @@ treeherder.controller('BugFilerCtrl', [
             re = /jetpack-package\//gi;
             summary = summary.replace(re, "");
             re = /xpcshell-child-process.ini:/gi;
+            summary = summary.replace(re, "");
+            re = /xpcshell-unpack.ini:/gi;
             summary = summary.replace(re, "");
             summary = summary.replace("/_mozilla/", "mozilla/tests/");
 
