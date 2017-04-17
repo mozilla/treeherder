@@ -48,6 +48,9 @@ treeherderApp.controller('MainCtrl', [
             });
         };
 
+        // Trigger missing jobs is dangerous on repos other than these (see bug 1335506)
+        $scope.triggerMissingRepos = ['mozilla-inbound', 'autoland'];
+
         $scope.updateButtonClick = function() {
             if (window.confirm("Reload the page to pick up Treeherder updates?")) {
                 window.location.reload(true);
