@@ -114,4 +114,8 @@ echo '-----> Running Django migrations and loading reference data'
 ./manage.py migrate --noinput
 ./manage.py load_initial_data
 
+echo '-----> Performing cleanup'
+# Celery sometimes gets stuck and requires that celerybeat-schedule be deleted.
+rm -f celerybeat-schedule || true
+
 echo '-----> Setup complete!'

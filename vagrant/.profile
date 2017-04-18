@@ -52,11 +52,6 @@ function thresetall {
     echo "Deleting logs"
     thlogsdelete
 
-    echo "Deleting celerybeat-schedule"
-    if [ -f ~/treeherder/celerybeat-schedule ]; then
-        rm ~/treeherder/celerybeat-schedule
-    fi
-
     threstartmemcached
     threstartrabbitmq
 
