@@ -6,7 +6,7 @@
 # Docs, we could omit the Sphinx entry since they provide it, however that
 # would not help those who wish to build the docs locally.
 
-Sphinx
+Sphinx==1.5.5
 sphinx-autobuild
 sphinx-rtd-theme
 sphinxcontrib-httpdomain
