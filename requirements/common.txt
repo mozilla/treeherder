@@ -18,7 +18,8 @@ simplejson==3.10.0 --hash=sha256:953be622e88323c6f43fad61ffd05bebe73b9fd9863a46d
 newrelic==2.82.0.62 --hash=sha256:482bdb36a9858d4d2aaeec4e211bd5b318310b270aa0211adc8e481e8ca235ec
 
 # Required by Django
-mysqlclient==1.3.9 --hash=sha256:990ccf1e1f15b9a291b811c993dc1c216566714bc14e6581b38665bd61c28c99
+mysqlclient==1.3.10 \
+    --hash=sha256:452aaf9d2ba1a4fb85c134c88f9b1857852deed63b3b13255d7a65d2c1297262
 
 # Required by celery
 billiard==3.3.0.23 --hash=sha256:692a2a5a55ee39a42bcb7557930e2541da85df9ea81c6e24827f63b80cd39d0b  # pyup: <3.4 # Bug 1337717
