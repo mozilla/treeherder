@@ -36,7 +36,7 @@ matrix:
     - env: ui-tests
       sudo: false
       language: node_js
-      node_js: "7.7.2"
+      node_js: "7.9.0"
       cache:
         # Note: This won't re-use the same cache as the linters job,
         # since caches are tied to the language/version combination.
@@ -182,7 +182,7 @@ matrix:
         - mkdir -p $HOME/bin
         - wget https://github.com/mozilla/geckodriver/releases/download/v0.14.0/geckodriver-v0.14.0-linux64.tar.gz
         - tar -xzf geckodriver-v0.14.0-linux64.tar.gz -C $HOME/bin
-        - nvm install 7.7.2
+        - nvm install 7.9.0
         # Required until Travis makes yarn available in the environment,
         # since we override the default `install` for clarity.
         - curl -sSfL https://yarnpkg.com/install.sh | bash

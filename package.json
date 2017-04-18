@@ -7,7 +7,7 @@
   },
   "license": "MPL-2.0",
   "engines": {
-    "node": "7.7.2"
+    "node": "7.9.0"
   },
   "dependencies": {
     "angular": "1.5.8",
