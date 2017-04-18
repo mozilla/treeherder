@@ -38,7 +38,9 @@ isort==4.2.5 \
     --hash=sha256:56b20044f43cf6e6783fe95d054e754acca52dd43fbe9277c1bdff835537ea5c
 
 # Required by pytest
-py==1.4.32 --hash=sha256:2d4bba2e25fff58140e6bdce1e485e89bb59776adbe01d490baa6b1f37a3dd6b
+py==1.4.33 \
+    --hash=sha256:81b5e37db3cc1052de438375605fb5d3b3e97f950f415f9143f04697c684d7eb \
+    --hash=sha256:1f9a981438f2acc20470b301a07a496375641f902320f70e31916fe3377385a9
 
 # Required by WebTest
 beautifulsoup4==4.5.3 --hash=sha256:50e031957fe5d72c7ff6c10575d07b83a6462d12d12af03666b0dd1d9aa81c43
