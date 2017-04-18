@@ -14,10 +14,10 @@ from django.core.cache import cache
 from django.core.validators import MinLengthValidator
 from django.db import (models,
                        transaction)
-from django.db.models import (F,
-                              Q,
-                              Case,
+from django.db.models import (Case,
                               Count,
+                              F,
+                              Q,
                               When)
 from django.forms import model_to_dict
 from django.utils import timezone
