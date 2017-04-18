@@ -33,7 +33,9 @@ blessings==1.6 --hash=sha256:edc5713061f10966048bf6b40d9a514b381e0ba849c64e034c4
 
 jsonschema==2.5.1 --hash=sha256:71e7b3bcf9fca408bcb65bb60892f375d3abdd2e4f296eeeb8fe0bbbfcde598e
 
-djangorestframework==3.5.3 --hash=sha256:f446041a944723e14502a0a5880d0bc74a499ac1075781177f2fa6d7fe7b415d
+djangorestframework==3.6.2 \
+    --hash=sha256:3dc4bb6377dd1d58d8e2adc908d4f2e3bca5d8d0fb8323c49f57c8c8d407f6ec \
+    --hash=sha256:fa6a8156d88bbc05bb8ccd69d97ead33a828d95804f11e464b1750c3f93fa2ec
 
 django-rest-swagger==2.1.1 --hash=sha256:6ef17b12456dac9434e44357480e323812bee3087579d14e046f6091de6a15d0
 
