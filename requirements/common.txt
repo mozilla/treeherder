@@ -89,7 +89,9 @@ six==1.10.0 --hash=sha256:0ff78c403d9bccf5a425a6d31a12aa6b47f1c21ca4dc2573a7e2f3
 # Required by hawkrest and requests-hawk
 mohawk==0.3.4 --hash=sha256:b3f85ffa93a5c7d2f9cc591246ef9f8ac4a9fa716bfd5bae0377699a2d89d78c
 
-hawkrest==0.0.10 --hash=sha256:5d3e31dc57ffa1d1366feb8b1ba442ef4bd74bd2d1e9c2e9624c0dcfa7aa4ea0
+hawkrest==1.0.0 \
+    --hash=sha256:a3b9c52ee86b0e437aa16819356e57ea79706e58b52ffa4cb908a02d1ebd4875 \
+    --hash=sha256:47d0878352bc0491534da6df7be1fd2f18a515ab4ea55c0c943056b21f286132
 
 python-dateutil==2.6.0 --hash=sha256:537bf2a8f8ce6f6862ad705cd68f9e405c0b5db014aa40fa29eab4335d4b1716
 
