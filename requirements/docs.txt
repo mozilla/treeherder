@@ -8,5 +8,5 @@
 
 Sphinx
 sphinx-autobuild
-sphinx-rtd-theme
+sphinx-rtd-theme==0.2.4
 sphinxcontrib-httpdomain
