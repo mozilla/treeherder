@@ -292,12 +292,6 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
         except IntegrityError:
             pass
 
-    # if the job was pending, there's nothing more to do here
-    # (pending jobs have no artifacts, and we would have just created
-    # it)
-    if state == 'pending':
-        return (job_guid, signature_hash)
-
     # Update job with any data that would have changed
     Job.objects.filter(id=job.id).update(
         guid=job_guid,

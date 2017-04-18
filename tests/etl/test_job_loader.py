@@ -67,6 +67,11 @@ def test_ingest_pulse_jobs(pulse_jobs, test_repository, result_set_stored,
                                        'ZsSzJQu3Q7q2MfehIBAzKQ',
                                        'bIzVZt9jQQKgvQYD3a2HQw'])
 
+    # log URLs and job details should be processed even if the job is
+    # pending.
+    assert JobLog.objects.count() == 4
+    assert JobDetail.objects.count() == 2
+
     job_logs = JobLog.objects.filter(job_id=1)
     assert job_logs.count() == 2
     logs_expected = [{"name": "builds-4h",
@@ -103,10 +108,6 @@ def test_ingest_pending_pulse_job(pulse_jobs, result_set_stored,
     job = jobs[0]
     assert job.taskcluster_metadata
     assert job.taskcluster_metadata.task_id == 'IYyscnNMTLuxzna7PNqUJQ'
-
-    # should not have processed any log or details for pending jobs
-    assert JobLog.objects.count() == 0
-    assert JobDetail.objects.count() == 0
 
 
 def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_repository, result_set_stored,
