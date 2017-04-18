@@ -61,6 +61,16 @@ class RepositoryGraph(DjangoObjectType):
         model = Repository
 
 
+class OptionCollectionGraph(DjangoObjectType):
+    class Meta:
+        model = OptionCollection
+
+
+class OptionGraph(DjangoObjectType):
+    class Meta:
+        model = Option
+
+
 class PushGraph(DjangoObjectType):
     class Meta:
         model = Push
@@ -79,6 +89,7 @@ class Query(graphene.ObjectType):
     all_build_platforms = graphene.List(BuildPlatformGraph)
     all_machine_platforms = graphene.List(MachinePlatformGraph)
     all_machines = graphene.List(MachineGraph)
+    all_option_collections = graphene.List(OptionCollectionGraph)
     all_job_types = graphene.List(JobTypeGraph)
     all_products = graphene.List(ProductGraph)
     all_failure_classifications = graphene.List(FailureClassificationGraph)
@@ -98,6 +109,9 @@ class Query(graphene.ObjectType):
 
     def resolve_all_machines(self, args, context, info):
         return Machine.objects.all()
+
+    def resolve_all_option_collections(self, args, context, info):
+        return OptionCollection.objects.all()
 
     def resolve_all_job_types(self, args, context, info):
         return JobType.objects.all()
