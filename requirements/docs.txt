@@ -9,4 +9,4 @@
 Sphinx
 sphinx-autobuild
 sphinx-rtd-theme
-sphinxcontrib-httpdomain
+sphinxcontrib-httpdomain==1.5.0
