@@ -19,7 +19,9 @@ pytest-selenium==1.9.1 --hash=sha256:d3533b244beaf64308e81eb158285cf071f3fcafed7
 # Required by django-extension's runserver_plus command.
 Werkzeug==0.11.15 --hash=sha256:c6f6f89124df0514d886782c658c3e12f2caaa94da34cee3fd82eebf4ebf052b
 
-flake8==3.2.1 --hash=sha256:dc9eed7667489b73b56b1714aa51f580601db364b61e1833908e931c6de47a65
+flake8==3.3.0 \
+    --hash=sha256:83905eadba99f73fbfe966598aaf1682b3eb6755d2263c5b33a4e8367d60b0d1 \
+    --hash=sha256:b907a26dcf5580753d8f80f1be0ec1d5c45b719f7bac441120793d1a70b03f12
 
 isort==4.2.2 --hash=sha256:3ad243ad738b2f9a58005ac44b13a3c297b0201327edaec32c245b5bc66d27ee
 
