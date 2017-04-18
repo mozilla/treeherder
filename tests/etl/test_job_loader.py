@@ -105,8 +105,8 @@ def test_ingest_pending_pulse_job(pulse_jobs, result_set_stored,
     assert job.taskcluster_metadata.task_id == 'IYyscnNMTLuxzna7PNqUJQ'
 
     # should not have processed any log or details for pending jobs
-    assert JobLog.objects.count() == 0
-    assert JobDetail.objects.count() == 0
+    assert JobLog.objects.count() == 2
+    assert JobDetail.objects.count() == 2
 
 
 def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_repository, result_set_stored,
