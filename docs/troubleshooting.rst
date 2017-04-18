@@ -34,14 +34,3 @@ Errors during Vagrant setup
     git config --global core.autocrlf input
 
   You will then need to delete and reclone the repo (or else do a force checkout).
-
-Why is my celery ingestion not running?
----------------------------------------
-
-If after a ``celery -A treeherder worker -B --concurrency 5`` you experience a static celery console with no output, similar to:
-
-.. code-block:: bash
-
-   09:32:40,010: WARNING/MainProcess] celery@local ready.
-
-You should ctrl+c to shut down celery, remove the ``celerybeat-schedule`` file in the project root, and restart your worker.
