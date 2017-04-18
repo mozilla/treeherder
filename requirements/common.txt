@@ -1,4 +1,3 @@
-# pyup: ignore file
 # Packages that are shared between deployment and dev environments.
 
 gunicorn==19.6.0 --hash=sha256:723234ea1fa8dff370ab69830ba8bc37469a7cba13fd66055faeef24085e6530
