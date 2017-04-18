@@ -50,7 +50,9 @@ django-rest-swagger==2.1.2 \
 
 django-cors-headers==2.0.0 --hash=sha256:a810d81dbdff01824e23cb9e60c7371112f282bc35dde292187eec07b9332275
 
-jsonfield==1.0.3 --hash=sha256:7e7f73a675c518712badd783279e26d164140f3fc2ed7a32102c3d08a6a2a4a7
+jsonfield==2.0.1 \
+    --hash=sha256:cb5304c037acc3cb67225f8d324a1f801d864df3e7d9e612502e418752426bf1 \
+    --hash=sha256:b9bbedad885bf49a3f9f89d472bf5323c23319d2dc13f45304fc1068915c086c
 
 mozlog==3.4 \
     --hash=sha256:cd03065337114eb60e234007e83310c13ff9a222ddfc8e2eacf618767b7e6b78 \
