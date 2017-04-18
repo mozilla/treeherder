@@ -29,12 +29,12 @@
 set -euo pipefail
 
 VENDOR_DIR="$1"
-VERSION="5.7.14"
+VERSION="5.7.18"
 PACKAGE_URLS=(
     # We have to use packages from mysql.com since there is no Ubuntu distro
     # release available for MySQL 5.7 on Ubuntu 14.04.
-    "https://cdn.mysql.com/archives/mysql-5.7/libmysqlclient20_${VERSION}-1ubuntu14.04_amd64.deb"
-    "https://cdn.mysql.com/archives/mysql-5.7/libmysqlclient-dev_${VERSION}-1ubuntu14.04_amd64.deb"
+    "https://dev.mysql.com/get/Downloads/MySQL-5.7/libmysqlclient20_${VERSION}-1ubuntu14.04_amd64.deb"
+    "https://dev.mysql.com/get/Downloads/MySQL-5.7/libmysqlclient-dev_${VERSION}-1ubuntu14.04_amd64.deb"
 )
 
 # Skip vendoring if libmysqlclient-dev's `mysql_config` exists and reports the correct version.
@@ -57,7 +57,7 @@ for url in "${PACKAGE_URLS[@]}"; do
     # directory prefix itself, and so would require error-prone directory shuffling
     # afterwards. The `share` directory and static library files are not used, so are
     # excluded to reduce the slug/cache size (and thus transfer times) on Heroku/Travis.
-    curl -sS "$url" \
+    curl -sSLf "$url" \
       | dpkg-deb --fsys-tarfile /dev/stdin \
       | tar -x --strip-components=2 --exclude="./usr/share" --exclude="*.a" -C "$VENDOR_DIR"
 done
