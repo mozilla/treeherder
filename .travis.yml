@@ -74,7 +74,7 @@ matrix:
       services:
         - rabbitmq
       before_install:
-        - curl -sSo ~/elasticsearch.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.5/elasticsearch-2.3.5.deb && sudo dpkg -i ~/elasticsearch.deb
+        - curl -sSo ~/elasticsearch.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.4.4/elasticsearch-2.4.4.deb && sudo dpkg -i ~/elasticsearch.deb
         - sudo service elasticsearch start
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
         - sudo service mysql restart
@@ -109,7 +109,7 @@ matrix:
       services:
         - rabbitmq
       before_install:
-        - curl -sSo ~/elasticsearch.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.5/elasticsearch-2.3.5.deb && sudo dpkg -i ~/elasticsearch.deb
+        - curl -sSo ~/elasticsearch.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.4.4/elasticsearch-2.4.4.deb && sudo dpkg -i ~/elasticsearch.deb
         - sudo service elasticsearch start
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
         - sudo service mysql restart
@@ -138,7 +138,7 @@ matrix:
       services:
         - rabbitmq
       before_install:
-        - curl -sSo ~/elasticsearch.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.5/elasticsearch-2.3.5.deb && sudo dpkg -i ~/elasticsearch.deb
+        - curl -sSo ~/elasticsearch.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.4.4/elasticsearch-2.4.4.deb && sudo dpkg -i ~/elasticsearch.deb
         - sudo service elasticsearch start
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
         - sudo service mysql restart
@@ -169,7 +169,7 @@ matrix:
       services:
         - rabbitmq
       before_install:
-        - curl -sSo ~/elasticsearch.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.5/elasticsearch-2.3.5.deb && sudo dpkg -i ~/elasticsearch.deb
+        - curl -sSo ~/elasticsearch.deb https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.4.4/elasticsearch-2.4.4.deb && sudo dpkg -i ~/elasticsearch.deb
         - sudo service elasticsearch start
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
         - sudo service mysql restart

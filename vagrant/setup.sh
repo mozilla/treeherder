@@ -6,7 +6,7 @@ set -euo pipefail
 
 SRC_DIR="$HOME/treeherder"
 VENV_DIR="$HOME/venv"
-ELASTICSEARCH_VERSION="2.3.5"
+ELASTICSEARCH_VERSION="2.4.4"
 
 export PATH="$VENV_DIR/bin:$PATH"
 # Suppress prompts during apt-get invocations.
