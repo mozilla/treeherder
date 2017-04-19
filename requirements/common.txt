@@ -99,7 +99,9 @@ sqlparse==0.2.3 \
 # Used directly and also by Django's YAML serializer.
 PyYAML==3.12 --hash=sha256:592766c6303207a20efc445587778322d7f73b161bd994f227adaa341ba212ab
 
-django-environ==0.4.1 --hash=sha256:0e22bd07b632046848c746f6e135cb568b7810201ba692a2edb3d5d6c76de34d
+django-environ==0.4.3 \
+    --hash=sha256:f0169dbcc81ba7068d53dfa58b93a0722aa86b215297f1f99312ff7ea5bcecf3 \
+    --hash=sha256:690628e73f999ac9387416505beb50ecd99a70ddb407d69682c62f59b7b011df
 
 # required by mohawk & django-environ
 six==1.10.0 --hash=sha256:0ff78c403d9bccf5a425a6d31a12aa6b47f1c21ca4dc2573a7e2f32a97335eb1
