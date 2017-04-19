@@ -6,7 +6,7 @@ set -euo pipefail
 
 SRC_DIR="$HOME/treeherder"
 VENV_DIR="$HOME/venv"
-ELASTICSEARCH_VERSION="2.4.4"
+ELASTICSEARCH_VERSION="5.3.1"
 
 export PATH="$VENV_DIR/bin:$PATH"
 # Suppress prompts during apt-get invocations.
@@ -24,6 +24,11 @@ sudo ln -sf "$SRC_DIR/vagrant/env.sh" /etc/profile.d/treeherder.sh
 if [[ ! -f /etc/apt/sources.list.d/fkrull-deadsnakes-python2_7-trusty.list ]]; then
     echo '-----> Adding APT repository for Python 2.7'
     sudo add-apt-repository -y ppa:fkrull/deadsnakes-python2.7 2>&1
+fi
+
+if [[ ! -f /etc/apt/sources.list.d/openjdk-r-ppa-trusty.list ]]; then
+    echo '-----> Adding APT repository for OpenJDK'
+    sudo add-apt-repository -y ppa:openjdk-r/ppa 2>&1
 fi
 
 if [[ ! -f /etc/apt/sources.list.d/nodesource.list ]]; then
@@ -51,7 +56,7 @@ sudo -E apt-get -yqq install --no-install-recommends \
     memcached \
     mysql-server-5.6 \
     nodejs \
-    openjdk-7-jre-headless \
+    openjdk-8-jre-headless \
     python2.7 \
     python2.7-dev \
     rabbitmq-server \
@@ -61,10 +66,15 @@ sudo -E apt-get -yqq install --no-install-recommends \
 
 if [[ "$(dpkg-query --show --showformat='${Version}' elasticsearch 2>&1)" != "$ELASTICSEARCH_VERSION" ]]; then
     echo '-----> Installing Elasticsearch'
-    curl -sSfo /tmp/elasticsearch.deb "https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/$ELASTICSEARCH_VERSION/elasticsearch-$ELASTICSEARCH_VERSION.deb"
+    curl -sSfo /tmp/elasticsearch.deb "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.deb"
     sudo dpkg -i /tmp/elasticsearch.deb
     sudo update-rc.d elasticsearch defaults 95 10
-    sudo service elasticsearch start
+    # Clean up old JDK version, otherwise Elasticsearch won't know which to use,
+    # and existing Vagrant VMs will break.
+    sudo apt-get remove -y openjdk-7-jre-headless
+    # Override the new ES 5.x default minimum heap size of 2GB.
+    sudo sed -i 's/.*ES_JAVA_OPTS=.*/ES_JAVA_OPTS="-Xms256m -Xmx1g"/' /etc/default/elasticsearch
+    sudo service elasticsearch restart
 fi
 
 if ! cmp -s vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf; then
@@ -109,6 +119,9 @@ echo '-----> Initialising MySQL database'
 # The default `root@localhost` grant only allows loopback interface connections.
 mysql -u root -e 'GRANT ALL PRIVILEGES ON *.* to root@"%"'
 mysql -u root -e 'CREATE DATABASE IF NOT EXISTS treeherder'
+
+echo '-----> Waiting for Elasticsearch to be ready'
+while ! curl "$ELASTICSEARCH_URL" &> /dev/null; do sleep 1; done
 
 echo '-----> Running Django migrations and loading reference data'
 ./manage.py migrate --noinput
