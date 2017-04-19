@@ -129,7 +129,9 @@ elasticsearch==2.4.1 \
     --hash=sha256:bb8f9a365ba6650d599428538c8aed42033264661d8f7d353da59d5892305f72 \
     --hash=sha256:fead47ebfcaabd1c53dbfc21403eb99ac207eef76de8002fe11a1c8ec9589ce2  # pyup: >=2,<3 # Client has to match ES server version.
 
-elasticsearch-dsl==2.1.0 --hash=sha256:48f5869035e852f68bfaf1ba586becf4b109c661e7c054045395f554ac7566af  # pyup: >=2,<3 # Client has to match ES server version.
+elasticsearch-dsl==2.2.0 \
+    --hash=sha256:99bbb4dcbcfb5db4f57499237f24acf1397543e895e99994a09af2a6fbef93bc \
+    --hash=sha256:c8132c6e1bdfc5c345999d3949dd53a53b59ea73e2ee005f695de78be0552ceb  # pyup: >=2,<3 # Client has to match ES server version.
 
 # required by elasticsearch
 urllib3==1.20 --hash=sha256:b64c0faa183e9e9e76193146c4147e82a734982c6b6719dca851d6cc4ec90c01
