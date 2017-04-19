@@ -125,7 +125,9 @@ pylibmc==1.5.2 \
 
 django-pylibmc==0.6.1 --hash=sha256:9cffdee703aaf9ebc029d9dbdee8abdd0723564b95e4b2ac59e4a668b8e58f93
 
-elasticsearch==2.4.0 --hash=sha256:ede15c3573f46ea72c4d53ea7f11fe648c60d167d75d739e27f72d78a6d7f692  # pyup: >=2,<3 # Client has to match ES server version.
+elasticsearch==2.4.1 \
+    --hash=sha256:bb8f9a365ba6650d599428538c8aed42033264661d8f7d353da59d5892305f72 \
+    --hash=sha256:fead47ebfcaabd1c53dbfc21403eb99ac207eef76de8002fe11a1c8ec9589ce2  # pyup: >=2,<3 # Client has to match ES server version.
 
 elasticsearch-dsl==2.1.0 --hash=sha256:48f5869035e852f68bfaf1ba586becf4b109c661e7c054045395f554ac7566af  # pyup: >=2,<3 # Client has to match ES server version.
 
