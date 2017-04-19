@@ -192,6 +192,7 @@ treeherder.controller('PluginCtrl', [
                     if (!$scope.job_log_urls.length) {
                         $scope.logParseStatus = 'unavailable';
                     } else if ($scope.job_log_urls[0].parse_status) {
+                        $scope.job_log_urls[0].url = $scope.job_log_urls[0].url.replace("http://", "https://");
                         $scope.logParseStatus = $scope.job_log_urls[0].parse_status;
                     }
 
