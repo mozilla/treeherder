@@ -143,7 +143,8 @@ taskcluster==0.3.4 --hash sha256:d4fe5e2a44fe27e195b92830ece0a6eb9eb7ad9dc556a0c
 graphene-django==1.2.1 --hash=sha256:c221ede0bd80513a8afe5dfd407a24de4446bf0c8d00a64207b7fc9e84fc140d
 
 # Used by graphene-django
-graphql-core==1.0.1 --hash=sha256:1f5c43afb55c096572854116d7d86cb84a97c7ac30b173018879ea21c591de4a
+graphql-core==1.1 \
+    --hash=sha256:63bb8593aeeadb0a53e14207b910027fe51158d017927fad87326dac806185ee
 graphql-relay==0.4.5 --hash=sha256:2716b7245d97091af21abf096fabafac576905096d21ba7118fba722596f65db
 typing==3.6.1 \
     --hash=sha256:c36dec260238e7464213dcd50d4b5ef63a507972f5780652e835d0228d0edace
