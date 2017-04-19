@@ -14,7 +14,7 @@ def test_store_none_subtest(elasticsearch):
 
     docs = search.TestFailureLine.search().execute()
     assert len(docs) == 1
-    assert docs[0].subtest == ""
+    assert docs[0].subtest is None
 
 
 def test_store_no_subtest(elasticsearch):
@@ -24,9 +24,9 @@ def test_store_no_subtest(elasticsearch):
                                  expected="PASS",
                                  message="Example")
     doc.save()
-    assert doc.subtest == ""
+    assert doc.subtest is None
     search.refresh_all()
 
     docs = search.TestFailureLine.search().execute()
     assert len(docs) == 1
-    assert docs[0].subtest == ""
+    assert docs[0].subtest is None
