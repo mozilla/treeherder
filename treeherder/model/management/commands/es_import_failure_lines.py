@@ -65,8 +65,8 @@ existing data is considered for matching failure lines."""
             bulk_insert(es_lines)
             min_id = rows[len(rows) - 1]["id"]
             time.sleep(options['sleep'])
-        s = Search(doc_type=TestFailureLine).params(search_type="count")
-        self.stdout.write("Index contains %i documents" % s.execute().hits.total)
+        count = Search(doc_type=TestFailureLine).count()
+        self.stdout.write("Index contains %i documents" % count)
 
 
 def failure_line_from_value(line):

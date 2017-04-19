@@ -45,7 +45,7 @@ def test_cycle_all_data(test_repository, failure_classifications, sample_data,
     assert JobLog.objects.count() == 0
 
     # There should be nothing in elastic search after cycling
-    assert TestFailureLine.search().params(search_type="count").execute().hits.total == 0
+    assert TestFailureLine.search().count() == 0
 
 
 def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_data,
@@ -116,7 +116,7 @@ def test_cycle_all_data_in_chunks(test_repository, failure_classifications, samp
     create_failure_lines(Job.objects.get(id=1),
                          [(test_line, {})] * 7)
 
-    assert TestFailureLine.search().params(search_type="count").execute().hits.total > 0
+    assert TestFailureLine.search().count() > 0
 
     call_command('cycle_data', sleep_time=0, days=1, chunk_size=3)
     refresh_all()
@@ -125,7 +125,7 @@ def test_cycle_all_data_in_chunks(test_repository, failure_classifications, samp
     assert Job.objects.count() == 0
     assert FailureLine.objects.count() == 0
     assert JobDetail.objects.count() == 0
-    assert TestFailureLine.search().params(search_type="count").execute().hits.total == 0
+    assert TestFailureLine.search().count() == 0
 
 
 def test_cycle_job_model_reference_data(test_repository, failure_classifications,
