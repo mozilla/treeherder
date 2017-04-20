@@ -5,7 +5,6 @@ import newrelic.agent
 import requests
 from django.core.cache import cache
 
-from treeherder.client.thclient import TreeherderResultSetCollection
 from treeherder.etl.common import (CollectionNotStoredException,
                                    fetch_json,
                                    generate_revision_hash)
@@ -24,15 +23,9 @@ def last_push_id_from_server(repo):
 
 class HgPushlogTransformerMixin(object):
 
-    def transform(self, pushlog, repository):
+    def transform(self, pushlog):
+        pushes = []
 
-        # this contain the whole list of transformed pushes
-
-        th_collections = {
-            repository: TreeherderResultSetCollection()
-        }
-
-        # iterate over the pushes
         for push in pushlog.values():
             if not push['changesets']:
                 # If a pushlog contains hidden changesets (changesets that are
@@ -71,10 +64,9 @@ class HgPushlogTransformerMixin(object):
             result_set['revision_hash'] = generate_revision_hash(rev_hash_components)
             result_set['revision'] = result_set["revisions"][-1]["revision"]
 
-            th_resultset = th_collections[repository].get_resultset(result_set)
-            th_collections[repository].add(th_resultset)
+            pushes.append(result_set)
 
-        return th_collections
+        return pushes
 
 
 class HgPushlogProcess(HgPushlogTransformerMixin):
@@ -143,15 +135,13 @@ class HgPushlogProcess(HgPushlogTransformerMixin):
         last_push_id = max(map(lambda x: int(x), pushes.keys()))
         last_push = pushes[str(last_push_id)]
         top_revision = last_push["changesets"][-1]["node"]
-        # TODO: further remove the use of client types here
-        transformed = self.transform(pushes, repository_name)
+        transformed = self.transform(pushes)
 
         errors = []
         repository = Repository.objects.get(name=repository_name)
-        for collection in transformed[repository_name].get_chunks(chunk_size=1):
+        for push in transformed:
             try:
-                collection.validate()
-                store_result_set_data(repository, collection.get_collection_data())
+                store_result_set_data(repository, [push])
             except Exception:
                 newrelic.agent.record_exception()
                 errors.append({
