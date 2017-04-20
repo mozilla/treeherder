@@ -262,25 +262,6 @@ characters at most. A job collection has the following data structure.
 see :ref:`custom-log-name` for more info.
 
 
-Artifact Collections
-^^^^^^^^^^^^^^^^^^^^
-
-Artifact collections contain arbitrary data associated with a job. This is
-usually a json blob of structured data produced by the build system during the
-job execution.
-
-.. code-block:: python
-
-    [
-        {
-            'type': 'json',
-            'name': 'my-artifact-name',
-            # blob can be any kind of structured data
-            'blob': { 'stuff': [1, 2, 3, 4, 5] },
-            'job_guid': 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
-        }
-    ]
-
 Usage
 ^^^^^
 
@@ -392,31 +373,6 @@ structures to send, do something like this:
     client = TreeherderClient(client_id='hawk_id', secret='hawk_secret')
     client.post_collection('mozilla-central', tjc)
 
-If you want to use `TreeherderArtifactCollection` to build up the job
-artifacts data structures to send, do something like this:
-
-.. code-block:: python
-
-    from thclient import (TreeherderClient, TreeherderClientError,
-                          TreeherderArtifactCollection)
-
-    tac = TreeherderArtifactCollection()
-
-    for data in dataset:
-
-        ta = tac.get_artifact()
-
-        ta.add_blob( data['blob'] )
-        ta.add_name( data['name'] )
-        ta.add_type( data['type'] )
-        ta.add_job_guid( data['job_guid'] )
-
-        tac.add(ta)
-
-    # Send the collection to treeherder
-    client = TreeherderClient(client_id='hawk_id', secret='hawk_secret')
-    client.post_collection('mozilla-central', tac)
-
 If you don't want to use `TreeherderResultCollection` or
 `TreeherderJobCollection` to build up the data structure to send, build the
 data structures directly and add them to the collection.
@@ -454,27 +410,6 @@ data structures directly and add them to the collection.
 
     client = TreeherderClient(client_id='hawk_id', secret='hawk_secret')
     client.post_collection('mozilla-central', tjc)
-
-In the same way, if you don't want to use `TreeherderArtifactCollection` to
-build up the data structure to send, build the data structures directly and
-add them to the collection.
-
-.. code-block:: python
-
-    from thclient import TreeherderClient, TreeherderArtifactCollection
-
-    tac = TreeherderArtifactCollection()
-
-    for artifact in artifact_data:
-        ta = tac.get_artifact(artifact)
-
-        # Add any additional data to ta.data here
-
-        # add artifact to collection
-        tac.add(ta)
-
-    client = TreeherderClient(client_id='hawk_id', secret='hawk_secret')
-    client.post_collection('mozilla-central', tac)
 
 Job artifacts format
 ^^^^^^^^^^^^^^^^^^^^
@@ -605,15 +540,10 @@ Via the ``/jobs`` endpoint:
 3. Submit a Log URL with ``parse_status`` of "parsed", with ``text_log_summary`` and ``Bug suggestions`` artifacts
     * Will generate nothing
 
-
-ArtifactCollections
-~~~~~~~~~~~~~~~~~~~
-Via the ``/artifact`` endpoint:
-
-1. Submit a ``text_log_summary`` artifact
+4. Submit a ``text_log_summary`` artifact
     * Will generate a ``Bug suggestions`` artifact if it does not already exist for that job.
 
-2. Submit ``text_log_summary`` and ``Bug suggestions`` artifacts
+5. Submit ``text_log_summary`` and ``Bug suggestions`` artifacts
     * Will generate nothing
     * This is *Treeherder's* current internal log parser workflow
 

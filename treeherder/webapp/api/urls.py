@@ -4,8 +4,7 @@ from django.conf.urls import (include,
                               url)
 from rest_framework import routers
 
-from treeherder.webapp.api import (artifact,
-                                   auth,
+from treeherder.webapp.api import (auth,
                                    bug,
                                    bugzilla,
                                    classifiedfailure,
@@ -54,12 +53,6 @@ project_bound_router.register(
     r'resultset',
     resultset.ResultSetViewSet,
     base_name='resultset',
-)
-
-project_bound_router.register(
-    r'artifact',
-    artifact.ArtifactViewSet,
-    base_name='artifact',
 )
 
 project_bound_router.register(
