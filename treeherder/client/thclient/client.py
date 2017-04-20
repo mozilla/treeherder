@@ -352,98 +352,6 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
             }
 
 
-class TreeherderRevision(TreeherderData, ValidatorMixin):
-    """
-    Supports building a revision structure that is contained in
-    TreeherderResultSet.
-    """
-
-    def __init__(self, data={}):
-
-        super(TreeherderRevision, self).__init__(data)
-
-        # Provide minimal json structure validation
-        self.required_properties = {
-            'revision': {'len': 50, 'cb': self.validate_existence},
-            'repository': {'cb': self.validate_existence},
-            }
-
-    def init_data(self):
-
-        self.data = {
-            # Stored in project_jobs_1.revision.author
-            'author': '',
-            # Stored in project_jobs_1.revision.comments
-            'comment': '',
-            # Stored in treeherder_reference_1.repository.name
-            'repository': '',
-            # Stored in project_jobs_1.revision.revision
-            'revision': '',
-            }
-
-    def add_author(self, author):
-        self.data['author'] = author
-
-    def add_comment(self, comment):
-        self.data['comment'] = comment
-
-    def add_repository(self, repository):
-        self.data['repository'] = repository
-
-    def add_revision(self, revision):
-        self.data['revision'] = revision
-
-
-class TreeherderResultSet(TreeherderData, ValidatorMixin):
-    """
-    Supports building a treeherder result set
-    """
-
-    def __init__(self, data={}):
-
-        super(TreeherderResultSet, self).__init__(data)
-
-        self.required_properties = {
-            'revision': {'len': 40, 'cb': self.validate_existence},
-            'revisions': {'type': list, 'cb': self.validate_existence},
-            'author': {'len': 150, 'cb': self.validate_existence}
-            }
-
-    def init_data(self):
-
-        self.data = {
-            # Stored in project_jobs_1.result_set.push_timestamp
-            'push_timestamp': None,
-            # Stored in project_jobs_1.result_set.long_revision
-            'revision': '',
-            # Stored in project_jobs_1.result_set.author
-            'author': '',
-            # Stored in project_jobs_1.revision, new row per revision
-            'revisions': [],
-            # TODO: add type column to resultset in treeherder-service
-            'type': '',
-        }
-
-    def add_push_timestamp(self, push_timestamp):
-        self.data['push_timestamp'] = push_timestamp
-
-    def add_author(self, author):
-        self.data['author'] = author
-
-    def add_revisions(self, revisions):
-        for revision in revisions:
-            self.data['revisions'].append(revision.data)
-
-    def add_revision(self, revision):
-        self.data['revision'] = revision
-
-    def add_type(self, resultset_type):
-        self.data['type'] = resultset_type
-
-    def get_revision(self, data={}):
-        return TreeherderRevision(data)
-
-
 class TreeherderCollection(object):
     """
     Base class for treeherder data collections
@@ -519,20 +427,6 @@ class TreeherderJobCollection(TreeherderCollection):
     def get_job(self, data={}):
 
         return TreeherderJob(data)
-
-
-class TreeherderResultSetCollection(TreeherderCollection):
-    """
-    Collection of result set objects
-    """
-
-    def __init__(self, data=[]):
-
-        super(TreeherderResultSetCollection, self).__init__('resultset', data)
-
-    def get_resultset(self, data={}):
-
-        return TreeherderResultSet(data)
 
 
 class TreeherderClient(object):

@@ -1,6 +1,5 @@
 import datetime
 
-import newrelic.agent
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.exceptions import ParseError
@@ -11,7 +10,6 @@ from rest_framework.status import (HTTP_400_BAD_REQUEST,
 
 from serializers import (CommitSerializer,
                          PushSerializer)
-from treeherder.etl.resultset import store_result_set_data
 from treeherder.model.models import (Commit,
                                      Job,
                                      Push,
@@ -286,37 +284,6 @@ class ResultSetViewSet(viewsets.ViewSet):
         )
 
         return Response({"message": "New jobs added for push '{0}'".format(pk)})
-
-    def create(self, request, project):
-        """
-        POST method implementation
-        """
-        try:
-            repository = Repository.objects.get(name=project)
-        except Repository.DoesNotExist:
-            return Response({
-                "detail": "No project with name {}".format(project)
-            }, status=HTTP_404_NOT_FOUND)
-
-        # check if any revisions are shorter than the expected 40 characters
-        # The volume of resultsets is fairly low, so this loop won't be
-        # onerous.
-        for resultset in request.data:
-            for revision in resultset['revisions']:
-                try:
-                    if len(revision['revision']) < 40:
-                        raise ValueError("Revision < 40 characters")
-                except ValueError:
-                    # The id of the submitter will be automatically included
-                    # in the params via the ``hawk_lookup`` call
-                    params = {
-                        "revision": revision["revision"]
-                    }
-                    newrelic.agent.record_exception(params=params)
-
-        store_result_set_data(repository, request.data)
-
-        return Response({"message": "well-formed JSON stored"})
 
     @detail_route()
     def status(self, request, project, pk=None):

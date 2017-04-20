@@ -5,8 +5,6 @@ import pytest
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
-from tests import test_utils
-from treeherder.client.thclient import TreeherderResultSetCollection
 from treeherder.etl.resultset import store_result_set_data
 from treeherder.model.models import (FailureClassification,
                                      Job,
@@ -398,38 +396,6 @@ def test_resultset_detail_bad_project(webapp, test_repository):
         expect_errors=True
     )
     assert resp.status_int == 404
-
-
-def test_resultset_create(test_repository, sample_resultset,
-                          mock_post_json):
-    """
-    test posting data to the resultset endpoint via webtest.
-    extected result are:
-    - return code 200
-    - return message successful
-    - 1 resultset stored in the jobs schema
-    """
-
-    assert Push.objects.count() == 0
-
-    # store the first two, so we submit all, but should properly not re-
-    # add the others.
-    store_result_set_data(test_repository, sample_resultset[:2])
-    assert Push.objects.count() == 2
-
-    trsc = TreeherderResultSetCollection()
-    exp_revision_hashes = set()
-    for rs in sample_resultset:
-        rs.update({'author': 'John Doe'})
-        result_set = trsc.get_resultset(rs)
-        trsc.add(result_set)
-        exp_revision_hashes.add(rs["revision"])
-
-    test_utils.post_collection(test_repository.name, trsc)
-
-    assert Push.objects.count() == len(sample_resultset)
-    assert set(Push.objects.values_list('revision', flat=True)) == set(
-        [rs['revision'] for rs in sample_resultset])
 
 
 def test_resultset_cancel_all(failure_classifications,

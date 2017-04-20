@@ -10,10 +10,7 @@ from requests_hawk import HawkAuth
 from treeherder.client.thclient import (TreeherderClient,
                                         TreeherderClientError,
                                         TreeherderJob,
-                                        TreeherderJobCollection,
-                                        TreeherderResultSet,
-                                        TreeherderResultSetCollection,
-                                        TreeherderRevision)
+                                        TreeherderJobCollection)
 
 
 class DataSetup(unittest.TestCase):
@@ -33,23 +30,6 @@ class DataSetup(unittest.TestCase):
 
         with open(self.job_data_file_path) as f:
             self.job_data = json.load(f)
-
-        # Load sample resultsets
-        self.resultset_data = []
-
-        resultset_file = 'resultset_data.json'
-
-        self.resultset_data_file_path = os.path.join(
-            os.path.dirname(__file__),
-            'data',
-            resultset_file
-            )
-
-        with open(self.resultset_data_file_path) as f:
-            self.resultset_data = json.load(f)
-            for resultset in self.resultset_data:
-                resultset['type'] = 'push'
-                resultset['author'] = 'somebody@somewhere.com'
 
     def compare_structs(self, struct1, struct2):
         """Compare two dictionary structures"""
@@ -88,72 +68,6 @@ class DataSetup(unittest.TestCase):
                     ('struct1[{0}], {1} != struct2[{0}], '
                      '{2}'.format(k1, v1, struct2[k1]))
                     )
-
-
-class TreeherderResultsetTest(DataSetup, unittest.TestCase):
-
-    def test_sample_data_validation(self):
-        """Confirm that the sample data validates"""
-
-        for resultset in self.resultset_data:
-
-            rs = TreeherderResultSet(resultset)
-            rs.validate()
-
-            for revision in resultset['revisions']:
-                tr = TreeherderRevision(revision)
-                tr.validate()
-
-    def test_resultset_sample_data(self):
-        """Test all add methods for building result sets"""
-
-        trsc = TreeherderResultSetCollection()
-
-        for resultset in self.resultset_data:
-
-            trs = TreeherderResultSet()
-
-            trs.add_push_timestamp(resultset['push_timestamp'])
-            trs.add_revision(resultset['revision'])
-            trs.add_author(resultset['author'])
-            trs.add_type('push')
-
-            revisions = []
-            for revision in resultset['revisions']:
-
-                tr = TreeherderRevision()
-
-                tr.add_revision(revision['revision'])
-                tr.add_author(revision['author'])
-                tr.add_comment(revision['comment'])
-                tr.add_repository(revision['repository'])
-
-                revisions.append(tr)
-
-            trs.add_revisions(revisions)
-
-            self.compare_structs(trs.data, resultset)
-
-            trsc.add(trs)
-
-            # confirm we get the same thing if we initialize from
-            # a resultset dict
-            trs_struct = TreeherderResultSet(resultset)
-
-            self.compare_structs(trs_struct.data, resultset)
-
-
-class TreeherderResultSetCollectionTest(DataSetup, unittest.TestCase):
-
-    def test_resultset_collection(self):
-        """Confirm the collection matches the sample data"""
-        trc = TreeherderResultSetCollection()
-
-        for resultset in self.resultset_data:
-            trs = TreeherderResultSet(resultset)
-            trc.add(trs)
-
-        self.assertTrue(len(self.resultset_data) == len(trc.data))
 
 
 class TreeherderJobCollectionTest(DataSetup, unittest.TestCase):
@@ -310,32 +224,6 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
                                callback=request_callback, content_type='application/json')
 
         client.post_collection('project', tjc)
-
-    @responses.activate
-    def test_send_result_collection(self):
-        """Can add a treeherder collections to a TreeherderRequest."""
-        trc = TreeherderResultSetCollection()
-
-        for resultset in self.resultset_data:
-            trc.add(trc.get_resultset(resultset))
-
-        client = TreeherderClient(
-            server_url='http://host',
-            client_id='client-abc',
-            secret='secret123',
-            )
-
-        def request_callback(request):
-            # Check that the expected content was POSTed.
-            posted_json = json.loads(request.body)
-            self.assertEqual(posted_json, trc.get_collection_data())
-            return (200, {}, '{"message": "well-formed JSON stored", "resultsets": [123, 456]}')
-
-        url = client._get_endpoint_url(trc.endpoint_base, project='project')
-        responses.add_callback(responses.POST, url, match_querystring=True,
-                               callback=request_callback, content_type='application/json')
-
-        client.post_collection('project', trc)
 
     def test_hawkauth_setup(self):
         """Test that HawkAuth is correctly set up from the `client_id` and `secret` params."""

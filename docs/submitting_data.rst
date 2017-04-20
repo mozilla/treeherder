@@ -139,41 +139,6 @@ which Treeherder instance will be accessed by the client.
 Authentication is covered :ref:`here <authentication>`.
 
 
-Resultset Collections
-^^^^^^^^^^^^^^^^^^^^^
-
-Resultset collections contain meta data associated with a GitHub pull request
-or a push to mercurial or any event that requires tests to be run on a
-repository.  The most critical part of each resultset is the `revision`.
-This is used as an identifier to associate test job data with. This is the
-commit SHA of the top commit for the push.  It should be 40 characters, but
-can be a 12 character revision in some cases.  A resultset collection has the
-following data structure:
-
-.. code-block:: python
-
-    [
-        {
-            # The top-most revision in the list of commits for a push.
-            'revision': '45f8637cb9f78f19cb8463ff174e81756805d8cf',
-            'author': 'somebody@somewhere.com',
-            'push_timestamp': 1384353511,
-            'type': 'push',
-            # a list of revisions associated with the resultset. There should be at least
-            # one.
-            'revisions': [
-                {
-                    'comment': 'Bug 936711 - Fix crash which happened at disabling Bluetooth...',
-                    'revision': 'cdfe03e77e66',
-                    'repository': 'test_treeherder',
-                    'author': 'Some Person <sperson@someplace.com>'
-                },
-                ...
-            ]
-        }
-    ]
-
-
 Job Collections
 ^^^^^^^^^^^^^^^
 
@@ -265,58 +230,6 @@ see :ref:`custom-log-name` for more info.
 Usage
 ^^^^^
 
-If you want to use `TreeherderResultSetCollection` to build up the resultset
-data structures to send, do something like this.
-
-.. code-block:: python
-
-    from thclient import (TreeherderClient, TreeherderClientError,
-                          TreeherderResultSetCollection)
-
-
-    trsc = TreeherderResultSetCollection()
-
-    for data in dataset:
-
-        trs = trsc.get_resultset()
-
-        trs.add_push_timestamp( data['push_timestamp'] )
-        trs.add_revision( data['revision'] )
-        trs.add_type( data['type'] )
-        trs.add_artifact( 'push_data', 'push', { 'stuff':[1,2,3,4,5] } )
-
-        for revision in data['revisions']:
-
-            tr = trs.get_revision()
-
-            tr.add_revision( revision['revision'] )
-            tr.add_author( revision['author'] )
-            tr.add_comment( revision['comment'] )
-            tr.add_repository( revision['repository'] )
-
-            trs.add_revision(tr)
-
-        trsc.add(trs)
-
-    # Send the collection to treeherder
-
-    # See the authentication section below for details on how to get a
-    # hawk id and secret
-    client = TreeherderClient(client_id='hawk_id', secret='hawk_secret')
-
-    # Post the result collection to a project
-    #
-    # data structure validation is automatically performed here, if validation
-    # fails a TreeherderClientError is raised
-    client.post_collection('mozilla-central', trsc)
-
-At any time in building a data structure, you can examine what has been
-created by looking at the `data` property.  You can also call the `validate`
-method at any time before sending a collection.  All treeherder data classes
-have `validate` methods that can be used for testing.  The `validate` method
-is called on every structure in a collection when `post_collection` is
-called. If validation fails a `TreeherderClientError` is raised.
-
 If you want to use `TreeherderJobCollection` to build up the job data
 structures to send, do something like this:
 
@@ -373,26 +286,8 @@ structures to send, do something like this:
     client = TreeherderClient(client_id='hawk_id', secret='hawk_secret')
     client.post_collection('mozilla-central', tjc)
 
-If you don't want to use `TreeherderResultCollection` or
-`TreeherderJobCollection` to build up the data structure to send, build the
-data structures directly and add them to the collection.
-
-.. code-block:: python
-
-    from thclient import TreeherderClient, TreeherderResultSetCollection
-
-    trc = TreeherderResultSetCollection()
-
-    for resultset in resultset_data:
-        trs = trc.get_resultset(resultset)
-
-        # Add any additional data to trs.data here
-
-        # add resultset to collection
-        trc.add(trs)
-
-    client = TreeherderClient(client_id='hawk_id', secret='hawk_secret')
-    client.post_collection('mozilla-central', trc)
+If you don't want to use `TreeherderJobCollection` to build up the data structure
+to send, build the data structures directly and add them to the collection.
 
 .. code-block:: python
 
