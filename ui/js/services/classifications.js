@@ -18,11 +18,14 @@ treeherder.factory('thClassificationTypes', [
         };
 
         var addClassification = function(cl) {
-            classifications[cl.id] = {
-                name: cl.name,
-                star: classificationColors[cl.id]
-            };
-            classificationOptions.push(cl);
+            // Don't present "intermittent needs filing" as an option
+            if(cl.id !== 6) {
+                classifications[cl.id] = {
+                    name: cl.name,
+                    star: classificationColors[cl.id]
+                };
+                classificationOptions.push(cl);
+            }
         };
 
         var load = function() {
