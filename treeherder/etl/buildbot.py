@@ -495,6 +495,8 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'talos remote-ts$'), "name": "Talos ts"},
     {"regex": re.compile(r'talos xperf-e10s$'), "name": "Talos xperf e10s"},
     {"regex": re.compile(r'talos xperf$'), "name": "Talos xperf"},
+    {"regex": re.compile(r'talos perf-reftest-e10s$'), "name": "Talos perf-reftest e10s"},
+    {"regex": re.compile(r'talos perf-reftest$'), "name": "Talos perf-reftest"},
     # ** Unit tests **
     {"regex": re.compile(r'mozbase$'), "name": "Mozbase Unit Tests"},
     {"regex": re.compile(r'mochitest-csb'), "name": "Mochitest csb"},
@@ -819,6 +821,7 @@ GROUP_NAMES = {
     "Talos ts": "Talos Performance",
     "Talos tspaint": "Talos Performance",
     "Talos xperf": "Talos Performance",
+    "Talos perf-reftest": "Talos Performance",
     "Talos chrome e10s": "Talos Performance e10s",
     "Talos dromaeojs e10s": "Talos Performance e10s",
     "Talos g1 e10s": "Talos Performance e10s",
@@ -829,6 +832,7 @@ GROUP_NAMES = {
     "Talos svg e10s": "Talos Performance e10s",
     "Talos tp e10s": "Talos Performance e10s",
     "Talos xperf e10s": "Talos Performance e10s",
+    "Talos perf-reftest e10s": "Talos Performance e10s",
     "Update Verify": "Release Promotion",
     "Uptake Monitoring": "Release Promotion",
     "Checksums Builder": "Release Promotion",
@@ -1072,6 +1076,8 @@ SYMBOLS = {
     "Talos tspaint": "tsp",
     "Talos xperf": "x",
     "Talos xperf e10s": "x",
+    "Talos perf-reftest": "p",
+    "Talos perf-reftest e10s": "p",
     # Release Promotion Related Jobs
     "Release Promotion": "Release",
     "Uptake Monitoring": "up-m",
