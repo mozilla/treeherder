@@ -48,7 +48,6 @@ def store_result_set_data(repository, result_sets):
          "revisions": [
             {
                 "comment": "Bug 911954 - Add forward declaration of JSScript to TraceLogging.h, r=h4writer",
-                "repository": "test_treeherder",
                 "author": "John Doe <jdoe@mozilla.com>",
                 "revision": "8afdb7debc82a8b6e0d56449dfdf916c77a7bf80"
                 },

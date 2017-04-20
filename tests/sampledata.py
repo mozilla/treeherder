@@ -1,8 +1,6 @@
 import json
 import os
 
-from django.conf import settings
-
 
 class SampleData(object):
 
@@ -65,13 +63,6 @@ class SampleData(object):
 
         with open(self.resultset_data_file) as f:
             self.resultset_data = json.load(f)
-
-            # ensure that the repository values for all the revisions have the
-            # same name as the db test name in settings.  If this is not
-            # the same, the tests will not pass.
-            for rs in self.resultset_data:
-                for rev in rs["revisions"]:
-                    rev["repository"] = settings.TREEHERDER_TEST_REPOSITORY_NAME
 
     def get_log_path(self, name):
         """Returns the full path to a log file"""

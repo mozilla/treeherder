@@ -51,8 +51,6 @@ class HgPushlogTransformerMixin(object):
             # Author of the push/resultset
             result_set['author'] = push['user']
 
-            result_set['active_status'] = push.get('active_status', 'active')
-
             # TODO: Remove this with Bug 1257602 is addressed
             rev_hash_components = []
 
@@ -62,9 +60,8 @@ class HgPushlogTransformerMixin(object):
                 revision = {
                     'revision': change['node'],
                     'author': change['author'],
-                    'branch': change['branch'],
                     'comment': change['desc'],
-                    'repository': repository}
+                }
                 rev_hash_components.append(change['node'])
                 rev_hash_components.append(change['branch'])
 

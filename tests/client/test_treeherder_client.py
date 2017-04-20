@@ -48,9 +48,6 @@ class DataSetup(unittest.TestCase):
         with open(self.resultset_data_file_path) as f:
             self.resultset_data = json.load(f)
             for resultset in self.resultset_data:
-                for index, revision in enumerate(resultset['revisions']):
-                    del revision['branch']
-
                 resultset['type'] = 'push'
                 resultset['author'] = 'somebody@somewhere.com'
 

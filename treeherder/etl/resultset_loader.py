@@ -84,7 +84,6 @@ class GithubTransformer:
             for commit in commits:
                 revisions.append({
                     "comment": commit["commit"]["message"],
-                    "repository": repository,
                     "author": "{} <{}>".format(
                         commit["commit"]["author"]["name"],
                         commit["commit"]["author"]["email"]),
