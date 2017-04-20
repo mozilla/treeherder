@@ -9,7 +9,7 @@ from treeherder.model.models import (Commit,
 logger = logging.getLogger(__name__)
 
 
-def _store_push(repository, result_set):
+def store_push(repository, result_set):
     result_set_revision = result_set.get('revision')
     if not result_set.get('revision'):
         raise ValueError("Result set must have a revision "
@@ -67,4 +67,4 @@ def store_result_set_data(repository, result_sets):
         return
 
     for result_set in result_sets:
-        _store_push(repository, result_set)
+        store_push(repository, result_set)
