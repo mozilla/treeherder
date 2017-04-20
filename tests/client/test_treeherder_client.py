@@ -7,9 +7,7 @@ import unittest
 import responses
 from requests_hawk import HawkAuth
 
-from treeherder.client.thclient import (TreeherderArtifact,
-                                        TreeherderArtifactCollection,
-                                        TreeherderClient,
+from treeherder.client.thclient import (TreeherderClient,
                                         TreeherderClientError,
                                         TreeherderJob,
                                         TreeherderJobCollection,
@@ -55,21 +53,6 @@ class DataSetup(unittest.TestCase):
 
                 resultset['type'] = 'push'
                 resultset['author'] = 'somebody@somewhere.com'
-
-        # Load sample artifact
-
-        self.artifact_data = []
-
-        artifact_file = 'artifact_data.json'
-
-        self.artifact_data_file_path = os.path.join(
-            os.path.dirname(__file__),
-            'data',
-            artifact_file
-            )
-
-        with open(self.artifact_data_file_path) as f:
-            self.artifact_data = json.load(f)
 
     def compare_structs(self, struct1, struct2):
         """Compare two dictionary structures"""
@@ -174,88 +157,6 @@ class TreeherderResultSetCollectionTest(DataSetup, unittest.TestCase):
             trc.add(trs)
 
         self.assertTrue(len(self.resultset_data) == len(trc.data))
-
-
-class TreeherderArtifactTest(DataSetup, unittest.TestCase):
-
-    def test_sample_data_validation(self):
-        """Confirm that the sample data validates"""
-
-        for artifact in self.artifact_data:
-
-            rs = TreeherderArtifact(artifact)
-            rs.validate()
-
-    def test_artifact_sample_data(self):
-        """Test all add methods for building an artifact"""
-
-        tac = TreeherderArtifactCollection()
-
-        for artifact in self.artifact_data:
-
-            ta = TreeherderArtifact()
-
-            ta.add_blob(artifact['blob'])
-            ta.add_job_guid(artifact['job_guid'])
-            ta.add_name(artifact['name'])
-            ta.add_type(artifact['type'])
-
-            self.compare_structs(ta.data, artifact)
-
-            tac.add(ta)
-
-            # confirm we get the same thing if we initialize from
-            # a resultset dict
-            ta_struct = TreeherderArtifact(artifact)
-
-            self.compare_structs(ta_struct.data, artifact)
-
-
-class TreeherderArtifactCollectionTest(DataSetup, unittest.TestCase):
-
-    def test_artifact_collection(self):
-        """Confirm the collection matches the sample data"""
-        tac = TreeherderArtifactCollection()
-
-        for artifact in self.artifact_data:
-            ta = TreeherderArtifact(artifact)
-            tac.add(ta)
-
-        self.assertTrue(len(self.artifact_data) == len(tac.data))
-
-    def test_collection_chunking(self):
-        tac = TreeherderArtifactCollection()
-
-        for artifact in self.artifact_data:
-            ta = TreeherderArtifact(artifact)
-            tac.add(ta)
-
-        # reconstruct the chunks and make sure we have the same data
-        rebuilt_data = []
-        chunk_num = 0
-        for chunk in tac.get_chunks(3):
-            chunk_data = chunk.get_collection_data()
-            rebuilt_data.extend(chunk_data)
-
-            chunk_num += 1
-            # the last one should be the "remainder" in an uneven size
-            if chunk_num == 4:
-                assert len(chunk_data) == 1
-            else:
-                assert len(chunk_data) == 3
-
-        assert rebuilt_data == tac.get_collection_data()
-
-    def test_chunk_endpoint_base(self):
-        """Confirm the endpoint_base of the chunks is the same as the original"""
-        tac = TreeherderArtifactCollection()
-
-        for artifact in self.artifact_data:
-            ta = TreeherderArtifact(artifact)
-            tac.add(ta)
-
-        for chunk in tac.get_chunks(3):
-            assert tac.endpoint_base == chunk.endpoint_base
 
 
 class TreeherderJobCollectionTest(DataSetup, unittest.TestCase):
@@ -438,32 +339,6 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
                                callback=request_callback, content_type='application/json')
 
         client.post_collection('project', trc)
-
-    @responses.activate
-    def test_send_artifact_collection(self):
-        """Can add a artifact collections to a TreeherderRequest."""
-        tac = TreeherderArtifactCollection()
-
-        for artifact in self.artifact_data:
-            tac.add(tac.get_artifact(artifact))
-
-        client = TreeherderClient(
-            server_url='http://host',
-            client_id='client-abc',
-            secret='secret123',
-            )
-
-        def request_callback(request):
-            # Check that the expected content was POSTed.
-            posted_json = json.loads(request.body)
-            self.assertEqual(posted_json, tac.get_collection_data())
-            return (200, {}, '{"message": "Artifacts stored successfully"}')
-
-        url = client._get_endpoint_url(tac.endpoint_base, project='project')
-        responses.add_callback(responses.POST, url, match_querystring=True,
-                               callback=request_callback, content_type='application/json')
-
-        client.post_collection('project', tac)
 
     def test_hawkauth_setup(self):
         """Test that HawkAuth is correctly set up from the `client_id` and `secret` params."""

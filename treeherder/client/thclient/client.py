@@ -444,49 +444,6 @@ class TreeherderResultSet(TreeherderData, ValidatorMixin):
         return TreeherderRevision(data)
 
 
-class TreeherderArtifact(TreeherderData, ValidatorMixin):
-    """
-    Supports building a treeherder job artifact
-    """
-
-    def __init__(self, data={}):
-
-        super(TreeherderArtifact, self).__init__(data)
-
-        # Provide minimal json structure validation
-        self.required_properties = {
-            'blob': {'cb': self.validate_existence},
-            'type': {'cb': self.validate_existence},
-            'name': {'cb': self.validate_existence},
-            'job_guid': {'cb': self.validate_existence}
-        }
-
-    def init_data(self):
-
-        self.data = {
-            # Stored in project_jobs_1.artifact.blob
-            'blob': '',
-            # Stored in project_jobs_1.artifact.type
-            'type': '',
-            # Stored in project_jobs_1.artifact.name
-            'name': '',
-            # Stored in project_jobs_1.artifact.job_guid
-            'job_guid': None
-        }
-
-    def add_blob(self, blob):
-        self.data['blob'] = blob
-
-    def add_type(self, type):
-        self.data['type'] = type
-
-    def add_name(self, name):
-        self.data['name'] = name
-
-    def add_job_guid(self, job_guid):
-        self.data['job_guid'] = job_guid
-
-
 class TreeherderCollection(object):
     """
     Base class for treeherder data collections
@@ -578,20 +535,6 @@ class TreeherderResultSetCollection(TreeherderCollection):
         return TreeherderResultSet(data)
 
 
-class TreeherderArtifactCollection(TreeherderCollection):
-    """
-    Collection of job artifacts
-    """
-
-    def __init__(self, data=[]):
-
-        super(TreeherderArtifactCollection, self).__init__('artifact', data)
-
-    def get_artifact(self, data={}):
-
-        return TreeherderArtifact(data)
-
-
 class TreeherderClient(object):
     """
     Treeherder client class
@@ -607,7 +550,6 @@ class TreeherderClient(object):
     JOBS_ENDPOINT = 'jobs'
     JOB_DETAIL_ENDPOINT = 'jobdetail'
     JOB_LOG_URL_ENDPOINT = 'job-log-url'
-    ARTIFACTS_ENDPOINT = 'artifact'
     OPTION_COLLECTION_HASH_ENDPOINT = 'optioncollectionhash'
     REPOSITORY_ENDPOINT = 'repository'
     JOBGROUP_ENDPOINT = 'jobgroup'
@@ -880,16 +822,6 @@ class TreeherderClient(object):
         """
         return self._get_json(self.JOB_LOG_URL_ENDPOINT, project,
                               **params)
-
-    def get_artifacts(self, project, **params):
-        """
-        Gets artifact list from project, filtered by parameters
-
-        :param project: project (repository name) to query for
-        :param params: keyword arguments to filter results
-        """
-        response = self._get_json(self.ARTIFACTS_ENDPOINT, project, **params)
-        return response
 
     def post_collection(self, project, collection_inst):
         """
