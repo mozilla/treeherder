@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory
-from taskcluster.sync import Auth
+from taskcluster import Auth
 
 from treeherder.model.models import User
 from treeherder.webapp.api import permissions
