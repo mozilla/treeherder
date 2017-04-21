@@ -5,6 +5,7 @@
 .job-group {
   margin: 0 -3px 0 3px;
   cursor: default;
+  display: inline-block;
 }
 
 .job-btn {
@@ -58,7 +59,7 @@
   content: "(";
 }
 
-.group-content::after {
+.group-content:last-child::after {
   content: ")";
 }
 
