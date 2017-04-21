@@ -20,7 +20,8 @@ ERROR_TEST_CASES = (
     "2014-04-04 06:37:57 ERROR 403: Forbidden.",
     "[taskcluster:error] Could not upload artifact",
     "[taskcluster-vcs:error] Could not extract archive",
-    "[test_linux.sh:error] could not download zip file"
+    "[test_linux.sh:error] could not download zip file",
+    "14:15:32     INFO -  REFTEST ERROR | file:///Z:/task_1491573689/build/tests/reftest/tests/layout/reftests/w3c-css/submitted/text3/text-justify-inter-character-001.html | application timed out after 330 seconds with no output",
 )
 
 NON_ERROR_TEST_CASES = (

@@ -343,6 +343,7 @@ class ErrorParser(ParserBase):
         "TEST-UNEXPECTED-",
         "fatal error",
         "FATAL ERROR",
+        "REFTEST ERROR",
         "PROCESS-CRASH",
         "Assertion failure:",
         "Assertion failed:",
