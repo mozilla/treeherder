@@ -4,7 +4,7 @@ import re
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.reverse import reverse
-from taskcluster.sync import Auth
+from taskcluster import Auth
 from taskcluster.utils import scope_match
 
 logger = logging.getLogger(__name__)
@@ -82,8 +82,8 @@ class TaskclusterAuthBackend(object):
             return None
 
         tc_auth = Auth()
-        # see: https://docs.taskcluster.net/reference/platform/auth/api-docs#authenticateHawk
-        # see: https://github.com/taskcluster/taskcluster-client.py/blob/master/README.md#authenticate-hawk-request
+        # https://docs.taskcluster.net/reference/platform/taskcluster-auth/references/api#authenticateHawk
+        # https://github.com/taskcluster/taskcluster-client.py#authenticate-hawk-request
         result = tc_auth.authenticateHawk({
             "authorization": auth_header,
             "host": host,
