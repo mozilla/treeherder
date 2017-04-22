@@ -157,7 +157,7 @@ PLATFORMS_BUILDERNAME = [
         'regex': re.compile(r'OS X 10\.7|lion', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
-            'os_platform': 'osx-10-7',
+            'os_platform': 'osx-10-10',
             'arch': 'x86_64',
         }
     },
@@ -192,7 +192,7 @@ PLATFORMS_BUILDERNAME = [
         'regex': re.compile(r'WINNT 5|-xp-|Windows XP 32-bit', re.IGNORECASE),
         'attributes': {
             'os': 'win',
-            'os_platform': 'windowsxp',
+            'os_platform': 'windows7-32',
             'arch': 'x86',
         }
     },
