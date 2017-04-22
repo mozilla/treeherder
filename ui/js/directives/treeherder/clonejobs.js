@@ -817,10 +817,14 @@ treeherder.directive('thCloneJobs', [
         };
 
         var isOnScreen = function(el){
-            var viewport = {};
-            viewport.top = $(window).scrollTop() + $("#global-navbar-container").height();
-            viewport.bottom = viewport.top + $(window).height() - $("#info-panel").height();
-            var bounds = {};
+            const viewport = {};
+            viewport.top = $(window).scrollTop() + $("#global-navbar-container").height() + 30;
+            const filterbarheight = $(".active-filters-bar").height();
+            viewport.top = filterbarheight > 0 ? viewport.top + filterbarheight : viewport.top;
+            const updatebarheight = $(".update-alert-panel").height();
+            viewport.top = updatebarheight > 0 ? viewport.top + updatebarheight : viewport.top;
+            viewport.bottom = $(window).height() - $("#info-panel").height() - 20;
+            const bounds = {};
             bounds.top = el.offset().top;
             bounds.bottom = bounds.top + el.outerHeight();
             return ((bounds.top <= viewport.bottom) && (bounds.bottom >= viewport.top));
