@@ -53,6 +53,16 @@ a:visited {
   cursor: pointer;
 }
 
+.dropdown-menu > li.disabled > a {
+  pointer-events: none;
+  font-style: italic;
+  color: grey;
+}
+
+.dropdown-menu > li.disabled {
+  cursor: not-allowed;
+}
+
 /* Spacing for menus with adjacent checkboxes */
 .checkbox-dropdown-menu {
   padding-left: 8px;

@@ -148,7 +148,9 @@ treeherderApp.controller('ResultSetCtrl', [
         };
 
         $scope.showRunnableJobs = function() {
-            $rootScope.$emit(thEvents.showRunnableJobs, $scope.resultset);
+            if ($scope.user.loggedIn) {
+                $rootScope.$emit(thEvents.showRunnableJobs, $scope.resultset);
+            }
         };
 
         $scope.deleteRunnableJobs = function() {
