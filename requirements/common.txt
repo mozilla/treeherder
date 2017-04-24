@@ -143,7 +143,8 @@ requests-hawk==1.0.0 --hash=sha256:c2626ab31ebef0c81b97781c44c2275bfcc6d8e8520fc
 # djangorestframework-filters doesn't yet support django-filter 1.x.
 django-filter==0.15.3 --hash=sha256:2588847e33437d467c58b4acddcda7efc156f62b7006f9f7ad7d1ae6b5cba820
 
-djangorestframework-filters==0.9.1 --hash=sha256:7c5acca9c6e1391c151901ce385fad8b13317fb7abd5bc6290296b793e50594f
+djangorestframework-filters==0.10.0 \
+    --hash=sha256:2dfd8ad35cc35522498c2b0ef4d7137384f74badcb78c09a44f1a7ae253dccb5
 
 pylibmc==1.5.2 \
     --hash=sha256:fc54e28a9f1b5b2ec0c030da29c7ad8a15c2755bd98aaa4142eaf419d5fabb33
