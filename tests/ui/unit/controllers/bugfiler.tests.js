@@ -204,6 +204,16 @@ describe('BugFilerCtrl', function(){
         expect(summary[0][0]).toBe("layout/reftests/css-display/display-contents-style-inheritance-1.html == layout/reftests/css-display/display-contents-style-inheritance-1-ref.html");
         expect(summary[0][1]).toBe("image comparison, max difference: 255, number of differing pixels: 699");
         expect(summary[1]).toBe("display-contents-style-inheritance-1.html");
+
+        // Test parsing reftest unexpected pass
+        summary = "REFTEST TEST-UNEXPECTED-PASS | file:///home/worker/workspace/build/tests/reftest/tests/layout/" +
+                  "reftests/backgrounds/vector/empty/wide--cover--width.html == file:///home/worker/workspace/" +
+                  "build/tests/reftest/tests/layout/reftests/backgrounds/vector/empty/ref-wide-lime.html | image comparison";
+        summary = bugFilerScope.parseSummary(summary);
+        expect(summary[0][0]).toBe("TEST-UNEXPECTED-PASS");
+        expect(summary[0][1]).toBe("backgrounds/vector/empty/wide--cover--width.html == backgrounds/vector/empty/ref-wide-lime.html");
+        expect(summary[0][2]).toBe("image comparison");
+        expect(summary[1]).toBe("display-contents-style-inheritance-1.html");
     });
 
 });
