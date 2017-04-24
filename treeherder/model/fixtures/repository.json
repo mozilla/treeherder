@@ -355,7 +355,7 @@
         "dvcs_type": "hg",
         "name": "holly",
         "url": "https://hg.mozilla.org/projects/holly",
-        "active_status": "onhold",
+        "active_status": "active",
         "codebase": "gecko",
         "repository_group": 6,
         "description": ""
