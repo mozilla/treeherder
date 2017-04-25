@@ -46,6 +46,11 @@ class JobTypeGraph(DjangoObjectType):
         model = JobType
 
 
+class JobGroupGraph(DjangoObjectType):
+    class Meta:
+        model = JobGroup
+
+
 class ProductGraph(DjangoObjectType):
     class Meta:
         model = Product
