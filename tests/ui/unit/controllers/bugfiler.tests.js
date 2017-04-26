@@ -177,6 +177,18 @@ describe('BugFilerCtrl', function(){
         expect(summary[0][1]).toBe("application crashed [@ mozalloc_abort(char const*)]");
         expect(summary[1]).toBe("test_rename_objectStore_errors.js");
 
+        summary = "xpcshell-unpack.ini:dom/indexedDB/test/unit/test_rename_objectStore_errors.js | application crashed [@ mozalloc_abort(char const*)]";
+        summary = bugFilerScope.parseSummary(summary);
+        expect(summary[0][0]).toBe("dom/indexedDB/test/unit/test_rename_objectStore_errors.js");
+        expect(summary[0][1]).toBe("application crashed [@ mozalloc_abort(char const*)]");
+        expect(summary[1]).toBe("test_rename_objectStore_errors.js");
+
+        summary = "xpcshell.ini:dom/indexedDB/test/unit/test_rename_objectStore_errors.js | application crashed [@ mozalloc_abort(char const*)]";
+        summary = bugFilerScope.parseSummary(summary);
+        expect(summary[0][0]).toBe("dom/indexedDB/test/unit/test_rename_objectStore_errors.js");
+        expect(summary[0][1]).toBe("application crashed [@ mozalloc_abort(char const*)]");
+        expect(summary[1]).toBe("test_rename_objectStore_errors.js");
+
         // Test parsing Windows reftests on C drive
         summary = "file:///C:/slave/test/build/tests/reftest/tests/layout/reftests/w3c-css/submitted/variables/variable-supports-12.html | application timed out after 330 seconds with no output";
         summary = bugFilerScope.parseSummary(summary);

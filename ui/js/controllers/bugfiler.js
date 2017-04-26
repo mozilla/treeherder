@@ -107,9 +107,7 @@ treeherder.controller('BugFilerCtrl', [
             summary = summary.replace(re, "");
             re = /jetpack-package\//gi;
             summary = summary.replace(re, "");
-            re = /xpcshell-child-process.ini:/gi;
-            summary = summary.replace(re, "");
-            re = /xpcshell-unpack.ini:/gi;
+            re = /xpcshell([-a-zA-Z]+)?.ini:/gi;
             summary = summary.replace(re, "");
             summary = summary.replace("/_mozilla/", "mozilla/tests/");
             // We don't want to include "REFTEST" when it's an unexpected pass
