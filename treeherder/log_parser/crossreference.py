@@ -1,5 +1,4 @@
 import logging
-import re
 
 from django.db import (IntegrityError,
                        transaction)
@@ -63,15 +62,15 @@ def _crossreference(job):
     summary = TextLogSummary.objects.create(job_guid=job.guid,
                                             repository=job.repository)
 
-    match_iter = structured_iterator(failure_lines)
-    failure_line, regexp = match_iter.next()
+    match_iter = structured_iterator(list(failure_lines.all()))
+    failure_line, _, fn = match_iter.next()
 
     summary_lines = []
 
     # For each error in the text log, try to match the next unmatched
     # structured log line
-    for error in text_log_errors:
-        if regexp and regexp.match(error.line.strip()):
+    for error in list(text_log_errors.all()):
+        if fn and fn(error.line.strip()):
             logger.debug("Matched '%s'" % (error.line,))
             summary_lines.append(TextLogSummaryLine(
                 summary=summary,
@@ -79,7 +78,7 @@ def _crossreference(job):
                 failure_line=failure_line))
             TextLogErrorMetadata.objects.create(text_log_error=error,
                                                 failure_line=failure_line)
-            failure_line, regexp = match_iter.next()
+            failure_line, _, fn = match_iter.next()
         else:
             logger.debug("Failed to match '%s'" % (error.line,))
             summary_lines.append(TextLogSummaryLine(
@@ -89,12 +88,11 @@ def _crossreference(job):
 
     TextLogSummaryLine.objects.bulk_create(summary_lines)
     # We should have exhausted all structured lines
-    for leftover in match_iter:
+    for failure_line, repr_str, _ in match_iter:
         # We can have a line without a pattern at the end if the log is truncated
-        if leftover[1] is None:
+        if failure_line is None:
             break
-        logger.error("Failed to match structured line '%s' to an unstructured line" %
-                     (leftover[1].pattern,))
+        logger.error("Failed to match structured line '%s' to an unstructured line" % repr_str)
 
     return bool(summary_lines)
 
@@ -105,16 +103,16 @@ def structured_iterator(failure_lines):
 
     :param failure_lines: Iterator of FailureLine objects
     """
-    to_regexp = ErrorSummaryReConvertor()
+    to_fn = ErrorSummaryMatchConvertor()
     for failure_line in failure_lines:
-        regexp = to_regexp(failure_line)
-        if regexp:
-            yield failure_line, regexp
+        repr_str, fn = to_fn(failure_line)
+        if fn:
+            yield failure_line, repr_str, fn
     while True:
-        yield None, None
+        yield None, None, None
 
 
-class ErrorSummaryReConvertor(object):
+class ErrorSummaryMatchConvertor(object):
     def __init__(self):
         """Stateful function for generating a regexp that matches TBPL formatted output
         corresponding to a specific FailureLine"""
@@ -124,18 +122,18 @@ class ErrorSummaryReConvertor(object):
         if failure_line.action == "test_result":
             action = "test_status" if failure_line.subtest is not None else "test_end"
         elif failure_line.action == "truncated":
-            return None
+            return None, None
         else:
             action = failure_line.action
 
         try:
             f = getattr(self._formatter, action)
         except AttributeError:
-            return None
+            return None, None
 
         msg = f(as_dict(failure_line)).split("\n", 1)[0]
 
-        return re.compile(r".*%s$" % (re.escape(msg.strip())))
+        return msg, lambda x: x.endswith(msg.strip())
 
 
 def as_dict(failure_line):
