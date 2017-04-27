@@ -54,7 +54,7 @@
   },
   "scripts": {
     "build": "./node_modules/neutrino/bin/neutrino build --presets ./neutrino-custom/production.js",
-    "lint": "./node_modules/eslint/bin/eslint.js ui/",
+    "lint": "./node_modules/eslint/bin/eslint.js --ext .js,.jsx ui/",
     "start": "./node_modules/neutrino/bin/neutrino start --presets ./neutrino-custom/development.js",
     "start:local": "./node_modules/neutrino/bin/neutrino start --presets ./neutrino-custom/local-watch.js",
     "start:stage": "SERVICE_DOMAIN=https://treeherder.allizom.org ./node_modules/neutrino/bin/neutrino start --presets ./neutrino-custom/development.js",
