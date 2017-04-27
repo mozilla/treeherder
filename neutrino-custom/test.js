@@ -32,7 +32,7 @@ module.exports = neutrino => {
         frameworks: ['jasmine'],
         files: [
             'tests/ui/unit/init.js',
-            {pattern: 'tests/ui/mock/**/*.json', watched: true, served: true, included: false}
+            { pattern: 'tests/ui/mock/**/*.json', watched: true, served: true, included: false }
         ],
         preprocessors: {
             'tests/ui/unit/init.js': ['webpack'],
