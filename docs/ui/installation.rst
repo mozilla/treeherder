@@ -82,13 +82,6 @@ If you would like to view the minified production version of the UI with Vagrant
 
 Once the build is complete, the minified version of the UI will now be accessible at http://localhost:8000.
 
-Configuration
-=============
-
-Please note that if ``ui/js/config/local.conf.js`` exists, the above configuration will be overwritten by the ``thServiceDomain`` defined in that config file.
-
-If you wish to run the full treeherder Vagrant project (service + UI), remember to remove local.conf.js or else change ``thServiceDomain`` within it to refer to ``vagrant``, so the UI will use the local Vagrant service API.
-
 Validating JavaScript
 =====================
 

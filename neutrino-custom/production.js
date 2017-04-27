@@ -19,7 +19,7 @@ module.exports = neutrino => {
         }
     ));
 
-    // Define the service domain globally so that window.thServiceDomain can be set:
+    // Define the service domain globally for the thServiceDomain provider:
     neutrino.config.plugin('define')
         .use(webpack.DefinePlugin, {
             SERVICE_DOMAIN: JSON.stringify(SERVICE_DOMAIN)

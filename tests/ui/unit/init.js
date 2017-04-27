@@ -9,8 +9,6 @@ window.jQuery = require('jquery');
 window._ = require('lodash');
 window.angular = require('angular');
 window.React = require('react');
-window.SERVICE_DOMAIN = '';
-window.thServiceDomain = '';
 require('react-dom');
 require('../vendor/jasmine-jquery.js');
 require('angular-mocks');

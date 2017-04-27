@@ -120,10 +120,9 @@ To do this:
 
      git checkout (your feature branch)
      git checkout -b gh-pages
-     cp ui/js/config/sample.local.conf.js ui/js/config/local.conf.js
-     yarn run build
-     git add -f ui/js/config/local.conf.js dist/
-     git commit -m "Add temp config file and dist directory to make the UI use prod's API"
+     SERVICE_DOMAIN=https://treeherder.mozilla.org yarn run build
+     git add -f dist/
+     git commit -m "Add dist directory containing built UI"
 
 * Push the ``gh-pages`` branch to your Treeherder fork.
 

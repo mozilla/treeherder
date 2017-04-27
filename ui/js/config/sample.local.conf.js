@@ -1,12 +1,5 @@
 'use strict';
 
-/* window.thServiceDomain holds a reference to a back-end service
- * used to retrieve job result data. Valid settings are  */
-var production = "https://treeherder.mozilla.org";
-
-// Set the service
-window.thServiceDomain = production;
-
 //treeherder.config(['$logProvider', 'ThLogConfigProvider',
 //    function($logProvider, ThLogConfigProvider) {
 //
