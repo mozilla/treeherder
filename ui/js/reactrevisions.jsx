@@ -4,9 +4,9 @@ const MoreRevisionsLink = (props) => (
     <li>
         <a href={props.href}
            data-ignore-job-clear-on-click={true}
-           target='_blank'>
+           target="_blank">
             {`\u2026and more`}
-            <i className='fa fa-external-link-square' />
+            <i className="fa fa-external-link-square" />
         </a>
     </li>
 );
@@ -43,7 +43,7 @@ const RevisionItem = (props) => {
             <span title={`${name}: ${email}`}
                   dangerouslySetInnerHTML={initialsHTML} />
             <span title={escapedComment}>
-                <span className='revision-comment'>
+                <span className="revision-comment">
                     <em dangerouslySetInnerHTML={escapedCommentHTML} />
                 </span>
             </span>
@@ -62,8 +62,8 @@ const RevisionList = (props) => {
     const linkifyBugsFilter = props.$injector.get('$filter')('linkifyBugs');
     const hasMore = props.resultset.revision_count > props.resultset.revisions.length;
     return (
-        <span className='revision-list col-xs-5'>
-            <ul className='list-unstyled'>
+        <span className="revision-list col-xs-5">
+            <ul className="list-unstyled">
                 {props.resultset.revisions.map((revision, i) =>
                     <RevisionItem
                         initialsFilter={initialsFilter}
@@ -74,7 +74,7 @@ const RevisionList = (props) => {
                 )}
                 {hasMore &&
                     <MoreRevisionsLink
-                        key='more'
+                        key="more"
                         href={props.repo.getPushLogHref(props.resultset.revision)} />
                 }
             </ul>
