@@ -87,6 +87,15 @@ treeherder.value("thPlatformMap", {
     "horizon-osx": "Horizon OS X",
     "horizon-win64": "Horizon Windows x64",
 
+    "linux32-devedition": "Linux DevEdition",
+    "linux64-devedition": "Linux x64 DevEdition",
+    "osx-10-7-devedition": "OS X 10.7 DevEdition",
+    "osx-10-10-devedition": "OS X 10.10 DevEdition",
+    "windowsxp-devedition": "Windows XP DevEdition",
+    "windows7-32-devedition": "Windows 7 DevEdition",
+    "windows7-32-vm-devedition": "Windows 7 VM DevEdition",
+    "windows8-64-devedition": "Windows 8 x64 DevEdition",
+
     "gecko-decision": "Gecko Decision Task",
     "other": "Other"
 });
