@@ -846,7 +846,7 @@ buildernames = [
     ('Ubuntu HW 12.04 x64 devedition mozilla-beta talos g3',
      {'build_type': 'opt',
       'name': {'group_name': 'Talos Performance',
-               'group_symbol': 'T-deved',
+               'group_symbol': 'T',
                'name': 'Talos g3',
                'job_symbol': 'g3'},
       'platform': {'arch': 'x86_64',
