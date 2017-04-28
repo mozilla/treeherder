@@ -71,6 +71,14 @@ PLATFORMS_BUILDERNAME = [
          }
     },
     {
+        'regex': re.compile(r'^(?:Linux|Ubuntu).*64 devedition', re.IGNORECASE),
+        'attributes': {
+            'os': 'linux',
+            'os_platform': 'linux64-devedition',
+            'arch': 'x86_64',
+         }
+    },
+    {
         'regex': re.compile(r'(?:linux|ubuntu).*64.+|dxr', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
@@ -138,6 +146,22 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
+        'regex': re.compile(r'(Yosemite|macosx64).*devedition', re.IGNORECASE),
+        'attributes': {
+            'os': 'mac',
+            'os_platform': 'osx-10-10-devedition',
+            'arch': 'x86_64',
+        }
+    },
+    {
+        'regex': re.compile(r'(OS X 10\.7|lion).*devedition', re.IGNORECASE),
+        'attributes': {
+            'os': 'mac',
+            'os_platform': 'osx-10-7-devedition',
+            'arch': 'x86_64',
+        }
+    },
+    {
         'regex': re.compile(r'Yosemite|macosx64', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
@@ -197,6 +221,14 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
+        'regex': re.compile(r'(WINNT 5|-xp-|Windows XP 32-bit).*devedition', re.IGNORECASE),
+        'attributes': {
+            'os': 'win',
+            'os_platform': 'windowsxp-devedition',
+            'arch': 'x86',
+        }
+    },
+    {
         'regex': re.compile(r'^graphene.*_win64', re.IGNORECASE),
         'attributes': {
             'os': 'win',
@@ -223,6 +255,16 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
+        # Windows x64 builds are created on Win Server 2k8, but for the sake
+        # of consistency, we display them on the same row as the Win8 x64 tests.
+        'regex': re.compile(r'(WINNT 6\.1 x(?:86-)?64|Windows 8 64-bit|win64).*devedition', re.IGNORECASE),
+        'attributes': {
+            'os': 'win',
+            'os_platform': 'windows8-64-devedition',
+            'arch': 'x86_64',
+        }
+    },
+    {
         'regex': re.compile(r'Windows 10 64-bit', re.IGNORECASE),
         'attributes': {
             'os': 'win',
@@ -239,10 +281,26 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
+        'regex': re.compile(r'(WINNT 6\.1|win7|Windows 7 32-bit).*devedition', re.IGNORECASE),
+        'attributes': {
+            'os': 'win',
+            'os_platform': 'windows7-32-devedition',
+            'arch': 'x86',
+        }
+    },
+    {
         'regex': re.compile(r'WINNT 6\.1|win7|Windows 7 32-bit', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'windows7-32',
+            'arch': 'x86',
+        }
+    },
+    {
+        'regex': re.compile(r'Windows 7 VM.*32-bit.*devedition', re.IGNORECASE),
+        'attributes': {
+            'os': 'win',
+            'os_platform': 'windows7-32-vm-devedition',
             'arch': 'x86',
         }
     },
