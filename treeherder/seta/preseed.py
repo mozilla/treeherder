@@ -13,8 +13,6 @@ logger = logging.getLogger(__name__)
 def load_preseed():
     """ Update JobPriority information from preseed.json
 
-    We currently call this method on a schedule. See treeherder/seta/tasks.py for details.
-
     The preseed data has these fields: buildtype, testtype, platform, priority, expiration_date
     The expiration_date field defaults to 2 weeks when inserted in the table
     The expiration_date field has the format "YYYY-MM-DD", however, it can have "*" to indicate to never expire
@@ -22,6 +20,9 @@ def load_preseed():
     The fields buildtype, testtype and platform can have * which makes ut match  all flavors of
     the * field. For example: (linux64, pgo, *) matches all Linux 64 pgo tests
     """
+
+    if not JobPriority.objects.exists():
+        return
     preseed = preseed_data()
     for job in preseed:
         queryset = JobPriority.objects.all()
