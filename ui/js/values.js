@@ -114,11 +114,12 @@ treeherder.value("thFavicons", {
 
 treeherder.value("thRepoGroupOrder", {
     "development": 1,
-    "project repositories": 2,
-    "try": 3,
-    "release-stabilization": 4,
-    "taskcluster": 5,
-    "qa automation tests": 6
+    "release-stabilization": 2,
+    "project repositories": 3,
+    "comm-repositories": 4,
+    "qa automation tests": 5,
+    "try": 6,
+    "taskcluster": 7
 });
 
 treeherder.value("thDefaultRepo", "mozilla-inbound");
