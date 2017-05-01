@@ -548,6 +548,12 @@ PULSE_RESULTSET_SOURCES = env.json(
         #         '#'
         #     ],
         # },
+        # {
+        #     "exchange": "exchange/hgpushes/v1",
+        #     "routing_keys": [
+        #         "#"
+        #     ]
+        # },
         # ... other CI systems
     ])
 

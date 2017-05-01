@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 from treeherder.etl.common import (fetch_json,
+                                   generate_revision_hash,
                                    to_timestamp)
 from treeherder.etl.resultset import store_result_set_data
 from treeherder.model.models import Repository
@@ -45,6 +46,8 @@ class ResultsetLoader:
                 return GithubPushTransformer
             elif exchange.endswith("pull-request"):
                 return GithubPullRequestTransformer
+        elif "/hgpushes/" in exchange:
+            return HgPushTransformer
         raise PulseResultsetError(
             "Unsupported resultset exchange: {}".format(exchange))
 
@@ -180,6 +183,75 @@ class GithubPullRequestTransformer(GithubTransformer):
         )
 
         return self.fetch_resultset(pr_url, repository)
+
+
+class HgPushTransformer:
+    # {
+    #   "root": {
+    #     "payload": {
+    #       "pushlog_pushes": [
+    #         {
+    #           "time": 14698302460,
+    #           "push_full_json_url": "https://hg.mozilla.org/try/json-pushes?version=2&full=1&startID=136597&endID=136598",
+    #           "pushid": 136598,
+    #           "push_json_url": " https: //hg.mozilla.org/try/json-pushes?version=2&startID=136597&endID=136598",
+    #           "user": " james@hoppipolla.co.uk"
+    #         }
+    #       ],
+    #       "heads": [
+    #         "2f77bc4f354d9ba67ea5270b2fc789f4b0521287"
+    #       ],
+    #       "repo_url": "https://hg.mozilla.org/try",
+    #       "_meta": {
+    #         "sent": "2016-07-29T22:11:18.503365",
+    #         "routing_key": "try",
+    #         "serializer": "json",
+    #         "exchange": "exchange/hgpushes/v1"
+    #       }
+    #     }
+    #   }
+    # }
+
+    def __init__(self, message_body):
+        self.message_body = message_body
+        self.repo_url = message_body["payload"]["repo_url"]
+        self.branch = None
+
+    def transform(self, repository):
+        logger.info("transforming for {}".format(repository))
+        url = self.message_body["payload"]["pushlog_pushes"][0]["push_full_json_url"]
+        return self.fetch_resultset(url, repository)
+
+    def fetch_resultset(self, url, repository, sha=None):
+        newrelic.agent.add_custom_parameter("url", url)
+        newrelic.agent.add_custom_parameter("repository", repository)
+        newrelic.agent.add_custom_parameter("sha", sha)
+
+        logger.info("fetching for {} {}".format(repository, url))
+        # there will only ever be one, with this url
+        push = fetch_json(url)["pushes"].values()[0]
+
+        commits = []
+        # TODO: Remove this when bug 1257602 is addressed
+        rev_hash_components = []
+        # we only want to ingest the last 200 commits for each push,
+        # to protect against the 5000+ commit merges on release day uplift.
+        for commit in push['changesets'][-200:]:
+            commits.append({
+                "revision": commit["node"],
+                "author": commit["author"],
+                "comment": commit["desc"],
+            })
+            rev_hash_components.append(commit['node'])
+            rev_hash_components.append(commit['branch'])
+
+        return {
+            "revision": commits[-1]["revision"],
+            'revision_hash': generate_revision_hash(rev_hash_components),
+            "author": push["user"],
+            "push_timestamp": push["date"],
+            "revisions": commits,
+        }
 
 
 class PulseResultsetError(ValueError):
