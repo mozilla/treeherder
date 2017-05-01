@@ -50,8 +50,9 @@
         "url": "https://hg.mozilla.org/try",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 3,
-        "description": ""
+        "repository_group": 1,
+        "description": "",
+        "is_try_repo": true
     }
 },
 {
@@ -435,7 +436,7 @@
         "url": "https://hg.mozilla.org/comm-central",
         "active_status": "active",
         "codebase": "comm",
-        "repository_group": 1,
+        "repository_group": 8,
         "description": ""
     }
 },
@@ -448,8 +449,9 @@
         "url": "https://hg.mozilla.org/try-comm-central",
         "active_status": "active",
         "codebase": "comm",
-        "repository_group": 3,
-        "description": ""
+        "repository_group": 8,
+        "description": "",
+        "is_try_repo": true
     }
 },
 {
@@ -461,7 +463,7 @@
         "url": "https://hg.mozilla.org/releases/comm-aurora",
         "active_status": "active",
         "codebase": "comm",
-        "repository_group": 2,
+        "repository_group": 8,
         "description": ""
     }
 },
@@ -474,7 +476,7 @@
         "url": "https://hg.mozilla.org/releases/comm-beta",
         "active_status": "active",
         "codebase": "comm",
-        "repository_group": 2,
+        "repository_group": 8,
         "description": ""
     }
 },
@@ -487,7 +489,7 @@
         "url": "https://hg.mozilla.org/releases/comm-esr24",
         "active_status": "onhold",
         "codebase": "comm",
-        "repository_group": 2,
+        "repository_group": 8,
         "description": ""
     }
 },
@@ -540,7 +542,7 @@
         "branch": "pull request",
         "active_status": "onhold",
         "codebase": "gaia",
-        "repository_group": 3,
+        "repository_group": 1,
         "description": ""
     }
 },
@@ -619,7 +621,7 @@
         "url": "https://hg.mozilla.org/integration/gaia-try",
         "active_status": "onhold",
         "codebase": "gaia",
-        "repository_group": 3,
+        "repository_group": 1,
         "description": ""
     }
 },
@@ -684,7 +686,7 @@
         "url": "https://hg.mozilla.org/users/jford_mozilla.com/gaia-try",
         "active_status": "onhold",
         "codebase": "gecko",
-        "repository_group": 3,
+        "repository_group": 1,
         "description": ""
     }
 },
@@ -723,7 +725,7 @@
         "url": "https://hg.mozilla.org/releases/comm-esr31",
         "active_status": "onhold",
         "codebase": "comm",
-        "repository_group": 2,
+        "repository_group": 8,
         "description": ""
     }
 },
@@ -803,7 +805,7 @@
         "url": "https://hg.mozilla.org/releases/comm-esr38",
         "active_status": "onhold",
         "codebase": "comm",
-        "repository_group": 2,
+        "repository_group": 8,
         "description": ""
     }
 },
@@ -938,7 +940,7 @@
         "url": "https://hg.mozilla.org/releases/comm-esr45",
         "active_status": "active",
         "codebase": "comm",
-        "repository_group": 2,
+        "repository_group": 8,
         "description": ""
     }
 },
@@ -1022,7 +1024,8 @@
         "active_status": "active",
         "codebase": "nss",
         "repository_group": 7,
-        "description": "Network Security Services."
+        "description": "Network Security Services.",
+        "is_try_repo": true
     }
 },
 {
@@ -1061,8 +1064,9 @@
         "url": "https://hg.mozilla.org/incubator/stylo-try",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 3,
-        "description": "Try repo for Servo integration"
+        "repository_group": 1,
+        "description": "Try repo for Servo integration",
+        "is_try_repo": true
     }
 },
 {
@@ -1087,7 +1091,7 @@
         "url": "https://hg.mozilla.org/releases/comm-esr52",
         "active_status": "active",
         "codebase": "comm",
-        "repository_group": 2,
+        "repository_group": 8,
         "description": ""
     }
 },
