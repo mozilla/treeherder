@@ -213,18 +213,18 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile(r'WINNT 5|-xp-|Windows XP 32-bit', re.IGNORECASE),
-        'attributes': {
-            'os': 'win',
-            'os_platform': 'windowsxp',
-            'arch': 'x86',
-        }
-    },
-    {
         'regex': re.compile(r'(WINNT 5|-xp-|Windows XP 32-bit).*devedition', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'windowsxp-devedition',
+            'arch': 'x86',
+        }
+    },
+    {
+        'regex': re.compile(r'WINNT 5|-xp-|Windows XP 32-bit', re.IGNORECASE),
+        'attributes': {
+            'os': 'win',
+            'os_platform': 'windowsxp',
             'arch': 'x86',
         }
     },
@@ -247,20 +247,20 @@ PLATFORMS_BUILDERNAME = [
     {
         # Windows x64 builds are created on Win Server 2k8, but for the sake
         # of consistency, we display them on the same row as the Win8 x64 tests.
-        'regex': re.compile(r'WINNT 6\.1 x(?:86-)?64|Windows 8 64-bit|win64', re.IGNORECASE),
+        'regex': re.compile(r'(WINNT 6\.1 x(?:86-)?64|Windows 8 64-bit|win64).*devedition', re.IGNORECASE),
         'attributes': {
             'os': 'win',
-            'os_platform': 'windows8-64',
+            'os_platform': 'windows8-64-devedition',
             'arch': 'x86_64',
         }
     },
     {
         # Windows x64 builds are created on Win Server 2k8, but for the sake
         # of consistency, we display them on the same row as the Win8 x64 tests.
-        'regex': re.compile(r'(WINNT 6\.1 x(?:86-)?64|Windows 8 64-bit|win64).*devedition', re.IGNORECASE),
+        'regex': re.compile(r'WINNT 6\.1 x(?:86-)?64|Windows 8 64-bit|win64', re.IGNORECASE),
         'attributes': {
             'os': 'win',
-            'os_platform': 'windows8-64-devedition',
+            'os_platform': 'windows8-64',
             'arch': 'x86_64',
         }
     },
