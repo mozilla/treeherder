@@ -164,7 +164,7 @@ treeherder.controller('PinboardCtrl', [
             return $scope.hasPinnedJobs() && $scope.user.loggedin &&
                    (thPinboard.hasRelatedBugs() ||
                    (thisClass.failure_classification_id !== 4 && thisClass.failure_classification_id !== 2) ||
-                   $rootScope.currentRepo.repository_group.name === "try" ||
+                   $rootScope.currentRepo.is_try_repo ||
                    $rootScope.currentRepo.repository_group.name === "project repositories" ||
                    (thisClass.failure_classification_id === 4 && thisClass.text.length > 0) ||
                    (thisClass.failure_classification_id === 2 && thisClass.text.length > 7));
