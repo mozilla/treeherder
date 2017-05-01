@@ -189,7 +189,8 @@ logViewerApp.controller('LogviewerCtrl', [
                     for (let i = 0; i < $scope.steps.length; i++) {
                         let step = $scope.steps[i];
 
-                        if (step.result !== "success") {
+                        if (step.result !== "success" && ($scope.result &&
+                            $scope.result.value !== "success" && step.result !== "unknown")) {
                             $scope.logPostMessage({
                                 lineNumber: step.started_line_number + 1,
                                 highlightStart: step.started_line_number + 1,
