@@ -186,10 +186,10 @@ perf.controller('AlertsCtrl', [
                         (!$scope.filterOptions.hideImprovements || alert.is_regression) &&
                         (alert.summary_id === alertSummary.id ||
                          alert.status !== phAlertStatusMap.DOWNSTREAM.id) &&
-                        !($scope.filterOptions.hideTo && alert.status === phAlertStatusMap.REASSIGNED.id &&
+                        !($scope.filterOptions.hideDwnToInv && alert.status === phAlertStatusMap.REASSIGNED.id &&
                           alert.related_summary_id !== alertSummary.id) &&
-                        !($scope.filterOptions.hideTo && alert.status === phAlertStatusMap.DOWNSTREAM.id) &&
-                        (alert.status !== phAlertStatusMap.INVALID.id) &&
+                        !($scope.filterOptions.hideDwnToInv && alert.status === phAlertStatusMap.DOWNSTREAM.id) &&
+                        !($scope.filterOptions.hideDwnToInv && alert.status === phAlertStatusMap.INVALID.id) &&
                         _.every($scope.filterOptions.filter.split(' '),
                             function(matchText) {
                                 return !matchText ||
@@ -226,7 +226,7 @@ perf.controller('AlertsCtrl', [
                 framework: $scope.alertId ? undefined : $scope.filterOptions.framework.id,
                 filter: $scope.filterOptions.filter,
                 hideImprovements: $scope.filterOptions.hideImprovements ? 1 : undefined,
-                hideTo: $scope.filterOptions.hideTo ? 1 : undefined,
+                hideDwnToInv: $scope.filterOptions.hideDwnToInv ? 1 : undefined,
                 page: 1
             }, {
                 location: true,
@@ -538,12 +538,12 @@ perf.controller('AlertsCtrl', [
                     filter: $stateParams.filter || "",
                     hideImprovements: $stateParams.hideImprovements !== undefined &&
                     parseInt($stateParams.hideImprovements),
-                    hideTo: $stateParams.hideTo !== undefined &&
-                    parseInt($stateParams.hideTo),
+                    hideDwnToInv: $stateParams.hideDwnToInv !== undefined &&
+                    parseInt($stateParams.hideDwnToInv),
                     page: $stateParams.page || 1
                 };
-                if ($stateParams.hideTo) {
-                    $scope.filterOptions.hideTo = true;
+                if ($stateParams.hideDwnToInv) {
+                    $scope.filterOptions.hideDwnToInv = true;
                 }
                 if ($stateParams.id) {
                     $scope.alertId = $stateParams.id;
