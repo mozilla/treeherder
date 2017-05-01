@@ -54,5 +54,13 @@
         "name": "other",
         "description": "Other repositories not falling under the above categories"
     }
+},
+{
+    "pk": 8,
+    "model": "model.repositorygroup",
+    "fields": {
+        "name": "comm-repositories",
+        "description": "Repositories for Seamonkey/Thunderbird development"
+    }
 }
 ]
