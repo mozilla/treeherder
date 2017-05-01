@@ -443,7 +443,7 @@ treeherder.controller('PluginCtrl', [
         // Can we backfill? At the moment, this only ensures we're not in a 'try' repo.
         $scope.canBackfill = function() {
             return $scope.user.loggedin && $scope.currentRepo &&
-                   $scope.currentRepo.repository_group.name !== 'try';
+                   !$scope.currentRepo.is_try_repo;
         };
 
         $scope.backfillButtonTitle = function() {
@@ -459,7 +459,7 @@ treeherder.controller('PluginCtrl', [
                 title = title.concat("must be logged in to backfill a job / ");
             }
 
-            if ($scope.currentRepo.repository_group.name === 'try') {
+            if ($scope.currentRepo.is_try_repo) {
                 title = title.concat("backfill not available in this repository");
             }
 

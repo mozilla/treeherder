@@ -27,7 +27,7 @@
     <span class="result-set-buttons">
       <button class="btn btn-sm btn-resultset cancel-all-jobs-btn"
             ng-attr-title="{{getCancelJobsTitle()}}"
-            ng-show="currentRepo.repository_group.name == 'try' || user.is_staff"
+            ng-show="currentRepo.is_try_repo || user.is_staff"
             data-ignore-job-clear-on-click
             ng-disabled="!canCancelJobs()"
             ng-click="confirmCancelAllJobs()">
