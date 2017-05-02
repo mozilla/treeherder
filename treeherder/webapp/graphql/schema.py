@@ -51,6 +51,16 @@ class JobGroupGraph(DjangoObjectType):
         model = JobGroup
 
 
+class JobLogGraph(DjangoObjectType):
+    class Meta:
+        model = JobLog
+
+
+class FailureLineGraph(DjangoObjectType):
+    class Meta:
+        model = FailureLine
+
+
 class ProductGraph(DjangoObjectType):
     class Meta:
         model = Product
