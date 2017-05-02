@@ -37,7 +37,7 @@ const RevisionItem = (props) => {
                 <a title={`Open revision ${props.revision.revision} on ${props.repo.url}`}
                    href={props.repo.getRevisionHref(props.revision.revision)}
                    data-ignore-job-clear-on-click>
-                    {props.revision.revision.substring(0, 12)}
+                    {props.revision.revision}
                 </a>
             </span>
             <span title={`${name}: ${email}`}
