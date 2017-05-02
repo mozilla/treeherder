@@ -214,11 +214,12 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
 
         ret = defaultdict(list)
         values_list = datums.values_list(
-            'signature_id', 'signature__signature_hash', 'job_id', 'push_id',
+            'id', 'signature_id', 'signature__signature_hash', 'job_id', 'push_id',
             'push_timestamp', 'value')
-        for (signature_id, signature_hash, job_id, push_id,
+        for (id, signature_id, signature_hash, job_id, push_id,
              push_timestamp, value) in values_list:
             ret[signature_hash].append({
+                'id': id,
                 'signature_id': signature_id,
                 'job_id': job_id,
                 'push_id': push_id,

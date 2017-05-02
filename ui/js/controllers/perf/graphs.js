@@ -57,7 +57,8 @@ perf.controller('GraphsCtrl', [
                 frameworkId: flotItem.series.thSeries.frameworkId,
                 resultSetId: resultSetId,
                 flotDataOffset: (flotItem.dataIndex -
-                    flotItem.series.resultSetData.indexOf(resultSetId)),
+                                 flotItem.series.resultSetData.indexOf(resultSetId)),
+                id: flotItem.series.idData[flotItem.dataIndex],
                 jobId: flotItem.series.jobIdData[flotItem.dataIndex]
             };
         }
@@ -91,8 +92,8 @@ perf.controller('GraphsCtrl', [
 
                 // we need the flot data for calculating values/deltas and to know where
                 // on the graph to position the tooltip
-                var flotIndex = phSeries.flotSeries.jobIdData.indexOf(
-                    dataPoint.jobId);
+                var flotIndex = phSeries.flotSeries.idData.indexOf(
+                    dataPoint.id);
                 var flotData = {
                     series: _.find($scope.plot.getData(), function(fs) {
                         return fs.thSeries.projectName === dataPoint.projectName &&
@@ -253,8 +254,8 @@ perf.controller('GraphsCtrl', [
                             s.signature === $scope.selectedDataPoint.signature;
                     });
                 var selectedSeries = $scope.seriesList[selectedSeriesIndex];
-                var flotDataPoint = selectedSeries.flotSeries.jobIdData.indexOf(
-                    $scope.selectedDataPoint.jobId);
+                var flotDataPoint = selectedSeries.flotSeries.idData.indexOf(
+                    $scope.selectedDataPoint.id);
                 flotDataPoint = flotDataPoint ? flotDataPoint : selectedSeries.flotSeries.resultSetData.indexOf(
                     $scope.selectedDataPoint.resultSetId);
                 $scope.plot.highlight(selectedSeriesIndex, flotDataPoint);
@@ -570,7 +571,7 @@ perf.controller('GraphsCtrl', [
                     return ($scope.selectedDataPoint) ? "[" + [$scope.selectedDataPoint.projectName,
                         $scope.selectedDataPoint.signature,
                         $scope.selectedDataPoint.resultSetId,
-                        $scope.selectedDataPoint.jobId,
+                        $scope.selectedDataPoint.id,
                         $scope.selectedDataPoint.frameworkId]
                         + "]" : undefined;
                 })()
@@ -607,8 +608,8 @@ perf.controller('GraphsCtrl', [
                             seriesData[series.signature],
                             'push_id'),
                         thSeries: jQuery.extend({}, series),
-                        jobIdData: _.map(seriesData[series.signature],
-                            'job_id')
+                        jobIdData: _.map(seriesData[series.signature], 'job_id'),
+                        idData: _.map(seriesData[series.signature], 'id')
                     };
                 }).then(function() {
                     series.relatedAlertSummaries = [];
@@ -794,7 +795,7 @@ perf.controller('GraphsCtrl', [
                     projectName: tooltipArray[0],
                     signature: tooltipArray[1],
                     resultSetId: parseInt(tooltipArray[2]),
-                    jobId: parseInt(tooltipArray[3]),
+                    id: parseInt(tooltipArray[3]),
                     frameworkId: parseInt(tooltipArray[4]) || 1
                 };
                 $scope.selectedDataPoint = (tooltipString) ? tooltip : null;
