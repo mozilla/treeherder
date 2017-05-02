@@ -31,8 +31,11 @@ class ResultsetLoader:
             store_result_set_data(repo, [transformed_data])
 
         except ObjectDoesNotExist:
+            repo_info = (message_body["details"]
+                         if "details" in message_body
+                         else message_body["payload"])
             newrelic.agent.record_custom_event("skip_unknown_repository",
-                                               message_body["details"])
+                                               repo_info)
             logger.warn("Skipping unsupported repo: {} {}".format(
                 transformer.repo_url,
                 transformer.branch))
