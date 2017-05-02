@@ -24,21 +24,19 @@ class SETAJobPriorities:
     """
     SETA JobPriority Implementation
     """
-    def __init__(self):
-        self.cache_key = 'ref_data_names_cache'
-
     def _process(self, project, build_system, job_priorities):
         '''Return list of ref_data_name for job_priorities'''
         jobs = []
 
         # we cache the reference data names in order to reduce API calls
-        ref_data_names_map = cache.get(self.cache_key)
+        cache_key = '{}-{}-ref_data_names_cache'.format(project, build_system)
+        ref_data_names_map = cache.get(cache_key)
         if not ref_data_names_map:
             # cache expired so re-build the reference data names map; the map
             # contains the ref_data_name of every treeherder *test* job for this project
             ref_data_names_map = self._build_ref_data_names(project, build_system)
             # update the cache
-            cache.set(self.cache_key, ref_data_names_map, SETA_REF_DATA_NAMES_CACHE_TIMEOUT)
+            cache.set(cache_key, ref_data_names_map, SETA_REF_DATA_NAMES_CACHE_TIMEOUT)
 
         # now check the JobPriority table against the list of valid runnable
         for jp in job_priorities:
