@@ -112,3 +112,17 @@ def test_ingest_hg_push(test_repository, hg_push, transformed_hg_push,
     xformer = HgPushTransformer(hg_push)
     resultset = xformer.transform(test_repository.name)
     assert transformed_hg_push == resultset
+
+
+def test_ingest_hg_push_bad_repo(hg_push):
+    """Test that a message from an unknown HG repo doesn't throw an error"""
+    hg_push["payload"]["repo_url"] = "https://bad.repo.com"
+    ResultsetLoader().process(hg_push, "exchange/hgpushes/v1")
+    # No exception here means it passed.
+
+
+def test_ingest_github_push_bad_repo(github_push):
+    """Test that a message from an unknown GH repo doesn't throw an error"""
+    github_push["details"]["event.head.repo.url"] = "https://bad.repo.com"
+    ResultsetLoader().process(hg_push, "exchange/taskcluster-github/v1/push")
+    # No exception here means it passed.

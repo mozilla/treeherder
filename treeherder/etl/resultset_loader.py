@@ -19,9 +19,21 @@ class ResultsetLoader:
     def process(self, message_body, exchange):
         try:
             transformer = self.get_transformer_class(exchange)(message_body)
-            repo = Repository.objects.get(url=transformer.repo_url,
-                                          branch=transformer.branch,
-                                          active_status="active")
+            try:
+                repo = Repository.objects.get(url=transformer.repo_url,
+                                              branch=transformer.branch,
+                                              active_status="active")
+
+            except ObjectDoesNotExist:
+                repo_info = message_body.get("details",
+                                             message_body["payload"])
+                newrelic.agent.record_custom_event("skip_unknown_repository",
+                                                   repo_info)
+                logger.warn("Skipping unsupported repo: {} {}".format(
+                    transformer.repo_url,
+                    transformer.branch))
+                return
+
             transformed_data = transformer.transform(repo.name)
 
             logger.info("Storing resultset for {} {} {}".format(
@@ -30,12 +42,6 @@ class ResultsetLoader:
                 transformer.branch))
             store_result_set_data(repo, [transformed_data])
 
-        except ObjectDoesNotExist:
-            newrelic.agent.record_custom_event("skip_unknown_repository",
-                                               message_body["details"])
-            logger.warn("Skipping unsupported repo: {} {}".format(
-                transformer.repo_url,
-                transformer.branch))
         except Exception as ex:
             newrelic.agent.record_exception(exc=ex)
             logger.exception("Error transforming resultset", exc_info=ex)
