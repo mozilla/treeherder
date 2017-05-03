@@ -44,7 +44,7 @@ const RevisionItem = (props) => {
             </span>
             <span title={`${name}: ${email}`}
                   dangerouslySetInnerHTML={initialsHTML} />
-            <span title={escapedComment}>
+            <span title={_.unescape(escapedComment)}>
                 <span className="revision-comment">
                     <em dangerouslySetInnerHTML={escapedCommentHTML} />
                 </span>
