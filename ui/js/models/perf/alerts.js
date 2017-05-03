@@ -2,9 +2,9 @@
 
 treeherder.factory('PhAlerts', [
     '$http', '$httpParamSerializer', '$q', 'thServiceDomain', 'ThOptionCollectionModel', 'PhSeries',
-    'phAlertSummaryStatusMap', 'phAlertStatusMap', 'thPerformanceBranches',
+    'phAlertSummaryStatusMap', 'phAlertStatusMap', 'thPerformanceBranches', 'displayNumberFilter',
     function($http, $httpParamSerializer, $q, thServiceDomain, ThOptionCollectionModel, PhSeries,
-             phAlertSummaryStatusMap, phAlertStatusMap, thPerformanceBranches) {
+             phAlertSummaryStatusMap, phAlertStatusMap, thPerformanceBranches, displayNumberFilter) {
 
         var Alert = function(alertData, optionCollectionMap) {
             _.assign(this, alertData);
@@ -90,7 +90,7 @@ treeherder.factory('PhAlerts', [
             var formatAlert = function(alert, alertList){
                 return _.padStart(alert.amount_pct.toFixed(0), 3) + "%  " +
                 _.padEnd(alert.title, _.max(alertList, function(alert){ return alert.title.length; }).title.length +5) +
-               alert.prev_value + " -> " + alert.new_value ;
+                displayNumberFilter(alert.prev_value) + " -> " + displayNumberFilter(alert.new_value);
             };
 
             // add summary header if getting text for clipboard only

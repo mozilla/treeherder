@@ -174,15 +174,15 @@ treeherder.filter('encodeURIComponent', function() {
     return window.encodeURIComponent;
 });
 
-treeherder.filter('displayPrecision', function() {
+treeherder.filter('displayNumber', ['$filter', function($filter) {
     return function(input) {
         if (isNaN(input)) {
             return "N/A";
         }
 
-        return parseFloat(input).toFixed(2);
+        return $filter('number')(input, 2);
     };
-});
+}]);
 
 treeherder.filter('absoluteValue', function() {
     return function(input) {
