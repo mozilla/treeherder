@@ -11,5 +11,5 @@ source /etc/profile.d/treeherder.sh
 exec newrelic-admin run-program celery -A treeherder worker \
     -Q pushlog \
     --concurrency=5 -l INFO \
-    --maxtasksperchild=500 -n pushlog.%h
+    -n pushlog.%h
 
