@@ -7,6 +7,8 @@ Vagrant.require_version ">= 1.5.0"
 Vagrant.configure("2") do |config|
   # required for NFS to work
   config.vm.network "private_network", type: "dhcp"
+  # for webpack-devserver access from host
+  config.vm.network "forwarded_port", guest: 5000, host: 5000, host_ip: "127.0.0.1"
   # for web server access from host
   config.vm.network "forwarded_port", guest: 8000, host: 8000, host_ip: "127.0.0.1"
   # for DB access from host
