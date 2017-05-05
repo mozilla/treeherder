@@ -106,8 +106,12 @@ MIDDLEWARE_CLASSES = [middleware for middleware in [
 ] if middleware]
 
 if ENABLE_DEBUG_TOOLBAR:
-    # set INTERNAL_IPS if debug enabled, so the toolbar works
-    INTERNAL_IPS = ['127.0.0.1']
+    # django-debug-toolbar requires that not only DEBUG be set, but that the request IP
+    # be in Django's INTERNAL_IPS setting. When using Vagrant, requests don't come from localhost:
+    # http://blog.joshcrompton.com/2014/01/how-to-make-django-debug-toolbar-display-when-using-vagrant/
+    # If the Vagrant IPs vary by platform or if there isn't a consistent IP when we switch to Docker,
+    # we'll have to do: https://github.com/jazzband/django-debug-toolbar/pull/805#issuecomment-240976813
+    INTERNAL_IPS = ['127.0.0.1', '10.0.2.2']
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
