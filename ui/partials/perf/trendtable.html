@@ -59,8 +59,8 @@
         </span>
       </td>
       <td ng-class="$ctrl.getCompareClasses(compareResult.baseResult)">
-        <span ng-if="compareResult.baseResult.delta" class="detail-hint" uib-tooltip="Mean difference: {{compareResult.baseResult.delta|displayPrecision}} (= {{compareResult.baseResult.deltaPercentage|displayPrecision}}%)">
-          {{compareResult.baseResult.deltaPercentage|displayPrecision}}%
+        <span ng-if="compareResult.baseResult.delta" class="detail-hint" uib-tooltip="Mean difference: {{compareResult.baseResult.delta|displayNumber}} (= {{compareResult.baseResult.deltaPercentage|displayNumber}}%)">
+          {{compareResult.baseResult.deltaPercentage|displayNumber}}%
         </span>
       </td>
       <td>
@@ -72,13 +72,13 @@
         </span>
       </td>
       <td ng-class="$ctrl.getCompareClasses(compareResult.newResult)">
-        <span ng-if="compareResult.newResult.delta" class="detail-hint" uib-tooltip="Mean difference: {{compareResult.newResult.delta|displayPrecision}} (= {{compareResult.newResult.deltaPercentage|displayPrecision}}%)">
-          {{compareResult.newResult.deltaPercentage|displayPrecision}}%
+        <span ng-if="compareResult.newResult.delta" class="detail-hint" uib-tooltip="Mean difference: {{compareResult.newResult.delta|displayNumber}} (= {{compareResult.newResult.deltaPercentage|displayNumber}}%)">
+          {{compareResult.newResult.deltaPercentage|displayNumber}}%
         </span>
       </td>
       <td ng-class="$ctrl.getCompareClasses(compareResult.trendResult)">
-        <span ng-if="compareResult.trendResult.delta" class="detail-hint" uib-tooltip="Mean difference: {{compareResult.trendResult.delta|displayPrecision}} (= {{compareResult.trendResult.deltaPercentage|displayPrecision}}%)">
-          {{compareResult.trendResult.deltaPercentage|displayPrecision}}%
+        <span ng-if="compareResult.trendResult.delta" class="detail-hint" uib-tooltip="Mean difference: {{compareResult.trendResult.delta|displayNumber}} (= {{compareResult.trendResult.deltaPercentage|displayNumber}}%)">
+          {{compareResult.trendResult.deltaPercentage|displayNumber}}%
         </span>
       </td>
       <td ng-if="compareResult.trendResult.delta">

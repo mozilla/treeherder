@@ -228,7 +228,7 @@ describe('encodeURIComponent filter', function() {
     });
 });
 
-describe('displayPrecision filter', function() {
+describe('displayNumber filter', function() {
     var $filter;
     beforeEach(angular.mock.module('treeherder'));
     beforeEach(inject(function(_$filter_) {
@@ -236,8 +236,9 @@ describe('displayPrecision filter', function() {
     }));
 
     it('returns expected values', function() {
-        var displayPrecision = $filter('displayPrecision');
+        var displayPrecision = $filter('displayNumber');
         expect(displayPrecision('123.53222')).toEqual('123.53');
+        expect(displayPrecision('123123123.53222')).toEqual('123,123,123.53');
         expect(displayPrecision(1/0)).toEqual('Infinity');
         expect(displayPrecision(Number.NaN)).toEqual('N/A');
     });
