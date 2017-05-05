@@ -13,7 +13,6 @@ Gunicorn
 --------
 
 A wsgi server in charge of serving the restful api and the static UI assets.
-All the requests to this server are proxied through Varnish.
 
 Celery task worker
 ------------------

@@ -60,7 +60,6 @@ sudo -E apt-get -yqq install --no-install-recommends \
     python2.7 \
     python2.7-dev \
     rabbitmq-server \
-    varnish \
     yarn \
     zlib1g-dev
 
@@ -81,13 +80,6 @@ if ! cmp -s vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf; then
     echo '-----> Configuring MySQL'
     sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
     sudo service mysql restart
-fi
-
-if ! (cmp -s vagrant/varnish.vcl /etc/varnish/default.vcl && grep -q 'DAEMON_OPTS=\"-a :80' /etc/default/varnish); then
-    echo '-----> Configuring Varnish'
-    sudo sed -i '/^DAEMON_OPTS=\"-a :6081* / s/6081/80/' /etc/default/varnish
-    sudo cp vagrant/varnish.vcl /etc/varnish/default.vcl
-    sudo service varnish restart
 fi
 
 if [[ ! -f /usr/local/bin/pip ]]; then
@@ -130,5 +122,7 @@ echo '-----> Running Django migrations and loading reference data'
 echo '-----> Performing cleanup'
 # Celery sometimes gets stuck and requires that celerybeat-schedule be deleted.
 rm -f celerybeat-schedule || true
+# TODO: Remove in a few weeks.
+sudo apt-get remove -y varnish
 
 echo '-----> Setup complete!'
