@@ -18,9 +18,9 @@ mock==2.0.0 --hash=sha256:5ce3c71c5545b472da17b72268978914d0252980348636840bd34a
 
 responses==0.5.1 --hash=sha256:3a907f7aae2fd2286d06cfdf238957786c38bbcadc451adceecc769a4ef882b7
 
-django-extensions==1.7.8 \
-    --hash=sha256:3fa317c8bac7136ccee41f7cb5af7a7c0d9cf96f00f7e1f2a081e50d64a7c099 \
-    --hash=sha256:4b226e5cdb687ddcbdcb79a772c3f66a72c71c1b1697d282cda8cab193f442ad
+django-extensions==1.7.9 \
+    --hash=sha256:3d028994db76b78bbc5adef7e48102d44fb70a33b34adaddcf8d4f85620453c1 \
+    --hash=sha256:a6b97ec77657e4fd43d508d6a134c799f188e868717f7499d05213b4669b44b6
 
 pytest-selenium==1.9.1 --hash=sha256:d3533b244beaf64308e81eb158285cf071f3fcafed70c4184cfabae936055093
 
