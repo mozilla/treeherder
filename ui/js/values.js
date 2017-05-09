@@ -11,6 +11,7 @@ treeherder.value("thPlatformMap", {
     "linux64-qr": "Linux x64 QuantumRender",
     "linux64-nightly": "Linux x64 Nightly",
     "linux64-stylo": "Linux x64 Stylo",
+    "linux64-stylo-sequential": "Linux x64 Stylo-Seq",
     "linux64-ccov": "Linux x64 CCov",
     "linux64-jsdcov": "Linux x64 JSDCov",
     "osx-10-6": "OS X 10.6",
