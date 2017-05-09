@@ -5,9 +5,6 @@ set -e
 SRC_DIR=$(dirname "$(dirname "${BASH_SOURCE[0]}")")
 cd $SRC_DIR
 
-PROJECT_ROOT=$(readlink -f ../)
-PATH=$PROJECT_ROOT/venv/bin:$PATH
-
 source /etc/profile.d/treeherder.sh
 
 NUM_WORKERS=5

@@ -1,3 +1,4 @@
+export PATH="/home/vagrant/venv/bin:$PATH"
 # Ensure the vendored libmysqlclient library can be found at run-time.
 export LD_LIBRARY_PATH="/home/vagrant/venv/lib/x86_64-linux-gnu"
 

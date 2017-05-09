@@ -12,9 +12,6 @@ sudo sysctl -q -w net.ipv4.conf.all.route_localnet=1
 sudo iptables -t nat --flush
 sudo iptables -t nat -A PREROUTING -i eth0 -p tcp -j DNAT --to 127.0.0.1
 
-# Activate the virtualenv.
-. "$HOME/venv/bin/activate"
-
 PS1='\[\e[0;31m\]\u\[\e[m\] \[\e[1;34m\]\w\[\e[m\] \$ '
 echo "Type 'thelp' to see a list of Treeherder-specific helper aliases"
 cd "$HOME/treeherder"
