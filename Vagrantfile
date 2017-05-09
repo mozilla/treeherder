@@ -5,14 +5,18 @@
 Vagrant.require_version ">= 1.5.0"
 
 Vagrant.configure("2") do |config|
-  # required for NFS to work
-  config.vm.network "private_network", type: "dhcp"
   # for webpack-devserver access from host
   config.vm.network "forwarded_port", guest: 5000, host: 5000, host_ip: "127.0.0.1"
   # for web server access from host
   config.vm.network "forwarded_port", guest: 8000, host: 8000, host_ip: "127.0.0.1"
   # for DB access from host
   config.vm.network "forwarded_port", guest: 3306, host: 3308, host_ip: "127.0.0.1"
+
+  if !Vagrant::Util::Platform.windows?
+    # On platforms where NFS is used (ie all but Windows), we still have to use
+    # Virtualbox's hostonly networking mode so that NFS works.
+    config.vm.network "private_network", type: "dhcp"
+  end
 
   config.vm.synced_folder ".", "/home/vagrant/treeherder", type: "nfs"
 
