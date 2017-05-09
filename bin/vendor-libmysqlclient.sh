@@ -29,20 +29,21 @@
 set -euo pipefail
 
 VENDOR_DIR="$1"
-VERSION="5.7.18"
+UBUNTU_VERSION="$(lsb_release -r -s)"
+MYSQL_VERSION="5.7.18"
 PACKAGE_URLS=(
     # We have to use packages from mysql.com since there is no Ubuntu distro
     # release available for MySQL 5.7 on Ubuntu 14.04.
-    "https://dev.mysql.com/get/Downloads/MySQL-5.7/libmysqlclient20_${VERSION}-1ubuntu14.04_amd64.deb"
-    "https://dev.mysql.com/get/Downloads/MySQL-5.7/libmysqlclient-dev_${VERSION}-1ubuntu14.04_amd64.deb"
+    "https://dev.mysql.com/get/Downloads/MySQL-5.7/libmysqlclient20_${MYSQL_VERSION}-1ubuntu${UBUNTU_VERSION}_amd64.deb"
+    "https://dev.mysql.com/get/Downloads/MySQL-5.7/libmysqlclient-dev_${MYSQL_VERSION}-1ubuntu${UBUNTU_VERSION}_amd64.deb"
 )
 
 # Skip vendoring if libmysqlclient-dev's `mysql_config` exists and reports the correct version.
-if [[ "$(mysql_config --version 2>&1)" == "$VERSION" ]]; then
+if [[ "$(mysql_config --version 2>&1)" == "$MYSQL_VERSION" ]]; then
     exit 0
 fi
 
-echo "-----> Vendoring libmysqlclient $VERSION."
+echo "-----> Vendoring libmysqlclient $MYSQL_VERSION."
 
 # We manually extract the packages rather than using apt-get install, since:
 #  - On Heroku we don't have sudo, so need to vendor the package somewhere other

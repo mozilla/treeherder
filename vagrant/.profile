@@ -10,7 +10,7 @@
 # As such, it's just easier to re-run the commands on each login since they take <30ms.
 sudo sysctl -q -w net.ipv4.conf.all.route_localnet=1
 sudo iptables -t nat --flush
-sudo iptables -t nat -A PREROUTING -i eth0 -p tcp -j DNAT --to 127.0.0.1
+sudo iptables -t nat -A PREROUTING -i enp0s3 -p tcp -j DNAT --to 127.0.0.1
 
 PS1='\[\e[0;31m\]\u\[\e[m\] \[\e[1;34m\]\w\[\e[m\] \$ '
 echo "Type 'thelp' to see a list of Treeherder-specific helper aliases"
@@ -48,12 +48,12 @@ function thqueuespurge {
 
 function threstartmemcached {
     echo "Restarting memcache"
-    sudo service memcached restart
+    sudo systemctl restart memcached.service
 }
 
 function threstartrabbitmq {
     echo "Restarting rabbitmq"
-    sudo service rabbitmq-server restart
+    sudo systemctl restart rabbitmq-server.service
 }
 
 function thresetall {

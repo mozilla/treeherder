@@ -21,7 +21,10 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/home/vagrant/treeherder", type: "nfs"
 
   config.vm.provider "virtualbox" do |vb, override|
-    override.vm.box = "ubuntu/trusty64"
+    # The Bento boxes (https://github.com/chef/bento) are recommended over the
+    # Canonical ones, since they more closely follow Vagrant best practices.
+    override.vm.box = "bento/ubuntu-16.04"
+    override.vm.box_version = ">= 2.3.5"
     vb.name = "treeherder"
     vb.memory = "3072"
   end
