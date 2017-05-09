@@ -5,25 +5,23 @@
 set -euo pipefail
 
 SRC_DIR="$HOME/treeherder"
-VENV_DIR="$HOME/venv"
+PYTHON_DIR="$HOME/python"
+
+cd "$SRC_DIR"
+
 ELASTICSEARCH_VERSION="5.3.1"
+PYTHON_VERSION="$(cat runtime.txt | sed 's/python-//')"
+PIP_VERSION="8.1.1"
 
 # Suppress prompts during apt-get invocations.
 export DEBIAN_FRONTEND=noninteractive
 # Speeds up pip invocations and reduces output spam.
 export PIP_DISABLE_PIP_VERSION_CHECK='True'
 
-cd "$SRC_DIR"
-
 echo '-----> Configuring .profile and environment variables'
 ln -sf "$SRC_DIR/vagrant/.profile" "$HOME/.profile"
 sudo ln -sf "$SRC_DIR/vagrant/env.sh" /etc/profile.d/treeherder.sh
 . /etc/profile.d/treeherder.sh
-
-if [[ ! -f /etc/apt/sources.list.d/fkrull-deadsnakes-python2_7-trusty.list ]]; then
-    echo '-----> Adding APT repository for Python 2.7'
-    sudo add-apt-repository -y ppa:fkrull/deadsnakes-python2.7 2>&1
-fi
 
 if [[ ! -f /etc/apt/sources.list.d/openjdk-r-ppa-trusty.list ]]; then
     echo '-----> Adding APT repository for OpenJDK'
@@ -47,7 +45,6 @@ sudo -E apt-get -yqq update
 # g++ is required by Brotli
 # libmemcached-dev and zlib1g-dev are required by pylibmc
 # openjdk-7-jre-headless is required by Elasticsearch
-# python-dev is required by mysqlclient
 sudo -E apt-get -yqq install --no-install-recommends \
     g++ \
     git \
@@ -56,8 +53,6 @@ sudo -E apt-get -yqq install --no-install-recommends \
     mysql-server-5.6 \
     nodejs \
     openjdk-8-jre-headless \
-    python2.7 \
-    python2.7-dev \
     rabbitmq-server \
     yarn \
     zlib1g-dev
@@ -81,22 +76,20 @@ if ! cmp -s vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf; then
     sudo service mysql restart
 fi
 
-if [[ ! -f /usr/local/bin/pip ]]; then
-    echo '-----> Installing pip'
-    curl -sSf https://bootstrap.pypa.io/get-pip.py | sudo -H python -
+if [[ "$($PYTHON_DIR/bin/python --version 2>&1)" != *"$PYTHON_VERSION" ]]; then
+    echo "-----> Installing Python"
+    rm -rf "$PYTHON_DIR"
+    mkdir -p "$PYTHON_DIR"
+    # Uses the Heroku Python buildpack's binaries for parity with production.
+    curl -sSf "https://lang-python.s3.amazonaws.com/cedar-14/runtimes/python-$PYTHON_VERSION.tar.gz" | tar -xz -C "$PYTHON_DIR"
 fi
 
-if [[ ! -f /usr/local/bin/virtualenv ]]; then
-    echo '-----> Installing virtualenv'
-    sudo -H pip install virtualenv==15.0.1
+if [[ "$($PYTHON_DIR/bin/pip --version 2>&1)" != *"$PIP_VERSION"* ]]; then
+    echo "-----> Installing pip"
+    curl -sSf https://bootstrap.pypa.io/get-pip.py | python - "pip==$PIP_VERSION"
 fi
 
-if [[ ! -d "$VENV_DIR" ]]; then
-    echo '-----> Creating virtualenv'
-    virtualenv "$VENV_DIR"
-fi
-
-./bin/vendor-libmysqlclient.sh "$VENV_DIR"
+./bin/vendor-libmysqlclient.sh "$PYTHON_DIR"
 
 echo '-----> Running pip install'
 pip install --require-hashes -r requirements/common.txt -r requirements/dev.txt | sed -e '/^Requirement already satisfied:/d'
@@ -123,5 +116,6 @@ echo '-----> Performing cleanup'
 rm -f celerybeat-schedule || true
 # TODO: Remove in a few weeks.
 sudo apt-get remove -y varnish
+rm -rf "$HOME/venv"
 
 echo '-----> Setup complete!'
