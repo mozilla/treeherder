@@ -24,7 +24,7 @@ matrix:
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
         - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
         - source ~/venv/bin/activate
-        - pip install --disable-pip-version-check --upgrade pip==8.1.1
+        - pip install --disable-pip-version-check --upgrade pip==9.0.1
       install:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
       script:
@@ -82,7 +82,7 @@ matrix:
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
         - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
         - source ~/venv/bin/activate
-        - pip install --disable-pip-version-check --upgrade pip==8.1.1
+        - pip install --disable-pip-version-check --upgrade pip==9.0.1
         - ./bin/vendor-libmysqlclient.sh ~/venv
         # Create the test database for `manage.py check --deploy`.
         - mysql -u root -e 'create database test_treeherder;'
@@ -117,7 +117,7 @@ matrix:
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
         - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
         - source ~/venv/bin/activate
-        - pip install --disable-pip-version-check --upgrade pip==8.1.1
+        - pip install --disable-pip-version-check --upgrade pip==9.0.1
         - ./bin/vendor-libmysqlclient.sh ~/venv
       install:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
@@ -146,7 +146,7 @@ matrix:
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
         - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
         - source ~/venv/bin/activate
-        - pip install --disable-pip-version-check --upgrade pip==8.1.1
+        - pip install --disable-pip-version-check --upgrade pip==9.0.1
         - ./bin/vendor-libmysqlclient.sh ~/venv
       install:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
@@ -177,7 +177,7 @@ matrix:
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
         - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
         - source ~/venv/bin/activate
-        - pip install --disable-pip-version-check --upgrade pip==8.1.1
+        - pip install --disable-pip-version-check --upgrade pip==9.0.1
         - ./bin/vendor-libmysqlclient.sh ~/venv
         - mkdir -p $HOME/bin
         - wget https://github.com/mozilla/geckodriver/releases/download/v0.14.0/geckodriver-v0.14.0-linux64.tar.gz

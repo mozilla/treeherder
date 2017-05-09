@@ -11,7 +11,7 @@ cd "$SRC_DIR"
 
 ELASTICSEARCH_VERSION="5.3.1"
 PYTHON_VERSION="$(cat runtime.txt | sed 's/python-//')"
-PIP_VERSION="8.1.1"
+PIP_VERSION="9.0.1"
 
 # Suppress prompts during apt-get invocations.
 export DEBIAN_FRONTEND=noninteractive
