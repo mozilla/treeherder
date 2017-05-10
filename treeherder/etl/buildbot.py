@@ -1055,7 +1055,7 @@ SYMBOLS = {
     "Reftest e10s": "R-e10s",
     "Reftest GPU": "Rg",
     "Reftest GPU e10s": "Rg",
-    "Reftest QR e10s": "R-qr-e10s",
+    "Reftest QR e10s": "R-qr",
     "Reftest Sanity OOP": "Rs-oop",
     "Reftest Sanity": "Rs",
     "Reftest Unaccelerated": "Ru",
