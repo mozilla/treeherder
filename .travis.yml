@@ -44,11 +44,6 @@ matrix:
           - node_modules
       addons:
         firefox: latest
-      before_install:
-        # Required until Travis makes yarn available in the environment,
-        # since we override the default `install` for clarity.
-        - curl -sSfL https://yarnpkg.com/install.sh | bash
-        - export PATH=$HOME/.yarn/bin:$PATH
       install:
         # `--frozen-lockfile` will catch cases where people have forgotten to update `yarn.lock`.
         # `--no-bin-links` is only necessary on Windows hosts, but we include here to ensure
@@ -183,8 +178,8 @@ matrix:
         - wget https://github.com/mozilla/geckodriver/releases/download/v0.14.0/geckodriver-v0.14.0-linux64.tar.gz
         - tar -xzf geckodriver-v0.14.0-linux64.tar.gz -C $HOME/bin
         - nvm install 7.9.0
-        # Required until Travis makes yarn available in the environment,
-        # since we override the default `install` for clarity.
+        # Required until Travis makes yarn available in the base image,
+        # since it only installs it for `language: nodejs` currently.
         - curl -sSfL https://yarnpkg.com/install.sh | bash
         - export PATH=$HOME/.yarn/bin:$PATH
       install:
