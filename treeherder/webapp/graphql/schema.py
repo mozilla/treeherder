@@ -17,7 +17,10 @@ class JobDetailGraph(DjangoObjectType):
 class JobGraph(DjangoObjectType):
     class Meta:
         model = Job
-        filter_fields = ('result', 'tier')
+        filter_fields = {
+            'result': ['exact'],
+            'tier': ['exact', 'lt'],
+        }
         interfaces = (graphene.relay.Node, )
 
     job_details = DjangoFilterConnectionField(JobDetailGraph)
