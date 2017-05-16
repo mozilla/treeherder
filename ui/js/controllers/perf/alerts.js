@@ -1,14 +1,15 @@
 "use strict";
 
 perf.factory('PhBugs', [
-    '$http', '$httpParamSerializer', '$templateRequest', '$interpolate', 'dateFilter', 'thServiceDomain',
-    function($http, $httpParamSerializer, $templateRequest, $interpolate, dateFilter, thServiceDomain) {
+    '$http', '$httpParamSerializer', '$templateRequest', '$interpolate', '$rootScope', 'dateFilter', 'thServiceDomain',
+    function($http, $httpParamSerializer, $templateRequest, $interpolate, $rootScope, dateFilter, thServiceDomain) {
         return {
             fileTalosBug: function(alertSummary) {
                 $http.get(thServiceDomain + '/api/performance/bug-template/?framework=' + alertSummary.framework).then(function(response) {
                     var template = response.data[0];
+                    var repo = _.find($rootScope.repos,{ name: alertSummary.repository });
                     var compiledText = $interpolate(template.text)({
-                        revision: alertSummary.resultSetMetadata.revision,
+                        revisionHref: repo.getPushLogHref(alertSummary.resultSetMetadata.revision),
                         alertHref: window.location.origin + '/perf.html#/alerts?id=' +
                             alertSummary.id,
                         alertSummary: alertSummary.getTextualSummary()
