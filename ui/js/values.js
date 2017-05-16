@@ -55,7 +55,7 @@ treeherder.value("thPlatformMap", {
     "android-4-0-armv7-api15": "Android 4.0 API15+",
     "android-4-0-armv7-api15-old-id": "Android 4.0 API15+ OldId",
     "android-4-2-x86": "Android 4.2 x86",
-    "android-4-2-x86": "Android 4.2 x86 OldId",
+    "android-4-2-x86-old-id": "Android 4.2 x86 OldId",
     "android-4-2": "Android 4.2",
     "android-4-2-armv7-api11": "Android 4.2 API11+",
     "android-4-2-armv7-api15": "Android 4.2 API15+",
