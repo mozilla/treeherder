@@ -169,6 +169,8 @@ def is_helpful_search_term(search_term):
         'Return code: 2',
         'Return code: 9',
         'Return code: 10',
+        'mozalloc_abort(char const*)',
+        'mozalloc_abort',
         'Exiting 1',
         'Exiting 9',
         'CrashingThread(void *)',
