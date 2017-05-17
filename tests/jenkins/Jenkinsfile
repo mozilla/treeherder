@@ -22,7 +22,7 @@ pipeline {
   stages {
     stage('Test') {
       steps {
-        writeCapabilities(capabilities, 'capabilities.json')
+        writeCapabilities(capabilities, '/tests/jenkins/capabilities.json')
         sh "tox -c /tests/jenkins/tox.ini -e py27"
       }
       post {
