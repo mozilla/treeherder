@@ -23,18 +23,18 @@ pipeline {
     stage('Test') {
       steps {
         writeCapabilities(capabilities, 'capabilities.json')
-        sh "tox -e py27"
+        sh "tox -c /tests/jenkins/tox.ini -e py27"
       }
       post {
         always {
-          archiveArtifacts 'results/*'
-          junit 'results/*.xml'
-          submitToActiveData('results/py27.log')
+          archiveArtifacts 'tests/jenkins/results/*'
+          junit 'tests/jenkins/results/*.xml'
+          submitToActiveData('tests/jenkins/results/py27.log')
           publishHTML(target: [
             allowMissing: false,
             alwaysLinkToLastBuild: true,
             keepAll: true,
-            reportDir: 'results',
+            reportDir: 'tests/jenkins/results',
             reportFiles: "py27.html",
             reportName: 'HTML Report'])
         }
