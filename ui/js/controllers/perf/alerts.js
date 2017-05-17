@@ -4,7 +4,7 @@ perf.factory('PhBugs', [
     '$http', '$httpParamSerializer', '$templateRequest', '$interpolate', '$rootScope', 'dateFilter', 'thServiceDomain',
     function($http, $httpParamSerializer, $templateRequest, $interpolate, $rootScope, dateFilter, thServiceDomain) {
         return {
-            fileTalosBug: function(alertSummary) {
+            fileBug: function(alertSummary) {
                 $http.get(thServiceDomain + '/api/performance/bug-template/?framework=' + alertSummary.framework).then(function(response) {
                     var template = response.data[0];
                     var repo = _.find($rootScope.repos,{ name: alertSummary.repository });
@@ -286,7 +286,7 @@ perf.controller('AlertsCtrl', [
         };
 
         $scope.fileBug = function(alertSummary) {
-            PhBugs.fileTalosBug(alertSummary);
+            PhBugs.fileBug(alertSummary);
         };
         $scope.linkToBug = function(alertSummary) {
             $uibModal.open({
