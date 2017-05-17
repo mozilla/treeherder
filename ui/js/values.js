@@ -153,6 +153,10 @@ treeherder.value("phTimeRanges", [
 
 treeherder.value("phDefaultTimeRangeValue", 1209600);
 
+treeherder.value("phTimeRangeValues", {
+    "mozilla-beta": 7776000
+});
+
 treeherder.value("phComparisonDate", [
     { "value":0, "text": "Today" },
     { "value":604800, "text": "1 week ago" },

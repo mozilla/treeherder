@@ -147,14 +147,14 @@ perf.controller('AlertsCtrl', [
     'ThResultSetModel',
     'PhFramework', 'PhSeries', 'PhAlerts', 'PhBugs', 'phTimeRanges',
     'phDefaultTimeRangeValue', 'phAlertSummaryStatusMap', 'phAlertStatusMap',
-    'dateFilter', 'thDateFormat', 'clipboard',
+    'dateFilter', 'thDateFormat', 'clipboard', 'phTimeRangeValues',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $http, $q,
                         $uibModal,
                         thUrl, ThRepositoryModel,
                         ThOptionCollectionModel, ThResultSetModel,
                         PhFramework, PhSeries, PhAlerts, PhBugs, phTimeRanges,
                         phDefaultTimeRangeValue, phAlertSummaryStatusMap, phAlertStatusMap,
-                        dateFilter, thDateFormat, clipboard) {
+                        dateFilter, thDateFormat, clipboard, phTimeRangeValues) {
         $scope.alertSummaries = undefined;
         $scope.getMoreAlertSummariesHref = null;
         $scope.getCappedMagnitude = function(percent) {
@@ -424,7 +424,8 @@ perf.controller('AlertsCtrl', [
                                 resultSet.dateStr = dateFilter(
                                     resultSet.push_timestamp*1000, thDateFormat);
                                 // want at least 14 days worth of results for relative comparisons
-                                resultSet.timeRange = Math.max(phDefaultTimeRangeValue, _.find(
+                                let timeRange = phTimeRangeValues[repo] ? phTimeRangeValues[repo] : phDefaultTimeRangeValue;
+                                resultSet.timeRange = Math.max(timeRange, _.find(
                                     _.map(phTimeRanges, 'value'),
                                     function(t) {
                                         return ((Date.now() / 1000.0) - resultSet.push_timestamp) < t;
