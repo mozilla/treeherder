@@ -375,7 +375,7 @@ treeherder.controller('PluginCtrl', [
             if ($scope.canBackfill()) {
                 if ($scope.user.loggedin) {
                     if ($scope.job.id) {
-                        if ($scope.job.build_system_type === 'taskcluster') {
+                        if ($scope.job.build_system_type === 'taskcluster' || $scope.job.reason.startsWith('Created by BBB for task')) {
                             ThResultSetStore.getGeckoDecisionTaskId(
                                 $scope.repoName,
                                 $scope.resultsetId).then(function(decisionTaskId) {
