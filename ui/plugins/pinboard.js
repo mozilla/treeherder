@@ -92,7 +92,7 @@ treeherder.controller('PinboardCtrl', [
                     thNotify.send("Please enter a valid bug number", "danger");
                 }
             }
-            if (!$scope.canSaveClassifications()) {
+            if (!$scope.canSaveClassifications() && $scope.user.loggedin) {
                 thNotify.send("Please classify this failure before saving", "danger");
                 errorFree = false;
             }
@@ -250,6 +250,14 @@ treeherder.controller('PinboardCtrl', [
 
         $scope.completeClassification = function() {
             $rootScope.$broadcast('blur-this', "classification-comment");
+        };
+
+        // The manual bug entry input eats the global ctrl+enter save() shortcut.
+        // Force that event to be emitted so ctrl+enter saves the classification.
+        $scope.ctrlEnterSaves = function(ev) {
+            if (ev.ctrlKey && ev.keyCode === 13) {
+                $scope.$evalAsync($rootScope.$emit(thEvents.saveClassification));
+            }
         };
 
         $scope.saveEnteredBugNumber = function() {
