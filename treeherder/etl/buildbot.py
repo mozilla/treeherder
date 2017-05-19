@@ -66,7 +66,7 @@ PLATFORMS_BUILDERNAME = [
         'regex': re.compile(r'^(?:Linux|Ubuntu).*64 Stylo-sequential', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
-            'os_platform': 'linux64-styloseq',
+            'os_platform': 'linux64-stylo-sequential',
             'arch': 'x86_64',
          }
     },
