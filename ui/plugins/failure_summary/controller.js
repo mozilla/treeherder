@@ -117,6 +117,9 @@ treeherder.controller('BugsPluginCtrl', [
                     summary: function() {
                         return summary;
                     },
+                    search_terms: function() {
+                        return $scope.suggestions[index].search_terms;
+                    },
                     fullLog: function() {
                         return $scope.job_log_urls[0].url;
                     },

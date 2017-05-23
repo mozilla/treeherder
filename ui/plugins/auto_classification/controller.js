@@ -173,6 +173,7 @@ treeherder.controller('ThClassificationOptionController', [
                 openedClass: "filer-open",
                 resolve: {
                     summary: () => ctrl.errorLine.data.bug_suggestions.search,
+                    search_terms: () => ctrl.errorLine.data.bug_suggestions.search_terms,
                     fullLog: () => logUrl,
                     parsedLog: () => location.origin + "/" + thUrl.getLogViewerUrl(ctrl.thJob.id),
                     reftest: () => thReftestStatus(ctrl.thJob) ? reftestUrlRoot + logUrl + "&only_show_unexpected=1" : "",
