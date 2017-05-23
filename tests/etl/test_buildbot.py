@@ -845,7 +845,7 @@ buildernames = [
                    'os_platform': 'linux64-stylo'}}),
     ('Ubuntu HW 12.04 x64 stylo-sequential mozilla-central talos g3',
      {'build_type': 'opt',
-      'name': {'group_name': 'Talos Performance',
+      'name': {'group_name': 'Talos Performance e10s',
                'group_symbol': 'T',
                'name': 'Talos g3',
                'job_symbol': 'g3'},
