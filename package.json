@@ -23,6 +23,7 @@
     "deepmerge": "1.3.2",
     "font-awesome": "4.7.0",
     "hawk": "6.0.1",
+    "html-webpack-plugin": "^2.28.0",
     "jquery": "2.2.4",
     "jquery.scrollto": "2.1.2",
     "js-yaml": "3.8.4",
@@ -37,6 +38,7 @@
     "react": "15.3.2",
     "react-dom": "15.3.2",
     "taskcluster-client": "2.3.0",
+    "webpack": "^2.3.2",
     "webpack-md5-hash": "0.0.5"
   },
   "devDependencies": {
@@ -52,13 +54,36 @@
     "neutrino-preset-karma": "4.2.0",
     "react-addons-test-utils": "15.3.2"
   },
+  "neutrino": {
+    "use": [
+      "./neutrino-custom/lint.js",
+      "neutrino-preset-react",
+      "./neutrino-custom"
+    ],
+    "options": {
+      "source": "ui",
+      "output": "dist",
+      "entry": "entry-index.js",
+      "tests": "tests",
+      "compile": {
+        "targets": {
+          "browsers": [
+            "last 1 Chrome versions",
+            "last 1 Firefox versions",
+            "last 1 Edge versions",
+            "last 1 Safari versions"
+          ]
+        }
+      }
+    }
+  },
   "scripts": {
-    "build": "./node_modules/neutrino/bin/neutrino build --presets ./neutrino-custom/production.js",
-    "lint": "./node_modules/eslint/bin/eslint.js --ext .js,.jsx ui/",
-    "start": "./node_modules/neutrino/bin/neutrino start --presets ./neutrino-custom/development.js",
-    "start:local": "./node_modules/neutrino/bin/neutrino start --presets ./neutrino-custom/local-watch.js",
-    "start:stage": "SERVICE_DOMAIN=https://treeherder.allizom.org ./node_modules/neutrino/bin/neutrino start --presets ./neutrino-custom/development.js",
-    "test": "./node_modules/neutrino/bin/neutrino test --presets ./neutrino-custom/test.js",
-    "test:watch": "./node_modules/neutrino/bin/neutrino test --watch --presets ./neutrino-custom/test.js"
+    "build": "./node_modules/neutrino/bin/neutrino build",
+    "lint": "NODE_ENV=development ./node_modules/eslint/bin/eslint.js --ext .js,.jsx ui/",
+    "start": "./node_modules/neutrino/bin/neutrino start",
+    "start:local": "LOCAL_WATCH=true ./node_modules/neutrino/bin/neutrino start",
+    "start:stage": "SERVICE_DOMAIN=https://treeherder.allizom.org ./node_modules/neutrino/bin/neutrino start",
+    "test": "./node_modules/neutrino/bin/neutrino test",
+    "test:watch": "./node_modules/neutrino/bin/neutrino test --watch --use"
   }
 }
