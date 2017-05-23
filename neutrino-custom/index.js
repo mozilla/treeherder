@@ -51,6 +51,9 @@ module.exports = neutrino => {
                 userguideApp: require.resolve(join(source, 'js/userguide.js'))
             }]).end()
         .entry('index')
+            // Neutrino v5 added babel-polyfill by default to the index entry
+            // point. Treeherder doesn't use this right now, so remove it
+            // to avoid breaking anything on that entry.
             .delete(require.resolve('babel-polyfill')).end()
         .module
             .rule('html')

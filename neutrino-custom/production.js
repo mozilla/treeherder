@@ -16,8 +16,7 @@ module.exports = neutrino => {
     // in the config (it is only applied in !development by default):
     neutrino.use(copy, {
         patterns: [
-            { context: neutrino.options.source, from: '**' },
-            { from: './contribute.json', to: 'contribute.json' }
+            { context: neutrino.options.source, from: '**' }
         ],
         options: {
             ignore: ['*.js', '*.jsx', '*.css', '*.html', '*.tmpl', '*.eot', '*.otf', '*.ttf', '*.woff', '*.woff2']
