@@ -99,8 +99,9 @@ futures==3.1.1 \
 functools32==3.2.3-2 --hash=sha256:89d824aa6c358c421a234d7f9ee0bd75933a67c29588ce50aaa3acdf4d403fa0
 
 # Required by django-rest-swagger
-coreapi==2.3.0 \
-    --hash=sha256:95a24903c8f3b03e2a330a5228c4cc5705223855257a614f6f355327b8800d51
+coreapi==2.3.1 \
+    --hash=sha256:af112b32104d0dbdedbac8e4c22d6068b799efad0c2328204575aad66de8f761 \
+    --hash=sha256:af88b5ad7415410de9ef33bd7f7cf605534f1c4cf24de716ebe4453021249714
 coreschema==0.0.4 \
     --hash=sha256:5e6ef7bf38c1525d5e55a895934ab4273548629f16aed5c0a6caa74ebf45551f
 Jinja2==2.9.6 \
