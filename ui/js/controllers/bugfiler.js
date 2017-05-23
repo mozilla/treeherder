@@ -2,10 +2,10 @@
 
 treeherder.controller('BugFilerCtrl', [
     '$scope', '$rootScope', '$uibModalInstance', '$http', 'summary',
-    'fullLog', 'parsedLog', 'reftest', 'selectedJob', 'allFailures',
-    'crashSignatures', 'successCallback', 'thNotify',
+    'search_terms', 'fullLog', 'parsedLog', 'reftest', 'selectedJob',
+    'allFailures', 'crashSignatures', 'successCallback', 'thNotify',
     function BugFilerCtrl(
-        $scope, $rootScope, $uibModalInstance, $http, summary,
+        $scope, $rootScope, $uibModalInstance, $http, summary, search_terms,
         fullLog, parsedLog, reftest, selectedJob, allFailures,
         crashSignatures, successCallback, thNotify) {
 
@@ -31,12 +31,23 @@ treeherder.controller('BugFilerCtrl', [
             return reftest !== "";
         };
 
+        $scope.search_terms = search_terms;
         $scope.parsedLog = parsedLog;
         $scope.fullLog = fullLog;
         $scope.crashSignatures = crashSignatures.join("\n");
         if ($scope.isReftest()) {
             $scope.reftest = reftest;
         }
+
+        $scope.unhelpfulSummaryReason = function() {
+            if (search_terms.length === 0) {
+                return "Selected failure does not contain any searchable terms.";
+            }
+            if (_.every(search_terms, function(term) { return !$scope.modalSummary.includes(term); })) {
+                return "Summary does not include the full text of any of the selected failure's search terms:";
+            }
+            return "";
+        };
 
         /**
          *  Pre-fill the form with information/metadata from the failure
