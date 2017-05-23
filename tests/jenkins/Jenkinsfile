@@ -1,0 +1,57 @@
+@Library('fxtest@1.6') _
+
+/** Desired capabilities */
+def capabilities = [
+  browserName: 'Firefox',
+  version: '47.0',
+  platform: 'Windows 10'
+]
+
+pipeline {
+  agent any
+  options {
+    ansiColor('xterm')
+    timestamps()
+    timeout(time: 1, unit: 'HOURS')
+  }
+  environment {
+    /** See https://issues.jenkins-ci.org/browse/JENKINS-42771 - we'd like to expand this out into multi-line concatenations */
+    PYTEST_ADDOPTS = "--tb=short --color=yes --driver=SauceLabs --variables=capabilities.json"
+    SAUCELABS_API_KEY = credentials('SAUCELABS_API_KEY')
+  }
+  stages {
+    stage('Test') {
+      steps {
+        writeCapabilities(capabilities, 'tests/jenkins/capabilities.json')
+        sh "tox -c tests/jenkins/tox.ini -e py27"
+      }
+      post {
+        always {
+          archiveArtifacts 'tests/jenkins/results/*'
+          junit 'tests/jenkins/results/*.xml'
+          submitToActiveData('tests/jenkins/results/py27.log')
+          publishHTML(target: [
+            allowMissing: false,
+            alwaysLinkToLastBuild: true,
+            keepAll: true,
+            reportDir: 'tests/jenkins/results',
+            reportFiles: "py27.html",
+            reportName: 'HTML Report'])
+        }
+      }
+    }
+  }
+  post {
+    failure {
+      mail(
+        body: "${BUILD_URL}",
+        from: "firefox-test-engineering@mozilla.com",
+        replyTo: "firefox-test-engineering@mozilla.com",
+        subject: "Build failed in Jenkins: ${JOB_NAME} #${BUILD_NUMBER}",
+        to: "fte-ci@mozilla.com")
+    }
+    changed {
+      ircNotification()
+    }
+  }
+}

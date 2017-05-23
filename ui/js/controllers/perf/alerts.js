@@ -1,14 +1,15 @@
 "use strict";
 
 perf.factory('PhBugs', [
-    '$http', '$httpParamSerializer', '$templateRequest', '$interpolate', 'dateFilter', 'thServiceDomain',
-    function($http, $httpParamSerializer, $templateRequest, $interpolate, dateFilter, thServiceDomain) {
+    '$http', '$httpParamSerializer', '$templateRequest', '$interpolate', '$rootScope', 'dateFilter', 'thServiceDomain',
+    function($http, $httpParamSerializer, $templateRequest, $interpolate, $rootScope, dateFilter, thServiceDomain) {
         return {
-            fileTalosBug: function(alertSummary) {
+            fileBug: function(alertSummary) {
                 $http.get(thServiceDomain + '/api/performance/bug-template/?framework=' + alertSummary.framework).then(function(response) {
                     var template = response.data[0];
+                    var repo = _.find($rootScope.repos,{ name: alertSummary.repository });
                     var compiledText = $interpolate(template.text)({
-                        revision: alertSummary.resultSetMetadata.revision,
+                        revisionHref: repo.getPushLogHref(alertSummary.resultSetMetadata.revision),
                         alertHref: window.location.origin + '/perf.html#/alerts?id=' +
                             alertSummary.id,
                         alertSummary: alertSummary.getTextualSummary()
@@ -146,14 +147,14 @@ perf.controller('AlertsCtrl', [
     'ThResultSetModel',
     'PhFramework', 'PhSeries', 'PhAlerts', 'PhBugs', 'phTimeRanges',
     'phDefaultTimeRangeValue', 'phAlertSummaryStatusMap', 'phAlertStatusMap',
-    'dateFilter', 'thDateFormat', 'clipboard',
+    'dateFilter', 'thDateFormat', 'clipboard', 'phTimeRangeValues',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $http, $q,
                         $uibModal,
                         thUrl, ThRepositoryModel,
                         ThOptionCollectionModel, ThResultSetModel,
                         PhFramework, PhSeries, PhAlerts, PhBugs, phTimeRanges,
                         phDefaultTimeRangeValue, phAlertSummaryStatusMap, phAlertStatusMap,
-                        dateFilter, thDateFormat, clipboard) {
+                        dateFilter, thDateFormat, clipboard, phTimeRangeValues) {
         $scope.alertSummaries = undefined;
         $scope.getMoreAlertSummariesHref = null;
         $scope.getCappedMagnitude = function(percent) {
@@ -285,7 +286,7 @@ perf.controller('AlertsCtrl', [
         };
 
         $scope.fileBug = function(alertSummary) {
-            PhBugs.fileTalosBug(alertSummary);
+            PhBugs.fileBug(alertSummary);
         };
         $scope.linkToBug = function(alertSummary) {
             $uibModal.open({
@@ -423,7 +424,8 @@ perf.controller('AlertsCtrl', [
                                 resultSet.dateStr = dateFilter(
                                     resultSet.push_timestamp*1000, thDateFormat);
                                 // want at least 14 days worth of results for relative comparisons
-                                resultSet.timeRange = Math.max(phDefaultTimeRangeValue, _.find(
+                                let timeRange = phTimeRangeValues[repo] ? phTimeRangeValues[repo] : phDefaultTimeRangeValue;
+                                resultSet.timeRange = Math.max(timeRange, _.find(
                                     _.map(phTimeRanges, 'value'),
                                     function(t) {
                                         return ((Date.now() / 1000.0) - resultSet.push_timestamp) < t;

@@ -30,6 +30,7 @@
              class="add-related-bugs-input"
              ng-model="$parent.newEnteredBugNumber"
              placeholder="enter bug number"
+             ng-keypress="ctrlEnterSaves($event)"
              focus-me="focusInput">
     </form>
     <span ng-repeat="bug in relatedBugs">

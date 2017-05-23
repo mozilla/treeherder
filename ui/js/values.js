@@ -53,7 +53,9 @@ treeherder.value("thPlatformMap", {
     "android-4-0-armv7-api10": "Android 4.0 API10+",
     "android-4-0-armv7-api11": "Android 4.0 API11+",
     "android-4-0-armv7-api15": "Android 4.0 API15+",
+    "android-4-0-armv7-api15-old-id": "Android 4.0 API15+ OldId",
     "android-4-2-x86": "Android 4.2 x86",
+    "android-4-2-x86-old-id": "Android 4.2 x86 OldId",
     "android-4-2": "Android 4.2",
     "android-4-2-armv7-api11": "Android 4.2 API11+",
     "android-4-2-armv7-api15": "Android 4.2 API15+",
@@ -150,6 +152,10 @@ treeherder.value("phTimeRanges", [
       { "value":31536000, "text": "Last year" } ]);
 
 treeherder.value("phDefaultTimeRangeValue", 1209600);
+
+treeherder.value("phTimeRangeValues", {
+    "mozilla-beta": 7776000
+});
 
 treeherder.value("phComparisonDate", [
     { "value":0, "text": "Today" },

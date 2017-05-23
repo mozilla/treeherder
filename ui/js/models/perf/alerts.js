@@ -25,14 +25,8 @@ treeherder.factory('PhAlerts', [
 
             // for talos only, automatically add related branches
             if (performanceFrameworkId === 1) {
-                _.forEach(thPerformanceBranches, function(performanceBranch) {
-                    if (performanceBranch !== alertRepository) {
-                        url += "&series=[" + [performanceBranch, signature, 0] + "]";
-                    }
-                });
-                if (alertRepository === "mozilla-beta") {
-                    url += "&series=[" + ["mozilla-aurora", signature, 0] + "]";
-                }
+                const branches = (alertRepository === "mozilla-beta") ? ['mozilla-inbound'] : thPerformanceBranches.filter(branch => branch !== alertRepository);
+                url += branches.map(branch => `&series=[${branch},${signature},0]`).join("");
             }
 
             return url;

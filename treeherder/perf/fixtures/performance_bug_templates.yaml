@@ -7,7 +7,11 @@
     default_product: Firefox
     cc_list: jmaher@mozilla.com, rwood@mozilla.com, ionut.goldan@softvision.ro
     text: |
-      Talos has detected a Firefox performance regression from push {{ revision }}. As author of one of the patches included in that push, we need your help to address this regression.
+      Talos has detected a Firefox performance regression from push:
+
+      {{ revisionHref }}
+
+      As author of one of the patches included in that push, we need your help to address this regression.
 
       {{ alertSummary }}
 
@@ -31,7 +35,11 @@
     default_product: Firefox
     cc_list: jmaher@mozilla.com, rwood@mozilla.com, nfroyd@mozilla.com, ionut.goldan@softvision.ro
     text: |
-      We have detected a build metrics regression from push {{ revision }}. As author of one of the patches included in that push, we need your help to address this regression.
+      We have detected a build metrics regression from push:
+
+      {{ revisionHref }}
+
+      As author of one of the patches included in that push, we need your help to address this regression.
 
       {{ alertSummary }}
 
@@ -49,7 +57,11 @@
     default_product: Firefox
     cc_list: jmaher@mozilla.com, rwood@mozilla.com, bc@mozilla.com, ionut.goldan@softvision.ro
     text: |
-      We have detected an autophone (Android) regression from push {{ revision }}. As author of one of the patches included in that push, we need your help to address this regression.
+      We have detected an autophone (Android) regression from push:
+
+      {{ revisionHref }}
+
+      As author of one of the patches included in that push, we need your help to address this regression.
 
       {{ alertSummary }}
 
@@ -58,3 +70,47 @@
       On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the jobs in a pushlog format.
 
       To learn more about the regressing test(s), please see: https://wiki.mozilla.org/EngineeringProductivity/Autophone
+- model: perf.PerformanceBugTemplate
+  pk: 4
+  fields:
+    framework: 4
+    keywords: perf, regression
+    default_component: Untriaged
+    default_product: Firefox
+    cc_list: jmaher@mozilla.com, rwood@mozilla.com, bc@mozilla.com, ionut.goldan@softvision.ro, erahm@mozilla.com
+    text: |
+      We have detected an awsy regression from push:
+
+      {{ revisionHref }}
+
+      As author of one of the patches included in that push, we need your help to address this regression.
+
+      {{ alertSummary }}
+
+      You can find links to graphs and comparison views for each of the above tests at: {{ alertHref }}
+
+      On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the jobs in a pushlog format.
+
+      To learn more about the regressing test(s), please see: https://developer.mozilla.org/en-US/docs/Mozilla/Performance/AWSY
+- model: perf.PerformanceBugTemplate
+  pk: 5
+  fields:
+    framework: 5
+    keywords: perf, regression
+    default_component: Untriaged
+    default_product: Firefox
+    cc_list: jmaher@mozilla.com, rwood@mozilla.com, ionut.goldan@softvision.ro
+    text: |
+      We have detected an awfy regression from push:
+
+      {{ revisionHref }}
+
+      As author of one of the patches included in that push, we need your help to address this regression.
+
+      {{ alertSummary }}
+
+      You can find links to graphs and comparison views for each of the above tests at: {{ alertHref }}
+
+      On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the jobs in a pushlog format.
+
+      To learn more about the regressing test(s), please see: https://www.arewefastyet.com/

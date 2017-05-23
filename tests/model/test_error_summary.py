@@ -195,6 +195,13 @@ BLACKLIST_TEST_CASES = (
         'Return code: 1',
         None
     ),
+    (
+        (
+            'REFTEST PROCESS-CRASH | file:///home/worker/workspace/build/tests/reftest/tests/layout/reftests/font-inflation/video-1.html '
+            '| application crashed [@ mozalloc_abort]'
+        ),
+        'video-1.html'
+    ),
 )
 
 
