@@ -851,7 +851,7 @@ buildernames = [
                'job_symbol': 'g3'},
       'platform': {'arch': 'x86_64',
                    'os': 'linux',
-                   'os_platform': 'linux64-styloseq'}}),
+                   'os_platform': 'linux64-stylo-sequential'}}),
     ('Ubuntu HW 12.04 x64 devedition mozilla-beta talos g3',
      {'build_type': 'opt',
       'name': {'group_name': 'Talos Performance',
