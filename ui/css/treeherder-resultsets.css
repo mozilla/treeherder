@@ -12,6 +12,24 @@
   justify-content: space-between;
 }
 
+.result-set-collapser {
+  margin-left:-30px;
+  width:30px;
+}
+
+.result-set .result-set-collapser::before {
+  content: "+";
+}
+
+
+.result-set[collapsed] .result-set-collapser::before {
+  content: "-";
+}
+
+.result-set[collapsed] > :not(.result-set-bar) {
+  display:none;
+}
+
 .result-set-left {
   display: flex;
   flex-flow: row wrap;
