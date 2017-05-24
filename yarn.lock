@@ -4253,7 +4253,7 @@ neutrino-middleware-compile-loader@^5.8.0:
     babel-core "^6.24.0"
     babel-loader "^6.4.1"
 
-neutrino-middleware-copy@^5.2.0, neutrino-middleware-copy@^5.8.0:
+neutrino-middleware-copy@^5.8.0:
   version "5.8.0"
   resolved "https://registry.yarnpkg.com/neutrino-middleware-copy/-/neutrino-middleware-copy-5.8.0.tgz#06afaa04d06dbcf428fc3acfe3bbe7b4fae4bf34"
   dependencies:
@@ -4266,7 +4266,7 @@ neutrino-middleware-env@^5.8.0:
   dependencies:
     webpack "^2.4.1"
 
-neutrino-middleware-eslint@^5.2.0:
+neutrino-middleware-eslint@^5.8.0:
   version "5.8.0"
   resolved "https://registry.yarnpkg.com/neutrino-middleware-eslint/-/neutrino-middleware-eslint-5.8.0.tgz#70e00a9f2f844d9be8286d1ed7fe16a9695a2a44"
   dependencies:
@@ -4341,7 +4341,7 @@ neutrino-middleware-style-loader@^5.8.0:
     css-loader "^0.27.3"
     style-loader "^0.16.0"
 
-neutrino-preset-karma@^5.2.0:
+neutrino-preset-karma@^5.8.0:
   version "5.8.0"
   resolved "https://registry.yarnpkg.com/neutrino-preset-karma/-/neutrino-preset-karma-5.8.0.tgz#2c567cb6410d89943b44b78d5799bf4d853e1744"
   dependencies:
@@ -4357,7 +4357,7 @@ neutrino-preset-karma@^5.2.0:
     webpack "^2.4.1"
     webpack-dev-middleware "^1.10.1"
 
-neutrino-preset-react@^5.2.0:
+neutrino-preset-react@^5.8.0:
   version "5.8.0"
   resolved "https://registry.yarnpkg.com/neutrino-preset-react/-/neutrino-preset-react-5.8.0.tgz#55677f3c0a8a2f9a315a80c3715b22918043aeb1"
   dependencies:
@@ -4397,7 +4397,7 @@ neutrino-preset-web@^5.8.0:
     webpack-dev-server "^2.4.1"
     worker-loader "^0.8.0"
 
-neutrino@^5.2.0:
+neutrino@^5.8.0:
   version "5.8.0"
   resolved "https://registry.yarnpkg.com/neutrino/-/neutrino-5.8.0.tgz#e6951c6d085ccf650cb129d5bae40315d8b712e4"
   dependencies:
@@ -6042,7 +6042,7 @@ superagent@~1.7.0:
     readable-stream "1.0.27-1"
     reduce-component "1.0.1"
 
-supports-color@3.1.2:
+supports-color@3.1.2, supports-color@^3.1.0, supports-color@^3.1.1, supports-color@^3.1.2:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-3.1.2.tgz#72a262894d9d408b956ca05ff37b2ed8a6e2a2d5"
   dependencies:
@@ -6052,7 +6052,7 @@ supports-color@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-2.0.0.tgz#535d045ce6b6363fa40117084629995e9df324c7"
 
-supports-color@^3.1.0, supports-color@^3.1.1, supports-color@^3.1.2, supports-color@^3.2.3:
+supports-color@^3.2.3:
   version "3.2.3"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-3.2.3.tgz#65ac0504b3954171d8a64946b2ae3cbb8a5f54f6"
   dependencies:
@@ -6219,9 +6219,9 @@ ua-parser-js@^0.7.9:
   version "0.7.12"
   resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.12.tgz#04c81a99bdd5dc52263ea29d24c6bf8d4818a4bb"
 
-uglify-js@^2.6, uglify-js@^2.8.5, uglify-js@~2.8.22:
-  version "2.8.24"
-  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-2.8.24.tgz#48eb5175cf32e22ec11a47e638d7c8b4e0faf2dd"
+uglify-js@^2.6, uglify-js@^2.8.27, uglify-js@~2.8.22:
+  version "2.8.27"
+  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-2.8.27.tgz#47787f912b0f242e5b984343be8e35e95f694c9c"
   dependencies:
     source-map "~0.5.1"
     yargs "~3.10.0"
@@ -6439,9 +6439,9 @@ webpack-sources@^0.2.3:
     source-list-map "^1.1.1"
     source-map "~0.5.3"
 
-webpack@^2.3.2, webpack@^2.4.1:
-  version "2.5.1"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-2.5.1.tgz#61742f0cf8af555b87460a9cd8bba2f1e3ee2fce"
+webpack@^2.4.1, webpack@^2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-2.6.0.tgz#7e650a92816abff5db5f43316b0b8b19b13d76c1"
   dependencies:
     acorn "^5.0.0"
     acorn-dynamic-import "^2.0.0"
@@ -6460,7 +6460,7 @@ webpack@^2.3.2, webpack@^2.4.1:
     source-map "^0.5.3"
     supports-color "^3.1.0"
     tapable "~0.2.5"
-    uglify-js "^2.8.5"
+    uglify-js "^2.8.27"
     watchpack "^1.3.1"
     webpack-sources "^0.2.3"
     yargs "^6.0.0"

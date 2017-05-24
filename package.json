@@ -29,10 +29,10 @@
     "json-schema-defaults": "0.3.0",
     "lodash": "4.17.4",
     "mousetrap": "1.6.1",
-    "neutrino": "^5.2.0",
-    "neutrino-middleware-copy": "^5.2.0",
-    "neutrino-middleware-eslint": "^5.2.0",
-    "neutrino-preset-react": "^5.2.0",
+    "neutrino": "^5.8.0",
+    "neutrino-middleware-copy": "^5.8.0",
+    "neutrino-middleware-eslint": "^5.8.0",
+    "neutrino-preset-react": "^5.8.0",
     "ngreact": "0.4.0",
     "raw-loader": "0.5.1",
     "react": "15.3.2",
@@ -51,7 +51,7 @@
     "karma-coverage-istanbul-reporter": "1.2.1",
     "karma-firefox-launcher": "1.0.1",
     "karma-jasmine": "1.1.0",
-    "neutrino-preset-karma": "^5.2.0",
+    "neutrino-preset-karma": "^5.8.0",
     "react-addons-test-utils": "15.3.2"
   },
   "neutrino": {
