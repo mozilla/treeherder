@@ -135,8 +135,22 @@ fieldset[disabled] .btn-resultset:hover {
 
 .revision-holder {
   padding-left: 20px;
-  padding-right: 11px;
+  padding-right: 6px;
   display: inline-block;
+}
+
+.user-push-icon {
+  color: gray;
+}
+
+.user-push-initials {
+  display: inline-block;
+  min-width: 18px;
+  font-size: 8px;
+  font-style: italic;
+  font-weight: bold;
+  padding-left: 3px;
+  color: gray;
 }
 
 .revision-comment {

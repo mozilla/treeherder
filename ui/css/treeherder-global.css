@@ -220,16 +220,6 @@ a:visited {
   content: none;
 }
 
-.label-initials {
-  display: inline-block;
-  margin-right: 0.5em;
-  padding: 0.2em 0.3em;
-  width: 2.5em;
-  border: 1px solid #999999;
-  background-color: white;
-  color: #999999;
-}
-
 .label[href] {
   color: #fff;
 }
