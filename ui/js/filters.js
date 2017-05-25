@@ -99,12 +99,15 @@ treeherder.filter('initials', function() {
         var words = str.split(' ');
         var firstLetters = _.filter(_.map(words, function(word) { return word.replace(/[^A-Z]/gi, '')[0]; }));
         var initials = "";
+
         if (firstLetters.length === 1) {
             initials = firstLetters[0];
         } else if (firstLetters.length > 1) {
             initials = firstLetters[0] + firstLetters[firstLetters.length - 1];
         }
-        return '<span class="label label-initials">' + initials + '</span>';
+
+        return '<span class="user-push-icon"><i class="fa fa-user-o" aria-hidden="true"></i></span>' +
+               '<div class="icon-superscript user-push-initials">' + initials + '</div>';
     };
 });
 
