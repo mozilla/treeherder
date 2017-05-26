@@ -209,12 +209,6 @@ treeherderApp.controller('MainCtrl', [
             thJobFilters.toggleInProgress();
         };
 
-        $scope.allExpanded = function (cls) {
-            var fullList = $("." + cls);
-            var visibleList = $("." + cls + ":visible");
-            return fullList.length === visibleList.length;
-        };
-
         $scope.allCollapsed = function (cls) {
             var visibleList = $("." + cls + ":visible");
             return visibleList.length === 0;
