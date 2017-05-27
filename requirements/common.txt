@@ -115,9 +115,9 @@ openapi-codec==1.3.1 \
 itypes==1.1.0 --hash=sha256:c6e77bb9fd68a4bfeb9d958fea421802282451a25bac4913ec94db82a899c073
 uritemplate==3.0.0 --hash=sha256:1b9c467a940ce9fb9f50df819e8ddd14696f89b9a8cc87ac77952ba416e0a8fd
 
-requests==2.14.2 \
-    --hash=sha256:3b39cde35be51762885631cf586f4dc2284951b44d479a4454020758d767cc2f \
-    --hash=sha256:a274abba399a23e8713ffd2b5706535ae280ebe2b8069ee6a941cb089440d153
+requests==2.16.0 \
+    --hash=sha256:012cddec41f96a1ce4bab4b0a0ed40263ae6b2b03aa4bc4711e00418e7f3157c \
+    --hash=sha256:88eee720e83bc1dcb009ad5e2a8f1d41e903892121ec2a36eba7bf5a2d3ac2a0
 
 # Required by django.contrib.migrations
 sqlparse==0.2.3 \
