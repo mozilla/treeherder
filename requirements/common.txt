@@ -115,9 +115,9 @@ openapi-codec==1.3.1 \
 itypes==1.1.0 --hash=sha256:c6e77bb9fd68a4bfeb9d958fea421802282451a25bac4913ec94db82a899c073
 uritemplate==3.0.0 --hash=sha256:1b9c467a940ce9fb9f50df819e8ddd14696f89b9a8cc87ac77952ba416e0a8fd
 
-requests==2.14.2 \
-    --hash=sha256:3b39cde35be51762885631cf586f4dc2284951b44d479a4454020758d767cc2f \
-    --hash=sha256:a274abba399a23e8713ffd2b5706535ae280ebe2b8069ee6a941cb089440d153
+requests==2.17.3 \
+    --hash=sha256:baf701b4a9d4cbe40169e8ab77816f7abadbad502ba459c30f7a2bc138e4d612 \
+    --hash=sha256:8d29f97ed1541709b57caddb77bb20592411d7ca10ec4f03275f49ee8456e225
 
 # Required by django.contrib.migrations
 sqlparse==0.2.3 \
@@ -165,7 +165,7 @@ elasticsearch-dsl==5.3.0 \
     --hash=sha256:de5fd68901c5b94e51e2ae4e8ad6f618b22665d89794d96f9b6b763986665527 \
     --hash=sha256:de81b2322cde9bf1171c8a41d80596cdadd433b88b93daa09060af3a512523a7
 
-# required by elasticsearch
+# required by requests and elasticsearch
 urllib3==1.21.1 \
     --hash=sha256:8ed6d5c1ff9d6ba84677310060d6a3a78ca3072ce0684cb3c645023009c114b1 \
     --hash=sha256:b14486978518ca0901a76ba973d7821047409d7f726f22156b24e83fd71382a5
@@ -173,6 +173,10 @@ urllib3==1.21.1 \
 certifi==2017.4.17 \
     --hash=sha256:f4318671072f030a33c7ca6acaef720ddd50ff124d1388e50c1bda4cbd6d7010 \
     --hash=sha256:f7527ebf7461582ce95f7a9e03dd141ce810d40590834f4ec20cddd54234c10a
+
+# required by requests
+chardet==3.0.3 --hash=sha256:8da3f329e2c5779247f4cff7081512c531731ef6a9c6ef78084e8ed8d18226c7
+idna==2.5 --hash=sha256:cc19709fd6d0cbfed39ea875d29ba6d4e22c0cebc510a76d6302a28385e8bb70
 
 # required for taskcluster
 slugid==1.0.7 --hash=sha256:6dab3c7eef0bb423fb54cb7752e0f466ddd0ee495b78b763be60e8a27f69e779
