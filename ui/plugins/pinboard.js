@@ -9,14 +9,14 @@ treeherder.controller('PinboardCtrl', [
 
         $rootScope.$on(thEvents.toggleJobPin, function (event, job) {
             $scope.toggleJobPin(job);
-            if (!$scope.$$phase){
+            if (!$scope.$$phase) {
                 $scope.$digest();
             }
         });
 
         $rootScope.$on(thEvents.jobPin, function (event, job) {
             $scope.pinJob(job);
-            if (!$scope.$$phase){
+            if (!$scope.$$phase) {
                 $scope.$digest();
             }
         });

@@ -37,7 +37,7 @@ treeherder.factory('ThClassifiedFailuresModel', [
             })
             .then(function (response) {
                 var item_list = [];
-                angular.forEach(response.data.results, function (elem){
+                angular.forEach(response.data.results, function (elem) {
                     item_list.push(new ThClassifiedFailuresModel(elem));
                 });
                 return item_list;

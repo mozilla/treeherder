@@ -24,7 +24,7 @@ treeherder.factory('ThFailureLinesModel', [
             })
             .then(function (response) {
                 var item_list = [];
-                angular.forEach(response.data, function (elem){
+                angular.forEach(response.data, function (elem) {
                     item_list.push(new ThFailureLinesModel(elem));
                 });
                 return item_list;

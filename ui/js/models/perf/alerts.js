@@ -81,9 +81,9 @@ treeherder.factory('PhAlerts', [
                 return alert.is_regression && alert.visible && !alert.isInvalid();}),
             'amount_pct').reverse();
 
-            var formatAlert = function (alert, alertList){
+            var formatAlert = function (alert, alertList) {
                 return _.padStart(alert.amount_pct.toFixed(0), 3) + "%  " +
-                _.padEnd(alert.title, _.max(alertList, function (alert){ return alert.title.length; }).title.length +5) +
+                _.padEnd(alert.title, _.max(alertList, function (alert) { return alert.title.length; }).title.length +5) +
                 displayNumberFilter(alert.prev_value) + " -> " + displayNumberFilter(alert.new_value);
             };
 
@@ -99,7 +99,7 @@ treeherder.factory('PhAlerts', [
                     resultStr += "\n";
                 }
                 resultStr += "Regressions:\n\n" +
-                             _.map(regressed, function (alert){
+                             _.map(regressed, function (alert) {
                                  return formatAlert(alert, regressed);
                              }).join('\n') + "\n";
             }

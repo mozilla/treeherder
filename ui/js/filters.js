@@ -124,7 +124,7 @@ treeherder.filter('highlightCommonTerms', function () {
         var compareStr = Array.prototype.slice.call(arguments, 1).filter(
             function (x) {return x;}).join(" ");
         var tokens = compareStr.split(/[^a-zA-Z0-9_-]+/);
-        tokens.sort(function (a, b){
+        tokens.sort(function (a, b) {
             return b.length - a.length;
         });
 
@@ -140,7 +140,7 @@ treeherder.filter('highlightCommonTerms', function () {
 });
 
 treeherder.filter('escapeHTML', function () {
-    return function (text){
+    return function (text) {
         if (text) {
             return text.
                 replace(/&/g, '&amp;').

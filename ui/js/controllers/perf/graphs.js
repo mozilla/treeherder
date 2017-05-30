@@ -72,7 +72,7 @@ perf.controller('GraphsCtrl', [
         }
 
         function showTooltip(dataPoint) {
-            if ($scope.showToolTipTimeout){
+            if ($scope.showToolTipTimeout) {
                 window.clearTimeout($scope.showToolTipTimeout);
             }
 
@@ -211,7 +211,7 @@ perf.controller('GraphsCtrl', [
 
         function hideTooltip(now) {
             var tip = $('#graph-tooltip');
-            if ($scope.showToolTipTimeout){
+            if ($scope.showToolTipTimeout) {
                 window.clearTimeout($scope.showToolTipTimeout);
             }
 
@@ -1038,7 +1038,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
             } else if (options.option === "addRelatedConfigs") {
                 addRelatedConfigs(options.relatedSeries);
             }
-            loadingExtraDataPromise.promise.then(function (length){
+            loadingExtraDataPromise.promise.then(function (length) {
                 if (length > 0) {
                     $scope.loadingRelatedSignatures = true;
                 } else {

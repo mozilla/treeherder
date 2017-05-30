@@ -12,7 +12,7 @@ treeherder.factory('ThJobExclusionModel', [
             return angular.extend(this, data);
         };
 
-        ThJobExclusionModel.get_uri = function (){
+        ThJobExclusionModel.get_uri = function () {
             var url = thUrl.getRootUrl("/job-exclusion/");
             return url;
         };
@@ -27,7 +27,7 @@ treeherder.factory('ThJobExclusionModel', [
             })
                 .then(function (response) {
                     var item_list = [];
-                    angular.forEach(response.data, function (elem){
+                    angular.forEach(response.data, function (elem) {
                         item_list.push(new ThJobExclusionModel(elem));
                     });
                     return item_list;
@@ -46,14 +46,14 @@ treeherder.factory('ThJobExclusionModel', [
             var job_filter = this;
             return $http.post(ThJobExclusionModel.get_uri(), job_filter)
                 .then(
-                    function (response){
+                    function (response) {
                         angular.extend(job_filter, response.data);
                         thNotify.send("Filter successfully created", "success");
                     },
-                    function (reason){
-                        if (reason.status === 400){
-                            angular.forEach(reason.data, function (error_list){
-                                angular.forEach(error_list, function (error){
+                    function (reason) {
+                        if (reason.status === 400) {
+                            angular.forEach(reason.data, function (error_list) {
+                                angular.forEach(error_list, function (error) {
                                     thNotify.send(error, "danger");
                                 });
                             });
@@ -73,14 +73,14 @@ treeherder.factory('ThJobExclusionModel', [
                 job_filter
             )
                 .then(
-                    function (response){
+                    function (response) {
                         angular.extend(job_filter, response.data);
                         thNotify.send("Job filter successfully updated", "success");
                     },
-                    function (reason){
-                        if (reason.status === 400){
-                            angular.forEach(reason.data, function (error_list, field){
-                                angular.forEach(error_list, function (error){
+                    function (reason) {
+                        if (reason.status === 400) {
+                            angular.forEach(reason.data, function (error_list, field) {
+                                angular.forEach(error_list, function (error) {
                                     thNotify.send(field+": "+error, "danger");
                                 });
                             });
@@ -93,15 +93,15 @@ treeherder.factory('ThJobExclusionModel', [
         };
 
         // an instance method to delete a ThJobExclusionModel object
-        ThJobExclusionModel.prototype.delete = function (){
+        ThJobExclusionModel.prototype.delete = function () {
             $log.debug(this);
             var pk = this.id;
             return $http.delete(ThJobExclusionModel.get_uri()+pk+"/")
                 .then(
-                    function (){
+                    function () {
                         thNotify.send("Job filter successfully deleted", "success");
                     },
-                    function (reason){
+                    function (reason) {
                         thNotify.send(reason.data,"danger");
                         return $q.reject(reason);
                     }

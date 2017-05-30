@@ -40,7 +40,7 @@ treeherder.provider('thResultStatus', function () {
 });
 
 treeherder.provider('thResultStatusObject', function () {
-    var getResultStatusObject = function (){
+    var getResultStatusObject = function () {
         return {
             'running':0,
             'pending':0,
@@ -270,7 +270,7 @@ treeherder.provider('thAggregateIds', function () {
                       platformOptions);
     };
 
-    var getResultsetTableId = function (repoName, resultsetId, revision){
+    var getResultsetTableId = function (repoName, resultsetId, revision) {
         return escape(repoName + resultsetId + revision);
     };
 

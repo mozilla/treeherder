@@ -80,7 +80,7 @@ treeherder.directive('preventDefaultOnLeftClick', [
     function () {
         return {
             restrict: 'A',
-            link: function (scope, element){
+            link: function (scope, element) {
                 element.on('click', function (event) {
                     if (event.which === 1) {
                         event.preventDefault();
@@ -109,7 +109,7 @@ treeherder.directive('stopPropagationOnLeftClick', [
 
 treeherder.directive('thNotificationBox', [
     'thNotify',
-    function (thNotify){
+    function (thNotify) {
         return {
             restrict: "E",
             templateUrl: "partials/main/thNotificationsBox.html",
@@ -122,7 +122,7 @@ treeherder.directive('thNotificationBox', [
 
 treeherder.directive('thFaviconLink', [
     'ThRepositoryModel', 'thFavicons',
-    function (ThRepositoryModel, thFavicons){
+    function (ThRepositoryModel, thFavicons) {
         return {
             restrict: "E",
             link: function (scope) {
@@ -154,7 +154,7 @@ treeherder.directive('bugInput', function () {
     };
 });
 
-treeherder.directive('numbersOnly', function (){
+treeherder.directive('numbersOnly', function () {
     return {
         require: 'ngModel',
         link: function (scope, element, attrs, modelCtrl) {
@@ -176,7 +176,7 @@ treeherder.directive('numbersOnly', function (){
 });
 
 treeherder.directive("thMultiSelect",
-    function (){
+    function () {
         return {
             restrict: "E",
             templateUrl: "partials/main/thMultiSelect.html",
@@ -184,7 +184,7 @@ treeherder.directive("thMultiSelect",
                 leftList: "=",
                 rightList: "="
             },
-            link: function (scope, elem){
+            link: function (scope, elem) {
 
                 // move the elements selected from one list to the other
                 var move_options = function (sourceSide, from, to) {
@@ -193,17 +193,17 @@ treeherder.directive("thMultiSelect",
                     var found;
                     for (var i = 0; i < what.length; i++) {
                         found = from.indexOf(what[i]);
-                        if (found !== -1){
+                        if (found !== -1) {
                             to.push(from.splice(found, 1)[0]);
                         }
                     }
                     // clear the selection from the source list
                     selectBoxObj.val([]);
                 };
-                scope.move_left = function (){
+                scope.move_left = function () {
                     move_options("right", scope.rightList, scope.leftList);
                 };
-                scope.move_right = function (){
+                scope.move_right = function () {
                     move_options("left", scope.leftList, scope.rightList);
                 };
             }
@@ -211,7 +211,7 @@ treeherder.directive("thMultiSelect",
     });
 
 treeherder.directive("thTruncatedList",
-    function (){
+    function () {
         // transforms a list of elements in a shortened list
         // with a "more" link
         return {
@@ -221,23 +221,23 @@ treeherder.directive("thTruncatedList",
                 numvisible: "@",
                 elem_list: "=elements"
             },
-            link: function (scope, element){
+            link: function (scope, element) {
                 scope.visible = parseInt(scope.numvisible);
 
                 if (typeof scope.visible !== 'number'
                    || scope.visible < 0
-                   || isNaN(scope.visible)){
+                   || isNaN(scope.visible)) {
                     throw new TypeError("The visible parameter must be a positive number");
                 }
                 // cloning the original list to avoid
-                scope.$watch("elem_list", function (newValue){
-                    if (newValue){
+                scope.$watch("elem_list", function (newValue) {
+                    if (newValue) {
                         var elem_list_clone = angular.copy(newValue);
                         scope.visible = Math.min(scope.visible, elem_list_clone.length);
                         var visible_content = elem_list_clone.splice(0, scope.visible);
                         $(element[0]).empty();
                         $(element[0]).append(visible_content.join(", "));
-                        if (elem_list_clone.length > 0){
+                        if (elem_list_clone.length > 0) {
                             $(element[0]).append(
                                 $("<a></a>")
                                     .attr("title", elem_list_clone.join(", "))

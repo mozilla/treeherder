@@ -84,7 +84,7 @@ treeherder.factory('ThRepositoryModel', [
             saveWatchedRepos();
         };
 
-        var get_uri = function (){
+        var get_uri = function () {
             return thUrl.getRootUrl("/repository/");
         };
 

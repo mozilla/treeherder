@@ -12,7 +12,7 @@ treeherder.factory('ThMatcherModel', [
             angular.extend(this, data);
         };
 
-        ThMatcherModel.get_uri = function (){
+        ThMatcherModel.get_uri = function () {
             var url = thUrl.getRootUrl("/matcher/");
             return url;
         };

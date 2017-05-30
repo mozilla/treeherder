@@ -9,7 +9,7 @@ treeherder.factory('ThBugJobMapModel', [
             angular.extend(this, data);
         };
 
-        ThBugJobMapModel.get_uri = function (){return thUrl.getProjectUrl("/bug-job-map/");};
+        ThBugJobMapModel.get_uri = function () {return thUrl.getProjectUrl("/bug-job-map/");};
 
         // a static method to retrieve a list of ThBugJobMap
         // the options parameter is used to filter/limit the list of objects
@@ -17,7 +17,7 @@ treeherder.factory('ThBugJobMapModel', [
             var query_string = $.param(options);
             return $http.get(ThBugJobMapModel.get_uri()+"?"+query_string).then(function (response) {
                 var item_list = [];
-                _.each(response.data, function (elem){
+                _.each(response.data, function (elem) {
                     item_list.push(new ThBugJobMapModel(elem));
                 });
                 return item_list;
@@ -38,7 +38,7 @@ treeherder.factory('ThBugJobMapModel', [
         };
 
         // an instance method to delete a ThBugJobMap object
-        ThBugJobMapModel.prototype.delete = function (){
+        ThBugJobMapModel.prototype.delete = function () {
             var pk = this.job_id+"-"+this.bug_id;
             return $http.delete(ThBugJobMapModel.get_uri()+pk+"/");
         };

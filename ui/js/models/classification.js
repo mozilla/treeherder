@@ -12,7 +12,7 @@ treeherder.factory('ThJobClassificationModel', [
             angular.extend(this, data);
         };
 
-        ThJobClassificationModel.get_uri = function (){return thUrl.getProjectUrl("/note/");};
+        ThJobClassificationModel.get_uri = function () {return thUrl.getProjectUrl("/note/");};
 
         ThJobClassificationModel.get_list = function (options) {
             // a static method to retrieve a list of ThJobClassificationModel
@@ -20,7 +20,7 @@ treeherder.factory('ThJobClassificationModel', [
             return $http.get(ThJobClassificationModel.get_uri()+"?"+query_string)
                 .then(function (response) {
                     var item_list = [];
-                    angular.forEach(response.data, function (elem){
+                    angular.forEach(response.data, function (elem) {
                         item_list.push(new ThJobClassificationModel(elem));
                     });
                     return item_list;
@@ -41,7 +41,7 @@ treeherder.factory('ThJobClassificationModel', [
         };
 
         // an instance method to delete a ThJobClassificationModel object
-        ThJobClassificationModel.prototype.delete = function (){
+        ThJobClassificationModel.prototype.delete = function () {
             return $http.delete(ThJobClassificationModel.get_uri()+this.id+"/");
         };
 
