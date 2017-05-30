@@ -12,7 +12,7 @@ treeherder.factory('ThJobLogUrlModel', [
             angular.extend(this, data);
         };
 
-        ThJobLogUrlModel.get_uri = function (){
+        ThJobLogUrlModel.get_uri = function () {
             var url = thUrl.getProjectUrl("/job-log-url/");
             return url;
         };
@@ -29,7 +29,7 @@ treeherder.factory('ThJobLogUrlModel', [
             })
                 .then(function (response) {
                     var item_list = [];
-                    angular.forEach(response.data, function (elem){
+                    angular.forEach(response.data, function (elem) {
                         var buildUrl = elem.url.slice(0, elem.url.lastIndexOf("/")) + "/";
                         elem.buildUrl = buildUrl;
                         item_list.push(new ThJobLogUrlModel(elem));

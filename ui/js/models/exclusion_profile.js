@@ -12,7 +12,7 @@ treeherder.factory('ThExclusionProfileModel', [
             return angular.extend(this, data);
         };
 
-        ThExclusionProfileModel.get_uri = function (){
+        ThExclusionProfileModel.get_uri = function () {
             return thUrl.getRootUrl("/exclusion-profile/");
         };
 
@@ -26,7 +26,7 @@ treeherder.factory('ThExclusionProfileModel', [
             })
                 .then(function (response) {
                     var item_list = [];
-                    angular.forEach(response.data, function (elem){
+                    angular.forEach(response.data, function (elem) {
                         item_list.push(new ThExclusionProfileModel(elem));
                     });
                     return item_list;
@@ -45,15 +45,15 @@ treeherder.factory('ThExclusionProfileModel', [
             var exclusion_profile = this;
             return $http.post(ThExclusionProfileModel.get_uri(), exclusion_profile)
                 .then(
-                    function (response){
+                    function (response) {
                         angular.extend(exclusion_profile, response.data);
                         $log.debug(exclusion_profile);
                         thNotify.send("Exclusion profile successfully created", "success");
                     },
-                    function (reason){
+                    function (reason) {
                         if (reason.status === 400) {
-                            angular.forEach(reason.data, function (error_list, field){
-                                angular.forEach(error_list, function (error){
+                            angular.forEach(reason.data, function (error_list, field) {
+                                angular.forEach(error_list, function (error) {
                                     thNotify.send(field+": "+error, "danger");
                                 });
                             });
@@ -76,13 +76,13 @@ treeherder.factory('ThExclusionProfileModel', [
                 exclusion_profile
             )
                 .then(
-                    function (){
+                    function () {
                         thNotify.send("Exclusion profile successfully updated", "success");
                     },
-                    function (reason){
-                        if (reason.status === 400){
-                            angular.forEach(reason.data, function (error_list, field){
-                                angular.forEach(error_list, function (error){
+                    function (reason) {
+                        if (reason.status === 400) {
+                            angular.forEach(reason.data, function (error_list, field) {
+                                angular.forEach(error_list, function (error) {
                                     thNotify.send(field+": "+error, "danger");
                                 });
                             });
@@ -95,15 +95,15 @@ treeherder.factory('ThExclusionProfileModel', [
         };
 
         // an instance method to delete a ThExclusionProfileModel object
-        ThExclusionProfileModel.prototype.delete = function (){
+        ThExclusionProfileModel.prototype.delete = function () {
             $log.debug(this);
             var pk = this.id;
             return $http.delete(ThExclusionProfileModel.get_uri()+pk+"/")
                 .then(
-                    function (){
+                    function () {
                         thNotify.send("Exclusion profile successfully deleted", "success");
                     },
-                    function (reason){
+                    function (reason) {
                         thNotify.send(reason.data,"danger");
                         return $q.reject(reason);
                     }

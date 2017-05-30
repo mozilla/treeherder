@@ -63,7 +63,7 @@ treeherder.factory('thCloneHtml', [
         var templateId, templateName, templateTxt, i;
 
         var cloneHtmlObjs = {};
-        for (i=0; i<cloneTemplateIds.length; i++){
+        for (i=0; i<cloneTemplateIds.length; i++) {
 
             templateId = cloneTemplateIds[i];
             templateName = templateId.replace('.html', '');
@@ -75,7 +75,7 @@ treeherder.factory('thCloneHtml', [
             };
         }
 
-        var getClone = function (templateName){
+        var getClone = function (templateName) {
             return cloneHtmlObjs[templateName];
         };
 
@@ -85,20 +85,20 @@ treeherder.factory('thCloneHtml', [
 
     }]);
 
-treeherder.factory('ThPaginator', function (){
+treeherder.factory('ThPaginator', function () {
     //dead-simple implementation of an in-memory paginator
 
-    var ThPaginator = function (data, limit){
+    var ThPaginator = function (data, limit) {
         this.data = data;
         this.length = data.length;
         this.limit = limit;
     };
 
-    ThPaginator.prototype.get_page = function (n){
+    ThPaginator.prototype.get_page = function (n) {
         return this.data.slice(n * this.limit - this.limit, n * this.limit);
     };
 
-    ThPaginator.prototype.get_all = function (){
+    ThPaginator.prototype.get_all = function () {
         return this.data;
     };
 
@@ -108,7 +108,7 @@ treeherder.factory('ThPaginator', function (){
 
 treeherder.factory('thNotify', [
     '$timeout', 'ThLog',
-    function ($timeout, ThLog){
+    function ($timeout, ThLog) {
         //a growl-like notification system
 
         var $log = new ThLog("thNotify");
@@ -148,9 +148,9 @@ treeherder.factory('thNotify', [
             /*
              * Delete the first non-sticky element from the notifications queue
              */
-            shift: function (){
-                for (var i=0;i<thNotify.notifications.length; i++){
-                    if (!thNotify.notifications[i].sticky){
+            shift: function () {
+                for (var i=0;i<thNotify.notifications.length; i++) {
+                    if (!thNotify.notifications[i].sticky) {
                         thNotify.remove(i);
                         return;
                     }
@@ -159,7 +159,7 @@ treeherder.factory('thNotify', [
             /*
              * remove an arbitrary element from the notifications queue
              */
-            remove: function (index){
+            remove: function (index) {
                 thNotify.notifications.splice(index, 1);
             }
         };

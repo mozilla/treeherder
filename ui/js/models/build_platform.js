@@ -12,7 +12,7 @@ treeherder.factory('ThBuildPlatformModel', [
             angular.extend(this, data);
         };
 
-        ThBuildPlatformModel.get_uri = function (){
+        ThBuildPlatformModel.get_uri = function () {
             var url = thUrl.getRootUrl("/buildplatform/");
             return url;
         };
@@ -24,7 +24,7 @@ treeherder.factory('ThBuildPlatformModel', [
             return $http.get(ThBuildPlatformModel.get_uri()+"?"+query_string)
                 .then(function (response) {
                     var item_list = [];
-                    angular.forEach(response.data, function (elem){
+                    angular.forEach(response.data, function (elem) {
                         item_list.push(new ThBuildPlatformModel(elem));
                     });
                     return item_list;

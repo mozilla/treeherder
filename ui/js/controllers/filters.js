@@ -235,7 +235,7 @@ treeherderApp.controller('FilterPanelCtrl', [
 treeherderApp.controller('SearchCtrl', [
     '$scope', '$rootScope', 'thEvents', 'thJobFilters',
     function SearchCtrl(
-        $scope, $rootScope, thEvents, thJobFilters){
+        $scope, $rootScope, thEvents, thJobFilters) {
 
         var getSearchStr = function () {
             var ss = thJobFilters.getFieldFiltersObj().searchStr;
@@ -250,7 +250,7 @@ treeherderApp.controller('SearchCtrl', [
             $scope.searchQueryStr = getSearchStr();
         });
 
-        $scope.search = function (ev){
+        $scope.search = function (ev) {
             //User hit enter
             if (ev.keyCode === 13) {
                 var filterVal = $scope.searchQueryStr === ""? null: $scope.searchQueryStr;

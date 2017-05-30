@@ -12,7 +12,7 @@ treeherder.factory('ThUserModel', [
             angular.extend(this, data);
         };
 
-        ThUserModel.get_uri = function (){return thUrl.getRootUrl("/user/");};
+        ThUserModel.get_uri = function () {return thUrl.getRootUrl("/user/");};
 
         ThUserModel.get = function () {
             // a static method to retrieve a single instance of ThUserModel
@@ -21,7 +21,7 @@ treeherder.factory('ThUserModel', [
                 function (response) {
                     return (response.data.length > 0) ? new ThUserModel(response.data[0]) : {};
                 },
-                function (reason){
+                function (reason) {
                     thNotify.send(reason.data,"danger");
                     return $q.reject(reason);
                 });

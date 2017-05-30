@@ -11,13 +11,13 @@ treeherder.factory('ThJobModel', [
             angular.extend(this, data);
         };
 
-        ThJobModel.prototype.running_time_remaining = function (){
+        ThJobModel.prototype.running_time_remaining = function () {
             var timestampNow = new Date().getTime()/1000;
             var current_duration = timestampNow - parseInt(this.start_timestamp);
             return Math.round( (parseInt(this.running_eta) - current_duration) / 60);
         };
 
-        ThJobModel.prototype.get_average_duration = function (){
+        ThJobModel.prototype.get_average_duration = function () {
             return Math.round(
                 parseInt(this.running_eta) /60
             );
@@ -48,7 +48,7 @@ treeherder.factory('ThJobModel', [
             ]).join(' ');
         };
 
-        ThJobModel.get_uri = function (repoName){return thUrl.getProjectUrl("/jobs/", repoName);};
+        ThJobModel.get_uri = function (repoName) {return thUrl.getProjectUrl("/jobs/", repoName);};
 
         ThJobModel.get_list = function (repoName, options, config) {
             // a static method to retrieve a list of ThJobModel
@@ -76,21 +76,21 @@ treeherder.factory('ThJobModel', [
                         new_options.count = page_size;
                         next_pages_jobs = ThJobModel.get_list(repoName, new_options, config);
                     }
-                    if (_.has(response.data, 'job_property_names')){
+                    if (_.has(response.data, 'job_property_names')) {
                         // the results came as list of fields
                         //we need to convert them to objects
-                        item_list = _.map(response.data.results, function (elem){
+                        item_list = _.map(response.data.results, function (elem) {
                             return new ThJobModel(
                                 _.zipObject(response.data.job_property_names, elem));
                         });
                     } else {
-                        item_list = _.map(response.data.results, function (job_obj){
+                        item_list = _.map(response.data.results, function (job_obj) {
                             return new ThJobModel(job_obj);
                         });
                     }
                     // next_pages_jobs is wrapped in a $q.when call because it could be
                     // either a promise or a value
-                    return $q.when(next_pages_jobs).then(function (maybe_job_list){
+                    return $q.when(next_pages_jobs).then(function (maybe_job_list) {
                         return item_list.concat(maybe_job_list);
                     });
                 });
@@ -108,7 +108,7 @@ treeherder.factory('ThJobModel', [
                 });
         };
 
-        ThJobModel.get_similar_jobs = function (repoName, pk, options, config){
+        ThJobModel.get_similar_jobs = function (repoName, pk, options, config) {
             config = config || {};
             // The similar jobs endpoints returns the same type of objects as
             // the job list endpoint, so let's reuse the get_list method logic.

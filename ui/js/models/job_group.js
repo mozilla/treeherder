@@ -12,7 +12,7 @@ treeherder.factory('ThJobGroupModel', [
             angular.extend(this, data);
         };
 
-        ThJobGroupModel.get_uri = function (){
+        ThJobGroupModel.get_uri = function () {
             var url = thUrl.getRootUrl("/jobgroup/");
             return url;
         };
@@ -26,7 +26,7 @@ treeherder.factory('ThJobGroupModel', [
             }).
                 then(function (response) {
                     var item_list = [];
-                    angular.forEach(response.data, function (elem){
+                    angular.forEach(response.data, function (elem) {
                         item_list.push(new ThJobGroupModel(elem));
                     });
                     return item_list;

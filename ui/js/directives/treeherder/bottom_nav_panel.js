@@ -72,13 +72,13 @@ treeherder.directive('thFailureClassification', [
 
 treeherder.directive('thSimilarJobs', [
     'ThJobModel', 'ThLog',
-    function (ThJobModel){
+    function (ThJobModel) {
         return {
             restrict: "E",
             templateUrl: "partials/main/similar_jobs.html",
             link: function (scope) {
-                scope.$watch('job', function (newVal){
-                    if (newVal){
+                scope.$watch('job', function (newVal) {
+                    if (newVal) {
                         scope.update_similar_jobs(newVal);
                     }
                 });
@@ -88,14 +88,14 @@ treeherder.directive('thSimilarJobs', [
                     "job_type_id": true,
                     "build_platform_id": true
                 };
-                scope.update_similar_jobs = function (job){
+                scope.update_similar_jobs = function (job) {
                     var options = {result_set_id__ne: job.result_set_id};
-                    angular.forEach(scope.similar_jobs_filters, function (elem, key){
-                        if (elem){
+                    angular.forEach(scope.similar_jobs_filters, function (elem, key) {
+                        if (elem) {
                             options[key] = job[key];
                         }
                     });
-                    ThJobModel.get_list(scope.repoName, options).then(function (data){
+                    ThJobModel.get_list(scope.repoName, options).then(function (data) {
                         scope.similar_jobs = data;
                     });
                 };
@@ -103,7 +103,7 @@ treeherder.directive('thSimilarJobs', [
         };
     }]);
 
-treeherder.directive('thPinboardPanel', function (){
+treeherder.directive('thPinboardPanel', function () {
     return {
         restrict: "E",
         templateUrl: "partials/main/thPinboardPanel.html"

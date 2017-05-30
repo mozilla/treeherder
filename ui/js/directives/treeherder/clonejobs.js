@@ -12,7 +12,7 @@ treeherder.directive('thCloneJobs', [
         thServiceDomain, thResultStatusInfo, thEvents, thAggregateIds,
         thJobFilters, thResultStatusObject, ThResultSetStore,
         ThJobModel, linkifyBugsFilter, thResultStatus, thPlatformName,
-        thNotify, $timeout, $compile){
+        thNotify, $timeout, $compile) {
 
         var $log = new ThLog("thCloneJobs");
 
@@ -54,7 +54,7 @@ treeherder.directive('thCloneJobs', [
         //Instantiate job btn interpolator
         var runnableJobBtnInterpolator = thCloneHtml.get('runnableJobBtnClone').interpolator;
 
-        var getJobMapKey = function (job){
+        var getJobMapKey = function (job) {
             return 'key' + job.id;
         };
 
@@ -69,7 +69,7 @@ treeherder.directive('thCloneJobs', [
 
         //Global event listeners
         $rootScope.$on(
-            thEvents.changeSelection, function (ev, direction, jobNavSelector){
+            thEvents.changeSelection, function (ev, direction, jobNavSelector) {
 
                 var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
                 var el, key, jobs, getIndex;
@@ -137,7 +137,7 @@ treeherder.directive('thCloneJobs', [
             ThResultSetStore.setSelectedJob($rootScope.repoName, job);
         };
 
-        var setSelectJobStyles = function (el){
+        var setSelectJobStyles = function (el) {
             // clear the styles from the previously selected job, if any.
             clearSelectJobStyles();
 
@@ -170,7 +170,7 @@ treeherder.directive('thCloneJobs', [
         };
 
         var broadcastJobChangedTimeout = null;
-        var clickJobCb = function (ev, el, job, job_selection_type){
+        var clickJobCb = function (ev, el, job, job_selection_type) {
             setSelectJobStyles(el);
             // delay switching right away, in case the user is switching rapidly
             // between jobs
@@ -220,7 +220,7 @@ treeherder.directive('thCloneJobs', [
             el.toggleClass("runnable-job-btn-selected");
         };
 
-        var togglePinJobCb = function (ev, el, job){
+        var togglePinJobCb = function (ev, el, job) {
             $rootScope.$emit(thEvents.toggleJobPin, job);
         };
 
@@ -238,7 +238,7 @@ treeherder.directive('thCloneJobs', [
             var job, l;
             var jobBtnArray = [];
 
-            for (l=0; l<jgObj.jobs.length; l++){
+            for (l=0; l<jgObj.jobs.length; l++) {
 
                 job = jgObj.jobs[l];
 
@@ -270,7 +270,7 @@ treeherder.directive('thCloneJobs', [
             jobStatus.extraClasses = "";
             jobStatus.extraClasses += job.visible ? " filter-shown" : "";
             if ( !_.isEmpty(lastJobSelected.job) &&
-                (lastJobSelected.job.id === job.id)){
+                (lastJobSelected.job.id === job.id)) {
                 jobStatus.extraClasses += " " + largeBtnCls + " " + selectedBtnCls;
             } else {
                 jobStatus.extraClasses += " " + btnCls;
@@ -390,7 +390,7 @@ treeherder.directive('thCloneJobs', [
         /**
          * When a job is clicked
          */
-        var jobClick = function (resultset, ev){
+        var jobClick = function (resultset, ev) {
             var el = $(ev.target);
 
             // return in case 'mousedown' was fired and target was clickable
@@ -424,7 +424,7 @@ treeherder.directive('thCloneJobs', [
 
                     case 2:
                         //Middle mouse button pressed
-                        ThJobModel.get(this.repoName, job.id).then(function (data){
+                        ThJobModel.get(this.repoName, job.id).then(function (data) {
                             // Open the logviewer in a new window
                             if (data.logs.length > 0) {
                                 window.open(location.origin + "/" + thUrl.getLogViewerUrl(job.id));
@@ -450,9 +450,9 @@ treeherder.directive('thCloneJobs', [
         /**
          * Add the list of revisions to the resultset
          */
-        var addRevisions = function (scope, element){
+        var addRevisions = function (scope, element) {
 
-            if (scope.resultset.revisions.length > 0){
+            if (scope.resultset.revisions.length > 0) {
 
                 var ulEl = element.find('.revision-list');
 
@@ -577,10 +577,10 @@ treeherder.directive('thCloneJobs', [
         /**
          * Called when filters are changed after the page has loaded
          */
-        var filterJobs = function (element){
+        var filterJobs = function (element) {
             $log.debug("filterJobs", element);
 
-            if (this.resultset.platforms === undefined){
+            if (this.resultset.platforms === undefined) {
                 return;
             }
 
@@ -706,7 +706,7 @@ treeherder.directive('thCloneJobs', [
 
             var tableRows = $(tableEl).find('tr');
 
-            if (tableRows.length > 0){
+            if (tableRows.length > 0) {
                 //Rows already exist, insert the new one in
                 //alphabetical order
                 var orderedPlatforms = [];
@@ -716,7 +716,7 @@ treeherder.directive('thCloneJobs', [
 
                 //Generate a list of platform names that have
                 //been added to the html table, use this for sorting
-                for (r=0; r<tableRows.length; r++){
+                for (r=0; r<tableRows.length; r++) {
                     td = $( tableRows[r] ).find('td');
                     platformSpan = $( td[0] ).find('span');
                     spanPlatformName = $(platformSpan).text();
@@ -725,8 +725,8 @@ treeherder.directive('thCloneJobs', [
 
                 orderedPlatforms.sort();
 
-                for (p=0; p<orderedPlatforms.length; p++){
-                    if (orderedPlatforms[p] === platformName){
+                for (p=0; p<orderedPlatforms.length; p++) {
+                    if (orderedPlatforms[p] === platformName) {
                         //Target row for appending should be one less
                         //than the position of the platform name
                         $(tableRows[ p - 1 ]).after(rowEl);
@@ -743,10 +743,10 @@ treeherder.directive('thCloneJobs', [
          * Update / create a platform when new jobs are loaded/updated.
          * The platform may not have existed before
          */
-        var updateJobs = function (platformData){
+        var updateJobs = function (platformData) {
             angular.forEach(platformData, function (value, platformId) {
                 addAdditionalJobParameters(value.jobGroups);
-                if (value.resultsetId !== this.resultset.id){
+                if (value.resultsetId !== this.resultset.id) {
                     //Confirm we are the correct result set
                     return;
                 }
@@ -757,7 +757,7 @@ treeherder.directive('thCloneJobs', [
                 platformName = thPlatformName(value.platformName);
 
                 rowEl = document.getElementById(platformId);
-                if (!rowEl){
+                if (!rowEl) {
                     //First job for this platform found, which means we need
                     //to create the platform and job td elements and the
                     //row
@@ -816,7 +816,7 @@ treeherder.directive('thCloneJobs', [
 
         };
 
-        var isOnScreen = function (el){
+        var isOnScreen = function (el) {
             const viewport = {};
             viewport.top = $(window).scrollTop() + $("#global-navbar-container").height() + 30;
             const filterbarheight = $(".active-filters-bar").height();
@@ -830,7 +830,7 @@ treeherder.directive('thCloneJobs', [
             return ((bounds.top <= viewport.bottom) && (bounds.bottom >= viewport.top));
         };
 
-        var registerCustomEventCallbacks = function (scope, element){
+        var registerCustomEventCallbacks = function (scope, element) {
 
 
             //Register rootScope custom event listeners that require
@@ -842,26 +842,26 @@ treeherder.directive('thCloneJobs', [
             //      events are really at the level of the $rootScope but the
             //      callbacks need access to the resultset level angular scope.
             $rootScope.$on(
-                thEvents.revisionsLoaded, function (ev, rs){
-                    if (rs.id === scope.resultset.id){
+                thEvents.revisionsLoaded, function (ev, rs) {
+                    if (rs.id === scope.resultset.id) {
                         _.bind(addRevisions, scope, rs, element)();
                     }
                 });
 
             $rootScope.$on(
-                thEvents.toggleRevisions, function (ev, rs, expand){
-                    if (rs.id === scope.resultset.id){
+                thEvents.toggleRevisions, function (ev, rs, expand) {
+                    if (rs.id === scope.resultset.id) {
                         _.bind(toggleRevisions, scope, element, expand)();
                     }
                 });
 
             $rootScope.$on(
-                thEvents.globalFilterChanged, function (){
+                thEvents.globalFilterChanged, function () {
                     _.bind(filterJobs, scope, element)();
                 });
 
             $rootScope.$on(
-                thEvents.groupStateChanged, function (){
+                thEvents.groupStateChanged, function () {
                     _.bind(renderGroups, scope, element, true)();
                     scrollToElement($(viewContentSel).find(".selected-job, .selected-count"), 1);
                 });
@@ -870,22 +870,22 @@ treeherder.directive('thCloneJobs', [
             });
 
             $rootScope.$on(
-                thEvents.searchPage, function (){
+                thEvents.searchPage, function () {
                     _.bind(filterJobs, scope, element)();
                 });
 
             $rootScope.$on(
-                thEvents.jobsLoaded, function (ev, platformData){
+                thEvents.jobsLoaded, function (ev, platformData) {
                     _.bind(updateJobs, scope, platformData)();
                 });
 
             $rootScope.$on(
-                thEvents.jobsClassified, function (ev, pinnedJobs){
+                thEvents.jobsClassified, function (ev, pinnedJobs) {
 
                     var platformData = {};
 
                     var jid;
-                    for (jid in pinnedJobs.jobs){
+                    for (jid in pinnedJobs.jobs) {
                         if (pinnedJobs.jobs.hasOwnProperty(jid)) {
                             //Only update the target resultset id
                             if (pinnedJobs.jobs[jid].result_set_id === scope.resultset.id) {
@@ -895,14 +895,14 @@ treeherder.directive('thCloneJobs', [
                             }
                         }
                     }
-                    if (!_.isEmpty(platformData)){
+                    if (!_.isEmpty(platformData)) {
                         _.bind(updateJobs, scope, platformData)();
                     }
                 });
 
             $rootScope.$on(
-                thEvents.applyNewJobs, function (ev, resultSetId){
-                    if (scope.resultset.id === resultSetId){
+                thEvents.applyNewJobs, function (ev, resultSetId) {
+                    if (scope.resultset.id === resultSetId) {
 
                         var rsMap = ThResultSetStore.getResultSetsMap($rootScope.repoName);
 
