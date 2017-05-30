@@ -2,10 +2,10 @@
 
 treeherder.factory('treeStatus', [
     '$http',
-    function($http) {
+    function ($http) {
         var urlBase = "https://treestatus.mozilla-releng.net/trees/";
 
-        var getTreeStatusName = function(name) {
+        var getTreeStatusName = function (name) {
             // the thunderbird names in api.pub.build.mozilla.org/treestatus don't match what
             // we use, so translate them.  pretty hacky, yes...
             // TODO: Move these to the repository fixture in the service.
@@ -17,11 +17,11 @@ treeherder.factory('treeStatus', [
 
         // the inverse of getTreeStatusName.  Seems like overhead to put this one
         // line here, but it keeps the logic to do/undo all in one place.
-        var getRepoName = function(name) {
+        var getRepoName = function (name) {
             return name.replace("-thunderbird", "");
         };
 
-        var get = function(repoName) {
+        var get = function (repoName) {
             var url = urlBase + getTreeStatusName(repoName);
 
             return $http.get(url);

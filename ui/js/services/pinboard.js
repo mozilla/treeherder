@@ -3,7 +3,7 @@
 treeherder.factory('thPinboard', [
     '$http', 'thUrl', 'ThJobClassificationModel', '$rootScope', 'thEvents',
     'ThBugJobMapModel', 'thNotify', 'ThModelErrors', 'ThLog', 'ThResultSetStore',
-    function(
+    function (
         $http, thUrl, ThJobClassificationModel, $rootScope, thEvents,
         ThBugJobMapModel, thNotify, ThModelErrors, ThLog, ThResultSetStore) {
 
@@ -12,7 +12,7 @@ treeherder.factory('thPinboard', [
         var pinnedJobs = {};
         var relatedBugs = {};
 
-        var saveClassification = function(job) {
+        var saveClassification = function (job) {
             var classification = new ThJobClassificationModel(this);
 
             // classification can be left unset making this a no-op
@@ -24,9 +24,9 @@ treeherder.factory('thPinboard', [
 
                 classification.job_id = job.id;
                 classification.create().
-                    success(function() {
+                    success(function () {
                         thNotify.send("Classification saved for " + job.platform + " " + job.job_type_name, "success");
-                    }).error(function(data) {
+                    }).error(function (data) {
                         var message = "Error saving classification for " + job.platform + " " + job.job_type_name;
                         thNotify.send(
                             ThModelErrors.format(data, message),
@@ -37,17 +37,17 @@ treeherder.factory('thPinboard', [
             }
         };
 
-        var saveBugs = function(job) {
-            _.forEach(relatedBugs, function(bug) {
+        var saveBugs = function (job) {
+            _.forEach(relatedBugs, function (bug) {
                 var bjm = new ThBugJobMapModel({
                     bug_id : bug.id,
                     job_id: job.id,
                     type: 'annotation'
                 });
                 bjm.create().
-                    success(function() {
+                    success(function () {
                         thNotify.send("Bug association saved for " + job.platform + " " + job.job_type_name, "success");
-                    }).error(function(data) {
+                    }).error(function (data) {
                         var message = "Error saving bug association for " + job.platform + " " + job.job_type_name;
                         thNotify.send(
                             ThModelErrors.format(data, message),
@@ -58,7 +58,7 @@ treeherder.factory('thPinboard', [
         };
 
         var api = {
-            toggleJobPin: function(job) {
+            toggleJobPin: function (job) {
                 if (pinnedJobs[job.id]) {
                     api.unPinJob(job.id);
                 } else {
@@ -66,7 +66,7 @@ treeherder.factory('thPinboard', [
                 }
             },
 
-            pinJob: function(job) {
+            pinJob: function (job) {
                 if (api.spaceRemaining() > 0) {
                     pinnedJobs[job.id] = job;
                     api.count.numPinnedJobs = _.size(pinnedJobs);
@@ -77,17 +77,17 @@ treeherder.factory('thPinboard', [
                 }
             },
 
-            pinJobs: function(jobsToPin) {
+            pinJobs: function (jobsToPin) {
                 _.forEach(jobsToPin, api.pinJob);
             },
 
-            unPinJob: function(id) {
+            unPinJob: function (id) {
                 delete pinnedJobs[id];
                 api.count.numPinnedJobs = _.size(pinnedJobs);
             },
 
             // clear all pinned jobs and related bugs
-            unPinAll: function() {
+            unPinAll: function () {
                 for (var jid in pinnedJobs) {
                     if (pinnedJobs.hasOwnProperty(jid)) { delete pinnedJobs[jid]; }
                 }
@@ -97,7 +97,7 @@ treeherder.factory('thPinboard', [
                 api.count.numPinnedJobs = _.size(pinnedJobs);
             },
 
-            addBug: function(bug, job) {
+            addBug: function (bug, job) {
                 $log.debug("adding bug ", bug);
                 relatedBugs[bug.id] = bug;
                 api.count.numRelatedBugs = _.size(relatedBugs);
@@ -108,13 +108,13 @@ treeherder.factory('thPinboard', [
 
             },
 
-            removeBug: function(id) {
+            removeBug: function (id) {
                 delete relatedBugs[id];
                 api.count.numRelatedBugs = _.size(relatedBugs);
             },
 
             // open form to create a new note. default to intermittent
-            createNewClassification: function() {
+            createNewClassification: function () {
                 return new ThJobClassificationModel({
                     text: "",
                     who: null,
@@ -123,7 +123,7 @@ treeherder.factory('thPinboard', [
             },
 
             // save the classification and related bugs to all pinned jobs
-            save: function(classification) {
+            save: function (classification) {
 
                 var pinnedJobsClone = {};
                 var jid;
@@ -143,30 +143,30 @@ treeherder.factory('thPinboard', [
             },
 
             // save the classification only on all pinned jobs
-            saveClassificationOnly: function(classification) {
+            saveClassificationOnly: function (classification) {
                 _.each(pinnedJobs, _.bind(saveClassification, classification));
                 $rootScope.$emit(thEvents.jobsClassified, {jobs: pinnedJobs});
             },
 
             // save bug associations only on all pinned jobs
-            saveBugsOnly: function() {
+            saveBugsOnly: function () {
                 _.each(pinnedJobs, saveBugs);
                 $rootScope.$emit(thEvents.bugsAssociated, {jobs: pinnedJobs});
             },
 
-            hasPinnedJobs: function() {
+            hasPinnedJobs: function () {
                 return !_.isEmpty(pinnedJobs);
             },
 
-            hasRelatedBugs: function() {
+            hasRelatedBugs: function () {
                 return !_.isEmpty(relatedBugs);
             },
 
-            spaceRemaining: function() {
+            spaceRemaining: function () {
                 return api.maxNumPinned - api.count.numPinnedJobs;
             },
 
-            isPinned: function(job) {
+            isPinned: function (job) {
                 return pinnedJobs.hasOwnProperty(job.id);
             },
 

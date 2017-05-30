@@ -2,22 +2,22 @@
 
 /* Filters */
 
-treeherder.filter('showOrHide', function() {
+treeherder.filter('showOrHide', function () {
     // determine whether this is a label for a job group (like mochitest)
-    return function(input, isCollapsed) {
+    return function (input, isCollapsed) {
         return (isCollapsed === true) ? "show" + input : "hide" + input;
     };
 });
 
-treeherder.filter('stripHtml', function() {
-    return function(input) {
+treeherder.filter('stripHtml', function () {
+    return function (input) {
         var str = input || '';
         return str.replace(/<\/?[^>]+>/gi, '');
     };
 });
 
-treeherder.filter('linkifyURLs', function() {
-    return function(input) {
+treeherder.filter('linkifyURLs', function () {
+    return function (input) {
         var str = input || '';
         var urlpattern = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
         str = str.replace(urlpattern, '<a href="$1" target="_blank">$1</a>');
@@ -25,8 +25,8 @@ treeherder.filter('linkifyURLs', function() {
     };
 });
 
-treeherder.filter('linkifyClassifications', ['ThRepositoryModel', function(ThRepositoryModel) {
-    return function(input, projectName) {
+treeherder.filter('linkifyClassifications', ['ThRepositoryModel', function (ThRepositoryModel) {
+    return function (input, projectName) {
         var str = input || '';
         str = str.trim();
 
@@ -61,8 +61,8 @@ function isSHA(str) {
     return true;
 }
 
-treeherder.filter('linkifyBugs', function() {
-    return function(input) {
+treeherder.filter('linkifyBugs', function () {
+    return function (input) {
         var str = input || '';
 
         var bug_matches = str.match(/-- ([0-9]+)|bug.([0-9]+)/ig);
@@ -93,11 +93,11 @@ treeherder.filter('linkifyBugs', function() {
     };
 });
 
-treeherder.filter('initials', function() {
-    return function(input) {
+treeherder.filter('initials', function () {
+    return function (input) {
         var str = input || '';
         var words = str.split(' ');
-        var firstLetters = _.filter(_.map(words, function(word) { return word.replace(/[^A-Z]/gi, '')[0]; }));
+        var firstLetters = _.filter(_.map(words, function (word) { return word.replace(/[^A-Z]/gi, '')[0]; }));
         var initials = "";
         if (firstLetters.length === 1) {
             initials = firstLetters[0];
@@ -108,8 +108,8 @@ treeherder.filter('initials', function() {
     };
 });
 
-treeherder.filter('highlightLogLine', function() {
-    return function(logLine) {
+treeherder.filter('highlightLogLine', function () {
+    return function (logLine) {
         var parts = logLine.split(" | ", 3);
         if (parts[0].startsWith("TEST-UNEXPECTED")) {
             parts[0] = "<strong class='failure-line-status'>" + parts[0] + "</strong>";
@@ -119,18 +119,18 @@ treeherder.filter('highlightLogLine', function() {
     };
 });
 
-treeherder.filter('highlightCommonTerms', function() {
-    return function(input) {
+treeherder.filter('highlightCommonTerms', function () {
+    return function (input) {
         var compareStr = Array.prototype.slice.call(arguments, 1).filter(
-            function(x) {return x;}).join(" ");
+            function (x) {return x;}).join(" ");
         var tokens = compareStr.split(/[^a-zA-Z0-9_-]+/);
-        tokens.sort(function(a, b){
+        tokens.sort(function (a, b){
             return b.length - a.length;
         });
 
-        angular.forEach(tokens, function(elem) {
+        angular.forEach(tokens, function (elem) {
             if (elem.length > 0) {
-                input = input.replace(new RegExp("(^|\\W)(" + elem + ")($|\\W)", "gi"), function(match, prefix, token, suffix) {
+                input = input.replace(new RegExp("(^|\\W)(" + elem + ")($|\\W)", "gi"), function (match, prefix, token, suffix) {
                     return prefix + "<strong>" + token + "</strong>" + suffix;
                 });
             }
@@ -139,8 +139,8 @@ treeherder.filter('highlightCommonTerms', function() {
     };
 });
 
-treeherder.filter('escapeHTML', function() {
-    return function(text){
+treeherder.filter('escapeHTML', function () {
+    return function (text){
         if (text) {
             return text.
                 replace(/&/g, '&amp;').
@@ -153,8 +153,8 @@ treeherder.filter('escapeHTML', function() {
     };
 });
 
-treeherder.filter('getRevisionUrl', ['thServiceDomain', function(thServiceDomain) {
-    return function(revision, projectName) {
+treeherder.filter('getRevisionUrl', ['thServiceDomain', function (thServiceDomain) {
+    return function (revision, projectName) {
         if (revision) {
             return thServiceDomain + '/#/jobs?repo=' + projectName + '&revision=' + revision;
         }
@@ -163,19 +163,19 @@ treeherder.filter('getRevisionUrl', ['thServiceDomain', function(thServiceDomain
 }]);
 
 treeherder.filter('alertStatus', [
-    'phAlertSummaryResolutionMap', function(phAlertSummaryResolutionMap) {
-        return function(resolutionId) {
+    'phAlertSummaryResolutionMap', function (phAlertSummaryResolutionMap) {
+        return function (resolutionId) {
             return phAlertSummaryResolutionMap[resolutionId];
         };
     }]);
 
 //http://stackoverflow.com/questions/16630471/how-can-i-invoke-encodeuricomponent-from-angularjs-template
-treeherder.filter('encodeURIComponent', function() {
+treeherder.filter('encodeURIComponent', function () {
     return window.encodeURIComponent;
 });
 
-treeherder.filter('displayNumber', ['$filter', function($filter) {
-    return function(input) {
+treeherder.filter('displayNumber', ['$filter', function ($filter) {
+    return function (input) {
         if (isNaN(input)) {
             return "N/A";
         }
@@ -184,8 +184,8 @@ treeherder.filter('displayNumber', ['$filter', function($filter) {
     };
 }]);
 
-treeherder.filter('absoluteValue', function() {
-    return function(input) {
+treeherder.filter('absoluteValue', function () {
+    return function (input) {
         return Math.abs(input);
     };
 });

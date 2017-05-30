@@ -12,8 +12,8 @@ treeherder.directive('thResultCounts', [
 
         return {
             restrict: "E",
-            link: function(scope) {
-                var setTotalCount = function() {
+            link: function (scope) {
+                var setTotalCount = function () {
                     if (scope.resultset.job_counts) {
                         scope.inProgress = scope.resultset.job_counts.pending +
                             scope.resultset.job_counts.running;
@@ -23,7 +23,7 @@ treeherder.directive('thResultCounts', [
                     }
                 };
 
-                $rootScope.$on(thEvents.applyNewJobs, function(evt, resultSetId) {
+                $rootScope.$on(thEvents.applyNewJobs, function (evt, resultSetId) {
                     if (resultSetId === scope.resultset.id) {
                         setTotalCount();
                     }
@@ -38,7 +38,7 @@ treeherder.directive('thAuthor', function () {
 
     return {
         restrict: "E",
-        link: function(scope, element, attrs) {
+        link: function (scope, element, attrs) {
             var userTokens = attrs.author.split(/[<>]+/);
             var email = "";
             if (userTokens.length > 1) {

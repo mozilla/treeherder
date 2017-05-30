@@ -1,6 +1,6 @@
 "use strict";
 
-treeherder.factory('actionsRender', function() {
+treeherder.factory('actionsRender', function () {
     // Render string given context
     let renderString = (value, context) => {
         return value.replace(/\${([^}]+)}/g, (expr, key) => {

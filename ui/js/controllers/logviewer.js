@@ -109,7 +109,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
             ThJobModel.get_list($scope.repoName, {
                 project_specific_id: $scope.job_id
-            }).then(function(jobList) {
+            }).then(function (jobList) {
                 if (jobList.length > 0) {
                     $scope.job_id = jobList[0]['id'];
                 }

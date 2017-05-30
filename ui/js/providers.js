@@ -1,22 +1,22 @@
 "use strict";
 
-treeherder.provider('thServiceDomain', function() {
-    this.$get = function() {
+treeherder.provider('thServiceDomain', function () {
+    this.$get = function () {
         // The SERVICE_DOMAIN global is set by webpack's DefinePlugin.
         return (typeof SERVICE_DOMAIN !== 'undefined') ? SERVICE_DOMAIN : "";
     };
 });
 
-treeherder.provider('thResultStatusList', function() {
-    var all = function() {
+treeherder.provider('thResultStatusList', function () {
+    var all = function () {
         return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending', 'coalesced', 'runnable'];
     };
 
-    var defaultFilters = function() {
+    var defaultFilters = function () {
         return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending', 'runnable'];
     };
 
-    this.$get = function() {
+    this.$get = function () {
         return {
             all: all,
             defaultFilters: defaultFilters
@@ -24,9 +24,9 @@ treeherder.provider('thResultStatusList', function() {
     };
 });
 
-treeherder.provider('thResultStatus', function() {
-    this.$get = function() {
-        return function(job) {
+treeherder.provider('thResultStatus', function () {
+    this.$get = function () {
+        return function (job) {
             if (job.state === "completed") {
                 return job.result;
             }
@@ -39,8 +39,8 @@ treeherder.provider('thResultStatus', function() {
     };
 });
 
-treeherder.provider('thResultStatusObject', function() {
-    var getResultStatusObject = function(){
+treeherder.provider('thResultStatusObject', function () {
+    var getResultStatusObject = function (){
         return {
             'running':0,
             'pending':0,
@@ -48,16 +48,16 @@ treeherder.provider('thResultStatusObject', function() {
         };
     };
 
-    this.$get = function() {
+    this.$get = function () {
         return {
             getResultStatusObject:getResultStatusObject
         };
     };
 });
 
-treeherder.provider('thResultStatusInfo', function() {
-    this.$get = function() {
-        return function(resultState, failure_classification_id) {
+treeherder.provider('thResultStatusInfo', function () {
+    this.$get = function () {
+        return function (resultState, failure_classification_id) {
             // default if there is no match, used for pending
             var resultStatusInfo = {
                 btnClass: "btn-default"
@@ -149,8 +149,8 @@ treeherder.provider('thResultStatusInfo', function() {
  *
  * These are/can be used via $rootScope.$emit.
  */
-treeherder.provider('thEvents', function() {
-    this.$get = function() {
+treeherder.provider('thEvents', function () {
+    this.$get = function () {
         return {
 
             // fired when a list of revisions has been loaded by button-click
@@ -255,13 +255,13 @@ treeherder.provider('thEvents', function() {
     };
 });
 
-treeherder.provider('thAggregateIds', function() {
+treeherder.provider('thAggregateIds', function () {
 
-    var escape = function(id) {
+    var escape = function (id) {
         return id.replace(/(:|\[|\]|\?|,|\.|\s+)/g, '-');
     };
 
-    var getPlatformRowId = function(
+    var getPlatformRowId = function (
         repoName, resultsetId, platformName, platformOptions) {
         // ensure there are no invalid characters in the id (like spaces, etc)
         return escape(repoName +
@@ -270,21 +270,21 @@ treeherder.provider('thAggregateIds', function() {
                       platformOptions);
     };
 
-    var getResultsetTableId = function(repoName, resultsetId, revision){
+    var getResultsetTableId = function (repoName, resultsetId, revision){
         return escape(repoName + resultsetId + revision);
     };
 
-    var getGroupMapKey = function(result_set_id, grSymbol, grTier, plName, plOpt) {
+    var getGroupMapKey = function (result_set_id, grSymbol, grTier, plName, plOpt) {
         //Build string key for groupMap entries
         return escape(result_set_id + grSymbol + grTier + plName + plOpt);
     };
 
-    var getJobMapKey = function(job) {
+    var getJobMapKey = function (job) {
         //Build string key for jobMap entries
         return 'key' + job.id;
     };
 
-    this.$get = function() {
+    this.$get = function () {
         return {
             getPlatformRowId:getPlatformRowId,
             getResultsetTableId:getResultsetTableId,
@@ -295,9 +295,9 @@ treeherder.provider('thAggregateIds', function() {
     };
 });
 
-treeherder.provider('thReftestStatus', function() {
-    this.$get = function() {
-        return function(job) {
+treeherder.provider('thReftestStatus', function () {
+    this.$get = function () {
+        return function (job) {
             if (job.job_group_name) {
                 return (job.job_group_name.toLowerCase().indexOf('reftest') !== -1 ||
                         job.job_type_name.toLowerCase().indexOf('reftest') !== -1);

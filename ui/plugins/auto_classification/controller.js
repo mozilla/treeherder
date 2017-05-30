@@ -1,7 +1,7 @@
 "use strict";
 
-treeherder.factory('thStringOverlap', function() {
-    return function(str1, str2) {
+treeherder.factory('thStringOverlap', function () {
+    return function (str1, str2) {
         // Get a measure of the similarity of two strings by a simple process
         // of tokenizing and then computing the ratio of the tokens in common to
         // the total tokens
@@ -10,25 +10,25 @@ treeherder.factory('thStringOverlap', function() {
                 .map(function (str) {
                     // Replace paths like /foo/bar/baz.html with just the filename baz.html
                     return str.replace(/[^\s]+\/([^\s]+)\s/,
-                                       function(m, p1) {
+                                       function (m, p1) {
                                            return " " + p1 + " ";
                                        });
                 })
                 .map(function (str) {
                     // Split into tokens on whitespace / ,  and |
-                    return str.split(/[\s\/\,|]+/).filter(function(x) {return x !== "";});
+                    return str.split(/[\s\/\,|]+/).filter(function (x) {return x !== "";});
                 });
 
         if (tokens[0].length === 0 || tokens[1].length === 0) {
             return 0;
         }
 
-        var tokenCounts = tokens.map(function(tokens) {
-            return _.countBy(tokens, function(x) {return x;});
+        var tokenCounts = tokens.map(function (tokens) {
+            return _.countBy(tokens, function (x) {return x;});
         });
 
         var overlap = Object.keys(tokenCounts[0])
-                .reduce(function(overlap, x) {
+                .reduce(function (overlap, x) {
                     if (tokenCounts[1].hasOwnProperty(x)) {
                         overlap += 2 * Math.min(tokenCounts[0][x], tokenCounts[1][x]);
                     }
@@ -44,7 +44,7 @@ treeherder.factory('thStringOverlap', function() {
  * Text Log Error model
  */
 treeherder.factory('ThErrorLineData', [
-    function() {
+    function () {
         function ThErrorLineData(line) {
             this.id = line.id;
             this.data = line;
@@ -69,8 +69,8 @@ treeherder.factory('ThErrorLineData', [
  * Classification option model
  */
 treeherder.factory('ThClassificationOption', ['thExtendProperties',
-    function(thExtendProperties) {
-        return function(type, id, classifiedFailureId, bugNumber,
+    function (thExtendProperties) {
+        return function (type, id, classifiedFailureId, bugNumber,
                         bugSummary, bugResolution, matches) {
             thExtendProperties(this, {
                 type: type,
@@ -149,7 +149,7 @@ treeherder.controller('ThClassificationOptionController', [
             ctrl.onChange();
         };
 
-        $scope.fileBug = function() {
+        $scope.fileBug = function () {
             var reftestUrlRoot = "https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=";
 
             var logUrl = ctrl.thJob.logs.filter(x => x.name.endsWith("_json"));
@@ -301,7 +301,7 @@ treeherder.controller('ThErrorLineController', [
          * Test if any options in a list are hidden
          * @param {Object[]} options - List of options
          */
-        $scope.hasHidden = function(options) {
+        $scope.hasHidden = function (options) {
             return options.some((option) => option.hidden);
         };
 
@@ -309,7 +309,7 @@ treeherder.controller('ThErrorLineController', [
          * Update data about the currently selected option in response to
          * a selection in the UI
          */
-        $scope.optionChanged = function() {
+        $scope.optionChanged = function () {
             log.debug("optionChanged", $scope.selectedOption);
             var option = $scope.currentOption = currentOption();
             // If the best option is a classified failure with no associated bug number
@@ -335,7 +335,7 @@ treeherder.controller('ThErrorLineController', [
             ctrl.onChange(data);
         };
 
-        $scope.editableChanged = function(editable) {
+        $scope.editableChanged = function (editable) {
             ctrl.onEditableChange({
                 lineId: line.id,
                 editable: editable
@@ -497,7 +497,7 @@ treeherder.controller('ThErrorLineController', [
          */
         function getClassifiedFailureMatcher() {
             var matchesByCF = line.data.matches.reduce(
-                function(matchesByCF, match) {
+                function (matchesByCF, match) {
                     if (!matchesByCF.has(match.classified_failure)) {
                         matchesByCF.set(match.classified_failure, []);
                     }
@@ -505,9 +505,9 @@ treeherder.controller('ThErrorLineController', [
                     return matchesByCF;
                 }, new Map());
 
-            return function(cf_id) {
+            return function (cf_id) {
                 return matchesByCF.get(cf_id).map(
-                    function(match) {
+                    function (match) {
                         return {
                             matcher: ctrl.errorMatchers.get(match.matcher),
                             score: match.score
@@ -615,7 +615,7 @@ treeherder.controller('ThErrorLineController', [
          * Select the ignore option, and toggle the ignoreAlways setting if it's
          * already selected
          */
-        ctrl.onEventIgnore = function() {
+        ctrl.onEventIgnore = function () {
             if (!ctrl.isSelected) {
                 return;
             }
@@ -633,7 +633,7 @@ treeherder.controller('ThErrorLineController', [
          * @param {string} option - numeric id of the option to select or '=' to select the
                                     manual option
          */
-        ctrl.onEventSelectOption = function(option) {
+        ctrl.onEventSelectOption = function (option) {
             if (!ctrl.isSelected || !ctrl.isEditable) {
                 return;
             }
@@ -662,7 +662,7 @@ treeherder.controller('ThErrorLineController', [
         /**
          * Expand or collapse hidden options
          */
-        ctrl.onEventToggleExpandOptions = function() {
+        ctrl.onEventToggleExpandOptions = function () {
             if (!ctrl.isSelected || !ctrl.isEditable) {
                 return;
             }
@@ -742,7 +742,7 @@ treeherder.controller('ThAutoclassifyErrorsController', ['$scope', '$element',
          * Toggle the selection of a th-error-line, if the click didn't happen on an interactive
          * element child of that line.
          */
-        $scope.toggleSelect = function(event, id) {
+        $scope.toggleSelect = function (event, id) {
             var target = $(event.target);
             var elem = target;
             var interactive = new Set(["INPUT", "BUTTON", "TEXTAREA", "A"]);
@@ -779,10 +779,10 @@ treeherder.component('thAutoclassifyErrors', {
  */
 treeherder.controller('ThAutoclassifyToolbarController', [
     '$scope',
-    function($scope) {
+    function ($scope) {
         var ctrl = this;
 
-        $scope.buttonTitle = function(condition, activeTitle, inactiveTitle) {
+        $scope.buttonTitle = function (condition, activeTitle, inactiveTitle) {
             if (!ctrl.thUser || !ctrl.thUser.loggedin) {
                 return "Must be logged in";
             }
@@ -823,7 +823,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
     '$scope', '$rootScope', '$q', '$timeout',
     'ThLog', 'thEvents', 'thNotify', 'thJobNavSelectors', 'thPinboard',
     'thUrl', 'ThMatcherModel', 'ThTextLogErrorsModel', 'ThErrorLineData',
-    function($scope, $rootScope, $q, $timeout,
+    function ($scope, $rootScope, $q, $timeout,
              ThLog, thEvents, thNotify, thJobNavSelectors, thPinboard,
              thUrl, ThMatcherModel, ThTextLogErrorsModel, ThErrorLineData) {
 
@@ -972,7 +972,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
         /**
          * Save all pending lines
          */
-        ctrl.onSaveAll = function() {
+        ctrl.onSaveAll = function () {
             save($scope.pendingLines())
                 .then(() => {
                     signalFullyClassified();
@@ -983,7 +983,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
         /**
          * Save all selected lines
          */
-        ctrl.onSave = function() {
+        ctrl.onSave = function () {
             save($scope.selectedLines())
             .then(() => {
                 if ($scope.pendingLines().length === 0) {
@@ -1005,7 +1005,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
         /**
          * Ignore selected lines
          */
-        ctrl.onIgnore = function() {
+        ctrl.onIgnore = function () {
             $rootScope.$emit(thEvents.autoclassifyIgnore);
         };
 
@@ -1013,7 +1013,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
          * Pin selected job to the pinboard
          */
 
-        ctrl.onPin = function() {
+        ctrl.onPin = function () {
             //TODO: consider whether this should add bugs or mark all lines as ignored
             thPinboard.pinJob(ctrl.thJob);
         };
@@ -1025,7 +1025,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
          * @param {?number} classifiedFailureId - id of classified failure
          * @param {?bugNumber} bugNumber - id of bug
          */
-        ctrl.onUpdateLine = function(lineId, type, classifiedFailureId, bugNumber) {
+        ctrl.onUpdateLine = function (lineId, type, classifiedFailureId, bugNumber) {
             var state = stateByLine.get(lineId);
             state.type = type;
             state.classifiedFailureId = classifiedFailureId;
@@ -1037,7 +1037,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
          * @param {number[]} lineIds - ids of the lines to toggle
          * @param {boolean} clear - Clear the current selection before selecting new elements
          */
-        ctrl.onToggleSelect = function(lineIds, clear) {
+        ctrl.onToggleSelect = function (lineIds, clear) {
             var isSelected = lineIds
                     .reduce((map, lineId) => map.set(lineId, ctrl.selectedLineIds.has(lineId)),
                             new Map());
@@ -1054,17 +1054,17 @@ treeherder.controller('ThAutoclassifyPanelController', [
             });
         };
 
-        ctrl.onToggleEditable = function() {
+        ctrl.onToggleEditable = function () {
             var selectedIds = Array.from(ctrl.selectedLineIds);
             var editable = selectedIds.some((id) => !ctrl.editableLineIds.has(id));
             setEditable(selectedIds, editable);
         };
 
-        ctrl.onEditableChange = function(lineId, editable) {
+        ctrl.onEditableChange = function (lineId, editable) {
             setEditable([lineId], editable);
         };
 
-        ctrl.onOpenLogViewer = function() {
+        ctrl.onOpenLogViewer = function () {
             var selected = $scope.selectedLines();
             if (selected.length) {
                 var lineNumber = selected[0].data.line_number + 1;
@@ -1091,7 +1091,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
          *                                         current selected row.
          * @param {boolean} clear - Clear the current selection before selecting new elements
          */
-        ctrl.onChangeSelection = function(direction, clear) {
+        ctrl.onChangeSelection = function (direction, clear) {
             var selectable = selectableLines();
 
             var optionIndexes = selectable
@@ -1178,7 +1178,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
          * Test if it is possible to save all in a list of lines.
          * @param {number[]} lineIds - Line ids to test.
          */
-        $scope.canSave = function(lines) {
+        $scope.canSave = function (lines) {
             return ($scope.canClassify && lines.length &&
                     lines.every(line => canSave(line.id)));
         };

@@ -2,11 +2,11 @@
 
 treeherder.directive('ngRightClick', [
     '$parse',
-    function($parse) {
-        return function(scope, element, attrs) {
+    function ($parse) {
+        return function (scope, element, attrs) {
             var fn = $parse(attrs.ngRightClick);
-            element.bind('contextmenu', function(event) {
-                scope.$apply(function() {
+            element.bind('contextmenu', function (event) {
+                scope.$apply(function () {
                     event.preventDefault();
                     fn(scope, {$event:event});
                 });
@@ -15,11 +15,11 @@ treeherder.directive('ngRightClick', [
     }]);
 
 //Directive blurThis which removes focus from a specific element
-treeherder.directive('blurThis', ['$timeout', function($timeout) {
-    return function(scope, elem, attr) {
-        scope.$on('blur-this', function(event, id) {
+treeherder.directive('blurThis', ['$timeout', function ($timeout) {
+    return function (scope, elem, attr) {
+        scope.$on('blur-this', function (event, id) {
             if (attr.id === id) {
-                $timeout(function() {
+                $timeout(function () {
                     elem[0].blur();
                 }, 0);
             }
@@ -31,16 +31,16 @@ treeherder.directive('blurThis', ['$timeout', function($timeout) {
 // which listen to it via ''focus-me="focusInput'' in angular markup
 treeherder.directive('focusMe', [
     '$timeout',
-    function($timeout) {
+    function ($timeout) {
         return {
-            link: function(scope, element, attrs) {
-                scope.$watch(attrs.focusMe, function(value) {
+            link: function (scope, element, attrs) {
+                scope.$watch(attrs.focusMe, function (value) {
                     if (value) {
-                        $timeout(function() {
+                        $timeout(function () {
                             element[0].focus();
                         }, 0);
                     } else {
-                        $timeout(function() {
+                        $timeout(function () {
                             element[0].blur();
                         }, 0);
                     }
@@ -51,19 +51,19 @@ treeherder.directive('focusMe', [
 
 // Allow copy to system clipboard during hover
 treeherder.directive('copyValue', [
-    function() {
+    function () {
         return {
             restrict: 'A',
-            link: function(scope, element, attrs) {
+            link: function (scope, element, attrs) {
                 var cont = document.getElementById('clipboard-container'),
                     clip = document.getElementById('clipboard');
-                element.on('mouseenter', function() {
+                element.on('mouseenter', function () {
                     cont.style.display = 'block';
                     clip.value = attrs.copyValue;
                     clip.focus();
                     clip.select();
                 });
-                element.on('mouseleave', function() {
+                element.on('mouseleave', function () {
                     cont.style.display = 'none';
                     clip.value = '';
                 });
@@ -77,11 +77,11 @@ treeherder.directive('copyValue', [
 // on left click but default href type functionality on
 // middle or right mouse click.
 treeherder.directive('preventDefaultOnLeftClick', [
-    function() {
+    function () {
         return {
             restrict: 'A',
-            link: function(scope, element){
-                element.on('click', function(event) {
+            link: function (scope, element){
+                element.on('click', function (event) {
                     if (event.which === 1) {
                         event.preventDefault();
                     }
@@ -93,11 +93,11 @@ treeherder.directive('preventDefaultOnLeftClick', [
 ]);
 
 treeherder.directive('stopPropagationOnLeftClick', [
-    function() {
+    function () {
         return {
             restrict: 'A',
-            link: function(scope, element) {
-                element.on('click', function(event) {
+            link: function (scope, element) {
+                element.on('click', function (event) {
                     if (event.which === 1) {
                         event.stopPropagation();
                     }
@@ -109,11 +109,11 @@ treeherder.directive('stopPropagationOnLeftClick', [
 
 treeherder.directive('thNotificationBox', [
     'thNotify',
-    function(thNotify){
+    function (thNotify){
         return {
             restrict: "E",
             templateUrl: "partials/main/thNotificationsBox.html",
-            link: function(scope) {
+            link: function (scope) {
                 scope.notifier = thNotify;
                 scope.alert_class_prefix = "alert-";
             }
@@ -122,12 +122,12 @@ treeherder.directive('thNotificationBox', [
 
 treeherder.directive('thFaviconLink', [
     'ThRepositoryModel', 'thFavicons',
-    function(ThRepositoryModel, thFavicons){
+    function (ThRepositoryModel, thFavicons){
         return {
             restrict: "E",
-            link: function(scope) {
+            link: function (scope) {
                 scope.currentTreeStatus = ThRepositoryModel.getCurrentTreeStatus;
-                scope.$watch('currentTreeStatus()', function(newVal) {
+                scope.$watch('currentTreeStatus()', function (newVal) {
                     if (newVal) {
                         scope.favicon = thFavicons[ThRepositoryModel.getCurrentTreeStatus()];
                     }
@@ -137,14 +137,14 @@ treeherder.directive('thFaviconLink', [
         };
     }]);
 
-treeherder.directive('bugInput', function() {
+treeherder.directive('bugInput', function () {
     return {
         restrict: 'A',
-        link: function(scope, elem) {
-            elem.on('invalid', function(event) {
+        link: function (scope, elem) {
+            elem.on('invalid', function (event) {
                 event.target.setCustomValidity('Please enter a bug number');
             });
-            elem.on('input', function(event) {
+            elem.on('input', function (event) {
                 event.target.setCustomValidity('');
                 event.target.value = event.target.value.trim();
             });
@@ -154,10 +154,10 @@ treeherder.directive('bugInput', function() {
     };
 });
 
-treeherder.directive('numbersOnly', function(){
+treeherder.directive('numbersOnly', function (){
     return {
         require: 'ngModel',
-        link: function(scope, element, attrs, modelCtrl) {
+        link: function (scope, element, attrs, modelCtrl) {
             modelCtrl.$parsers.push(function (inputValue) {
                 // this next is necessary for when using ng-required on your input.
                 // In such cases, when a letter is typed first, this parser will be called
@@ -176,7 +176,7 @@ treeherder.directive('numbersOnly', function(){
 });
 
 treeherder.directive("thMultiSelect",
-    function(){
+    function (){
         return {
             restrict: "E",
             templateUrl: "partials/main/thMultiSelect.html",
@@ -184,10 +184,10 @@ treeherder.directive("thMultiSelect",
                 leftList: "=",
                 rightList: "="
             },
-            link: function(scope, elem){
+            link: function (scope, elem){
 
                 // move the elements selected from one list to the other
-                var move_options = function(sourceSide, from, to) {
+                var move_options = function (sourceSide, from, to) {
                     var selectBoxObj = $(elem).find("select." + sourceSide).first();
                     var what = selectBoxObj.val();
                     var found;
@@ -200,10 +200,10 @@ treeherder.directive("thMultiSelect",
                     // clear the selection from the source list
                     selectBoxObj.val([]);
                 };
-                scope.move_left = function(){
+                scope.move_left = function (){
                     move_options("right", scope.rightList, scope.leftList);
                 };
-                scope.move_right = function(){
+                scope.move_right = function (){
                     move_options("left", scope.leftList, scope.rightList);
                 };
             }
@@ -211,7 +211,7 @@ treeherder.directive("thMultiSelect",
     });
 
 treeherder.directive("thTruncatedList",
-    function(){
+    function (){
         // transforms a list of elements in a shortened list
         // with a "more" link
         return {
@@ -221,7 +221,7 @@ treeherder.directive("thTruncatedList",
                 numvisible: "@",
                 elem_list: "=elements"
             },
-            link: function(scope, element){
+            link: function (scope, element){
                 scope.visible = parseInt(scope.numvisible);
 
                 if (typeof scope.visible !== 'number'
@@ -230,7 +230,7 @@ treeherder.directive("thTruncatedList",
                     throw new TypeError("The visible parameter must be a positive number");
                 }
                 // cloning the original list to avoid
-                scope.$watch("elem_list", function(newValue){
+                scope.$watch("elem_list", function (newValue){
                     if (newValue){
                         var elem_list_clone = angular.copy(newValue);
                         scope.visible = Math.min(scope.visible, elem_list_clone.length);

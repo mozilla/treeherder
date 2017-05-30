@@ -1,7 +1,7 @@
 'use strict';
 
 treeherder.factory('thTabs', [
-    function() {
+    function () {
         var thTabs = {
             "tabs": {
                 "jobDetails": {
@@ -50,7 +50,7 @@ treeherder.factory('thTabs', [
                 "perfDetails"
             ],
             "selectedTab": "jobDetails",
-            "showTab" : function(tab, contentId){
+            "showTab" : function (tab, contentId){
                 thTabs.selectedTab = tab;
                 if (!thTabs.tabs[thTabs.selectedTab].enabled){
                     thTabs.selectedTab = 'jobDetails';

@@ -1,8 +1,8 @@
 'use strict';
 
-treeherder.service('JsonPushes', ['$http', '$q', function($http, $q) {
+treeherder.service('JsonPushes', ['$http', '$q', function ($http, $q) {
     // error handler helper
-    var prevRevsErrHandler = function(response) {
+    var prevRevsErrHandler = function (response) {
         if (response instanceof Error) {
             return $q.reject("Unable to find a previous revision" +
                              " (" + response + ").");
@@ -25,7 +25,7 @@ treeherder.service('JsonPushes', ['$http', '$q', function($http, $q) {
      4. If we find it, we are done. Else go to 1. using the parent revision
         for the new `revision`.
      */
-    var _getPreviousRevisionFrom = function(project, revision, projects,
+    var _getPreviousRevisionFrom = function (project, revision, projects,
                                             defer, attempt, maxAttempts) {
         if (attempt >= maxAttempts) {
             defer.reject(new Error("Maximum recursion attempts exceeded"));
@@ -35,15 +35,15 @@ treeherder.service('JsonPushes', ['$http', '$q', function($http, $q) {
         // find the parent changeset
         $http.get(
             project.url + "/json-rev/" + revision
-        ).then(function(response) {
+        ).then(function (response) {
             return response.data.parents[0];
-        }).then(function(parentChset) {
+        }).then(function (parentChset) {
             // now check in projects if we can find the parent changeset
             var promises = _.map(projects, function (proj) {
-                return $q(function(resolve) {
+                return $q(function (resolve) {
                     $http.get(
                         proj.url + "/json-pushes?changeset=" + parentChset
-                    ).then(function(response) {
+                    ).then(function (response) {
                         var pushId = _.keys(response.data)[0];
                         var chsets = response.data[pushId].changesets;
                         return {
@@ -52,13 +52,13 @@ treeherder.service('JsonPushes', ['$http', '$q', function($http, $q) {
                         };
                     }).then(
                         // we found something!
-                        function(data) {
+                        function (data) {
                             resolve({
                                 project: proj,
                                 revision: data.revision,
                                 date: data.date
                             });
-                        }, function() {
+                        }, function () {
                             // swallow all errors so $q.all will succeed
                             resolve(null);
                         }
@@ -66,11 +66,11 @@ treeherder.service('JsonPushes', ['$http', '$q', function($http, $q) {
                 });
             });
             return $q.all(promises).then(
-                function(results) {
+                function (results) {
                     results = _.filter(results);
                     if (results.length === 0) {
                         // nothing found - try with the parent of the parent
-                        setTimeout(function() {
+                        setTimeout(function () {
                             _getPreviousRevisionFrom(project, parentChset,
                                                      projects, defer,
                                                      attempt + 1, maxAttempts);
@@ -88,13 +88,13 @@ treeherder.service('JsonPushes', ['$http', '$q', function($http, $q) {
          * Return the previous revision (on the previous push) given one
          * revision on a project.
          **/
-        getPreviousRevision: function(project, revision) {
+        getPreviousRevision: function (project, revision) {
             return $http.get(
                 project.url + "/json-pushes?changeset=" + revision
-            ).then(function(response) {
+            ).then(function (response) {
                 // get the pushid of this changeset
                 return _.keys(response.data)[0];
-            }).then(function(pushId) {
+            }).then(function (pushId) {
                 // and now get the changeset of pushid - 1
                 pushId = parseInt(pushId);
                 // pushlog API do not include the endId pushId - so we ask
@@ -123,26 +123,26 @@ treeherder.service('JsonPushes', ['$http', '$q', function($http, $q) {
          * projects: a list of projects inw which we should search
          *           (m-i/fx-team/...)
          */
-        getPreviousRevisionFrom: function(project, revision, projects) {
+        getPreviousRevisionFrom: function (project, revision, projects) {
             var deferred = $q.defer();
 
             $http.get(
                 project.url + "/json-pushes?changeset=" + revision
-            ).then(function(response) {
+            ).then(function (response) {
                 // find the oldest changeset in the push
                 var pushId = _.keys(response.data)[0];
                 return response.data[pushId].changesets[0];
-            }).then(function(oldRev) {
+            }).then(function (oldRev) {
                 _getPreviousRevisionFrom(project, oldRev, projects, deferred,
                                          // attempt, maxAttempts
                                          0, 7);
             }, deferred.reject);
 
             return deferred.promise.then(
-                function(results) {
+                function (results) {
                     // return the changeset with the lowest push date
                     // with some luck, it does not comes from a merge.
-                    return _.sortBy(results, function(r) {
+                    return _.sortBy(results, function (r) {
                         return r.date;
                     })[0];
                 },

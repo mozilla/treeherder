@@ -1,8 +1,8 @@
 "use strict";
 
-treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionModel', '$q', function($http, thServiceDomain, ThOptionCollectionModel, $q) {
+treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionModel', '$q', function ($http, thServiceDomain, ThOptionCollectionModel, $q) {
 
-    var _getTestName = function(signatureProps, displayOptions) {
+    var _getTestName = function (signatureProps, displayOptions) {
         var suiteName = signatureProps.suite;
         var testName = signatureProps.test;
 
@@ -14,7 +14,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
         return suiteName === testName ? suiteName : suiteName + " " + testName;
     };
 
-    var _getSeriesOptions = function(signatureProps, optionCollectionMap) {
+    var _getSeriesOptions = function (signatureProps, optionCollectionMap) {
         var options = [ optionCollectionMap[signatureProps.option_collection_hash] ];
         if (signatureProps.extra_options) {
             options = options.concat(signatureProps.extra_options);
@@ -22,7 +22,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
         return options;
     };
 
-    var _getSeriesName = function(signatureProps, optionCollectionMap,
+    var _getSeriesName = function (signatureProps, optionCollectionMap,
                                   displayOptions) {
         var platform = signatureProps.machine_platform;
         var name = _getTestName(signatureProps);
@@ -34,7 +34,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
         return name + " " + options.join(" ");
     };
 
-    var _getSeriesSummary = function(projectName, signature, signatureProps,
+    var _getSeriesSummary = function (projectName, signature, signatureProps,
                                      optionCollectionMap) {
         var platform = signatureProps.machine_platform;
         var options = _getSeriesOptions(signatureProps, optionCollectionMap);
@@ -60,11 +60,11 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
     return {
         getTestName: _getTestName,
         getSeriesName: _getSeriesName,
-        getSeriesList: function(projectName, params) {
-            return ThOptionCollectionModel.getMap().then(function(optionCollectionMap) {
+        getSeriesList: function (projectName, params) {
+            return ThOptionCollectionModel.getMap().then(function (optionCollectionMap) {
                 return $http.get(thServiceDomain + '/api/project/' + projectName +
-                                 '/performance/signatures/', { params: params }).then(function(response) {
-                                     return _.map(response.data, function(signatureProps, signature) {
+                                 '/performance/signatures/', { params: params }).then(function (response) {
+                                     return _.map(response.data, function (signatureProps, signature) {
                                          return _getSeriesSummary(projectName, signature,
                                                                   signatureProps,
                                                                   optionCollectionMap);
@@ -72,16 +72,16 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
                                  });
             });
         },
-        getPlatformList: function(projectName, params) {
+        getPlatformList: function (projectName, params) {
             return $http.get(thServiceDomain + '/api/project/' + projectName +
                              '/performance/platforms/', { params: params }).then(
-                                 function(response) {
+                                 function (response) {
                                      return response.data;
                                  });
         },
-        getSeriesData: function(projectName, params) {
+        getSeriesData: function (projectName, params) {
             return $http.get(thServiceDomain + '/api/project/' + projectName + '/performance/data/',
-                             { params: params }).then(function(response) {
+                             { params: params }).then(function (response) {
                                  if (response.data) {
                                      return response.data;
                                  }

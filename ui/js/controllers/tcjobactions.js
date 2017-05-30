@@ -4,21 +4,21 @@ treeherder.controller('TCJobActionsCtrl', [
     '$scope', '$http', '$uibModalInstance', 'ThResultSetStore',
     'ThJobDetailModel', 'thTaskcluster', 'ThTaskclusterErrors',
     'thNotify', 'job', 'repoName', 'resultsetId', 'actionsRender',
-    function($scope, $http, $uibModalInstance, ThResultSetStore,
+    function ($scope, $http, $uibModalInstance, ThResultSetStore,
              ThJobDetailModel, thTaskcluster, ThTaskclusterErrors, thNotify,
              job, repoName, resultsetId, actionsRender) {
         let originalTask;
         $scope.input = {};
 
-        $scope.cancel = function() {
+        $scope.cancel = function () {
             $uibModalInstance.dismiss('cancel');
         };
 
-        $scope.updateSelectedAction = function() {
+        $scope.updateSelectedAction = function () {
             $scope.input.jsonPayload = JSON.stringify(jsonSchemaDefaults($scope.input.selectedAction.schema), null, 4);
         };
 
-        $scope.triggerAction = function() {
+        $scope.triggerAction = function () {
             $scope.triggering = true;
 
             let tc = thTaskcluster.client();
@@ -32,11 +32,11 @@ treeherder.controller('TCJobActionsCtrl', [
             }, $scope.staticActionVariables));
 
             let queue = new tc.Queue();
-            queue.createTask(actionTaskId, actionTask).then(function() {
+            queue.createTask(actionTaskId, actionTask).then(function () {
                 $scope.$apply(thNotify.send("Custom action request sent successfully", 'success'));
                 $scope.triggering = false;
                 $uibModalInstance.close('request sent');
-            }, function(e) {
+            }, function (e) {
                 $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', true));
                 $scope.triggering = false;
                 $uibModalInstance.close('error');
@@ -44,7 +44,7 @@ treeherder.controller('TCJobActionsCtrl', [
         };
 
         // prevent closing of dialog while we're triggering
-        $scope.$on('modal.closing', function(event) {
+        $scope.$on('modal.closing', function (event) {
             if ($scope.triggering) {
                 event.preventDefault();
             }
@@ -54,19 +54,19 @@ treeherder.controller('TCJobActionsCtrl', [
         if (decisionTask) {
             let originalTaskId = job.taskcluster_metadata.task_id;
             $http.get('https://queue.taskcluster.net/v1/task/' + originalTaskId).then(
-                function(response) {
+                function (response) {
                     originalTask = response.data;
                     ThJobDetailModel.getJobDetails({
                         job_id: decisionTask.id,
                         title: 'artifact uploaded',
-                        value: 'actions.json'}).then(function(details) {
+                        value: 'actions.json'}).then(function (details) {
                             if (!details.length) {
                                 alert("Could not find actions.json");
                                 return;
                             }
 
                             let actionsUpload = details[0];
-                            return $http.get(actionsUpload.url).then(function(response) {
+                            return $http.get(actionsUpload.url).then(function (response) {
                                 if (response.data.version !== 1) {
                                     alert("Wrong version of actions.json, can't continue");
                                     return;
@@ -74,10 +74,10 @@ treeherder.controller('TCJobActionsCtrl', [
                                 $scope.staticActionVariables = response.data.variables;
                                 // only display actions which should be displayed
                                 // in this task's context
-                                $scope.actions = response.data.actions.filter(function(action) {
+                                $scope.actions = response.data.actions.filter(function (action) {
                                     return action.kind === 'task' && (
-                                        !action.context.length || _.some((action.context).map(function(actionContext) {
-                                            return !Object.keys(actionContext).length || _.every(_.map(actionContext, function(v, k) {
+                                        !action.context.length || _.some((action.context).map(function (actionContext) {
+                                            return !Object.keys(actionContext).length || _.every(_.map(actionContext, function (v, k) {
                                                 return (originalTask.tags[k] === v);
                                             }));
                                         })));

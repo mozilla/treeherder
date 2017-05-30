@@ -4,7 +4,7 @@
 This object contains a few constants and helper functions related to error
 message handling.
 */
-treeherder.factory('ThModelErrors', [function() {
+treeherder.factory('ThModelErrors', [function () {
     // Generic error message when we encounter 401 status codes from the
     // server.
     var AUTH_ERROR_MSG = 'Please login to Treeherder to complete this action';
@@ -17,7 +17,7 @@ treeherder.factory('ThModelErrors', [function() {
         @param {String} default error message to use by default one cannot be
                                 found in the error object.
         */
-        format: function(e, message) {
+        format: function (e, message) {
             // If we failed to authenticate for some reason return a nicer error message.
             if (e.status === 401 || e.status === 403) {
                 return AUTH_ERROR_MSG;
@@ -33,7 +33,7 @@ treeherder.factory('ThModelErrors', [function() {
 /**
  * This is useful to display Taskcluster errors nicely.
 */
-treeherder.factory('ThTaskclusterErrors', ['localStorageService', function(localStorageService) {
+treeherder.factory('ThTaskclusterErrors', ['localStorageService', function (localStorageService) {
     let TC_ERROR_PREFIX = 'Taskcluster: ';
     return {
         /**
@@ -41,7 +41,7 @@ treeherder.factory('ThTaskclusterErrors', ['localStorageService', function(local
 
         @param {Error} e error object from taskcluster client.
         */
-        format: function(e) {
+        format: function (e) {
             if (e.code === 'AuthenticationFailed') {
                 let creds = localStorageService.get('taskcluster.credentials');
                 if (creds && creds.certificate && creds.certificate.expiry) {

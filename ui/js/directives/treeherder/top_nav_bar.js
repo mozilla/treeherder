@@ -6,7 +6,7 @@ treeherder.directive('thFilterCheckbox', [
 
         return {
             restrict: "E",
-            link: function(scope) {
+            link: function (scope) {
                 scope.checkClass = thResultStatusInfo(scope.filterName).btnClass + "-count-classified";
             },
             templateUrl: 'partials/main/thFilterCheckbox.html'
@@ -55,11 +55,11 @@ treeherder.directive('thWatchedRepo', [
 
         return {
             restrict: "E",
-            link: function(scope) {
+            link: function (scope) {
 
                 scope.repoData = ThRepositoryModel.repos[scope.watchedRepo];
 
-                scope.updateTitleText = function() {
+                scope.updateTitleText = function () {
                     if (scope.repoData.treeStatus) {
                         scope.titleText = scope.repoData.treeStatus.status;
                         if (scope.repoData.treeStatus.reason) {
@@ -75,7 +75,7 @@ treeherder.directive('thWatchedRepo', [
 
                 scope.btnClass = "btn-view-nav";
 
-                scope.$watch('repoData.treeStatus.status', function(newVal) {
+                scope.$watch('repoData.treeStatus.status', function (newVal) {
                     if (newVal) {
                         $log.debug("updated treeStatus", newVal);
                         var si = statusInfo[newVal];
@@ -98,7 +98,7 @@ treeherder.directive('thWatchedRepoInfoDropDown', [
         return {
             restrict: "E",
             replace: true,
-            link: function(scope, element, attrs) {
+            link: function (scope, element, attrs) {
                 scope.name = attrs.name;
                 scope.treeStatus = treeStatus.getTreeStatusName(attrs.name);
                 var repo_obj = ThRepositoryModel.getRepo(attrs.name);
@@ -123,11 +123,11 @@ treeherder.directive('thCheckboxDropdownContainer', [
 
         return {
             restrict: "A",
-            link: function(scope, element) {
+            link: function (scope, element) {
 
                 scope.closeable = true;
                 $(element).on({
-                    "hide.bs.dropdown": function(ev) {
+                    "hide.bs.dropdown": function (ev) {
                         $log.debug("repo menu container", "hide.bs.dropdown", scope.closeable, ev.target.className);
                         var closeable = scope.closeable;
                         scope.closeable = true;
@@ -136,7 +136,7 @@ treeherder.directive('thCheckboxDropdownContainer', [
                 });
 
                 $('.checkbox-dropdown-menu').on({
-                    "click": function(ev) {
+                    "click": function (ev) {
                         if ($(ev.target).hasClass("dropdown-link") ||
                             $(ev.target).parent().hasClass("dropdown-link")) {
                             scope.closeable = false;
@@ -155,7 +155,7 @@ treeherder.directive('thRepoMenuItem',
         return {
             restrict: "E",
             replace: true,
-            link: function(scope, element) {
+            link: function (scope, element) {
                 var elem = $(element);
                 elem.find('.dropdown-link').prop('href', scope.urlBasePath + "?repo=" + scope.repo.name);
                 if (scope.repo.name === scope.repoName) {
@@ -171,7 +171,7 @@ treeherder.directive('thResultStatusChicklet', [
     'thResultStatusInfo', function (thResultStatusInfo) {
         return {
             restrict: "E",
-            link: function(scope) {
+            link: function (scope) {
                 scope.chickletClass = thResultStatusInfo(scope.filterName).btnClass +
                     "-filter-chicklet";
             },

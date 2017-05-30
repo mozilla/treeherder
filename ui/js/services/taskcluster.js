@@ -1,17 +1,17 @@
 'use strict';
 
 treeherder.factory('thTaskcluster', ['$rootScope', 'localStorageService',
-    function($rootScope, localStorageService) {
+    function ($rootScope, localStorageService) {
         let client = require('taskcluster-client');
-        $rootScope.$on("LocalStorageModule.notification.setitem", function() {
+        $rootScope.$on("LocalStorageModule.notification.setitem", function () {
             client.config({
                 credentials: localStorageService.get('taskcluster.credentials') || {},
             });
         });
 
         return {
-            client: function() { return client; },
-            refreshTimestamps: function(task) {
+            client: function () { return client; },
+            refreshTimestamps: function (task) {
                 // Take a taskcluster task and make all of the timestamps
                 // new again. This is pretty much lifted verbatim from
                 // mozilla_ci_tools which is used by pulse_actions.
@@ -23,7 +23,7 @@ treeherder.factory('thTaskcluster', ['$rootScope', 'localStorageService',
                 task.expires = client.fromNow('366 days');
                 task.created = client.fromNow(0);
                 task.deadline = client.fromNow('1 day');
-                _.map(task.payload.artifacts, function(artifact) {
+                _.map(task.payload.artifacts, function (artifact) {
                     artifact.expires = client.fromNow('365 days');
                 });
                 return task;
