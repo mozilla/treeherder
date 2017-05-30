@@ -37,11 +37,11 @@ perf.controller('e10sTrendCtrl', [
             $scope.compareResults = {};
 
             // create one object of common results
-            Object.keys(baseResults).forEach(function(baseTestName) {
-                baseResults[baseTestName].forEach(function(baseResult) {
+            Object.keys(baseResults).forEach(function (baseTestName) {
+                baseResults[baseTestName].forEach(function (baseResult) {
                     if (newResults[baseTestName]) {
                         var newResult = newResults[baseTestName];
-                        newResult = _.find(newResult, function(obj) { return obj.name === baseResult['name']; });
+                        newResult = _.find(newResult, function (obj) { return obj.name === baseResult['name']; });
                         if (match) {
                             var trendResult = PhCompare.getTrendMap(baseTestName, baseResult, newResult);
                             if (!$scope.compareResults[baseTestName]) {
@@ -67,7 +67,7 @@ perf.controller('e10sTrendCtrl', [
         }
 
         function getResults(dateRange, seriesList) {
-            return new Promise(function(resolve) {
+            return new Promise(function (resolve) {
                 var results = {};
                 var platformList = [];
                 var resultsMap = {
@@ -75,7 +75,7 @@ perf.controller('e10sTrendCtrl', [
                     base: {}
                 };
 
-                var seriesToMeasure = _.filter(seriesList, function(series) {
+                var seriesToMeasure = _.filter(seriesList, function (series) {
                     return series.options.indexOf('pgo') >= 0 ||
                         (series.platform === 'osx-10-10' &&
                          series.options.indexOf('opt') >= 0);
@@ -86,15 +86,15 @@ perf.controller('e10sTrendCtrl', [
                 // (so we can mash together pgo and opt)
                 var testList = _.uniq(_.map(seriesToMeasure, 'testName'));
 
-                $q.all(_.chunk(seriesToMeasure, 20).map(function(seriesChunk) {
+                $q.all(_.chunk(seriesToMeasure, 20).map(function (seriesChunk) {
                     var params = {
                         signatures: _.map(seriesChunk, 'signature'),
                         framework: 1,
                         start_date: dateRange.start,
                         end_date: dateRange.end
                     };
-                    return PhSeries.getSeriesData($scope.selectedRepo.name, params).then(function(seriesData) {
-                        _.forIn(seriesData, function(data, signature) {
+                    return PhSeries.getSeriesData($scope.selectedRepo.name, params).then(function (seriesData) {
+                        _.forIn(seriesData, function (data, signature) {
                             var series = _.find(seriesChunk, { signature: signature });
                             var type = (series.options.indexOf('e10s') >= 0) ? 'e10s' : 'base';
                             resultsMap[type][signature] = {
@@ -107,15 +107,15 @@ perf.controller('e10sTrendCtrl', [
                             };
                         });
                     });
-                })).then(function() {
-                    testList.forEach(function(testName) {
+                })).then(function () {
+                    testList.forEach(function (testName) {
                         $scope.titles[testName] = testName;
-                        platformList.forEach(function(platform) {
-                            var baseSig = _.find(Object.keys(resultsMap['base']), function(sig) {
+                        platformList.forEach(function (platform) {
+                            var baseSig = _.find(Object.keys(resultsMap['base']), function (sig) {
                                 return resultsMap['base'][sig].name === testName &&
                                     resultsMap['base'][sig].platform === platform;
                             });
-                            var e10sSig = _.find(Object.keys(resultsMap['e10s']), function(sig) {
+                            var e10sSig = _.find(Object.keys(resultsMap['e10s']), function (sig) {
                                 return resultsMap['e10s'][sig].name === testName &&
                                     resultsMap['e10s'][sig].platform === platform;
                             });
@@ -127,7 +127,7 @@ perf.controller('e10sTrendCtrl', [
                                 cmap.links = [{
                                     title: 'graph',
                                     href: PhCompare.getGraphsLink(
-                                        _.map([baseSig, e10sSig], function(sig) {
+                                        _.map([baseSig, e10sSig], function (sig) {
                                             return {
                                                 projectName: $scope.selectedRepo.name,
                                                 signature: sig,
@@ -157,7 +157,7 @@ perf.controller('e10sTrendCtrl', [
                             }
                         });
                     });
-                }).then(function() {
+                }).then(function () {
                     resolve(results);
                 });
             });
@@ -180,10 +180,10 @@ perf.controller('e10sTrendCtrl', [
                     interval: seriesInterval,
                     subtests: 0,
                     framework: 1
-                }).then(function(seriesList) {
+                }).then(function (seriesList) {
                     // get test results for both data sets, and display
-                    getResults(baseDateRange, seriesList).then(function(baseResults) {
-                        getResults(newDateRange, seriesList).then(function(newResults) {
+                    getResults(baseDateRange, seriesList).then(function (baseResults) {
+                        getResults(newDateRange, seriesList).then(function (newResults) {
                             displayResults(baseResults, newResults);
                             $scope.dataLoading = false;
                             $scope.$apply();
@@ -221,7 +221,7 @@ perf.controller('e10sTrendCtrl', [
             });
         }
 
-        ThRepositoryModel.load().then(function() {
+        ThRepositoryModel.load().then(function () {
             $scope.projects = $rootScope.repos;
             $scope.selectedRepo = _.find($scope.projects, {
                 name: $stateParams.repo ? $stateParams.repo : thDefaultRepo
@@ -234,7 +234,7 @@ perf.controller('e10sTrendCtrl', [
                 'filterOptions.showOnlyBlockers'
             ], updateURL);
 
-            $scope.globalOptionsChanged = function(selectedRepo, selectedBaseDate,
+            $scope.globalOptionsChanged = function (selectedRepo, selectedBaseDate,
                 selectedNewDate, selectedSampleSize) {
                 // parameters because angular assigns them to a different
                 // scope (*sigh*) and I don't know of any other workaround
@@ -288,11 +288,11 @@ perf.controller('e10sTrendSubtestCtrl', [
             $scope.compareResults = {};
 
             // create one object of common results
-            Object.keys(baseResults).forEach(function(baseTestName) {
-                baseResults[baseTestName].forEach(function(baseResult) {
+            Object.keys(baseResults).forEach(function (baseTestName) {
+                baseResults[baseTestName].forEach(function (baseResult) {
                     if (newResults[baseTestName]) {
                         var newResult = newResults[baseTestName];
-                        newResult = _.find(newResult, function(obj) { return obj.name === baseResult['name']; });
+                        newResult = _.find(newResult, function (obj) { return obj.name === baseResult['name']; });
                         if (match) {
                             var trendResult = PhCompare.getTrendMap(baseTestName, baseResult, newResult);
                             if (!$scope.compareResults[baseTestName]) {
@@ -318,7 +318,7 @@ perf.controller('e10sTrendSubtestCtrl', [
         }
 
         function getResults(dateRange, seriesList) {
-            return new Promise(function(resolve) {
+            return new Promise(function (resolve) {
                 var results = {};
                 var resultsMap = {
                     e10s: {},
@@ -328,13 +328,13 @@ perf.controller('e10sTrendSubtestCtrl', [
                 var summaryTestName = seriesList[0].platform + ": " + seriesList[0].suite;
                 $scope.titles[summaryTestName] = summaryTestName;
 
-                var seriesToMeasure = _.filter(seriesList, function(series) {
+                var seriesToMeasure = _.filter(seriesList, function (series) {
                     return series.options.indexOf('pgo') >= 0 ||
                         (series.platform === 'osx-10-10' &&
                          series.options.indexOf('opt') >= 0);
                 });
 
-                $q.all(_.chunk(seriesToMeasure, 20).map(function(seriesChunk) {
+                $q.all(_.chunk(seriesToMeasure, 20).map(function (seriesChunk) {
                     var params = {
                         signatures: _.map(seriesChunk, 'signature'),
                         framework: 1,
@@ -342,7 +342,7 @@ perf.controller('e10sTrendSubtestCtrl', [
                         end_date: dateRange.end
                     };
                     return PhSeries.getSeriesData($scope.selectedRepo.name, params).then(function (seriesData) {
-                        _.forIn(seriesData, function(data, signature) {
+                        _.forIn(seriesData, function (data, signature) {
                             var series = _.find(seriesChunk, { signature: signature });
                             var type = (series.options.indexOf('e10s') >= 0) ? 'e10s' : 'base';
                             resultsMap[type][signature] = {
@@ -355,16 +355,16 @@ perf.controller('e10sTrendSubtestCtrl', [
                             };
                         });
                     });
-                })).then(function() {
+                })).then(function () {
                     var subtestNames = _.map(resultsMap['base'],
-                                             function(results) {
+                                             function (results) {
                                                  return results.name;
                                              });
-                    _.forEach(subtestNames, function(subtestName) {
-                        var baseSig = _.find(Object.keys(resultsMap['base']), function(sig) {
+                    _.forEach(subtestNames, function (subtestName) {
+                        var baseSig = _.find(Object.keys(resultsMap['base']), function (sig) {
                             return resultsMap['base'][sig].name === subtestName;
                         });
-                        var e10sSig = _.find(Object.keys(resultsMap['e10s']), function(sig) {
+                        var e10sSig = _.find(Object.keys(resultsMap['e10s']), function (sig) {
                             return resultsMap['e10s'][sig].name === subtestName;
                         });
                         if (e10sSig && baseSig) {
@@ -375,7 +375,7 @@ perf.controller('e10sTrendSubtestCtrl', [
                             cmap.links = [{
                                 title: 'graph',
                                 href: PhCompare.getGraphsLink(
-                                    _.map([baseSig, e10sSig], function(sig) {
+                                    _.map([baseSig, e10sSig], function (sig) {
                                         return {
                                             projectName: $scope.selectedRepo.name,
                                             signature: sig,
@@ -390,7 +390,7 @@ perf.controller('e10sTrendSubtestCtrl', [
                             }
                         }
                     });
-                }).then(function() {
+                }).then(function () {
                     resolve(results);
                 });
             });
@@ -453,7 +453,7 @@ perf.controller('e10sTrendSubtestCtrl', [
             });
         }
 
-        ThRepositoryModel.load().then(function() {
+        ThRepositoryModel.load().then(function () {
             $scope.projects = $rootScope.repos;
             $scope.selectedRepo = _.find($scope.projects, {
                 name: $stateParams.repo ? $stateParams.repo : thDefaultRepo
@@ -467,7 +467,7 @@ perf.controller('e10sTrendSubtestCtrl', [
                 'filterOptions.showOnlyBlockers'
             ], updateURL);
 
-            $scope.globalOptionsChanged = function(selectedRepo, selectedBaseDate,
+            $scope.globalOptionsChanged = function (selectedRepo, selectedBaseDate,
                 selectedNewDate, selectedSampleSize) {
                 // parameters because angular assigns them to a different
                 // scope (*sigh*) and I don't know of any other workaround

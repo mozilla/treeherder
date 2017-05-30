@@ -6,7 +6,7 @@ var treeherderApp = angular.module('treeherder.app',
 
 treeherderApp.config(['$compileProvider', '$routeProvider', '$httpProvider',
     '$logProvider', '$resourceProvider', 'localStorageServiceProvider',
-    function($compileProvider, $routeProvider, $httpProvider, $logProvider,
+    function ($compileProvider, $routeProvider, $httpProvider, $logProvider,
              $resourceProvider, localStorageServiceProvider) {
         // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
         $compileProvider.debugInfoEnabled(false);

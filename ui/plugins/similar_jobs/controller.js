@@ -17,19 +17,19 @@ treeherder.controller('SimilarJobsPluginCtrl', [
 
         // do the jobs retrieval based on the user selection
         $scope.page_size = 20;
-        $scope.get_similar_jobs = function(){
+        $scope.get_similar_jobs = function (){
             thTabs.tabs.similarJobs.is_loading = true;
             var options = {
                 count: $scope.page_size + 1,
                 offset: ($scope.page - 1) * $scope.page_size
             };
-            angular.forEach($scope.similar_jobs_filters, function(value, key){
+            angular.forEach($scope.similar_jobs_filters, function (value, key){
                 if (value){
                     options[key] = $scope.job[key];
                 }
             });
             ThJobModel.get_similar_jobs($scope.repoName, $scope.job.id, options)
-                .then(function(data){
+                .then(function (data){
                     if (data.length > 0){
                         if (data.length > $scope.page_size){
                             $scope.has_next_page = true;
@@ -45,10 +45,10 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                         // get resultsets and revisions for the given ids
                         ThResultSetModel.getResultSetList(
                             $scope.repoName, result_set_ids, true
-                            ).then(function(response){
+                            ).then(function (response){
                                 //decorate the list of jobs with their result sets
                                 var resultsets = _.keyBy(response.data.results, "id");
-                                angular.forEach(data, function(obj){
+                                angular.forEach(data, function (obj){
                                     obj.result_set = resultsets[obj.result_set_id];
                                     obj.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
                                         $scope.repoName + "&revision=" + obj.result_set.revisions[0].revision;
@@ -62,7 +62,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                                 }
                                 thTabs.tabs.similarJobs.is_loading = false;
                             },
-                            function(){
+                            function (){
                                 thNotify.send("Error fetching pushes for similar jobs","danger");
                             });
                     }
@@ -71,9 +71,9 @@ treeherder.controller('SimilarJobsPluginCtrl', [
 
         // update function triggered by the plugins controller
 
-        $scope.update_similar_jobs = function(){
+        $scope.update_similar_jobs = function (){
             if (angular.isDefined($scope.jobLoadedPromise)){
-                $scope.jobLoadedPromise.then(function(){
+                $scope.jobLoadedPromise.then(function (){
                     $scope.similar_jobs = [];
                     $scope.page = 1;
                     $scope.similar_job_selected = null;
@@ -94,7 +94,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
             "build_platform_id": true,
             "option_collection_hash": true
         };
-        $scope.button_class = function(job){
+        $scope.button_class = function (job){
             var resultState = job.result;
             if (job.state !== "completed") {
                 resultState = job.state;
@@ -103,16 +103,16 @@ treeherder.controller('SimilarJobsPluginCtrl', [
         };
 
         // this is triggered by the show more link
-        $scope.show_next = function(){
+        $scope.show_next = function (){
             $scope.page += 1;
             $scope.get_similar_jobs();
         };
 
         $scope.similar_job_selected = null;
 
-        $scope.show_job_info = function(job){
+        $scope.show_job_info = function (job){
             ThJobModel.get($scope.repoName, job.id)
-            .then(function(job){
+            .then(function (job){
                 $scope.similar_job_selected = job;
                 $scope.similar_job_selected.result_status = thResultStatus($scope.similar_job_selected);
                 var duration = (
@@ -134,7 +134,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                 ThTextLogStepModel.query({
                     project: $scope.repoName,
                     jobId: $scope.similar_job_selected.id
-                }, function(textLogSteps) {
+                }, function (textLogSteps) {
                     $scope.similar_job_selected.error_lines = _.flatten(
                         textLogSteps.map(s => s.errors));
                 });

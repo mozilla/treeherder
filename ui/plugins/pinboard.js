@@ -7,57 +7,57 @@ treeherder.controller('PinboardCtrl', [
 
         var $log = new ThLog(this.constructor.name);
 
-        $rootScope.$on(thEvents.toggleJobPin, function(event, job) {
+        $rootScope.$on(thEvents.toggleJobPin, function (event, job) {
             $scope.toggleJobPin(job);
             if (!$scope.$$phase){
                 $scope.$digest();
             }
         });
 
-        $rootScope.$on(thEvents.jobPin, function(event, job) {
+        $rootScope.$on(thEvents.jobPin, function (event, job) {
             $scope.pinJob(job);
             if (!$scope.$$phase){
                 $scope.$digest();
             }
         });
 
-        $rootScope.$on(thEvents.addRelatedBug, function(event, job) {
+        $rootScope.$on(thEvents.addRelatedBug, function (event, job) {
             $scope.pinJob(job);
             $scope.toggleEnterBugNumber(true);
         });
 
-        $rootScope.$on(thEvents.saveClassification, function() {
+        $rootScope.$on(thEvents.saveClassification, function () {
             if ($scope.isPinboardVisible) {
                 $scope.save();
             }
         });
 
-        $rootScope.$on(thEvents.clearPinboard, function() {
+        $rootScope.$on(thEvents.clearPinboard, function () {
             if ($scope.isPinboardVisible) {
                 $scope.unPinAll();
             }
         });
 
-        $scope.toggleJobPin = function(job) {
+        $scope.toggleJobPin = function (job) {
             thPinboard.toggleJobPin(job);
             if (!$scope.selectedJob) {
                 $scope.viewJob(job);
             }
         };
 
-        $scope.pulsePinCount = function() {
+        $scope.pulsePinCount = function () {
             $( ".pin-count-group" ).addClass( "pin-count-pulse" );
-            $timeout(function() {
+            $timeout(function () {
                 $( ".pin-count-group" ).removeClass( "pin-count-pulse" );
             }, 700);
         };
 
         // Triggered on pin api events eg. from the job details navbar
-        $rootScope.$on(thEvents.pulsePinCount, function() {
+        $rootScope.$on(thEvents.pulsePinCount, function () {
             $scope.pulsePinCount();
         });
 
-        $scope.pinJob = function(job) {
+        $scope.pinJob = function (job) {
             thPinboard.pinJob(job);
             if (!$scope.selectedJob) {
                 $scope.viewJob(job);
@@ -65,24 +65,24 @@ treeherder.controller('PinboardCtrl', [
             $scope.pulsePinCount();
         };
 
-        $scope.unPinJob = function(id) {
+        $scope.unPinJob = function (id) {
             thPinboard.unPinJob(id);
         };
 
-        $scope.addBug = function(bug) {
+        $scope.addBug = function (bug) {
             thPinboard.addBug(bug);
         };
 
-        $scope.removeBug = function(id) {
+        $scope.removeBug = function (id) {
             thPinboard.removeBug(id);
         };
 
-        $scope.unPinAll = function() {
+        $scope.unPinAll = function () {
             thPinboard.unPinAll();
             $scope.classification = thPinboard.createNewClassification();
         };
 
-        $scope.save = function() {
+        $scope.save = function () {
             var errorFree = true;
             if ($scope.enteringBugNumber) {
                 // we should save this for the user, as they likely
@@ -115,7 +115,7 @@ treeherder.controller('PinboardCtrl', [
             }
         };
 
-        $scope.saveClassificationOnly = function() {
+        $scope.saveClassificationOnly = function () {
             if ($scope.user.loggedin) {
                 $scope.classification.who = $scope.user.email;
                 thPinboard.saveClassificationOnly($scope.classification);
@@ -124,7 +124,7 @@ treeherder.controller('PinboardCtrl', [
             }
         };
 
-        $scope.saveBugsOnly = function() {
+        $scope.saveBugsOnly = function () {
             if ($scope.user.loggedin) {
                 thPinboard.saveBugsOnly();
             } else {
@@ -132,12 +132,12 @@ treeherder.controller('PinboardCtrl', [
             }
         };
 
-        $scope.retriggerAllPinnedJobs = function() {
+        $scope.retriggerAllPinnedJobs = function () {
             // pushing pinned jobs to a list.
             $scope.retriggerJob(_.values($scope.pinnedJobs));
         };
 
-        $scope.cancelAllPinnedJobsTitle = function() {
+        $scope.cancelAllPinnedJobsTitle = function () {
             if (!$scope.user.loggedin) {
                 return "Not logged in";
             } else if (!$scope.canCancelAllPinnedJobs()) {
@@ -147,19 +147,19 @@ treeherder.controller('PinboardCtrl', [
             return "Cancel all the pinned jobs";
         };
 
-        $scope.canCancelAllPinnedJobs = function() {
+        $scope.canCancelAllPinnedJobs = function () {
             var cancellableJobs = _.values($scope.pinnedJobs).filter(
                 job => (job.state === 'pending' || job.state === 'running'));
             return $scope.user.loggedin && cancellableJobs.length > 0;
         };
 
-        $scope.cancelAllPinnedJobs = function() {
+        $scope.cancelAllPinnedJobs = function () {
             if (window.confirm('This will cancel all the selected jobs. Are you sure?')) {
                 $scope.cancelJobs(_.values($scope.pinnedJobs));
             }
         };
 
-        $scope.canSaveClassifications = function() {
+        $scope.canSaveClassifications = function () {
             var thisClass = $scope.classification;
             return $scope.hasPinnedJobs() && $scope.user.loggedin &&
                    (thPinboard.hasRelatedBugs() ||
@@ -171,7 +171,7 @@ treeherder.controller('PinboardCtrl', [
         };
 
         // Dynamic btn/anchor title for classification save
-        $scope.saveUITitle = function(category) {
+        $scope.saveUITitle = function (category) {
             var title = "";
 
             if (!$scope.user.loggedin) {
@@ -197,23 +197,23 @@ treeherder.controller('PinboardCtrl', [
             } else {
                 // Cut off trailing "/ " if one exists, capitalize first letter
                 title = title.replace(/\/ $/,"");
-                title = title.replace(/^./, function(l) { return l.toUpperCase(); });
+                title = title.replace(/^./, function (l) { return l.toUpperCase(); });
             }
 
             return title;
         };
 
-        $scope.hasPinnedJobs = function() {
+        $scope.hasPinnedJobs = function () {
             return thPinboard.hasPinnedJobs();
         };
 
-        $scope.hasRelatedBugs = function() {
+        $scope.hasRelatedBugs = function () {
             return thPinboard.hasRelatedBugs();
         };
 
         function handleRelatedBugDocumentClick(event) {
             if (!$(event.target).hasClass("add-related-bugs-input")) {
-                $scope.$apply(function() {
+                $scope.$apply(function () {
                     if ($scope.newEnteredBugNumber) {
                         $scope.saveEnteredBugNumber();
                     } else {
@@ -223,7 +223,7 @@ treeherder.controller('PinboardCtrl', [
             }
         }
 
-        $scope.toggleEnterBugNumber = function(tf) {
+        $scope.toggleEnterBugNumber = function (tf) {
             $scope.enteringBugNumber = tf;
             $scope.focusInput = tf;
 
@@ -231,7 +231,7 @@ treeherder.controller('PinboardCtrl', [
             if (tf) {
                 // Rebind escape to canceling the bug entry, pressing escape
                 // again will close the pinboard as usual.
-                Mousetrap.bind('escape', function() {
+                Mousetrap.bind('escape', function () {
                     var cancel = _.bind($scope.toggleEnterBugNumber, $scope, false);
                     $scope.$evalAsync(cancel);
                 });
@@ -240,7 +240,7 @@ treeherder.controller('PinboardCtrl', [
                 // outside of the input field will close it. A blur handler
                 // can't be used because it would have timing issues with the
                 // click handler on the + icon.
-                $timeout(function() {
+                $timeout(function () {
                     $document.on('click', handleRelatedBugDocumentClick);
                 }, 0);
             } else {
@@ -248,19 +248,19 @@ treeherder.controller('PinboardCtrl', [
             }
         };
 
-        $scope.completeClassification = function() {
+        $scope.completeClassification = function () {
             $rootScope.$broadcast('blur-this', "classification-comment");
         };
 
         // The manual bug entry input eats the global ctrl+enter save() shortcut.
         // Force that event to be emitted so ctrl+enter saves the classification.
-        $scope.ctrlEnterSaves = function(ev) {
+        $scope.ctrlEnterSaves = function (ev) {
             if (ev.ctrlKey && ev.keyCode === 13) {
                 $scope.$evalAsync($rootScope.$emit(thEvents.saveClassification));
             }
         };
 
-        $scope.saveEnteredBugNumber = function() {
+        $scope.saveEnteredBugNumber = function () {
             if ($scope.enteringBugNumber) {
                 if (!$scope.newEnteredBugNumber) {
                     $scope.toggleEnterBugNumber(false);
@@ -274,7 +274,7 @@ treeherder.controller('PinboardCtrl', [
             }
         };
 
-        $scope.viewJob = function(job) {
+        $scope.viewJob = function (job) {
             $rootScope.selectedJob = job;
             $rootScope.$emit(thEvents.jobClick, job);
             $rootScope.$emit(thEvents.selectJob, job);

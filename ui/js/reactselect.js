@@ -7,17 +7,17 @@ var ReactSelectComponent = React.createClass({
         side: React.PropTypes.string.isRequired,
         filter: React.PropTypes.string
     },
-    componentDidMount: function() {
+    componentDidMount: function () {
         var keyShortcuts = [
             // Shortcut: select all
-            ['mod+a', function(ev) {
+            ['mod+a', function (ev) {
                 ev.preventDefault();
                 Array.prototype.slice.call(ev.target.options).map(function (op) {
                     op.selected = true;
                 });
             }]
         ];
-        keyShortcuts.map(function(data) {
+        keyShortcuts.map(function (data) {
             Mousetrap.bind(data[0], data[1]);
         });
     },

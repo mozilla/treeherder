@@ -80,6 +80,11 @@ module.exports = neutrino => {
                     'no-void': 'error',
                     'no-with': 'error',
                     'semi': 'error',
+                    'space-before-function-paren': ['error', {
+                        anonymous: 'always',
+                        named: 'never',
+                        asyncArrow: 'always'
+                    }],
                     'strict': ['error', 'global'],
                     'yoda': 'error'
                 },

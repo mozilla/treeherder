@@ -2,7 +2,7 @@
 
 // configure the router here, after we have defined all the controllers etc
 perf.config(['$compileProvider', '$httpProvider', '$stateProvider', '$urlRouterProvider',
-    function($compileProvider, $httpProvider, $stateProvider, $urlRouterProvider) {
+    function ($compileProvider, $httpProvider, $stateProvider, $urlRouterProvider) {
         // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
         $compileProvider.debugInfoEnabled(false);
 
@@ -62,7 +62,7 @@ perf.config(['$compileProvider', '$httpProvider', '$stateProvider', '$urlRouterP
         $rootScope.$state = $state;
         $rootScope.$stateParams = $stateParams;
 
-        $rootScope.$on('$stateChangeSuccess', function() {
+        $rootScope.$on('$stateChangeSuccess', function () {
             if ($state.current.title) {
                 window.document.title = $state.current.title;
             }

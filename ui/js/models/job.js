@@ -2,28 +2,28 @@
 
 treeherder.factory('ThJobModel', [
     '$http', 'ThLog', 'thUrl', 'thPlatformName', '$q',
-    function($http, ThLog, thUrl, thPlatformName, $q) {
+    function ($http, ThLog, thUrl, thPlatformName, $q) {
         // ThJobModel is the js counterpart of job
 
-        var ThJobModel = function(data) {
+        var ThJobModel = function (data) {
             // creates a new instance of ThJobModel
             // using the provided properties
             angular.extend(this, data);
         };
 
-        ThJobModel.prototype.running_time_remaining = function(){
+        ThJobModel.prototype.running_time_remaining = function (){
             var timestampNow = new Date().getTime()/1000;
             var current_duration = timestampNow - parseInt(this.start_timestamp);
             return Math.round( (parseInt(this.running_eta) - current_duration) / 60);
         };
 
-        ThJobModel.prototype.get_average_duration = function(){
+        ThJobModel.prototype.get_average_duration = function (){
             return Math.round(
                 parseInt(this.running_eta) /60
             );
         };
 
-        ThJobModel.prototype.get_title = function() {
+        ThJobModel.prototype.get_title = function () {
             // we want to join the group and type information together
             // so we can search for it as one token (useful when
             // we want to do a search on something like `fxup-esr(`)
@@ -40,7 +40,7 @@ treeherder.factory('ThJobModel', [
             ]).join(' ');
         };
 
-        ThJobModel.prototype.get_search_str = function() {
+        ThJobModel.prototype.get_search_str = function () {
             return _.filter([
                 this.get_title(),
                 this.ref_data_name,
@@ -48,9 +48,9 @@ treeherder.factory('ThJobModel', [
             ]).join(' ');
         };
 
-        ThJobModel.get_uri = function(repoName){return thUrl.getProjectUrl("/jobs/", repoName);};
+        ThJobModel.get_uri = function (repoName){return thUrl.getProjectUrl("/jobs/", repoName);};
 
-        ThJobModel.get_list = function(repoName, options, config) {
+        ThJobModel.get_list = function (repoName, options, config) {
             // a static method to retrieve a list of ThJobModel
             config = config || {};
             var timeout = config.timeout || null;
@@ -64,7 +64,7 @@ treeherder.factory('ThJobModel', [
                 params: options,
                 timeout: timeout
             }).
-                then(function(response) {
+                then(function (response) {
                     var item_list;
                     var next_pages_jobs = [];
                     // if the number of elements returned equals the page size, fetch the next pages
@@ -79,36 +79,36 @@ treeherder.factory('ThJobModel', [
                     if (_.has(response.data, 'job_property_names')){
                         // the results came as list of fields
                         //we need to convert them to objects
-                        item_list = _.map(response.data.results, function(elem){
+                        item_list = _.map(response.data.results, function (elem){
                             return new ThJobModel(
                                 _.zipObject(response.data.job_property_names, elem));
                         });
                     } else {
-                        item_list = _.map(response.data.results, function(job_obj){
+                        item_list = _.map(response.data.results, function (job_obj){
                             return new ThJobModel(job_obj);
                         });
                     }
                     // next_pages_jobs is wrapped in a $q.when call because it could be
                     // either a promise or a value
-                    return $q.when(next_pages_jobs).then(function(maybe_job_list){
+                    return $q.when(next_pages_jobs).then(function (maybe_job_list){
                         return item_list.concat(maybe_job_list);
                     });
                 });
         };
 
-        ThJobModel.get = function(repoName, pk, config) {
+        ThJobModel.get = function (repoName, pk, config) {
             // a static method to retrieve a single instance of ThJobModel
             config = config || {};
             var timeout = config.timeout || null;
 
             return $http.get(ThJobModel.get_uri(repoName)+pk+"/",
                              {timeout:timeout})
-                .then(function(response) {
+                .then(function (response) {
                     return new ThJobModel(response.data);
                 });
         };
 
-        ThJobModel.get_similar_jobs = function(repoName, pk, options, config){
+        ThJobModel.get_similar_jobs = function (repoName, pk, options, config){
             config = config || {};
             // The similar jobs endpoints returns the same type of objects as
             // the job list endpoint, so let's reuse the get_list method logic.
@@ -116,18 +116,18 @@ treeherder.factory('ThJobModel', [
             return ThJobModel.get_list(repoName, options, config);
         };
 
-        ThJobModel.retrigger = function(repoName, job_id_list, config) {
+        ThJobModel.retrigger = function (repoName, job_id_list, config) {
             config = config || {};
             var timeout = config.timeout || null;
 
             return $http.post(ThJobModel.get_uri(repoName)+"retrigger/",
                               {job_id_list:job_id_list, timeout:timeout})
-                .then(function(response) {
+                .then(function (response) {
                     return new ThJobModel(response.data);
                 });
         };
 
-        ThJobModel.backfill = function(repoName, pk, config) {
+        ThJobModel.backfill = function (repoName, pk, config) {
             config = config || {};
             var timeout = config.timeout || null;
 
@@ -135,13 +135,13 @@ treeherder.factory('ThJobModel', [
                               {timeout:timeout});
         };
 
-        ThJobModel.cancel = function(repoName, jobIds, config) {
+        ThJobModel.cancel = function (repoName, jobIds, config) {
             config = config || {};
             var timeout = config.timeout || null;
 
             return $http.post(ThJobModel.get_uri(repoName) + "cancel/",
                               {job_id_list: jobIds, timeout:timeout})
-                .then(function(response) {
+                .then(function (response) {
                     return new ThJobModel(response.data);
                 });
         };

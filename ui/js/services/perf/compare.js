@@ -2,7 +2,7 @@
 
 treeherder.factory('PhCompare', [
     '$q', '$http', '$httpParamSerializer', 'thServiceDomain', 'PhSeries', 'math', 'phTimeRanges',
-    function($q, $http, $httpParamSerializer, thServiceDomain, PhSeries, math, phTimeRanges) {
+    function ($q, $http, $httpParamSerializer, thServiceDomain, PhSeries, math, phTimeRanges) {
 
         // Used for t_test: default stddev if both sets have only a single value - 15%.
         // Should be rare case and it's unreliable, but at least have something.
@@ -178,17 +178,17 @@ treeherder.factory('PhCompare', [
                 return cmap;
             },
 
-            getInterval: function(oldTimestamp, newTimestamp) {
+            getInterval: function (oldTimestamp, newTimestamp) {
                 var now = (new Date()).getTime() / 1000;
                 var timeRange = Math.min(oldTimestamp, newTimestamp);
                 timeRange = Math.round(now - timeRange);
 
                 //now figure out which predefined set of data we can query from
-                var phTimeRange = _.find(phTimeRanges, function(i) { return timeRange <= i.value; });
+                var phTimeRange = _.find(phTimeRanges, function (i) { return timeRange <= i.value; });
                 return phTimeRange.value;
             },
 
-            validateInput: function(originalProject, newProject,
+            validateInput: function (originalProject, newProject,
                                     originalRevision, newRevision,
                                     originalSignature, newSignature) {
 
@@ -203,7 +203,7 @@ treeherder.factory('PhCompare', [
                     if (!newSignature) errors.push('Missing input: newSignature');
                 }
 
-                $http.get(thServiceDomain + '/api/repository/').then(function(response) {
+                $http.get(thServiceDomain + '/api/repository/').then(function (response) {
                     if (!_.find(response.data, {'name': originalProject}))
                         errors.push("Invalid project, doesn't exist: " + originalProject);
 
@@ -213,20 +213,20 @@ treeherder.factory('PhCompare', [
                 return errors;
             },
 
-            getResultsMap: function(projectName, seriesList, resultSetIds) {
+            getResultsMap: function (projectName, seriesList, resultSetIds) {
                 var resultsMap = {};
-                return $q.all(_.chunk(seriesList, 20).map(function(seriesChunk) {
+                return $q.all(_.chunk(seriesList, 20).map(function (seriesChunk) {
                     return PhSeries.getSeriesData(
                         projectName, {
                             signatures: _.map(seriesChunk, 'signature'),
                             framework: _.uniq(_.map(seriesChunk, 'frameworkId')),
                             push_id: resultSetIds }
-                    ).then(function(seriesData) {
-                        resultSetIds.forEach(function(resultSetId) {
+                    ).then(function (seriesData) {
+                        resultSetIds.forEach(function (resultSetId) {
                             if (resultsMap[resultSetId] === undefined) {
                                 resultsMap[resultSetId] = {};
                             }
-                            _.forIn(seriesData, function(data, signature) {
+                            _.forIn(seriesData, function (data, signature) {
                                 // Aggregates data from the server on a single group of values which
                                 // will be compared later to another group. Ends up with an object
                                 // with description (name/platform) and values.
@@ -247,20 +247,20 @@ treeherder.factory('PhCompare', [
                             });
                         });
                     });
-                })).then(function() {
+                })).then(function () {
                     return resultsMap;
                 });
             },
 
-            getGraphsLink: function(seriesList, resultSets) {
+            getGraphsLink: function (seriesList, resultSets) {
                 var graphsLink = 'perf.html#/graphs?' + $httpParamSerializer({
-                    series: _.map(seriesList, function(series) {
+                    series: _.map(seriesList, function (series) {
                         return [
                             series.projectName,
                             series.signature, 1,
                             series.frameworkId ];
                     }),
-                    highlightedRevisions: _.map(resultSets, function(resultSet) {
+                    highlightedRevisions: _.map(resultSets, function (resultSet) {
                         return resultSet.revision.slice(0, 12);
                     })
                 });
@@ -268,10 +268,10 @@ treeherder.factory('PhCompare', [
                 if (resultSets) {
                     graphsLink += '&timerange=' + _.max(
                         _.map(resultSets,
-                              function(resultSet) {
+                              function (resultSet) {
                                   return _.find(
                                       _.map(phTimeRanges, 'value'),
-                                      function(t) {
+                                      function (t) {
                                           return ((Date.now() / 1000.0) -
                                                   resultSet.push_timestamp) < t;
                                       });

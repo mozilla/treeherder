@@ -1,7 +1,7 @@
 'use strict';
 
 treeherder.component('phCompareTable', {
-    templateUrl: ['$element', '$attrs', function($element, $attrs) {
+    templateUrl: ['$element', '$attrs', function ($element, $attrs) {
         if ($attrs.type === 'trend')
             return 'partials/perf/trendtable.html';
         return 'partials/perf/comparetable.html';
@@ -17,7 +17,7 @@ treeherder.component('phCompareTable', {
         filterByFramework: '@',
         releaseBlockerCriteria: '@'
     },
-    controller: ['$element', '$attrs', function($element, $attrs) {
+    controller: ['$element', '$attrs', function ($element, $attrs) {
         var ctrl = this;
 
         if (!ctrl.baseTitle) {
@@ -26,7 +26,7 @@ treeherder.component('phCompareTable', {
         if (!ctrl.newTitle) {
             ctrl.newTitle = "New";
         }
-        ctrl.getCompareClasses = function(cr, type) {
+        ctrl.getCompareClasses = function (cr, type) {
             if (cr.isEmpty) return 'subtest-empty';
             if (type === 'row' && cr.highlightedTest) return 'active subtest-highlighted';
             if (type === 'row') return '';
@@ -48,9 +48,9 @@ treeherder.component('phCompareTable', {
             if (_.isUndefined(ctrl.filterOptions.filter)) {
                 return results;
             }
-            return _.filter(results, function(result) {
+            return _.filter(results, function (result) {
                 var testCondition = `${key} ${($attrs.type === 'trend') ? result.trendResult.name : result.name}`;
-                return _.every(ctrl.filterOptions.filter.split(' '), function(matchText) {
+                return _.every(ctrl.filterOptions.filter.split(' '), function (matchText) {
                     if ($attrs.type === 'trend')
                         return filter(testCondition, matchText) && shouldBeShown(result.trendResult);
                     return filter(testCondition, matchText) && shouldBeShown(result);
@@ -58,15 +58,15 @@ treeherder.component('phCompareTable', {
             });
         }
 
-        ctrl.updateFilteredTestList = function() {
+        ctrl.updateFilteredTestList = function () {
             ctrl.filteredResultList = {};
-            _.forEach(ctrl.compareResults, function(result, key) {
+            _.forEach(ctrl.compareResults, function (result, key) {
                 var compareResults = filterResult(result, key);
                 if (compareResults.length > 0) {
                     ctrl.filteredResultList[key] = compareResults;
                 }
             });
-            ctrl.filteredResultList = _.map(_.keys(ctrl.filteredResultList), function(testName) {
+            ctrl.filteredResultList = _.map(_.keys(ctrl.filteredResultList), function (testName) {
                 return {'testName': testName, 'results': ctrl.filteredResultList[testName]};
             });
         };

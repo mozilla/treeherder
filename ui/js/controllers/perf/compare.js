@@ -10,12 +10,12 @@ perf.controller('CompareChooserCtrl', [
                                 phCompareDefaultOriginalRepo,
                                 JsonPushes, thPerformanceBranches,
                                 localStorageService) {
-        ThRepositoryModel.get_list().success(function(projects) {
+        ThRepositoryModel.get_list().success(function (projects) {
             $scope.projects = projects;
             $scope.originalTipList = [];
             $scope.newTipList = [];
 
-            var getParameter = function(paramName, defaultValue) {
+            var getParameter = function (paramName, defaultValue) {
                 if ($stateParams[paramName])
                     return $stateParams[paramName];
                 else if (localStorageService.get(paramName))
@@ -33,13 +33,13 @@ perf.controller('CompareChooserCtrl', [
             $scope.originalRevision = getParameter('originalRevision', '');
             $scope.newRevision = getParameter('newRevision', '');
 
-            var getRevisionTips = function(projectName, list) {
+            var getRevisionTips = function (projectName, list) {
                 // due to we push the revision data into list,
                 // so we need clear the data before we push new data into it.
                 list.splice(0, list.length);
-                ThResultSetModel.getResultSets(projectName).then(function(response) {
+                ThResultSetModel.getResultSets(projectName).then(function (response) {
                     var resultsets = response.data.results;
-                    resultsets.forEach(function(revisionSet) {
+                    resultsets.forEach(function (revisionSet) {
                         list.push({
                             revision: revisionSet.revision,
                             author: revisionSet.author
@@ -48,24 +48,24 @@ perf.controller('CompareChooserCtrl', [
                 });
             };
 
-            $scope.updateOriginalgRevisionTips = function() {
+            $scope.updateOriginalgRevisionTips = function () {
                 getRevisionTips($scope.originalProject.name, $scope.originalTipList);
             };
-            $scope.updateNewRevisionTips = function() {
+            $scope.updateNewRevisionTips = function () {
                 getRevisionTips($scope.newProject.name, $scope.newTipList);
             };
             $scope.updateOriginalgRevisionTips();
             $scope.updateNewRevisionTips();
 
-            $scope.getOriginalTipRevision = function(tip) {
+            $scope.getOriginalTipRevision = function (tip) {
                 $scope.originalRevision = tip;
             };
 
-            $scope.getNewTipRevision = function(tip) {
+            $scope.getNewTipRevision = function (tip) {
                 $scope.newRevision = tip;
             };
 
-            $scope.getPreviousRevision = function() {
+            $scope.getPreviousRevision = function () {
                 $scope.proposedRevision = $scope.newRevisionError = null;
 
                 // only check for a full revision
@@ -76,7 +76,7 @@ perf.controller('CompareChooserCtrl', [
                 var promise;
                 if ($scope.newProject.name === "try") {
                     // try require some special logic
-                    var iProjs = _.filter($scope.projects, function(proj) {
+                    var iProjs = _.filter($scope.projects, function (proj) {
                         return _.includes(thPerformanceBranches,
                                           proj.name);
                     });
@@ -99,33 +99,33 @@ perf.controller('CompareChooserCtrl', [
                 }
 
                 promise.then(
-                    function(result) {
+                    function (result) {
                         $scope.proposedRevision = {
                             revision: result.revision.slice(0, 12),
                             project: result.project
                         };
                     },
-                    function(error) {
+                    function (error) {
                         $scope.newRevisionError = error.toString();
                     }
-                ).finally(function() {
+                ).finally(function () {
                     $scope.proposedRevisionLoading = false;
                 });
             };
 
-            $scope.setProposedRevision = function() {
+            $scope.setProposedRevision = function () {
                 var rev = $scope.proposedRevision;
                 $scope.proposedRevision = null;
                 $scope.originalProject = rev.project;
                 $scope.originalRevision = rev.revision;
             };
 
-            $scope.runCompare = function() {
+            $scope.runCompare = function () {
                 ThResultSetModel.getResultSetsFromRevision($scope.originalProject.name, $scope.originalRevision).then(
-                    function() {
+                    function () {
                         $scope.originalRevisionError = undefined;
                     },
-                    function(error) {
+                    function (error) {
                         $scope.originalRevisionError = error;
                     }
                 );
@@ -179,13 +179,13 @@ perf.controller('CompareResultsCtrl', [
                                      " (" + $scope.originalProject.name + ") " +
                                      "and " + $scope.newRevision + " (" + $scope.newProject.name + ")");
 
-            $scope.testList.forEach(function(testName) {
+            $scope.testList.forEach(function (testName) {
                 $scope.titles[testName] = testName.replace('summary ', '');
-                $scope.platformList.forEach(function(platform) {
-                    var oldSig = _.find(Object.keys(rawResultsMap), function(sig) {
+                $scope.platformList.forEach(function (platform) {
+                    var oldSig = _.find(Object.keys(rawResultsMap), function (sig) {
                         return rawResultsMap[sig].name === testName && rawResultsMap[sig].platform === platform;
                     });
-                    var newSig = _.find(Object.keys(newRawResultsMap), function(sig) {
+                    var newSig = _.find(Object.keys(newRawResultsMap), function (sig) {
                         return newRawResultsMap[sig].name === testName && newRawResultsMap[sig].platform === platform;
                     });
 
@@ -217,7 +217,7 @@ perf.controller('CompareResultsCtrl', [
                     cmap.links.push({
                         title: 'graph',
                         href: PhCompare.getGraphsLink(_.map(_.uniq(
-                            [$scope.originalProject, $scope.newProject]), function(project) {
+                            [$scope.originalProject, $scope.newProject]), function (project) {
                             return {
                                 projectName: project.name,
                                 signature: oldSig,
@@ -235,7 +235,7 @@ perf.controller('CompareResultsCtrl', [
 
             // Remove the tests with no data, report them as well; not needed for subtests
             $scope.testNoResults = _.difference($scope.testList, Object.keys($scope.compareResults))
-                .map(function(name) { return ' ' + name.replace(' summary', ''); }).sort().join();
+                .map(function (name) { return ' ' + name.replace(' summary', ''); }).sort().join();
             $scope.testList = Object.keys($scope.compareResults).sort();
         }
 
@@ -257,7 +257,7 @@ perf.controller('CompareResultsCtrl', [
                     interval: timeRange, subtests: 0,
                     framework: $scope.filterOptions.framework.id
                 }).then(
-                    function(originalSeriesList) {
+                    function (originalSeriesList) {
                         $scope.platformList = _.uniq(
                             _.map(originalSeriesList, 'platform'));
                         $scope.testList = _.uniq(
@@ -265,7 +265,7 @@ perf.controller('CompareResultsCtrl', [
                         return PhCompare.getResultsMap($scope.originalProject.name,
                                                        originalSeriesList,
                                                        resultSetIds);
-                    }).then(function(resultMaps) {
+                    }).then(function (resultMaps) {
                         var originalResultsMap = resultMaps[$scope.originalResultSet.id];
                         var newResultsMap = resultMaps[$scope.newResultSet.id];
 
@@ -302,7 +302,7 @@ perf.controller('CompareResultsCtrl', [
         //TODO: duplicated in comparesubtestctrl
         function verifyRevision(project, revision, rsid) {
             return ThResultSetModel.getResultSetsFromRevision(project.name, revision).then(
-                function(resultSets) {
+                function (resultSets) {
                     var resultSet = resultSets[0];
                     //TODO: this is a bit hacky to pass in 'original' as a text string
                     if (rsid === 'original') {
@@ -311,7 +311,7 @@ perf.controller('CompareResultsCtrl', [
                         $scope.newResultSet = resultSet;
                     }
                 },
-                function(error) {
+                function (error) {
                     $scope.errors.push(error);
                 });
         }
@@ -320,10 +320,10 @@ perf.controller('CompareResultsCtrl', [
 
         var loadRepositories = ThRepositoryModel.load();
         var loadFrameworks = PhFramework.getFrameworkList().then(
-            function(frameworks) {
+            function (frameworks) {
                 $scope.frameworks = frameworks;
             });
-        $q.all([loadRepositories, loadFrameworks]).then(function() {
+        $q.all([loadRepositories, loadFrameworks]).then(function () {
             $scope.errors = PhCompare.validateInput($stateParams.originalProject,
                                                     $stateParams.newProject,
                                                     $stateParams.originalRevision,
@@ -404,7 +404,7 @@ perf.controller('CompareSubtestResultsCtrl', [
         //TODO: duplicated from comparectrl
         function verifyRevision(project, revision, rsid) {
             return ThResultSetModel.getResultSetsFromRevision(project.name, revision).then(
-                function(resultSets) {
+                function (resultSets) {
                     var resultSet = resultSets[0];
                     //TODO: this is a bit hacky to pass in 'original' as a text string
                     if (rsid === 'original') {
@@ -413,7 +413,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                         $scope.newResultSet = resultSet;
                     }
                 },
-                function(error) {
+                function (error) {
                     $scope.errors.push(error);
                 });
         }
@@ -430,9 +430,9 @@ perf.controller('CompareSubtestResultsCtrl', [
             window.document.title = $scope.subtestTitle = $scope.titles[testName];
 
             $scope.pageList.sort();
-            $scope.pageList.forEach(function(page) {
+            $scope.pageList.forEach(function (page) {
                 var mapsigs = [];
-                [rawResultsMap, newRawResultsMap].forEach(function(resultsMap) {
+                [rawResultsMap, newRawResultsMap].forEach(function (resultsMap) {
                     var tempsig;
                     // If no data for a given platform, or test, display N/A in table
                     if (resultsMap) {
@@ -478,7 +478,7 @@ perf.controller('CompareSubtestResultsCtrl', [
 
         $scope.dataLoading = true;
 
-        ThRepositoryModel.load().then(function() {
+        ThRepositoryModel.load().then(function () {
             $scope.errors = PhCompare.validateInput($stateParams.originalProject,
                                                     $stateParams.newProject,
                                                     $stateParams.originalRevision,

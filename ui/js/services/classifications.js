@@ -2,7 +2,7 @@
 
 treeherder.factory('thClassificationTypes', [
     '$http', 'thUrl',
-    function($http, thUrl) {
+    function ($http, thUrl) {
 
         var classifications = {};
         var classificationOptions = [];
@@ -17,7 +17,7 @@ treeherder.factory('thClassificationTypes', [
             7: "label-warning"     // autoclassified intermittent
         };
 
-        var addClassification = function(cl) {
+        var addClassification = function (cl) {
             classifications[cl.id] = {
                 name: cl.name,
                 star: classificationColors[cl.id]
@@ -25,9 +25,9 @@ treeherder.factory('thClassificationTypes', [
             classificationOptions.push(cl);
         };
 
-        var load = function() {
+        var load = function () {
             return $http.get(thUrl.getRootUrl("/failureclassification/"), {cache: true}).
-                success(function(data) {
+                success(function (data) {
                     _.forEach(data, addClassification);
                 });
         };
@@ -39,8 +39,8 @@ treeherder.factory('thClassificationTypes', [
         };
     }]);
 
-treeherder.factory('thValidBugNumber', [function() {
-    return function(bug_number) {
+treeherder.factory('thValidBugNumber', [function () {
+    return function (bug_number) {
         return parseInt(bug_number) >= 0;
     };
 }]);

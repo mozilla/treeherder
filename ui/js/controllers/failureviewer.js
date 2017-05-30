@@ -16,7 +16,7 @@ failureViewerApp.controller('FailureViewerCtrl', [
         } else {
             thNotify.send("No classified_failure_id specified", "danger", true);
         }
-        $scope.init = function() {
+        $scope.init = function () {
             if ($scope.classifiedFailureId) {
                 $scope.isLoading = true;
 
@@ -33,7 +33,7 @@ failureViewerApp.controller('FailureViewerCtrl', [
                         });
 
                 $q.all([loadClassification, loadMatches])
-                    .finally(function() {
+                    .finally(function () {
                         $scope.isLoading = false;
                     });
             }
@@ -41,7 +41,7 @@ failureViewerApp.controller('FailureViewerCtrl', [
 
         // if someone changes the id on the url, reload the page to get the
         // new data.
-        $rootScope.$on('$locationChangeSuccess', function() {
+        $rootScope.$on('$locationChangeSuccess', function () {
             if ($scope.classifiedFailureId !== $location.search().classified_failure_id) {
                 $window.location.reload();
             }

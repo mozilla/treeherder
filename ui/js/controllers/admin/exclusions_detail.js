@@ -7,9 +7,9 @@ admin.controller('ExclusionsDetailCtrl', [
         $scope, ThJobExclusionModel, thNotify, $state, $stateParams,
         strReloadTreeherder) {
 
-        $scope.init = function() {
-            $scope.initMasterLists().then(function() {
-                $scope.populateExclusionsData().then(function() {
+        $scope.init = function () {
+            $scope.initMasterLists().then(function () {
+                $scope.populateExclusionsData().then(function () {
                     var id = $stateParams.id;
                     if (id === "new") {
                         $scope.resetExclusion();
@@ -22,7 +22,7 @@ admin.controller('ExclusionsDetailCtrl', [
         };
 
         // Init the exclusion change form
-        $scope.initUpdate = function(id) {
+        $scope.initUpdate = function (id) {
             $scope.resetExclusion();
             $scope.form_exclusion = $scope.exclusionsMap[id];
             if ($scope.form_exclusion) {
@@ -40,21 +40,21 @@ admin.controller('ExclusionsDetailCtrl', [
             }
         };
 
-        $scope.saveExclusion = function(exclusion) {
+        $scope.saveExclusion = function (exclusion) {
             // convert option_collections to option_collection_hashes
             exclusion.info.option_collection_hashes = [];
-            _.each(exclusion.info.option_collections, function(oc) {
+            _.each(exclusion.info.option_collections, function (oc) {
                 exclusion.info.option_collection_hashes.push(
                     $scope.option_collection_hash_map[oc]);
             });
 
             if (exclusion.id) {
-                exclusion.update().then(function() {
+                exclusion.update().then(function () {
                     $state.go('exclusions');
                 }, null);
             } else {
                 exclusion = new ThJobExclusionModel(exclusion);
-                exclusion.create().then(function() {
+                exclusion.create().then(function () {
                     $scope.exclusions.push(exclusion);
                     $scope.resetExclusion();
                     $state.go('exclusions');
@@ -63,7 +63,7 @@ admin.controller('ExclusionsDetailCtrl', [
             thNotify.send(strReloadTreeherder);
         };
 
-        $scope.resetExclusion = function() {
+        $scope.resetExclusion = function () {
             // reset the user choices
             $scope.form_exclusion = angular.copy($scope.master_exclusion);
             // and reset the available choices

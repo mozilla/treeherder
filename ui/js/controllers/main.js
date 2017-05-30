@@ -35,8 +35,8 @@ treeherderApp.controller('MainCtrl', [
 
         thClassificationTypes.load();
 
-        var checkServerRevision = function() {
-            return $q(function(resolve, reject) {
+        var checkServerRevision = function () {
+            return $q(function (resolve, reject) {
                 $http({
                     method: 'GET',
                     url: '/revision.txt'
@@ -51,17 +51,17 @@ treeherderApp.controller('MainCtrl', [
         // Trigger missing jobs is dangerous on repos other than these (see bug 1335506)
         $scope.triggerMissingRepos = ['mozilla-inbound', 'autoland'];
 
-        $scope.updateButtonClick = function() {
+        $scope.updateButtonClick = function () {
             if (window.confirm("Reload the page to pick up Treeherder updates?")) {
                 window.location.reload(true);
             }
         };
 
         // Only set up the revision polling interval if revision.txt exists on page load
-        checkServerRevision().then(function(revision) {
+        checkServerRevision().then(function (revision) {
             $rootScope.serverRev = revision;
-            $interval(function() {
-                checkServerRevision().then(function(revision) {
+            $interval(function () {
+                checkServerRevision().then(function (revision) {
                     if ($rootScope.serverChanged) {
                         if (Date.now() - $rootScope.serverChangedTimestamp > revisionPollDelayedInterval) {
                             $rootScope.serverChangedDelayed = true;
@@ -79,11 +79,11 @@ treeherderApp.controller('MainCtrl', [
                     }
                 });
             }, revisionPollInterval);
-        }, function(reason) {
+        }, function (reason) {
             $log.debug(reason);
         });
 
-        $rootScope.getWindowTitle = function() {
+        $rootScope.getWindowTitle = function () {
             var ufc = $scope.getAllUnclassifiedFailureCount($rootScope.repoName);
             var params = $location.search();
 
@@ -100,7 +100,7 @@ treeherderApp.controller('MainCtrl', [
             return title;
         };
 
-        var getSingleRevisionTitleString = function() {
+        var getSingleRevisionTitleString = function () {
             var revisions = [];
             var percentComplete;
 
@@ -140,15 +140,15 @@ treeherderApp.controller('MainCtrl', [
             return [title, percentComplete];
         };
 
-        $rootScope.$on(thEvents.jobClick, function(ev, job) {
+        $rootScope.$on(thEvents.jobClick, function (ev, job) {
             $location.search(QS_SELECTED_JOB, job.id);
         });
 
-        $rootScope.$on(thEvents.clearSelectedJob, function() {
+        $rootScope.$on(thEvents.clearSelectedJob, function () {
             $location.search(QS_SELECTED_JOB, null);
         });
 
-        $rootScope.closeJob = function() {
+        $rootScope.closeJob = function () {
             // Setting the selectedJob to null closes the bottom panel
             $rootScope.selectedJob = null;
 
@@ -160,7 +160,7 @@ treeherderApp.controller('MainCtrl', [
         };
 
         // Clear the job if it occurs in a particular area
-        $scope.clearJobOnClick = function(event) {
+        $scope.clearJobOnClick = function (event) {
             var element = event.target;
             // Suppress for various UI elements so selection is preserved
             var ignoreClear = element.hasAttribute("data-ignore-job-clear-on-click");
@@ -179,7 +179,7 @@ treeherderApp.controller('MainCtrl', [
          * And it can change any time the user re-sizes the window, so we must
          * check this each time a drop-down is invoked.
          */
-        $scope.setDropDownPull = function(event) {
+        $scope.setDropDownPull = function (event) {
             $log.debug("dropDown", event.target);
             var element = event.target.offsetParent;
             if (element.offsetLeft > $(window).width() / 2) {
@@ -195,7 +195,7 @@ treeherderApp.controller('MainCtrl', [
 
         $scope.isSkippingExclusionProfiles = $location.search().exclusion_profile === 'false';
 
-        $scope.toggleExcludedJobs = function() {
+        $scope.toggleExcludedJobs = function () {
             if ($location.search().exclusion_profile === 'false') {
                 $location.search('exclusion_profile', null);
             } else {
@@ -205,22 +205,22 @@ treeherderApp.controller('MainCtrl', [
 
         $scope.toggleUnclassifiedFailures = thJobFilters.toggleUnclassifiedFailures;
 
-        $scope.toggleInProgress = function() {
+        $scope.toggleInProgress = function () {
             thJobFilters.toggleInProgress();
         };
 
-        $scope.allExpanded = function(cls) {
+        $scope.allExpanded = function (cls) {
             var fullList = $("." + cls);
             var visibleList = $("." + cls + ":visible");
             return fullList.length === visibleList.length;
         };
 
-        $scope.allCollapsed = function(cls) {
+        $scope.allCollapsed = function (cls) {
             var visibleList = $("." + cls + ":visible");
             return visibleList.length === 0;
         };
 
-        $scope.toggleAllRevisions = function(collapse) {
+        $scope.toggleAllRevisions = function (collapse) {
             collapse = collapse || $scope.allCollapsed("revision-list");
             $rootScope.$emit(
                 thEvents.toggleAllRevisions, collapse
@@ -228,13 +228,13 @@ treeherderApp.controller('MainCtrl', [
 
         };
 
-        $scope.getGroupState = function() {
+        $scope.getGroupState = function () {
             return $location.search().group_state || "collapsed";
         };
 
         $scope.groupState = $scope.getGroupState();
 
-        $scope.toggleGroupState = function() {
+        $scope.toggleGroupState = function () {
             var newGroupState = $scope.groupState === "collapsed" ? "expanded" : null;
             $location.search("group_state", newGroupState);
         };
@@ -259,21 +259,21 @@ treeherderApp.controller('MainCtrl', [
          * to keep things in sync.
          */
 
-        $scope.isSingleTierSelected = function() {
+        $scope.isSingleTierSelected = function () {
             return _.without(_.values($scope.tiers), false).length === 1;
         };
 
-        $scope.isTierShowing = function(tier) {
+        $scope.isTierShowing = function (tier) {
             return thJobFilters.isFilterSetToShow("tier", tier);
         };
 
         $scope.tiers = {};
 
-        $scope.updateTiers = function() {
+        $scope.updateTiers = function () {
             // If any tier has changed, update the tier menu check boxes and
             // throw an event.
             var changed = false;
-            _.forEach(thJobFilters.tiers, function(tier) {
+            _.forEach(thJobFilters.tiers, function (tier) {
                 var isShowing = $scope.isTierShowing(tier);
                 if (isShowing !== $scope.tiers[tier]) {
                     $scope.tiers[tier] = isShowing;
@@ -289,7 +289,7 @@ treeherderApp.controller('MainCtrl', [
         // Setup key event handling
         var stopOverrides = new Map();
 
-        Mousetrap.stopCallback = function(ev, element, combo) {
+        Mousetrap.stopCallback = function (ev, element, combo) {
             // if the element has the class "mousetrap" then no need to stop
             if (element.classList.contains('mousetrap')) {
                 return false;
@@ -318,40 +318,40 @@ treeherderApp.controller('MainCtrl', [
 
         var keyShortcuts = [
             // Shortcut: toggle display in-progress jobs (pending/running)
-            ['i', function() {
+            ['i', function () {
                 $scope.$evalAsync($scope.toggleInProgress());
             }],
 
             // Shortcut: select previous job
-            ['left', function() {
+            ['left', function () {
                 $rootScope.$emit(thEvents.changeSelection,
                                  'previous',
                                  thJobNavSelectors.ALL_JOBS);
             }],
 
             // Shortcut: select next job
-            ['right', function() {
+            ['right', function () {
                 $rootScope.$emit(thEvents.changeSelection,
                                  'next',
                                  thJobNavSelectors.ALL_JOBS);
             }],
 
             // Shortcut: select next unclassified failure
-            ['n', function() {
+            ['n', function () {
                 $rootScope.$emit(thEvents.changeSelection,
                                  'next',
                                  thJobNavSelectors.UNCLASSIFIED_FAILURES);
             }],
 
             // Shortcut: select previous unclassified failure
-            ['p', function() {
+            ['p', function () {
                 $rootScope.$emit(thEvents.changeSelection,
                                  'previous',
                                  thJobNavSelectors.UNCLASSIFIED_FAILURES);
             }],
 
             // Shortcut: select next job tab
-            [['t'], function() {
+            [['t'], function () {
                 if ($scope.selectedJob) {
                     $scope.$evalAsync(
                         $rootScope.$emit(thEvents.selectNextTab)
@@ -360,7 +360,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: retrigger selected job
-            ['r', function() {
+            ['r', function () {
                 if ($scope.selectedJob) {
                     $scope.$evalAsync(
                         $rootScope.$emit(thEvents.jobRetrigger,
@@ -370,7 +370,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: pin selected job to pinboard
-            ['space', function(ev) {
+            ['space', function (ev) {
                 // If a job is selected add it otherwise
                 // let the browser handle the spacebar
                 if ($scope.selectedJob) {
@@ -384,12 +384,12 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: display only unclassified failures
-            ['u', function() {
+            ['u', function () {
                 $scope.$evalAsync($scope.toggleUnclassifiedFailures);
             }],
 
             // Shortcut: pin selected job to pinboard and add a related bug
-            ['b', function(ev) {
+            ['b', function (ev) {
                 if ($scope.selectedJob) {
                     $rootScope.$emit(thEvents.addRelatedBug,
                                      $rootScope.selectedJob);
@@ -398,11 +398,11 @@ treeherderApp.controller('MainCtrl', [
                     ev.preventDefault();
 
                     $timeout(
-                        function() {
+                        function () {
                             $("#related-bug-input").focus();
                         }, 0);
                 }
-            }, function(ev, element) {
+            }, function (ev, element) {
                 if (element.id === "pinboard-classification-select") {
                     return false;
                 }
@@ -410,7 +410,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: pin selected job to pinboard and enter classification
-            ['c', function(ev) {
+            ['c', function (ev) {
                 if ($scope.selectedJob) {
                     $scope.$evalAsync(
                         $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob)
@@ -420,11 +420,11 @@ treeherderApp.controller('MainCtrl', [
                     ev.preventDefault();
 
                     $timeout(
-                        function() {
+                        function () {
                             $("#classification-comment").focus();
                         }, 0);
                 }
-            }, function(ev, element) {
+            }, function (ev, element) {
                 if (element.id === "pinboard-classification-select") {
                     return false;
                 }
@@ -432,7 +432,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: enter a quick filter
-            ['f', function(ev) {
+            ['f', function (ev) {
                 // Prevent shortcut key overflow during focus
                 ev.preventDefault();
 
@@ -440,7 +440,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: clear the quick filter field
-            ['ctrl+shift+f', function(ev) {
+            ['ctrl+shift+f', function (ev) {
                 // Prevent shortcut key overflow during focus
                 ev.preventDefault();
 
@@ -448,7 +448,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: escape closes any open panels and clears selected job
-            ['escape', function() {
+            ['escape', function () {
                 $scope.$evalAsync($scope.setFilterPanelShowing(false));
                 $scope.$evalAsync($scope.setSettingsPanelShowing(false));
                 $scope.$evalAsync($scope.closeJob());
@@ -456,20 +456,20 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: clear the pinboard
-            ['ctrl+shift+u', function() {
+            ['ctrl+shift+u', function () {
                 $scope.$evalAsync($rootScope.$emit(thEvents.clearPinboard));
             }],
 
             // Shortcut: save pinboard classification and related bugs
-            ['ctrl+enter', function() {
+            ['ctrl+enter', function () {
                 $scope.$evalAsync($rootScope.$emit(thEvents.saveClassification));
-            }, function() {
+            }, function () {
                 // Make this work regardless of form controls etc.
                 return false;
             }],
 
             // Shortcut: open the logviewer for the selected job
-            ['l', function() {
+            ['l', function () {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyOpenLogViewer));
                 } else if ($scope.selectedJob) {
@@ -478,28 +478,28 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: delete classification and related bugs
-            ['ctrl+backspace', function() {
+            ['ctrl+backspace', function () {
                 if ($scope.selectedJob) {
                     $scope.$evalAsync($rootScope.$emit(thEvents.deleteClassification));
                 }
             }],
 
             // Shortcut: save all in the autoclasify panel
-            ['s', function() {
+            ['s', function () {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifySaveAll));
                 }
             }],
 
             // Shortcut: ignore selected in the autoclasify panel
-            ['i', function() {
+            ['i', function () {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyIgnore));
                 }
             }],
 
             // Shortcut: ignore selected in the autoclasify panel
-            [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'o'], function(ev) {
+            [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'o'], function (ev) {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifySelectOption,
                                                        ev.key === "o" ? "manual" : ev.key));
@@ -507,21 +507,21 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: toggle edit mode for selected lines
-            ['e', function() {
+            ['e', function () {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyToggleEdit));
                 }
             }],
 
             // Shortcut: toggle more/fewer options in the autoclassify panel
-            ['x', function() {
+            ['x', function () {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyToggleExpandOptions));
                 }
             }],
 
             // Shortcut: select next unverified log line
-            [['j', 'shift+j'], function(ev) {
+            [['j', 'shift+j'], function (ev) {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,
                                                        'next',
@@ -534,7 +534,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: select previous unverified log line
-            [['k', 'shift+k'], function(ev) {
+            [['k', 'shift+k'], function (ev) {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,
                                                        'previous',
@@ -547,7 +547,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: select all remaining unverified lines on the current job
-            [['a'], function() {
+            [['a'], function () {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,
                                                        'all_next',
@@ -556,19 +556,19 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: display onscreen keyboard shortcuts
-            ['?', function() {
+            ['?', function () {
                 $scope.$evalAsync($scope.setOnscreenShortcutsShowing(true));
             }]
         ];
 
-        keyShortcuts.forEach(function(data) {
+        keyShortcuts.forEach(function (data) {
             Mousetrap.bind(data[0], data[1]);
             if (data[2]) {
                 var keys = data[0];
                 if (!Array.isArray(keys)) {
                     keys = [keys];
                 }
-                keys.forEach(function(key) {
+                keys.forEach(function (key) {
                     stopOverrides.set(key, data[2]);
                 });
             }
@@ -577,19 +577,19 @@ treeherderApp.controller('MainCtrl', [
         $scope.updateTiers();
 
         // clicked a checkbox in the tier menu
-        $scope.tierToggled = function(tier) {
+        $scope.tierToggled = function (tier) {
             thJobFilters.toggleFilters('tier', [tier], $scope.tiers[tier]);
             $rootScope.$emit(thEvents.recalculateUnclassified);
         };
 
-        var getNewReloadTriggerParams = function() {
+        var getNewReloadTriggerParams = function () {
             return _.pick(
                 $location.search(),
                 ThResultSetStore.reloadOnChangeParameters
             );
         };
 
-        $scope.search = function() {
+        $scope.search = function () {
             return $location.search();
         };
 
@@ -597,33 +597,33 @@ treeherderApp.controller('MainCtrl', [
         $scope.activeFiltersBarProperties = ['fromchange', 'tochange', 'author',
             'nojobs', 'startdate', 'enddate', 'revision'];
 
-        $scope.showActiveFiltersBar = function() {
+        $scope.showActiveFiltersBar = function () {
             return $scope.search().fromchange || $scope.search().tochange ||
                    $scope.search().author || $scope.search().nojobs ||
                    $scope.search().startdate || $scope.search().enddate ||
                    $scope.search().revision;
         };
 
-        $scope.fromChangeValue = function() {
+        $scope.fromChangeValue = function () {
             var url = window.location.href;
             url = url.replace("&fromchange=" + $location.search()["fromchange"], "");
             return url;
         };
 
-        $scope.toChangeValue = function() {
+        $scope.toChangeValue = function () {
             var url = window.location.href;
             url = url.replace("&tochange=" + $location.search()["tochange"], "");
             return url;
         };
 
-        $scope.dropLocationSearchParam = function(param) {
+        $scope.dropLocationSearchParam = function (param) {
             var url = $location.url();
             url = url.replace("&" + param + "=" + $location.search()[param], "");
             url = url.replace("&" + param, "");
             $location.url(url);
         };
 
-        $scope.setLocationSearchParam = function(param, value) {
+        $scope.setLocationSearchParam = function (param, value) {
             $location.search(param, value);
         };
 
@@ -637,7 +637,7 @@ treeherderApp.controller('MainCtrl', [
         // otherwise trigger a page reload.  This is useful for a param that
         // is being changed by code in a specific situation as opposed to when
         // the user manually edits the URL location bar.
-        $rootScope.$on('$locationChangeSuccess', function() {
+        $rootScope.$on('$locationChangeSuccess', function () {
 
             // used to test for display of watched-repo-navbar
             $rootScope.locationPath = $location.path().replace('/', '');
@@ -680,14 +680,14 @@ treeherderApp.controller('MainCtrl', [
             $scope.updateTiers();
         });
 
-        $scope.changeRepo = function(repo_name) {
+        $scope.changeRepo = function (repo_name) {
             // preserves filter params as the user changes repos and revisions
             $location.search(_.extend({
                 "repo": repo_name
             }, thJobFilters.getActiveFilters()));
         };
 
-        $scope.filterParams = function() {
+        $scope.filterParams = function () {
             var filters = $httpParamSerializer(thJobFilters.getActiveFilters());
             if (filters) {
                 filters = "&" + filters;
@@ -695,7 +695,7 @@ treeherderApp.controller('MainCtrl', [
             return filters;
         };
 
-        $scope.clearFilterBox = function() {
+        $scope.clearFilterBox = function () {
             thJobFilters.removeFilter("searchStr");
             $("#quick-filter").val("").focus();
         };
@@ -703,18 +703,18 @@ treeherderApp.controller('MainCtrl', [
         $scope.onscreenOverlayShowing = false;
 
         $scope.onscreenShortcutsShowing = false;
-        $scope.setOnscreenShortcutsShowing = function(tf) {
+        $scope.setOnscreenShortcutsShowing = function (tf) {
             $scope.onscreenShortcutsShowing = tf;
             $scope.onscreenOverlayShowing = tf;
         };
 
         $scope.isFilterPanelShowing = false;
-        $scope.setFilterPanelShowing = function(tf) {
+        $scope.setFilterPanelShowing = function (tf) {
             $scope.isFilterPanelShowing = tf;
         };
 
         $scope.isSettingsPanelShowing = false;
-        $scope.setSettingsPanelShowing = function(tf) {
+        $scope.setSettingsPanelShowing = function (tf) {
             $scope.isSettingsPanelShowing = tf;
         };
 
@@ -722,11 +722,11 @@ treeherderApp.controller('MainCtrl', [
         $scope.pinnedJobs = thPinboard.pinnedJobs;
         $scope.jobFilters = thJobFilters;
 
-        $scope.isShowDuplicateJobs = function() {
+        $scope.isShowDuplicateJobs = function () {
             return $location.search().duplicate_jobs === 'visible';
         };
         $scope.showDuplicateJobs = $scope.isShowDuplicateJobs();
-        $scope.toggleShowDuplicateJobs = function() {
+        $scope.toggleShowDuplicateJobs = function () {
             var showDuplicateJobs = !$scope.showDuplicateJobs;
 
             // $scope.showDuplicateJobs will be changed in watch function above
