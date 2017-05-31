@@ -50,7 +50,7 @@ def write_failure_lines(job_log, log_iter):
         # Alter the N+1th log line to indicate the list was truncated.
         log_list[-1].update(action='truncated')
 
-    retry = False
+    transformer = None
     with transaction.atomic():
         try:
             failure_lines = create(job_log, log_list)
@@ -60,7 +60,8 @@ def write_failure_lines(job_log, log_iter):
             if e.args[0] == 1366:
                 # Sometimes get an error if we can't save a string as MySQL pseudo-UTF8
                 transformer = replace_astral
-                retry = True
+            else:
+                raise
         except IntegrityError:
             logger.warning("Got IntegrityError inserting failure_line")
 
@@ -70,10 +71,11 @@ def write_failure_lines(job_log, log_iter):
                                                line__in=[item["line"] for item in log_list])
                     .values_list("line", flat=True))
                 return (item for item in log_list if item["line"] not in exclude)
-            transformer = exclude_lines
-            retry = True
 
-    if retry:
+            transformer = exclude_lines
+
+    # If we hit an error that might be solved by transofrming the data then retry
+    if transformer is not None:
         with transaction.atomic():
             log_list = list(transformer(log_list))
             failure_lines = create(job_log, log_list)
