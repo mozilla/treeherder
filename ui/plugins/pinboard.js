@@ -1,7 +1,7 @@
 "use strict";
 
 treeherder.controller('PinboardCtrl', [
-    '$scope', '$rootScope', '$document', '$timeout','thEvents', 'thPinboard', 'thNotify', 'ThLog',
+    '$scope', '$rootScope', '$document', '$timeout', 'thEvents', 'thPinboard', 'thNotify', 'ThLog',
     function PinboardCtrl(
         $scope, $rootScope, $document, $timeout, thEvents, thPinboard, thNotify, ThLog) {
 
@@ -196,7 +196,7 @@ treeherder.controller('PinboardCtrl', [
                 title = "Save " + category + " data";
             } else {
                 // Cut off trailing "/ " if one exists, capitalize first letter
-                title = title.replace(/\/ $/,"");
+                title = title.replace(/\/ $/, "");
                 title = title.replace(/^./, function (l) { return l.toUpperCase(); });
             }
 

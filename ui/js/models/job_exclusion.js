@@ -58,7 +58,7 @@ treeherder.factory('ThJobExclusionModel', [
                                 });
                             });
                         } else {
-                            thNotify.send(reason,"danger");
+                            thNotify.send(reason, "danger");
                         }
                         return $q.reject(reason);
                     }
@@ -85,7 +85,7 @@ treeherder.factory('ThJobExclusionModel', [
                                 });
                             });
                         } else {
-                            thNotify.send(reason,"danger");
+                            thNotify.send(reason, "danger");
                         }
                         return $q.reject(reason);
                     }
@@ -102,7 +102,7 @@ treeherder.factory('ThJobExclusionModel', [
                         thNotify.send("Job filter successfully deleted", "success");
                     },
                     function (reason) {
-                        thNotify.send(reason.data,"danger");
+                        thNotify.send(reason.data, "danger");
                         return $q.reject(reason);
                     }
                 );

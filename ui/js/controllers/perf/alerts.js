@@ -7,7 +7,7 @@ perf.factory('PhBugs', [
             fileBug: function (alertSummary) {
                 $http.get(thServiceDomain + '/api/performance/bug-template/?framework=' + alertSummary.framework).then(function (response) {
                     var template = response.data[0];
-                    var repo = _.find($rootScope.repos,{ name: alertSummary.repository });
+                    var repo = _.find($rootScope.repos, { name: alertSummary.repository });
                     var compiledText = $interpolate(template.text)({
                         revisionHref: repo.getPushLogHref(alertSummary.resultSetMetadata.revision),
                         alertHref: window.location.origin + '/perf.html#/alerts?id=' +
@@ -103,8 +103,8 @@ perf.controller(
 
 perf.controller(
     'ReassignAlertsCtrl', ['$scope', '$uibModalInstance', '$http', '$q', 'alertSummary',
-        'allAlertSummaries','PhAlerts', 'phAlertStatusMap',
-        function ($scope, $uibModalInstance,$http, $q, alertSummary, allAlertSummaries, PhAlerts, phAlertStatusMap) {
+        'allAlertSummaries', 'PhAlerts', 'phAlertStatusMap',
+        function ($scope, $uibModalInstance, $http, $q, alertSummary, allAlertSummaries, PhAlerts, phAlertStatusMap) {
 
             $scope.title = "Reassign alerts";
             $scope.placeholder = "Alert #";

@@ -3,7 +3,7 @@
 admin.controller('AdminCtrl', [
     '$scope', 'ThBuildPlatformModel', 'ThJobTypeModel', 'ThRepositoryModel',
     'ThOptionCollectionModel', 'ThJobExclusionModel', '$state',
-    '$q','ThExclusionProfileModel',
+    '$q', 'ThExclusionProfileModel',
     function AdminCtrl(
         $scope, ThBuildPlatformModel, ThJobTypeModel, ThRepositoryModel,
         ThOptionCollectionModel, ThJobExclusionModel, $state,

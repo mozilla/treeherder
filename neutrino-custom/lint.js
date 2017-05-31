@@ -28,6 +28,7 @@ module.exports = neutrino => {
                 extends: 'eslint:recommended',
                 rules: {
                     'accessor-pairs': 'error',
+                    'comma-spacing': 'error',
                     'comma-style': 'error',
                     'eol-last': 'error',
                     'eqeqeq': 'error',

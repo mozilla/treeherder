@@ -19,9 +19,10 @@
                 <div class="input-group-btn">
                   <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Recent <span class="caret"></span></button>
-                  <ul class="dropdown-menu dropdown-menu-right" ng-model="tipRevision">
+                <ul class="dropdown-menu dropdown-menu-right" ng-model="tipRevision">
                   <li ng-repeat="tip in originalTipList"><a ng-click="getOriginalTipRevision(tip.revision)">{{tip.revision | limitTo: 12}} {{tip.author}}</a></li>
-              </ul>
+                </ul>
+              </div>
             </div>
           </div>
           </div>

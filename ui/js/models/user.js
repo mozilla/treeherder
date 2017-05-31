@@ -22,7 +22,7 @@ treeherder.factory('ThUserModel', [
                     return (response.data.length > 0) ? new ThUserModel(response.data[0]) : {};
                 },
                 function (reason) {
-                    thNotify.send(reason.data,"danger");
+                    thNotify.send(reason.data, "danger");
                     return $q.reject(reason);
                 });
         };

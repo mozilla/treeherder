@@ -60,7 +60,7 @@ treeherder.factory('ThJobModel', [
             // list endpoint.
             var uri = config.uri || ThJobModel.get_uri(repoName);
 
-            return $http.get(uri,{
+            return $http.get(uri, {
                 params: options,
                 timeout: timeout
             }).

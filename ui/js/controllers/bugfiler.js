@@ -405,7 +405,7 @@ treeherder.controller('BugFilerCtrl', [
          *  Disable or enable form elements as needed at various points in the submission process
          */
         $scope.toggleForm = function (disabled) {
-            $(':input','#modalForm').attr("disabled", disabled);
+            $(':input', '#modalForm').attr("disabled", disabled);
         };
     }
 ]);
