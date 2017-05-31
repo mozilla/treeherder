@@ -1,19 +1,21 @@
 "use strict";
 
 perf.controller('CompareChooserCtrl', [
-    '$state', '$stateParams', '$scope', 'ThRepositoryModel', 'ThResultSetModel',
+    '$state', '$stateParams', '$scope','$q', 'ThRepositoryModel', 'ThResultSetModel',
     'phCompareDefaultNewRepo', 'phCompareDefaultOriginalRepo', 'JsonPushes',
-    'thPerformanceBranches','localStorageService',
-    function CompareChooserCtrl($state, $stateParams, $scope,
+    'thPerformanceBranches','localStorageService', 'compareBaseLineDefaultTimeRange',
+    function CompareChooserCtrl($state, $stateParams, $scope, $q,
                                 ThRepositoryModel, ThResultSetModel,
                                 phCompareDefaultNewRepo,
                                 phCompareDefaultOriginalRepo,
                                 JsonPushes, thPerformanceBranches,
-                                localStorageService) {
+                                localStorageService,
+                                compareBaseLineDefaultTimeRange) {
         ThRepositoryModel.get_list().success(function (projects) {
             $scope.projects = projects;
             $scope.originalTipList = [];
             $scope.newTipList = [];
+            $scope.revisionComparison = false;
 
             var getParameter = function (paramName, defaultValue) {
                 if ($stateParams[paramName])
@@ -69,7 +71,7 @@ perf.controller('CompareChooserCtrl', [
                 $scope.proposedRevision = $scope.newRevisionError = null;
 
                 // only check for a full revision
-                if ($scope.newRevision.length < 12) return;
+                if ($scope.newRevision.length < 12 || !$scope.revisionComparison) return;
 
                 $scope.proposedRevisionLoading = true;
 
@@ -121,23 +123,34 @@ perf.controller('CompareChooserCtrl', [
             };
 
             $scope.runCompare = function () {
-                ThResultSetModel.getResultSetsFromRevision($scope.originalProject.name, $scope.originalRevision).then(
+                var revisionPromises = [];
+                if ($scope.revisionComparison) {
+                    revisionPromises.push(ThResultSetModel.getResultSetsFromRevision($scope.originalProject.name, $scope.originalRevision).then(
+                        function () {
+                            $scope.originalRevisionError = undefined;
+                        },
+                        function (error) {
+                            $scope.originalRevisionError = error;
+                        }
+                    ));
+                }
+
+                revisionPromises.push(ThResultSetModel.getResultSetsFromRevision($scope.newProject.name, $scope.newRevision).then(
                     function () {
-                        $scope.originalRevisionError = undefined;
+                        $scope.newRevisionError = undefined;
                     },
                     function (error) {
-                        $scope.originalRevisionError = error;
+                        $scope.newRevisionError = error;
                     }
-                );
+                ));
 
-                ThResultSetModel.getResultSetsFromRevision($scope.newProject.name, $scope.newRevision).then(
-                    function () {
-                        localStorageService.set('originalProject', $scope.originalProject.name, "sessionStorage");
-                        localStorageService.set('originalRevision', $scope.originalRevision, "sessionStorage");
-                        localStorageService.set('newProject', $scope.newProject.name, "sessionStorage");
-                        localStorageService.set('newRevision', $scope.newRevision, "sessionStorage");
-                        $scope.newRevisionError = undefined;
-                        if ($scope.originalRevisionError === undefined && $scope.newRevisionError === undefined) {
+                $q.all(revisionPromises).then(function () {
+                    localStorageService.set('originalProject', $scope.originalProject.name, "sessionStorage");
+                    localStorageService.set('originalRevision', $scope.originalRevision, "sessionStorage");
+                    localStorageService.set('newProject', $scope.newProject.name, "sessionStorage");
+                    localStorageService.set('newRevision', $scope.newRevision, "sessionStorage");
+                    if ($scope.originalRevisionError === undefined && $scope.newRevisionError === undefined) {
+                        if ($scope.revisionComparison) {
                             $state.go('compare', {
                                 originalProject: $scope.originalProject.name,
                                 originalRevision: $scope.originalRevision,
@@ -145,18 +158,22 @@ perf.controller('CompareChooserCtrl', [
                                 newRevision: $scope.newRevision
                             });
                         }
-                    },
-                    function (error) {
-                        $scope.newRevisionError = error;
+                        else {
+                            $state.go('compare', {
+                                originalProject: $scope.originalProject.name,
+                                newProject: $scope.newProject.name,
+                                newRevision: $scope.newRevision,
+                                selectedTimeRange: compareBaseLineDefaultTimeRange
+                            });
+                        }
                     }
-                );
+                });
+                // if we have a try push prepopulated, automatically offer a new revision
+                if ($scope.newRevision.length >= 12) {
+                    $scope.updateNewRevisionTips();
+                    $scope.getPreviousRevision();
+                }
             };
-
-            // if we have a try push prepopulated, automatically offer a new revision
-            if ($scope.newRevision.length >= 12) {
-                $scope.updateNewRevisionTips();
-                $scope.getPreviousRevision();
-            }
         });
     }]);
 
@@ -164,20 +181,23 @@ perf.controller('CompareResultsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$location',
     'thServiceDomain', 'ThRepositoryModel',
     'ThResultSetModel', '$http', '$httpParamSerializer','$q', '$timeout', 'PhFramework', 'PhSeries',
-    'math', 'phTimeRanges', 'PhCompare',
+    'math', 'phTimeRanges', 'PhCompare','compareBaseLineDefaultTimeRange',
     function CompareResultsCtrl($state, $stateParams, $scope,
                                 $rootScope, $location,
                                 thServiceDomain,
                                 ThRepositoryModel, ThResultSetModel, $http, $httpParamSerializer,
                                 $q, $timeout, PhFramework, PhSeries, math,
                                 phTimeRanges,
-                                PhCompare) {
+                                PhCompare, compareBaseLineDefaultTimeRange) {
         function displayResults(rawResultsMap, newRawResultsMap) {
             $scope.compareResults = {};
             $scope.titles = {};
-            window.document.title = ("Comparison between " + $scope.originalRevision +
-                                     " (" + $scope.originalProject.name + ") " +
-                                     "and " + $scope.newRevision + " (" + $scope.newProject.name + ")");
+            if ($scope.originalRevision) {
+                window.document.title = `Comparison between ${$scope.originalRevision} (${$scope.originalProject.name}) and ${$scope.newRevision} (${$scope.newProject.name})`;
+            }
+            else {
+                window.document.title = `Comparison between ${$scope.originalProject.name} and ${$scope.newRevision} (${$scope.newProject.name})`;
+            }
 
             $scope.testList.forEach(function (testName) {
                 $scope.titles[testName] = testName.replace('summary ', '');
@@ -197,34 +217,68 @@ perf.controller('CompareResultsCtrl', [
 
                     cmap.links = [];
 
-                    if (testName.indexOf("summary") > 0) {
-                        var detailsLink = 'perf.html#/comparesubtest?';
-                        detailsLink += $httpParamSerializer({
-                            originalProject: $scope.originalProject.name,
-                            originalRevision: $scope.originalRevision,
-                            newProject: $scope.newProject.name,
-                            newRevision: $scope.newRevision,
-                            originalSignature: oldSig,
-                            newSignature: newSig,
-                            framework: $scope.filterOptions.framework.id
-                        });
+                    if ($scope.originalRevision) {
+                        if (testName.indexOf("summary") > 0) {
+                            var detailsLink = 'perf.html#/comparesubtest?';
+                            detailsLink += $httpParamSerializer({
+                                originalProject: $scope.originalProject.name,
+                                originalRevision: $scope.originalRevision,
+                                newProject: $scope.newProject.name,
+                                newRevision: $scope.newRevision,
+                                originalSignature: oldSig,
+                                newSignature: newSig,
+                                framework: $scope.filterOptions.framework.id
+                            });
+                            cmap.links.push({
+                                title: 'subtests',
+                                href: detailsLink
+                            });
+                        }
+
                         cmap.links.push({
-                            title: 'subtests',
-                            href: detailsLink
+                            title: 'graph',
+                            href: PhCompare.getGraphsLink(_.map(_.uniq(
+                                [$scope.originalProject, $scope.newProject]), function (project) {
+                                return {
+                                    projectName: project.name,
+                                    signature: oldSig,
+                                    frameworkId: $scope.filterOptions.framework.id
+                                };
+                            }), [$scope.originalResultSet,
+                                $scope.newResultSet])
                         });
                     }
 
-                    cmap.links.push({
-                        title: 'graph',
-                        href: PhCompare.getGraphsLink(_.map(_.uniq(
-                            [$scope.originalProject, $scope.newProject]), function (project) {
-                            return {
-                                projectName: project.name,
-                                signature: oldSig,
-                                frameworkId: $scope.filterOptions.framework.id
-                            };
-                        }), [$scope.originalResultSet, $scope.newResultSet])
-                    });
+                    else {
+                        if (testName.indexOf("summary") > 0) {
+                            var detailsLink = 'perf.html#/comparesubtest?';
+                            detailsLink += $httpParamSerializer({
+                                originalProject: $scope.originalProject.name,
+                                newProject: $scope.newProject.name,
+                                newRevision: $scope.newRevision,
+                                originalSignature: oldSig,
+                                newSignature: newSig,
+                                framework: $scope.filterOptions.framework.id,
+                                selectedTimeRange: $scope.selectedTimeRange.value
+                            });
+                            cmap.links.push({
+                                title: 'subtests',
+                                href: detailsLink
+                            });
+                        }
+
+                        cmap.links.push({
+                            title: 'graph',
+                            href: PhCompare.getGraphsLink(_.map(_.uniq(
+                                [$scope.originalProject, $scope.newProject]), function (project) {
+                                return {
+                                    projectName: project.name,
+                                    signature: oldSig,
+                                    frameworkId: $scope.filterOptions.framework.id
+                                };
+                            }), [$scope.newResultSet], $scope.selectedTimeRange.value)
+                        });
+                    }
 
                     cmap.name = platform;
                     if (Object.keys($scope.compareResults).indexOf(testName) < 0)
@@ -244,61 +298,97 @@ perf.controller('CompareResultsCtrl', [
             $scope.testList = [];
             $scope.platformList = [];
 
-            var timeRange = PhCompare.getInterval($scope.originalResultSet.push_timestamp, $scope.newResultSet.push_timestamp);
-            var resultSetIds = [$scope.originalResultSet.id];
+            if ($scope.originalRevision) {
+                var timeRange = PhCompare.getInterval($scope.originalResultSet.push_timestamp, $scope.newResultSet.push_timestamp);
+                var resultSetIds = [$scope.originalResultSet.id];
 
-            // Optimization - if old/new branches are the same collect data in one pass
-            if (_.isEqual($scope.originalProject, $scope.newProject)) {
-                resultSetIds = [$scope.originalResultSet.id, $scope.newResultSet.id];
-            }
+                // Optimization - if old/new branches are the same collect data in one pass
+                if (_.isEqual($scope.originalProject, $scope.newProject)) {
+                    resultSetIds = [$scope.originalResultSet.id, $scope.newResultSet.id];
+                }
 
-            PhSeries.getSeriesList(
-                $scope.originalProject.name, {
-                    interval: timeRange, subtests: 0,
-                    framework: $scope.filterOptions.framework.id
-                }).then(
-                    function (originalSeriesList) {
-                        $scope.platformList = _.uniq(
-                            _.map(originalSeriesList, 'platform'));
-                        $scope.testList = _.uniq(
-                            _.map(originalSeriesList, 'name'));
-                        return PhCompare.getResultsMap($scope.originalProject.name,
-                                                       originalSeriesList,
-                                                       resultSetIds);
-                    }).then(function (resultMaps) {
-                        var originalResultsMap = resultMaps[$scope.originalResultSet.id];
-                        var newResultsMap = resultMaps[$scope.newResultSet.id];
+                PhSeries.getSeriesList(
+                    $scope.originalProject.name,
+                    {interval: timeRange, subtests: 0,
+                        framework: $scope.filterOptions.framework.id
+                    }).then(
+                        function (originalSeriesList) {
+                            $scope.platformList = _.uniq(
+                                _.map(originalSeriesList, 'platform'));
+                            $scope.testList = _.uniq(
+                                _.map(originalSeriesList, 'name'));
+                            return PhCompare.getResultsMap($scope.originalProject.name,
+                                                        originalSeriesList,
+                                                        {pushIDs: resultSetIds});
+                        }).then(function (resultMaps) {
+                            var originalResultsMap = resultMaps[$scope.originalResultSet.id];
+                            var newResultsMap = resultMaps[$scope.newResultSet.id];
 
-                        // Optimization - we collected all data in a single pass
-                        if (newResultsMap) {
-                            $scope.dataLoading = false;
-                            displayResults(originalResultsMap, newResultsMap);
-                            return;
-                        }
-
-                        PhSeries.getSeriesList(
-                            $scope.newProject.name, {
-                                interval: timeRange, subtests: 0,
-                                framework: $scope.filterOptions.framework.id
-                            }).then(
-                            function (newSeriesList) {
-                                $scope.platformList = _.union(
-                                    $scope.platformList,
-                                    _.uniq(_.map(newSeriesList, 'platform')));
-                                $scope.testList = _.union(
-                                    $scope.testList,
-                                    _.uniq(_.map(newSeriesList, 'name')));
-                                return PhCompare.getResultsMap($scope.newProject.name,
-                                    newSeriesList,
-                                    [$scope.newResultSet.id]);
-                            }).then(function (resultMaps) {
-                                var newResultsMap = resultMaps[$scope.newResultSet.id];
+                            // Optimization - we collected all data in a single pass
+                            if (newResultsMap) {
                                 $scope.dataLoading = false;
                                 displayResults(originalResultsMap, newResultsMap);
-                            });
-                    });
-        }
+                                return;
+                            }
 
+                            PhSeries.getSeriesList(
+                                $scope.newProject.name,
+                                { interval: timeRange, subtests: 0,
+                                    framework: $scope.filterOptions.framework.id }).then(
+                                    function (newSeriesList) {
+                                        $scope.platformList = _.union(
+                                            $scope.platformList,
+                                            _.uniq(_.map(newSeriesList, 'platform')));
+                                        $scope.testList = _.union(
+                                            $scope.testList,
+                                            _.uniq(_.map(newSeriesList, 'name')));
+
+                                        return PhCompare.getResultsMap($scope.newProject.name,
+                                                                    newSeriesList,
+                                                                    {pushIDs: [$scope.newResultSet.id]});
+                                    }).then(function (resultMaps) {
+                                        $scope.dataLoading = false;
+                                        displayResults(originalResultsMap, resultMaps[$scope.newResultSet.id]);
+                                    });
+                        });
+            }
+            else {
+                // using a range of data for baseline comparison
+                var originalSeriesList;
+                originalSeriesList = PhSeries.getSeriesList($scope.originalProject.name, {
+                    interval: $scope.selectedTimeRange.value,
+                    subtests: 0,
+                    framework: $scope.filterOptions.framework.id
+                });
+
+                originalSeriesList.then(function (originalSeriesList) {
+                    $scope.platformList = _.uniq(_.map(originalSeriesList, 'platform'));
+                    $scope.testList = _.uniq(_.map(originalSeriesList, 'name'));
+                    return PhCompare.getResultsMap($scope.originalProject.name,
+                                                    originalSeriesList,
+                                                    {interval: $scope.selectedTimeRange});
+                }).then(function (resultsMap) {
+                    var originalResultsMap = resultsMap;
+                    PhSeries.getSeriesList(
+                        $scope.newProject.name, {
+                            interval: $scope.selectedTimeRange.value, subtests: 0,
+                            framework: $scope.filterOptions.framework.id }).then(
+                                function (newSeriesList) {
+                                    $scope.platformList = _.union($scope.platformList,
+                                        _.uniq(_.map(newSeriesList, 'platform')));
+                                    $scope.testList = _.union($scope.testList,
+                                        _.uniq(_.map(newSeriesList, 'name')));
+                                    return PhCompare.getResultsMap($scope.newProject.name,
+                                                            newSeriesList,
+                                                            {pushIDs: [$scope.newResultSet.id]});
+                                }).then(function (resultMaps) {
+                                    var newResultsMap = resultMaps[$scope.newResultSet.id];
+                                    $scope.dataLoading = false;
+                                    displayResults(originalResultsMap, newResultsMap);
+                                });
+                });
+            }
+        }
         //TODO: duplicated in comparesubtestctrl
         function verifyRevision(project, revision, rsid) {
             return ThResultSetModel.getResultSetsFromRevision(project.name, revision).then(
@@ -316,6 +406,34 @@ perf.controller('CompareResultsCtrl', [
                 });
         }
 
+        function updateURL() {
+            var params = {
+                framework: $scope.filterOptions.framework.id,
+                filter: $scope.filterOptions.filter,
+                showOnlyImportant: $scope.filterOptions.showOnlyImportant ? undefined : 0,
+                showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined
+            };
+
+            if ($scope.originalRevision === undefined) {
+                params.selectedTimeRange = $scope.selectedTimeRange.value;
+            }
+
+            $state.transitionTo('compare', params, {
+                location: true,
+                inherit: true,
+                relative: $state.$current,
+                notify: false
+            });
+        }
+        $scope.timeRangeChanged = function (selectedTimeRange) {
+                    //This function is used to alter
+                    //$scope.selectedTimeRange for baseline comparison.
+                    //selectedTimeRange is passed as parameter
+                    //because angular assigns it to a different scope
+            $scope.selectedTimeRange = selectedTimeRange;
+            updateURL();
+            load();
+        };
         $scope.dataLoading = true;
 
         var loadRepositories = ThRepositoryModel.load();
@@ -323,15 +441,20 @@ perf.controller('CompareResultsCtrl', [
             function (frameworks) {
                 $scope.frameworks = frameworks;
             });
-        $q.all([loadRepositories, loadFrameworks]).then(function () {
-            $scope.errors = PhCompare.validateInput($stateParams.originalProject,
-                                                    $stateParams.newProject,
-                                                    $stateParams.originalRevision,
-                                                    $stateParams.newRevision);
 
-            if ($scope.errors.length > 0) {
-                $scope.dataLoading = false;
-                return;
+        $q.all([loadRepositories, loadFrameworks]).then(function () {
+            $scope.errors = [];
+            //validation works only for revision to revision comparison
+            if ($stateParams.originalRevision) {
+                $scope.errors = PhCompare.validateInput($stateParams.originalProject,
+                                            $stateParams.newProject,
+                                            $stateParams.originalRevision,
+                                            $stateParams.newRevision);
+
+                if ($scope.errors.length > 0) {
+                    $scope.dataLoading = false;
+                    return;
+                }
             }
             $scope.filterOptions = {
                 framework: _.find($scope.frameworks, {
@@ -344,49 +467,40 @@ perf.controller('CompareResultsCtrl', [
                                            parseInt($stateParams.showOnlyConfident))
             };
 
-            function updateURL() {
-                $state.transitionTo('compare', {
-                    framework: $scope.filterOptions.framework.id,
-                    filter: $scope.filterOptions.filter,
-                    showOnlyImportant: $scope.filterOptions.showOnlyImportant ? undefined : 0,
-                    showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined
-                }, {
-                    location: true,
-                    inherit: true,
-                    relative: $state.$current,
-                    notify: false
-                });
-            }
-
-
             $scope.originalProject = ThRepositoryModel.getRepo(
                 $stateParams.originalProject);
             $scope.newProject = ThRepositoryModel.getRepo(
                 $stateParams.newProject);
             $scope.newRevision = $stateParams.newRevision;
-            $scope.originalRevision = $stateParams.originalRevision;
-
-            verifyRevision($scope.originalProject, $scope.originalRevision, "original").then(function () {
-                verifyRevision($scope.newProject, $scope.newRevision, "new").then(function () {
-                    if ($scope.errors.length > 0) {
-                        $scope.dataLoading = false;
-                        return;
-                    }
-                    $scope.$watchGroup([
-                        'filterOptions.filter',
-                        'filterOptions.showOnlyImportant',
-                        'filterOptions.showOnlyConfident'
-                    ], updateURL);
-
-                    $scope.$watch('filterOptions.framework',
-                        function (newValue, oldValue) {
-                            if (newValue.id !== oldValue.id) {
-                                updateURL();
-                                load();
-                            }
-                        });
-                    load();
+            if ($stateParams.originalRevision) {
+                $scope.originalRevision = $stateParams.originalRevision;
+                verifyRevision($scope.originalProject, $scope.originalRevision, "original");
+            }
+            else {
+                $scope.timeRanges = phTimeRanges;
+                $scope.selectedTimeRange = _.find($scope.timeRanges, {
+                    value: ($stateParams.selectedTimeRange) ? parseInt($stateParams.selectedTimeRange) : compareBaseLineDefaultTimeRange
                 });
+            }
+
+            verifyRevision($scope.newProject, $scope.newRevision, "new").then(function () {
+                if ($scope.errors.length > 0) {
+                    $scope.dataLoading = false;
+                    return;
+                }
+                $scope.$watchGroup(['filterOptions.filter',
+                    'filterOptions.showOnlyImportant',
+                    'filterOptions.showOnlyConfident'],
+                    updateURL);
+
+                $scope.$watch('filterOptions.framework',
+                          function (newValue, oldValue) {
+                              if (newValue.id !== oldValue.id) {
+                                  updateURL();
+                                  load();
+                              }
+                          });
+                load();
             });
         });
     }]);
@@ -395,24 +509,24 @@ perf.controller('CompareSubtestResultsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$location',
     'thServiceDomain', 'ThRepositoryModel',
     'ThResultSetModel', '$http', '$q', '$timeout', 'PhSeries', 'math',
-    'PhCompare',
+    'PhCompare', 'phTimeRanges', 'compareBaseLineDefaultTimeRange',
     function CompareSubtestResultsCtrl($state, $stateParams, $scope, $rootScope,
                                        $location, thServiceDomain,
                                        ThRepositoryModel, ThResultSetModel,
                                        $http, $q, $timeout, PhSeries, math,
-                                       PhCompare) {
-        //TODO: duplicated from comparectrl
+                                       PhCompare, phTimeRanges, compareBaseLineDefaultTimeRange) {
+         //TODO: duplicated from comparectrl
         function verifyRevision(project, revision, rsid) {
             return ThResultSetModel.getResultSetsFromRevision(project.name, revision).then(
-                function (resultSets) {
-                    var resultSet = resultSets[0];
+               function (resultSets) {
+                   var resultSet = resultSets[0];
                     //TODO: this is a bit hacky to pass in 'original' as a text string
-                    if (rsid === 'original') {
-                        $scope.originalResultSet = resultSet;
-                    } else {
-                        $scope.newResultSet = resultSet;
-                    }
-                },
+                   if (rsid === 'original') {
+                       $scope.originalResultSet = resultSet;
+                   } else {
+                       $scope.newResultSet = resultSet;
+                   }
+               },
                 function (error) {
                     $scope.errors.push(error);
                 });
@@ -458,19 +572,37 @@ perf.controller('CompareSubtestResultsCtrl', [
                 }
 
                 cmap.name = page;
-                cmap.links = [{
-                    title: 'graph',
-                    href: PhCompare.getGraphsLink(_.map(_.uniq([
-                        $scope.originalProject,
-                        $scope.newProject
-                    ]), function (project) {
-                        return {
-                            projectName: project.name,
-                            signature: oldSig,
-                            frameworkId: $scope.filterOptions.framework
-                        };
-                    }), [$scope.originalResultSet, $scope.newResultSet])
-                }];
+                if ($scope.originalRevision) {
+                    cmap.links = [{
+                        title: 'graph',
+                        href: PhCompare.getGraphsLink(_.map(_.uniq([
+                            $scope.originalProject,
+                            $scope.newProject
+                        ]), function (project) {
+                            return {
+                                projectName: project.name,
+                                signature: oldSig,
+                                frameworkId: $scope.filterOptions.framework
+                            };
+                        }), [$scope.originalResultSet, $scope.newResultSet])
+                    }];
+                }
+
+                else {
+                    cmap.links = [{
+                        title: 'graph',
+                        href: PhCompare.getGraphsLink(_.map(_.uniq([
+                            $scope.originalProject,
+                            $scope.newProject
+                        ]), function (project) {
+                            return {
+                                projectName: project.name,
+                                signature: oldSig,
+                                frameworkId: $scope.filterOptions.framework
+                            };
+                        }), [$scope.newResultSet], $scope.selectedTimeRange.value)
+                    }];
+                }
 
                 $scope.compareResults[testName].push(cmap);
             });
@@ -479,16 +611,20 @@ perf.controller('CompareSubtestResultsCtrl', [
         $scope.dataLoading = true;
 
         ThRepositoryModel.load().then(function () {
-            $scope.errors = PhCompare.validateInput($stateParams.originalProject,
+
+            $scope.errors = [];
+            if ($stateParams.originalRevision) {
+                $scope.errors = PhCompare.validateInput($stateParams.originalProject,
                                                     $stateParams.newProject,
                                                     $stateParams.originalRevision,
                                                     $stateParams.newRevision,
                                                     $stateParams.originalSignature,
                                                     $stateParams.newSignature);
 
-            if ($scope.errors.length > 0) {
-                $scope.dataLoading = false;
-                return;
+                if ($scope.errors.length > 0) {
+                    $scope.dataLoading = false;
+                    return;
+                }
             }
 
             $scope.originalProject = ThRepositoryModel.getRepo(
@@ -496,52 +632,77 @@ perf.controller('CompareSubtestResultsCtrl', [
             $scope.newProject = ThRepositoryModel.getRepo(
                 $stateParams.newProject);
             $scope.newRevision = $stateParams.newRevision;
-            $scope.originalRevision = $stateParams.originalRevision;
             $scope.originalSignature = $stateParams.originalSignature;
             $scope.newSignature = $stateParams.newSignature;
 
-            verifyRevision($scope.originalProject, $scope.originalRevision, "original").then(function () {
-                verifyRevision($scope.newProject, $scope.newRevision, "new").then(function () {
-                    $scope.pageList = [];
+            if ($stateParams.originalRevision) {
+                $scope.originalRevision = $stateParams.originalRevision;
+                verifyRevision($scope.originalProject, $scope.originalRevision, "original");
+            }
+            else {
+                $scope.timeRanges = phTimeRanges;
+                $scope.selectedTimeRange = _.find($scope.timeRanges, {
+                    value: ($stateParams.selectedTimeRange) ? parseInt($stateParams.selectedTimeRange) : compareBaseLineDefaultTimeRange
+                });
+            }
 
-                    if ($scope.errors.length > 0) {
-                        $scope.dataLoading = false;
-                        return;
-                    }
+            verifyRevision($scope.newProject, $scope.newRevision, "new").then(function () {
+                $scope.pageList = [];
 
+                if ($scope.errors.length > 0) {
+                    $scope.dataLoading = false;
+                    return;
+                }
+
+                if ($scope.originalRevision) {
                     var resultSetIds = [$scope.originalResultSet.id];
-
-                    $scope.filterOptions = {
-                        framework: $stateParams.framework || 1, // 1 == talos
-                        filter: $stateParams.filter || "",
-                        showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
-                                                   parseInt($stateParams.showOnlyImportant)),
-                        showOnlyConfident: Boolean($stateParams.showOnlyConfident !== undefined &&
-                                                   parseInt($stateParams.showOnlyConfident))
-                    };
-
-                    $scope.$watchGroup([
-                        'filterOptions.filter',
-                        'filterOptions.showOnlyImportant',
-                        'filterOptions.showOnlyConfident'
-                    ], function () {
-                        $state.transitionTo('comparesubtest', {
-                            filter: $scope.filterOptions.filter,
-                            showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
-                            showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined
-                        }, {
-                            location: true,
-                            inherit: true,
-                            relative: $state.$current,
-                            notify: false
-                        });
-                    });
 
                     // Optimization - if old/new branches are the same collect data in one pass
                     if ($scope.originalProject === $scope.newProject) {
                         resultSetIds = [$scope.originalResultSet.id, $scope.newResultSet.id];
                     }
+                }
 
+                $scope.filterOptions = {
+                    framework: $stateParams.framework || 1, // 1 == talos
+                    filter: $stateParams.filter || "",
+                    showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
+                                               parseInt($stateParams.showOnlyImportant)),
+                    showOnlyConfident: Boolean($stateParams.showOnlyConfident !== undefined &&
+                                               parseInt($stateParams.showOnlyConfident))
+                };
+
+                $scope.$watchGroup([
+                    'filterOptions.filter',
+                    'filterOptions.showOnlyImportant',
+                    'filterOptions.showOnlyConfident'
+                ], function () {
+                    $state.transitionTo('comparesubtest', {
+                        filter: $scope.filterOptions.filter,
+                        showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
+                        showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined
+                    }, {
+                        location: true,
+                        inherit: true,
+                        relative: $state.$current,
+                        notify: false
+                    });
+                });
+
+                $scope.timeRangeChanged = function (selectedTimeRange) {
+                    //This function is used to alter
+                    //$scope.selectedTimeRange for baseline comparison.
+                    //selectedTimeRange is passed as parameter
+                    //because angular assigns it to a different scope
+                    $scope.selectedTimeRange = selectedTimeRange;
+                    $state.go('comparesubtest', {
+                        filter: $scope.filterOptions.filter,
+                        showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
+                        showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined,
+                        selectedTimeRange: $scope.selectedTimeRange.value
+                    });
+                };
+                if ($scope.originalRevision) {
                     $q.all([
                         PhSeries.getSeriesList(
                             $scope.originalProject.name, {
@@ -561,7 +722,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 $scope.platformList = _.uniq(_.map(originalSubtestList, 'platform'));
                                 return PhCompare.getResultsMap($scope.originalProject.name,
                                     originalSubtestList,
-                                    resultSetIds);
+                                    {pushIDs: resultSetIds});
                             })
                     ]).then(function (results) {
                         var originalSeriesMap = results[1][$scope.originalResultSet.id];
@@ -577,7 +738,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                             }
                         });
 
-                               // Optimization- collect all data in a single pass
+                        // Optimization- collect all data in a single pass
                         if (newSeriesMap) {
                             $scope.dataLoading = false;
                             displayResults(originalSeriesMap, newSeriesMap);
@@ -598,7 +759,7 @@ perf.controller('CompareSubtestResultsCtrl', [
 
                                 return PhCompare.getResultsMap($scope.newProject.name,
                                     newSeriesList,
-                                    [$scope.newResultSet.id]);
+                                    {pushIDs: [$scope.newResultSet.id]});
                             }).then(function (newSeriesMaps) {
                                 var newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
                                 // There is a chance that we haven't received data for the given signature/resultSet yet
@@ -615,7 +776,64 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 displayResults(originalSeriesMap, newSeriesMap);
                             });
                     });
-                });
+                }
+                else {
+                    $q.all([
+                        PhSeries.getSeriesList(
+                            $scope.originalProject.name, {
+                                signature: $scope.originalSignature,
+                                framework: $scope.filterOptions.framework
+                            }).then(function (originalSeries) {
+                                $scope.testList = [originalSeries[0].name];
+                                return undefined;
+                            }),
+                        PhSeries.getSeriesList(
+                            $scope.originalProject.name,
+                            {
+                                parent_signature: $scope.originalSignature,
+                                framework: $scope.filterOptions.framework
+                            }).then(function (originalSubtestList) {
+                                $scope.pageList = _.map(originalSubtestList, 'name');
+                                $scope.platformList = _.uniq(_.map(originalSubtestList, 'platform'));
+                                return PhCompare.getResultsMap($scope.originalProject.name,
+                                    originalSubtestList,
+                                    {interval: $scope.selectedTimeRange});
+                            })
+                    ]).then(
+                        function (originalResults) {
+                            var originalSeriesMap = originalResults[1];
+                            PhSeries.getSeriesList(
+                                $scope.newProject.name, {
+                                    parent_signature: $scope.newSignature,
+                                    framework: $scope.filterOptions.framework
+                                }).then(function (newSeriesList) {
+                                    $scope.platformList = _.uniq(_.union(
+                                        $scope.platformList,
+                                        _.map(newSeriesList, 'platform')));
+                                    $scope.testList = _.uniq(_.union(
+                                        $scope.testList,
+                                        _.map(newSeriesList, 'name')));
+
+                                    return PhCompare.getResultsMap($scope.newProject.name,
+                                        newSeriesList,
+                                        {pushIDs: [$scope.newResultSet.id]});
+                                }).then(function (newSeriesMaps) {
+                                    var newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
+                                    // There is a chance that we haven't received data for the given signature/resultSet yet
+                                    if (newSeriesMap) {
+                                        Object.keys(newSeriesMap).forEach(function (series) {
+                                            if (!_.includes($scope.pageList, newSeriesMap[series].name)) {
+                                                $scope.pageList.push(newSeriesMap[series].name);
+                                            }
+                                        });
+                                    } else {
+                                        newSeriesMap = {};
+                                    }
+                                    $scope.dataLoading = false;
+                                    displayResults(originalSeriesMap, newSeriesMap);
+                                });
+                        });
+                }
             });
         });
     }]);
