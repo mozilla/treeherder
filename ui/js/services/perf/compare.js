@@ -213,46 +213,65 @@ treeherder.factory('PhCompare', [
                 return errors;
             },
 
-            getResultsMap: function(projectName, seriesList, resultSetIds) {
+            getResultsMap: function(projectName, seriesList, params) {
                 var resultsMap = {};
                 return $q.all(_.chunk(seriesList, 20).map(function(seriesChunk) {
-                    return PhSeries.getSeriesData(
-                        projectName, {
-                            signatures: _.map(seriesChunk, 'signature'),
-                            framework: _.uniq(_.map(seriesChunk, 'frameworkId')),
-                            push_id: resultSetIds }
-                    ).then(function(seriesData) {
-                        resultSetIds.forEach(function(resultSetId) {
-                            if (resultsMap[resultSetId] === undefined) {
-                                resultsMap[resultSetId] = {};
-                            }
-                            _.forIn(seriesData, function(data, signature) {
-                                // Aggregates data from the server on a single group of values which
-                                // will be compared later to another group. Ends up with an object
-                                // with description (name/platform) and values.
-                                // The values are later processed at getCounterMap as the data arguments.
-                                var values = data
-                                    .filter(datum => datum.push_id === resultSetId)
-                                    .map(datum => datum.value);
-                                var seriesData = _.find(seriesList, {'signature': signature});
-                                if (seriesData) {
-                                    resultsMap[resultSetId][signature] = {
-                                        platform: seriesData.platform,
-                                        name: seriesData.name,
-                                        lowerIsBetter: seriesData.lowerIsBetter,
-                                        frameworkId: seriesData.frameworkId,
-                                        values: values
-                                    };
+                    if (params.pushIDs) {
+                        return PhSeries.getSeriesData(
+                            projectName, {
+                                signatures: _.map(seriesChunk, 'signature'),
+                                framework: _.uniq(_.map(seriesChunk, 'frameworkId')),
+                                push_id: params.pushIDs }
+                        ).then(function(seriesData) {
+                            params.pushIDs.forEach(function(resultSetId) {
+                                if (resultsMap[resultSetId] === undefined) {
+                                    resultsMap[resultSetId] = {};
                                 }
+                                _.forIn(seriesData, function(data, signature) {
+                                    // Aggregates data from the server on a single group of values which
+                                    // will be compared later to another group. Ends up with an object
+                                    // with description (name/platform) and values.
+                                    // The values are later processed at getCounterMap as the data arguments.
+                                    var values = data
+                                        .filter(datum => datum.push_id === resultSetId)
+                                        .map(datum => datum.value);
+                                    var seriesData = _.find(seriesList, {'signature': signature});
+                                    if (seriesData) {
+                                        resultsMap[resultSetId][signature] = {
+                                            platform: seriesData.platform,
+                                            name: seriesData.name,
+                                            lowerIsBetter: seriesData.lowerIsBetter,
+                                            frameworkId: seriesData.frameworkId,
+                                            values: values
+                                        };
+                                    }
+                                });
                             });
                         });
-                    });
+                    }
+                    return PhSeries.getSeriesData(
+                            projectName, {
+                                signatures: _.map(seriesChunk, 'signature'),
+                                framework: _.uniq(_.map(seriesChunk, 'frameworkId')),
+                                interval: params.interval.value}
+                        ).then(function(seriesData){
+                            _.forIn(seriesData, function(data, signature) {
+                                var series = _.find(seriesChunk, { signature: signature });
+                                resultsMap[signature] = {
+                                    platform: series.platform,
+                                    name: series.name,
+                                    lowerIsBetter: series.lowerIsBetter,
+                                    frameworkId: series.frameworkId,
+                                    values: _.map(data, 'value')
+                                };
+                            });
+                        });
                 })).then(function() {
                     return resultsMap;
                 });
             },
 
-            getGraphsLink: function(seriesList, resultSets) {
+            getGraphsLink: function(seriesList, resultSets, timeRange) {
                 var graphsLink = 'perf.html#/graphs?' + $httpParamSerializer({
                     series: _.map(seriesList, function(series) {
                         return [
@@ -266,7 +285,8 @@ treeherder.factory('PhCompare', [
                 });
 
                 if (resultSets) {
-                    graphsLink += '&timerange=' + _.max(
+                    if (timeRange) {
+                        graphsLink += '&timerange=' + _.max(
                         _.map(resultSets,
                               function(resultSet) {
                                   return _.find(
@@ -276,6 +296,10 @@ treeherder.factory('PhCompare', [
                                                   resultSet.push_timestamp) < t;
                                       });
                               }));
+                    }
+                    else {
+                        graphsLink += '&timerange=' + timeRange;
+                    }
                 }
                 return graphsLink;
             },
