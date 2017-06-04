@@ -1,7 +1,6 @@
 <!-- Show standard deviation if >1 run -->
 <span class="detail-hint" ng-if="$ctrl.replicates.length > 1"
-      uib-tooltip="Runs: &lt; {{$ctrl.replicates.join(' ')}} &gt;
-        ({{$ctrl.stddev|displayNumber}} = {{$ctrl.stddevpct|displayNumber}}% standard deviation)">
+      uib-tooltip-template="'partials/perf/tooltipgraphs.html'" tooltip-class="compare-table-tooltip">
   {{$ctrl.value|displayNumber}} &#177; {{$ctrl.stddevpct|displayNumber}}%
 </span>
 <!-- View for only 1 run (no stddev) -->

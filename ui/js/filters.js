@@ -189,3 +189,8 @@ treeherder.filter('absoluteValue', function () {
         return Math.abs(input);
     };
 });
+
+treeherder.filter('abbreviatedNumber', ['numeral', function (numeral) {
+    return input =>
+        (input.toString().length <= 5) ? input : numeral(input).format('0.0a');
+}]);
