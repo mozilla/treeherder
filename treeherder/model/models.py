@@ -974,14 +974,6 @@ class JobNoteManager(models.Manager):
                           .exclude(bug_number=0)
                           .values_list('bug_number', flat=True))
 
-        # Legacy
-        bug_numbers |= set(TextLogSummaryLine.objects
-                           .filter(summary__job_guid=job.guid,
-                                   verified=True)
-                           .exclude(bug_number=None)
-                           .exclude(bug_number=0)
-                           .values_list('bug_number', flat=True))
-
         for bug_number in bug_numbers:
             BugJobMap.objects.get_or_create(job=job,
                                             bug_id=bug_number,
@@ -1703,45 +1695,3 @@ class TextLogErrorMatch(models.Model):
     def __str__(self):
         return "{0} {1}".format(
             self.text_log_error.id, self.classified_failure.id)
-
-
-class TextLogSummary(models.Model):
-    """
-    An intermediate class correlating artifact + text log data with
-    structured failure line data
-
-    This is a legacy model that doesn't serve much useful purpose.
-    Should probably be removed at some point.
-    """
-    id = models.BigAutoField(primary_key=True)
-    job_guid = models.CharField(max_length=50)
-    repository = models.ForeignKey(Repository)
-    text_log_summary_artifact_id = models.PositiveIntegerField(blank=True, null=True)
-    bug_suggestions_artifact_id = models.PositiveIntegerField(blank=True, null=True)
-
-    class Meta:
-        db_table = 'text_log_summary'
-        unique_together = (('job_guid', 'repository'))
-
-
-class TextLogSummaryLine(models.Model):
-    """
-    An intermediate class correlating failure lines with text log error lines
-
-    This probably should be merged with TextLogError above (but isn't yet for
-    legacy reasons)
-    """
-    id = models.BigAutoField(primary_key=True)
-    summary = models.ForeignKey(TextLogSummary, related_name="lines")
-    line_number = models.PositiveIntegerField(blank=True, null=True)
-    failure_line = models.ForeignKey(FailureLine, related_name="text_log_line", null=True)
-    bug_number = models.PositiveIntegerField(blank=True, null=True)
-    verified = models.BooleanField(default=False)
-
-    def bug(self):
-        # Putting this here forces one query per object; there should be a way
-        # to make things more efficient
-        return Bugscache.objects.filter(id=self.bug_number).first()
-
-    class Meta:
-        db_table = 'text_log_summary_line'
