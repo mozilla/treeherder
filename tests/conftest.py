@@ -542,28 +542,6 @@ def text_log_error_lines(test_job, failure_lines):
 
 
 @pytest.fixture
-def text_summary_lines(test_job, failure_lines, text_log_error_lines):
-    from treeherder.model.models import TextLogSummary, TextLogSummaryLine
-
-    summary = TextLogSummary(
-        job_guid=test_job.guid,
-        repository=test_job.repository
-    )
-    summary.save()
-
-    summary_lines = []
-    for line in failure_lines:
-        summary_line = TextLogSummaryLine(
-            summary=summary,
-            line_number=line.line,
-            failure_line=line)
-        summary_line.save()
-        summary_lines.append(summary_line)
-
-    return summary_lines
-
-
-@pytest.fixture
 def test_perf_alert_summary(test_repository, result_set_stored, test_perf_framework):
     from treeherder.perf.models import PerformanceAlertSummary
     return PerformanceAlertSummary.objects.create(

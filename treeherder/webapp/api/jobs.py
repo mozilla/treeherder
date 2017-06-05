@@ -25,8 +25,7 @@ from treeherder.model.models import (ExclusionProfile,
                                      OptionCollection,
                                      Repository,
                                      TextLogError,
-                                     TextLogStep,
-                                     TextLogSummary)
+                                     TextLogStep)
 from treeherder.model.tasks import publish_job_action
 from treeherder.webapp.api import (pagination,
                                    permissions,
@@ -479,41 +478,6 @@ class JobsViewSet(viewsets.ViewSet):
             return Response(failure_lines)
         except ObjectDoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
-
-    @detail_route(methods=['get'])
-    def text_log_summary(self, request, project, pk=None):
-        """
-        Get a list of test failure lines for the job
-        """
-        try:
-            job = Job.objects.get(repository__name=project,
-                                  id=pk)
-        except ObjectDoesNotExist:
-            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
-
-        summary = TextLogSummary.objects.filter(
-            job_guid=job.guid
-        ).prefetch_related("lines").all()
-
-        if len(summary) > 1:
-            raise ValueError("Got multiple TextLogSummaries for the same job")
-
-        if not summary:
-            return Response("No text_log_summary generated for job with id: {0}".format(pk),
-                            status=HTTP_404_NOT_FOUND)
-
-        summary = summary[0]
-
-        lines_by_number = {error.line_number: error.line for error in
-                           TextLogError.objects.filter(step__job=job)}
-
-        rv = serializers.TextLogSummarySerializer(summary).data
-        rv["bug_suggestions"] = get_error_summary(job)
-
-        for line in rv["lines"]:
-            line["line"] = lines_by_number[line["line_number"]]
-
-        return Response(rv)
 
     @detail_route(methods=['get'])
     def text_log_steps(self, request, project, pk=None):
