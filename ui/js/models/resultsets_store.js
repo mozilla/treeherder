@@ -638,7 +638,7 @@ treeherder.factory('ThResultSetStore', [
                             unavailableJobs.push.apply(unavailableJobs, ids_unfetched);
                         }
                         return jobsFetched;
-                    },error_callback)
+                    }, error_callback)
                     .then(_.bind(updateJobs, $rootScope, repoName));
             }
             // retry to fetch the unfetched jobs later

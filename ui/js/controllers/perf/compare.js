@@ -1,9 +1,9 @@
 "use strict";
 
 perf.controller('CompareChooserCtrl', [
-    '$state', '$stateParams', '$scope','$q', 'ThRepositoryModel', 'ThResultSetModel',
+    '$state', '$stateParams', '$scope', '$q', 'ThRepositoryModel', 'ThResultSetModel',
     'phCompareDefaultNewRepo', 'phCompareDefaultOriginalRepo', 'JsonPushes',
-    'thPerformanceBranches','localStorageService', 'compareBaseLineDefaultTimeRange',
+    'thPerformanceBranches', 'localStorageService', 'compareBaseLineDefaultTimeRange',
     function CompareChooserCtrl($state, $stateParams, $scope, $q,
                                 ThRepositoryModel, ThResultSetModel,
                                 phCompareDefaultNewRepo,
@@ -180,8 +180,8 @@ perf.controller('CompareChooserCtrl', [
 perf.controller('CompareResultsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$location',
     'thServiceDomain', 'ThRepositoryModel',
-    'ThResultSetModel', '$http', '$httpParamSerializer','$q', '$timeout', 'PhFramework', 'PhSeries',
-    'math', 'phTimeRanges', 'PhCompare','compareBaseLineDefaultTimeRange',
+    'ThResultSetModel', '$http', '$httpParamSerializer', '$q', '$timeout', 'PhFramework', 'PhSeries',
+    'math', 'phTimeRanges', 'PhCompare', 'compareBaseLineDefaultTimeRange',
     function CompareResultsCtrl($state, $stateParams, $scope,
                                 $rootScope, $location,
                                 thServiceDomain,

@@ -20,7 +20,7 @@ treeherder.factory('ThJobTypeModel', [
         ThJobTypeModel.get_list = function (options) {
             // a static method to retrieve a list of ThJobTypeModel
             options = options || {};
-            return $http.get(ThJobTypeModel.get_uri(),{
+            return $http.get(ThJobTypeModel.get_uri(), {
                 cache: true,
                 params: options
             }).

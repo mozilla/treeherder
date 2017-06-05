@@ -468,7 +468,7 @@ treeherder.controller('PluginCtrl', [
                         "to fill in gaps where the job was not run";
             } else {
                 // Cut off trailing "/ " if one exists, capitalize first letter
-                title = title.replace(/\/ $/,"");
+                title = title.replace(/\/ $/, "");
                 title = title.replace(/^./, function (l) { return l.toUpperCase(); });
             }
 

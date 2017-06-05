@@ -21,7 +21,7 @@ treeherder.factory('ThExclusionProfileModel', [
             options = options || {};
             cache = cache || false;
             var query_string = $.param(options);
-            return $http.get(ThExclusionProfileModel.get_uri()+"?"+query_string,{
+            return $http.get(ThExclusionProfileModel.get_uri()+"?"+query_string, {
                 cache: cache
             })
                 .then(function (response) {
@@ -60,7 +60,7 @@ treeherder.factory('ThExclusionProfileModel', [
                         } else if (reason.data && reason.data.detail) {
                             thNotify.send(reason.data.detail, "danger");
                         } else {
-                            thNotify.send("Error","danger");
+                            thNotify.send("Error", "danger");
                             $log.error(reason);
                         }
                         return $q.reject(reason);
@@ -87,7 +87,7 @@ treeherder.factory('ThExclusionProfileModel', [
                                 });
                             });
                         } else {
-                            thNotify.send(reason,"danger");
+                            thNotify.send(reason, "danger");
                         }
                         return $q.reject(reason);
                     }
@@ -104,7 +104,7 @@ treeherder.factory('ThExclusionProfileModel', [
                         thNotify.send("Exclusion profile successfully deleted", "success");
                     },
                     function (reason) {
-                        thNotify.send(reason.data,"danger");
+                        thNotify.send(reason.data, "danger");
                         return $q.reject(reason);
                     }
                 );

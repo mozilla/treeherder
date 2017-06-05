@@ -2,7 +2,7 @@
 
 treeherder.controller('BugsPluginCtrl', [
     '$scope', '$rootScope', 'ThLog', 'ThTextLogStepModel',
-    'ThBugSuggestionsModel', 'thPinboard', 'thEvents','$q',
+    'ThBugSuggestionsModel', 'thPinboard', 'thEvents', '$q',
     'thTabs', '$timeout', 'thUrl', '$uibModal', '$location',
     function BugsPluginCtrl(
         $scope, $rootScope, ThLog, ThTextLogStepModel, ThBugSuggestionsModel,

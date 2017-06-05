@@ -744,8 +744,8 @@ perf.controller('GraphsCtrl', [
                 var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '');
                 var zoomArray = zoomString.split(",");
                 var zoomObject = {
-                    "x": zoomArray.slice(0,2),
-                    "y": zoomArray.slice(2,4)
+                    "x": zoomArray.slice(0, 2),
+                    "y": zoomArray.slice(2, 4)
                 };
                 $scope.zoom = (zoomString) ? zoomObject : [];
             } else {
