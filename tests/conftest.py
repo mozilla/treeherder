@@ -151,9 +151,9 @@ def mock_log_parser(monkeypatch):
     def task_mock(*args, **kwargs):
         pass
 
-    monkeypatch.setattr(tasks,
-                        'parse_log',
-                        task_mock)
+    monkeypatch.setattr(tasks, 'parse_log', task_mock)
+    monkeypatch.setattr(tasks, 'store_failure_lines', task_mock)
+    monkeypatch.setattr(tasks, 'crossreference_error_lines', task_mock)
 
 
 @pytest.fixture

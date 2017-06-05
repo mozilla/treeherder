@@ -74,9 +74,7 @@ def test_ingest_pulse_jobs(pulse_jobs, test_repository, result_set_stored,
                       "parse_status": 0},
                      {"name": "errorsummary_json",
                       "url": "http://mozilla-releng-blobs.s3.amazonaws.com/blobs/Mozilla-Inbound-Non-PGO/sha512/05c7f57df6583c6351c6b49e439e2678e0f43c2e5b66695ea7d096a7519e1805f441448b5ffd4cc3b80b8b2c74b244288fda644f55ed0e226ef4e25ba02ca466",
-                      # Note that the test causes store_failure_lines to be
-                      # run, which sets this to parsed.
-                      "parse_status": 1}]
+                      "parse_status": 0}]
     assert [{"name": item.name, "url": item.url, "parse_status": item.status}
             for item in job_logs.all()] == logs_expected
 
