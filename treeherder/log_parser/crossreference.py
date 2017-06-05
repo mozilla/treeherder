@@ -7,20 +7,16 @@ from mozlog.formatters.tbplformatter import TbplFormatter
 from treeherder.model.models import (FailureLine,
                                      Job,
                                      TextLogError,
-                                     TextLogErrorMetadata,
-                                     TextLogSummary,
-                                     TextLogSummaryLine)
+                                     TextLogErrorMetadata)
 
 logger = logging.getLogger(__name__)
 
 
 def crossreference_job(job):
-    """Populate the TextLogSummary and TextLogSummaryLine tables for a
-    job. Specifically this function tries to match the
-    unstructured error lines with the corresponding structured error lines, relying on
-    the fact that serialization of mozlog (and hence errorsummary files) is determinisic
-    so we can reserialize each structured error line and perform an in-order textual
-    match.
+    """Try to match the unstructured error lines with the corresponding structured error
+    lines, relying on the fact that serialization of mozlog (and hence errorsummary files)
+    is determinisic so we can reserialize each structured error line and perform an in-order
+    textual match.
 
     :job: - Job for which to perform the crossreferencing
     """
@@ -45,10 +41,6 @@ def crossreference_job(job):
 
 @transaction.atomic
 def _crossreference(job):
-    if TextLogSummary.objects.filter(job_guid=job.guid).exists():
-        logger.info("crossreference_error_lines already ran for job %s" % job.id)
-        return
-
     failure_lines = FailureLine.objects.filter(job_guid=job.guid)
 
     text_log_errors = TextLogError.objects.filter(
@@ -58,9 +50,6 @@ def _crossreference(job):
     # so return early
     if not (failure_lines.exists() and text_log_errors.exists()):
         return False
-
-    summary = TextLogSummary.objects.create(job_guid=job.guid,
-                                            repository=job.repository)
 
     match_iter = structured_iterator(list(failure_lines.all()))
     failure_line, _, fn = match_iter.next()
@@ -72,21 +61,12 @@ def _crossreference(job):
     for error in list(text_log_errors.all()):
         if fn and fn(error.line.strip()):
             logger.debug("Matched '%s'" % (error.line,))
-            summary_lines.append(TextLogSummaryLine(
-                summary=summary,
-                line_number=error.line_number,
-                failure_line=failure_line))
-            TextLogErrorMetadata.objects.create(text_log_error=error,
-                                                failure_line=failure_line)
+            TextLogErrorMetadata.objects.get_or_create(text_log_error=error,
+                                                       failure_line=failure_line)
             failure_line, _, fn = match_iter.next()
         else:
             logger.debug("Failed to match '%s'" % (error.line,))
-            summary_lines.append(TextLogSummaryLine(
-                summary=summary,
-                line_number=error.line_number,
-                failure_line=None))
 
-    TextLogSummaryLine.objects.bulk_create(summary_lines)
     # We should have exhausted all structured lines
     for failure_line, repr_str, _ in match_iter:
         # We can have a line without a pattern at the end if the log is truncated
