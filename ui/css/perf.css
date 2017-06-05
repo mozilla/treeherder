@@ -54,7 +54,7 @@ to { opacity: 0; }
   margin-right: 6px;
 }
 
-.graph-right-padding { flex: none; width: 200px; }
+.graph-right-padding { flex: none; width: 120px; }
 
 #graph-tooltip {
     position: absolute;
