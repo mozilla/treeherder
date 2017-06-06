@@ -2,10 +2,10 @@
 
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$location', '$uibModal',
-    'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries', 'PhAlerts',
+    '$window', 'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries', 'PhAlerts',
     'ThRepositoryModel', 'ThResultSetModel', 'phTimeRanges', 'phDefaultTimeRangeValue',
     function GraphsCtrl($state, $stateParams, $scope, $rootScope, $location,
-        $uibModal, thServiceDomain, $http, $q, $timeout, PhSeries,
+        $uibModal, $window, thServiceDomain, $http, $q, $timeout, PhSeries,
         PhAlerts, ThRepositoryModel, ThResultSetModel,
         phTimeRanges, phDefaultTimeRangeValue) {
         var availableColors = ['maroon', 'navy', 'pink', 'turquoise', 'brown',
@@ -229,6 +229,9 @@ perf.controller('GraphsCtrl', [
         Mousetrap.bind('escape', function () {
             deselectDataPoint();
         });
+
+        // on window resize, replot the graph
+        angular.element($window).bind('resize', () => plotGraph());
 
         // Highlight the points persisted in the url
         function highlightDataPoints() {
