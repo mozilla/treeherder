@@ -1155,7 +1155,7 @@ SYMBOLS = {
     "Talos xperf e10s": "x",
     "Talos perf-reftest": "p",
     "Talos perf-reftest e10s": "p",
-    "Talos quantum-pageload e10s": "q1",
+    "Talos quantum-pageload e10s": "qp",
     # Release Promotion Related Jobs
     "Release Promotion": "Release",
     "Uptake Monitoring": "up-m",
