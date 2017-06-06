@@ -2,6 +2,7 @@ import graphene
 from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django.types import DjangoObjectType
 
+from treeherder.model import error_summary
 from treeherder.model.models import *
 
 
@@ -14,10 +15,27 @@ class JobDetailGraph(DjangoObjectType):
         interfaces = (graphene.relay.Node, )
 
 
+class TextLogErrorGraph(DjangoObjectType):
+    class Meta:
+        model = TextLogError
+
+    bug_suggestions = ObjectScalar()
+
+    def resolve_bug_suggestions(self, args, context, info):
+        return error_summary.bug_suggestions_line(self)
+
+
+class TextLogStepGraph(DjangoObjectType):
+    class Meta:
+        model = TextLogStep
+
+
 class JobGraph(DjangoObjectType):
     class Meta:
         model = Job
         filter_fields = {
+            'id': ['exact'],
+            'guid': ['exact'],
             'result': ['exact'],
             'tier': ['exact', 'lt'],
         }
@@ -117,6 +135,7 @@ class Query(graphene.ObjectType):
     all_products = graphene.List(ProductGraph)
     all_failure_classifications = graphene.List(FailureClassificationGraph)
     all_pushes = DjangoFilterConnectionField(PushGraph)
+    all_text_log_steps = graphene.List(TextLogStepGraph)
 
     def resolve_all_jobs(self, args, context, info):
         return Job.objects.filter(**args)
@@ -147,6 +166,33 @@ class Query(graphene.ObjectType):
 
     def resolve_all_pushes(self, args, context, info):
         return Push.objects.filter(**args)
+
+    def resolve_all_text_log_steps(self, args, context, info):
+        return TextLogStep.objects.filter(**args)
+
+
+class ObjectScalar(graphene.types.scalars.Scalar):
+    """
+    Un-modeled Object Field for GraphQL data
+
+    This allows an object that's not covered by a model to be returned
+    as a field of a graph.
+    """
+
+    def __init__(self):
+        super(ObjectScalar, self).__init__()
+
+    @staticmethod
+    def serialize(dt):
+        return dt
+
+    @staticmethod
+    def parse_literal(node):
+        return node.value
+
+    @staticmethod
+    def parse_value(value):
+        return value
 
 
 schema = graphene.Schema(query=Query)
