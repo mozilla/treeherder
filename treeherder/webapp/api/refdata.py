@@ -7,7 +7,6 @@ from treeherder.webapp.api import serializers as th_serializers
 from treeherder.webapp.api.permissions import (IsOwnerOrReadOnly,
                                                IsStaffOrReadOnly)
 
-
 #####################
 # Refdata ViewSets
 #####################
