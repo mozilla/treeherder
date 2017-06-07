@@ -39,17 +39,12 @@ treeherder.directive('thAuthor', function () {
     return {
         restrict: "E",
         link: function (scope, element, attrs) {
-            var userTokens = attrs.author.split(/[<>]+/);
-            var email = "";
-            if (userTokens.length > 1) {
-                email = userTokens[1];
-            }
-            scope.authorName = userTokens[0].trim();
-            scope.authorEmail = email;
+            var authorMatch = attrs.author.match(/\<(.*?)\>+/);
+            scope.authorEmail = authorMatch ? authorMatch[1] : attrs.author;
         },
-        template: '<span title="View pushes by {{authorEmail}}">' +
+        template: '<span title="View pushes by this user">' +
             '<a href="{{authorResultsetFilterUrl}}"' +
-            'data-ignore-job-clear-on-click>{{authorName}}</a></span>'
+            'data-ignore-job-clear-on-click>{{authorEmail}}</a></span>'
     };
 });
 
