@@ -15,22 +15,19 @@ from . import failureline
 logger = logging.getLogger(__name__)
 
 
-def parser_task(f):
-    """Decorator that ensures that log parsing task has not already run,
-    and also adds New Relic annotations.
+def if_not_parsed(f):
+    """Decorator that ensures that log parsing task has not already run
     """
-    def inner(job_log_id, priority):
-        newrelic.agent.add_custom_parameter("job_log_id", job_log_id)
-        job_log = JobLog.objects.select_related("job").get(id=job_log_id)
-        newrelic.agent.add_custom_parameter("job_log_name", job_log.name)
-        newrelic.agent.add_custom_parameter("job_log_url", job_log.url)
-        newrelic.agent.add_custom_parameter("job_log_status_prior",
-                                            job_log.get_status_display())
+    def inner(job_log):
+        newrelic.agent.add_custom_parameter("job_log_%i_name" % job_log.id, job_log.name)
+        newrelic.agent.add_custom_parameter("job_log_%i_url" % job_log.id, job_log.url)
+
+        logger.debug("parser_task for %s" % job_log.id)
         if job_log.status == JobLog.PARSED:
-            logger.info("log already parsed")
+            logger.info("%s log already parsed" % job_log.id)
             return True
 
-        return f(job_log, priority)
+        return f(job_log)
 
     inner.__name__ = f.__name__
     inner.__doc__ = f.__doc__
@@ -38,66 +35,75 @@ def parser_task(f):
     return inner
 
 
-def parse_job_log(func_name, routing_key, job_log):
-    """
-    Schedule the log-related tasks to parse an individual log
-    """
-    task_funcs = {
-        "store_failure_lines": store_failure_lines,
-        "parse_log": parse_log,
+@retryable_task(name='log-parser', max_retries=10)
+def parse_logs(job_id, job_log_ids, priority):
+    job = Job.objects.get(id=job_id)
+    job_logs = JobLog.objects.filter(id__in=job_log_ids,
+                                     job=job)
+
+    newrelic.agent.add_custom_parameter("job_id", job.id)
+
+    if len(job_log_ids) != len(job_logs):
+        logger.warning("Failed to load all expected job ids: %s" % ", ".join(job_log_ids))
+    parser_tasks = {
+        "errorsummary_json": store_failure_lines,
+        "buildbot_text": parse_unstructured_log,
+        "builds-4h": parse_unstructured_log
     }
 
-    logger.debug("parse_job_log for job log %s (%s, %s)",
-                 job_log.id, func_name, routing_key)
-    priority = routing_key.rsplit(".", 1)[1]
+    completed_names = set()
+    exceptions = []
+    for job_log in job_logs:
+        parser = parser_tasks.get(job_log.name)
+        if parser:
+            try:
+                parser(job_log)
+            except Exception as e:
+                exceptions.append(e)
+            else:
+                completed_names.add(job_log.name)
 
-    signature = task_funcs[func_name].si(job_log.id, priority)
-    signature.set(routing_key=routing_key)
+    if exceptions:
+        raise exceptions[0]
 
-    signature.apply_async()
+    if ("errorsummary_json" in completed_names and
+        ("buildbot_text" in completed_names or
+         "builds-4h" in completed_names)):
+
+        success = crossreference_error_lines(job)
+
+        if success and settings.AUTOCLASSIFY_JOBS:
+            logger.debug("Scheduling autoclassify for job %i" % job_id)
+            autoclassify.apply_async(
+                args=[job_id],
+                routing_key="autoclassify.%s" % priority)
+        else:
+            job.autoclassify_status = Job.SKIPPED
+    else:
+        job.autoclassify_status = Job.SKIPPED
+    job.save()
 
 
-@retryable_task(name='log-parser', max_retries=10)
-@parser_task
-def parse_log(job_log, priority):
+@if_not_parsed
+def parse_unstructured_log(job_log):
     """
     Call ArtifactBuilderCollection on the given job.
     """
+    logger.debug('Running parse_unstructured_log for job %s' % job_log.job.id)
     post_log_artifacts(job_log)
-    logger.debug("Scheduling crossreference for job %i from parse_log" % job_log.job.id)
-    crossreference_error_lines.apply_async(
-        args=[job_log.job.id, priority],
-        routing_key="crossreference_error_lines.%s" % priority)
 
 
-@retryable_task(name='store-failure-lines', max_retries=10)
-@parser_task
-def store_failure_lines(job_log, priority):
+@if_not_parsed
+def store_failure_lines(job_log):
     """Store the failure lines from a log corresponding to the structured
     errorsummary file."""
     logger.debug('Running store_failure_lines for job %s' % job_log.job.id)
     failureline.store_failure_lines(job_log)
-    logger.debug("Scheduling crossreference for job %i from store_failure_lines" % job_log.job.id)
-    crossreference_error_lines.apply_async(
-        args=[job_log.job.id, priority],
-        routing_key="crossreference_error_lines.%s" % priority)
 
 
-@retryable_task(name='crossreference-error-lines', max_retries=10)
-def crossreference_error_lines(job_id, priority):
+def crossreference_error_lines(job):
     """Match structured (FailureLine) and unstructured (TextLogError) lines
     for a job."""
-    newrelic.agent.add_custom_parameter("job_id", job_id)
-    logger.debug("Running crossreference-error-lines for job %s" % job_id)
-    job = Job.objects.get(id=job_id)
-    has_lines = crossreference_job(job)
-    if has_lines and settings.AUTOCLASSIFY_JOBS:
-        logger.debug("Scheduling autoclassify for job %i" % job_id)
-        autoclassify.apply_async(
-            args=[job_id],
-            routing_key="autoclassify.%s" % priority)
-    elif not settings.AUTOCLASSIFY_JOBS:
-        job.autoclassify_status = Job.SKIPPED
-        job.save(update_fields=['autoclassify_status'])
-    else:
-        logger.debug("Job %i didn't have any crossreferenced lines, skipping autoclassify " % job_id)
+    logger.debug("Crossreference %s: started" % job.id)
+    success = crossreference_job(job)
+    return success

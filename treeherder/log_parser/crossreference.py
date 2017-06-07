@@ -21,22 +21,20 @@ def crossreference_job(job):
     :job: - Job for which to perform the crossreferencing
     """
 
+    if job.autoclassify_status >= Job.CROSSREFERENCED:
+        logger.info("Job %i already crossreferenced" % job.id)
+        return False
     try:
-        if job.autoclassify_status >= Job.CROSSREFERENCED:
-            logger.debug("Job %i already crossreferenced" % job.id)
-            return (TextLogError.objects
-                    .filter(step__job=job)
-                    .exists() and
-                    FailureLine.objects
-                    .filter(job_guid=job.guid)
-                    .exists())
         rv = _crossreference(job)
-        job.autoclassify_status = Job.CROSSREFERENCED
-        job.save(update_fields=['autoclassify_status'])
-        return rv
     except IntegrityError:
+        job.autoclassify_status = Job.FAILED
+        job.save(update_fields=['autoclassify_status'])
         logger.warning("IntegrityError crossreferencing error lines for job %s" % job.id)
         return False
+
+    job.autoclassify_status = Job.CROSSREFERENCED
+    job.save(update_fields=['autoclassify_status'])
+    return rv
 
 
 @transaction.atomic
@@ -46,15 +44,12 @@ def _crossreference(job):
     text_log_errors = TextLogError.objects.filter(
         step__job=job).order_by('line_number')
 
-    # If we don't have both failure lines and text log errors nothing will happen
-    # so return early
+    # If we don't have both failure lines and text log errors this will never succeed
     if not (failure_lines.exists() and text_log_errors.exists()):
         return False
 
     match_iter = structured_iterator(list(failure_lines.all()))
     failure_line, _, fn = match_iter.next()
-
-    summary_lines = []
 
     # For each error in the text log, try to match the next unmatched
     # structured log line
@@ -72,9 +67,10 @@ def _crossreference(job):
         # We can have a line without a pattern at the end if the log is truncated
         if failure_line is None:
             break
-        logger.error("Failed to match structured line '%s' to an unstructured line" % repr_str)
+        logger.warning("Crossreference %s: Failed to match structured line '%s' to an unstructured line" %
+                       (job.id, repr_str))
 
-    return bool(summary_lines)
+    return True
 
 
 def structured_iterator(failure_lines):
