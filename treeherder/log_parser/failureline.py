@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 def store_failure_lines(job_log):
     log_iter = fetch_log(job_log)
     if not log_iter:
-        return
-    write_failure_lines(job_log, log_iter)
+        return False
+    return write_failure_lines(job_log, log_iter)
 
 
 def fetch_log(job_log):
@@ -81,6 +81,7 @@ def write_failure_lines(job_log, log_iter):
             failure_lines = create(job_log, log_list)
 
     create_es(failure_lines)
+    return failure_lines
 
 
 _failure_line_keys = ["action", "line", "test", "subtest", "status",
