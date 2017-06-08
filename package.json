@@ -35,7 +35,9 @@
     "ngreact": "0.4.0",
     "raw-loader": "0.5.1",
     "react": "15.3.2",
+    "react-bootstrap": "^0.31.0",
     "react-dom": "15.3.2",
+    "react-fontawesome": "^1.6.1",
     "taskcluster-client": "2.3.0",
     "webpack-md5-hash": "0.0.5"
   },
