@@ -45,6 +45,7 @@ def parse_logs(job_id, job_log_ids, priority):
 
     if len(job_log_ids) != len(job_logs):
         logger.warning("Failed to load all expected job ids: %s" % ", ".join(job_log_ids))
+
     parser_tasks = {
         "errorsummary_json": store_failure_lines,
         "buildbot_text": parse_unstructured_log,
