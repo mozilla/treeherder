@@ -132,6 +132,18 @@ treeherder.controller('PinboardCtrl', [
             }
         };
 
+        // If the pasted data is (or looks like) a 12 or 40 char SHA,
+        // or if the pasted data is an hg.m.o url, automatically select
+        // the "fixed by commit" classification type
+        $scope.pasteSHA = function (evt) {
+            var pastedData = evt.originalEvent.clipboardData.getData('text');
+            var re1 = pastedData.search(/^[0-9a-f]{12}$/) >= 0;
+            var re2 = pastedData.search(/^[0-9a-f]{40}$/) >= 0;
+            if (re1 || re2 || pastedData.includes("hg.mozilla.org")) {
+                $scope.classification.failure_classification_id = 2;
+            }
+        };
+
         $scope.retriggerAllPinnedJobs = function () {
             // pushing pinned jobs to a list.
             $scope.retriggerJob(_.values($scope.pinnedJobs));

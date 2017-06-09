@@ -55,6 +55,7 @@
                class="form-control add-classification-input"
                ng-model="classification.text"
                ng-click="allowKeys()"
+               ng-paste="pasteSHA($event)"
                placeholder="click to add comment"
                blur-this></input>
         <div ng-if="classification.failure_classification_id === 2">
