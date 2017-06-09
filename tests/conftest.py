@@ -6,6 +6,7 @@ import os
 import kombu
 import pytest
 import responses
+from _pytest.monkeypatch import MonkeyPatch
 from django.conf import settings
 from requests import Request
 from requests_hawk import HawkAuth
@@ -60,6 +61,26 @@ def increment_cache_key_prefix():
         key_prefix_counter = 0
         cache.set(prefix_counter_cache_key, key_prefix_counter)
     cache.key_prefix = "t{0}".format(key_prefix_counter)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def block_unmocked_requests():
+    """
+    Prevents requests from being made unless they are mocked.
+
+    Helps avoid inadvertent dependencies on external resources during the test run.
+    """
+    def mocked_send(*args, **kwargs):
+        raise RuntimeError('Tests must mock all HTTP requests!')
+
+    # The standard monkeypatch fixture cannot be used with session scope:
+    # https://github.com/pytest-dev/pytest/issues/363
+    monkeypatch = MonkeyPatch()
+    # Monkeypatching here since any higher level would break responses:
+    # https://github.com/getsentry/responses/blob/0.5.1/responses.py#L295
+    monkeypatch.setattr('requests.adapters.HTTPAdapter.send', mocked_send)
+    yield monkeypatch
+    monkeypatch.undo()
 
 
 @pytest.fixture

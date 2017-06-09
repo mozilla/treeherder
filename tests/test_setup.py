@@ -1,10 +1,13 @@
 import MySQLdb
 import pytest
+import responses
 from _mysql_exceptions import OperationalError
 from celery import current_app
 from django.conf import settings
 from django.core.cache import cache
 from django.core.management import call_command
+
+from treeherder.etl.common import fetch_text
 
 
 def test_mysqlclient_tls_enforced():
@@ -33,6 +36,19 @@ def test_mysqlclient_tls_enforced():
             }
         )
     assert "SSL connection error" in str(e.value)
+
+
+def test_block_unmocked_requests():
+    """Ensure the `block_unmocked_requests` fixture prevents requests from hitting the network."""
+    url = 'https://example.com'
+
+    with pytest.raises(RuntimeError, message='Tests must mock all HTTP requests!'):
+        fetch_text(url)
+
+    with responses.RequestsMock() as rsps:
+        rsps.add(responses.GET, url, body='Mocked requests still work')
+        text = fetch_text(url)
+        assert text == 'Mocked requests still work'
 
 
 @pytest.mark.django_db
