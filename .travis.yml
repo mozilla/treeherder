@@ -175,8 +175,7 @@ matrix:
         - pip install --disable-pip-version-check --upgrade pip==9.0.1
         - ./bin/vendor-libmysqlclient.sh ~/venv
         - mkdir -p $HOME/bin
-        - wget https://github.com/mozilla/geckodriver/releases/download/v0.14.0/geckodriver-v0.14.0-linux64.tar.gz
-        - tar -xzf geckodriver-v0.14.0-linux64.tar.gz -C $HOME/bin
+        - curl -sSfL https://github.com/mozilla/geckodriver/releases/download/v0.17.0/geckodriver-v0.17.0-linux64.tar.gz | tar -zxC $HOME/bin
         - nvm install 7.10.0
         # Required until Travis makes yarn available in the base image,
         # since it only installs it for `language: nodejs` currently.
