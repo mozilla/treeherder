@@ -103,10 +103,10 @@ div#info-panel .info-panel-navbar > ul.tab-headers > li {
   color: #9FA3A5;
 }
 
-.info-panel-navbar .navbar-nav > li > a:hover,
-.info-panel-navbar .navbar-nav > li > a:focus,
-.info-panel-navbar .navbar-nav > li > button:hover,
-.info-panel-navbar .navbar-nav > li > button:focus
+div#info-panel .navbar-nav > li > a:hover,
+div#info-panel .navbar-nav > li > a:focus,
+div#info-panel .navbar-nav > li > button:hover,
+div#info-panel .navbar-nav > li > button:focus
 {
   background-color: #1E252B;
   color: #D3D8DA;
