@@ -112,6 +112,18 @@ div#info-panel .navbar-nav > li > button:focus
   color: #D3D8DA;
 }
 
+div#info-panel .navbar-nav > li > a:active,
+div#info-panel .navbar-nav > li > button:active
+{
+  background-color: #000;
+}
+
+div#info-panel .navbar-nav > li > a.disabled:active,
+div#info-panel .navbar-nav > li > button.disabled:active
+{
+  background-color: #1E252B;
+}
+
 .info-panel-navbar .actionbar-nav {
   flex: auto;
 }
