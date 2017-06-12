@@ -18,7 +18,9 @@ const RevisionItem = (props) => {
     let email, name, userTokens, escapedComment, escapedCommentHTML, initialsHTML, tags;
 
     userTokens = props.revision.author.split(/[<>]+/);
-    name = userTokens[0].trim();
+    name = userTokens[0].trim().replace(/\w\S*/g,
+                                        txt => txt.charAt(0).toUpperCase() + txt.substr(1));
+
     if (userTokens.length > 1) email = userTokens[1];
     initialsHTML = { __html: props.initialsFilter(name) };
 
