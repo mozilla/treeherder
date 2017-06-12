@@ -145,6 +145,15 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
  * Job details action bar
  */
 
+.action-bar-spin {
+  animation: action-bar-spin 0.7s;
+}
+
+@keyframes action-bar-spin {
+  0% { transform: rotate(0turn); }
+  100% { transform: rotate(1turn); }
+}
+
 .actionbar-nav > li {
   /* Override padding on all icons to keep compact */
   padding: 0 !important;

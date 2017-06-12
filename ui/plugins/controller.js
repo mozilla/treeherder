@@ -339,7 +339,20 @@ treeherder.controller('PluginCtrl', [
                    ($scope.job.state === "pending" || $scope.job.state === "running");
         };
 
-        $scope.retriggerJob = function (jobs) {
+        $scope.spinButton = function (selector, spinclass) {
+            $( selector ).removeClass( spinclass );
+            $( selector ).addClass( spinclass );
+            $timeout(function () {
+                $( selector ).removeClass( spinclass );
+            }, 600);
+        };
+
+        $scope.retriggerJob = function (jobs, evt) {
+            // Pulse the retrigger button when it is clicked to give feedback.
+            if (evt) {
+                $scope.spinButton("#retrigger-btn", "action-bar-spin");
+            }
+
             if ($scope.user.loggedin) {
                 var job_id_list = _.map(jobs, 'id');
                 // The logic here is somewhat complicated because we need to support
