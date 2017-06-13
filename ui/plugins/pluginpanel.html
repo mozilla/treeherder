@@ -86,7 +86,7 @@
                               'Must be logged in to retrigger a job'}}"
                ng-class="user.loggedin ? 'icon-green' : 'disabled'"
                ng-disabled="!user.loggedin"
-               ng-click="retriggerJob([selectedJob], $event)">
+               ng-click="retriggerJob([selectedJob])">
               <span class="fa fa-repeat"></span>
             </button>
           </li>
