@@ -19,8 +19,7 @@ def if_not_parsed(f):
     """Decorator that ensures that log parsing task has not already run
     """
     def inner(job_log):
-        newrelic.agent.add_custom_parameter("job_log_%i_name" % job_log.id, job_log.name)
-        newrelic.agent.add_custom_parameter("job_log_%i_url" % job_log.id, job_log.url)
+        newrelic.agent.add_custom_parameter("job_log_%s_url" % job_log.name, job_log.url)
 
         logger.debug("parser_task for %s" % job_log.id)
         if job_log.status == JobLog.PARSED:
