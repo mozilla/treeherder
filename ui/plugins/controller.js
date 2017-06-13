@@ -340,14 +340,15 @@ treeherder.controller('PluginCtrl', [
         };
 
         $scope.retriggerJob = function (jobs) {
-            // Spin the retrigger button when retriggers happen
-            $("#retrigger-btn").removeClass("action-bar-spin");
-            $("#retrigger-btn").addClass("action-bar-spin");
-            $timeout(function () {
-                $("#retrigger-btn").removeClass("action-bar-spin");
-            }, 600);
-
             if ($scope.user.loggedin) {
+                // Spin the retrigger button when retriggers happen
+                document.querySelector("#retrigger-btn").className = "icon-green";
+                window.requestAnimationFrame(function () {
+                    window.requestAnimationFrame(function () {
+                        document.querySelector("#retrigger-btn").className = "icon-green action-bar-spin";
+                    });
+                });
+
                 var job_id_list = _.map(jobs, 'id');
                 // The logic here is somewhat complicated because we need to support
                 // two use cases the first is the case where we notify a system
