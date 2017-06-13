@@ -93,7 +93,7 @@ module.exports = neutrino => {
                 globals: ['angular', '$', '_', 'treeherder', 'perf',
                     'treeherderApp', 'failureViewerApp', 'logViewerApp',
                     'userguideApp', 'admin', 'Mousetrap', 'jQuery', 'React',
-                    'hawk', 'jsonSchemaDefaults', 'SERVICE_DOMAIN'
+                    'hawk', 'jsonSchemaDefaults', 'SERVICE_DOMAIN', 'numeral'
                 ]
             }
         }));

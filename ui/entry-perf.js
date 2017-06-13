@@ -21,6 +21,7 @@ require('angular-local-storage');
 require('mousetrap');
 require('bootstrap/dist/js/bootstrap');
 require('angular-ui-bootstrap');
+require('numeral');
 require('./vendor/angular-clipboard.js');
 // The jquery flot package does not seem to be updated on npm, so we use a local version:
 require('./vendor/jquery.flot.js');

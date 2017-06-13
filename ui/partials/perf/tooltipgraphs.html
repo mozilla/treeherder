@@ -1,0 +1,3 @@
+<div>Runs: &lt; {{$ctrl.replicates.join(' ')}} &gt; ({{$ctrl.stddev|displayNumber}} = {{$ctrl.stddevpct|displayNumber}}% standard deviation)</div>
+&nbsp
+<distribution-graph replicates="$ctrl.replicates"></distribution-graph>

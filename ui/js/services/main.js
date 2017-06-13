@@ -210,3 +210,8 @@ treeherder.factory('thExtendProperties', [
             return dest;
         };
     }]);
+
+treeherder.factory('numeral', [
+    function () {
+        return require('numeral');
+    }]);

@@ -449,3 +449,26 @@ td.alert-confidence {
 .alert-strike {
     text-decoration: line-through;
 }
+
+.compare-table-tooltip .tooltip-inner {
+  max-width: 280px;
+}
+
+.tooltip-table {
+  border: 1px solid white;
+  height: 20px;
+  margin-bottom: 5px;
+}
+
+.tooltip-table .value-column {
+  width: 35px;
+  border: 1px solid white;
+  align: center;
+  font-family: "Helvetica";
+  font-size: 11px;
+}
+
+.tooltip-table .distribution-column{
+  width: 200px;
+  border: 1px solid white;
+}
