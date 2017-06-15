@@ -29,6 +29,8 @@ Vagrant.configure("2") do |config|
     override.vm.box_version = ">= 2.3.5"
     vb.name = "treeherder"
     vb.memory = "3072"
+    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
   end
 
   config.vm.provider "hyperv" do |hv, override|
