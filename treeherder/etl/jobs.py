@@ -370,7 +370,7 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
 
             job_logs.append(jl)
 
-    _schedule_log_parsing(job, job_logs, result)
+        _schedule_log_parsing(job, job_logs, result)
 
     return (job_guid, signature_hash)
 
