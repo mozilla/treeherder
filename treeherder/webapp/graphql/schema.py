@@ -64,6 +64,11 @@ class FailureLineGraph(DjangoObjectType):
         model = FailureLine
 
 
+class GroupGraph(DjangoObjectType):
+    class Meta:
+        model = Group
+
+
 class ProductGraph(DjangoObjectType):
     class Meta:
         model = Product
