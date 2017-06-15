@@ -11,8 +11,8 @@ def submit_elasticsearch_doc(project, job_id, bug_id, classification_timestamp, 
     OrangeFactor is rewritten to use Treeherder's API directly.
     """
     newrelic.agent.add_custom_parameter("project", project)
-    newrelic.agent.add_custom_parameter("job_id", job_id)
-    newrelic.agent.add_custom_parameter("bug_id", bug_id)
+    newrelic.agent.add_custom_parameter("job_id", str(job_id))
+    newrelic.agent.add_custom_parameter("bug_id", str(bug_id))
     req = ElasticsearchDocRequest(project, job_id, bug_id, classification_timestamp, who)
     req.generate_request_body()
     req.send_request()
