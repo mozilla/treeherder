@@ -1251,6 +1251,28 @@ class FailureLine(models.Model):
             return es_line
 
 
+class Group(models.Model):
+    """
+    The test harness group.
+
+    This is most often a manifest file.  But in some instances where a suite
+    doesn't have manifests, or a test suite isn't logging its data properly,
+    this can simply be "default"
+
+    Note: This is not to be confused with JobGroup which is Treeherder specific.
+    """
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=255, unique=True)
+    failure_lines = models.ManyToManyField(FailureLine,
+                                           related_name='group')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = 'group'
+
+
 class ClassifiedFailure(models.Model):
     id = models.BigAutoField(primary_key=True)
     failure_lines = models.ManyToManyField(FailureLine, through='FailureMatch',
