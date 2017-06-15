@@ -36,11 +36,11 @@ def if_not_parsed(f):
 
 @retryable_task(name='log-parser', max_retries=10)
 def parse_logs(job_id, job_log_ids, priority):
+    newrelic.agent.add_custom_parameter("job_id", str(job_id))
+
     job = Job.objects.get(id=job_id)
     job_logs = JobLog.objects.filter(id__in=job_log_ids,
                                      job=job)
-
-    newrelic.agent.add_custom_parameter("job_id", job.id)
 
     if len(job_log_ids) != len(job_logs):
         logger.warning("Failed to load all expected job ids: %s" % ", ".join(job_log_ids))

@@ -67,16 +67,16 @@ def publish_job_action(project, action, job_id, requester):
     :param job_id str: The job id the action was requested for.
     :param requester str: The email address associated with the request.
     """
-    job = Job.objects.get(id=job_id)
-
     newrelic.agent.add_custom_parameter("project", project)
     newrelic.agent.add_custom_parameter("action", action)
-    newrelic.agent.add_custom_parameter("job_id", job.id)
+    newrelic.agent.add_custom_parameter("job_id", str(job_id))
     newrelic.agent.add_custom_parameter("requester", requester)
+
     publisher = pulse_connection.get_publisher()
     if not publisher:
         return
 
+    job = Job.objects.get(id=job_id)
     publisher.job_action(
         version=1,
         build_system_type=job.signature.build_system_type,
@@ -94,8 +94,9 @@ def publish_job_action(project, action, job_id, requester):
 def publish_resultset_action(project, action, resultset_id, requester, times=1):
     newrelic.agent.add_custom_parameter("project", project)
     newrelic.agent.add_custom_parameter("action", action)
-    newrelic.agent.add_custom_parameter("resultset_id", resultset_id)
+    newrelic.agent.add_custom_parameter("resultset_id", str(resultset_id))
     newrelic.agent.add_custom_parameter("requester", requester)
+
     publisher = pulse_connection.get_publisher()
     if not publisher:
         return
@@ -114,11 +115,13 @@ def publish_resultset_action(project, action, resultset_id, requester, times=1):
 def publish_resultset_runnable_job_action(project, resultset_id, requester,
                                           requested_jobs, decision_task_id):
     newrelic.agent.add_custom_parameter("project", project)
-    newrelic.agent.add_custom_parameter("resultset_id", resultset_id)
+    newrelic.agent.add_custom_parameter("resultset_id", str(resultset_id))
     newrelic.agent.add_custom_parameter("requester", requester)
+
     publisher = pulse_connection.get_publisher()
     if not publisher:
         return
+
     timestamp = str(time.time())
     publisher.resultset_runnable_job_action(
         version=1,
