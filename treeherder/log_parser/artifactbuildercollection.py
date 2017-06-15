@@ -91,7 +91,7 @@ BuildbotPerformanceDataArtifactBuilder
             # Temporary annotation of log size to help set thresholds in bug 1295997.
             newrelic.agent.add_custom_parameter(
                 'unstructured_log_size',
-                response.headers.get('Content-Length', 'Unknown')
+                int(response.headers.get('Content-Length', -1))
             )
             newrelic.agent.add_custom_parameter(
                 'unstructured_log_encoding',
