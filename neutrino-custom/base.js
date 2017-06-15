@@ -4,7 +4,6 @@ const webpack = require('webpack');
 const lintPreset = require('./lint');
 const reactPreset = require('neutrino-preset-react');
 const HtmlPlugin = require('html-webpack-plugin');
-const Md5HashPlugin = require('webpack-md5-hash');
 
 const CWD = process.cwd();
 const SRC = path.join(CWD, 'src'); // neutrino's default source directory
@@ -42,11 +41,6 @@ module.exports = neutrino => {
         jsDeps.map(dep =>
             neutrino.config.entry('vendor').add(dep)
         );
-
-        // Ensure chunkhashes for unchanged chunks don't change -- this allows the bundled vendor
-        // file to keep its hash and stay cached in the user's browser when it hasn't been updated.
-        neutrino.config.output.chunkFilename('[chunkhash].[id].chunk.js');
-        neutrino.config.plugin('hash').use(Md5HashPlugin);
     }
 
     // Neutrino looks for the entry at src/index.js by default; Delete this and add the index in ui/:
