@@ -2,6 +2,7 @@ import json
 import logging
 from itertools import islice
 
+import newrelic.agent
 from django.conf import settings
 from django.db import transaction
 from django.db.utils import (IntegrityError,
@@ -11,6 +12,7 @@ from requests.exceptions import HTTPError
 from treeherder.etl.common import fetch_text
 from treeherder.etl.text import astral_filter
 from treeherder.model.models import (FailureLine,
+                                     Group,
                                      JobLog)
 from treeherder.model.search import (TestFailureLine,
                                      bulk_insert)
@@ -94,13 +96,39 @@ def get_kwargs(failure_line):
             if key in failure_line}
 
 
+def create_failure_line(job_log, failure_line):
+    fl = FailureLine.objects.create(repository=job_log.job.repository,
+                                    job_guid=job_log.job.guid,
+                                    job_log=job_log,
+                                    **get_kwargs(failure_line))
+    if "group" in failure_line:
+        # Omit the filename before storing.
+        group_path = failure_line["group"].rsplit("/", 1)[0]
+
+        # Log to New Relic if it's not in a form we like.  We can enter
+        # Bugs to upstream to remedy them.
+        if "\\" in group_path or ":" in group_path or len(group_path) > 255:
+            newrelic.agent.record_custom_event(
+                "malformed_test_group",
+                {"message": "Group paths must be relative, with no backslashes and <255 chars",
+                 "group": failure_line["group"],
+                 "group_path": group_path,
+                 "length": len(group_path),
+                 "repository": fl.repository,
+                 "job_guid": fl.job_guid,
+                 "failure_line_id": fl.id
+                 })
+
+        # Save the value regardless
+        group, saved = Group.objects.get_or_create(name=group_path[:255])
+        group.failure_lines.add(fl)
+
+    return fl
+
+
 def create(job_log, log_list):
-    failure_lines = [
-        FailureLine.objects.create(repository=job_log.job.repository,
-                                   job_guid=job_log.job.guid,
-                                   job_log=job_log,
-                                   **get_kwargs(failure_line))
-        for failure_line in log_list]
+    failure_lines = [create_failure_line(job_log, failure_line)
+                     for failure_line in log_list]
     job_log.update_status(JobLog.PARSED)
     return failure_lines
 
