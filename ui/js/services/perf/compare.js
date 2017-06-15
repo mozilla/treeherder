@@ -285,7 +285,7 @@ treeherder.factory('PhCompare', [
                 });
 
                 if (resultSets) {
-                    if (timeRange) {
+                    if (!timeRange) {
                         graphsLink += '&timerange=' + _.max(
                         _.map(resultSets,
                               function (resultSet) {
