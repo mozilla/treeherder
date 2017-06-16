@@ -37,7 +37,7 @@ module.exports = neutrino => {
             'angular', 'angular-cookies', 'angular-local-storage', 'angular-resource',
             'angular-route', 'angular-sanitize', 'angular-toarrayfilter', 'angular-ui-bootstrap',
             'angular-ui-router', 'bootstrap/dist/js/bootstrap', 'hawk', 'jquery', 'jquery.scrollto',
-            'js-yaml', 'mousetrap', 'react', 'react-dom', 'taskcluster-client'
+            'js-yaml', 'mousetrap', 'react', 'react-dom', 'taskcluster-client', 'numeral'
         ];
         jsDeps.map(dep =>
             neutrino.config.entry('vendor').add(dep)
