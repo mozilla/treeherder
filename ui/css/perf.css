@@ -471,3 +471,17 @@ td.alert-confidence {
   width: 200px;
   border: 1px solid white;
 }
+
+.replicate-graph .mg-header {
+    font-family: "Helvetica";
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.replicate-graph .mg-x-axis text {
+    font-size: 0px;
+}
+
+.replicate-graph .mg-category-guides line {
+    stroke: #ffffff;
+}

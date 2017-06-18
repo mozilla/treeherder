@@ -55,6 +55,11 @@ perf.config(['$compileProvider', '$httpProvider', '$stateProvider', '$urlRouterP
             templateUrl: 'partials/perf/dashboardsubtest.html',
             url: '/dashboardsubtest?topic&filter&showOnlyImportant&showOnlyConfident&baseSignature&variantSignature&repo&timerange&revision',
             controller: 'dashSubtestCtrl'
+        }).state('comparesubtestdistribution', {
+            title: 'Compare Subtest Distribution',
+            templateUrl: 'partials/perf/comparesubtestdistribution.html',
+            url: '/comparesubtestdistribution?originalProject&newProject&originalRevision&newRevision&originalSubtestSignature?newSubtestSignature',
+            controller: 'CompareSubtestDistributionCtrl'
         });
         $urlRouterProvider.otherwise('/graphs');
     }]).run(['$rootScope', '$state', '$stateParams', function ($rootScope, $state, $stateParams) {
