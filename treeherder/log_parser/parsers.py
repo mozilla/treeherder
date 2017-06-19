@@ -348,6 +348,7 @@ class ErrorParser(ParserBase):
         "Assertion failure:",
         "Assertion failed:",
         "###!!! ABORT:",
+        "###!!! ASSERTION:",
         "E/GeckoLinker",
         "SUMMARY: AddressSanitizer",
         "SUMMARY: LeakSanitizer",
