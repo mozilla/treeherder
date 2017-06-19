@@ -639,7 +639,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'instrumentation-background'), "name": "Android Instrumentation Background"},
     {"regex": re.compile(r'instrumentation-browser'), "name": "Android Instrumentation Browser"},
     {"regex": re.compile(r'xpcshell'), "name": "XPCShell"},
-    {"regex": re.compile(r'mozmill$'), "name": "Mozmill"},
+    {"regex": re.compile(r'mozmill'), "name": "Mozmill"},
     {"regex": re.compile(r'luciddream'), "name": "Luciddream"},
     {"regex": re.compile(r'media-tests'), "name": "Media Tests MSE Video Playback"},
     {"regex": re.compile(r'media-youtube-tests'), "name": "Media Tests MSE YouTube Playback"},

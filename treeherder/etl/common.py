@@ -3,6 +3,7 @@ import hashlib
 import logging
 import re
 
+import newrelic.agent
 import requests
 from dateutil import parser
 from django.conf import settings
@@ -41,6 +42,15 @@ def make_request(url, method='GET', headers=None,
                                 headers=headers,
                                 timeout=timeout,
                                 **kwargs)
+
+    if response.history:
+        params = {
+            'url': url,
+            'redirects': len(response.history),
+            'duration': sum(r.elapsed.total_seconds() for r in response.history)
+        }
+        newrelic.agent.record_custom_event('RedirectedRequest', params=params)
+
     response.raise_for_status()
     return response
 
