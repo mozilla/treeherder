@@ -142,6 +142,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'hawkrest',
     'corsheaders',
+    'django_filters',
     'graphene_django',
     # treeherder apps
     'treeherder.model',
