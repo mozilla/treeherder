@@ -12,7 +12,7 @@ class Command(BaseCommand):
             action='store_true',
             dest='project',
             default='mozilla-inbound',
-            help='Name of the treeherder project: mozilla-inbound, mozilla-aurora etc...'
+            help='Name of the treeherder project: mozilla-inbound etc...'
         )
         parser.add_argument(
             '--result_set_ids',
