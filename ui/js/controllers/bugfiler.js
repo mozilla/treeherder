@@ -132,7 +132,9 @@ treeherder.controller('BugFilerCtrl', [
                 }
             }
 
-            var summaryName = summary[0] === "TEST-UNEXPECTED-PASS" ? summary[1] : summary[0];
+            // Some of the TEST-FOO bits aren't removed from the summary,
+            // so we sometimes end up with them instead of the test path here.
+            var summaryName = summary[0].startsWith("TEST-") ? summary[1] : summary[0];
             $uibModalInstance.possibleFilename = findFilename(summaryName);
 
             return [summary, $uibModalInstance.possibleFilename];
