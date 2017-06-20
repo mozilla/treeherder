@@ -54,17 +54,17 @@ describe('initials filter', function() {
 
     it('initializes a one-word name', function() {
         var initials = $filter('initials');
-        expect(initials('Starscream')).toEqual('<span class="label label-initials">S</span>');
+        expect(initials('Starscream')).toEqual('<span class="user-push-icon"><i class="fa fa-user-o" aria-hidden="true"></i></span><div class="icon-superscript user-push-initials">S</div>');
     });
 
     it('initializes a two-word name', function() {
         var initials = $filter('initials');
-        expect(initials('Optimus Prime')).toEqual('<span class="label label-initials">OP</span>');
+        expect(initials('Optimus Prime')).toEqual('<span class="user-push-icon"><i class="fa fa-user-o" aria-hidden="true"></i></span><div class="icon-superscript user-push-initials">OP</div>');
     });
 
     it('initializes a three-word name', function() {
         var initials = $filter('initials');
-        expect(initials('Some Other Transformer')).toEqual('<span class="label label-initials">ST</span>');
+        expect(initials('Some Other Transformer')).toEqual('<span class="user-push-icon"><i class="fa fa-user-o" aria-hidden="true"></i></span><div class="icon-superscript user-push-initials">ST</div>');
     });
 });
 
