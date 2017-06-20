@@ -2,7 +2,7 @@
 
 /* jasmine specs for controllers go here */
 
-describe('BugFilerCtrl', function(){
+describe('BugFilerCtrl', function() {
     var $httpBackend, controller, bugFilerScope, $uibModalInstance;
 
     beforeEach(angular.mock.module('treeherder.app'));
@@ -78,6 +78,7 @@ describe('BugFilerCtrl', function(){
 
         var modalInstance = {}
         var summary = "PROCESS-CRASH | browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js | application crashed [@ js::GCMarker::eagerlyMarkChildren]";
+        var search_terms = ["browser_searchbar_smallpanel_keyboard_navigation.js", "[@ js::GCMarker::eagerlyMarkChildren]"];
         var fullLog = "https://queue.taskcluster.net/v1/task/AGs4CgN_RnCTb943uQn8NQ/runs/0/artifacts/public/logs/live_backing.log";
         var parsedLog = "http://localhost:5000/logviewer.html#?job_id=89017089&repo=mozilla-inbound";
         var reftest = "";
@@ -139,6 +140,7 @@ describe('BugFilerCtrl', function(){
           '$scope': bugFilerScope,
           '$uibModalInstance': modalInstance,
           'summary': summary,
+          'search_terms': search_terms,
           'fullLog': fullLog,
           'parsedLog': parsedLog,
           'reftest': reftest,
@@ -223,9 +225,9 @@ describe('BugFilerCtrl', function(){
                   "build/tests/reftest/tests/layout/reftests/backgrounds/vector/empty/ref-wide-lime.html | image comparison";
         summary = bugFilerScope.parseSummary(summary);
         expect(summary[0][0]).toBe("TEST-UNEXPECTED-PASS");
-        expect(summary[0][1]).toBe("backgrounds/vector/empty/wide--cover--width.html == backgrounds/vector/empty/ref-wide-lime.html");
+        expect(summary[0][1]).toBe("layout/reftests/backgrounds/vector/empty/wide--cover--width.html == layout/reftests/backgrounds/vector/empty/ref-wide-lime.html");
         expect(summary[0][2]).toBe("image comparison");
-        expect(summary[1]).toBe("display-contents-style-inheritance-1.html");
+        expect(summary[1]).toBe("wide--cover--width.html");
     });
 
 });

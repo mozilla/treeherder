@@ -132,7 +132,8 @@ treeherder.controller('BugFilerCtrl', [
                 }
             }
 
-            $uibModalInstance.possibleFilename = findFilename(summary[0]);
+            var summaryName = summary[0] === "TEST-UNEXPECTED-PASS" ? summary[1] : summary[0];
+            $uibModalInstance.possibleFilename = findFilename(summaryName);
 
             return [summary, $uibModalInstance.possibleFilename];
         };
