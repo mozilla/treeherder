@@ -11,7 +11,6 @@ from treeherder.etl.push import store_push_data
 from treeherder.model.models import (ExclusionProfile,
                                      Job,
                                      JobExclusion,
-                                     JobGroup,
                                      JobLog,
                                      Push)
 
@@ -329,19 +328,24 @@ def test_ingest_job_with_updated_job_group(test_repository, failure_classificati
                                            sample_data, mock_log_parser,
                                            push_stored):
     """
-    When a job_type is associated with a job group on data ingestion,
-    that association will not updated ingesting a new job with the same
-    job_type but different job_group
+    The job_type and job_group for a job is independent of any other job_type
+    and job_group combination.
+
+    Until the second PR of Bug 1215587, this will also update the value of
+    job_type.job_group
     """
     first_job_datum = sample_data.job_data[0]
     first_job_datum["job"]["group_name"] = "first group name"
     first_job_datum["job"]["group_symbol"] = "1"
+    first_job_guid = "first-unique-job-guid"
+    first_job_datum["job"]["job_guid"] = first_job_guid
     first_job_datum["revision"] = push_stored[0]["revision"]
     store_job_data(test_repository, [first_job_datum])
+    first_job = Job.objects.get(guid=first_job_guid)
 
     second_job_datum = copy.deepcopy(first_job_datum)
     # create a new guid to ingest the job again
-    second_job_guid = "a-unique-job-guid"
+    second_job_guid = "second-unique-job-guid"
     second_job_datum["job"]["job_guid"] = second_job_guid
     second_job_datum["job"]["group_name"] = "second group name"
     second_job_datum["job"]["group_symbol"] = "2"
@@ -351,14 +355,11 @@ def test_ingest_job_with_updated_job_group(test_repository, failure_classificati
 
     second_job = Job.objects.get(guid=second_job_guid)
 
-    first_job_group_name = first_job_datum["job"]["group_name"]
-    second_job_group_name = second_job.job_type.job_group.name
-
-    assert first_job_group_name == second_job_group_name
-
-    # make sure also we didn't create a new job group
-    with pytest.raises(JobGroup.DoesNotExist):
-        JobGroup.objects.get(name="second group name")
+    assert second_job.job_group.name == second_job_datum["job"]["group_name"]
+    assert first_job.job_group.name == first_job_datum["job"]["group_name"]
+    # TODO: Remove in last PR for Bug 1215587
+    assert second_job.job_type.job_group.name == second_job_datum["job"]["group_name"]
+    assert first_job.job_type.job_group.name == second_job_datum["job"]["group_name"]
 
 
 def test_ingest_job_with_revision_hash(test_repository,

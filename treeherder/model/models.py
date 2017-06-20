@@ -678,6 +678,7 @@ class Job(models.Model):
     machine = models.ForeignKey(Machine)
     option_collection_hash = models.CharField(max_length=64)
     job_type = models.ForeignKey(JobType, related_name='jobs')
+    job_group = models.ForeignKey(JobGroup, default=2)
     product = models.ForeignKey(Product)
     failure_classification = models.ForeignKey(FailureClassification, related_name='jobs')
     who = models.CharField(max_length=50)
