@@ -86,7 +86,6 @@ class RunnableJobsProcess(AllthethingsTransformerMixin):
                 job_type, _ = JobType.objects.get_or_create(
                     name=datum['job_type_name'],
                     symbol=datum['job_type_symbol'],
-                    defaults={'job_group': job_group}
                 )
 
                 option_collection_hash = self.get_option_collection_hash(
@@ -180,7 +179,7 @@ def _buildbot_runnable_jobs(project):
     runnable_jobs = RunnableJob.objects.filter(
         repository=repository
     ).select_related('build_platform', 'machine_platform',
-                     'job_type', 'job_type__job_group')
+                     'job_type', 'job_group')
 
     # Adding buildbot jobs
     for datum in runnable_jobs:
@@ -196,10 +195,10 @@ def _buildbot_runnable_jobs(project):
             'platform': datum.machine_platform.platform,
             'machine_platform_os': datum.machine_platform.os_name,
             'machine_platform_architecture': datum.machine_platform.architecture,
-            'job_group_id': datum.job_type.job_group.id,
-            'job_group_name': datum.job_type.job_group.name,
-            'job_group_symbol': datum.job_type.job_group.symbol,
-            'job_group_description': datum.job_type.job_group.description,
+            'job_group_id': datum.job_group.id,
+            'job_group_name': datum.job_group.name,
+            'job_group_symbol': datum.job_group.symbol,
+            'job_group_description': datum.job_group.description,
             'job_type_id': datum.job_type.id,
             'job_type_name': datum.job_type.name,
             'job_type_symbol': datum.job_type.symbol,

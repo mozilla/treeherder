@@ -66,22 +66,13 @@ class Command(BaseCommand):
 
         # job type
         for job_type in c.get_job_types():
-            try:
-                jgroup = JobGroup.objects.get(id=job_type['job_group'])
-                JobType.objects.get_or_create(
-                    id=job_type['id'],
-                    symbol=job_type['symbol'],
-                    name=job_type['name'],
-                    defaults={
-                        'job_group': jgroup,
-                        'description': job_type['description']
-                    })
-            except JobGroup.DoesNotExist:
-                # ignore job types whose job group does not exist
-                self.stderr.write("WARNING: Job type '{}' ({}) references a "
-                                  "job group ({}) which does not have an "
-                                  "id".format(job_type['symbol'], job_type['name'],
-                                              job_type['job_group']))
+            JobType.objects.get_or_create(
+                id=job_type['id'],
+                symbol=job_type['symbol'],
+                name=job_type['name'],
+                defaults={
+                    'description': job_type['description']
+                })
 
         # product
         for product in c.get_products():

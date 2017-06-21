@@ -623,8 +623,7 @@ def generic_reference_data(test_repository):
         architecture="x86")
     r.machine = Machine.objects.create(name='mymachine')
     r.job_group = JobGroup.objects.create(symbol='S', name='myjobgroup')
-    r.job_type = JobType.objects.create(job_group=r.job_group,
-                                        symbol='j', name='myjob')
+    r.job_type = JobType.objects.create(symbol='j', name='myjob')
     r.product = Product.objects.create(name='myproduct')
     r.signature = ReferenceDataSignatures.objects.create(
         name='myreferencedatasignaeture',

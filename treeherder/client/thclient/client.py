@@ -618,7 +618,6 @@ class TreeherderClient(object):
 
             {
               id: <id>
-              job_group: <job_group_id>
               symbol: <symbol>
               name: <name>
               ...

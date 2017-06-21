@@ -58,11 +58,11 @@ class JobFilter(django_filters.FilterSet):
     build_system_type = django_filters.CharFilter(
         name='signature__build_system_type')
     job_group_id = django_filters.NumberFilter(
-        name='job_type__job_group_id')
+        name='job_group_id')
     job_group_name = django_filters.CharFilter(
-        name='job_type__job_group__name')
+        name='job_group__name')
     job_group_symbol = django_filters.CharFilter(
-        name='job_type__job_group__symbol')
+        name='job_group__symbol')
     job_type_name = django_filters.CharFilter(
         name='job_type__name')
     job_type_symbol = django_filters.CharFilter(
@@ -87,6 +87,7 @@ class JobFilter(django_filters.FilterSet):
             'build_platform_id': ['exact'],
             'failure_classification_id': ['exact'],
             'job_type_id': ['exact'],
+            'job_group_id': ['exact'],
             'project_specific_id': ['exact'],
             'reason': ['exact'],
             'state': ['exact'],
@@ -121,7 +122,7 @@ class JobsViewSet(viewsets.ViewSet):
     _default_select_related = [
         'build_platform',
         'job_type',
-        'job_type__job_group',
+        'job_group',
         'machine_platform',
         'machine',
         'signature',
@@ -138,10 +139,10 @@ class JobsViewSet(viewsets.ViewSet):
         ('failure_classification_id', 'failure_classification_id', None),
         ('id', 'id', None),
         ('job_coalesced_to_guid', 'coalesced_to_guid', None),
-        ('job_group_description', 'job_type__job_group__description', None),
-        ('job_group_id', 'job_type__job_group_id', None),
-        ('job_group_name', 'job_type__job_group__name', None),
-        ('job_group_symbol', 'job_type__job_group__symbol', None),
+        ('job_group_description', 'job_group__description', None),
+        ('job_group_id', 'job_group_id', None),
+        ('job_group_name', 'job_group__name', None),
+        ('job_group_symbol', 'job_group__symbol', None),
         ('job_guid', 'guid', None),
         ('job_type_description', 'job_type__description', None),
         ('job_type_id', 'job_type_id', None),

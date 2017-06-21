@@ -142,7 +142,7 @@ def test_cycle_job_model_reference_data(test_repository, failure_classifications
     # create a bunch of job model data that should be cycled, since they don't
     # reference any current jobs
     jg = JobGroup.objects.create(symbol='moo', name='moo')
-    jt = JobType.objects.create(job_group=jg, symbol='mu', name='mu')
+    jt = JobType.objects.create(symbol='mu', name='mu')
     m = Machine.objects.create(name='machine_with_no_job')
     (jg_id, jt_id, m_id) = (jg.id, jt.id, m.id)
     call_command('cycle_data', sleep_time=0, days=1, chunk_size=3)

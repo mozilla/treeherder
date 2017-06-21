@@ -10,6 +10,7 @@ def test_runnable_jobs_api(taskcluster_runnable_jobs, webapp, test_job):
         build_platform=test_job.build_platform,
         machine_platform=test_job.machine_platform,
         job_type=test_job.job_type,
+        job_group=test_job.job_group,
         option_collection_hash=test_job.option_collection_hash,
         ref_data_name=test_job.signature.name,
         build_system_type=test_job.signature.build_system_type,

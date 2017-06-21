@@ -147,10 +147,6 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
         name=job_datum.get('group_name') or 'unknown',
         symbol=job_datum.get('group_symbol') or 'unknown')
 
-    # TODO: Remove in last PR for Bug 1215587
-    job_type.job_group = job_group
-    job_type.save(update_fields=['job_group'])
-
     product_name = job_datum.get('product_name', 'unknown')
     if len(product_name.strip()) == 0:
         product_name = 'unknown'

@@ -75,7 +75,7 @@ class Command(BaseCommand):
         used_job_type_ids = Job.objects.values('job_type_id').distinct()
         JobType.objects.exclude(id__in=used_job_type_ids).delete()
 
-        used_job_group_ids = JobType.objects.values('job_group').distinct()
+        used_job_group_ids = Job.objects.values('job_group_id').distinct()
         JobGroup.objects.exclude(id__in=used_job_group_ids).delete()
 
         used_machine_ids = Job.objects.values('machine_id').distinct()

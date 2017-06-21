@@ -1466,6 +1466,7 @@ class RunnableJob(models.Model):
     build_platform = models.ForeignKey(BuildPlatform)
     machine_platform = models.ForeignKey(MachinePlatform)
     job_type = models.ForeignKey(JobType)
+    job_group = models.ForeignKey(JobGroup, default=2)
     option_collection_hash = models.CharField(max_length=64)
     ref_data_name = models.CharField(max_length=255)
     build_system_type = models.CharField(max_length=25)
