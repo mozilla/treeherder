@@ -291,8 +291,8 @@ class TreeherderPage(Base):
         _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')
         _pin_all_jobs_locator = (By.CLASS_NAME, 'pin-all-jobs-btn')
         _platform_locator = (By.CLASS_NAME, 'platform')
-        _set_bottom_of_range_locator = (By.CSS_SELECTOR, '.open ul > li:nth-child(8) > a')
-        _set_top_of_range_locator = (By.CSS_SELECTOR, '.open ul > li:nth-child(7) > a')
+        _set_bottom_of_range_locator = (By.CSS_SELECTOR, '.open ul > li:nth-child(9) > a')
+        _set_top_of_range_locator = (By.CSS_SELECTOR, '.open ul > li:nth-child(8) > a')
 
         @property
         def builds(self):
