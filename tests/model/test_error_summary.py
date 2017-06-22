@@ -101,6 +101,14 @@ LEAK_LINE_TEST_CASES = (
         ),
         'AsyncLatencyLogger, AsyncTransactionTrackersHolder, AudioOutputObserver, BufferRecycleBin, CipherSui'
     ),
+    (
+        (
+            'TEST-UNEXPECTED-FAIL '
+            '| LeakSanitizer | leak at '
+            'MakeUnique, nsThread::nsChainedEventQueue::nsChainedEventQueue, nsThread, nsThreadManager::Init'
+        ),
+        'MakeUnique, nsThread::nsChainedEventQueue::nsChainedEventQueue, nsThread, nsThreadManager::Init'
+    ),
 )
 
 

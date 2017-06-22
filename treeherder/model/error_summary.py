@@ -10,7 +10,7 @@ from treeherder.model.models import (Bugscache,
 logger = logging.getLogger(__name__)
 
 
-LEAK_RE = re.compile(r'\d+ bytes leaked \((.+)\)$')
+LEAK_RE = re.compile(r'\d+ bytes leaked \((.+)\)$|leak at (.+)$')
 CRASH_RE = re.compile(r'.+ application crashed \[@ (.+)\]$')
 MOZHARNESS_RE = re.compile(
     r'^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?'
@@ -107,7 +107,7 @@ def get_error_search_term(error_line):
         # leakcheck | .*\d+ bytes leaked (Object-1, Object-2, Object-3, ...)
         match = LEAK_RE.search(message)
         if match:
-            search_term = match.group(1)
+            search_term = match.group(1) if match.group(1) is not None else match.group(2)
         else:
             # For reftests, remove the reference path from the tokens as this is
             # not very unique
