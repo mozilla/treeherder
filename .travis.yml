@@ -69,8 +69,8 @@ matrix:
       services:
         - rabbitmq
       before_install:
-        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.1.deb && sudo dpkg -i ~/elasticsearch.deb
-        - sudo service elasticsearch start
+        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.1.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
+        - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
         - sudo service mysql restart
         # Create a clean virtualenv rather than using the one given to us,
@@ -104,8 +104,8 @@ matrix:
       services:
         - rabbitmq
       before_install:
-        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.1.deb && sudo dpkg -i ~/elasticsearch.deb
-        - sudo service elasticsearch start
+        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.1.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
+        - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
         - sudo service mysql restart
         # Create a clean virtualenv rather than using the one given to us,
@@ -133,8 +133,8 @@ matrix:
       services:
         - rabbitmq
       before_install:
-        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.1.deb && sudo dpkg -i ~/elasticsearch.deb
-        - sudo service elasticsearch start
+        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.1.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
+        - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
         - sudo service mysql restart
         # Create a clean virtualenv rather than using the one given to us,
@@ -164,8 +164,8 @@ matrix:
       services:
         - rabbitmq
       before_install:
-        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.1.deb && sudo dpkg -i ~/elasticsearch.deb
-        - sudo service elasticsearch start
+        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.1.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
+        - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
         - sudo service mysql restart
         # Create a clean virtualenv rather than using the one given to us,
