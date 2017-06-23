@@ -342,10 +342,10 @@ treeherder.controller('PluginCtrl', [
         $scope.retriggerJob = function (jobs) {
             if ($scope.user.loggedin) {
                 // Spin the retrigger button when retriggers happen
-                document.querySelector("#retrigger-btn").className = "icon-green";
+                $("#retrigger-btn").removeClass("action-bar-spin");
                 window.requestAnimationFrame(function () {
                     window.requestAnimationFrame(function () {
-                        document.querySelector("#retrigger-btn").className = "icon-green action-bar-spin";
+                        $("#retrigger-btn").addClass("action-bar-spin");
                     });
                 });
 
