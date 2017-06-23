@@ -18,8 +18,8 @@ treeherder.directive('thResultCounts', [
                         scope.inProgress = scope.resultset.job_counts.pending +
                             scope.resultset.job_counts.running;
                         var total = scope.resultset.job_counts.completed + scope.inProgress;
-                        scope.percentComplete = total > 0 ? ((scope.resultset.job_counts.completed / total) * 100).toFixed(0) : undefined;
-                        scope.resultset.job_counts.percentComplete = scope.percentComplete;
+                        scope.percentComplete = total > 0 ?
+                            Math.floor(((scope.resultset.job_counts.completed / total) * 100)) : undefined;
                     }
                 };
 
