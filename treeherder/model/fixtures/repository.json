@@ -1176,7 +1176,7 @@
         "active_status": "active",
         "codebase": "snippets-service",
         "repository_group": 5,
-        "description": "Tests for Snippets"
+        "description": "Snippets Service"
     }
 },
 {
