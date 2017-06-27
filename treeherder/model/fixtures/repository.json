@@ -1170,13 +1170,13 @@
     "model": "model.repository",
     "fields": {
         "dvcs_type": "git",
-        "name": "snippets-tests",
-        "url": "https://github.com/mozilla/snippets-tests",
+        "name": "snippets-service",
+        "url": "https://github.com/mozmar/snippets-service",
         "branch": "master",
         "active_status": "active",
-        "codebase": "snippets-tests",
+        "codebase": "snippets-service",
         "repository_group": 5,
-        "description": "Tests for Snippets"
+        "description": "Snippets Service"
     }
 },
 {
