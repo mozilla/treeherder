@@ -4,6 +4,7 @@ from graphene_django.types import DjangoObjectType
 
 from treeherder.model import error_summary
 from treeherder.model.models import *
+from treeherder.webapp.graphql.types import ObjectScalar
 
 
 class JobDetailGraph(DjangoObjectType):
@@ -169,30 +170,6 @@ class Query(graphene.ObjectType):
 
     def resolve_all_text_log_steps(self, args, context, info):
         return TextLogStep.objects.filter(**args)
-
-
-class ObjectScalar(graphene.types.scalars.Scalar):
-    """
-    Un-modeled Object Field for GraphQL data
-
-    This allows an object that's not covered by a model to be returned
-    as a field of a graph.
-    """
-
-    def __init__(self):
-        super(ObjectScalar, self).__init__()
-
-    @staticmethod
-    def serialize(dt):
-        return dt
-
-    @staticmethod
-    def parse_literal(node):
-        return node.value
-
-    @staticmethod
-    def parse_value(value):
-        return value
 
 
 schema = graphene.Schema(query=Query)
