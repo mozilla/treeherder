@@ -59,7 +59,7 @@ matrix:
         - sh -e /etc/init.d/xvfb start
       script:
         - yarn test
-        - yarn run build
+        - yarn build
 
     # Job 3: Python Tests Chunk A
     - env: python-tests-main
@@ -194,7 +194,7 @@ matrix:
         - "sh -e /etc/init.d/xvfb start"
         - sleep 3 # give xvfb some time to start
       script:
-        - yarn run build
+        - yarn build
         - py.test tests/selenium/ --runselenium --driver Firefox
 
 notifications:

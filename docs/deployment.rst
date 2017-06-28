@@ -10,6 +10,6 @@ production, a minified/built version of the UI (generated using webpack) is used
 To build the UI locally:
 
 * Install local dependencies by running ``yarn install --no-bin-links`` from the project root.
-* Run ``yarn run build`` to create the ``dist`` directory.
+* Run ``yarn build`` to create the ``dist`` directory.
 
 Then start gunicorn/runserver as usual.
