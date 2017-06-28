@@ -228,6 +228,14 @@ describe('BugFilerCtrl', function() {
         expect(summary[0][1]).toBe("layout/reftests/backgrounds/vector/empty/wide--cover--width.html == layout/reftests/backgrounds/vector/empty/ref-wide-lime.html");
         expect(summary[0][2]).toBe("image comparison");
         expect(summary[1]).toBe("wide--cover--width.html");
+
+        // Test finding the filename when the `TEST-FOO` is not omitted
+        summary = "TEST-UNEXPECTED-CRASH | /service-workers/service-worker/xhr.https.html | expected OK";
+        summary = bugFilerScope.parseSummary(summary);
+        expect(summary[0][0]).toBe("TEST-UNEXPECTED-CRASH");
+        expect(summary[0][1]).toBe("/service-workers/service-worker/xhr.https.html");
+        expect(summary[0][2]).toBe("expected OK");
+        expect(summary[1]).toBe("xhr.https.html");
     });
 
 });
