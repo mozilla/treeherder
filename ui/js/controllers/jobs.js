@@ -250,7 +250,7 @@ treeherderApp.controller('ResultSetCtrl', [
                         thNotify.send("Trigger request sent", "success");
                         ThResultSetStore.deleteRunnableJobs($scope.repoName, $scope.resultset);
                     }, function (e) {
-                        thNotify.send(ThTaskclusterErrors.format(e), 'danger');
+                        thNotify.send(ThTaskclusterErrors.format(e), 'danger', true);
                     });
                 });
             } else {
