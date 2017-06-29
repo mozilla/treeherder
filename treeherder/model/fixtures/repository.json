@@ -1212,13 +1212,13 @@
     "model": "model.repository",
     "fields": {
         "dvcs_type": "git",
-        "name": "treeherder-tests",
-        "url": "https://github.com/mozilla/treeherder-tests",
+        "name": "treeherder",
+        "url": "https://github.com/mozilla/treeherder",
         "branch": "master",
         "active_status": "active",
-        "codebase": "treeherder-tests",
+        "codebase": "treeherder",
         "repository_group": 5,
-        "description": "Tests for Treeherder"
+        "description": "A system for managing CI data for Mozilla projects"
     }
 }
 ]
