@@ -341,6 +341,14 @@ treeherder.controller('PluginCtrl', [
 
         $scope.retriggerJob = function (jobs) {
             if ($scope.user.loggedin) {
+                // Spin the retrigger button when retriggers happen
+                $("#retrigger-btn").removeClass("action-bar-spin");
+                window.requestAnimationFrame(function () {
+                    window.requestAnimationFrame(function () {
+                        $("#retrigger-btn").addClass("action-bar-spin");
+                    });
+                });
+
                 var job_id_list = _.map(jobs, 'id');
                 // The logic here is somewhat complicated because we need to support
                 // two use cases the first is the case where we notify a system
