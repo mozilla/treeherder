@@ -22,7 +22,7 @@ production site. You do not need to set up the Vagrant VM, but login will be una
 
   .. code-block:: bash
 
-     $ yarn run start
+     $ yarn start
 
 * The server will perform an initial build and then watch for new changes. Once the server is running, you can navigate to: `<http://localhost:5000>`_ to see the UI.
 
@@ -30,13 +30,13 @@ production site. You do not need to set up the Vagrant VM, but login will be una
 
   .. code-block:: bash
 
-     $ yarn run start:stage
+     $ yarn start:stage
 
   If you need to serve data from another domain, type:
 
   .. code-block:: bash
 
-    $ SERVICE_DOMAIN=<url> yarn run start
+    $ SERVICE_DOMAIN=<url> yarn start
 
   This will run the unminified UI using ``<url>`` as the service domain.
 
@@ -58,7 +58,7 @@ installation instructions, then follow these steps:
 
   .. code-block:: bash
 
-    vagrant ~/treeherder$ yarn run start:local
+    vagrant ~/treeherder$ yarn start:local
 
 This will watch UI files for changes and build an unminified version in the ``dist/`` directory.
 Note that this process is a little slower than using the regular development server, so you may
@@ -78,7 +78,7 @@ If you would like to view the minified production version of the UI with Vagrant
 
  .. code-block:: bash
 
-    $ yarn run build
+    $ yarn build
 
 Once the build is complete, the minified version of the UI will now be accessible at http://localhost:8000.
 
@@ -95,7 +95,7 @@ To run eslint by itself, you may run the lint task:
 
   .. code-block:: bash
 
-     $ yarn run lint
+     $ yarn lint
 
 Running the unit tests
 ======================
@@ -107,7 +107,7 @@ The unit tests for the UI are run with Karma_ and Jasmine_. React components are
 
 .. code-block:: bash
 
-    $ yarn run test
+    $ yarn test
 
 After the tests have finished, you can find a coverage report in the `coverage/` directory.
 
@@ -118,7 +118,7 @@ automatically when files change. To do this, you may run the following command:
 
 .. code-block:: bash
 
-    $ yarn run test:watch
+    $ yarn test:watch
 
 The tests will perform an initial run and then re-execute each time a project file is changed.
 
