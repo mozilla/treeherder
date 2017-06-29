@@ -20,6 +20,7 @@ pipeline {
       "--color=yes " +
       "--driver=SauceLabs " +
       "--variables=capabilities.json"
+    PULSE = credentials('PULSE')
     SAUCELABS_API_KEY = credentials('SAUCELABS_API_KEY')
   }
   stages {
@@ -32,7 +33,8 @@ pipeline {
         always {
           archiveArtifacts 'tests/jenkins/results/*'
           junit 'tests/jenkins/results/*.xml'
-          submitToActiveData('tests/jenkins/results/py27.log')
+          submitToActiveData('tests/jenkins/results/py27_raw.txt')
+          submitToTreeherder('treeherder', 'e2e', 'End-to-end integration tests', 'tests/jenkins/results/*', 'tests/jenkins/results/py27_tbpl.txt')
           publishHTML(target: [
             allowMissing: false,
             alwaysLinkToLastBuild: true,
