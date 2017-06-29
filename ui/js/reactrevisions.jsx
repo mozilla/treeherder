@@ -23,8 +23,9 @@ const RevisionItem = (props) => {
 
     if (userTokens.length > 1) email = userTokens[1];
     initialsHTML = { __html: props.initialsFilter(name) };
+    const comment = props.revision.comments.split('\n')[0];
 
-    escapedComment = _.escape(props.revision.comments.split('\n')[0]);
+    escapedComment = _.escape(comment);
     escapedCommentHTML = { __html: props.linkifyBugsFilter(escapedComment) };
 
     tags = '';
@@ -44,7 +45,7 @@ const RevisionItem = (props) => {
             </span>
             <span title={`${name}: ${email}`}
                   dangerouslySetInnerHTML={initialsHTML} />
-            <span title={_.unescape(escapedComment)}>
+            <span title={comment}>
                 <span className="revision-comment">
                     <em dangerouslySetInnerHTML={escapedCommentHTML} />
                 </span>
