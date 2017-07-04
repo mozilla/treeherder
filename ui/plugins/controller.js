@@ -654,5 +654,6 @@ treeherder.controller('PluginCtrl', [
         //fetch URLs
         $scope.getBugUrl = thUrl.getBugUrl;
         $scope.getSlaveHealthUrl = thUrl.getSlaveHealthUrl;
+        $scope.getInspectTaskUrl = thUrl.getInspectTaskUrl;
     }
 ]);
