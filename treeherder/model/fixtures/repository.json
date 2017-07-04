@@ -1185,7 +1185,7 @@
     "fields": {
         "dvcs_type": "git",
         "name": "socorro",
-        "url": "https://github.com/mozilla/socorro",
+        "url": "https://github.com/mozilla-services/socorro",
         "branch": "master",
         "active_status": "active",
         "codebase": "socorro",
