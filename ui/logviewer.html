@@ -91,6 +91,16 @@
               <td ng-if="property.label != 'Revision'"
                   ng-cloak class="break-word">{{property.value}}</td>
             </tr>
+            <tr ng-if="taskId" ng-cloak>
+              <th>
+                Task
+              </th>
+              <td>
+                <a href="{{ getInspectTaskUrl(taskId) }}">
+                  {{ taskId }}
+                </a>
+              </td>
+            </tr>
             <tr ng-repeat="line in job_details | orderBy:'title'">
               <th ng-cloak>
                 <span ng-if="line.title">
