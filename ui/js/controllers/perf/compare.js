@@ -745,7 +745,8 @@ perf.controller('CompareSubtestResultsCtrl', [
                             return;
                         }
 
-                        PhSeries.getSeriesList(
+                        if ($scope.newSignature) {
+                            PhSeries.getSeriesList(
                             $scope.newProject.name, {
                                 parent_signature: $scope.newSignature,
                                 framework: $scope.filterOptions.framework
@@ -775,6 +776,11 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 $scope.dataLoading = false;
                                 displayResults(originalSeriesMap, newSeriesMap);
                             });
+                        }
+                        else {
+                            $scope.dataLoading = false;
+                            displayResults(originalSeriesMap, {});
+                        }
                     });
                 }
                 else {
@@ -802,7 +808,8 @@ perf.controller('CompareSubtestResultsCtrl', [
                     ]).then(
                         function (originalResults) {
                             var originalSeriesMap = originalResults[1];
-                            PhSeries.getSeriesList(
+                            if ($scope.newSignature) {
+                                PhSeries.getSeriesList(
                                 $scope.newProject.name, {
                                     parent_signature: $scope.newSignature,
                                     framework: $scope.filterOptions.framework
@@ -832,6 +839,11 @@ perf.controller('CompareSubtestResultsCtrl', [
                                     $scope.dataLoading = false;
                                     displayResults(originalSeriesMap, newSeriesMap);
                                 });
+                            }
+                            else {
+                                $scope.dataLoading = false;
+                                displayResults(originalSeriesMap, {});
+                            }
                         });
                 }
             });
