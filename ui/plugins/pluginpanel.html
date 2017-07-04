@@ -121,7 +121,7 @@
                    ng-click="!canBackfill() || backfillJob()">Backfill</a>
               </li>
               <li ng-if-start="job.taskcluster_metadata">
-                <a target="_blank" href="https://tools.taskcluster.net/task-inspector/#{{job.taskcluster_metadata.task_id}}">Inspect Task</a>
+                <a target="_blank" href="{{ getInspectTaskUrl(job.taskcluster_metadata.task_id) }}">Inspect Task</a>
               </li>
               <li>
                 <a target="_blank" href="https://tools.taskcluster.net/one-click-loaner/#{{job.taskcluster_metadata.task_id}}">One Click Loaner</a>
