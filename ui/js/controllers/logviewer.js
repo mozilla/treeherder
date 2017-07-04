@@ -4,12 +4,12 @@ logViewerApp.controller('LogviewerCtrl', [
     '$location', '$window', '$document', '$rootScope', '$scope',
     '$timeout', '$resource', 'ThTextLogStepModel', 'ThJobDetailModel',
     'ThJobModel', 'thNotify', 'dateFilter', 'ThResultSetModel',
-    'thDateFormat', 'thReftestStatus',
+    'thDateFormat', 'thReftestStatus', 'thUrl',
     function Logviewer(
         $location, $window, $document, $rootScope, $scope,
         $timeout, $resource, ThTextLogStepModel, ThJobDetailModel,
         ThJobModel, thNotify, dateFilter, ThResultSetModel,
-        thDateFormat, thReftestStatus) {
+        thDateFormat, thReftestStatus, thUrl) {
 
         const query_string = $location.search();
         $scope.css = '';
@@ -104,6 +104,8 @@ logViewerApp.controller('LogviewerCtrl', [
             return start + '-' + end;
         };
 
+        $scope.getInspectTaskUrl = thUrl.getInspectTaskUrl;
+
         $scope.init = () => {
             $scope.logProperties = [];
 
@@ -135,6 +137,9 @@ logViewerApp.controller('LogviewerCtrl', [
 
                     // Test to disable successful steps checkbox on taskcluster jobs
                     $scope.isTaskClusterLog = (job.build_system_type === 'taskcluster');
+                    if (job.taskcluster_metadata) {
+                        $scope.taskId = job.taskcluster_metadata.task_id;
+                    }
 
                     // Test to expose the reftest button in the logviewer actionbar
                     $scope.isReftest = () => {
