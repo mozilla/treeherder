@@ -199,6 +199,12 @@
             <span ng-switch-default ng-if="job.build_system_type !== 'buildbot'">{{job.machine_name}}</span>
           </span>
         </li>
+        <li class="small" ng-if="job.taskcluster_metadata">
+          <label>Task:</label>
+          <a target="_blank" href="{{ getInspectTaskUrl(job.taskcluster_metadata.task_id) }}">
+            {{ job.taskcluster_metadata.task_id }}
+          </a>
+        </li>
         <li class="small" ng-repeat="(label, value) in visibleFields">
           <label>{{label}}:</label>
           <span ng-switch on="job.build_system_type === 'buildbot'">
