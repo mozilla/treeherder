@@ -149,8 +149,8 @@ def test_summary_performance_data(webapp, test_repository,
     assert resp.status_code == 200
 
     assert len(resp.data.keys()) == 2
-    assert resp.data.keys() == [test_perf_signature.signature_hash,
-                                summary_signature_hash]
+    assert set(resp.data.keys()) == set([test_perf_signature.signature_hash,
+                                        summary_signature_hash])
 
     for signature in [summary_perf_signature, test_perf_signature]:
         expected = {
