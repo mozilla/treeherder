@@ -48,11 +48,13 @@ echo '-----> Installing/updating APT packages'
 sudo -E apt-get -yqq update
 # g++ is required by Brotli
 # libmemcached-dev and zlib1g-dev are required by pylibmc
+# libmysqlclient-dev is required by mysqlclient
 # openjdk-8-jre-headless is required by Elasticsearch
 sudo -E apt-get -yqq install --no-install-recommends \
     g++ \
     git \
     libmemcached-dev \
+    libmysqlclient-dev \
     memcached \
     mysql-server-5.7 \
     nodejs \
@@ -91,8 +93,6 @@ if [[ "$($PYTHON_DIR/bin/pip --version 2>&1)" != *"$PIP_VERSION"* ]]; then
     echo "-----> Installing pip"
     curl -sSf https://bootstrap.pypa.io/get-pip.py | python - "pip==$PIP_VERSION"
 fi
-
-./bin/vendor-libmysqlclient.sh "$PYTHON_DIR"
 
 echo '-----> Running pip install'
 pip install --require-hashes -r requirements/common.txt -r requirements/dev.txt | sed -e '/^Requirement already satisfied:/d'
