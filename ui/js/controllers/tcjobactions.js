@@ -7,6 +7,7 @@ treeherder.controller('TCJobActionsCtrl', [
     function ($scope, $http, $uibModalInstance, ThResultSetStore,
              ThJobDetailModel, thTaskcluster, ThTaskclusterErrors, thNotify,
              job, repoName, resultsetId, actionsRender) {
+        let jsonSchemaDefaults = require('json-schema-defaults');
         let originalTask;
         $scope.input = {};
 

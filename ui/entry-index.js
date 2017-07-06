@@ -33,7 +33,6 @@ require('js-yaml');
 require('react-dom');
 require('ngreact');
 require('jquery.scrollto');
-require('json-schema-defaults');
 require('./vendor/resizer.js');
 
 // Treeherder JS
