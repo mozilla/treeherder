@@ -29,11 +29,8 @@ ln -sf "$SRC_DIR/vagrant/.profile" "$HOME/.profile"
 sudo ln -sf "$SRC_DIR/vagrant/env.sh" /etc/profile.d/treeherder.sh
 . /etc/profile.d/treeherder.sh
 
-if [[ ! -f /etc/apt/sources.list.d/ondrej-ubuntu-mysql-5_6-xenial.list ]]; then
-    echo '-----> Adding APT repository for MySQL 5.6'
-    # Neither Ubuntu nor Oracle have an official Xenial mysql-5.6 package.
-    sudo add-apt-repository -y ppa:ondrej/mysql-5.6 2>&1
-fi
+# Remove the old MySQL 5.6 PPA repository, if this is an existing Vagrant instance.
+sudo rm -f /etc/apt/sources.list.d/ondrej-ubuntu-mysql-5_6-xenial.list
 
 if [[ ! -f /etc/apt/sources.list.d/nodesource.list ]]; then
     echo '-----> Adding APT repository for Node.js'
@@ -57,7 +54,7 @@ sudo -E apt-get -yqq install --no-install-recommends \
     git \
     libmemcached-dev \
     memcached \
-    mysql-server-5.6 \
+    mysql-server-5.7 \
     nodejs \
     openjdk-8-jre-headless \
     rabbitmq-server \
@@ -106,6 +103,8 @@ echo '-----> Running yarn install'
 yarn install --no-bin-links
 
 echo '-----> Initialising MySQL database'
+# Re-enable blank password root logins, which are disabled by default in MySQL 5.7.
+sudo mysql -e 'ALTER USER root@localhost IDENTIFIED WITH mysql_native_password BY ""';
 # The default `root@localhost` grant only allows loopback interface connections.
 mysql -u root -e 'GRANT ALL PRIVILEGES ON *.* to root@"%"'
 mysql -u root -e 'CREATE DATABASE IF NOT EXISTS treeherder'
