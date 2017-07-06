@@ -145,7 +145,7 @@ def test_summary_performance_data(webapp, test_repository,
 
     client = APIClient()
     resp = client.get(reverse('performance-signatures-list',
-                              kwargs={"project": test_repository.name}), fromat='json')
+                              kwargs={"project": test_repository.name}))
     assert resp.status_code == 200
 
     assert len(resp.data.keys()) == 2
