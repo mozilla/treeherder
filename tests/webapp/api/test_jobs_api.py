@@ -279,7 +279,7 @@ def test_job_retrigger_authorized(webapp, eleven_jobs_stored,
     job = Job.objects.get(id=1)
     url = reverse("jobs-retrigger",
                   kwargs={"project": job.repository.name})
-    client.post(url, {"job_id_list": [job.id]}, format='json')
+    client.post(url, {"job_id_list": [job.id]})
 
     message = pulse_action_consumer.get(block=True, timeout=2)
     content = message.payload
@@ -305,7 +305,7 @@ def test_job_cancel_authorized(webapp, test_repository, eleven_jobs_stored,
 
     url = reverse("jobs-cancel",
                   kwargs={"project": test_repository.name})
-    client.post(url, {"job_id_list": [job.id]}, format='json')
+    client.post(url, {"job_id_list": [job.id]})
 
     message = pulse_action_consumer.get(block=True, timeout=2)
     content = message.payload
