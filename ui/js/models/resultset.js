@@ -91,6 +91,9 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                     } else if (hasLowerRange(locationParams)) {
                         // fetch the maximum number of resultsets if a lower range is specified
                         params.count = MAX_RESULTSET_FETCH_SIZE;
+                    } else if (locationParams.revision) {
+                        // fetch a single resultset if `revision` is a URL param
+                        delete params.count;
                     }
 
                     locationParams = convertDates(locationParams);
