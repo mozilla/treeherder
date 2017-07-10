@@ -17,34 +17,32 @@ class ResultsetLoader:
     """Transform and load a list of Resultsets"""
 
     def process(self, message_body, exchange):
+        transformer = self.get_transformer_class(exchange)(message_body)
         try:
-            transformer = self.get_transformer_class(exchange)(message_body)
-            try:
-                repo = Repository.objects.get(url=transformer.repo_url,
-                                              branch=transformer.branch,
-                                              active_status="active")
+            repo = Repository.objects.get(url=transformer.repo_url,
+                                          branch=transformer.branch,
+                                          active_status="active")
 
-            except ObjectDoesNotExist:
-                repo_info = message_body.get("details",
-                                             message_body["payload"])
-                newrelic.agent.record_custom_event("skip_unknown_repository",
-                                                   repo_info)
-                logger.warn("Skipping unsupported repo: {} {}".format(
-                    transformer.repo_url,
-                    transformer.branch))
-                return
-
-            transformed_data = transformer.transform(repo.name)
-
-            logger.info("Storing resultset for {} {} {}".format(
-                repo.name,
+        except ObjectDoesNotExist:
+            repo_info = transformer.get_info()
+            repo_info.update({
+                "url": transformer.repo_url,
+                "branch": transformer.branch,
+            })
+            newrelic.agent.record_custom_event("skip_unknown_repository",
+                                               repo_info)
+            logger.warn("Skipping unsupported repo: {} {}".format(
                 transformer.repo_url,
                 transformer.branch))
-            store_result_set_data(repo, [transformed_data])
+            return
 
-        except Exception as ex:
-            newrelic.agent.record_exception(exc=ex)
-            logger.exception("Error transforming resultset", exc_info=ex)
+        transformed_data = transformer.transform(repo.name)
+
+        logger.info("Storing resultset for {} {} {}".format(
+            repo.name,
+            transformer.repo_url,
+            transformer.branch))
+        store_result_set_data(repo, [transformed_data])
 
     def get_transformer_class(self, exchange):
         if "github" in exchange:
@@ -73,6 +71,15 @@ class GithubTransformer:
 
     def get_branch(self):
         return self.message_body["details"]["event.base.repo.branch"]
+
+    def get_info(self):
+        # flatten the data a bit so it will show in new relic as fields
+        info = self.message_body["details"].copy()
+        info.update({
+            "organization": self.message_body["organization"],
+            "repository": self.message_body["repository"]
+        })
+        return info
 
     def fetch_resultset(self, url, repository, sha=None):
         params = {"sha": sha} if sha else {}
@@ -222,6 +229,9 @@ class HgPushTransformer:
         self.message_body = message_body
         self.repo_url = message_body["payload"]["repo_url"]
         self.branch = None
+
+    def get_info(self):
+        return self.message_body["payload"]
 
     def transform(self, repository):
         logger.info("transforming for {}".format(repository))
