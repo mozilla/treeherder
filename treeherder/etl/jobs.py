@@ -251,32 +251,39 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
     # exist yet)
     job_guid_root = get_guid_root(job_guid)
     if not Job.objects.filter(guid__in=[job_guid, job_guid_root]).exists():
-        # this could theoretically throw an exception if we were processing
-        # several updates simultaneously, but that should never happen --
-        # and if it does it's better just to error out
-        Job.objects.create(
+        # This could theoretically already have been created by another process
+        # that is running updates simultaneously.  So just attempt to create
+        # it, but allow it to skip if it's the same guid.  The odds are
+        # extremely high that this is a pending and running job that came in
+        # quick succession and are being processed by two different workers.
+        Job.objects.get_or_create(
             guid=job_guid,
-            repository=repository,
-            signature=signature,
-            build_platform=build_platform,
-            machine_platform=machine_platform,
-            machine=machine,
-            option_collection_hash=option_collection_hash,
-            job_type=job_type,
-            product=product,
-            failure_classification=default_failure_classification,
-            who=who,
-            reason=reason,
-            result=result,
-            state=state,
-            tier=tier,
-            submit_time=submit_time,
-            start_time=start_time,
-            end_time=end_time,
-            last_modified=datetime.now(),
-            running_eta=duration,
-            push_id=push_id)
-
+            defaults={
+                "repository": repository,
+                "signature": signature,
+                "build_platform": build_platform,
+                "machine_platform": machine_platform,
+                "machine": machine,
+                "option_collection_hash": option_collection_hash,
+                "job_type": job_type,
+                "product": product,
+                "failure_classification": default_failure_classification,
+                "who": who,
+                "reason": reason,
+                "result": result,
+                "state": state,
+                "tier": tier,
+                "submit_time": submit_time,
+                "start_time": start_time,
+                "end_time": end_time,
+                "last_modified": datetime.now(),
+                "running_eta": duration,
+                "push_id": push_id
+            }
+        )
+    # Can't just use the ``job`` we would get from the ``get_or_create``
+    # because we need to try the job_guid_root instance first for update,
+    # rather than a possible retry job instance.
     try:
         job = Job.objects.get(guid=job_guid_root)
     except ObjectDoesNotExist:
