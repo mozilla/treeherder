@@ -15,7 +15,7 @@ PYTHON_DIR="$HOME/python"
 
 cd "$SRC_DIR"
 
-ELASTICSEARCH_VERSION="5.3.1"
+ELASTICSEARCH_VERSION="5.5.0"
 PYTHON_VERSION="$(cat runtime.txt | sed 's/python-//')"
 PIP_VERSION="9.0.1"
 
