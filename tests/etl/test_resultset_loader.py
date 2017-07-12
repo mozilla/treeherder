@@ -7,7 +7,9 @@ import responses
 from treeherder.etl.resultset_loader import (GithubPullRequestTransformer,
                                              GithubPushTransformer,
                                              HgPushTransformer,
+                                             PulseResultsetError,
                                              ResultsetLoader)
+from treeherder.model.models import Push
 
 
 @pytest.fixture
@@ -93,6 +95,12 @@ def test_get_transformer_class(exchange, transformer_class):
     assert rsl.get_transformer_class(exchange) == transformer_class
 
 
+def test_unsupported_exchange():
+    with pytest.raises(PulseResultsetError):
+        rsl = ResultsetLoader()
+        rsl.get_transformer_class("meh")
+
+
 def test_ingest_github_pull_request(test_repository, github_pr, transformed_github_pr,
                                     mock_github_pr_commits):
     xformer = GithubPullRequestTransformer(github_pr)
@@ -114,15 +122,17 @@ def test_ingest_hg_push(test_repository, hg_push, transformed_hg_push,
     assert transformed_hg_push == resultset
 
 
+@pytest.mark.django_db
 def test_ingest_hg_push_bad_repo(hg_push):
-    """Test that a message from an unknown HG repo doesn't throw an error"""
+    """Test graceful handling of an unknown HG repo"""
     hg_push["payload"]["repo_url"] = "https://bad.repo.com"
     ResultsetLoader().process(hg_push, "exchange/hgpushes/v1")
-    # No exception here means it passed.
+    assert Push.objects.count() == 0
 
 
+@pytest.mark.django_db
 def test_ingest_github_push_bad_repo(github_push):
-    """Test that a message from an unknown GH repo doesn't throw an error"""
+    """Test graceful handling of an unknown GH repo"""
     github_push["details"]["event.head.repo.url"] = "https://bad.repo.com"
-    ResultsetLoader().process(hg_push, "exchange/taskcluster-github/v1/push")
-    # No exception here means it passed.
+    ResultsetLoader().process(github_push, "exchange/taskcluster-github/v1/push")
+    assert Push.objects.count() == 0
