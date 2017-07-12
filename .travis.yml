@@ -71,7 +71,7 @@ matrix:
       services:
         - rabbitmq
       before_install:
-        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.1.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
+        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
         - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
         - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
@@ -107,7 +107,7 @@ matrix:
       services:
         - rabbitmq
       before_install:
-        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.1.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
+        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
         - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
         - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
@@ -137,7 +137,7 @@ matrix:
       services:
         - rabbitmq
       before_install:
-        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.1.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
+        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
         - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
         - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
@@ -169,7 +169,7 @@ matrix:
       services:
         - rabbitmq
       before_install:
-        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.1.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
+        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
         - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
         - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
