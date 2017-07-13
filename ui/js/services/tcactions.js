@@ -58,7 +58,12 @@ treeherder.factory('actionsRender', function () {
             return context[value['$eval']];
         }
 
-        // Replace {$dumps: value} with JSON.stringify(value)
+        // Replace {$json: value} with JSON.stringify(value)
+        if (value['$json']) {
+            return JSON.stringify(render(value['$json'], context));
+        }
+
+        // Replace deprecated {$dumps: value} with JSON.stringify(value)
         if (value['$dumps']) {
             return JSON.stringify(render(value['$dumps'], context));
         }
