@@ -176,8 +176,8 @@ to { opacity: 0; }
 }
 
 .test-chooser {
-  flex: auto;
-  width: 280px;
+  flex: none;
+  width: 320px;
 }
 
 .btn-group-vertical {
@@ -197,9 +197,8 @@ to { opacity: 0; }
 }
 
 .test-list-container .form-control {
-  flex: none;
   height: 345px;
-  width: 480px;
+  width: 100%;
 }
 
 .choose-test-list {
