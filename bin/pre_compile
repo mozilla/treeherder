@@ -4,14 +4,12 @@
 # Make non-zero exit codes & other errors fatal.
 set -euo pipefail
 
-VENDOR_DIR=".heroku/vendor"
+VENDOR_DIR="$BUILD_DIR/.heroku/vendor"
 
-# Hacks to work around pre_compile being run before cache is restored.
-# Remove when this PR is merged:
-# https://github.com/heroku/heroku-buildpack-python/pull/321
-VENDOR_DIR="$CACHE_DIR/$VENDOR_DIR"
 mkdir -p "$VENDOR_DIR"
-export PATH="$CACHE_DIR/.heroku/python/bin:$VENDOR_DIR/bin:$PATH"
+# When `pre_compile` runs, the `/app/foo` locations (which are on PATH) are not yet
+# symlinked to their `/tmp/foo` `$BUILD_DIR` equivalents (which aren't on PATH).
+export PATH="$BUILD_DIR/.heroku/python/bin:$VENDOR_DIR/bin:$PATH"
 
 ./bin/vendor-libmysqlclient.sh "$VENDOR_DIR"
 
