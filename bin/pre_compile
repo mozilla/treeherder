@@ -4,6 +4,11 @@
 # Make non-zero exit codes & other errors fatal.
 set -euo pipefail
 
+if [[ "$STACK" == "heroku-16" ]]; then
+    # Skip vendoring libmysqlclient on Heroku-16 since it's already new enough.
+    exit 0
+fi
+
 VENDOR_DIR="$BUILD_DIR/.heroku/vendor"
 
 mkdir -p "$VENDOR_DIR"
