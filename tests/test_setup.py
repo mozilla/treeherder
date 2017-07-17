@@ -1,3 +1,5 @@
+import os
+
 import MySQLdb
 import pytest
 import responses
@@ -10,6 +12,7 @@ from django.core.management import call_command
 from treeherder.etl.common import fetch_text
 
 
+@pytest.mark.xfail('TRAVIS' in os.environ, reason='bug 1378433', strict=True)
 def test_mysqlclient_tls_enforced():
     """
     Test that if a CA certificate is specified, the connection won't fall back to
