@@ -19,9 +19,10 @@
   {{input.selectedAction.jsonPayload}}
 </div>
 <div class="modal-footer">
-  <button class="btn btn-primary" ng-click="triggerAction()" ng-attr-title="{{user.loggedin ? 'Trigger this action' : 'Not logged in'}}" ng-disabled="triggering || !user.loggedin">
+  <button ng-if="user.loggedin" class="btn btn-primary" ng-click="triggerAction()" ng-attr-title="{{user.loggedin ? 'Trigger this action' : 'Not logged in'}}" ng-disabled="triggering">
     <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
     <span ng-if="triggering">Triggering</span>
     <span ng-if="!triggering">Trigger</span>
   </button>
+  <p ng-if="!user.loggedin" class="help-block">Custom actions require login</p>
 </div>
