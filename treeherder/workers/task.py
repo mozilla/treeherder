@@ -55,10 +55,10 @@ class retryable_task(object):
                 # that the original exception is shown verbatim immediately, and then filter
                 # out the automatic `celery.exceptions:Retry` exceptions via the web UI. See:
                 # https://docs.newrelic.com/docs/agents/python-agent/back-end-services/python-agent-celery#ignoring-task-retry-errors
-                params = {
-                    "number_of_prior_retries": number_of_prior_retries,
-                }
                 if not any(isinstance(e, x) for x in self.HIDE_DURING_RETRIES):
+                    params = {
+                        "number_of_prior_retries": number_of_prior_retries,
+                    }
                     newrelic.agent.record_exception(params=params)
                 # Implement exponential backoff with some randomness to prevent
                 # thundering herd type problems. Constant factor chosen so we get
