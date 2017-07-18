@@ -57,7 +57,7 @@ treeherder.controller('BugFilerCtrl', [
 
             // Auto-block the stylo-bustage metabug if this is a stylo failure
             if (selectedJob.build_platform.includes("stylo")) {
-                $scope.modalBlocks = "stylo-bustage,";
+                $scope.modalBlocks = "1381405,";
             }
 
             for (var i = 0; i < allFailures.length; i++) {
