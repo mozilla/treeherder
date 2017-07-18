@@ -8,6 +8,8 @@ from celery import task
 from django.db.utils import (IntegrityError,
                              ProgrammingError)
 
+from treeherder.etl.job_loader import MissingPushException
+
 
 class retryable_task(object):
     """Wrapper around a celery task to add conditional task retrying."""
@@ -21,6 +23,13 @@ class retryable_task(object):
         jsonschema.ValidationError,
         # eg during log decompression
         zlib.error,
+    )
+
+    # For these exceptions, we expect a certain amount of retries
+    # but to report each one is just noise.  So don't raise to
+    # New Relic until the retries have been exceeded.
+    HIDE_DURING_RETRIES = (
+        MissingPushException,
     )
 
     def __init__(self, *args, **kwargs):
@@ -46,10 +55,11 @@ class retryable_task(object):
                 # that the original exception is shown verbatim immediately, and then filter
                 # out the automatic `celery.exceptions:Retry` exceptions via the web UI. See:
                 # https://docs.newrelic.com/docs/agents/python-agent/back-end-services/python-agent-celery#ignoring-task-retry-errors
-                params = {
-                    "number_of_prior_retries": number_of_prior_retries,
-                }
-                newrelic.agent.record_exception(params=params)
+                if not any(isinstance(e, x) for x in self.HIDE_DURING_RETRIES):
+                    params = {
+                        "number_of_prior_retries": number_of_prior_retries,
+                    }
+                    newrelic.agent.record_exception(params=params)
                 # Implement exponential backoff with some randomness to prevent
                 # thundering herd type problems. Constant factor chosen so we get
                 # reasonable pause between the fastest retries.
