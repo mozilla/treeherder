@@ -73,6 +73,7 @@ def test_create_crash_bug(webapp, eleven_jobs_stored, activate_responses, test_u
         assert requestdata['keywords'] == ["intermittent-failure", "crash"]
         assert requestdata['cf_crash_signature'] == "[@crashsig]"
         assert requestdata['severity'] == 'critical'
+        assert requestdata['priority'] == 'P5'
         resp_body = {"id": 323}
         return(200, headers, json.dumps(resp_body))
 
@@ -96,6 +97,7 @@ def test_create_crash_bug(webapp, eleven_jobs_stored, activate_responses, test_u
             "comment_tags": "treeherder",
             "crash_signature": "[@crashsig]",
             "severity": "critical",
+            "priority": "P5",
             "keywords": ["intermittent-failure", "crash"],
         }
     )

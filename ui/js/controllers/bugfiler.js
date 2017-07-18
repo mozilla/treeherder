@@ -340,6 +340,7 @@ treeherder.controller('BugFilerCtrl', [
             var keywords = $scope.isIntermittent ? ["intermittent-failure"] : [];
 
             var severity = "normal";
+            var priority = "P5";
             var blocks = $scope.modalBlocks;
             var dependsOn = $scope.modalDependsOn;
             var seeAlso = $scope.modalSeeAlso;
@@ -375,6 +376,7 @@ treeherder.controller('BugFilerCtrl', [
                             "see_also": seeAlso,
                             "crash_signature": crashSignature,
                             "severity": severity,
+                            "priority": priority,
                             "comment": descriptionStrings,
                             "comment_tags": "treeherder"
                         }
