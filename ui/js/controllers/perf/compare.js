@@ -472,9 +472,12 @@ perf.controller('CompareResultsCtrl', [
             $scope.newProject = ThRepositoryModel.getRepo(
                 $stateParams.newProject);
             $scope.newRevision = $stateParams.newRevision;
+
+            // always need to verify the new revision, only sometimes the original
+            let verifyPromises = [verifyRevision($scope.newProject, $scope.newRevision, "new")];
             if ($stateParams.originalRevision) {
                 $scope.originalRevision = $stateParams.originalRevision;
-                verifyRevision($scope.originalProject, $scope.originalRevision, "original");
+                verifyPromises.push(verifyRevision($scope.originalProject, $scope.originalRevision, "original"));
             }
             else {
                 $scope.timeRanges = phTimeRanges;
@@ -482,8 +485,7 @@ perf.controller('CompareResultsCtrl', [
                     value: ($stateParams.selectedTimeRange) ? parseInt($stateParams.selectedTimeRange) : compareBaseLineDefaultTimeRange
                 });
             }
-
-            verifyRevision($scope.newProject, $scope.newRevision, "new").then(function () {
+            $q.all(verifyPromises).then(function () {
                 if ($scope.errors.length > 0) {
                     $scope.dataLoading = false;
                     return;
@@ -635,9 +637,11 @@ perf.controller('CompareSubtestResultsCtrl', [
             $scope.originalSignature = $stateParams.originalSignature;
             $scope.newSignature = $stateParams.newSignature;
 
+            // always need to verify the new revision, only sometimes the original
+            let verifyPromises = [verifyRevision($scope.newProject, $scope.newRevision, "new")];
             if ($stateParams.originalRevision) {
                 $scope.originalRevision = $stateParams.originalRevision;
-                verifyRevision($scope.originalProject, $scope.originalRevision, "original");
+                verifyPromises.push(verifyRevision($scope.originalProject, $scope.originalRevision, "original"));
             }
             else {
                 $scope.timeRanges = phTimeRanges;
@@ -646,7 +650,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                 });
             }
 
-            verifyRevision($scope.newProject, $scope.newRevision, "new").then(function () {
+            $q.all(verifyPromises).then(function () {
                 $scope.pageList = [];
 
                 if ($scope.errors.length > 0) {
