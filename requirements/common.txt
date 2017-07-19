@@ -203,8 +203,8 @@ idna==2.5 --hash=sha256:cc19709fd6d0cbfed39ea875d29ba6d4e22c0cebc510a76d6302a283
 slugid==1.0.7 --hash=sha256:6dab3c7eef0bb423fb54cb7752e0f466ddd0ee495b78b763be60e8a27f69e779
 
 # Used for Taskcluster auth
-taskcluster==1.3.3 \
-    --hash=sha256:8874b556fe0cd815c5cf9509f263a323b0ab91a680edfe9afdab04ca65ff1375
+taskcluster==1.3.4 \
+    --hash=sha256:c0bbaa680aed4e502c370d24258c85e6ea7a891fd090ac6af66356e0e9a459fc
 
 graphene-django==1.3 \
     --hash=sha256:6679eaa73768a760aef76e1860a4ca3273db4213f0505dc13cdfa44278e027fc
