@@ -19,9 +19,12 @@ class ResultsetLoader:
     def process(self, message_body, exchange):
         transformer = self.get_transformer_class(exchange)(message_body)
         try:
+            newrelic.agent.add_custom_parameter("url", transformer.repo_url)
+            newrelic.agent.add_custom_parameter("branch", transformer.branch)
             repo = Repository.objects.get(url=transformer.repo_url,
                                           branch=transformer.branch,
                                           active_status="active")
+            newrelic.agent.add_custom_parameter("repository", repo.name)
 
         except ObjectDoesNotExist:
             repo_info = transformer.get_info()
@@ -86,34 +89,29 @@ class GithubTransformer:
         params.update(self.CREDENTIALS)
 
         logger.info("Fetching resultset details: {}".format(url))
-        try:
-            commits = self.get_cleaned_commits(fetch_json(url, params))
-            head_commit = commits[-1]
-            resultset = {
-                "revision": head_commit["sha"],
-                "push_timestamp": to_timestamp(
-                    head_commit["commit"]["author"]["date"]),
-                "author": head_commit["commit"]["author"]["email"],
-            }
+        newrelic.agent.add_custom_parameter("sha", sha)
 
-            revisions = []
-            for commit in commits:
-                revisions.append({
-                    "comment": commit["commit"]["message"],
-                    "author": "{} <{}>".format(
-                        commit["commit"]["author"]["name"],
-                        commit["commit"]["author"]["email"]),
-                    "revision": commit["sha"]
-                })
+        commits = self.get_cleaned_commits(fetch_json(url, params))
+        head_commit = commits[-1]
+        resultset = {
+            "revision": head_commit["sha"],
+            "push_timestamp": to_timestamp(
+                head_commit["commit"]["author"]["date"]),
+            "author": head_commit["commit"]["author"]["email"],
+        }
 
-            resultset["revisions"] = revisions
-            return resultset
+        revisions = []
+        for commit in commits:
+            revisions.append({
+                "comment": commit["commit"]["message"],
+                "author": "{} <{}>".format(
+                    commit["commit"]["author"]["name"],
+                    commit["commit"]["author"]["email"]),
+                "revision": commit["sha"]
+            })
 
-        except Exception as ex:
-            logger.exception("Error fetching commits", exc_info=ex)
-            newrelic.agent.record_exception(ex, params={
-                "url": url, "repository": repository, "sha": sha
-                })
+        resultset["revisions"] = revisions
+        return resultset
 
     def get_cleaned_commits(self, commits):
         """Allow a subclass to change the order of the commits"""
@@ -239,8 +237,6 @@ class HgPushTransformer:
         return self.fetch_resultset(url, repository)
 
     def fetch_resultset(self, url, repository, sha=None):
-        newrelic.agent.add_custom_parameter("url", url)
-        newrelic.agent.add_custom_parameter("repository", repository)
         newrelic.agent.add_custom_parameter("sha", sha)
 
         logger.info("fetching for {} {}".format(repository, url))
