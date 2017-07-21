@@ -12,7 +12,7 @@ treeherder.factory('ThUserModel', [
             angular.extend(this, data);
         };
 
-        ThUserModel.get_uri = function () {return thUrl.getRootUrl("/user/");};
+        ThUserModel.get_uri = function () { return thUrl.getRootUrl("/user/"); };
 
         ThUserModel.get = function () {
             // a static method to retrieve a single instance of ThUserModel

@@ -164,7 +164,7 @@ treeherder.factory('thJobFilters', [
                         fieldFilters[_withoutPrefix(field)] = decodeURIComponent(values).replace(/ +(?= )/g, ' ').toLowerCase().split(' ');
                     } else {
                         var lowerVals = _.map(_toArray(values),
-                                              function (v) {return String(v).toLowerCase();});
+                                              function (v) { return String(v).toLowerCase(); });
                         fieldFilters[_withoutPrefix(field)] = lowerVals;
                     }
                 }

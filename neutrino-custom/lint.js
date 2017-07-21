@@ -26,8 +26,16 @@ module.exports = neutrino => {
                     }
                 },
                 extends: 'eslint:recommended',
-                rules: {
+              rules: {
+                    'arrow-body-style': ['error', 'as-needed', {
+                        requireReturnForObjectLiteral: false,
+                    }],
+                    'arrow-parens': ['error', 'as-needed', {
+                        requireForBlockBody: true,
+                    }],
+                    'arrow-spacing': ['error', { before: true, after: true }],
                     'accessor-pairs': 'error',
+                    'block-spacing': ['error', 'always'],
                     'comma-spacing': 'error',
                     'comma-style': 'error',
                     'eol-last': 'error',

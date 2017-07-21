@@ -223,7 +223,7 @@ treeherder.controller('BugFilerCtrl', [
                         // Bug 1358328 - We need to override headers here until DXR returns JSON with the default Accept header
                         $http.get(dxrlink, {"headers": {
                             "Accept": "application/json"
-                        }}).then(secondRequest => {
+                        }}).then((secondRequest) => {
                             const results = secondRequest.data.results;
                             var resultsCount = results.length;
                             // If the search returns too many results, this probably isn't a good search term, so bail
@@ -231,10 +231,10 @@ treeherder.controller('BugFilerCtrl', [
                                 $scope.searching = false;
                                 injectProducts(failurePath);
                             }
-                            results.forEach(result => {
+                            results.forEach((result) => {
                                 $scope.searching = "DXR & Mercurial";
                                 $http.get(`${hgBaseUrl}mozilla-central/json-mozbuildinfo?p=${result.path}`)
-                                    .then(thirdRequest => {
+                                    .then((thirdRequest) => {
                                         if (thirdRequest.data.aggregate && thirdRequest.data.aggregate.recommended_bug_component) {
                                             const suggested = thirdRequest.data.aggregate.recommended_bug_component;
                                             addProduct(suggested[0] + " :: " + suggested[1]);

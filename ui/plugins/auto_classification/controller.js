@@ -16,7 +16,7 @@ treeherder.factory('thStringOverlap', function () {
                 })
                 .map(function (str) {
                     // Split into tokens on whitespace / ,  and |
-                    return str.split(/[\s\/\,|]+/).filter(function (x) {return x !== "";});
+                    return str.split(/[\s\/\,|]+/).filter(function (x) { return x !== ""; });
                 });
 
         if (tokens[0].length === 0 || tokens[1].length === 0) {
@@ -24,7 +24,7 @@ treeherder.factory('thStringOverlap', function () {
         }
 
         var tokenCounts = tokens.map(function (tokens) {
-            return _.countBy(tokens, function (x) {return x;});
+            return _.countBy(tokens, function (x) { return x; });
         });
 
         var overlap = Object.keys(tokenCounts[0])
@@ -53,7 +53,7 @@ treeherder.factory('ThErrorLineData', [
             this.verified = !!line.metadata.best_is_verified;
             this.bestClassification = line.metadata.best_classification ?
                 line.classified_failures
-                .find((cf) => cf.id === line.metadata.best_classification) : null;
+                .find(cf => cf.id === line.metadata.best_classification) : null;
             this.bugNumber = this.bestClassification ?
                 this.bestClassification.bug_number : null;
             this.verifiedIgnore = this.verified && (this.bugNumber === 0 ||
@@ -302,7 +302,7 @@ treeherder.controller('ThErrorLineController', [
          * @param {Object[]} options - List of options
          */
         $scope.hasHidden = function (options) {
-            return options.some((option) => option.hidden);
+            return options.some(option => option.hidden);
         };
 
         /**
@@ -353,8 +353,8 @@ treeherder.controller('ThErrorLineController', [
             var classificationMatches = getClassifiedFailureMatcher();
 
             var autoclassifyOptions = line.data.classified_failures
-                    .filter((cf) => cf.bug_number !== 0)
-                    .map((cf) => new ThClassificationOption("classifiedFailure",
+                    .filter(cf => cf.bug_number !== 0)
+                    .map(cf => new ThClassificationOption("classifiedFailure",
                                                             line.id + "-" + cf.id,
                                                             cf.id,
                                                             cf.bug_number,
@@ -367,8 +367,8 @@ treeherder.controller('ThErrorLineController', [
                             new Set());
 
             var bugSuggestionOptions = bugSuggestions
-                    .filter((bug) => !autoclassifiedBugs.has(bug.id))
-                    .map((bugSuggestion) => new ThClassificationOption("unstructuredBug",
+                    .filter(bug => !autoclassifiedBugs.has(bug.id))
+                    .map(bugSuggestion => new ThClassificationOption("unstructuredBug",
                                                                        line.id + "-" + "ub-" + bugSuggestion.id,
                                                                        null,
                                                                        bugSuggestion.id,
@@ -383,7 +383,7 @@ treeherder.controller('ThErrorLineController', [
             if (!bestIsIgnore()) {
                 var bestIndex = line.bestClassification ?
                         autoclassifyOptions
-                        .findIndex((option) => option.classifiedFailureId === line.bestClassification.id) : -1;
+                        .findIndex(option => option.classifiedFailureId === line.bestClassification.id) : -1;
 
                 if (bestIndex > -1) {
                     bestOption = autoclassifyOptions[bestIndex];
@@ -440,7 +440,7 @@ treeherder.controller('ThErrorLineController', [
                     if (option.type === "classifiedFailure") {
                         score = parseFloat(
                             data.matches.find(
-                                (x) => x.classified_failure === option.classifiedFailureId).score);
+                                x => x.classified_failure === option.classifiedFailureId).score);
                     } else {
                         score = thStringOverlap(data.bug_suggestions.search,
                                                 option.bugSummary.replace(/^\s*Intermittent\s+/, ""));
@@ -642,7 +642,7 @@ treeherder.controller('ThErrorLineController', [
                 id = line.id + "-manual";
             } else {
                 var idx = parseInt(option);
-                var selectableOptions = $scope.options.filter((option) => option.selectable);
+                var selectableOptions = $scope.options.filter(option => option.selectable);
                 if (selectableOptions[idx]) {
                     id = selectableOptions[idx].id;
                 }
@@ -907,7 +907,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
             $scope.errorMatchers = data.matchers;
             loadData(data.error_lines);
             $scope.errorLines
-                .forEach((line) => stateByLine.set(
+                .forEach(line => stateByLine.set(
                     line.id, {
                         classifiedFailureId: null,
                         bugNumber: null,
@@ -933,7 +933,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
                         }
                     });
             }
-            $scope.$evalAsync(() => {ctrl.loadStatus = "ready";});
+            $scope.$evalAsync(() => { ctrl.loadStatus = "ready"; });
         }
 
         /**
@@ -963,7 +963,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
             linesById = lines
                 .reduce((byId, line) => {
                     byId.set(line.id, new ThErrorLineData(line));
-                    return byId;}, linesById);
+                    return byId; }, linesById);
             $scope.errorLines = Array.from(linesById.values());
             // Resort the lines to allow for in-place updates
             $scope.errorLines.sort((a, b) => a.data.id - b.data.id);
@@ -1056,7 +1056,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
 
         ctrl.onToggleEditable = function () {
             var selectedIds = Array.from(ctrl.selectedLineIds);
-            var editable = selectedIds.some((id) => !ctrl.editableLineIds.has(id));
+            var editable = selectedIds.some(id => !ctrl.editableLineIds.has(id));
             setEditable(selectedIds, editable);
         };
 
@@ -1073,8 +1073,8 @@ treeherder.controller('ThAutoclassifyPanelController', [
         };
 
         function setEditable(lineIds, editable) {
-            var f = editable ? (lineId) => ctrl.editableLineIds.add(lineId):
-                    (lineId) => ctrl.editableLineIds.delete(lineId);
+            var f = editable ? lineId => ctrl.editableLineIds.add(lineId):
+                    lineId => ctrl.editableLineIds.delete(lineId);
             lineIds.forEach(f);
         }
 
@@ -1142,7 +1142,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
             } else if (indexes.some(x => x === "prevJob" || x === "nextJob")) {
                 return;
             }
-            var lineIds = indexes.map((idx) => selectable[idx].id);
+            var lineIds = indexes.map(idx => selectable[idx].id);
             ctrl.onToggleSelect(lineIds, clear);
             $scope.$evalAsync(
                 () => $("th-autoclassify-errors th-error-line")[indexes[0]]
@@ -1220,17 +1220,17 @@ treeherder.controller('ThAutoclassifyPanelController', [
         /**
          * Lines that haven't yet been saved.
          */
-        $scope.pendingLines = lineFilterFunc((line) => line.verified === false);
+        $scope.pendingLines = lineFilterFunc(line => line.verified === false);
 
         /**
          * Lines that are selected
          */
-        $scope.selectedLines = lineFilterFunc((line) => ctrl.selectedLineIds.has(line.id));
+        $scope.selectedLines = lineFilterFunc(line => ctrl.selectedLineIds.has(line.id));
 
         /**
          * Lines that can be selected
          */
-        var selectableLines = lineFilterFunc((line) => !line.verified);
+        var selectableLines = lineFilterFunc(line => !line.verified);
 
         function lineFilterFunc(filterFunc) {
             return () => {
