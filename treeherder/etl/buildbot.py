@@ -567,6 +567,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'talos perf-reftest-singletons-e10s$'), "name": "Talos perf-reftest-singletons e10s"},
     {"regex": re.compile(r'talos perf-reftest$'), "name": "Talos perf-reftest"},
     {"regex": re.compile(r'talos quantum-pageload-e10s$'), "name": "Talos quantum-pageload e10s"},
+    {"regex": re.compile(r'talos quantum-pageload-stylo-e10s$'), "name": "Talos quantum-pageload-stylo e10s"},
     # ** Unit tests **
     {"regex": re.compile(r'mozbase$'), "name": "Mozbase Unit Tests"},
     {"regex": re.compile(r'mochitest-csb'), "name": "Mochitest csb"},
@@ -909,6 +910,7 @@ GROUP_NAMES = {
     "Talos perf-reftest e10s": "Talos Performance e10s",
     "Talos perf-reftest-singletons e10s": "Talos Performance e10s",
     "Talos quantum-pageload e10s": "Talos Performance e10s",
+    "Talos quantum-pageload-stylo e10s": "Talos Performance e10s",
     "Update Verify": "Release Promotion",
     "Uptake Monitoring": "Release Promotion",
     "Checksums Builder": "Release Promotion",
@@ -1159,6 +1161,7 @@ SYMBOLS = {
     "Talos perf-reftest e10s": "p",
     "Talos perf-reftest-singletons e10s": "ps",
     "Talos quantum-pageload e10s": "q1",
+    "Talos quantum-pageload-stylo e10s": "q1s",
     # Release Promotion Related Jobs
     "Release Promotion": "Release",
     "Uptake Monitoring": "up-m",
