@@ -125,7 +125,7 @@ treeherder.filter('highlightLogLine', function () {
 treeherder.filter('highlightCommonTerms', function () {
     return function (input) {
         var compareStr = Array.prototype.slice.call(arguments, 1).filter(
-            function (x) {return x;}).join(" ");
+            function (x) { return x; }).join(" ");
         var tokens = compareStr.split(/[^a-zA-Z0-9_-]+/);
         tokens.sort(function (a, b) {
             return b.length - a.length;

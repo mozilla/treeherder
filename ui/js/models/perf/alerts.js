@@ -75,10 +75,10 @@ treeherder.factory('PhAlerts', [
         AlertSummary.prototype.getTextualSummary = function (copySummary) {
             var resultStr = "";
             var improved = _.sortBy(_.filter(this.alerts, function (alert) {
-                return !alert.is_regression && alert.visible;}),
+                return !alert.is_regression && alert.visible; }),
             'amount_pct').reverse();
             var regressed = _.sortBy(_.filter(this.alerts, function (alert) {
-                return alert.is_regression && alert.visible && !alert.isInvalid();}),
+                return alert.is_regression && alert.visible && !alert.isInvalid(); }),
             'amount_pct').reverse();
 
             var formatAlert = function (alert, alertList) {

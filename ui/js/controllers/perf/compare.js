@@ -894,17 +894,12 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
                     }
                     const numRuns = perfDatumList[subtestSignature].length;
                     let replicatePromises = perfDatumList[subtestSignature].map(
-                        (value) => {return PhSeries.getReplicateData({job_id: value.job_id});
-                        });
+                        value => PhSeries.getReplicateData({job_id: value.job_id}));
                     return $q.all(replicatePromises).then((replicateData) => {
                         let replicateValues = replicateData.concat.apply([],
                                 replicateData.map((data) => {
-                                    let testSuite = data.suites.find((suite) => {
-                                        return suite.name === $scope.testSuite;
-                                    });
-                                    let subtest = testSuite.subtests.find((subtest) =>{
-                                        return subtest.name === $scope.subtest;
-                                    });
+                                    let testSuite = data.suites.find(suite => suite.name === $scope.testSuite);
+                                    let subtest = testSuite.subtests.find(subtest => subtest.name === $scope.subtest);
                                     return subtest.replicates;
                                 })
                             );
@@ -924,10 +919,10 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
                             target: `#${target}`
                         });
                     },
-                    () =>{
+                    () => {
                         replicateData.replicateDataError = true;
                     });
-                }).then(() =>{
+                }).then(() => {
                     if (replicateData.replicateDataError) {
                         metricsgraphics.data_graphic({
                             title: `${target} Replicates`,

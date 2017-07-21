@@ -325,7 +325,7 @@ treeherder.controller('PluginCtrl', [
         var getRevisionTips = function (projectName, list) {
             list.splice(0, list.length);
             var rsArr = ThResultSetStore.getResultSetsArray(projectName);
-            _.forEach(rsArr, rs => {
+            _.forEach(rsArr, (rs) => {
                 list.push({
                     revision: rs.revision,
                     author: rs.author,

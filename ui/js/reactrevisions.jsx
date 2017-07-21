@@ -1,6 +1,6 @@
 'use strict';
 
-const MoreRevisionsLink = (props) => (
+const MoreRevisionsLink = props => (
     <li>
         <a href={props.href}
            data-ignore-job-clear-on-click={true}
