@@ -10,6 +10,7 @@ require('font-awesome/css/font-awesome.css');
 require('./css/treeherder-navbar.css');
 require('./css/perf.css');
 require('./css/treeherder-loading-overlay.css');
+require('metrics-graphics/dist/metricsgraphics.css');
 
 // Vendor JS
 require('angular');
@@ -22,6 +23,7 @@ require('mousetrap');
 require('bootstrap/dist/js/bootstrap');
 require('angular-ui-bootstrap');
 require('numeral');
+require('metrics-graphics');
 require('./vendor/angular-clipboard.js');
 // The jquery flot package does not seem to be updated on npm, so we use a local version:
 require('./vendor/jquery.flot.js');

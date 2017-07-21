@@ -1,0 +1,16 @@
+<div class="container-fluid">
+	<div ng-show="dataLoading">
+      Loading all results, please wait a minute...
+      <img src="img/dancing_cat.gif" />
+    </div>
+    <div ng-show="!dataLoading">
+   	  <h2>{{platform}}: {{testName}} replicate distribution</h2>
+       <revision-information original-project="originalProject" original-revision="originalRevision" original-result-set="originalResultSet" new-project="newProject" new-revision="newRevision" new-result-set="newResultSet" selected-time-range="selectedTimeRange"></revision-information>
+       &nbsp;&nbsp;
+       <div ng-show="!(originalReplicateError && newReplicateError)"> 
+        <div id="Base" class="replicate-graph"></div>
+        <div id="New" class="replicate-graph"></div>
+      </div>
+    </div>
+    <p class="lead text-center" ng-show="originalReplicateError && newReplicateError">No results to show for these two revisions.</p>
+</div>
