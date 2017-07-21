@@ -55,7 +55,7 @@
     keywords: perf, regression
     default_component: Untriaged
     default_product: Firefox
-    cc_list: jmaher@mozilla.com, rwood@mozilla.com, bc@mozilla.com, ionut.goldan@softvision.ro
+    cc_list: jmaher@mozilla.com, rwood@mozilla.com, bob@bclary.com, ionut.goldan@softvision.ro
     text: |
       We have detected an autophone (Android) regression from push:
 
@@ -77,7 +77,7 @@
     keywords: perf, regression
     default_component: Untriaged
     default_product: Firefox
-    cc_list: jmaher@mozilla.com, rwood@mozilla.com, bc@mozilla.com, ionut.goldan@softvision.ro, erahm@mozilla.com
+    cc_list: jmaher@mozilla.com, rwood@mozilla.com, bob@bclary.com, ionut.goldan@softvision.ro, erahm@mozilla.com
     text: |
       We have detected an awsy regression from push:
 
