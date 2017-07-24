@@ -1979,7 +1979,7 @@ d3-zoom@1.2.0:
     d3-selection "1"
     d3-transition "1"
 
-d3@^4, d3@^4.9.1:
+d3@^4:
   version "4.9.1"
   resolved "https://registry.yarnpkg.com/d3/-/d3-4.9.1.tgz#f860be9252261a3c14eea64b1d2590d14f4db838"
   dependencies:

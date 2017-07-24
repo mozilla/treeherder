@@ -20,7 +20,6 @@
     "angular-ui-bootstrap": "1.3.3",
     "angular-ui-router": "0.4.2",
     "bootstrap": "3.3.7",
-    "d3": "^4.9.1",
     "deepmerge": "1.3.2",
     "font-awesome": "4.7.0",
     "hawk": "6.0.1",
