@@ -8,10 +8,11 @@ def capabilities(request, capabilities):
         capabilities['marionette'] = True
     return capabilities
 
-    
+
 @pytest.fixture(scope='session')
-def session_capabilities(session_capabilities):
-    session_capabilities.setdefault('tags', []).append('treeherder')
+def session_capabilities(pytestconfig, session_capabilities):
+    if pytestconfig.getoption('driver') == 'SauceLabs':
+        session_capabilities.setdefault('tags', []).append('treeherder')
     return session_capabilities
 
 
