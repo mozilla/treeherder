@@ -67,7 +67,7 @@ def _load_perf_datum(job, perf_datum):
             suite_extra_properties = {
                 'test_options': sorted(suite['extraOptions'])
             }
-            # store extraOptions list as comma-separated str
+            # store extraOptions list as space separated string
             suite_extra_options = ' '.join(sorted(suite['extraOptions']))
 
         summary_signature_hash = None
