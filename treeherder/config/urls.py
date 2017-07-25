@@ -29,5 +29,7 @@ if settings.GRAPHQL:
     from graphene_django.views import GraphQLView
     from treeherder.webapp.graphql.schema import schema
     urlpatterns += [
-        url(r'^graphql', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=schema))),
+        url(r'^graphql$',
+            csrf_exempt(GraphQLView.as_view(graphiql=True, schema=schema)),
+            name='graphql'),
     ]
