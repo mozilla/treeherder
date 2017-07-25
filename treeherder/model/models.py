@@ -673,13 +673,13 @@ class Job(models.Model):
     coalesced_to_guid = models.CharField(max_length=50, null=True,
                                          default=None)
     signature = models.ForeignKey(ReferenceDataSignatures)
-    build_platform = models.ForeignKey(BuildPlatform)
+    build_platform = models.ForeignKey(BuildPlatform, related_name='jobs')
     machine_platform = models.ForeignKey(MachinePlatform)
     machine = models.ForeignKey(Machine)
     option_collection_hash = models.CharField(max_length=64)
-    job_type = models.ForeignKey(JobType)
+    job_type = models.ForeignKey(JobType, related_name='jobs')
     product = models.ForeignKey(Product)
-    failure_classification = models.ForeignKey(FailureClassification)
+    failure_classification = models.ForeignKey(FailureClassification, related_name='jobs')
     who = models.CharField(max_length=50)
     reason = models.CharField(max_length=125)
     result = models.CharField(max_length=25)
@@ -883,7 +883,7 @@ class JobLog(models.Model):
                 (PARSED, 'parsed'),
                 (FAILED, 'failed'))
 
-    job = models.ForeignKey(Job)
+    job = models.ForeignKey(Job, related_name="job_log")
     name = models.CharField(max_length=50)
     url = models.URLField(max_length=255)
     status = models.IntegerField(choices=STATUSES, default=PENDING)
@@ -1091,7 +1091,7 @@ class FailureLine(models.Model):
     id = models.BigAutoField(primary_key=True)
     job_guid = models.CharField(max_length=50)
     repository = models.ForeignKey(Repository)
-    job_log = models.ForeignKey(JobLog, null=True)
+    job_log = models.ForeignKey(JobLog, null=True, related_name="failure_line")
     action = models.CharField(max_length=11, choices=ACTION_CHOICES)
     line = models.PositiveIntegerField()
     test = models.TextField(blank=True, null=True)
@@ -1489,7 +1489,7 @@ class TextLogStep(models.Model):
     """
     id = models.BigAutoField(primary_key=True)
 
-    job = models.ForeignKey(Job)
+    job = models.ForeignKey(Job, related_name="text_log_step")
 
     # these are presently based off of buildbot results
     # (and duplicated in treeherder/etl/buildbot.py)
