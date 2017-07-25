@@ -23,6 +23,10 @@ class SampleData(object):
             os.path.dirname(__file__)
         )
 
+        self.graphql_dir = "{0}/sample_data/graphql".format(
+            os.path.dirname(__file__)
+        )
+
         with open("{0}/sample_data/artifacts/text_log_summary.json".format(
                   os.path.dirname(__file__))) as f:
             self.text_log_summary = json.load(f)
@@ -75,3 +79,7 @@ class SampleData(object):
     def get_log_path(self, name):
         """Returns the full path to a log file"""
         return "{0}/{1}".format(self.logs_dir, name)
+
+    def get_graphql_path(self, name):
+        """Returns the full path to a log file"""
+        return "{0}/{1}".format(self.graphql_dir, name)
