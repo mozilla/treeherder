@@ -12,7 +12,7 @@
     </select>
     <p id="selectedActionHelp" class="help-block">{{input.selectedAction.description}}</p>
   </div>
-  <div class="form-group">
+  <div class="form-group" ng-if="input.selectedAction.schema">
     <label>JSON Payload</label>
      <textarea ng-model="input.jsonPayload" class="form-control" rows="5" spellcheck=false/>
   </div>
