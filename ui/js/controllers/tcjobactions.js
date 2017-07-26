@@ -16,7 +16,11 @@ treeherder.controller('TCJobActionsCtrl', [
         };
 
         $scope.updateSelectedAction = function () {
-            $scope.input.jsonPayload = JSON.stringify(jsonSchemaDefaults($scope.input.selectedAction.schema), null, 4);
+            if ($scope.input.selectedAction.schema) {
+                $scope.input.jsonPayload = JSON.stringify(jsonSchemaDefaults($scope.input.selectedAction.schema), null, 4);
+            } else {
+                $scope.input.jsonPayload = undefined;
+            }
         };
 
         $scope.triggerAction = function () {
@@ -29,7 +33,7 @@ treeherder.controller('TCJobActionsCtrl', [
                 taskGroupId: originalTask.taskGroupId,
                 taskId: job.taskcluster_metadata.task_id,
                 task: originalTask,
-                input: JSON.parse($scope.input.jsonPayload),
+                input: $scope.input.jsonPayload ? JSON.parse($scope.input.jsonPayload) : undefined,
             }, $scope.staticActionVariables));
 
             let queue = new tc.Queue();
