@@ -126,7 +126,7 @@ treeherder.controller('BugFilerCtrl', [
 
             summary = summary.split(" | ");
 
-            for (var i=0; i < $scope.omittedLeads.length; i++) {
+            for (var i=0; i < $scope.omittedLeads.length && summary.length > 1; i++) {
                 if (summary[0].search($scope.omittedLeads[i]) >= 0 && summary.length > 1) {
                     summary.shift();
                 }
@@ -134,7 +134,7 @@ treeherder.controller('BugFilerCtrl', [
 
             // Some of the TEST-FOO bits aren't removed from the summary,
             // so we sometimes end up with them instead of the test path here.
-            var summaryName = summary[0].startsWith("TEST-") ? summary[1] : summary[0];
+            var summaryName = summary[0].startsWith("TEST-") && summary.length > 1 ? summary[1] : summary[0];
             $uibModalInstance.possibleFilename = findFilename(summaryName);
 
             return [summary, $uibModalInstance.possibleFilename];
