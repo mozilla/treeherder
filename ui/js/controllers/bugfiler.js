@@ -126,8 +126,14 @@ treeherder.controller('BugFilerCtrl', [
 
             summary = summary.split(" | ");
 
-            for (var i=0; i < $scope.omittedLeads.length && summary.length > 1; i++) {
-                if (summary[0].search($scope.omittedLeads[i]) >= 0 && summary.length > 1) {
+            // If the search_terms used for finding bug suggestions
+            // contains any of the omittedLeads, that lead is needed
+            // for the full string match, so don't omit it in this case.
+            // If it's not needed, go ahead and omit it.
+            for (var i=0; i < $scope.omittedLeads.length; i++) {
+                if ($scope.search_terms.length > 0 && summary.length > 1 &&
+                    !$scope.search_terms[0].includes($scope.omittedLeads[i]) &&
+                    summary[0].search($scope.omittedLeads[i]) >= 0) {
                     summary.shift();
                 }
             }
