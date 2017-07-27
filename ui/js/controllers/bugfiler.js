@@ -365,6 +365,9 @@ treeherder.controller('BugFilerCtrl', [
                     return $http({
                         url: "api/bugzilla/create_bug/",
                         method: "POST",
+                        headers: {
+                            "Content-Type": "application/json; charset=utf-8"
+                        },
                         data: {
                             "product": productString,
                             "component": componentString,
