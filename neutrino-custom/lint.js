@@ -83,6 +83,7 @@ module.exports = neutrino => {
                     'no-undef-init': 'error',
                     'no-undef': 'error',
                     'no-unexpected-multiline': 'error',
+                    'no-unneeded-ternary': 'error',
                     'no-unused-expressions': 'error',
                     'no-unused-vars': 'error',
                     'no-useless-call': 'error',
