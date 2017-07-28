@@ -12,11 +12,9 @@
     </select>
     <p id="selectedActionHelp" class="help-block">{{input.selectedAction.description}}</p>
   </div>
-  <div class="form-group">
-    <label>JSON Payload</label>
-     <textarea ng-model="input.jsonPayload" class="form-control" rows="5" spellcheck=false/>
+  <div ng-if="actionSchema" class="form-group">
+    <form sf-schema="actionSchema" sf-form="actionForm" sf-model="actionModel"></form>
   </div>
-  {{input.selectedAction.jsonPayload}}
 </div>
 <div class="modal-footer">
   <button ng-if="user.loggedin" class="btn btn-primary" ng-click="triggerAction()" ng-attr-title="{{user.loggedin ? 'Trigger this action' : 'Not logged in'}}" ng-disabled="triggering">

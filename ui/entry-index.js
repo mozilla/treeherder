@@ -26,6 +26,8 @@ require('angular-cookies');
 require('angular-sanitize');
 require('angular-toarrayfilter');
 require('angular-local-storage');
+require('angular-schema-form');
+require('angular-schema-form-bootstrap');
 require('bootstrap/dist/js/bootstrap');
 require('angular-ui-bootstrap');
 require('mousetrap');

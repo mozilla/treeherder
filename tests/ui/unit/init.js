@@ -18,6 +18,8 @@ require('angular-sanitize');
 require('angular-cookies');
 require('angular-local-storage');
 require('angular-toarrayfilter');
+require('angular-schema-form');
+require('angular-schema-form-bootstrap');
 require('mousetrap');
 require('js-yaml');
 require('ngreact');
