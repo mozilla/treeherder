@@ -2,10 +2,10 @@
 
 treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
     '$q', '$interpolate', 'thUrl', 'thResultStatusObject', 'thEvents',
-    'thServiceDomain', 'ThLog', 'thNotify', 'ThJobModel', 'thTaskcluster', 'jsyaml',
+    'thServiceDomain', 'ThLog', 'thNotify', 'ThJobModel', 'thTaskcluster', 'actionsRender', 'jsyaml',
     function ($rootScope, $http, $location, $q, $interpolate, thUrl,
         thResultStatusObject, thEvents, thServiceDomain, ThLog, thNotify,
-        ThJobModel, thTaskcluster, jsyaml) {
+        ThJobModel, thTaskcluster, actionsRender, jsyaml) {
 
         var $log = new ThLog("ThResultSetModel");
 
@@ -233,6 +233,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                 let tc = thTaskcluster.client();
                 let queue = new tc.Queue();
                 let url;
+
                 try {
                     url = queue.buildSignedUrl(queue.getLatestArtifact,
                         decisionTaskID,
@@ -244,6 +245,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                     }
                     return $q.reject(new Error(errorMsg));
                 }
+
                 return $http.get(url).then(function (resp) {
                     let graph = resp.data;
 
@@ -269,35 +271,66 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                     });
 
                     return $q.all([
-                        $q.resolve().then(function () {
+                        $q.resolve().then(() => {
                             if (bbnames.length === 0) {
                                 return;
                             }
+
                             let bbdata = {
                                 "requested_jobs": bbnames,
                                 "decision_task_id": decisionTaskID
                             };
+
                             return $http.post(
                                 thUrl.getProjectUrl("/resultset/", repoName) + resultset_id + '/trigger_runnable_jobs/',
                                 bbdata
                             );
                         }),
-                        $q.resolve().then(function () {
+                        $q.resolve().then(() => {
                             if (tclabels.length === 0) {
                                 return;
                             }
-                            let url = queue.buildSignedUrl(queue.getLatestArtifact, decisionTaskID, 'public/action.yml');
-                            return $http.get(url).then(function (resp) {
-                                let action = resp.data;
-                                let template = $interpolate(action);
-                                let taskLabels = tclabels.join(',');
-                                action = template({
-                                    action: 'add-tasks',
-                                    action_args: `--decision-id ${decisionTaskID} --task-labels ${taskLabels}`,
+
+                            let actionTaskId = tc.slugid();
+                            let url = queue.buildSignedUrl(queue.getLatestArtifact, decisionTaskID, 'public/actions.json');
+
+                            return $http.get(url).then((resp) => {
+                                // Use action.yml if it's the wrong version of actions.json
+                                if (resp.data.version !== 1) {
+                                    url = queue.buildSignedUrl(queue.getLatestArtifact, decisionTaskID, 'public/action.yml');
+
+                                    return $http.get(url).then((resp) => {
+                                        let action = resp.data;
+                                        let template = $interpolate(action);
+                                        let taskLabels = tclabels.join(',');
+
+                                        action = template({
+                                            action: 'add-tasks',
+                                            action_args: `--decision-id ${decisionTaskID} --task-labels ${taskLabels}`,
+                                        });
+
+                                        let actionTask = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
+
+                                        return queue.createTask(actionTaskId, actionTask);
+                                    });
+                                }
+
+                                const action = resp.data.actions.filter(action => action.name === 'add-new-jobs')[0];
+                                const staticActionVariables = resp.data.variables;
+
+                                return $http.get(`https://queue.taskcluster.net/v1/task/${decisionTaskID}`).then((resp) => {
+                                    const originalTask = resp.data;
+
+                                    let actionTask = actionsRender(action.task, _.defaults({}, {
+                                        taskGroupId: originalTask.taskGroupId,
+                                        taskId: decisionTaskID,
+                                        task: originalTask,
+                                        input: { tasks: [...tclabels] },
+                                    }, staticActionVariables));
+
+
+                                    return queue.createTask(actionTaskId, actionTask);
                                 });
-                                let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
-                                let taskId = tc.slugid();
-                                return queue.createTask(taskId, task);
                             });
                         }),
                     ]);
