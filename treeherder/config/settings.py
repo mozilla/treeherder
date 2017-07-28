@@ -299,6 +299,7 @@ CELERYD_TASK_SOFT_TIME_LIMIT = 15 * 60
 CELERYD_TASK_TIME_LIMIT = CELERYD_TASK_SOFT_TIME_LIMIT + 30
 
 CELERYBEAT_SCHEDULE = {
+    # this is just a failsafe in case the Pulse ingestion misses something
     'fetch-push-logs-every-5-minutes': {
         'task': 'fetch-push-logs',
         'schedule': timedelta(minutes=5),
