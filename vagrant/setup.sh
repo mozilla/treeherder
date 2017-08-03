@@ -85,8 +85,6 @@ if [[ "$($PYTHON_DIR/bin/python --version 2>&1)" != *"$PYTHON_VERSION" ]]; then
     mkdir -p "$PYTHON_DIR"
     # Uses the Heroku Python buildpack's binaries for parity with production.
     curl -sSf "https://lang-python.s3.amazonaws.com/heroku-16/runtimes/python-$PYTHON_VERSION.tar.gz" | tar -xz -C "$PYTHON_DIR"
-    # Work around https://github.com/heroku/heroku-buildpack-python/issues/379
-    rm -rf "$PYTHON_DIR/lib/python2.7/site-packages/"*
 fi
 
 if [[ "$($PYTHON_DIR/bin/pip --version 2>&1)" != *"$PIP_VERSION"* ]]; then
